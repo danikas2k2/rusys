@@ -16,3 +16,11 @@ export interface LoadResponse {
     details?: Details;
     missing?: string[];
 }
+
+export interface Profile {
+    code?: string;
+    tokenId?: string;
+    email?: string;
+    imageUrl?: string;
+    name?: string;
+}

@@ -89,5 +89,5 @@ const PORT = process.env.PORT || config?.api?.port || 3001;
 const HOST = process.env.HOST || config?.api?.host || 'localhost';
 
 app.listen(+PORT, HOST, () => {
-    // console.log(`Server listening on ${PORT}`);
+    console.info(`Server listening on ${PORT}`);
 });

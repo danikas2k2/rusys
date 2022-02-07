@@ -1,4 +1,4 @@
-import config from '@config';
+import { api } from '@config';
 import MenuIcon from '@mui/icons-material/Menu';
 import { CircularProgress } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -24,7 +24,7 @@ export default function CellarTable() {
     const [missing, setMissing] = useState<string[]>([]);
 
     async function load(onLoad: () => void) {
-        const response = await fetch(`${config?.api?.href}/load`);
+        const response = await fetch(`${api?.href}/load`);
         const result: LoadResponse = await response.json();
         const { years, details, missing } = result || {};
         years && setYears(years);
@@ -46,7 +46,7 @@ export default function CellarTable() {
     }, [loading, loaded]);
 
     async function saveMissing(missing: string[]) {
-        const response = await fetch(`${config?.api?.href}/setMissing`, {
+        const response = await fetch(`${api?.href}/setMissing`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ missing }),
@@ -74,7 +74,7 @@ export default function CellarTable() {
     };
 
     async function saveDetails(name: string, details: Details) {
-        const response = await fetch(`${config?.api?.href}/setDetails`, {
+        const response = await fetch(`${api?.href}/setDetails`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, details: details[name] }),
