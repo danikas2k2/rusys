@@ -5,10 +5,10 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { Button, ButtonGroup, TextField } from '@mui/material';
 import Box from '@mui/material/Box';
 import TableCell from '@mui/material/TableCell';
-import deepEqual from 'deep-equal';
+import { isEqual } from 'lodash';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { Value, Variant } from '~/types';
+import { Value, Variant } from '~/store/details.types';
 import { cmp } from '~/utils';
 
 interface ValueCellProps {
@@ -31,7 +31,7 @@ export function ValueCell({ value, onChange }: ValueCellProps) {
             const optimizedValue = {
                 ...Object.fromEntries(Object.entries(editingValue).map(([k, v]) => [k, v < 0 ? 0 : v])),
             };
-            if (!deepEqual(editingValue, optimizedValue)) {
+            if (!isEqual(editingValue, optimizedValue)) {
                 setEditingValue(optimizedValue);
             }
             const editingKeys = Object.keys(editingValue);
@@ -48,7 +48,7 @@ export function ValueCell({ value, onChange }: ValueCellProps) {
     }, [editing, expanded]);
 
     const handleOpen = () => {
-        if (!deepEqual(value, editingValue)) {
+        if (!isEqual(value, editingValue)) {
             setEditingValue(value);
         }
         setEditing(true);
@@ -60,7 +60,7 @@ export function ValueCell({ value, onChange }: ValueCellProps) {
         const optimizedValue = editingValue
             ? { ...Object.fromEntries(Object.entries(editingValue).filter(([, v]) => v > 0)) }
             : editingValue;
-        if (!deepEqual(value, optimizedValue)) {
+        if (!isEqual(value, optimizedValue)) {
             onChange(optimizedValue);
         }
     };

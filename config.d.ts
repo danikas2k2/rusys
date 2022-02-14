@@ -8,9 +8,11 @@ declare module '@config' {
         clientId: string;
         allowedUsers: string[];
     };
+    export const locale: string;
     const config = {
         api,
         google,
+        locale,
     };
     export default config;
 }
