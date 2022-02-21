@@ -2,7 +2,7 @@ import config from '@config';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
-import { getDetails, getMissing, getYears, setDetails, setMissing } from '~/server/data';
+import { getDetails, getMissing, getYears, setDetails, setMissing, setName } from '~/server/data';
 
 // TODO add groups: uogienės, dažovienės, šaldyta, pom.padažai, sriubos, dažovės
 
@@ -45,6 +45,17 @@ app.post('/setDetails', async (req, res) => {
     res.json({
         years: getYears(),
         details: await setDetails(name, details),
+    });
+    console.debug(`OK`);
+});
+
+app.post('/setName', async (req, res) => {
+    console.debug(`\nPOST /setName`);
+    console.debug(JSON.stringify(req.body, null, 2));
+    const { name, newName } = req.body;
+    res.json({
+        years: getYears(),
+        details: await setName(name, newName),
     });
     console.debug(`OK`);
 });

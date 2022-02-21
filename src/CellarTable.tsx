@@ -9,17 +9,13 @@ import {
     TableHead,
     TableRow,
 } from '@mui/material';
-import { isEmpty } from 'lodash';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CellarToolbar } from '~/CellarToolbar';
 import { initialLoadAction } from '~/store/base.actions';
 import { BaseState } from '~/store/base.types';
-import { setValueAction } from '~/store/details.actions';
-import { Value, Year } from '~/store/details.types';
-import { addMissingAction, removeMissingAction } from '~/store/missing.actions';
-import { ValueCell } from '~/ValueCell';
+import { cmp } from '~/utils';
+import { ValueRow } from '~/ValueRow';
 
 export default function CellarTable() {
     const dispatch = useDispatch();
@@ -43,26 +39,12 @@ export default function CellarTable() {
     );
     const [missingOnly, setMissingOnly] = useState<boolean>(false);
     const hasMissing = !!missing.length;
-    const isMissing = (name: string) => missing.includes(name);
 
     useEffect(() => {
         if (missingOnly && !hasMissing) {
             setMissingOnly(false);
         }
     }, [hasMissing, missingOnly]);
-
-    const handleMissing = (name: string, isMissing: boolean) => {
-        if (isMissing) {
-            dispatch(addMissingAction(name));
-        } else {
-            dispatch(removeMissingAction(name));
-        }
-    };
-
-    const handleValue = (name: string, year: Year, value?: Value) => {
-        dispatch(setValueAction(name, year, value));
-        handleMissing(name, false);
-    };
 
     if (!years?.length && !details?.length) {
         return (
@@ -108,52 +90,16 @@ export default function CellarTable() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {Object.entries(details).map(([name, values]) => {
-                            const isItemMissing = isMissing(name);
-                            const labelId = `enhanced-table-checkbox-name`;
-                            const isUnavailable = isEmpty(values);
-                            return (
-                                (!missingOnly || isItemMissing) && (
-                                    <TableRow
-                                        key={name}
-                                        role="checkbox"
-                                        tabIndex={-1}
-                                        aria-checked={!isItemMissing}
-                                        selected={isItemMissing}
-                                    >
-                                        <TableCell
-                                            padding="checkbox"
-                                            onClick={() => isUnavailable || handleMissing(name, !isItemMissing)}
-                                        >
-                                            <Checkbox
-                                                color="primary"
-                                                checked={!isItemMissing}
-                                                disabled={isUnavailable}
-                                                indeterminate={isUnavailable}
-                                                inputProps={{ 'aria-labelledby': labelId }}
-                                            />
-                                        </TableCell>
-                                        <TableCell
-                                            component="th"
-                                            id={labelId}
-                                            scope="row"
-                                            padding="none"
-                                            sx={{ textDecoration: isUnavailable ? 'line-through' : '' }}
-                                            onClick={() => isUnavailable || handleMissing(name, !isItemMissing)}
-                                        >
-                                            {name}
-                                        </TableCell>
-                                        {years.map((year) => (
-                                            <ValueCell
-                                                key={year}
-                                                value={values[year]}
-                                                onChange={(value) => handleValue(name, year, value)}
-                                            />
-                                        ))}
-                                    </TableRow>
-                                )
-                            );
-                        })}
+                        {Object.entries(details)
+                            .sort(([a], [b]) => cmp(a.toLowerCase(), b.toLowerCase()))
+                            .map(([name, values]) => {
+                                const isMissing = missing.includes(name);
+                                return (
+                                    (!missingOnly || isMissing) && (
+                                        <ValueRow key={name} name={name} values={values} isMissing={isMissing} />
+                                    )
+                                );
+                            })}
                     </TableBody>
                 </Table>
             </TableContainer>

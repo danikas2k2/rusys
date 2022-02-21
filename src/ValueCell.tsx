@@ -8,6 +8,8 @@ import TableCell from '@mui/material/TableCell';
 import { isEqual } from 'lodash';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { BaseState } from '~/store/base.types';
 import { Value, Variant } from '~/store/details.types';
 import { cmp } from '~/utils';
 
@@ -17,6 +19,7 @@ interface ValueCellProps {
 }
 
 export function ValueCell({ value, onChange }: ValueCellProps) {
+    const isEditing = useSelector((state: BaseState) => state.editing.enabled);
     const [editing, setEditing] = useState(false);
     const [editingValue, setEditingValue] = useState(value);
     const allVariants = Object.values(Variant);
@@ -25,6 +28,12 @@ export function ValueCell({ value, onChange }: ValueCellProps) {
 
     const cmpVariants = <T extends any>(a: T, b: T) =>
         cmp(allVariants.indexOf(a as Variant), allVariants.indexOf(b as Variant));
+
+    useEffect(() => {
+        if (editing && isEditing) {
+            setEditing(false);
+        }
+    }, [editing, isEditing]);
 
     useEffect(() => {
         if (editingValue) {
@@ -82,7 +91,7 @@ export function ValueCell({ value, onChange }: ValueCellProps) {
     return (
         <TableCell
             align="center"
-            onClick={editing ? undefined : handleOpen}
+            onClick={editing || isEditing ? undefined : handleOpen}
             onBlur={(e) => e.currentTarget.contains(e.relatedTarget as Node) || handleClose()}
         >
             {editing && (

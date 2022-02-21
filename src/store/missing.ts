@@ -17,7 +17,7 @@ function remove(missing: Name[], name: Name) {
     return [...missing.slice(0, index), ...missing.slice(index + 1)];
 }
 
-export default function missing(missing: Name[] = [], action: MissingAction) {
+export default function missing(missing: Name[] = [], action: MissingAction): Name[] {
     switch (action.type) {
         case MissingActionType.SET:
             return [...action.missing];
