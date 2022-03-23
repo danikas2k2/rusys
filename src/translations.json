@@ -13,5 +13,14 @@
     },
     "Cellar": {
         "lt-LT": "Rūsys"
+    },
+    "Edit": {
+        "lt-LT": "Taisyti"
+    },
+    "Remove": {
+        "lt-LT": "Šalinti"
+    },
+    "Sure to remove?": {
+        "lt-LT": "Tikrai pašalinti?"
     }
 }

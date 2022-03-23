@@ -1,0 +1,14 @@
+.Actions {
+  position: absolute;
+  width: 50vw;
+  inset-block: 0;
+  display: flex;
+}
+.Actions .ButtonGroup {
+  width: 100%;
+}
+.Actions .Button {
+  border-radius: 0;
+  width: 50%;
+}
+/*# sourceMappingURL=SliderActions.css.map */

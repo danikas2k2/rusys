@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { Label } from '~/Label';
 import { resetProfileAction, setProfileAction } from '~/store/profile.actions';
 import { useProfile } from '~/store/profile.selectors';
+import './Profile.css';
 
 interface ButtonProps {
     children?: ReactNode;
@@ -15,7 +16,7 @@ interface ButtonProps {
 export function ProfileAvatar() {
     const profile = useProfile();
     return (
-        <Avatar alt={profile?.name} src={profile?.imageUrl} sx={{ width: 32, height: 32 }}>
+        <Avatar alt={profile?.name} src={profile?.imageUrl} className="Avatar">
             {profile?.name
                 ?.split(' ')
                 .slice(0, 2)

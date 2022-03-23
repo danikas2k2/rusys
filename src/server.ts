@@ -2,7 +2,7 @@ import config from '@config';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
-import { getDetails, getMissing, getYears, setDetails, setMissing, setName } from '~/server/data';
+import { getDetails, getMissing, getYears, remove, setDetails, setMissing, setName } from '~/server/data';
 
 // TODO add groups: uogienės, dažovienės, šaldyta, pom.padažai, sriubos, dažovės
 
@@ -56,6 +56,17 @@ app.post('/setName', async (req, res) => {
     res.json({
         years: getYears(),
         details: await setName(name, newName),
+    });
+    console.debug(`OK`);
+});
+
+app.post('/remove', async (req, res) => {
+    console.debug(`\nPOST /remove`);
+    console.debug(JSON.stringify(req.body, null, 2));
+    const { name } = req.body;
+    res.json({
+        years: getYears(),
+        details: await remove(name),
     });
     console.debug(`OK`);
 });

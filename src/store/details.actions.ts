@@ -61,6 +61,17 @@ export function renameDetailsAction(name: Name, newName: Name): BaseThunkAction 
     };
 }
 
+export function removeDetailsAction(name: Name): BaseThunkAction {
+    return async (dispatch) => {
+        const response = await fetch(`${api?.href}/remove`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name }),
+        });
+        dispatch(refreshDetailsAction((await response.json()) || {}));
+    };
+}
+
 export function setValueAction(name: Name, year: Year, value?: Value): BaseThunkAction {
     return (dispatch, getState) => {
         const { details } = getState();

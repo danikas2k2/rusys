@@ -44,6 +44,12 @@ export async function setName(name: Name, newName: Name): Promise<Details> {
     return getDetails();
 }
 
+export async function remove(name: Name): Promise<Details> {
+    await db.details.remove({ _id: name }, { multi: true });
+    await db.details.persistence?.compactDatafile?.();
+    return getDetails();
+}
+
 export async function getMissing(): Promise<Name[]> {
     return ((await db.missing.findOne({})) as any)?.missing || [];
 }

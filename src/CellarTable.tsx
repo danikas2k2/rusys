@@ -16,6 +16,7 @@ import { initialLoadAction } from '~/store/base.actions';
 import { BaseState } from '~/store/base.types';
 import { cmp } from '~/utils';
 import { ValueRow } from '~/ValueRow';
+import './CellarTable.css';
 
 export default function CellarTable() {
     const dispatch = useDispatch();
@@ -48,42 +49,25 @@ export default function CellarTable() {
 
     if (!years?.length && !details?.length) {
         return (
-            <Box sx={{ width: '100%', marginTop: '10em' }}>
+            <Box className="ProgressBox">
                 <CircularProgress />
             </Box>
         );
     }
 
     return (
-        <Box sx={{ width: '100%' }}>
+        <Box className="CellarBox">
             <CellarToolbar />
-            <TableContainer sx={{ maxHeight: '100vh' }}>
+            <TableContainer className="CellarContainer">
                 <Table stickyHeader size="medium">
                     <TableHead>
                         <TableRow>
-                            <TableCell
-                                padding="checkbox"
-                                sx={{
-                                    backgroundColor: 'lightgray',
-                                }}
-                                onClick={() => hasMissing && setMissingOnly(!missingOnly)}
-                            >
+                            <TableCell padding="checkbox" onClick={() => hasMissing && setMissingOnly(!missingOnly)}>
                                 <Checkbox color="primary" checked={!missingOnly} disabled={!hasMissing} />
                             </TableCell>
-                            <TableCell
-                                sx={{
-                                    backgroundColor: 'lightgray',
-                                }}
-                            />
+                            <TableCell />
                             {years.map((year) => (
-                                <TableCell
-                                    key={year}
-                                    align="center"
-                                    sx={{
-                                        fontWeight: 'bold',
-                                        backgroundColor: 'lightgray',
-                                    }}
-                                >
+                                <TableCell key={year} align="center">
                                     {year}
                                 </TableCell>
                             ))}

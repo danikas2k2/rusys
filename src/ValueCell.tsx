@@ -4,14 +4,16 @@ import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { Button, ButtonGroup, TextField } from '@mui/material';
 import Box from '@mui/material/Box';
+import { Theme } from '@mui/material/styles';
 import TableCell from '@mui/material/TableCell';
+import { SxProps } from '@mui/system';
 import { isEqual } from 'lodash';
-import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { BaseState } from '~/store/base.types';
 import { Value, Variant } from '~/store/details.types';
 import { cmp } from '~/utils';
+import './ValueCell.css';
 
 interface ValueCellProps {
     value?: Value;
@@ -22,9 +24,11 @@ export function ValueCell({ value, onChange }: ValueCellProps) {
     const isEditing = useSelector((state: BaseState) => state.editing.enabled);
     const [editing, setEditing] = useState(false);
     const [editingValue, setEditingValue] = useState(value);
+    const [editingSx, setEditingSx] = useState<SxProps<Theme>>({});
     const allVariants = Object.values(Variant);
     const [expanded, setExpanded] = useState(false);
     const inputRef = useRef<HTMLDivElement>(null);
+    const boxRef = useRef<HTMLDivElement>(null);
 
     const cmpVariants = <T extends any>(a: T, b: T) =>
         cmp(allVariants.indexOf(a as Variant), allVariants.indexOf(b as Variant));
@@ -61,7 +65,48 @@ export function ValueCell({ value, onChange }: ValueCellProps) {
             setEditingValue(value);
         }
         setEditing(true);
+        setEditingSx({ top: 0, left: '20vw', width: '80vw' });
     };
+
+    const setBoxPosition = useCallback(() => {
+        if (editingSx) {
+            const { top, bottom, ...other } = editingSx as any;
+            const { y = 0, height = 0 } = boxRef.current?.getBoundingClientRect() || {};
+            if (bottom == null && window.innerHeight < y + height) {
+                setEditingSx({ bottom: 0, ...other });
+            }
+            if (top == null && window.innerHeight > y + height * 2) {
+                setEditingSx({ top: 0, ...other });
+            }
+        }
+    }, [editingSx]);
+
+    useEffect(() => {
+        if (editing) {
+            setBoxPosition();
+        }
+    }, [editing, setBoxPosition]);
+
+    useEffect(() => {
+        let scrolling = false;
+        const scrollListener = () => {
+            if (!scrolling) {
+                window.requestAnimationFrame(() => {
+                    setBoxPosition();
+                    scrolling = false;
+                });
+                scrolling = true;
+            }
+        };
+        if (editing) {
+            window.addEventListener('scroll', scrollListener);
+        }
+        return () => {
+            if (editing) {
+                window.removeEventListener('scroll', scrollListener);
+            }
+        };
+    }, [editing, setBoxPosition]);
 
     const handleClose = () => {
         setEditing(false);
@@ -96,21 +141,15 @@ export function ValueCell({ value, onChange }: ValueCellProps) {
         >
             {editing && (
                 <Box
-                    sx={{
-                        position: 'absolute',
-                        width: 150,
-                        insetInlineStart: '50%',
-                        marginInlineStart: '-75px',
-                        marginBlockStart: '-1rem',
-                        backgroundColor: 'white',
-                        padding: '1rem 3rem 1rem 1rem',
-                    }}
+                    ref={boxRef}
+                    className="EditingBox"
                     onBlur={(e) => e.currentTarget.contains(e.relatedTarget as Node) || handleClose()}
+                    sx={editingSx}
                 >
                     {editingKeys.map((k, i) => {
                         const v = editingValue?.[k] ?? 0;
                         return (
-                            <ButtonGroup key={k} variant="contained" sx={{ padding: '2px 0' }}>
+                            <ButtonGroup key={k} variant="contained" className="ButtonGroup">
                                 {(expanded || k || (editingValue && Object.keys(editingValue).length > 1)) && (
                                     <Button variant="text" disabled>
                                         {k}

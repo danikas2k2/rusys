@@ -1,0 +1,15 @@
+.ProgressBox {
+  width: 100%;
+  margin-top: 10em;
+}
+.CellarBox {
+  width: 100%;
+}
+.CellarContainer {
+  max-height: 100vh;
+}
+.CellarContainer thead td {
+  background-color: lightgray;
+  font-weight: bold;
+}
+/*# sourceMappingURL=CellarTable.css.map */

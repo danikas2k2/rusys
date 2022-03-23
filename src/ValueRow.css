@@ -1,0 +1,20 @@
+.Row {
+  position: relative;
+}
+.Row .Cell {
+  padding: 0;
+}
+.Row .Cell--unavailable {
+  text-decoration: line-through;
+}
+.Row .Slider {
+  position: absolute;
+  padding: 0;
+  inset-block: 0;
+  inset-inline-end: 0;
+  display: flex;
+  overflow: hidden;
+  background: white;
+  transition: width 200ms ease-in-out;
+}
+/*# sourceMappingURL=ValueRow.css.map */

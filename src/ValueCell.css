@@ -1,0 +1,11 @@
+.EditingBox {
+  position: absolute;
+  background-color: white;
+  padding: 1rem;
+  z-index: 10;
+  box-sizing: border-box;
+}
+.EditingBox .ButtonGroup {
+  padding: 2px 0;
+}
+/*# sourceMappingURL=ValueCell.css.map */

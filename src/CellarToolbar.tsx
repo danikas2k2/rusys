@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { Label } from '~/Label';
 import { LogoutButton } from '~/Profile';
 import { addDetailsAction } from '~/store/details.actions';
+import './CellarToolbar.css';
 
 export const CellarToolbar = () => {
     const dispatch = useDispatch();
@@ -22,7 +23,7 @@ export const CellarToolbar = () => {
             <IconButton edge="start" color="primary" onClick={addNewItem}>
                 <AddCircle />
             </IconButton>
-            <Typography sx={{ flex: '1 1 100%' }} variant="h6" id="tableTitle" component="div">
+            <Typography className="ToolbarTitle" variant="h6" id="tableTitle" component="div">
                 <Label>Cellar</Label>
             </Typography>
             <LogoutButton />
