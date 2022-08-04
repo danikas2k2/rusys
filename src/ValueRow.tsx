@@ -95,7 +95,12 @@ export function ValueRow({ name, values, isMissing }: ValueRowProps) {
             </TableCell>
             {!editing &&
                 years.map((year) => (
-                    <ValueCell key={year} value={values[year]} onChange={(value) => handleValue(name, year, value)} />
+                    <ValueCell
+                        key={year}
+                        value={values[year]}
+                        isLast={year === years[years.length - 1]}
+                        onChange={(value) => handleValue(name, year, value)}
+                    />
                 ))}
             <ClickAwayListener mouseEvent="onMouseDown" touchEvent="onTouchStart" onClickAway={handleHideSlider}>
                 <TableCell className="Slider" sx={{ width: `${slideOffset + touchOffset}vw` }}>

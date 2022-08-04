@@ -7,20 +7,23 @@ import Box from '@mui/material/Box';
 import { Theme } from '@mui/material/styles';
 import TableCell from '@mui/material/TableCell';
 import { SxProps } from '@mui/system';
+import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { BaseState } from '~/store/base.types';
 import { Value, Variant } from '~/store/details.types';
 import { cmp } from '~/utils';
+import { ValueVariant } from '~/ValueVariant';
 import './ValueCell.css';
 
 interface ValueCellProps {
     value?: Value;
+    isLast?: boolean;
     onChange: (value?: Value) => void;
 }
 
-export function ValueCell({ value, onChange }: ValueCellProps) {
+export function ValueCell({ value, isLast, onChange }: ValueCellProps) {
     const isEditing = useSelector((state: BaseState) => state.editing.enabled);
     const [editing, setEditing] = useState(false);
     const [editingValue, setEditingValue] = useState(value);
@@ -130,7 +133,7 @@ export function ValueCell({ value, onChange }: ValueCellProps) {
         editingKeys = Object.keys(editingValue).sort(cmpVariants) as Variant[];
     }
     if (!editingKeys.length) {
-        editingKeys = [Variant.BASE];
+        editingKeys = [Variant.PUSLITRIS];
     }
 
     return (
@@ -152,7 +155,7 @@ export function ValueCell({ value, onChange }: ValueCellProps) {
                             <ButtonGroup key={k} variant="contained" className="ButtonGroup">
                                 {(expanded || k || (editingValue && Object.keys(editingValue).length > 1)) && (
                                     <Button variant="text" disabled>
-                                        {k}
+                                        <ValueVariant variant={k as Variant} />
                                     </Button>
                                 )}
                                 <Button onClick={() => setEditingValue({ ...(editingValue || {}), [k]: v - 1 })}>
@@ -188,12 +191,18 @@ export function ValueCell({ value, onChange }: ValueCellProps) {
                     </Button>
                 </Box>
             )}
-            {(value &&
-                Object.entries(value)
-                    .sort(([a], [b]) => cmpVariants(a, b))
-                    .map(([k, v]) => `${v}${k}`)
-                    .join(', ')) ||
-                '.'}
+            {value
+                ? Object.entries(value)
+                      .sort(([a], [b]) => cmpVariants(a, b))
+                      .map(([k, v]) => (
+                          <span className={classNames('Value', { Remove: isLast })} key={k}>
+                              {v}
+                              <sub>
+                                  <ValueVariant variant={k as Variant} />
+                              </sub>
+                          </span>
+                      ))
+                : '.'}
         </TableCell>
     );
 }

@@ -9,3 +9,13 @@
         padding: 2px 0;
     }
 }
+
+.Value {
+    & + &:before {
+        content: ", ";
+    }
+
+    &.Remove {
+        text-decoration: line-through;
+    }
+}

@@ -8,4 +8,10 @@
 .EditingBox .ButtonGroup {
   padding: 2px 0;
 }
+.Value + .Value:before {
+  content: ", ";
+}
+.Value.Remove {
+  text-decoration: line-through;
+}
 /*# sourceMappingURL=ValueCell.css.map */
