@@ -4,15 +4,16 @@ import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { Button, ButtonGroup, TextField } from '@mui/material';
 import Box from '@mui/material/Box';
-import { Theme } from '@mui/material/styles';
+import type { Theme } from '@mui/material/styles';
 import TableCell from '@mui/material/TableCell';
-import { SxProps } from '@mui/system';
+import type { SxProps } from '@mui/system';
 import classNames from 'classnames';
 import { isEqual } from 'lodash';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { BaseState } from '~/store/base.types';
-import { Value, Variant } from '~/store/details.types';
+import type { BaseState } from '~/store/base.types';
+import type { Value} from '~/store/details.types';
+import { Variant } from '~/store/details.types';
 import { cmp } from '~/utils';
 import { ValueVariant } from '~/ValueVariant';
 import './ValueCell.css';
@@ -28,10 +29,22 @@ export function ValueCell({ value, isLast, onChange }: ValueCellProps) {
     const [editing, setEditing] = useState(false);
     const [editingValue, setEditingValue] = useState(value);
     const [editingSx, setEditingSx] = useState<SxProps<Theme>>({});
-    const allVariants = Object.values(Variant);
+    const allVariants = useMemo<Variant[]>(() => [
+        Variant.PUSLITRIS,
+        Variant.DIDESNIS,
+        Variant.MAZESNIS,
+        Variant.EGLYTES,
+        Variant.LITRAS,
+        Variant.PUSANTRO,
+        Variant.DVILITRIS,
+        Variant.TRILITRIS,
+        Variant.BLOGAS,
+    ], []);
     const [expanded, setExpanded] = useState(false);
     const inputRef = useRef<HTMLDivElement>(null);
     const boxRef = useRef<HTMLDivElement>(null);
+
+    console.info('ValueCell', { value, isLast, isEditing, editing, editingValue, expanded });
 
     const cmpVariants = <T extends any>(a: T, b: T) =>
         cmp(allVariants.indexOf(a as Variant), allVariants.indexOf(b as Variant));
@@ -64,6 +77,7 @@ export function ValueCell({ value, isLast, onChange }: ValueCellProps) {
     }, [editing, expanded]);
 
     const handleOpen = () => {
+        console.info('HANDLE_OPEN');
         if (!isEqual(value, editingValue)) {
             setEditingValue(value);
         }
@@ -139,7 +153,7 @@ export function ValueCell({ value, isLast, onChange }: ValueCellProps) {
     return (
         <TableCell
             align="center"
-            onClick={editing || isEditing ? undefined : handleOpen}
+            onClick={editing || isEditing ? () => console.info('EDITING') : handleOpen}
             onBlur={(e) => e.currentTarget.contains(e.relatedTarget as Node) || handleClose()}
         >
             {editing && (

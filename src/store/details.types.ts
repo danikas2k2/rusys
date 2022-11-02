@@ -6,6 +6,7 @@ export enum Variant {
     DIDESNIS = 'd', // 0.75l
     MAZESNIS = 'm', // 0.25l
     EGLYTES = 'e', // eglytės 0.01l
+    LITRAS = '1', // 1l
     PUSANTRO = '1.5', // 1.5l
     DVILITRIS = '2', // 2l
     TRILITRIS = '3', // 3l

@@ -9,11 +9,11 @@ import {
     TableHead,
     TableRow,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CellarToolbar } from '~/CellarToolbar';
 import { initialLoadAction } from '~/store/base.actions';
-import { BaseState } from '~/store/base.types';
+import type { BaseState } from '~/store/base.types';
 import { cmp } from '~/utils';
 import { ValueRow } from '~/ValueRow';
 import './CellarTable.css';
@@ -47,6 +47,11 @@ export default function CellarTable() {
         }
     }, [hasMissing, missingOnly]);
 
+    const detailsEntries = useMemo(
+        () => Object.entries(details).sort(([a], [b]) => cmp(a.toLowerCase(), b.toLowerCase())),
+        [details]
+    );
+
     if (!years?.length && !details?.length) {
         return (
             <Box className="ProgressBox">
@@ -74,16 +79,14 @@ export default function CellarTable() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {Object.entries(details)
-                            .sort(([a], [b]) => cmp(a.toLowerCase(), b.toLowerCase()))
-                            .map(([name, values]) => {
-                                const isMissing = missing.includes(name);
-                                return (
-                                    (!missingOnly || isMissing) && (
-                                        <ValueRow key={name} name={name} values={values} isMissing={isMissing} />
-                                    )
-                                );
-                            })}
+                        {detailsEntries.map(([name, values]) => {
+                            const isMissing = missing.includes(name);
+                            return (
+                                (!missingOnly || isMissing) && (
+                                    <ValueRow key={name} name={name} values={values} isMissing={isMissing} />
+                                )
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </TableContainer>

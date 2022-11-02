@@ -1,10 +1,10 @@
 import { api } from '@config';
 import { isEmpty, isEqual } from 'lodash';
-import { BaseThunkAction } from '~/store/base.actions';
-import { Details, Name, Value, Values, Year } from '~/store/details.types';
+import type { BaseThunkAction } from '~/store/base.actions';
+import type { Details, Name, Value, Values, Year } from '~/store/details.types';
 import { setYearsAction } from '~/store/years.actions';
 
-export enum DetailsActionType {
+export const enum DetailsActionType {
     ADD = 'details.add',
     SET = 'details.set',
 }
@@ -41,7 +41,7 @@ function refreshDetailsAction({ years: newYears, details: newDetails }: RefreshR
 
 export function updateDetailsAction(name: Name, details: Details): BaseThunkAction {
     return async (dispatch) => {
-        const response = await fetch(`${api?.href}/setDetails`, {
+        const response = await fetch(`${api}/setDetails`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, details: details[name] }),
@@ -52,7 +52,7 @@ export function updateDetailsAction(name: Name, details: Details): BaseThunkActi
 
 export function renameDetailsAction(name: Name, newName: Name): BaseThunkAction {
     return async (dispatch) => {
-        const response = await fetch(`${api?.href}/setName`, {
+        const response = await fetch(`${api}/setName`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, newName }),
@@ -62,13 +62,18 @@ export function renameDetailsAction(name: Name, newName: Name): BaseThunkAction 
 }
 
 export function removeDetailsAction(name: Name): BaseThunkAction {
-    return async (dispatch) => {
-        const response = await fetch(`${api?.href}/remove`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name }),
-        });
-        dispatch(refreshDetailsAction((await response.json()) || {}));
+    return async (dispatch, getState) => {
+        if (name) {
+            const response = await fetch(`${api}/remove`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name }),
+            });
+            dispatch(refreshDetailsAction((await response.json()) || {}));
+        } else {
+            const { '': remove, ...details } = getState().details;
+            dispatch(setDetailsAction(details));
+        }
     };
 }
 

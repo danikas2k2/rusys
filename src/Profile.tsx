@@ -1,11 +1,13 @@
-import { google } from '@config';
 import { Google as GoogleIcon } from '@mui/icons-material';
 import { Avatar, Button, Dialog, DialogActions, DialogTitle, Grid, IconButton, Typography } from '@mui/material';
-import React, { ReactNode, useState } from 'react';
-import { GoogleLogin, GoogleLoginResponse, GoogleLoginResponseOffline, GoogleLogout } from 'react-google-login';
+import type { ReactNode } from 'react';
+import React, { useState } from 'react';
+import type { GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
+import { GoogleLogin, GoogleLogout } from 'react-google-login';
 import { useDispatch } from 'react-redux';
 import { Label } from '~/Label';
-import { resetProfileAction, setProfileAction } from '~/store/profile.actions';
+import { useClientId } from '~/store/google.selectors';
+import { checkEmailAction, resetProfileAction, setProfileAction } from '~/store/profile.actions';
 import { useProfile } from '~/store/profile.selectors';
 import './Profile.css';
 
@@ -68,9 +70,10 @@ function LogoutButtonWithConfirmation({ onClick, disabled, children }: LogoutBut
 
 export function LogoutButton({ children }: ButtonProps) {
     const dispatch = useDispatch();
-    return (
+    const clientId = useClientId();
+    return clientId ? (
         <GoogleLogout
-            clientId={google?.clientId}
+            clientId={clientId}
             onLogoutSuccess={() => dispatch(resetProfileAction())}
             render={({ onClick, disabled }) => (
                 <LogoutButtonWithConfirmation onClick={onClick} disabled={disabled}>
@@ -78,14 +81,15 @@ export function LogoutButton({ children }: ButtonProps) {
                 </LogoutButtonWithConfirmation>
             )}
         />
-    );
+    ) : null;
 }
 
 export function LoginButton({ children }: ButtonProps) {
     const dispatch = useDispatch();
-    return (
+    const clientId = useClientId();
+    return clientId ? (
         <GoogleLogin
-            clientId={google?.clientId}
+            clientId={clientId}
             onSuccess={(response: GoogleLoginResponse | GoogleLoginResponseOffline) => {
                 if ('tokenId' in response) {
                     const profile = response.getBasicProfile();
@@ -96,9 +100,9 @@ export function LoginButton({ children }: ButtonProps) {
                             email,
                             imageUrl: profile.getImageUrl(),
                             name: profile.getName(),
-                            allowed: google?.allowedUsers?.includes?.(email),
                         })
                     );
+                    dispatch(checkEmailAction(email));
                 } else {
                     dispatch(resetProfileAction());
                 }
@@ -125,5 +129,5 @@ export function LoginButton({ children }: ButtonProps) {
                 </IconButton>
             )}
         />
-    );
+    ) : null;
 }

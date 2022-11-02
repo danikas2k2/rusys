@@ -1,5 +1,5 @@
 import { useLocale } from '~/store/locale.selectors';
-import { Locale } from '~/store/locale.types';
+import type { Locale } from '~/store/locale.types';
 import translations from '~/translations.json';
 
 export function useTranslations() {

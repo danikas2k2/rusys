@@ -1,6 +1,6 @@
-import { Year } from '~/store/details.types';
+import type { Year } from '~/store/details.types';
 
-export enum YearsActionType {
+export const enum YearsActionType {
     SET = 'years.set',
 }
 

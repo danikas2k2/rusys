@@ -1,9 +1,9 @@
 import { api } from '@config';
 import { isEqual } from 'lodash';
-import { BaseThunkAction } from '~/store/base.actions';
-import { Name } from '~/store/details.types';
+import type { BaseThunkAction } from '~/store/base.actions';
+import type { Name } from '~/store/details.types';
 
-export enum MissingActionType {
+export const enum MissingActionType {
     SET = 'missing.set',
     ADD = 'missing.add',
     REMOVE = 'missing.remove',
@@ -29,7 +29,7 @@ const addAction = (name: Name): MissingAction => ({ type: MissingActionType.ADD,
 
 export function updateMissingAction(missing: Name[]): BaseThunkAction {
     return async (dispatch) => {
-        const response = await fetch(`${api?.href}/setMissing`, {
+        const response = await fetch(`${api}/setMissing`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ missing }),

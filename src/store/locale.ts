@@ -1,5 +1,6 @@
-import { LocaleAction, LocaleActionType } from '~/store/locale.actions';
-import { Locale } from '~/store/locale.types';
+import type { LocaleAction } from '~/store/locale.actions';
+import { LocaleActionType } from '~/store/locale.actions';
+import type { Locale } from '~/store/locale.types';
 
 export default function locale(locale: Locale = navigator.language || 'en-US', action: LocaleAction): Locale {
     switch (action.type) {

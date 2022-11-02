@@ -1,6 +1,7 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@mui/material';
-import { ButtonProps } from '@mui/material/Button/Button';
-import React, { MouseEvent, ReactNode, useState } from 'react';
+import type { ButtonProps } from '@mui/material/Button/Button';
+import type { MouseEvent, ReactNode} from 'react';
+import React, { useState } from 'react';
 import { Label } from '~/Label';
 import '~/SliderActions.css';
 

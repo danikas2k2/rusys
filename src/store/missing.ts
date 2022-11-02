@@ -1,5 +1,6 @@
-import { Name } from '~/store/details.types';
-import { MissingAction, MissingActionType } from '~/store/missing.actions';
+import type { Name } from '~/store/details.types';
+import type { MissingAction } from '~/store/missing.actions';
+import { MissingActionType } from '~/store/missing.actions';
 
 function add(missing: Name[], name: Name) {
     const index = missing.indexOf(name);

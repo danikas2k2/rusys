@@ -1,17 +1,15 @@
 {
-    "extends": "./tsconfig.paths.json",
+    "extends": "@tsconfig/node16/tsconfig.json",
     "compilerOptions": {
-        "target": "es5",
-        "lib": ["dom", "dom.iterable", "esnext"],
+        "baseUrl": "./",
+        "paths": {
+            "@config": ["config.js"],
+            "~/*": ["src/*"]
+        },
+        "lib": ["dom", "dom.iterable", "es2021"],
         "allowJs": true,
-        "skipLibCheck": true,
-        "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
-        "strict": true,
-        "forceConsistentCasingInFileNames": true,
         "noFallthroughCasesInSwitch": true,
-        "module": "CommonJS",
-        "moduleResolution": "node",
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,

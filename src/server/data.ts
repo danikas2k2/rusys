@@ -1,8 +1,8 @@
 import moment from 'moment';
-import Nedb from 'nedb';
+import type Nedb from 'nedb';
 import nedb from 'nedb-promises';
 import path from 'path';
-import { Details, Name, NamedValues, Values, Variant, Year } from '~/store/details.types';
+import type { Details, Name, NamedValues, Values, Variant, Year } from '~/store/details.types';
 
 export const db = {
     details: nedb.create({ filename: path.resolve(__dirname, '../../data/details.jsonl'), autoload: true }),
@@ -21,7 +21,7 @@ const SWITCH_MONTH = 6;
 
 export function getYears(): Year[] {
     return [...Array(MAX_YEARS)].map(
-        (y, i) => +moment().subtract(i, 'years').subtract(SWITCH_MONTH, 'months').format('YY'),
+        (y, i) => +moment().subtract(i, 'years').subtract(SWITCH_MONTH, 'months').format('YY')
     );
 }
 
@@ -44,7 +44,7 @@ export async function setDetails(name: Name, values: Values): Promise<Details> {
 export async function addUpdates(name: Name, values: Values | null): Promise<void> {
     const prev = await db.details.findOne<NamedValues>({ name });
     const { _id, name: _name, ...prevValues } = prev ?? {};
-    const diff = getDiff(prev ? prevValues as Values : null, values);
+    const diff = getDiff(prev ? (prevValues as Values) : null, values);
     if (diff) {
         const time = Date.now();
         await db.updates.insert({ name, time, ...diff });

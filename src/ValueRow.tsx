@@ -1,12 +1,13 @@
 import { Checkbox, ClickAwayListener, TableCell, TableRow, TextField } from '@mui/material';
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
-import React, { FocusEvent, KeyboardEvent, TouchEvent, useEffect, useRef, useState } from 'react';
+import type { FocusEvent, KeyboardEvent, TouchEvent } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { SliderActions } from '~/SliderActions';
-import { BaseState } from '~/store/base.types';
-import { setNameAction, setValueAction } from '~/store/details.actions';
-import { Name, Value, Values, Year } from '~/store/details.types';
+import type { BaseState } from '~/store/base.types';
+import { removeDetailsAction, setNameAction, setValueAction } from '~/store/details.actions';
+import type { Name, Value, Values, Year } from '~/store/details.types';
 import { disableEditingAction, enableEditingAction } from '~/store/editing.actions';
 import { addMissingAction, removeMissingAction } from '~/store/missing.actions';
 import { ValueCell } from '~/ValueCell';
@@ -18,30 +19,34 @@ interface ValueRowProps {
     isMissing?: boolean;
 }
 
-export function ValueRow({ name, values, isMissing }: ValueRowProps) {
+export const ValueRow = memo(({ name, values, isMissing }: ValueRowProps) => {
     const dispatch = useDispatch();
-    const [isEditing, editing, years] = useSelector(
+    const [isEditing, forceEditing, years] = useSelector(
         (state: BaseState) =>
-            [state.editing.enabled, state.editing.enabled && state.editing.name === name, state.years] as const,
+            [
+                state.editing.enabled && state.editing.name === name,
+                !state.editing.enabled && !name,
+                state.years,
+            ] as const,
         shallowEqual
     );
 
     const nameRef = useRef<HTMLDivElement>(null);
     const [newName, setNewName] = useState(name);
     useEffect(() => {
-        if (!isEditing && name === '') {
+        if (forceEditing) {
             dispatch(enableEditingAction(name));
         }
-    }, [dispatch, isEditing, name]);
+    }, [dispatch, forceEditing, name]);
 
     const labelId = `checkbox-${name}`;
     const isUnavailable = isEmpty(values);
 
     const MIN_SLIDE_OFFSET = 0;
     const MAX_SLIDE_OFFSET = 50;
+    const touchStartRef = useRef<number | undefined>(undefined);
+    const touchEndRef = useRef<number | undefined>(undefined);
     const [slideOffset, setSlideOffset] = useState(0);
-    const [touchStart, setTouchStart] = useState<number | undefined>(undefined);
-    const [touchEnd, setTouchEnd] = useState<number | undefined>(undefined);
     const [touchOffset, setTouchOffset] = useState(0);
 
     return (
@@ -70,13 +75,13 @@ export function ValueRow({ name, values, isMissing }: ValueRowProps) {
                 component="th"
                 id={labelId}
                 className={classNames('Cell', {
-                    'Cell--unavailable': isUnavailable && !editing,
+                    'Cell--unavailable': isUnavailable && !isEditing,
                 })}
                 scope="row"
                 onClick={() => isUnavailable || handleMissing(name, !isMissing)}
-                colSpan={editing ? years.length + 1 : undefined}
+                colSpan={isEditing ? years.length + 1 : undefined}
             >
-                {editing ? (
+                {isEditing ? (
                     <TextField
                         ref={nameRef}
                         color="primary"
@@ -93,7 +98,7 @@ export function ValueRow({ name, values, isMissing }: ValueRowProps) {
                     name
                 )}
             </TableCell>
-            {!editing &&
+            {!isEditing &&
                 years.map((year) => (
                     <ValueCell
                         key={year}
@@ -116,20 +121,24 @@ export function ValueRow({ name, values, isMissing }: ValueRowProps) {
     }
 
     function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-        if (newName) {
-            if (e.key === 'Enter') {
-                handleRename();
-            } else if (e.key === 'Escape') {
-                dispatch(disableEditingAction());
-            }
+        switch (e.key) {
+            case 'Enter':
+                if (newName) {
+                    handleRename();
+                }
+                break;
+
+            case 'Escape':
+                if (!newName) {
+                    dispatch(removeDetailsAction(name));
+                }
+                break;
         }
     }
 
-    function handleBlur(e: FocusEvent<HTMLInputElement>) {
+    function handleBlur(__e: FocusEvent<HTMLInputElement>) {
         if (newName) {
             handleRename();
-        } else {
-            e.currentTarget.focus();
         }
     }
 
@@ -148,39 +157,55 @@ export function ValueRow({ name, values, isMissing }: ValueRowProps) {
 
     function handleTouchStart({ touches }: TouchEvent) {
         const { clientX } = touches[0];
-        setTouchStart(clientX);
-        setTouchEnd(undefined);
+        touchStartRef.current = clientX;
+        touchEndRef.current = undefined;
     }
 
     function handleTouchMove({ touches }: TouchEvent) {
-        if (touchStart != null) {
+        if (touchStartRef.current != null) {
             const { clientX } = touches[0];
-            setTouchEnd(clientX);
-            setTouchOffset(Math.max(-MAX_SLIDE_OFFSET, Math.min(MAX_SLIDE_OFFSET, (touchStart - clientX) / 2)));
+            touchEndRef.current = clientX;
+            const newTouchOffset = Math.max(
+                -MAX_SLIDE_OFFSET,
+                Math.min(MAX_SLIDE_OFFSET, (touchStartRef.current - clientX) / 2)
+            );
+            if (newTouchOffset !== touchOffset) {
+                setTouchOffset(newTouchOffset);
+            }
         }
     }
 
     function handleTouchEnd() {
-        if (touchStart != null && touchEnd != null) {
-            const touchDirection = touchStart - touchEnd;
+        if (touchStartRef.current != null && touchEndRef.current != null) {
+            const touchDirection = touchStartRef.current - touchEndRef.current;
             if (touchDirection > 0) {
-                setSlideOffset(MAX_SLIDE_OFFSET);
+                if (slideOffset !== MAX_SLIDE_OFFSET) {
+                    setSlideOffset(MAX_SLIDE_OFFSET);
+                }
             } else if (touchDirection < 0) {
-                setSlideOffset(MIN_SLIDE_OFFSET);
+                if (slideOffset !== MIN_SLIDE_OFFSET) {
+                    setSlideOffset(MIN_SLIDE_OFFSET);
+                }
             }
-            setTouchOffset(0);
-            setTouchStart(undefined);
+            if (touchOffset !== 0) {
+                setTouchOffset(0);
+            }
+            touchStartRef.current = undefined;
         } else {
             handleHideSlider();
         }
     }
 
     function handleTouchCancel() {
-        setTouchOffset(0);
-        setTouchStart(undefined);
+        if (touchOffset !== 0) {
+            setTouchOffset(0);
+        }
+        touchStartRef.current = undefined;
     }
 
     function handleHideSlider() {
-        setSlideOffset(0);
+        if (slideOffset !== 0) {
+            setSlideOffset(0);
+        }
     }
-}
+});

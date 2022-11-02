@@ -1,4 +1,4 @@
-import { Variant } from '~/store/details.types';
+import type { Variant } from '~/store/details.types';
 
 const VariantDisplay: Partial<Record<Variant, string>> = {
     // 'd': '¾l',

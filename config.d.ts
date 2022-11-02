@@ -1,18 +1,16 @@
 declare module '@config' {
-    export const api: {
-        host: string;
-        port: number;
-        href: string;
-    };
+    export const locale: string;
+    export const web: string;
+    export const api: string;
     export const google: {
         clientId: string;
         allowedUsers: string[];
     };
-    export const locale: string;
     const config = {
+        locale,
+        web,
         api,
         google,
-        locale,
     };
     export default config;
 }

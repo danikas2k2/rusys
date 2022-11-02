@@ -4,8 +4,8 @@ import { useDispatch } from 'react-redux';
 import { ButtonWithConfirmation } from '~/ButtonWithConfirmation';
 import { Label } from '~/Label';
 import { removeDetailsAction } from '~/store/details.actions';
-import { Name } from '~/store/details.types';
-import { enableEditingAction } from '~/store/editing.actions';
+import type { Name } from '~/store/details.types';
+import { disableEditingAction, enableEditingAction } from '~/store/editing.actions';
 import './SliderActions.css';
 
 interface SliderActionsProps {
@@ -41,6 +41,7 @@ export function SliderActions({ name, onClick }: SliderActionsProps) {
     }
 
     function onDelete() {
+        dispatch(disableEditingAction());
         dispatch(removeDetailsAction(name));
         onClick?.();
     }
