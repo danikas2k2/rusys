@@ -2,7 +2,7 @@ import moment from 'moment';
 import type Nedb from 'nedb';
 import nedb from 'nedb-promises';
 import path from 'path';
-import type { Details, Name, NamedValues, Values, Variant, Year } from '~/store/details.types';
+import type { Details, Name, NamedValues, Values, Variant, Year } from '~/store/details/types';
 
 export const db = {
     details: nedb.create({ filename: path.resolve(__dirname, '../../data/details.jsonl'), autoload: true }),
@@ -36,7 +36,7 @@ export async function getDetails(): Promise<Details> {
 
 export async function setDetails(name: Name, values: Values): Promise<Details> {
     await addUpdates(name, values);
-    await db.details.update({ name }, { name, ...values });
+    await db.details.update({ name }, { name, ...values }, { upsert: true });
     await (db.details as unknown as Nedb.Persistence).compactDatafile?.();
     return getDetails();
 }
@@ -77,7 +77,7 @@ function getDiff(prevValues: Values | null, values: Values | null): Values | nul
     }
     return Object.keys(diff).length ? diff : null;
 
-    function addDiff(year: Year, variant: Variant, after?: number | null, before?: number | null) {
+    function addDiff(year: Year, variant: Variant, after?: number | null, before?: number | null): void {
         const d = (after ?? 0) - (before ?? 0);
         if (d !== 0) {
             diff[year] = diff[year] ?? {};
@@ -105,7 +105,7 @@ export async function remove(name: Name): Promise<Details> {
 }
 
 export async function getMissing(): Promise<Name[]> {
-    return ((await db.missing.findOne({})) as any)?.missing || [];
+    return ((await db.missing.findOne({})) as { missing: [] })?.missing || [];
 }
 
 export async function setMissing(missing: Name[]): Promise<Name[]> {

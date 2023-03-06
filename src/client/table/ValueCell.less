@@ -1,0 +1,31 @@
+.ValueCell {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+
+    .empty {
+        color: var(--palette-neutral-plain-disabled-color);
+    }
+
+    .value {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-inline: 0.1rem;
+
+        &:has(+ *) {
+            &::after {
+                content: ',';
+            }
+        }
+
+        sub {
+            font-size: var(--font-size-xs);
+        }
+
+        &.remove {
+            text-decoration: line-through;
+        }
+    }
+}

@@ -4,13 +4,13 @@
         "module": "AMD",
         "isolatedModules": false,
         "resolveJsonModule": true,
-        "noEmit": false,
-        "outFile": "build/server.js"
+        "outFile": "dist/server.js"
     },
     "include": [
         "src/server/index.ts"
     ],
     "exclude": [
+        "node_modules",
         "./config.js"
     ]
 }

@@ -1,0 +1,12 @@
+{
+    "verbose": true,
+    "moduleFileExtensions": ["js", "jsx", "ts", "tsx"],
+    "transform": {
+        "\\.[jt]sx?$": "ts-jest"
+    },
+    "setupFilesAfterEnv": ["<rootDir>/jest.setup.ts"],
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "collectCoverage": false,
+    "collectCoverageFrom": ["src/**/*.{ts,tsx}", "!src/**/*.d.ts", "!src/data/**/*.ts"]
+}

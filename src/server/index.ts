@@ -1,10 +1,12 @@
+/* eslint-disable no-console */
 import { api, google } from '@config';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import type { Request, Response } from 'express';
 import express from 'express';
 import { getDetails, getMissing, getYears, remove, setDetails, setMissing, setName } from '~/server/data';
 
-// TODO add groups: uogienės, dažovienės, šaldyta, pom.padažai, sriubos, dažovės
+// TODO add groups: uogienės, daržovienės, šaldyta, daržovės, kruopos, pom.padažai, sriubos
 
 (async () => {
     const app = express();
@@ -21,29 +23,35 @@ import { getDetails, getMissing, getYears, remove, setDetails, setMissing, setNa
         })
     );
 
-    app.get('/**/clientId', async (req, res) => {
-        console.debug(`\nGET /clientId`);
+    app.get('/**/clientId', async (req: Request, res: Response) => {
+        console.debug();
+        console.debug(`GET /clientId`);
         console.debug(JSON.stringify(req.body, null, 2));
         res.json({
+            ok: true,
             clientId: google.clientId,
         });
         console.debug(`OK`);
     });
 
-    app.post('/**/checkUser', async (req, res) => {
-        console.debug(`\nGET /checkUser`);
+    app.post('/**/checkUser', async (req: Request, res: Response) => {
+        console.debug();
+        console.debug(`GET /checkUser`);
         console.debug(JSON.stringify(req.body, null, 2));
         const { email } = req.body;
         res.json({
+            ok: true,
             email,
             allowed: google.allowedUsers.includes(email),
         });
         console.debug(`OK`);
     });
 
-    app.get('/**/load', async (req, res) => {
-        console.debug(`\nGET /load`);
+    app.get('/**/load', async (req: Request, res: Response) => {
+        console.debug();
+        console.debug(`GET /load`);
         res.json({
+            ok: true,
             years: getYears(),
             details: await getDetails(),
             missing: await getMissing(),
@@ -51,43 +59,51 @@ import { getDetails, getMissing, getYears, remove, setDetails, setMissing, setNa
         console.debug(`OK`);
     });
 
-    app.post('/**/setMissing', async (req, res) => {
-        console.debug(`\nPOST /setMissing`);
+    app.post('/**/setMissing', async (req: Request, res: Response) => {
+        console.debug();
+        console.debug(`POST /setMissing`);
         console.debug(JSON.stringify(req.body, null, 2));
         const { missing } = req.body;
         res.json({
+            ok: true,
             missing: await setMissing(missing),
         });
         console.debug(`OK`);
     });
 
-    app.post('/**/setDetails', async (req, res) => {
-        console.debug(`\nPOST /setDetails`);
+    app.post('/**/setDetails', async (req: Request, res: Response) => {
+        console.debug();
+        console.debug(`POST /setDetails`);
         console.debug(JSON.stringify(req.body, null, 2));
         const { name, details } = req.body;
         res.json({
+            ok: true,
             years: getYears(),
             details: await setDetails(name, details),
         });
         console.debug(`OK`);
     });
 
-    app.post('/**/setName', async (req, res) => {
-        console.debug(`\nPOST /setName`);
+    app.post('/**/setName', async (req: Request, res: Response) => {
+        console.debug();
+        console.debug(`POST /setName`);
         console.debug(JSON.stringify(req.body, null, 2));
         const { name, newName } = req.body;
         res.json({
+            ok: true,
             years: getYears(),
             details: await setName(name, newName),
         });
         console.debug(`OK`);
     });
 
-    app.post('/**/remove', async (req, res) => {
-        console.debug(`\nPOST /remove`);
+    app.post('/**/remove', async (req: Request, res: Response) => {
+        console.debug();
+        console.debug(`POST /remove`);
         console.debug(JSON.stringify(req.body, null, 2));
         const { name } = req.body;
         res.json({
+            ok: true,
             years: getYears(),
             details: await remove(name),
         });

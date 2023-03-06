@@ -1,0 +1,332 @@
+@import (once) '@ui/theme.less';
+
+.Checkbox {
+    &.variant-solid {
+        &.color-neutral {
+            --checkbox-variant-color: var(--palette-neutral-solid-color);
+            --checkbox-variant-bg: var(--palette-neutral-solid-bg);
+            --checkbox-variant-active-bg: var(--palette-neutral-solid-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-neutral-solid-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-neutral-solid-disabled-color);
+            --checkbox-variant-disabled-bg: var(--palette-neutral-solid-disabled-bg);
+        }
+
+        &.color-primary {
+            --checkbox-variant-color: var(--palette-primary-solid-color);
+            --checkbox-variant-bg: var(--palette-primary-solid-bg);
+            --checkbox-variant-active-bg: var(--palette-primary-solid-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-primary-solid-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-primary-solid-disabled-color);
+            --checkbox-variant-disabled-bg: var(--palette-primary-solid-disabled-bg);
+        }
+
+        &.color-secondary {
+            --checkbox-variant-color: var(--palette-secondary-solid-color);
+            --checkbox-variant-bg: var(--palette-secondary-solid-bg);
+            --checkbox-variant-active-bg: var(--palette-secondary-solid-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-secondary-solid-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-secondary-solid-disabled-color);
+            --checkbox-variant-disabled-bg: var(--palette-secondary-solid-disabled-bg);
+        }
+
+        &.color-success {
+            --checkbox-variant-color: var(--palette-success-solid-color);
+            --checkbox-variant-bg: var(--palette-success-solid-bg);
+            --checkbox-variant-active-bg: var(--palette-success-solid-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-success-solid-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-success-solid-disabled-color);
+            --checkbox-variant-disabled-bg: var(--palette-success-solid-disabled-bg);
+        }
+
+        &.color-warning {
+            --checkbox-variant-color: var(--palette-warning-solid-color);
+            --checkbox-variant-bg: var(--palette-warning-solid-bg);
+            --checkbox-variant-active-bg: var(--palette-warning-solid-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-warning-solid-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-warning-solid-disabled-color);
+            --checkbox-variant-disabled-bg: var(--palette-warning-solid-disabled-bg);
+        }
+
+        &.color-failure {
+            --checkbox-variant-color: var(--palette-failure-solid-color);
+            --checkbox-variant-bg: var(--palette-failure-solid-bg);
+            --checkbox-variant-active-bg: var(--palette-failure-solid-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-failure-solid-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-failure-solid-disabled-color);
+            --checkbox-variant-disabled-bg: var(--palette-failure-solid-disabled-bg);
+        }
+    }
+
+    &.variant-soft {
+        &.color-neutral {
+            --checkbox-variant-color: var(--palette-neutral-soft-color);
+            --checkbox-variant-bg: var(--palette-neutral-soft-bg);
+            --checkbox-variant-active-bg: var(--palette-neutral-soft-active-bg);
+            --checkbox-variant-hover-color: var(--palette-neutral-soft-hover-color);
+            --checkbox-variant-hover-bg: var(--palette-neutral-soft-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-neutral-soft-disabled-color);
+            --checkbox-variant-disabled-bg: var(--palette-neutral-soft-disabled-bg);
+        }
+
+        &.color-primary {
+            --checkbox-variant-color: var(--palette-primary-soft-color);
+            --checkbox-variant-bg: var(--palette-primary-soft-bg);
+            --checkbox-variant-active-bg: var(--palette-primary-soft-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-primary-soft-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-primary-soft-disabled-color);
+            --checkbox-variant-disabled-bg: var(--palette-primary-soft-disabled-bg);
+        }
+
+        &.color-secondary {
+            --checkbox-variant-color: var(--palette-secondary-soft-color);
+            --checkbox-variant-bg: var(--palette-secondary-soft-bg);
+            --checkbox-variant-active-bg: var(--palette-secondary-soft-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-secondary-soft-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-secondary-soft-disabled-color);
+            --checkbox-variant-disabled-bg: var(--palette-secondary-soft-disabled-bg);
+        }
+
+        &.color-success {
+            --checkbox-variant-color: var(--palette-success-soft-color);
+            --checkbox-variant-bg: var(--palette-success-soft-bg);
+            --checkbox-variant-active-bg: var(--palette-success-soft-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-success-soft-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-success-soft-disabled-color);
+            --checkbox-variant-disabled-bg: var(--palette-success-soft-disabled-bg);
+        }
+
+        &.color-warning {
+            --checkbox-variant-color: var(--palette-warning-soft-color);
+            --checkbox-variant-bg: var(--palette-warning-soft-bg);
+            --checkbox-variant-active-bg: var(--palette-warning-soft-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-warning-soft-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-warning-soft-disabled-color);
+            --checkbox-variant-disabled-bg: var(--palette-warning-soft-disabled-bg);
+        }
+
+        &.color-failure {
+            --checkbox-variant-color: var(--palette-failure-soft-color);
+            --checkbox-variant-bg: var(--palette-failure-soft-bg);
+            --checkbox-variant-active-bg: var(--palette-failure-soft-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-failure-soft-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-failure-soft-disabled-color);
+            --checkbox-variant-disabled-bg: var(--palette-failure-soft-disabled-bg);
+        }
+    }
+
+    &.variant-outlined {
+        &.color-neutral {
+            --checkbox-variant-color: var(--palette-neutral-outlined-color);
+            --checkbox-variant-border: var(--palette-neutral-outlined-border);
+            --checkbox-variant-active-bg: var(--palette-neutral-outlined-active-bg);
+            --checkbox-variant-hover-color: var(--palette-neutral-outlined-hover-color);
+            --checkbox-variant-hover-bg: var(--palette-neutral-outlined-hover-bg);
+            --checkbox-variant-hover-border: var(--palette-neutral-outlined-hover-border);
+            --checkbox-variant-disabled-color: var(--palette-neutral-outlined-disabled-color);
+            --checkbox-variant-disabled-border: var(--palette-neutral-outlined-disabled-border);
+        }
+
+        &.color-primary {
+            --checkbox-variant-color: var(--palette-primary-outlined-color);
+            --checkbox-variant-border: var(--palette-primary-outlined-border);
+            --checkbox-variant-active-bg: var(--palette-primary-outlined-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-primary-outlined-hover-bg);
+            --checkbox-variant-hover-border: var(--palette-primary-outlined-hover-border);
+            --checkbox-variant-disabled-color: var(--palette-primary-outlined-disabled-color);
+            --checkbox-variant-disabled-border: var(--palette-primary-outlined-disabled-border);
+        }
+
+        &.color-secondary {
+            --checkbox-variant-color: var(--palette-secondary-outlined-color);
+            --checkbox-variant-border: var(--palette-secondary-outlined-border);
+            --checkbox-variant-active-bg: var(--palette-secondary-outlined-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-secondary-outlined-hover-bg);
+            --checkbox-variant-hover-border: var(--palette-secondary-outlined-hover-border);
+            --checkbox-variant-disabled-color: var(--palette-secondary-outlined-disabled-color);
+            --checkbox-variant-disabled-border: var(--palette-secondary-outlined-disabled-border);
+        }
+
+        &.color-success {
+            --checkbox-variant-color: var(--palette-success-outlined-color);
+            --checkbox-variant-border: var(--palette-success-outlined-border);
+            --checkbox-variant-active-bg: var(--palette-success-outlined-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-success-outlined-hover-bg);
+            --checkbox-variant-hover-border: var(--palette-success-outlined-hover-border);
+            --checkbox-variant-disabled-color: var(--palette-success-outlined-disabled-color);
+            --checkbox-variant-disabled-border: var(--palette-success-outlined-disabled-border);
+        }
+
+        &.color-warning {
+            --checkbox-variant-color: var(--palette-warning-outlined-color);
+            --checkbox-variant-border: var(--palette-warning-outlined-border);
+            --checkbox-variant-active-bg: var(--palette-warning-outlined-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-warning-outlined-hover-bg);
+            --checkbox-variant-hover-border: var(--palette-warning-outlined-hover-border);
+            --checkbox-variant-disabled-color: var(--palette-warning-outlined-disabled-color);
+            --checkbox-variant-disabled-border: var(--palette-warning-outlined-disabled-border);
+        }
+
+        &.color-failure {
+            --checkbox-variant-color: var(--palette-failure-outlined-color);
+            --checkbox-variant-border: var(--palette-failure-outlined-border);
+            --checkbox-variant-active-bg: var(--palette-failure-outlined-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-failure-outlined-hover-bg);
+            --checkbox-variant-hover-border: var(--palette-failure-outlined-hover-border);
+            --checkbox-variant-disabled-color: var(--palette-failure-outlined-disabled-color);
+            --checkbox-variant-disabled-border: var(--palette-failure-outlined-disabled-border);
+        }
+    }
+
+    &.variant-plain {
+        &.color-neutral {
+            --checkbox-variant-color: var(--palette-neutral-plain-color);
+            --checkbox-variant-active-bg: var(--palette-neutral-plain-active-bg);
+            --checkbox-variant-hover-color: var(--palette-neutral-plain-hover-color);
+            --checkbox-variant-hover-bg: var(--palette-neutral-plain-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-neutral-plain-disabled-color);
+        }
+
+        &.color-primary {
+            --checkbox-variant-color: var(--palette-primary-plain-color);
+            --checkbox-variant-active-bg: var(--palette-primary-plain-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-primary-plain-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-primary-plain-disabled-color);
+        }
+
+        &.color-secondary {
+            --checkbox-variant-color: var(--palette-secondary-plain-color);
+            --checkbox-variant-active-bg: var(--palette-secondary-plain-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-secondary-plain-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-secondary-plain-disabled-color);
+        }
+
+        &.color-success {
+            --checkbox-variant-color: var(--palette-success-plain-color);
+            --checkbox-variant-active-bg: var(--palette-success-plain-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-success-plain-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-success-plain-disabled-color);
+        }
+
+        &.color-warning {
+            --checkbox-variant-color: var(--palette-warning-plain-color);
+            --checkbox-variant-active-bg: var(--palette-warning-plain-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-warning-plain-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-warning-plain-disabled-color);
+        }
+
+        &.color-failure {
+            --checkbox-variant-color: var(--palette-failure-plain-color);
+            --checkbox-variant-active-bg: var(--palette-failure-plain-active-bg);
+            --checkbox-variant-hover-bg: var(--palette-failure-plain-hover-bg);
+            --checkbox-variant-disabled-color: var(--palette-failure-plain-disabled-color);
+        }
+    }
+
+    --checkbox-color: var(--checkbox-variant-color);
+    --checkbox-bg: var(--checkbox-variant-bg, transparent);
+    --checkbox-border: var(--checkbox-variant-border, var(--checkbox-bg));
+    --checkbox-hover-color: var(--checkbox-variant-hover-color, var(--checkbox-color));
+    --checkbox-hover-bg: var(--checkbox-variant-hover-bg, var(--checkbox-bg));
+    --checkbox-hover-border: var(--checkbox-variant-hover-border, var(--checkbox-border));
+    --checkbox-active-color: var(--checkbox-variant-color);
+    --checkbox-active-bg: var(--checkbox-variant-active-bg, var(--checkbox-bg));
+    --checkbox-active-border: var(--checkbox-variant-active-bg, var(--checkbox-border));
+    --checkbox-disabled-color: var(--checkbox-variant-disabled-color, var(--checkbox-color));
+    --checkbox-disabled-bg: var(--checkbox-variant-disabled-bg, var(--checkbox-bg));
+    --checkbox-disabled-border: var(--checkbox-variant-disabled-bg, var(--checkbox-border));
+
+    &.size-small {
+        --checkbox-icon-size: var(--font-size-lg);
+        --checkbox-font-size: var(--font-size-sm);
+    }
+
+    &.size-medium {
+        --checkbox-icon-size: var(--font-size-xl);
+        --checkbox-font-size: var(--font-size-md);
+    }
+
+    &.size-large {
+        --checkbox-icon-size: var(--font-size-xl2);
+        --checkbox-font-size: var(--font-size-lg);
+    }
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    input {
+        display: none;
+    }
+
+    .label {
+        font-size: var(--checkbox-font-size);
+        font-family: var(--font-family-body);
+        font-weight: var(--font-weight-md);
+        line-height: 1;
+        text-decoration: none;
+        margin-inline-start: 0.35rem;
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    .checkbox {
+        width: var(--checkbox-icon-size);
+        height: var(--checkbox-icon-size);
+        display: inline-flex;
+        align-items: center;
+        color: var(--checkbox-color);
+        background-color: var(--checkbox-bg);
+        border: 1px solid var(--checkbox-border);
+        border-radius: var(--radius-xs);
+
+        svg {
+            user-select: none;
+            width: var(--checkbox-icon-size);
+            height: var(--checkbox-icon-size);
+            color: inherit;
+            fill: currentcolor;
+        }
+    }
+
+    &:active {
+        .checkbox {
+            color: var(--checkbox-color);
+            background-color: var(--checkbox-active-bg);
+            border-color: var(--checkbox-active-border);
+        }
+    }
+
+    &:hover,
+    &:focus {
+        .checkbox {
+            color: var(--checkbox-hover-color);
+            background-color: var(--checkbox-hover-bg);
+            border-color: var(--checkbox-hover-border);
+        }
+    }
+
+    &:has(input:disabled) {
+        .label {
+            opacity: 0.5;
+        }
+
+        .checkbox {
+            color: var(--checkbox-disabled-color);
+            background-color: var(--checkbox-disabled-bg);
+            border-color: var(--checkbox-disabled-border);
+        }
+    }
+
+    &:not(:has(input:disabled)) {
+        cursor: pointer;
+    }
+
+    &:has(input:not(:checked, :indeterminate)) {
+        .checkbox svg {
+            visibility: hidden;
+        }
+    }
+}

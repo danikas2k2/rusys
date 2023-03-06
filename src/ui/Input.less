@@ -1,0 +1,372 @@
+@import (once) '@ui/theme.less';
+
+.Input {
+    &.variant-solid {
+        &.color-neutral {
+            --input-variant-color: var(--palette-neutral-solid-color);
+            --input-variant-bg: var(--palette-neutral-solid-bg);
+            --input-variant-active-bg: var(--palette-neutral-solid-active-bg);
+            --input-variant-hover-bg: var(--palette-neutral-solid-hover-bg);
+            --input-variant-disabled-color: var(--palette-neutral-solid-disabled-color);
+            --input-variant-disabled-bg: var(--palette-neutral-solid-disabled-bg);
+        }
+
+        &.color-primary {
+            --input-variant-color: var(--palette-primary-solid-color);
+            --input-variant-bg: var(--palette-primary-solid-bg);
+            --input-variant-active-bg: var(--palette-primary-solid-active-bg);
+            --input-variant-hover-bg: var(--palette-primary-solid-hover-bg);
+            --input-variant-disabled-color: var(--palette-primary-solid-disabled-color);
+            --input-variant-disabled-bg: var(--palette-primary-solid-disabled-bg);
+        }
+
+        &.color-secondary {
+            --input-variant-color: var(--palette-secondary-solid-color);
+            --input-variant-bg: var(--palette-secondary-solid-bg);
+            --input-variant-active-bg: var(--palette-secondary-solid-active-bg);
+            --input-variant-hover-bg: var(--palette-secondary-solid-hover-bg);
+            --input-variant-disabled-color: var(--palette-secondary-solid-disabled-color);
+            --input-variant-disabled-bg: var(--palette-secondary-solid-disabled-bg);
+        }
+
+        &.color-success {
+            --input-variant-color: var(--palette-success-solid-color);
+            --input-variant-bg: var(--palette-success-solid-bg);
+            --input-variant-active-bg: var(--palette-success-solid-active-bg);
+            --input-variant-hover-bg: var(--palette-success-solid-hover-bg);
+            --input-variant-disabled-color: var(--palette-success-solid-disabled-color);
+            --input-variant-disabled-bg: var(--palette-success-solid-disabled-bg);
+        }
+
+        &.color-warning {
+            --input-variant-color: var(--palette-warning-solid-color);
+            --input-variant-bg: var(--palette-warning-solid-bg);
+            --input-variant-active-bg: var(--palette-warning-solid-active-bg);
+            --input-variant-hover-bg: var(--palette-warning-solid-hover-bg);
+            --input-variant-disabled-color: var(--palette-warning-solid-disabled-color);
+            --input-variant-disabled-bg: var(--palette-warning-solid-disabled-bg);
+        }
+
+        &.color-failure {
+            --input-variant-color: var(--palette-failure-solid-color);
+            --input-variant-bg: var(--palette-failure-solid-bg);
+            --input-variant-active-bg: var(--palette-failure-solid-active-bg);
+            --input-variant-hover-bg: var(--palette-failure-solid-hover-bg);
+            --input-variant-disabled-color: var(--palette-failure-solid-disabled-color);
+            --input-variant-disabled-bg: var(--palette-failure-solid-disabled-bg);
+        }
+    }
+
+    &.variant-soft {
+        &.color-neutral {
+            --input-variant-color: var(--palette-neutral-soft-color);
+            --input-variant-bg: var(--palette-neutral-soft-bg);
+            --input-variant-active-bg: var(--palette-neutral-soft-active-bg);
+            --input-variant-hover-color: var(--palette-neutral-soft-hover-color);
+            --input-variant-hover-bg: var(--palette-neutral-soft-hover-bg);
+            --input-variant-disabled-color: var(--palette-neutral-soft-disabled-color);
+            --input-variant-disabled-bg: var(--palette-neutral-soft-disabled-bg);
+        }
+
+        &.color-primary {
+            --input-variant-color: var(--palette-primary-soft-color);
+            --input-variant-bg: var(--palette-primary-soft-bg);
+            --input-variant-active-bg: var(--palette-primary-soft-active-bg);
+            --input-variant-hover-bg: var(--palette-primary-soft-hover-bg);
+            --input-variant-disabled-color: var(--palette-primary-soft-disabled-color);
+            --input-variant-disabled-bg: var(--palette-primary-soft-disabled-bg);
+        }
+
+        &.color-secondary {
+            --input-variant-color: var(--palette-secondary-soft-color);
+            --input-variant-bg: var(--palette-secondary-soft-bg);
+            --input-variant-active-bg: var(--palette-secondary-soft-active-bg);
+            --input-variant-hover-bg: var(--palette-secondary-soft-hover-bg);
+            --input-variant-disabled-color: var(--palette-secondary-soft-disabled-color);
+            --input-variant-disabled-bg: var(--palette-secondary-soft-disabled-bg);
+        }
+
+        &.color-success {
+            --input-variant-color: var(--palette-success-soft-color);
+            --input-variant-bg: var(--palette-success-soft-bg);
+            --input-variant-active-bg: var(--palette-success-soft-active-bg);
+            --input-variant-hover-bg: var(--palette-success-soft-hover-bg);
+            --input-variant-disabled-color: var(--palette-success-soft-disabled-color);
+            --input-variant-disabled-bg: var(--palette-success-soft-disabled-bg);
+        }
+
+        &.color-warning {
+            --input-variant-color: var(--palette-warning-soft-color);
+            --input-variant-bg: var(--palette-warning-soft-bg);
+            --input-variant-active-bg: var(--palette-warning-soft-active-bg);
+            --input-variant-hover-bg: var(--palette-warning-soft-hover-bg);
+            --input-variant-disabled-color: var(--palette-warning-soft-disabled-color);
+            --input-variant-disabled-bg: var(--palette-warning-soft-disabled-bg);
+        }
+
+        &.color-failure {
+            --input-variant-color: var(--palette-failure-soft-color);
+            --input-variant-bg: var(--palette-failure-soft-bg);
+            --input-variant-active-bg: var(--palette-failure-soft-active-bg);
+            --input-variant-hover-bg: var(--palette-failure-soft-hover-bg);
+            --input-variant-disabled-color: var(--palette-failure-soft-disabled-color);
+            --input-variant-disabled-bg: var(--palette-failure-soft-disabled-bg);
+        }
+    }
+
+    &.variant-outlined {
+        &.color-neutral {
+            --input-variant-color: var(--palette-neutral-outlined-color);
+            --input-variant-border: var(--palette-neutral-outlined-border);
+            --input-variant-active-bg: var(--palette-neutral-outlined-active-bg);
+            --input-variant-hover-color: var(--palette-neutral-outlined-hover-color);
+            --input-variant-hover-bg: var(--palette-neutral-outlined-hover-bg);
+            --input-variant-hover-border: var(--palette-neutral-outlined-hover-border);
+            --input-variant-disabled-color: var(--palette-neutral-outlined-disabled-color);
+            --input-variant-disabled-border: var(--palette-neutral-outlined-disabled-border);
+        }
+
+        &.color-primary {
+            --input-variant-color: var(--palette-primary-outlined-color);
+            --input-variant-border: var(--palette-primary-outlined-border);
+            --input-variant-active-bg: var(--palette-primary-outlined-active-bg);
+            --input-variant-hover-bg: var(--palette-primary-outlined-hover-bg);
+            --input-variant-hover-border: var(--palette-primary-outlined-hover-border);
+            --input-variant-disabled-color: var(--palette-primary-outlined-disabled-color);
+            --input-variant-disabled-border: var(--palette-primary-outlined-disabled-border);
+        }
+
+        &.color-secondary {
+            --input-variant-color: var(--palette-secondary-outlined-color);
+            --input-variant-border: var(--palette-secondary-outlined-border);
+            --input-variant-active-bg: var(--palette-secondary-outlined-active-bg);
+            --input-variant-hover-bg: var(--palette-secondary-outlined-hover-bg);
+            --input-variant-hover-border: var(--palette-secondary-outlined-hover-border);
+            --input-variant-disabled-color: var(--palette-secondary-outlined-disabled-color);
+            --input-variant-disabled-border: var(--palette-secondary-outlined-disabled-border);
+        }
+
+        &.color-success {
+            --input-variant-color: var(--palette-success-outlined-color);
+            --input-variant-border: var(--palette-success-outlined-border);
+            --input-variant-active-bg: var(--palette-success-outlined-active-bg);
+            --input-variant-hover-bg: var(--palette-success-outlined-hover-bg);
+            --input-variant-hover-border: var(--palette-success-outlined-hover-border);
+            --input-variant-disabled-color: var(--palette-success-outlined-disabled-color);
+            --input-variant-disabled-border: var(--palette-success-outlined-disabled-border);
+        }
+
+        &.color-warning {
+            --input-variant-color: var(--palette-warning-outlined-color);
+            --input-variant-border: var(--palette-warning-outlined-border);
+            --input-variant-active-bg: var(--palette-warning-outlined-active-bg);
+            --input-variant-hover-bg: var(--palette-warning-outlined-hover-bg);
+            --input-variant-hover-border: var(--palette-warning-outlined-hover-border);
+            --input-variant-disabled-color: var(--palette-warning-outlined-disabled-color);
+            --input-variant-disabled-border: var(--palette-warning-outlined-disabled-border);
+        }
+
+        &.color-failure {
+            --input-variant-color: var(--palette-failure-outlined-color);
+            --input-variant-border: var(--palette-failure-outlined-border);
+            --input-variant-active-bg: var(--palette-failure-outlined-active-bg);
+            --input-variant-hover-bg: var(--palette-failure-outlined-hover-bg);
+            --input-variant-hover-border: var(--palette-failure-outlined-hover-border);
+            --input-variant-disabled-color: var(--palette-failure-outlined-disabled-color);
+            --input-variant-disabled-border: var(--palette-failure-outlined-disabled-border);
+        }
+    }
+
+    &.variant-plain {
+        &.color-neutral {
+            --input-variant-color: var(--palette-neutral-plain-color);
+            --input-variant-active-bg: var(--palette-neutral-plain-active-bg);
+            --input-variant-hover-color: var(--palette-neutral-plain-hover-color);
+            --input-variant-hover-bg: var(--palette-neutral-plain-hover-bg);
+            --input-variant-disabled-color: var(--palette-neutral-plain-disabled-color);
+        }
+
+        &.color-primary {
+            --input-variant-color: var(--palette-primary-plain-color);
+            --input-variant-active-bg: var(--palette-primary-plain-active-bg);
+            --input-variant-hover-bg: var(--palette-primary-plain-hover-bg);
+            --input-variant-disabled-color: var(--palette-primary-plain-disabled-color);
+        }
+
+        &.color-secondary {
+            --input-variant-color: var(--palette-secondary-plain-color);
+            --input-variant-active-bg: var(--palette-secondary-plain-active-bg);
+            --input-variant-hover-bg: var(--palette-secondary-plain-hover-bg);
+            --input-variant-disabled-color: var(--palette-secondary-plain-disabled-color);
+        }
+
+        &.color-success {
+            --input-variant-color: var(--palette-success-plain-color);
+            --input-variant-active-bg: var(--palette-success-plain-active-bg);
+            --input-variant-hover-bg: var(--palette-success-plain-hover-bg);
+            --input-variant-disabled-color: var(--palette-success-plain-disabled-color);
+        }
+
+        &.color-warning {
+            --input-variant-color: var(--palette-warning-plain-color);
+            --input-variant-active-bg: var(--palette-warning-plain-active-bg);
+            --input-variant-hover-bg: var(--palette-warning-plain-hover-bg);
+            --input-variant-disabled-color: var(--palette-warning-plain-disabled-color);
+        }
+
+        &.color-failure {
+            --input-variant-color: var(--palette-failure-plain-color);
+            --input-variant-active-bg: var(--palette-failure-plain-active-bg);
+            --input-variant-hover-bg: var(--palette-failure-plain-hover-bg);
+            --input-variant-disabled-color: var(--palette-failure-plain-disabled-color);
+        }
+    }
+
+    --input-color: var(--input-variant-color);
+    --input-bg: var(--input-variant-bg, transparent);
+    --input-border: var(--input-variant-border, var(--input-bg));
+    --input-hover-color: var(--input-variant-hover-color, var(--input-color));
+    --input-hover-bg: var(--input-variant-hover-bg, var(--input-bg));
+    --input-hover-border: var(--input-variant-hover-border, var(--input-border));
+    --input-active-color: var(--input-variant-color);
+    --input-active-bg: var(--input-variant-active-bg, var(--input-bg));
+    --input-active-border: var(--input-variant-active-bg, var(--input-border));
+    --input-disabled-color: var(--input-variant-disabled-color, var(--input-color));
+    --input-disabled-bg: var(--input-variant-disabled-bg, var(--input-bg));
+    --input-disabled-border: var(--input-variant-disabled-bg, var(--input-border));
+
+    &.size-small {
+        --input-icon-size: var(--font-size-md);
+        --input-font-size: var(--font-size-sm);
+        --input-min-size: 2rem;
+        --input-padding-block: 0.125rem;
+        --input-padding-inline: 0.75rem;
+        --input-radius: var(--radius-sm);
+    }
+
+    &.size-medium {
+        --input-icon-size: var(--font-size-xl);
+        --input-font-size: var(--font-size-md);
+        --input-min-size: 2.5rem;
+        --input-padding-block: 0.25rem;
+        --input-padding-inline: 1rem;
+        --input-radius: var(--radius-md);
+    }
+
+    &.size-large {
+        --input-icon-size: var(--font-size-xl2);
+        --input-font-size: var(--font-size-lg);
+        --input-min-size: 3rem;
+        --input-padding-block: 0.375rem;
+        --input-padding-inline: 1.5rem;
+        --input-radius: var(--radius-lg);
+    }
+
+    &.spacing-none {
+        --input-min-size: calc(var(--input-icon-size) + 2px);
+        --input-padding-block: 0;
+        --input-padding-inline: 0;
+        --input-radius: var(--radius-xs);
+    }
+
+    &.spacing-half {
+        --input-spacing: 0.75;
+    }
+
+    &.spacing-small {
+        --input-spacing: 1;
+    }
+
+    &.spacing-medium {
+        --input-spacing: 1.25;
+    }
+
+    &.spacing-large {
+        --input-spacing: 1.5;
+    }
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--input-color);
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--input-radius);
+
+    &:has(:active) {
+        color: var(--input-active-color);
+        background-color: var(--input-active-bg);
+        border-color: var(--input-active-border);
+    }
+
+    &:has(:hover, :focus) {
+        color: var(--input-hover-color);
+        background-color: var(--input-hover-bg);
+        border-color: var(--input-hover-border);
+    }
+
+    &:has(:disabled) {
+        color: var(--input-disabled-color);
+        background-color: var(--input-disabled-bg);
+        border-color: var(--input-disabled-border);
+    }
+
+    &.full-width {
+        width: 100%;
+    }
+
+    &.full-height {
+        height: 100%;
+    }
+
+    input {
+        font-family: var(--font-family-body);
+        font-weight: var(--font-weight-sm);
+        font-size: var(--input-font-size);
+        min-width: calc(var(--input-min-size) * var(--input-spacing, 1));
+        min-height: calc(var(--input-min-size) * var(--input-spacing, 1));
+        padding-block: 0;
+        padding-inline: calc(var(--input-padding-inline) * var(--input-spacing, 1));
+        line-height: 1;
+        text-decoration: none;
+        color: inherit;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        width: 100%;
+        text-overflow: ellipsis;
+
+        &::placeholder {
+            color: inherit;
+            opacity: 0.5;
+        }
+    }
+
+    .start-decorator,
+    .end-decorator {
+        display: flex;
+        align-items: stretch;
+        flex-shrink: 0;
+
+        &.type-simple {
+            padding-inline: calc(var(--input-padding-inline) * var(--input-spacing, 1));
+        }
+    }
+
+    .start-decorator {
+        justify-content: flex-start;
+    }
+
+    .end-decorator {
+        justify-content: flex-end;
+    }
+
+    &:has(.start-decorator.type-simple) input {
+        padding-inline-start: 0;
+    }
+
+    &:has(.end-decorator.type-simple) input {
+        padding-inline-end: 0;
+    }
+}

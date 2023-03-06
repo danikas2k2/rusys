@@ -1,0 +1,98 @@
+import Checkbox from '@ui/Checkbox';
+import useLongTouch from '@ui/hooks/useLondTouch';
+import Interactive from '@ui/Interactive';
+import classNames from 'classnames';
+import { isEmpty } from 'lodash';
+import React, { useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import Cell from '~/client/table/Cell';
+import Row from '~/client/table/Row';
+import ValueCell from '~/client/table/ValueCell';
+import type { BaseState } from '~/store/base/types';
+import type { Name, Value, Values, Year } from '~/store/details/types';
+import { enableEditingAction } from '~/store/editing/actions';
+import useUpdateDetails from '~/store/details/useUpdateDetails';
+import useAddMissing from '~/store/missing/useAddMissing';
+import useRemoveMissing from '~/store/missing/useRemoveMissing';
+import { preventDefault } from '~/utils/events';
+import './ValueRow.less';
+
+interface ValueRowProps {
+    name: Name;
+    values: Values;
+    isMissing?: boolean;
+}
+
+export default function ValueRow({ name, values, isMissing }: ValueRowProps): JSX.Element {
+    const dispatch = useDispatch();
+    const years = useSelector((state: BaseState) => state.years);
+
+    const labelId = `checkbox-${name}`;
+    const isUnavailable = isEmpty(values);
+
+    const addMissing = useAddMissing();
+    const removeMissing = useRemoveMissing();
+    const handleMissing = useCallback(
+        async (name: string, isMissing: boolean): Promise<void> => {
+            if (isMissing) {
+                await addMissing(name);
+            } else {
+                await removeMissing(name);
+            }
+        },
+        [addMissing, removeMissing]
+    );
+
+    const updateDetails = useUpdateDetails();
+    const handleValue = async (name: string, year: Year, value?: Value): Promise<void> => {
+        await updateDetails(name, year, value);
+        handleMissing(name, false);
+    };
+
+    const onClick = (): void => {
+        if (!isUnavailable) {
+            handleMissing(name, !isMissing);
+        }
+    };
+
+    const handleLongTouch = preventDefault((): void => {
+        dispatch(enableEditingAction(name));
+    });
+
+    const { onTouchStart, onTouchEnd } = useLongTouch<HTMLDivElement>(handleLongTouch);
+
+    return (
+        <Row key={name} className={classNames('Row', { selected: isMissing })} aria-checked={!isMissing}>
+            <Cell>
+                <Checkbox
+                    color="primary"
+                    checked={!isMissing}
+                    disabled={isUnavailable}
+                    indeterminate={isUnavailable}
+                    aria-labelledby={labelId}
+                    onClick={onClick}
+                />
+            </Cell>
+            <Cell id={labelId} className={classNames('name', { unavailable: isUnavailable })}>
+                <Interactive
+                    onClick={onClick}
+                    onDoubleClick={handleLongTouch}
+                    onTouchStart={onTouchStart}
+                    onTouchEnd={onTouchEnd}
+                >
+                    {name}
+                </Interactive>
+            </Cell>
+            {years.map((year) => (
+                <ValueCell
+                    key={year}
+                    name={name}
+                    year={year}
+                    value={values[year]}
+                    isLast={year === years[years.length - 1]}
+                    onChange={(value) => handleValue(name, year, value)}
+                />
+            ))}
+        </Row>
+    );
+}

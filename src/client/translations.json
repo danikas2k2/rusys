@@ -1,0 +1,50 @@
+{
+    "Add": {
+        "lt-LT": "Pridėti"
+    },
+    "Add new entry": {
+        "lt-LT": "Pridėti naują įrašą"
+    },
+    "Cancel": {
+        "lt-LT": "Atšaukti"
+    },
+    "Cellar": {
+        "lt-LT": "Rūsys"
+    },
+    "Confirm": {
+        "lt-LT": "Patvirtinti"
+    },
+    "Edit": {
+        "lt-LT": "Taisyti"
+    },
+    "Login with Google": {
+        "lt-LT": "Prisijungti su Google"
+    },
+    "Logout": {
+        "lt-LT": "Atsijungti"
+    },
+    "Please enter a name": {
+        "lt-LT": "Įveskite pavadinimą"
+    },
+    "Remove": {
+        "lt-LT": "Šalinti"
+    },
+    "Sure to logout?": {
+        "lt-LT": "Tikrai atsijungti?"
+    },
+    "Sure to remove?": {
+        "lt-LT": "Tikrai pašalinti?"
+    },
+    "This name already exists": {
+        "lt-LT": "Toks pavadinimas jau yra"
+    },
+    "Update": {
+        "lt-LT": "Naujinti"
+    },
+    "Update entry": {
+        "lt-LT": "Naujinti įrašą"
+    },
+    "type to filter": {
+        "lt-LT": "filtruokite"
+    }
+}

@@ -1,0 +1,46 @@
+.Backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: var(--palette-background-backdrop);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-index-backdrop);
+}
+
+.Dialog {
+    position: relative;
+    width: fit-content;
+    height: fit-content;
+    min-width: 20rem;
+    min-height: 5rem;
+    color: var(--palette-text-primary);
+    background-color: var(--palette-background-popup);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+
+    > * {
+        padding: 1rem;
+    }
+
+    header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-md);
+    }
+
+    main:empty {
+        display: none;
+    }
+
+    footer {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+}

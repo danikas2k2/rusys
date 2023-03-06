@@ -1,0 +1,57 @@
+.ValueBox {
+    header {
+        flex-wrap: nowrap;
+
+        .title {
+            flex: 1 0 auto;
+            padding: 0 1.75rem;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: center;
+
+            time {
+                font-size: var(--font-size-xl3);
+                font-weight: var(--font-weight-md);
+            }
+        }
+
+        .close {
+            flex: 0;
+            width: 0;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: flex-end;
+        }
+    }
+
+    .row {
+        padding: 0.25rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .label {
+            flex: 1 0 auto;
+            padding-inline-end: 1rem;
+            justify-self: center;
+            font-size: var(--font-size-xl2);
+            font-weight: var(--font-weight-sm);
+
+            small {
+                padding-inline-start: 0.2rem;
+                font-size: var(--font-size-xs);
+                font-weight: var(--font-weight-md);
+            }
+        }
+
+        .value {
+            flex: 0 0 auto;
+            width: 12rem;
+        }
+
+        input {
+            text-align: center;
+        }
+    }
+}

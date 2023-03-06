@@ -1,0 +1,305 @@
+import AddIcon from '@icons/Add.svg';
+import RemoveIcon from '@icons/Remove.svg';
+import Button from '@ui/Button';
+import Input from '@ui/Input';
+import React from 'react';
+
+export const colors = ['neutral', 'primary', 'secondary', 'success', 'warning', 'failure'];
+export const variants = ['outlined', 'plain', 'soft', 'solid'];
+export const sizes = ['small', 'medium', 'large'];
+export const spacing = ['small', 'medium', 'large', 'half', 'none'];
+export const modes = {
+    text: 'Text',
+    tel: '+37067812345',
+    url: 'https://www.google.com',
+    email: 'info@googe.com',
+    numeric: 123.45,
+    decimal: 123456789,
+    search: 'Search',
+};
+
+# Input
+
+```tsx
+import Input from '@ui/Input';
+
+<Input
+    variant="outlined"
+    color="neutral"
+    size="small"
+    spacing="small"
+    mode="text"
+    value=""
+    placeholder="Enter something"
+    disabled={false}
+    fullWidth={false}
+    // ...
+    // any other valid html attributes, applied to the HTMLInputElement
+/>;
+```
+
+| Property      | Type                                                                                     | Default      | Description                      |
+| :------------ | :--------------------------------------------------------------------------------------- | :----------- | :------------------------------- |
+| `variant`     | `"solid"` \| `"soft"` \| `"outlined"` \| `"plain"`                                       | `"outlined"` | The variant of the input.        |
+| `color`       | `"primary"` \| `"secondary"` \| `"neutral"` \| `"success"` \| `"warning"` \| `"failure"` | `"neutral"`  | The color of the input.          |
+| `size`        | `"small"` \| `"medium"` \| `"large"`                                                     | `"small"`    | The size of the input.           |
+| `spacing`     | `"small"` \| `"medium"` \| `"large"`                                                     | `"small"`    | The spacing of the input.        |
+| `mode`        | `"text"` \| `"tel"` \| `"url"` \| `"email"` \| `"numeric"` \| `"decimal"` \| `"search"`  | `"text"`     | The mode of the input.           |
+| `value`       | `string` \| `number`                                                                     | -            | The value of the input.          |
+| `placeholder` | `string` \| `number`                                                                     | -            | The placeholder of the input.    |
+| `disabled`    | `boolean`                                                                                | `false`      | Whether the input is disabled.   |
+| `fullWidth`   | `boolean`                                                                                | `false`      | Whether the input is full width. |
+
+## Colors / Variants
+
+```tsx
+<Input color="primary" variant="outlined" />
+```
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {colors.map((color, c) => (
+                <th key={c}>
+                    <code data-default={!c}>{color}</code>
+                </th>
+            ))}
+        </tr>
+    </thead>
+    <tbody>
+        {variants.map((variant, v) => (
+            <tr key={v}>
+                <th>
+                    <code data-default={!v}>{variant}</code>
+                </th>
+                {colors.map((color, c) => (
+                    <td key={c}>
+                        <Input variant={variant} color={color} />
+                    </td>
+                ))}
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+## With value
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {colors.map((color, c) => (
+                <th key={c}>
+                    <code data-default={!c}>{color}</code>
+                </th>
+            ))}
+        </tr>
+    </thead>
+    <tbody>
+        {variants.map((variant, v) => (
+            <tr key={v}>
+                <th>
+                    <code data-default={!v}>{variant}</code>
+                </th>
+                {colors.map((color, c) => (
+                    <td key={c}>
+                        <Input variant={variant} color={color} value={`${variant} ${color}`} />
+                    </td>
+                ))}
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+## With placeholder
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {colors.map((color, c) => (
+                <th key={c}>
+                    <code data-default={!c}>{color}</code>
+                </th>
+            ))}
+        </tr>
+    </thead>
+    <tbody>
+        {variants.map((variant, v) => (
+            <tr key={v}>
+                <th>
+                    <code data-default={!v}>{variant}</code>
+                </th>
+                {colors.map((color, c) => (
+                    <td key={c}>
+                        <Input variant={variant} color={color} placeholder={`${variant} ${color}`} />
+                    </td>
+                ))}
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+## Disabled
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {colors.map((color, c) => (
+                <th key={c}>
+                    <code data-default={!c}>{color}</code>
+                </th>
+            ))}
+        </tr>
+    </thead>
+    <tbody>
+        {variants.map((variant, v) => (
+            <tr key={v}>
+                <th>
+                    <code data-default={!v}>{variant}</code>
+                </th>
+                {colors.map((color, c) => (
+                    <td key={c}>
+                        <Input variant={variant} color={color} value={`${variant} ${color}`} disabled />
+                    </td>
+                ))}
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+## Sizes / Spacing
+
+```tsx
+<Input size="medium" spacing="large" value="Value" />
+```
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {sizes.map((size, s) => (
+                <th key={s}>
+                    <code data-default={!s}>{size}</code>
+                </th>
+            ))}
+        </tr>
+    </thead>
+    <tbody>
+        {spacing.map((sp, x) => (
+            <tr key={x}>
+                <th>
+                    <code data-default={!x}>{sp}</code>
+                </th>
+                {sizes.map((size, s) => (
+                    <td key={s}>
+                        <Input size={size} spacing={sp} value={`${size}, ${sp}`} />
+                    </td>
+                ))}
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+## With decorators
+
+```tsx
+<Input
+    size="medium"
+    spacing="small"
+    value="12.34"
+    startDecorator="$"
+    endDecorator={
+        <>
+            <Button size="medium" spacing="small">
+                <AddIcon />
+            </Button>
+            <Button size="medium" spacing="small">
+                <RemoveIcon />
+            </Button>
+        </>
+    }
+/>
+```
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {sizes.map((size, s) => (
+                <th key={s}>
+                    <code data-default={!s}>{size}</code>
+                </th>
+            ))}
+        </tr>
+    </thead>
+    <tbody>
+        {spacing.map((sp, x) => (
+            <tr key={x}>
+                <th>
+                    <code data-default={!x}>{sp}</code>
+                </th>
+                {sizes.map((size, s) => (
+                    <td key={s}>
+                        <Input
+                            size={size}
+                            spacing={sp}
+                            value={`${size}, ${sp}`}
+                            startDecorator="$"
+                            endDecorator={
+                                <>
+                                    <Button size={size} spacing={sp}>
+                                        <AddIcon />
+                                    </Button>
+                                    <Button size={size} spacing={sp}>
+                                        <RemoveIcon />
+                                    </Button>
+                                </>
+                            }
+                        />
+                    </td>
+                ))}
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+## Full width
+
+<table>
+    <tbody>
+        <tr>
+            <th></th>
+            <td>
+                <Input />
+            </td>
+        </tr>
+        <tr>
+            <th>
+                <code>fullWidth</code>
+            </th>
+            <td>
+                <Input fullWidth />
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+## Modes
+
+<table aria-expanded="false">
+    <tbody>
+        {Object.entries(modes).map(([mode, value], m) => (
+            <tr key={m}>
+                <th>
+                    <code data-default={!m}>{mode}</code>
+                </th>
+                <td>
+                    <Input mode={mode} value={value} />
+                </td>
+            </tr>
+        ))}
+    </tbody>
+</table>

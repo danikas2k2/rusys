@@ -1,0 +1,21 @@
+.Toolbar {
+    position: absolute;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 40px 1fr 40px;
+    align-items: center;
+    inset-inline: 0;
+    inset-block-start: 0;
+    height: 40px;
+
+    > * {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .title {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-md);
+    }
+}
