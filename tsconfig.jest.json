@@ -1,0 +1,7 @@
+{
+    "extends": "./tsconfig.json",
+    "files": ["**/*.test.ts", "**/*.test.tsx"],
+    "compilerOptions": {
+        "types": ["node", "jest", "jest-extended", "jest-chain", "jest-to-match-shape-of", "jest-expect-message"]
+    }
+}

@@ -1,5 +1,7 @@
 {
     "extends": "@tsconfig/node18",
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "**/*.spec.ts", "src/server/**/*"],
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
@@ -18,7 +20,7 @@
         "downlevelIteration": true,
         "jsx": "react-jsx",
         "importsNotUsedAsValues": "error",
-        "types": ["node", "jest", "express", "mdx", "redux-thunk/extend-redux"],
+        "types": ["node", "express", "mdx"],
         "preserveSymlinks": true
     },
     "ts-node": {
@@ -28,7 +30,5 @@
             "module": "commonjs",
             "moduleResolution": "nodeNext"
         }
-    },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules", "**/*.spec.ts", "src/server/**/*"]
+    }
 }

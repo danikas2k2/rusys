@@ -1,12 +1,24 @@
 {
     "verbose": true,
     "moduleFileExtensions": ["js", "jsx", "ts", "tsx"],
-    "transform": {
-        "\\.[jt]sx?$": "ts-jest"
-    },
-    "setupFilesAfterEnv": ["<rootDir>/jest.setup.ts"],
-    "preset": "ts-jest",
+    "setupFilesAfterEnv": [
+        "@testing-library/jest-dom",
+        "@testing-library/jest-dom/extend-expect",
+        "jest-extended/all",
+        "jest-chain",
+        "jest-to-match-shape-of",
+        "jest-expect-message"
+    ],
     "testEnvironment": "jsdom",
+    "preset": "ts-jest",
+    "transform": {
+        "\\.[jt]sx?$": [
+            "ts-jest",
+            {
+                "tsconfig": "tsconfig.jest.json"
+            }
+        ]
+    },
     "collectCoverage": false,
     "collectCoverageFrom": ["src/**/*.{ts,tsx}", "!src/**/*.d.ts", "!src/data/**/*.ts"]
 }

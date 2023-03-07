@@ -1,9 +1,18 @@
-import inlineCssModules from 'webpack.cssModuleWrapper';
+import type { LoaderContext } from 'webpack';
+import inlineCssModules from './webpack.cssModuleWrapper';
 
 describe('webpack.inlineCssModules', () => {
+    const context = {
+        getOptions: () => ({}),
+    } as LoaderContext<object>;
+
     it('only one css file is imported', () => {
         expect(
-            inlineCssModules(`import React from 'react';
+            inlineCssModules
+                .call(
+                    context,
+                    Buffer.from(`
+import React from 'react';
 import classNames from 'classnames';
 import './Button.css';
 
@@ -30,7 +39,10 @@ export function Button = (
         {...props}
     />
 );`)
-        ).toEqual(`import React from 'react';
+                )
+                ?.toString()
+        ).toBe(`
+import React from 'react';
 import classNames__bind from 'classnames/bind';
 import __Button_css from './Button.css';
 
@@ -63,7 +75,11 @@ export function Button = (
 
     it('more css files are imported', () => {
         expect(
-            inlineCssModules(`import React from 'react';
+            inlineCssModules
+                .call(
+                    context,
+                    Buffer.from(`
+import React from 'react';
 import classNames from 'classnames';
 import './Input.css';
 import './Button.css';
@@ -92,7 +108,10 @@ export function Button = (
         {...props}
     />
 );`)
-        ).toEqual(`import React from 'react';
+                )
+                ?.toString()
+        ).toBe(`
+import React from 'react';
 import classNames__bind from 'classnames/bind';
 import __Input_css from './Input.css';
 import __Button_css from './Button.css';
@@ -131,7 +150,11 @@ export function Button = (
 
     it('css file is not last import', () => {
         expect(
-            inlineCssModules(`import classNames from 'classnames';
+            inlineCssModules
+                .call(
+                    context,
+                    Buffer.from(`
+import classNames from 'classnames';
 import './Button.css';
 import './ButtonGroup.css';
 import React from 'react';
@@ -159,7 +182,10 @@ export function Button = (
         {...props}
     />
 );`)
-        ).toEqual(`import classNames__bind from 'classnames/bind';
+                )
+                ?.toString()
+        ).toBe(`
+import classNames__bind from 'classnames/bind';
 import __Button_css from './Button.css';
 import __ButtonGroup_css from './ButtonGroup.css';
 import React from 'react';
@@ -196,7 +222,11 @@ export function Button = (
 
     it('simple class names', () => {
         expect(
-            inlineCssModules(`import React from 'react';
+            inlineCssModules
+                .call(
+                    context,
+                    Buffer.from(`
+import React from 'react';
 import classNames from 'classnames';
 import './Button.css';
 
@@ -213,7 +243,10 @@ export function Button = (
         {...props}
     />
 );`)
-        ).toEqual(`import React from 'react';
+                )
+                ?.toString()
+        ).toBe(`
+import React from 'react';
 import classNames__bind from 'classnames/bind';
 import __Button_css from './Button.css';
 
@@ -236,7 +269,11 @@ export function Button = (
 
     it.skip('wrapped string class names', () => {
         expect(
-            inlineCssModules(`import React from 'react';
+            inlineCssModules
+                .call(
+                    context,
+                    Buffer.from(`
+import React from 'react';
 import classNames from 'classnames';
 import './Button.css';
 
@@ -253,7 +290,10 @@ export function Button = (
         {...props}
     />
 );`)
-        ).toEqual(`import React from 'react';
+                )
+                ?.toString()
+        ).toBe(`
+import React from 'react';
 import classNames__bind from 'classnames/bind';
 import __Button_css from './Button.css';
 
@@ -276,7 +316,11 @@ export function Button = (
 
     it.skip('template string class names', () => {
         expect(
-            inlineCssModules(`import React from 'react';
+            inlineCssModules
+                .call(
+                    context,
+                    Buffer.from(`
+import React from 'react';
 import classNames from 'classnames';
 import './Button.css';
 
@@ -297,7 +341,10 @@ export function Button = (
         {...props}
     />
 );`)
-        ).toEqual(`import React from 'react';
+                )
+                ?.toString()
+        ).toBe(`
+import React from 'react';
 import classNames__bind from 'classnames/bind';
 import __Button_css from './Button.css';
 
@@ -324,7 +371,11 @@ export function Button = (
 
     it.skip('array class names', () => {
         expect(
-            inlineCssModules(`import React from 'react';
+            inlineCssModules
+                .call(
+                    context,
+                    Buffer.from(`
+import React from 'react';
 import './Button.css';
 
 export function Button = (
@@ -344,7 +395,10 @@ export function Button = (
         {...props}
     />
 );`)
-        ).toEqual(`import React from 'react';
+                )
+                ?.toString()
+        ).toBe(`
+import React from 'react';
 import classNames__bind from 'classnames/bind';
 import __Button_css from './Button.css';
 
@@ -371,7 +425,11 @@ export function Button = (
 
     it('has no css imports', () => {
         expect(
-            inlineCssModules(`import React from 'react';
+            inlineCssModules
+                .call(
+                    context,
+                    Buffer.from(`
+import React from 'react';
 import classNames from 'classnames';
 
 export function Button = (
@@ -397,7 +455,10 @@ export function Button = (
         {...props}
     />
 );`)
-        ).toEqual(`import React from 'react';
+                )
+                ?.toString()
+        ).toBe(`
+import React from 'react';
 import classNames from 'classnames';
 
 export function Button = (
@@ -427,7 +488,11 @@ export function Button = (
 
     it('has no classnames import', () => {
         expect(
-            inlineCssModules(`import React from 'react';
+            inlineCssModules
+                .call(
+                    context,
+                    Buffer.from(`
+import React from 'react';
 import './Button.css';
 
 export function Button = (
@@ -443,7 +508,10 @@ export function Button = (
         {...props}
     />
 );`)
-        ).toEqual(`import React from 'react';
+                )
+                ?.toString()
+        ).toBe(`
+import React from 'react';
 import __Button_css from './Button.css';
 import __classNames__bind from 'classnames/bind';
 
@@ -466,7 +534,11 @@ export function Button = (
 
     it('has no class names used', () => {
         expect(
-            inlineCssModules(`import React from 'react';
+            inlineCssModules
+                .call(
+                    context,
+                    Buffer.from(`
+import React from 'react';
 import classNames from 'classnames';
 import './Button.css';
 
@@ -486,7 +558,10 @@ export function Button = (
         {...props}
     />
 );`)
-        ).toEqual(`import React from 'react';
+                )
+                ?.toString()
+        ).toBe(`
+import React from 'react';
 import classNames__bind from 'classnames/bind';
 import __Button_css from './Button.css';
 
@@ -512,7 +587,11 @@ export function Button = (
 
     it('has neither classnames import nor class names used', () => {
         expect(
-            inlineCssModules(`import React from 'react';
+            inlineCssModules
+                .call(
+                    context,
+                    Buffer.from(`
+import React from 'react';
 import './Button.css';
 
 export function Button = (
@@ -531,7 +610,10 @@ export function Button = (
         {...props}
     />
 );`)
-        ).toEqual(`import React from 'react';
+                )
+                ?.toString()
+        ).toBe(`
+import React from 'react';
 import './Button.css';
 
 export function Button = (
