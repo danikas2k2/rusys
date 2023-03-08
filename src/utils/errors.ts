@@ -1,3 +1,6 @@
 export function getErrorMessage(error: unknown): string {
-    return (error as Error)?.message || (error as string) || 'Unknown error occurred';
+    if (error && typeof error === 'string') {
+        return error;
+    }
+    return (error as Error)?.message || 'Unknown error occurred';
 }

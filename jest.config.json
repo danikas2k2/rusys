@@ -1,6 +1,12 @@
 {
     "verbose": true,
     "moduleFileExtensions": ["js", "jsx", "ts", "tsx"],
+    "moduleNameMapper": {
+        "^@config$": "<rootDir>/config.js",
+        "^@icons/(.*)$": "<rootDir>/src/icons/$1",
+        "^@ui/(.*)$": "<rootDir>/src/ui/$1",
+        "^~/(.*)$": "<rootDir>/src/$1"
+    },
     "setupFilesAfterEnv": [
         "@testing-library/jest-dom",
         "@testing-library/jest-dom/extend-expect",
@@ -12,12 +18,7 @@
     "testEnvironment": "jsdom",
     "preset": "ts-jest",
     "transform": {
-        "\\.[jt]sx?$": [
-            "ts-jest",
-            {
-                "tsconfig": "tsconfig.jest.json"
-            }
-        ]
+        "\\.[jt]sx?$": "ts-jest"
     },
     "collectCoverage": false,
     "collectCoverageFrom": ["src/**/*.{ts,tsx}", "!src/**/*.d.ts", "!src/data/**/*.ts"]

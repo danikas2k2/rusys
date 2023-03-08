@@ -6,7 +6,6 @@
         "baseUrl": ".",
         "paths": {
             "@config": ["config.js"],
-            "@icons": ["src/icons/index.ts"],
             "@icons/*": ["src/icons/*"],
             "@ui/*": ["src/ui/*"],
             "~/*": ["src/*"]
@@ -20,7 +19,16 @@
         "downlevelIteration": true,
         "jsx": "react-jsx",
         "importsNotUsedAsValues": "error",
-        "types": ["node", "express", "mdx"],
+        "types": [
+            "node",
+            "express",
+            "mdx",
+            "jest",
+            "jest-extended",
+            "jest-chain",
+            "jest-to-match-shape-of",
+            "jest-expect-message"
+        ],
         "preserveSymlinks": true
     },
     "ts-node": {
