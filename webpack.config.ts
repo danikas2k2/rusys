@@ -35,8 +35,6 @@ const config = async (): Promise<Configuration> => {
         },
     };
 
-    const cssModuleWrapper = path.resolve(__dirname, 'webpack.cssModuleWrapper.ts');
-
     const styleLoader = devMode ? 'style-loader' : MiniCssExtractPlugin.loader;
 
     const postcssLoader = {
@@ -68,8 +66,6 @@ const config = async (): Promise<Configuration> => {
         },
     };
 
-    const lessImportOnce = path.resolve(__dirname, 'webpack.lessImportOnce.ts');
-
     return {
         target: 'web',
         mode: devMode ? 'development' : 'production',
@@ -97,7 +93,7 @@ const config = async (): Promise<Configuration> => {
                 {
                     test: /\.[jt]sx?$/,
                     exclude: /node_modules/,
-                    use: ['ts-loader', cssModuleWrapper],
+                    use: ['ts-loader', 'css-module-wrapper'],
                 },
                 {
                     test: /\.mdx?$/,
@@ -105,7 +101,7 @@ const config = async (): Promise<Configuration> => {
                     use: [
                         mdxLoader,
                         {
-                            loader: cssModuleWrapper,
+                            loader: 'css-module-wrapper',
                             options: {
                                 classNames: false,
                             },
@@ -127,11 +123,11 @@ const config = async (): Promise<Configuration> => {
                 },
                 {
                     test: /\.css$/,
-                    use: [styleLoader, cssLoader, postcssLoader, lessImportOnce],
+                    use: [styleLoader, cssLoader, postcssLoader, 'less-import-once'],
                 },
                 {
                     test: /\.less$/,
-                    use: [styleLoader, cssLoader, postcssLoader, 'less-loader', lessImportOnce],
+                    use: [styleLoader, cssLoader, postcssLoader, 'less-loader', 'less-import-once'],
                 },
             ],
         },

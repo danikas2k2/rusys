@@ -39,6 +39,7 @@ specifiers:
   cors: ^2.8.5
   css-loader: ^6.7.3
   css-minimizer-webpack-plugin: ^4.2.2
+  css-module-wrapper: ^1.0.0
   esbuild: ^0.17.11
   eslint: ^8.35.0
   eslint-config-node: ^4.1.0
@@ -60,6 +61,7 @@ specifiers:
   jest-to-match-shape-of: ^1.3.2
   jwt-decode: ^3.1.2
   less: ^4.1.3
+  less-import-once: ^1.0.1
   less-loader: ^11.1.0
   lodash: ^4.17.21
   mini-css-extract-plugin: ^2.7.2
@@ -164,6 +166,7 @@ devDependencies:
   copy-webpack-plugin: 11.0.0_webpack@5.75.0
   css-loader: 6.7.3_webpack@5.75.0
   css-minimizer-webpack-plugin: 4.2.2_uq5mi6gw7pk55tcrj3rsxehkd4
+  css-module-wrapper: 1.0.0
   esbuild: 0.17.11
   eslint: 8.35.0
   eslint-config-node: 4.1.0_yiggpkcwtyhpwcphetqfqiayhm
@@ -183,6 +186,7 @@ devDependencies:
   jest-extended: 3.2.4_jest@29.5.0
   jest-to-match-shape-of: 1.3.2_jest@29.5.0
   less: 4.1.3
+  less-import-once: 1.0.1
   less-loader: 11.1.0_less@4.1.3+webpack@5.75.0
   mini-css-extract-plugin: 2.7.2_webpack@5.75.0
   moment-locales-webpack-plugin: 1.2.0_x2665sonagxlkw2a4ers27pnju
@@ -3461,6 +3465,10 @@ packages:
       serialize-javascript: 6.0.1
       source-map: 0.6.1
       webpack: 5.75.0_hhtzvzv6fvgvwg52uifni6ryzy
+    dev: true
+
+  /css-module-wrapper/1.0.0:
+    resolution: {integrity: sha512-GKPXXIe67cRqeN9/1dr32UUgZCks0B1dheHWdL7bpc3gU194F++ikyzzJbI/AwOg1CrHGOIpZQkEw0SJ1DwfmQ==}
     dev: true
 
   /css-select-base-adapter/0.1.1:
@@ -7077,6 +7085,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       package-json: 6.5.0
+    dev: true
+
+  /less-import-once/1.0.1:
+    resolution: {integrity: sha512-fMffSahk4vIqXzPN9IiP4ybBW3dvrYMJvZbbKT9Us5YSrreM47JkZyMFKR74pd+KNxktLEtZ64G77EVYtudQcg==}
     dev: true
 
   /less-loader/11.1.0_less@4.1.3+webpack@5.75.0:
