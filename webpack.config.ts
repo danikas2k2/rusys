@@ -88,6 +88,7 @@ const config = async (): Promise<Configuration> => {
             filename: '[name].js',
             globalObject: 'this',
         },
+        cache: true,
         module: {
             rules: [
                 {

@@ -3,6 +3,7 @@
     "include": ["src/**/*"],
     "exclude": ["node_modules", "**/*.spec.ts", "src/server/**/*"],
     "compilerOptions": {
+        "module": "NodeNext",
         "baseUrl": ".",
         "paths": {
             "@config": ["config.js"],
@@ -15,10 +16,9 @@
         "allowSyntheticDefaultImports": true,
         "noFallthroughCasesInSwitch": true,
         "resolveJsonModule": true,
-        "isolatedModules": true,
         "downlevelIteration": true,
+        "verbatimModuleSyntax": true,
         "jsx": "react-jsx",
-        "importsNotUsedAsValues": "error",
         "types": [
             "node",
             "express",
@@ -34,9 +34,10 @@
     "ts-node": {
         "esm": true,
         "compilerOptions": {
-            "target": "es5",
-            "module": "commonjs",
-            "moduleResolution": "nodeNext"
+            "target": "ES2022",
+            "module": "CommonJS",
+            "moduleResolution": "NodeNext",
+            "verbatimModuleSyntax": false
         }
     }
 }

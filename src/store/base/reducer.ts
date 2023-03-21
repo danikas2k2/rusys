@@ -1,6 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { /*applyMiddleware,*/ combineReducers } from 'redux';
-// import thunk from 'redux-thunk';
+import { combineReducers } from 'redux';
 import details from '~/store/details/reducer';
 import editing from '~/store/editing/reducer';
 import filter from '~/store/filter/reducer';
@@ -23,7 +22,6 @@ const reducer = combineReducers({
 
 const store = configureStore({
     reducer,
-    // enhancers: [applyMiddleware(thunk)],
     devTools: process.env.NODE_ENV === 'development',
 });
 
