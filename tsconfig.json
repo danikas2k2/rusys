@@ -11,7 +11,7 @@
             "@ui/*": ["src/ui/*"],
             "~/*": ["src/*"]
         },
-        "lib": ["dom", "dom.iterable", "es2021"],
+        "lib": ["dom", "dom.iterable", "es2022"],
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
         "noFallthroughCasesInSwitch": true,
@@ -19,6 +19,7 @@
         "downlevelIteration": true,
         "verbatimModuleSyntax": true,
         "jsx": "react-jsx",
+        "preserveSymlinks": true,
         "types": [
             "node",
             "express",
@@ -28,15 +29,14 @@
             "jest-chain",
             "jest-to-match-shape-of",
             "jest-expect-message"
-        ],
-        "preserveSymlinks": true
+        ]
     },
     "ts-node": {
         "esm": true,
         "compilerOptions": {
-            "target": "ES2022",
+            "target": "ES2021",
             "module": "CommonJS",
-            "moduleResolution": "NodeNext",
+            "moduleResolution": "Node16",
             "verbatimModuleSyntax": false
         }
     }

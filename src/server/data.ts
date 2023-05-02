@@ -2,7 +2,15 @@ import moment from 'moment';
 import type Nedb from 'nedb';
 import nedb from 'nedb-promises';
 import path from 'path';
-import type { Details, Name, NamedValues, Values, Variant, Year } from '~/store/details/types';
+import {
+    type Details,
+    type Name,
+    type NamedValues,
+    type Value,
+    type Values,
+    type Variant,
+    type Year,
+} from '~/store/details/types';
 
 export const db = {
     details: nedb.create({ filename: path.resolve(__dirname, '../../data/details.jsonl'), autoload: true }),
@@ -37,6 +45,17 @@ export async function getDetails(): Promise<Details> {
 export async function setDetails(name: Name, values: Values): Promise<Details> {
     await addUpdates(name, values);
     await db.details.update({ name }, { name, ...values }, { upsert: true });
+    await (db.details as unknown as Nedb.Persistence).compactDatafile?.();
+    return getDetails();
+}
+
+export async function updateDetails(name: Name, year: Year, value: Value): Promise<Details> {
+    await addUpdates(name, { [year]: value });
+    await db.details.update(
+        { name },
+        { [Object.keys(value).length ? '$set' : '$unset']: { [year]: value } },
+        { upsert: true }
+    );
     await (db.details as unknown as Nedb.Persistence).compactDatafile?.();
     return getDetails();
 }
@@ -88,9 +107,9 @@ function getDiff(prevValues: Values | null, values: Values | null): Values | nul
 
 export async function setName(name: Name, newName: Name): Promise<Details> {
     if (name !== newName) {
-        await db.details.update({ name }, { name: newName }, { multi: true });
+        await db.details.update({ name }, { $set: { name: newName } }, { multi: true });
         await (db.details as unknown as Nedb.Persistence).compactDatafile?.();
-        await db.updates.update({ name }, { name: newName }, { multi: true });
+        await db.updates.update({ name }, { $set: { name: newName } }, { multi: true });
         await (db.updates as unknown as Nedb.Persistence).compactDatafile?.();
     }
     return getDetails();

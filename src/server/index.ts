@@ -2,9 +2,17 @@
 import { api, google } from '@config';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import type { Request, Response } from 'express';
-import express from 'express';
-import { getDetails, getMissing, getYears, remove, setDetails, setMissing, setName } from '~/server/data';
+import express, { type Request, type Response } from 'express';
+import {
+    getDetails,
+    getMissing,
+    getYears,
+    remove,
+    setDetails,
+    setMissing,
+    setName,
+    updateDetails,
+} from '~/server/data';
 
 // TODO add groups: uogienės, daržovienės, šaldyta, daržovės, kruopos, pom.padažai, sriubos
 
@@ -13,15 +21,7 @@ import { getDetails, getMissing, getYears, remove, setDetails, setMissing, setNa
 
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json({ inflate: true }));
-    app.use(
-        cors({
-            origin: '*',
-            credentials: true,
-            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-            preflightContinue: true,
-            optionsSuccessStatus: 204,
-        })
-    );
+    app.use(cors());
 
     app.get('/**/clientId', async (req: Request, res: Response) => {
         console.debug();
@@ -80,6 +80,19 @@ import { getDetails, getMissing, getYears, remove, setDetails, setMissing, setNa
             ok: true,
             years: getYears(),
             details: await setDetails(name, details),
+        });
+        console.debug(`OK`);
+    });
+
+    app.post('/**/updateDetails', async (req: Request, res: Response) => {
+        console.debug();
+        console.debug(`POST /updateDetails`);
+        console.debug(JSON.stringify(req.body, null, 2));
+        const { name, year, value } = req.body;
+        res.json({
+            ok: true,
+            years: getYears(),
+            details: await updateDetails(name, year, value),
         });
         console.debug(`OK`);
     });

@@ -1,7 +1,6 @@
 import { cloneDeep, isEmpty } from 'lodash';
-import type { DetailsAction } from '~/store/details/actions';
-import { DetailsActionType } from '~/store/details/actions';
-import type { Details, Values } from '~/store/details/types';
+import { type DetailsAction, DetailsActionType } from '~/store/details/actions';
+import { type Details, type Values } from '~/store/details/types';
 
 export default function details(details: Details = {}, action: DetailsAction): Details {
     switch (action.type) {

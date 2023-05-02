@@ -2,7 +2,7 @@ import ButtonArticle from '~/tutorial/articles/Button.mdx';
 import ButtonGroupArticle from '~/tutorial/articles/ButtonGroup.mdx';
 import CheckboxArticle from '~/tutorial/articles/Checkbox.mdx';
 import InputArticle from '~/tutorial/articles/Input.mdx';
-import type { FunctionComponent } from 'react';
+import { type FunctionComponent } from 'react';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter, NavLink, Route, Routes } from 'react-router-dom';

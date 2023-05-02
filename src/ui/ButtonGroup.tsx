@@ -1,7 +1,6 @@
-import type { CommonInputProps } from '@ui/Input';
+import { type CommonInputProps } from '@ui/Input';
 import classNames from 'classnames';
-import type { ForwardedRef } from 'react';
-import React, { forwardRef, memo } from 'react';
+import React, { type ForwardedRef, forwardRef, memo } from 'react';
 import useForwardedRef from '~/ui/hooks/useForwardedRef';
 import './ButtonGroup.less';
 

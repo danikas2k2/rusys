@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import type { BaseState } from '~/store/base/types';
-import type { Name } from '~/store/details/types';
+import { type BaseState } from '~/store/base/types';
+import { type Name } from '~/store/details/types';
 import { removeMissingAction } from '~/store/missing/actions';
 import useUpdateMissing from '~/store/missing/useUpdateMissing';
 

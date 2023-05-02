@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { updateDetailsAction } from '~/store/details/actions';
-import type { Name, Value, Year } from '~/store/details/types';
+import { type Name, type Value, type Year } from '~/store/details/types';
 import useDetailsRequest from '~/store/details/useDetailsRequest';
 
 export default function useUpdateDetails(): (name: Name, year?: Year, value?: Value) => Promise<void> {

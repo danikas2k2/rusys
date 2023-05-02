@@ -1,6 +1,5 @@
 import classNames from 'classnames';
-import type { HTMLAttributes, ReactNode } from 'react';
-import React, { memo } from 'react';
+import React, { type HTMLAttributes, memo, type ReactNode } from 'react';
 import './Cell.less';
 
 interface CellProps<T extends HTMLElement = HTMLDivElement> extends HTMLAttributes<T> {

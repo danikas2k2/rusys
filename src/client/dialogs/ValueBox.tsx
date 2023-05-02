@@ -9,13 +9,13 @@ import useAutoFocus from '@ui/hooks/useAutoFocus';
 import IconButton from '@ui/IconButton';
 import Input from '@ui/Input';
 import { isEqual } from 'lodash';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { type KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import ValueVariant from '~/client/ValueVariant';
-import type { Name, Value, Year } from '~/store/details/types';
-import { Variant } from '~/store/details/types';
-import './ValueBox.less';
+import { type Name, type Value, Variant, type Year } from '~/store/details/types';
 import useAllVariants from '~/store/details/useAllVariants';
 import useVariantComparator from '~/store/details/useVariantComparator';
+import { stopPropagation } from '~/utils/events';
+import './ValueBox.less';
 
 interface ValueBoxProps {
     name?: Name;
@@ -89,6 +89,28 @@ export default function ValueBox({ name, year, value, onClose }: ValueBoxProps):
             <div>
                 {editingKeys.map((k, i) => {
                     const v = editingValue?.[k] ?? 0;
+                    const onEnter = stopPropagation((e: KeyboardEvent) => {
+                        if (e.key === 'Enter') {
+                            handleClose();
+                        }
+                    });
+                    const decrease = () => setEditingValue({ ...editingValue, [k]: v - 1 });
+                    const increase = () => setEditingValue({ ...editingValue, [k]: v + 1 });
+                    const onKeyDown = stopPropagation((e: KeyboardEvent) => {
+                        switch (e.key) {
+                            case 'Enter':
+                                handleClose();
+                                break;
+
+                            case 'ArrowDown':
+                                decrease();
+                                break;
+
+                            case 'ArrowUp':
+                                increase();
+                                break;
+                        }
+                    });
                     return (
                         <ButtonGroup key={k} className="row">
                             <div className="label">
@@ -107,9 +129,11 @@ export default function ValueBox({ name, year, value, onClose }: ValueBoxProps):
                                         setEditingValue({ ...editingValue, [k]: newValue });
                                     }
                                 }}
+                                onKeyDown={onKeyDown}
                                 startDecorator={
                                     <Button
-                                        onClick={() => setEditingValue({ ...editingValue, [k]: v - 1 })}
+                                        onClick={decrease}
+                                        onKeyDown={onEnter}
                                         variant="plain"
                                         color="primary"
                                         spacing="half"
@@ -119,7 +143,8 @@ export default function ValueBox({ name, year, value, onClose }: ValueBoxProps):
                                 }
                                 endDecorator={
                                     <Button
-                                        onClick={() => setEditingValue({ ...editingValue, [k]: v + 1 })}
+                                        onClick={increase}
+                                        onKeyDown={onEnter}
                                         variant="plain"
                                         color="primary"
                                         spacing="half"

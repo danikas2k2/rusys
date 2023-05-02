@@ -17,6 +17,11 @@
     ],
     "testEnvironment": "jsdom",
     "preset": "ts-jest",
+    "globals": {
+        "ts-jest": {
+            "tsconfig": "tsconfig.test.json"
+        }
+    },
     "transform": {
         "\\.[jt]sx?$": "ts-jest"
     },

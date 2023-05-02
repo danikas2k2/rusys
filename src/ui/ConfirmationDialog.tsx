@@ -3,9 +3,8 @@ import DoneIcon from '@icons/Done.svg';
 import Button from '@ui/Button';
 import Dialog from '@ui/Dialog';
 import useAutoFocus from '@ui/hooks/useAutoFocus';
-import type { InputColor } from '@ui/Input';
-import type { MouseEvent, ReactNode } from 'react';
-import React, { memo, useEffect } from 'react';
+import { type InputColor } from '@ui/Input';
+import React, { memo, type MouseEvent, type ReactNode, useEffect } from 'react';
 import Label from '~/client/Label';
 
 export interface ConfirmationDialogProps {

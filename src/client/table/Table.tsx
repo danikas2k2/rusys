@@ -7,9 +7,9 @@ import Row from '~/client/table/Row';
 import ValueRow from '~/client/table/ValueRow';
 import { cmp } from '~/client/utils/cmp';
 import { matchParts } from '~/client/utils/matchParts';
-import type { BaseState } from '~/store/base/types';
+import { type BaseState } from '~/store/base/types';
 import useInitialLoader from '~/store/base/useInitialLoader';
-import type { Name, Values } from '~/store/details/types';
+import { type Name, type Values } from '~/store/details/types';
 import './Table.less';
 
 export default function Table(): JSX.Element {

@@ -1,14 +1,13 @@
 import GoogleIcon from '@icons/Google.svg';
-import type { CredentialResponse, TokenResponse } from '@react-oauth/google';
-import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
-import type { ButtonProps } from '@ui/Button';
+import { type CredentialResponse, type TokenResponse, useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
+import { type ButtonProps } from '@ui/Button';
 import IconButton from '@ui/IconButton';
 import jwtDecode from 'jwt-decode';
 import React, { useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import Label from '~/client/Label';
 import { resetProfileAction, setProfileAction } from '~/store/profile/actions';
-import type { Profile } from '~/store/profile/types';
+import { type Profile } from '~/store/profile/types';
 import useEmailCheck from '~/store/profile/useEmailCheck';
 import './LoginButton.less';
 

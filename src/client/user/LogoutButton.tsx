@@ -1,7 +1,7 @@
 import CancelIcon from '@icons/Cancel.svg';
 import LogoutIcon from '@icons/Logout.svg';
 import { googleLogout } from '@react-oauth/google';
-import type { ButtonProps } from '@ui/Button';
+import { type ButtonProps } from '@ui/Button';
 import ConfirmationDialog from '@ui/ConfirmationDialog';
 import IconButton from '@ui/IconButton';
 import React, { useCallback, useState } from 'react';

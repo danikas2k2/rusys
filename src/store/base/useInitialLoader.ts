@@ -1,7 +1,7 @@
 import { api } from '@config';
 import { useDispatch } from 'react-redux';
 import { setDetailsAction } from '~/store/details/actions';
-import type { Details, Name, Year } from '~/store/details/types';
+import { type Details, type Name, type Year } from '~/store/details/types';
 import { setMissingAction } from '~/store/missing/actions';
 import { setYearsAction } from '~/store/years/actions';
 

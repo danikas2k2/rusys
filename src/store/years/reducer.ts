@@ -1,6 +1,5 @@
-import type { Year } from '~/store/details/types';
-import type { YearsAction } from '~/store/years/actions';
-import { YearsActionType } from '~/store/years/actions';
+import { type Year } from '~/store/details/types';
+import { type YearsAction, YearsActionType } from '~/store/years/actions';
 
 export default function years(years: Year[] = [], action: YearsAction): Year[] {
     switch (action.type) {

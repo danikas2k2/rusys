@@ -1,9 +1,8 @@
 import Input from '@ui/Input';
-import type { FormEvent } from 'react';
-import React, { useCallback } from 'react';
+import React, { type FormEvent, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import AddButton from '~/client/toolbar/AddButton';
 import useLabel from '~/client/hooks/useLabel';
+import AddButton from '~/client/toolbar/AddButton';
 import LogoutButton from '~/client/user/LogoutButton';
 import { setFilterAction } from '~/store/filter/actions';
 import './Toolbar.less';

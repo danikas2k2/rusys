@@ -1,10 +1,18 @@
 import CheckIcon from '@icons/Check.svg';
 import CheckIndeterminateIcon from '@icons/CheckIndeterminate.svg';
 import useForwardedRef from '@ui/hooks/useForwardedRef';
-import type { CommonInputProps, InputColor, InputSize, InputVariant } from '@ui/Input';
+import { type CommonInputProps, type InputColor, type InputSize, type InputVariant } from '@ui/Input';
 import classNames from 'classnames';
-import type { ChangeEvent, ForwardedRef } from 'react';
-import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+    type ChangeEvent,
+    type ForwardedRef,
+    forwardRef,
+    memo,
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
 import './Checkbox.less';
 
 export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {

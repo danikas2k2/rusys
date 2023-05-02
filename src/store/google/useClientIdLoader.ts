@@ -1,6 +1,6 @@
 import { api } from '@config';
 import { useDispatch, useSelector } from 'react-redux';
-import type { BaseState } from '~/store/base/types';
+import { type BaseState } from '~/store/base/types';
 import { setClientIdAction, setLoadingAction } from '~/store/google/actions';
 
 export default function useClientIdLoader(): () => Promise<void> {

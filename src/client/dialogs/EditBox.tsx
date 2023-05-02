@@ -12,7 +12,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import useLabel from '~/client/hooks/useLabel';
 import useNameExists from '~/client/hooks/useNameExists';
 import Label from '~/client/Label';
-import type { Name } from '~/store/details/types';
+import { type Name } from '~/store/details/types';
 import useAddDetails from '~/store/details/useAddDetails';
 import useRemoveDetails from '~/store/details/useRemoveDetails';
 import useRenameDetails from '~/store/details/useRenameDetails';

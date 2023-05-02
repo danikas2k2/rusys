@@ -1,4 +1,4 @@
-import type { Locale } from '~/store/locale/types';
+import { type Locale } from '~/store/locale/types';
 
 export const enum LocaleActionType {
     SET = 'locale.set',

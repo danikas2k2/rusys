@@ -1,6 +1,5 @@
-import type { EditingAction } from '~/store/editing/actions';
-import { EditingActionType } from '~/store/editing/actions';
-import type { Editing } from '~/store/editing/types';
+import { type EditingAction, EditingActionType } from '~/store/editing/actions';
+import { type Editing } from '~/store/editing/types';
 
 export default function editing(editing: Editing = {}, action: EditingAction): Editing {
     switch (action.type) {

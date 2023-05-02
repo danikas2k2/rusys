@@ -1,4 +1,4 @@
-import type { Name } from '~/store/details/types';
+import { type Name } from '~/store/details/types';
 
 export const enum MissingActionType {
     SET = 'missing.set',

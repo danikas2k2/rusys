@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { cmp } from '~/client/utils/cmp';
-import type { Variant } from '~/store/details/types';
+import { type Variant } from '~/store/details/types';
 import useAllVariants from '~/store/details/useAllVariants';
 
 export default function useVariantComparator(): (a: Variant | string, b: Variant | string) => number {

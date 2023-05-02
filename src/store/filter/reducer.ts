@@ -1,5 +1,4 @@
-import type { FilterAction } from '~/store/filter/actions';
-import { FilterActionType } from '~/store/filter/actions';
+import { type FilterAction, FilterActionType } from '~/store/filter/actions';
 
 export default function filter(filter = '', action: FilterAction): string {
     switch (action.type) {

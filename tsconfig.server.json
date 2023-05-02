@@ -1,16 +1,11 @@
 {
     "extends": "./tsconfig.json",
+    "include": ["src/server/index.ts"],
+    "exclude": ["node_modules", "**/*.spec.ts", "./config.js"],
     "compilerOptions": {
         "module": "AMD",
         "isolatedModules": false,
-        "resolveJsonModule": true,
+        "verbatimModuleSyntax": false,
         "outFile": "dist/server.js"
-    },
-    "include": [
-        "src/server/index.ts"
-    ],
-    "exclude": [
-        "node_modules",
-        "./config.js"
-    ]
+    }
 }

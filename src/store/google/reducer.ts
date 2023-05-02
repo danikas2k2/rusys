@@ -1,6 +1,5 @@
-import type { GoogleAction } from '~/store/google/actions';
-import { GoogleActionType } from '~/store/google/actions';
-import type { Google } from '~/store/google/types';
+import { type GoogleAction, GoogleActionType } from '~/store/google/actions';
+import { type Google } from '~/store/google/types';
 
 export default function google(state: Google = {}, action: GoogleAction): Google {
     switch (action.type) {

@@ -1,7 +1,7 @@
 import { api } from '@config';
 import { isEqual } from 'lodash';
 import { useDispatch } from 'react-redux';
-import type { Name } from '~/store/details/types';
+import { type Name } from '~/store/details/types';
 import { setMissingAction } from '~/store/missing/actions';
 
 export default function useUpdateMissing(): (missing: Name[]) => Promise<void> {

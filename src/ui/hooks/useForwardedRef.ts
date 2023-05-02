@@ -1,5 +1,4 @@
-import type { ForwardedRef, RefObject } from 'react';
-import { useEffect, useRef } from 'react';
+import { type ForwardedRef, type RefObject, useEffect, useRef } from 'react';
 
 export default function useForwardedRef<T extends Element>(
     ref: ForwardedRef<T> | undefined,

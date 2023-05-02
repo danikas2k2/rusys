@@ -1,6 +1,5 @@
 import classNames from 'classnames';
-import type { HTMLAttributes, ReactNode } from 'react';
-import React, { memo } from 'react';
+import React, { type HTMLAttributes, memo, type ReactNode } from 'react';
 import './Row.less';
 
 interface RowProps<T extends HTMLElement = HTMLDivElement> extends HTMLAttributes<T> {

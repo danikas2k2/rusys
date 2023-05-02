@@ -1,4 +1,4 @@
-import type { EventHandler, KeyboardEvent, KeyboardEventHandler, SyntheticEvent } from 'react';
+import { type EventHandler, type KeyboardEvent, type KeyboardEventHandler, type SyntheticEvent } from 'react';
 
 export function stopPropagation<T extends Element = Element, E extends SyntheticEvent<T> = SyntheticEvent<T>>(
     handler?: EventHandler<E>

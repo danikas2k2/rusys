@@ -1,5 +1,4 @@
-import type { TouchEvent } from 'react';
-import { useCallback, useRef } from 'react';
+import { type TouchEvent, useCallback, useRef } from 'react';
 
 export default function useLongTouch<T>(
     handler: (e: TouchEvent<T>) => void,

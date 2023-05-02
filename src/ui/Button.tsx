@@ -1,7 +1,6 @@
-import type { InputColor, InputSize, InputSpacing, InputVariant } from '@ui/Input';
+import { type InputColor, type InputSize, type InputSpacing, type InputVariant } from '@ui/Input';
 import classNames from 'classnames';
-import type { ButtonHTMLAttributes, ForwardedRef } from 'react';
-import React, { forwardRef, memo } from 'react';
+import React, { type ButtonHTMLAttributes, type ForwardedRef, forwardRef, memo } from 'react';
 import useForwardedRef from '~/ui/hooks/useForwardedRef';
 import './Button.less';
 

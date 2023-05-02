@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import type { BaseState } from '~/store/base/types';
+import { type BaseState } from '~/store/base/types';
 import useClientIdLoader from '~/store/google/useClientIdLoader';
 
 export default function useClientId(): string | undefined {

@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import type { CommonResponse } from '~/store/types';
 import { setDetailsAction } from '~/store/details/actions';
-import type { Details, Year } from '~/store/details/types';
+import { type Details, type Year } from '~/store/details/types';
+import { type CommonResponse } from '~/store/types';
 import { setYearsAction } from '~/store/years/actions';
 
 export interface RefreshResponse extends CommonResponse {

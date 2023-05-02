@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import EditBox from '~/client/dialogs/EditBox';
 import Table from '~/client/table/Table';
 import Toolbar from '~/client/toolbar/Toolbar';
-import type { BaseState } from '~/store/base/types';
+import { type BaseState } from '~/store/base/types';
 import { disableEditingAction } from '~/store/editing/actions';
 
 export default function TablePage(): JSX.Element {

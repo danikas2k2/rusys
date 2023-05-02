@@ -1,4 +1,4 @@
-import type { Name } from '~/store/details/types';
+import { type Name } from '~/store/details/types';
 
 export const matchParts = (name: Name, filter: string): boolean =>
     filter

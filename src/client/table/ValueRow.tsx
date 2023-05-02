@@ -8,10 +8,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import Cell from '~/client/table/Cell';
 import Row from '~/client/table/Row';
 import ValueCell from '~/client/table/ValueCell';
-import type { BaseState } from '~/store/base/types';
-import type { Name, Value, Values, Year } from '~/store/details/types';
-import { enableEditingAction } from '~/store/editing/actions';
+import { type BaseState } from '~/store/base/types';
+import { type Name, type Value, type Values, type Year } from '~/store/details/types';
 import useUpdateDetails from '~/store/details/useUpdateDetails';
+import { enableEditingAction } from '~/store/editing/actions';
 import useAddMissing from '~/store/missing/useAddMissing';
 import useRemoveMissing from '~/store/missing/useRemoveMissing';
 import { preventDefault } from '~/utils/events';
@@ -26,10 +26,9 @@ interface ValueRowProps {
 export default function ValueRow({ name, values, isMissing }: ValueRowProps): JSX.Element {
     const dispatch = useDispatch();
     const years = useSelector((state: BaseState) => state.years);
-
+    const lastYear = years[years.length - 1];
     const labelId = `checkbox-${name}`;
     const isUnavailable = isEmpty(values);
-
     const addMissing = useAddMissing();
     const removeMissing = useRemoveMissing();
     const handleMissing = useCallback(
@@ -46,7 +45,7 @@ export default function ValueRow({ name, values, isMissing }: ValueRowProps): JS
     const updateDetails = useUpdateDetails();
     const handleValue = async (name: string, year: Year, value?: Value): Promise<void> => {
         await updateDetails(name, year, value);
-        handleMissing(name, false);
+        return handleMissing(name, false);
     };
 
     const onClick = (): void => {
@@ -89,7 +88,7 @@ export default function ValueRow({ name, values, isMissing }: ValueRowProps): JS
                     name={name}
                     year={year}
                     value={values[year]}
-                    isLast={year === years[years.length - 1]}
+                    isLast={year === lastYear}
                     onChange={(value) => handleValue(name, year, value)}
                 />
             ))}

@@ -1,12 +1,12 @@
 import classNames from 'classnames';
-import { isEqual } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Cell from '~/client/table/Cell';
 import ValueBox from '~/client/dialogs/ValueBox';
+import Cell from '~/client/table/Cell';
 import ValueVariant from '~/client/ValueVariant';
-import type { BaseState } from '~/store/base/types';
-import type { Name, Value, Variant, Year } from '~/store/details/types';
+import { type BaseState } from '~/store/base/types';
+import { type Name, type Value, type Variant, type Year } from '~/store/details/types';
 import useVariantComparator from '~/store/details/useVariantComparator';
 import { onActionKey } from '~/utils/events';
 import './ValueCell.less';
@@ -55,7 +55,9 @@ export default function ValueCell({ value, name, year, isLast, onChange }: Value
     const cmpVariants = useVariantComparator();
     return (
         <Cell onClick={onClick} onKeyDown={onActionKey(onClick)} className={classNames('ValueCell', { editing })}>
-            {value ? (
+            {isEmpty(value) ? (
+                <span className="empty">.</span>
+            ) : (
                 Object.entries(value)
                     .sort(([a], [b]) => cmpVariants(a, b))
                     .map(([k, v]) => (
@@ -66,8 +68,6 @@ export default function ValueCell({ value, name, year, isLast, onChange }: Value
                             </sub>
                         </span>
                     ))
-            ) : (
-                <span className="empty">.</span>
             )}
             {editing && <ValueBox name={name} year={year} value={value} onClose={handleClose} />}
         </Cell>

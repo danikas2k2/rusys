@@ -1,7 +1,15 @@
 import useForwardedRef from '@ui/hooks/useForwardedRef';
 import classNames from 'classnames';
-import type { ForwardedRef, InputHTMLAttributes, KeyboardEvent } from 'react';
-import React, { forwardRef, memo, useCallback, useEffect, useState } from 'react';
+import React, {
+    type ForwardedRef,
+    forwardRef,
+    type InputHTMLAttributes,
+    type KeyboardEvent,
+    memo,
+    useCallback,
+    useEffect,
+    useState,
+} from 'react';
 import { stopPropagation } from '~/utils/events';
 import './Input.less';
 
