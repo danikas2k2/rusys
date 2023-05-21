@@ -1,6 +1,6 @@
 import Button, { type ButtonProps } from '@ui/Button';
 import useForwardedRef from '@ui/hooks/useForwardedRef';
-import React, { type ForwardedRef, forwardRef, memo } from 'react';
+import React, { type ForwardedRef, forwardRef, type JSX, memo } from 'react';
 
 export default memo(
     forwardRef(function IconButton(

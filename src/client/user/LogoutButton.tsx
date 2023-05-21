@@ -4,7 +4,7 @@ import { googleLogout } from '@react-oauth/google';
 import { type ButtonProps } from '@ui/Button';
 import ConfirmationDialog from '@ui/ConfirmationDialog';
 import IconButton from '@ui/IconButton';
-import React, { useCallback, useState } from 'react';
+import React, { type JSX, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Label from '~/client/Label';
 import ProfileAvatar from '~/client/user/ProfileAvatar';

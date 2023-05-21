@@ -1,7 +1,7 @@
 import Interactive from '@ui/Interactive';
 import Portal from '@ui/Portal';
 import classNames from 'classnames';
-import React, { type DialogHTMLAttributes, memo, type ReactNode, useEffect } from 'react';
+import React, { type DialogHTMLAttributes, type JSX, memo, type ReactNode, useEffect } from 'react';
 import usePreviousValue from '~/hooks/usePreviousValue';
 import { onEscapeKey, stopPropagation } from '~/utils/events';
 import './Dialog.less';

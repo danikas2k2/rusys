@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { isEmpty, isEqual } from 'lodash';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { type JSX, useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ValueBox from '~/client/dialogs/ValueBox';
 import Cell from '~/client/table/Cell';

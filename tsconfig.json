@@ -6,7 +6,6 @@
         "module": "NodeNext",
         "baseUrl": ".",
         "paths": {
-            "@config": ["config.js"],
             "@icons/*": ["src/icons/*"],
             "@ui/*": ["src/ui/*"],
             "~/*": ["src/*"]

@@ -3,7 +3,7 @@ import { type CredentialResponse, type TokenResponse, useGoogleLogin, useGoogleO
 import { type ButtonProps } from '@ui/Button';
 import IconButton from '@ui/IconButton';
 import jwtDecode from 'jwt-decode';
-import React, { useCallback, useMemo } from 'react';
+import React, { type JSX, useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import Label from '~/client/Label';
 import { resetProfileAction, setProfileAction } from '~/store/profile/actions';

@@ -1,5 +1,5 @@
 import Input from '@ui/Input';
-import React, { type FormEvent, useCallback } from 'react';
+import React, { type FormEvent, type JSX, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import useLabel from '~/client/hooks/useLabel';
 import AddButton from '~/client/toolbar/AddButton';

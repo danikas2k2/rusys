@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { type JSX, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import EditBox from '~/client/dialogs/EditBox';
 import Table from '~/client/table/Table';

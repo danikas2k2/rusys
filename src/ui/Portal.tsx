@@ -1,4 +1,4 @@
-import { memo, type ReactNode } from 'react';
+import { type JSX, memo, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 interface PortalProps {

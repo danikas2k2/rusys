@@ -17,6 +17,9 @@
     "Edit": {
         "lt-LT": "Taisyti"
     },
+    "Invalid Client ID": {
+        "lt-LT": "Netinkamas kliento ID"
+    },
     "Login with Google": {
         "lt-LT": "Prisijungti su Google"
     },

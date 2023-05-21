@@ -1,6 +1,6 @@
 import AddCircleIcon from '@icons/AddCircle.svg';
 import IconButton from '@ui/IconButton';
-import React, { useCallback } from 'react';
+import React, { type JSX, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { enableEditingAction } from '~/store/editing/actions';
 

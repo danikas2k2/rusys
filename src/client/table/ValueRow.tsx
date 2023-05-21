@@ -3,7 +3,7 @@ import useLongTouch from '@ui/hooks/useLondTouch';
 import Interactive from '@ui/Interactive';
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
-import React, { useCallback } from 'react';
+import React, { type JSX, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Cell from '~/client/table/Cell';
 import Row from '~/client/table/Row';

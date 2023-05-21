@@ -1,6 +1,6 @@
 import ConfirmationDialog from '@ui/ConfirmationDialog';
 import { type InputColor } from '@ui/Input';
-import React, { memo, type ReactNode, useState } from 'react';
+import React, { type JSX, memo, type ReactNode, useState } from 'react';
 import Button, { type ButtonProps } from '~/ui/Button';
 
 interface ButtonWithConfirmationProps extends Omit<ButtonProps, 'title'> {

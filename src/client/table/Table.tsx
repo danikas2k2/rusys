@@ -1,6 +1,6 @@
 import Checkbox from '@ui/Checkbox';
 import Loader from '@ui/Loader';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { type JSX, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Cell from '~/client/table/Cell';
 import Row from '~/client/table/Row';

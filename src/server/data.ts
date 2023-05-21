@@ -12,10 +12,11 @@ import {
     type Year,
 } from '~/store/details/types';
 
+const dbPath = process.env.DATA_PATH || path.resolve(__dirname, 'data');
 export const db = {
-    details: nedb.create({ filename: path.resolve(__dirname, '../../data/details.jsonl'), autoload: true }),
-    updates: nedb.create({ filename: path.resolve(__dirname, '../../data/updates.jsonl'), autoload: true }),
-    missing: nedb.create({ filename: path.resolve(__dirname, '../../data/missing.jsonl'), autoload: true }),
+    details: nedb.create({ filename: path.resolve(dbPath, 'details.jsonl'), autoload: true }),
+    updates: nedb.create({ filename: path.resolve(dbPath, 'updates.jsonl'), autoload: true }),
+    missing: nedb.create({ filename: path.resolve(dbPath, 'missing.jsonl'), autoload: true }),
 };
 
 (async () => {

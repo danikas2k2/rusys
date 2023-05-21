@@ -1,4 +1,4 @@
-import { createElement, type HTMLAttributes, type ReactNode } from 'react';
+import { createElement, type HTMLAttributes, type JSX, type ReactNode } from 'react';
 import { onActionKey } from '~/utils/events';
 
 interface InteractiveProps<T extends HTMLElement> extends HTMLAttributes<T> {

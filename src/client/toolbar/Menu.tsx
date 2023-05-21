@@ -1,6 +1,6 @@
 import MenuIcon from '@icons/Menu.svg';
 import IconButton from '@ui/IconButton';
-import React, { memo, useState } from 'react';
+import React, { type JSX, memo, useState } from 'react';
 
 export default memo(function Menu(): JSX.Element {
     const [open, setOpen] = useState(false);

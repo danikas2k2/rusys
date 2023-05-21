@@ -2,7 +2,6 @@
     "verbose": true,
     "moduleFileExtensions": ["js", "jsx", "ts", "tsx"],
     "moduleNameMapper": {
-        "^@config$": "<rootDir>/config.js",
         "^@icons/(.*)$": "<rootDir>/src/icons/$1",
         "^@ui/(.*)$": "<rootDir>/src/ui/$1",
         "^~/(.*)$": "<rootDir>/src/$1"

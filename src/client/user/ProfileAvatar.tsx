@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import useProfile from '~/store/profile/useProfile';
 import './ProfileAvatar.less';
 

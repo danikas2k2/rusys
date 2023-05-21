@@ -1,28 +1,41 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+// @ts-ignore
 import CopyWebpackPlugin from 'copy-webpack-plugin';
+// @ts-ignore
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+// @ts-ignore
+import GeneratePackageJsonPlugin from 'generate-package-json-webpack-plugin';
+// @ts-ignore
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+// @ts-ignore
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+// @ts-ignore
 import WebpackMomentLocales from 'moment-locales-webpack-plugin';
+// @ts-ignore
 import path from 'path';
+// @ts-ignore
 import TerserWebpackPlugin from 'terser-webpack-plugin';
 import type { Configuration } from 'webpack';
 import { EnvironmentPlugin } from 'webpack';
 import 'webpack-dev-server';
+// @ts-ignore
+import PackageJson from './package.json';
 
-async function importPlugin(plugin: string): Promise<unknown> {
+async function importPlugin<T = unknown>(plugin: string): Promise<T> {
     return (await import(plugin)).default;
 }
 
-const config = async (): Promise<Configuration> => {
-    const devMode = process.env.NODE_ENV === 'development';
+const config = async (env: { prod: boolean }, argv: { mode: string }): Promise<Configuration> => {
+    const isDevMode = !env.prod && argv.mode !== 'production';
 
     const alias = {
-        '@config': path.resolve(__dirname, 'config.js'),
         '@icons': path.resolve(__dirname, 'src/icons'),
         '@ui': path.resolve(__dirname, 'src/ui'),
         '~': path.resolve(__dirname, 'src'),
     };
+
+    const styleLoader = isDevMode ? 'style-loader' : MiniCssExtractPlugin.loader;
 
     const cssLoader = {
         loader: 'css-loader',
@@ -30,12 +43,10 @@ const config = async (): Promise<Configuration> => {
             modules: {
                 auto: (path: string) => !path.includes('node_modules'),
                 mode: 'local',
-                localIdentName: devMode ? '[path][name]__[local]' : '[hash:base64]',
+                localIdentName: isDevMode ? '[path][name]__[local]' : '[hash:base64]',
             },
         },
     };
-
-    const styleLoader = devMode ? 'style-loader' : MiniCssExtractPlugin.loader;
 
     const postcssLoader = {
         loader: 'postcss-loader',
@@ -59,7 +70,7 @@ const config = async (): Promise<Configuration> => {
     const mdxLoader = {
         loader: '@mdx-js/loader',
         options: {
-            development: devMode,
+            development: isDevMode,
             providerImportSource: '@mdx-js/react',
             remarkPlugins: [await importPlugin('remark-gfm'), await importPlugin('remark-rehype')],
             rehypePlugins: [await importPlugin('rehype-prism-plus')],
@@ -68,8 +79,8 @@ const config = async (): Promise<Configuration> => {
 
     return {
         target: 'web',
-        mode: devMode ? 'development' : 'production',
-        devtool: devMode ? 'eval' : 'source-map',
+        mode: isDevMode ? 'development' : 'production',
+        devtool: isDevMode ? 'eval' : 'source-map',
         context: __dirname,
         entry: {
             app: {
@@ -84,7 +95,7 @@ const config = async (): Promise<Configuration> => {
             router: ['react-router', 'react-router-dom'],
         },
         output: {
-            path: path.resolve(__dirname, 'dist'),
+            path: path.resolve(__dirname, 'dist/public'),
             filename: '[name].js',
             globalObject: 'this',
         },
@@ -145,13 +156,14 @@ const config = async (): Promise<Configuration> => {
                 ],
             }),
             new EnvironmentPlugin({
-                API: 'http://localhost:8080',
-                DEBUG: devMode,
+                LOCALE: 'lt-LT',
+                DEBUG: isDevMode,
             }),
             new WebpackMomentLocales(),
             new MiniCssExtractPlugin({
-                filename: devMode ? '[name].[contenthash].css' : '[name].css',
-                chunkFilename: devMode ? '[id].[contenthash].css' : '[id].css',
+                filename: isDevMode ? '[name].[contenthash].css' : '[name].css',
+                chunkFilename: isDevMode ? '[id].[contenthash].css' : '[id].css',
+                linkType: 'text/css',
             }),
             new HtmlWebpackPlugin({
                 filename: 'index.html',
@@ -170,6 +182,32 @@ const config = async (): Promise<Configuration> => {
                 scriptLoading: 'blocking',
                 chunksSortMode: 'manual',
                 chunks: ['react', 'router', 'tutorial'],
+            }),
+            // @ts-ignore
+            new GeneratePackageJsonPlugin({
+                name: PackageJson.name,
+                version: PackageJson.version,
+                main: './server.js',
+                engines: {
+                    node: '>= 18',
+                },
+                scripts: {
+                    start: 'node ./server.js',
+                    stop: 'node ./server.js',
+                },
+                peerDependencies: {
+                    'body-parser': '',
+                    cors: '',
+                    express: '',
+                    'jwt-decode': '',
+                    lodash: '',
+                    moment: '',
+                    'nedb-promises': '',
+                    react: '',
+                    'react-dom': '',
+                    'react-redux': '',
+                    redux: '',
+                },
             }),
         ],
         externals: {
@@ -218,7 +256,7 @@ const config = async (): Promise<Configuration> => {
                 new TerserWebpackPlugin({
                     extractComments: true,
                     terserOptions: {
-                        compress: !devMode,
+                        compress: !isDevMode,
                     },
                 }),
                 new CssMinimizerPlugin(),

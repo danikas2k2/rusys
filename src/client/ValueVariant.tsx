@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import { type Variant } from '~/store/details/types';
 
 const VariantShortFormat: Partial<Record<Variant, string>> = {

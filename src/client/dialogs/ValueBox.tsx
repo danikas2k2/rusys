@@ -9,7 +9,7 @@ import useAutoFocus from '@ui/hooks/useAutoFocus';
 import IconButton from '@ui/IconButton';
 import Input from '@ui/Input';
 import { isEqual } from 'lodash';
-import React, { type KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { type JSX, type KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import ValueVariant from '~/client/ValueVariant';
 import { type Name, type Value, Variant, type Year } from '~/store/details/types';
 import useAllVariants from '~/store/details/useAllVariants';

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { type JSX, memo } from 'react';
 import './Loader.less';
 
 export default memo(function Loader(): JSX.Element {

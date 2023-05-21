@@ -8,7 +8,7 @@ import Dialog from '@ui/Dialog';
 import useAutoFocus from '@ui/hooks/useAutoFocus';
 import IconButton from '@ui/IconButton';
 import Input from '@ui/Input';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { type JSX, useCallback, useEffect, useState } from 'react';
 import useLabel from '~/client/hooks/useLabel';
 import useNameExists from '~/client/hooks/useNameExists';
 import Label from '~/client/Label';
