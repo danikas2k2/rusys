@@ -26,7 +26,7 @@ export const db = {
 })();
 
 const MAX_YEARS = 5;
-const SWITCH_MONTH = 6;
+const SWITCH_MONTH = 5;
 
 export function getYears(): Year[] {
     return [...Array(MAX_YEARS)].map(
