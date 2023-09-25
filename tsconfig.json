@@ -3,20 +3,23 @@
     "include": ["src/**/*"],
     "exclude": ["node_modules", "**/*.spec.ts", "src/server/**/*"],
     "compilerOptions": {
-        "module": "NodeNext",
+        "module": "node16",
+        "moduleResolution": "node16",
+        "moduleDetection": "force",
+        "target": "esnext",
         "baseUrl": ".",
         "paths": {
             "@icons/*": ["src/icons/*"],
             "@ui/*": ["src/ui/*"],
             "~/*": ["src/*"]
         },
-        "lib": ["dom", "dom.iterable", "es2022"],
+        "lib": ["es2023", "dom", "dom.iterable"],
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
         "noFallthroughCasesInSwitch": true,
         "resolveJsonModule": true,
         "downlevelIteration": true,
-        "verbatimModuleSyntax": true,
+        "verbatimModuleSyntax": false,
         "jsx": "react-jsx",
         "preserveSymlinks": true,
         "types": [
@@ -28,14 +31,17 @@
             "jest-chain",
             "jest-to-match-shape-of",
             "jest-expect-message"
-        ]
+        ],
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true
     },
     "ts-node": {
         "esm": true,
         "compilerOptions": {
-            "target": "ES2021",
-            "module": "CommonJS",
-            "moduleResolution": "Node16",
+            "target": "es2022",
+            "module": "node16",
+            "moduleResolution": "node16",
             "verbatimModuleSyntax": false
         }
     }

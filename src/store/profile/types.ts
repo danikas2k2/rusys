@@ -3,7 +3,7 @@ export interface Profile {
     exp?: number; // The time the ID token expires, represented in Unix time (integer seconds).
     iat?: number; // The time the ID token was issued, represented in Unix time (integer seconds).
     iss?: string; // The issuer of the token
-    sub?: string; // The subject of the token.An identifier for the user, unique among all Google accounts and never reused.
+    sub?: string; // The subject of the token. An identifier for the user, unique among all Google accounts and never reused.
     at_hash?: string; // Access token hash.
     azp?: string; // The client_id of the authorized presenter.
     email?: string; // The user's email address.

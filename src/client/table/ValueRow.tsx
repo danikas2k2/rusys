@@ -28,7 +28,7 @@ export default function ValueRow({ name, values, isMissing }: ValueRowProps): JS
     const years = useSelector((state: BaseState) => state.years);
     const lastYear = years[years.length - 1];
     const labelId = `checkbox-${name}`;
-    const isUnavailable = isEmpty(values);
+    const isAvailable = !isEmpty(values);
     const addMissing = useAddMissing();
     const removeMissing = useRemoveMissing();
     const handleMissing = useCallback(
@@ -49,7 +49,7 @@ export default function ValueRow({ name, values, isMissing }: ValueRowProps): JS
     };
 
     const onClick = (): void => {
-        if (!isUnavailable) {
+        if (isAvailable) {
             handleMissing(name, !isMissing);
         }
     };
@@ -60,24 +60,30 @@ export default function ValueRow({ name, values, isMissing }: ValueRowProps): JS
 
     const { onTouchStart, onTouchEnd } = useLongTouch<HTMLDivElement>(handleLongTouch);
 
+    const isLastYearOnly = years.filter((year) => values[year]).every((year) => year === lastYear);
+
     return (
         <Row key={name} className={classNames('Row', { selected: isMissing })} aria-checked={!isMissing}>
             <Cell>
                 <Checkbox
                     color="primary"
                     checked={!isMissing}
-                    disabled={isUnavailable}
-                    indeterminate={isUnavailable}
+                    disabled={!isAvailable}
+                    indeterminate={!isAvailable}
                     aria-labelledby={labelId}
                     onClick={onClick}
                 />
             </Cell>
-            <Cell id={labelId} className={classNames('name', { unavailable: isUnavailable })}>
+            <Cell
+                id={labelId}
+                className={classNames('name', { unavailable: !isAvailable, remove: isAvailable && isLastYearOnly })}
+            >
                 <Interactive
                     onClick={onClick}
                     onDoubleClick={handleLongTouch}
                     onTouchStart={onTouchStart}
                     onTouchEnd={onTouchEnd}
+                    onTouchMove={onTouchEnd}
                 >
                     {name}
                 </Interactive>

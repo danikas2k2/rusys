@@ -1,6 +1,14 @@
 {
-  "short_name": "Rūsys",
   "name": "Rūsio tūrinys",
+  "short_name": "Rūsys",
+  "description": "Programa skirta rūsio tūrinio apskaitai",
+  "lang": "lt-LT",
+  "dir": "ltr",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#fff",
+  "background_color": "#fff",
   "icons": [
     {
       "src": "favicon.ico",
@@ -31,10 +39,12 @@
       "src": "logo-512.png",
       "type": "image/png",
       "sizes": "512x512"
+    },
+    {
+      "src": "logo.svg",
+      "purpose": "maskable any",
+      "type": "image/svg+xml",
+      "sizes": "any"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  ]
 }

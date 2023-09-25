@@ -1,20 +1,14 @@
-import AddIcon from '@icons/Add.svg';
 import CloseIcon from '@icons/Close.svg';
 import ExpandDownIcon from '@icons/ExpandDown.svg';
-import RemoveIcon from '@icons/Remove.svg';
 import Button from '@ui/Button';
-import ButtonGroup from '@ui/ButtonGroup';
 import Dialog from '@ui/Dialog';
-import useAutoFocus from '@ui/hooks/useAutoFocus';
 import IconButton from '@ui/IconButton';
-import Input from '@ui/Input';
 import { isEqual } from 'lodash';
-import React, { type JSX, type KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import ValueVariant from '~/client/ValueVariant';
+import React, { createRef, type JSX, type RefObject, useCallback, useEffect, useMemo, useState } from 'react';
+import ValueInput from '~/client/dialogs/ValueInput';
 import { type Name, type Value, Variant, type Year } from '~/store/details/types';
 import useAllVariants from '~/store/details/useAllVariants';
 import useVariantComparator from '~/store/details/useVariantComparator';
-import { stopPropagation } from '~/utils/events';
 import './ValueBox.less';
 
 interface ValueBoxProps {
@@ -57,12 +51,21 @@ export default function ValueBox({ name, year, value, onClose }: ValueBoxProps):
         }
     }, [allVariants, editingValue]);
 
-    const focusRef = useAutoFocus<HTMLInputElement>();
+    const refs = useMemo(
+        (): Partial<Record<Variant, RefObject<HTMLInputElement>>> =>
+            Object.fromEntries(editingKeys.map((k) => [k, createRef()])),
+        [editingKeys]
+    );
+
+    const [focused, setFocused] = useState<Variant>(editingKeys[0]);
+    useEffect(() => {
+        refs[focused]?.current?.focus();
+    }, [focused, refs]);
     useEffect(() => {
         if (expanded) {
-            focusRef?.focus();
+            refs[focused]?.current?.focus();
         }
-    }, [expanded, focusRef]);
+    }, [expanded, focused, refs]);
 
     const handleClose = useCallback((): void => {
         setExpanded(false);
@@ -87,75 +90,28 @@ export default function ValueBox({ name, year, value, onClose }: ValueBoxProps):
                 </div>
             </header>
             <div>
-                {editingKeys.map((k, i) => {
-                    const v = editingValue?.[k] ?? 0;
-                    const onEnter = stopPropagation((e: KeyboardEvent) => {
-                        if (e.key === 'Enter') {
-                            handleClose();
+                {editingKeys.map((k) => (
+                    <ValueInput
+                        key={k}
+                        ref={refs[k]}
+                        variant={k}
+                        prevValue={value?.[k]}
+                        value={editingValue?.[k]}
+                        onClose={handleClose}
+                        onChange={(newValue: number): void =>
+                            setEditingValue({
+                                ...editingValue,
+                                [k]: newValue,
+                            })
                         }
-                    });
-                    const decrease = () => setEditingValue({ ...editingValue, [k]: v - 1 });
-                    const increase = () => setEditingValue({ ...editingValue, [k]: v + 1 });
-                    const onKeyDown = stopPropagation((e: KeyboardEvent) => {
-                        switch (e.key) {
-                            case 'Enter':
-                                handleClose();
-                                break;
-
-                            case 'ArrowDown':
-                                decrease();
-                                break;
-
-                            case 'ArrowUp':
-                                increase();
-                                break;
-                        }
-                    });
-                    return (
-                        <ButtonGroup key={k} className="row">
-                            <div className="label">
-                                <ValueVariant variant={k as Variant} format="long" />
-                            </div>
-                            <Input
-                                ref={i ? undefined : focusRef}
-                                className="value"
-                                color="primary"
-                                size="large"
-                                inputMode="numeric"
-                                value={v}
-                                onChange={(e) => {
-                                    const newValue = +e.currentTarget.value;
-                                    if (!isNaN(newValue)) {
-                                        setEditingValue({ ...editingValue, [k]: newValue });
-                                    }
-                                }}
-                                onKeyDown={onKeyDown}
-                                startDecorator={
-                                    <Button
-                                        onClick={decrease}
-                                        onKeyDown={onEnter}
-                                        variant="plain"
-                                        color="primary"
-                                        spacing="half"
-                                    >
-                                        <RemoveIcon />
-                                    </Button>
-                                }
-                                endDecorator={
-                                    <Button
-                                        onClick={increase}
-                                        onKeyDown={onEnter}
-                                        variant="plain"
-                                        color="primary"
-                                        spacing="half"
-                                    >
-                                        <AddIcon />
-                                    </Button>
-                                }
-                            />
-                        </ButtonGroup>
-                    );
-                })}
+                        focus={k === focused}
+                        onFocus={(): void => {
+                            if (k !== focused) {
+                                setFocused(k);
+                            }
+                        }}
+                    />
+                ))}
             </div>
             <footer>
                 {!expanded && (

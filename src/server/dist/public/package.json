@@ -1,0 +1,26 @@
+{
+  "name": "rusys",
+  "version": "1.2.2",
+  "main": "./server.js",
+  "engines": {
+    "node": ">= 18"
+  },
+  "scripts": {
+    "start": "node ./server.js",
+    "stop": "node ./server.js"
+  },
+  "peerDependencies": {
+    "body-parser": "1.20.2",
+    "cors": "2.8.5",
+    "express": "4.18.2",
+    "jwt-decode": "3.1.2",
+    "lodash": "4.17.21",
+    "moment": "2.29.4",
+    "nedb-promises": "6.2.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-redux": "8.1.2",
+    "redux": "4.2.1"
+  },
+  "dependencies": {}
+}

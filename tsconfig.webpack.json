@@ -1,0 +1,21 @@
+{
+    "extends": "@tsconfig/node16",
+    "include": [
+        "**/*"
+    ],
+    "exclude": [],
+    "compilerOptions": {
+        "module": "Node16",
+        "baseUrl": ".",
+        "lib": [],
+        "esModuleInterop": true,
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+        "noFallthroughCasesInSwitch": true,
+        "resolveJsonModule": true,
+        "downlevelIteration": true,
+        "verbatimModuleSyntax": false,
+        "preserveSymlinks": true,
+        "types": ["node"]
+    }
+}

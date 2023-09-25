@@ -1,20 +1,10 @@
-import useForwardedRef from '@ui/hooks/useForwardedRef';
-import { type ForwardedRef, type RefObject, useCallback, useEffect } from 'react';
-
-interface FocusRefObject<T> extends RefObject<T> {
-    focus: () => void;
-}
+import useFocusRef, { FocusRefObject } from '@ui/hooks/useFocusRef';
+import { type ForwardedRef, useEffect } from 'react';
 
 export default function useAutoFocus<T extends HTMLElement>(
     forwardedRef?: ForwardedRef<T>
 ): FocusRefObject<T> | undefined {
-    const ref = useForwardedRef(forwardedRef);
-    const focus = useCallback(() => {
-        ref?.current?.focus();
-    }, [ref]);
-    if (ref) {
-        (ref as FocusRefObject<T>).focus = focus;
-    }
-    useEffect(() => focus(), [focus]);
-    return ref as FocusRefObject<T>;
+    const ref = useFocusRef(forwardedRef);
+    useEffect(() => ref?.focus(), [ref]);
+    return ref;
 }

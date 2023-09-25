@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
+import { useDev } from '~/hooks/useDev';
 import details from '~/store/details/reducer';
 import editing from '~/store/editing/reducer';
 import filter from '~/store/filter/reducer';
@@ -22,7 +23,7 @@ const reducer = combineReducers({
 
 const store = configureStore({
     reducer,
-    devTools: process.env.NODE_ENV === 'development',
+    devTools: useDev(),
 });
 
 export default store;

@@ -12,7 +12,7 @@ import {
     type Year,
 } from '~/store/details/types';
 
-const dbPath = process.env.DATA_PATH || path.resolve(__dirname, 'data');
+const dbPath = process.env.DATA_PATH || path.resolve(process.cwd(), 'data');
 export const db = {
     details: nedb.create({ filename: path.resolve(dbPath, 'details.jsonl'), autoload: true }),
     updates: nedb.create({ filename: path.resolve(dbPath, 'updates.jsonl'), autoload: true }),
@@ -34,20 +34,25 @@ export function getYears(): Year[] {
     );
 }
 
-export async function getDetails(): Promise<Details> {
+export async function getDetails(years: number[]): Promise<Details> {
     const details = await db.details.find<NamedValues>({});
     // if (isEmpty(details)) {
     //     await db.details.insert(Object.entries(initialDetails).map(([k, v]) => ({ _id: k, ...v })));
     //     return initialDetails;
     // }
-    return Object.fromEntries(details.map(({ _id, name, ...v }) => [name, v]));
+    return Object.fromEntries(
+        details.map(({ _id, name, ...v }) => [
+            name,
+            Object.fromEntries(Object.entries(v).filter(([k]) => years.includes(+k))),
+        ])
+    );
 }
 
 export async function setDetails(name: Name, values: Values): Promise<Details> {
     await addUpdates(name, values);
     await db.details.update({ name }, { name, ...values }, { upsert: true });
     await (db.details as unknown as Nedb.Persistence).compactDatafile?.();
-    return getDetails();
+    return getDetails(getYears());
 }
 
 export async function updateDetails(name: Name, year: Year, value: Value): Promise<Details> {
@@ -58,7 +63,7 @@ export async function updateDetails(name: Name, year: Year, value: Value): Promi
         { upsert: true }
     );
     await (db.details as unknown as Nedb.Persistence).compactDatafile?.();
-    return getDetails();
+    return getDetails(getYears());
 }
 
 export async function addUpdates(name: Name, values: Values | null): Promise<void> {
@@ -113,7 +118,7 @@ export async function setName(name: Name, newName: Name): Promise<Details> {
         await db.updates.update({ name }, { $set: { name: newName } }, { multi: true });
         await (db.updates as unknown as Nedb.Persistence).compactDatafile?.();
     }
-    return getDetails();
+    return getDetails(getYears());
 }
 
 export async function remove(name: Name): Promise<Details> {
@@ -121,7 +126,7 @@ export async function remove(name: Name): Promise<Details> {
     await (db.details as unknown as Nedb.Persistence).compactDatafile?.();
     await db.updates.remove({ name }, { multi: true });
     await (db.updates as unknown as Nedb.Persistence).compactDatafile?.();
-    return getDetails();
+    return getDetails(getYears());
 }
 
 export async function getMissing(): Promise<Name[]> {

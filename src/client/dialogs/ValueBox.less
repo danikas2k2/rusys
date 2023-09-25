@@ -25,33 +25,37 @@
         }
     }
 
-    .row {
-        padding: 0.25rem 1rem;
+    .diff {
+        position: absolute;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        justify-content: center;
+        inset-inline-end: 4em;
+        inset-block-start: -2px;
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-md);
+        padding-inline: .5em;
+        margin-inline: -.5em;
+        border: 1px solid;
+        border-radius: var(--radius-lg);
 
-        .label {
-            flex: 1 0 auto;
-            padding-inline-end: 1rem;
-            justify-self: center;
-            font-size: var(--font-size-xl2);
-            font-weight: var(--font-weight-sm);
+        &.positive {
+            color: var(--palette-success-outlined-color);
+            background-color: var(--palette-success-outlined-hover-bg);
+            border-color: var(--palette-success-outlined-hover-border);
 
-            small {
-                padding-inline-start: 0.2rem;
-                font-size: var(--font-size-xs);
-                font-weight: var(--font-weight-md);
+            &::before {
+                content: "+";
             }
         }
 
-        .value {
-            flex: 0 0 auto;
-            width: 12rem;
-        }
+        &:not(.positive) {
+            color: var(--palette-failure-outlined-color);
+            background-color: var(--palette-failure-outlined-hover-bg);
+            border-color: var(--palette-failure-outlined-hover-border);
 
-        input {
-            text-align: center;
+            &::before {
+                content: "–";
+            }
         }
     }
 }

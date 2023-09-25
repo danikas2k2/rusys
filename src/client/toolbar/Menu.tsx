@@ -18,23 +18,23 @@ export default memo(function Menu(): JSX.Element {
                 <MenuIcon />
             </IconButton>
             {/*<Menu anchorEl={ref?.current} open={open} onClose={() => setOpen(!open)}>
-                    <MenuItem disabled>
-                        <ListItemIcon>
-                            <CategoryIcon fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText>
-                            <Label>Manage items</Label>
-                        </ListItemText>
-                    </MenuItem>
-                    <MenuItem disabled>
-                        <ListItemIcon>
-                            <GroupIcon fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText>
-                            <Label>Manage users</Label>
-                        </ListItemText>
-                    </MenuItem>
-                </Menu>*/}
+                <MenuItem disabled>
+                    <ListItemIcon>
+                        <CategoryIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>
+                        <Label>Manage items</Label>
+                    </ListItemText>
+                </MenuItem>
+                <MenuItem disabled>
+                    <ListItemIcon>
+                        <GroupIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>
+                        <Label>Manage users</Label>
+                    </ListItemText>
+                </MenuItem>
+            </Menu>*/}
         </div>
     );
 });
