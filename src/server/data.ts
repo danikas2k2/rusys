@@ -3,7 +3,7 @@ import type Nedb from 'nedb';
 import nedb from 'nedb-promises';
 import path from 'path';
 import { type Amount, type Amounts, type AmountSet, type NamedAmounts, type Variant } from '~/store/details/types';
-import { type NamedRemoving, type Removing, type RemovingSet } from '~/store/removing/types';
+import { type NamedRemoving, type RemovingSet } from '~/store/removing/types';
 import { type Name, type Year } from '~/store/types';
 
 const dbPath = process.env.DATA_PATH || path.resolve(process.cwd(), 'data');

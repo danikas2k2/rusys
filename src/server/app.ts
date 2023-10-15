@@ -1,7 +1,18 @@
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { type Express, type Request, type Response } from 'express';
-import { getDetails, getMissing, getRemoving, getYears, remove, setDetails, setMissing, setName, setRemoving, updateDetails } from '~/server/data';
+import {
+    getDetails,
+    getMissing,
+    getRemoving,
+    getYears,
+    remove,
+    setDetails,
+    setMissing,
+    setName,
+    setRemoving,
+    updateDetails,
+} from '~/server/data';
 
 // TODO add groups: uogienės, daržovienės, šaldyta, daržovės, kruopos, pom.padažai, sriubos
 
@@ -43,7 +54,7 @@ export default function (app = express()): Express {
         debug(allowedUsers ? 'OK' : "ERROR: GOOGLE_ALLOWED_USERS doesn't exist");
     });
 
-    async function getAllDetails(req: Request, res: Response) {
+    async function getAllDetails(req: Request, res: Response): Promise<void> {
         const years = getYears();
         res.json({
             ok: true,
