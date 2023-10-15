@@ -1,17 +1,14 @@
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import express, { type Request, type Response } from 'express';
-import { getDetails, getMissing, getYears, remove, setDetails, setMissing, setName, updateDetails } from '~/server/data';
+import express, { type Express, type Request, type Response } from 'express';
+import { getDetails, getMissing, getRemoving, getYears, remove, setDetails, setMissing, setName, setRemoving, updateDetails } from '~/server/data';
 
 // TODO add groups: uogienės, daržovienės, šaldyta, daržovės, kruopos, pom.padažai, sriubos
 
-export default function (app = express()) {
+export default function (app = express()): Express {
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json({ inflate: true }));
     app.use(cors());
-
-    console.info('process.cwd', process.cwd());
-
     app.use(express.static('public'));
 
     const { debug } = console;
@@ -21,7 +18,7 @@ export default function (app = express()) {
         debug('GET /clientId');
         debug(JSON.stringify(req.body, null, 2));
         debug('GOOGLE_CLIENT_ID');
-        const clientId = process.env.GOOGLE_CLIENT_ID || process.env.DEV_MODE && 'FORCE_DEV_MODE';
+        const clientId = process.env.GOOGLE_CLIENT_ID || (process.env.DEV_MODE && 'FORCE_DEV_MODE');
         debug(clientId);
         res.json({
             ok: true,
@@ -46,16 +43,21 @@ export default function (app = express()) {
         debug(allowedUsers ? 'OK' : "ERROR: GOOGLE_ALLOWED_USERS doesn't exist");
     });
 
-    app.get('/load', async (req: Request, res: Response) => {
-        debug();
-        debug('GET /load');
+    async function getAllDetails(req: Request, res: Response) {
         const years = getYears();
         res.json({
             ok: true,
             years,
             details: await getDetails(years),
+            removing: await getRemoving(years),
             missing: await getMissing(),
         });
+    }
+
+    app.get('/load', async (req: Request, res: Response) => {
+        debug();
+        debug('GET /load');
+        await getAllDetails(req, res);
         debug('OK');
     });
 
@@ -97,16 +99,26 @@ export default function (app = express()) {
         debug('OK');
     });
 
+    app.post('/setRemoving', async (req: Request, res: Response) => {
+        debug();
+        debug('POST /setRemoving');
+        debug(JSON.stringify(req.body, null, 2));
+        const { name, year, removing } = req.body;
+        res.json({
+            ok: true,
+            years: getYears(),
+            removing: await setRemoving(name, year, removing),
+        });
+        debug('OK');
+    });
+
     app.post('/setName', async (req: Request, res: Response) => {
         debug();
         debug('POST /setName');
         debug(JSON.stringify(req.body, null, 2));
         const { name, newName } = req.body;
-        res.json({
-            ok: true,
-            years: getYears(),
-            details: await setName(name, newName),
-        });
+        await setName(name, newName);
+        await getAllDetails(req, res);
         debug('OK');
     });
 
@@ -115,11 +127,8 @@ export default function (app = express()) {
         debug('POST /remove');
         debug(JSON.stringify(req.body, null, 2));
         const { name } = req.body;
-        res.json({
-            ok: true,
-            years: getYears(),
-            details: await remove(name),
-        });
+        await remove(name);
+        await getAllDetails(req, res);
         debug('OK');
     });
 

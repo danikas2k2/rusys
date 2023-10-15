@@ -1,5 +1,4 @@
-export type Year = number;
-export type Name = string;
+import { type Name, type Year } from '~/store/types';
 
 export enum Variant {
     PUSLITRIS = '', // 0.5l
@@ -13,7 +12,7 @@ export enum Variant {
     BLOGAS = 'x', // cypė ar dar kas negerai
 }
 
-export type Value = Partial<Record<Variant, number>>;
-export type Values = Record<Year, Value>;
-export type NamedValues = { name: string } & Values;
-export type Details = Record<Name, Values>;
+export type Amount = Partial<Record<Variant, number>>;
+export type Amounts = Record<Year, Amount>;
+export type NamedAmounts = { name: string } & Amounts;
+export type AmountSet = Record<Name, Amounts>;

@@ -1,17 +1,17 @@
 import { useCallback } from 'react';
-import useRefreshResponse from '~/store/details/useRefreshResponse';
+import useSetStateFromResponse from '~/store/base/useSetStateFromResponse';
 
-export default function useDetailsRequest(): (url: string, data?: object) => Promise<void> {
-    const refreshResponse = useRefreshResponse();
+export default function useApiRequest(): (url: string, data?: object) => Promise<void> {
+    const updateState = useSetStateFromResponse();
     return useCallback(
         async (url: string, data?: object): Promise<void> =>
-            refreshResponse(
+            updateState(
                 fetch(`/${url}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data ?? {}),
                 })
             ),
-        [refreshResponse]
+        [updateState]
     );
 }

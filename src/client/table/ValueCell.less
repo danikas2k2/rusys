@@ -3,9 +3,26 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
+    transition:
+        color 0.2s ease-in-out,
+        background-color 0.2s ease-in-out;
 
-    .empty {
+    &.empty {
         color: var(--palette-neutral-plain-disabled-color);
+    }
+
+    &:not(.empty) {
+        &.removing {
+            color: var(--palette-failure-solid-color);
+            background-color: var(--palette-failure-solid-bg);
+            border-radius: var(--radius-xs);
+        }
+
+        &:not(.removing) {
+            &.last {
+                color: var(--palette-failure-outlined-color);
+            }
+        }
     }
 
     .value {
@@ -22,11 +39,6 @@
 
         sub {
             font-size: var(--font-size-xs);
-        }
-
-        &.remove {
-            text-decoration: line-through;
-            color: var(--palette-failure-outlined-color);
         }
     }
 }

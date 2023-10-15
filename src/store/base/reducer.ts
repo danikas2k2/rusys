@@ -8,6 +8,7 @@ import google from '~/store/google/reducer';
 import locale from '~/store/locale/reducer';
 import missing from '~/store/missing/reducer';
 import profile from '~/store/profile/reducer';
+import removing from '~/store/removing/reducer';
 import years from '~/store/years/reducer';
 
 const reducer = combineReducers({
@@ -18,6 +19,7 @@ const reducer = combineReducers({
     locale,
     missing,
     profile,
+    removing,
     years,
 });
 

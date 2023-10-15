@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { type Name } from '~/store/details/types';
 import useUpdateDetails from '~/store/details/useUpdateDetails';
+import { type Name } from '~/store/types';
 
 export default function useAddDetails(): (name: Name) => Promise<void> {
     const updateDetails = useUpdateDetails();

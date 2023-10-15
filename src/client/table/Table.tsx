@@ -9,7 +9,8 @@ import { cmp } from '~/client/utils/cmp';
 import { matchParts } from '~/client/utils/matchParts';
 import { type BaseState } from '~/store/base/types';
 import useInitialLoader from '~/store/base/useInitialLoader';
-import { type Name, type Values } from '~/store/details/types';
+import { type Amounts } from '~/store/details/types';
+import { type Name } from '~/store/types';
 import './Table.less';
 
 export default function Table(): JSX.Element {
@@ -39,7 +40,7 @@ export default function Table(): JSX.Element {
         }
     }, [hasMissing, missingOnly]);
 
-    const detailsEntries: [Name, Values][] = useMemo(
+    const detailsEntries: [Name, Amounts][] = useMemo(
         () => Object.entries(details).sort(([a], [b]) => cmp(a.toLowerCase(), b.toLowerCase())),
         [details]
     );

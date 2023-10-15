@@ -1,4 +1,4 @@
-import { type Name } from '~/store/details/types';
+import { type Name } from '~/store/types';
 
 export const enum EditingActionType {
     ENABLE = 'editing.enable',

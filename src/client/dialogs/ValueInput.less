@@ -27,4 +27,38 @@
     input {
         text-align: center;
     }
+
+    .diff {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        inset-inline-end: 4em;
+        inset-block-start: -2px;
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-md);
+        padding-inline: .5em;
+        margin-inline: -.5em;
+        border: 1px solid;
+        border-radius: var(--radius-lg);
+
+        &.positive {
+            color: var(--palette-success-outlined-color);
+            background-color: var(--palette-success-outlined-hover-bg);
+            border-color: var(--palette-success-outlined-hover-border);
+
+            &::before {
+                content: "+";
+            }
+        }
+
+        &:not(.positive) {
+            color: var(--palette-failure-outlined-color);
+            background-color: var(--palette-failure-outlined-hover-bg);
+            border-color: var(--palette-failure-outlined-hover-border);
+
+            &::before {
+                content: "–";
+            }
+        }
+    }
 }

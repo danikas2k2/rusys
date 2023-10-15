@@ -1,5 +1,5 @@
-import { type Name } from '~/store/details/types';
 import { type MissingAction, MissingActionType } from '~/store/missing/actions';
+import { type Name } from '~/store/types';
 
 export default function missing(missing: Name[] = [], action: MissingAction): Name[] {
     switch (action.type) {

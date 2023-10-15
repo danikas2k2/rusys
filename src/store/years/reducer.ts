@@ -1,4 +1,4 @@
-import { type Year } from '~/store/details/types';
+import { type Year } from '~/store/types';
 import { type YearsAction, YearsActionType } from '~/store/years/actions';
 
 export default function years(years: Year[] = [], action: YearsAction): Year[] {

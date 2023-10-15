@@ -6,22 +6,23 @@ import IconButton from '@ui/IconButton';
 import { isEqual } from 'lodash';
 import React, { createRef, type JSX, type RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import ValueInput from '~/client/dialogs/ValueInput';
-import { type Name, type Value, Variant, type Year } from '~/store/details/types';
+import { type Amount, Variant } from '~/store/details/types';
 import useAllVariants from '~/store/details/useAllVariants';
 import useVariantComparator from '~/store/details/useVariantComparator';
+import { type Name, type Year } from '~/store/types';
 import './ValueBox.less';
 
 interface ValueBoxProps {
     name?: Name;
     year?: Year;
-    value?: Value;
-    onClose?: (value?: Value) => void;
+    value?: Amount;
+    onClose?: (value?: Amount) => void;
 }
 
 export default function ValueBox({ name, year, value, onClose }: ValueBoxProps): JSX.Element {
     const [expanded, setExpanded] = useState(false);
 
-    const [editingValue, setEditingValue] = useState<Value>();
+    const [editingValue, setEditingValue] = useState<Amount>();
     useEffect(() => {
         setEditingValue(value);
     }, [value]);

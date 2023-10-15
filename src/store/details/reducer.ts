@@ -1,8 +1,8 @@
 import { cloneDeep, isEmpty } from 'lodash';
 import { type DetailsAction, DetailsActionType } from '~/store/details/actions';
-import { type Details, type Values } from '~/store/details/types';
+import { type AmountSet, type Amounts } from '~/store/details/types';
 
-export default function details(details: Details = {}, action: DetailsAction): Details {
+export default function details(details: AmountSet = {}, action: DetailsAction): AmountSet {
     switch (action.type) {
         case DetailsActionType.SET:
             return cloneDeep(action.details);
@@ -21,7 +21,7 @@ export default function details(details: Details = {}, action: DetailsAction): D
         }
 
         case DetailsActionType.UPDATE: {
-            const values: Values = { ...details[action.name] };
+            const values: Amounts = { ...details[action.name] };
             if (action.year) {
                 if (action.value && !isEmpty(action.value)) {
                     values[action.year] = action.value;

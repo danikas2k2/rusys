@@ -1,17 +1,18 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { updateDetailsAction } from '~/store/details/actions';
-import { type Name, type Value, type Year } from '~/store/details/types';
-import useDetailsRequest from '~/store/details/useDetailsRequest';
+import { type Amount } from '~/store/details/types';
+import { type Name, type Year } from '~/store/types';
+import useApiRequest from '~/store/base/useApiRequest';
 
-export default function useUpdateDetails(): (name: Name, year?: Year, value?: Value) => Promise<void> {
+export default function useUpdateDetails(): (name: Name, year?: Year, value?: Amount) => Promise<void> {
     const dispatch = useDispatch();
-    const detailsRequest = useDetailsRequest();
+    const request = useApiRequest();
     return useCallback(
-        async (name: Name, year?: Year, value?: Value): Promise<void> => {
+        async (name: Name, year?: Year, value?: Amount): Promise<void> => {
             dispatch(updateDetailsAction(name, year, value));
-            return detailsRequest('updateDetails', { name, year, value });
+            return request('updateDetails', { name, year, value });
         },
-        [detailsRequest, dispatch]
+        [request, dispatch]
     );
 }

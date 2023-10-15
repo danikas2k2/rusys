@@ -2,27 +2,23 @@ import moment from 'moment';
 import type Nedb from 'nedb';
 import nedb from 'nedb-promises';
 import path from 'path';
-import {
-    type Details,
-    type Name,
-    type NamedValues,
-    type Value,
-    type Values,
-    type Variant,
-    type Year,
-} from '~/store/details/types';
+import { type Amount, type Amounts, type AmountSet, type NamedAmounts, type Variant } from '~/store/details/types';
+import { type NamedRemoving, type Removing, type RemovingSet } from '~/store/removing/types';
+import { type Name, type Year } from '~/store/types';
 
 const dbPath = process.env.DATA_PATH || path.resolve(process.cwd(), 'data');
 export const db = {
     details: nedb.create({ filename: path.resolve(dbPath, 'details.jsonl'), autoload: true }),
     updates: nedb.create({ filename: path.resolve(dbPath, 'updates.jsonl'), autoload: true }),
     missing: nedb.create({ filename: path.resolve(dbPath, 'missing.jsonl'), autoload: true }),
+    removing: nedb.create({ filename: path.resolve(dbPath, 'removing.jsonl'), autoload: true }),
 };
 
 (async () => {
     await db.details.ensureIndex({ fieldName: 'name', unique: true });
     await db.updates.ensureIndex({ fieldName: 'name' });
     await db.updates.ensureIndex({ fieldName: 'time' });
+    await db.removing.ensureIndex({ fieldName: 'name', unique: true });
 })();
 
 const MAX_YEARS = 5;
@@ -34,28 +30,28 @@ export function getYears(): Year[] {
     );
 }
 
-export async function getDetails(years: number[]): Promise<Details> {
-    const details = await db.details.find<NamedValues>({});
-    // if (isEmpty(details)) {
-    //     await db.details.insert(Object.entries(initialDetails).map(([k, v]) => ({ _id: k, ...v })));
-    //     return initialDetails;
-    // }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function filterByYear<T>(data: Record<string, any>[], years: number[]): T {
     return Object.fromEntries(
-        details.map(({ _id, name, ...v }) => [
+        data.map(({ _id, name, ...v }) => [
             name,
-            Object.fromEntries(Object.entries(v).filter(([k]) => years.includes(+k))),
+            Object.fromEntries(Object.entries(v).filter(([y]) => years.includes(+y))),
         ])
     );
 }
 
-export async function setDetails(name: Name, values: Values): Promise<Details> {
+export async function getDetails(years: number[]): Promise<AmountSet> {
+    return filterByYear(await db.details.find<NamedAmounts>({}), years);
+}
+
+export async function setDetails(name: Name, values: Amounts): Promise<AmountSet> {
     await addUpdates(name, values);
     await db.details.update({ name }, { name, ...values }, { upsert: true });
     await (db.details as unknown as Nedb.Persistence).compactDatafile?.();
     return getDetails(getYears());
 }
 
-export async function updateDetails(name: Name, year: Year, value: Value): Promise<Details> {
+export async function updateDetails(name: Name, year: Year, value: Amount): Promise<AmountSet> {
     await addUpdates(name, { [year]: value });
     await db.details.update(
         { name },
@@ -66,10 +62,10 @@ export async function updateDetails(name: Name, year: Year, value: Value): Promi
     return getDetails(getYears());
 }
 
-export async function addUpdates(name: Name, values: Values | null): Promise<void> {
-    const prev = await db.details.findOne<NamedValues>({ name });
+export async function addUpdates(name: Name, values: Amounts | null): Promise<void> {
+    const prev = await db.details.findOne<NamedAmounts>({ name });
     const { _id, name: _name, ...prevValues } = prev ?? {};
-    const diff = getDiff(prev ? (prevValues as Values) : null, values);
+    const diff = getDiff(prev ? (prevValues as Amounts) : null, values);
     if (diff) {
         const time = Date.now();
         await db.updates.insert({ name, time, ...diff });
@@ -77,8 +73,18 @@ export async function addUpdates(name: Name, values: Values | null): Promise<voi
     }
 }
 
-function getDiff(prevValues: Values | null, values: Values | null): Values | null {
-    const diff: Values = {};
+export async function getRemoving(years: number[]): Promise<RemovingSet> {
+    return filterByYear(await db.removing.find<NamedRemoving>({}), years);
+}
+
+export async function setRemoving(name: Name, year: Year, removing: boolean): Promise<RemovingSet> {
+    await db.removing.update({ name }, { [removing ? '$set' : '$unset']: { [year]: true } }, { upsert: true });
+    await (db.removing as unknown as Nedb.Persistence).compactDatafile?.();
+    return getRemoving(getYears());
+}
+
+function getDiff(prevValues: Amounts | null, values: Amounts | null): Amounts | null {
+    const diff: Amounts = {};
     if (values) {
         for (const [k, v] of Object.entries(values)) {
             const year = k as unknown as Year;
@@ -111,22 +117,27 @@ function getDiff(prevValues: Values | null, values: Values | null): Values | nul
     }
 }
 
-export async function setName(name: Name, newName: Name): Promise<Details> {
+export async function setName(name: Name, newName: Name): Promise<boolean> {
     if (name !== newName) {
-        await db.details.update({ name }, { $set: { name: newName } }, { multi: true });
+        const updated = await db.details.update({ name }, { $set: { name: newName } }, { multi: true });
         await (db.details as unknown as Nedb.Persistence).compactDatafile?.();
         await db.updates.update({ name }, { $set: { name: newName } }, { multi: true });
         await (db.updates as unknown as Nedb.Persistence).compactDatafile?.();
+        await db.removing.update({ name }, { $set: { name: newName } }, { multi: true });
+        await (db.removing as unknown as Nedb.Persistence).compactDatafile?.();
+        return updated > 0;
     }
-    return getDetails(getYears());
+    return false;
 }
 
-export async function remove(name: Name): Promise<Details> {
-    await db.details.remove({ name }, { multi: true });
+export async function remove(name: Name): Promise<boolean> {
+    const removed = await db.details.remove({ name }, { multi: true });
     await (db.details as unknown as Nedb.Persistence).compactDatafile?.();
     await db.updates.remove({ name }, { multi: true });
     await (db.updates as unknown as Nedb.Persistence).compactDatafile?.();
-    return getDetails(getYears());
+    await db.removing.remove({ name }, { multi: true });
+    await (db.removing as unknown as Nedb.Persistence).compactDatafile?.();
+    return removed > 0;
 }
 
 export async function getMissing(): Promise<Name[]> {

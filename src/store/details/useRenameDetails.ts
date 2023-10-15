@@ -1,19 +1,19 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { renameDetailsAction } from '~/store/details/actions';
-import { type Name } from '~/store/details/types';
-import useDetailsRequest from '~/store/details/useDetailsRequest';
+import { type Name } from '~/store/types';
+import useApiRequest from '~/store/base/useApiRequest';
 
 export default function useRenameDetails(): (name: Name, newName: Name) => Promise<void> {
     const dispatch = useDispatch();
-    const detailsRequest = useDetailsRequest();
+    const request = useApiRequest();
     return useCallback(
         async (name: Name, newName: Name): Promise<void> => {
             if (name !== newName) {
                 dispatch(renameDetailsAction(name, newName));
-                return detailsRequest('setName', { name, newName });
+                return request('setName', { name, newName });
             }
         },
-        [detailsRequest, dispatch]
+        [request, dispatch]
     );
 }

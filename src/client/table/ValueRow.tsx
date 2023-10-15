@@ -9,17 +9,19 @@ import Cell from '~/client/table/Cell';
 import Row from '~/client/table/Row';
 import ValueCell from '~/client/table/ValueCell';
 import { type BaseState } from '~/store/base/types';
-import { type Name, type Value, type Values, type Year } from '~/store/details/types';
+import { type Amount, type Amounts } from '~/store/details/types';
 import useUpdateDetails from '~/store/details/useUpdateDetails';
 import { enableEditingAction } from '~/store/editing/actions';
 import useAddMissing from '~/store/missing/useAddMissing';
 import useRemoveMissing from '~/store/missing/useRemoveMissing';
+import useUpdateRemoving from '~/store/removing/useUpdateRemoving';
+import { type Name, type Year } from '~/store/types';
 import { preventDefault } from '~/utils/events';
 import './ValueRow.less';
 
 interface ValueRowProps {
     name: Name;
-    values: Values;
+    values: Amounts;
     isMissing?: boolean;
 }
 
@@ -43,8 +45,10 @@ export default function ValueRow({ name, values, isMissing }: ValueRowProps): JS
     );
 
     const updateDetails = useUpdateDetails();
-    const handleValue = async (name: string, year: Year, value?: Value): Promise<void> => {
+    const updateRemoving = useUpdateRemoving();
+    const handleValue = async (name: string, year: Year, value?: Amount): Promise<void> => {
         await updateDetails(name, year, value);
+        await updateRemoving(name, year, false);
         return handleMissing(name, false);
     };
 
@@ -54,13 +58,13 @@ export default function ValueRow({ name, values, isMissing }: ValueRowProps): JS
         }
     };
 
-    const handleLongTouch = preventDefault((): void => {
+    const onLongTouch = preventDefault((): void => {
         dispatch(enableEditingAction(name));
     });
 
-    const { onTouchStart, onTouchEnd } = useLongTouch<HTMLDivElement>(handleLongTouch);
+    const { onTouchStart, onTouchEnd } = useLongTouch<HTMLDivElement>(onLongTouch);
 
-    const isLastYearOnly = years.filter((year) => values[year]).every((year) => year === lastYear);
+    const isRemoving = useSelector((state: BaseState) => years.some((year) => state.removing?.[name]?.[year]));
 
     return (
         <Row key={name} className={classNames('Row', { selected: isMissing })} aria-checked={!isMissing}>
@@ -76,11 +80,11 @@ export default function ValueRow({ name, values, isMissing }: ValueRowProps): JS
             </Cell>
             <Cell
                 id={labelId}
-                className={classNames('name', { unavailable: !isAvailable, remove: isAvailable && isLastYearOnly })}
+                className={classNames('name', { unavailable: !isAvailable, removing: isAvailable && isRemoving })}
             >
                 <Interactive
                     onClick={onClick}
-                    onDoubleClick={handleLongTouch}
+                    onDoubleClick={onLongTouch}
                     onTouchStart={onTouchStart}
                     onTouchEnd={onTouchEnd}
                     onTouchMove={onTouchEnd}

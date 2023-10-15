@@ -1,4 +1,5 @@
-import { type Details, type Name, type Value, type Year } from '~/store/details/types';
+import { type Amount, type AmountSet } from '~/store/details/types';
+import { type Name, type Year } from '~/store/types';
 
 export const enum DetailsActionType {
     SET = 'details.set',
@@ -10,7 +11,7 @@ export const enum DetailsActionType {
 export type DetailsAction =
     | {
           type: DetailsActionType.SET;
-          details: Details;
+          details: AmountSet;
       }
     | {
           type: DetailsActionType.RENAME;
@@ -25,10 +26,10 @@ export type DetailsAction =
           type: DetailsActionType.UPDATE;
           name: Name;
           year?: Year;
-          value?: Value;
+          value?: Amount;
       };
 
-export const setDetailsAction = (details: Details): DetailsAction => ({ type: DetailsActionType.SET, details });
+export const setDetailsAction = (details: AmountSet): DetailsAction => ({ type: DetailsActionType.SET, details });
 
 export const renameDetailsAction = (name: Name, newName: Name): DetailsAction => ({
     type: DetailsActionType.RENAME,
@@ -41,7 +42,7 @@ export const removeDetailsAction = (name: Name): DetailsAction => ({
     name,
 });
 
-export const updateDetailsAction = (name: Name, year?: Year, value?: Value): DetailsAction => ({
+export const updateDetailsAction = (name: Name, year?: Year, value?: Amount): DetailsAction => ({
     type: DetailsActionType.UPDATE,
     name,
     year,
