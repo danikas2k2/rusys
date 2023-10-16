@@ -32,7 +32,7 @@
         "dev:build:server": "NODE_ENV=development esbuild src/server/dev.ts --bundle --sourcemap --platform=node --target=node18 --external:express --external:cors --external:body-parser --external:moment --external:nedb-promises --external:webpack --external:webpack-* --external:*-webpack-plugin --external:mini-css-extract-plugin --outfile=dist/dev.js",
         "preversion": "pnpm test",
         "version": "pnpm run build && git add --all",
-        "postversion": "git push && git push --tags",
+        "postversion--": "git push && git push --tags",
         "test": "jest",
         "coverage": "jest --coverage",
         "upload": "rsync -avr --exclude \"tutorial.*\" --exclude \"data\" ./dist/* dan@vd:/var/www/rusys/",
