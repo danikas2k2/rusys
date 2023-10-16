@@ -42,7 +42,7 @@ export default memo(
             children,
             color = 'neutral',
             variant = 'outlined',
-            size = 'small',
+            size = 'medium',
             mode = 'text',
             disabled,
             fullWidth,

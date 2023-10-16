@@ -3,6 +3,7 @@ import ExpandDownIcon from '@icons/ExpandDown.svg';
 import Button from '@ui/Button';
 import Dialog from '@ui/Dialog';
 import IconButton from '@ui/IconButton';
+import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, { createRef, type JSX, type RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import ValueInput from '~/client/dialogs/ValueInput';
@@ -10,6 +11,7 @@ import { type Amount, Variant } from '~/store/details/types';
 import useAllVariants from '~/store/details/useAllVariants';
 import useVariantComparator from '~/store/details/useVariantComparator';
 import { type Name, type Year } from '~/store/types';
+import { stopPropagation } from '~/utils/events';
 import './ValueBox.less';
 
 interface ValueBoxProps {
@@ -78,7 +80,13 @@ export default function ValueBox({ name, year, value, onClose }: ValueBoxProps):
     }, []);
 
     return (
-        <Dialog className="ValueBox" open closeOnOutsideClick closeOnEscape onClose={handleClose}>
+        <Dialog
+            className={classNames('ValueBox', { fullScreen: expanded })}
+            open
+            closeOnOutsideClick
+            closeOnEscape
+            onClose={handleClose}
+        >
             <header>
                 <div className="title">
                     <span>{name}</span>
@@ -90,7 +98,7 @@ export default function ValueBox({ name, year, value, onClose }: ValueBoxProps):
                     </IconButton>
                 </div>
             </header>
-            <div>
+            <article role="presentation" onClick={stopPropagation()} onDoubleClick={stopPropagation()}>
                 {editingKeys.map((k) => (
                     <ValueInput
                         key={k}
@@ -113,7 +121,7 @@ export default function ValueBox({ name, year, value, onClose }: ValueBoxProps):
                         }}
                     />
                 ))}
-            </div>
+            </article>
             <footer>
                 {!expanded && (
                     <Button onClick={handleExpand} variant="plain" color="primary" size="large">

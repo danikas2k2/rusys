@@ -19,7 +19,7 @@ export default memo(
             className,
             color = 'neutral',
             variant = 'solid',
-            size = 'small',
+            size = 'medium',
             spacing = 'small',
             disabled,
             fullWidth,

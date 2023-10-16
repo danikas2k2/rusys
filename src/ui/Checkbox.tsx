@@ -30,7 +30,7 @@ export default memo(
             children,
             color = 'neutral',
             variant = 'outlined',
-            size = 'small',
+            size = 'medium',
             checked,
             disabled,
             indeterminate,
