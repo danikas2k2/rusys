@@ -11,7 +11,7 @@ import { type Amount, type Variant } from '~/store/details/types';
 import useVariantComparator from '~/store/details/useVariantComparator';
 import useUpdateRemoving from '~/store/removing/useUpdateRemoving';
 import { type Name, type Year } from '~/store/types';
-import { onActionKey, preventDefault } from '~/utils/events';
+import { onActionKey, preventDefault, stopPropagation } from '~/utils/events';
 import './ValueCell.less';
 
 interface ValueCellProps {
@@ -66,13 +66,14 @@ export default function ValueCell({ value, name, year, isLast, onChange }: Value
     const empty = isEmpty(value);
     return (
         <Cell
+            className={classNames('ValueCell', { editing, empty, last: isLast, removing: isRemoving })}
             onClick={onClick}
             onDoubleClick={onLongTouch}
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
             onTouchMove={onTouchEnd}
             onKeyDown={onActionKey(onClick)}
-            className={classNames('ValueCell', { editing, empty, last: isLast, removing: isRemoving })}
+            onContextMenu={preventDefault(stopPropagation())}
         >
             {empty
                 ? '.'

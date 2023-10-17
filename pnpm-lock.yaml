@@ -154,6 +154,9 @@ devDependencies:
   esbuild:
     specifier: ^0.19.4
     version: 0.19.4
+  esbuild-loader:
+    specifier: ^4.0.2
+    version: 4.0.2(webpack@5.89.0)
   esbuild-runner:
     specifier: ^2.2.2
     version: 2.2.2(esbuild@0.19.4)
@@ -319,9 +322,6 @@ devDependencies:
   ts-jest:
     specifier: ^29.1.1
     version: 29.1.1(@babel/core@7.23.2)(esbuild@0.19.4)(jest@29.7.0)(typescript@5.2.2)
-  ts-loader:
-    specifier: ^9.5.0
-    version: 9.5.0(typescript@5.2.2)(webpack@5.89.0)
   ts-node:
     specifier: ^10.9.1
     version: 10.9.1(@types/node@20.8.6)(typescript@5.2.2)
@@ -5058,6 +5058,18 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /esbuild-loader@4.0.2(webpack@5.89.0):
+    resolution: {integrity: sha512-kj88m0yrtTEJDeUEF+3TZsq7t9VPzQQj7UmXAzUbIaipoYSrd0UxKAcg4l9CBgP8uVoploiw+nKr8DIv6Y9gXw==}
+    peerDependencies:
+      webpack: ^4.40.0 || ^5.0.0
+    dependencies:
+      esbuild: 0.19.4
+      get-tsconfig: 4.7.2
+      loader-utils: 2.0.4
+      webpack: 5.89.0(esbuild@0.19.4)(webpack-cli@5.1.4)
+      webpack-sources: 1.4.3
+    dev: true
 
   /esbuild-netbsd-64@0.14.54:
     resolution: {integrity: sha512-PR01lmIMnfJTgeU9VJTDY9ZerDWVFIUzAtJuDHwwceppW7cQWjBBqP48NdeRtoP04/AtO9a7w3viI+PIDr6d+w==}
@@ -11787,6 +11799,10 @@ packages:
       websocket-driver: 0.7.4
     dev: true
 
+  /source-list-map@2.0.1:
+    resolution: {integrity: sha512-qnQ7gVMxGNxsiL4lEuJwe/To8UnK7fAnmbGEEH8RpLouuKbeEm0lhbQVFIrNSuB+G7tVrAlVsZgETT5nljf+Iw==}
+    dev: true
+
   /source-map-js@1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
     engines: {node: '>=0.10.0'}
@@ -12605,22 +12621,6 @@ packages:
       semver: 7.5.4
       typescript: 5.2.2
       yargs-parser: 21.1.1
-    dev: true
-
-  /ts-loader@9.5.0(typescript@5.2.2)(webpack@5.89.0):
-    resolution: {integrity: sha512-LLlB/pkB4q9mW2yLdFMnK3dEHbrBjeZTYguaaIfusyojBgAGf5kF+O6KcWqiGzWqHk0LBsoolrp4VftEURhybg==}
-    engines: {node: '>=12.0.0'}
-    peerDependencies:
-      typescript: '*'
-      webpack: ^5.0.0
-    dependencies:
-      chalk: 4.1.2
-      enhanced-resolve: 5.15.0
-      micromatch: 4.0.5
-      semver: 7.5.4
-      source-map: 0.7.4
-      typescript: 5.2.2
-      webpack: 5.89.0(esbuild@0.19.4)(webpack-cli@5.1.4)
     dev: true
 
   /ts-node-dev@2.0.0(@types/node@20.8.6)(typescript@5.2.2):
@@ -13506,6 +13506,13 @@ packages:
     dependencies:
       clone-deep: 4.0.1
       wildcard: 2.0.1
+    dev: true
+
+  /webpack-sources@1.4.3:
+    resolution: {integrity: sha512-lgTS3Xhv1lCOKo7SA5TjKXMjpSM4sBjNV5+q2bqesbSPs5FjGmU6jjtBSkX9b4qW87vDIsCIlUPOEhbZrMdjeQ==}
+    dependencies:
+      source-list-map: 2.0.1
+      source-map: 0.6.1
     dev: true
 
   /webpack-sources@3.2.3:

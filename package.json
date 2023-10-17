@@ -30,13 +30,13 @@
         "dev:build:client": "NODE_ENV=development webpack --config webpack.dev.config.ts --mode development",
         "dev:build:server-": "NODE_ENV=development esbuild src/server/index.ts --bundle --sourcemap --platform=node --target=node18 --external:express --external:cors --external:body-parser --external:moment --external:nedb-promises --outfile=dist/server.js",
         "dev:build:server": "NODE_ENV=development esbuild src/server/dev.ts --bundle --sourcemap --platform=node --target=node18 --external:express --external:cors --external:body-parser --external:moment --external:nedb-promises --external:webpack --external:webpack-* --external:*-webpack-plugin --external:mini-css-extract-plugin --outfile=dist/dev.js",
-        "preversion": "pnpm test",
-        "version": "pnpm run build && git add --all",
-        "postversion--": "git push && git push --tags",
         "test": "jest",
         "coverage": "jest --coverage",
         "upload": "rsync -avr --exclude \"tutorial.*\" --exclude \"data\" ./dist/* dan@vd:/var/www/rusys/",
-        "upload:source": "rsync -avr --exclude \"node_modules\" ./ dan@vd:dev/rusys/"
+        "upload:source": "rsync -avr --exclude \"node_modules\" ./ dan@vd:dev/rusys/",
+        "preversion": "pnpm test",
+        "version": "pnpm run build && git add --all",
+        "postversion--": "git push && git push --tags"
     },
     "nodemonConfig": {
         "verbose": true,
@@ -112,6 +112,7 @@
         "css-minimizer-webpack-plugin": "^5.0.1",
         "css-module-wrapper": "^1.0.2",
         "esbuild": "^0.19.4",
+        "esbuild-loader": "^4.0.2",
         "esbuild-runner": "^2.2.2",
         "eslint": "^8.51.0",
         "eslint-config-node": "^4.1.0",
@@ -167,7 +168,6 @@
         "stylelint-prettier": "^4.0.2",
         "terser-webpack-plugin": "^5.3.9",
         "ts-jest": "^29.1.1",
-        "ts-loader": "^9.5.0",
         "ts-node": "^10.9.1",
         "ts-node-dev": "^2.0.0",
         "tsconfig-paths": "^4.2.0",

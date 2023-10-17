@@ -5,6 +5,12 @@
     --toolbar-height: 48px;
 }
 
+html {
+    min-height: calc(100% + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    background: var(--palette-background-body);
+}
+
 html,
 body {
     max-width: 100%;
@@ -14,7 +20,6 @@ body {
 body {
     margin: 0;
     font-family: var(--font-family-body);
-    background: var(--palette-background-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }

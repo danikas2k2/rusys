@@ -4,6 +4,14 @@ export function getTsxRule(): RuleSetRule {
     return {
         test: /\.[jt]sx?$/,
         exclude: /node_modules/,
-        use: ['ts-loader', 'css-module-wrapper'],
+        use: [
+            {
+                loader: 'esbuild-loader',
+                options: {
+                    tsconfig: './tsconfig.json',
+                },
+            },
+            'css-module-wrapper',
+        ],
     };
 }
