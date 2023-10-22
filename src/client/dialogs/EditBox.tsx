@@ -8,7 +8,7 @@ import Dialog from '@ui/Dialog';
 import useAutoFocus from '@ui/hooks/useAutoFocus';
 import IconButton from '@ui/IconButton';
 import Input from '@ui/Input';
-import React, { type JSX, useCallback, useEffect, useState } from 'react';
+import React, { type FormEvent, type JSX, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import useLabel from '~/client/hooks/useLabel';
 import useNameExists from '~/client/hooks/useNameExists';
 import Label from '~/client/Label';
@@ -17,7 +17,6 @@ import useRemoveDetails from '~/store/details/useRemoveDetails';
 import useRenameDetails from '~/store/details/useRenameDetails';
 import { type Name } from '~/store/types';
 import { getErrorMessage } from '~/utils/errors';
-import { onEnterKey } from '~/utils/events';
 import './EditBox.less';
 
 interface EditBoxProps {
@@ -88,6 +87,17 @@ export default function EditBox({ name: initialName = '', onClose }: EditBoxProp
         onClose();
     }, [onClose]);
 
+    const handleInput = useCallback((e: FormEvent<HTMLInputElement>) => setName(e.currentTarget.value), []);
+
+    const handleEnter = useCallback(
+        (e: KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === 'Enter') {
+                void handleUpdate();
+            }
+        },
+        [handleUpdate]
+    );
+
     return (
         <Dialog className="EditBox" open onClose={handleClose}>
             <header>
@@ -108,8 +118,8 @@ export default function EditBox({ name: initialName = '', onClose }: EditBoxProp
                     size="large"
                     value={name}
                     placeholder={useLabel(placeholder)}
-                    onInput={(e) => setName(e.currentTarget.value)}
-                    onKeyDown={onEnterKey(handleUpdate)}
+                    onInput={handleInput}
+                    onKeyDown={handleEnter}
                 />
                 {error && error !== placeholder && (
                     <div className="error">

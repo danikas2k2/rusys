@@ -3,7 +3,6 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    user-select: none;
     transition:
         color 0.2s ease-in-out,
         background-color 0.2s ease-in-out;
@@ -34,7 +33,7 @@
 
         &:has(+ *) {
             &::after {
-                content: ',';
+                content: ",";
             }
         }
 

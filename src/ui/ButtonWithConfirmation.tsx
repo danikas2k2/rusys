@@ -1,6 +1,6 @@
 import ConfirmationDialog from '@ui/ConfirmationDialog';
 import { type InputColor } from '@ui/Input';
-import React, { type JSX, memo, type ReactNode, useState } from 'react';
+import React, { type JSX, memo, type ReactNode, useCallback, useState } from 'react';
 import Button, { type ButtonProps } from '~/ui/Button';
 
 interface ButtonWithConfirmationProps extends Omit<ButtonProps, 'title'> {
@@ -19,9 +19,11 @@ export default memo(function ButtonWithConfirmation({
     ...props
 }: ButtonWithConfirmationProps): JSX.Element {
     const [open, setOpen] = useState(false);
+    const handleOpen = useCallback(() => setOpen(true), []);
+    const handleClose = useCallback(() => setOpen(false), []);
     return (
         <>
-            <Button onClick={() => setOpen(true)} {...props} />
+            <Button onClick={handleOpen} {...props} />
             <ConfirmationDialog
                 open={open}
                 header={header}
@@ -32,7 +34,7 @@ export default memo(function ButtonWithConfirmation({
                     setOpen(false);
                     onClick?.(e);
                 }}
-                onClose={() => setOpen(false)}
+                onClose={handleClose}
             />
         </>
     );

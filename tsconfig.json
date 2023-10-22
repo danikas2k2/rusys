@@ -35,14 +35,5 @@
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true
-    },
-    "ts-node": {
-        "esm": true,
-        "compilerOptions": {
-            "target": "es2022",
-            "module": "node16",
-            "moduleResolution": "node16",
-            "verbatimModuleSyntax": false
-        }
     }
 }

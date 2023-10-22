@@ -1,6 +1,6 @@
 import Checkbox from '@ui/Checkbox';
 import Loader from '@ui/Loader';
-import React, { type JSX, useEffect, useMemo, useState } from 'react';
+import React, { type JSX, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Cell from '~/client/table/Cell';
 import Row from '~/client/table/Row';
@@ -40,6 +40,8 @@ export default function Table(): JSX.Element {
         }
     }, [hasMissing, missingOnly]);
 
+    const handleClick = useCallback(() => hasMissing && setMissingOnly(!missingOnly), [hasMissing, missingOnly]);
+
     const detailsEntries: [Name, Amounts][] = useMemo(
         () => Object.entries(details).sort(([a], [b]) => cmp(a.toLowerCase(), b.toLowerCase())),
         [details]
@@ -60,12 +62,7 @@ export default function Table(): JSX.Element {
             <div className="Head">
                 <Row className="Row">
                     <Cell>
-                        <Checkbox
-                            color="primary"
-                            checked={!missingOnly}
-                            disabled={!hasMissing}
-                            onClick={() => hasMissing && setMissingOnly(!missingOnly)}
-                        />
+                        <Checkbox color="primary" checked={!missingOnly} disabled={!hasMissing} onClick={handleClick} />
                     </Cell>
                     <Cell />
                     {years.map((year) => (

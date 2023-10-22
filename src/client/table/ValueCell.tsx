@@ -1,7 +1,8 @@
-import useLongTouch from '@ui/hooks/useLondTouch';
+import useLongPress from '@ui/hooks/useLongPress';
+import Interactive from '@ui/Interactive';
 import classNames from 'classnames';
 import { isEmpty, isEqual } from 'lodash';
-import React, { type JSX, useCallback, useEffect, useState } from 'react';
+import React, { type JSX, type UIEvent, useCallback, useEffect, useState } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import ValueBox from '~/client/dialogs/ValueBox';
 import Cell from '~/client/table/Cell';
@@ -11,7 +12,6 @@ import { type Amount, type Variant } from '~/store/details/types';
 import useVariantComparator from '~/store/details/useVariantComparator';
 import useUpdateRemoving from '~/store/removing/useUpdateRemoving';
 import { type Name, type Year } from '~/store/types';
-import { onActionKey, preventDefault, stopPropagation } from '~/utils/events';
 import './ValueCell.less';
 
 interface ValueCellProps {
@@ -52,41 +52,43 @@ export default function ValueCell({ value, name, year, isLast, onChange }: Value
         [onChange, value]
     );
 
-    const onClick =
-        editing || isEditing
-            ? // eslint-disable-next-line no-console
-              () => console.info('EDITING')
-            : handleOpen;
+    const onClick = editing || isEditing ? undefined : handleOpen;
 
     const updateRemoving = useUpdateRemoving();
-    const onLongTouch = preventDefault((): void => void updateRemoving(name, year, !isRemoving));
-    const { onTouchStart, onTouchEnd } = useLongTouch<HTMLDivElement>(onLongTouch);
+    const onLongPress = useCallback(
+        (e: UIEvent): void => {
+            e.preventDefault();
+            e.stopPropagation();
+            // e.nativeEvent.preventDefault();
+            // e.nativeEvent.stopPropagation();
+            // e.nativeEvent.stopImmediatePropagation();
+
+            void updateRemoving(name, year, !isRemoving);
+            navigator?.vibrate?.(200);
+        },
+        [isRemoving, name, updateRemoving, year]
+    );
+
+    const longPress = useLongPress<HTMLDivElement>(onLongPress);
 
     const cmpVariants = useVariantComparator();
     const empty = isEmpty(value);
     return (
-        <Cell
-            className={classNames('ValueCell', { editing, empty, last: isLast, removing: isRemoving })}
-            onClick={onClick}
-            onDoubleClick={onLongTouch}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd}
-            onTouchMove={onTouchEnd}
-            onKeyDown={onActionKey(onClick)}
-            onContextMenu={preventDefault(stopPropagation())}
-        >
-            {empty
-                ? '.'
-                : Object.entries(value)
-                      .sort(([a], [b]) => cmpVariants(a, b))
-                      .map(([k, v]) => (
-                          <span className={classNames('value')} key={k}>
-                              {v}
-                              <sub>
-                                  <ValueVariant variant={k as Variant} />
-                              </sub>
-                          </span>
-                      ))}
+        <Cell className={classNames('ValueCell', { editing, empty, last: isLast, removing: isRemoving })}>
+            <Interactive onClick={onClick} {...longPress}>
+                {empty
+                    ? '.'
+                    : Object.entries(value)
+                          .sort(([a], [b]) => cmpVariants(a, b))
+                          .map(([k, v]) => (
+                              <span className={classNames('value')} key={k}>
+                                  {v}
+                                  <sub>
+                                      <ValueVariant variant={k as Variant} />
+                                  </sub>
+                              </span>
+                          ))}
+            </Interactive>
             {editing && <ValueBox name={name} year={year} value={value} onClose={handleClose} />}
         </Cell>
     );

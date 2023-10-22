@@ -48,8 +48,10 @@ export default function LoginButton({ children }: ButtonProps): JSX.Element {
     useGoogleOneTapLogin(loginOptions);
     const login = useGoogleLogin(loginOptions);
 
+    const handleClick = useCallback(() => login(), [login]);
+
     return (
-        <IconButton color="neutral" variant="outlined" onClick={() => login()}>
+        <IconButton color="neutral" variant="outlined" onClick={handleClick}>
             <div className="LoginButton">
                 {children || (
                     <>

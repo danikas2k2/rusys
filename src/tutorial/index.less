@@ -1,5 +1,5 @@
-@import url('@ui/theme.less');
-@import url('prism-themes/themes/prism-coldark-cold.css');
+@import url("@ui/theme.less");
+@import url("prism-themes/themes/prism-coldark-cold.css");
 
 body {
     color: var(--palette-neutral-700);
@@ -27,14 +27,13 @@ body {
             font-size: var(--font-size-md);
             font-weight: var(--font-weight-md);
             letter-spacing: var(--letter-spacing-xs);
-            margin-block-start: 5vh;
-            margin-block-end: 5vh;
+            margin-block: 5vh;
 
             + a {
                 margin-block-start: -3vh;
             }
 
-            &[aria-current='page'] {
+            &[aria-current="page"] {
                 color: var(--palette-neutral-plain-color);
                 font-size: var(--font-size-lg);
                 font-weight: var(--font-weight-lg);
@@ -81,7 +80,7 @@ body {
         width: 100%;
         margin-block-start: 2vh;
 
-        &[aria-expanded='false'] {
+        &[aria-expanded="false"] {
             width: fit-content;
         }
 
@@ -106,7 +105,7 @@ body {
             font-weight: var(--font-weight-md);
             color: var(--palette-neutral-700);
 
-            &[data-default='true'] {
+            &[data-default="true"] {
                 font-weight: var(--font-weight-xl);
                 color: var(--palette-neutral-900);
             }

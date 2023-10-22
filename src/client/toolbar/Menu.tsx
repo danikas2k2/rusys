@@ -1,16 +1,17 @@
 import MenuIcon from '@icons/Menu.svg';
 import IconButton from '@ui/IconButton';
-import React, { type JSX, memo, useState } from 'react';
+import React, { type JSX, memo, useCallback, useState } from 'react';
 
 export default memo(function Menu(): JSX.Element {
     const [open, setOpen] = useState(false);
+    const handleClick = useCallback(() => setOpen(!open), [open]);
     return (
         <div>
             <IconButton
                 aria-controls={open ? 'basic-menu' : undefined}
                 aria-haspopup="true"
                 aria-expanded={open ? 'true' : undefined}
-                onClick={() => setOpen(!open)}
+                onClick={handleClick}
                 className="edge-start"
                 color="neutral"
                 variant="plain"

@@ -14,14 +14,8 @@
         "jest-expect-message"
     ],
     "testEnvironment": "jsdom",
-    "preset": "ts-jest",
-    "globals": {
-        "ts-jest": {
-            "tsconfig": "tsconfig.test.json"
-        }
-    },
     "transform": {
-        "\\.[jt]sx?$": "ts-jest"
+        "\\.[jt]sx?$": "esbuild-jest"
     },
     "collectCoverage": false,
     "collectCoverageFrom": ["src/**/*.{ts,tsx}", "!src/**/*.d.ts", "!src/data/**/*.ts"]

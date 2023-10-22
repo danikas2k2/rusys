@@ -1,9 +1,17 @@
 import Interactive from '@ui/Interactive';
 import Portal from '@ui/Portal';
 import classNames from 'classnames';
-import React, { type DialogHTMLAttributes, type JSX, memo, type ReactNode, useEffect } from 'react';
+import React, {
+    type DialogHTMLAttributes,
+    type JSX,
+    type KeyboardEvent,
+    memo,
+    type ReactNode,
+    type SyntheticEvent,
+    useCallback,
+    useEffect,
+} from 'react';
 import usePreviousValue from '~/hooks/usePreviousValue';
-import { onEscapeKey, stopPropagation } from '~/utils/events';
 import './Dialog.less';
 
 export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
@@ -36,18 +44,29 @@ export default memo(function Dialog({
         }
     }, [onOpen, open, wasOpen]);
 
+    const handleEscape = useCallback(
+        (e: KeyboardEvent<HTMLElement>) => {
+            if (e.key === 'Escape') {
+                onClose?.();
+            }
+        },
+        [onClose]
+    );
+
+    const stopPropagation = useCallback((e: SyntheticEvent) => e.stopPropagation(), []);
+
     return open ? (
         <Portal>
             <Interactive
                 className="Backdrop"
                 role="presentation"
                 onClick={closeOnOutsideClick ? onClose : undefined}
-                onKeyDown={closeOnEscape ? onEscapeKey(onClose) : undefined}
+                onKeyDown={closeOnEscape ? handleEscape : undefined}
             >
                 <Interactive
                     className={classNames('Dialog', className)}
                     role="dialog"
-                    onClick={stopPropagation()}
+                    onClick={stopPropagation}
                     {...props}
                 >
                     {children}

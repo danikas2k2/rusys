@@ -55,5 +55,6 @@ export default async function (env?: { prod?: boolean }, argv?: { mode?: string 
         resolve: getResolve(),
         optimization: getOptimization(isDevMode),
         performance: getPerformance(),
+        // stats: 'verbose',
     };
 }

@@ -5,13 +5,21 @@ import Dialog from '@ui/Dialog';
 import IconButton from '@ui/IconButton';
 import classNames from 'classnames';
 import { isEqual } from 'lodash';
-import React, { createRef, type JSX, type RefObject, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+    createRef,
+    type JSX,
+    type RefObject,
+    type SyntheticEvent,
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
 import ValueInput from '~/client/dialogs/ValueInput';
 import { type Amount, Variant } from '~/store/details/types';
 import useAllVariants from '~/store/details/useAllVariants';
 import useVariantComparator from '~/store/details/useVariantComparator';
 import { type Name, type Year } from '~/store/types';
-import { stopPropagation } from '~/utils/events';
 import './ValueBox.less';
 
 interface ValueBoxProps {
@@ -79,6 +87,27 @@ export default function ValueBox({ name, year, value, onClose }: ValueBoxProps):
         setExpanded(true);
     }, []);
 
+    const stopPropagation = useCallback((e: SyntheticEvent) => e.stopPropagation(), []);
+
+    const handleChange = useCallback(
+        (k: Variant) =>
+            (newValue: number): void =>
+                setEditingValue({
+                    ...editingValue,
+                    [k]: newValue,
+                }),
+        [editingValue]
+    );
+
+    const handleFocus = useCallback(
+        (k: Variant) => (): void => {
+            if (k !== focused) {
+                setFocused(k);
+            }
+        },
+        [focused]
+    );
+
     return (
         <Dialog
             className={classNames('ValueBox', { fullScreen: expanded })}
@@ -98,7 +127,7 @@ export default function ValueBox({ name, year, value, onClose }: ValueBoxProps):
                     </IconButton>
                 </div>
             </header>
-            <article role="presentation" onClick={stopPropagation()} onDoubleClick={stopPropagation()}>
+            <article role="presentation" onClick={stopPropagation} onDoubleClick={stopPropagation}>
                 {editingKeys.map((k) => (
                     <ValueInput
                         key={k}
@@ -107,18 +136,9 @@ export default function ValueBox({ name, year, value, onClose }: ValueBoxProps):
                         prevValue={value?.[k]}
                         value={editingValue?.[k]}
                         onClose={handleClose}
-                        onChange={(newValue: number): void =>
-                            setEditingValue({
-                                ...editingValue,
-                                [k]: newValue,
-                            })
-                        }
+                        onChange={handleChange(k)}
                         focus={k === focused}
-                        onFocus={(): void => {
-                            if (k !== focused) {
-                                setFocused(k);
-                            }
-                        }}
+                        onFocus={handleFocus(k)}
                     />
                 ))}
             </article>

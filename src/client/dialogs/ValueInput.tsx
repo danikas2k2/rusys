@@ -6,10 +6,18 @@ import useFocusRef from '@ui/hooks/useFocusRef';
 import useForwardedRef from '@ui/hooks/useForwardedRef';
 import Input from '@ui/Input';
 import classNames from 'classnames';
-import React, { type ForwardedRef, forwardRef, type JSX, type KeyboardEvent, memo, useEffect } from 'react';
+import React, {
+    type ChangeEvent,
+    type ForwardedRef,
+    forwardRef,
+    type JSX,
+    type KeyboardEvent,
+    memo,
+    useCallback,
+    useEffect,
+} from 'react';
 import ValueVariant from '~/client/ValueVariant';
 import { type Variant } from '~/store/details/types';
-import { stopPropagation } from '~/utils/events';
 import './ValueInput.less';
 
 interface ValueInputProps {
@@ -35,31 +43,59 @@ export default memo(
             }
         }, [focus, ref]);
 
-        const decrease = (): void => onChange?.(value - 1);
+        const decrease = useCallback(() => onChange?.(value - 1), [onChange, value]);
 
-        const increase = (): void => onChange?.(value + 1);
+        const increase = useCallback(() => onChange?.(value + 1), [onChange, value]);
 
-        const onKeyDown = stopPropagation((e: KeyboardEvent) => {
-            switch (e.key) {
-                case 'Enter':
+        const onDecreaseClick = useCallback(() => {
+            decrease();
+            ref?.focus();
+        }, [decrease, ref]);
+
+        const onIncreaseClick = useCallback(() => {
+            increase();
+            ref?.focus();
+        }, [increase, ref]);
+
+        const onKeyDown = useCallback(
+            (e: KeyboardEvent) => {
+                e.stopPropagation();
+                switch (e.key) {
+                    case 'Enter':
+                        onClose?.();
+                        break;
+
+                    case 'ArrowDown':
+                        decrease();
+                        break;
+
+                    case 'ArrowUp':
+                        increase();
+                        break;
+                }
+            },
+            [decrease, increase, onClose]
+        );
+
+        const onEnter = useCallback(
+            (e: KeyboardEvent) => {
+                e.stopPropagation();
+                if (e.key === 'Enter') {
                     onClose?.();
-                    break;
+                }
+            },
+            [onClose]
+        );
 
-                case 'ArrowDown':
-                    decrease();
-                    break;
-
-                case 'ArrowUp':
-                    increase();
-                    break;
-            }
-        });
-
-        const onEnter = stopPropagation((e: KeyboardEvent) => {
-            if (e.key === 'Enter') {
-                onClose?.();
-            }
-        });
+        const onInputChange = useCallback(
+            (e: ChangeEvent<HTMLInputElement>) => {
+                const newValue = +e.currentTarget.value;
+                if (!isNaN(newValue)) {
+                    onChange?.(newValue);
+                }
+            },
+            [onChange]
+        );
 
         const diff = value - prevValue;
 
@@ -75,21 +111,13 @@ export default memo(
                     size="large"
                     inputMode="numeric"
                     value={value}
-                    onChange={(e) => {
-                        const newValue = +e.currentTarget.value;
-                        if (!isNaN(newValue)) {
-                            onChange?.(newValue);
-                        }
-                    }}
+                    onChange={onInputChange}
                     onKeyDown={onKeyDown}
                     onFocus={onFocus}
                     onBlur={onBlur}
                     startDecorator={
                         <Button
-                            onClick={() => {
-                                decrease();
-                                ref?.focus();
-                            }}
+                            onClick={onDecreaseClick}
                             onKeyDown={onEnter}
                             variant="plain"
                             color="primary"
@@ -100,10 +128,7 @@ export default memo(
                     }
                     endDecorator={
                         <Button
-                            onClick={() => {
-                                increase();
-                                ref?.focus();
-                            }}
+                            onClick={onIncreaseClick}
                             onKeyDown={onEnter}
                             variant="plain"
                             color="primary"

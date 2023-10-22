@@ -1,6 +1,7 @@
 import useForwardedRef from '@ui/hooks/useForwardedRef';
 import classNames from 'classnames';
 import React, {
+    type FormEvent,
     type ForwardedRef,
     forwardRef,
     type InputHTMLAttributes,
@@ -10,7 +11,6 @@ import React, {
     useEffect,
     useState,
 } from 'react';
-import { stopPropagation } from '~/utils/events';
 import './Input.less';
 
 export type InputColor = 'neutral' | 'primary' | 'secondary' | 'success' | 'warning' | 'failure';
@@ -109,6 +109,11 @@ export default memo(
             setValue(initialValue);
         }, [initialValue]);
 
+        const onInput = useCallback((e: FormEvent<HTMLInputElement>) => {
+            e.stopPropagation();
+            setValue(e.currentTarget.value);
+        }, []);
+
         return (
             <div
                 className={classNames(
@@ -133,7 +138,7 @@ export default memo(
                     disabled={disabled}
                     aria-disabled={disabled}
                     value={value}
-                    onInput={stopPropagation((e) => setValue(e.currentTarget.value))}
+                    onInput={onInput}
                     onKeyDown={onKey}
                     onKeyUp={onKey}
                     {...props}

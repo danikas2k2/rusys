@@ -13,14 +13,16 @@ import { resetProfileAction } from '~/store/profile/actions';
 export default function LogoutButton({ disabled, children }: ButtonProps): JSX.Element {
     const dispatch = useDispatch();
     const [open, setOpen] = useState(false);
-    const onConfirm = useCallback((): void => {
+    const handleConfirm = useCallback(() => {
         setOpen(false);
         dispatch(resetProfileAction());
         googleLogout();
     }, [dispatch]);
+    const handleOpen = useCallback(() => setOpen(true), []);
+    const handleClose = useCallback(() => setOpen(false), []);
     return (
         <>
-            <IconButton className="edge-end size-small" onClick={() => setOpen(true)} disabled={disabled}>
+            <IconButton className="edge-end size-small" onClick={handleOpen} disabled={disabled}>
                 {children || <ProfileAvatar />}
             </IconButton>
             <ConfirmationDialog
@@ -38,8 +40,8 @@ export default function LogoutButton({ disabled, children }: ButtonProps): JSX.E
                         <Label>Logout</Label>
                     </>
                 }
-                onConfirm={onConfirm}
-                onClose={() => setOpen(false)}
+                onConfirm={handleConfirm}
+                onClose={handleClose}
             />
         </>
     );

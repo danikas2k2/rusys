@@ -1,4 +1,4 @@
-import useFocusRef, { FocusRefObject } from '@ui/hooks/useFocusRef';
+import useFocusRef, { type FocusRefObject } from '@ui/hooks/useFocusRef';
 import { type ForwardedRef, useEffect } from 'react';
 
 export default function useAutoFocus<T extends HTMLElement>(

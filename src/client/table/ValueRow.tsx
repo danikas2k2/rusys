@@ -1,5 +1,5 @@
 import Checkbox from '@ui/Checkbox';
-import useLongTouch from '@ui/hooks/useLondTouch';
+import useLongPress from '@ui/hooks/useLongPress';
 import Interactive from '@ui/Interactive';
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
@@ -16,7 +16,6 @@ import useAddMissing from '~/store/missing/useAddMissing';
 import useRemoveMissing from '~/store/missing/useRemoveMissing';
 import useUpdateRemoving from '~/store/removing/useUpdateRemoving';
 import { type Name, type Year } from '~/store/types';
-import { preventDefault } from '~/utils/events';
 import './ValueRow.less';
 
 interface ValueRowProps {
@@ -46,25 +45,34 @@ export default function ValueRow({ name, values, isMissing }: ValueRowProps): JS
 
     const updateDetails = useUpdateDetails();
     const updateRemoving = useUpdateRemoving();
-    const handleValue = async (name: string, year: Year, value?: Amount): Promise<void> => {
-        await updateDetails(name, year, value);
-        await updateRemoving(name, year, false);
-        return handleMissing(name, false);
-    };
+    const handleValue = useCallback(
+        async (name: string, year: Year, value?: Amount): Promise<void> => {
+            await updateDetails(name, year, value);
+            await updateRemoving(name, year, false);
+            return handleMissing(name, false);
+        },
+        [handleMissing, updateDetails, updateRemoving]
+    );
 
-    const onClick = (): void => {
+    const onClick = useCallback((): void => {
         if (isAvailable) {
             handleMissing(name, !isMissing);
         }
-    };
+    }, [handleMissing, isAvailable, isMissing, name]);
 
-    const onLongTouch = preventDefault((): void => {
+    const onLongPress = useCallback((): void => {
         dispatch(enableEditingAction(name));
-    });
+        navigator?.vibrate?.(200);
+    }, [dispatch, name]);
 
-    const { onTouchStart, onTouchEnd } = useLongTouch<HTMLDivElement>(onLongTouch);
+    const longPress = useLongPress<HTMLDivElement>(onLongPress);
 
     const isRemoving = useSelector((state: BaseState) => years.some((year) => state.removing?.[name]?.[year]));
+
+    const handleChange = useCallback(
+        (year: Year) => (value?: Amount) => handleValue(name, year, value),
+        [handleValue, name]
+    );
 
     return (
         <Row key={name} className={classNames('Row', { selected: isMissing })} aria-checked={!isMissing}>
@@ -82,13 +90,7 @@ export default function ValueRow({ name, values, isMissing }: ValueRowProps): JS
                 id={labelId}
                 className={classNames('name', { unavailable: !isAvailable, removing: isAvailable && isRemoving })}
             >
-                <Interactive
-                    onClick={onClick}
-                    onDoubleClick={onLongTouch}
-                    onTouchStart={onTouchStart}
-                    onTouchEnd={onTouchEnd}
-                    onTouchMove={onTouchEnd}
-                >
+                <Interactive onClick={onClick} {...longPress}>
                     {name}
                 </Interactive>
             </Cell>
@@ -99,7 +101,7 @@ export default function ValueRow({ name, values, isMissing }: ValueRowProps): JS
                     year={year}
                     value={values[year]}
                     isLast={year === lastYear}
-                    onChange={(value) => handleValue(name, year, value)}
+                    onChange={handleChange(year)}
                 />
             ))}
         </Row>
