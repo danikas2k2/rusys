@@ -1,9 +1,9 @@
 import Interactive from '@ui/Interactive';
 import Portal from '@ui/Portal';
 import classNames from 'classnames';
+import { isEqual } from 'lodash';
 import React, {
     type DialogHTMLAttributes,
-    type JSX,
     type KeyboardEvent,
     memo,
     type ReactNode,
@@ -36,7 +36,7 @@ export default memo(function Dialog({
     onOpen,
     onClose,
     ...props
-}: DialogProps): JSX.Element | null {
+}: DialogProps) {
     const wasOpen = usePreviousValue(open) ?? open;
     useEffect(() => {
         if (!wasOpen) {
@@ -74,4 +74,4 @@ export default memo(function Dialog({
             </Interactive>
         </Portal>
     ) : null;
-});
+}, isEqual);

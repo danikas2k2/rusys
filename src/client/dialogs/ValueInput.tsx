@@ -6,11 +6,11 @@ import useFocusRef from '@ui/hooks/useFocusRef';
 import useForwardedRef from '@ui/hooks/useForwardedRef';
 import Input from '@ui/Input';
 import classNames from 'classnames';
+import { isEqual } from 'lodash';
 import React, {
     type ChangeEvent,
     type ForwardedRef,
     forwardRef,
-    type JSX,
     type KeyboardEvent,
     memo,
     useCallback,
@@ -35,7 +35,7 @@ export default memo(
     forwardRef(function ValueInput(
         { variant, prevValue = 0, value = 0, onClose, onChange, focus, onFocus, onBlur }: ValueInputProps,
         forwardedRef: ForwardedRef<HTMLInputElement>
-    ): JSX.Element {
+    ) {
         const ref = useFocusRef(useForwardedRef(forwardedRef));
         useEffect(() => {
             if (focus) {
@@ -149,5 +149,6 @@ export default memo(
                 )}
             </ButtonGroup>
         );
-    })
+    }),
+    isEqual
 );

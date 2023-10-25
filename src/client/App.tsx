@@ -2,19 +2,19 @@ import Dangerous from '@icons/Dangerous.svg';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Loader from '@ui/Loader';
 import classNames from 'classnames';
-import React, { type JSX } from 'react';
+import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { useDev } from '~/hooks/useDev';
 import useLabel from '~/client/hooks/useLabel';
 import LoginButton from '~/client/user/LoginButton';
 import LogoutButton from '~/client/user/LogoutButton';
+import { useDev } from '~/hooks/useDev';
 import TablePage from '~/pages/TablePage';
 import useClientId from '~/store/google/useClientId';
 import useLocale from '~/store/locale/useLocale';
 import useProfile from '~/store/profile/useProfile';
 import './App.less';
 
-export function AppContent(): JSX.Element {
+export function AppContent() {
     const dev = useDev();
     const profile = useProfile();
     if (dev) {
@@ -23,7 +23,7 @@ export function AppContent(): JSX.Element {
     return profile.sub ? (profile.allowed && <TablePage />) || <LogoutButton /> : <LoginButton />;
 }
 
-export default function App(): JSX.Element {
+export default function App() {
     useLocale(process.env.LOCALE);
     const clientId = useClientId();
     const invalidClientId = useLabel('Invalid Client ID');
@@ -43,7 +43,7 @@ export default function App(): JSX.Element {
                                     <AppContent />
                                 </GoogleOAuthProvider>
                             ) : (
-                                (clientId === null && <Loader />) || (
+                                (clientId == null && <Loader />) || (
                                     <div className={classNames('error')}>
                                         <Dangerous />
                                         {invalidClientId}

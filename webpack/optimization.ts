@@ -1,11 +1,8 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { type WebpackOptimization } from './types';
-// @ts-ignore
 import { EsbuildPlugin } from 'esbuild-loader';
 
 export default function getOptimization(isDevMode: boolean): WebpackOptimization {
     const esbuild = new EsbuildPlugin({
-        target: 'es2015',
         css: true,
         legalComments: 'none',
         minify: !isDevMode,

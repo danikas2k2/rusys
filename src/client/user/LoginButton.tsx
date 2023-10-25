@@ -3,7 +3,8 @@ import { type CredentialResponse, type TokenResponse, useGoogleLogin, useGoogleO
 import { type ButtonProps } from '@ui/Button';
 import IconButton from '@ui/IconButton';
 import jwtDecode from 'jwt-decode';
-import React, { type JSX, useCallback, useMemo } from 'react';
+import { isEqual } from 'lodash';
+import React, { memo, useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import Label from '~/client/Label';
 import { resetProfileAction, setProfileAction } from '~/store/profile/actions';
@@ -11,7 +12,7 @@ import { type Profile } from '~/store/profile/types';
 import useEmailCheck from '~/store/profile/useEmailCheck';
 import './LoginButton.less';
 
-export default function LoginButton({ children }: ButtonProps): JSX.Element {
+export default memo(function LoginButton({ children }: ButtonProps) {
     const dispatch = useDispatch();
 
     const emailCheck = useEmailCheck();
@@ -62,4 +63,4 @@ export default function LoginButton({ children }: ButtonProps): JSX.Element {
             </div>
         </IconButton>
     );
-}
+}, isEqual);

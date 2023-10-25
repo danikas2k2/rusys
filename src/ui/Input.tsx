@@ -1,5 +1,6 @@
 import useForwardedRef from '@ui/hooks/useForwardedRef';
 import classNames from 'classnames';
+import { isEqual } from 'lodash';
 import React, {
     type FormEvent,
     type ForwardedRef,
@@ -152,7 +153,8 @@ export default memo(
                 )}
             </div>
         );
-    })
+    }),
+    isEqual
 );
 
 function getDecoratorType(decorator: React.ReactNode): 'simple' | 'composite' {

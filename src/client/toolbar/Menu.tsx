@@ -1,8 +1,9 @@
 import MenuIcon from '@icons/Menu.svg';
 import IconButton from '@ui/IconButton';
-import React, { type JSX, memo, useCallback, useState } from 'react';
+import { isEqual } from 'lodash';
+import React, { memo, useCallback, useState } from 'react';
 
-export default memo(function Menu(): JSX.Element {
+export default memo(function Menu() {
     const [open, setOpen] = useState(false);
     const handleClick = useCallback(() => setOpen(!open), [open]);
     return (
@@ -38,4 +39,4 @@ export default memo(function Menu(): JSX.Element {
             </Menu>*/}
         </div>
     );
-});
+}, isEqual);

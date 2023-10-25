@@ -1,8 +1,9 @@
+import { isEqual } from 'lodash';
 import {
     createElement,
     type HTMLAttributes,
-    type JSX,
     type KeyboardEvent,
+    memo,
     type MouseEvent,
     type ReactNode,
     useCallback,
@@ -13,7 +14,7 @@ interface InteractiveProps<T extends HTMLElement> extends HTMLAttributes<T> {
     children?: ReactNode;
 }
 
-export default function Interactive({
+export default memo(function Interactive({
     tag = 'div',
     role = 'button',
     tabIndex = -1,
@@ -21,7 +22,7 @@ export default function Interactive({
     onKeyDown,
     children,
     ...props
-}: InteractiveProps<HTMLElement>): JSX.Element {
+}: InteractiveProps<HTMLElement>) {
     const handleKeyDown = useCallback(
         (e: KeyboardEvent<HTMLElement>) => {
             if (e.key === 'Enter' || e.key === 'Space') {
@@ -33,4 +34,4 @@ export default function Interactive({
         [onClick, onKeyDown]
     );
     return createElement(tag, { ...props, role, tabIndex, onClick, onKeyDown: handleKeyDown }, children);
-}
+}, isEqual);

@@ -8,7 +8,8 @@ import Dialog from '@ui/Dialog';
 import useAutoFocus from '@ui/hooks/useAutoFocus';
 import IconButton from '@ui/IconButton';
 import Input from '@ui/Input';
-import React, { type FormEvent, type JSX, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import { isEqual } from 'lodash';
+import React, { type FormEvent, type KeyboardEvent, memo, useCallback, useEffect, useState } from 'react';
 import useLabel from '~/client/hooks/useLabel';
 import useNameExists from '~/client/hooks/useNameExists';
 import Label from '~/client/Label';
@@ -24,7 +25,7 @@ interface EditBoxProps {
     onClose: (name?: Name) => void;
 }
 
-export default function EditBox({ name: initialName = '', onClose }: EditBoxProps): JSX.Element {
+export default memo(function EditBox({ name: initialName = '', onClose }: EditBoxProps) {
     const [name, setName] = useState<Name>(initialName);
     const [updating, setUpdating] = useState(false);
     const [error, setError] = useState('');
@@ -166,4 +167,4 @@ export default function EditBox({ name: initialName = '', onClose }: EditBoxProp
             </footer>
         </Dialog>
     );
-}
+}, isEqual);

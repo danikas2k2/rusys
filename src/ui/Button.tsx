@@ -1,6 +1,7 @@
 import { type InputColor, type InputSize, type InputSpacing, type InputVariant } from '@ui/Input';
 import classNames from 'classnames';
-import React, { type ButtonHTMLAttributes, type ForwardedRef, forwardRef, type JSX, memo } from 'react';
+import { isEqual } from 'lodash';
+import React, { type ButtonHTMLAttributes, type ForwardedRef, forwardRef, memo } from 'react';
 import useForwardedRef from '~/ui/hooks/useForwardedRef';
 import './Button.less';
 
@@ -28,7 +29,7 @@ export default memo(
             ...props
         }: ButtonProps,
         forwardedRef: ForwardedRef<HTMLButtonElement>
-    ): JSX.Element {
+    ) {
         const ref = useForwardedRef(forwardedRef);
         return (
             <button
@@ -47,5 +48,6 @@ export default memo(
                 {...props}
             />
         );
-    })
+    }),
+    isEqual
 );

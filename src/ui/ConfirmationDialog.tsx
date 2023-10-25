@@ -4,7 +4,8 @@ import Button from '@ui/Button';
 import Dialog from '@ui/Dialog';
 import useAutoFocus from '@ui/hooks/useAutoFocus';
 import { type InputColor } from '@ui/Input';
-import React, { type JSX, memo, type MouseEvent, type ReactNode, useEffect } from 'react';
+import { isEqual } from 'lodash';
+import React, { memo, type MouseEvent, type ReactNode, useEffect } from 'react';
 import Label from '~/client/Label';
 
 export interface ConfirmationDialogProps {
@@ -31,7 +32,7 @@ export default memo(function ConfirmationDialog({
     onClose,
     className,
     children,
-}: ConfirmationDialogProps): JSX.Element {
+}: ConfirmationDialogProps) {
     const focusRef = useAutoFocus<HTMLButtonElement>();
     useEffect(() => {
         if (open) {
@@ -66,4 +67,4 @@ export default memo(function ConfirmationDialog({
             </footer>
         </Dialog>
     );
-});
+}, isEqual);

@@ -1,4 +1,5 @@
-import { type JSX, memo, type ReactNode } from 'react';
+import { isEqual } from 'lodash';
+import { memo, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 interface PortalProps {
@@ -15,7 +16,7 @@ const getModalRoot = (): HTMLElement => {
     return bindTo;
 };
 
-export default memo(function Portal({ children }: PortalProps): JSX.Element {
+export default memo(function Portal({ children }: PortalProps) {
     const modalRoot = getModalRoot();
     return createPortal(children, modalRoot);
-});
+}, isEqual);

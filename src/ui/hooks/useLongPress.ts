@@ -1,107 +1,109 @@
-import { type MouseEvent, type PointerEvent, type TouchEvent, useCallback, useRef } from 'react';
+import {
+    type EventHandler,
+    type MouseEvent,
+    type MouseEventHandler,
+    type PointerEvent,
+    type PointerEventHandler,
+    type TouchEvent,
+    type TouchEventHandler,
+    useCallback,
+    useMemo,
+    useRef,
+} from 'react';
 
-const enum EventType {
-    POINTER = 'pointer',
-    TOUCH = 'touch',
-    MOUSE = 'mouse',
-}
+export type PressEvent<T = Element> = PointerEvent<T> | TouchEvent<T> | MouseEvent<T>;
+export type PressEventHandler<T = Element> = EventHandler<PressEvent<T>>;
 
-function getEventType(type: string): EventType {
-    if (type.startsWith(EventType.POINTER)) {
-        return EventType.POINTER;
-    }
-    if (type.startsWith(EventType.TOUCH)) {
-        return EventType.TOUCH;
-    }
-    return EventType.MOUSE;
-}
-
-export default function useLongPress<T extends Element>(
-    onLongPress: (e: TouchEvent<T> | MouseEvent<T>) => void,
-    duration = 400
-): {
-    onPointerDown?: (e: PointerEvent<T>) => void;
-    onPointerMove?: (e: PointerEvent<T>) => void;
-    onPointerEnd?: (e: PointerEvent<T>) => void;
-    onPointerLeave?: (e: PointerEvent<T>) => void;
-    onTouchStart?: (e: TouchEvent<T>) => void;
-    onTouchEnd?: (e: TouchEvent<T>) => void;
-    onTouchMove?: (e: TouchEvent<T>) => void;
-    onMouseDown?: (e: MouseEvent<T>) => void;
-    onMouseUp?: (e: MouseEvent<T>) => void;
-    onMouseMove?: (e: MouseEvent<T>) => void;
-    onMouseLeave?: (e: MouseEvent<T>) => void;
+type LongPressEvents<T = Element> = {
     onContextMenu: (e: MouseEvent<T>) => void;
-} {
+} & (
+    | {
+          onPointerDown?: PointerEventHandler<T>;
+          onPointerMove?: PointerEventHandler<T>;
+          onPointerUp?: PointerEventHandler<T>;
+          onPointerLeave?: PointerEventHandler<T>;
+      }
+    | {
+          onTouchStart?: TouchEventHandler<T>;
+          onTouchEnd?: TouchEventHandler<T>;
+          onTouchMove?: TouchEventHandler<T>;
+      }
+    | {
+          onMouseDown?: MouseEventHandler<T>;
+          onMouseUp?: MouseEventHandler<T>;
+          onMouseMove?: MouseEventHandler<T>;
+          onMouseLeave?: MouseEventHandler<T>;
+      }
+);
+
+export default function useLongPress<T = Element>(
+    onLongPress: PressEventHandler<T>,
+    onShortPress?: PressEventHandler<T>,
+    duration = 400
+): LongPressEvents<T> {
     const timerRef = useRef<NodeJS.Timeout>();
-    const eventRef = useRef<EventType>();
+    const longPressRef = useRef(false);
+    const shortPressRef = useRef(false);
 
     const onStart = useCallback(
-        (e: TouchEvent<T> | MouseEvent<T>) => {
-            console.info('onStart', e.type);
-            if (!eventRef.current) {
-                eventRef.current = getEventType(e.type);
-                // handledRef.current = false;
-                clearTimeout(timerRef.current);
-                timerRef.current = setTimeout(() => {
-                    // handledRef.current = true;
-                    console.info('onLongPress');
+        (e: PressEvent<T>) => {
+            longPressRef.current = false;
+            shortPressRef.current = false;
+            clearTimeout(timerRef.current);
+            timerRef.current = setTimeout(() => {
+                if (!shortPressRef.current) {
+                    longPressRef.current = true;
                     onLongPress(e);
-                }, duration);
-            }
+                }
+            }, duration);
         },
         [duration, onLongPress]
     );
 
-    const onEnd = useCallback((e: TouchEvent<T> | MouseEvent<T>) => {
-        console.info('onEnd', e.type, eventRef.current);
-        if (eventRef.current && e.type.startsWith(eventRef.current)) {
-            clearTimeout(timerRef.current);
-            eventRef.current = undefined;
-        }
-    }, []);
-
-    const onMove = useCallback(
-        (e: TouchEvent<T> | MouseEvent<T>) => {
-            console.info('onMove', e.type);
-            if (eventRef.current) {
-                onEnd(e);
-            } else {
-                onStart(e);
+    const onEnd = useCallback(
+        (e: PressEvent<T>) => {
+            if (!longPressRef.current && onShortPress) {
+                shortPressRef.current = true;
+                onShortPress?.(e);
+                clearTimeout(timerRef.current);
             }
         },
-        [onEnd, onStart]
+        [onShortPress]
     );
 
-    const onContextMenu = useCallback((e: MouseEvent) => {
+    const onMove = useCallback(() => {
+        clearTimeout(timerRef.current);
+    }, [onShortPress]);
+
+    const onContextMenu = useCallback((e: MouseEvent<T>) => {
         e.preventDefault();
         e.stopPropagation();
     }, []);
 
-    if (window.PointerEvent) {
+    return useMemo(() => {
+        if (window.PointerEvent) {
+            return {
+                onPointerDown: onStart,
+                onPointerMove: onMove,
+                onPointerUp: onEnd,
+                onPointerLeave: onMove,
+                onContextMenu,
+            };
+        }
+        if (window.TouchEvent) {
+            return {
+                onTouchStart: onStart,
+                onTouchEnd: onEnd,
+                onTouchMove: onMove,
+                onContextMenu,
+            };
+        }
         return {
-            onPointerDown: onStart,
-            onPointerMove: onMove,
-            onPointerEnd: onEnd,
-            onPointerLeave: onEnd,
+            onMouseDown: onStart,
+            onMouseUp: onEnd,
+            onMouseMove: onMove,
+            onMouseLeave: onMove,
             onContextMenu,
         };
-    }
-
-    if (window.TouchEvent) {
-        return {
-            onTouchStart: onStart,
-            onTouchEnd: onEnd,
-            onTouchMove: onMove,
-            onContextMenu,
-        };
-    }
-
-    return {
-        onMouseDown: onStart,
-        onMouseUp: onEnd,
-        onMouseMove: onMove,
-        onMouseLeave: onEnd,
-        onContextMenu,
-    };
+    }, [onStart, onEnd, onMove, onContextMenu]);
 }

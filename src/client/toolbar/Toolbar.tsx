@@ -1,5 +1,5 @@
 import Input from '@ui/Input';
-import React, { type FormEvent, type JSX, useCallback } from 'react';
+import React, { type FormEvent, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import useLabel from '~/client/hooks/useLabel';
 import AddButton from '~/client/toolbar/AddButton';
@@ -7,7 +7,7 @@ import LogoutButton from '~/client/user/LogoutButton';
 import { setFilterAction } from '~/store/filter/actions';
 import './Toolbar.less';
 
-export default function Toolbar(): JSX.Element {
+export default function Toolbar() {
     const dispatch = useDispatch();
     const placeholder = useLabel('type to filter');
     const handleInput = useCallback(

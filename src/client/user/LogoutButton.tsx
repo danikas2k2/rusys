@@ -4,13 +4,14 @@ import { googleLogout } from '@react-oauth/google';
 import { type ButtonProps } from '@ui/Button';
 import ConfirmationDialog from '@ui/ConfirmationDialog';
 import IconButton from '@ui/IconButton';
-import React, { type JSX, useCallback, useState } from 'react';
+import { isEqual } from 'lodash';
+import React, { memo, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Label from '~/client/Label';
 import ProfileAvatar from '~/client/user/ProfileAvatar';
 import { resetProfileAction } from '~/store/profile/actions';
 
-export default function LogoutButton({ disabled, children }: ButtonProps): JSX.Element {
+export default memo(function LogoutButton({ disabled, children }: ButtonProps) {
     const dispatch = useDispatch();
     const [open, setOpen] = useState(false);
     const handleConfirm = useCallback(() => {
@@ -45,4 +46,4 @@ export default function LogoutButton({ disabled, children }: ButtonProps): JSX.E
             />
         </>
     );
-}
+}, isEqual);

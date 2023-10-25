@@ -3,11 +3,11 @@ import CheckIndeterminateIcon from '@icons/CheckIndeterminate.svg';
 import useForwardedRef from '@ui/hooks/useForwardedRef';
 import { type CommonInputProps, type InputColor, type InputSize, type InputVariant } from '@ui/Input';
 import classNames from 'classnames';
+import { isEqual } from 'lodash';
 import React, {
     type ChangeEvent,
     type ForwardedRef,
     forwardRef,
-    type JSX,
     memo,
     useCallback,
     useEffect,
@@ -39,7 +39,7 @@ export default memo(
             ...props
         }: CheckboxProps,
         forwardedRef: ForwardedRef<HTMLInputElement>
-    ): JSX.Element {
+    ) {
         const ref = useForwardedRef(forwardedRef);
 
         const [isIndeterminate, setIndeterminate] = useState(indeterminate);
@@ -92,5 +92,6 @@ export default memo(
                 <span className="label">{children}</span>
             </label>
         );
-    })
+    }),
+    isEqual
 );

@@ -1,8 +1,8 @@
-import React, { type JSX } from 'react';
+import React from 'react';
 import useProfile from '~/store/profile/useProfile';
 import './ProfileAvatar.less';
 
-export default function ProfileAvatar(): JSX.Element {
+export default function ProfileAvatar() {
     const profile = useProfile();
     return (
         <div className="Avatar">

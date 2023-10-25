@@ -1,10 +1,10 @@
 import AddCircleIcon from '@icons/AddCircle.svg';
 import IconButton from '@ui/IconButton';
-import React, { type JSX, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { enableEditingAction } from '~/store/editing/actions';
 
-export default function AddButton(): JSX.Element {
+export default function AddButton() {
     const dispatch = useDispatch();
     const onOpen = useCallback((): void => {
         dispatch(enableEditingAction(''));

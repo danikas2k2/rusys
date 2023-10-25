@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDev } from '~/hooks/useDev';
 import { type BaseState } from '~/store/base/types';
@@ -6,7 +7,7 @@ import { type Profile } from '~/store/profile/types';
 
 export default function useProfile(): Profile {
     const isDev = useDev();
-    let profile = useSelector((state: BaseState) => state.profile);
+    let profile = useSelector((state: BaseState) => state.profile, isEqual);
     if (!profile.sub) {
         profile = JSON.parse(localStorage.getItem('profile') ?? '{}') ?? {};
         if (!profile.sub && isDev) {

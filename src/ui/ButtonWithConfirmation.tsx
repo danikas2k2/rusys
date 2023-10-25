@@ -1,6 +1,7 @@
 import ConfirmationDialog from '@ui/ConfirmationDialog';
 import { type InputColor } from '@ui/Input';
-import React, { type JSX, memo, type ReactNode, useCallback, useState } from 'react';
+import { isEqual } from 'lodash';
+import React, { memo, type ReactNode, useCallback, useState } from 'react';
 import Button, { type ButtonProps } from '~/ui/Button';
 
 interface ButtonWithConfirmationProps extends Omit<ButtonProps, 'title'> {
@@ -17,7 +18,7 @@ export default memo(function ButtonWithConfirmation({
     cancel,
     onClick,
     ...props
-}: ButtonWithConfirmationProps): JSX.Element {
+}: ButtonWithConfirmationProps) {
     const [open, setOpen] = useState(false);
     const handleOpen = useCallback(() => setOpen(true), []);
     const handleClose = useCallback(() => setOpen(false), []);
@@ -38,4 +39,4 @@ export default memo(function ButtonWithConfirmation({
             />
         </>
     );
-});
+}, isEqual);

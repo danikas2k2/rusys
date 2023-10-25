@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, {
     createRef,
-    type JSX,
+    memo,
     type RefObject,
     type SyntheticEvent,
     useCallback,
@@ -29,7 +29,7 @@ interface ValueBoxProps {
     onClose?: (value?: Amount) => void;
 }
 
-export default function ValueBox({ name, year, value, onClose }: ValueBoxProps): JSX.Element {
+export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxProps) {
     const [expanded, setExpanded] = useState(false);
 
     const [editingValue, setEditingValue] = useState<Amount>();
@@ -151,4 +151,4 @@ export default function ValueBox({ name, year, value, onClose }: ValueBoxProps):
             </footer>
         </Dialog>
     );
-}
+}, isEqual);

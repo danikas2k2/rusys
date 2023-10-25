@@ -1,4 +1,5 @@
-import React, { type JSX, useCallback } from 'react';
+import { isEqual } from 'lodash';
+import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import EditBox from '~/client/dialogs/EditBox';
 import Table from '~/client/table/Table';
@@ -6,8 +7,8 @@ import Toolbar from '~/client/toolbar/Toolbar';
 import { type BaseState } from '~/store/base/types';
 import { disableEditingAction } from '~/store/editing/actions';
 
-export default function TablePage(): JSX.Element {
-    const editing = useSelector((state: BaseState) => state.editing);
+export default function TablePage() {
+    const editing = useSelector((state: BaseState) => state.editing, isEqual);
 
     const dispatch = useDispatch();
     const onClose = useCallback((): void => {

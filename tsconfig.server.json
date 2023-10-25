@@ -3,9 +3,6 @@
     "include": ["src/server/*"],
     "exclude": ["node_modules", "**/*.spec.ts", "./config.js"],
     "compilerOptions": {
-        "module": "AMD",
-        "isolatedModules": false,
-        "verbatimModuleSyntax": false,
         "outFile": "dist/server.js"
     }
 }

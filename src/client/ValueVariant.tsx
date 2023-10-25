@@ -1,4 +1,5 @@
-import React, { type JSX } from 'react';
+import { isEqual } from 'lodash';
+import React, { memo } from 'react';
 import { type Variant } from '~/store/details/types';
 
 const VariantShortFormat: Partial<Record<Variant, string>> = {
@@ -26,7 +27,7 @@ interface ValueVariantProps {
     format?: 'short' | 'long';
 }
 
-export default function ValueVariant({ variant, format = 'short' }: ValueVariantProps): JSX.Element {
+export default memo(function ValueVariant({ variant, format = 'short' }: ValueVariantProps) {
     if (format === 'long') {
         const s = VariantLongFormat[variant] ?? variant;
         const [s0, ...s1] = s.split(' ');
@@ -41,4 +42,4 @@ export default function ValueVariant({ variant, format = 'short' }: ValueVariant
         return <>{s}</>;
     }
     return <>{VariantShortFormat[variant] ?? variant}</>;
-}
+}, isEqual);

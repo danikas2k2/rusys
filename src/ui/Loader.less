@@ -7,9 +7,11 @@
     --loader-speed: 1.5s;
 
     display: inline-block;
-    position: relative;
+    position: fixed;
     width: var(--loader-size);
     height: var(--loader-size);
+    inset: 0;
+    margin: auto;
 
     div {
         --loader-inner-size: calc(var(--loader-size) - var(--loader-border-width) * 2);

@@ -1,6 +1,7 @@
 import Checkbox from '@ui/Checkbox';
 import Loader from '@ui/Loader';
-import React, { type JSX, useCallback, useEffect, useMemo, useState } from 'react';
+import { isEqual } from 'lodash';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Cell from '~/client/table/Cell';
 import Row from '~/client/table/Row';
@@ -13,7 +14,7 @@ import { type Amounts } from '~/store/details/types';
 import { type Name } from '~/store/types';
 import './Table.less';
 
-export default function Table(): JSX.Element {
+export default function Table() {
     const [loading, setLoading] = useState(false);
     const [loaded, setLoaded] = useState(false);
     const initialLoad = useInitialLoader();
@@ -29,7 +30,8 @@ export default function Table(): JSX.Element {
     }, [loading, loaded, initialLoad]);
 
     const [missing, years, details, filter] = useSelector(
-        (state: BaseState) => [state.missing, state.years, state.details, state.filter] as const
+        (state: BaseState) => [state.missing, state.years, state.details, state.filter] as const,
+        isEqual
     );
     const [missingOnly, setMissingOnly] = useState<boolean>(false);
     const hasMissing = !!missing.length;

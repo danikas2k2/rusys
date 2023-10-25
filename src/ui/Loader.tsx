@@ -1,7 +1,8 @@
-import React, { type JSX, memo } from 'react';
+import { isEqual } from 'lodash';
+import React, { memo } from 'react';
 import './Loader.less';
 
-export default memo(function Loader(): JSX.Element {
+export default memo(function Loader() {
     return (
         <div className="Loader">
             <div key="0" />
@@ -10,4 +11,4 @@ export default memo(function Loader(): JSX.Element {
             <div key="3" />
         </div>
     );
-});
+}, isEqual);

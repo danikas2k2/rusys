@@ -1,9 +1,8 @@
 import useLongPress from '@ui/hooks/useLongPress';
-import Interactive from '@ui/Interactive';
 import classNames from 'classnames';
 import { isEmpty, isEqual } from 'lodash';
-import React, { type JSX, type UIEvent, useCallback, useEffect, useState } from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
+import React, { memo, useCallback, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import ValueBox from '~/client/dialogs/ValueBox';
 import Cell from '~/client/table/Cell';
 import ValueVariant from '~/client/ValueVariant';
@@ -18,22 +17,18 @@ interface ValueCellProps {
     name: Name;
     year: Year;
     value?: Amount;
-    isLast?: boolean;
+    last?: boolean;
     onChange: (value?: Amount) => void;
 }
 
-export default function ValueCell({ value, name, year, isLast, onChange }: ValueCellProps): JSX.Element {
-    const [isEditing, isRemoving] = useSelector(
-        (state: BaseState) => [state.editing.enabled, state.removing?.[name]?.[year]] as const,
-        shallowEqual
-    );
+export default memo(function ValueCell({ name, year, value, last, onChange }: ValueCellProps) {
+    const nameEditing = useSelector((state: BaseState) => state.editing.enabled);
     const [editing, setEditing] = useState(false);
-
     useEffect(() => {
-        if (editing && isEditing) {
+        if (editing && nameEditing) {
             setEditing(false);
         }
-    }, [editing, isEditing]);
+    }, [editing, nameEditing]);
 
     const handleOpen = useCallback((): void => {
         setEditing(true);
@@ -52,30 +47,23 @@ export default function ValueCell({ value, name, year, isLast, onChange }: Value
         [onChange, value]
     );
 
-    const onClick = editing || isEditing ? undefined : handleOpen;
+    const handleShortClick = editing || nameEditing ? undefined : handleOpen;
 
+    const removing = useSelector((state: BaseState) => state.removing?.[name]?.[year]);
     const updateRemoving = useUpdateRemoving();
-    const onLongPress = useCallback(
-        (e: UIEvent): void => {
-            e.preventDefault();
-            e.stopPropagation();
-            // e.nativeEvent.preventDefault();
-            // e.nativeEvent.stopPropagation();
-            // e.nativeEvent.stopImmediatePropagation();
+    const handleLongPress = useCallback((): void => {
+        void updateRemoving(name, year, !removing);
+        navigator?.vibrate?.(200);
+    }, [removing, name, updateRemoving, year]);
+    const longPress = useLongPress<HTMLDivElement>(handleLongPress, handleShortClick);
 
-            void updateRemoving(name, year, !isRemoving);
-            navigator?.vibrate?.(200);
-        },
-        [isRemoving, name, updateRemoving, year]
-    );
+    console.info('.', name, year);
 
-    const longPress = useLongPress<HTMLDivElement>(onLongPress);
-
-    const cmpVariants = useVariantComparator();
     const empty = isEmpty(value);
+    const cmpVariants = useVariantComparator();
     return (
-        <Cell className={classNames('ValueCell', { editing, empty, last: isLast, removing: isRemoving })}>
-            <Interactive onClick={onClick} {...longPress}>
+        <>
+            <Cell className={classNames('ValueCell', { empty, last, removing })} {...longPress}>
                 {empty
                     ? '.'
                     : Object.entries(value)
@@ -88,8 +76,8 @@ export default function ValueCell({ value, name, year, isLast, onChange }: Value
                                   </sub>
                               </span>
                           ))}
-            </Interactive>
+            </Cell>
             {editing && <ValueBox name={name} year={year} value={value} onClose={handleClose} />}
-        </Cell>
+        </>
     );
-}
+});

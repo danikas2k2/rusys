@@ -7,22 +7,18 @@
         color 0.2s ease-in-out,
         background-color 0.2s ease-in-out;
 
+    &.last {
+        color: var(--palette-failure-outlined-color);
+    }
+
     &.empty {
         color: var(--palette-neutral-plain-disabled-color);
     }
 
-    &:not(.empty) {
-        &.removing {
-            color: var(--palette-failure-solid-color);
-            background-color: var(--palette-failure-solid-bg);
-            border-radius: var(--radius-xs);
-        }
-
-        &:not(.removing) {
-            &.last {
-                color: var(--palette-failure-outlined-color);
-            }
-        }
+    &.removing {
+        color: var(--palette-failure-solid-color);
+        background-color: var(--palette-failure-solid-bg);
+        border-radius: var(--radius-xs);
     }
 
     .value {
