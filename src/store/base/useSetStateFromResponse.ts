@@ -6,6 +6,7 @@ import { type AmountSet } from '~/store/details/types';
 import { setMissingAction } from '~/store/missing/actions';
 import { setRemovingAction } from '~/store/removing/actions';
 import { type RemovingSet } from '~/store/removing/types';
+import { setSummaryAction } from '~/store/summary/actions';
 import { type CommonResponse, type Name, type Year } from '~/store/types';
 import { setYearsAction } from '~/store/years/actions';
 
@@ -20,6 +21,7 @@ export interface RefreshResponse extends CommonResponse {
 const refreshActions: Record<string, (value: any) => Action> = {
     years: setYearsAction,
     details: setDetailsAction,
+    statistics: setSummaryAction,
     removing: setRemovingAction,
     missing: setMissingAction,
 };

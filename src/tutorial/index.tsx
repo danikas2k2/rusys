@@ -4,16 +4,14 @@ import { HashRouter, NavLink, Route, Routes } from 'react-router-dom';
 import ButtonArticle from '~/tutorial/articles/Button.mdx';
 import CheckboxArticle from '~/tutorial/articles/Checkbox.mdx';
 import InputArticle from '~/tutorial/articles/Input.mdx';
-import { type FunctionComponent } from 'react';
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { HashRouter, NavLink, Route, Routes } from 'react-router-dom';
+import MenuArticle from '~/tutorial/articles/Menu.mdx';
 import './index.less';
 
 const PAGES: Record<string, [string, FunctionComponent]> = {
     button: ['Button', ButtonArticle],
     checkbox: ['Checkbox', CheckboxArticle],
     Input: ['Input', InputArticle],
+    Menu: ['Menu', MenuArticle],
 };
 
 const container = document.getElementById('root');

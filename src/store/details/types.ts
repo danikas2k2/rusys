@@ -15,4 +15,5 @@ export enum Variant {
 export type Amount = Partial<Record<Variant, number>>;
 export type Amounts = Record<Year, Amount>;
 export type NamedAmounts = { name: string } & Amounts;
+export type TimedAmounts = { time: number } & NamedAmounts;
 export type AmountSet = Record<Name, Amounts>;
