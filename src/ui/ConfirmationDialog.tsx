@@ -1,12 +1,16 @@
 import CancelIcon from '@icons/Cancel.svg';
+import CloseIcon from '@icons/Close.svg';
 import DoneIcon from '@icons/Done.svg';
 import Button from '@ui/Button';
 import Dialog from '@ui/Dialog';
 import useAutoFocus from '@ui/hooks/useAutoFocus';
+import IconButton from '@ui/IconButton';
 import { type InputColor } from '@ui/Input';
+import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, { memo, type MouseEvent, type ReactNode, useEffect } from 'react';
 import Label from '~/client/Label';
+import './ConfirmationDialog.less';
 
 export interface ConfirmationDialogProps {
     header?: ReactNode; // TODO (options?: HeaderOptions}) => ReactNode;
@@ -40,8 +44,21 @@ export default memo(function ConfirmationDialog({
         }
     }, [open, focusRef]);
     return (
-        <Dialog className={className} open={open} closeOnOutsideClick closeOnEscape onClose={onClose}>
-            <header>{header || <Label>Are you sure?</Label>}</header>
+        <Dialog
+            className={classNames('ConfirmationDialog', className)}
+            open={open}
+            closeOnOutsideClick
+            closeOnEscape
+            onClose={onClose}
+        >
+            <header>
+                <div className="title">{header || <Label>Are you sure?</Label>}</div>
+                <div className="close">
+                    <IconButton onClick={onClose}>
+                        <CloseIcon />
+                    </IconButton>
+                </div>
+            </header>
             <main>{children}</main>
             <footer>
                 {footer || (
