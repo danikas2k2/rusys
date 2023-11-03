@@ -53,6 +53,17 @@ describe('details', () => {
             expect(addUpdate).not.toHaveBeenCalled();
             expect(addUpdates).not.toHaveBeenCalled();
         });
+
+        it('set no details for specified name', async () => {
+            expect(await setDetails('A')).toEqual({
+                A: {},
+                B: { 22: { '': 1 } },
+            });
+
+            expect(addUpdate).not.toHaveBeenCalled();
+            expect(addUpdates).toHaveBeenCalledTimes(1);
+            expect(addUpdates).toHaveBeenCalledWith('A', undefined);
+        });
     });
 
     describe('updateDetails', () => {
@@ -70,6 +81,27 @@ describe('details', () => {
         it('update details for specified name and year without history', async () => {
             expect(await updateDetails('A', 22, { '': 1, m: 2, d: 3 }, true)).toEqual({
                 A: { 21: { '': 2 }, 22: { '': 1, m: 2, d: 3 } },
+                B: { 22: { '': 1 } },
+            });
+
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).not.toHaveBeenCalled();
+        });
+
+        it('update details for specified name and year without value', async () => {
+            expect(await updateDetails('A', 21)).toEqual({
+                A: {},
+                B: { 22: { '': 1 } },
+            });
+
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).toHaveBeenCalledTimes(1);
+            expect(addUpdate).toHaveBeenCalledWith('A', 21, undefined);
+        });
+
+        it('update details for specified name without year and value', async () => {
+            expect(await updateDetails('A')).toEqual({
+                A: {},
                 B: { 22: { '': 1 } },
             });
 

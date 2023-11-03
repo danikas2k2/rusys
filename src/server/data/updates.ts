@@ -46,10 +46,10 @@ export async function getSummary(years: number[]): Promise<AmountSet> {
     return grouped;
 }
 
-export async function addUpdates(name: Name, values: Amounts | null): Promise<boolean> {
+export async function addUpdates(name: Name, values?: Amounts | null): Promise<boolean> {
     const prev = await DETAILS.findOne<NamedAmounts>({ name });
     const { _id, name: _name, ...prevValues } = prev ?? {};
-    const diff = getDiff(prev ? (prevValues as Amounts) : null, values);
+    const diff = getDiff(prev ? (prevValues as Amounts) : undefined, values);
     if (diff) {
         const time = Date.now();
         await UPDATES.insert({ name, time, ...diff });
@@ -59,9 +59,9 @@ export async function addUpdates(name: Name, values: Amounts | null): Promise<bo
     return false;
 }
 
-export async function addUpdate(name: Name, year: Year, value: Amount | null): Promise<boolean> {
+export async function addUpdate(name: Name, year: Year, value?: Amount | null): Promise<boolean> {
     const prev = await DETAILS.findOne<NamedAmounts>({ name, [year]: { $exists: true } }, { _id: 0, [year]: 1 });
-    const diff = getDiff(prev, value ? { [year]: value } : null);
+    const diff = getDiff(prev, value ? { [year]: value } : undefined);
     if (diff) {
         const time = Date.now();
         await UPDATES.insert({ name, time, ...diff });
@@ -71,7 +71,7 @@ export async function addUpdate(name: Name, year: Year, value: Amount | null): P
     return false;
 }
 
-export function getDiff(prevValues: Amounts | null, values: Amounts | null): Amounts | null {
+export function getDiff(prevValues?: Amounts | null, values?: Amounts | null): Amounts | null | undefined {
     const diff: Amounts = {};
     if (values) {
         for (const [k, v] of Object.entries(values)) {

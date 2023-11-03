@@ -28,8 +28,6 @@ interface EditBoxProps {
 const PLACEHOLDER = 'Please enter a name';
 
 export default memo(function EditBox({ name: initialName = '', onClose }: EditBoxProps) {
-    console.info('EditBox', { initialName });
-
     const [name, setName] = useState<Name>(initialName);
     const [updating, setUpdating] = useState(false);
     const [error, setError] = useState('');

@@ -2,7 +2,7 @@ import GoogleIcon from '@icons/Google.svg';
 import { type CredentialResponse, type TokenResponse, useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import { type ButtonProps } from '@ui/Button';
 import IconButton from '@ui/IconButton';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { isEqual } from 'lodash';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';

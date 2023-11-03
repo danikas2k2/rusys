@@ -13,7 +13,7 @@ export async function getDetails(years: number[]): Promise<AmountSet> {
     );
 }
 
-export async function setDetails(name: Name, values: Amounts, updateWithoutHistory = false): Promise<AmountSet> {
+export async function setDetails(name: Name, values?: Amounts, updateWithoutHistory = false): Promise<AmountSet> {
     if (!updateWithoutHistory) {
         await addUpdates(name, values);
     }
@@ -26,16 +26,16 @@ export async function setDetails(name: Name, values: Amounts, updateWithoutHisto
 
 export async function updateDetails(
     name: Name,
-    year: Year,
-    value: Amount,
+    year?: Year,
+    value?: Amount,
     updateWithoutHistory = false
 ): Promise<AmountSet> {
-    if (!updateWithoutHistory) {
+    if (year && !updateWithoutHistory) {
         await addUpdate(name, year, value);
     }
     const updated = await DETAILS.update(
         { name },
-        { [Object.keys(value).length ? '$set' : '$unset']: { [year]: value } },
+        year ? { [Object.keys(value || {}).length ? '$set' : '$unset']: { [year]: value || {} } } : { name },
         { upsert: true }
     );
     if (updated) {
