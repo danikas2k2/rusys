@@ -1,6 +1,6 @@
 import { type WebpackModuleLoader } from '../types';
 
-export default function getCssLoader(isDevMode: boolean): WebpackModuleLoader {
+export function getCssLoader(isDevMode: boolean): WebpackModuleLoader {
     return {
         loader: 'css-loader',
         options: {

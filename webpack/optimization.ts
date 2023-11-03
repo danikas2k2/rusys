@@ -1,7 +1,9 @@
 import { type WebpackOptimization } from './types';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { EsbuildPlugin } from 'esbuild-loader';
 
-export default function getOptimization(isDevMode: boolean): WebpackOptimization {
+export function getOptimization(isDevMode: boolean): WebpackOptimization {
     const esbuild = new EsbuildPlugin({
         css: true,
         legalComments: 'none',

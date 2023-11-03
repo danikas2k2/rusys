@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import getAlias from './alias';
+import { getAlias } from './alias';
 import { type WebpackResolve } from './types';
 
-export default function getResolve(): WebpackResolve {
+export function getResolve(): WebpackResolve {
     return {
         extensions: ['.jsx', '.js', '.tsx', '.ts', '.css', '.less', '.pcss', '.svg'],
         modules: ['node_modules'],

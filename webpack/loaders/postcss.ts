@@ -1,6 +1,6 @@
 import { type WebpackModuleLoader } from '../types';
 
-export default function getPostcssLoader(): WebpackModuleLoader {
+export function getPostcssLoader(): WebpackModuleLoader {
     return {
         loader: 'postcss-loader',
         options: {

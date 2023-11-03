@@ -17,7 +17,7 @@
             }
         },
         {
-            "files": ["webpack.config.ts", "webpack.dev.config.ts"],
+            "files": ["webpack.config.ts", "webpack.*.config.ts"],
             "options": {
                 "printWidth": 120
             }

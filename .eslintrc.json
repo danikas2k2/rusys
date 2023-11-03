@@ -108,7 +108,7 @@
     },
     "overrides": [
         {
-            "files": ["*.config.js"],
+            "files": ["*.config.js", "*.config.ts"],
             "rules": {
                 "no-undef": "off",
                 "import/no-commonjs": "off",

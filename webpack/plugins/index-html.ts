@@ -1,16 +1,24 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-ignore
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { type WebpackPlugin } from '../types';
 
-export default function getIndexHtmlPlugin(): WebpackPlugin {
+interface IndexHtmlPluginOptions {
+    name?: string;
+    chunk?: string;
+    chunks?: string[];
+}
+
+export function getIndexHtmlPlugin({
+    name = 'index',
+    chunk = name,
+    chunks = ['react', 'router', chunk],
+}: IndexHtmlPluginOptions = {}): WebpackPlugin {
     return new HtmlWebpackPlugin({
-        filename: 'index.html',
-        template: './public/index.html',
+        filename: `${name}.html`,
+        template: `./public/${name}.html`,
         publicPath: '/',
         inject: 'body',
         scriptLoading: 'blocking',
         chunksSortMode: 'manual',
-        chunks: ['react', 'router', 'app'],
+        chunks,
     });
 }

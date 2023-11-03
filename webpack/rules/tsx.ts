@@ -1,11 +1,12 @@
-import path from 'path';
 import { type RuleSetRule } from 'webpack';
+import { getExcludeList } from '../paths/exclude';
+import { getIncludeList } from '../paths/include';
 
 export function getTsxRule(): RuleSetRule {
     return {
         test: /\.[jt]sx?$/,
-        include: path.resolve(process.cwd(), 'src'),
-        exclude: /node_modules/,
+        include: getIncludeList(),
+        exclude: getExcludeList(),
         use: [
             {
                 loader: 'esbuild-loader',

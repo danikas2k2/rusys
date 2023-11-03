@@ -1,6 +1,6 @@
 import { type WebpackModuleLoader } from '../types';
 
-export default function getSvgLoader(): WebpackModuleLoader {
+export function getSvgLoader(): WebpackModuleLoader {
     return {
         loader: 'react-svg-loader',
         options: {

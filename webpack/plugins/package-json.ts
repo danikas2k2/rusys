@@ -1,11 +1,8 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-ignore
 import GeneratePackageJsonPlugin from 'generate-package-json-webpack-plugin';
-// @ts-ignore
 import Package from '../../package.json';
 import { type WebpackPlugin } from '../types';
 
-export default function getPackageJsonPlugin(): WebpackPlugin {
+export function getPackageJsonPlugin(): WebpackPlugin {
     return new GeneratePackageJsonPlugin({
         name: Package.name,
         version: Package.version,

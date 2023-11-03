@@ -1,16 +1,16 @@
 import path from 'path';
 import { type Configuration } from 'webpack';
-import getExternals from './webpack/externals';
-import getOptimization from './webpack/optimization';
-import getPerformance from './webpack/performance';
-import getCleanBeforeBuildPlugin from './webpack/plugins/clean-before-build';
-import getCopyPublicPlugin from './webpack/plugins/copy-public';
-import getCssExtractPlugin from './webpack/plugins/css-extract';
-import getEnvironmentPlugin from './webpack/plugins/environment';
-import getIndexHtmlPlugin from './webpack/plugins/index-html';
-import getMomentLocalesPlugin from './webpack/plugins/moment-locales';
-import getPackageJsonPlugin from './webpack/plugins/package-json';
-import getResolve from './webpack/resolve';
+import { getExternals } from './webpack/externals';
+import { getOptimization } from './webpack/optimization';
+import { getPerformance } from './webpack/performance';
+import { getCleanBeforeBuildPlugin } from './webpack/plugins/clean-before-build';
+import { getCopyPublicPlugin } from './webpack/plugins/copy-public';
+import { getCssExtractPlugin } from './webpack/plugins/css-extract';
+import { getEnvironmentPlugin } from './webpack/plugins/environment';
+import { getIndexHtmlPlugin } from './webpack/plugins/index-html';
+import { getMomentLocalesPlugin } from './webpack/plugins/moment-locales';
+import { getPackageJsonPlugin } from './webpack/plugins/package-json';
+import { getResolve } from './webpack/resolve';
 import { getCssRule } from './webpack/rules/css';
 import { getLessRule } from './webpack/rules/less';
 import { getSvgRule } from './webpack/rules/svg';
@@ -48,13 +48,12 @@ export default async function (env?: { prod?: boolean }, argv?: { mode?: string 
             getEnvironmentPlugin(isDevMode),
             getMomentLocalesPlugin(),
             getCssExtractPlugin(isDevMode),
-            getIndexHtmlPlugin(),
+            getIndexHtmlPlugin({ chunk: 'app' }),
             getPackageJsonPlugin(),
         ],
         externals: getExternals(isDevMode),
         resolve: getResolve(),
         optimization: getOptimization(isDevMode),
         performance: getPerformance(),
-        // stats: 'verbose',
     };
 }
