@@ -1,5 +1,7 @@
+import React, { type FunctionComponent } from 'react';
+import { createRoot } from 'react-dom/client';
+import { HashRouter, NavLink, Route, Routes } from 'react-router-dom';
 import ButtonArticle from '~/tutorial/articles/Button.mdx';
-import ButtonGroupArticle from '~/tutorial/articles/ButtonGroup.mdx';
 import CheckboxArticle from '~/tutorial/articles/Checkbox.mdx';
 import InputArticle from '~/tutorial/articles/Input.mdx';
 import { type FunctionComponent } from 'react';
@@ -10,7 +12,6 @@ import './index.less';
 
 const PAGES: Record<string, [string, FunctionComponent]> = {
     button: ['Button', ButtonArticle],
-    'button-group': ['ButtonGroup', ButtonGroupArticle],
     checkbox: ['Checkbox', CheckboxArticle],
     Input: ['Input', InputArticle],
 };

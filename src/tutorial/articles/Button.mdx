@@ -1,5 +1,7 @@
+import AddCircleIcon from '@icons/AddCircle.svg';
 import MenuIcon from '@icons/Menu.svg';
-import Button from '@ui/Button';
+import RemoveIcon from '@icons/Remove.svg';
+import Button, { ButtonGroup } from '@ui/Button';
 import React from 'react';
 
 export const colors = ['neutral', 'primary', 'secondary', 'success', 'warning', 'failure'];
@@ -169,6 +171,79 @@ import Button from '@ui/Button';
                         <MenuIcon />
                         <span>Menu</span>
                     </Button>
+                </td>
+            ))}
+        </tr>
+    </tbody>
+</table>
+
+## Grouped Buttons
+
+### Separate
+
+```tsx
+<div>
+    <Button>
+        <RemoveIcon />
+    </Button>
+    <Button>
+        <AddCircleIcon />
+    </Button>
+</div>
+```
+
+### Grouped
+
+```tsx
+<ButtonGroup>
+    <Button>
+        <RemoveIcon />
+    </Button>
+    <Button>
+        <AddCircleIcon />
+    </Button>
+</ButtonGroup>
+```
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {sizes.map((size, s) => (
+                <th key={s}>
+                    <code data-default={!s}>{size}</code>
+                </th>
+            ))}
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>separate</th>
+            {sizes.map((size, s) => (
+                <td key={s}>
+                    <div>
+                        <Button size={size}>
+                            <RemoveIcon />
+                        </Button>
+                        <Button size={size}>
+                            <AddCircleIcon />
+                        </Button>
+                    </div>
+                </td>
+            ))}
+        </tr>
+        <tr>
+            <th>grouped</th>
+            {sizes.map((size, s) => (
+                <td key={s}>
+                    <ButtonGroup>
+                        <Button size={size}>
+                            <RemoveIcon />
+                        </Button>
+                        <Button size={size}>
+                            <AddCircleIcon />
+                        </Button>
+                    </ButtonGroup>
                 </td>
             ))}
         </tr>

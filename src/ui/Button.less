@@ -304,17 +304,6 @@
     border: 1px solid var(--button-border);
     border-radius: var(--button-radius);
 
-    & + & {
-        border-start-start-radius: 0;
-        border-end-start-radius: 0;
-        margin-inline-start: 1px;
-    }
-
-    &:has(+ &) {
-        border-start-end-radius: 0;
-        border-end-end-radius: 0;
-    }
-
     &:active {
         color: var(--button-active-color);
         background-color: var(--button-active-bg);
@@ -358,6 +347,24 @@
 
         &:last-child:not(:first-child) {
             margin-inline-start: 0.25rem;
+        }
+    }
+
+    + .Button {
+        margin-inline-start: 1px;
+    }
+}
+
+.ButtonGroup {
+    .Button {
+        + .Button {
+            border-start-start-radius: 0;
+            border-end-start-radius: 0;
+        }
+
+        &:has(+ .Button) {
+            border-start-end-radius: 0;
+            border-end-end-radius: 0;
         }
     }
 }

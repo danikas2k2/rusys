@@ -1,4 +1,10 @@
-import { type InputColor, type InputSize, type InputSpacing, type InputVariant } from '@ui/Input';
+import {
+    type CommonInputProps,
+    type InputColor,
+    type InputSize,
+    type InputSpacing,
+    type InputVariant,
+} from '@ui/Input';
 import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, { type ButtonHTMLAttributes, type ForwardedRef, forwardRef, memo } from 'react';
@@ -48,6 +54,17 @@ export default memo(
                 {...props}
             />
         );
+    }),
+    isEqual
+);
+
+export const ButtonGroup = memo(
+    forwardRef(function ButtonGroup(
+        { className, ...props }: CommonInputProps<HTMLDivElement>,
+        forwardedRef: ForwardedRef<HTMLDivElement>
+    ) {
+        const ref = useForwardedRef(forwardedRef);
+        return <div ref={ref} className={classNames('ButtonGroup', className)} {...props} />;
     }),
     isEqual
 );
