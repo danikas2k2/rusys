@@ -1,6 +1,6 @@
 import CloseIcon from '@icons/Close.svg';
 import ExpandDownIcon from '@icons/ExpandDown.svg';
-import Button from '@ui/Button';
+import Button, { ButtonGroup } from '@ui/Button';
 import Dialog from '@ui/Dialog';
 import IconButton from '@ui/IconButton';
 import classNames from 'classnames';
@@ -15,7 +15,8 @@ import React, {
     useMemo,
     useState,
 } from 'react';
-import ValueInput from '~/client/dialogs/ValueInput';
+import ValueInput from '~/client/details/dialogs/ValueInput';
+import Label from '~/client/Label';
 import { type Amount, Variant } from '~/store/details/types';
 import useAllVariants from '~/store/details/useAllVariants';
 import useVariantComparator from '~/store/details/useVariantComparator';
@@ -26,11 +27,12 @@ interface ValueBoxProps {
     name?: Name;
     year?: Year;
     value?: Amount;
-    onClose?: (value?: Amount) => void;
+    onClose?: (value?: Amount, updateWithoutHistory?: boolean) => void;
 }
 
 export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxProps) {
     const [expanded, setExpanded] = useState(false);
+    const [removed, setRemoved] = useState(false);
 
     const [editingValue, setEditingValue] = useState<Amount>();
     useEffect(() => {
@@ -80,8 +82,8 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
 
     const handleClose = useCallback((): void => {
         setExpanded(false);
-        onClose?.(editingValue);
-    }, [editingValue, onClose]);
+        onClose?.(editingValue, removed);
+    }, [editingValue, onClose, removed]);
 
     const handleExpand = useCallback((): void => {
         setExpanded(true);
@@ -108,6 +110,18 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
         [focused]
     );
 
+    const handleItemsUsed = useCallback(() => {
+        if (removed) {
+            setRemoved(false);
+        }
+    }, [removed]);
+
+    const handleItemsRemoved = useCallback(() => {
+        if (!removed) {
+            setRemoved(true);
+        }
+    }, [removed]);
+
     return (
         <Dialog
             className={classNames('ValueBox', { fullScreen: expanded })}
@@ -120,6 +134,24 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
                 <div className="title">
                     <span>{name}</span>
                     <time>{year}</time>
+                    <div className="controls">
+                        <ButtonGroup>
+                            <Button
+                                color={removed ? 'neutral' : 'success'}
+                                variant={removed ? 'outlined' : 'solid'}
+                                onClick={handleItemsUsed}
+                            >
+                                <Label>Items used</Label>
+                            </Button>
+                            <Button
+                                color={removed ? 'failure' : 'neutral'}
+                                variant={removed ? 'solid' : 'outlined'}
+                                onClick={handleItemsRemoved}
+                            >
+                                <Label>Items removed</Label>
+                            </Button>
+                        </ButtonGroup>
+                    </div>
                 </div>
                 <div className="close">
                     <IconButton onClick={handleClose}>
@@ -144,9 +176,11 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
             </article>
             <footer>
                 {!expanded && (
-                    <Button onClick={handleExpand} variant="plain" color="primary" size="large">
-                        <ExpandDownIcon />
-                    </Button>
+                    <div>
+                        <Button onClick={handleExpand} variant="plain" color="primary" size="large">
+                            <ExpandDownIcon />
+                        </Button>
+                    </div>
                 )}
             </footer>
         </Dialog>

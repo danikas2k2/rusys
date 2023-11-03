@@ -49,5 +49,17 @@
     },
     "type to filter": {
         "lt-LT": "filtruokite"
+    },
+    "Statistics": {
+        "lt-LT": "Statistika"
+    },
+    "Items used": {
+        "lt-LT": "Suvalgyta"
+    },
+    "Items removed": {
+        "lt-LT": "Išmesta"
+    },
+    "List": {
+        "lt-LT": "Sąrašas"
     }
 }

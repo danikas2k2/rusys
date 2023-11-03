@@ -25,7 +25,11 @@ interface EditBoxProps {
     onClose: (name?: Name) => void;
 }
 
+const PLACEHOLDER = 'Please enter a name';
+
 export default memo(function EditBox({ name: initialName = '', onClose }: EditBoxProps) {
+    console.info('EditBox', { initialName });
+
     const [name, setName] = useState<Name>(initialName);
     const [updating, setUpdating] = useState(false);
     const [error, setError] = useState('');
@@ -42,13 +46,11 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
 
     const focusRef = useAutoFocus<HTMLInputElement>();
 
-    const placeholder = 'Please enter a name';
-
     const addDetails = useAddDetails();
     const renameDetails = useRenameDetails();
     const handleUpdate = useCallback(async (): Promise<void> => {
         if (!name) {
-            setError(placeholder);
+            setError(PLACEHOLDER);
             focusRef?.focus();
         } else if (hasName) {
             focusRef?.focus();
@@ -118,11 +120,11 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
                     color={error ? 'failure' : 'primary'}
                     size="large"
                     value={name}
-                    placeholder={useLabel(placeholder)}
+                    placeholder={useLabel(PLACEHOLDER)}
                     onInput={handleInput}
                     onKeyDown={handleEnter}
                 />
-                {error && error !== placeholder && (
+                {error && error !== PLACEHOLDER && (
                     <div className="error">
                         <Label>{error}</Label>
                     </div>

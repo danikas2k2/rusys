@@ -1,9 +1,9 @@
 import useLongPress from '@ui/hooks/useLongPress';
 import classNames from 'classnames';
 import { isEmpty, isEqual } from 'lodash';
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
-import ValueBox from '~/client/dialogs/ValueBox';
+import ValueBox from '~/client/details/dialogs/ValueBox';
 import Cell from '~/client/table/Cell';
 import ValueVariant from '~/client/ValueVariant';
 import { type BaseState } from '~/store/base/types';
@@ -18,36 +18,30 @@ interface ValueCellProps {
     year: Year;
     value?: Amount;
     last?: boolean;
-    onChange: (value?: Amount) => void;
+    onChange: (value?: Amount, updateWithoutHistory?: boolean) => void;
 }
 
 export default memo(function ValueCell({ name, year, value, last, onChange }: ValueCellProps) {
-    const nameEditing = useSelector((state: BaseState) => state.editing.enabled);
     const [editing, setEditing] = useState(false);
-    useEffect(() => {
-        if (editing && nameEditing) {
-            setEditing(false);
-        }
-    }, [editing, nameEditing]);
 
     const handleOpen = useCallback((): void => {
         setEditing(true);
     }, []);
 
     const handleClose = useCallback(
-        (updatedValue?: Amount): void => {
+        (updatedValue?: Amount, updateWithoutHistory = false): void => {
             setEditing(false);
             const optimizedValue = {
                 ...Object.fromEntries(Object.entries(updatedValue ?? {}).filter(([, v]) => v > 0)),
             };
             if (!isEqual(value, optimizedValue)) {
-                onChange(optimizedValue);
+                onChange(optimizedValue, updateWithoutHistory);
             }
         },
         [onChange, value]
     );
 
-    const handleShortClick = editing || nameEditing ? undefined : handleOpen;
+    const handleShortPress = editing ? undefined : handleOpen;
 
     const removing = useSelector((state: BaseState) => state.removing?.[name]?.[year]);
     const updateRemoving = useUpdateRemoving();
@@ -55,15 +49,16 @@ export default memo(function ValueCell({ name, year, value, last, onChange }: Va
         void updateRemoving(name, year, !removing);
         navigator?.vibrate?.(200);
     }, [removing, name, updateRemoving, year]);
-    const longPress = useLongPress<HTMLDivElement>(handleLongPress, handleShortClick);
-
-    console.info('.', name, year);
+    const longPress = useLongPress<HTMLDivElement>(handleLongPress, handleShortPress);
 
     const empty = isEmpty(value);
     const cmpVariants = useVariantComparator();
     return (
         <>
-            <Cell className={classNames('ValueCell', { empty, last, removing })} {...longPress}>
+            <Cell
+                className={classNames('ValueCell', { empty, last, removing })}
+                {...(empty ? { onClick: handleShortPress, onContextMenu: longPress.onContextMenu } : { ...longPress })}
+            >
                 {empty
                     ? '.'
                     : Object.entries(value)

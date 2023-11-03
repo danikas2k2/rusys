@@ -1,8 +1,9 @@
+import { transliterate as translit } from 'transliteration';
 import { type Name } from '~/store/types';
 
 export const matchParts = (name: Name, filter: string): boolean =>
-    filter
+    translit(filter)
         .toLowerCase()
         .split(/\P{L}+/u)
         .filter((w) => w)
-        .every((w) => name.match(new RegExp(w, 'i')));
+        .every((w) => translit(name).match(new RegExp(w, 'i')));

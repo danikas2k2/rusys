@@ -1,21 +1,13 @@
 .Table {
-    /* with sticky header and medium size */
-    position: absolute;
-    inset: var(--toolbar-height) 0 0;
     display: grid;
-    grid-template-rows: 32px 1fr;
+    grid-template-rows: 1fr;
 }
 
 .Head {
     position: relative;
     background-color: var(--palette-background-body);
-    //border-bottom: 1px solid var(--palette-neutral-100);
     z-index: 1;
     box-shadow: var(--shadow-sm);
-
-    .Row {
-        font-weight: var(--font-weight-md);
-    }
 }
 
 .Body {

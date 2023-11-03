@@ -1,0 +1,16 @@
+.Table {
+    /* with sticky header and medium size */
+    position: absolute;
+    inset: var(--toolbar-height) 0 0;
+    grid-template-rows: 32px 1fr;
+}
+
+.HeadRow {
+    font-weight: var(--font-weight-md);
+}
+
+.Row {
+    > :nth-child(2) {
+        grid-column: span 3;
+    }
+}

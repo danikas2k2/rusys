@@ -1,7 +1,6 @@
 import AddIcon from '@icons/Add.svg';
 import RemoveIcon from '@icons/Remove.svg';
-import Button from '@ui/Button';
-import ButtonGroup from '@ui/ButtonGroup';
+import Button, { ButtonGroup } from '@ui/Button';
 import useFocusRef from '@ui/hooks/useFocusRef';
 import useForwardedRef from '@ui/hooks/useForwardedRef';
 import Input from '@ui/Input';

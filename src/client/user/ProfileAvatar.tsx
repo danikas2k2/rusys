@@ -1,8 +1,9 @@
-import React from 'react';
+import { isEqual } from 'lodash';
+import React, { memo } from 'react';
 import useProfile from '~/store/profile/useProfile';
 import './ProfileAvatar.less';
 
-export default function ProfileAvatar() {
+export default memo(function ProfileAvatar() {
     const profile = useProfile();
     return (
         <div className="Avatar">
@@ -18,4 +19,4 @@ export default function ProfileAvatar() {
             )}
         </div>
     );
-}
+}, isEqual);

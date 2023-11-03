@@ -1,17 +1,15 @@
 import Checkbox from '@ui/Checkbox';
-import useLongPress from '@ui/hooks/useLongPress';
-import Interactive from '@ui/Interactive';
 import classNames from 'classnames';
 import { isEmpty, isEqual } from 'lodash';
 import React, { memo, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import ValueCell from '~/client/details/ValueCell';
+import InteractiveName from '~/client/InteractiveName';
 import Cell from '~/client/table/Cell';
 import Row from '~/client/table/Row';
-import ValueCell from '~/client/table/ValueCell';
 import { type BaseState } from '~/store/base/types';
 import { type Amount, type Amounts } from '~/store/details/types';
 import useUpdateDetails from '~/store/details/useUpdateDetails';
-import { enableEditingAction } from '~/store/editing/actions';
 import useAddMissing from '~/store/missing/useAddMissing';
 import useRemoveMissing from '~/store/missing/useRemoveMissing';
 import useUpdateRemoving from '~/store/removing/useUpdateRemoving';
@@ -19,12 +17,13 @@ import { type Name, type Year } from '~/store/types';
 import './ValueRow.less';
 
 interface ValueRowProps {
+    className?: string;
     name: Name;
     values: Amounts;
     isMissing?: boolean;
 }
 
-export default memo(function ValueRow({ name, values, isMissing }: ValueRowProps) {
+export default memo(function ValueRow({ className, name, values, isMissing }: ValueRowProps) {
     const labelId = `checkbox-${name}`;
     const isAvailable = !isEmpty(values);
 
@@ -50,8 +49,8 @@ export default memo(function ValueRow({ name, values, isMissing }: ValueRowProps
     const updateDetails = useUpdateDetails();
     const updateRemoving = useUpdateRemoving();
     const handleValue = useCallback(
-        async (name: string, year: Year, value?: Amount): Promise<void> => {
-            await updateDetails(name, year, value);
+        async (name: string, year: Year, value?: Amount, updateWithoutHistory = false): Promise<void> => {
+            await updateDetails(name, year, value, updateWithoutHistory);
             await updateRemoving(name, year, false);
             return handleMissing(name, false);
         },
@@ -65,19 +64,16 @@ export default memo(function ValueRow({ name, values, isMissing }: ValueRowProps
     }, [handleMissing, isAvailable, isMissing, name]);
 
     const handleChange = useCallback(
-        (year: Year) => useCallback((value?: Amount) => handleValue(name, year, value), []),
+        (year: Year) =>
+            useCallback(
+                (value?: Amount, updateWithoutHistory = false) => handleValue(name, year, value, updateWithoutHistory),
+                [year]
+            ),
         [handleValue, name]
     );
 
-    const dispatch = useDispatch();
-    const handleLongPress = useCallback(() => {
-        dispatch(enableEditingAction(name));
-        navigator?.vibrate?.(200);
-    }, [dispatch, name]);
-    const longPress = useLongPress<HTMLDivElement>(handleLongPress, handleClick);
-
     return (
-        <Row key={name} className={classNames('Row', { selected: isMissing })} aria-checked={!isMissing}>
+        <Row key={name} className={classNames('Row', className, { selected: isMissing })} aria-checked={!isMissing}>
             <Cell>
                 <Checkbox
                     color="primary"
@@ -92,7 +88,7 @@ export default memo(function ValueRow({ name, values, isMissing }: ValueRowProps
                 id={labelId}
                 className={classNames('name', { unavailable: !isAvailable, removing: isAvailable && isRemoving })}
             >
-                <Interactive {...longPress}>{name}</Interactive>
+                <InteractiveName name={name} onClick={handleClick} />
             </Cell>
             {years.map((year) => (
                 <ValueCell
