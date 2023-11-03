@@ -15,6 +15,7 @@ export type PressEvent<T = Element> = PointerEvent<T> | TouchEvent<T> | MouseEve
 export type PressEventHandler<T = Element> = EventHandler<PressEvent<T>>;
 
 type LongPressEvents<T = Element> = {
+    onClick: (e: MouseEvent<T>) => void;
     onContextMenu: (e: MouseEvent<T>) => void;
 } & (
     | {
@@ -64,8 +65,10 @@ export default function useLongPress<T = Element>(
         (e: PressEvent<T>) => {
             if (!longPressRef.current && onShortPress) {
                 shortPressRef.current = true;
-                onShortPress?.(e);
                 clearTimeout(timerRef.current);
+                setTimeout(() => {
+                    onShortPress?.(e);
+                }, 100);
             }
         },
         [onShortPress]
@@ -73,7 +76,12 @@ export default function useLongPress<T = Element>(
 
     const onMove = useCallback(() => {
         clearTimeout(timerRef.current);
-    }, [onShortPress]);
+    }, []);
+
+    const onClick = useCallback((e: MouseEvent<T>) => {
+        e.preventDefault();
+        e.stopPropagation();
+    }, []);
 
     const onContextMenu = useCallback((e: MouseEvent<T>) => {
         e.preventDefault();
@@ -87,6 +95,7 @@ export default function useLongPress<T = Element>(
                 onPointerMove: onMove,
                 onPointerUp: onEnd,
                 onPointerLeave: onMove,
+                onClick,
                 onContextMenu,
             };
         }
@@ -95,6 +104,7 @@ export default function useLongPress<T = Element>(
                 onTouchStart: onStart,
                 onTouchEnd: onEnd,
                 onTouchMove: onMove,
+                onClick,
                 onContextMenu,
             };
         }
@@ -103,7 +113,8 @@ export default function useLongPress<T = Element>(
             onMouseUp: onEnd,
             onMouseMove: onMove,
             onMouseLeave: onMove,
+            onClick,
             onContextMenu,
         };
-    }, [onStart, onEnd, onMove, onContextMenu]);
+    }, [onStart, onEnd, onMove, onClick, onContextMenu]);
 }
