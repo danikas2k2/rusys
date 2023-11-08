@@ -1,4 +1,4 @@
-import Dangerous from '@icons/Dangerous.svg';
+import DangerousIcon from '@icons/Dangerous.svg';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Loader from '@ui/Loader';
 import classNames from 'classnames';
@@ -26,8 +26,8 @@ export default memo(function App() {
                 </GoogleOAuthProvider>
             ) : (
                 (clientId == null && <Loader />) || (
-                    <div className={classNames('error')}>
-                        <Dangerous />
+                    <div className="error">
+                        <DangerousIcon />
                         {invalidClientId}
                     </div>
                 )

@@ -14,7 +14,7 @@ import React, {
 } from 'react';
 import './Input.less';
 
-export type InputColor = 'neutral' | 'primary' | 'secondary' | 'success' | 'warning' | 'failure';
+export type InputColor = 'neutral' | 'primary' | 'secondary' | 'positive' | 'warning' | 'negative';
 
 export type InputVariant = 'solid' | 'soft' | 'outlined' | 'plain';
 

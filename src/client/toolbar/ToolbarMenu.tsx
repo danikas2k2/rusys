@@ -50,7 +50,7 @@ export default memo(function ToolbarMenu() {
                             <MenuItem>
                                 <ListItemButton onClick={handleOpen}>
                                     <ListItemDecorator>
-                                        <AddCircleIcon color="success" />
+                                        <AddCircleIcon color="positive" />
                                     </ListItemDecorator>
                                     <ListItemContent>
                                         <Label>Add</Label>

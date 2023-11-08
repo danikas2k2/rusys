@@ -1,0 +1,200 @@
+//noinspection CssUnknownTarget
+@import (once) "@ui/theme.less";
+
+.color-scheme-light({
+    --prism-token-comment: color-mix(in srgb, var(--palette-primary-500) 20%, var(--palette-neutral-500) 80%);
+    --prism-token-keyword: var(--palette-negative-700);
+    --prism-token-punctuation: var(--palette-neutral-900);
+    --prism-token-tag: var(--palette-secondary-700);
+    --prism-token-number: var(--palette-primary-600);
+    --prism-token-variable: color-mix(in srgb, var(--palette-primary-500) 50%, var(--palette-positive-500) 50%);
+    --prism-token-string: var(--palette-positive-600);
+    --prism-token-attr: var(--palette-positive-600);
+    --prism-token-attr-prefix: var(--palette-neutral-500);
+    --prism-token-url: var(--palette-primary-700);
+    --prism-token-function: var(--palette-secondary-600);
+    --prism-token-regex-bg: color-mix(in srgb, var(--palette-positive-100) 50%, var(--palette-neutral-50) 50%);
+    --prism-token-inserted-bg: var(--palette-positive-100);
+    --prism-token-deleted-bg: var(--palette-negative-100);
+    --prism-token-css-property: var(--palette-neutral-900);
+    --prism-token-css-id: var(--palette-warning-400);
+    --prism-token-css-class: var(--palette-warning-700);
+});
+
+.color-scheme-dark({
+    --prism-token-comment: var(--palette-neutral-400);
+    --prism-token-keyword: var(--palette-warning-400);
+    --prism-token-punctuation: var(--palette-neutral-300);
+    --prism-token-tag: var(--palette-warning-200);
+    --prism-token-number: var(--palette-primary-300);
+    --prism-token-variable: var(--palette-secondary-400);
+    --prism-token-string: color-mix(in srgb, var(--palette-primary-200) 50%, var(--palette-secondary-400) 50%);
+    --prism-token-attr: color-mix(in srgb, var(--palette-positive-200) 50%, var(--palette-warning-400) 50%);
+    --prism-token-attr-prefix: color-mix(in srgb, var(--palette-primary-200) 50%, var(--palette-neutral-200) 50%);
+    --prism-token-url: var(--palette-primary-500);
+    --prism-token-function: var(--palette-warning-200);
+    --prism-token-regex-bg: color-mix(in srgb, var(--palette-positive-700) 50%, var(--palette-warning-700) 50%);
+    --prism-token-inserted-bg: var(--palette-positive-800);
+    --prism-token-deleted-bg: var(--palette-negative-800);
+    --prism-token-css-property: var(--palette-neutral-300);
+    --prism-token-css-id: var(--palette-warning-200);
+    --prism-token-css-class: var(--palette-warning-200);
+});
+
+pre,
+code {
+    &[class*="language-"] {
+        color: var(--color-text-secondary);
+        font-size: var(--font-size-lg);
+        line-height: 1;
+        direction: ltr;
+        text-align: left;
+        white-space: pre;
+        word-spacing: normal;
+        word-break: normal;
+        tab-size: 4;
+        hyphens: none;
+
+        &::selection,
+        ::selection {
+            color: inherit;
+            background: var(--color-selection-bg);
+        }
+
+        [class~="token"] {
+            &[class~="comment"],
+            &[class~="prolog"],
+            &[class~="cdata"] {
+                color: var(--prism-token-comment);
+                font-style: italic;
+            }
+
+            &[class~="delimiter"],
+            &[class~="boolean"],
+            &[class~="keyword"],
+            &[class~="selector"],
+            &[class~="important"],
+            &[class~="atrule"] {
+                color: var(--prism-token-keyword);
+            }
+
+            &[class~="keyword"] {
+                font-weight: var(--font-weight-lg);
+            }
+
+            &[class~="operator"],
+            &[class~="punctuation"],
+            &[class~="attr-name"] {
+                color: var(--prism-token-punctuation);
+            }
+
+            &[class~="tag"],
+            &[class~="tag"] &[class~="punctuation"],
+            &[class~="doctype"],
+            &[class~="builtin"] {
+                color: var(--prism-token-tag);
+            }
+
+            &[class~="entity"],
+            &[class~="number"],
+            &[class~="symbol"] {
+                color: var(--prism-token-number);
+            }
+
+            &[class~="property"],
+            &[class~="constant"],
+            &[class~="variable"] {
+                color: var(--prism-token-variable);
+            }
+
+            &[class~="string"],
+            &[class~="char"] {
+                color: var(--prism-token-string);
+            }
+
+            &[class~="attr-value"],
+            &[class~="attr-value"] &[class~="punctuation"] {
+                color: var(--prism-token-attr);
+            }
+
+            &[class~="attr-value"] [class~="punctuation"]:first-child {
+                color: var(--prism-token-attr-prefix);
+            }
+
+            &[class~="url"] {
+                color: var(--prism-token-url);
+                text-decoration: underline;
+            }
+
+            &[class~="function"] {
+                color: var(--prism-token-function);
+            }
+
+            &[class~="regex"] {
+                background: var(--prism-token-regex-bg);
+            }
+
+            &[class~="bold"] {
+                font-weight: bold;
+            }
+
+            &[class~="italic"] {
+                font-style: italic;
+            }
+
+            &[class~="inserted"] {
+                background: var(--prism-token-inserted-bg);
+            }
+
+            &[class~="deleted"] {
+                background: var(--prism-token-deleted-bg);
+            }
+        }
+
+        &[class~="language-css"] [class~="token"] {
+            [class~="property"] {
+                &,
+                & + [class~="punctuation"] {
+                    color: var(--prism-token-css-property);
+                }
+            }
+
+            &[class~="id"] {
+                color: var(--prism-token-css-id);
+                font-weight: var(--font-weight-lg);
+            }
+
+            &[class~="selector"] > [class~="token"] {
+                &[class~="class"],
+                &[class~="attribute"],
+                &[class~="pseudo-class"],
+                &[class~="pseudo-element"] {
+                    color: var(--prism-token-css-class);
+                }
+
+                &[class~="pseudo-class"],
+                &[class~="pseudo-element"] {
+                    font-style: italic;
+                }
+            }
+        }
+    }
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+    padding: 1rem;
+    margin: 0.5rem 0;
+    overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+    background: var(--color-background-level1);
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+    padding: 0.1rem;
+    border-radius: 0.3rem;
+}

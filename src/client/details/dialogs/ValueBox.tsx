@@ -137,14 +137,14 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
                     <div className="controls">
                         <ButtonGroup>
                             <Button
-                                color={removed ? 'neutral' : 'success'}
+                                color={removed ? 'neutral' : 'positive'}
                                 variant={removed ? 'outlined' : 'solid'}
                                 onClick={handleItemsUsed}
                             >
                                 <Label>Items used</Label>
                             </Button>
                             <Button
-                                color={removed ? 'failure' : 'neutral'}
+                                color={removed ? 'negative' : 'neutral'}
                                 variant={removed ? 'solid' : 'outlined'}
                                 onClick={handleItemsRemoved}
                             >

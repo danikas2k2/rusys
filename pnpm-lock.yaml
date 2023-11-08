@@ -44,6 +44,9 @@ dependencies:
   nedb-promises:
     specifier: ^6.2.3
     version: 6.2.3
+  random-words:
+    specifier: ^2.0.0
+    version: 2.0.0
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -9587,6 +9590,12 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  /random-words@2.0.0:
+    resolution: {integrity: sha512-uqpnDqFnYrZajgmvgjmBrSZL2V1UA/9bNPGrilo12CmBeBszoff/avElutUlwWxG12gvmCk/8dUhvHefYxzYjw==}
+    dependencies:
+      seedrandom: 3.0.5
+    dev: false
+
   /randombytes@2.1.0:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
     dependencies:
@@ -10288,6 +10297,10 @@ packages:
       ajv-formats: 2.1.1(ajv@8.12.0)
       ajv-keywords: 5.1.0(ajv@8.12.0)
     dev: true
+
+  /seedrandom@3.0.5:
+    resolution: {integrity: sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==}
+    dev: false
 
   /select-hose@2.0.0:
     resolution: {integrity: sha512-mEugaLK+YfkijB4fx0e6kImuJdCIt2LxCRcbEYPqRGCs4F2ogyfZU5IAZRdjCP8JPq2AtdNoC/Dux63d9Kiryg==}

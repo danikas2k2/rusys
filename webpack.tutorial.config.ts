@@ -9,7 +9,6 @@ import { getCopyPublicPlugin } from './webpack/plugins/copy-public';
 import { getCssExtractPlugin } from './webpack/plugins/css-extract';
 import { getIndexHtmlPlugin } from './webpack/plugins/index-html';
 import { getMomentLocalesPlugin } from './webpack/plugins/moment-locales';
-import { getPackageJsonPlugin } from './webpack/plugins/package-json';
 import { getResolve } from './webpack/resolve';
 import { getCssRule } from './webpack/rules/css';
 import { getLessRule } from './webpack/rules/less';
@@ -55,7 +54,6 @@ export default async function (env?: { prod?: boolean }, argv?: { mode?: string 
             getMomentLocalesPlugin(),
             getCssExtractPlugin(isDevMode),
             getIndexHtmlPlugin({ name: 'tutorial' }),
-            getPackageJsonPlugin(),
         ],
         externals: getExternals(isDevMode),
         resolve: getResolve(),

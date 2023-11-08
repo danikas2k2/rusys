@@ -115,7 +115,7 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
                 <Input
                     ref={focusRef}
                     fullWidth
-                    color={error ? 'failure' : 'primary'}
+                    color={error ? 'negative' : 'primary'}
                     size="large"
                     value={name}
                     placeholder={useLabel(PLACEHOLDER)}
@@ -133,7 +133,7 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
                     <>
                         <ButtonWithConfirmation
                             variant="outlined"
-                            color="failure"
+                            color="negative"
                             onClick={handleRemove}
                             header={<Label>Sure to remove?</Label>}
                             cancel={
@@ -148,7 +148,7 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
                                     <Label>Remove</Label>
                                 </>
                             }
-                            confirmColor="failure"
+                            confirmColor="negative"
                         >
                             <DeleteIcon />
                             <Label>Remove</Label>

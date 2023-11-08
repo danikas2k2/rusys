@@ -1,14 +1,21 @@
-@import url("@ui/theme.less");
-@import url("prism-themes/themes/prism-coldark-cold.css");
+@import (once) "@ui/theme.less";
+@import (once) "prism.less";
 
 body {
-    color: var(--palette-neutral-700);
-    background-color: var(--palette-neutral-50);
+    color: var(--color-text-primary);
+    background-color: var(--color-background-body);
 }
 
 .Page {
+    position: relative;
     font-family: var(--font-family-body);
     margin: 6vh 10vw 6vh 20vw;
+
+    .ColorToggler {
+        position: absolute;
+        inset-block-start: -6vh;
+        inset-inline-end: 0;
+    }
 
     aside {
         position: fixed;
@@ -19,10 +26,10 @@ body {
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        border-inline-end: 1px solid var(--palette-divider);
+        border-inline-end: 1px solid var(--color-divider);
 
         a {
-            color: var(--palette-primary-plain-color);
+            color: var(--color-primary-plain);
             text-decoration: none;
             font-size: var(--font-size-md);
             font-weight: var(--font-weight-md);
@@ -34,32 +41,11 @@ body {
             }
 
             &[aria-current="page"] {
-                color: var(--palette-neutral-plain-color);
+                color: var(--color-neutral-plain);
                 font-size: var(--font-size-lg);
                 font-weight: var(--font-weight-lg);
             }
         }
-    }
-
-    h1 {
-        font-size: var(--font-size-xl4);
-        font-weight: var(--font-weight-lg);
-    }
-
-    h2 {
-        font-size: var(--font-size-xl3);
-        font-weight: var(--font-weight-lg);
-    }
-
-    h3 {
-        font-size: var(--font-size-xl2);
-        font-weight: var(--font-weight-lg);
-    }
-
-    h1,
-    h2,
-    h3 {
-        margin-block-start: 4vh;
     }
 
     code {
@@ -67,6 +53,32 @@ body {
         font-size: var(--font-size-sm) !important;
         font-weight: var(--font-weight-md);
         line-height: var(--line-height-md) !important;
+    }
+
+    h1 {
+        .h1();
+    }
+
+    h2 {
+        .h2();
+    }
+
+    h3 {
+        .h3();
+    }
+
+    h1,
+    h2,
+    h3 {
+        margin-block-start: 4vh;
+
+        code {
+            background: var(--color-neutral-soft-bg);
+            border-radius: var(--radius-sm);
+            font-size: .85em !important;
+            padding: 0.05em 0.25em;
+            white-space: nowrap;
+        }
     }
 
     strong,
@@ -103,17 +115,17 @@ body {
 
         code {
             font-weight: var(--font-weight-md);
-            color: var(--palette-neutral-700);
+            color: var(--color-text-tertiary);
 
             &[data-default="true"] {
                 font-weight: var(--font-weight-xl);
-                color: var(--palette-neutral-900);
+                color: var(--color-text-primary);
             }
         }
     }
 
     pre:has(code) {
-        border: 1px solid var(--palette-divider);
+        border: 1px solid var(--color-divider);
         border-radius: var(--radius-sm);
         padding: 1vh 2vw;
     }
