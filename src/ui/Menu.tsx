@@ -1,30 +1,37 @@
-import type { ButtonProps } from '@ui/Button';
-import Button from '@ui/Button';
-import { type CommonInputProps } from '@ui/Input';
+import { type ButtonProps } from '@ui/Button';
+import Dropdown, { type DropdownProps } from '@ui/Dropdown';
+import Interactive from '@ui/Interactive';
 import classNames from 'classnames';
 import { isEqual } from 'lodash';
-import React, { type ForwardedRef, forwardRef, memo } from 'react';
+import React, { type ForwardedRef, forwardRef, HTMLAttributes, memo } from 'react';
 import useForwardedRef from '~/ui/hooks/useForwardedRef';
 import './Menu.less';
 
-export default memo(
-    forwardRef(function Menu(
-        { className, ...props }: CommonInputProps<HTMLDivElement>,
+export default memo(function Menu({ className, ...props }: DropdownProps) {
+    return <Dropdown className={classNames('Menu', className)} {...props} />;
+}, isEqual);
+
+interface MenuItemProps extends ButtonProps {
+    startDecorator?: React.ReactNode;
+    endDecorator?: React.ReactNode;
+}
+
+export const MenuItem = memo(
+    forwardRef(function MenuItem(
+        { className, children, startDecorator, endDecorator, ...props }: MenuItemProps,
         forwardedRef: ForwardedRef<HTMLDivElement>
     ) {
-        const ref = useForwardedRef(forwardedRef);
-        return <div ref={ref} className={classNames('Menu', className)} {...props} />;
+        return (
+            <Interactive ref={useForwardedRef(forwardedRef)} className={classNames('MenuItem', className)} {...props}>
+                {startDecorator && <div className="start-decorator">{startDecorator}</div>}
+                <div className="content">{children}</div>
+                {endDecorator && <div className="end-decorator">{endDecorator}</div>}
+            </Interactive>
+        );
     }),
     isEqual
 );
 
-export const MenuButton = memo(
-    forwardRef(function MenuButton(
-        { className, ...props }: ButtonProps,
-        forwardedRef: ForwardedRef<HTMLButtonElement>
-    ) {
-        const ref = useForwardedRef(forwardedRef);
-        return <Button ref={ref} className={classNames('MenuButton', className)} {...props} />;
-    }),
-    isEqual
-);
+export const MenuDivider = memo(function MenuDivider({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+    return <div className={classNames('MenuDivider', className)} {...props} />;
+}, isEqual);

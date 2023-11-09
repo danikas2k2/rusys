@@ -1,5 +1,6 @@
 import DangerousIcon from '@icons/Dangerous.svg';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
 import Loader from '@ui/Loader';
 import classNames from 'classnames';
 import { isEqual } from 'lodash';
@@ -12,6 +13,7 @@ import useLocale from '~/store/locale/useLocale';
 import './App.less';
 
 export default memo(function App() {
+    useDocumentColorScheme();
     useLocale(process.env.LOCALE);
     const clientId = useClientId();
     const invalidClientId = useLabel('Invalid Client ID');

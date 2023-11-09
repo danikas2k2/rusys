@@ -1,0 +1,127 @@
+@import (once) "@ui/theme.less";
+@import (once) "prism.less";
+
+.Page {
+    position: relative;
+    font-family: var(--font-family-body);
+    margin: 6vh 10vw 6vh 20vw;
+
+    .ColorToggler {
+        position: absolute;
+        inset-block-start: -6vh;
+        inset-inline-end: 0;
+    }
+
+    aside {
+        position: fixed;
+        inset-inline-start: 0;
+        margin-block-start: 3vh;
+        padding: 0 3vw;
+        width: 9vw;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        border-inline-end: 1px solid var(--color-divider);
+
+        a {
+            color: var(--color-primary-plain);
+            text-decoration: none;
+            font-size: var(--font-size-md);
+            font-weight: var(--font-weight-md);
+            letter-spacing: var(--letter-spacing-xs);
+            margin-block: 5vh;
+
+            + a {
+                margin-block-start: -3vh;
+            }
+
+            &[aria-current="page"] {
+                color: var(--color-neutral-plain);
+                font-size: var(--font-size-lg);
+                font-weight: var(--font-weight-lg);
+            }
+        }
+    }
+
+    code {
+        font-family: var(--font-family-code);
+        font-size: var(--font-size-md);
+        font-weight: var(--font-weight-md);
+        line-height: var(--line-height-md);
+    }
+
+    h1 {
+        .h1();
+    }
+
+    h2 {
+        .h2();
+    }
+
+    h3 {
+        .h3();
+    }
+
+    h1,
+    h2,
+    h3 {
+        margin-block-start: 4vh;
+
+        code {
+            background: var(--color-neutral-soft-bg);
+            border-radius: var(--radius-sm);
+            font-size: .85em !important;
+            padding: 0.05em 0.25em;
+            white-space: nowrap;
+        }
+    }
+
+    strong,
+    b {
+        > code {
+            font-weight: var(--font-weight-lg);
+        }
+    }
+
+    table {
+        width: 100%;
+        margin-block-start: 2vh;
+
+        &[aria-expanded="false"] {
+            width: fit-content;
+        }
+
+        th,
+        td {
+            padding: 0.5rem 1rem;
+        }
+
+        th {
+            text-align: start;
+        }
+
+        tbody {
+            th:first-child {
+                width: 4rem;
+                padding-inline-end: 1rem;
+                text-align: end;
+            }
+        }
+
+        code {
+            font-weight: var(--font-weight-md);
+            color: var(--color-text-tertiary);
+
+            &[data-default="true"] {
+                font-weight: var(--font-weight-xl);
+                color: var(--color-text-primary);
+            }
+        }
+    }
+
+    pre:has(code) {
+        border: 1px solid var(--color-divider);
+        border-radius: var(--radius-sm);
+        padding: 1vh 2vw;
+    }
+}

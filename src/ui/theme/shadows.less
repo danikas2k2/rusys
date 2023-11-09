@@ -1,17 +1,17 @@
 @import (once) "colors/palette.less";
 
+.color-scheme-light({
+    --shadow-channel: var(--palette-neutral-900);
+    --shadow-opacity: 10%;
+});
+
+.color-scheme-dark({
+    --shadow-channel: var(--palette-neutral-700);
+    --shadow-opacity: 50%;
+});
+
 // Shadows
 :root {
-    .color-scheme-light({
-        --shadow-channel: var(--palette-neutral-900);
-        --shadow-opacity: 10%;
-    });
-
-    .color-scheme-dark({
-        --shadow-channel: var(--palette-neutral-700);
-        --shadow-opacity: 50%;
-    });
-
     --shadow-ring: 0 0 var(--palette-common-black);
     --shadow-color: color-mix(in srgb, var(--shadow-channel) var(--shadow-opacity), transparent);
     --shadow-xs: var(--shadow-ring), 0px 1px 2px 0px var(--shadow-color);

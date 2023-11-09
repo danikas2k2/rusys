@@ -11,22 +11,21 @@ import {
 import { type Name, type Year } from '~/store/types';
 
 export async function getSummary(years: number[]): Promise<AmountSet> {
-    const from = moment()
-        .year(2000 + Math.min(...years))
-        .startOf('year');
-    const to = moment()
-        .year(2000 + Math.max(...years))
-        .endOf('year');
+    const startYear = 2000 + Math.min(...years);
+    const startMonth = 9; // September
+    const s = `${startYear}-0${startMonth}-01`;
+    const from = moment(s);
     const data = await UPDATES.find<TimedAmounts>(
         {
-            time: { $gte: from.valueOf(), $lte: to.valueOf() },
+            time: { $gte: from.valueOf() },
         },
         { _id: 0, name: 1, time: 1, ...Object.fromEntries(years.map((y) => [y, 1])) }
     ).sort({ name: 1, time: 1 });
 
     const grouped: AmountSet = {};
     for (const { name, time, ...v } of data) {
-        const year: Year = +moment(time).format('YY');
+        const t = moment(time);
+        const year: Year = +t.format('YY') - +(+t.format('M') < startMonth);
         for (const yv of Object.values(v)) {
             for (const [k, v] of Object.entries(yv)) {
                 if (v >= 0) {

@@ -59,14 +59,16 @@ export default memo(function SummaryTable() {
                 <Row className="Row HeadRow">
                     <Cell />
                     {years.map((year) => (
-                        <Cell key={year}>{year}</Cell>
+                        <Cell key={year} className="year">
+                            <sup>{year}</sup>/<sub>{year + 1}</sub>
+                        </Cell>
                     ))}
                 </Row>
             }
         >
             {filteredEntries.map(([name, values]) => (
-                <Row key={name} className={classNames('Row')}>
-                    <Cell className={classNames('name')}>
+                <Row key={name} className="Row">
+                    <Cell className="name">
                         <InteractiveName name={name} />
                     </Cell>
                     {years.map((year) => (
@@ -74,7 +76,7 @@ export default memo(function SummaryTable() {
                             {Object.entries(values[year] ?? {})
                                 .sort(([a], [b]) => cmpVariants(a, b))
                                 .map(([k, v]) => (
-                                    <span className={classNames('value')} key={k}>
+                                    <span className="value" key={k}>
                                         {v}
                                         <sub>
                                             <ValueVariant variant={k as Variant} />

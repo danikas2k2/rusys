@@ -61,8 +61,8 @@ describe('updates', () => {
     describe('getSummary', () => {
         it('return updates for specified years', async () => {
             expect(await getSummary(getYears())).toEqual({
-                A: { 23: { '': 1 } },
-                B: { 23: { '': 1 } },
+                A: { 22: { '': 1 } },
+                B: { 22: { '': 1 } },
             });
         });
     });

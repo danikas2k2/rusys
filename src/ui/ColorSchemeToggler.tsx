@@ -2,54 +2,16 @@ import DarkModeIcon from '@icons/DarkMode.svg';
 import LightModeIcon from '@icons/LightMode.svg';
 import SettingsSuggestIcon from '@icons/SettingsSuggest.svg';
 import Button, { ButtonGroup } from '@ui/Button';
+import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
 import { isEqual } from 'lodash';
-import React, { memo, useEffect, useState } from 'react';
-
-export type ColorScheme = 'light' | 'dark' | 'auto';
-
-function usePreferredColorScheme(): ColorScheme {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
-function useColorScheme(): ColorScheme {
-    const storedColorScheme = localStorage.getItem('preferred-color-scheme') ?? 'auto';
-    const documentColorScheme = document.documentElement.dataset.colorScheme ?? 'auto';
-    if (storedColorScheme !== documentColorScheme) {
-        if (storedColorScheme === 'auto') {
-            delete document.documentElement.dataset.colorScheme;
-        } else {
-            document.documentElement.dataset.colorScheme = storedColorScheme;
-        }
-    }
-    return storedColorScheme as ColorScheme;
-}
+import React, { memo } from 'react';
 
 interface ColorSchemeTogglerProps {
     auto?: boolean;
-    localStorageKey?: string;
 }
 
-export default memo(function ColorSchemeToggler({
-    auto = true,
-    localStorageKey = 'preferred-color-scheme',
-}: ColorSchemeTogglerProps) {
-    const preferredColorScheme = usePreferredColorScheme();
-    const currentColorScheme = useColorScheme();
-    const [scheme, setScheme] = useState(
-        auto || currentColorScheme !== 'auto' ? currentColorScheme : preferredColorScheme
-    );
-
-    useEffect(() => {
-        if (auto && scheme === 'auto') {
-            localStorage.removeItem(localStorageKey);
-            delete document.documentElement.dataset.colorScheme;
-            return;
-        }
-        const newScheme = scheme === 'auto' ? preferredColorScheme : scheme;
-        localStorage.setItem(localStorageKey, newScheme);
-        document.documentElement.dataset.colorScheme = newScheme;
-    }, [auto, localStorageKey, preferredColorScheme, scheme, setScheme]);
-
+export default memo(function ColorSchemeToggler({ auto = true }: ColorSchemeTogglerProps) {
+    const [scheme, setScheme] = useColorSchemeState();
     return (
         <nav>
             <ButtonGroup>

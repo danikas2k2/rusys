@@ -1,14 +1,27 @@
-import AddCircleIcon from '@icons/AddCircle.svg';
-import RemoveIcon from '@icons/Remove.svg';
 import Button from '@ui/Button';
-import Menu, { MenuButton } from '@ui/Menu';
+import Dropdown from '@ui/Dropdown';
 import React from 'react';
 
-export const colors = ['neutral', 'primary', 'secondary', 'positive', 'warning', 'negative'];
-export const variants = ['solid', 'soft', 'outlined', 'plain'];
-export const sizes = ['small', 'medium', 'large'];
-
 # Menu
+
+export function Demo() {
+    return (
+        <Dropdown trigger={<Button>click to open</Button>}>
+            <div
+                style={{
+                    width: 200,
+                    height: 200,
+                    color: 'var(--color-text-primary)',
+                    backgroundColor: 'var(--color-background-popup)',
+                }}
+            >
+                content
+            </div>
+        </Dropdown>
+    );
+}
+
+<Demo />
 
 ```tsx
 import Menu from '@ui/Menu';
@@ -26,13 +39,13 @@ import Menu from '@ui/Menu';
 </Menu>;
 ```
 
-| Property   | Type                                                                                     | Default     | Description                     |
-| :--------- | :--------------------------------------------------------------------------------------- | :---------- | :------------------------------ |
-| `variant`  | `"solid"` \| `"soft"` \| `"outlined"` \| `"plain"`                                       | `"solid"`   | The variant of the button.      |
+| Property   | Type                                                                                       | Default     | Description                     |
+| :--------- | :----------------------------------------------------------------------------------------- | :---------- | :------------------------------ |
+| `variant`  | `"solid"` \| `"soft"` \| `"outlined"` \| `"plain"`                                         | `"solid"`   | The variant of the button.      |
 | `color`    | `"primary"` \| `"secondary"` \| `"neutral"` \| `"positive"` \| `"warning"` \| `"negative"` | `"neutral"` | The color of the button.        |
-| `size`     | `"small"` \| `"medium"` \| `"large"`                                                     | `"small"`   | The size of the button.         |
-| `spacing`  | `"small"` \| `"medium"` \| `"large"` \| `"none"`                                         | `"small"`   | The spacing of the button.      |
-| `disabled` | `boolean`                                                                                | `false`     | Whether the button is disabled. |
+| `size`     | `"small"` \| `"medium"` \| `"large"`                                                       | `"small"`   | The size of the button.         |
+| `spacing`  | `"small"` \| `"medium"` \| `"large"` \| `"none"`                                           | `"small"`   | The spacing of the button.      |
+| `disabled` | `boolean`                                                                                  | `false`     | Whether the button is disabled. |
 
 ## Two Buttons
 
@@ -44,33 +57,3 @@ import Menu from '@ui/Menu';
     </MenuButton>
 </Menu>
 ```
-
-<table>
-    <thead>
-        <tr>
-            {colors.map((color, c) => (
-                <th key={c}>
-                    <code data-default={!c}>{color}</code>
-                </th>
-            ))}
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            {colors.map((color, c) => (
-                <td key={c}>
-                    <Menu>
-                        <MenuButton color={color}>
-                            <AddCircleIcon />
-                            Add
-                        </MenuButton>
-                        <MenuButton color={color}>
-                            <RemoveIcon />
-                            Remove
-                        </MenuButton>
-                    </Menu>
-                </td>
-            ))}
-        </tr>
-    </tbody>
-</table>

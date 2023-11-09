@@ -2,9 +2,45 @@
     display: flex;
     flex-flow: column;
     align-items: stretch;
+    padding: 8px 4px;
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-xs);
+    box-shadow: var(--shadow-xl);
 }
 
-.MenuButton {
+.MenuItem {
     display: flex;
     flex: 1 0 auto;
+    align-items: center;
+    padding: 8px 16px;
+
+    .start-decorator,
+    .end-decorator {
+        display: flex;
+        align-items: stretch;
+        flex-shrink: 0;
+    }
+
+    .start-decorator {
+        justify-content: flex-start;
+        padding-inline-end: 8px;
+    }
+
+    .end-decorator {
+        justify-content: flex-end;
+        padding-inline-start: 8px;
+    }
+}
+
+.MenuDivider {
+    position: relative;
+    height: 13px;
+
+    &::before {
+        position: absolute;
+        inset: 6px 8px;
+        content: '';
+        display: block;
+        background-color: var(--color-divider);
+    }
 }

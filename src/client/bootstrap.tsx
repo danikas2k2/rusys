@@ -1,3 +1,4 @@
+import { ColorSchemeState } from '@ui/ColorScheme';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -13,7 +14,9 @@ export function bootstrap(): void {
     } else {
         createRoot(container).render(
             <Provider store={store}>
-                <App />
+                <ColorSchemeState>
+                    <App />
+                </ColorSchemeState>
             </Provider>
         );
     }
