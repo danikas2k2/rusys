@@ -33,7 +33,7 @@ export default async function (env?: { prod?: boolean }, argv?: { mode?: string 
             router: ['react-router', 'react-router-dom'],
         },
         output: {
-            path: path.resolve(context, 'dist/public'),
+            path: path.resolve(context, 'dist/tutorial'),
             publicPath: '/',
             filename: '[name].js',
             globalObject: 'this',
@@ -50,10 +50,10 @@ export default async function (env?: { prod?: boolean }, argv?: { mode?: string 
         },
         plugins: [
             getCleanBeforeBuildPlugin(),
-            getCopyPublicPlugin(),
+            // getCopyPublicPlugin(),
             getMomentLocalesPlugin(),
             getCssExtractPlugin(isDevMode),
-            getIndexHtmlPlugin({ name: 'tutorial' }),
+            getIndexHtmlPlugin({ name: 'tutorial', targetName: 'index' }),
         ],
         externals: getExternals(isDevMode),
         resolve: getResolve(),
