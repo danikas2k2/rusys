@@ -28,8 +28,9 @@
         "dev:tutorial": "NODE_ENV=development webpack serve --config webpack.tutorial.config.ts --mode development",
         "test": "jest",
         "coverage": "jest --coverage",
-        "upload": "rsync -avr --exclude \"tutorial.*\" --exclude \"data\" ./dist/* dan@vd:/var/www/rusys/",
-        "deploy": "pnpm test && pnpm build && pnpm upload",
+        "remote:upload": "rsync -avr --exclude \"tutorial.*\" --exclude \"data\" ./dist/* dan@vd:/var/www/rusys/",
+        "remote:restart": "ssh dan@vd \"pm2 restart rusys --update-env\"",
+        "deploy": "pnpm test && pnpm build && pnpm remote:upload && pnpm remote:restart",
         "preversion": "git pull && pnpm test",
         "version": "pnpm run build && git add --all && git commit -m \"$npm_package_version\"",
         "postversion": "git push && git push --tags"
