@@ -1,0 +1,26 @@
+import { isEqual } from 'lodash';
+import { useSelector } from 'react-redux';
+import { useDev } from '~/hooks/useDev';
+import { type Profile, type WithProfileState } from '~/state/profile/types';
+import { useSetProfile } from '~/state/profile/useSetProfile';
+
+export const DEV_MODE_PROFILE: Profile = {
+    sub: 'DEV_MODE',
+    name: 'Dev Mode',
+};
+
+export function useProfile(): Profile {
+    const setProfile = useSetProfile();
+    const isDev = useDev();
+    let profile = useSelector((state: WithProfileState) => state.profile ?? {}, isEqual);
+    if (!profile.sub) {
+        profile = JSON.parse(localStorage.getItem('profile') ?? '{}') ?? {};
+        if (!profile.sub && isDev) {
+            profile = DEV_MODE_PROFILE;
+        }
+        if (profile.sub) {
+            setProfile(profile);
+        }
+    }
+    return profile;
+}

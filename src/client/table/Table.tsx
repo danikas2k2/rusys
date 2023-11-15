@@ -6,14 +6,26 @@ import './Table.less';
 interface TableProps {
     className?: string;
     header?: ReactNode;
-    children: ReactNode;
+    footer?: ReactNode;
+    children?: ReactNode;
 }
 
-export default memo(function Table({ className, header, children }: TableProps) {
+export default memo(function Table({ className, header, footer, children }: TableProps) {
     return (
-        <div className={classNames('Table', className)}>
-            {header && <div className="Head">{header}</div>}
-            <div className="Body">{children}</div>
+        <div role="table" className={classNames('Table', className)}>
+            {header && (
+                <div role="rowgroup" className="Head">
+                    {header}
+                </div>
+            )}
+            <div role="rowgroup" className="Body">
+                {children}
+            </div>
+            {footer && (
+                <div role="rowgroup" className="Foot">
+                    {footer}
+                </div>
+            )}
         </div>
     );
 }, isEqual);

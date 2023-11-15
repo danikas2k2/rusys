@@ -1,5 +1,4 @@
-import { ColorSchemeContext } from '@ui/ColorScheme';
-import { type ColorScheme, type ColorSchemeHandler } from '@ui/ColorScheme.types';
+import { type ColorScheme, ColorSchemeContext, type ColorSchemeHandler } from '@ui/ColorScheme';
 import { useContext } from 'react';
 
 export function useColorSchemeState(): [ColorScheme, ColorSchemeHandler] {

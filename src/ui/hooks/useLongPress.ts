@@ -37,10 +37,11 @@ type LongPressEvents<T = Element> = {
       }
 );
 
-export default function useLongPress<T = Element>(
+export function useLongPress<T = Element>(
     onLongPress: PressEventHandler<T>,
     onShortPress?: PressEventHandler<T>,
-    duration = 400
+    duration = 400,
+    shortDelay = 100
 ): LongPressEvents<T> {
     const timerRef = useRef<NodeJS.Timeout>();
     const longPressRef = useRef(false);
@@ -66,12 +67,16 @@ export default function useLongPress<T = Element>(
             if (!longPressRef.current && onShortPress) {
                 shortPressRef.current = true;
                 clearTimeout(timerRef.current);
-                setTimeout(() => {
+                if (shortDelay) {
+                    setTimeout(() => {
+                        onShortPress?.(e);
+                    }, shortDelay);
+                } else {
                     onShortPress?.(e);
-                }, 100);
+                }
             }
         },
-        [onShortPress]
+        [onShortPress, shortDelay]
     );
 
     const onMove = useCallback(() => {
@@ -89,30 +94,26 @@ export default function useLongPress<T = Element>(
     }, []);
 
     return useMemo(() => {
-        if (window.PointerEvent) {
-            return {
-                onPointerDown: onStart,
-                onPointerMove: onMove,
-                onPointerUp: onEnd,
-                onPointerLeave: onMove,
-                onClick,
-                onContextMenu,
-            };
-        }
-        if (window.TouchEvent) {
-            return {
-                onTouchStart: onStart,
-                onTouchEnd: onEnd,
-                onTouchMove: onMove,
-                onClick,
-                onContextMenu,
-            };
-        }
         return {
             onMouseDown: onStart,
             onMouseUp: onEnd,
             onMouseMove: onMove,
             onMouseLeave: onMove,
+            ...(window.TouchEvent
+                ? {
+                      onTouchStart: onStart,
+                      onTouchEnd: onEnd,
+                      onTouchMove: onMove,
+                  }
+                : {}),
+            ...(window.PointerEvent
+                ? {
+                      onPointerDown: onStart,
+                      onPointerMove: onMove,
+                      onPointerUp: onEnd,
+                      onPointerLeave: onMove,
+                  }
+                : {}),
             onClick,
             onContextMenu,
         };

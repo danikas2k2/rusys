@@ -4,7 +4,7 @@ import AppRouter from '~/client/AppRouter';
 import LoginButton from '~/client/user/LoginButton';
 import LogoutButton from '~/client/user/LogoutButton';
 import { useDev } from '~/hooks/useDev';
-import useProfile from '~/store/profile/useProfile';
+import { useProfile } from '~/state/profile/useProfile';
 import './App.less';
 
 export default memo(function AppContent() {

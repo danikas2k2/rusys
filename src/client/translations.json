@@ -61,5 +61,8 @@
     },
     "List": {
         "lt-LT": "Sąrašas"
+    },
+    "No data": {
+        "lt-LT": "Duomenų nėra"
     }
 }

@@ -1,5 +1,5 @@
 import Button, { type ButtonProps } from '@ui/Button';
-import useForwardedRef from '@ui/hooks/useForwardedRef';
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { isEqual } from 'lodash';
 import React, { type ForwardedRef, forwardRef, memo } from 'react';
 

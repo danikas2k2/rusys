@@ -35,7 +35,10 @@
                 "*.tsx",
                 "**/*.tsx"
             ],
-            "customSyntax": "postcss-jsx"
+            "customSyntax": "postcss-jsx",
+            "rules": {
+                "value-keyword-case": null
+            }
         }
     ]
 }

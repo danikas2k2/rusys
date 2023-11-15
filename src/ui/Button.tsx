@@ -1,3 +1,4 @@
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import {
     type CommonInputProps,
     type InputColor,
@@ -8,7 +9,6 @@ import {
 import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, { type ButtonHTMLAttributes, type ForwardedRef, forwardRef, memo } from 'react';
-import useForwardedRef from '~/ui/hooks/useForwardedRef';
 import './Button.less';
 
 export interface ButtonProps<T extends HTMLElement = HTMLButtonElement> extends ButtonHTMLAttributes<T> {

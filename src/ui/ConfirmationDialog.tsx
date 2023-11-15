@@ -3,37 +3,45 @@ import CloseIcon from '@icons/Close.svg';
 import DoneIcon from '@icons/Done.svg';
 import Button from '@ui/Button';
 import Dialog from '@ui/Dialog';
-import useAutoFocus from '@ui/hooks/useAutoFocus';
+import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import IconButton from '@ui/IconButton';
 import { type InputColor } from '@ui/Input';
 import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, { memo, type MouseEvent, type ReactNode, useEffect } from 'react';
-import Label from '~/client/Label';
 import './ConfirmationDialog.less';
 
 export interface ConfirmationDialogProps {
     header?: ReactNode; // TODO (options?: HeaderOptions}) => ReactNode;
     footer?: ReactNode; // TODO (options?: FooterOptions}) => ReactNode;
     confirm?: ReactNode; // TODO (options?: ButtonOptions}) => ReactNode;
+    confirmLabel?: string;
     confirmColor?: InputColor; // TODO get rid of this
     cancel?: ReactNode; // TODO (options?: ButtonOptions}) => ReactNode;
+    cancelLabel?: string;
+    cancelColor?: InputColor; // TODO get rid of this
+    // TODO add `trigger: ReactNode | ({ open, onOpen, onClose }) => ReactNode` prop, then remove `open` prop
     open?: boolean;
     onConfirm?: (e: MouseEvent<HTMLButtonElement>) => void;
     onClose?: () => void;
+    closeLabel?: string;
     className?: string;
     children?: ReactNode;
 }
 
 export default memo(function ConfirmationDialog({
-    header,
+    header = 'Are you sure?',
     footer,
     confirm,
     confirmColor = 'primary',
+    confirmLabel = 'Confirm',
     cancel,
+    cancelColor,
+    cancelLabel = 'Cancel',
     open,
     onConfirm,
     onClose,
+    closeLabel = 'Close',
     className,
     children,
 }: ConfirmationDialogProps) {
@@ -45,6 +53,7 @@ export default memo(function ConfirmationDialog({
     }, [open, focusRef]);
     return (
         <Dialog
+            role="alertdialog"
             className={classNames('ConfirmationDialog', className)}
             open={open}
             closeOnOutsideClick
@@ -52,9 +61,9 @@ export default memo(function ConfirmationDialog({
             onClose={onClose}
         >
             <header>
-                <div className="title">{header || <Label>Are you sure?</Label>}</div>
+                <div className="title">{header}</div>
                 <div className="close">
-                    <IconButton onClick={onClose}>
+                    <IconButton aria-label={closeLabel} onClick={onClose}>
                         <CloseIcon />
                     </IconButton>
                 </div>
@@ -63,19 +72,25 @@ export default memo(function ConfirmationDialog({
             <footer>
                 {footer || (
                     <>
-                        <Button variant="outlined" onClick={onClose}>
+                        <Button variant="outlined" color={cancelColor} aria-label={cancelLabel} onClick={onClose}>
                             {cancel || (
                                 <>
                                     <CancelIcon />
-                                    <Label>Cancel</Label>
+                                    {cancelLabel}
                                 </>
                             )}
                         </Button>
-                        <Button ref={focusRef} variant="solid" color={confirmColor} onClick={onConfirm}>
+                        <Button
+                            ref={focusRef}
+                            variant="solid"
+                            color={confirmColor}
+                            aria-label={confirmLabel}
+                            onClick={onConfirm}
+                        >
                             {confirm || (
                                 <>
                                     <DoneIcon />
-                                    <Label>Confirm</Label>
+                                    {confirmLabel}
                                 </>
                             )}
                         </Button>

@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash';
 import React, { memo } from 'react';
-import { type Variant } from '~/store/details/types';
+import { type Variant } from '~/state/details/types';
 
 const VariantShortFormat: Partial<Record<Variant, string>> = {
     // '': '½',

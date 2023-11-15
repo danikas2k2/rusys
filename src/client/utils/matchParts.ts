@@ -1,5 +1,5 @@
 import { transliterate as translit } from 'transliteration';
-import { type Name } from '~/store/types';
+import { type Name } from '~/state/types';
 
 export const matchParts = (name: Name, filter: string): boolean =>
     translit(filter)

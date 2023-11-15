@@ -1,0 +1,12 @@
+.MenuDivider {
+    position: relative;
+    height: 13px;
+
+    &::before {
+        position: absolute;
+        inset: 6px 8px;
+        content: "";
+        display: block;
+        background-color: var(--color-divider);
+    }
+}

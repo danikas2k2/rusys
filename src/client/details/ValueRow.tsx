@@ -2,45 +2,45 @@ import Checkbox from '@ui/Checkbox';
 import classNames from 'classnames';
 import { isEmpty, isEqual } from 'lodash';
 import React, { memo, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import ValueCell from '~/client/details/ValueCell';
 import InteractiveName from '~/client/InteractiveName';
 import Cell from '~/client/table/Cell';
 import Row from '~/client/table/Row';
-import { type BaseState } from '~/store/base/types';
-import { type Amount, type Amounts } from '~/store/details/types';
-import useUpdateDetails from '~/store/details/useUpdateDetails';
-import useAddMissing from '~/store/missing/useAddMissing';
-import useRemoveMissing from '~/store/missing/useRemoveMissing';
-import useUpdateRemoving from '~/store/removing/useUpdateRemoving';
-import { type Name, type Year } from '~/store/types';
+import { type Amount, type Amounts } from '~/state/details/types';
+import { useUpdateDetails } from '~/state/details/useUpdateDetails';
+import { useAddMissing } from '~/state/missing/useAddMissing';
+import { useRemoveMissing } from '~/state/missing/useRemoveMissing';
+import { useHasRemoving } from '~/state/removing/useHasRemoving';
+import { useUpdateRemoving } from '~/state/removing/useUpdateRemoving';
+import { type Group, type Name, type Year } from '~/state/types';
+import { useYears } from '~/state/years/useYears';
 import './ValueRow.less';
 
 interface ValueRowProps {
     className?: string;
+    group: Group;
     name: Name;
     values: Amounts;
     isMissing?: boolean;
 }
 
-export default memo(function ValueRow({ className, name, values, isMissing }: ValueRowProps) {
-    const labelId = `checkbox-${name}`;
+export default memo(function ValueRow({ className, group, name, values, isMissing }: ValueRowProps) {
+    const labelId = `checkbox-${group}-${name}`;
     const isAvailable = !isEmpty(values);
 
-    const [years, isRemoving] = useSelector(
-        (state: BaseState) => [state.years, state.years.some((year) => state.removing?.[name]?.[year])] as const,
-        isEqual
-    );
+    const years = useYears();
     const lastYear = years[years.length - 1];
+
+    const isRemoving = useHasRemoving(group, name);
 
     const addMissing = useAddMissing();
     const removeMissing = useRemoveMissing();
     const handleMissing = useCallback(
-        async (name: string, isMissing: boolean): Promise<void> => {
+        async (group: Group, name: Name, isMissing: boolean): Promise<void> => {
             if (isMissing) {
-                await addMissing(name);
+                await addMissing(group, name);
             } else {
-                await removeMissing(name);
+                await removeMissing(group, name);
             }
         },
         [addMissing, removeMissing]
@@ -49,31 +49,32 @@ export default memo(function ValueRow({ className, name, values, isMissing }: Va
     const updateDetails = useUpdateDetails();
     const updateRemoving = useUpdateRemoving();
     const handleValue = useCallback(
-        async (name: string, year: Year, value?: Amount, updateWithoutHistory = false): Promise<void> => {
-            await updateDetails(name, year, value, updateWithoutHistory);
-            await updateRemoving(name, year, false);
-            return handleMissing(name, false);
+        async (group: Group, name: Name, year: Year, value?: Amount, updateWithoutHistory = false): Promise<void> => {
+            await updateDetails(group, name, year, value, updateWithoutHistory);
+            await updateRemoving(group, name, year, false);
+            return handleMissing(group, name, false);
         },
         [handleMissing, updateDetails, updateRemoving]
     );
 
     const handleClick = useCallback((): void => {
         if (isAvailable) {
-            handleMissing(name, !isMissing);
+            handleMissing(group, name, !isMissing);
         }
-    }, [handleMissing, isAvailable, isMissing, name]);
+    }, [group, handleMissing, isAvailable, isMissing, name]);
 
     const handleChange = useCallback(
         (year: Year) =>
             useCallback(
-                (value?: Amount, updateWithoutHistory = false) => handleValue(name, year, value, updateWithoutHistory),
+                (value?: Amount, updateWithoutHistory = false) =>
+                    handleValue(group, name, year, value, updateWithoutHistory),
                 [year]
             ),
-        [handleValue, name]
+        [group, handleValue, name]
     );
 
     return (
-        <Row key={name} className={classNames('Row', className, { selected: isMissing })} aria-checked={!isMissing}>
+        <Row key={name} className={classNames('Row', className)} aria-checked={!isMissing}>
             <Cell>
                 <Checkbox
                     color="primary"
@@ -93,6 +94,7 @@ export default memo(function ValueRow({ className, name, values, isMissing }: Va
             {years.map((year) => (
                 <ValueCell
                     key={year}
+                    group={group}
                     name={name}
                     year={year}
                     value={values[year]}

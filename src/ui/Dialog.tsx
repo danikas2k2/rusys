@@ -11,7 +11,7 @@ import React, {
     useCallback,
     useEffect,
 } from 'react';
-import usePreviousValue from '~/hooks/usePreviousValue';
+import { usePreviousValue } from '~/hooks/usePreviousValue';
 import './Dialog.less';
 
 export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
@@ -59,7 +59,8 @@ export default memo(function Dialog({
         <Portal>
             <Interactive
                 className="Backdrop"
-                role="presentation"
+                role="complementary"
+                aria-label="backdrop"
                 onClick={closeOnOutsideClick ? onClose : undefined}
                 onKeyDown={closeOnEscape ? handleEscape : undefined}
             >

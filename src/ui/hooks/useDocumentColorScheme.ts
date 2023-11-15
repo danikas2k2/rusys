@@ -1,4 +1,4 @@
-import { type ColorScheme } from '@ui/ColorScheme.types';
+import { type ColorScheme } from '@ui/ColorScheme';
 import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
 import { usePreferredColorScheme } from '@ui/hooks/usePreferredColorScheme';
 

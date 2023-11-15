@@ -4,7 +4,7 @@ import './Loader.less';
 
 export default memo(function Loader() {
     return (
-        <div className="Loader">
+        <div className="Loader" role="progressbar">
             <div key="0" />
             <div key="1" />
             <div key="2" />

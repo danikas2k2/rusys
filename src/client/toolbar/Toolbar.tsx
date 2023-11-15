@@ -3,30 +3,21 @@ import Button from '@ui/Button';
 import Input from '@ui/Input';
 import { isEqual } from 'lodash';
 import React, { type FormEvent, memo, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import useLabel from '~/client/hooks/useLabel';
+import { useLabel } from '~/client/hooks/useLabel';
 import ToolbarMenu from '~/client/toolbar/ToolbarMenu';
 import LogoutButton from '~/client/user/LogoutButton';
-import { type BaseState } from '~/store/base/types';
-import { setFilterAction } from '~/store/filter/actions';
+import { useClearFilter } from '~/state/filter/useClearFilter';
+import { useFilter } from '~/state/filter/useFilter';
+import { useSetFilter } from '~/state/filter/useSetFilter';
 import './Toolbar.less';
 
 export default memo(function Toolbar() {
     const placeholder = useLabel('type to filter');
-
-    const filter = useSelector((state: BaseState) => state.filter);
-
-    const dispatch = useDispatch();
-    const handleInput = useCallback(
-        (e: FormEvent<HTMLInputElement>) => {
-            dispatch(setFilterAction(e.currentTarget.value));
-        },
-        [dispatch]
-    );
-
-    const handleClear = useCallback(() => {
-        dispatch(setFilterAction(''));
-    }, [dispatch]);
+    const filter = useFilter();
+    const setFilter = useSetFilter();
+    const clearFilter = useClearFilter();
+    const handleInput = useCallback((e: FormEvent<HTMLInputElement>) => setFilter(e.currentTarget.value), [setFilter]);
+    const handleClear = useCallback(() => clearFilter(), [clearFilter]);
 
     return (
         <div className="Toolbar">
@@ -35,7 +26,7 @@ export default memo(function Toolbar() {
             </div>
             <div className="title">
                 <Input
-                    inputMode="search"
+                    mode="search"
                     fullWidth
                     color="primary"
                     placeholder={placeholder}
@@ -44,9 +35,9 @@ export default memo(function Toolbar() {
                     endDecorator={
                         filter ? (
                             <Button onClick={handleClear} spacing="small" variant="plain" color="primary">
-                                <CancelIcon />
+                                <CancelIcon aria-label={useLabel('Clear')} />
                             </Button>
-                        ) : undefined
+                        ) : null
                     }
                 />
             </div>

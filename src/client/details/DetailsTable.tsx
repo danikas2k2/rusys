@@ -1,42 +1,32 @@
 import Checkbox from '@ui/Checkbox';
 import Loader from '@ui/Loader';
-import { isEqual } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 import ValueRow from '~/client/details/ValueRow';
+import { Error } from '~/client/Error';
+import Label from '~/client/Label';
 import Cell from '~/client/table/Cell';
 import Row from '~/client/table/Row';
 import Table from '~/client/table/Table';
-import { cmp } from '~/client/utils/cmp';
-import { matchParts } from '~/client/utils/matchParts';
-import { type BaseState } from '~/store/base/types';
-import useInitialLoader from '~/store/base/useInitialLoader';
-import { type Amounts } from '~/store/details/types';
-import { type Name } from '~/store/types';
+import { filterGroupedEntries } from '~/client/utils/filterGroupedEntries';
+import { useInitialLoader } from '~/hooks/useInitialLoader';
+import { LoadingState, useLockingLoader } from '~/hooks/useLockingLoader';
+import { type Amounts } from '~/state/details/types';
+import { useDetails } from '~/state/details/useDetails';
+import { useFilter } from '~/state/filter/useFilter';
+import { useHasMissing } from '~/state/missing/useHasMissing';
+import { useIsMissing } from '~/state/missing/useIsMissing';
+import { type Group, type Name } from '~/state/types';
+import { useYears } from '~/state/years/useYears';
 import './DetailsTable.less';
 
 export default memo(function DetailsTable() {
-    const [loading, setLoading] = useState(false);
-    const [loaded, setLoaded] = useState(false);
-    const initialLoad = useInitialLoader();
-    useEffect(() => {
-        (async () => {
-            if (!loading && !loaded) {
-                setLoading(true);
-                await initialLoad();
-                setLoaded(true);
-                setLoading(false);
-            }
-        })();
-    }, [loading, loaded, initialLoad]);
+    const loader = useInitialLoader();
+    const loading = useLockingLoader(loader);
 
-    const [missing, years, details, filter] = useSelector(
-        (state: BaseState) => [state.missing, state.years, state.details, state.filter] as const,
-        isEqual
-    );
+    const hasMissing = useHasMissing();
+    const missing = useIsMissing();
     const [missingOnly, setMissingOnly] = useState<boolean>(false);
-    const hasMissing = !!missing.length;
-
     useEffect(() => {
         if (missingOnly && !hasMissing) {
             setMissingOnly(false);
@@ -45,18 +35,36 @@ export default memo(function DetailsTable() {
 
     const handleClick = useCallback(() => hasMissing && setMissingOnly(!missingOnly), [hasMissing, missingOnly]);
 
-    const detailsEntries: [Name, Amounts][] = useMemo(
-        () => Object.entries(details).sort(([a], [b]) => cmp(a.toLowerCase(), b.toLowerCase())),
-        [details]
+    const details = useDetails();
+    const filter = useFilter();
+    const filteredEntries: [Group, [Name, Amounts][]][] = useMemo(
+        () => filterGroupedEntries(details, filter),
+        [details, filter]
     );
 
-    const filteredEntries = detailsEntries.filter(([name]) => matchParts(name, filter));
+    const years = useYears();
 
-    if (!years?.length && !details?.length) {
+    if (loading === LoadingState.INITIAL || loading === LoadingState.LOADING) {
         return (
             <div>
                 <Loader />
             </div>
+        );
+    }
+
+    if (loading === LoadingState.FAILED) {
+        return (
+            <Error>
+                <Label>Failed to load data</Label>
+            </Error>
+        );
+    }
+
+    if (isEmpty(years) || isEmpty(details)) {
+        return (
+            <Error>
+                <Label>No data</Label>
+            </Error>
         );
     }
 
@@ -65,24 +73,42 @@ export default memo(function DetailsTable() {
             className="Table"
             header={
                 <Row className="Row HeadRow">
-                    <Cell>
+                    <Cell role="columnheader">
                         <Checkbox color="primary" checked={!missingOnly} disabled={!hasMissing} onClick={handleClick} />
                     </Cell>
-                    <Cell />
+                    <Cell role="columnheader" />
                     {years.map((year) => (
-                        <Cell key={year}>{year}</Cell>
+                        <Cell key={year} role="columnheader">
+                            {year}
+                        </Cell>
                     ))}
                 </Row>
             }
         >
-            {filteredEntries.map(([name, values]) => {
-                const isMissing = missing.includes(name);
-                return (
-                    (!missingOnly || isMissing) && (
-                        <ValueRow className="Row" key={name} name={name} values={values} isMissing={isMissing} />
-                    )
-                );
-            })}
+            {filteredEntries.map(([group, namedValues]) => (
+                <div key={group} role="rowgroup">
+                    <Row className="Row GroupRow">
+                        <Cell role="rowheader" className="GroupHeading">
+                            {group}
+                        </Cell>
+                    </Row>
+                    {namedValues.map(([name, values]) => {
+                        const isMissing = missing(group, name);
+                        return (
+                            (!missingOnly || isMissing) && (
+                                <ValueRow
+                                    className="Row"
+                                    key={name}
+                                    group={group}
+                                    name={name}
+                                    values={values}
+                                    isMissing={isMissing}
+                                />
+                            )
+                        );
+                    })}
+                </div>
+            ))}
         </Table>
     );
 }, isEqual);
