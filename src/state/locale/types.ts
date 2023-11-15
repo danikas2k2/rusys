@@ -1,3 +1,5 @@
+export type Locale = string;
+
 export interface WithLocaleState {
-    locale?: string;
+    locale?: Locale;
 }

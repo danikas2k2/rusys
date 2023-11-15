@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { type Action } from 'redux';
 import { useDev } from '~/hooks/useDev';
-import { reducer } from '~/state/base/reducer';
+import reducer from '~/state/base/reducer';
 import { getStore } from '~/state/store';
 
 jest.mock('~/hooks/useDev', () => ({
@@ -14,16 +15,16 @@ jest.mock('@reduxjs/toolkit', () => ({
 describe('store configuration', () => {
     afterEach(() => jest.clearAllMocks());
 
-    it('creates store with initial state', () => {
-        expect(getStore().getState()).toEqual(reducer(undefined, {} as any));
+    it('should create store with initial state', () => {
+        expect(getStore().getState()).toEqual(reducer(undefined, {} as Action));
     });
 
-    it('disables devTools in production mode', () => {
+    it('should disable devTools in production mode', () => {
         getStore();
         expect(configureStore).toHaveBeenCalledWith({ reducer, devTools: false });
     });
 
-    it('enables devTools in development mode', () => {
+    it('should enable devTools in development mode', () => {
         (useDev as jest.Mock).mockReturnValue(true);
         getStore();
         expect(configureStore).toHaveBeenCalledWith({ reducer, devTools: true });

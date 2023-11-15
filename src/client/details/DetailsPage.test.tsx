@@ -1,13 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { DetailsPage } from '~/client/details/DetailsPage';
+import DetailsPage from '~/client/details/DetailsPage';
 
-jest.mock('~/client/details/DetailsTable', () => ({
-    DetailsTable: () => <div>DetailsTable</div>,
-}));
-jest.mock('~/client/toolbar/Toolbar', () => ({
-    Toolbar: () => <div>Toolbar</div>,
-}));
+jest.mock('~/client/details/DetailsTable', () => () => <div>DetailsTable</div>);
+jest.mock('~/client/toolbar/Toolbar', () => () => <div>Toolbar</div>);
 
 describe('DetailsPage', () => {
     it('renders into the document', () => {

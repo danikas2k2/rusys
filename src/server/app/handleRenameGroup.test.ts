@@ -1,55 +1,34 @@
-/** @jest-environment node */
-import { type ApiDetails, type ApiRenameGroup } from '~/common/api';
+import { type Request, type Response } from 'express';
+import { getAllDetails } from '~/server/app/getAllDetails';
 import { handleRenameGroup } from '~/server/app/handleRenameGroup';
-import { renameGroupOccurrences } from '~/server/data/common';
-import { getYearsAndDetails } from '~/server/data/details';
-import { getDetailsFixture, getYearsFixture } from '~/tests/fixtures';
-import { mockRequest } from '~/tests/mockRequest';
-import { mockResponse } from '~/tests/mockResponse';
+import { renameGroup } from '~/server/data/common';
 
+jest.mock('~/server/db');
 jest.mock('~/server/app/debug');
 jest.mock('~/server/data/common');
-jest.mock('~/server/data/details');
+jest.mock('~/server/app/getAllDetails');
 
 describe('handleRenameGroup', () => {
-    const request = mockRequest<ApiRenameGroup>({ group: 'G', newGroup: 'H' });
-    const response = mockResponse<ApiDetails>();
-    const years = getYearsFixture();
-    const details = getDetailsFixture();
+    const request = { body: { group: 'G', newGroup: 'H' } } as unknown as Request;
+    const response = { json: jest.fn() } as unknown as Response;
 
     afterEach(() => jest.clearAllMocks());
 
-    it('returns filled response on success', async () => {
-        (renameGroupOccurrences as jest.Mock).mockResolvedValueOnce(true);
-        (getYearsAndDetails as jest.Mock).mockResolvedValueOnce({ years, details });
-
+    it('calls renameGroup and getAllDetails when renameGroup is successful', async () => {
+        (renameGroup as jest.Mock).mockResolvedValue(true);
         await handleRenameGroup(request, response);
 
-        expect(renameGroupOccurrences).toHaveBeenCalledWith('G', 'H');
-        expect(getYearsAndDetails).toHaveBeenCalledWith();
-        expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: true, years, details });
+        expect(renameGroup).toHaveBeenCalledWith('G', 'H');
+        expect(getAllDetails).toHaveBeenCalledWith(request, response);
+        expect(response.json).not.toHaveBeenCalled();
     });
 
-    it('returns empty response on failure', async () => {
-        (renameGroupOccurrences as jest.Mock).mockResolvedValueOnce(false);
-
+    it('calls renameGroup and responds with json when renameGroup is not successful', async () => {
+        (renameGroup as jest.Mock).mockResolvedValue(false);
         await handleRenameGroup(request, response);
 
-        expect(renameGroupOccurrences).toHaveBeenCalledWith('G', 'H');
-        expect(getYearsAndDetails).not.toHaveBeenCalled();
-        expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
+        expect(renameGroup).toHaveBeenCalledWith('G', 'H');
+        expect(getAllDetails).not.toHaveBeenCalledWith();
         expect(response.json).toHaveBeenCalledWith({ ok: false });
-    });
-
-    it('returns error response on error', async () => {
-        (renameGroupOccurrences as jest.Mock).mockRejectedValueOnce('Failed to rename group');
-
-        await handleRenameGroup(request, response);
-
-        expect(renameGroupOccurrences).toHaveBeenCalledWith('G', 'H');
-        expect(getYearsAndDetails).not.toHaveBeenCalled();
-        expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to rename group' });
     });
 });

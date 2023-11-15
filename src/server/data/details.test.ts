@@ -1,515 +1,519 @@
-/** @jest-environment node */
 import {
-    deleteDetails,
-    deleteDetailsGroup,
-    deleteDetailsVariant,
     getDetails,
     moveDetails,
+    removeDetails,
+    removeDetailsGroup,
     renameDetails,
     renameDetailsGroup,
-    renameDetailsVariant,
-    setMissing,
-    setRemoving,
-    updateDetailsAmounts,
-    updateDetailsYears,
+    setDetails,
+    updateDetails,
 } from '~/server/data/details';
-import { getAllDetails } from '~/server/data/tests/utils';
-import { getDetailsCollection } from '~/server/db';
-import { getDetailsFixture } from '~/tests/fixtures';
-import { bulk } from '~/utils/bulk';
+import { addUpdate, addUpdates } from '~/server/data/updates';
+import { getYears } from '~/server/data/years';
+import { DETAILS } from '~/server/db';
 
 jest.mock('~/server/db');
 jest.mock('~/server/data/years');
+jest.mock('~/server/data/updates', () => ({
+    addUpdates: jest.fn(),
+    addUpdate: jest.fn(),
+}));
 
 describe('details', () => {
-    jest.setTimeout(30_000);
-
-    const details = getDetailsFixture();
-
     beforeEach(async () => {
-        await (await getDetailsCollection()).insertMany(details, { forceServerObjectId: true });
+        await DETAILS.insertMany([
+            { name: 'A', 21: { '': 2 } },
+            { name: 'B', 22: { '': 1 } },
+            { group: 'G', name: 'A', 22: { d: 1 } },
+            { group: 'G', name: 'C', 21: { '': 2 } },
+        ]);
     });
 
     afterEach(async () => {
-        await (await getDetailsCollection()).deleteMany({});
+        jest.clearAllMocks();
+        await DETAILS.deleteMany({}, {});
     });
 
     describe('getDetails', () => {
-        it('returns details for specified years', async () => {
-            expect(await getDetails([21, 22])).toEqual([
-                { group: 'G', name: 'A', years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }] },
-                { group: 'G', name: 'C', years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }] },
-                { group: 'J', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }] },
-                { group: 'J', name: 'B', years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }], missing: true },
-            ]);
-        });
-
-        it('returns details for different years', async () => {
-            expect(await getDetails([20, 21])).toEqual([
-                { group: 'G', name: 'C', years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }] },
-                { group: 'J', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }] },
-            ]);
-        });
-
-        it('returns no details for missing years', async () => {
-            expect(await getDetails([23, 24])).toEqual([]);
+        it('return details for specified years', async () => {
+            expect(await getDetails(getYears())).toEqual({
+                '': {
+                    A: { 21: { '': 2 } },
+                    B: { 22: { '': 1 } },
+                },
+                G: {
+                    A: { 22: { d: 1 } },
+                    C: { 21: { '': 2 } },
+                },
+            });
         });
     });
 
-    const time = expect.any(Number);
-
-    describe('updateDetailsYears', () => {
-        const years = [
-            { year: 21, amounts: [{ variant: 'p', amount: 1 }] },
-            { year: 22, amounts: [{ variant: 'd', amount: 2 }] },
-        ];
-
-        it('updates details for specified group and name', async () => {
-            expect(await updateDetailsYears('G', 'A', years)).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $set: { '2.years': years },
-                    $push: { '2.updates': { time, years: bulk(years, { $set: { '1.amounts.0.amount': 1 } }) } },
-                })
-            );
-        });
-
-        it('updates details for specified group and name without history', async () => {
-            expect(await updateDetailsYears('G', 'A', years, true)).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $set: { '2.years': years } }));
-        });
-
-        it('updates details for different group and name', async () => {
-            expect(await updateDetailsYears('J', 'A', years)).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $set: { '0.years': years },
-                    $push: { '0.updates': { time, years: bulk(years, { $set: { '0.amounts.0.amount': -1 } }) } },
-                })
-            );
-        });
-
-        it('adds details for new group and specified name', async () => {
-            expect(await updateDetailsYears('H', 'C', years)).toBeTrue();
-            expect(await getAllDetails()).toEqual([
-                ...details,
-                { group: 'H', name: 'C', years: years, updates: [{ time, years: years }] },
+    describe('setDetails', () => {
+        it('set new details for empty group and specified name', async () => {
+            expect(await setDetails('', 'A', { 21: { '': 1 }, 22: { d: 2 } })).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'B', 22: { '': 1 } },
+                { group: '', name: 'A', 21: { '': 1 }, 22: { d: 2 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
             ]);
+
+            expect(addUpdate).not.toHaveBeenCalled();
+            expect(addUpdates).toHaveBeenCalledTimes(1);
+            expect(addUpdates).toHaveBeenCalledWith('', 'A', { 21: { '': 1 }, 22: { d: 2 } });
         });
 
-        it('updates without details for specified group and name', async () => {
-            expect(await updateDetailsYears('G', 'A')).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $unset: '2.years',
-                    $push: { '2.updates': { time, years: [bulk(years[1], { $set: { 'amounts.0.amount': -1 } })] } },
-                })
-            );
+        it('set new details for specified group and name', async () => {
+            expect(await setDetails('G', 'A', { 21: { '': 1 }, 22: { d: 2 } })).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 21: { '': 1 }, 22: { d: 2 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+
+            expect(addUpdate).not.toHaveBeenCalled();
+            expect(addUpdates).toHaveBeenCalledTimes(1);
+            expect(addUpdates).toHaveBeenCalledWith('G', 'A', { 21: { '': 1 }, 22: { d: 2 } });
         });
 
-        it('updates without details for specified group and name without history', async () => {
-            expect(await updateDetailsYears('G', 'A', undefined, true)).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $unset: '2.years' }));
+        it('set new details for new group and specified name', async () => {
+            expect(await setDetails('H', 'C', { 21: { '': 1 }, 22: { d: 2 } })).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+                { group: 'H', name: 'C', 21: { '': 1 }, 22: { d: 2 } },
+            ]);
+
+            expect(addUpdate).not.toHaveBeenCalled();
+            expect(addUpdates).toHaveBeenCalledTimes(1);
+            expect(addUpdates).toHaveBeenCalledWith('H', 'C', { 21: { '': 1 }, 22: { d: 2 } });
         });
 
-        it('updates without details for different group and name', async () => {
-            expect(await updateDetailsYears('J', 'A')).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $unset: '0.years',
-                    $push: { '0.updates': { time, years: [bulk(years[0], { $set: { 'amounts.0.amount': -2 } })] } },
-                })
-            );
+        it('set new details for specified group and name without history', async () => {
+            expect(await setDetails('G', 'A', { 21: { '': 1 }, 22: { d: 2 } }, true)).toBeTrue();
+            expect(addUpdate).not.toHaveBeenCalled();
+            expect(addUpdates).not.toHaveBeenCalled();
         });
 
-        it('updates without details for new group and specified name', async () => {
-            expect(await updateDetailsYears('H', 'A')).toBeTrue();
-            expect(await getAllDetails()).toEqual([...details, { group: 'H', name: 'A' }]);
+        it('set no details for empty group and specified name', async () => {
+            expect(await setDetails('', 'A')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'B', 22: { '': 1 } },
+                { group: '', name: 'A' },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+            expect(addUpdate).not.toHaveBeenCalled();
+            expect(addUpdates).toHaveBeenCalledTimes(1);
+            expect(addUpdates).toHaveBeenCalledWith('', 'A', undefined);
+        });
+
+        it('set no details for specified group and name', async () => {
+            expect(await setDetails('G', 'A')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A' },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+            expect(addUpdate).not.toHaveBeenCalled();
+            expect(addUpdates).toHaveBeenCalledTimes(1);
+            expect(addUpdates).toHaveBeenCalledWith('G', 'A', undefined);
+        });
+
+        it('set no details for new group and specified name', async () => {
+            expect(await setDetails('H', 'A')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+                { group: 'H', name: 'A' },
+            ]);
+            expect(addUpdate).not.toHaveBeenCalled();
+            expect(addUpdates).toHaveBeenCalledTimes(1);
+            expect(addUpdates).toHaveBeenCalledWith('H', 'A', undefined);
         });
     });
 
-    describe('updateDetailsAmounts', () => {
-        const amounts = [
-            { variant: 'p', amount: 1 },
-            { variant: 'm', amount: 2 },
-            { variant: 'd', amount: 3 },
-        ];
-
-        it('updates details for existing group, name, and year', async () => {
-            expect(await updateDetailsAmounts('G', 'A', 22, amounts)).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $set: { '2.years.0': { year: 22, amounts } },
-                    $push: {
-                        '2.updates': {
-                            time,
-                            years: [{ year: 22, amounts: bulk(amounts, { $set: { '2.amount': 2 } }) }],
-                        },
-                    },
-                })
-            );
+    describe('updateDetails', () => {
+        it('update details for empty group and existing name and year', async () => {
+            expect(await updateDetails('', 'A', 22, { '': 1, m: 2, d: 3 })).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 }, 22: { '': 1, m: 2, d: 3 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).toHaveBeenCalledTimes(1);
+            expect(addUpdate).toHaveBeenCalledWith('', 'A', 22, { '': 1, m: 2, d: 3 });
         });
 
-        it('updates details for existing group, name, and year without history', async () => {
-            expect(await updateDetailsAmounts('G', 'A', 22, amounts, true)).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $set: { '2.years.0': { year: 22, amounts } } }));
+        it('update details for existing group, name, and year', async () => {
+            expect(await updateDetails('G', 'A', 22, { '': 1, m: 2, d: 3 })).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { '': 1, m: 2, d: 3 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).toHaveBeenCalledTimes(1);
+            expect(addUpdate).toHaveBeenCalledWith('G', 'A', 22, { '': 1, m: 2, d: 3 });
         });
 
-        it('updates details for different existing group, name and year', async () => {
-            expect(await updateDetailsAmounts('J', 'A', 22, amounts)).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $set: { '0.years.1': { year: 22, amounts } },
-                    $push: { '0.updates': { time, years: [{ year: 22, amounts }] } },
-                })
-            );
+        it('update details for existing group, name, and year without history', async () => {
+            expect(await updateDetails('G', 'A', 22, { '': 1, m: 2, d: 3 }, true)).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { '': 1, m: 2, d: 3 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).not.toHaveBeenCalled();
         });
 
-        it('updates details for existing group, name and year but without value', async () => {
-            expect(await updateDetailsAmounts('J', 'A', 21)).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $unset: '0.years',
-                    $push: { '0.updates': { time, years: [{ year: 21, amounts: [{ variant: 'p', amount: -2 }] }] } },
-                })
-            );
+        it('update details for empty group, existing name and year without value', async () => {
+            expect(await updateDetails('', 'A', 21)).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A' },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).toHaveBeenCalledTimes(1);
+            expect(addUpdate).toHaveBeenCalledWith('', 'A', 21, undefined);
         });
 
-        it('does not update details if no value and year missing', async () => {
-            expect(await updateDetailsAmounts('J', 'A', 22)).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
+        it('update details for empty group, existing name, and different year without value', async () => {
+            expect(await updateDetails('', 'A', 22)).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).toHaveBeenCalledTimes(1);
+            expect(addUpdate).toHaveBeenCalledWith('', 'A', 22, undefined);
         });
 
-        it('updates details for new group, existing name, and different year without value', async () => {
-            expect(await updateDetailsAmounts('H', 'A', 22)).toBeTrue();
-            expect(await getAllDetails()).toEqual([...details, { group: 'H', name: 'A' }]);
+        it('update details for existing group and name and different year without value', async () => {
+            expect(await updateDetails('G', 'A', 21)).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).toHaveBeenCalledTimes(1);
+            expect(addUpdate).toHaveBeenCalledWith('G', 'A', 21, undefined);
         });
 
-        it('updates details for existing group, name, and year without value', async () => {
-            expect(await updateDetailsAmounts('G', 'A', 22)).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $unset: '2.years',
-                    $push: { '2.updates': { time, years: [{ year: 22, amounts: [{ variant: 'd', amount: -1 }] }] } },
-                })
-            );
+        it('update details for new group, existing name, and different year without value', async () => {
+            expect(await updateDetails('H', 'A', 22)).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+                { group: 'H', name: 'A' },
+            ]);
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).toHaveBeenCalledTimes(1);
+            expect(addUpdate).toHaveBeenCalledWith('H', 'A', 22, undefined);
+        });
+
+        it('update details for existing group, name, and year without value', async () => {
+            expect(await updateDetails('G', 'A', 22)).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A' },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).toHaveBeenCalledTimes(1);
+            expect(addUpdate).toHaveBeenCalledWith('G', 'A', 22, undefined);
+        });
+
+        it('update details for empty group and existing name without year and value', async () => {
+            expect(await updateDetails('', 'A')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'B', 22: { '': 1 } },
+                { group: '', name: 'A' },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).not.toHaveBeenCalled();
+        });
+
+        it('update details for existing group and name without year and value', async () => {
+            expect(await updateDetails('G', 'A')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A' },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).not.toHaveBeenCalled();
+        });
+
+        it('update details for new group and existing name without year and value', async () => {
+            expect(await updateDetails('H', 'A')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+                { group: 'H', name: 'A' },
+            ]);
+            expect(addUpdates).not.toHaveBeenCalled();
+            expect(addUpdate).not.toHaveBeenCalled();
         });
     });
 
     describe('renameDetails', () => {
-        it('renames details', async () => {
+        it('rename details', async () => {
             expect(await renameDetails('G', 'A', 'Z')).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $set: { '2.name': 'Z' } }));
-        });
-
-        it('renames details for different group', async () => {
-            expect(await renameDetails('J', 'A', 'Z')).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $set: { '0.name': 'Z' } }));
-        });
-
-        it('does not rename if name not found', async () => {
-            expect(await renameDetails('G', 'B', 'Z')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does not rename if group not found', async () => {
-            expect(await renameDetails('H', 'A', 'Z')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does not rename if names are the same', async () => {
-            expect(await renameDetails('J', 'A', 'A')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does not rename if name already in use', async () => {
-            expect(await renameDetails('J', 'A', 'B')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-    });
-
-    describe('renameDetailsVariant', () => {
-        it('renames details variant', async () => {
-            expect(await renameDetailsVariant('G', 'd', '3/4')).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $set: {
-                        '2.years.0.amounts.0.variant': '3/4',
-                        '2.updates.0.years.0.amounts.0.variant': '3/4',
-                        '2.updates.1.years.0.amounts.0.variant': '3/4',
-                    },
-                })
-            );
-        });
-
-        it('renames details variant for different group', async () => {
-            expect(await renameDetailsVariant('J', 'p', '1/2')).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $set: {
-                        '0.years.0.amounts.0.variant': '1/2',
-                        '0.updates.0.years.0.amounts.0.variant': '1/2',
-                        '0.updates.0.years.1.amounts.0.variant': '1/2',
-                        '0.updates.1.years.0.amounts.0.variant': '1/2',
-                        '0.updates.1.years.1.amounts.0.variant': '1/2',
-                        '0.updates.2.years.0.amounts.0.variant': '1/2',
-                        '1.years.0.amounts.0.variant': '1/2',
-                        '1.updates.0.years.0.amounts.0.variant': '1/2',
-                        '1.updates.1.years.0.amounts.0.variant': '1/2',
-                    },
-                })
-            );
-        });
-
-        it('renames details variant on second year', async () => {
-            await updateDetailsAmounts('G', 'C', 22, [{ variant: 'p', amount: 1 }]);
-            expect(await renameDetailsVariant('G', 'p', '1/2')).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $set: { '3.years.0.amounts.0.variant': '1/2' },
-                    $push: {
-                        '3.years': { year: 22, amounts: [{ variant: '1/2', amount: 1 }] },
-                        '3.updates': { time, years: [{ year: 22, amounts: [{ variant: '1/2', amount: 1 }] }] },
-                    },
-                })
-            );
-        });
-
-        it('renames details second variant on first year', async () => {
-            await updateDetailsAmounts('G', 'C', 21, [
-                { variant: 'p', amount: 2 },
-                { variant: 'd', amount: 1 },
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+                { group: 'G', name: 'Z', 22: { d: 1 } },
             ]);
-            expect(await renameDetailsVariant('G', 'd', '3/4')).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $set: {
-                        '2.years.0.amounts.0.variant': '3/4',
-                        '2.updates.0.years.0.amounts.0.variant': '3/4',
-                        '2.updates.1.years.0.amounts.0.variant': '3/4',
-                    },
-                    $push: {
-                        '3.years.0.amounts': { variant: '3/4', amount: 1 },
-                        '3.updates': { time, years: [{ year: 21, amounts: [{ variant: '3/4', amount: 1 }] }] },
-                    },
-                })
-            );
         });
 
-        it('does not rename if name not found', async () => {
-            expect(await renameDetailsVariant('G', '0.5', '1/2')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
+        it('rename details for empty group', async () => {
+            expect(await renameDetails('', 'A', 'Z')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'B', 22: { '': 1 } },
+                { name: 'Z', 21: { '': 2 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
         });
 
-        it('does not rename if group not found', async () => {
-            expect(await renameDetailsVariant('H', 'p', '1/2')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
+        it('do not rename if name not found', async () => {
+            expect(await renameDetails('G', 'B', 'Z')).toBeFalse();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+        });
+
+        it('do not rename if group not found', async () => {
+            expect(await renameDetails('H', 'A', 'Z')).toBeFalse();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+        });
+
+        it('do not rename if names are the same', async () => {
+            expect(await renameDetails('', 'A', 'A')).toBeFalse();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
         });
     });
 
     describe('renameDetailsGroup', () => {
-        it('renames details group', async () => {
+        it('rename details group', async () => {
             expect(await renameDetailsGroup('G', 'H')).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $set: { '2.group': 'H', '3.group': 'H' } }));
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'H', name: 'A', 22: { d: 1 } },
+                { group: 'H', name: 'C', 21: { '': 2 } },
+            ]);
         });
 
-        it('renames different group', async () => {
-            expect(await renameDetailsGroup('J', 'H')).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $set: { '0.group': 'H', '1.group': 'H' } }));
+        it('rename empty group', async () => {
+            expect(await renameDetailsGroup('', 'H')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+                { group: 'H', name: 'A', 21: { '': 2 } },
+                { group: 'H', name: 'B', 22: { '': 1 } },
+            ]);
         });
 
-        it('does not rename if group not found', async () => {
+        it('do not rename if group not found', async () => {
             expect(await renameDetailsGroup('H', 'J')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
         });
 
-        it('does not rename if group is the same', async () => {
+        it('do not rename if group is the same', async () => {
             expect(await renameDetailsGroup('G', 'G')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+        });
+
+        it('do not rename if group is the same and empty', async () => {
+            expect(await renameDetailsGroup('', '')).toBeFalse();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+        });
+    });
+
+    describe('removeDetails', () => {
+        it('remove details', async () => {
+            expect(await removeDetails('G', 'A')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+        });
+
+        it('remove details from empty group', async () => {
+            expect(await removeDetails('', 'A')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+        });
+
+        it('do not remove if group not found', async () => {
+            expect(await removeDetails('H', 'A')).toBeFalse();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+        });
+
+        it('do not remove if name not found', async () => {
+            expect(await removeDetails('G', 'B')).toBeFalse();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+        });
+    });
+
+    describe('removeDetailsGroup', () => {
+        it('remove details by group', async () => {
+            expect(await removeDetailsGroup('G')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+            ]);
+        });
+
+        it('remove details by empty group', async () => {
+            expect(await removeDetailsGroup('')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
+        });
+
+        it('do not remove if group not found', async () => {
+            expect(await removeDetailsGroup('H')).toBeFalse();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
         });
     });
 
     describe('moveDetails', () => {
-        it('moves details', async () => {
+        it('move details', async () => {
             expect(await moveDetails('G', 'A', 'H')).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $set: { '2.group': 'H' } }));
-        });
-
-        it('moves details from different group', async () => {
-            expect(await moveDetails('J', 'A', 'H')).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $set: { '0.group': 'H' } }));
-        });
-
-        it('does not move if name not found', async () => {
-            expect(await moveDetails('G', 'B', 'H')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does not move if group not found', async () => {
-            expect(await moveDetails('H', 'A', 'J')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does not move if groups are the same', async () => {
-            expect(await moveDetails('G', 'A', 'G')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does not move if name already exists in target group', async () => {
-            expect(await moveDetails('J', 'A', 'G')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-    });
-
-    describe('deleteDetails', () => {
-        it('deletes details', async () => {
-            expect(await deleteDetails('G', 'A')).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $remove: 2 }));
-        });
-
-        it('deletes details from different group', async () => {
-            expect(await deleteDetails('J', 'A')).toBeTrue();
-            expect(await getAllDetails()).toEqual(details.slice(1));
-        });
-
-        it('does not delete if group not found', async () => {
-            expect(await deleteDetails('H', 'A')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does not delete if name not found', async () => {
-            expect(await deleteDetails('G', 'B')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-    });
-
-    describe('deleteDetailsVariant', () => {
-        it('deletes details variant', async () => {
-            expect(await deleteDetailsVariant('G', 'p')).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $unset: ['3.years', '3.updates'] }));
-        });
-
-        it('deletes details variant for different group', async () => {
-            expect(await deleteDetailsVariant('J', 'p')).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $unset: ['0.years', '0.updates', '1.years', '1.updates'] }));
-        });
-
-        it('deletes details variant for second year', async () => {
-            await updateDetailsAmounts('G', 'C', 22, [
-                { variant: 'm', amount: 2 },
-                { variant: 'd', amount: 1 },
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+                { group: 'H', name: 'A', 22: { d: 1 } },
             ]);
-            expect(await deleteDetailsVariant('G', 'd')).toBeTrue();
-            expect(await getAllDetails()).toEqual(
-                bulk(details, {
-                    $unset: ['2.years', '2.updates'],
-                    $push: {
-                        '3.years': { year: 22, amounts: [{ variant: 'm', amount: 2 }] },
-                        '3.updates': { time, years: [{ year: 22, amounts: [{ variant: 'm', amount: 2 }] }] },
-                    },
-                })
-            );
         });
 
-        it('does not delete if variant not found', async () => {
-            expect(await deleteDetailsVariant('G', '0.5')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
+        it('move details from empty group', async () => {
+            expect(await moveDetails('', 'A', 'H')).toBeTrue();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+                { group: 'H', name: 'A', 21: { '': 2 } },
+            ]);
         });
 
-        it('does not delete if group not found', async () => {
-            expect(await deleteDetailsVariant('H', 'p')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-    });
-
-    describe('deleteDetailsGroup', () => {
-        it('deletes details by group', async () => {
-            expect(await deleteDetailsGroup('G')).toBeTrue();
-            expect(await getAllDetails()).toEqual(details.slice(0, 2));
+        it('do not move if name not found', async () => {
+            expect(await moveDetails('G', 'B', 'H')).toBeFalse();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
         });
 
-        it('deletes details by different group', async () => {
-            expect(await deleteDetailsGroup('J')).toBeTrue();
-            expect(await getAllDetails()).toEqual(details.slice(2));
+        it('do not move if group not found', async () => {
+            expect(await moveDetails('H', 'A', 'J')).toBeFalse();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
         });
 
-        it('does not delete if group not found', async () => {
-            expect(await deleteDetailsGroup('H')).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-    });
-
-    describe('setRemoving', () => {
-        it('sets removing by group, name, and year', async () => {
-            expect(await setRemoving('G', 'A', 22, true)).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $set: { '2.years.0.removing': true } }));
+        it('do not move if groups are the same', async () => {
+            expect(await moveDetails('G', 'A', 'G')).toBeFalse();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
         });
 
-        it('sets removing by different group, name, and year', async () => {
-            expect(await setRemoving('J', 'B', 22, true)).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $set: { '1.years.0.removing': true } }));
-        });
-
-        it('sets not removing by group, name, and year', async () => {
-            expect(await setRemoving('G', 'C', 21, false)).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $unset: '3.years.0.removing' }));
-        });
-
-        it('does nothing if already removing', async () => {
-            expect(await setRemoving('G', 'C', 21, true)).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does nothing if already not removing', async () => {
-            expect(await setRemoving('J', 'A', 21, false)).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does nothing if year not found', async () => {
-            expect(await setRemoving('G', 'A', 21, true)).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does nothing if name not found', async () => {
-            expect(await setRemoving('G', 'Z', 22, true)).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does nothing if group not found', async () => {
-            expect(await setRemoving('H', 'A', 22, true)).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-    });
-
-    describe('setMissing', () => {
-        it('sets missing item', async () => {
-            expect(await setMissing('J', 'A', true)).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $set: { '0.missing': true } }));
-        });
-
-        it('unsets missing item', async () => {
-            expect(await setMissing('J', 'B', false)).toBeTrue();
-            expect(await getAllDetails()).toEqual(bulk(details, { $unset: '1.missing' }));
-        });
-
-        it('does nothing if already missing', async () => {
-            expect(await setMissing('J', 'B', true)).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does nothing if already not missing', async () => {
-            expect(await setMissing('J', 'A', false)).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does nothing if name not found', async () => {
-            expect(await setMissing('J', 'C', true)).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('does nothing if group not found', async () => {
-            expect(await setMissing('H', 'A', true)).toBeFalse();
-            expect(await getAllDetails()).toEqual(details);
+        it('do not move if name already exists in target group', async () => {
+            expect(await moveDetails('', 'A', 'G')).toBeFalse();
+            expect(await DETAILS.find({}, { _id: 0 }).sort({ group: 1, name: 1 })).toEqual([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 22: { '': 1 } },
+                { group: 'G', name: 'A', 22: { d: 1 } },
+                { group: 'G', name: 'C', 21: { '': 2 } },
+            ]);
         });
     });
 });

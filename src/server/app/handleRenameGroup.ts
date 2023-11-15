@@ -1,17 +1,20 @@
-import { type ApiRequest, type ApiResponse, type ApiDetails, type ApiRenameGroup } from '~/common/api';
-import { debugRequest } from '~/server/app/debug';
-import { headerNoCache, run } from '~/server/app/utils';
-import { renameGroupOccurrences } from '~/server/data/common';
-import { getYearsAndDetails } from '~/server/data/details';
+import { type Request, type Response } from 'express';
+import { debug } from '~/server/app/debug';
+import { getAllDetails } from '~/server/app/getAllDetails';
+import { renameGroup } from '~/server/data/common';
 
-export async function handleRenameGroup(req: ApiRequest<ApiRenameGroup>, res: ApiResponse<ApiDetails>): Promise<void> {
-    debugRequest(req);
-    headerNoCache(res);
+export async function handleRenameGroup(req: Request, res: Response): Promise<void> {
+    debug();
+    debug('POST /renameGroup');
+    debug(JSON.stringify(req.body, null, 2));
+
     const { group, newGroup } = req.body;
-    res.json(
-        await run(
-            () => renameGroupOccurrences(group, newGroup),
-            () => getYearsAndDetails()
-        )
-    );
+    const ok = await renameGroup(group, newGroup);
+    if (ok) {
+        await getAllDetails(req, res);
+        debug('OK');
+    } else {
+        res.json({ ok });
+        debug('FAIL');
+    }
 }

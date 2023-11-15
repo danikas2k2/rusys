@@ -1,17 +1,17 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { type ApiRenameDetails, ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { renameDetailsAction } from '~/state/details/actions';
+import { type Group, type Name } from '~/state/types';
 
-export function useRenameDetails(): (group: string, name: string, newName: string) => Promise<void> {
+export function useRenameDetails(): (group: Group, name: Name, newName: Name) => Promise<void> {
     const dispatch = useDispatch();
-    const request = useUpdatingApiRequest<ApiRenameDetails>();
+    const request = useUpdatingApiRequest();
     return useCallback(
-        async (group: string, name: string, newName: string): Promise<void> => {
-            if (group && name && newName && name !== newName) {
+        async (group: Group, name: Name, newName: Name): Promise<void> => {
+            if (newName && name !== newName) {
                 dispatch(renameDetailsAction(group, name, newName));
-                return request(ApiUrl.DetailsRename, { group, name, newName });
+                return request('/rename', { group, name, newName });
             }
         },
         [request, dispatch]

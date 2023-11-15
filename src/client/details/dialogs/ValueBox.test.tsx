@@ -1,46 +1,36 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { ValueBox, type ValueBoxProps } from '~/client/details/dialogs/ValueBox';
-import { ValueInput } from '~/client/details/dialogs/ValueInput';
-import { type VariantAmount } from '~/common/types';
-import { type WithVariantsState } from '~/state/variants/types';
-import { getVariantsFixture } from '~/tests/fixtures';
+import ValueBox from '~/client/details/dialogs/ValueBox';
+import ValueInput from '~/client/details/dialogs/ValueInput';
+import { type Amount, Variant } from '~/state/details/types';
 import { withReduxState } from '~/tests/withReduxState';
 
-const mockValueInput = jest.spyOn<any, string>(ValueInput, 'render');
+// const mockValueInput = jest.fn();
+const mockValueInput = jest.spyOn<any, string>(ValueInput.type, 'render'); /*.mockImplementation(mockValueInput)*/
 
 describe('ValueBox', () => {
     beforeEach(() => jest.clearAllMocks());
 
-    const props: ValueBoxProps = {
-        group: 'G',
-        name: 'A',
-        year: 21,
+    const value: Amount = {
+        [Variant.PUSLITRIS]: 1,
+        [Variant.MAZESNIS]: 2,
+        [Variant.DIDESNIS]: 3,
     };
-    const amounts: VariantAmount[] = [
-        { variant: 'p', amount: 1 },
-        { variant: 'm', amount: 2 },
-        { variant: 'd', amount: 3 },
-    ];
-
-    const variants = getVariantsFixture();
-    const allVariants = variants.filter((v) => v.group === props.group).map((v) => v.variant);
-
-    const state: WithVariantsState = { variants };
 
     it('renders on the document', () => {
-        render(<ValueBox group="Uogienės" name="Braškės" year={23} amounts={amounts} />, withReduxState(state));
+        render(<ValueBox group="Uogienės" name="Braškės" year={23} value={value} />, withReduxState());
 
         expect(screen.getByRole('dialog')).toBeInTheDocument();
         expect(screen.getByText('Uogienės')).toBeInTheDocument();
         expect(screen.getByText('Braškės')).toBeInTheDocument();
         expect(screen.getByText('23')).toBeInTheDocument();
 
-        expect(mockValueInput).toHaveBeenCalledTimes(amounts.length);
-        for (const { variant, amount: initialAmount } of amounts) {
+        const values = Object.entries(value);
+        expect(mockValueInput).toHaveBeenCalledTimes(values.length);
+        for (const [variant, prevValue] of values) {
             expect(mockValueInput).toHaveBeenCalledWith(
-                expect.objectContaining({ variant, initialAmount, focus: variant === amounts[0].variant }),
+                expect.objectContaining({ variant, prevValue, focus: !variant }),
                 expect.objectContaining({ current: null })
             );
         }
@@ -48,14 +38,14 @@ describe('ValueBox', () => {
 
     it('calls onClose when dialog is closed', async () => {
         const onClose = jest.fn();
-        render(<ValueBox {...props} onClose={onClose} amounts={amounts} />, withReduxState(state));
+        render(<ValueBox onClose={onClose} value={value} />, withReduxState());
         await userEvent.click(screen.getByLabelText('Close'));
-        expect(onClose).toHaveBeenCalledWith(amounts, false);
+        expect(onClose).toHaveBeenCalledWith(value, false);
     });
 
     it('calls onClose when dialog is closed after `Items removed` clicked', async () => {
         const onClose = jest.fn();
-        render(<ValueBox {...props} onClose={onClose} amounts={amounts} />, withReduxState(state));
+        render(<ValueBox onClose={onClose} value={value} />, withReduxState());
 
         const removed = screen.getByRole('radio', { name: 'Items removed' });
         expect(removed).not.toBeChecked();
@@ -64,12 +54,12 @@ describe('ValueBox', () => {
         expect(removed).toBeChecked();
 
         await userEvent.click(screen.getByLabelText('Close'));
-        expect(onClose).toHaveBeenCalledWith(amounts, true);
+        expect(onClose).toHaveBeenCalledWith(value, true);
     });
 
     it('calls onClose when dialog is closed after `Items used` clicked', async () => {
         const onClose = jest.fn();
-        render(<ValueBox {...props} onClose={onClose} amounts={amounts} />, withReduxState(state));
+        render(<ValueBox onClose={onClose} value={value} />, withReduxState());
 
         const used = screen.getByRole('radio', { name: 'Items used' });
         expect(used).toBeChecked();
@@ -81,11 +71,23 @@ describe('ValueBox', () => {
         expect(used).toBeChecked();
 
         await userEvent.click(screen.getByLabelText('Close'));
-        expect(onClose).toHaveBeenCalledWith(amounts, false);
+        expect(onClose).toHaveBeenCalledWith(value, false);
     });
 
+    const allVariants = [
+        Variant.PUSLITRIS,
+        Variant.DIDESNIS,
+        Variant.MAZESNIS,
+        Variant.EGLYTES,
+        Variant.LITRAS,
+        Variant.PUSANTRO,
+        Variant.DVILITRIS,
+        Variant.TRILITRIS,
+        Variant.BLOGAS,
+    ];
+
     it('renders all variants when expand pressed', async () => {
-        render(<ValueBox {...props} amounts={amounts} />, withReduxState(state));
+        render(<ValueBox value={value} />, withReduxState());
 
         expect(screen.getByRole('dialog')).not.toHaveClass('fullScreen');
         mockValueInput.mockClear();
@@ -97,24 +99,20 @@ describe('ValueBox', () => {
         expect(mockValueInput).toHaveBeenCalledTimes(allVariants.length);
         for (const variant of allVariants) {
             expect(mockValueInput).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    variant,
-                    initialAmount: amounts.find((v) => v.variant === variant)?.amount,
-                    focus: !allVariants.indexOf(variant),
-                }),
+                expect.objectContaining({ variant, prevValue: value[variant], focus: !variant }),
                 expect.objectContaining({ current: expect.any(Object) })
             );
         }
     });
 
     it('ensure all changed values are preserved after expansion', async () => {
-        render(<ValueBox {...props} amounts={amounts} />, withReduxState(state));
+        render(<ValueBox value={value} />, withReduxState());
 
-        await userEvent.type(screen.getByLabelText('p'), '2', {
+        await userEvent.type(screen.getByLabelText(''), '2', {
             initialSelectionStart: 0,
             initialSelectionEnd: 10,
         });
-        expect(screen.getByLabelText('p')).toHaveValue('2');
+        expect(screen.getByLabelText('')).toHaveValue('2');
 
         await userEvent.type(screen.getByLabelText('d'), '4', {
             initialSelectionStart: 0,
@@ -130,13 +128,13 @@ describe('ValueBox', () => {
 
         await userEvent.click(screen.getByLabelText('Expand'));
 
-        expect(screen.getByLabelText('p')).toHaveValue('2');
+        expect(screen.getByLabelText('')).toHaveValue('2');
         expect(screen.getByLabelText('d')).toHaveValue('4');
         expect(screen.getByLabelText('m')).toHaveValue('6');
     });
 
     it('ensure focused item is still focused after expansion', async () => {
-        render(<ValueBox {...props} amounts={amounts} />, withReduxState(state));
+        render(<ValueBox value={value} />, withReduxState());
 
         await userEvent.click(screen.getByLabelText('m'));
         expect(screen.getByLabelText('m')).toHaveFocus();
@@ -147,25 +145,40 @@ describe('ValueBox', () => {
     });
 
     it('expand by default if value contains all available variants', async () => {
-        render(<ValueBox {...props} amounts={allVariants.map((variant) => ({ variant, amount: 1 }))} />, withReduxState(state));
+        render(
+            <ValueBox
+                value={{
+                    [Variant.PUSLITRIS]: 1,
+                    [Variant.MAZESNIS]: 2,
+                    [Variant.DIDESNIS]: 3,
+                    [Variant.EGLYTES]: 4,
+                    [Variant.LITRAS]: 5,
+                    [Variant.PUSANTRO]: 6,
+                    [Variant.DVILITRIS]: 7,
+                    [Variant.TRILITRIS]: 8,
+                    [Variant.BLOGAS]: 9,
+                }}
+            />,
+            withReduxState()
+        );
 
         expect(screen.queryByRole('button', { name: 'Expand' })).not.toBeInTheDocument();
         expect(screen.getByRole('dialog')).toHaveClass('fullScreen');
     });
 
     it('ensure negative values not to be stored', async () => {
-        render(<ValueBox {...props} amounts={amounts} />, withReduxState(state));
+        render(<ValueBox value={value} />, withReduxState());
 
-        await userEvent.type(screen.getByLabelText('p'), '0', {
+        await userEvent.type(screen.getByLabelText(''), '-2', {
             initialSelectionStart: 0,
             initialSelectionEnd: 10,
         });
-        expect(screen.getByLabelText('p')).toHaveValue('0');
+        expect(screen.getByLabelText('')).toHaveValue('0');
 
         await userEvent.click(screen.getByRole('spinbutton', { name: 'Decrease', current: true }));
-        expect(screen.getByLabelText('p')).toHaveValue('0');
+        expect(screen.getByLabelText('')).toHaveValue('0');
 
         await userEvent.type(screen.getByRole('spinbutton', { name: 'Increase', current: true }), '{ArrowDown}');
-        expect(screen.getByLabelText('p')).toHaveValue('0');
+        expect(screen.getByLabelText('')).toHaveValue('0');
     });
 });

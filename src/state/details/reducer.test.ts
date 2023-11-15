@@ -1,751 +1,563 @@
-import { cloneDeep, merge, set } from 'lodash';
 import { type DetailsAction, DetailsActionType } from '~/state/details/actions';
-import { details as reducer } from '~/state/details/reducer';
-import { GroupsActionType } from '~/state/groups/actions';
-import { getDetailsFixture } from '~/tests/fixtures';
+import reducer from '~/state/details/reducer';
+import { type AmountSet } from '~/state/details/types';
 
 describe('details', () => {
-    const details = getDetailsFixture();
+    const state: AmountSet = {
+        '': {
+            A: { 21: { '': 2 } },
+            B: { 22: { '': 1 } },
+        },
+        G: {
+            A: { 22: { d: 1 } },
+            C: { 21: { '': 2 } },
+        },
+    };
 
     describe('default', () => {
         const unknownAction = { type: 'unknown' as DetailsActionType } as DetailsAction;
 
         it('leave set unchanged', () => {
-            expect(reducer(details, unknownAction)).toEqual(details);
+            expect(reducer(state, unknownAction)).toEqual(state);
         });
 
         it('leave empty set unchanged', () => {
-            expect(reducer([], unknownAction)).toEqual([]);
+            expect(reducer({}, unknownAction)).toEqual({});
         });
 
         it('return default state for undefined', () => {
-            expect(reducer(undefined, unknownAction)).toEqual([]);
+            expect(reducer(undefined, unknownAction)).toEqual({});
         });
     });
 
     describe('set', () => {
-        it('updates empty state', () => {
+        it('update empty state', () => {
             expect(
-                reducer([], {
-                    type: DetailsActionType.SET,
-                    details,
-                })
-            ).toEqual(details);
+                reducer(
+                    {},
+                    {
+                        type: DetailsActionType.SET,
+                        details: state,
+                    }
+                )
+            ).toEqual(state);
         });
 
-        it('updates empty state with empty set', () => {
+        it('update empty state with empty set', () => {
             expect(
-                reducer([], {
-                    type: DetailsActionType.SET,
-                    details: [],
-                })
-            ).toEqual([]);
+                reducer(
+                    {},
+                    {
+                        type: DetailsActionType.SET,
+                        details: {},
+                    }
+                )
+            ).toEqual({});
         });
 
-        it('updates filled state', () => {
+        it('update filled state', () => {
             expect(
-                reducer([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }], {
-                    type: DetailsActionType.SET,
-                    details,
-                })
-            ).toEqual(details);
+                reducer(
+                    { G: { A: { 21: { '': 1 } } } },
+                    {
+                        type: DetailsActionType.SET,
+                        details: state,
+                    }
+                )
+            ).toEqual(state);
         });
 
-        it('updates undefined state', () => {
+        it('update undefined state', () => {
             expect(
                 reducer(undefined, {
                     type: DetailsActionType.SET,
-                    details,
+                    details: state,
                 })
-            ).toEqual(details);
+            ).toEqual(state);
         });
     });
 
-    describe('set years', () => {
-        it('updates empty state', () => {
-            expect(
-                reducer([], {
-                    type: DetailsActionType.SET_YEARS,
-                    group: 'G',
-                    name: 'A',
-                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }],
-                })
-            ).toEqual([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }]);
-        });
-
-        it('updates empty state using empty value', () => {
-            expect(
-                reducer([], {
-                    type: DetailsActionType.SET_YEARS,
-                    group: 'G',
-                    name: 'A',
-                    years: [],
-                })
-            ).toEqual([{ group: 'G', name: 'A' }]);
-        });
-
-        it('updates empty state using no value', () => {
-            expect(
-                reducer([], {
-                    type: DetailsActionType.SET_YEARS,
-                    group: 'G',
-                    name: 'A',
-                })
-            ).toEqual([{ group: 'G', name: 'A' }]);
-        });
-
-        it('updates filled state', () => {
-            expect(
-                reducer([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }], {
-                    type: DetailsActionType.SET_YEARS,
-                    group: 'G',
-                    name: 'A',
-                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }],
-                })
-            ).toEqual([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }] }]);
-        });
-
-        it('updates filled state using different variant', () => {
-            expect(
-                reducer([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }], {
-                    type: DetailsActionType.SET_YEARS,
-                    group: 'G',
-                    name: 'A',
-                    years: [{ year: 21, amounts: [{ variant: 'd', amount: 1 }] }],
-                })
-            ).toEqual([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'd', amount: 1 }] }] }]);
-        });
-
-        it('updates filled state using different year', () => {
-            expect(
-                reducer([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }], {
-                    type: DetailsActionType.SET_YEARS,
-                    group: 'G',
-                    name: 'A',
-                    years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }],
-                })
-            ).toEqual([
-                {
-                    group: 'G',
-                    name: 'A',
-                    years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }],
-                },
-            ]);
-        });
-
-        it('updates filled state using different name', () => {
-            expect(
-                reducer([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }], {
-                    type: DetailsActionType.SET_YEARS,
-                    group: 'G',
-                    name: 'B',
-                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }],
-                })
-            ).toEqual([
-                { group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] },
-                { group: 'G', name: 'B', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] },
-            ]);
-        });
-
-        it('updates filled state using different group', () => {
-            expect(
-                reducer([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }], {
-                    type: DetailsActionType.SET_YEARS,
-                    group: 'H',
-                    name: 'A',
-                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }],
-                })
-            ).toEqual([
-                { group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] },
-                { group: 'H', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] },
-            ]);
-        });
-
-        it('updates filled state using blank value', () => {
+    describe('update', () => {
+        it('update empty state', () => {
             expect(
                 reducer(
-                    [
-                        {
-                            group: 'G',
-                            name: 'A',
-                            years: [
-                                { year: 21, amounts: [{ variant: 'p', amount: 1 }] },
-                                { year: 22, amounts: [{ variant: 'p', amount: 1 }] },
-                            ],
-                        },
-                    ],
+                    {},
                     {
-                        type: DetailsActionType.SET_YEARS,
+                        type: DetailsActionType.UPDATE,
                         group: 'G',
                         name: 'A',
-                        years: [],
+                        year: 21,
+                        value: { '': 1 },
                     }
                 )
-            ).toEqual([{ group: 'G', name: 'A' }]);
+            ).toEqual({ G: { A: { 21: { '': 1 } } } });
         });
 
-        it('updates filled state using no value', () => {
+        it('update empty state using no value', () => {
             expect(
                 reducer(
-                    [
-                        {
-                            group: 'G',
-                            name: 'A',
-                            years: [
-                                { year: 21, amounts: [{ variant: 'p', amount: 1 }] },
-                                { year: 22, amounts: [{ variant: 'p', amount: 1 }] },
-                            ],
-                        },
-                    ],
+                    {},
                     {
-                        type: DetailsActionType.SET_YEARS,
-                        group: 'G',
-                        name: 'A',
-                    }
-                )
-            ).toEqual([{ group: 'G', name: 'A' }]);
-        });
-
-        it('updates undefined state', () => {
-            expect(
-                reducer(undefined, {
-                    type: DetailsActionType.SET_YEARS,
-                    group: 'G',
-                    name: 'A',
-                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }],
-                })
-            ).toEqual([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }]);
-        });
-    });
-
-    describe('set amounts', () => {
-        it('updates empty state', () => {
-            expect(
-                reducer([], {
-                    type: DetailsActionType.SET_AMOUNTS,
-                    group: 'G',
-                    name: 'A',
-                    year: 21,
-                    amounts: [{ variant: 'p', amount: 1 }],
-                })
-            ).toEqual([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }]);
-        });
-
-        it('updates empty state using no value', () => {
-            expect(
-                reducer([], {
-                    type: DetailsActionType.SET_AMOUNTS,
-                    group: 'G',
-                    name: 'A',
-                    year: 21,
-                })
-            ).toEqual([{ group: 'G', name: 'A' }]);
-        });
-
-        it('updates filled state', () => {
-            expect(
-                reducer([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }], {
-                    type: DetailsActionType.SET_AMOUNTS,
-                    group: 'G',
-                    name: 'A',
-                    year: 21,
-                    amounts: [{ variant: 'p', amount: 2 }],
-                })
-            ).toEqual([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }] }]);
-        });
-
-        it('updates filled state using different variant', () => {
-            expect(
-                reducer([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }], {
-                    type: DetailsActionType.SET_AMOUNTS,
-                    group: 'G',
-                    name: 'A',
-                    year: 21,
-                    amounts: [{ variant: 'd', amount: 1 }],
-                })
-            ).toEqual([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'd', amount: 1 }] }] }]);
-        });
-
-        it('updates filled state using different year', () => {
-            expect(
-                reducer([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }], {
-                    type: DetailsActionType.SET_AMOUNTS,
-                    group: 'G',
-                    name: 'A',
-                    year: 22,
-                    amounts: [{ variant: 'p', amount: 1 }],
-                })
-            ).toEqual([
-                {
-                    group: 'G',
-                    name: 'A',
-                    years: [
-                        { year: 21, amounts: [{ variant: 'p', amount: 1 }] },
-                        { year: 22, amounts: [{ variant: 'p', amount: 1 }] },
-                    ],
-                },
-            ]);
-        });
-
-        it('updates filled state using different name', () => {
-            expect(
-                reducer([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }], {
-                    type: DetailsActionType.SET_AMOUNTS,
-                    group: 'G',
-                    name: 'B',
-                    year: 21,
-                    amounts: [{ variant: 'p', amount: 1 }],
-                })
-            ).toEqual([
-                { group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] },
-                { group: 'G', name: 'B', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] },
-            ]);
-        });
-
-        it('updates filled state using different group', () => {
-            expect(
-                reducer([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }], {
-                    type: DetailsActionType.SET_AMOUNTS,
-                    group: 'H',
-                    name: 'A',
-                    year: 21,
-                    amounts: [{ variant: 'p', amount: 1 }],
-                })
-            ).toEqual([
-                { group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] },
-                { group: 'H', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] },
-            ]);
-        });
-
-        it('updates filled state using no value', () => {
-            expect(
-                reducer(
-                    [
-                        {
-                            group: 'G',
-                            name: 'A',
-                            years: [
-                                { year: 21, amounts: [{ variant: 'p', amount: 1 }] },
-                                { year: 22, amounts: [{ variant: 'p', amount: 1 }] },
-                            ],
-                        },
-                    ],
-                    {
-                        type: DetailsActionType.SET_AMOUNTS,
+                        type: DetailsActionType.UPDATE,
                         group: 'G',
                         name: 'A',
                         year: 21,
                     }
                 )
-            ).toEqual([{ group: 'G', name: 'A', years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }] }]);
+            ).toEqual({ G: { A: {} } });
         });
 
-        it('updates filled state using no value and different year', () => {
+        it('update empty state using no year and value', () => {
             expect(
                 reducer(
-                    [
-                        {
-                            group: 'G',
-                            name: 'A',
-                            years: [
-                                { year: 21, amounts: [{ variant: 'p', amount: 1 }] },
-                                { year: 22, amounts: [{ variant: 'p', amount: 1 }] },
-                            ],
-                        },
-                    ],
+                    {},
                     {
-                        type: DetailsActionType.SET_AMOUNTS,
+                        type: DetailsActionType.UPDATE,
+                        group: 'G',
+                        name: 'A',
+                    }
+                )
+            ).toEqual({ G: { A: {} } });
+        });
+
+        it('update filled state', () => {
+            expect(
+                reducer(
+                    { G: { A: { 21: { '': 1 } } } },
+                    {
+                        type: DetailsActionType.UPDATE,
+                        group: 'G',
+                        name: 'A',
+                        year: 21,
+                        value: { '': 2 },
+                    }
+                )
+            ).toEqual({ G: { A: { 21: { '': 2 } } } });
+        });
+
+        it('update filled state using different variant', () => {
+            expect(
+                reducer(
+                    { G: { A: { 21: { '': 1 } } } },
+                    {
+                        type: DetailsActionType.UPDATE,
+                        group: 'G',
+                        name: 'A',
+                        year: 21,
+                        value: { d: 1 },
+                    }
+                )
+            ).toEqual({ G: { A: { 21: { d: 1 } } } });
+        });
+
+        it('update filled state using different year', () => {
+            expect(
+                reducer(
+                    { G: { A: { 21: { '': 1 } } } },
+                    {
+                        type: DetailsActionType.UPDATE,
+                        group: 'G',
+                        name: 'A',
+                        year: 22,
+                        value: { '': 1 },
+                    }
+                )
+            ).toEqual({ G: { A: { 21: { '': 1 }, 22: { '': 1 } } } });
+        });
+
+        it('update filled state using different name', () => {
+            expect(
+                reducer(
+                    { G: { A: { 21: { '': 1 } } } },
+                    {
+                        type: DetailsActionType.UPDATE,
+                        group: 'G',
+                        name: 'B',
+                        year: 21,
+                        value: { '': 1 },
+                    }
+                )
+            ).toEqual({ G: { A: { 21: { '': 1 } }, B: { 21: { '': 1 } } } });
+        });
+
+        it('update filled state using different group', () => {
+            expect(
+                reducer(
+                    { G: { A: { 21: { '': 1 } } } },
+                    {
+                        type: DetailsActionType.UPDATE,
+                        group: 'H',
+                        name: 'A',
+                        year: 21,
+                        value: { '': 1 },
+                    }
+                )
+            ).toEqual({ G: { A: { 21: { '': 1 } } }, H: { A: { 21: { '': 1 } } } });
+        });
+
+        it('update filled state using no value', () => {
+            expect(
+                reducer(
+                    { G: { A: { 21: { '': 1 }, 22: { '': 1 } } } },
+                    {
+                        type: DetailsActionType.UPDATE,
+                        group: 'G',
+                        name: 'A',
+                        year: 21,
+                    }
+                )
+            ).toEqual({ G: { A: { 22: { '': 1 } } } });
+        });
+
+        it('update filled state using no value and different year', () => {
+            expect(
+                reducer(
+                    { G: { A: { 21: { '': 1 }, 22: { '': 1 } } } },
+                    {
+                        type: DetailsActionType.UPDATE,
                         group: 'G',
                         name: 'A',
                         year: 22,
                     }
                 )
-            ).toEqual([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }]);
+            ).toEqual({ G: { A: { 21: { '': 1 } } } });
         });
 
-        it('updates undefined state', () => {
+        it('update filled state using no year and value', () => {
+            expect(
+                reducer(
+                    { G: { A: { 21: { '': 1 }, 22: { '': 1 } } } },
+                    {
+                        type: DetailsActionType.UPDATE,
+                        group: 'G',
+                        name: 'A',
+                    }
+                )
+            ).toEqual({ G: { A: { 21: { '': 1 }, 22: { '': 1 } } } });
+        });
+
+        it('update undefined state', () => {
             expect(
                 reducer(undefined, {
-                    type: DetailsActionType.SET_AMOUNTS,
+                    type: DetailsActionType.UPDATE,
                     group: 'G',
                     name: 'A',
                     year: 21,
-                    amounts: [{ variant: 'p', amount: 1 }],
+                    value: { '': 1 },
                 })
-            ).toEqual([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }]);
-        });
-    });
-
-    describe('set removing', () => {
-        it('does not update empty state', () => {
-            expect(
-                reducer([], {
-                    type: DetailsActionType.SET_REMOVING,
-                    group: 'G',
-                    name: 'A',
-                    year: 21,
-                    removing: true,
-                })
-            ).toEqual([]);
-        });
-
-        it('updates filled state', () => {
-            expect(
-                reducer(details, {
-                    type: DetailsActionType.SET_REMOVING,
-                    group: 'G',
-                    name: 'A',
-                    year: 22,
-                    removing: true,
-                })
-            ).toEqual(set(cloneDeep(details), '[2].years[0].removing', true));
-        });
-
-        it('updates filled state with false', () => {
-            expect(
-                reducer(details, {
-                    type: DetailsActionType.SET_REMOVING,
-                    group: 'G',
-                    name: 'C',
-                    year: 21,
-                    removing: false,
-                })
-            ).toEqual(set(cloneDeep(details), '[3].years[0].removing', undefined));
-        });
-
-        it('does not update filled state using missing year', () => {
-            expect(
-                reducer(details, {
-                    type: DetailsActionType.SET_REMOVING,
-                    group: 'G',
-                    name: 'A',
-                    year: 23,
-                    removing: true,
-                })
-            ).toEqual(details);
-        });
-
-        it('does not update filled state using missing name', () => {
-            expect(
-                reducer(details, {
-                    type: DetailsActionType.SET_REMOVING,
-                    group: 'G',
-                    name: 'B',
-                    year: 21,
-                    removing: true,
-                })
-            ).toEqual(details);
-        });
-
-        it('does not update filled state using missing group', () => {
-            expect(
-                reducer(details, {
-                    type: DetailsActionType.SET_REMOVING,
-                    group: 'H',
-                    name: 'A',
-                    year: 21,
-                    removing: true,
-                })
-            ).toEqual(details);
-        });
-
-        it('does not update undefined state', () => {
-            expect(
-                reducer(undefined, {
-                    type: DetailsActionType.SET_REMOVING,
-                    group: 'G',
-                    name: 'A',
-                    year: 21,
-                    removing: true,
-                })
-            ).toEqual([]);
-        });
-    });
-
-    describe('set missing', () => {
-        it('does not update empty state', () => {
-            expect(
-                reducer([], {
-                    type: DetailsActionType.SET_MISSING,
-                    group: 'G',
-                    name: 'A',
-                    missing: true,
-                })
-            ).toEqual([]);
-        });
-
-        it('updates filled state', () => {
-            expect(
-                reducer(details, {
-                    type: DetailsActionType.SET_MISSING,
-                    group: 'G',
-                    name: 'A',
-                    missing: true,
-                })
-            ).toEqual(set(cloneDeep(details), '[2].missing', true));
-        });
-
-        it('updates filled state using false', () => {
-            expect(
-                reducer(details, {
-                    type: DetailsActionType.SET_MISSING,
-                    group: 'J',
-                    name: 'B',
-                    missing: false,
-                })
-            ).toEqual(set(cloneDeep(details), '[1].missing', undefined));
-        });
-
-        it('does not update filled state using missing name', () => {
-            expect(
-                reducer(details, {
-                    type: DetailsActionType.SET_MISSING,
-                    group: 'G',
-                    name: 'B',
-                    missing: true,
-                })
-            ).toEqual(details);
-        });
-
-        it('does not update filled state using missing group', () => {
-            expect(
-                reducer(details, {
-                    type: DetailsActionType.SET_MISSING,
-                    group: 'H',
-                    name: 'A',
-                    missing: true,
-                })
-            ).toEqual(details);
-        });
-
-        it('does not update undefined state', () => {
-            expect(
-                reducer(undefined, {
-                    type: DetailsActionType.SET_MISSING,
-                    group: 'G',
-                    name: 'A',
-                    missing: true,
-                })
-            ).toEqual([]);
+            ).toEqual({ G: { A: { 21: { '': 1 } } } });
         });
     });
 
     describe('rename', () => {
-        it('updates existing name', () => {
+        it('return updated state', () => {
             expect(
-                reducer(details, {
+                reducer(state, {
                     type: DetailsActionType.RENAME,
                     group: 'G',
                     name: 'A',
                     newName: 'B',
                 })
-            ).toEqual(set(cloneDeep(details), '[2].name', 'B'));
+            ).toEqual({
+                '': {
+                    A: { 21: { '': 2 } },
+                    B: { 22: { '': 1 } },
+                },
+                G: {
+                    B: { 22: { d: 1 } },
+                    C: { 21: { '': 2 } },
+                },
+            });
         });
 
-        it('does not update if target name already exists', () => {
+        it('return updated state if target name already exists', () => {
             expect(
-                reducer(details, {
+                reducer(state, {
                     type: DetailsActionType.RENAME,
                     group: 'G',
                     name: 'A',
                     newName: 'C',
                 })
-            ).toEqual(details);
+            ).toEqual({
+                '': {
+                    A: { 21: { '': 2 } },
+                    B: { 22: { '': 1 } },
+                },
+                G: {
+                    C: { 21: { '': 2 }, 22: { d: 1 } },
+                },
+            });
         });
 
-        it('does not update if same name', () => {
+        it('leave set unchanged if same name', () => {
             expect(
-                reducer(details, {
+                reducer(state, {
                     type: DetailsActionType.RENAME,
                     group: 'G',
                     name: 'A',
                     newName: 'A',
                 })
-            ).toEqual(details);
+            ).toEqual(state);
         });
 
-        it('does not update if name not found', () => {
+        it('leave set unchanged if name not found', () => {
             expect(
-                reducer(details, {
+                reducer(state, {
                     type: DetailsActionType.RENAME,
                     group: 'G',
                     name: 'B',
                     newName: 'D',
                 })
-            ).toEqual(details);
+            ).toEqual(state);
         });
 
-        it('does not update if group not found', () => {
+        it('leave set unchanged if group not found', () => {
             expect(
-                reducer(details, {
+                reducer(state, {
                     type: DetailsActionType.RENAME,
                     group: 'H',
                     name: 'A',
                     newName: 'B',
                 })
-            ).toEqual(details);
+            ).toEqual(state);
         });
     });
 
     describe('rename group', () => {
-        it('renames existing group', () => {
+        it('return updated state', () => {
             expect(
-                reducer(details, {
-                    type: GroupsActionType.RENAME,
+                reducer(state, {
+                    type: DetailsActionType.RENAME_GROUP,
                     group: 'G',
                     newGroup: 'H',
                 })
-            ).toEqual(merge([], details, set({}, '[2].group', 'H'), set({}, '[3].group', 'H')));
+            ).toEqual({
+                '': {
+                    A: { 21: { '': 2 } },
+                    B: { 22: { '': 1 } },
+                },
+                H: {
+                    A: { 22: { d: 1 } },
+                    C: { 21: { '': 2 } },
+                },
+            });
         });
 
-        it('does not rename if target group already exists', () => {
+        it('return updated state if target group already exists', () => {
             expect(
-                reducer(details, {
-                    type: GroupsActionType.RENAME,
+                reducer(state, {
+                    type: DetailsActionType.RENAME_GROUP,
                     group: 'G',
-                    newGroup: 'J',
+                    newGroup: '',
                 })
-            ).toEqual(details);
+            ).toEqual({
+                '': {
+                    A: { 21: { '': 2 }, 22: { d: 1 } },
+                    B: { 22: { '': 1 } },
+                    C: { 21: { '': 2 } },
+                },
+            });
         });
 
-        it('does not rename if same group', () => {
+        it('leave set unchanged if same group', () => {
             expect(
-                reducer(details, {
-                    type: GroupsActionType.RENAME,
+                reducer(state, {
+                    type: DetailsActionType.RENAME_GROUP,
                     group: 'G',
                     newGroup: 'G',
                 })
-            ).toEqual(details);
+            ).toEqual(state);
         });
 
-        it('does not rename if group not found', () => {
+        it('leave set unchanged if group not found', () => {
             expect(
-                reducer(details, {
-                    type: GroupsActionType.RENAME,
+                reducer(state, {
+                    type: DetailsActionType.RENAME_GROUP,
                     group: 'H',
                     newGroup: 'G',
                 })
-            ).toEqual(details);
+            ).toEqual(state);
         });
     });
 
-    describe('delete', () => {
-        it('deletes existing name', () => {
+    describe('remove', () => {
+        it('return updated state', () => {
             expect(
-                reducer(details, {
-                    type: DetailsActionType.DELETE,
+                reducer(state, {
+                    type: DetailsActionType.REMOVE,
                     group: 'G',
                     name: 'A',
                 })
-            ).toEqual([...details.slice(0, 2), ...details.slice(3)]);
+            ).toEqual({
+                '': {
+                    A: { 21: { '': 2 } },
+                    B: { 22: { '': 1 } },
+                },
+                G: {
+                    C: { 21: { '': 2 } },
+                },
+            });
         });
 
-        it('does not delete if name not found', () => {
+        it('leave set unchanged if name not found', () => {
             expect(
-                reducer(details, {
-                    type: DetailsActionType.DELETE,
+                reducer(state, {
+                    type: DetailsActionType.REMOVE,
                     group: 'G',
                     name: 'B',
                 })
-            ).toEqual(details);
+            ).toEqual(state);
         });
 
-        it('does not delete if group not found', () => {
+        it('leave set unchanged if group not found', () => {
             expect(
-                reducer(details, {
-                    type: DetailsActionType.DELETE,
+                reducer(state, {
+                    type: DetailsActionType.REMOVE,
                     group: 'H',
                     name: 'A',
                 })
-            ).toEqual(details);
+            ).toEqual(state);
         });
     });
 
-    describe('delete group', () => {
-        it('deletes existing group', () => {
+    describe('remove group', () => {
+        it('return updated state', () => {
             expect(
-                reducer(details, {
-                    type: GroupsActionType.DELETE,
+                reducer(state, {
+                    type: DetailsActionType.REMOVE_GROUP,
                     group: 'G',
                 })
-            ).toEqual(details.slice(0, 2));
+            ).toEqual({
+                '': {
+                    A: { 21: { '': 2 } },
+                    B: { 22: { '': 1 } },
+                },
+            });
         });
 
-        it('does not delete if group not found', () => {
+        it('leave set unchanged if group not found', () => {
             expect(
-                reducer(details, {
-                    type: GroupsActionType.DELETE,
+                reducer(state, {
+                    type: DetailsActionType.REMOVE_GROUP,
                     group: 'H',
                 })
-            ).toEqual(details);
+            ).toEqual(state);
         });
     });
 
     describe('move', () => {
-        it('moves existing name from existing group to new group', () => {
+        it('return updated state when moving to missing group', () => {
             expect(
-                reducer(details, {
+                reducer(state, {
                     type: DetailsActionType.MOVE,
                     group: 'G',
                     name: 'A',
                     newGroup: 'H',
                 })
-            ).toEqual([...details.slice(0, 2), { ...details[2], group: 'H' }, ...details.slice(3)]);
+            ).toEqual({
+                '': {
+                    A: { 21: { '': 2 } },
+                    B: { 22: { '': 1 } },
+                },
+                G: {
+                    C: { 21: { '': 2 } },
+                },
+                H: {
+                    A: { 22: { d: 1 } },
+                },
+            });
         });
 
-        it('moves existing name from one existing group to another if there are no such name', () => {
+        it('return updated state when moving to existing group with missing name', () => {
             expect(
-                reducer(details, {
+                reducer(state, {
                     type: DetailsActionType.MOVE,
                     group: 'G',
                     name: 'C',
-                    newGroup: 'J',
+                    newGroup: '',
                 })
-            ).toEqual([...details.slice(0, 3), { ...details[3], group: 'J' }]);
+            ).toEqual({
+                '': {
+                    A: { 21: { '': 2 } },
+                    B: { 22: { '': 1 } },
+                    C: { 21: { '': 2 } },
+                },
+                G: {
+                    A: { 22: { d: 1 } },
+                },
+            });
         });
 
-        it('does not move when when name already exists in another group', () => {
+        it('return updated state when moving to existing group with existing name', () => {
             expect(
-                reducer(details, {
+                reducer(state, {
                     type: DetailsActionType.MOVE,
                     group: 'G',
                     name: 'A',
-                    newGroup: 'J',
+                    newGroup: '',
                 })
-            ).toEqual(details);
+            ).toEqual({
+                '': {
+                    A: { 21: { '': 2 }, 22: { d: 1 } },
+                    B: { 22: { '': 1 } },
+                },
+                G: {
+                    C: { 21: { '': 2 } },
+                },
+            });
         });
 
-        it('does not move if same group', () => {
+        it('return updated state when moving to existing group with existing name and duplicated values', () => {
             expect(
-                reducer(details, {
+                reducer(
+                    {
+                        '': {
+                            A: { 22: { '': 2 } },
+                            B: { 22: { '': 1 } },
+                        },
+                        G: {
+                            A: { 22: { '': 1, d: 1 } },
+                            C: { 21: { '': 2 } },
+                        },
+                    },
+                    {
+                        type: DetailsActionType.MOVE,
+                        group: 'G',
+                        name: 'A',
+                        newGroup: '',
+                    }
+                )
+            ).toEqual({
+                '': {
+                    A: { 22: { '': 1, d: 1 } },
+                    B: { 22: { '': 1 } },
+                },
+                G: {
+                    C: { 21: { '': 2 } },
+                },
+            });
+        });
+
+        it('leave set unchanged if same group', () => {
+            expect(
+                reducer(state, {
                     type: DetailsActionType.MOVE,
                     group: 'G',
                     name: 'A',
                     newGroup: 'G',
                 })
-            ).toEqual(details);
+            ).toEqual(state);
         });
 
-        it('does not move if group not found', () => {
+        it('leave set unchanged if group not found', () => {
             expect(
-                reducer(details, {
+                reducer(state, {
                     type: DetailsActionType.MOVE,
                     group: 'H',
                     name: 'A',
                     newGroup: 'G',
                 })
-            ).toEqual(details);
-        });
-
-        it('does not move if name not found', () => {
-            expect(
-                reducer(details, {
-                    type: DetailsActionType.MOVE,
-                    group: 'G',
-                    name: 'X',
-                    newGroup: 'H',
-                })
-            ).toEqual(details);
+            ).toEqual(state);
         });
     });
 });

@@ -1,5 +1,5 @@
 import { type ProfileAction, ProfileActionType } from '~/state/profile/actions';
-import { profile as reducer } from '~/state/profile/reducer';
+import reducer from '~/state/profile/reducer';
 import { type Profile } from '~/state/profile/types';
 import { mockLocalStorage } from '~/tests/mockLocalStorage';
 

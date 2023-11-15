@@ -1,52 +1,68 @@
 import { renderHook } from '@testing-library/react';
-import axios from 'axios';
 import { useApiRequest } from '~/hooks/useApiRequest';
-
-jest.mock('axios', () => jest.fn().mockResolvedValue({}));
+import { mockFetch } from '~/tests/mockFetch';
 
 describe('useApiRequest', () => {
+    const { fetch, json } = mockFetch();
+
     afterEach(() => jest.clearAllMocks());
 
     it('sends /test api request using GET method by default, then call update with response data', async () => {
         const response = { ok: true, data: [42] };
-        (axios as unknown as jest.Mock).mockResolvedValueOnce({ data: response });
+        json.mockResolvedValueOnce(response);
+
         const { result } = renderHook(() => useApiRequest());
         expect(await result.current('/test')).toEqual(response);
-        expect(axios).toHaveBeenCalledWith({ url: '/test', method: 'POST', responseType: 'json' });
+        expect(fetch).toHaveBeenCalledWith('/test', { method: 'GET' });
     });
 
     it('sends / api request using POST method if some data passed', async () => {
         const { result } = renderHook(() => useApiRequest());
         expect(await result.current('/', { test: true })).toBeUndefined();
-        expect(axios).toHaveBeenCalledWith({ url: '/', method: 'POST', data: { test: true }, responseType: 'json' });
+        expect(fetch).toHaveBeenCalledWith('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{"test":true}',
+        });
     });
 
     it('sends / api request explicitly using GET method if some data passed', async () => {
         const { result } = renderHook(() => useApiRequest());
         expect(await result.current('/', { test: true }, 'GET')).toBeUndefined();
-        expect(axios).toHaveBeenCalledWith({ url: '/', method: 'GET', data: { test: true }, responseType: 'json' });
+        expect(fetch).toHaveBeenCalledWith('/', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{"test":true}',
+        });
     });
 
     it('sends / api request explicitly using POST method without data passed', async () => {
         const { result } = renderHook(() => useApiRequest());
         expect(await result.current('/', 'POST')).toBeUndefined();
-        expect(axios).toHaveBeenCalledWith({ url: '/', method: 'POST', responseType: 'json' });
+        expect(fetch).toHaveBeenCalledWith('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{}',
+        });
     });
 
     it('sends / api request using HEAD method', async () => {
         const { result } = renderHook(() => useApiRequest());
         expect(await result.current('/', 'HEAD')).toBeUndefined();
-        expect(axios).toHaveBeenCalledWith({ url: '/', method: 'HEAD', responseType: 'json' });
+        expect(fetch).toHaveBeenCalledWith('/', {
+            method: 'HEAD',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{}',
+        });
     });
 
     it('sends / api request using GET method and wrapping string data', async () => {
         const { result } = renderHook(() => useApiRequest());
         expect(await result.current('/', 'payload', 'GET')).toBeUndefined();
-        expect(axios).toHaveBeenCalledWith({
-            url: '/',
+        expect(fetch).toHaveBeenCalledWith('/', {
             method: 'GET',
-            data: { data: 'payload' },
-            responseType: 'json',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{"data":"payload"}',
         });
     });
 });

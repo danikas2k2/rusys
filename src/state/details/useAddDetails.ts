@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
-import { useSetDetailsYears } from '~/state/details/useSetDetailsYears';
+import { useUpdateDetails } from '~/state/details/useUpdateDetails';
+import { type Group, type Name } from '~/state/types';
 
-export function useAddDetails(): (group: string, name: string) => Promise<void> {
-    const setYears = useSetDetailsYears();
-    return useCallback(async (group: string, name: string): Promise<void> => setYears(group, name), [setYears]);
+export function useAddDetails(): (group: Group, name: Name) => Promise<void> {
+    const updateDetails = useUpdateDetails();
+    return useCallback(async (group: Group, name: Name): Promise<void> => updateDetails(group, name), [updateDetails]);
 }

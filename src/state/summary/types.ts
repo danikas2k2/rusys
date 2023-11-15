@@ -1,5 +1,5 @@
-import { type Summary } from '~/common/types';
+import { type AmountSet } from '~/state/details/types';
 
 export interface WithSummaryState {
-    summary?: ReadonlyArray<Summary>;
+    summary?: AmountSet;
 }

@@ -2,35 +2,35 @@ import CancelIcon from '@icons/Cancel.svg';
 import CloseIcon from '@icons/Close.svg';
 import DeleteIcon from '@icons/Delete.svg';
 import DoneIcon from '@icons/Done.svg';
-import { Button } from '@ui/Button';
-import { ButtonWithConfirmation } from '@ui/ButtonWithConfirmation';
-import { Dialog } from '@ui/Dialog';
+import Button from '@ui/Button';
+import ButtonWithConfirmation from '@ui/ButtonWithConfirmation';
+import Dialog from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-import { IconButton } from '@ui/IconButton';
-import { Input } from '@ui/Input';
-import { LabeledInput } from '@ui/LabeledInput';
-import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
-import { WithOnClose } from '~/client/common/WithOnClose';
+import IconButton from '@ui/IconButton';
+import Input from '@ui/Input';
+import { isEqual } from 'lodash';
+import React, { type FormEvent, type KeyboardEvent, memo, useCallback, useEffect, useState } from 'react';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useNameMatch } from '~/client/hooks/useNameMatch';
-import { Label } from '~/client/Label';
+import Label from '~/client/Label';
 import { useAddDetails } from '~/state/details/useAddDetails';
-import { useDeleteDetails } from '~/state/details/useDeleteDetails';
+import { useRemoveDetails } from '~/state/details/useRemoveDetails';
 import { useRenameDetails } from '~/state/details/useRenameDetails';
+import { type Group, type Name } from '~/state/types';
 import { getErrorMessage } from '~/utils/errors';
-import cx from './DetailsBox.less';
+import './EditBox.less';
 
-interface DetailsBoxProps extends WithOnClose {
-    group?: string;
-    name?: string;
-    onClose: (group?: string, name?: string) => void;
+interface EditBoxProps {
+    group?: Group;
+    name?: Name;
+    onClose: (group?: Group, name?: Name) => void;
 }
 
 const PLACEHOLDER = 'Please enter a name';
 const ALREADY_EXISTS = 'This name already exists';
 
-export function DetailsBox({ group = '', name: initialName = '', onClose }: DetailsBoxProps) {
-    const [name, setName] = useState<string>(initialName);
+export default memo(function EditBox({ group = '', name: initialName = '', onClose }: EditBoxProps) {
+    const [name, setName] = useState<Name>(initialName);
     const [updating, setUpdating] = useState(false);
     const [error, setError] = useState<string>();
 
@@ -75,7 +75,7 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
         }
     }, [addDetails, focusRef, group, hasName, initialName, name, onClose, renameDetails]);
 
-    const removeDetails = useDeleteDetails();
+    const removeDetails = useRemoveDetails();
     const handleRemove = useCallback(async (): Promise<void> => {
         try {
             setUpdating(true);
@@ -104,37 +104,37 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
         [handleUpdate]
     );
 
-    const closeLabel = useLabel('Close');
-    const errorLabel = useLabel(error ?? '');
-    const titleLabel = useLabel('Title');
     return (
-        <Dialog className={cx('DetailsBox')} open onClose={handleClose}>
+        <Dialog className="EditBox" open onClose={handleClose}>
             <header>
-                <div className={cx('group')}>
+                <div className="group">
                     <Label>{group}</Label>
                 </div>
-                <div className={cx('title')}>
+                <div className="title">
                     <Label>{initialName ? 'Update entry' : 'Add new entry'}</Label>
                 </div>
-                <div className={cx('close')}>
-                    <IconButton aria-label={closeLabel} onClick={handleClose}>
+                <div className="close">
+                    <IconButton aria-label={useLabel('Close')} onClick={handleClose}>
                         <CloseIcon />
                     </IconButton>
                 </div>
             </header>
             <main>
-                <LabeledInput
+                <Input
                     ref={focusRef}
                     fullWidth
                     color={error ? 'negative' : 'primary'}
-                    error={error && error !== PLACEHOLDER ? errorLabel : undefined}
                     size="large"
                     value={name}
-                    label={titleLabel}
                     placeholder={useLabel(PLACEHOLDER)}
                     onInput={handleInput}
                     onKeyDown={handleEnter}
                 />
+                {error && error !== PLACEHOLDER && (
+                    <div role="alert" className="error">
+                        <Label>{error}</Label>
+                    </div>
+                )}
             </main>
             <footer>
                 {initialName && (
@@ -161,7 +161,7 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
                             <DeleteIcon />
                             <Label>Remove</Label>
                         </ButtonWithConfirmation>
-                        <div className={cx('spacer')} />
+                        <div className="spacer" />
                     </>
                 )}
                 <Button variant="outlined" onClick={handleClose}>
@@ -175,4 +175,4 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
             </footer>
         </Dialog>
     );
-}
+}, isEqual);

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
 import React from 'react';
-import { App } from '~/client/App';
+import App from '~/client/App';
 import { useDev } from '~/hooks/useDev';
 import { useClientId } from '~/state/google/useClientId';
 import { useLocale } from '~/state/locale/useLocale';
@@ -12,9 +12,7 @@ jest.mock('@react-oauth/google', () => ({
     GoogleOAuthProvider: jest.fn(({ children }) => <div>{children}</div>),
 }));
 jest.mock('@ui/hooks/useDocumentColorScheme');
-jest.mock('~/client/AppContent', () => ({
-    AppContent: () => <div>AppContent</div>,
-}));
+jest.mock('~/client/AppContent', () => () => <div>AppContent</div>);
 jest.mock('~/hooks/useDev');
 jest.mock('~/state/google/useClientId');
 jest.mock('~/state/locale/useLocale');

@@ -1,21 +1,18 @@
-import React from 'react';
+import { isEqual } from 'lodash';
+import React, { memo } from 'react';
 import { HashRouter, Route, Routes } from 'react-router-dom';
-import { DetailsPage } from '~/client/details/DetailsPage';
-import { GroupsPage } from '~/client/groups/GroupsPage';
+import DetailsPage from '~/client/details/DetailsPage';
 import { Links } from '~/client/Links';
-import { SummaryPage } from '~/client/summary/SummaryPage';
-import { VariantsPage } from '~/client/variants/VariantsPage';
+import SummaryPage from '~/client/summary/SummaryPage';
 
-export function AppRouter() {
+export default memo(function AppRouter() {
     return (
         <HashRouter>
             <Routes>
                 <Route path={Links.SUMMARY} element={<SummaryPage />} />
-                <Route path={Links.GROUPS} element={<GroupsPage />} />
-                <Route path={Links.VARIANTS} element={<VariantsPage />} />
                 <Route path={Links.DETAILS} element={<DetailsPage />} />
                 <Route path="*" element={<DetailsPage />} />
             </Routes>
         </HashRouter>
     );
-}
+}, isEqual);

@@ -13,7 +13,7 @@ describe('useSetProfile', () => {
     const dispatch = jest.fn();
 
     beforeAll(() => {
-        (useDispatch as unknown as jest.Mock).mockReturnValue(dispatch);
+        (useDispatch as jest.Mock).mockReturnValue(dispatch);
     });
 
     afterEach(() => jest.clearAllMocks());

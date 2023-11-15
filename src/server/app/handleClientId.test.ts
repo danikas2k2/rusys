@@ -1,14 +1,12 @@
-import { type ApiClientId } from '~/common/api';
-import { DEV_CLIENT_ID, handleClientId } from '~/server/app/handleClientId';
+import { type Request, type Response } from 'express';
+import { handleClientId } from '~/server/app/handleClientId';
 import { mockEnv } from '~/tests/mockEnv';
-import { mockRequest } from '~/tests/mockRequest';
-import { mockResponse } from '~/tests/mockResponse';
 
 jest.mock('~/server/app/debug');
 
 describe('handleClientId', () => {
-    const request = mockRequest();
-    const response = mockResponse<ApiClientId>();
+    const request = {} as unknown as Request;
+    const response = { json: jest.fn() } as unknown as Response;
 
     mockEnv();
 
@@ -18,26 +16,20 @@ describe('handleClientId', () => {
     });
 
     it('returns clientId when GOOGLE_CLIENT_ID is set', async () => {
-        process.env.GOOGLE_CLIENT_ID = 'TEST_CLIENT_ID';
+        process.env.GOOGLE_CLIENT_ID = 'testClientId';
         await handleClientId(request, response);
 
-        expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: true, clientId: 'TEST_CLIENT_ID' });
+        expect(response.json).toHaveBeenCalledWith({
+            ok: true,
+            clientId: 'testClientId',
+        });
     });
 
     it('returns error when GOOGLE_CLIENT_ID is not set', async () => {
-        process.env.NODE_ENV = 'production';
         await handleClientId(request, response);
 
-        expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: false });
-    });
-
-    it('returns special clientId on development environment when GOOGLE_CLIENT_ID is not set', async () => {
-        process.env.NODE_ENV = 'development';
-        await handleClientId(request, response);
-
-        expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: true, clientId: DEV_CLIENT_ID });
+        expect(response.json).toHaveBeenCalledWith({
+            ok: false,
+        });
     });
 });

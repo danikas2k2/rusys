@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ButtonWithConfirmation } from '@ui/ButtonWithConfirmation';
+import ButtonWithConfirmation from '@ui/ButtonWithConfirmation';
 import React from 'react';
 
 describe('ButtonWithConfirmation', () => {

@@ -1,25 +1,21 @@
-import {
-    type BulkWriteResult,
-    type DeleteResult,
-    type InsertManyResult,
-    type InsertOneResult,
-    MongoError,
-    type UpdateResult,
-} from 'mongodb';
+import { merge } from 'lodash';
+import { type NameWithGroup } from '~/state/details/types';
+import { type Group, type Name, type Year } from '~/state/types';
 
-export const hasEffect = (
-    res: BulkWriteResult | UpdateResult | DeleteResult | InsertOneResult | InsertManyResult
-): boolean =>
-    !!(res as InsertOneResult).insertedId ||
-    !!(res as InsertManyResult).insertedCount ||
-    !!(res as UpdateResult).modifiedCount ||
-    !!(res as UpdateResult).upsertedCount ||
-    !!(res as DeleteResult).deletedCount;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getNamedMap<T>(data: (NameWithGroup & Record<Year, any>)[]): T {
+    return merge(
+        {},
+        ...data.map(({ group, name, ...v }) => ({
+            [group ?? '']: { [name]: v },
+        }))
+    );
+}
 
-export function hasDuplicates(e: unknown): boolean {
-    if (e instanceof MongoError && e.code === 11000) {
-        return false;
-    }
-    // rethrow error
-    throw e;
+export function getGroupQuery(group: Group): Record<string, unknown> {
+    return group ? { group } : { $or: [{ group }, { group: { $exists: false } }] };
+}
+
+export function getGroupAndNameQuery(group: Group, name: Name): Record<string, unknown> {
+    return { ...getGroupQuery(group), name };
 }

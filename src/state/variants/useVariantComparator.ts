@@ -1,22 +1,12 @@
-import { isEqual } from 'lodash';
 import { useCallback } from 'react';
-import { useSelector } from 'react-redux';
-import type { WithVariantsState } from '~/state/variants/types';
+import { type Variant } from '~/state/details/types';
+import { useAllVariants } from '~/state/variants/useAllVariants';
 
-export function useVariantComparator(): (group: string) => (a: string, b: string) => number {
-    const variantOrders = useSelector(
-        (state: WithVariantsState) =>
-            state.variants?.reduce<Record<string, Record<string, number>>>(
-                (r, { group, variant, order }) => ({ ...r, [group]: { ...r[group], [variant]: order } }),
-                {}
-            ) ?? {},
-        isEqual
-    );
+export function useVariantComparator(): (a: Variant | string, b: Variant | string) => number {
+    const allVariants = useAllVariants();
     return useCallback(
-        (group: string) =>
-            (a: string, b: string): number =>
-                (variantOrders[group]?.[a] ?? Number.POSITIVE_INFINITY) -
-                (variantOrders[group]?.[b] ?? Number.POSITIVE_INFINITY),
-        [variantOrders]
+        (a: Variant | string, b: Variant | string): number =>
+            allVariants.indexOf(a as Variant) - allVariants.indexOf(b as Variant),
+        [allVariants]
     );
 }

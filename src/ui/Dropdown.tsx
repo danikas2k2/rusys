@@ -1,25 +1,25 @@
-import { Interactive } from '@ui/Interactive';
-import { Portal } from '@ui/Portal';
+import Interactive from '@ui/Interactive';
+import Portal from '@ui/Portal';
+import classNames from 'classnames';
+import { isEqual } from 'lodash';
 import React, {
     cloneElement,
     type DialogHTMLAttributes,
-    forwardRef,
     isValidElement,
     type KeyboardEvent,
+    memo,
     type MouseEventHandler,
     type ReactElement,
     type ReactNode,
-    type Ref,
     type RefObject,
     type SyntheticEvent,
     useCallback,
     useEffect,
-    useImperativeHandle,
     useRef,
     useState,
 } from 'react';
 import { usePreviousValue } from '~/hooks/usePreviousValue';
-import cx from './Dropdown.less';
+import './Dropdown.less';
 
 interface DropdownTriggerElementProps {
     onClick: MouseEventHandler;
@@ -42,29 +42,19 @@ export interface DropdownProps extends DialogHTMLAttributes<HTMLDivElement> {
     children?: ReactNode;
 }
 
-export interface DropdownRef {
-    visible: boolean;
-    open: () => void;
-    close: () => void;
-    toggle: () => void;
-}
-
-export const Dropdown = forwardRef(function Dropdown(
-    {
-        anchor,
-        trigger,
-        open: initialOpen = false,
-        hover,
-        closeOnOutsideClick = true,
-        closeOnEscape = true,
-        children,
-        className,
-        onOpen,
-        onClose,
-        ...props
-    }: DropdownProps,
-    ref: Ref<DropdownRef>
-) {
+export default memo(function Dropdown({
+    anchor,
+    trigger,
+    open: initialOpen = false,
+    hover,
+    closeOnOutsideClick = true,
+    closeOnEscape = true,
+    children,
+    className,
+    onOpen,
+    onClose,
+    ...props
+}: DropdownProps) {
     const [open, setOpen] = useState(initialOpen);
     useEffect(() => {
         if (open !== initialOpen) {
@@ -101,13 +91,6 @@ export const Dropdown = forwardRef(function Dropdown(
         }
     }, [handleClose, handleOpen, open]);
 
-    useImperativeHandle(ref, () => ({
-        visible: open,
-        open: handleOpen,
-        close: handleClose,
-        toggle: handleToggle,
-    }));
-
     const handleEscape = useCallback(
         (e: KeyboardEvent<HTMLElement>) => {
             if (e.key === 'Escape') {
@@ -128,14 +111,14 @@ export const Dropdown = forwardRef(function Dropdown(
     const dropdown = open ? (
         <Portal>
             <Interactive
-                className={cx('Backdrop')}
+                className="Backdrop"
                 role="complementary"
                 aria-label="backdrop"
                 onClick={closeOnOutsideClick ? handleClose : undefined}
                 onKeyDown={closeOnEscape ? handleEscape : undefined}
             >
                 <Interactive
-                    className={cx('Dropdown', { hover }, className)}
+                    className={classNames('Dropdown', { hover }, className)}
                     role="dialog"
                     onClick={stopPropagation}
                     {...props}
@@ -164,4 +147,4 @@ export const Dropdown = forwardRef(function Dropdown(
             {dropdown}
         </>
     );
-});
+}, isEqual);

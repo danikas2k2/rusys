@@ -13,18 +13,18 @@ describe('useSetFilter', () => {
     const dispatch = jest.fn();
 
     beforeAll(() => {
-        (useDispatch as unknown as jest.Mock).mockReturnValue(dispatch);
+        (useDispatch as jest.Mock).mockReturnValue(dispatch);
     });
 
     afterEach(() => jest.clearAllMocks());
 
-    it('calls set filter action', async () => {
+    it('call set filter action', async () => {
         const { result } = renderHook(() => useSetFilter(), withReduxState());
         await result.current('filtered');
         expect(dispatch).toHaveBeenCalledWith({ type: FilterActionType.SET, filter: 'filtered' });
     });
 
-    it('calls set filter action with empty value', async () => {
+    it('call set filter action with empty value', async () => {
         const { result } = renderHook(() => useSetFilter(), withReduxState());
         await result.current('');
         expect(dispatch).toHaveBeenCalledWith({ type: FilterActionType.SET, filter: '' });

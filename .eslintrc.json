@@ -1,15 +1,46 @@
 {
+    "env": {
+        "browser": true,
+        "es6": true,
+        "jest/globals": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+        "eslint:recommended",
+        "node",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:prettier/recommended",
+        "plugin:react/recommended",
+        "plugin:jsx-a11y/recommended",
+        "plugin:jest/recommended"
+    ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "settings": {
+        "import/extensions": [".ts", ".tsx", ".js", ".jsx"],
+        "import/resolver": {
+            "typescript": {}
+        },
+        "react": {
+            "version": "detect"
+        }
+    },
     "plugins": ["@typescript-eslint", "prettier", "react", "react-hooks", "jsx-a11y", "jest", "import"],
     "rules": {
         "@typescript-eslint/explicit-function-return-type": [
             "warn",
             {
-                "allowExpressions": true,
-                "allowTypedFunctionExpressions": true,
-                "allowHigherOrderFunctions": true,
-                "allowDirectConstAssertionInArrowFunctions": true,
-                "allowConciseArrowFunctionExpressionsStartingWithVoid": true,
-                "allowFunctionsWithoutTypeParameters": true
+                "allowExpressions": true
             }
         ],
         "@typescript-eslint/no-angle-bracket-type-assertion": "off",
@@ -100,7 +131,7 @@
             }
         },
         {
-            "files": ["*.test.ts", "*.test.tsx", "**/__mocks__/**/*"],
+            "files": ["*.test.ts", "*.test.tsx"],
             "rules": {
                 "@typescript-eslint/no-explicit-any": "off",
                 "react/display-name": "off",

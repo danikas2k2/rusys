@@ -1,68 +1,77 @@
 import { useLongPress } from '@ui/hooks/useLongPress';
-import { isEqual } from 'lodash';
-import React, { useCallback, useState } from 'react';
-import { ValueBox } from '~/client/details/dialogs/ValueBox';
-import { Cell } from '~/client/table/Cell';
-import { ValueVariant } from '~/client/ValueVariant';
-import { type VariantAmount } from '~/common/types';
-import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
-import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
-import cx from './ValueCell.less';
+import classNames from 'classnames';
+import { isEmpty, isEqual } from 'lodash';
+import React, { memo, useCallback, useState } from 'react';
+import ValueBox from '~/client/details/dialogs/ValueBox';
+import Cell from '~/client/table/Cell';
+import ValueVariant from '~/client/ValueVariant';
+import { type Amount, type Variant } from '~/state/details/types';
+import { useIsRemoving } from '~/state/removing/useIsRemoving';
+import { useUpdateRemoving } from '~/state/removing/useUpdateRemoving';
+import { type Group, type Name, type Year } from '~/state/types';
+import { useVariantComparator } from '~/state/variants/useVariantComparator';
+import './ValueCell.less';
 
-export interface ValueCellProps {
-    group: string;
-    name: string;
-    year: number;
-    amounts?: ReadonlyArray<VariantAmount>;
-    removing?: boolean;
+interface ValueCellProps {
+    group: Group;
+    name: Name;
+    year: Year;
+    value?: Amount;
     last?: boolean;
-    onChange: (amounts?: ReadonlyArray<VariantAmount>, withoutHistory?: boolean) => void;
+    onChange: (value?: Amount, updateWithoutHistory?: boolean) => void;
 }
 
-export function ValueCell({ group, name, year, amounts, removing, last, onChange }: ValueCellProps) {
+export default memo(function ValueCell({ group, name, year, value, last, onChange }: ValueCellProps) {
     const [editing, setEditing] = useState(false);
-    const handleOpen = useCallback(() => setEditing(true), []);
+
+    const handleOpen = useCallback((): void => {
+        setEditing(true);
+    }, []);
+
     const handleClose = useCallback(
-        (updated?: ReadonlyArray<VariantAmount>, withoutHistory = false): void => {
+        (updatedValue?: Amount, updateWithoutHistory = false): void => {
             setEditing(false);
-            const optimized = updated?.filter(({ amount }) => amount > 0) ?? [];
-            if (!isEqual(amounts, optimized)) {
-                onChange(optimized, withoutHistory);
+            const optimizedValue = {
+                ...Object.fromEntries(Object.entries(updatedValue ?? {}).filter(([, v]) => v > 0)),
+            };
+            if (!isEqual(value, optimizedValue)) {
+                onChange(optimizedValue, updateWithoutHistory);
             }
         },
-        [onChange, amounts]
+        [onChange, value]
     );
 
     const handleShortPress = editing ? undefined : handleOpen;
 
-    const setRemoving = useSetDetailsRemoving();
+    const removing = useIsRemoving(group, name, year);
+    const updateRemoving = useUpdateRemoving();
     const handleLongPress = useCallback((): void => {
-        void setRemoving(group, name, year, !removing);
+        void updateRemoving(group, name, year, !removing);
         navigator?.vibrate?.(200);
-    }, [setRemoving, group, name, year, removing]);
+    }, [updateRemoving, group, name, year, removing]);
     const longPress = useLongPress<HTMLDivElement>(handleLongPress, handleShortPress);
-    const empty = !amounts?.length;
-    const compareVariants = useGroupVariantComparator(group);
+    const empty = isEmpty(value);
+    const compareVariants = useVariantComparator();
     return (
         <>
             <Cell
-                className={cx('ValueCell', { empty, last, removing })}
+                className={classNames('ValueCell', { empty, last, removing })}
                 {...(empty ? { onClick: handleShortPress, onContextMenu: longPress.onContextMenu } : { ...longPress })}
             >
                 {empty
                     ? '.'
-                    : [...amounts]
-                          .sort((a, b) => compareVariants(a.variant, b.variant))
-                          .map((v) => (
-                              <span className={cx('value')} key={v.variant}>
-                                  {v.amount}
+                    : Object.entries(value)
+                          .sort(([a], [b]) => compareVariants(a, b))
+                          .map(([k, v]) => (
+                              <span className={classNames('value')} key={k}>
+                                  {v}
                                   <sub>
-                                      <ValueVariant variant={v.variant} />
+                                      <ValueVariant variant={k as Variant} />
                                   </sub>
                               </span>
                           ))}
             </Cell>
-            {editing && <ValueBox group={group} name={name} year={year} amounts={amounts} onClose={handleClose} />}
+            {editing && <ValueBox group={group} name={name} year={year} value={value} onClose={handleClose} />}
         </>
     );
-}
+});

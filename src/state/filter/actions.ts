@@ -12,9 +12,6 @@ export type FilterAction =
           type: FilterActionType.CLEAR;
       };
 
-export const setFilterAction = (filter: string): Readonly<FilterAction> => ({
-    type: FilterActionType.SET,
-    filter,
-});
+export const setFilterAction = (filter: string): FilterAction => ({ type: FilterActionType.SET, filter });
 
-export const clearFilterAction = (): Readonly<FilterAction> => ({ type: FilterActionType.CLEAR });
+export const clearFilterAction = (): FilterAction => ({ type: FilterActionType.CLEAR });

@@ -1,6 +1,7 @@
 import { DEFAULT_LOCALE, type LocaleAction, LocaleActionType } from '~/state/locale/actions';
+import { type Locale } from '~/state/locale/types';
 
-export function locale(locale: string = navigator.language || DEFAULT_LOCALE, action: LocaleAction): string {
+export default function locale(locale: Locale = navigator.language || DEFAULT_LOCALE, action: LocaleAction): Locale {
     switch (action.type) {
         case LocaleActionType.SET:
             return action.locale;

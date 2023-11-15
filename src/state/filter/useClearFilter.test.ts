@@ -13,12 +13,12 @@ describe('useClearFilter', () => {
     const dispatch = jest.fn();
 
     beforeAll(() => {
-        (useDispatch as unknown as jest.Mock).mockReturnValue(dispatch);
+        (useDispatch as jest.Mock).mockReturnValue(dispatch);
     });
 
     afterEach(() => jest.clearAllMocks());
 
-    it('calls set filter action', async () => {
+    it('call set filter action', async () => {
         const { result } = renderHook(() => useClearFilter(), withReduxState());
         await result.current();
         expect(dispatch).toHaveBeenCalledWith({ type: FilterActionType.CLEAR });

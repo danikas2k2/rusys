@@ -1,63 +1,107 @@
-import { isEmpty } from 'lodash';
-import React, { useMemo } from 'react';
-import { useUniqueGroups } from '~/client/hooks/useUniqueGroups';
-import { SummaryRow } from '~/client/summary/SummaryRow';
-import { Cell } from '~/client/table/Cell';
-import { LoadingContent } from '~/client/table/LoadingContent';
-import { Row } from '~/client/table/Row';
-import { Table } from '~/client/table/Table';
-import { compareGroups } from '~/client/utils/compareGroups';
-import { compareNames } from '~/client/utils/compareNames';
-import { matchParts } from '~/client/utils/matchParts';
+import Loader from '@ui/Loader';
+import classNames from 'classnames';
+import { isEmpty, isEqual } from 'lodash';
+import React, { memo, useMemo } from 'react';
+import { Error } from '~/client/Error';
+import InteractiveName from '~/client/InteractiveName';
+import Label from '~/client/Label';
+import Cell from '~/client/table/Cell';
+import Row from '~/client/table/Row';
+import Table from '~/client/table/Table';
+import { filterGroupedEntries } from '~/client/utils/filterGroupedEntries';
+import ValueVariant from '~/client/ValueVariant';
+import { LoadingState, useLockingLoader } from '~/hooks/useLockingLoader';
+import { type Amounts, type Variant } from '~/state/details/types';
 import { useFilter } from '~/state/filter/useFilter';
-import { useGetSummary } from '~/state/summary/useGetSummary';
 import { useSummary } from '~/state/summary/useSummary';
+import { useSummaryLoader } from '~/state/summary/useSummaryLoader';
+import { type Group, type Name } from '~/state/types';
+import { useVariantComparator } from '~/state/variants/useVariantComparator';
 import { useYears } from '~/state/years/useYears';
-import cx from './SummaryTable.less';
+import './SummaryTable.less';
 
-export function SummaryTable() {
-    const getSummary = useGetSummary();
+export default memo(function SummaryTable() {
+    const loader = useSummaryLoader();
+    const loading = useLockingLoader(loader);
+
     const filter = useFilter();
     const summary = useSummary();
-    const filteredSummary = useMemo(
-        () =>
-            summary
-                .filter((v) => matchParts(v.name, filter))
-                .sort((a, b) => compareGroups(a.group, b.group) || compareNames(a.name, b.name)),
+    const filteredEntries: [Group, [Name, Amounts][]][] = useMemo(
+        () => filterGroupedEntries(summary, filter),
         [summary, filter]
     );
-    const groups = useUniqueGroups(filteredSummary);
+
     const years = useYears();
+    const compareVariants = useVariantComparator();
+
+    if (loading === LoadingState.INITIAL || loading === LoadingState.LOADING) {
+        return (
+            <div>
+                <Loader />
+            </div>
+        );
+    }
+
+    if (loading === LoadingState.FAILED) {
+        return (
+            <Error>
+                <Label>Failed to load data</Label>
+            </Error>
+        );
+    }
+
+    if (isEmpty(years) || isEmpty(summary)) {
+        return (
+            <Error>
+                <Label>No data</Label>
+            </Error>
+        );
+    }
+
     return (
-        <LoadingContent loader={getSummary} hasData={!isEmpty(years) && !isEmpty(summary)}>
-            <Table
-                className={cx('Table')}
-                header={
-                    <Row className={cx('Row', 'HeadRow')}>
-                        <Cell role="columnheader" />
-                        {years.map((year) => (
-                            <Cell key={year} role="columnheader" className={cx('year')}>
-                                <sup>{year}</sup>/<sub>{year + 1}</sub>
-                            </Cell>
-                        ))}
+        <Table
+            className="Table"
+            header={
+                <Row className="Row HeadRow">
+                    <Cell role="columnheader" />
+                    {years.map((year) => (
+                        <Cell key={year} role="columnheader" className="year">
+                            <sup>{year}</sup>/<sub>{year + 1}</sub>
+                        </Cell>
+                    ))}
+                </Row>
+            }
+        >
+            {filteredEntries.map(([group, namedValues]) => (
+                <div key={group} role="rowgroup">
+                    <Row className="Row GroupRow">
+                        <Cell role="rowheader" className="GroupHeading">
+                            {group}
+                        </Cell>
                     </Row>
-                }
-            >
-                {groups.map((group) => (
-                    <div key={group} role="rowgroup">
-                        <Row className={cx('Row', 'GroupRow')}>
-                            <Cell role="rowheader" className={cx('GroupHeading')}>
-                                {group}
+                    {namedValues.map(([name, values]) => (
+                        <Row key={name} className="Row">
+                            <Cell className="name">
+                                <InteractiveName name={name} />
                             </Cell>
-                        </Row>
-                        {filteredSummary
-                            .filter((v) => v.group === group)
-                            .map((v) => (
-                                <SummaryRow key={v.name} group={group} name={v.name} amounts={v.years} />
+                            {years.map((year) => (
+                                <Cell key={year} className={classNames('ValueCell', { empty: isEmpty(values[year]) })}>
+                                    {Object.entries(values[year] ?? {})
+                                        .sort(([a], [b]) => compareVariants(a, b))
+                                        .map(([k, v]) => (
+                                            <span className="value" key={k}>
+                                                {v}
+                                                <sub>
+                                                    <ValueVariant variant={k as Variant} />
+                                                </sub>
+                                            </span>
+                                        ))}
+                                </Cell>
                             ))}
-                    </div>
-                ))}
-            </Table>
-        </LoadingContent>
+                        </Row>
+                    ))}
+                </div>
+            ))}
+        </Table>
     );
-}
+}, isEqual);

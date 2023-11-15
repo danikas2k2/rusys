@@ -2,14 +2,15 @@ import CancelIcon from '@icons/Cancel.svg';
 import LogoutIcon from '@icons/Logout.svg';
 import { googleLogout } from '@react-oauth/google';
 import { type ButtonProps } from '@ui/Button';
-import { ButtonWithConfirmation } from '@ui/ButtonWithConfirmation';
-import { IconButton } from '@ui/IconButton';
-import React, { useCallback } from 'react';
-import { Label } from '~/client/Label';
-import { ProfileAvatar } from '~/client/user/ProfileAvatar';
+import ButtonWithConfirmation from '@ui/ButtonWithConfirmation';
+import IconButton from '@ui/IconButton';
+import { isEqual } from 'lodash';
+import React, { memo, useCallback } from 'react';
+import Label from '~/client/Label';
+import ProfileAvatar from '~/client/user/ProfileAvatar';
 import { useResetProfile } from '~/state/profile/useResetProfile';
 
-export function LogoutButton({ children, ...props }: ButtonProps) {
+export default memo(function LogoutButton({ children, ...props }: ButtonProps) {
     const resetProfile = useResetProfile();
     const handleConfirm = useCallback(() => {
         resetProfile();
@@ -34,10 +35,10 @@ export function LogoutButton({ children, ...props }: ButtonProps) {
             onClick={handleConfirm}
         >
             {(props) => (
-                <IconButton size="small" {...props}>
+                <IconButton className="edge-end size-small" {...props}>
                     {children || <ProfileAvatar />}
                 </IconButton>
             )}
         </ButtonWithConfirmation>
     );
-}
+}, isEqual);

@@ -6,8 +6,10 @@ import {
     type InputSpacing,
     type InputVariant,
 } from '@ui/Input';
-import React, { type ButtonHTMLAttributes, type ForwardedRef, forwardRef } from 'react';
-import cx from './Button.less';
+import classNames from 'classnames';
+import { isEqual } from 'lodash';
+import React, { type ButtonHTMLAttributes, type ForwardedRef, forwardRef, memo } from 'react';
+import './Button.less';
 
 export interface ButtonProps<T extends HTMLElement = HTMLButtonElement> extends ButtonHTMLAttributes<T> {
     variant?: InputVariant;
@@ -18,49 +20,51 @@ export interface ButtonProps<T extends HTMLElement = HTMLButtonElement> extends 
     fullHeight?: boolean;
 }
 
-export const Button = forwardRef(function Button(
-    {
-        className,
-        color = 'neutral',
-        variant = 'solid',
-        size = 'medium',
-        spacing = 'small',
-        disabled,
-        fullWidth,
-        fullHeight,
-        // autoFocus,
-        ...props
-    }: ButtonProps,
-    forwardedRef: ForwardedRef<HTMLButtonElement>
-) {
-    const ref = useForwardedRef(forwardedRef);
-    return (
-        <button
-            ref={ref}
-            className={cx(
-                'Button',
-                `color-${color}`,
-                `variant-${variant}`,
-                `size-${size}`,
-                `spacing-${spacing}`,
-                { 'full-width': fullWidth, 'full-height': fullHeight },
-                className
-            )}
-            disabled={disabled}
-            aria-disabled={disabled}
-            {...props}
-        />
-    );
-});
+export default memo(
+    forwardRef(function Button(
+        {
+            className,
+            color = 'neutral',
+            variant = 'solid',
+            size = 'medium',
+            spacing = 'small',
+            disabled,
+            fullWidth,
+            fullHeight,
+            // autoFocus,
+            ...props
+        }: ButtonProps,
+        forwardedRef: ForwardedRef<HTMLButtonElement>
+    ) {
+        const ref = useForwardedRef(forwardedRef);
+        return (
+            <button
+                ref={ref}
+                className={classNames(
+                    'Button',
+                    `color-${color}`,
+                    `variant-${variant}`,
+                    `size-${size}`,
+                    `spacing-${spacing}`,
+                    { 'full-width': fullWidth, 'full-height': fullHeight },
+                    className
+                )}
+                disabled={disabled}
+                aria-disabled={disabled}
+                {...props}
+            />
+        );
+    }),
+    isEqual
+);
 
-export interface ButtonGroupProps<T extends HTMLElement = HTMLDivElement> extends CommonInputProps<T> {
-    fullWidth?: boolean;
-}
-
-export const ButtonGroup = forwardRef(function ButtonGroup(
-    { className, fullWidth, ...props }: ButtonGroupProps,
-    forwardedRef: ForwardedRef<HTMLDivElement>
-) {
-    const ref = useForwardedRef(forwardedRef);
-    return <div ref={ref} className={cx('ButtonGroup', className, { 'full-width': fullWidth })} {...props} />;
-});
+export const ButtonGroup = memo(
+    forwardRef(function ButtonGroup(
+        { className, ...props }: CommonInputProps<HTMLDivElement>,
+        forwardedRef: ForwardedRef<HTMLDivElement>
+    ) {
+        const ref = useForwardedRef(forwardedRef);
+        return <div ref={ref} className={classNames('ButtonGroup', className)} {...props} />;
+    }),
+    isEqual
+);

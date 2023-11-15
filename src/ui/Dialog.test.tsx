@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Dialog } from '@ui/Dialog';
+import Dialog from '@ui/Dialog';
 import React from 'react';
 
 describe('Dialog', () => {

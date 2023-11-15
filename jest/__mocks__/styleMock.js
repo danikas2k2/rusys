@@ -1,3 +1,1 @@
-import classNames from 'classnames';
-
-export default classNames;
+module.exports = {};

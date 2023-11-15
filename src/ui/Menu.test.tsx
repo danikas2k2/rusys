@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Menu } from '@ui/Menu';
+import Menu from '@ui/Menu';
 import React from 'react';
 
 describe('Menu', () => {

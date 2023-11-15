@@ -1,7 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import UserEvent from '@testing-library/user-event';
 import React from 'react';
-import { InteractiveName } from '~/client/InteractiveName';
+import InteractiveName from '~/client/InteractiveName';
 import { withReduxState } from '~/tests/withReduxState';
 
 describe('InteractiveName', () => {
@@ -24,7 +24,7 @@ describe('InteractiveName', () => {
         expect(handleClick).toHaveBeenCalled();
     });
 
-    it('should open DetailsBox on long press', async () => {
+    it('should open EditBox on long press', async () => {
         render(<InteractiveName name="Name" />, withReduxState());
         await userEvent.pointer({
             target: screen.getByRole('button', { name: 'Name' }),
@@ -34,7 +34,7 @@ describe('InteractiveName', () => {
         expect(screen.queryByRole('dialog')).toBeInTheDocument();
     });
 
-    it('should not open DetailsBox on short press', async () => {
+    it('should not open EditBox on short press', async () => {
         render(<InteractiveName name="Name" />, withReduxState());
         await userEvent.click(screen.getByRole('button', { name: 'Name' }));
         jest.advanceTimersByTime(100);

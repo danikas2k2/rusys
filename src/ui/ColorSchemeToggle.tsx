@@ -1,23 +1,24 @@
 import DarkModeIcon from '@icons/DarkMode.svg';
 import LightModeIcon from '@icons/LightMode.svg';
 import SettingsSuggestIcon from '@icons/SettingsSuggest.svg';
-import { Button, ButtonGroup } from '@ui/Button';
+import Button, { ButtonGroup } from '@ui/Button';
 import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
-import React from 'react';
+import { isEqual } from 'lodash';
+import React, { memo } from 'react';
 
-interface ColorSchemeToggleProps {
+interface ColorSchemeTogglerProps {
     auto?: boolean;
     lightModeLabel?: string;
     darkModeLabel?: string;
     autoModeLabel?: string;
 }
 
-export function ColorSchemeToggle({
+export default memo(function ColorSchemeToggler({
     auto = true,
     lightModeLabel = 'Light mode',
     darkModeLabel = 'Dark mode',
     autoModeLabel = 'System preferred mode',
-}: ColorSchemeToggleProps) {
+}: ColorSchemeTogglerProps) {
     const [scheme, setScheme] = useColorSchemeState();
     return (
         <nav>
@@ -54,4 +55,4 @@ export function ColorSchemeToggle({
             </ButtonGroup>
         </nav>
     );
-}
+}, isEqual);

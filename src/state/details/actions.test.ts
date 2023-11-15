@@ -1,84 +1,62 @@
-import { type Details, type VariantAmount, type YearAmounts } from '~/common/types';
 import {
-    deleteDetailsAction,
     DetailsActionType,
     moveDetailsAction,
+    removeDetailsAction,
+    removeGroupAction,
     renameDetailsAction,
+    renameGroupAction,
     setDetailsAction,
-    setDetailsAmountsAction,
-    setDetailsYearsAction,
+    updateDetailsAction,
 } from '~/state/details/actions';
-import { getDetailsFixture } from '~/tests/fixtures';
+import { type AmountSet } from '~/state/details/types';
 
 describe('setDetailsAction', () => {
     it('returns valid action', () => {
-        const details = getDetailsFixture();
+        const details: AmountSet = { G: { A: { 21: { '': 1 }, 22: { '': 2, d: 3 } } } };
         expect(setDetailsAction(details)).toEqual({ type: DetailsActionType.SET, details });
     });
 
     it('returns valid action for empty set', () => {
-        const details: Details[] = [];
+        const details = {};
         expect(setDetailsAction(details)).toEqual({ type: DetailsActionType.SET, details });
     });
 });
 
-describe('updateDetailsYearsAction', () => {
+describe('updateDetailsAction', () => {
     it('returns valid action', () => {
-        const years: YearAmounts[] = [{ year: 21, amounts: [{ variant: 'd', amount: 2 }] }];
-        expect(setDetailsYearsAction('G', 'A', years)).toEqual({
-            type: DetailsActionType.SET_YEARS,
+        expect(updateDetailsAction('G', 'A', 21, { d: 2 })).toEqual({
+            type: DetailsActionType.UPDATE,
             group: 'G',
             name: 'A',
-            years,
+            year: 21,
+            value: { d: 2 },
         });
     });
 
     it('returns valid action for empty value', () => {
-        expect(setDetailsYearsAction('G', 'A', [])).toEqual({
-            type: DetailsActionType.SET_YEARS,
+        expect(updateDetailsAction('G', 'A', 21, {})).toEqual({
+            type: DetailsActionType.UPDATE,
             group: 'G',
             name: 'A',
-            years: [],
+            year: 21,
+            value: {},
         });
     });
 
     it('returns valid action for undefined value', () => {
-        expect(setDetailsYearsAction('G', 'A')).toEqual({
-            type: DetailsActionType.SET_YEARS,
-            group: 'G',
-            name: 'A',
-        });
-    });
-});
-
-describe('updateDetailsVariantsAction', () => {
-    it('returns valid action', () => {
-        const amounts: VariantAmount[] = [{ variant: 'd', amount: 2 }];
-        expect(setDetailsAmountsAction('G', 'A', 21, amounts)).toEqual({
-            type: DetailsActionType.SET_AMOUNTS,
+        expect(updateDetailsAction('G', 'A', 21)).toEqual({
+            type: DetailsActionType.UPDATE,
             group: 'G',
             name: 'A',
             year: 21,
-            amounts,
         });
     });
 
-    it('returns valid action for empty value', () => {
-        expect(setDetailsAmountsAction('G', 'A', 21, [])).toEqual({
-            type: DetailsActionType.SET_AMOUNTS,
+    it('returns valid action for undefined year and value', () => {
+        expect(updateDetailsAction('G', 'A')).toEqual({
+            type: DetailsActionType.UPDATE,
             group: 'G',
             name: 'A',
-            year: 21,
-            amounts: [],
-        });
-    });
-
-    it('returns valid action for undefined value', () => {
-        expect(setDetailsAmountsAction('G', 'A', 21)).toEqual({
-            type: DetailsActionType.SET_AMOUNTS,
-            group: 'G',
-            name: 'A',
-            year: 21,
         });
     });
 });
@@ -94,12 +72,31 @@ describe('renameDetailsAction', () => {
     });
 });
 
-describe('deleteDetailsAction', () => {
+describe('renameGroupAction', () => {
     it('returns valid action', () => {
-        expect(deleteDetailsAction('G', 'A')).toEqual({
-            type: DetailsActionType.DELETE,
+        expect(renameGroupAction('G', 'H')).toEqual({
+            type: DetailsActionType.RENAME_GROUP,
+            group: 'G',
+            newGroup: 'H',
+        });
+    });
+});
+
+describe('removeDetailsAction', () => {
+    it('returns valid action', () => {
+        expect(removeDetailsAction('G', 'A')).toEqual({
+            type: DetailsActionType.REMOVE,
             group: 'G',
             name: 'A',
+        });
+    });
+});
+
+describe('removeGroupAction', () => {
+    it('returns valid action', () => {
+        expect(removeGroupAction('G')).toEqual({
+            type: DetailsActionType.REMOVE_GROUP,
+            group: 'G',
         });
     });
 });

@@ -1,152 +1,95 @@
-import { type Details, type VariantAmount, type YearAmounts } from '~/common/types';
-import { type GroupsActionType } from '~/state/groups/actions';
-import { type VariantsActionType } from '~/state/variants/actions';
+import { type Amount, type AmountSet } from '~/state/details/types';
+import { type Group, type Name, type Year } from '~/state/types';
 
 export const enum DetailsActionType {
     SET = 'details.set',
-    SET_YEARS = 'details.set.years',
-    SET_AMOUNTS = 'details.set.amounts',
-    SET_MISSING = 'details.set.missing',
-    SET_REMOVING = 'details.set.removing',
-    MOVE = 'details.move',
     RENAME = 'details.rename',
-    DELETE = 'details.delete',
+    RENAME_GROUP = 'details.renameGroup',
+    REMOVE = 'details.remove',
+    REMOVE_GROUP = 'details.removeGroup',
+    MOVE = 'details.move',
+    UPDATE = 'details.update',
 }
 
 export type DetailsAction =
     | {
           type: DetailsActionType.SET;
-          details: ReadonlyArray<Details>;
-      }
-    | {
-          type: DetailsActionType.SET_YEARS;
-          group: string;
-          name: string;
-          years?: ReadonlyArray<YearAmounts>;
-      }
-    | {
-          type: DetailsActionType.SET_AMOUNTS;
-          group: string;
-          name: string;
-          year?: number;
-          amounts?: ReadonlyArray<VariantAmount>;
-      }
-    | {
-          type: DetailsActionType.SET_MISSING;
-          group: string;
-          name: string;
-          missing: boolean;
-      }
-    | {
-          type: DetailsActionType.SET_REMOVING;
-          group: string;
-          name: string;
-          year: number;
-          removing: boolean;
-      }
-    | {
-          type: DetailsActionType.MOVE;
-          group: string;
-          name: string;
-          newGroup: string;
+          details: AmountSet;
       }
     | {
           type: DetailsActionType.RENAME;
-          group: string;
-          name: string;
-          newName: string;
+          group: Group;
+          name: Name;
+          newName: Name;
       }
     | {
-          type: VariantsActionType.RENAME;
-          group: string;
-          variant: string;
-          newVariant: string;
+          type: DetailsActionType.RENAME_GROUP;
+          group: Group;
+          newGroup: Group;
       }
     | {
-          type: GroupsActionType.RENAME;
-          group: string;
-          newGroup: string;
+          type: DetailsActionType.REMOVE;
+          group: Group;
+          name: Name;
       }
     | {
-          type: DetailsActionType.DELETE;
-          group: string;
-          name: string;
+          type: DetailsActionType.REMOVE_GROUP;
+          group: Group;
       }
     | {
-          type: VariantsActionType.DELETE;
-          group: string;
-          variant: string;
+          type: DetailsActionType.MOVE;
+          group: Group;
+          name: Name;
+          newGroup: Group;
       }
     | {
-          type: GroupsActionType.DELETE;
-          group: string;
+          type: DetailsActionType.UPDATE;
+          group: Group;
+          name: Name;
+          year?: Year;
+          value?: Amount;
       };
 
-export const setDetailsAction = (details: ReadonlyArray<Details>): Readonly<DetailsAction> => ({
+export const setDetailsAction = (details: AmountSet): DetailsAction => ({
     type: DetailsActionType.SET,
     details,
 });
 
-export const setDetailsYearsAction = (
-    group: string,
-    name: string,
-    years?: ReadonlyArray<YearAmounts>
-): Readonly<DetailsAction> => ({
-    type: DetailsActionType.SET_YEARS,
-    group,
-    name,
-    years,
-});
-
-export const setDetailsAmountsAction = (
-    group: string,
-    name: string,
-    year?: number,
-    amounts?: ReadonlyArray<VariantAmount>
-): Readonly<DetailsAction> => ({
-    type: DetailsActionType.SET_AMOUNTS,
-    group,
-    name,
-    year,
-    amounts,
-});
-
-export const setDetailsMissingAction = (group: string, name: string, missing: boolean): Readonly<DetailsAction> => ({
-    type: DetailsActionType.SET_MISSING,
-    group,
-    name,
-    missing,
-});
-
-export const setDetailsRemovingAction = (
-    group: string,
-    name: string,
-    year: number,
-    removing: boolean
-): Readonly<DetailsAction> => ({
-    type: DetailsActionType.SET_REMOVING,
-    group,
-    name,
-    year,
-    removing,
-});
-
-export const moveDetailsAction = (group: string, name: string, newGroup: string): Readonly<DetailsAction> => ({
-    type: DetailsActionType.MOVE,
-    group,
-    name,
-    newGroup,
-});
-
-export const renameDetailsAction = (group: string, name: string, newName: string): Readonly<DetailsAction> => ({
+export const renameDetailsAction = (group: Group, name: Name, newName: Name): DetailsAction => ({
     type: DetailsActionType.RENAME,
     group,
     name,
     newName,
 });
 
-export const deleteDetailsAction = (group: string, name: string): Readonly<DetailsAction> => ({
-    type: DetailsActionType.DELETE,
+export const renameGroupAction = (group: Group, newGroup: Group): DetailsAction => ({
+    type: DetailsActionType.RENAME_GROUP,
+    group,
+    newGroup,
+});
+
+export const removeDetailsAction = (group: Group, name: Name): DetailsAction => ({
+    type: DetailsActionType.REMOVE,
     group,
     name,
+});
+
+export const removeGroupAction = (group: Group): DetailsAction => ({
+    type: DetailsActionType.REMOVE_GROUP,
+    group,
+});
+
+export const updateDetailsAction = (group: Group, name: Name, year?: Year, value?: Amount): DetailsAction => ({
+    type: DetailsActionType.UPDATE,
+    group,
+    name,
+    year,
+    value,
+});
+
+export const moveDetailsAction = (group: Group, name: Name, newGroup: Group): DetailsAction => ({
+    type: DetailsActionType.MOVE,
+    group,
+    name,
+    newGroup,
 });

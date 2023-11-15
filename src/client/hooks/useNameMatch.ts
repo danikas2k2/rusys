@@ -1,6 +1,12 @@
-import { compareGroups } from '~/client/utils/compareGroups';
-import { compareNames } from '~/client/utils/compareNames';
 import { useDetails } from '~/state/details/useDetails';
+import { type Group, type Name } from '~/state/types';
 
-export const useNameMatch = (group: string, name: string): boolean =>
-    !!useDetails()?.some((d) => !compareGroups(group, d.group) && !compareNames(name, d.name));
+export function useNameMatch(group: Group, name: Name): boolean {
+    const nameMatch = name.trim().toLowerCase();
+    const groupMatch = group.trim().toLowerCase();
+    const details = useDetails();
+    return Object.keys(details ?? {}).some(
+        (g) =>
+            g.toLowerCase() === groupMatch && Object.keys(details?.[g] ?? {}).some((n) => n.toLowerCase() === nameMatch)
+    );
+}

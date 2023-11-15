@@ -1,33 +1,27 @@
 import MenuIcon from '@icons/Menu.svg';
-import { ColorSchemeToggle } from '@ui/ColorSchemeToggle';
-import type { DropdownRef } from '@ui/Dropdown';
-import { IconButton } from '@ui/IconButton';
-import { Menu } from '@ui/Menu';
-import { MenuDivider } from '@ui/MenuDivider';
-import { MenuItem } from '@ui/MenuItem';
-import React, { forwardRef, type PropsWithChildren, type Ref } from 'react';
+import ColorSchemeToggler from '@ui/ColorSchemeToggler';
+import IconButton from '@ui/IconButton';
+import Menu from '@ui/Menu';
+import MenuDivider from '@ui/MenuDivider';
+import MenuItem from '@ui/MenuItem';
+import { isEqual } from 'lodash';
+import React, { memo, type PropsWithChildren } from 'react';
 import { useLabel } from '~/client/hooks/useLabel';
 
-export const ToolbarMenuWrapper = forwardRef(function ToolbarMenuWrapper(
-    { children }: PropsWithChildren,
-    ref: Ref<DropdownRef>
-) {
-    const menuLabel = useLabel('Menu');
+export default memo(function ToolbarMenuWrapper({ children }: PropsWithChildren) {
     return (
         <Menu
-            ref={ref}
-            role="menu"
             trigger={
                 <IconButton variant="plain" color="neutral">
-                    <MenuIcon aria-label={menuLabel} />
+                    <MenuIcon aria-label={useLabel('Menu')} />
                 </IconButton>
             }
         >
             {children}
             <MenuDivider />
             <MenuItem>
-                <ColorSchemeToggle />
+                <ColorSchemeToggler />
             </MenuItem>
         </Menu>
     );
-});
+}, isEqual);

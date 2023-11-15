@@ -1,5 +1,5 @@
 import { type GoogleAction, GoogleActionType } from '~/state/google/actions';
-import { google as reducer } from '~/state/google/reducer';
+import reducer from '~/state/google/reducer';
 import { type Google } from '~/state/google/types';
 
 describe('google', () => {
@@ -13,11 +13,11 @@ describe('google', () => {
     describe('default', () => {
         const unknownAction = { type: 'unknown' as GoogleActionType } as GoogleAction;
 
-        it('does not change state', () => {
+        it('leave set unchanged', () => {
             expect(reducer(google, unknownAction)).toEqual(google);
         });
 
-        it('does not change empty set', () => {
+        it('leave empty set unchanged', () => {
             expect(reducer({}, unknownAction)).toEqual({});
         });
 

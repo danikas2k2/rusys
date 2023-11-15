@@ -1,5 +1,7 @@
-import React, { type ForwardedRef, forwardRef, type ReactNode } from 'react';
-import cx from './Table.less';
+import classNames from 'classnames';
+import { isEqual } from 'lodash';
+import React, { memo, type ReactNode } from 'react';
+import './Table.less';
 
 interface TableProps {
     className?: string;
@@ -8,25 +10,22 @@ interface TableProps {
     children?: ReactNode;
 }
 
-export const Table = forwardRef(function Table(
-    { className, header, footer, children }: TableProps,
-    forwardedRef: ForwardedRef<HTMLDivElement>
-) {
+export default memo(function Table({ className, header, footer, children }: TableProps) {
     return (
-        <div ref={forwardedRef} role="table" className={cx('Table', className)}>
+        <div role="table" className={classNames('Table', className)}>
             {header && (
-                <div role="rowgroup" className={cx('Head')}>
+                <div role="rowgroup" className="Head">
                     {header}
                 </div>
             )}
-            <div role="rowgroup" className={cx('Body')}>
+            <div role="rowgroup" className="Body">
                 {children}
             </div>
             {footer && (
-                <div role="rowgroup" className={cx('Foot')}>
+                <div role="rowgroup" className="Foot">
                     {footer}
                 </div>
             )}
         </div>
     );
-});
+}, isEqual);

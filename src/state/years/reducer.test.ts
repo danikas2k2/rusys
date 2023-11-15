@@ -1,8 +1,9 @@
 import { type YearsAction, YearsActionType } from '~/state/years/actions';
-import { years as reducer } from '~/state/years/reducer';
+import reducer from '~/state/years/reducer';
+import { type Years } from '~/state/years/types';
 
 describe('years', () => {
-    const state: number[] = [21, 22, 23];
+    const state: Years = [21, 22, 23];
 
     describe('default', () => {
         const unknownAction = { type: 'unknown' as YearsActionType } as YearsAction;

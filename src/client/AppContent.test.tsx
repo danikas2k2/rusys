@@ -1,21 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { AppContent } from '~/client/AppContent';
+import AppContent from '~/client/AppContent';
 import { useDev } from '~/hooks/useDev';
 import { useProfile } from '~/state/profile/useProfile';
 import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/hooks/useDev');
 jest.mock('~/state/profile/useProfile');
-jest.mock('~/client/AppRouter', () => ({
-    AppRouter: () => <div>AppRouter</div>,
-}));
-jest.mock('~/client/user/LoginButton', () => ({
-    LoginButton: () => <div>LoginButton</div>,
-}));
-jest.mock('~/client/user/LogoutButton', () => ({
-    LogoutButton: () => <div>LogoutButton</div>,
-}));
+jest.mock('~/client/AppRouter', () => () => <div>AppRouter</div>);
+jest.mock('~/client/user/LoginButton', () => () => <div>LoginButton</div>);
+jest.mock('~/client/user/LogoutButton', () => () => <div>LogoutButton</div>);
 
 describe('AppContent', () => {
     beforeAll(() => {

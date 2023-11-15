@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { ProfileAvatar } from '~/client/user/ProfileAvatar';
+import ProfileAvatar from '~/client/user/ProfileAvatar';
 import { useProfile } from '~/state/profile/useProfile';
 
 jest.mock('~/state/profile/useProfile');

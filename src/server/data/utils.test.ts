@@ -1,79 +1,195 @@
-/** @jest-environment node */
-import { hasEffect, hasDuplicates } from '~/server/data/utils';
-import { type DeleteResult, type InsertManyResult, type InsertOneResult, MongoError, type UpdateResult } from 'mongodb';
+import { getGroupAndNameQuery, getGroupQuery, getNamedMap } from '~/server/data/utils';
 
-describe('hasEffect', () => {
-    it('returns true when insertedId is present', () => {
-        const result = { insertedId: '123' } as InsertOneResult;
-        expect(hasEffect(result)).toBeTrue();
+describe('getNamedMap', () => {
+    it('group single element without group', () => {
+        expect(getNamedMap([{ name: 'A', 21: { '': 2 } }])).toEqual({
+            '': { A: { 21: { '': 2 } } },
+        });
     });
 
-    it('returns false when insertedId is present but has falsy value', () => {
-        const result = { insertedId: null } as InsertOneResult;
-        expect(hasEffect(result)).toBeFalse();
+    it('group single element with group', () => {
+        expect(getNamedMap([{ group: 'G', name: 'A', 21: { '': 2 } }])).toEqual({
+            G: { A: { 21: { '': 2 } } },
+        });
     });
 
-    it('returns true when insertedCount is present', () => {
-        const result = { insertedCount: 1 } as InsertManyResult;
-        expect(hasEffect(result)).toBeTrue();
+    it('group multiple elements without groups', () => {
+        expect(
+            getNamedMap([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'B', 20: { '': 1 } },
+            ])
+        ).toEqual({
+            '': { A: { 21: { '': 2 } }, B: { 20: { '': 1 } } },
+        });
     });
 
-    it('returns false when insertedCount is present but has falsy value', () => {
-        const result = { insertedCount: 0 } as InsertManyResult;
-        expect(hasEffect(result)).toBeFalse();
+    it('group multiple elements with same group', () => {
+        expect(
+            getNamedMap([
+                { group: 'G', name: 'A', 21: { '': 2 } },
+                { group: 'G', name: 'B', 20: { '': 1 } },
+            ])
+        ).toEqual({
+            G: { A: { 21: { '': 2 } }, B: { 20: { '': 1 } } },
+        });
     });
 
-    it('returns true when modifiedCount is present', () => {
-        const result = { modifiedCount: 1 } as UpdateResult;
-        expect(hasEffect(result)).toBeTrue();
+    it('group multiple elements with different groups', () => {
+        expect(
+            getNamedMap([
+                { group: 'G', name: 'A', 21: { '': 2 } },
+                { group: 'H', name: 'B', 20: { '': 1 } },
+            ])
+        ).toEqual({
+            G: { A: { 21: { '': 2 } } },
+            H: { B: { 20: { '': 1 } } },
+        });
     });
 
-    it('returns false when modifiedCount is present but has falsy value', () => {
-        const result = { modifiedCount: 0 } as UpdateResult;
-        expect(hasEffect(result)).toBeFalse();
+    it('group multiple elements with same name without group', () => {
+        expect(
+            getNamedMap([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'A', 20: { '': 1 } },
+            ])
+        ).toEqual({
+            '': { A: { 21: { '': 2 }, 20: { '': 1 } } },
+        });
     });
 
-    it('returns true when upsertedCount is present', () => {
-        const result = { upsertedCount: 1 } as UpdateResult;
-        expect(hasEffect(result)).toBeTrue();
+    it('group multiple elements with same name and group', () => {
+        expect(
+            getNamedMap([
+                { group: 'G', name: 'A', 21: { '': 2 } },
+                { group: 'G', name: 'A', 20: { '': 1 } },
+            ])
+        ).toEqual({
+            G: { A: { 21: { '': 2 }, 20: { '': 1 } } },
+        });
     });
 
-    it('returns false when upsertedCount is present but has falsy value', () => {
-        const result = { upsertedCount: 0 } as UpdateResult;
-        expect(hasEffect(result)).toBeFalse();
+    it('group multiple elements with same name but different groups', () => {
+        expect(
+            getNamedMap([
+                { group: 'G', name: 'A', 21: { '': 2 } },
+                { group: 'H', name: 'A', 20: { '': 1 } },
+            ])
+        ).toEqual({
+            G: { A: { 21: { '': 2 } } },
+            H: { A: { 20: { '': 1 } } },
+        });
     });
 
-    it('returns true when deletedCount is present', () => {
-        const result = { deletedCount: 1 } as DeleteResult;
-        expect(hasEffect(result)).toBeTrue();
+    it('group multiple elements with same name and year without group', () => {
+        expect(
+            getNamedMap([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'A', 21: { d: 1 } },
+            ])
+        ).toEqual({
+            '': { A: { 21: { '': 2, d: 1 } } },
+        });
     });
 
-    it('returns false when deletedCount is present but has falsy value', () => {
-        const result = { deletedCount: 0 } as DeleteResult;
-        expect(hasEffect(result)).toBeFalse();
+    it('group multiple elements with same name, group, and year', () => {
+        expect(
+            getNamedMap([
+                { group: 'G', name: 'A', 21: { '': 2 } },
+                { group: 'G', name: 'A', 21: { d: 1 } },
+            ])
+        ).toEqual({
+            G: { A: { 21: { '': 2, d: 1 } } },
+        });
     });
 
-    it('returns false when no effect fields are present', () => {
-        const result = {} as any;
-        expect(hasEffect(result)).toBeFalse();
+    it('group multiple elements with same name and year but different groups', () => {
+        expect(
+            getNamedMap([
+                { group: 'G', name: 'A', 21: { '': 2 } },
+                { group: 'H', name: 'A', 21: { d: 1 } },
+            ])
+        ).toEqual({
+            G: { A: { 21: { '': 2 } } },
+            H: { A: { 21: { d: 1 } } },
+        });
+    });
+
+    it('group multiple elements with same name, year, and variant without group', () => {
+        expect(
+            getNamedMap([
+                { name: 'A', 21: { '': 2 } },
+                { name: 'A', 21: { '': 1 } },
+            ])
+        ).toEqual({
+            '': { A: { 21: { '': 1 } } },
+        });
+    });
+
+    it('group multiple elements with same group, name, year, and variant', () => {
+        expect(
+            getNamedMap([
+                { group: 'G', name: 'A', 21: { '': 2 } },
+                { group: 'G', name: 'A', 21: { '': 1 } },
+            ])
+        ).toEqual({
+            G: { A: { 21: { '': 1 } } },
+        });
+    });
+
+    it('group multiple elements with same name, year, and variant but different groups', () => {
+        expect(
+            getNamedMap([
+                { group: 'G', name: 'A', 21: { '': 2 } },
+                { group: 'H', name: 'A', 21: { '': 1 } },
+            ])
+        ).toEqual({
+            G: { A: { 21: { '': 2 } } },
+            H: { A: { 21: { '': 1 } } },
+        });
     });
 });
 
-describe('hasDuplicates', () => {
-    it('returns false when MongoError with code 11000 is thrown', () => {
-        const error = new MongoError('Duplicate key error');
-        error.code = 11000;
-        expect(hasDuplicates(error)).toBeFalse();
+describe('getGroupQuery', () => {
+    it('get query for empty group', () => {
+        expect(getGroupQuery('')).toEqual({
+            $or: [{ group: '' }, { group: { $exists: false } }],
+        });
     });
 
-    it('returns false when MongoError with different code is thrown', () => {
-        const error = new MongoError('Duplicate key error');
-        error.code = 11111;
-        expect(() => hasDuplicates(error)).toThrow('Duplicate key error');
+    it('get query for specified group', () => {
+        expect(getGroupQuery('G')).toEqual({
+            group: 'G',
+        });
+    });
+});
+
+describe('getGroupAndNameQuery', () => {
+    it('get query for empty group and name', () => {
+        expect(getGroupAndNameQuery('', '')).toEqual({
+            $or: [{ group: '' }, { group: { $exists: false } }],
+            name: '',
+        });
     });
 
-    it('rethrows error when error is not a MongoError with code 11000', () => {
-        const error = new Error('Some error');
-        expect(() => hasDuplicates(error)).toThrow('Some error');
+    it('get query for empty group and specified name', () => {
+        expect(getGroupAndNameQuery('', 'A')).toEqual({
+            $or: [{ group: '' }, { group: { $exists: false } }],
+            name: 'A',
+        });
+    });
+
+    it('get query for specified group and empty name', () => {
+        expect(getGroupAndNameQuery('G', '')).toEqual({
+            group: 'G',
+            name: '',
+        });
+    });
+
+    it('get query for specified group and name', () => {
+        expect(getGroupAndNameQuery('G', 'A')).toEqual({
+            group: 'G',
+            name: 'A',
+        });
     });
 });

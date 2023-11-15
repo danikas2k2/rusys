@@ -1,14 +1,19 @@
-import { isEqual } from 'lodash';
-import { useSelector } from 'react-redux';
-import { type WithVariantsState } from '~/state/variants/types';
+import { useMemo } from 'react';
+import { Variant } from '~/state/details/types';
 
-export function useAllVariants(group: string): string[] {
-    return useSelector(
-        (state: WithVariantsState) =>
-            state.variants
-                ?.filter((v) => v.group === group)
-                .sort((a, b) => a.order - b.order)
-                .map((v) => v.variant) ?? [],
-        isEqual
+export function useAllVariants(): Variant[] {
+    return useMemo(
+        () => [
+            Variant.PUSLITRIS,
+            Variant.DIDESNIS,
+            Variant.MAZESNIS,
+            Variant.EGLYTES,
+            Variant.LITRAS,
+            Variant.PUSANTRO,
+            Variant.DVILITRIS,
+            Variant.TRILITRIS,
+            Variant.BLOGAS,
+        ],
+        []
     );
 }

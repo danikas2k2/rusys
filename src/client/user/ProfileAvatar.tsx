@@ -1,16 +1,17 @@
-import React from 'react';
+import { isEqual } from 'lodash';
+import React, { memo } from 'react';
 import { useProfile } from '~/state/profile/useProfile';
-import cx from './ProfileAvatar.less';
+import './ProfileAvatar.less';
 
-export function ProfileAvatar() {
+export default memo(function ProfileAvatar() {
     const profile = useProfile();
     const name = profile?.name ?? [profile?.given_name ?? '', profile?.family_name ?? ''].filter(Boolean).join(' ');
     return name ? (
-        <div className={cx('Avatar')}>
+        <div className="Avatar">
             {profile.picture ? (
-                <img className={cx('picture')} src={profile.picture} alt={name} />
+                <img className="picture" src={profile.picture} alt={name} />
             ) : (
-                <div className={cx('letters')} aria-label={name}>
+                <div className="letters" aria-label={name}>
                     {name
                         .split(' ', 2)
                         .map(([letter]) => letter)
@@ -19,4 +20,4 @@ export function ProfileAvatar() {
             )}
         </div>
     ) : null;
-}
+}, isEqual);

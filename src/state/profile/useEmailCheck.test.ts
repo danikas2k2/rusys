@@ -18,7 +18,7 @@ describe('useEmailCheck', () => {
 
     afterEach(() => jest.clearAllMocks());
 
-    it('calls user check', async () => {
+    it('call user check', async () => {
         const response = { ok: true, allowed: true };
         request.mockResolvedValueOnce(response);
         const { result } = renderHook(() => useEmailCheck(), withReduxState());
@@ -29,7 +29,7 @@ describe('useEmailCheck', () => {
         expect(update).toHaveBeenCalledWith(response);
     });
 
-    it('calls user check with empty value', async () => {
+    it('call user check with empty value', async () => {
         const response = { ok: true, allowed: true };
         request.mockResolvedValueOnce(response);
         const { result } = renderHook(() => useEmailCheck(), withReduxState());

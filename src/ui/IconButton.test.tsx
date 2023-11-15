@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { IconButton } from '@ui/IconButton';
+import IconButton from '@ui/IconButton';
 import React from 'react';
 
 describe('IconButton', () => {

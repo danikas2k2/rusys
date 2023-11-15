@@ -1,14 +1,15 @@
 import GoogleIcon from '@icons/Google.svg';
 import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import { type ButtonProps } from '@ui/Button';
-import { IconButton } from '@ui/IconButton';
-import React, { useCallback, useMemo } from 'react';
-import { Label } from '~/client/Label';
+import IconButton from '@ui/IconButton';
+import { isEqual } from 'lodash';
+import React, { memo, useCallback, useMemo } from 'react';
+import Label from '~/client/Label';
 import { useLoginError } from '~/client/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
-import cx from './LoginButton.less';
+import './LoginButton.less';
 
-export function LoginButton({ children }: ButtonProps) {
+export default memo(function LoginButton({ children }: ButtonProps) {
     const onError = useLoginError();
     const onSuccess = useLoginSuccess(onError);
 
@@ -27,7 +28,7 @@ export function LoginButton({ children }: ButtonProps) {
 
     return (
         <IconButton color="neutral" variant="outlined" onClick={handleClick}>
-            <div className={cx('LoginButton')}>
+            <div className="LoginButton">
                 {children || (
                     <>
                         <GoogleIcon />
@@ -37,4 +38,4 @@ export function LoginButton({ children }: ButtonProps) {
             </div>
         </IconButton>
     );
-}
+}, isEqual);

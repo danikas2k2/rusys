@@ -1,15 +1,18 @@
-import { Interactive } from '@ui/Interactive';
-import { Portal } from '@ui/Portal';
+import Interactive from '@ui/Interactive';
+import Portal from '@ui/Portal';
+import classNames from 'classnames';
+import { isEqual } from 'lodash';
 import React, {
     type DialogHTMLAttributes,
     type KeyboardEvent,
+    memo,
     type ReactNode,
     type SyntheticEvent,
     useCallback,
     useEffect,
 } from 'react';
 import { usePreviousValue } from '~/hooks/usePreviousValue';
-import cx from './Dialog.less';
+import './Dialog.less';
 
 export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
     open?: boolean;
@@ -24,7 +27,7 @@ export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
  * TODO refactor to use <dialog/>
  * TODO refactor to use `useFocusTrap` hook
  */
-export function Dialog({
+export default memo(function Dialog({
     open,
     closeOnOutsideClick = true,
     closeOnEscape = true,
@@ -55,16 +58,21 @@ export function Dialog({
     return open ? (
         <Portal>
             <Interactive
-                className={cx('Backdrop')}
+                className="Backdrop"
                 role="complementary"
                 aria-label="backdrop"
                 onClick={closeOnOutsideClick ? onClose : undefined}
                 onKeyDown={closeOnEscape ? handleEscape : undefined}
             >
-                <Interactive className={cx('Dialog', className)} role="dialog" onClick={stopPropagation} {...props}>
+                <Interactive
+                    className={classNames('Dialog', className)}
+                    role="dialog"
+                    onClick={stopPropagation}
+                    {...props}
+                >
                     {children}
                 </Interactive>
             </Interactive>
         </Portal>
     ) : null;
-}
+}, isEqual);

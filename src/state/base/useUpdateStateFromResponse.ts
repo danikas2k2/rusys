@@ -1,42 +1,52 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { type ActionCreatorsMapObject } from 'redux';
-import { type ApiResult } from '~/common/api';
-import { type Details, type Summary } from '~/common/types';
+import { type Action } from 'redux';
 import { setDetailsAction } from '~/state/details/actions';
-import { setGroupsAction } from '~/state/groups/actions';
+import { type AmountSet } from '~/state/details/types';
+import { setMissingAction } from '~/state/missing/actions';
+import { type Missing } from '~/state/missing/types';
+import { setRemovingAction } from '~/state/removing/actions';
+import { type RemovingSet } from '~/state/removing/types';
 import { setSummaryAction } from '~/state/summary/actions';
-import { setVariantsAction } from '~/state/variants/actions';
+import { type CommonResponse, type Year } from '~/state/types';
 import { setYearsAction } from '~/state/years/actions';
 
-export type RefreshResult = ApiResult<{
-    years?: number[];
-    details?: Details[];
-    summary?: Summary[];
-}>;
+export interface RefreshResponse extends CommonResponse {
+    years?: Year[];
+    details?: AmountSet;
+    summary?: AmountSet;
+    removing?: RemovingSet;
+    missing?: Missing;
+}
 
-const UPDATE_ACTIONS: ActionCreatorsMapObject = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type UpdateAction = (value: any) => Action;
+export type UpdateActions = Record<string, UpdateAction>;
+
+const UPDATE_ACTIONS: UpdateActions = {
     years: setYearsAction,
-    groups: setGroupsAction,
-    variants: setVariantsAction,
     details: setDetailsAction,
     summary: setSummaryAction,
+    removing: setRemovingAction,
+    missing: setMissingAction,
 };
 
-export function useUpdateStateFromResponse(updateActions = UPDATE_ACTIONS): (result?: RefreshResult) => Promise<void> {
+export function useUpdateStateFromResponse(
+    updateActions = UPDATE_ACTIONS
+): (response?: RefreshResponse) => Promise<void> {
     const dispatch = useDispatch();
     return useCallback(
-        async (result?: RefreshResult): Promise<void> => {
-            if (!result || !('ok' in result)) {
+        async (response?: RefreshResponse): Promise<void> => {
+            if (!response || !('ok' in response)) {
                 return;
             }
-            if (!result.ok) {
-                throw new Error(result.error || 'Request failed');
+            if (!response?.ok) {
+                throw new Error(response?.error ?? 'Request failed');
             }
-            for (const update of Object.keys(result)) {
+            for (const update of Object.keys(response)) {
                 const action = updateActions[update];
                 if (action) {
-                    dispatch(action(result[update as keyof RefreshResult]));
+                    dispatch(action(response[update as keyof RefreshResponse]));
                 }
             }
         },

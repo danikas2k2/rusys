@@ -18,5 +18,5 @@ export interface Profile {
 }
 
 export interface WithProfileState {
-    profile?: Readonly<Profile>;
+    profile?: Profile;
 }

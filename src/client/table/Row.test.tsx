@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { Row } from './Row';
+import Row from './Row';
 
 describe('Row', () => {
     it('renders into the document', () => {

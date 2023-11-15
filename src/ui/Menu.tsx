@@ -1,7 +1,9 @@
-import { Dropdown, type DropdownProps, type DropdownRef } from '@ui/Dropdown';
-import React, { forwardRef, type Ref } from 'react';
-import cx from './Menu.less';
+import Dropdown, { type DropdownProps } from '@ui/Dropdown';
+import classNames from 'classnames';
+import { isEqual } from 'lodash';
+import React, { memo } from 'react';
+import './Menu.less';
 
-export const Menu = forwardRef(function Menu({ className, ...props }: DropdownProps, ref: Ref<DropdownRef>) {
-    return <Dropdown ref={ref} role="menu" className={cx('Menu', className)} {...props} />;
-});
+export default memo(function Menu({ className, ...props }: DropdownProps) {
+    return <Dropdown role="menu" className={classNames('Menu', className)} {...props} />;
+}, isEqual);
