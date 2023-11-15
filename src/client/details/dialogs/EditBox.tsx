@@ -5,40 +5,43 @@ import DoneIcon from '@icons/Done.svg';
 import Button from '@ui/Button';
 import ButtonWithConfirmation from '@ui/ButtonWithConfirmation';
 import Dialog from '@ui/Dialog';
-import useAutoFocus from '@ui/hooks/useAutoFocus';
+import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import IconButton from '@ui/IconButton';
 import Input from '@ui/Input';
 import { isEqual } from 'lodash';
 import React, { type FormEvent, type KeyboardEvent, memo, useCallback, useEffect, useState } from 'react';
-import useLabel from '~/client/hooks/useLabel';
-import useNameExists from '~/client/hooks/useNameExists';
+import { useLabel } from '~/client/hooks/useLabel';
+import { useNameMatch } from '~/client/hooks/useNameMatch';
 import Label from '~/client/Label';
-import useAddDetails from '~/store/details/useAddDetails';
-import useRemoveDetails from '~/store/details/useRemoveDetails';
-import useRenameDetails from '~/store/details/useRenameDetails';
-import { type Name } from '~/store/types';
+import { useAddDetails } from '~/state/details/useAddDetails';
+import { useRemoveDetails } from '~/state/details/useRemoveDetails';
+import { useRenameDetails } from '~/state/details/useRenameDetails';
+import { type Group, type Name } from '~/state/types';
 import { getErrorMessage } from '~/utils/errors';
-import cx from './EditBox.less';
+import './EditBox.less';
 
 interface EditBoxProps {
+    group?: Group;
     name?: Name;
-    onClose: (name?: Name) => void;
+    onClose: (group?: Group, name?: Name) => void;
 }
 
 const PLACEHOLDER = 'Please enter a name';
+const ALREADY_EXISTS = 'This name already exists';
 
-export default memo(function EditBox({ name: initialName = '', onClose }: EditBoxProps) {
+export default memo(function EditBox({ group = '', name: initialName = '', onClose }: EditBoxProps) {
     const [name, setName] = useState<Name>(initialName);
     const [updating, setUpdating] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState<string>();
 
-    const hasName = useNameExists(name) && name !== initialName && !updating;
     useEffect(() => {
-        setError('');
+        setError(undefined);
     }, [name]);
+
+    const hasName = useNameMatch(group, name) && name !== initialName && !updating;
     useEffect(() => {
         if (hasName && !error) {
-            setError('This name already exists');
+            setError(ALREADY_EXISTS);
         }
     }, [hasName, error]);
 
@@ -56,11 +59,13 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
             try {
                 setUpdating(true);
                 if (initialName) {
-                    await renameDetails(initialName, name);
+                    if (name !== initialName) {
+                        await renameDetails(group, initialName, name);
+                    }
                 } else {
-                    await addDetails(name);
+                    await addDetails(group, name);
                 }
-                onClose(name);
+                onClose(group, name);
             } catch (error) {
                 setError(getErrorMessage(error));
                 focusRef?.focus();
@@ -68,21 +73,21 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
                 setUpdating(false);
             }
         }
-    }, [addDetails, focusRef, hasName, initialName, name, onClose, renameDetails]);
+    }, [addDetails, focusRef, group, hasName, initialName, name, onClose, renameDetails]);
 
     const removeDetails = useRemoveDetails();
     const handleRemove = useCallback(async (): Promise<void> => {
         try {
             setUpdating(true);
-            await removeDetails(initialName);
-            onClose(name);
+            await removeDetails(group, initialName);
+            onClose(group, initialName);
         } catch (error) {
             setError(getErrorMessage(error));
             focusRef?.focus();
         } finally {
             setUpdating(false);
         }
-    }, [focusRef, initialName, name, onClose, removeDetails]);
+    }, [focusRef, group, initialName, onClose, removeDetails]);
 
     const handleClose = useCallback((): void => {
         onClose();
@@ -100,13 +105,16 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
     );
 
     return (
-        <Dialog className={cx('EditBox')} open onClose={handleClose}>
+        <Dialog className="EditBox" open onClose={handleClose}>
             <header>
-                <div className={cx('title')}>
+                <div className="group">
+                    <Label>{group}</Label>
+                </div>
+                <div className="title">
                     <Label>{initialName ? 'Update entry' : 'Add new entry'}</Label>
                 </div>
-                <div className={cx('close')}>
-                    <IconButton onClick={handleClose}>
+                <div className="close">
+                    <IconButton aria-label={useLabel('Close')} onClick={handleClose}>
                         <CloseIcon />
                     </IconButton>
                 </div>
@@ -123,7 +131,7 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
                     onKeyDown={handleEnter}
                 />
                 {error && error !== PLACEHOLDER && (
-                    <div className={cx('error')}>
+                    <div role="alert" className="error">
                         <Label>{error}</Label>
                     </div>
                 )}
@@ -153,7 +161,7 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
                             <DeleteIcon />
                             <Label>Remove</Label>
                         </ButtonWithConfirmation>
-                        <div className={cx('spacer')} />
+                        <div className="spacer" />
                     </>
                 )}
                 <Button variant="outlined" onClick={handleClose}>

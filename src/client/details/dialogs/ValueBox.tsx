@@ -3,6 +3,7 @@ import ExpandDownIcon from '@icons/ExpandDown.svg';
 import Button, { ButtonGroup } from '@ui/Button';
 import Dialog from '@ui/Dialog';
 import IconButton from '@ui/IconButton';
+import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, {
     createRef,
@@ -15,38 +16,39 @@ import React, {
     useState,
 } from 'react';
 import ValueInput from '~/client/details/dialogs/ValueInput';
+import { useLabel } from '~/client/hooks/useLabel';
 import Label from '~/client/Label';
-import { type Amount, Variant } from '~/store/details/types';
-import useAllVariants from '~/store/details/useAllVariants';
-import useVariantComparator from '~/store/details/useVariantComparator';
-import { type Name, type Year } from '~/store/types';
-import cx from './ValueBox.less';
+import { type Amount, Variant } from '~/state/details/types';
+import { type Group, type Name, type Year } from '~/state/types';
+import { useAllVariants } from '~/state/variants/useAllVariants';
+import { useVariantComparator } from '~/state/variants/useVariantComparator';
+import './ValueBox.less';
 
 interface ValueBoxProps {
+    group?: Group;
     name?: Name;
     year?: Year;
     value?: Amount;
     onClose?: (value?: Amount, updateWithoutHistory?: boolean) => void;
 }
 
-export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxProps) {
+// TODO refactor: extract single element with input element and all handlers to avoid multiple rerenders
+export default memo(function ValueBox({ group, name, year, value, onClose }: ValueBoxProps) {
     const [expanded, setExpanded] = useState(false);
     const [removed, setRemoved] = useState(false);
 
-    const [editingValue, setEditingValue] = useState<Amount>();
-    useEffect(() => {
-        setEditingValue(value);
-    }, [value]);
+    const [editingValue, setEditingValue] = useState(value);
+    useEffect(() => setEditingValue(value), [value]);
 
     const allVariants = useAllVariants();
-    const cmpVariants = useVariantComparator();
+    const compareVariants = useVariantComparator();
     const editingKeys = useMemo((): Variant[] => {
         if (expanded) {
             return allVariants;
         }
-        const keys = Object.keys(editingValue ?? {}).sort(cmpVariants) as Variant[];
+        const keys = Object.keys(editingValue ?? {}).sort(compareVariants) as Variant[];
         return keys.length ? keys : [Variant.PUSLITRIS];
-    }, [allVariants, cmpVariants, editingValue, expanded]);
+    }, [allVariants, compareVariants, editingValue, expanded]);
 
     useEffect(() => {
         if (editingValue) {
@@ -56,10 +58,12 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
             if (!isEqual(editingValue, optimizedValue)) {
                 setEditingValue(optimizedValue);
             }
-            const editingKeys = Object.keys(editingValue);
-            if (allVariants.every((k) => editingKeys.includes(k))) {
-                setExpanded(true);
-            }
+        }
+    }, [editingValue]);
+
+    useEffect(() => {
+        if (editingValue && allVariants.every((k) => k in editingValue)) {
+            setExpanded(true);
         }
     }, [allVariants, editingValue]);
 
@@ -70,9 +74,7 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
     );
 
     const [focused, setFocused] = useState<Variant>(editingKeys[0]);
-    useEffect(() => {
-        refs[focused]?.current?.focus();
-    }, [focused, refs]);
+    useEffect(() => refs[focused]?.current?.focus(), [focused, refs]);
     useEffect(() => {
         if (expanded) {
             refs[focused]?.current?.focus();
@@ -121,21 +123,26 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
         }
     }, [removed]);
 
+    const closeLabel = useLabel('Close');
+    const expandLabel = useLabel('Expand');
     return (
         <Dialog
-            className={cx('ValueBox', { fullScreen: expanded })}
+            className={classNames('ValueBox', { fullScreen: expanded })}
             open
             closeOnOutsideClick
             closeOnEscape
             onClose={handleClose}
         >
             <header>
-                <div className={cx('title')}>
-                    <span>{name}</span>
+                <div className="title">
+                    <div>{group}</div>
+                    <div>{name}</div>
                     <time>{year}</time>
-                    <div className={cx('controls')}>
+                    <div className="controls">
                         <ButtonGroup>
                             <Button
+                                role="radio"
+                                aria-checked={!removed}
                                 color={removed ? 'neutral' : 'positive'}
                                 variant={removed ? 'outlined' : 'solid'}
                                 onClick={handleItemsUsed}
@@ -143,6 +150,8 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
                                 <Label>Items used</Label>
                             </Button>
                             <Button
+                                role="radio"
+                                aria-checked={removed}
                                 color={removed ? 'negative' : 'neutral'}
                                 variant={removed ? 'solid' : 'outlined'}
                                 onClick={handleItemsRemoved}
@@ -152,8 +161,8 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
                         </ButtonGroup>
                     </div>
                 </div>
-                <div className={cx('close')}>
-                    <IconButton onClick={handleClose}>
+                <div className="close">
+                    <IconButton aria-label={closeLabel} onClick={handleClose}>
                         <CloseIcon />
                     </IconButton>
                 </div>
@@ -176,7 +185,13 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
             <footer>
                 {!expanded && (
                     <div>
-                        <Button onClick={handleExpand} variant="plain" color="primary" size="large">
+                        <Button
+                            aria-label={expandLabel}
+                            onClick={handleExpand}
+                            variant="plain"
+                            color="primary"
+                            size="large"
+                        >
                             <ExpandDownIcon />
                         </Button>
                     </div>

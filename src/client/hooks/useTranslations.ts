@@ -1,14 +1,14 @@
 import { useCallback } from 'react';
 import translations from '~/client/translations.json';
-import { type Locale } from '~/store/locale/types';
-import useLocale from '~/store/locale/useLocale';
+import { type Locale } from '~/state/locale/types';
+import { useLocale } from '~/state/locale/useLocale';
 
-export default function useTranslations(): (label: string, overrideLocale?: Locale) => string {
+export function useTranslations(): (label: string, overrideLocale?: Locale) => string | undefined {
     const locale = useLocale();
     return useCallback(
         (label: string, overrideLocale?: Locale) =>
             (translations as Record<string, Record<string, string>>)?.[label]?.[overrideLocale || locale || ''] ||
-            label,
+            undefined,
         [locale]
     );
 }

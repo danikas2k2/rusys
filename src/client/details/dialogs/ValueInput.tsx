@@ -1,9 +1,10 @@
 import AddIcon from '@icons/Add.svg';
 import RemoveIcon from '@icons/Remove.svg';
 import Button, { ButtonGroup } from '@ui/Button';
-import useFocusRef from '@ui/hooks/useFocusRef';
-import useForwardedRef from '@ui/hooks/useForwardedRef';
+import { useFocusRef } from '@ui/hooks/useFocusRef';
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import Input from '@ui/Input';
+import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, {
     type ChangeEvent,
@@ -14,9 +15,10 @@ import React, {
     useCallback,
     useEffect,
 } from 'react';
+import { useLabel } from '~/client/hooks/useLabel';
 import ValueVariant from '~/client/ValueVariant';
-import { type Variant } from '~/store/details/types';
-import cx from './ValueInput.less';
+import { type Variant } from '~/state/details/types';
+import './ValueInput.less';
 
 interface ValueInputProps {
     variant: Variant;
@@ -75,16 +77,6 @@ export default memo(
             [decrease, increase, onClose]
         );
 
-        const onEnter = useCallback(
-            (e: KeyboardEvent) => {
-                e.stopPropagation();
-                if (e.key === 'Enter') {
-                    onClose?.();
-                }
-            },
-            [onClose]
-        );
-
         const onInputChange = useCallback(
             (e: ChangeEvent<HTMLInputElement>) => {
                 const newValue = +e.currentTarget.value;
@@ -98,16 +90,18 @@ export default memo(
         const diff = value - prevValue;
 
         return (
-            <ButtonGroup className={cx('ValueInput')}>
-                <div className={cx('label')}>
+            <ButtonGroup className="ValueInput">
+                <div className="label">
                     <ValueVariant variant={variant} format="long" />
                 </div>
                 <Input
                     ref={ref}
-                    className={cx('value')}
+                    aria-label={variant}
+                    aria-current={focus}
+                    className="value"
                     color="primary"
                     size="large"
-                    inputMode="numeric"
+                    mode="numeric"
                     value={value}
                     onChange={onInputChange}
                     onKeyDown={onKeyDown}
@@ -115,8 +109,12 @@ export default memo(
                     onBlur={onBlur}
                     startDecorator={
                         <Button
+                            role="spinbutton"
+                            aria-label={useLabel('Decrease')}
+                            aria-controls={variant}
+                            aria-current={focus}
                             onClick={onDecreaseClick}
-                            onKeyDown={onEnter}
+                            onKeyDown={onKeyDown}
                             variant="plain"
                             color="primary"
                             spacing="half"
@@ -126,8 +124,12 @@ export default memo(
                     }
                     endDecorator={
                         <Button
+                            role="spinbutton"
+                            aria-label={useLabel('Increase')}
+                            aria-controls={variant}
+                            aria-current={focus}
                             onClick={onIncreaseClick}
-                            onKeyDown={onEnter}
+                            onKeyDown={onKeyDown}
                             variant="plain"
                             color="primary"
                             spacing="half"
@@ -137,11 +139,7 @@ export default memo(
                     }
                 />
                 {!!diff && (
-                    <div
-                        className={cx('diff', {
-                            positive: diff > 0,
-                        })}
-                    >
+                    <div role="status" className={classNames('diff', { positive: diff > 0 })}>
                         {Math.abs(diff)}
                     </div>
                 )}

@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { type Year } from '~/store/types';
+import { type Year } from '~/state/types';
 
 const MAX_YEARS = 5;
 const SWITCH_MONTH = 4;

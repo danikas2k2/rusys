@@ -1,3 +1,4 @@
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import {
     type CommonInputProps,
     type InputColor,
@@ -5,10 +6,10 @@ import {
     type InputSpacing,
     type InputVariant,
 } from '@ui/Input';
+import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, { type ButtonHTMLAttributes, type ForwardedRef, forwardRef, memo } from 'react';
-import useForwardedRef from '~/ui/hooks/useForwardedRef';
-import cx from './Button.less';
+import './Button.less';
 
 export interface ButtonProps<T extends HTMLElement = HTMLButtonElement> extends ButtonHTMLAttributes<T> {
     variant?: InputVariant;
@@ -39,7 +40,7 @@ export default memo(
         return (
             <button
                 ref={ref}
-                className={cx(
+                className={classNames(
                     'Button',
                     `color-${color}`,
                     `variant-${variant}`,
@@ -63,7 +64,7 @@ export const ButtonGroup = memo(
         forwardedRef: ForwardedRef<HTMLDivElement>
     ) {
         const ref = useForwardedRef(forwardedRef);
-        return <div ref={ref} className={cx('ButtonGroup', className)} {...props} />;
+        return <div ref={ref} className={classNames('ButtonGroup', className)} {...props} />;
     }),
     isEqual
 );

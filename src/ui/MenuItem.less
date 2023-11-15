@@ -1,0 +1,23 @@
+.MenuItem {
+    display: flex;
+    flex: 1 0 auto;
+    align-items: center;
+    padding: 8px 16px;
+
+    .start-decorator,
+    .end-decorator {
+        display: flex;
+        align-items: stretch;
+        flex-shrink: 0;
+    }
+
+    .start-decorator {
+        justify-content: flex-start;
+        padding-inline-end: 8px;
+    }
+
+    .end-decorator {
+        justify-content: flex-end;
+        padding-inline-start: 8px;
+    }
+}

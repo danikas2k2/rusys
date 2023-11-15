@@ -1,22 +1,33 @@
 import { isEqual } from 'lodash';
-import { memo, type ReactNode } from 'react';
+import { memo, type ReactNode, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useUniqueId } from './hooks/useUniqueId';
 
 interface PortalProps {
     children: ReactNode;
 }
 
-const getModalRoot = (): HTMLElement => {
-    let bindTo = document.getElementById('modal-root');
-    if (!bindTo) {
-        bindTo = document.createElement('div');
-        bindTo.id = 'modal-root';
-        document.body.appendChild(bindTo);
+const usePortalRoot = (): HTMLElement => {
+    const idRef = useRef(useUniqueId('portal'));
+    const rootRef = useRef<HTMLElement | null>(document.getElementById(idRef.current));
+    if (!rootRef.current) {
+        rootRef.current = document.createElement('div');
+        rootRef.current.id = idRef.current;
+        rootRef.current.setAttribute('role', 'complementary');
+        rootRef.current.setAttribute('aria-label', 'portal');
+        document.body.appendChild(rootRef.current);
     }
-    return bindTo;
+
+    useEffect(() => {
+        return () => {
+            rootRef.current?.remove();
+        };
+    }, []);
+
+    return rootRef.current;
 };
 
 export default memo(function Portal({ children }: PortalProps) {
-    const modalRoot = getModalRoot();
-    return createPortal(children, modalRoot);
+    const portalRoot = usePortalRoot();
+    return createPortal(children, portalRoot, portalRoot.id);
 }, isEqual);

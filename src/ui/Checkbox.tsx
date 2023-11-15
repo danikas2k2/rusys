@@ -1,7 +1,8 @@
 import CheckIcon from '@icons/Check.svg';
 import CheckIndeterminateIcon from '@icons/CheckIndeterminate.svg';
-import useForwardedRef from '@ui/hooks/useForwardedRef';
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { type CommonInputProps, type InputColor, type InputSize, type InputVariant } from '@ui/Input';
+import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, {
     type ChangeEvent,
@@ -13,7 +14,8 @@ import React, {
     useMemo,
     useState,
 } from 'react';
-import cx from './Checkbox.less';
+import './Checkbox.less';
+import { useUniqueId } from './hooks/useUniqueId';
 
 export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {
     variant?: InputVariant;
@@ -25,16 +27,16 @@ export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {
 export default memo(
     forwardRef(function Checkbox(
         {
-            id,
-            children,
+            id = useUniqueId('checkbox'),
             color = 'neutral',
             variant = 'outlined',
             size = 'medium',
-            checked,
-            disabled,
-            indeterminate,
+            checked = false,
+            disabled = false,
+            indeterminate = false,
             className,
             onChange,
+            children,
             ...props
         }: CheckboxProps,
         forwardedRef: ForwardedRef<HTMLInputElement>
@@ -58,13 +60,15 @@ export default memo(
 
         const handleChange = useCallback(
             (e: ChangeEvent<HTMLInputElement>): void => {
-                if (ref.current) {
-                    setIndeterminate(ref.current.indeterminate);
-                    setChecked(ref.current.checked);
+                if (!disabled) {
+                    if (ref.current) {
+                        setIndeterminate(ref.current.indeterminate);
+                        setChecked(ref.current.checked);
+                    }
+                    onChange?.(e);
                 }
-                onChange?.(e);
             },
-            [onChange, ref]
+            [disabled, onChange, ref]
         );
 
         const icon = useMemo(() => {
@@ -74,7 +78,7 @@ export default memo(
         return (
             <label
                 htmlFor={id}
-                className={cx('Checkbox', `color-${color}`, `variant-${variant}`, `size-${size}`, className)}
+                className={classNames('Checkbox', `color-${color}`, `variant-${variant}`, `size-${size}`, className)}
             >
                 <input
                     ref={ref}
@@ -87,8 +91,8 @@ export default memo(
                     onChange={handleChange}
                     {...props}
                 />
-                <span className={cx('checkbox')}>{icon}</span>
-                <span className={cx('label')}>{children}</span>
+                <span className="checkbox">{icon}</span>
+                <span className="label">{children}</span>
             </label>
         );
     }),

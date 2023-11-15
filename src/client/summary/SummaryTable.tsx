@@ -1,49 +1,40 @@
 import Loader from '@ui/Loader';
+import classNames from 'classnames';
 import { isEmpty, isEqual } from 'lodash';
-import React, { memo, useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { memo, useMemo } from 'react';
+import { Error } from '~/client/Error';
 import InteractiveName from '~/client/InteractiveName';
+import Label from '~/client/Label';
 import Cell from '~/client/table/Cell';
 import Row from '~/client/table/Row';
 import Table from '~/client/table/Table';
-import { cmp } from '~/client/utils/cmp';
-import { matchParts } from '~/client/utils/matchParts';
+import { filterGroupedEntries } from '~/client/utils/filterGroupedEntries';
 import ValueVariant from '~/client/ValueVariant';
-import { type BaseState } from '~/store/base/types';
-import { type Amounts, type Variant } from '~/store/details/types';
-import useVariantComparator from '~/store/details/useVariantComparator';
-import useSummaryLoader from '~/store/summary/useSummaryLoader';
-import { type Name } from '~/store/types';
-import cx from './SummaryTable.less';
+import { LoadingState, useLockingLoader } from '~/hooks/useLockingLoader';
+import { type Amounts, type Variant } from '~/state/details/types';
+import { useFilter } from '~/state/filter/useFilter';
+import { useSummary } from '~/state/summary/useSummary';
+import { useSummaryLoader } from '~/state/summary/useSummaryLoader';
+import { type Group, type Name } from '~/state/types';
+import { useVariantComparator } from '~/state/variants/useVariantComparator';
+import { useYears } from '~/state/years/useYears';
+import './SummaryTable.less';
 
 export default memo(function SummaryTable() {
-    const [loading, setLoading] = useState(false);
-    const [loaded, setLoaded] = useState(false);
-    const initialLoad = useSummaryLoader();
-    useEffect(() => {
-        (async () => {
-            if (!loading && !loaded) {
-                setLoading(true);
-                await initialLoad();
-                setLoaded(true);
-                setLoading(false);
-            }
-        })();
-    }, [loading, loaded, initialLoad]);
+    const loader = useSummaryLoader();
+    const loading = useLockingLoader(loader);
 
-    const [years, stats, filter] = useSelector(
-        (state: BaseState) => [state.years, state.statistics, state.filter] as const,
-        isEqual
-    );
-    const statsEntries: [Name, Amounts][] = useMemo(
-        () => Object.entries(stats).sort(([a], [b]) => cmp(a.toLowerCase(), b.toLowerCase())),
-        [stats]
+    const filter = useFilter();
+    const summary = useSummary();
+    const filteredEntries: [Group, [Name, Amounts][]][] = useMemo(
+        () => filterGroupedEntries(summary, filter),
+        [summary, filter]
     );
 
-    const filteredEntries = statsEntries.filter(([name]) => matchParts(name, filter));
-    const cmpVariants = useVariantComparator();
+    const years = useYears();
+    const compareVariants = useVariantComparator();
 
-    if (!years?.length && !stats?.length) {
+    if (loading === LoadingState.INITIAL || loading === LoadingState.LOADING) {
         return (
             <div>
                 <Loader />
@@ -51,40 +42,65 @@ export default memo(function SummaryTable() {
         );
     }
 
+    if (loading === LoadingState.FAILED) {
+        return (
+            <Error>
+                <Label>Failed to load data</Label>
+            </Error>
+        );
+    }
+
+    if (isEmpty(years) || isEmpty(summary)) {
+        return (
+            <Error>
+                <Label>No data</Label>
+            </Error>
+        );
+    }
+
     return (
         <Table
-            className={cx('Table')}
+            className="Table"
             header={
-                <Row className={cx('Row', 'HeadRow')}>
-                    <Cell />
+                <Row className="Row HeadRow">
+                    <Cell role="columnheader" />
                     {years.map((year) => (
-                        <Cell key={year} className={cx('year')}>
+                        <Cell key={year} role="columnheader" className="year">
                             <sup>{year}</sup>/<sub>{year + 1}</sub>
                         </Cell>
                     ))}
                 </Row>
             }
         >
-            {filteredEntries.map(([name, values]) => (
-                <Row key={name} className={cx('Row')}>
-                    <Cell className={cx('name')}>
-                        <InteractiveName name={name} />
-                    </Cell>
-                    {years.map((year) => (
-                        <Cell key={year} className={cx('ValueCell', { empty: isEmpty(values[year]) })}>
-                            {Object.entries(values[year] ?? {})
-                                .sort(([a], [b]) => cmpVariants(a, b))
-                                .map(([k, v]) => (
-                                    <span className={cx('value')} key={k}>
-                                        {v}
-                                        <sub>
-                                            <ValueVariant variant={k as Variant} />
-                                        </sub>
-                                    </span>
-                                ))}
+            {filteredEntries.map(([group, namedValues]) => (
+                <div key={group} role="rowgroup">
+                    <Row className="Row GroupRow">
+                        <Cell role="rowheader" className="GroupHeading">
+                            {group}
                         </Cell>
+                    </Row>
+                    {namedValues.map(([name, values]) => (
+                        <Row key={name} className="Row">
+                            <Cell className="name">
+                                <InteractiveName name={name} />
+                            </Cell>
+                            {years.map((year) => (
+                                <Cell key={year} className={classNames('ValueCell', { empty: isEmpty(values[year]) })}>
+                                    {Object.entries(values[year] ?? {})
+                                        .sort(([a], [b]) => compareVariants(a, b))
+                                        .map(([k, v]) => (
+                                            <span className="value" key={k}>
+                                                {v}
+                                                <sub>
+                                                    <ValueVariant variant={k as Variant} />
+                                                </sub>
+                                            </span>
+                                        ))}
+                                </Cell>
+                            ))}
+                        </Row>
                     ))}
-                </Row>
+                </div>
             ))}
         </Table>
     );

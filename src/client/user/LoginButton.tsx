@@ -1,42 +1,17 @@
 import GoogleIcon from '@icons/Google.svg';
-import { type CredentialResponse, type TokenResponse, useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
+import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import { type ButtonProps } from '@ui/Button';
 import IconButton from '@ui/IconButton';
-import { jwtDecode } from 'jwt-decode';
 import { isEqual } from 'lodash';
 import React, { memo, useCallback, useMemo } from 'react';
-import { useDispatch } from 'react-redux';
 import Label from '~/client/Label';
-import { resetProfileAction, setProfileAction } from '~/store/profile/actions';
-import { type Profile } from '~/store/profile/types';
-import useEmailCheck from '~/store/profile/useEmailCheck';
-import cx from './LoginButton.less';
+import { useLoginError } from '~/client/user/hooks/useLoginError';
+import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
+import './LoginButton.less';
 
 export default memo(function LoginButton({ children }: ButtonProps) {
-    const dispatch = useDispatch();
-
-    const emailCheck = useEmailCheck();
-    const onSuccess = useCallback(
-        async (response: CredentialResponse | TokenResponse) => {
-            const data = (response as CredentialResponse)?.credential ?? (response as TokenResponse)?.access_token;
-            if (data) {
-                const profile = jwtDecode<Profile>(data);
-                const { email } = profile;
-                if (email) {
-                    dispatch(setProfileAction(profile));
-                    await emailCheck(email);
-                    return;
-                }
-            }
-            // reset profile if no response or email
-            dispatch(resetProfileAction());
-        },
-        [dispatch, emailCheck]
-    );
-
-    const onError = useCallback(() => {
-        dispatch(resetProfileAction());
-    }, [dispatch]);
+    const onError = useLoginError();
+    const onSuccess = useLoginSuccess(onError);
 
     const loginOptions = useMemo(
         () => ({
@@ -53,7 +28,7 @@ export default memo(function LoginButton({ children }: ButtonProps) {
 
     return (
         <IconButton color="neutral" variant="outlined" onClick={handleClick}>
-            <div className={cx('LoginButton')}>
+            <div className="LoginButton">
                 {children || (
                     <>
                         <GoogleIcon />

@@ -1,4 +1,5 @@
-import useForwardedRef from '@ui/hooks/useForwardedRef';
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
+import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, {
     type FormEvent,
@@ -11,7 +12,7 @@ import React, {
     useEffect,
     useState,
 } from 'react';
-import cx from './Input.less';
+import './Input.less';
 
 export type InputColor = 'neutral' | 'primary' | 'secondary' | 'positive' | 'warning' | 'negative';
 
@@ -25,7 +26,7 @@ export type InputMode = 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal'
 
 export type CommonInputProps<T extends HTMLElement> = Omit<InputHTMLAttributes<T>, 'type' | 'size'>;
 
-export interface InputProps extends CommonInputProps<HTMLInputElement> {
+export interface InputProps extends Omit<CommonInputProps<HTMLInputElement>, 'inputMode' | 'children'> {
     variant?: InputVariant;
     color?: InputColor;
     size?: InputSize;
@@ -39,16 +40,15 @@ export interface InputProps extends CommonInputProps<HTMLInputElement> {
 export default memo(
     forwardRef(function Input(
         {
-            children,
             color = 'neutral',
             variant = 'outlined',
             size = 'medium',
             mode = 'text',
-            disabled,
+            disabled = false,
             fullWidth,
             fullHeight,
             placeholder,
-            value: initialValue,
+            value: initialValue = '',
             startDecorator,
             endDecorator,
             className,
@@ -62,6 +62,7 @@ export default memo(
 
         function setCaretPosition(element: HTMLInputElement, position: number): void {
             if (element.setSelectionRange) {
+                // TODO cleanup
                 // if (document.activeElement !== element) {
                 element.focus();
                 // }
@@ -77,28 +78,28 @@ export default memo(
         }
 
         const onKey = useCallback(
-            (ev: KeyboardEvent<HTMLInputElement>) => {
-                if (ev.key === 'Home' || ev.key === 'End' || ev.key === 'PageUp' || ev.key === 'PageDown') {
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    const el = ev.currentTarget ?? (ev.target as HTMLInputElement);
-                    if (ev.key === 'Home' || ev.key === 'PageUp') {
-                        setCaretPosition(el, 0);
-                        if (el.scrollLeft !== 0) {
-                            el.scrollLeft = 0;
+            (e: KeyboardEvent<HTMLInputElement>) => {
+                if (e.key === 'Home' || e.key === 'End' || e.key === 'PageUp' || e.key === 'PageDown') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const t = e.currentTarget ?? (e.target as HTMLInputElement);
+                    if (e.key === 'Home' || e.key === 'PageUp') {
+                        setCaretPosition(t, 0);
+                        if (t.scrollLeft !== 0) {
+                            t.scrollLeft = 0;
                         }
-                    } else if (ev.key === 'End' || ev.key === 'PageDown') {
-                        setCaretPosition(el, el.value.length);
-                        if (el.scrollWidth > el.clientWidth) {
-                            el.scrollLeft = el.scrollWidth - el.clientWidth;
+                    } else if (e.key === 'End' || e.key === 'PageDown') {
+                        setCaretPosition(t, t.value.length);
+                        if (t.scrollWidth > t.clientWidth) {
+                            t.scrollLeft = t.scrollWidth - t.clientWidth;
                         }
                     }
                 }
 
-                if (ev.type === 'keydown') {
-                    onKeyDown?.(ev);
-                } else if (ev.type === 'keyup') {
-                    onKeyUp?.(ev);
+                if (e.type === 'keydown') {
+                    onKeyDown?.(e);
+                } else if (e.type === 'keyup') {
+                    onKeyUp?.(e);
                 }
             },
             [onKeyDown, onKeyUp]
@@ -116,7 +117,7 @@ export default memo(
 
         return (
             <div
-                className={cx(
+                className={classNames(
                     'Input',
                     `color-${color}`,
                     `variant-${variant}`,
@@ -126,7 +127,7 @@ export default memo(
                 )}
             >
                 {startDecorator && (
-                    <div className={cx('start-decorator', `type-${getDecoratorType(startDecorator)}`)}>
+                    <div className={classNames('start-decorator', `type-${getDecoratorType(startDecorator)}`)}>
                         {startDecorator}
                     </div>
                 )}
@@ -142,11 +143,11 @@ export default memo(
                     onKeyDown={onKey}
                     onKeyUp={onKey}
                     {...props}
-                >
-                    {children}
-                </input>
+                />
                 {endDecorator && (
-                    <div className={cx('end-decorator', `type-${getDecoratorType(endDecorator)}`)}>{endDecorator}</div>
+                    <div className={classNames('end-decorator', `type-${getDecoratorType(endDecorator)}`)}>
+                        {endDecorator}
+                    </div>
                 )}
             </div>
         );

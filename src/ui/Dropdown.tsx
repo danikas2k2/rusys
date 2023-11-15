@@ -1,5 +1,6 @@
 import Interactive from '@ui/Interactive';
 import Portal from '@ui/Portal';
+import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, {
     cloneElement,
@@ -17,8 +18,8 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import usePreviousValue from '~/hooks/usePreviousValue';
-import cx from './Dropdown.less';
+import { usePreviousValue } from '~/hooks/usePreviousValue';
+import './Dropdown.less';
 
 interface DropdownTriggerElementProps {
     onClick: MouseEventHandler;
@@ -82,6 +83,14 @@ export default memo(function Dropdown({
         }
     }, [onClose, open]);
 
+    const handleToggle = useCallback(() => {
+        if (open) {
+            handleClose();
+        } else {
+            handleOpen();
+        }
+    }, [handleClose, handleOpen, open]);
+
     const handleEscape = useCallback(
         (e: KeyboardEvent<HTMLElement>) => {
             if (e.key === 'Escape') {
@@ -102,14 +111,15 @@ export default memo(function Dropdown({
     const dropdown = open ? (
         <Portal>
             <Interactive
-                className={cx('Backdrop')}
-                role="presentation"
+                className="Backdrop"
+                role="complementary"
+                aria-label="backdrop"
                 onClick={closeOnOutsideClick ? handleClose : undefined}
                 onKeyDown={closeOnEscape ? handleEscape : undefined}
             >
                 <Interactive
-                    className={cx('Dropdown', { hover }, className)}
-                    role="listbox"
+                    className={classNames('Dropdown', { hover }, className)}
+                    role="dialog"
                     onClick={stopPropagation}
                     {...props}
                     style={{
@@ -126,13 +136,14 @@ export default memo(function Dropdown({
 
     return (
         <>
-            {isValidElement(trigger) ? (
-                cloneElement<DropdownTriggerElementProps>(trigger, { ref: triggerRef, onClick: handleOpen })
-            ) : (
-                <Interactive tag="span" ref={triggerRef} onClick={handleOpen}>
-                    {trigger instanceof Function ? trigger({ open: handleOpen }) : trigger}
-                </Interactive>
-            )}
+            {trigger &&
+                (isValidElement(trigger) ? (
+                    cloneElement<DropdownTriggerElementProps>(trigger, { ref: triggerRef, onClick: handleToggle })
+                ) : (
+                    <Interactive tag="span" ref={triggerRef} onClick={handleToggle}>
+                        {trigger instanceof Function ? trigger({ open: handleOpen }) : trigger}
+                    </Interactive>
+                ))}
             {dropdown}
         </>
     );

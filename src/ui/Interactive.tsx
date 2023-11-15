@@ -31,7 +31,8 @@ export default memo(
     ) {
         const handleKeyDown = useCallback(
             (e: KeyboardEvent<HTMLElement>) => {
-                if (e.key === 'Enter' || e.key === 'Space') {
+                const key = e.key.toLowerCase();
+                if (key === 'enter' || key === 'space' || key === ' ') {
                     onClick?.(e as unknown as MouseEvent<HTMLElement>);
                 } else {
                     onKeyDown?.(e);

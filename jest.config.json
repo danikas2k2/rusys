@@ -4,8 +4,10 @@
     "moduleNameMapper": {
         "^@icons/(.*)$": "<rootDir>/src/icons/$1",
         "^@ui/(.*)$": "<rootDir>/src/ui/$1",
-        "^~/(.*)$": "<rootDir>/src/$1"
+        "^~/(.*)$": "<rootDir>/src/$1",
+        "\\.(c|le)ss$": "<rootDir>/jest/__mocks__/styleMock.js"
     },
+    "modulePathIgnorePatterns": ["<rootDir>/src/.*?\\.d\\.ts$", "<rootDir>/src/.*?/types\\.ts$"],
     "setupFilesAfterEnv": [
         "@testing-library/jest-dom",
         "jest-extended/all",
@@ -15,8 +17,15 @@
     ],
     "testEnvironment": "jsdom",
     "transform": {
-        "\\.[jt]sx?$": "esbuild-jest"
+        "\\.[jt]sx?$": [
+            "esbuild-jest",
+            {
+                "sourcemap": true
+            }
+        ],
+        "\\.(c|le)ss$": "jest-css-modules-transform",
+        "\\.svg": "jest-transformer-svg"
     },
     "collectCoverage": false,
-    "collectCoverageFrom": ["src/**/*.{ts,tsx}", "!src/**/*.d.ts", "!src/data/**/*.ts"]
+    "collectCoverageFrom": ["src/**/*.{ts,tsx}", "!src/**/*.d.ts", "!src/tutorial/**", "!src/tests/**"]
 }

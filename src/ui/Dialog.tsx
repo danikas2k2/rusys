@@ -1,5 +1,6 @@
 import Interactive from '@ui/Interactive';
 import Portal from '@ui/Portal';
+import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, {
     type DialogHTMLAttributes,
@@ -10,8 +11,8 @@ import React, {
     useCallback,
     useEffect,
 } from 'react';
-import usePreviousValue from '~/hooks/usePreviousValue';
-import cx from './Dialog.less';
+import { usePreviousValue } from '~/hooks/usePreviousValue';
+import './Dialog.less';
 
 export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
     open?: boolean;
@@ -57,12 +58,18 @@ export default memo(function Dialog({
     return open ? (
         <Portal>
             <Interactive
-                className={cx('Backdrop')}
-                role="presentation"
+                className="Backdrop"
+                role="complementary"
+                aria-label="backdrop"
                 onClick={closeOnOutsideClick ? onClose : undefined}
                 onKeyDown={closeOnEscape ? handleEscape : undefined}
             >
-                <Interactive className={cx('Dialog', className)} role="dialog" onClick={stopPropagation} {...props}>
+                <Interactive
+                    className={classNames('Dialog', className)}
+                    role="dialog"
+                    onClick={stopPropagation}
+                    {...props}
+                >
                     {children}
                 </Interactive>
             </Interactive>

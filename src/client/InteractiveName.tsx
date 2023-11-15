@@ -1,9 +1,9 @@
-import useLongPress from '@ui/hooks/useLongPress';
+import { useLongPress } from '@ui/hooks/useLongPress';
 import Interactive from '@ui/Interactive';
 import { isEqual } from 'lodash';
 import React, { memo, useCallback, useState } from 'react';
 import EditBox from '~/client/details/dialogs/EditBox';
-import { type Name } from '~/store/types';
+import { type Name } from '~/state/types';
 
 interface InteractiveNameProps {
     name: Name;
