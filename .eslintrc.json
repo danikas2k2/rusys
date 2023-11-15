@@ -100,7 +100,14 @@
         "jest/valid-expect": "error",
         "react-hooks/exhaustive-deps": "error",
         "react/prop-types": 0,
-        "@typescript-eslint/consistent-type-imports": "error",
+        "@typescript-eslint/consistent-type-imports": [
+            "error",
+            {
+                "prefer": "type-imports",
+                "fixStyle": "inline-type-imports",
+                "disallowTypeAnnotations": true
+            }
+        ],
         "no-duplicate-imports": "off",
         "import/named": "off",
         "import/default": "off",
@@ -121,6 +128,15 @@
             "rules": {
                 "no-undef": "off",
                 "prettier/prettier": "off"
+            }
+        },
+        {
+            "files": ["*.test.ts", "*.test.tsx"],
+            "rules": {
+                "@typescript-eslint/no-explicit-any": "off",
+                "react/display-name": "off",
+                "import/no-named-as-default": "off",
+                "no-console": "off"
             }
         }
     ]

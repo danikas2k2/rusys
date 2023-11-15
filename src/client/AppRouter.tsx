@@ -10,6 +10,7 @@ export default memo(function AppRouter() {
         <HashRouter>
             <Routes>
                 <Route path={Links.SUMMARY} element={<SummaryPage />} />
+                <Route path={Links.DETAILS} element={<DetailsPage />} />
                 <Route path="*" element={<DetailsPage />} />
             </Routes>
         </HashRouter>
