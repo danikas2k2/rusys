@@ -30,17 +30,24 @@ describe('useRemoveDetails', () => {
         expect(request).toHaveBeenCalledWith(ApiUrl.DetailsDelete, { group: 'G', name: 'A' });
     });
 
-    it('does not call remove action with empty name', async () => {
+    it('calls remove action with empty name', async () => {
         const { result } = renderHook(() => useDeleteDetails(), withReduxState());
         await result.current('G', '');
-        expect(dispatch).not.toHaveBeenCalled();
+        expect(dispatch).toHaveBeenCalledWith({ type: DetailsActionType.DELETE, group: 'G', name: '' });
         expect(request).not.toHaveBeenCalled();
     });
 
-    it('does not call remove action with empty group', async () => {
+    it('calls remove action with empty group', async () => {
         const { result } = renderHook(() => useDeleteDetails(), withReduxState());
         await result.current('', 'A');
-        expect(dispatch).not.toHaveBeenCalled();
+        expect(dispatch).toHaveBeenCalledWith({ type: DetailsActionType.DELETE, group: 'J', name: 'A' });
+        expect(request).toHaveBeenCalledWith(ApiUrl.DetailsDelete, { group: 'J', name: 'A' });
+    });
+
+    it('calls remove action with empty group and name', async () => {
+        const { result } = renderHook(() => useDeleteDetails(), withReduxState());
+        await result.current('', '');
+        expect(dispatch).toHaveBeenCalledWith({ type: DetailsActionType.DELETE, group: 'J', name: '' });
         expect(request).not.toHaveBeenCalled();
     });
 });

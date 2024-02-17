@@ -1,4 +1,4 @@
-import { ColorSchemeToggle } from '@ui/ColorSchemeToggle';
+import { ColorSchemeToggler } from '@ui/ColorSchemeToggler';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
 import React from 'react';
 import { Route, Routes } from 'react-router';
@@ -12,8 +12,8 @@ export function Tutorial(): JSX.Element {
         <HashRouter>
             <div className={cx('Page')}>
                 <aside>
-                    <div className={cx('ColorToggle')}>
-                        <ColorSchemeToggle />
+                    <div className={cx('ColorToggler')}>
+                        <ColorSchemeToggler />
                     </div>
                     {Object.entries(PAGES).map(([key, [title]]) => (
                         <NavLink key={key} to={`/${key}`}>

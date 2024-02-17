@@ -24,34 +24,43 @@ export const setGroups = async (groups: ReadonlyArray<Group>, session?: ClientSe
         .bulkWrite(
             [
                 { deleteMany: { filter: { group: { $nin: uniq(groups.map(({ group }) => group)) } } } },
-                ...groups
-                    .filter(({ group }) => !!group)
-                    .map(({ group, ...details }) => ({
-                        updateOne: { filter: { group }, update: { $set: details }, upsert: true },
-                    })),
+                // ...groups.map(({ group, order }) => ({ deleteOne: { filter: { group, order: { $ne: order } } } })),
+                // ...groups.map(({ group, order }) => ({ deleteOne: { filter: { order, group: { $ne: group } } } })),
+                ...groups.map(({ group, ...details }) => ({
+                    updateOne: { filter: { group }, update: { $set: details }, upsert: true },
+                })),
             ],
             { session }
         )
         .then(hasEffect);
 
+// export const updateGroup = async (
+//     group: string,
+//     order: number,
+//     title?: string,
+//     session?: ClientSession
+// ): Promise<boolean> =>
+//     (await getGroupsCollection())
+//         .updateOne({ group }, title ? { $set: { order, title } } : { $set: { order }, $unset: { title } }, {
+//             upsert: true,
+//             session,
+//         })
+//         .then(hasEffect)
+//         .catch(hasDuplicates);
+
 export async function updateGroup(group: string, order?: number, session?: ClientSession): Promise<boolean> {
-    if (!group) {
-        return false;
-    }
-    const groupCollection = await getGroupsCollection();
+    const col = await getGroupsCollection();
     return order != null
-        ? groupCollection.updateOne({ group }, { $set: { order } }, { upsert: true, session }).then(hasEffect)
-        : groupCollection
+        ? col.updateOne({ group }, { $set: { order } }, { upsert: true, session }).then(hasEffect)
+        : col
               .aggregate([{ $group: { _id: null, order: { $max: '$order' } } }], { session })
               .next()
-              .then(({ order }) => groupCollection.insertOne({ group, order: order + 1 }, { session }))
+              .then(({ order }) => col.insertOne({ group, order: order + 1 }, { session }))
               .then(hasEffect);
+    // db.variants.aggregate([{\$match:{group:'Uogienės'}},{\$group:{_id:'\$group',order:{\$max:'\$order'}}}])"
 }
 
 export async function switchGroups(group: string, oppositeGroup: string, session?: ClientSession): Promise<boolean> {
-    if (!group || !oppositeGroup) {
-        return false;
-    }
     console.info('switchGroups', { group, oppositeGroup });
     const col = await getGroupsCollection();
     const order = (await col.findOne({ group }, { projection: { _id: 0, order: 1 }, session }))?.order;
@@ -77,12 +86,10 @@ export async function switchGroups(group: string, oppositeGroup: string, session
 }
 
 export const renameGroup = async (group: string, newGroup: string, session?: ClientSession): Promise<boolean> =>
-    group && newGroup
-        ? (await getGroupsCollection())
-              .updateOne({ group }, { $set: { group: newGroup } }, { session })
-              .then(hasEffect)
-              .catch(hasDuplicates)
-        : false;
+    (await getGroupsCollection())
+        .updateOne({ group }, { $set: { group: newGroup } }, { session })
+        .then(hasEffect)
+        .catch(hasDuplicates);
 
 export const deleteGroup = async (group: string, session?: ClientSession): Promise<boolean> =>
-    group ? (await getGroupsCollection()).deleteOne({ group }, { session }).then(hasEffect) : false;
+    (await getGroupsCollection()).deleteOne({ group }, { session }).then(hasEffect);

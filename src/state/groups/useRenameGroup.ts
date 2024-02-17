@@ -9,7 +9,7 @@ export function useRenameGroup(): (group: string, newGroup: string) => Promise<v
     const request = useUpdatingApiRequest<ApiRenameGroup>();
     return useCallback(
         async (group: string, newGroup: string): Promise<void> => {
-            if (group && newGroup && group !== newGroup) {
+            if (newGroup && group !== newGroup) {
                 dispatch(renameGroupAction(group, newGroup));
                 return request(ApiUrl.GroupsRename, { group, newGroup });
             }

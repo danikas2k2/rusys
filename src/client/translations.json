@@ -17,8 +17,23 @@
     "Edit": {
         "lt-LT": "Taisyti"
     },
+    "Group": {
+        "lt-LT": "Grupė"
+    },
+    "Groups": {
+        "lt-LT": "Grupės"
+    },
     "Invalid Client ID": {
         "lt-LT": "Netinkamas kliento ID"
+    },
+    "Items removed": {
+        "lt-LT": "Išmesta"
+    },
+    "Items used": {
+        "lt-LT": "Suvalgyta"
+    },
+    "List": {
+        "lt-LT": "Sąrašas"
     },
     "Login with Google": {
         "lt-LT": "Prisijungti su Google"
@@ -26,11 +41,26 @@
     "Logout": {
         "lt-LT": "Atsijungti"
     },
+    "Name": {
+        "lt-LT": "Pavadinimas"
+    },
+    "Long": {
+        "lt-LT": "Ilgas"
+    },
+    "Short": {
+        "lt-LT": "Trumpas"
+    },
+    "No data": {
+        "lt-LT": "Duomenų nėra"
+    },
     "Please enter a name": {
         "lt-LT": "Įveskite pavadinimą"
     },
     "Remove": {
         "lt-LT": "Šalinti"
+    },
+    "Statistics": {
+        "lt-LT": "Statistika"
     },
     "Sure to logout?": {
         "lt-LT": "Tikrai atsijungti?"
@@ -47,22 +77,13 @@
     "Update entry": {
         "lt-LT": "Naujinti įrašą"
     },
+    "Variant": {
+        "lt-LT": "Variantas"
+    },
+    "Variants": {
+        "lt-LT": "Variantai"
+    },
     "type to filter": {
         "lt-LT": "filtruokite"
-    },
-    "Statistics": {
-        "lt-LT": "Statistika"
-    },
-    "Items used": {
-        "lt-LT": "Suvalgyta"
-    },
-    "Items removed": {
-        "lt-LT": "Išmesta"
-    },
-    "List": {
-        "lt-LT": "Sąrašas"
-    },
-    "No data": {
-        "lt-LT": "Duomenų nėra"
     }
 }

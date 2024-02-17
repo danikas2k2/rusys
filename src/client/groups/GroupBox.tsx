@@ -7,92 +7,97 @@ import { ButtonWithConfirmation } from '@ui/ButtonWithConfirmation';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { IconButton } from '@ui/IconButton';
-import { Input } from '@ui/Input';
 import { LabeledInput } from '@ui/LabeledInput';
 import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { useLabel } from '~/client/hooks/useLabel';
-import { useNameMatch } from '~/client/hooks/useNameMatch';
 import { Label } from '~/client/Label';
-import { useAddDetails } from '~/state/details/useAddDetails';
-import { useDeleteDetails } from '~/state/details/useDeleteDetails';
-import { useRenameDetails } from '~/state/details/useRenameDetails';
+import { compareNames } from '~/client/utils/compareNames';
+import { useAddGroup } from '~/state/groups/useAddGroup';
+import { useDeleteGroup } from '~/state/groups/useDeleteGroup';
+import { useGroups } from '~/state/groups/useGroups';
+import { useRenameGroup } from '~/state/groups/useRenameGroup';
 import { getErrorMessage } from '~/utils/errors';
-import cx from './DetailsBox.less';
+import cx from './GroupBox.less';
 
-interface DetailsBoxProps {
+interface GroupBoxProps {
     group?: string;
-    name?: string;
-    onClose: (group?: string, name?: string) => void;
+    onClose: (group?: string) => void;
 }
 
-const PLACEHOLDER = 'Please enter a name';
-const ALREADY_EXISTS = 'This name already exists';
+const ERROR_MISSING = 'Name is required';
+const ERROR_EXISTS = 'Group already exists';
 
-export function DetailsBox({ group = '', name: initialName = '', onClose }: DetailsBoxProps) {
-    const [name, setName] = useState<string>(initialName);
+export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
     const [updating, setUpdating] = useState(false);
+    const [group, setGroup] = useState<string>(initialGroup ?? '');
     const [error, setError] = useState<string>();
+    console.info(error);
 
     useEffect(() => {
         setError(undefined);
-    }, [name]);
+    }, [group]);
 
-    const hasName = useNameMatch(group, name) && name !== initialName && !updating;
+    const hasSameGroup = useGroups()?.some((g) => !compareNames(g.group, group));
+    const groupRenamed = group !== initialGroup;
+    const hasGroup = hasSameGroup && groupRenamed && !updating;
+    console.info(hasGroup, { hasSameGroup, groupRenamed, updating });
     useEffect(() => {
-        if (hasName && !error) {
-            setError(ALREADY_EXISTS);
+        if (hasGroup && !error) {
+            setError(ERROR_EXISTS);
         }
-    }, [hasName, error]);
+    }, [hasGroup, error]);
 
     const focusRef = useAutoFocus<HTMLInputElement>();
 
-    const addDetails = useAddDetails();
-    const renameDetails = useRenameDetails();
+    const addGroup = useAddGroup();
+    const renameGroup = useRenameGroup();
     const handleUpdate = useCallback(async (): Promise<void> => {
-        if (!name) {
-            setError(PLACEHOLDER);
+        if (!group) {
+            setError(ERROR_MISSING);
             focusRef?.focus();
-        } else if (hasName) {
-            focusRef?.focus();
-        } else {
-            try {
-                setUpdating(true);
-                if (initialName) {
-                    if (name !== initialName) {
-                        await renameDetails(group, initialName, name);
-                    }
-                } else {
-                    await addDetails(group, name);
-                }
-                onClose(group, name);
-            } catch (error) {
-                setError(getErrorMessage(error));
-                focusRef?.focus();
-            } finally {
-                setUpdating(false);
-            }
+            return;
         }
-    }, [addDetails, focusRef, group, hasName, initialName, name, onClose, renameDetails]);
-
-    const removeDetails = useDeleteDetails();
-    const handleRemove = useCallback(async (): Promise<void> => {
+        if (hasGroup) {
+            focusRef?.focus();
+            return;
+        }
         try {
             setUpdating(true);
-            await removeDetails(group, initialName);
-            onClose(group, initialName);
+            if (initialGroup) {
+                if (groupRenamed) {
+                    await renameGroup(initialGroup, group);
+                }
+            } else {
+                await addGroup(group);
+            }
+            onClose(group);
         } catch (error) {
             setError(getErrorMessage(error));
             focusRef?.focus();
         } finally {
             setUpdating(false);
         }
-    }, [focusRef, group, initialName, onClose, removeDetails]);
+    }, [addGroup, focusRef, group, hasGroup, initialGroup, onClose, renameGroup]);
+
+    const deleteGroup = useDeleteGroup();
+    const handleDelete = useCallback(async (): Promise<void> => {
+        try {
+            setUpdating(true);
+            await deleteGroup(initialGroup);
+            onClose(initialGroup);
+        } catch (error) {
+            setError(getErrorMessage(error));
+            focusRef?.focus();
+        } finally {
+            setUpdating(false);
+        }
+    }, [focusRef, initialGroup, onClose, deleteGroup]);
 
     const handleClose = useCallback((): void => {
         onClose();
     }, [onClose]);
 
-    const handleInput = useCallback((e: FormEvent<HTMLInputElement>) => setName(e.currentTarget.value), []);
+    const handleGroupInput = useCallback((e: FormEvent<HTMLInputElement>) => setGroup(e.currentTarget.value), []);
 
     const handleEnter = useCallback(
         (e: KeyboardEvent<HTMLInputElement>) => {
@@ -105,15 +110,13 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
 
     const closeLabel = useLabel('Close');
     const errorLabel = useLabel(error ?? '');
-    const titleLabel = useLabel('Title');
+    console.info({ errorLabel });
+    const inputLabel = useLabel('Group name');
     return (
-        <Dialog className={cx('DetailsBox')} open onClose={handleClose}>
+        <Dialog className={cx('GroupBox')} open onClose={handleClose}>
             <header>
-                <div className={cx('group')}>
-                    <Label>{group}</Label>
-                </div>
                 <div className={cx('title')}>
-                    <Label>{initialName ? 'Update entry' : 'Add new entry'}</Label>
+                    <Label>{initialGroup ? 'Update group' : 'Add new group'}</Label>
                 </div>
                 <div className={cx('close')}>
                     <IconButton aria-label={closeLabel} onClick={handleClose}>
@@ -126,22 +129,21 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
                     ref={focusRef}
                     fullWidth
                     color={error ? 'negative' : 'primary'}
-                    error={error && error !== PLACEHOLDER ? errorLabel : undefined}
+                    error={error && error !== ERROR_MISSING ? errorLabel : undefined}
                     size="large"
-                    value={name}
-                    label={titleLabel}
-                    placeholder={useLabel(PLACEHOLDER)}
-                    onInput={handleInput}
+                    value={group}
+                    label={inputLabel}
+                    onInput={handleGroupInput}
                     onKeyDown={handleEnter}
                 />
             </main>
             <footer>
-                {initialName && (
+                {initialGroup && (
                     <>
                         <ButtonWithConfirmation
                             variant="outlined"
                             color="negative"
-                            onClick={handleRemove}
+                            onClick={handleDelete}
                             header={<Label>Sure to remove?</Label>}
                             cancel={
                                 <>
@@ -169,7 +171,7 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
                 </Button>
                 <Button variant="solid" color="primary" onClick={handleUpdate}>
                     <DoneIcon />
-                    <Label>{initialName ? 'Update' : 'Add'}</Label>
+                    <Label>{initialGroup ? 'Update' : 'Add'}</Label>
                 </Button>
             </footer>
         </Dialog>

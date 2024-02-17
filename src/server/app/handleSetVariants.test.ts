@@ -1,7 +1,7 @@
 /** @jest-environment node */
 import { type ApiVariants } from '~/common/api';
 import { handleSetVariants } from '~/server/app/handleSetVariants';
-import { getVariantsFixture } from '~/tests/fixtures';
+import { getTestVariants } from '~/tests/fixtures';
 import { getVariants, setVariants } from '~/server/data/variants';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
@@ -10,7 +10,7 @@ jest.mock('~/server/app/debug');
 jest.mock('~/server/data/variants');
 
 describe('handleSetVariants', () => {
-    const variants = getVariantsFixture();
+    const variants = getTestVariants();
     const request = mockRequest<ApiVariants>({ variants });
     const response = mockResponse<ApiVariants>();
 

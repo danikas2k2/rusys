@@ -1,14 +1,6 @@
 import { Button, ButtonGroup } from '@ui/Button';
 import { isEmpty } from 'lodash';
-import React, {
-    type HTMLAttributes,
-    type PropsWithChildren,
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from 'react';
+import React, { type HTMLAttributes, type PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 import { DraggableCore, type DraggableData, type DraggableEvent } from 'react-draggable';
 import { Label } from '~/client/Label';
 import { Cell } from '~/client/table/Cell';
@@ -96,61 +88,27 @@ function SortableRow({
     }, [onOverlap, overlapElement, overlapPrevious]);
 
     const [dragging, setDragging] = useState(false);
-    const [horizontalPosition, setHorizontalPosition] = useState<number | undefined>();
-    const [verticalPosition, setVerticalPosition] = useState<number | undefined>();
     const [start, setStart] = useState({ x: 0, y: 0 });
     const [offset, setOffset] = useState({ x: 0, y: 0 });
     const handleDragStart = useCallback(
         (_e: DraggableEvent, data: DraggableData) => {
             setDragging(true);
             setStart({ x: data.x, y: data.y });
-            const x = data.node.offsetLeft - data.x + (horizontalPosition ?? 0);
-            const y = data.node.offsetTop - data.y + (verticalPosition ?? 0);
+            const x = data.node.offsetLeft - data.x;
+            const y = data.node.offsetTop - data.y;
             if (offset.x !== x || offset.y !== y) {
                 setOffset({ x, y });
             }
             onStart?.();
         },
-        [offset, onStart, horizontalPosition, verticalPosition]
+        [offset, onStart]
     );
 
-    const controlRef = useRef<HTMLDivElement>(null);
-    const handleHorizontalDrag = useCallback(
-        (_e: DraggableEvent, data: DraggableData) => {
-            const right = (data.node.offsetParent as HTMLElement)?.offsetWidth;
-            let x = data.x + offset.x;
+    const [verticalPosition, setVerticalPosition] = useState<number | undefined>();
 
-            let newPosition: number | undefined = x - data.node.offsetLeft;
-            const width = controlRef.current?.offsetWidth ?? data.node.offsetWidth / 2;
-            if (-newPosition > width) {
-                newPosition = -width;
-            } else if (newPosition >= 0) {
-                newPosition = undefined;
-            }
-
-            if (horizontalPosition !== newPosition) {
-                setHorizontalPosition(newPosition);
-            }
-        },
-        [offset, overlapElement, verticalPosition]
-    );
-
-    const handleHorizontalDragEnd = useCallback(() => {
-        if (horizontalPosition != null) {
-            const width = controlRef.current?.offsetWidth ?? 0;
-            const startPosition = start.x + offset.x;
-
-            if (-horizontalPosition >= width * 0.75) {
-                setHorizontalPosition(-width);
-            } else if (-horizontalPosition < width * 0.25) {
-                setHorizontalPosition(undefined);
-            } else if (startPosition > horizontalPosition) {
-                setHorizontalPosition(-width);
-            } else {
-                setHorizontalPosition(undefined);
-            }
-        }
-    }, [horizontalPosition]);
+    const handleHorizontalDrag = useCallback((_e: DraggableEvent, data: DraggableData) => {
+        console.info('handleHorizontalDrag', data);
+    }, []);
 
     const handleVerticalDrag = useCallback(
         (_e: DraggableEvent, data: DraggableData) => {
@@ -182,69 +140,44 @@ function SortableRow({
         [offset, overlapElement, verticalPosition]
     );
 
-    const handleVerticalDragEnd = useCallback(() => {
-        if (verticalPosition != null) {
-            setVerticalPosition(undefined);
-        }
-    }, [verticalPosition]);
-
-    const [vertical, setVertical] = useState<boolean>();
-    const dragThreshold = 5;
-
     const handleDrag = useCallback(
         (e: DraggableEvent, data: DraggableData) => {
-            const v = Math.abs(data.y - start.y);
-            const h = Math.abs(data.x - start.x);
-            if (v < dragThreshold && h < dragThreshold) {
-                setVertical(undefined);
-                return;
-            }
-            const current = vertical ?? v > h;
-            if (vertical === undefined) {
-                setVertical(current);
-            }
-            if (current) {
-                handleVerticalDrag(e, data);
-            } else {
+            if (Math.abs(data.x - start.x) > Math.abs(data.y - start.y)) {
                 handleHorizontalDrag(e, data);
+            } else {
+                handleVerticalDrag(e, data);
             }
         },
-        [handleHorizontalDrag, handleVerticalDrag, start, vertical]
+        [handleHorizontalDrag, handleVerticalDrag, start]
     );
 
     const handleDragEnd = useCallback(() => {
         setDragging(false);
-        handleVerticalDragEnd();
-        handleHorizontalDragEnd();
+        if (verticalPosition != null) {
+            setVerticalPosition(undefined);
+        }
         onStop?.();
-    }, [onStop, handleVerticalDragEnd, handleHorizontalDragEnd]);
+    }, [onStop, verticalPosition]);
 
     return (
         <DraggableCore onStart={handleDragStart} onStop={handleDragEnd} onDrag={handleDrag}>
             <Row
                 {...props}
+                draggable
                 className={cx(props.className, { 'mod-dragging': dragging })}
                 style={verticalPosition ? { transform: `translate(0, ${verticalPosition}px)` } : {}}
             >
                 {children}
-                {horizontalPosition && (
-                    <div
-                        ref={controlRef}
-                        className={cx('Controls')}
-                        style={{
-                            transform: `translate(${horizontalPosition ?? 0}px, 0)`,
-                        }}
-                    >
-                        <ButtonGroup fullWidth>
-                            <Button color="primary">
-                                <Label>Edit</Label>
-                            </Button>
-                            <Button color="negative">
-                                <Label>Remove</Label>
-                            </Button>
-                        </ButtonGroup>
-                    </div>
-                )}
+                <div className={cx('Controls')}>
+                    <ButtonGroup>
+                        <Button color="primary">
+                            <Label>Edit</Label>
+                        </Button>
+                        <Button color="negative">
+                            <Label>Remove</Label>
+                        </Button>
+                    </ButtonGroup>
+                </div>
             </Row>
         </DraggableCore>
     );

@@ -1,34 +1,26 @@
 import { renderHook } from '@testing-library/react';
-import { Variant } from '~/state/details/types';
+import { getTestVariants } from '~/tests/fixtures';
+import type { WithVariantsState } from '~/state/variants/types';
 import { useVariantComparator } from '~/state/variants/useVariantComparator';
+import { withReduxState } from '~/tests/withReduxState';
 
 describe('useVariantComparator', () => {
-    const unsorted = [
-        Variant.LITRAS,
-        Variant.DVILITRIS,
-        Variant.TRILITRIS,
-        Variant.BLOGAS,
-        Variant.DIDESNIS,
-        Variant.MAZESNIS,
-        Variant.PUSLITRIS,
-        Variant.EGLYTES,
-        Variant.PUSANTRO,
-    ];
+    const state: WithVariantsState = {
+        variants: getTestVariants(),
+    };
 
-    const sorted = [
-        Variant.PUSLITRIS,
-        Variant.DIDESNIS,
-        Variant.MAZESNIS,
-        Variant.EGLYTES,
-        Variant.LITRAS,
-        Variant.PUSANTRO,
-        Variant.DVILITRIS,
-        Variant.TRILITRIS,
-        Variant.BLOGAS,
-    ];
+    it('returns sorted variants', async () => {
+        const { result } = renderHook(() => useVariantComparator(), withReduxState(state));
+        expect(['x', 'd', 'm', '', 'e'].sort(result.current(''))).toEqual(['', 'd', 'm', 'e', 'x']);
+    });
 
-    it('return sorted variants', async () => {
-        const { result } = renderHook(() => useVariantComparator());
-        expect(unsorted.sort(result.current)).toEqual(sorted);
+    it('returns sorted variants for different group', async () => {
+        const { result } = renderHook(() => useVariantComparator(), withReduxState(state));
+        expect(['1', '', 'd', 'x', 'm'].sort(result.current('G'))).toEqual(['d', '', 'm', '1', 'x']);
+    });
+
+    it('leaves invalid variants at the end of list', async () => {
+        const { result } = renderHook(() => useVariantComparator(), withReduxState(state));
+        expect(['1', '', 'x', 'd', 'm', '3', '2'].sort(result.current(''))).toEqual(['', 'd', 'm', 'x', '1', '3', '2']);
     });
 });

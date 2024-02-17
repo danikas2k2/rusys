@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import ColorSchemeToggler from '@ui/ColorSchemeToggler';
+import { ColorSchemeToggler } from '@ui/ColorSchemeToggler';
 import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
 import React from 'react';
 

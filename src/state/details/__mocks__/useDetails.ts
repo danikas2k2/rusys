@@ -1,3 +1,3 @@
-import { getDetailsFixture } from '~/tests/fixtures';
+import { getTestDetails } from '~/tests/fixtures';
 
-export const useDetails = jest.fn().mockReturnValue(getDetailsFixture());
+export const useDetails = jest.fn().mockReturnValue(getTestDetails());

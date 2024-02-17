@@ -30,10 +30,10 @@ describe('useDeleteGroup', () => {
         expect(request).toHaveBeenCalledWith(ApiUrl.GroupsDelete, { group: 'G' });
     });
 
-    it('does not call delete action with empty group', async () => {
+    it('calls delete action with empty group', async () => {
         const { result } = renderHook(() => useDeleteGroup(), withReduxState());
         await result.current('');
-        expect(dispatch).not.toHaveBeenCalled();
-        expect(request).not.toHaveBeenCalled();
+        expect(dispatch).toHaveBeenCalledWith({ type: GroupsActionType.DELETE, group: 'J' });
+        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsDelete, { group: 'J' });
     });
 });

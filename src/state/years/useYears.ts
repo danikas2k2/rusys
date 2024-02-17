@@ -1,7 +1,5 @@
 import { isEqual } from 'lodash';
 import { useSelector } from 'react-redux';
-import { type WithYearsState, type Years } from '~/state/years/types';
+import { type WithYearsState } from '~/state/years/types';
 
-export function useYears(): Years {
-    return useSelector((state: WithYearsState) => state.years ?? [], isEqual);
-}
+export const useYears = (): ReadonlyArray<number> => useSelector((state: WithYearsState) => state.years ?? [], isEqual);

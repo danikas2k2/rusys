@@ -1,20 +1,16 @@
-import { type Request, type Response } from 'express';
-import { debug } from '~/server/app/debug';
-import { getAllDetails } from '~/server/app/getAllDetails';
-import { move } from '~/server/data/common';
+import { type ApiRequest, type ApiResponse, type ApiDetails, type ApiMoveDetails } from '~/common/api';
+import { debugRequest } from '~/server/app/debug';
+import { headerNoCache, run } from '~/server/app/utils';
+import { getYearsAndDetails, moveDetails } from '~/server/data/details';
 
-export async function handleMove(req: Request, res: Response): Promise<void> {
-    debug();
-    debug('POST /move');
-    debug(JSON.stringify(req.body, null, 2));
-
+export async function handleMove(req: ApiRequest<ApiMoveDetails>, res: ApiResponse<ApiDetails>): Promise<void> {
+    debugRequest(req);
+    headerNoCache(res);
     const { group, name, newGroup } = req.body;
-    const ok = await move(group, name, newGroup);
-    if (ok) {
-        await getAllDetails(req, res);
-        debug('OK');
-    } else {
-        res.json({ ok });
-        debug('FAIL');
-    }
+    res.json(
+        await run(
+            () => moveDetails(group, name, newGroup),
+            () => getYearsAndDetails()
+        )
+    );
 }

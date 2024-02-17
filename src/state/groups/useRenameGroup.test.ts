@@ -30,23 +30,30 @@ describe('useRenameGroup', () => {
         expect(request).toHaveBeenCalledWith(ApiUrl.GroupsRename, { group: 'G', newGroup: 'H' });
     });
 
-    it('does not call rename action with same group', async () => {
+    it('calls rename action with same group', async () => {
         const { result } = renderHook(() => useRenameGroup(), withReduxState());
         await result.current('G', 'G');
         expect(dispatch).not.toHaveBeenCalled();
         expect(request).not.toHaveBeenCalled();
     });
 
-    it('does not call rename action with empty group', async () => {
+    it('calls rename action with empty group', async () => {
         const { result } = renderHook(() => useRenameGroup(), withReduxState());
         await result.current('', 'G');
+        expect(dispatch).toHaveBeenCalledWith({ type: GroupsActionType.RENAME, group: 'J', newGroup: 'G' });
+        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsRename, { group: 'J', newGroup: 'G' });
+    });
+
+    it('calls rename action with empty new group', async () => {
+        const { result } = renderHook(() => useRenameGroup(), withReduxState());
+        await result.current('G', '');
         expect(dispatch).not.toHaveBeenCalled();
         expect(request).not.toHaveBeenCalled();
     });
 
-    it('does not call rename action with empty new group', async () => {
+    it('calls rename action with empty groups', async () => {
         const { result } = renderHook(() => useRenameGroup(), withReduxState());
-        await result.current('G', '');
+        await result.current('', '');
         expect(dispatch).not.toHaveBeenCalled();
         expect(request).not.toHaveBeenCalled();
     });

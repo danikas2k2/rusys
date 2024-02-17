@@ -1,10 +1,16 @@
+import { getTestGroups } from '~/tests/fixtures';
 import { type Group } from '~/common/types';
-import { deleteGroupAction, GroupsActionType, renameGroupAction, setGroupsAction, updateGroupAction } from '~/state/groups/actions';
-import { getGroupsFixture } from '~/tests/fixtures';
+import {
+    deleteGroupAction,
+    GroupsActionType,
+    renameGroupAction,
+    setGroupsAction,
+    updateGroupAction,
+} from '~/state/groups/actions';
 
 describe('setGroupsAction', () => {
     it('returns valid action', () => {
-        const groups = getGroupsFixture();
+        const groups = getTestGroups();
         expect(setGroupsAction(groups)).toEqual({ type: GroupsActionType.SET, groups });
     });
 

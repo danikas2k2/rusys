@@ -2,7 +2,7 @@
 import { type ApiRequestDetails, type ApiDetails } from '~/common/api';
 import { handleDelete } from '~/server/app/handleDelete';
 import { deleteDetails, getYearsAndDetails } from '~/server/data/details';
-import { getDetailsFixture, getYearsFixture } from '~/tests/fixtures';
+import { getTestDetails, getTestYears } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
 
@@ -12,8 +12,8 @@ jest.mock('~/server/data/details');
 describe('handleDelete', () => {
     const request = mockRequest<ApiRequestDetails>({ group: 'G', name: 'A' });
     const response = mockResponse<ApiDetails>();
-    const years = getYearsFixture();
-    const details = getDetailsFixture();
+    const years = getTestYears();
+    const details = getTestDetails();
 
     afterEach(() => jest.clearAllMocks());
 

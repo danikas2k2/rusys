@@ -1,5 +1,3 @@
-import { type Name } from '~/state/types';
-
-export function compareNames(a: Name, b: Name): number {
-    return a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase());
+export function compareNames(a: string, b: string): number {
+    return a.trim().toLocaleLowerCase().localeCompare(b.trim().toLocaleLowerCase());
 }

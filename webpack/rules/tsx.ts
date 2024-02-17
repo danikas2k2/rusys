@@ -11,9 +11,11 @@ export function getTsxRule(): RuleSetRule {
             {
                 loader: 'esbuild-loader',
                 options: {
-                    target: 'esnext',
+                    target: 'es2015',
+                    // tsconfig: './tsconfig.json',
                 },
             },
+            // 'css-module-wrapper',
         ],
     };
 }

@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { getDetailsFixture } from '~/tests/fixtures';
+import { getTestDetails } from '~/tests/fixtures';
 import { useHasRemoving } from '~/state/details/useHasRemoving';
 import { useYears } from '~/state/years/useYears';
 import { withReduxState } from '~/tests/withReduxState';
@@ -12,7 +12,7 @@ describe('useHasRemoving', () => {
         expect(result.current).toBeFalse();
     });
 
-    const details = getDetailsFixture();
+    const details = getTestDetails();
     it('return true for filled state', () => {
         const { result } = renderHook(() => useHasRemoving('G', 'C'), withReduxState({ details }));
         expect(result.current).toBeTrue();

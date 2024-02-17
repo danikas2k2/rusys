@@ -1,16 +1,14 @@
 import { useLongPress } from '@ui/hooks/useLongPress';
-import Interactive from '@ui/Interactive';
-import { isEqual } from 'lodash';
-import React, { memo, useCallback, useState } from 'react';
-import EditBox from '~/client/details/dialogs/EditBox';
-import { type Name } from '~/state/types';
+import { Interactive } from '@ui/Interactive';
+import React, { useCallback, useState } from 'react';
+import { DetailsBox } from '~/client/details/dialogs/DetailsBox';
 
 interface InteractiveNameProps {
-    name: Name;
+    name: string;
     onClick?: () => void;
 }
 
-export default memo(function InteractiveName({ name, onClick }: InteractiveNameProps) {
+export function InteractiveName({ name, onClick }: InteractiveNameProps) {
     const [opened, setOpened] = useState(false);
     const handleClose = useCallback((): void => setOpened(false), []);
     const handleLongPress = useCallback(() => {
@@ -21,7 +19,7 @@ export default memo(function InteractiveName({ name, onClick }: InteractiveNameP
     return (
         <>
             <Interactive {...longPress}>{name}</Interactive>
-            {opened && <EditBox onClose={handleClose} name={name} />}
+            {opened && <DetailsBox onClose={handleClose} name={name} />}
         </>
     );
-}, isEqual);
+}

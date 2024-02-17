@@ -1,21 +1,33 @@
-import { merge } from 'lodash';
-import { type NameWithGroup } from '~/state/details/types';
-import { type Group, type Name, type Year } from '~/state/types';
+import {
+    type BulkWriteResult,
+    type DeleteResult,
+    type InsertManyResult,
+    type InsertOneResult,
+    MongoError,
+    type UpdateResult,
+} from 'mongodb';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getNamedMap<T>(data: (NameWithGroup & Record<Year, any>)[]): T {
-    return merge(
-        {},
-        ...data.map(({ group, name, ...v }) => ({
-            [group ?? '']: { [name]: v },
-        }))
-    );
-}
+export const getGroupQuery = (group: string): Record<string, unknown> =>
+    group ? { group } : { $or: [{ group }, { group: { $exists: false } }] };
 
-export function getGroupQuery(group: Group): Record<string, unknown> {
-    return group ? { group } : { $or: [{ group }, { group: { $exists: false } }] };
-}
+export const getGroupAndNameQuery = (group: string, name: string): Record<string, unknown> => ({
+    ...getGroupQuery(group),
+    name,
+});
 
-export function getGroupAndNameQuery(group: Group, name: Name): Record<string, unknown> {
-    return { ...getGroupQuery(group), name };
+export const hasEffect = (
+    res: BulkWriteResult | UpdateResult | DeleteResult | InsertOneResult | InsertManyResult
+): boolean =>
+    !!(res as InsertOneResult).insertedId ||
+    !!(res as InsertManyResult).insertedCount ||
+    !!(res as UpdateResult).modifiedCount ||
+    !!(res as UpdateResult).upsertedCount ||
+    !!(res as DeleteResult).deletedCount;
+
+export function hasDuplicates(e: unknown): boolean {
+    if (e instanceof MongoError && e.code === 11000) {
+        return false;
+    }
+    // rethrow error
+    throw e;
 }

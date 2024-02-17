@@ -9,8 +9,8 @@ export function useDeleteDetails(): (group: string, name: string) => Promise<voi
     const request = useUpdatingApiRequest<ApiRequestDetails>();
     return useCallback(
         async (group: string, name: string): Promise<void> => {
-            if (group && name) {
-                dispatch(deleteDetailsAction(group, name));
+            dispatch(deleteDetailsAction(group, name));
+            if (name) {
                 return request(ApiUrl.DetailsDelete, { group, name });
             }
         },

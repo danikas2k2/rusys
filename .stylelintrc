@@ -8,7 +8,7 @@
     ],
     "rules": {
         "selector-class-pattern": null,
-        "plugin/no-unused-selectors": true
+        "plugin/no-unused-selectors": false
     },
     "customSyntax": "postcss-syntax",
     "overrides": [

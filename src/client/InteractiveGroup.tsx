@@ -1,7 +1,7 @@
 import { useLongPress } from '@ui/hooks/useLongPress';
 import { Interactive } from '@ui/Interactive';
 import React, { useCallback } from 'react';
-import { GroupBox } from '~/client/groups/dialogs/GroupBox';
+import { GroupBox } from '~/client/groups/GroupBox';
 import { useToggle } from '~/client/hooks/useToggle';
 
 interface InteractiveGroupProps {

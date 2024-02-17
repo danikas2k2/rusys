@@ -4,5 +4,5 @@ export interface Google {
 }
 
 export interface WithGoogleState {
-    google?: Google;
+    google?: Readonly<Google>;
 }

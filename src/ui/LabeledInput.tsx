@@ -20,6 +20,7 @@ export const LabeledInput = forwardRef(function LabeledInput(
     }: LabeledInputProps,
     forwardedRef: ForwardedRef<HTMLInputElement>
 ) {
+    console.info('LabeledInput', { value });
     return (
         <div className={cx('LabeledInput')}>
             {value && <label htmlFor={id}>{label}</label>}

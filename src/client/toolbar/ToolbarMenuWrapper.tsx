@@ -1,19 +1,24 @@
 import MenuIcon from '@icons/Menu.svg';
-import ColorSchemeToggler from '@ui/ColorSchemeToggler';
-import IconButton from '@ui/IconButton';
-import Menu from '@ui/Menu';
-import MenuDivider from '@ui/MenuDivider';
-import MenuItem from '@ui/MenuItem';
-import { isEqual } from 'lodash';
-import React, { memo, type PropsWithChildren } from 'react';
+import { ColorSchemeToggler } from '@ui/ColorSchemeToggler';
+import type { DropdownRef } from '@ui/Dropdown';
+import { IconButton } from '@ui/IconButton';
+import { Menu } from '@ui/Menu';
+import { MenuDivider } from '@ui/MenuDivider';
+import { MenuItem } from '@ui/MenuItem';
+import React, { forwardRef, type PropsWithChildren, type Ref } from 'react';
 import { useLabel } from '~/client/hooks/useLabel';
 
-export default memo(function ToolbarMenuWrapper({ children }: PropsWithChildren) {
+export const ToolbarMenuWrapper = forwardRef(function ToolbarMenuWrapper(
+    { children }: PropsWithChildren,
+    ref: Ref<DropdownRef>
+) {
+    const menuLabel = useLabel('Menu');
     return (
         <Menu
+            ref={ref}
             trigger={
                 <IconButton variant="plain" color="neutral">
-                    <MenuIcon aria-label={useLabel('Menu')} />
+                    <MenuIcon aria-label={menuLabel} />
                 </IconButton>
             }
         >
@@ -24,4 +29,4 @@ export default memo(function ToolbarMenuWrapper({ children }: PropsWithChildren)
             </MenuItem>
         </Menu>
     );
-}, isEqual);
+});

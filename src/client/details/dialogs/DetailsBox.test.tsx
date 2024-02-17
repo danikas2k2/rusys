@@ -5,7 +5,7 @@ import { DetailsBox } from '~/client/details/dialogs/DetailsBox';
 import { useAddDetails } from '~/state/details/useAddDetails';
 import { useDeleteDetails } from '~/state/details/useDeleteDetails';
 import { useRenameDetails } from '~/state/details/useRenameDetails';
-import { getDetailsFixture } from '~/tests/fixtures';
+import { getTestDetails } from '~/tests/fixtures';
 import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/state/details/useAddDetails');
@@ -73,7 +73,7 @@ describe('EditBox', () => {
             const onClose = jest.fn();
             const addDetails = jest.fn();
             (useAddDetails as jest.Mock).mockReturnValue(addDetails);
-            render(<DetailsBox group="G" onClose={onClose} />, withReduxState({ details: getDetailsFixture() }));
+            render(<DetailsBox group="G" onClose={onClose} />, withReduxState({ details: getTestDetails() }));
             await userEvent.type(screen.getByRole('textbox'), 'A');
             await userEvent.click(screen.getByRole('button', { name: 'Add' }));
             expect(addDetails).not.toHaveBeenCalled();
@@ -126,7 +126,7 @@ describe('EditBox', () => {
             const onClose = jest.fn();
             const renameDetails = jest.fn();
             (useRenameDetails as jest.Mock).mockReturnValue(renameDetails);
-            render(<DetailsBox group="G" name="A" onClose={onClose} />, withReduxState({ details: getDetailsFixture() }));
+            render(<DetailsBox group="G" name="A" onClose={onClose} />, withReduxState({ details: getTestDetails() }));
             await userEvent.clear(screen.getByRole('textbox'));
             await userEvent.type(screen.getByRole('textbox'), 'C');
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));

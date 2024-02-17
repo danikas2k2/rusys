@@ -7,92 +7,99 @@ import { ButtonWithConfirmation } from '@ui/ButtonWithConfirmation';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { IconButton } from '@ui/IconButton';
-import { Input } from '@ui/Input';
 import { LabeledInput } from '@ui/LabeledInput';
 import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { useLabel } from '~/client/hooks/useLabel';
-import { useNameMatch } from '~/client/hooks/useNameMatch';
 import { Label } from '~/client/Label';
-import { useAddDetails } from '~/state/details/useAddDetails';
-import { useDeleteDetails } from '~/state/details/useDeleteDetails';
-import { useRenameDetails } from '~/state/details/useRenameDetails';
+import { compareNames } from '~/client/utils/compareNames';
+import { useAddVariant } from '~/state/variants/useAddVariant';
+import { useDeleteVariant } from '~/state/variants/useDeleteVariant';
+import { useRenameVariant } from '~/state/variants/useRenameVariant';
+import { useVariants } from '~/state/variants/useVariants';
 import { getErrorMessage } from '~/utils/errors';
-import cx from './DetailsBox.less';
+import cx from './VariantBox.less';
 
-interface DetailsBoxProps {
+interface VariantBoxProps {
     group?: string;
-    name?: string;
-    onClose: (group?: string, name?: string) => void;
+    variant?: string;
+    onClose: (group?: string, variant?: string) => void;
 }
 
-const PLACEHOLDER = 'Please enter a name';
-const ALREADY_EXISTS = 'This name already exists';
+const ERROR_MISSING = 'Name is required';
+const ERROR_EXISTS = 'Variant already exists';
 
-export function DetailsBox({ group = '', name: initialName = '', onClose }: DetailsBoxProps) {
-    const [name, setName] = useState<string>(initialName);
+export function VariantBox({ group: initialGroup = '', variant: initialVariant = '', onClose }: VariantBoxProps) {
     const [updating, setUpdating] = useState(false);
+    const [group, setGroup] = useState<string>(initialGroup);
+    const [variant, setVariant] = useState<string>(initialVariant);
     const [error, setError] = useState<string>();
+    console.info(error);
 
     useEffect(() => {
         setError(undefined);
-    }, [name]);
+    }, [variant]);
 
-    const hasName = useNameMatch(group, name) && name !== initialName && !updating;
+    const hasSameVariant = useVariants()?.some((v) => !compareNames(v.variant, variant));
+    const variantRenamed = variant !== initialVariant;
+    const hasVariant = hasSameVariant && variantRenamed && !updating;
+    console.info(hasVariant, { hasSameVariant, variantRenamed, updating });
     useEffect(() => {
-        if (hasName && !error) {
-            setError(ALREADY_EXISTS);
+        if (hasVariant && !error) {
+            setError(ERROR_EXISTS);
         }
-    }, [hasName, error]);
+    }, [hasVariant, error]);
 
     const focusRef = useAutoFocus<HTMLInputElement>();
 
-    const addDetails = useAddDetails();
-    const renameDetails = useRenameDetails();
+    const addVariant = useAddVariant();
+    const renameVariant = useRenameVariant();
     const handleUpdate = useCallback(async (): Promise<void> => {
-        if (!name) {
-            setError(PLACEHOLDER);
+        if (!variant) {
+            setError(ERROR_MISSING);
             focusRef?.focus();
-        } else if (hasName) {
-            focusRef?.focus();
-        } else {
-            try {
-                setUpdating(true);
-                if (initialName) {
-                    if (name !== initialName) {
-                        await renameDetails(group, initialName, name);
-                    }
-                } else {
-                    await addDetails(group, name);
-                }
-                onClose(group, name);
-            } catch (error) {
-                setError(getErrorMessage(error));
-                focusRef?.focus();
-            } finally {
-                setUpdating(false);
-            }
+            return;
         }
-    }, [addDetails, focusRef, group, hasName, initialName, name, onClose, renameDetails]);
-
-    const removeDetails = useDeleteDetails();
-    const handleRemove = useCallback(async (): Promise<void> => {
+        if (hasVariant) {
+            focusRef?.focus();
+            return;
+        }
         try {
             setUpdating(true);
-            await removeDetails(group, initialName);
-            onClose(group, initialName);
+            if (initialVariant) {
+                if (variantRenamed) {
+                    await renameVariant(group, initialVariant, variant);
+                }
+            } else {
+                await addVariant(group, variant);
+            }
+            onClose(group, variant);
         } catch (error) {
             setError(getErrorMessage(error));
             focusRef?.focus();
         } finally {
             setUpdating(false);
         }
-    }, [focusRef, group, initialName, onClose, removeDetails]);
+    }, [variant, hasVariant, focusRef, initialVariant, onClose, group, variantRenamed, renameVariant, addVariant]);
+
+    const deleteVariant = useDeleteVariant();
+    const handleDelete = useCallback(async (): Promise<void> => {
+        try {
+            setUpdating(true);
+            await deleteVariant(initialGroup, initialVariant);
+            onClose(group, initialVariant);
+        } catch (error) {
+            setError(getErrorMessage(error));
+            focusRef?.focus();
+        } finally {
+            setUpdating(false);
+        }
+    }, [deleteVariant, initialGroup, initialVariant, onClose, group, focusRef]);
 
     const handleClose = useCallback((): void => {
         onClose();
     }, [onClose]);
 
-    const handleInput = useCallback((e: FormEvent<HTMLInputElement>) => setName(e.currentTarget.value), []);
+    const handleGroupInput = useCallback((e: FormEvent<HTMLInputElement>) => setVariant(e.currentTarget.value), []);
 
     const handleEnter = useCallback(
         (e: KeyboardEvent<HTMLInputElement>) => {
@@ -105,15 +112,13 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
 
     const closeLabel = useLabel('Close');
     const errorLabel = useLabel(error ?? '');
-    const titleLabel = useLabel('Title');
+    console.info({ errorLabel });
+    const inputLabel = useLabel('Variant name');
     return (
-        <Dialog className={cx('DetailsBox')} open onClose={handleClose}>
+        <Dialog className={cx('VariantBox')} open onClose={handleClose}>
             <header>
-                <div className={cx('group')}>
-                    <Label>{group}</Label>
-                </div>
                 <div className={cx('title')}>
-                    <Label>{initialName ? 'Update entry' : 'Add new entry'}</Label>
+                    <Label>{initialVariant ? 'Update group' : 'Add new group'}</Label>
                 </div>
                 <div className={cx('close')}>
                     <IconButton aria-label={closeLabel} onClick={handleClose}>
@@ -126,22 +131,21 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
                     ref={focusRef}
                     fullWidth
                     color={error ? 'negative' : 'primary'}
-                    error={error && error !== PLACEHOLDER ? errorLabel : undefined}
+                    error={error && error !== ERROR_MISSING ? errorLabel : undefined}
                     size="large"
-                    value={name}
-                    label={titleLabel}
-                    placeholder={useLabel(PLACEHOLDER)}
-                    onInput={handleInput}
+                    value={variant}
+                    label={inputLabel}
+                    onInput={handleGroupInput}
                     onKeyDown={handleEnter}
                 />
             </main>
             <footer>
-                {initialName && (
+                {initialVariant && (
                     <>
                         <ButtonWithConfirmation
                             variant="outlined"
                             color="negative"
-                            onClick={handleRemove}
+                            onClick={handleDelete}
                             header={<Label>Sure to remove?</Label>}
                             cancel={
                                 <>
@@ -169,7 +173,7 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
                 </Button>
                 <Button variant="solid" color="primary" onClick={handleUpdate}>
                     <DoneIcon />
-                    <Label>{initialName ? 'Update' : 'Add'}</Label>
+                    <Label>{initialVariant ? 'Update' : 'Add'}</Label>
                 </Button>
             </footer>
         </Dialog>
