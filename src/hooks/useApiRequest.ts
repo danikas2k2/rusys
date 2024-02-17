@@ -1,26 +1,34 @@
+import axios from 'axios';
 import { useCallback } from 'react';
 
-export type RequestMethod = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'CONNECT' | 'OPTIONS' | 'TRACE' | 'PATCH';
+export type RequestMethod =
+    | 'GET'
+    | 'HEAD'
+    | 'POST'
+    | 'PUT'
+    | 'DELETE'
+    | 'CONNECT'
+    | 'OPTIONS'
+    | 'TRACE'
+    | 'PATCH'
+    | 'MOVE';
 
-export function useApiRequest(): <T>(url: string, data?: object | string, method?: RequestMethod) => Promise<T> {
-    return useCallback(async <T>(url: string, data?: object | string, method?: RequestMethod): Promise<T> => {
+export function useApiRequest(): <R, D = object | string>(url: string, data?: D, method?: RequestMethod) => Promise<R> {
+    return useCallback(async <R, D = object | string>(url: string, data?: D, method?: RequestMethod): Promise<R> => {
         if (typeof data === 'string') {
             if (typeof method === 'string') {
-                data = { data };
+                data = { data } as D;
             } else {
                 method = data as RequestMethod;
                 data = undefined;
             }
         }
-        const response = await fetch(url, {
-            method: method ?? (data == null ? 'GET' : 'POST'),
-            ...(data == null && (!method || method.toUpperCase() === 'GET')
-                ? {}
-                : {
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(data ?? {}),
-                  }),
+        const response = await axios({
+            url,
+            method: method ?? 'POST',
+            responseType: 'json',
+            data,
         });
-        return await response.json();
+        return response.data;
     }, []);
 }

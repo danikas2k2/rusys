@@ -1,8 +1,7 @@
-import Button, { type ButtonProps } from '@ui/Button';
-import ConfirmationDialog from '@ui/ConfirmationDialog';
+import { Button, type ButtonProps } from '@ui/Button';
+import { ConfirmationDialog } from '@ui/ConfirmationDialog';
 import { type InputColor } from '@ui/Input';
-import { isEqual } from 'lodash';
-import React, { memo, type ReactNode, useCallback, useState } from 'react';
+import React, { type ReactNode, useCallback, useState } from 'react';
 
 interface ButtonWithConfirmationProps extends Omit<ButtonProps, 'title' | 'children'> {
     children?: ReactNode | ((props: ButtonProps) => ReactNode);
@@ -12,7 +11,7 @@ interface ButtonWithConfirmationProps extends Omit<ButtonProps, 'title' | 'child
     cancel?: ReactNode;
 }
 
-export default memo(function ButtonWithConfirmation({
+export function ButtonWithConfirmation({
     header,
     confirm,
     confirmColor,
@@ -47,4 +46,4 @@ export default memo(function ButtonWithConfirmation({
             />
         </>
     );
-}, isEqual);
+}

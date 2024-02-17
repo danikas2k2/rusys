@@ -1,4 +1,4 @@
-import { type AmountSet } from '~/state/details/types';
+import { type Summary } from '~/common/types';
 
 export const enum SummaryActionType {
     SET = 'summary.set',
@@ -6,10 +6,10 @@ export const enum SummaryActionType {
 
 export type SummaryAction = {
     type: SummaryActionType.SET;
-    summary: AmountSet;
+    summary: Summary[];
 };
 
-export const setSummaryAction = (summary: AmountSet): SummaryAction => ({
+export const setSummaryAction = (summary: Summary[]): SummaryAction => ({
     type: SummaryActionType.SET,
     summary,
 });

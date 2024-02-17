@@ -1,45 +1,25 @@
-import { isEqual } from 'lodash';
-import React, { memo } from 'react';
-import { type Variant } from '~/state/details/types';
-
-const VariantShortFormat: Partial<Record<Variant, string>> = {
-    // '': '½',
-    // d: '¾',
-    // m: '¼',
-    '1.5': '1½',
-    x: '×',
-};
-
-const VariantLongFormat: Partial<Record<Variant, string>> = {
-    '': '500 ml.',
-    d: '750 ml.',
-    m: '250 ml.',
-    e: 'Eglytės',
-    1: '1 l.',
-    '1.5': '1.5 l.',
-    2: '2 l.',
-    3: '3 l.',
-    x: 'Blogi',
-};
+import React from 'react';
+import { type Variant } from '~/common/types';
+import { useVariant } from '~/state/variants/useVariant';
 
 interface ValueVariantProps {
-    variant: Variant;
+    variant: string;
     format?: 'short' | 'long';
 }
 
-export default memo(function ValueVariant({ variant, format = 'short' }: ValueVariantProps) {
+export function ValueVariant({ variant, format = 'short' }: ValueVariantProps) {
+    const { short = variant, long = variant }: Variant = useVariant(variant) ?? ({} as Variant);
     if (format === 'long') {
-        const s = VariantLongFormat[variant] ?? variant;
-        const [s0, ...s1] = s.split(' ');
-        if (s1.length) {
+        const [first, ...other] = long.split(' ');
+        if (other.length) {
             return (
                 <>
-                    {s0}
-                    <small>{s1.join(' ')}</small>
+                    {first}
+                    <small>{other.join(' ')}</small>
                 </>
             );
         }
-        return <>{s}</>;
+        return <>{long}</>;
     }
-    return <>{VariantShortFormat[variant] ?? variant}</>;
-}, isEqual);
+    return <>{short}</>;
+}

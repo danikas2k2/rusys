@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  rusiodb1:
+    container_name: rusiodb1
+    hostname: rusiodb1
+    image: mongo:7
+    expose:
+      - 30201
+    ports:
+      - 30201:30201
+    restart: unless-stopped
+    networks:
+      - rusiodb
+    command: mongod --replSet rusiors --port 30201
+  rusiodb2:
+    container_name: rusiodb2
+    hostname: rusiodb2
+    image: mongo:7
+    expose:
+      - 30202
+    ports:
+      - 30202:30202
+    restart: unless-stopped
+    networks:
+      - rusiodb
+    command: mongod --replSet rusiors --port 30202
+  rusiodb3:
+    container_name: rusiodb3
+    hostname: rusiodb3
+    image: mongo:7
+    expose:
+      - 30203
+    ports:
+      - 30203:30203
+    restart: unless-stopped
+    networks:
+      - rusiodb
+    command: mongod --replSet rusiors --port 30203
+  rusiodbinit:
+    container_name: rusiodbinit
+    image: mongo:7
+    restart: "no"
+    networks:
+      - rusiodb
+    depends_on:
+      - rusiodb1
+      - rusiodb2
+      - rusiodb3
+    command: >
+      mongosh --host rusiodb1:30201 --eval  'rs.initiate({
+        _id: "rusiors",
+        members: [
+          {_id: 0, host: "rusiodb1:30201"},
+          {_id: 1, host: "rusiodb2:30202"},
+          {_id: 2, host: "rusiodb3:30203"}
+        ]
+      }); '
+
+networks:
+  rusiodb:
+    driver: bridge

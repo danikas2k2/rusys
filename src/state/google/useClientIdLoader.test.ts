@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { useDispatch } from 'react-redux';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
-import google from '~/state/google/reducer';
+import { google as reducer } from '~/state/google/reducer';
 import { useClientIdLoader } from '~/state/google/useClientIdLoader';
 import { useGoogle } from '~/state/google/useGoogle';
 import { withReduxState } from '~/tests/withReduxState';
@@ -19,7 +19,7 @@ describe('useClientIdLoader', () => {
     const request = jest.fn();
 
     beforeAll(() => {
-        (useDispatch as jest.Mock).mockReturnValue(dispatch);
+        (useDispatch as unknown as jest.Mock).mockReturnValue(dispatch);
         (useUpdatingApiRequest as jest.Mock).mockReturnValue(request);
     });
 
@@ -29,7 +29,7 @@ describe('useClientIdLoader', () => {
         (useGoogle as jest.Mock).mockReturnValue({ clientId: null, loading: false });
         request.mockResolvedValue({ ok: true });
 
-        const { result } = renderHook(() => useClientIdLoader(), withReduxState({}, { google }));
+        const { result } = renderHook(() => useClientIdLoader(), withReduxState({}, { google: reducer }));
         await act(async () => await result.current());
 
         expect(dispatch).toHaveBeenCalledWith({ type: 'google.loading', loading: true });
@@ -41,7 +41,7 @@ describe('useClientIdLoader', () => {
         (useGoogle as jest.Mock).mockReturnValue({ clientId: '123', loading: false });
         request.mockResolvedValue({});
 
-        const { result } = renderHook(() => useClientIdLoader(), withReduxState({}, { google }));
+        const { result } = renderHook(() => useClientIdLoader(), withReduxState({}, { google: reducer }));
         await act(async () => await result.current());
 
         expect(dispatch).not.toHaveBeenCalled();
@@ -52,7 +52,7 @@ describe('useClientIdLoader', () => {
         (useGoogle as jest.Mock).mockReturnValue({ clientId: null, loading: true });
         request.mockResolvedValue({});
 
-        const { result } = renderHook(() => useClientIdLoader(), withReduxState({}, { google }));
+        const { result } = renderHook(() => useClientIdLoader(), withReduxState({}, { google: reducer }));
         await act(async () => await result.current());
 
         expect(dispatch).not.toHaveBeenCalled();

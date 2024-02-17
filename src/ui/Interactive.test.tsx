@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import Interactive from './Interactive';
+import { Interactive } from './Interactive';
 
 describe('Interactive', () => {
     afterEach(() => jest.clearAllMocks());

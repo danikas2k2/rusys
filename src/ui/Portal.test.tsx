@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import Portal from '@ui/Portal';
+import { Portal } from '@ui/Portal';
 import React from 'react';
 
 describe('Portal', () => {
@@ -31,7 +31,7 @@ describe('Portal', () => {
         expect(initialPortal).toEqual(screen.getByRole('complementary', { name: 'portal' }));
     });
 
-    it('remove portal on unmount', () => {
+    it('removes portal on unmount', () => {
         const { unmount } = render(
             <Portal>
                 <div>Test</div>

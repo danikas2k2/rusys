@@ -7,7 +7,7 @@ export const enum LoadingState {
     FAILED = 'failed',
 }
 
-export function useLockingLoader(loader: () => Promise<void>): LoadingState {
+export function useLockingLoader(loader: () => Promise<unknown>): LoadingState {
     const [loading, setLoading] = useState<LoadingState>(LoadingState.INITIAL);
     useEffect(() => {
         (async () => {

@@ -1,5 +1,3 @@
-import { type Locale } from '~/state/locale/types';
-
 export const DEFAULT_LOCALE = 'en-US';
 
 export const enum LocaleActionType {
@@ -8,7 +6,7 @@ export const enum LocaleActionType {
 
 export type LocaleAction = {
     type: LocaleActionType.SET;
-    locale: Locale;
+    locale: string;
 };
 
-export const setLocaleAction = (locale: Locale): LocaleAction => ({ type: LocaleActionType.SET, locale });
+export const setLocaleAction = (locale: string): LocaleAction => ({ type: LocaleActionType.SET, locale });

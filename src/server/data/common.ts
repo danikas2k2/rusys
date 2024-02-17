@@ -1,88 +1,38 @@
 import {
-    moveDetails,
-    removeDetails,
-    removeDetailsGroup,
-    renameDetails,
+    deleteDetailsGroup,
+    deleteDetailsVariant,
     renameDetailsGroup,
+    renameDetailsVariant,
 } from '~/server/data/details';
-import {
-    moveMissing,
-    removeMissing,
-    removeMissingGroup,
-    renameMissing,
-    renameMissingGroup,
-} from '~/server/data/missing';
-import {
-    moveRemoving,
-    removeRemoving,
-    removeRemovingGroup,
-    renameRemoving,
-    renameRemovingGroup,
-} from '~/server/data/removing';
-import {
-    moveUpdates,
-    removeUpdates,
-    removeUpdatesGroup,
-    renameUpdates,
-    renameUpdatesGroup,
-} from '~/server/data/updates';
-import { type Group, type Name } from '~/state/types';
+import { deleteGroup, renameGroup } from '~/server/data/groups';
+import { deleteVariant, deleteVariantsGroup, renameVariant, renameVariantsGroup } from '~/server/data/variants';
+import { withTransaction } from '~/server/db';
 
-export async function rename(group: Group, name: Name, newName: Name): Promise<boolean> {
-    if (name === newName) {
-        return false;
-    }
-    const updated = await renameDetails(group, name, newName);
-    if (updated) {
-        await renameUpdates(group, name, newName);
-        await renameRemoving(group, name, newName);
-        await renameMissing(group, name, newName);
-    }
-    return updated;
-}
+export const renameVariantOccurrences = (group: string, variant: string, newVariant: string): Promise<boolean> =>
+    withTransaction(
+        async (session) =>
+            (await renameVariant(group, variant, newVariant, session)) &&
+            (await renameDetailsVariant(group, variant, newVariant, session))
+    );
 
-export async function renameGroup(group: Group, newGroup: Group): Promise<boolean> {
-    if (group === newGroup) {
-        return false;
-    }
-    const updated = await renameDetailsGroup(group, newGroup);
-    if (updated) {
-        await renameUpdatesGroup(group, newGroup);
-        await renameRemovingGroup(group, newGroup);
-        await renameMissingGroup(group, newGroup);
-    }
-    return updated;
-}
+export const deleteVariantOccurrences = (group: string, variant: string): Promise<boolean> =>
+    withTransaction(
+        async (session) =>
+            (await deleteVariant(group, variant, session)) && (await deleteDetailsVariant(group, variant, session))
+    );
 
-export async function remove(group: Group, name: Name): Promise<boolean> {
-    const removed = await removeDetails(group, name);
-    if (removed) {
-        await removeUpdates(group, name);
-        await removeRemoving(group, name);
-        await removeMissing(group, name);
-    }
-    return removed;
-}
+export const renameGroupOccurrences = (group: string, newGroup: string): Promise<boolean> =>
+    withTransaction(
+        async (session) =>
+            (await renameGroup(group, newGroup, session)) &&
+            (await renameVariantsGroup(group, newGroup, session)) &&
+            (await renameDetailsGroup(group, newGroup, session))
+    );
 
-export async function removeGroup(group: Group): Promise<boolean> {
-    const removed = await removeDetailsGroup(group);
-    if (removed) {
-        await removeUpdatesGroup(group);
-        await removeRemovingGroup(group);
-        await removeMissingGroup(group);
-    }
-    return removed;
-}
-
-export async function move(group: Group, name: Name, newGroup: Group): Promise<boolean> {
-    if (group === newGroup) {
-        return false;
-    }
-    const updated = await moveDetails(group, name, newGroup);
-    if (updated) {
-        await moveUpdates(group, name, newGroup);
-        await moveRemoving(group, name, newGroup);
-        await moveMissing(group, name, newGroup);
-    }
-    return updated;
-}
+export const deleteGroupOccurrences = (group: string): Promise<boolean> =>
+    withTransaction(
+        async (session) =>
+            (await deleteGroup(group, session)) &&
+            (await deleteVariantsGroup(group, session)) &&
+            (await deleteDetailsGroup(group, session))
+    );

@@ -1,15 +1,13 @@
 import CancelIcon from '@icons/Cancel.svg';
 import CloseIcon from '@icons/Close.svg';
 import DoneIcon from '@icons/Done.svg';
-import Button from '@ui/Button';
-import Dialog from '@ui/Dialog';
+import { Button } from '@ui/Button';
+import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-import IconButton from '@ui/IconButton';
+import { IconButton } from '@ui/IconButton';
 import { type InputColor } from '@ui/Input';
-import classNames from 'classnames';
-import { isEqual } from 'lodash';
-import React, { memo, type MouseEvent, type ReactNode, useEffect } from 'react';
-import './ConfirmationDialog.less';
+import React, { type MouseEvent, type ReactNode, useEffect } from 'react';
+import cx from './ConfirmationDialog.less';
 
 export interface ConfirmationDialogProps {
     header?: ReactNode; // TODO (options?: HeaderOptions}) => ReactNode;
@@ -29,7 +27,7 @@ export interface ConfirmationDialogProps {
     children?: ReactNode;
 }
 
-export default memo(function ConfirmationDialog({
+export function ConfirmationDialog({
     header = 'Are you sure?',
     footer,
     confirm,
@@ -54,15 +52,15 @@ export default memo(function ConfirmationDialog({
     return (
         <Dialog
             role="alertdialog"
-            className={classNames('ConfirmationDialog', className)}
+            className={cx('ConfirmationDialog', className)}
             open={open}
             closeOnOutsideClick
             closeOnEscape
             onClose={onClose}
         >
             <header>
-                <div className="title">{header}</div>
-                <div className="close">
+                <div className={cx('title')}>{header}</div>
+                <div className={cx('close')}>
                     <IconButton aria-label={closeLabel} onClick={onClose}>
                         <CloseIcon />
                     </IconButton>
@@ -99,4 +97,4 @@ export default memo(function ConfirmationDialog({
             </footer>
         </Dialog>
     );
-}, isEqual);
+}

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import AppRouter from '~/client/AppRouter';
+import { AppRouter } from '~/client/AppRouter';
 import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/client/details/DetailsPage', () => () => <div>DetailsPage</div>);

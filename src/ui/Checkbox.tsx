@@ -2,19 +2,16 @@ import CheckIcon from '@icons/Check.svg';
 import CheckIndeterminateIcon from '@icons/CheckIndeterminate.svg';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { type CommonInputProps, type InputColor, type InputSize, type InputVariant } from '@ui/Input';
-import classNames from 'classnames';
-import { isEqual } from 'lodash';
 import React, {
     type ChangeEvent,
     type ForwardedRef,
     forwardRef,
-    memo,
     useCallback,
     useEffect,
     useMemo,
     useState,
 } from 'react';
-import './Checkbox.less';
+import cx from './Checkbox.less';
 import { useUniqueId } from './hooks/useUniqueId';
 
 export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {
@@ -24,77 +21,74 @@ export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {
     indeterminate?: boolean;
 }
 
-export default memo(
-    forwardRef(function Checkbox(
-        {
-            id = useUniqueId('checkbox'),
-            color = 'neutral',
-            variant = 'outlined',
-            size = 'medium',
-            checked = false,
-            disabled = false,
-            indeterminate = false,
-            className,
-            onChange,
-            children,
-            ...props
-        }: CheckboxProps,
-        forwardedRef: ForwardedRef<HTMLInputElement>
-    ) {
-        const ref = useForwardedRef(forwardedRef);
+export const Checkbox = forwardRef(function Checkbox(
+    {
+        id = useUniqueId('checkbox'),
+        color = 'neutral',
+        variant = 'outlined',
+        size = 'medium',
+        checked = false,
+        disabled = false,
+        indeterminate = false,
+        className,
+        onChange,
+        children,
+        ...props
+    }: CheckboxProps,
+    forwardedRef: ForwardedRef<HTMLInputElement>
+) {
+    const ref = useForwardedRef(forwardedRef);
 
-        const [isIndeterminate, setIndeterminate] = useState(indeterminate);
-        useEffect(() => {
-            setIndeterminate(indeterminate);
-        }, [indeterminate]);
-        useEffect(() => {
-            if (ref.current) {
-                ref.current.indeterminate = !!indeterminate;
-            }
-        }, [indeterminate, ref]);
+    const [isIndeterminate, setIndeterminate] = useState(indeterminate);
+    useEffect(() => {
+        setIndeterminate(indeterminate);
+    }, [indeterminate]);
+    useEffect(() => {
+        if (ref.current) {
+            ref.current.indeterminate = !!indeterminate;
+        }
+    }, [indeterminate, ref]);
 
-        const [isChecked, setChecked] = useState(checked);
-        useEffect(() => {
-            setChecked(checked);
-        }, [checked]);
+    const [isChecked, setChecked] = useState(checked);
+    useEffect(() => {
+        setChecked(checked);
+    }, [checked]);
 
-        const handleChange = useCallback(
-            (e: ChangeEvent<HTMLInputElement>): void => {
-                if (!disabled) {
-                    if (ref.current) {
-                        setIndeterminate(ref.current.indeterminate);
-                        setChecked(ref.current.checked);
-                    }
-                    onChange?.(e);
+    const handleChange = useCallback(
+        (e: ChangeEvent<HTMLInputElement>): void => {
+            if (!disabled) {
+                if (ref.current) {
+                    setIndeterminate(ref.current.indeterminate);
+                    setChecked(ref.current.checked);
                 }
-            },
-            [disabled, onChange, ref]
-        );
+                onChange?.(e);
+            }
+        },
+        [disabled, onChange, ref]
+    );
 
-        const icon = useMemo(() => {
-            return isIndeterminate ? <CheckIndeterminateIcon /> : <CheckIcon />;
-        }, [isIndeterminate]);
+    const icon = useMemo(() => {
+        return isIndeterminate ? <CheckIndeterminateIcon /> : <CheckIcon />;
+    }, [isIndeterminate]);
 
-        return (
-            <label
-                htmlFor={id}
-                className={classNames('Checkbox', `color-${color}`, `variant-${variant}`, `size-${size}`, className)}
-            >
-                <input
-                    ref={ref}
-                    id={id}
-                    type="checkbox"
-                    checked={isChecked}
-                    aria-checked={isChecked}
-                    disabled={disabled}
-                    aria-disabled={disabled}
-                    onChange={handleChange}
-                    {...props}
-                />
-                <span className="checkbox">{icon}</span>
-                <span className="label">{children}</span>
-            </label>
-        );
-    }),
-    isEqual
-);
+    return (
+        <label
+            htmlFor={id}
+            className={cx('Checkbox', `color-${color}`, `variant-${variant}`, `size-${size}`, className)}
+        >
+            <input
+                ref={ref}
+                id={id}
+                type="checkbox"
+                checked={isChecked}
+                aria-checked={isChecked}
+                disabled={disabled}
+                aria-disabled={disabled}
+                onChange={handleChange}
+                {...props}
+            />
+            <span className={cx('checkbox')}>{icon}</span>
+            <span className={cx('label')}>{children}</span>
+        </label>
+    );
+});

@@ -1,4 +1,4 @@
-import ColorSchemeToggler from '@ui/ColorSchemeToggler';
+import { ColorSchemeToggler } from '@ui/ColorSchemeToggler';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
 import React from 'react';
 import { Route, Routes } from 'react-router';
