@@ -1,11 +1,13 @@
+@import (once) "@ui/theme.less";
+
 .Table {
     /* with sticky header and medium size */
     position: absolute;
     inset: var(--toolbar-height) 0 0;
-    grid-template-rows: 2.25rem 1fr;
 }
 
-.HeadRow {
+.HeadRow,
+.GroupRow {
     font-weight: var(--font-weight-xl);
 }
 
@@ -20,38 +22,17 @@
     }
 }
 
-.name {
-    justify-self: stretch;
-    font-weight: var(--font-weight-xl);
+.GroupRow {
+    width: 100%;
+    padding: 0.5rem 1rem 0.25rem;
+    background-color: var(--color-background-body);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border-block-end: 1px solid var(--color-neutral-outlined-disabled-border);
 }
 
-.ValueCell {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    transition:
-        color 0.2s ease-in-out,
-        background-color 0.2s ease-in-out;
-
-    &.empty {
-        color: var(--color-neutral-plain-disabled);
-    }
-
-    .value {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-inline: 0.1rem;
-
-        &:has(+ *) {
-            &::after {
-                content: ",";
-            }
-        }
-
-        sub {
-            font-size: var(--font-size-xs);
-        }
-    }
+.GroupHeading {
+    width: 100%;
+    font-size: var(--font-size-xl2);
 }

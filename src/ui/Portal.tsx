@@ -1,5 +1,4 @@
-import { isEqual } from 'lodash';
-import { memo, type ReactNode, useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useUniqueId } from './hooks/useUniqueId';
 
@@ -27,7 +26,7 @@ const usePortalRoot = (): HTMLElement => {
     return rootRef.current;
 };
 
-export default memo(function Portal({ children }: PortalProps) {
+export function Portal({ children }: PortalProps) {
     const portalRoot = usePortalRoot();
     return createPortal(children, portalRoot, portalRoot.id);
-}, isEqual);
+}

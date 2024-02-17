@@ -6,13 +6,13 @@
 });
 
 .color-scheme-dark({
-    --shadow-channel: var(--palette-neutral-700);
-    --shadow-opacity: 50%;
+    --shadow-channel: var(--palette-common-black);
+    --shadow-opacity: 80%;
 });
 
 // Shadows
 :root {
-    --shadow-ring: 0 0 var(--palette-common-black);
+    --shadow-ring: 0 0 var(--palette-neutral-900);
     --shadow-color: color-mix(in srgb, var(--shadow-channel) var(--shadow-opacity), transparent);
     --shadow-xs: var(--shadow-ring), 0px 1px 2px 0px var(--shadow-color);
     --shadow-sm: var(--shadow-ring), 0px 1px 2px 0px var(--shadow-color), 0px 2px 4px 0px var(--shadow-color);

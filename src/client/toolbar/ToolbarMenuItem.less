@@ -1,0 +1,18 @@
+@import (once) "@ui/theme.less";
+
+.ToolbarMenuItem {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-background-popup);
+
+    &.current {
+        background-color: var(--color-neutral-plain-active-bg);
+        color: var(--color-neutral-plain-active);
+        cursor: default;
+        pointer-events: none;
+    }
+
+    &:hover {
+        background-color: var(--color-neutral-plain-hover-bg);
+        color: var(--color-neutral-plain-hover);
+    }
+}

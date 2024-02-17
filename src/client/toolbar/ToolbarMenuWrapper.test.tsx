@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import ToolbarMenuWrapper from '~/client/toolbar/ToolbarMenuWrapper';
+import { ToolbarMenuWrapper } from '~/client/toolbar/ToolbarMenuWrapper';
 import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('@ui/ColorSchemeToggler', () => () => <div>ColorSchemeToggler</div>);

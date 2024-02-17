@@ -15,7 +15,7 @@ export function getTsxRule(): RuleSetRule {
                     // tsconfig: './tsconfig.json',
                 },
             },
-            'css-module-wrapper',
+            // 'css-module-wrapper',
         ],
     };
 }

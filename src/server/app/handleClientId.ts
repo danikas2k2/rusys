@@ -1,18 +1,16 @@
-import { type Request, type Response } from 'express';
-import { debug } from '~/server/app/debug';
+import { type ApiClientId, type ApiRequest, type ApiResponse } from '~/common/api';
+import { debugRequest } from '~/server/app/debug';
+import { headerNoCache, run } from '~/server/app/utils';
 
-export async function handleClientId(req: Request, res: Response): Promise<void> {
-    debug();
-    debug('GET /clientId');
-    debug(JSON.stringify(req.body, null, 2));
-    debug('GOOGLE_CLIENT_ID');
+export async function handleClientId(req: ApiRequest, res: ApiResponse<ApiClientId>): Promise<void> {
+    debugRequest(req);
+    headerNoCache(res);
 
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    debug(clientId);
-
-    res.json({
-        ok: !!clientId,
-        clientId,
-    });
-    debug(clientId ? 'OK' : "ERROR: GOOGLE_CLIENT_ID doesn't exist");
+    const clientId = process.env.GOOGLE_CLIENT_ID ?? (process.env.NODE_ENV === 'development' ? 'dev_mode' : undefined);
+    res.json(
+        await run(
+            () => clientId,
+            () => ({ clientId })
+        )
+    );
 }

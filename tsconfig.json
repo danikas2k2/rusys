@@ -7,9 +7,10 @@
         "paths": {
             "@icons/*": ["src/icons/*"],
             "@ui/*": ["src/ui/*"],
-            "~/*": ["src/*"]
+            "~/*": ["src/*"],
         },
-        "lib": ["es2023", "dom", "dom.iterable"],
+        "lib": ["esnext", "dom", "dom.iterable"],
+        "target": "esnext",
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
         "noFallthroughCasesInSwitch": true,
@@ -26,10 +27,10 @@
             "jest-extended",
             "jest-to-match-shape-of",
             "jest-expect-message",
-            "jest-chain"
+            "jest-chain",
         ],
         "strict": true,
         "esModuleInterop": true,
-        "skipLibCheck": true
-    }
+        "skipLibCheck": true,
+    },
 }

@@ -14,10 +14,7 @@ import {
 export type PressEvent<T = Element> = PointerEvent<T> | TouchEvent<T> | MouseEvent<T>;
 export type PressEventHandler<T = Element> = EventHandler<PressEvent<T>>;
 
-type LongPressEvents<T = Element> = {
-    onClick: (e: MouseEvent<T>) => void;
-    onContextMenu: (e: MouseEvent<T>) => void;
-} & (
+type LongPressPointerEvents<T = Element> =
     | {
           onPointerDown?: PointerEventHandler<T>;
           onPointerMove?: PointerEventHandler<T>;
@@ -34,8 +31,11 @@ type LongPressEvents<T = Element> = {
           onMouseUp?: MouseEventHandler<T>;
           onMouseMove?: MouseEventHandler<T>;
           onMouseLeave?: MouseEventHandler<T>;
-      }
-);
+      };
+type LongPressEvents<T = Element> = {
+    onClick: (e: MouseEvent<T>) => void;
+    onContextMenu: (e: MouseEvent<T>) => void;
+} & LongPressPointerEvents<T>;
 
 export function useLongPress<T = Element>(
     onLongPress: PressEventHandler<T>,
@@ -53,7 +53,7 @@ export function useLongPress<T = Element>(
             shortPressRef.current = false;
             clearTimeout(timerRef.current);
             timerRef.current = setTimeout(() => {
-                if (!shortPressRef.current) {
+                if (!shortPressRef.current && !longPressRef.current) {
                     longPressRef.current = true;
                     onLongPress(e);
                 }
@@ -65,14 +65,16 @@ export function useLongPress<T = Element>(
     const onEnd = useCallback(
         (e: PressEvent<T>) => {
             if (!longPressRef.current && onShortPress) {
-                shortPressRef.current = true;
                 clearTimeout(timerRef.current);
-                if (shortDelay) {
-                    setTimeout(() => {
+                if (!shortPressRef.current) {
+                    shortPressRef.current = true;
+                    if (shortDelay) {
+                        setTimeout(() => {
+                            onShortPress?.(e);
+                        }, shortDelay);
+                    } else {
                         onShortPress?.(e);
-                    }, shortDelay);
-                } else {
-                    onShortPress?.(e);
+                    }
                 }
             }
         },
@@ -95,10 +97,6 @@ export function useLongPress<T = Element>(
 
     return useMemo(() => {
         return {
-            onMouseDown: onStart,
-            onMouseUp: onEnd,
-            onMouseMove: onMove,
-            onMouseLeave: onMove,
             ...(window.TouchEvent
                 ? {
                       onTouchStart: onStart,
@@ -113,7 +111,12 @@ export function useLongPress<T = Element>(
                       onPointerUp: onEnd,
                       onPointerLeave: onMove,
                   }
-                : {}),
+                : {
+                      onMouseDown: onStart,
+                      onMouseUp: onEnd,
+                      onMouseMove: onMove,
+                      onMouseLeave: onMove,
+                  }),
             onClick,
             onContextMenu,
         };

@@ -1,0 +1,13 @@
+@import (once) "@ui/theme.less";
+
+.Row {
+    > :first-child {
+        grid-column: span 3;
+        padding-inline-start: 1rem;
+    }
+
+    .name {
+        justify-self: stretch;
+        font-weight: var(--font-weight-xl);
+    }
+}

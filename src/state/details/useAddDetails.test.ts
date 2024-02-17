@@ -1,26 +1,27 @@
 import { renderHook } from '@testing-library/react';
 import { useAddDetails } from '~/state/details/useAddDetails';
-import { useUpdateDetails } from '~/state/details/useUpdateDetails';
+import { useSetDetailsYears } from '~/state/details/useSetDetailsYears';
+import { withReduxState } from '~/tests/withReduxState';
 
-jest.mock('~/state/details/useUpdateDetails');
+jest.mock('~/state/details/useSetDetailsYears');
 
 describe('useAddDetails', () => {
     const update = jest.fn();
 
     beforeAll(() => {
-        (useUpdateDetails as jest.Mock).mockReturnValue(update);
+        (useSetDetailsYears as jest.Mock).mockReturnValue(update);
     });
 
     afterEach(() => jest.clearAllMocks());
 
-    it('call update action', async () => {
-        const { result } = renderHook(() => useAddDetails());
+    it('calls update action', async () => {
+        const { result } = renderHook(() => useAddDetails(), withReduxState());
         await result.current('G', 'A');
         expect(update).toHaveBeenCalledWith('G', 'A');
     });
 
-    it('call update action with empty params', async () => {
-        const { result } = renderHook(() => useAddDetails());
+    it('calls update action with empty params', async () => {
+        const { result } = renderHook(() => useAddDetails(), withReduxState());
         await result.current('', '');
         expect(update).toHaveBeenCalledWith('', '');
     });

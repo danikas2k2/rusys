@@ -1,25 +1,22 @@
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
-import Loader from '@ui/Loader';
-import classNames from 'classnames';
-import { isEqual } from 'lodash';
-import React, { memo } from 'react';
-import AppContent from '~/client/AppContent';
+import { Loader } from '@ui/Loader';
+import React from 'react';
+import { AppContent } from '~/client/AppContent';
 import { Error } from '~/client/Error';
-import { useLabel } from '~/client/hooks/useLabel';
+import { Label } from '~/client/Label';
 import { useDev } from '~/hooks/useDev';
 import { useClientId } from '~/state/google/useClientId';
 import { useLocale } from '~/state/locale/useLocale';
-import './App.less';
+import cx from './App.less';
 
-export default memo(function App() {
+export function App() {
     useDocumentColorScheme();
     useLocale(process.env.LOCALE);
     const clientId = useClientId();
-    const invalidClientId = useLabel('Invalid Client ID');
     const dev = useDev();
     return (
-        <div className={classNames('App', { center: !dev && !clientId })}>
+        <div className={cx('App', { center: !dev && !clientId })}>
             {dev ? (
                 <AppContent />
             ) : clientId ? (
@@ -27,8 +24,12 @@ export default memo(function App() {
                     <AppContent />
                 </GoogleOAuthProvider>
             ) : (
-                (clientId == null && <Loader />) || <Error>{invalidClientId}</Error>
+                (clientId == null && <Loader />) || (
+                    <Error>
+                        <Label>Invalid Client ID</Label>
+                    </Error>
+                )
             )}
         </div>
     );
-}, isEqual);
+}

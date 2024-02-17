@@ -1,7 +1,7 @@
 import { type GoogleAction, GoogleActionType } from '~/state/google/actions';
 import { type Google } from '~/state/google/types';
 
-export default function google(state: Google = {}, action: GoogleAction): Google {
+export function google(state: Readonly<Google> = {}, action: Readonly<GoogleAction>): Readonly<Google> {
     switch (action.type) {
         case GoogleActionType.SET_CLIENT_ID:
             return {

@@ -1,6 +1,6 @@
 import { type FilterAction, FilterActionType } from '~/state/filter/actions';
 
-export default function filter(filter = '', action: FilterAction): string {
+export function filter(filter: string = '', action: Readonly<FilterAction>): string {
     switch (action.type) {
         case FilterActionType.SET:
             return action.filter;
