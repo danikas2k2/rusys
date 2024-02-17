@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { useLoginError } from '~/client/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
-import LoginButton from '~/client/user/LoginButton';
+import { LoginButton } from '~/client/user/LoginButton';
 import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('@react-oauth/google', () => ({

@@ -6,7 +6,7 @@ describe('getYears', () => {
         jest.setSystemTime(new Date('2023-05-01'));
     });
 
-    afterAll(jest.useRealTimers);
+    afterAll(() => jest.useRealTimers());
 
     it('get list of years after switch month', () => {
         expect(getYears()).toEqual([23, 22, 21, 20, 19]);

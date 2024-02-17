@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Links } from '~/client/Links';
-import Toolbar from '~/client/toolbar/Toolbar';
+import { Toolbar } from '~/client/toolbar/Toolbar';
 import { useClearFilter } from '~/state/filter/useClearFilter';
 import { useFilter } from '~/state/filter/useFilter';
 import { useSetFilter } from '~/state/filter/useSetFilter';

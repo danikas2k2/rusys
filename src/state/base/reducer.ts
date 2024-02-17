@@ -1,25 +1,22 @@
 import { combineReducers } from 'redux';
-import { type BaseState } from '~/state/base/types';
-import details from '~/state/details/reducer';
-import filter from '~/state/filter/reducer';
-import google from '~/state/google/reducer';
-import locale from '~/state/locale/reducer';
-import missing from '~/state/missing/reducer';
-import profile from '~/state/profile/reducer';
-import removing from '~/state/removing/reducer';
-import summary from '~/state/summary/reducer';
-import years from '~/state/years/reducer';
+import { details } from '~/state/details/reducer';
+import { filter } from '~/state/filter/reducer';
+import { google } from '~/state/google/reducer';
+import { groups } from '~/state/groups/reducer';
+import { locale } from '~/state/locale/reducer';
+import { profile } from '~/state/profile/reducer';
+import { summary } from '~/state/summary/reducer';
+import { variants } from '~/state/variants/reducer';
+import { years } from '~/state/years/reducer';
 
-const reducer = combineReducers<BaseState>({
+export const reducer = combineReducers({
     details,
-    summary,
     filter,
     google,
+    groups,
     locale,
-    missing,
     profile,
-    removing,
+    summary,
+    variants,
     years,
 });
-
-export default reducer;

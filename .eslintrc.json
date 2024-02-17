@@ -40,7 +40,12 @@
         "@typescript-eslint/explicit-function-return-type": [
             "warn",
             {
-                "allowExpressions": true
+                "allowExpressions": true,
+                "allowTypedFunctionExpressions": true,
+                "allowHigherOrderFunctions": true,
+                "allowDirectConstAssertionInArrowFunctions": true,
+                "allowConciseArrowFunctionExpressionsStartingWithVoid": true,
+                "allowFunctionsWithoutTypeParameters": true
             }
         ],
         "@typescript-eslint/no-angle-bracket-type-assertion": "off",
@@ -131,7 +136,7 @@
             }
         },
         {
-            "files": ["*.test.ts", "*.test.tsx"],
+            "files": ["*.test.ts", "*.test.tsx", "**/__mocks__/**/*"],
             "rules": {
                 "@typescript-eslint/no-explicit-any": "off",
                 "react/display-name": "off",

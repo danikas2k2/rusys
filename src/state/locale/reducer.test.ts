@@ -1,5 +1,5 @@
 import { DEFAULT_LOCALE, type LocaleAction, LocaleActionType } from '~/state/locale/actions';
-import reducer from '~/state/locale/reducer';
+import { locale as reducer } from '~/state/locale/reducer';
 
 describe('locale', () => {
     describe('default', () => {

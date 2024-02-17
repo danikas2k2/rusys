@@ -1,40 +1,46 @@
-import { type Request, type Response } from 'express';
+/** @jest-environment node */
+import { type ApiSetMissing } from '~/common/api';
 import { handleSetMissing } from '~/server/app/handleSetMissing';
-import { getMissing, setMissing } from '~/server/data/missing';
-import { type Missing } from '~/state/missing/types';
+import { setMissing } from '~/server/data/details';
+import { mockRequest } from '~/tests/mockRequest';
+import { mockResponse } from '~/tests/mockResponse';
 
-jest.mock('~/server/db');
 jest.mock('~/server/app/debug');
-jest.mock('~/server/data/missing');
+jest.mock('~/server/data/details');
 
 describe('handleSetMissing', () => {
-    const missing: Missing = [
-        { group: '', name: 'A' },
-        { group: '', name: 'B' },
-        { group: '', name: 'C' },
-        { group: 'G', name: 'A' },
-    ];
-
-    const request = { body: { missing } } as unknown as Request;
-    const response = { json: jest.fn() } as unknown as Response;
+    const request = mockRequest<ApiSetMissing>({ group: 'G', name: 'A', missing: true });
+    const response = mockResponse();
 
     afterEach(() => jest.clearAllMocks());
 
-    it('calls setMissing and responds with json when setMissing is successful', async () => {
-        (setMissing as jest.Mock).mockResolvedValue(true);
-        (getMissing as jest.Mock).mockResolvedValue(missing);
+    it('returns filled response on success', async () => {
+        (setMissing as jest.Mock).mockResolvedValueOnce(true);
+
         await handleSetMissing(request, response);
 
-        expect(setMissing).toHaveBeenCalledWith(missing);
-        expect(getMissing).toHaveBeenCalled();
-        expect(response.json).toHaveBeenCalledWith({ ok: true, missing });
+        expect(setMissing).toHaveBeenCalledWith('G', 'A', true);
+        expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
+        expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
-    it('calls setMissing and responds with json when setMissing is not successful', async () => {
-        (setMissing as jest.Mock).mockResolvedValue(false);
+    it('returns empty response on failure', async () => {
+        (setMissing as jest.Mock).mockResolvedValueOnce(false);
+
         await handleSetMissing(request, response);
 
-        expect(setMissing).toHaveBeenCalledWith(missing);
+        expect(setMissing).toHaveBeenCalledWith('G', 'A', true);
+        expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false });
+    });
+
+    it('returns error response on error', async () => {
+        (setMissing as jest.Mock).mockRejectedValueOnce('Failed to set missing');
+
+        await handleSetMissing(request, response);
+
+        expect(setMissing).toHaveBeenCalledWith('G', 'A', true);
+        expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
+        expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to set missing' });
     });
 });

@@ -7,12 +7,12 @@ export async function getMdxRule(isDevMode = false): Promise<RuleSetRule> {
         exclude: /node_modules/,
         use: [
             await getMdxLoader(isDevMode),
-            {
-                loader: 'css-module-wrapper',
-                options: {
-                    classNames: false,
-                },
-            },
+            // {
+            //     loader: 'css-module-wrapper',
+            //     options: {
+            //         classNames: false,
+            //     },
+            // },
         ],
     };
 }

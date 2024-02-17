@@ -1,12 +1,10 @@
-import { type Year } from '~/state/types';
-
 export const enum YearsActionType {
     SET = 'years.set',
 }
 
 export type YearsAction = {
     type: YearsActionType.SET;
-    years: Year[];
+    years: number[];
 };
 
-export const setYearsAction = (years: Year[]): YearsAction => ({ type: YearsActionType.SET, years });
+export const setYearsAction = (years: number[]): YearsAction => ({ type: YearsActionType.SET, years });

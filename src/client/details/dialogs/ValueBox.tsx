@@ -1,13 +1,11 @@
 import CloseIcon from '@icons/Close.svg';
 import ExpandDownIcon from '@icons/ExpandDown.svg';
-import Button, { ButtonGroup } from '@ui/Button';
-import Dialog from '@ui/Dialog';
-import IconButton from '@ui/IconButton';
-import classNames from 'classnames';
+import { Button, ButtonGroup } from '@ui/Button';
+import { Dialog } from '@ui/Dialog';
+import { IconButton } from '@ui/IconButton';
 import { isEqual } from 'lodash';
 import React, {
     createRef,
-    memo,
     type RefObject,
     type SyntheticEvent,
     useCallback,
@@ -15,65 +13,65 @@ import React, {
     useMemo,
     useState,
 } from 'react';
-import ValueInput from '~/client/details/dialogs/ValueInput';
+import { ValueInput } from '~/client/details/dialogs/ValueInput';
 import { useLabel } from '~/client/hooks/useLabel';
-import Label from '~/client/Label';
-import { type Amount, Variant } from '~/state/details/types';
-import { type Group, type Name, type Year } from '~/state/types';
+import { Label } from '~/client/Label';
+import { type VariantAmount } from '~/common/types';
 import { useAllVariants } from '~/state/variants/useAllVariants';
-import { useVariantComparator } from '~/state/variants/useVariantComparator';
-import './ValueBox.less';
+import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
+import cx from './ValueBox.less';
 
-interface ValueBoxProps {
-    group?: Group;
-    name?: Name;
-    year?: Year;
-    value?: Amount;
-    onClose?: (value?: Amount, updateWithoutHistory?: boolean) => void;
+export interface ValueBoxProps {
+    group: string;
+    name: string;
+    year: number;
+    amounts?: ReadonlyArray<VariantAmount>;
+    onClose?: (amounts?: ReadonlyArray<VariantAmount>, withoutHistory?: boolean) => void;
 }
 
-// TODO refactor: extract single element with input element and all handlers to avoid multiple rerenders
-export default memo(function ValueBox({ group, name, year, value, onClose }: ValueBoxProps) {
+// TODO refactor: extract single element with input element and all handlers to avoid multiple re-renders
+export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps) {
     const [expanded, setExpanded] = useState(false);
     const [removed, setRemoved] = useState(false);
 
-    const [editingValue, setEditingValue] = useState(value);
-    useEffect(() => setEditingValue(value), [value]);
+    const [editingAmounts, setEditingAmounts] = useState(amounts);
+    useEffect(() => setEditingAmounts(amounts), [amounts]);
 
-    const allVariants = useAllVariants();
-    const compareVariants = useVariantComparator();
-    const editingKeys = useMemo((): Variant[] => {
+    const allVariants = useAllVariants(group);
+    const compareVariants = useGroupVariantComparator(group);
+    const editingVariants = useMemo(() => {
         if (expanded) {
             return allVariants;
         }
-        const keys = Object.keys(editingValue ?? {}).sort(compareVariants) as Variant[];
-        return keys.length ? keys : [Variant.PUSLITRIS];
-    }, [allVariants, compareVariants, editingValue, expanded]);
+        const variants = [...(editingAmounts ?? [])].map((v) => v.variant).sort(compareVariants);
+        return variants.length ? variants : allVariants.slice(0, 1);
+    }, [allVariants, compareVariants, editingAmounts, expanded]);
 
     useEffect(() => {
-        if (editingValue) {
-            const optimizedValue = {
-                ...Object.fromEntries(Object.entries(editingValue).map(([k, v]) => [k, v < 0 ? 0 : v])),
-            };
-            if (!isEqual(editingValue, optimizedValue)) {
-                setEditingValue(optimizedValue);
+        if (editingAmounts) {
+            const optimizedValue = editingAmounts.map(({ variant, amount }) => ({
+                variant,
+                amount: Math.max(0, amount),
+            }));
+            if (!isEqual(editingAmounts, optimizedValue)) {
+                setEditingAmounts(optimizedValue);
             }
         }
-    }, [editingValue]);
+    }, [editingAmounts]);
 
     useEffect(() => {
-        if (editingValue && allVariants.every((k) => k in editingValue)) {
+        if (editingVariants && allVariants.every((k) => editingVariants.includes(k))) {
             setExpanded(true);
         }
-    }, [allVariants, editingValue]);
+    }, [allVariants, editingVariants]);
 
     const refs = useMemo(
-        (): Partial<Record<Variant, RefObject<HTMLInputElement>>> =>
-            Object.fromEntries(editingKeys.map((k) => [k, createRef()])),
-        [editingKeys]
+        (): Record<string, RefObject<HTMLInputElement>> =>
+            Object.fromEntries(editingVariants.map((k) => [k, createRef()])),
+        [editingVariants]
     );
 
-    const [focused, setFocused] = useState<Variant>(editingKeys[0]);
+    const [focused, setFocused] = useState<string>(editingVariants[0]);
     useEffect(() => refs[focused]?.current?.focus(), [focused, refs]);
     useEffect(() => {
         if (expanded) {
@@ -83,8 +81,8 @@ export default memo(function ValueBox({ group, name, year, value, onClose }: Val
 
     const handleClose = useCallback((): void => {
         setExpanded(false);
-        onClose?.(editingValue, removed);
-    }, [editingValue, onClose, removed]);
+        onClose?.(editingAmounts, removed);
+    }, [editingAmounts, onClose, removed]);
 
     const handleExpand = useCallback((): void => {
         setExpanded(true);
@@ -93,19 +91,19 @@ export default memo(function ValueBox({ group, name, year, value, onClose }: Val
     const stopPropagation = useCallback((e: SyntheticEvent) => e.stopPropagation(), []);
 
     const handleChange = useCallback(
-        (k: Variant) =>
-            (newValue: number): void =>
-                setEditingValue({
-                    ...editingValue,
-                    [k]: newValue,
-                }),
-        [editingValue]
+        (variant: string, newValue: number) =>
+            setEditingAmounts(
+                editingAmounts?.some((v) => v.variant === variant)
+                    ? editingAmounts.map((v) => (v.variant !== variant ? v : { ...v, amount: newValue }))
+                    : [...(editingAmounts ?? []), { variant, amount: newValue }]
+            ),
+        [editingAmounts]
     );
 
     const handleFocus = useCallback(
-        (k: Variant) => (): void => {
-            if (k !== focused) {
-                setFocused(k);
+        (variant: string) => {
+            if (variant !== focused) {
+                setFocused(variant);
             }
         },
         [focused]
@@ -116,7 +114,6 @@ export default memo(function ValueBox({ group, name, year, value, onClose }: Val
             setRemoved(false);
         }
     }, [removed]);
-
     const handleItemsRemoved = useCallback(() => {
         if (!removed) {
             setRemoved(true);
@@ -127,18 +124,18 @@ export default memo(function ValueBox({ group, name, year, value, onClose }: Val
     const expandLabel = useLabel('Expand');
     return (
         <Dialog
-            className={classNames('ValueBox', { fullScreen: expanded })}
+            className={cx('ValueBox', { fullScreen: expanded })}
             open
             closeOnOutsideClick
             closeOnEscape
             onClose={handleClose}
         >
             <header>
-                <div className="title">
+                <div className={cx('title')}>
                     <div>{group}</div>
                     <div>{name}</div>
                     <time>{year}</time>
-                    <div className="controls">
+                    <div className={cx('controls')}>
                         <ButtonGroup>
                             <Button
                                 role="radio"
@@ -161,24 +158,24 @@ export default memo(function ValueBox({ group, name, year, value, onClose }: Val
                         </ButtonGroup>
                     </div>
                 </div>
-                <div className="close">
+                <div className={cx('close')}>
                     <IconButton aria-label={closeLabel} onClick={handleClose}>
                         <CloseIcon />
                     </IconButton>
                 </div>
             </header>
             <article role="presentation" onClick={stopPropagation} onDoubleClick={stopPropagation}>
-                {editingKeys.map((k) => (
+                {editingVariants.map((variant) => (
                     <ValueInput
-                        key={k}
-                        ref={refs[k]}
-                        variant={k}
-                        prevValue={value?.[k]}
-                        value={editingValue?.[k]}
+                        key={variant}
+                        ref={refs[variant]}
+                        variant={variant}
+                        initialAmount={amounts?.find((v) => v.variant === variant)?.amount}
+                        amount={editingAmounts?.find((v) => v.variant === variant)?.amount}
                         onClose={handleClose}
-                        onChange={handleChange(k)}
-                        focus={k === focused}
-                        onFocus={handleFocus(k)}
+                        onChange={handleChange}
+                        focus={variant === focused}
+                        onFocus={handleFocus}
                     />
                 ))}
             </article>
@@ -199,4 +196,4 @@ export default memo(function ValueBox({ group, name, year, value, onClose }: Val
             </footer>
         </Dialog>
     );
-}, isEqual);
+}

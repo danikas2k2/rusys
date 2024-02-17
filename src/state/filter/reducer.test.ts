@@ -1,5 +1,5 @@
 import { type FilterAction, FilterActionType } from '~/state/filter/actions';
-import reducer from '~/state/filter/reducer';
+import { filter as reducer } from '~/state/filter/reducer';
 
 describe('filter', () => {
     describe('default', () => {

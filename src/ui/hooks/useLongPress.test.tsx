@@ -45,7 +45,6 @@ describe('useLongPress', () => {
 
     const userEvent = UserEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    // TODO use userEvent.pointer()
     describe('mouse events', () => {
         it('triggers onLongPress after duration', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);

@@ -1,7 +1,7 @@
 import { fireEvent } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import Dropdown from '@ui/Dropdown';
+import { Dropdown } from '@ui/Dropdown';
 import React from 'react';
 
 describe('Dropdown', () => {

@@ -1,8 +1,8 @@
 import { cloneDeep } from 'lodash';
-import { type AmountSet } from '~/state/details/types';
+import { type Summary } from '~/common/types';
 import { type SummaryAction, SummaryActionType } from './actions';
 
-export default function summary(summary: AmountSet = {}, action: SummaryAction): AmountSet {
+export function summary(summary: ReadonlyArray<Summary> = [], action: SummaryAction): ReadonlyArray<Summary> {
     switch (action.type) {
         case SummaryActionType.SET:
             return cloneDeep(action.summary);

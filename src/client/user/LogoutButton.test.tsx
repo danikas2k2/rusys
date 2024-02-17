@@ -2,7 +2,7 @@ import { googleLogout } from '@react-oauth/google';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import LogoutButton from '~/client/user/LogoutButton';
+import { LogoutButton } from '~/client/user/LogoutButton';
 import { useResetProfile } from '~/state/profile/useResetProfile';
 import { withReduxState } from '~/tests/withReduxState';
 

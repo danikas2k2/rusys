@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
 import React from 'react';
-import App from '~/client/App';
+import { App } from '~/client/App';
 import { useDev } from '~/hooks/useDev';
 import { useClientId } from '~/state/google/useClientId';
 import { useLocale } from '~/state/locale/useLocale';

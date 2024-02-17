@@ -1,5 +1,4 @@
-import { isEqual } from 'lodash';
-import React, { memo } from 'react';
+import React from 'react';
 import { useLabel } from '~/client/hooks/useLabel';
 
 interface LabelProps {
@@ -7,6 +6,6 @@ interface LabelProps {
     locale?: string;
 }
 
-export default memo(function Label({ children, locale }: LabelProps) {
-    return <span>{useLabel(children, locale)}</span>;
-}, isEqual);
+export function Label({ children, locale }: LabelProps) {
+    return <>{useLabel(children, locale)}</>;
+}

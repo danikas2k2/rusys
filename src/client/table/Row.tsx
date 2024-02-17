@@ -1,16 +1,17 @@
-import classNames from 'classnames';
-import { isEqual } from 'lodash';
-import React, { type HTMLAttributes, memo, type ReactNode } from 'react';
-import './Row.less';
+import React, { type ForwardedRef, forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import cx from './Row.less';
 
-interface RowProps<T extends HTMLElement = HTMLDivElement> extends HTMLAttributes<T> {
+export interface RowProps<T extends HTMLElement = HTMLDivElement> extends HTMLAttributes<T> {
     children?: ReactNode;
 }
 
-export default memo(function Row({ role = 'row', className, children, ...other }: RowProps) {
+export const Row = forwardRef(function Row(
+    { role = 'row', className, children, ...other }: RowProps,
+    forwardedRef: ForwardedRef<HTMLDivElement>
+) {
     return (
-        <div role={role} className={classNames('Row', className)} {...other}>
+        <div ref={forwardedRef} role={role} className={cx('Row', className)} {...other}>
             {children}
         </div>
     );
-}, isEqual);
+});

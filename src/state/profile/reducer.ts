@@ -1,7 +1,7 @@
 import { type ProfileAction, ProfileActionType } from '~/state/profile/actions';
 import { type Profile } from '~/state/profile/types';
 
-export default function profile(state: Profile = {}, action: ProfileAction): Profile {
+export function profile(state: Readonly<Profile> = {}, action: ProfileAction): Readonly<Profile> {
     switch (action.type) {
         case ProfileActionType.SET:
             localStorage.setItem('profile', JSON.stringify(action.profile));

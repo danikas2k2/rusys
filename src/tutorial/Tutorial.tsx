@@ -1,18 +1,18 @@
-import ColorSchemeToggler from '@ui/ColorSchemeToggler';
+import { ColorSchemeToggler } from '@ui/ColorSchemeToggler';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
 import React from 'react';
 import { Route, Routes } from 'react-router';
 import { HashRouter, NavLink } from 'react-router-dom';
 import { PAGES } from '~/tutorial/pages';
-import './Tutorial.less';
+import cx from './Tutorial.less';
 
 export function Tutorial(): JSX.Element {
     useDocumentColorScheme();
     return (
         <HashRouter>
-            <div className="Page">
+            <div className={cx('Page')}>
                 <aside>
-                    <div className="ColorToggler">
+                    <div className={cx('ColorToggler')}>
                         <ColorSchemeToggler />
                     </div>
                     {Object.entries(PAGES).map(([key, [title]]) => (
