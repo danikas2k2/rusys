@@ -91,7 +91,7 @@
         "@types/nedb": "^1.8.16",
         "@types/node": "^20.11.24",
         "@types/qs": "^6.9.12",
-        "@types/react": "^18.2.62",
+        "@types/react": "^18.2.63",
         "@types/react-dom": "^18.2.19",
         "@types/serve-static": "^1.15.5",
         "@types/webpack-hot-middleware": "^2.25.9",
@@ -165,5 +165,10 @@
         "webpack-dev-middleware": "^7.0.0",
         "webpack-dev-server": "^5.0.2",
         "webpack-hot-middleware": "^2.26.1"
+    },
+    "peerDependencies": {
+        "jsdom": "^24.0.0",
+        "nth-check": "^2.1.1",
+        "tough-cookie": "^4.1.3"
     }
 }
