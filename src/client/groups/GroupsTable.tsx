@@ -140,15 +140,28 @@ function SortableRow({
         [offset, overlapElement, verticalPosition]
     );
 
+    const [vertical, setVertical] = useState<boolean>();
+    const dragThreshold = 5;
+
     const handleDrag = useCallback(
         (e: DraggableEvent, data: DraggableData) => {
-            if (Math.abs(data.x - start.x) > Math.abs(data.y - start.y)) {
-                handleHorizontalDrag(e, data);
-            } else {
+            const v = Math.abs(data.y - start.y);
+            const h = Math.abs(data.x - start.x);
+            if (v < dragThreshold && h < dragThreshold) {
+                setVertical(undefined);
+                return;
+            }
+            const current = vertical ?? v > h;
+            if (vertical === undefined) {
+                setVertical(current);
+            }
+            if (current) {
                 handleVerticalDrag(e, data);
+            } else {
+                handleHorizontalDrag(e, data);
             }
         },
-        [handleHorizontalDrag, handleVerticalDrag, start]
+        [handleHorizontalDrag, handleVerticalDrag, start, vertical]
     );
 
     const handleDragEnd = useCallback(() => {
