@@ -159,7 +159,7 @@
         "stylelint-no-unused-selectors": "^1.0.40",
         "stylelint-prettier": "^5.0.0",
         "tsconfig-paths": "^4.2.0",
-        "typescript": "^5.4.4",
+        "typescript": "^5.4.5",
         "webpack": "^5.91.0",
         "webpack-cli": "^5.1.4",
         "webpack-dev-middleware": "^7.2.1",
