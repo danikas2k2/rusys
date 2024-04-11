@@ -8,6 +8,7 @@ export function getCssLoader(isDevMode: boolean): WebpackModuleLoader {
                 auto: (path: string) => !path.includes('node_modules'),
                 mode: 'local',
                 localIdentName: isDevMode ? '[path][name]__[local]' : '[hash:base64]',
+                namedExport: true,
             },
         },
     };
