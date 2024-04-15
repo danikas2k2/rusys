@@ -64,7 +64,7 @@
         "random-words": "^2.0.1",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "react-redux": "^9.1.0",
+        "react-redux": "^9.1.1",
         "redux": "^5.0.1",
         "transliteration": "^2.3.5"
     },
