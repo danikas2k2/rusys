@@ -86,7 +86,7 @@
         "@types/express-serve-static-core": "^4.19.0",
         "@types/jest": "^29.5.12",
         "@types/lodash": "^4.17.0",
-        "@types/mdx": "^2.0.12",
+        "@types/mdx": "^2.0.13",
         "@types/moment-locales-webpack-plugin": "^1.2.6",
         "@types/nedb": "^1.8.16",
         "@types/node": "^20.12.7",
