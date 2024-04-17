@@ -70,7 +70,7 @@
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-draggable": "^4.4.6",
-        "react-redux": "^9.1.0",
+        "react-redux": "^9.1.1",
         "redux": "^5.0.1",
         "transliteration": "^2.3.5"
     },
@@ -150,7 +150,7 @@
         "mini-css-extract-plugin": "^2.9.0",
         "less-import-once": "^1.1.4",
         "less-loader": "^12.2.0",
-        "mini-css-extract-plugin": "^2.8.1",
+        "mini-css-extract-plugin": "^2.9.0",
         "moment-locales-webpack-plugin": "^1.2.0",
         "postcss": "^8.4.38",
         "postcss-html": "^1.7.0",
