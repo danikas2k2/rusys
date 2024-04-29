@@ -53,10 +53,14 @@ export const Button = forwardRef(function Button(
     );
 });
 
+export interface ButtonGroupProps<T extends HTMLElement = HTMLDivElement> extends CommonInputProps<T> {
+    fullWidth?: boolean;
+}
+
 export const ButtonGroup = forwardRef(function ButtonGroup(
-    { className, ...props }: CommonInputProps<HTMLDivElement>,
+    { className, fullWidth, ...props }: ButtonGroupProps,
     forwardedRef: ForwardedRef<HTMLDivElement>
 ) {
     const ref = useForwardedRef(forwardedRef);
-    return <div ref={ref} className={cx('ButtonGroup', className)} {...props} />;
+    return <div ref={ref} className={cx('ButtonGroup', className, { 'full-width': fullWidth })} {...props} />;
 });
