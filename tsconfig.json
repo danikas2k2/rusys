@@ -1,5 +1,5 @@
 {
-    "extends": "@tsconfig/node18",
+    "extends": "@tsconfig/node20",
     "include": ["src/**/*"],
     "exclude": ["node_modules", "**/*.spec.ts"],
     "compilerOptions": {
@@ -7,7 +7,7 @@
         "paths": {
             "@icons/*": ["src/icons/*"],
             "@ui/*": ["src/ui/*"],
-            "~/*": ["src/*"],
+            "~/*": ["src/*"]
         },
         "lib": ["esnext", "dom", "dom.iterable"],
         "target": "esnext",
@@ -27,10 +27,11 @@
             "jest-extended",
             "jest-to-match-shape-of",
             "jest-expect-message",
-            "jest-chain",
+            "jest-chain"
         ],
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-    },
+        "moduleResolution": "NodeNext"
+    }
 }
