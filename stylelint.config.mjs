@@ -1,0 +1,26 @@
+export default {
+    extends: ['stylelint-config-standard', 'stylelint-config-recommended-less'],
+    plugins: ['stylelint-no-unused-selectors'],
+    rules: {
+        'selector-class-pattern': null,
+        'plugin/no-unused-selectors': false,
+    },
+    customSyntax: 'postcss-syntax',
+    overrides: [
+        {
+            files: ['*.less', '**/*.less'],
+            customSyntax: 'postcss-less',
+        },
+        {
+            files: ['*.htm', '**/*.htm', '*.html', '**/*.html'],
+            customSyntax: 'postcss-html',
+        },
+        {
+            files: ['*.jsx', '**/*.jsx', '*.tsx', '**/*.tsx'],
+            customSyntax: 'postcss-jsx',
+            rules: {
+                'value-keyword-case': null,
+            },
+        },
+    ],
+};

@@ -11,7 +11,7 @@
             }
         },
         {
-            "files": ["*.config.js", "*.config.ts"],
+            "files": ["*.config.js", "*.config.ts", "*.config.mjs"],
             "options": {
                 "printWidth": 80
             }
