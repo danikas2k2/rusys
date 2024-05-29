@@ -1,4 +1,4 @@
-import { getTestDetails, getTestProfile } from '~/tests/fixtures';
+import { getDetailsFixture, getProfileFixture } from '~/tests/fixtures';
 import { reducer } from '~/state/base/reducer';
 import { setDetailsAction } from '~/state/details/actions';
 import { setFilterAction } from '~/state/filter/actions';
@@ -13,7 +13,7 @@ describe('base', () => {
         expect(reducer({}, setYearsAction([21, 22, 23]))).toEqual(expect.objectContaining({ years: [21, 22, 23] }));
     });
 
-    const details = getTestDetails();
+    const details = getDetailsFixture();
 
     it('update details state', () => {
         expect(reducer({}, setDetailsAction(details))).toEqual(expect.objectContaining({ details }));
@@ -32,12 +32,10 @@ describe('base', () => {
     });
 
     it('update google state', () => {
-        expect(reducer({}, setClientIdAction('CLIENT_ID'))).toEqual(
-            expect.objectContaining({ google: { clientId: 'CLIENT_ID' } })
-        );
+        expect(reducer({}, setClientIdAction('CLIENT_ID'))).toEqual(expect.objectContaining({ google: { clientId: 'CLIENT_ID' } }));
     });
 
-    const profile = getTestProfile();
+    const profile = getProfileFixture();
 
     it('update profile state', () => {
         expect(reducer({}, setProfileAction(profile))).toEqual(expect.objectContaining({ profile }));

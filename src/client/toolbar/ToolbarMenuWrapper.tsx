@@ -1,5 +1,5 @@
 import MenuIcon from '@icons/Menu.svg';
-import { ColorSchemeToggler } from '@ui/ColorSchemeToggler';
+import { ColorSchemeToggle } from '@ui/ColorSchemeToggle';
 import type { DropdownRef } from '@ui/Dropdown';
 import { IconButton } from '@ui/IconButton';
 import { Menu } from '@ui/Menu';
@@ -16,6 +16,7 @@ export const ToolbarMenuWrapper = forwardRef(function ToolbarMenuWrapper(
     return (
         <Menu
             ref={ref}
+            role="menu"
             trigger={
                 <IconButton variant="plain" color="neutral">
                     <MenuIcon aria-label={menuLabel} />
@@ -25,7 +26,7 @@ export const ToolbarMenuWrapper = forwardRef(function ToolbarMenuWrapper(
             {children}
             <MenuDivider />
             <MenuItem>
-                <ColorSchemeToggler />
+                <ColorSchemeToggle />
             </MenuItem>
         </Menu>
     );

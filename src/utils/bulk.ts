@@ -95,8 +95,8 @@ const ops: Record<string, <T>(res: T, s: unknown) => T> = {
     $merge: _.merge,
 };
 
-export const bulk = <T>(value: T, ...updates: BulkOperation[]): T =>
-    updates.reduce(
-        (value, update) => Object.entries(update).reduce((value, [op, spec]) => ops[op](value, spec), value),
+export const bulk = <T>(value: T, ...operations: BulkOperation[]): T =>
+    operations.reduce(
+        (value, op) => Object.entries(op).reduce((value, [op, spec]) => ops[op](value, spec), value),
         _.cloneDeep(value)
     );

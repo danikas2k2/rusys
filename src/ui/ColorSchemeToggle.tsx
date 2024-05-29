@@ -5,19 +5,19 @@ import { Button, ButtonGroup } from '@ui/Button';
 import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
 import React from 'react';
 
-interface ColorSchemeTogglerProps {
+interface ColorSchemeToggleProps {
     auto?: boolean;
     lightModeLabel?: string;
     darkModeLabel?: string;
     autoModeLabel?: string;
 }
 
-export function ColorSchemeToggler({
+export function ColorSchemeToggle({
     auto = true,
     lightModeLabel = 'Light mode',
     darkModeLabel = 'Dark mode',
     autoModeLabel = 'System preferred mode',
-}: ColorSchemeTogglerProps) {
+}: ColorSchemeToggleProps) {
     const [scheme, setScheme] = useColorSchemeState();
     return (
         <nav>

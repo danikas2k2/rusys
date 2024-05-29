@@ -17,7 +17,7 @@ export async function getSummary(
     session?: ClientSession
 ): Promise<ReadonlyArray<Summary>> {
     const fromYear = 2000 + Math.min(...years);
-    const from = moment(`${fromYear}-0${startMonth}-01`);
+    const from = moment(`${fromYear}-0${startMonth}-01`).valueOf();
     const details = await (
         await getDetailsCollection()
     )
@@ -25,7 +25,7 @@ export async function getSummary(
             [
                 {
                     $match: {
-                        'updates.time': { $gte: from.valueOf() },
+                        'updates.time': { $gte: from },
                         'updates.years.amounts.amount': { $lt: 0 },
                     },
                 },
@@ -37,7 +37,7 @@ export async function getSummary(
                             $filter: {
                                 input: '$updates',
                                 as: 'update',
-                                cond: { $gte: ['$$update.time', from.valueOf()] },
+                                cond: { $gte: ['$$update.time', from] },
                             },
                         },
                     },
@@ -146,6 +146,9 @@ export async function addUpdate(
     amounts: ReadonlyArray<VariantAmount> = [],
     session?: ClientSession
 ): Promise<boolean> {
+    if (!group || !name || !year) {
+        return false;
+    }
     const col = await getDetailsCollection();
     const prev = await col.findOne({ group, name, 'years.year': year } as Filter<Details>, {
         projection: { _id: 0, years: 1 },

@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { getTestDetails } from '~/tests/fixtures';
+import { getDetailsFixture } from '~/tests/fixtures';
 import { type Details } from '~/common/types';
 import { useDetails } from '~/state/details/useDetails';
 import { withReduxState } from '~/tests/withReduxState';
@@ -11,7 +11,7 @@ describe('useDetails', () => {
     });
 
     it('return filled state', () => {
-        const details: Details[] = getTestDetails();
+        const details: Details[] = getDetailsFixture();
         const { result } = renderHook(() => useDetails(), withReduxState({ details }));
         expect(result.current).toEqual(details);
     });

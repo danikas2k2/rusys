@@ -1,7 +1,7 @@
 /** @jest-environment node */
 import { type ApiSummary } from '~/common/api';
 import { handleSummary } from '~/server/app/handleSummary';
-import { getTestYears } from '~/tests/fixtures';
+import { getYearsFixture } from '~/tests/fixtures';
 import { type Summary } from '~/common/types';
 import { getSummary } from '~/server/data/updates';
 import { getYears } from '~/server/data/years';
@@ -20,7 +20,7 @@ describe('handleSummary', () => {
         { group: 'J', name: 'B', years: [{ year: 21, amounts: [{ variant: 'd', amount: 1 }] }] },
         { group: 'G', name: 'A', years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }] },
     ];
-    const years = getTestYears();
+    const years = getYearsFixture();
 
     afterEach(() => jest.clearAllMocks());
 

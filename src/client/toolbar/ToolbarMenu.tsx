@@ -2,8 +2,9 @@ import { type DropdownRef } from '@ui/Dropdown';
 import { MenuDivider } from '@ui/MenuDivider';
 import React, { type FC, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router';
+import { WithOnClose } from '~/client/common/WithOnClose';
 import { DetailsBox } from '~/client/details/dialogs/DetailsBox';
-import { GroupBox } from '~/client/groups/GroupBox';
+import { GroupBox } from '~/client/groups/dialogs/GroupBox';
 import { useToggle } from '~/client/hooks/useToggle';
 import { Links } from '~/client/Links';
 import { AddMenuItem } from '~/client/toolbar/items/AddMenuItem';
@@ -12,9 +13,9 @@ import { GroupsItem } from '~/client/toolbar/items/GroupsItem';
 import { SummaryItem } from '~/client/toolbar/items/SummaryItem';
 import { VariantsItem } from '~/client/toolbar/items/VariantsItem';
 import { ToolbarMenuWrapper } from '~/client/toolbar/ToolbarMenuWrapper';
-import { VariantBox } from '~/client/variants/VariantBox';
+import { VariantBox } from '~/client/variants/dialogs/VariantBox';
 
-const AddBoxMap: Partial<Record<Links, FC<{ onClose: () => void }>>> = {
+const AddBoxMap: Partial<Record<Links, FC<WithOnClose>>> = {
     [Links.DETAILS]: DetailsBox,
     [Links.GROUPS]: GroupBox,
     [Links.VARIANTS]: VariantBox,
@@ -36,8 +37,12 @@ export function ToolbarMenu() {
     return (
         <>
             <ToolbarMenuWrapper ref={ref}>
-                {AddBox && <AddMenuItem onClick={onAddClick} />}
-                <MenuDivider />
+                {AddBox && (
+                    <>
+                        <AddMenuItem onClick={onAddClick} />
+                        <MenuDivider />
+                    </>
+                )}
                 <DetailsItem current={link === Links.DETAILS} />
                 <SummaryItem current={link === Links.SUMMARY} />
                 <MenuDivider />

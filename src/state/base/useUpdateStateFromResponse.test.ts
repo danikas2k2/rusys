@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { useDispatch } from 'react-redux';
-import { getTestDetails, getTestSummary, getTestYears } from '~/tests/fixtures';
+import { getDetailsFixture, getSummaryFixture, getYearsFixture } from '~/tests/fixtures';
 import { type RefreshResult, useUpdateStateFromResponse } from '~/state/base/useUpdateStateFromResponse';
 import { DetailsActionType } from '~/state/details/actions';
 import { SummaryActionType } from '~/state/summary/actions';
@@ -56,7 +56,7 @@ describe('useUpdateStateFromResponse', () => {
         expect(dispatch).not.toHaveBeenCalled();
     });
 
-    const years = getTestYears();
+    const years = getYearsFixture();
     it('dispatch years update action if response has years', () => {
         const { result } = renderHook(() => useUpdateStateFromResponse());
         result.current({ ok: true, years });
@@ -64,7 +64,7 @@ describe('useUpdateStateFromResponse', () => {
         expect(dispatch).toHaveBeenCalledWith({ type: YearsActionType.SET, years });
     });
 
-    const details = getTestDetails();
+    const details = getDetailsFixture();
     it('dispatch details update action if response has details', () => {
         const { result } = renderHook(() => useUpdateStateFromResponse());
         result.current({ ok: true, details });
@@ -72,7 +72,7 @@ describe('useUpdateStateFromResponse', () => {
         expect(dispatch).toHaveBeenCalledWith({ type: DetailsActionType.SET, details });
     });
 
-    const summary = getTestSummary();
+    const summary = getSummaryFixture();
     it('dispatch several update actions if response has several fields', () => {
         const { result } = renderHook(() => useUpdateStateFromResponse());
         result.current({ ok: true, years, details, summary });

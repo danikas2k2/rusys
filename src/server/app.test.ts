@@ -1,3 +1,4 @@
+/** @jest-environment node */
 import express, { type Request, type Response } from 'express';
 import request from 'supertest';
 import { ApiUrl } from '~/common/api';

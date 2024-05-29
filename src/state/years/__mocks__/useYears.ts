@@ -1,3 +1,3 @@
-import { getTestYears } from '~/tests/fixtures';
+import { getYearsFixture } from '~/tests/fixtures';
 
-export const useYears = jest.fn().mockReturnValue(getTestYears());
+export const useYears = jest.fn().mockReturnValue(getYearsFixture());

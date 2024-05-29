@@ -2,7 +2,7 @@
 import { type ApiRequest, type ApiDetails, type ApiMoveDetails } from '~/common/api';
 import { handleMove } from '~/server/app/handleMove';
 import { getYearsAndDetails, moveDetails } from '~/server/data/details';
-import { getTestDetails, getTestYears } from '~/tests/fixtures';
+import { getDetailsFixture, getYearsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
 
@@ -12,8 +12,8 @@ jest.mock('~/server/data/details');
 describe('handleMove', () => {
     const request = mockRequest<ApiMoveDetails>({ group: 'G', name: 'A', newGroup: 'H' });
     const response = mockResponse<ApiDetails>();
-    const years = getTestYears();
-    const details = getTestDetails();
+    const years = getYearsFixture();
+    const details = getDetailsFixture();
 
     afterEach(() => jest.clearAllMocks());
 

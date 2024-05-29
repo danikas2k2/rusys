@@ -1,6 +1,6 @@
 {
     "extends": "@tsconfig/node20",
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "jest/*.ts"],
     "exclude": ["node_modules", "**/*.spec.ts"],
     "compilerOptions": {
         "baseUrl": ".",
@@ -9,8 +9,9 @@
             "@ui/*": ["src/ui/*"],
             "~/*": ["src/*"]
         },
-        "lib": ["esnext", "dom", "dom.iterable"],
-        "target": "esnext",
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "target": "ESNext",
+        "moduleResolution": "NodeNext",
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
         "noFallthroughCasesInSwitch": true,
@@ -31,7 +32,6 @@
         ],
         "strict": true,
         "esModuleInterop": true,
-        "skipLibCheck": true,
-        "moduleResolution": "NodeNext"
+        "skipLibCheck": true
     }
 }

@@ -30,29 +30,31 @@ describe('useMoveDetails', () => {
         expect(request).toHaveBeenCalledWith(ApiUrl.DetailsMove, { group: 'G', name: 'A', newGroup: 'H' });
     });
 
-    it('calls move action with same name', async () => {
+    it('does not call move action with same name', async () => {
         const { result } = renderHook(() => useMoveDetails(), withReduxState());
         await result.current('G', 'A', 'G');
         expect(dispatch).not.toHaveBeenCalled();
         expect(request).not.toHaveBeenCalled();
     });
 
-    it('calls move action with empty name', async () => {
+    it('does not call move action with empty name', async () => {
         const { result } = renderHook(() => useMoveDetails(), withReduxState());
         await result.current('G', '', 'H');
         expect(dispatch).not.toHaveBeenCalled();
         expect(request).not.toHaveBeenCalled();
     });
 
-    it('calls move action with empty group', async () => {
+    it('does not call move action with empty group', async () => {
         const { result } = renderHook(() => useMoveDetails(), withReduxState());
         await result.current('', 'A', 'H');
-        expect(dispatch).toHaveBeenCalledWith({
-            type: DetailsActionType.MOVE,
-            group: 'J',
-            name: 'A',
-            newGroup: 'H',
-        });
-        expect(request).toHaveBeenCalledWith(ApiUrl.DetailsMove, { group: 'J', name: 'A', newGroup: 'H' });
+        expect(dispatch).not.toHaveBeenCalled();
+        expect(request).not.toHaveBeenCalled();
+    });
+
+    it('does not call move action with empty new group', async () => {
+        const { result } = renderHook(() => useMoveDetails(), withReduxState());
+        await result.current('G', 'A', '');
+        expect(dispatch).not.toHaveBeenCalled();
+        expect(request).not.toHaveBeenCalled();
     });
 });
