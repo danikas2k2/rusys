@@ -2,10 +2,10 @@ import { cloneDeep, merge, set } from 'lodash';
 import { type DetailsAction, DetailsActionType } from '~/state/details/actions';
 import { details as reducer } from '~/state/details/reducer';
 import { GroupsActionType } from '~/state/groups/actions';
-import { getTestDetails } from '~/tests/fixtures';
+import { getDetailsFixture } from '~/tests/fixtures';
 
 describe('details', () => {
-    const details = getTestDetails();
+    const details = getDetailsFixture();
 
     describe('default', () => {
         const unknownAction = { type: 'unknown' as DetailsActionType } as DetailsAction;
@@ -603,7 +603,7 @@ describe('details', () => {
                 reducer(details, {
                     type: GroupsActionType.RENAME,
                     group: 'G',
-                    newGroup: '',
+                    newGroup: 'J',
                 })
             ).toEqual(details);
         });
@@ -699,7 +699,7 @@ describe('details', () => {
                     type: DetailsActionType.MOVE,
                     group: 'G',
                     name: 'C',
-                    newGroup: '',
+                    newGroup: 'J',
                 })
             ).toEqual([...details.slice(0, 3), { ...details[3], group: 'J' }]);
         });
@@ -710,7 +710,7 @@ describe('details', () => {
                     type: DetailsActionType.MOVE,
                     group: 'G',
                     name: 'A',
-                    newGroup: '',
+                    newGroup: 'J',
                 })
             ).toEqual(details);
         });

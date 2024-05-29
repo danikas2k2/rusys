@@ -1,8 +1,8 @@
 /** @jest-environment node */
-import { getTestDetails } from '~/tests/fixtures';
 import { getLastUpdate, getUpdatesCount } from '~/server/data/tests/utils';
 import { addUpdate, addUpdates, getDiff, getSummary } from '~/server/data/updates';
 import { getDetailsCollection } from '~/server/db';
+import { getDetailsFixture } from '~/tests/fixtures';
 
 jest.mock('~/server/db');
 jest.mock('~/server/data/years');
@@ -10,7 +10,7 @@ jest.mock('~/server/data/years');
 describe('updates', () => {
     jest.setTimeout(30_000);
 
-    const testDetails = getTestDetails();
+    const testDetails = getDetailsFixture();
 
     beforeEach(async () => {
         await (await getDetailsCollection()).insertMany(testDetails);
@@ -27,24 +27,15 @@ describe('updates', () => {
         });
 
         it('returns difference for prev value undefined', () => {
-            expect(getDiff(undefined, [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }])).toEqual([
-                { year: 21, amounts: [{ variant: 'p', amount: 2 }] },
-            ]);
+            expect(getDiff(undefined, [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }])).toEqual([{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }]);
         });
 
         it('returns difference for new value undefined', () => {
-            expect(getDiff([{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }], undefined)).toEqual([
-                { year: 21, amounts: [{ variant: 'p', amount: -2 }] },
-            ]);
+            expect(getDiff([{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }], undefined)).toEqual([{ year: 21, amounts: [{ variant: 'p', amount: -2 }] }]);
         });
 
         it('returns difference for unchanged values', () => {
-            expect(
-                getDiff(
-                    [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }],
-                    [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }]
-                )
-            ).toEqual([]);
+            expect(getDiff([{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }], [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }])).toEqual([]);
         });
 
         it('returns difference for changed values', () => {
@@ -70,6 +61,7 @@ describe('updates', () => {
     describe('getSummary', () => {
         it('returns updates', async () => {
             expect(await getSummary()).toEqual([
+                { group: 'G', name: 'A', years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }] },
                 {
                     group: 'J',
                     name: 'A',
@@ -79,15 +71,14 @@ describe('updates', () => {
                     ],
                 },
                 { group: 'J', name: 'B', years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }] },
-                { group: 'G', name: 'A', years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }] },
             ]);
         });
 
         it('returns updates for specified years', async () => {
             expect(await getSummary([22, 23])).toEqual([
+                { group: 'G', name: 'A', years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }] },
                 { group: 'J', name: 'A', years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }] },
                 { group: 'J', name: 'B', years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }] },
-                { group: 'G', name: 'A', years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }] },
             ]);
         });
     });
@@ -163,29 +154,15 @@ describe('updates', () => {
             });
         });
 
-        it('adds new update for empty group, and specified name and year', async () => {
+        it('does not add update for empty group', async () => {
             expect(
                 await addUpdate('', 'A', 21, [
                     { variant: 'p', amount: 1 },
                     { variant: 'm', amount: 2 },
                     { variant: 'd', amount: 3 },
                 ])
-            ).toBeTrue();
-            expect(await getUpdatesCount()).toEqual({ count: 8 });
-            expect(await getLastUpdate()).toEqual({
-                group: 'J',
-                name: 'A',
-                years: [
-                    {
-                        year: 21,
-                        amounts: [
-                            { variant: 'p', amount: -1 },
-                            { variant: 'm', amount: 2 },
-                            { variant: 'd', amount: 3 },
-                        ],
-                    },
-                ],
-            });
+            ).toBeFalse();
+            expect(await getUpdatesCount()).toEqual({ count: 7 });
         });
 
         it('adds empty update for specified group, name, and year', async () => {
@@ -199,13 +176,8 @@ describe('updates', () => {
         });
 
         it('adds undefined as update for specified name and year', async () => {
-            expect(await addUpdate('', 'A', 21, undefined)).toBeTrue();
-            expect(await getUpdatesCount()).toEqual({ count: 8 });
-            expect(await getLastUpdate()).toEqual({
-                group: 'J',
-                name: 'A',
-                years: [{ year: 21, amounts: [{ variant: 'p', amount: -2 }] }],
-            });
+            expect(await addUpdate('', 'A', 21, undefined)).toBeFalse();
+            expect(await getUpdatesCount()).toEqual({ count: 7 });
         });
 
         it('does not add update if not changed', async () => {

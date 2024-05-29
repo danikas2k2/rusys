@@ -3,7 +3,7 @@ import { type ApiDetails, type ApiRenameGroup } from '~/common/api';
 import { handleRenameGroup } from '~/server/app/handleRenameGroup';
 import { renameGroupOccurrences } from '~/server/data/common';
 import { getYearsAndDetails } from '~/server/data/details';
-import { getTestDetails, getTestYears } from '~/tests/fixtures';
+import { getDetailsFixture, getYearsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
 
@@ -14,8 +14,8 @@ jest.mock('~/server/data/details');
 describe('handleRenameGroup', () => {
     const request = mockRequest<ApiRenameGroup>({ group: 'G', newGroup: 'H' });
     const response = mockResponse<ApiDetails>();
-    const years = getTestYears();
-    const details = getTestDetails();
+    const years = getYearsFixture();
+    const details = getDetailsFixture();
 
     afterEach(() => jest.clearAllMocks());
 

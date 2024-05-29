@@ -2,7 +2,7 @@
 import { type ApiGroups } from '~/common/api';
 import { handleSetGroups } from '~/server/app/handleSetGroups';
 import { getGroups, setGroups } from '~/server/data/groups';
-import { getTestGroups } from '~/tests/fixtures';
+import { getGroupsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
 
@@ -10,7 +10,7 @@ jest.mock('~/server/app/debug');
 jest.mock('~/server/data/groups');
 
 describe('handleSetGroups', () => {
-    const groups = getTestGroups();
+    const groups = getGroupsFixture();
     const request = mockRequest<ApiGroups>({ groups });
     const response = mockResponse<ApiGroups>();
 

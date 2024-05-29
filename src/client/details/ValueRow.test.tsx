@@ -2,7 +2,7 @@ import { act, render, screen } from '@testing-library/react';
 import UserEvent from '@testing-library/user-event';
 import React from 'react';
 import { ValueRow, type ValueRowProps } from '~/client/details/ValueRow';
-import { getTestVariants } from '~/tests/fixtures';
+import { getVariantsFixture } from '~/tests/fixtures';
 import { useHasRemoving } from '~/state/details/useHasRemoving';
 import { useSetDetailsAmounts } from '~/state/details/useSetDetailsAmounts';
 import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';
@@ -48,7 +48,7 @@ describe('ValueRow', () => {
     afterAll(() => jest.useRealTimers());
 
     const defaultProps: ValueRowProps = { group: 'G', name: 'C' };
-    const variants = getTestVariants();
+    const variants = getVariantsFixture();
     const state: WithVariantsState = { variants };
 
     describe('with value', () => {
@@ -67,8 +67,8 @@ describe('ValueRow', () => {
 
         it('renders cells with values only for matching years', () => {
             render(<ValueRow {...props} />, withReduxState(state));
-            expect(screen.getByRole('cell', { name: '2' })).toBeInTheDocument();
-            expect(screen.queryByRole('cell', { name: '1' })).not.toBeInTheDocument();
+            expect(screen.getByRole('cell', { name: '2 p' })).toBeInTheDocument();
+            expect(screen.queryByRole('cell', { name: '1 p' })).not.toBeInTheDocument();
         });
 
         it('renders cells without values', () => {
@@ -148,7 +148,7 @@ describe('ValueRow', () => {
 
         it('calls setAmounts, setMissing and setRemoving when updating a value', async () => {
             render(<ValueRow {...props} missing />, withReduxState(state));
-            await userEvent.click(screen.getByRole('cell', { name: '2' }));
+            await userEvent.click(screen.getByRole('cell', { name: '2 p' }));
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByRole('spinbutton', { name: 'Increase' }));
             act(() => jest.advanceTimersByTime(100));
@@ -160,7 +160,7 @@ describe('ValueRow', () => {
 
         it('does not call setAmounts, setMissing and setRemoving for unchanged value', async () => {
             render(<ValueRow {...props} missing />, withReduxState(state));
-            await userEvent.click(screen.getByRole('cell', { name: '2' }));
+            await userEvent.click(screen.getByRole('cell', { name: '2 p' }));
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByRole('button', { name: 'Close' }));
             expect(setAmounts).not.toHaveBeenCalled();

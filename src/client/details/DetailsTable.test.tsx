@@ -2,13 +2,10 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { DetailsTable } from '~/client/details/DetailsTable';
-import { getTestDetails, getTestYears } from '~/tests/fixtures';
 import { LoadingState, useLockingLoader } from '~/hooks/useLockingLoader';
-import { type WithDetailsState } from '~/state/details/types';
 import { useDetails } from '~/state/details/useDetails';
 import { useHasMissing } from '~/state/details/useHasMissing';
 import { useFilter } from '~/state/filter/useFilter';
-import { type WithYearsState } from '~/state/years/types';
 import { useYears } from '~/state/years/useYears';
 import { withReduxState } from '~/tests/withReduxState';
 
@@ -32,11 +29,6 @@ describe('DetailsTable', () => {
 
     afterEach(() => jest.clearAllMocks());
 
-    const state: WithYearsState & WithDetailsState = {
-        years: getTestYears(),
-        details: getTestDetails(),
-    };
-
     it('renders table structure', () => {
         render(<DetailsTable />, withReduxState());
         expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
@@ -45,30 +37,25 @@ describe('DetailsTable', () => {
 
         const rows = screen.getAllByRole('row');
         expect(rows).toHaveLength(7);
-        const [headRow, groupRow, firstRow, secondRow] = rows;
 
-        expect(within(headRow).getByRole('checkbox')).toBeChecked();
-        const headCells = within(headRow).getAllByRole('columnheader');
-        expect(headCells).toHaveLength(5);
-        [/* blank for checkbox: */ '', /* blank for names: */ '', /* years: */ '23', '22', '21'].forEach((text, i) =>
-            expect(headCells[i]).toHaveTextContent(text)
-        );
+        expect(within(rows[0]).getByRole('checkbox')).toBeChecked();
+        expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent(['', '', '23', '22', '21']);
 
-        expect(within(groupRow).getByRole('rowheader')).toHaveTextContent('Jams');
+        expect(within(rows[1]).getByRole('rowheader')).toHaveTextContent('G');
 
-        expect(within(firstRow).getByRole('checkbox')).toBeChecked();
-        const firstRowCells = within(firstRow).getAllByRole('cell');
-        expect(firstRowCells).toHaveLength(5);
-        [/* blank for checkbox: */ '', 'A', /* values for each year: */ '.', '.', '2'].forEach((text, i) =>
-            expect(firstRowCells[i]).toHaveTextContent(text)
-        );
+        expect(within(rows[2]).getByRole('checkbox')).toBeChecked();
+        expect(within(rows[2]).getAllByRole('cell')).toHaveListWithTextContent(['', 'A', '.', '1d', '.']);
 
-        expect(within(secondRow).getByRole('checkbox')).not.toBeChecked();
-        const secondRowCells = within(secondRow).getAllByRole('cell');
-        expect(secondRowCells).toHaveLength(5);
-        [/* blank for checkbox: */ '', 'B', /* values for each year: */ '.', '1', '.'].forEach((text, i) =>
-            expect(secondRowCells[i]).toHaveTextContent(text)
-        );
+        expect(within(rows[3]).getByRole('checkbox')).toBeChecked();
+        expect(within(rows[3]).getAllByRole('cell')).toHaveListWithTextContent(['', 'C', '.', '.', '2p']);
+
+        expect(within(rows[4]).getByRole('rowheader')).toHaveTextContent('J');
+
+        expect(within(rows[5]).getByRole('checkbox')).toBeChecked();
+        expect(within(rows[5]).getAllByRole('cell')).toHaveListWithTextContent(['', 'A', '.', '.', '2p']);
+
+        expect(within(rows[6]).getByRole('checkbox')).not.toBeChecked();
+        expect(within(rows[6]).getAllByRole('cell')).toHaveListWithTextContent(['', 'B', '.', '1p', '.']);
     });
 
     describe('renders loader', () => {
@@ -122,7 +109,7 @@ describe('DetailsTable', () => {
             const rows = screen.getAllByRole('row');
             expect(rows).toHaveLength(5);
             const [, groupRow, dataRow] = rows;
-            expect(within(groupRow).getByRole('rowheader')).toHaveTextContent('Jams');
+            expect(within(groupRow).getByRole('rowheader')).toHaveTextContent('G');
             expect(within(dataRow).getAllByRole('cell')[1]).toHaveTextContent('A');
         });
 
@@ -146,9 +133,9 @@ describe('DetailsTable', () => {
             expect(checkboxes).toHaveLength(5);
             expect(checkboxes[0]).toBeChecked();
             expect(checkboxes[1]).toBeChecked();
-            expect(checkboxes[2]).not.toBeChecked();
+            expect(checkboxes[2]).toBeChecked();
             expect(checkboxes[3]).toBeChecked();
-            expect(checkboxes[4]).toBeChecked();
+            expect(checkboxes[4]).not.toBeChecked();
         });
 
         it('renders missing rows only when header checkbox is unchecked', async () => {
@@ -172,9 +159,9 @@ describe('DetailsTable', () => {
             expect(checkboxes).toHaveLength(5);
             expect(checkboxes[0]).toBeChecked();
             expect(checkboxes[1]).toBeChecked();
-            expect(checkboxes[2]).not.toBeChecked();
+            expect(checkboxes[2]).toBeChecked();
             expect(checkboxes[3]).toBeChecked();
-            expect(checkboxes[4]).toBeChecked();
+            expect(checkboxes[4]).not.toBeChecked();
         });
     });
 });

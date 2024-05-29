@@ -1,5 +1,6 @@
 /** @jest-environment node */
-import { getTestGroups } from '~/tests/fixtures';
+import { Group } from '~/common/types';
+import { getGroupsFixture } from '~/tests/fixtures';
 import { deleteGroup, getGroups, renameGroup, setGroups, updateGroup } from '~/server/data/groups';
 import { getGroupsCollection } from '~/server/db';
 
@@ -8,10 +9,10 @@ jest.mock('~/server/db');
 describe('groups', () => {
     jest.setTimeout(30_000);
 
-    const testGroups = getTestGroups().sort((a, b) => a.order - b.order);
+    const groups = getGroupsFixture().sort((a, b) => a.order - b.order);
 
     beforeEach(async () => {
-        await (await getGroupsCollection()).insertMany(getTestGroups());
+        await (await getGroupsCollection()).insertMany(getGroupsFixture());
     });
 
     afterEach(async () => {
@@ -21,7 +22,7 @@ describe('groups', () => {
 
     describe('getGroups', () => {
         it('returns groups sorted by order and name', async () => {
-            expect(await getGroups()).toEqual(testGroups);
+            expect(await getGroups()).toEqual(groups);
         });
     });
 
@@ -39,9 +40,9 @@ describe('groups', () => {
             ]);
         });
 
-        it('adds a new group', async () => {
-            expect(await setGroups([{ group: 'D', order: 0 }])).toBeTrue();
-            expect(await getGroups()).toEqual([{ group: 'D', order: 0 }]);
+        it('updates groups by empty set', async () => {
+            expect(await setGroups([])).toBeTrue();
+            expect(await getGroups()).toEqual([]);
         });
 
         it('does nothing if no groups are updated or deleted', async () => {
@@ -51,73 +52,95 @@ describe('groups', () => {
                     { group: 'J', order: 1 },
                 ])
             ).toBeFalse();
-            expect(await getGroups()).toEqual(testGroups);
+            expect(await getGroups()).toEqual(groups);
+        });
+
+        it('updates groups ignoring empty names or records', async () => {
+            expect(
+                await setGroups([{ group: '', order: 1 }, { group: 'C', order: 2 }, { order: 3 } as Group, {} as Group])
+            ).toBeTrue();
+            expect(await getGroups()).toEqual([{ group: 'C', order: 2 }]);
         });
     });
 
     describe('updateGroupsGroup', () => {
         it('updates a group', async () => {
             expect(await updateGroup('G', 3)).toBeTrue();
-            expect(await getGroups()).toEqual([testGroups[0], { group: 'G', order: 3 }]);
+            expect(await getGroups()).toEqual([groups[0], { group: 'G', order: 3 }]);
         });
 
         it('updates a group with order field', async () => {
             expect(await updateGroup('G', 3)).toBeTrue();
-            expect(await getGroups()).toEqual([testGroups[0], { group: 'G', order: 3 }]);
-        });
-
-        it('updates a group with title field', async () => {
-            expect(await updateGroup('G', 2)).toBeTrue();
-            expect(await getGroups()).toEqual([testGroups[0], { group: 'G', order: 2, title: 'New title' }]);
+            expect(await getGroups()).toEqual([groups[0], { group: 'G', order: 3 }]);
         });
 
         it('adds a group', async () => {
             expect(await updateGroup('C', 3)).toBeTrue();
-            expect(await getGroups()).toEqual([...testGroups, { group: 'C', order: 3 }]);
+            expect(await getGroups()).toEqual([...groups, { group: 'C', order: 3 }]);
         });
 
         it('adds a group with same order', async () => {
             expect(await updateGroup('D', 1)).toBeTrue();
-            expect(await getGroups()).toEqual([testGroups[0], { group: 'D', order: 1 }, testGroups[1]]);
+            expect(await getGroups()).toEqual([{ group: 'D', order: 1 }, ...groups]);
         });
 
         it('does nothing if group is not updated', async () => {
             expect(await updateGroup('G', 2)).toBeFalse();
-            expect(await getGroups()).toEqual(testGroups);
+            expect(await getGroups()).toEqual(groups);
+        });
+
+        it('does nothing for empty group', async () => {
+            expect(await updateGroup('', 2)).toBeFalse();
+            expect(await getGroups()).toEqual(groups);
         });
     });
 
     describe('renameGroup', () => {
         it('renames a group', async () => {
-            expect(await renameGroup('', 'C')).toBeTrue();
-            expect(await getGroups()).toEqual([{ group: 'C', order: 1 }, testGroups[1]]);
+            expect(await renameGroup('J', 'C')).toBeTrue();
+            expect(await getGroups()).toEqual([{ group: 'C', order: 1 }, groups[1]]);
         });
 
         it('does nothing if new name is the same as old name', async () => {
             expect(await renameGroup('G', 'G')).toBeFalse();
-            expect(await getGroups()).toEqual(testGroups);
+            expect(await getGroups()).toEqual(groups);
         });
 
         it('does nothing if new name already exists', async () => {
-            expect(await renameGroup('G', '')).toBeFalse();
-            expect(await getGroups()).toEqual(testGroups);
+            expect(await renameGroup('G', 'J')).toBeFalse();
+            expect(await getGroups()).toEqual(groups);
         });
 
         it('does nothing if group does not exists', async () => {
             expect(await renameGroup('H', 'G')).toBeFalse();
-            expect(await getGroups()).toEqual(testGroups);
+            expect(await getGroups()).toEqual(groups);
+        });
+
+        it('does nothing for empty group', async () => {
+            expect(await renameGroup('', 'G')).toBeFalse();
+            expect(await getGroups()).toEqual(groups);
+        });
+
+        it('does nothing for new empty group', async () => {
+            expect(await renameGroup('G', '')).toBeFalse();
+            expect(await getGroups()).toEqual(groups);
         });
     });
 
     describe('deleteGroup', () => {
         it('deletes a group', async () => {
-            expect(await deleteGroup('')).toBeTrue();
-            expect(await getGroups()).toEqual(testGroups.slice(1));
+            expect(await deleteGroup('J')).toBeTrue();
+            expect(await getGroups()).toEqual(groups.slice(1));
+        });
+
+        it('does nothing with empty group', async () => {
+            expect(await deleteGroup('')).toBeFalse();
+            expect(await getGroups()).toEqual(groups);
         });
 
         it('does nothing if group does not exists', async () => {
             expect(await deleteGroup('C')).toBeFalse();
-            expect(await getGroups()).toEqual(testGroups);
+            expect(await getGroups()).toEqual(groups);
         });
     });
 });

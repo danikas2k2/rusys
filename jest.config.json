@@ -13,7 +13,8 @@
         "jest-extended/all",
         "jest-chain",
         "jest-to-match-shape-of",
-        "jest-expect-message"
+        "jest-expect-message",
+        "<rootDir>/jest/extend.ts"
     ],
     "testEnvironment": "jsdom",
     "transform": {
@@ -23,7 +24,6 @@
                 "sourcemap": true
             }
         ],
-        "\\.(c|le)ss$": "jest-css-modules-transform",
         "\\.svg": "jest-transformer-svg"
     },
     "collectCoverage": false,

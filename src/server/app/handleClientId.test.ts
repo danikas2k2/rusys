@@ -1,5 +1,5 @@
 import { type ApiClientId } from '~/common/api';
-import { handleClientId } from '~/server/app/handleClientId';
+import { DEV_CLIENT_ID, handleClientId } from '~/server/app/handleClientId';
 import { mockEnv } from '~/tests/mockEnv';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
@@ -26,9 +26,18 @@ describe('handleClientId', () => {
     });
 
     it('returns error when GOOGLE_CLIENT_ID is not set', async () => {
+        process.env.NODE_ENV = 'production';
         await handleClientId(request, response);
 
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false });
+    });
+
+    it('returns special clientId on development environment when GOOGLE_CLIENT_ID is not set', async () => {
+        process.env.NODE_ENV = 'development';
+        await handleClientId(request, response);
+
+        expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
+        expect(response.json).toHaveBeenCalledWith({ ok: true, clientId: DEV_CLIENT_ID });
     });
 });

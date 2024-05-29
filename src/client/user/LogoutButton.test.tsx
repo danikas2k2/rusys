@@ -9,7 +9,9 @@ import { withReduxState } from '~/tests/withReduxState';
 jest.mock('@react-oauth/google', () => ({
     googleLogout: jest.fn(),
 }));
-jest.mock('~/client/user/ProfileAvatar', () => () => <div>ProfileAvatar</div>);
+jest.mock('~/client/user/ProfileAvatar', () => ({
+    ProfileAvatar: () => <div>ProfileAvatar</div>,
+}));
 jest.mock('~/state/profile/useResetProfile');
 
 describe('LogoutButton', () => {

@@ -36,68 +36,68 @@ describe('ValueInput', () => {
 
     describe('calls onChange when amount is increased', () => {
         it('pressing arrow up on the input element', async () => {
-            render(<ValueInput variant="" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
+            render(<ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
             await userEvent.type(screen.getByRole('textbox'), '{ArrowUp}');
-            expect(onChange).toHaveBeenCalledWith(3);
+            expect(onChange).toHaveBeenCalledWith('p', 3);
             expect(onClose).not.toHaveBeenCalled();
         });
 
         it('clicking the increase button', async () => {
-            render(<ValueInput variant="" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
+            render(<ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
             await userEvent.click(screen.getByRole('spinbutton', { name: 'Increase' }));
-            expect(onChange).toHaveBeenCalledWith(3);
+            expect(onChange).toHaveBeenCalledWith('p', 3);
             expect(onClose).not.toHaveBeenCalled();
         });
 
         it('pressing arrow up on the increase button', async () => {
-            render(<ValueInput variant="" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
+            render(<ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Increase' }), '{ArrowUp}');
-            expect(onChange).toHaveBeenCalledWith(3);
+            expect(onChange).toHaveBeenCalledWith('p', 3);
             expect(onClose).not.toHaveBeenCalled();
         });
 
         it('pressing arrow up on the decrease button', async () => {
-            render(<ValueInput variant="" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
+            render(<ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Decrease' }), '{ArrowUp}');
-            expect(onChange).toHaveBeenCalledWith(3);
+            expect(onChange).toHaveBeenCalledWith('p', 3);
             expect(onClose).not.toHaveBeenCalled();
         });
     });
 
     describe('calls onChange when amount is decreased', () => {
         it('pressing arrow up on the input element', async () => {
-            render(<ValueInput variant="" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
+            render(<ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
             await userEvent.type(screen.getByRole('textbox'), '{ArrowDown}');
-            expect(onChange).toHaveBeenCalledWith(1);
+            expect(onChange).toHaveBeenCalledWith('p', 1);
             expect(onClose).not.toHaveBeenCalled();
         });
 
         it('clicking the decrease button', async () => {
-            render(<ValueInput variant="" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
+            render(<ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
             await userEvent.click(screen.getByRole('spinbutton', { name: 'Decrease' }));
-            expect(onChange).toHaveBeenCalledWith(1);
+            expect(onChange).toHaveBeenCalledWith('p', 1);
             expect(onClose).not.toHaveBeenCalled();
         });
 
         it('pressing arrow up on the decrease button', async () => {
-            render(<ValueInput variant="" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
+            render(<ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Decrease' }), '{ArrowDown}');
-            expect(onChange).toHaveBeenCalledWith(1);
+            expect(onChange).toHaveBeenCalledWith('p', 1);
             expect(onClose).not.toHaveBeenCalled();
         });
 
         it('pressing arrow up on the increase button', async () => {
-            render(<ValueInput variant="" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
+            render(<ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />, withReduxState());
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Increase' }), '{ArrowDown}');
-            expect(onChange).toHaveBeenCalledWith(1);
+            expect(onChange).toHaveBeenCalledWith('p', 1);
             expect(onClose).not.toHaveBeenCalled();
         });
     });
 
     it('calls onChange when input amount is changed', async () => {
-        render(<ValueInput variant="" onClose={onClose} onChange={onChange} />, withReduxState());
+        render(<ValueInput variant="p" onClose={onClose} onChange={onChange} />, withReduxState());
         await userEvent.type(screen.getByRole('textbox'), '5');
-        expect(onChange).toHaveBeenCalledWith(5);
+        expect(onChange).toHaveBeenCalledWith('p', 5);
         expect(onClose).not.toHaveBeenCalled();
     });
 

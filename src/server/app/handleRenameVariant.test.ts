@@ -3,7 +3,7 @@ import { type ApiDetails, type ApiRenameVariant } from '~/common/api';
 import { handleRenameVariant } from '~/server/app/handleRenameVariant';
 import { renameVariantOccurrences } from '~/server/data/common';
 import { getYearsAndDetails } from '~/server/data/details';
-import { getTestDetails, getTestYears } from '~/tests/fixtures';
+import { getDetailsFixture, getYearsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
 
@@ -14,8 +14,8 @@ jest.mock('~/server/data/details');
 describe('handleRenameVariant', () => {
     const request = mockRequest<ApiRenameVariant>({ group: 'G', variant: 'd', newVariant: '3/4' });
     const response = mockResponse<ApiDetails>();
-    const years = getTestYears();
-    const details = getTestDetails();
+    const years = getYearsFixture();
+    const details = getDetailsFixture();
 
     afterEach(() => jest.clearAllMocks());
 

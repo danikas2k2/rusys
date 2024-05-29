@@ -10,6 +10,7 @@ import { IconButton } from '@ui/IconButton';
 import { Input } from '@ui/Input';
 import { LabeledInput } from '@ui/LabeledInput';
 import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import { WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useNameMatch } from '~/client/hooks/useNameMatch';
 import { Label } from '~/client/Label';
@@ -19,7 +20,7 @@ import { useRenameDetails } from '~/state/details/useRenameDetails';
 import { getErrorMessage } from '~/utils/errors';
 import cx from './DetailsBox.less';
 
-interface DetailsBoxProps {
+interface DetailsBoxProps extends WithOnClose {
     group?: string;
     name?: string;
     onClose: (group?: string, name?: string) => void;
