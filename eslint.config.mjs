@@ -32,7 +32,14 @@ export default [
     },
     prettier,
     {
-        ignores: ['coverage/*', 'data/*', 'dist/*', 'docker/*', 'node_modules/*', 'public/*'],
+        ignores: [
+            'coverage/*',
+            'data/*',
+            'dist/*',
+            'docker/*',
+            'node_modules/*',
+            'public/*',
+        ],
     },
     {
         files: ['**/*.{ts,tsx}'],
@@ -59,6 +66,12 @@ export default [
             ...ts.configs['recommended'].rules,
             'react-hooks/exhaustive-deps': 'off', // disabled because of errors
             'ts/return-await': 2,
+        },
+    },
+    {
+        files: ['**/*.test.{ts,tsx}', '**/__mocks__/*.{ts,tsx}'],
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'off',
         },
     },
 ];

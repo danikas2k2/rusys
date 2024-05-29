@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { getTestSummary } from '~/tests/fixtures';
+import { getSummaryFixture } from '~/tests/fixtures';
 import { useSummary } from '~/state/summary/useSummary';
 import { withReduxState } from '~/tests/withReduxState';
 
@@ -10,7 +10,7 @@ describe('useSummary', () => {
     });
 
     it('return filled state', () => {
-        const summary = getTestSummary();
+        const summary = getSummaryFixture();
         const { result } = renderHook(() => useSummary(), withReduxState({ summary }));
         expect(result.current).toEqual(summary);
     });

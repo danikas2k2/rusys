@@ -7,9 +7,15 @@ import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/hooks/useDev');
 jest.mock('~/state/profile/useProfile');
-jest.mock('~/client/AppRouter', () => () => <div>AppRouter</div>);
-jest.mock('~/client/user/LoginButton', () => () => <div>LoginButton</div>);
-jest.mock('~/client/user/LogoutButton', () => () => <div>LogoutButton</div>);
+jest.mock('~/client/AppRouter', () => ({
+    AppRouter: () => <div>AppRouter</div>,
+}));
+jest.mock('~/client/user/LoginButton', () => ({
+    LoginButton: () => <div>LoginButton</div>,
+}));
+jest.mock('~/client/user/LogoutButton', () => ({
+    LogoutButton: () => <div>LogoutButton</div>,
+}));
 
 describe('AppContent', () => {
     beforeAll(() => {

@@ -2,7 +2,7 @@
 import { type ApiDetails, type ApiRenameDetails } from '~/common/api';
 import { handleRename } from '~/server/app/handleRename';
 import { getYearsAndDetails, renameDetails } from '~/server/data/details';
-import { getTestDetails, getTestYears } from '~/tests/fixtures';
+import { getDetailsFixture, getYearsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
 
@@ -12,8 +12,8 @@ jest.mock('~/server/data/details');
 describe('handleRename', () => {
     const request = mockRequest<ApiRenameDetails>({ group: 'G', name: 'A', newName: 'B' });
     const response = mockResponse<ApiDetails>();
-    const years = getTestYears();
-    const details = getTestDetails();
+    const years = getYearsFixture();
+    const details = getDetailsFixture();
 
     afterEach(() => jest.clearAllMocks());
 

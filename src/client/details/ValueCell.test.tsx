@@ -6,7 +6,9 @@ import { ValueCell, type ValueCellProps } from '~/client/details/ValueCell';
 import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
 import { withReduxState } from '~/tests/withReduxState';
 
-jest.mock('~/client/details/dialogs/ValueBox', () => jest.fn(() => null));
+jest.mock('~/client/details/dialogs/ValueBox', () => ({
+    ValueBox: jest.fn().mockReturnValue(null),
+}));
 jest.mock('~/state/details/useSetDetailsRemoving', () => ({
     useSetDetailsRemoving: jest.fn(),
 }));
@@ -47,7 +49,7 @@ describe('ValueCell', () => {
 
         it('renders cell into the document', () => {
             render(<ValueCell {...props} onChange={onChange} />, withReduxState());
-            expect(screen.getByRole('cell', { name: '2 3 d' })).toBeInTheDocument();
+            expect(screen.getByRole('cell', { name: '2 p 3 d' })).toBeInTheDocument();
         });
 
         it('handles long press', async () => {

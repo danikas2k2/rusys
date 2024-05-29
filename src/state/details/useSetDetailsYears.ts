@@ -15,8 +15,10 @@ export function useSetDetailsYears(): (
     const request = useUpdatingApiRequest<ApiUpdateDetailsYears>();
     return useCallback(
         async (group: string, name: string, years?: YearAmounts[], withoutHistory?: boolean): Promise<void> => {
-            dispatch(setDetailsYearsAction(group, name, years));
-            return request(ApiUrl.DetailsSetYears, { group, name, years, withoutHistory });
+            if (group && name) {
+                dispatch(setDetailsYearsAction(group, name, years));
+                return request(ApiUrl.DetailsSetYears, { group, name, years, withoutHistory });
+            }
         },
         [request, dispatch]
     );

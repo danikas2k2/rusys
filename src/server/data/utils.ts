@@ -7,14 +7,6 @@ import {
     type UpdateResult,
 } from 'mongodb';
 
-export const getGroupQuery = (group: string): Record<string, unknown> =>
-    group ? { group } : { $or: [{ group }, { group: { $exists: false } }] };
-
-export const getGroupAndNameQuery = (group: string, name: string): Record<string, unknown> => ({
-    ...getGroupQuery(group),
-    name,
-});
-
 export const hasEffect = (
     res: BulkWriteResult | UpdateResult | DeleteResult | InsertOneResult | InsertManyResult
 ): boolean =>

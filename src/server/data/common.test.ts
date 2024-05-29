@@ -1,19 +1,13 @@
 /** @jest-environment node */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { ClientSession } from 'mongodb';
-import { getTestDetails, getTestGroups, getTestVariants } from '~/tests/fixtures';
 import {
     deleteGroupOccurrences,
     deleteVariantOccurrences,
     renameGroupOccurrences,
     renameVariantOccurrences,
 } from '~/server/data/common';
-import {
-    deleteDetailsGroup,
-    deleteDetailsVariant,
-    renameDetailsGroup,
-    renameDetailsVariant,
-} from '~/server/data/details';
+import { deleteDetailsGroup, deleteDetailsVariant, renameDetailsGroup, renameDetailsVariant } from '~/server/data/details';
 import { deleteGroup, renameGroup } from '~/server/data/groups';
 import {
     getAllDetails,
@@ -24,19 +18,16 @@ import {
 } from '~/server/data/tests/utils';
 import { deleteVariant, deleteVariantsGroup, renameVariant, renameVariantsGroup } from '~/server/data/variants';
 import { getDetailsCollection, getGroupsCollection, getVariantsCollection } from '~/server/db';
+import { getDetailsFixture, getGroupsFixture, getVariantsFixture } from '~/tests/fixtures';
 
 jest.mock('~/server/db');
 
 jest.mock('~/server/data/details', () => ({
     ...jest.requireActual('~/server/data/details'),
     deleteDetailsGroup: jest.fn().mockImplementation(jest.requireActual('~/server/data/details').deleteDetailsGroup),
-    deleteDetailsVariant: jest
-        .fn()
-        .mockImplementation(jest.requireActual('~/server/data/details').deleteDetailsVariant),
+    deleteDetailsVariant: jest.fn().mockImplementation(jest.requireActual('~/server/data/details').deleteDetailsVariant),
     renameDetailsGroup: jest.fn().mockImplementation(jest.requireActual('~/server/data/details').renameDetailsGroup),
-    renameDetailsVariant: jest
-        .fn()
-        .mockImplementation(jest.requireActual('~/server/data/details').renameDetailsVariant),
+    renameDetailsVariant: jest.fn().mockImplementation(jest.requireActual('~/server/data/details').renameDetailsVariant),
 }));
 
 jest.mock('~/server/data/groups', () => ({
@@ -56,9 +47,9 @@ jest.mock('~/server/data/variants', () => ({
 describe('common', () => {
     jest.setTimeout(30_000);
 
-    const details = getTestDetails();
-    const groups = getTestGroups();
-    const variants = getTestVariants();
+    const details = getDetailsFixture();
+    const groups = getGroupsFixture();
+    const variants = getVariantsFixture();
 
     beforeEach(async () => {
         await (await getDetailsCollection()).insertMany(details, { forceServerObjectId: true });
@@ -301,17 +292,17 @@ describe('common', () => {
 
         it('returns false if renameDetailsVariant returns false', async () => {
             (renameDetailsVariant as jest.Mock).mockResolvedValueOnce(false);
-            expect(await renameVariantOccurrences('G', '', '2')).toBeFalse();
-            expect(renameVariant).toHaveBeenCalledWith('G', '', '2', session);
-            expect(renameDetailsVariant).toHaveBeenCalledWith('G', '', '2', session);
+            expect(await renameVariantOccurrences('G', 'p', '2')).toBeFalse();
+            expect(renameVariant).toHaveBeenCalledWith('G', 'p', '2', session);
+            expect(renameDetailsVariant).toHaveBeenCalledWith('G', 'p', '2', session);
             expect(await getAllVariants()).toEqual(variants);
             expect(await getAllDetails()).toEqual(details);
         });
 
         it('returns true if all functions returns true', async () => {
-            expect(await renameVariantOccurrences('G', '', '2')).toBeTrue();
-            expect(renameVariant).toHaveBeenCalledWith('G', '', '2', session);
-            expect(renameDetailsVariant).toHaveBeenCalledWith('G', '', '2', session);
+            expect(await renameVariantOccurrences('G', 'p', '2')).toBeTrue();
+            expect(renameVariant).toHaveBeenCalledWith('G', 'p', '2', session);
+            expect(renameDetailsVariant).toHaveBeenCalledWith('G', 'p', '2', session);
             expect(await getAllVariants()).toEqual([
                 ...variants.slice(0, 6),
                 { ...variants[6], variant: '2' },
@@ -368,17 +359,17 @@ describe('common', () => {
 
         it('returns false if deleteDetailsVariant returns false', async () => {
             (deleteDetailsVariant as jest.Mock).mockResolvedValueOnce(false);
-            expect(await deleteVariantOccurrences('G', '')).toBeFalse();
-            expect(deleteVariant).toHaveBeenCalledWith('G', '', session);
-            expect(deleteDetailsVariant).toHaveBeenCalledWith('G', '', session);
+            expect(await deleteVariantOccurrences('G', 'p')).toBeFalse();
+            expect(deleteVariant).toHaveBeenCalledWith('G', 'p', session);
+            expect(deleteDetailsVariant).toHaveBeenCalledWith('G', 'p', session);
             expect(await getAllVariants()).toEqual(variants);
             expect(await getAllDetails()).toEqual(details);
         });
 
         it('returns true if all functions returns true', async () => {
-            expect(await deleteVariantOccurrences('G', '')).toBeTrue();
-            expect(deleteVariant).toHaveBeenCalledWith('G', '', session);
-            expect(deleteDetailsVariant).toHaveBeenCalledWith('G', '', session);
+            expect(await deleteVariantOccurrences('G', 'p')).toBeTrue();
+            expect(deleteVariant).toHaveBeenCalledWith('G', 'p', session);
+            expect(deleteDetailsVariant).toHaveBeenCalledWith('G', 'p', session);
             expect(await getAllVariants()).toEqual([...variants.slice(0, 6), ...variants.slice(7)]);
             expect(await getAllDetails()).toEqual([
                 ...details.slice(0, 3),

@@ -3,7 +3,7 @@ import { type ApiRequestVariant, type ApiDetails } from '~/common/api';
 import { handleDeleteVariant } from '~/server/app/handleDeleteVariant';
 import { deleteVariantOccurrences } from '~/server/data/common';
 import { getYearsAndDetails } from '~/server/data/details';
-import { getTestDetails, getTestYears } from '~/tests/fixtures';
+import { getDetailsFixture, getYearsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
 
@@ -14,8 +14,8 @@ jest.mock('~/server/data/details');
 describe('handleDeleteVariant', () => {
     const request = mockRequest<ApiRequestVariant>({ group: 'G', variant: 'd' });
     const response = mockResponse<ApiDetails>();
-    const years = getTestYears();
-    const details = getTestDetails();
+    const years = getYearsFixture();
+    const details = getDetailsFixture();
 
     afterEach(() => jest.clearAllMocks());
 

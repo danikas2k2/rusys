@@ -29,9 +29,9 @@ async function stopServer(): Promise<void> {
     }
 }
 
-beforeAll(async () => await startServer());
+beforeAll(async () => startServer());
 
-afterAll(async () => await stopServer());
+afterAll(async () => stopServer());
 
 export const getClient = jest.fn<Promise<MongoClient>, any, any>(() => Promise.resolve(client!));
 

@@ -1,46 +1,79 @@
 /** @jest-environment node */
-import { getGroupAndNameQuery, getGroupQuery } from '~/server/data/utils';
+import { hasEffect, hasDuplicates } from '~/server/data/utils';
+import { type DeleteResult, type InsertManyResult, type InsertOneResult, MongoError, type UpdateResult } from 'mongodb';
 
-describe('getGroupQuery', () => {
-    it('get query for empty group', () => {
-        expect(getGroupQuery('')).toEqual({
-            $or: [{ group: 'J' }, { group: { $exists: false } }],
-        });
+describe('hasEffect', () => {
+    it('returns true when insertedId is present', () => {
+        const result = { insertedId: '123' } as InsertOneResult;
+        expect(hasEffect(result)).toBeTrue();
     });
 
-    it('get query for specified group', () => {
-        expect(getGroupQuery('G')).toEqual({
-            group: 'G',
-        });
+    it('returns false when insertedId is present but has falsy value', () => {
+        const result = { insertedId: null } as InsertOneResult;
+        expect(hasEffect(result)).toBeFalse();
+    });
+
+    it('returns true when insertedCount is present', () => {
+        const result = { insertedCount: 1 } as InsertManyResult;
+        expect(hasEffect(result)).toBeTrue();
+    });
+
+    it('returns false when insertedCount is present but has falsy value', () => {
+        const result = { insertedCount: 0 } as InsertManyResult;
+        expect(hasEffect(result)).toBeFalse();
+    });
+
+    it('returns true when modifiedCount is present', () => {
+        const result = { modifiedCount: 1 } as UpdateResult;
+        expect(hasEffect(result)).toBeTrue();
+    });
+
+    it('returns false when modifiedCount is present but has falsy value', () => {
+        const result = { modifiedCount: 0 } as UpdateResult;
+        expect(hasEffect(result)).toBeFalse();
+    });
+
+    it('returns true when upsertedCount is present', () => {
+        const result = { upsertedCount: 1 } as UpdateResult;
+        expect(hasEffect(result)).toBeTrue();
+    });
+
+    it('returns false when upsertedCount is present but has falsy value', () => {
+        const result = { upsertedCount: 0 } as UpdateResult;
+        expect(hasEffect(result)).toBeFalse();
+    });
+
+    it('returns true when deletedCount is present', () => {
+        const result = { deletedCount: 1 } as DeleteResult;
+        expect(hasEffect(result)).toBeTrue();
+    });
+
+    it('returns false when deletedCount is present but has falsy value', () => {
+        const result = { deletedCount: 0 } as DeleteResult;
+        expect(hasEffect(result)).toBeFalse();
+    });
+
+    it('returns false when no effect fields are present', () => {
+        const result = {} as any;
+        expect(hasEffect(result)).toBeFalse();
     });
 });
 
-describe('getGroupAndNameQuery', () => {
-    it('get query for empty group and name', () => {
-        expect(getGroupAndNameQuery('', '')).toEqual({
-            $or: [{ group: 'J' }, { group: { $exists: false } }],
-            name: '',
-        });
+describe('hasDuplicates', () => {
+    it('returns false when MongoError with code 11000 is thrown', () => {
+        const error = new MongoError('Duplicate key error');
+        error.code = 11000;
+        expect(hasDuplicates(error)).toBeFalse();
     });
 
-    it('get query for empty group and specified name', () => {
-        expect(getGroupAndNameQuery('', 'A')).toEqual({
-            $or: [{ group: 'J' }, { group: { $exists: false } }],
-            name: 'A',
-        });
+    it('returns false when MongoError with different code is thrown', () => {
+        const error = new MongoError('Duplicate key error');
+        error.code = 11111;
+        expect(() => hasDuplicates(error)).toThrow('Duplicate key error');
     });
 
-    it('get query for specified group and empty name', () => {
-        expect(getGroupAndNameQuery('G', '')).toEqual({
-            group: 'G',
-            name: '',
-        });
-    });
-
-    it('get query for specified group and name', () => {
-        expect(getGroupAndNameQuery('G', 'A')).toEqual({
-            group: 'G',
-            name: 'A',
-        });
+    it('rethrows error when error is not a MongoError with code 11000', () => {
+        const error = new Error('Some error');
+        expect(() => hasDuplicates(error)).toThrow('Some error');
     });
 });

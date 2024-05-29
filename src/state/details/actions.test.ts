@@ -8,11 +8,11 @@ import {
     setDetailsAmountsAction,
     setDetailsYearsAction,
 } from '~/state/details/actions';
-import { getTestDetails } from '~/tests/fixtures';
+import { getDetailsFixture } from '~/tests/fixtures';
 
 describe('setDetailsAction', () => {
     it('returns valid action', () => {
-        const details = getTestDetails();
+        const details = getDetailsFixture();
         expect(setDetailsAction(details)).toEqual({ type: DetailsActionType.SET, details });
     });
 

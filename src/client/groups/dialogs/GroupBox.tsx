@@ -9,6 +9,7 @@ import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { IconButton } from '@ui/IconButton';
 import { LabeledInput } from '@ui/LabeledInput';
 import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import { WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
 import { Label } from '~/client/Label';
 import { compareNames } from '~/client/utils/compareNames';
@@ -19,7 +20,7 @@ import { useRenameGroup } from '~/state/groups/useRenameGroup';
 import { getErrorMessage } from '~/utils/errors';
 import cx from './GroupBox.less';
 
-interface GroupBoxProps {
+interface GroupBoxProps extends WithOnClose {
     group?: string;
     onClose: (group?: string) => void;
 }

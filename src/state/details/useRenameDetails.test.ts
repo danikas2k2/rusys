@@ -23,35 +23,28 @@ describe('useRenameDetails', () => {
 
     afterEach(() => jest.clearAllMocks());
 
-    it('calls rename action', async () => {
+    it('calls rename actions', async () => {
         const { result } = renderHook(() => useRenameDetails(), withReduxState());
         await result.current('G', 'A', 'B');
         expect(dispatch).toHaveBeenCalledWith({ type: DetailsActionType.RENAME, group: 'G', name: 'A', newName: 'B' });
         expect(request).toHaveBeenCalledWith(ApiUrl.DetailsRename, { group: 'G', name: 'A', newName: 'B' });
     });
 
-    it('calls rename action with same name', async () => {
+    it('does not call rename actions with same name', async () => {
         const { result } = renderHook(() => useRenameDetails(), withReduxState());
         await result.current('G', 'A', 'A');
         expect(dispatch).not.toHaveBeenCalled();
         expect(request).not.toHaveBeenCalled();
     });
 
-    it('calls rename action with empty names', async () => {
+    it('does not call rename action with empty name', async () => {
         const { result } = renderHook(() => useRenameDetails(), withReduxState());
-        await result.current('G', '', '');
+        await result.current('G', '', 'A');
         expect(dispatch).not.toHaveBeenCalled();
         expect(request).not.toHaveBeenCalled();
     });
 
-    it('calls rename action with empty name', async () => {
-        const { result } = renderHook(() => useRenameDetails(), withReduxState());
-        await result.current('G', '', 'A');
-        expect(dispatch).toHaveBeenCalledWith({ type: DetailsActionType.RENAME, group: 'G', name: '', newName: 'A' });
-        expect(request).toHaveBeenCalledWith(ApiUrl.DetailsRename, { group: 'G', name: '', newName: 'A' });
-    });
-
-    it('calls rename action with empty new name', async () => {
+    it('does not call rename action with empty new name', async () => {
         const { result } = renderHook(() => useRenameDetails(), withReduxState());
         await result.current('G', 'A', '');
         expect(dispatch).not.toHaveBeenCalled();
@@ -61,30 +54,6 @@ describe('useRenameDetails', () => {
     it('calls rename action with empty group', async () => {
         const { result } = renderHook(() => useRenameDetails(), withReduxState());
         await result.current('', 'A', 'B');
-        expect(dispatch).toHaveBeenCalledWith({
-            type: DetailsActionType.RENAME,
-            group: 'J',
-            name: 'A',
-            newName: 'B',
-        });
-        expect(request).toHaveBeenCalledWith(ApiUrl.DetailsRename, { group: 'J', name: 'A', newName: 'B' });
-    });
-
-    it('calls rename action with empty group and name', async () => {
-        const { result } = renderHook(() => useRenameDetails(), withReduxState());
-        await result.current('', '', 'A');
-        expect(dispatch).toHaveBeenCalledWith({
-            type: DetailsActionType.RENAME,
-            group: 'J',
-            name: '',
-            newName: 'A',
-        });
-        expect(request).toHaveBeenCalledWith(ApiUrl.DetailsRename, { group: 'J', name: '', newName: 'A' });
-    });
-
-    it('calls rename action with empty group and names', async () => {
-        const { result } = renderHook(() => useRenameDetails(), withReduxState());
-        await result.current('', '', '');
         expect(dispatch).not.toHaveBeenCalled();
         expect(request).not.toHaveBeenCalled();
     });

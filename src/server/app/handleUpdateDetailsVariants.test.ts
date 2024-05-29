@@ -2,7 +2,7 @@
 import { type ApiDetails, type ApiUpdateDetailsAmounts } from '~/common/api';
 import { handleUpdateDetailsVariants } from '~/server/app/handleUpdateDetailsVariants';
 import { getYearsAndDetails, updateDetailsAmounts } from '~/server/data/details';
-import { getTestDetails, getTestYears } from '~/tests/fixtures';
+import { getDetailsFixture, getYearsFixture } from '~/tests/fixtures';
 import { type VariantAmount } from '~/common/types';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
@@ -21,8 +21,8 @@ describe('handleUpdateDetailsVariants', () => {
         withoutHistory: false,
     });
     const response = mockResponse<ApiDetails>();
-    const years = getTestYears();
-    const details = getTestDetails();
+    const years = getYearsFixture();
+    const details = getDetailsFixture();
 
     afterEach(() => jest.clearAllMocks());
 

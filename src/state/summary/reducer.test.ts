@@ -1,9 +1,9 @@
 import { type SummaryAction, SummaryActionType } from '~/state/summary/actions';
 import { summary as reducer } from '~/state/summary/reducer';
-import { getTestSummary } from '~/tests/fixtures';
+import { getSummaryFixture } from '~/tests/fixtures';
 
 describe('summary', () => {
-    const state = getTestSummary();
+    const state = getSummaryFixture();
 
     describe('default', () => {
         const unknownAction = { type: 'unknown' as SummaryActionType } as SummaryAction;

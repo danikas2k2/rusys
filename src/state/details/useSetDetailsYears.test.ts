@@ -53,32 +53,18 @@ describe('useUpdateDetailsYears', () => {
         });
     });
 
-    it('calls update action with blank name, and without year and value', async () => {
+    it('does not call update action with blank name', async () => {
         const { result } = renderHook(() => useSetDetailsYears(), withReduxState());
         await result.current('G', '');
-        expect(dispatch).toHaveBeenCalledWith({
-            type: DetailsActionType.SET_YEARS,
-            group: 'G',
-            name: '',
-        });
-        expect(request).toHaveBeenCalledWith(ApiUrl.DetailsSetYears, {
-            group: 'G',
-            name: '',
-        });
+        expect(dispatch).not.toHaveBeenCalled();
+        expect(request).not.toHaveBeenCalled();
     });
 
-    it('calls update action with blank group and name, and without year and value', async () => {
+    it('does not call update action with blank group', async () => {
         const { result } = renderHook(() => useSetDetailsYears(), withReduxState());
-        await result.current('', '');
-        expect(dispatch).toHaveBeenCalledWith({
-            type: DetailsActionType.SET_YEARS,
-            group: 'J',
-            name: '',
-        });
-        expect(request).toHaveBeenCalledWith(ApiUrl.DetailsSetYears, {
-            group: 'J',
-            name: '',
-        });
+        await result.current('', 'A');
+        expect(dispatch).not.toHaveBeenCalled();
+        expect(request).not.toHaveBeenCalled();
     });
 
     it('calls update action with withoutHistory=true', async () => {

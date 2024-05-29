@@ -9,7 +9,7 @@ export function useMoveDetails(): (group: string, name: string, newGroup: string
     const request = useUpdatingApiRequest<ApiMoveDetails>();
     return useCallback(
         async (group: string, name: string, newGroup: string): Promise<void> => {
-            if (name && group !== newGroup) {
+            if (group && name && newGroup && group !== newGroup) {
                 dispatch(moveDetailsAction(group, name, newGroup));
                 return request(ApiUrl.DetailsMove, { group, name, newGroup });
             }

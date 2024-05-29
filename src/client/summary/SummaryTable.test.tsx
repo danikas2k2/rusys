@@ -32,27 +32,17 @@ describe('SummaryTable', () => {
 
         const rows = screen.getAllByRole('row');
         expect(rows).toHaveLength(7);
-        const [headRow, groupRow, firstRow, secondRow] = rows;
 
-        const headCells = within(headRow).getAllByRole('columnheader');
-        expect(headCells).toHaveLength(4);
-        [/* blank for names: */ '', /* years: */ '23/24', '22/23', '21/22'].forEach((text, i) =>
-            expect(headCells[i]).toHaveTextContent(text)
-        );
+        // expect(within(rows[0]).getAllByRole('columnheader')).toHaveLength(5);
+        expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent(['', '23/24', '22/23', '21/22']);
 
-        expect(within(groupRow).getByRole('rowheader')).toHaveTextContent('Jams');
+        expect(within(rows[1]).getByRole('rowheader')).toHaveTextContent('G');
+        expect(within(rows[2]).getAllByRole('cell')).toHaveListWithTextContent(['A', '', '1d', '']);
+        expect(within(rows[3]).getAllByRole('cell')).toHaveListWithTextContent(['C', '', '', '2p']);
 
-        const firstRowCells = within(firstRow).getAllByRole('cell');
-        expect(firstRowCells).toHaveLength(4);
-        ['A', /* values for each year: */ '', '', '2'].forEach((text, i) =>
-            expect(firstRowCells[i]).toHaveTextContent(text)
-        );
-
-        const secondRowCells = within(secondRow).getAllByRole('cell');
-        expect(secondRowCells).toHaveLength(4);
-        ['B', /* values for each year: */ '', '1d', ''].forEach((text, i) =>
-            expect(secondRowCells[i]).toHaveTextContent(text)
-        );
+        expect(within(rows[4]).getByRole('rowheader')).toHaveTextContent('J');
+        expect(within(rows[5]).getAllByRole('cell')).toHaveListWithTextContent(['A', '', '', '2p']);
+        expect(within(rows[6]).getAllByRole('cell')).toHaveListWithTextContent(['B', '', '1d', '']);
     });
 
     describe('renders loader', () => {
@@ -105,9 +95,9 @@ describe('SummaryTable', () => {
             render(<SummaryTable />, withReduxState());
             const rows = screen.getAllByRole('row');
             expect(rows).toHaveLength(5);
-            expect(within(rows[1]).getByRole('rowheader')).toHaveTextContent('Jams');
+            expect(within(rows[1]).getByRole('rowheader')).toHaveTextContent('G');
             expect(within(rows[2]).getAllByRole('cell')[0]).toHaveTextContent('A');
-            expect(within(rows[3]).getByRole('rowheader')).toHaveTextContent('G');
+            expect(within(rows[3]).getByRole('rowheader')).toHaveTextContent('J');
             expect(within(rows[4]).getAllByRole('cell')[0]).toHaveTextContent('A');
         });
 
