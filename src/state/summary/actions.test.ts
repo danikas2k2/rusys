@@ -1,10 +1,10 @@
-import { getTestSummary } from '~/tests/fixtures';
+import { getSummaryFixture } from '~/tests/fixtures';
 import { type Summary } from '~/common/types';
 import { setSummaryAction, SummaryActionType } from '~/state/summary/actions';
 
 describe('setSummaryAction', () => {
     it('returns valid action', () => {
-        const summary = getTestSummary();
+        const summary = getSummaryFixture();
         expect(setSummaryAction(summary)).toEqual({ type: SummaryActionType.SET, summary });
     });
 

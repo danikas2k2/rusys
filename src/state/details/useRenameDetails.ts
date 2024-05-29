@@ -9,7 +9,7 @@ export function useRenameDetails(): (group: string, name: string, newName: strin
     const request = useUpdatingApiRequest<ApiRenameDetails>();
     return useCallback(
         async (group: string, name: string, newName: string): Promise<void> => {
-            if (newName && name !== newName) {
+            if (group && name && newName && name !== newName) {
                 dispatch(renameDetailsAction(group, name, newName));
                 return request(ApiUrl.DetailsRename, { group, name, newName });
             }

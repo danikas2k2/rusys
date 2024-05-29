@@ -14,7 +14,9 @@ jest.mock('@ui/ColorScheme', () => ({
 jest.mock('~/state/store', () => ({
     getStore: jest.fn(),
 }));
-jest.mock('~/client/App', () => () => <div>App</div>);
+jest.mock('~/client/App', () => ({
+    App: () => <div>App</div>,
+}));
 
 describe('bootstrap', () => {
     beforeEach(() => {

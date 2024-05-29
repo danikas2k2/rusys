@@ -1,9 +1,9 @@
-import { getTestGroups } from '~/tests/fixtures';
+import { getGroupsFixture } from '~/tests/fixtures';
 import { type GroupsAction, GroupsActionType } from '~/state/groups/actions';
 import { groups as reducer } from '~/state/groups/reducer';
 
 describe('groups', () => {
-    const groups = getTestGroups();
+    const groups = getGroupsFixture();
 
     describe('default', () => {
         const unknownAction = { type: 'unknown' as GroupsActionType } as GroupsAction;
@@ -120,7 +120,7 @@ describe('groups', () => {
                 reducer(groups, {
                     type: GroupsActionType.RENAME,
                     group: 'G',
-                    newGroup: '',
+                    newGroup: 'J',
                 })
             ).toEqual(groups);
         });

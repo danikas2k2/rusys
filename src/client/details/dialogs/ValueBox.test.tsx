@@ -5,7 +5,7 @@ import { ValueBox, type ValueBoxProps } from '~/client/details/dialogs/ValueBox'
 import { ValueInput } from '~/client/details/dialogs/ValueInput';
 import { type VariantAmount } from '~/common/types';
 import { type WithVariantsState } from '~/state/variants/types';
-import { getTestVariants } from '~/tests/fixtures';
+import { getVariantsFixture } from '~/tests/fixtures';
 import { withReduxState } from '~/tests/withReduxState';
 
 const mockValueInput = jest.spyOn<any, string>(ValueInput, 'render');
@@ -24,7 +24,7 @@ describe('ValueBox', () => {
         { variant: 'd', amount: 3 },
     ];
 
-    const variants = getTestVariants();
+    const variants = getVariantsFixture();
     const allVariants = variants.filter((v) => v.group === props.group).map((v) => v.variant);
 
     const state: WithVariantsState = { variants };
@@ -40,7 +40,7 @@ describe('ValueBox', () => {
         expect(mockValueInput).toHaveBeenCalledTimes(amounts.length);
         for (const { variant, amount: initialAmount } of amounts) {
             expect(mockValueInput).toHaveBeenCalledWith(
-                expect.objectContaining({ variant, initialAmount, focus: !variant }),
+                expect.objectContaining({ variant, initialAmount, focus: variant === amounts[0].variant }),
                 expect.objectContaining({ current: null })
             );
         }
@@ -110,11 +110,11 @@ describe('ValueBox', () => {
     it('ensure all changed values are preserved after expansion', async () => {
         render(<ValueBox {...props} amounts={amounts} />, withReduxState(state));
 
-        await userEvent.type(screen.getByLabelText(''), '2', {
+        await userEvent.type(screen.getByLabelText('p'), '2', {
             initialSelectionStart: 0,
             initialSelectionEnd: 10,
         });
-        expect(screen.getByLabelText('')).toHaveValue('2');
+        expect(screen.getByLabelText('p')).toHaveValue('2');
 
         await userEvent.type(screen.getByLabelText('d'), '4', {
             initialSelectionStart: 0,
@@ -130,7 +130,7 @@ describe('ValueBox', () => {
 
         await userEvent.click(screen.getByLabelText('Expand'));
 
-        expect(screen.getByLabelText('')).toHaveValue('2');
+        expect(screen.getByLabelText('p')).toHaveValue('2');
         expect(screen.getByLabelText('d')).toHaveValue('4');
         expect(screen.getByLabelText('m')).toHaveValue('6');
     });
@@ -147,10 +147,7 @@ describe('ValueBox', () => {
     });
 
     it('expand by default if value contains all available variants', async () => {
-        render(
-            <ValueBox {...props} amounts={allVariants.map((variant) => ({ variant, amount: 1 }))} />,
-            withReduxState(state)
-        );
+        render(<ValueBox {...props} amounts={allVariants.map((variant) => ({ variant, amount: 1 }))} />, withReduxState(state));
 
         expect(screen.queryByRole('button', { name: 'Expand' })).not.toBeInTheDocument();
         expect(screen.getByRole('dialog')).toHaveClass('fullScreen');
@@ -159,16 +156,16 @@ describe('ValueBox', () => {
     it('ensure negative values not to be stored', async () => {
         render(<ValueBox {...props} amounts={amounts} />, withReduxState(state));
 
-        await userEvent.type(screen.getByLabelText(''), '-2', {
+        await userEvent.type(screen.getByLabelText('p'), '0', {
             initialSelectionStart: 0,
             initialSelectionEnd: 10,
         });
-        expect(screen.getByLabelText('')).toHaveValue('0');
+        expect(screen.getByLabelText('p')).toHaveValue('0');
 
         await userEvent.click(screen.getByRole('spinbutton', { name: 'Decrease', current: true }));
-        expect(screen.getByLabelText('')).toHaveValue('0');
+        expect(screen.getByLabelText('p')).toHaveValue('0');
 
         await userEvent.type(screen.getByRole('spinbutton', { name: 'Increase', current: true }), '{ArrowDown}');
-        expect(screen.getByLabelText('')).toHaveValue('0');
+        expect(screen.getByLabelText('p')).toHaveValue('0');
     });
 });

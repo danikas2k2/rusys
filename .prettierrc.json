@@ -5,19 +5,38 @@
     "trailingComma": "es5",
     "overrides": [
         {
-            "files": ["*.html", "*.less"],
+            "files": [
+                "*.html",
+                "*.less"
+            ],
             "options": {
                 "singleQuote": false
             }
         },
         {
-            "files": ["*.config.js", "*.config.ts", "*.config.mjs"],
+            "files": [
+                "*.test.ts",
+                "*.test.tsx"
+            ],
+            "options": {
+                "printWidth": 120
+            }
+        },
+        {
+            "files": [
+                "*.config.js",
+                "*.config.ts",
+                "*.config.mjs"
+            ],
             "options": {
                 "printWidth": 80
             }
         },
         {
-            "files": ["webpack.config.ts", "webpack.*.config.ts"],
+            "files": [
+                "webpack.config.ts",
+                "webpack.*.config.ts"
+            ],
             "options": {
                 "printWidth": 120
             }

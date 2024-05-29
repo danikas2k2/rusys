@@ -5,8 +5,8 @@ import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { getYears } from '~/server/data/years';
 import { getDetailsCollection, withTransaction } from '~/server/db';
 
-export const getDetails = async (years: number[] = getYears()): Promise<Details[]> =>
-    (await getDetailsCollection())
+export async function getDetails(years: number[] = getYears()): Promise<Details[]> {
+    return (await getDetailsCollection())
         .find(
             {
                 $or: [
@@ -18,14 +18,18 @@ export const getDetails = async (years: number[] = getYears()): Promise<Details[
             { projection: { _id: 0, updates: 0 }, sort: { group: 1, name: 1, 'years.year': 1 } }
         )
         .toArray();
+}
 
-export const updateDetailsYears = (
+export async function updateDetailsYears(
     group: string,
     name: string,
     years: ReadonlyArray<RemovingYearAmounts> = [],
     withoutHistory = false
-): Promise<boolean> =>
-    withTransaction(async (session) => {
+): Promise<boolean> {
+    if (!group || !name) {
+        return false;
+    }
+    return withTransaction(async (session) => {
         if (!withoutHistory) {
             await addUpdates(group, name, years, session);
         }
@@ -37,15 +41,19 @@ export const updateDetailsYears = (
             )
             .then(hasEffect);
     });
+}
 
-export const updateDetailsAmounts = (
+export async function updateDetailsAmounts(
     group: string,
     name: string,
     year: number,
     amounts: ReadonlyArray<VariantAmount> = [],
     withoutHistory = false
-): Promise<boolean> =>
-    withTransaction(async (session) => {
+): Promise<boolean> {
+    if (!group || !name) {
+        return false;
+    }
+    return withTransaction(async (session) => {
         if (!withoutHistory) {
             if (year) {
                 await addUpdate(group, name, year, amounts, session);
@@ -101,74 +109,100 @@ export const updateDetailsAmounts = (
             )
             .then(hasEffect);
     });
+}
 
-export const renameDetails = async (
+export async function renameDetails(
     group: string,
     name: string,
     newName: string,
     session?: ClientSession
-): Promise<boolean> =>
-    (await getDetailsCollection())
+): Promise<boolean> {
+    if (!group || !name || !newName) {
+        return false;
+    }
+    return (await getDetailsCollection())
         .updateOne({ group, name }, { $set: { name: newName } }, { session })
         .then(hasEffect)
         .catch(hasDuplicates);
+}
 
-export const renameDetailsVariant = async (
+export async function renameDetailsVariant(
     group: string,
     variant: string,
     newVariant: string,
     session?: ClientSession
-): Promise<boolean> =>
-    (await getDetailsCollection())
-        .bulkWrite(
-            [
-                {
-                    updateMany: {
-                        filter: { group, 'years.amounts.variant': variant } as UpdateFilter<Details>,
-                        arrayFilters: [{ 'variant.variant': variant }],
-                        update: { $set: { 'years.$[].amounts.$[variant].variant': newVariant } },
+): Promise<boolean> {
+    if (!group || !variant || !newVariant) {
+        return false;
+    }
+    return (
+        (await getDetailsCollection())
+            .bulkWrite(
+                [
+                    {
+                        updateMany: {
+                            filter: { group, 'years.amounts.variant': variant } as UpdateFilter<Details>,
+                            arrayFilters: [{ 'variant.variant': variant }],
+                            update: { $set: { 'years.$[].amounts.$[variant].variant': newVariant } },
+                        },
                     },
-                },
-                {
-                    updateMany: {
-                        filter: { group, 'updates.years.amounts.variant': variant } as UpdateFilter<Details>,
-                        arrayFilters: [{ 'variant.variant': variant }],
-                        update: { $set: { 'updates.$[].years.$[].amounts.$[variant].variant': newVariant } },
+                    {
+                        updateMany: {
+                            filter: { group, 'updates.years.amounts.variant': variant } as UpdateFilter<Details>,
+                            arrayFilters: [{ 'variant.variant': variant }],
+                            update: { $set: { 'updates.$[].years.$[].amounts.$[variant].variant': newVariant } },
+                        },
                     },
-                },
-            ],
-            { session }
-        )
-        /*.updateMany(
-            { group, 'years.amounts.variant': variant } as UpdateFilter<Details>,
-            { $set: { 'years.$[].amounts.$[variant].variant': newVariant } },
-            { arrayFilters: [{ 'variant.variant': variant }], session }
-        )*/
-        .then(hasEffect)
-        .catch(hasDuplicates);
+                ],
+                { session }
+            )
+            /*.updateMany(
+{ group, 'years.amounts.variant': variant } as UpdateFilter<Details>,
+{ $set: { 'years.$[].amounts.$[variant].variant': newVariant } },
+{ arrayFilters: [{ 'variant.variant': variant }], session }
+)*/
+            .then(hasEffect)
+            .catch(hasDuplicates)
+    );
+}
 
-export const renameDetailsGroup = async (group: string, newGroup: string, session?: ClientSession): Promise<boolean> =>
-    (await getDetailsCollection())
+export async function renameDetailsGroup(group: string, newGroup: string, session?: ClientSession): Promise<boolean> {
+    if (!group || !newGroup) {
+        return false;
+    }
+    return (await getDetailsCollection())
         .updateMany({ group }, { $set: { group: newGroup } }, { session })
         .then(hasEffect)
         .catch(hasDuplicates);
+}
 
-export const moveDetails = async (
+export async function moveDetails(
     group: string,
     name: string,
     newGroup: string,
     session?: ClientSession
-): Promise<boolean> =>
-    (await getDetailsCollection())
+): Promise<boolean> {
+    if (!group || !name || !newGroup) {
+        return false;
+    }
+    return (await getDetailsCollection())
         .updateOne({ group, name }, { $set: { group: newGroup } }, { session })
         .then(hasEffect)
         .catch(hasDuplicates);
+}
 
-export const deleteDetails = async (group: string, name: string, session?: ClientSession): Promise<boolean> =>
-    (await getDetailsCollection()).deleteOne({ group, name }, { session }).then(hasEffect);
+export async function deleteDetails(group: string, name: string, session?: ClientSession): Promise<boolean> {
+    if (!group || !name) {
+        return false;
+    }
+    return (await getDetailsCollection()).deleteOne({ group, name }, { session }).then(hasEffect);
+}
 
-export const deleteDetailsVariant = async (group: string, variant: string, session?: ClientSession): Promise<boolean> =>
-    (await getDetailsCollection())
+export async function deleteDetailsVariant(group: string, variant: string, session?: ClientSession): Promise<boolean> {
+    if (!group || !variant) {
+        return false;
+    }
+    return (await getDetailsCollection())
         .bulkWrite(
             [
                 {
@@ -217,34 +251,47 @@ export const deleteDetailsVariant = async (group: string, variant: string, sessi
             { session }
         )
         .then(hasEffect);
+}
 
-export const deleteDetailsGroup = async (group: string, session?: ClientSession): Promise<boolean> =>
-    (await getDetailsCollection()).deleteMany({ group }, { session }).then(hasEffect);
+export async function deleteDetailsGroup(group: string, session?: ClientSession): Promise<boolean> {
+    if (!group) {
+        return false;
+    }
+    return (await getDetailsCollection()).deleteMany({ group }, { session }).then(hasEffect);
+}
 
-export const setRemoving = async (
+export async function setRemoving(
     group: string,
     name: string,
     year: number,
     removing: boolean,
     session?: ClientSession
-): Promise<boolean> =>
-    (await getDetailsCollection())
+): Promise<boolean> {
+    if (!group || !name || !year) {
+        return false;
+    }
+    return (await getDetailsCollection())
         .updateOne(
             { group, name, 'years.year': year } as Filter<Details>,
             { [removing ? '$set' : '$unset']: { 'years.$.removing': removing } },
             { session }
         )
         .then(hasEffect);
+}
 
-export const setMissing = async (
+export async function setMissing(
     group: string,
     name: string,
     missing: boolean,
     session?: ClientSession
-): Promise<boolean> =>
-    (await getDetailsCollection())
+): Promise<boolean> {
+    if (!group || !name) {
+        return false;
+    }
+    return (await getDetailsCollection())
         .updateOne({ group, name }, { [missing ? '$set' : '$unset']: { missing } }, { session })
         .then(hasEffect);
+}
 
 export async function getYearsAndDetails(): Promise<{ years: number[]; details: Details[] }> {
     const years = getYears();

@@ -12,7 +12,9 @@ jest.mock('@react-oauth/google', () => ({
     GoogleOAuthProvider: jest.fn(({ children }) => <div>{children}</div>),
 }));
 jest.mock('@ui/hooks/useDocumentColorScheme');
-jest.mock('~/client/AppContent', () => () => <div>AppContent</div>);
+jest.mock('~/client/AppContent', () => ({
+    AppContent: () => <div>AppContent</div>,
+}));
 jest.mock('~/hooks/useDev');
 jest.mock('~/state/google/useClientId');
 jest.mock('~/state/locale/useLocale');

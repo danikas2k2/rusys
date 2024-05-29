@@ -1,3 +1,3 @@
-import { getTestSummary } from '~/tests/fixtures';
+import { getSummaryFixture } from '~/tests/fixtures';
 
-export const useSummary = jest.fn().mockReturnValue(getTestSummary());
+export const useSummary = jest.fn().mockReturnValue(getSummaryFixture());

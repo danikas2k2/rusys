@@ -9,8 +9,10 @@ export function useDeleteGroup(): (group: string) => Promise<void> {
     const request = useUpdatingApiRequest<ApiRequestGroup>();
     return useCallback(
         async (group: string): Promise<void> => {
-            dispatch(deleteGroupAction(group));
-            return request(ApiUrl.GroupsDelete, { group });
+            if (group) {
+                dispatch(deleteGroupAction(group));
+                return request(ApiUrl.GroupsDelete, { group });
+            }
         },
         [request, dispatch]
     );

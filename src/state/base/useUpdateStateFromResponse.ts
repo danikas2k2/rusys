@@ -30,8 +30,8 @@ export function useUpdateStateFromResponse(updateActions = UPDATE_ACTIONS): (res
             if (!result || !('ok' in result)) {
                 return;
             }
-            if (!result.ok && result.error) {
-                throw new Error(result.error);
+            if (!result.ok) {
+                throw new Error(result.error || 'Request failed');
             }
             for (const update of Object.keys(result)) {
                 const action = updateActions[update];

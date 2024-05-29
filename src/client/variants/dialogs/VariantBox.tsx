@@ -9,6 +9,7 @@ import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { IconButton } from '@ui/IconButton';
 import { LabeledInput } from '@ui/LabeledInput';
 import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import { WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
 import { Label } from '~/client/Label';
 import { compareNames } from '~/client/utils/compareNames';
@@ -19,7 +20,7 @@ import { useVariants } from '~/state/variants/useVariants';
 import { getErrorMessage } from '~/utils/errors';
 import cx from './VariantBox.less';
 
-interface VariantBoxProps {
+interface VariantBoxProps extends WithOnClose {
     group?: string;
     variant?: string;
     onClose: (group?: string, variant?: string) => void;

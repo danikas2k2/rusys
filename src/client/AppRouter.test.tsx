@@ -3,8 +3,12 @@ import React from 'react';
 import { AppRouter } from '~/client/AppRouter';
 import { withReduxState } from '~/tests/withReduxState';
 
-jest.mock('~/client/details/DetailsPage', () => () => <div>DetailsPage</div>);
-jest.mock('~/client/summary/SummaryPage', () => () => <div>SummaryPage</div>);
+jest.mock('~/client/details/DetailsPage', () => ({
+    DetailsPage: () => <div>DetailsPage</div>,
+}));
+jest.mock('~/client/summary/SummaryPage', () => ({
+    SummaryPage: () => <div>SummaryPage</div>,
+}));
 
 describe('AppRouter component', () => {
     it('renders SummaryPage at route /summary', () => {
