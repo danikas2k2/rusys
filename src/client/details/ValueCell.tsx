@@ -57,7 +57,7 @@ export function ValueCell({ group, name, year, amounts, removing, last, onChange
                               <span className={cx('value')} key={v.variant}>
                                   {v.amount}
                                   <sub>
-                                      <ValueVariant variant={v.variant} />
+                                      <ValueVariant group={group} variant={v.variant} />
                                   </sub>
                               </span>
                           ))}
