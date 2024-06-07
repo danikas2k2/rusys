@@ -1,22 +1,28 @@
 import DarkModeIcon from '@icons/DarkMode.svg';
 import LightModeIcon from '@icons/LightMode.svg';
-import SettingsSuggestIcon from '@icons/SettingsSuggest.svg';
+import AutoModeIcon from '@icons/Routine.svg';
 import { Button, ButtonGroup } from '@ui/Button';
 import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
-import React from 'react';
+import React, { ComponentType } from 'react';
 
 interface ColorSchemeToggleProps {
     auto?: boolean;
     lightModeLabel?: string;
+    lightModeIcon?: ComponentType;
     darkModeLabel?: string;
+    darkModeIcon?: ComponentType;
     autoModeLabel?: string;
+    autoModeIcon?: ComponentType;
 }
 
 export function ColorSchemeToggle({
     auto = true,
     lightModeLabel = 'Light mode',
+    lightModeIcon: LightIcon = LightModeIcon,
     darkModeLabel = 'Dark mode',
+    darkModeIcon: DarkIcon = DarkModeIcon,
     autoModeLabel = 'System preferred mode',
+    autoModeIcon: AutoIcon = AutoModeIcon,
 }: ColorSchemeToggleProps) {
     const [scheme, setScheme] = useColorSchemeState();
     return (
@@ -29,7 +35,7 @@ export function ColorSchemeToggle({
                     aria-pressed={scheme === 'light'}
                     onClick={() => setScheme('light')}
                 >
-                    <LightModeIcon />
+                    <LightIcon />
                 </Button>
                 {auto && (
                     <Button
@@ -39,7 +45,7 @@ export function ColorSchemeToggle({
                         aria-pressed={scheme === 'auto'}
                         onClick={() => setScheme('auto')}
                     >
-                        <SettingsSuggestIcon />
+                        <AutoIcon />
                     </Button>
                 )}
                 <Button
@@ -49,7 +55,7 @@ export function ColorSchemeToggle({
                     aria-pressed={scheme === 'dark'}
                     onClick={() => setScheme('dark')}
                 >
-                    <DarkModeIcon />
+                    <DarkIcon />
                 </Button>
             </ButtonGroup>
         </nav>
