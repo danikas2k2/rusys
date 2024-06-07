@@ -36,4 +36,20 @@ describe('ColorSchemeToggle', () => {
         render(<ColorSchemeToggle auto={false} />);
         expect(screen.queryByRole('button', { name: 'System preferred mode' })).not.toBeInTheDocument();
     });
+
+    it('renders with custom labels and icons', () => {
+        render(
+            <ColorSchemeToggle
+                lightModeLabel="Light mode label"
+                darkModeLabel="Dark mode label"
+                autoModeLabel="Auto mode label"
+                lightModeIcon={() => <div>Light mode icon</div>}
+                darkModeIcon={() => <div>Dark mode icon</div>}
+                autoModeIcon={() => <div>Auto mode icon</div>}
+            />
+        );
+        expect(screen.getByRole('button', { name: 'Light mode label' })).toHaveTextContent('Light mode icon');
+        expect(screen.getByRole('button', { name: 'Dark mode label' })).toHaveTextContent('Dark mode icon');
+        expect(screen.getByRole('button', { name: 'Auto mode label' })).toHaveTextContent('Auto mode icon');
+    });
 });
