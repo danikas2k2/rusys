@@ -1,9 +1,11 @@
+// noinspection JSUnusedGlobalSymbols
 export default {
     extends: ['stylelint-config-standard', 'stylelint-config-recommended-less'],
-    plugins: ['stylelint-no-unused-selectors'],
+    plugins: [
+        // TODO custom stylelint-no-unused-selectors need to be added
+    ],
     rules: {
         'selector-class-pattern': null,
-        'plugin/no-unused-selectors': false,
     },
     customSyntax: 'postcss-syntax',
     overrides: [
