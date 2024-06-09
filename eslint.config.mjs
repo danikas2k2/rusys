@@ -86,8 +86,11 @@ export default [
             '@typescript-eslint/no-unused-vars': [
                 'error',
                 {
+                    vars: 'all',
                     varsIgnorePattern: '^_',
+                    args: 'after-used',
                     argsIgnorePattern: '^_',
+                    caughtErrors: 'all',
                     caughtErrorsIgnorePattern: '^_',
                     destructuredArrayIgnorePattern: '^_',
                 },
@@ -100,26 +103,12 @@ export default [
             ],
             'comma-dangle': ['error', 'only-multiline'],
             'import/no-nodejs-modules': 'off',
-            'import/no-unresolved': [
-                'error',
-                {
-                    commonjs: true,
-                    caseSensitive: true,
-                },
-            ],
+            'import/no-unresolved': 'off',
             'import/prefer-default-export': 'off',
             'no-console': 'error',
             'no-unused-expressions': 'error',
             'no-unused-labels': 'error',
-            'no-unused-vars': [
-                'error',
-                {
-                    varsIgnorePattern: '^_',
-                    argsIgnorePattern: '^_',
-                    caughtErrorsIgnorePattern: '^_',
-                    destructuredArrayIgnorePattern: '^_',
-                },
-            ],
+            'no-unused-vars': 'off',
             'no-useless-rename': 'error',
             'padded-blocks': ['error', 'never'],
             semi: ['error', 'always'],
