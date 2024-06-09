@@ -20,7 +20,7 @@ export function SummaryCell({ group, amounts }: { group: string; amounts?: Reado
                         <span className={cx('value')} key={v.variant}>
                             {v.amount}
                             <sub>
-                                <ValueVariant variant={v.variant} />
+                                <ValueVariant group={group} variant={v.variant} />
                             </sub>
                         </span>
                     ))}

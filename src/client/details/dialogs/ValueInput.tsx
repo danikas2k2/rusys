@@ -17,6 +17,7 @@ import { ValueVariant } from '~/client/ValueVariant';
 import cx from './ValueInput.less';
 
 interface ValueInputProps {
+    group: string;
     variant: string;
     initialAmount?: number;
     amount?: number;
@@ -28,7 +29,7 @@ interface ValueInputProps {
 }
 
 export const ValueInput = forwardRef(function ValueInput(
-    { variant, initialAmount = 0, amount = 0, onClose, onChange, focus, onFocus, onBlur }: ValueInputProps,
+    { group, variant, initialAmount = 0, amount = 0, onClose, onChange, focus, onFocus, onBlur }: ValueInputProps,
     forwardedRef: ForwardedRef<HTMLInputElement>
 ) {
     const ref = useFocusRef(useForwardedRef(forwardedRef));
@@ -91,7 +92,7 @@ export const ValueInput = forwardRef(function ValueInput(
     return (
         <ButtonGroup className={cx('ValueInput')}>
             <div className={cx('label')}>
-                <ValueVariant variant={variant} format="long" />
+                <ValueVariant group={group} variant={variant} format="long" />
             </div>
             <Input
                 ref={ref}
