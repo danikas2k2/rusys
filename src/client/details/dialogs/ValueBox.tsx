@@ -169,6 +169,7 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
                     <ValueInput
                         key={variant}
                         ref={refs[variant]}
+                        group={group}
                         variant={variant}
                         initialAmount={amounts?.find((v) => v.variant === variant)?.amount}
                         amount={editingAmounts?.find((v) => v.variant === variant)?.amount}
