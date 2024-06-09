@@ -16,6 +16,8 @@ export interface ButtonProps<T extends HTMLElement = HTMLButtonElement> extends 
     spacing?: InputSpacing;
     fullWidth?: boolean;
     fullHeight?: boolean;
+    startDecorator?: React.ReactNode;
+    endDecorator?: React.ReactNode;
 }
 
 export const Button = forwardRef(function Button(
@@ -29,6 +31,9 @@ export const Button = forwardRef(function Button(
         fullWidth,
         fullHeight,
         // autoFocus,
+        startDecorator,
+        endDecorator,
+        children,
         ...props
     }: ButtonProps,
     forwardedRef: ForwardedRef<HTMLButtonElement>
@@ -49,18 +54,22 @@ export const Button = forwardRef(function Button(
             disabled={disabled}
             aria-disabled={disabled}
             {...props}
-        />
+        >
+            {startDecorator && <div className={cx('start-decorator')}>{startDecorator}</div>}
+            {children}
+            {endDecorator && <div className={cx('end-decorator')}>{endDecorator}</div>}
+        </button>
     );
 });
 
 export interface ButtonGroupProps<T extends HTMLElement = HTMLDivElement> extends CommonInputProps<T> {
-    fullWidth?: boolean;
+    align?: 'left' | 'center' | 'right' | 'full-width';
 }
 
 export const ButtonGroup = forwardRef(function ButtonGroup(
-    { className, fullWidth, ...props }: ButtonGroupProps,
+    { className, align, ...props }: ButtonGroupProps,
     forwardedRef: ForwardedRef<HTMLDivElement>
 ) {
     const ref = useForwardedRef(forwardedRef);
-    return <div ref={ref} className={cx('ButtonGroup', className, { 'full-width': fullWidth })} {...props} />;
+    return <div ref={ref} className={cx('ButtonGroup', className, { [`mod-align-${align}`]: align })} {...props} />;
 });
