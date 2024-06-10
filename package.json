@@ -69,7 +69,7 @@
         "transliteration": "^2.3.5"
     },
     "devDependencies": {
-        "@babel/preset-react": "^7.24.6",
+        "@babel/preset-react": "^7.24.7",
         "@mapbox/rehype-prism": "^0.9.0",
         "@mdx-js/esbuild": "^3.0.1",
         "@mdx-js/loader": "^3.0.1",
