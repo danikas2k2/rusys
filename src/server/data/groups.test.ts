@@ -1,7 +1,7 @@
 /** @jest-environment node */
 import { Group } from '~/common/types';
 import { getGroupsFixture } from '~/tests/fixtures';
-import { deleteGroup, getGroups, renameGroup, setGroups, updateGroup } from '~/server/data/groups';
+import { deleteGroup, getGroups, renameGroup, setGroups, updateGroup, reorderGroups } from '~/server/data/groups';
 import { getGroupsCollection } from '~/server/db';
 
 jest.mock('~/server/db');
@@ -63,7 +63,7 @@ describe('groups', () => {
         });
     });
 
-    describe('updateGroupsGroup', () => {
+    describe('updateGroup', () => {
         it('updates a group', async () => {
             expect(await updateGroup('G', 3)).toBeTrue();
             expect(await getGroups()).toEqual([groups[0], { group: 'G', order: 3 }]);
@@ -91,6 +91,39 @@ describe('groups', () => {
 
         it('does nothing for empty group', async () => {
             expect(await updateGroup('', 2)).toBeFalse();
+            expect(await getGroups()).toEqual(groups);
+        });
+    });
+
+    describe('updateGroupOrders', () => {
+        it('updates group orders', async () => {
+            expect(await reorderGroups({ G: 1, J: 3 })).toBeTrue();
+            expect(await getGroups()).toEqual([
+                { group: 'G', order: 1 },
+                { group: 'J', order: 3 },
+            ]);
+        });
+
+        it('updates single group order', async () => {
+            expect(await reorderGroups({ J: 3 })).toBeTrue();
+            expect(await getGroups()).toEqual([
+                { group: 'G', order: 2 },
+                { group: 'J', order: 3 },
+            ]);
+        });
+
+        it('does nothing for undefined data', async () => {
+            expect(await reorderGroups()).toBeFalse();
+            expect(await getGroups()).toEqual(groups);
+        });
+
+        it('does nothing for empty object', async () => {
+            expect(await reorderGroups({})).toBeFalse();
+            expect(await getGroups()).toEqual(groups);
+        });
+
+        it('does nothing if no groups are updated', async () => {
+            expect(await reorderGroups({ G: 2, J: 1 })).toBeFalse();
             expect(await getGroups()).toEqual(groups);
         });
     });

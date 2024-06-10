@@ -10,6 +10,9 @@ export function groups(groups: ReadonlyArray<Group> = [], action: GroupsAction):
         case GroupsActionType.SWITCH:
             return switchGroups(groups, action);
 
+        case GroupsActionType.REORDER:
+            return reorderGroups(groups, action);
+
         case GroupsActionType.UPDATE:
             return updateGroup(groups, action);
 
@@ -48,6 +51,13 @@ function switchGroups(
         }
         return d;
     });
+}
+
+function reorderGroups(
+    groups: ReadonlyArray<Group>,
+    { groups: update }: Extract<GroupsAction, { type: GroupsActionType.REORDER }>
+): ReadonlyArray<Group> {
+    return groups.map((g) => ({ ...g, order: update[g.group] ?? g.order }));
 }
 
 function updateGroup(

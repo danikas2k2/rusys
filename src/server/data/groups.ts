@@ -48,6 +48,28 @@ export async function updateGroup(group: string, order?: number, session?: Clien
               .then(hasEffect);
 }
 
+export async function reorderGroups(
+    update?: Readonly<Record<string, number>>,
+    session?: ClientSession
+): Promise<boolean> {
+    if (!update) {
+        return false;
+    }
+    const entries = Object.entries(update);
+    if (!entries.length) {
+        return false;
+    }
+    const col = await getGroupsCollection();
+    return col
+        .bulkWrite(
+            entries.map(([group, order]) => ({
+                updateOne: { filter: { group }, update: { $set: { order } } },
+            })),
+            { session }
+        )
+        .then(hasEffect);
+}
+
 export async function switchGroups(group: string, oppositeGroup: string, session?: ClientSession): Promise<boolean> {
     if (!group || !oppositeGroup) {
         return false;
