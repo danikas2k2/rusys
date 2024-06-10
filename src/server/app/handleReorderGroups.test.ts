@@ -1,5 +1,5 @@
 /** @jest-environment node */
-import { ApiGroups, type ApiReorderGroups } from '~/common/api';
+import { type ApiGroups, type ApiReorderGroups } from '~/common/api';
 import { handleReorderGroups } from '~/server/app/handleReorderGroups';
 import { getGroups, reorderGroups } from '~/server/data/groups';
 import { getGroupsFixture } from '~/tests/fixtures';
