@@ -1,5 +1,5 @@
 /** @jest-environment node */
-import { Group } from '~/common/types';
+import { type Group } from '~/common/types';
 import { getGroupsFixture } from '~/tests/fixtures';
 import { deleteGroup, getGroups, renameGroup, setGroups, updateGroup, reorderGroups } from '~/server/data/groups';
 import { getGroupsCollection } from '~/server/db';
