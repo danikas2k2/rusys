@@ -35,6 +35,7 @@ export const enum ApiUrl {
     // Groups
     Groups = '/groups',
     GroupsUpdate = '/groups/update',
+    GroupsReorder = '/groups/reorder',
     GroupsSwitch = '/groups/switch',
     GroupsRename = '/groups/rename',
     GroupsDelete = '/groups/delete',
@@ -116,6 +117,10 @@ export interface ApiRenameGroup extends ApiRequestGroup {
 
 export interface ApiUpdateGroup extends ApiRequestGroup {
     order?: number;
+}
+
+export interface ApiReorderGroups {
+    groups: Readonly<Record<string, number>>;
 }
 
 export interface ApiSwitchGroups extends ApiRequestGroup {

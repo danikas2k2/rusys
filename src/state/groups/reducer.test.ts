@@ -165,4 +165,57 @@ describe('groups', () => {
             ).toEqual(groups);
         });
     });
+
+    describe('reorder', () => {
+        it('update empty state', () => {
+            expect(
+                reducer([], {
+                    type: GroupsActionType.REORDER,
+                    groups: { G: 1, J: 2 },
+                })
+            ).toEqual([]);
+        });
+
+        it('update empty state with empty set', () => {
+            expect(
+                reducer([], {
+                    type: GroupsActionType.REORDER,
+                    groups: {},
+                })
+            ).toEqual([]);
+        });
+
+        it('update filled state', () => {
+            expect(
+                reducer(groups, {
+                    type: GroupsActionType.REORDER,
+                    groups: { G: 1, J: 2 },
+                })
+            ).toEqual([
+                { group: 'G', order: 1 },
+                { group: 'J', order: 2 },
+            ]);
+        });
+
+        it('update state', () => {
+            expect(
+                reducer(groups, {
+                    type: GroupsActionType.REORDER,
+                    groups: { G: 1, J: 2 },
+                })
+            ).toEqual([
+                { group: 'G', order: 1 },
+                { group: 'J', order: 2 },
+            ]);
+        });
+
+        it('update undefined state', () => {
+            expect(
+                reducer(undefined, {
+                    type: GroupsActionType.REORDER,
+                    groups: { G: 1, J: 2 },
+                })
+            ).toEqual([]);
+        });
+    });
 });

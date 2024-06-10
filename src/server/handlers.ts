@@ -10,6 +10,7 @@ import { handleMove } from '~/server/app/handleMove';
 import { handleRename } from '~/server/app/handleRename';
 import { handleRenameGroup } from '~/server/app/handleRenameGroup';
 import { handleRenameVariant } from '~/server/app/handleRenameVariant';
+import { handleReorderGroups } from '~/server/app/handleReorderGroups';
 import { handleSetMissing } from '~/server/app/handleSetMissing';
 import { handleSetRemoving } from '~/server/app/handleSetRemoving';
 import { handleSummary } from '~/server/app/handleSummary';
@@ -35,6 +36,7 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.Groups]: handleGroups,
     [ApiUrl.GroupsSwitch]: handleSwitchGroups,
     [ApiUrl.GroupsUpdate]: handleUpdateGroup,
+    [ApiUrl.GroupsReorder]: handleReorderGroups,
     [ApiUrl.GroupsRename]: handleRenameGroup,
     [ApiUrl.GroupsDelete]: handleDeleteGroup,
     [ApiUrl.Variants]: handleVariants,

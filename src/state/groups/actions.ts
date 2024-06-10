@@ -3,6 +3,7 @@ import { type Group } from '~/common/types';
 export const enum GroupsActionType {
     SET = 'groups.set',
     SWITCH = 'groups.switch',
+    REORDER = 'groups.reorder',
     UPDATE = 'groups.update',
     RENAME = 'groups.rename',
     DELETE = 'groups.delete',
@@ -17,6 +18,10 @@ export type GroupsAction =
           type: GroupsActionType.SWITCH;
           group: string;
           oppositeGroup: string;
+      }
+    | {
+          type: GroupsActionType.REORDER;
+          groups: Readonly<Record<string, number>>;
       }
     | {
           type: GroupsActionType.UPDATE;
@@ -42,6 +47,11 @@ export const switchGroupsAction = (group: string, oppositeGroup: string): Groups
     type: GroupsActionType.SWITCH,
     group,
     oppositeGroup,
+});
+
+export const reorderGroupsAction = (groups: Readonly<Record<string, number>>): GroupsAction => ({
+    type: GroupsActionType.REORDER,
+    groups,
 });
 
 export const updateGroupAction = (group: string, order?: number): GroupsAction => ({

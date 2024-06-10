@@ -1,5 +1,12 @@
 import { type Group } from '~/common/types';
-import { deleteGroupAction, GroupsActionType, renameGroupAction, setGroupsAction, updateGroupAction } from '~/state/groups/actions';
+import {
+    deleteGroupAction,
+    GroupsActionType,
+    renameGroupAction,
+    reorderGroupsAction,
+    setGroupsAction,
+    updateGroupAction,
+} from '~/state/groups/actions';
 import { getGroupsFixture } from '~/tests/fixtures';
 
 describe('setGroupsAction', () => {
@@ -47,6 +54,15 @@ describe('deleteGroupAction', () => {
         expect(deleteGroupAction('G')).toEqual({
             type: GroupsActionType.DELETE,
             group: 'G',
+        });
+    });
+});
+
+describe('reorderGroupAction', () => {
+    it('returns valid action', () => {
+        expect(reorderGroupsAction({ G: 1 })).toEqual({
+            type: GroupsActionType.REORDER,
+            groups: { G: 1 },
         });
     });
 });
