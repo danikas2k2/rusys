@@ -2,11 +2,14 @@ import DeleteIcon from '@icons/Delete.svg';
 import DragHandleIcon from '@icons/DragHandle.svg';
 import EditIcon from '@icons/Edit.svg';
 import { Button, ButtonGroup } from '@ui/Button';
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { useOutsideClick } from '@ui/hooks/useOutsideClick';
 import { isEmpty, isEqual } from 'lodash';
 import React, {
+    forwardRef,
     type HTMLAttributes,
     type PropsWithChildren,
+    type Ref,
     useCallback,
     useEffect,
     useMemo,
@@ -27,6 +30,200 @@ import { useGroups } from '~/state/groups/useGroups';
 import { useReorderGroups } from '~/state/groups/useReorderGroups';
 import cx from './GroupsTable.less';
 
+interface RowControlsProps {
+    offset?: number;
+}
+
+const RowControls = forwardRef(function RowControls({ offset }: RowControlsProps, ref: Ref<HTMLDivElement>) {
+    return (
+        <div ref={ref} className={cx('Controls')} style={{ transform: offset && `translate(${offset}px, 0)` }}>
+            <ButtonGroup align="right">
+                <Button color="primary" startDecorator={<EditIcon />}>
+                    <Label>Edit</Label>
+                </Button>
+                <Button color="negative" startDecorator={<DeleteIcon />}>
+                    <Label>Remove</Label>
+                </Button>
+            </ButtonGroup>
+        </div>
+    );
+});
+
+interface SortableRowProps extends RowProps {
+    index: number;
+    active?: boolean;
+    onStart?: () => void;
+    onStop?: () => void;
+    onMove?: (offset: { x?: number; y?: number }) => void;
+}
+
+const SortableRow = forwardRef(function SortableRow(
+    { index, active, onStart, onStop, onMove, className, style, children, ...props }: SortableRowProps,
+    forwardedRef: Ref<HTMLDivElement>
+) {
+    const ref = useForwardedRef(forwardedRef);
+    // ref for vertical drag handler
+    const handleRef = useRef<HTMLDivElement>(null);
+
+    const [dragging, setDragging] = useState(false);
+    const [x, setX] = useState<number>();
+    const [y, setY] = useState<number>();
+    const [offsetX, setOffsetX] = useState(0);
+    const [offsetY, setOffsetY] = useState(0);
+
+    const prevIndex = usePreviousValue(index) ?? index;
+    const direction = Math.sign(index - prevIndex);
+    useEffect(() => {
+        if (dragging && !direction) {
+            onMove?.({ x, y });
+        }
+    }, [direction, dragging, onMove, x, y]);
+
+    if (!active && x) {
+        setX(undefined);
+    }
+
+    const handleDragStart = useCallback(
+        ({ target }: DraggableEvent, data: DraggableData) => {
+            const newVertical = handleRef.current === target || handleRef.current?.contains(target as Node);
+            setVertical(newVertical);
+
+            if (newVertical) {
+                if (x) {
+                    setX(undefined);
+                }
+            } else {
+                if (y != null) {
+                    setY(undefined);
+                }
+            }
+
+            setOffsetX(data.x - data.node.offsetLeft);
+            setOffsetY(data.y - data.node.offsetTop);
+            onStart?.();
+        },
+        [onStart, x, y]
+    );
+
+    const controlRef = useRef<HTMLDivElement>(null);
+    const handleHorizontalDrag = useCallback(
+        (data: DraggableData) => {
+            let newX: number | undefined = data.x - offsetX;
+            const width = controlRef.current?.offsetWidth ?? 0;
+            if (-newX > width) {
+                newX = -width;
+            } else if (newX >= 0) {
+                newX = undefined;
+            }
+            newX &&= Math.round(newX);
+            if (x !== newX) {
+                setX(newX);
+            }
+        },
+        [offsetX, x]
+    );
+
+    const handleHorizontalDragEnd = useCallback(() => {
+        if (x != null) {
+            let newX: number | undefined;
+            const width = controlRef.current?.offsetWidth ?? 0;
+            if (-x >= width * 0.75) {
+                newX = -width;
+            } else if (-x < width * 0.25) {
+                newX = undefined;
+            } else if (offsetX > x) {
+                newX = -width;
+            } else {
+                newX = undefined;
+            }
+            newX &&= Math.round(newX);
+            if (x !== newX) {
+                setX(newX);
+            }
+        }
+    }, [offsetX, x]);
+
+    const handleVerticalDrag = useCallback(
+        (data: DraggableData) => {
+            const height = ((data.node.offsetParent as HTMLElement)?.offsetHeight ?? 0) - data.node.offsetHeight;
+            const newY = Math.round(Math.min(Math.max(0, data.y - offsetY), height));
+            if (y !== newY) {
+                setY(newY);
+            }
+        },
+        [offsetY, y]
+    );
+
+    const handleVerticalDragEnd = useCallback(() => {
+        if (y != null) {
+            setY(undefined);
+        }
+    }, [y]);
+
+    const [vertical, setVertical] = useState<boolean>();
+    const dragThreshold = 8;
+
+    const handleDrag = useCallback(
+        (e: DraggableEvent, data: DraggableData) => {
+            const v = Math.abs(data.y - offsetY);
+            const h = Math.abs(data.x - offsetX);
+            if (!dragging) {
+                if (v < dragThreshold && h < dragThreshold) {
+                    return;
+                }
+                setDragging(true);
+            }
+            if (vertical) {
+                handleVerticalDrag(data);
+            } else {
+                handleHorizontalDrag(data);
+            }
+        },
+        [dragging, handleHorizontalDrag, handleVerticalDrag, offsetX, offsetY, vertical]
+    );
+
+    const handleDragEnd = useCallback(() => {
+        setDragging(false);
+        setVertical(undefined);
+        handleVerticalDragEnd();
+        handleHorizontalDragEnd();
+        onStop?.();
+    }, [handleHorizontalDragEnd, handleVerticalDragEnd, onStop]);
+
+    const sibling = (
+        direction > 0 ? ref.current?.nextElementSibling : ref.current?.previousElementSibling
+    ) as HTMLElement | null;
+    const offset = (ref.current?.offsetTop ?? 0) + direction * (direction ? sibling?.offsetHeight ?? 0 : 0);
+
+    return (
+        <DraggableCore
+            onStart={handleDragStart}
+            onStop={handleDragEnd}
+            onDrag={handleDrag}
+            allowAnyClick
+            enableUserSelectHack
+        >
+            <Row
+                ref={ref}
+                {...props}
+                className={cx(className, { 'mod-dragging': dragging, 'mod-vertical': vertical })}
+                style={{
+                    ...style,
+                    ...(y != null ? { transform: `translate(0, ${y - offset}px)` } : {}),
+                }}
+            >
+                <div ref={handleRef} className={cx('DragHandle')}>
+                    <DragHandleIcon />
+                </div>
+
+                {children}
+
+                {active && <RowControls ref={controlRef} offset={x} />}
+            </Row>
+        </DraggableCore>
+    );
+});
+
 export function GroupsTable() {
     const getGroups = useGetGroups();
     const groups = useGroups();
@@ -44,29 +241,29 @@ export function GroupsTable() {
     }, [groupOrder]);
 
     const onOverlap = useCallback(
-        (group: string, opposite?: HTMLDivElement | null) => {
-            const overlapGroup = opposite?.dataset.group;
-            if (overlapGroup) {
+        (group: string, opposite?: string) => {
+            if (opposite) {
                 const newOrder = [...currentGroupOrder];
-                newOrder[currentGroupOrder.indexOf(group)] = overlapGroup;
-                newOrder[currentGroupOrder.indexOf(overlapGroup)] = group;
+                newOrder[currentGroupOrder.indexOf(group)] = opposite;
+                newOrder[currentGroupOrder.indexOf(opposite)] = group;
                 setCurrentGroupOrder(newOrder);
             }
         },
         [currentGroupOrder]
     );
 
-    const [current, setCurrent] = useState<HTMLDivElement | null>(null);
+    const [currentGroup, setCurrentGroup] = useState<string>();
     const onStart = useCallback(
-        (element: HTMLDivElement | null) => {
-            if (element !== current) {
-                setCurrent(element);
+        (group: string) => {
+            if (group !== currentGroup) {
+                setCurrentGroup(group);
             }
         },
-        [current]
+        [currentGroup]
     );
-    useOutsideClick({ current }, () => {
-        setCurrent(null);
+    const currentRef = useRef<HTMLDivElement>(null);
+    useOutsideClick(currentRef, () => {
+        setCurrentGroup(undefined);
     });
 
     const reorderGroups = useReorderGroups();
@@ -80,251 +277,71 @@ export function GroupsTable() {
         }
     }, [currentGroupOrder, groupOrder, reorderGroups]);
 
+    const ref = useRef<HTMLDivElement>(null);
+
+    const onMove = useCallback(
+        ({ y }: { x?: number; y?: number }) => {
+            if (y != null) {
+                if (currentGroup) {
+                    setTimeout(() => {
+                        const overlap = getOverlappingElementIndex(currentRef.current);
+                        if (overlap >= 0) {
+                            onOverlap(currentGroup, currentGroupOrder[overlap]);
+                        }
+                    }, 0);
+                }
+            }
+        },
+        [currentGroup, currentGroupOrder, onOverlap]
+    );
+
     return (
         <LoadingContent loader={getGroups} hasData={!isEmpty(groups)}>
             <Table className={cx('Table')}>
-                <SortableRowGroup>
-                    {currentGroupOrder.map((group) => (
-                        <SortableRow
-                            key={group}
-                            className={cx('Row')}
-                            data-group={group}
-                            data-order={filteredGroups.find((g) => g.group === group)?.order}
-                            active={current?.dataset.group === group}
-                            onStart={onStart}
-                            onStop={onStop}
-                            onOverlap={(opposite) => onOverlap(group, opposite)}
-                        >
-                            <Cell key="name" className={cx('Name')}>
-                                {group}
-                            </Cell>
-                        </SortableRow>
-                    ))}
+                <SortableRowGroup ref={ref}>
+                    {currentGroupOrder.map((group, i) => {
+                        return (
+                            <SortableRow
+                                key={group}
+                                index={i}
+                                ref={currentGroup === group ? currentRef : undefined}
+                                className={cx('Row')}
+                                active={currentGroup === group}
+                                onStart={() => onStart(group)}
+                                onStop={onStop}
+                                onMove={onMove}
+                            >
+                                <Cell key="name" className={cx('Name')}>
+                                    {group}
+                                </Cell>
+                            </SortableRow>
+                        );
+                    })}
                 </SortableRowGroup>
             </Table>
         </LoadingContent>
     );
 }
 
-function SortableRowGroup({ children, className, ...props }: PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
+const SortableRowGroup = forwardRef(function SortableRowGroup(
+    { children, className, ...props }: PropsWithChildren<HTMLAttributes<HTMLDivElement>>,
+    ref: Ref<HTMLDivElement>
+) {
     return (
-        <div role="rowgroup" className={cx(className, 'SortableRowGroup')} {...props}>
+        <div ref={ref} role="rowgroup" className={cx(className, 'SortableRowGroup')} {...props}>
             {children}
         </div>
     );
-}
+});
 
-interface SortableRowProps extends RowProps {
-    active?: boolean;
-    onStart?: (element: HTMLDivElement | null) => void;
-    onStop?: () => void;
-    onMove?: (offset: { x?: number; y?: number }) => void;
-    onOverlap?: (element: HTMLDivElement | null) => void;
-}
-
-function SortableRow({
-    active,
-    onStart,
-    onStop,
-    onMove,
-    onOverlap,
-    className,
-    style,
-    children,
-    ...props
-}: SortableRowProps) {
-    const [overlapElement, setOverlapElement] = useState<HTMLDivElement | null>(null);
-    const overlapPrevious = usePreviousValue(overlapElement);
-    useEffect(() => {
-        if (overlapElement && overlapPrevious !== overlapElement) {
-            onOverlap?.(overlapElement);
-        }
-    }, [onOverlap, overlapElement, overlapPrevious]);
-
-    const [dragging, setDragging] = useState(false);
-    const [horizontalPosition, setHorizontalPosition] = useState<number | undefined>();
-    if (!active && horizontalPosition) {
-        setHorizontalPosition(undefined);
-    }
-
-    const [verticalPosition, setVerticalPosition] = useState<number | undefined>();
-    const [start, setStart] = useState({ x: 0, y: 0 });
-    const [offset, setOffset] = useState({ x: 0, y: 0 });
-
-    const ref = useRef<HTMLDivElement>(null);
-
-    const handleRef = useRef<HTMLDivElement>(null);
-    const handleDragStart = useCallback(
-        ({ target }: DraggableEvent, data: DraggableData) => {
-            setVertical(handleRef.current === target || handleRef.current?.contains(target as Node));
-            setStart({ x: data.x, y: data.y });
-            const x = data.node.offsetLeft - data.x + (horizontalPosition ?? 0);
-            const y = data.node.offsetTop - data.y + (verticalPosition ?? 0);
-            if (offset.x !== x || offset.y !== y) {
-                setOffset({ x, y });
-            }
-            onStart?.(ref.current);
-        },
-        [offset, onStart, horizontalPosition, verticalPosition]
-    );
-
-    const controlRef = useRef<HTMLDivElement>(null);
-    const handleHorizontalDrag = useCallback(
-        (_e: DraggableEvent, data: DraggableData) => {
-            const x = data.x + offset.x;
-            let newPosition: number | undefined = x - data.node.offsetLeft;
-            const width = controlRef.current?.offsetWidth ?? data.node.offsetWidth / 2;
-            if (-newPosition > width) {
-                newPosition = -width;
-            } else if (newPosition >= 0) {
-                newPosition = undefined;
-            }
-            if (horizontalPosition !== newPosition) {
-                setHorizontalPosition(newPosition);
-            }
-        },
-        [horizontalPosition, offset.x]
-    );
-
-    const handleHorizontalDragEnd = useCallback(() => {
-        if (horizontalPosition != null) {
-            const width = controlRef.current?.offsetWidth ?? 0;
-            const startPosition = start.x + offset.x;
-            let newPosition: number | undefined;
-            if (-horizontalPosition >= width * 0.75) {
-                newPosition = -width;
-            } else if (-horizontalPosition < width * 0.25) {
-                newPosition = undefined;
-            } else if (startPosition > horizontalPosition) {
-                newPosition = -width;
-            } else {
-                newPosition = undefined;
-            }
-            if (horizontalPosition !== newPosition) {
-                setHorizontalPosition(newPosition);
-                onMove?.({ x: newPosition, y: verticalPosition });
-            }
-        }
-    }, [horizontalPosition, offset.x, onMove, start.x, verticalPosition]);
-
-    const handleVerticalDrag = useCallback(
-        (_e: DraggableEvent, data: DraggableData) => {
-            const bottom = (data.node.offsetParent as HTMLElement)?.offsetHeight;
-            let y = data.y + offset.y;
-            if (y <= 0) {
-                y = 0;
-            } else if (bottom) {
-                const height = bottom - data.node.offsetHeight;
-                if (y >= height) {
-                    y = height;
-                }
-            }
-
-            let newPosition = y - data.node.offsetTop;
-
-            const element = getOverlappingElement<HTMLDivElement>(data.node);
-            if (element !== overlapElement) {
-                setOverlapElement(element);
-                if (element) {
-                    newPosition = y - element?.offsetTop;
-                }
-            }
-
-            if (verticalPosition !== newPosition) {
-                setVerticalPosition(newPosition);
-                onMove?.({ x: horizontalPosition, y: newPosition });
-            }
-        },
-        [horizontalPosition, offset.y, onMove, overlapElement, verticalPosition]
-    );
-
-    const handleVerticalDragEnd = useCallback(() => {
-        if (verticalPosition != null) {
-            setVerticalPosition(undefined);
-            onMove?.({ x: horizontalPosition, y: undefined });
-        }
-    }, [horizontalPosition, onMove, verticalPosition]);
-
-    const [vertical, setVertical] = useState<boolean>();
-    const dragThreshold = 8;
-
-    const handleDrag = useCallback(
-        (e: DraggableEvent, data: DraggableData) => {
-            const v = Math.abs(data.y - start.y);
-            const h = Math.abs(data.x - start.x);
-            if (!dragging) {
-                if (v < dragThreshold && h < dragThreshold) {
-                    return;
-                }
-                setDragging(true);
-            }
-            if (vertical) {
-                handleVerticalDrag(e, data);
-            } else {
-                handleHorizontalDrag(e, data);
-            }
-        },
-        [handleHorizontalDrag, handleVerticalDrag, start, vertical, dragging]
-    );
-
-    const handleDragEnd = useCallback(() => {
-        setDragging(false);
-        setVertical(undefined);
-        handleVerticalDragEnd();
-        handleHorizontalDragEnd();
-        onStop?.();
-    }, [onStop, handleVerticalDragEnd, handleHorizontalDragEnd]);
-
-    return (
-        <DraggableCore
-            onStart={handleDragStart}
-            onStop={handleDragEnd}
-            onDrag={handleDrag}
-            allowAnyClick
-            enableUserSelectHack
-        >
-            <Row
-                ref={ref}
-                {...props}
-                className={cx(className, { 'mod-dragging': dragging && vertical })}
-                style={{
-                    ...style,
-                    ...(verticalPosition ? { transform: `translate(0, ${verticalPosition}px)` } : {}),
-                }}
-            >
-                <div ref={handleRef} className={cx('DragHandle')}>
-                    <DragHandleIcon />
-                </div>
-
-                {children}
-
-                {active && (
-                    <div
-                        ref={controlRef}
-                        className={cx('Controls')}
-                        style={{ transform: horizontalPosition && `translate(${horizontalPosition}px, 0)` }}
-                    >
-                        <ButtonGroup align="right">
-                            <Button color="primary" startDecorator={<EditIcon />}>
-                                <Label>Edit</Label>
-                            </Button>
-                            <Button color="negative" startDecorator={<DeleteIcon />}>
-                                <Label>Remove</Label>
-                            </Button>
-                        </ButtonGroup>
-                    </div>
-                )}
-            </Row>
-        </DraggableCore>
-    );
-}
-
-function getOverlappingElement<T extends HTMLElement>(element: HTMLElement | null, overlapSize = 0.4): T | null {
+function getOverlappingElementIndex(element: HTMLElement | null, overlapSize = 0.3): number {
     if (element) {
         const rect = element.getBoundingClientRect();
         const parent = element.offsetParent as HTMLElement | null;
         if (parent) {
-            for (const child of parent.children as HTMLCollectionOf<HTMLElement>) {
+            const children = parent.children as HTMLCollectionOf<HTMLElement>;
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i];
                 if (child === element) {
                     continue;
                 }
@@ -333,10 +350,10 @@ function getOverlappingElement<T extends HTMLElement>(element: HTMLElement | nul
                     (childRect.top >= rect.top && childRect.top <= rect.top + rect.height * overlapSize) ||
                     (rect.top >= childRect.top && rect.top <= childRect.top + childRect.height * overlapSize)
                 ) {
-                    return child as T;
+                    return i;
                 }
             }
         }
     }
-    return null;
+    return -1;
 }
