@@ -8,24 +8,20 @@
 
 .SortableRowGroup {
     position: relative;
+    margin-block-start: 2px;
 }
 
 .Row {
     grid-template-columns: 24px 1fr;
-
-    &.mod-dragging {
-        background-color: var(--color-background-body);
-        z-index: var(--z-index-sticky);
-        margin-block-start: -1px;
-        border-block: 1px solid var(--color-neutral-outlined-disabled-border);
-
-        & + .Row {
-            margin-block-start: -1px;
-            border-top: 1px solid var(--color-neutral-outlined-disabled-border);
-        }
-    }
-
+    background-color: var(--color-background-body);
     overflow: hidden;
+
+    &.mod-vertical {
+        z-index: var(--z-index-sticky);
+        box-shadow:
+            0 -1px 0 0 var(--color-neutral-outlined-disabled-border),
+            var(--shadow-sm);
+    }
 }
 
 .Name {
