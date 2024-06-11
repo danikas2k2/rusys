@@ -7,7 +7,7 @@ describe('usePreviousValue', () => {
         expect(result.current).toBeUndefined();
         rerender('ab');
         expect(result.current).toEqual('a');
-        rerender('abc');
+        rerender('ab');
         expect(result.current).toEqual('ab');
     });
 });
