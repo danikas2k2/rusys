@@ -11,7 +11,7 @@ import React, {
     type CSSProperties,
     forwardRef,
     type HTMLAttributes,
-    ReactElement,
+    type ReactElement,
     type Ref,
     useCallback,
     useEffect,
