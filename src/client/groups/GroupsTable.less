@@ -6,22 +6,15 @@
     grid-template-rows: 1fr;
 }
 
-.SortableRowGroup {
+.SortableRows {
     position: relative;
     margin-block-start: 2px;
 }
 
 .Row {
-    grid-template-columns: 24px 1fr;
+    grid-template-columns: 40px 1fr;
     background-color: var(--color-background-body);
     overflow: hidden;
-
-    &.mod-vertical {
-        z-index: var(--z-index-sticky);
-        box-shadow:
-            0 -1px 0 0 var(--color-neutral-outlined-disabled-border),
-            var(--shadow-sm);
-    }
 }
 
 .Name {
@@ -29,27 +22,7 @@
     font-size: var(--font-size-xl);
     line-height: var(--line-height-xl);
     width: 100%;
-    margin: 0.25rem 0.5rem;
+    margin: 0.25rem 0.5rem 0.25rem 0;
     justify-self: stretch;
     background-color: var(--color-background-body);
-}
-
-.DragHandle {
-    cursor: grab;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-neutral-outlined-border);
-    fill: currentcolor;
-    background-color: var(--color-background-body);
-    margin: 0.25rem 0 0.25rem 0.5rem;
-}
-
-.Controls {
-    position: absolute;
-    inset-inline-start: 100vw;
-    padding-inline-end: 0.5rem;
-    transition: transform 0.2s;
-    display: flex;
-    justify-content: flex-end;
 }
