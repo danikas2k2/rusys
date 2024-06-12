@@ -8,10 +8,9 @@ import classNames from 'classnames';
 import { isEmpty, isEqual } from 'lodash';
 import React, {
     cloneElement,
-    CSSProperties,
+    type CSSProperties,
     forwardRef,
     type HTMLAttributes,
-    type PropsWithChildren,
     ReactElement,
     type Ref,
     useCallback,
