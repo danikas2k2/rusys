@@ -4,11 +4,15 @@ import EditIcon from '@icons/Edit.svg';
 import { Button, ButtonGroup } from '@ui/Button';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { useOutsideClick } from '@ui/hooks/useOutsideClick';
+import classNames from 'classnames';
 import { isEmpty, isEqual } from 'lodash';
 import React, {
+    cloneElement,
+    CSSProperties,
     forwardRef,
     type HTMLAttributes,
     type PropsWithChildren,
+    ReactElement,
     type Ref,
     useCallback,
     useEffect,
@@ -30,35 +34,17 @@ import { useGroups } from '~/state/groups/useGroups';
 import { useReorderGroups } from '~/state/groups/useReorderGroups';
 import cx from './GroupsTable.less';
 
-interface RowControlsProps {
-    offset?: number;
-}
-
-const RowControls = forwardRef(function RowControls({ offset }: RowControlsProps, ref: Ref<HTMLDivElement>) {
-    return (
-        <div ref={ref} className={cx('Controls')} style={{ transform: offset && `translate(${offset}px, 0)` }}>
-            <ButtonGroup align="right">
-                <Button color="primary" startDecorator={<EditIcon />}>
-                    <Label>Edit</Label>
-                </Button>
-                <Button color="negative" startDecorator={<DeleteIcon />}>
-                    <Label>Remove</Label>
-                </Button>
-            </ButtonGroup>
-        </div>
-    );
-});
-
 interface SortableRowProps extends RowProps {
     index: number;
-    active?: boolean;
     onStart?: () => void;
     onStop?: () => void;
     onMove?: (offset: { x?: number; y?: number }) => void;
+    handler?: ReactElement;
+    controls?: ReactElement;
 }
 
 const SortableRow = forwardRef(function SortableRow(
-    { index, active, onStart, onStop, onMove, className, style, children, ...props }: SortableRowProps,
+    { index, handler, controls, onStart, onStop, onMove, className, style, children, ...props }: SortableRowProps,
     forwardedRef: Ref<HTMLDivElement>
 ) {
     const ref = useForwardedRef(forwardedRef);
@@ -71,6 +57,11 @@ const SortableRow = forwardRef(function SortableRow(
     const [offsetX, setOffsetX] = useState(0);
     const [offsetY, setOffsetY] = useState(0);
 
+    // reset offset when no controls specified
+    if (!controls && x) {
+        setX(undefined);
+    }
+
     const prevIndex = usePreviousValue(index) ?? index;
     const direction = Math.sign(index - prevIndex);
     useEffect(() => {
@@ -78,10 +69,6 @@ const SortableRow = forwardRef(function SortableRow(
             onMove?.({ x, y });
         }
     }, [direction, dragging, onMove, x, y]);
-
-    if (!active && x) {
-        setX(undefined);
-    }
 
     const handleDragStart = useCallback(
         ({ target }: DraggableEvent, data: DraggableData) => {
@@ -193,7 +180,8 @@ const SortableRow = forwardRef(function SortableRow(
     const sibling = (
         direction > 0 ? ref.current?.nextElementSibling : ref.current?.previousElementSibling
     ) as HTMLElement | null;
-    const offset = (ref.current?.offsetTop ?? 0) + direction * (direction ? sibling?.offsetHeight ?? 0 : 0);
+    const delta = (ref.current?.offsetTop ?? 0) + direction * (direction ? sibling?.offsetHeight ?? 0 : 0);
+    const dy = y != null ? y - delta : y;
 
     return (
         <DraggableCore
@@ -207,20 +195,53 @@ const SortableRow = forwardRef(function SortableRow(
                 ref={ref}
                 {...props}
                 className={cx(className, { 'mod-dragging': dragging, 'mod-vertical': vertical })}
-                style={{
-                    ...style,
-                    ...(y != null ? { transform: `translate(0, ${y - offset}px)` } : {}),
-                }}
+                style={addTransformStyle(style, dy ? `translate(0, ${dy}px)` : '')}
             >
-                <div ref={handleRef} className={cx('DragHandle')}>
-                    <DragHandleIcon />
-                </div>
-
+                {handler && cloneElement(handler, { ref: handleRef })}
                 {children}
-
-                {active && <RowControls ref={controlRef} offset={x} />}
+                {controls &&
+                    cloneElement(controls, {
+                        ref: controlRef,
+                        style: addTransformStyle(controls?.props?.style, x ? `translate(${x}px, 0)` : ''),
+                    })}
             </Row>
         </DraggableCore>
+    );
+});
+
+function addTransformStyle(style?: CSSProperties, transform?: string): CSSProperties {
+    return {
+        ...style,
+        ...(transform ? { transform: [style?.transform, transform].filter(Boolean).join(' ') } : {}),
+    };
+}
+
+const SortableRowGroup = forwardRef(function SortableRowGroup(
+    { children, className, ...props }: HTMLAttributes<HTMLDivElement>,
+    ref: Ref<HTMLDivElement>
+) {
+    return (
+        <div ref={ref} className={classNames(className, cx('SortableRowGroup'))} {...props}>
+            {children}
+        </div>
+    );
+});
+
+const GroupControls = forwardRef(function GroupControls(
+    { className, ...props }: HTMLAttributes<HTMLDivElement>,
+    ref: Ref<HTMLDivElement>
+) {
+    return (
+        <div ref={ref} className={classNames(className, cx('Controls'))} {...props}>
+            <ButtonGroup align="right">
+                <Button color="primary" startDecorator={<EditIcon />}>
+                    <Label>Edit</Label>
+                </Button>
+                <Button color="negative" startDecorator={<DeleteIcon />}>
+                    <Label>Remove</Label>
+                </Button>
+            </ButtonGroup>
+        </div>
     );
 });
 
@@ -306,10 +327,17 @@ export function GroupsTable() {
                                 index={i}
                                 ref={currentGroup === group ? currentRef : undefined}
                                 className={cx('Row')}
-                                active={currentGroup === group}
                                 onStart={() => onStart(group)}
                                 onStop={onStop}
                                 onMove={onMove}
+                                handler={
+                                    <div className={cx('DragHandle')}>
+                                        <DragHandleIcon />
+                                    </div>
+                                }
+                                controls={
+                                    currentGroup === group ? <GroupControls style={{ color: 'red' }} /> : undefined
+                                }
                             >
                                 <Cell key="name" className={cx('Name')}>
                                     {group}
@@ -322,17 +350,6 @@ export function GroupsTable() {
         </LoadingContent>
     );
 }
-
-const SortableRowGroup = forwardRef(function SortableRowGroup(
-    { children, className, ...props }: PropsWithChildren<HTMLAttributes<HTMLDivElement>>,
-    ref: Ref<HTMLDivElement>
-) {
-    return (
-        <div ref={ref} role="rowgroup" className={cx(className, 'SortableRowGroup')} {...props}>
-            {children}
-        </div>
-    );
-});
 
 function getOverlappingElementIndex(element: HTMLElement | null, overlapSize = 0.3): number {
     if (element) {
