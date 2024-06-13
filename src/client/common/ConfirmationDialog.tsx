@@ -1,23 +1,22 @@
 import CancelIcon from '@icons/Cancel.svg';
 import CloseIcon from '@icons/Close.svg';
 import DoneIcon from '@icons/Done.svg';
-import { Button } from '@ui/Button';
+import { Button, type ButtonProps } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { IconButton } from '@ui/IconButton';
-import { type InputColor } from '@ui/Input';
+import { type ReactNodeOrFunction, renderElement } from '@ui/utils/renderElement';
 import React, { type MouseEvent, type ReactNode, useEffect } from 'react';
+import { Label } from '~/client/common/Label';
 import cx from './ConfirmationDialog.less';
 
 export interface ConfirmationDialogProps {
     header?: ReactNode; // TODO (options?: HeaderOptions}) => ReactNode;
     footer?: ReactNode; // TODO (options?: FooterOptions}) => ReactNode;
-    confirm?: ReactNode; // TODO (options?: ButtonOptions}) => ReactNode;
-    confirmLabel?: string;
-    confirmColor?: InputColor; // TODO get rid of this
-    cancel?: ReactNode; // TODO (options?: ButtonOptions}) => ReactNode;
-    cancelLabel?: string;
-    cancelColor?: InputColor; // TODO get rid of this
+    confirmButton?: ReactNodeOrFunction<ButtonProps>;
+    confirmProps?: ButtonProps;
+    cancelButton?: ReactNodeOrFunction<ButtonProps>;
+    cancelProps?: ButtonProps;
     // TODO add `trigger: ReactNode | ({ open, onOpen, onClose }) => ReactNode` prop, then remove `open` prop
     open?: boolean;
     onConfirm?: (e: MouseEvent<HTMLButtonElement>) => void;
@@ -27,15 +26,26 @@ export interface ConfirmationDialogProps {
     children?: ReactNode;
 }
 
+const defaultConfirmProps: ButtonProps = {
+    variant: 'solid',
+    color: 'primary',
+    startDecorator: <DoneIcon />,
+    children: <Label>Confirm</Label>,
+};
+
+const defaultCancelProps: ButtonProps = {
+    variant: 'outlined',
+    startDecorator: <CancelIcon />,
+    children: <Label>Cancel</Label>,
+};
+
 export function ConfirmationDialog({
-    header = 'Are you sure?',
+    header = <Label>Are you sure?</Label>,
     footer,
-    confirm,
-    confirmColor = 'primary',
-    confirmLabel = 'Confirm',
-    cancel,
-    cancelColor,
-    cancelLabel = 'Cancel',
+    confirmProps,
+    confirmButton = <Button {...defaultConfirmProps} />,
+    cancelProps,
+    cancelButton = <Button {...defaultCancelProps} />,
     open,
     onConfirm,
     onClose,
@@ -70,28 +80,23 @@ export function ConfirmationDialog({
             <footer>
                 {footer || (
                     <>
-                        <Button variant="outlined" color={cancelColor} aria-label={cancelLabel} onClick={onClose}>
-                            {cancel || (
-                                <>
-                                    <CancelIcon />
-                                    {cancelLabel}
-                                </>
-                            )}
-                        </Button>
-                        <Button
-                            ref={focusRef}
-                            variant="solid"
-                            color={confirmColor}
-                            aria-label={confirmLabel}
-                            onClick={onConfirm}
-                        >
-                            {confirm || (
-                                <>
-                                    <DoneIcon />
-                                    {confirmLabel}
-                                </>
-                            )}
-                        </Button>
+                        {renderElement<ButtonProps>(
+                            cancelButton,
+                            {
+                                ...cancelProps,
+                                onClick: onClose,
+                            },
+                            defaultCancelProps
+                        )}
+                        {renderElement<ButtonProps>(
+                            confirmButton,
+                            {
+                                ...confirmProps,
+                                ref: focusRef,
+                                onClick: onConfirm,
+                            },
+                            defaultConfirmProps
+                        )}
                     </>
                 )}
             </footer>

@@ -5,6 +5,9 @@
     "Add new entry": {
         "lt-LT": "Pridėti naują įrašą"
     },
+    "Are you sure?": {
+        "lt-LT": "Ar tikrai?"
+    },
     "Cancel": {
         "lt-LT": "Atšaukti"
     },
@@ -17,8 +20,14 @@
     "Edit": {
         "lt-LT": "Taisyti"
     },
+    "Edit group": {
+        "lt-LT": "Taisyti grupę"
+    },
     "Group": {
         "lt-LT": "Grupė"
+    },
+    "Group name": {
+        "lt-LT": "Grupės pavadinimas"
     },
     "Groups": {
         "lt-LT": "Grupės"
@@ -41,14 +50,11 @@
     "Logout": {
         "lt-LT": "Atsijungti"
     },
-    "Name": {
-        "lt-LT": "Pavadinimas"
-    },
     "Long": {
         "lt-LT": "Ilgas"
     },
-    "Short": {
-        "lt-LT": "Trumpas"
+    "Name": {
+        "lt-LT": "Pavadinimas"
     },
     "No data": {
         "lt-LT": "Duomenų nėra"
@@ -58,6 +64,9 @@
     },
     "Remove": {
         "lt-LT": "Šalinti"
+    },
+    "Short": {
+        "lt-LT": "Trumpas"
     },
     "Statistics": {
         "lt-LT": "Statistika"

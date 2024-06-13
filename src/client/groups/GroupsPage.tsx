@@ -1,6 +1,6 @@
 import React from 'react';
 import { GroupsTable } from '~/client/groups/GroupsTable';
-import { Label } from '~/client/Label';
+import { Label } from '~/client/common/Label';
 import { Toolbar } from '~/client/toolbar/Toolbar';
 import cx from './GroupsPage.less';
 

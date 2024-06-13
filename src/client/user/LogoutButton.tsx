@@ -1,11 +1,10 @@
-import CancelIcon from '@icons/Cancel.svg';
 import LogoutIcon from '@icons/Logout.svg';
 import { googleLogout } from '@react-oauth/google';
-import { type ButtonProps } from '@ui/Button';
-import { ButtonWithConfirmation } from '@ui/ButtonWithConfirmation';
+import { Button, type ButtonProps } from '@ui/Button';
+import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
 import { IconButton } from '@ui/IconButton';
 import React, { useCallback } from 'react';
-import { Label } from '~/client/Label';
+import { Label } from '~/client/common/Label';
 import { ProfileAvatar } from '~/client/user/ProfileAvatar';
 import { useResetProfile } from '~/state/profile/useResetProfile';
 
@@ -18,23 +17,16 @@ export function LogoutButton({ children, ...props }: ButtonProps) {
     return (
         <ButtonWithConfirmation
             {...props}
-            header={<Label>Sure to logout?</Label>}
-            cancel={
-                <>
-                    <CancelIcon />
-                    <Label>Cancel</Label>
-                </>
-            }
-            confirm={
-                <>
-                    <LogoutIcon />
+            dialogHeader={<Label>Sure to logout?</Label>}
+            confirmButton={
+                <Button startDecorator={<LogoutIcon />}>
                     <Label>Logout</Label>
-                </>
+                </Button>
             }
             onClick={handleConfirm}
         >
-            {(props) => (
-                <IconButton size="small" {...props}>
+            {(innerProps) => (
+                <IconButton size="small" {...innerProps}>
                     {children || <ProfileAvatar />}
                 </IconButton>
             )}

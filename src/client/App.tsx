@@ -4,7 +4,7 @@ import { Loader } from '@ui/Loader';
 import React from 'react';
 import { AppContent } from '~/client/AppContent';
 import { Error } from '~/client/Error';
-import { Label } from '~/client/Label';
+import { Label } from '~/client/common/Label';
 import { useDev } from '~/hooks/useDev';
 import { useClientId } from '~/state/google/useClientId';
 import { useLocale } from '~/state/locale/useLocale';

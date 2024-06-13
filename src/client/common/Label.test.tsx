@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { useLabel } from '~/client/hooks/useLabel';
-import { Label } from '~/client/Label';
+import { Label } from '~/client/common/Label';
 
 jest.mock('~/client/hooks/useLabel', () => ({
     useLabel: jest.fn(),
