@@ -15,15 +15,6 @@
         },
         {
             "files": [
-                "*.test.ts",
-                "*.test.tsx"
-            ],
-            "options": {
-                "printWidth": 120
-            }
-        },
-        {
-            "files": [
                 "*.config.js",
                 "*.config.ts",
                 "*.config.mjs"
