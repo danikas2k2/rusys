@@ -6,7 +6,8 @@ import {
     type InputSpacing,
     type InputVariant,
 } from '@ui/Input';
-import React, { type ButtonHTMLAttributes, type ForwardedRef, forwardRef } from 'react';
+import classNames from 'classnames';
+import React, { type ButtonHTMLAttributes, type ForwardedRef, forwardRef, type ReactNode } from 'react';
 import cx from './Button.less';
 
 export interface ButtonProps<T extends HTMLElement = HTMLButtonElement> extends ButtonHTMLAttributes<T> {
@@ -16,8 +17,8 @@ export interface ButtonProps<T extends HTMLElement = HTMLButtonElement> extends 
     spacing?: InputSpacing;
     fullWidth?: boolean;
     fullHeight?: boolean;
-    startDecorator?: React.ReactNode;
-    endDecorator?: React.ReactNode;
+    startDecorator?: ReactNode;
+    endDecorator?: ReactNode;
 }
 
 export const Button = forwardRef(function Button(
@@ -42,14 +43,12 @@ export const Button = forwardRef(function Button(
     return (
         <button
             ref={ref}
-            className={cx(
-                'Button',
-                `color-${color}`,
-                `variant-${variant}`,
-                `size-${size}`,
-                `spacing-${spacing}`,
-                { 'full-width': fullWidth, 'full-height': fullHeight },
-                className
+            className={classNames(
+                className,
+                cx('Button', `color-${color}`, `variant-${variant}`, `size-${size}`, `spacing-${spacing}`, {
+                    'full-width': fullWidth,
+                    'full-height': fullHeight,
+                })
             )}
             disabled={disabled}
             aria-disabled={disabled}
