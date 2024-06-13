@@ -356,6 +356,23 @@
     + .Button {
         margin-inline-start: 1rem;
     }
+
+    .start-decorator,
+    .end-decorator {
+        display: flex;
+        align-items: stretch;
+        flex-shrink: 0;
+    }
+
+    .start-decorator {
+        justify-content: flex-start;
+        padding-inline-end: calc(var(--padding-inline) / 2);
+    }
+
+    .end-decorator {
+        justify-content: flex-end;
+        padding-inline-start: calc(var(--padding-inline) / 2);
+    }
 }
 
 .ButtonGroup {
@@ -393,22 +410,5 @@
         .Button {
             width: 100%;
         }
-    }
-
-    .start-decorator,
-    .end-decorator {
-        display: flex;
-        align-items: stretch;
-        flex-shrink: 0;
-    }
-
-    .start-decorator {
-        justify-content: flex-start;
-        padding-inline-end: calc(var(--padding-inline) / 2);
-    }
-
-    .end-decorator {
-        justify-content: flex-end;
-        padding-inline-start: calc(var(--padding-inline) / 2);
     }
 }
