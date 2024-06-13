@@ -7,7 +7,12 @@ import {
     renameGroupOccurrences,
     renameVariantOccurrences,
 } from '~/server/data/common';
-import { deleteDetailsGroup, deleteDetailsVariant, renameDetailsGroup, renameDetailsVariant } from '~/server/data/details';
+import {
+    deleteDetailsGroup,
+    deleteDetailsVariant,
+    renameDetailsGroup,
+    renameDetailsVariant,
+} from '~/server/data/details';
 import { deleteGroup, renameGroup } from '~/server/data/groups';
 import {
     getAllDetails,
@@ -25,9 +30,13 @@ jest.mock('~/server/db');
 jest.mock('~/server/data/details', () => ({
     ...jest.requireActual('~/server/data/details'),
     deleteDetailsGroup: jest.fn().mockImplementation(jest.requireActual('~/server/data/details').deleteDetailsGroup),
-    deleteDetailsVariant: jest.fn().mockImplementation(jest.requireActual('~/server/data/details').deleteDetailsVariant),
+    deleteDetailsVariant: jest
+        .fn()
+        .mockImplementation(jest.requireActual('~/server/data/details').deleteDetailsVariant),
     renameDetailsGroup: jest.fn().mockImplementation(jest.requireActual('~/server/data/details').renameDetailsGroup),
-    renameDetailsVariant: jest.fn().mockImplementation(jest.requireActual('~/server/data/details').renameDetailsVariant),
+    renameDetailsVariant: jest
+        .fn()
+        .mockImplementation(jest.requireActual('~/server/data/details').renameDetailsVariant),
 }));
 
 jest.mock('~/server/data/groups', () => ({

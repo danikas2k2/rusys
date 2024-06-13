@@ -3,7 +3,7 @@ import CloseIcon from '@icons/Close.svg';
 import DeleteIcon from '@icons/Delete.svg';
 import DoneIcon from '@icons/Done.svg';
 import { Button } from '@ui/Button';
-import { ButtonWithConfirmation } from '@ui/ButtonWithConfirmation';
+import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { IconButton } from '@ui/IconButton';
@@ -11,7 +11,7 @@ import { LabeledInput } from '@ui/LabeledInput';
 import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
-import { Label } from '~/client/Label';
+import { Label } from '~/client/common/Label';
 import { compareNames } from '~/client/utils/compareNames';
 import { useAddVariant } from '~/state/variants/useAddVariant';
 import { useDeleteVariant } from '~/state/variants/useDeleteVariant';
@@ -119,7 +119,7 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
         <Dialog className={cx('VariantBox')} open onClose={handleClose}>
             <header>
                 <div className={cx('title')}>
-                    <Label>{initialVariant ? 'Update group' : 'Add new group'}</Label>
+                    <Label>{initialVariant ? 'Edit variant' : 'Add new variant'}</Label>
                 </div>
                 <div className={cx('close')}>
                     <IconButton aria-label={closeLabel} onClick={handleClose}>
@@ -146,34 +146,24 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
                         <ButtonWithConfirmation
                             variant="outlined"
                             color="negative"
-                            onClick={handleDelete}
-                            header={<Label>Sure to remove?</Label>}
-                            cancel={
-                                <>
-                                    <CancelIcon />
-                                    <Label>Cancel</Label>
-                                </>
-                            }
-                            confirm={
-                                <>
-                                    <DeleteIcon />
+                            startDecorator={<DeleteIcon />}
+                            dialogHeader={<Label>Sure to remove?</Label>}
+                            confirmButton={
+                                <Button color="negative" startDecorator={<DeleteIcon />}>
                                     <Label>Remove</Label>
-                                </>
+                                </Button>
                             }
-                            confirmColor="negative"
+                            onClick={handleDelete}
                         >
-                            <DeleteIcon />
                             <Label>Remove</Label>
                         </ButtonWithConfirmation>
                         <div className={cx('spacer')} />
                     </>
                 )}
-                <Button variant="outlined" onClick={handleClose}>
-                    <CancelIcon />
+                <Button variant="outlined" startDecorator={<CancelIcon />} onClick={handleClose}>
                     <Label>Cancel</Label>
                 </Button>
-                <Button variant="solid" color="primary" onClick={handleUpdate}>
-                    <DoneIcon />
+                <Button variant="solid" color="primary" startDecorator={<DoneIcon />} onClick={handleUpdate}>
                     <Label>{initialVariant ? 'Update' : 'Add'}</Label>
                 </Button>
             </footer>

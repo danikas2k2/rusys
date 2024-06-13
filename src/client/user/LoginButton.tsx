@@ -3,7 +3,7 @@ import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import { type ButtonProps } from '@ui/Button';
 import { IconButton } from '@ui/IconButton';
 import React, { useCallback, useMemo } from 'react';
-import { Label } from '~/client/Label';
+import { Label } from '~/client/common/Label';
 import { useLoginError } from '~/client/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
 import cx from './LoginButton.less';

@@ -43,7 +43,24 @@ export function GroupsTable() {
     );
 
     const ref = useRef<HTMLDivElement>(null);
-    useOutsideClick(ref, () => setActiveGroup(undefined));
+
+    const [pinned, setPinned] = useState(false);
+    const onPin = useCallback((hide = false) => {
+        console.info('pin', hide);
+        if (hide) {
+            setActiveGroup(undefined);
+        }
+        setPinned(true);
+    }, []);
+    const onUnpin = useCallback((hide = false) => {
+        console.info('unpin', hide);
+        if (hide) {
+            setActiveGroup(undefined);
+        }
+        setPinned(false);
+    }, []);
+
+    useOutsideClick(pinned ? { current: null } : ref, () => setActiveGroup(undefined));
 
     const reorderGroups = useReorderGroups();
     const onStop = useCallback(async () => {
@@ -82,7 +99,11 @@ export function GroupsTable() {
                             onStop={onStop}
                             onMove={onMove}
                             handler={<DragHandle />}
-                            controls={activeGroup === group ? <GroupControls /> : undefined}
+                            controls={
+                                activeGroup === group ? (
+                                    <GroupControls group={group} onPin={onPin} onUnpin={onUnpin} />
+                                ) : undefined
+                            }
                         >
                             <Cell key="name" className={cx('Name')}>
                                 {group}

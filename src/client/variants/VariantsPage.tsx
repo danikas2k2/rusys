@@ -1,6 +1,6 @@
 import React from 'react';
 import { VariantsTable } from '~/client/variants/VariantsTable';
-import { Label } from '~/client/Label';
+import { Label } from '~/client/common/Label';
 import { Toolbar } from '~/client/toolbar/Toolbar';
 import cx from './VariantsPage.less';
 

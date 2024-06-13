@@ -165,12 +165,13 @@ export const SortableRow = forwardRef(function SortableRow(
     const delta = (ref.current?.offsetTop ?? 0) + direction * (direction ? sibling?.offsetHeight ?? 0 : 0);
     const dy = y != null ? y - delta : y;
 
+    const controlsClassName = cx('Controls');
     return (
         <DraggableCore
             onStart={handleDragStart}
             onStop={handleDragStop}
             onDrag={handleDrag}
-            allowAnyClick
+            cancel={`.${controlsClassName}`} // TODO get rid of this
             enableUserSelectHack
         >
             <Row
@@ -184,6 +185,7 @@ export const SortableRow = forwardRef(function SortableRow(
                 {controls &&
                     cloneElement(controls, {
                         ref: controlRef,
+                        className: classNames(controls?.props?.className, controlsClassName),
                         style: addTransformStyle(controls?.props?.style, x ? `translate(${x}px, 0)` : ''),
                     })}
             </Row>

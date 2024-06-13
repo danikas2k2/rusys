@@ -2,7 +2,7 @@ import { Checkbox } from '@ui/Checkbox';
 import { isEmpty } from 'lodash';
 import React, { useMemo } from 'react';
 import { useUniqueGroups } from '~/client/hooks/useUniqueGroups';
-import { Label } from '~/client/Label';
+import { Label } from '~/client/common/Label';
 import { Cell } from '~/client/table/Cell';
 import { LoadingContent } from '~/client/table/LoadingContent';
 import { Row } from '~/client/table/Row';

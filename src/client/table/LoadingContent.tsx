@@ -1,7 +1,7 @@
 import { Loader } from '@ui/Loader';
 import React, { type PropsWithChildren } from 'react';
 import { Error } from '~/client/Error';
-import { Label } from '~/client/Label';
+import { Label } from '~/client/common/Label';
 import { LoadingState, useLockingLoader } from '~/hooks/useLockingLoader';
 import cx from './LoadingContent.less';
 

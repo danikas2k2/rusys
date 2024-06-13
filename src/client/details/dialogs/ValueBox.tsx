@@ -15,7 +15,7 @@ import React, {
 } from 'react';
 import { ValueInput } from '~/client/details/dialogs/ValueInput';
 import { useLabel } from '~/client/hooks/useLabel';
-import { Label } from '~/client/Label';
+import { Label } from '~/client/common/Label';
 import { type VariantAmount } from '~/common/types';
 import { useAllVariants } from '~/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';

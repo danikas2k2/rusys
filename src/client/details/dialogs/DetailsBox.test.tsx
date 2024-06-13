@@ -11,6 +11,7 @@ import { withReduxState } from '~/tests/withReduxState';
 jest.mock('~/state/details/useAddDetails');
 jest.mock('~/state/details/useDeleteDetails');
 jest.mock('~/state/details/useRenameDetails');
+jest.mock('~/client/common/Label');
 
 describe('EditBox', () => {
     it('renders group name', () => {
@@ -126,7 +127,10 @@ describe('EditBox', () => {
             const onClose = jest.fn();
             const renameDetails = jest.fn();
             (useRenameDetails as jest.Mock).mockReturnValue(renameDetails);
-            render(<DetailsBox group="G" name="A" onClose={onClose} />, withReduxState({ details: getDetailsFixture() }));
+            render(
+                <DetailsBox group="G" name="A" onClose={onClose} />,
+                withReduxState({ details: getDetailsFixture() })
+            );
             await userEvent.clear(screen.getByRole('textbox'));
             await userEvent.type(screen.getByRole('textbox'), 'C');
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
@@ -183,7 +187,7 @@ describe('EditBox', () => {
             (useDeleteDetails as jest.Mock).mockReturnValue(removeDetails);
             render(<DetailsBox group="Group" name="Existing" onClose={onClose} />, withReduxState());
             await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
-            await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Confirm' }));
+            await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Remove' }));
             expect(removeDetails).toHaveBeenCalledWith('Group', 'Existing');
             expect(onClose).toHaveBeenCalledWith('Group', 'Existing');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -195,7 +199,7 @@ describe('EditBox', () => {
             (useDeleteDetails as jest.Mock).mockReturnValue(removeDetails);
             render(<DetailsBox group="Group" name="Existing" onClose={onClose} />, withReduxState());
             await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
-            await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Confirm' }));
+            await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Remove' }));
             expect(removeDetails).toHaveBeenCalledWith('Group', 'Existing');
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox')).toHaveFocus();

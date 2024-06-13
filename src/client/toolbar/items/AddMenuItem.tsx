@@ -1,6 +1,6 @@
 import AddCircleIcon from '@icons/AddCircle.svg';
 import React from 'react';
-import { Label } from '~/client/Label';
+import { Label } from '~/client/common/Label';
 import { ToolbarMenuItem } from '~/client/toolbar/ToolbarMenuItem';
 
 interface AddMenuItemProps {

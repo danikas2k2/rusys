@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ConfirmationDialog } from '@ui/ConfirmationDialog';
+import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
 import React from 'react';
+
+jest.mock('~/client/common/Label');
 
 describe('ConfirmationDialog', () => {
     const onConfirm = jest.fn();
