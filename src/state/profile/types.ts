@@ -1,4 +1,5 @@
 export interface Profile {
+    dev?: boolean;
     aud?: string; // Identifies the audience that this ID token is intended for. It must be one of the OAuth 2.0 client IDs of your application.
     exp?: number; // The time the ID token expires, represented in Unix time (integer seconds).
     iat?: number; // The time the ID token was issued, represented in Unix time (integer seconds).
