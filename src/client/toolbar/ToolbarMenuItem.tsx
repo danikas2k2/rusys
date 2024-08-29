@@ -1,4 +1,4 @@
-import { IconButton } from '@ui/IconButton';
+import { IconButton } from '@ui/Button';
 import type { InputColor } from '@ui/Input';
 import { MenuItem } from '@ui/MenuItem';
 import React, { type PropsWithChildren, type ReactNode } from 'react';

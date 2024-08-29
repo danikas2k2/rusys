@@ -5,9 +5,10 @@ import { Button, ButtonGroup } from '@ui/Button';
 import React from 'react';
 
 export const colors = ['neutral', 'primary', 'secondary', 'positive', 'warning', 'negative'];
-export const variants = ['solid', 'soft', 'outline', 'plain'];
+export const variants = ['solid', 'soft', 'outlined', 'plain'];
 export const sizes = ['small', 'medium', 'large'];
 export const spacing = ['small', 'medium', 'large', 'half', 'none'];
+export const states = ['default', 'active', 'hover', 'focus'];
 
 # Button
 
@@ -63,9 +64,13 @@ import { Button } from '@ui/Button';
                 </th>
                 {colors.map((color, c) => (
                     <td key={c}>
-                        <Button variant={variant} color={color}>
-                            Content
-                        </Button>
+                        {states.map((state, s) => (
+                            <div style={{ padding: 1 }}>
+                                <Button variant={variant} color={color} state={state}>
+                                    {state}
+                                </Button>
+                            </div>
+                        ))}
                     </td>
                 ))}
             </tr>
@@ -145,6 +150,8 @@ import { Button } from '@ui/Button';
 
 ## With icon
 
+### Inline content
+
 ```tsx
 <Button>
     <MenuIcon />
@@ -164,17 +171,130 @@ import { Button } from '@ui/Button';
         </tr>
     </thead>
     <tbody>
+        {spacing.map((sp, x) => (
+            <tr key={x}>
+                <th>
+                    <code data-default={!x}>{sp}</code>
+                </th>
+                {sizes.map((size, s) => (
+                    <td key={s}>
+                        <Button size={size} spacing={sp}>
+                            <MenuIcon />
+                            <span>Menu</span>
+                        </Button>
+                    </td>
+                ))}
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+### Icon decorator
+
+```tsx
+<Button startDecorator={<MenuIcon />}>Menu</Button>
+```
+
+<table>
+    <thead>
         <tr>
             <th></th>
             {sizes.map((size, s) => (
-                <td key={s}>
-                    <Button size={size}>
-                        <MenuIcon />
-                        <span>Menu</span>
-                    </Button>
-                </td>
+                <th key={s}>
+                    <code data-default={!s}>{size}</code>
+                </th>
             ))}
         </tr>
+    </thead>
+    <tbody>
+        {spacing.map((sp, x) => (
+            <tr key={x}>
+                <th>
+                    <code data-default={!x}>{sp}</code>
+                </th>
+                {sizes.map((size, s) => (
+                    <td key={s}>
+                        <Button size={size} spacing={sp} startDecorator={<MenuIcon />}>
+                            <span>Menu</span>
+                        </Button>
+                    </td>
+                ))}
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+## Icon only
+
+### Inline content
+
+```tsx
+<Button>
+    <MenuIcon />
+</Button>
+```
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {sizes.map((size, s) => (
+                <th key={s}>
+                    <code data-default={!s}>{size}</code>
+                </th>
+            ))}
+        </tr>
+    </thead>
+    <tbody>
+        {spacing.map((sp, x) => (
+            <tr key={x}>
+                <th>
+                    <code data-default={!x}>{sp}</code>
+                </th>
+                {sizes.map((size, s) => (
+                    <td key={s}>
+                        <Button size={size} spacing={sp}>
+                            <MenuIcon />
+                        </Button>
+                    </td>
+                ))}
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+### Icon decorator
+
+```tsx
+<Button startDecorator={<MenuIcon />} />
+<Button endDecorator={<MenuIcon />} />
+```
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {sizes.map((size, s) => (
+                <th key={s}>
+                    <code data-default={!s}>{size}</code>
+                </th>
+            ))}
+        </tr>
+    </thead>
+    <tbody>
+        {spacing.map((sp, x) => (
+            <tr key={x}>
+                <th>
+                    <code data-default={!x}>{sp}</code>
+                </th>
+                {sizes.map((size, s) => (
+                    <td key={s}>
+                        <Button size={size} spacing={sp} startDecorator={<MenuIcon />} />
+                        <Button size={size} spacing={sp} endDecorator={<MenuIcon />} />
+                    </td>
+                ))}
+            </tr>
+        ))}
     </tbody>
 </table>
 

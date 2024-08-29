@@ -1,22 +1,24 @@
+import AddIcon from '@icons/Add.svg';
 import CancelIcon from '@icons/Cancel.svg';
 import CloseIcon from '@icons/Close.svg';
-import DeleteIcon from '@icons/Delete.svg';
 import DoneIcon from '@icons/Done.svg';
-import { Button } from '@ui/Button';
-import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
+import MoveIcon from '@icons/MoveItem.svg';
+import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-import { IconButton } from '@ui/IconButton';
+import { useFocusRef } from '@ui/hooks/useFocusRef';
 import { Input } from '@ui/Input';
-import { LabeledInput } from '@ui/LabeledInput';
+import { Option, Select } from '@ui/Select';
+import { isEmpty } from 'lodash';
 import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
-import { WithOnClose } from '~/client/common/WithOnClose';
+import { Label } from '~/client/common/Label';
+import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useNameMatch } from '~/client/hooks/useNameMatch';
-import { Label } from '~/client/common/Label';
 import { useAddDetails } from '~/state/details/useAddDetails';
-import { useDeleteDetails } from '~/state/details/useDeleteDetails';
+import { useMoveDetails } from '~/state/details/useMoveDetails';
 import { useRenameDetails } from '~/state/details/useRenameDetails';
+import { useGroups } from '~/state/groups/useGroups';
 import { getErrorMessage } from '~/utils/errors';
 import cx from './DetailsBox.less';
 
@@ -27,71 +29,89 @@ interface DetailsBoxProps extends WithOnClose {
 }
 
 const PLACEHOLDER = 'Please enter a name';
-const ALREADY_EXISTS = 'This name already exists';
+const ERROR_GROUP_MISSING = 'Group is required';
+const ERROR_NAME_MISSING = 'Name is required';
+const ERROR_EXISTS = 'This name already exists';
 
-export function DetailsBox({ group = '', name: initialName = '', onClose }: DetailsBoxProps) {
-    const [name, setName] = useState<string>(initialName);
+export function DetailsBox({ group: initialGroup = '', name: initialName = '', onClose }: DetailsBoxProps) {
     const [updating, setUpdating] = useState(false);
-    const [error, setError] = useState<string>();
+    const [group, setGroup] = useState<string>(initialGroup);
+    const [name, setName] = useState<string>(initialName);
+    const [errors, setErrors] = useState<Record<string, string>>();
 
     useEffect(() => {
-        setError(undefined);
-    }, [name]);
+        setErrors(undefined);
+    }, [group, name]);
 
-    const hasName = useNameMatch(group, name) && name !== initialName && !updating;
+    const groups = useGroups()?.map((v) => v.group) ?? [];
+    const hasSameName = useNameMatch(group, name);
+    const detailsMoved = group !== initialGroup;
+    const detailsRenamed = name !== initialName;
+    const hasName = hasSameName && (detailsMoved || detailsRenamed) && !updating;
     useEffect(() => {
-        if (hasName && !error) {
-            setError(ALREADY_EXISTS);
+        if (hasName && isEmpty(errors)) {
+            setErrors({ '': ERROR_EXISTS });
         }
-    }, [hasName, error]);
+    }, [hasName, errors]);
 
-    const focusRef = useAutoFocus<HTMLInputElement>();
+    const groupRef = useFocusRef<HTMLInputElement>();
+    const nameRef = useAutoFocus<HTMLInputElement>();
 
     const addDetails = useAddDetails();
+    const moveDetails = useMoveDetails();
     const renameDetails = useRenameDetails();
     const handleUpdate = useCallback(async (): Promise<void> => {
-        if (!name) {
-            setError(PLACEHOLDER);
-            focusRef?.focus();
-        } else if (hasName) {
-            focusRef?.focus();
-        } else {
-            try {
-                setUpdating(true);
-                if (initialName) {
-                    if (name !== initialName) {
-                        await renameDetails(group, initialName, name);
-                    }
-                } else {
-                    await addDetails(group, name);
-                }
-                onClose(group, name);
-            } catch (error) {
-                setError(getErrorMessage(error));
-                focusRef?.focus();
-            } finally {
-                setUpdating(false);
-            }
+        let focusRef = nameRef;
+        const newErrors: Record<string, string> = {};
+        if (!group) {
+            newErrors.group = ERROR_GROUP_MISSING;
+            focusRef = groupRef;
         }
-    }, [addDetails, focusRef, group, hasName, initialName, name, onClose, renameDetails]);
-
-    const removeDetails = useDeleteDetails();
-    const handleRemove = useCallback(async (): Promise<void> => {
+        if (!name) {
+            newErrors.name = ERROR_NAME_MISSING;
+        }
+        if (!isEmpty(newErrors)) {
+            setErrors(newErrors);
+        }
+        if (!isEmpty(newErrors) || hasName) {
+            focusRef?.focus();
+            return;
+        }
         try {
             setUpdating(true);
-            await removeDetails(group, initialName);
-            onClose(group, initialName);
-        } catch (error) {
-            setError(getErrorMessage(error));
-            focusRef?.focus();
+            if (initialName) {
+                if (detailsMoved) {
+                    await moveDetails(initialGroup, initialName, group, name);
+                } else if (detailsRenamed) {
+                    await renameDetails(initialGroup, initialName, name);
+                }
+            } else {
+                await addDetails(initialGroup, name);
+            }
+            onClose(group, name);
+        } catch (e) {
+            setErrors({ '': getErrorMessage(e) });
+            nameRef?.focus();
         } finally {
             setUpdating(false);
         }
-    }, [focusRef, group, initialName, onClose, removeDetails]);
+    }, [
+        nameRef,
+        group,
+        name,
+        hasName,
+        groupRef,
+        initialName,
+        onClose,
+        detailsMoved,
+        detailsRenamed,
+        moveDetails,
+        initialGroup,
+        renameDetails,
+        addDetails,
+    ]);
 
-    const handleClose = useCallback((): void => {
-        onClose();
-    }, [onClose]);
+    const handleClose = useCallback((): void => onClose(), [onClose]);
 
     const handleInput = useCallback((e: FormEvent<HTMLInputElement>) => setName(e.currentTarget.value), []);
 
@@ -105,14 +125,12 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
     );
 
     const closeLabel = useLabel('Close');
-    const errorLabel = useLabel(error ?? '');
+    const errorLabel = useLabel(errors?.[''] ?? '');
+    const groupLabel = useLabel('Group');
     const titleLabel = useLabel('Title');
     return (
         <Dialog className={cx('DetailsBox')} open onClose={handleClose}>
             <header>
-                <div className={cx('group')}>
-                    <Label>{group}</Label>
-                </div>
                 <div className={cx('title')}>
                     <Label>{initialName ? 'Update entry' : 'Add new entry'}</Label>
                 </div>
@@ -123,11 +141,25 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
                 </div>
             </header>
             <main>
-                <LabeledInput
-                    ref={focusRef}
+                <Select
+                    ref={groupRef}
                     fullWidth
-                    color={error ? 'negative' : 'primary'}
-                    error={error && error !== PLACEHOLDER ? errorLabel : undefined}
+                    size="large"
+                    value={group}
+                    label={groupLabel}
+                    onChange={(value) => setGroup(value as string)}
+                >
+                    {groups.map((g) => (
+                        <Option key={g} value={g}>
+                            {g}
+                        </Option>
+                    ))}
+                </Select>
+                <Input
+                    ref={nameRef}
+                    fullWidth
+                    color={errors?.[''] || errors?.name ? 'negative' : 'primary'}
+                    error={errors?.[''] ? errorLabel : undefined}
                     size="large"
                     value={name}
                     label={titleLabel}
@@ -137,27 +169,33 @@ export function DetailsBox({ group = '', name: initialName = '', onClose }: Deta
                 />
             </main>
             <footer>
-                {initialName && (
-                    <>
-                        <ButtonWithConfirmation
-                            variant="outlined"
-                            color="negative"
-                            startDecorator={<DeleteIcon />}
-                            dialogHeader={<Label>Sure to remove?</Label>}
-                            onClick={handleRemove}
-                        >
-                            <Label>Remove</Label>
-                        </ButtonWithConfirmation>
-                        <div className={cx('spacer')} />
-                    </>
-                )}
-                <Button variant="outlined" onClick={handleClose} startDecorator={<CancelIcon />}>
+                <Button variant="outlined" startDecorator={<CancelIcon />} onClick={handleClose}>
                     <Label>Cancel</Label>
                 </Button>
-                <Button variant="solid" color="primary" onClick={handleUpdate} startDecorator={<DoneIcon />}>
-                    <Label>{initialName ? 'Update' : 'Add'}</Label>
+                <Button variant="solid" color="primary" startDecorator={getButtonDecorator()} onClick={handleUpdate}>
+                    <Label>{getButtonLabel()}</Label>
                 </Button>
             </footer>
         </Dialog>
     );
+
+    function getButtonLabel() {
+        if (detailsMoved) {
+            return 'Move';
+        }
+        if (initialName) {
+            return 'Update';
+        }
+        return 'Add';
+    }
+
+    function getButtonDecorator() {
+        if (detailsMoved) {
+            return <MoveIcon />;
+        }
+        if (initialName) {
+            return <DoneIcon />;
+        }
+        return <AddIcon />;
+    }
 }

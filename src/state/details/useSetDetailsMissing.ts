@@ -9,8 +9,10 @@ export function useSetDetailsMissing(): (group: string, name: string, missing: b
     const request = useUpdatingApiRequest<ApiSetMissing>();
     return useCallback(
         async (group: string, name: string, missing: boolean): Promise<void> => {
-            dispatch(setDetailsMissingAction(group, name, missing));
-            return request(ApiUrl.DetailsSetMissing, { group, name, missing });
+            if (group && name) {
+                await request(ApiUrl.DetailsSetMissing, { group, name, missing });
+                dispatch(setDetailsMissingAction(group, name, missing));
+            }
         },
         [request, dispatch]
     );

@@ -1,12 +1,12 @@
 import React from 'react';
+import { Page } from '~/client/common/Page';
 import { DetailsTable } from '~/client/details/DetailsTable';
-import { Toolbar } from '~/client/toolbar/Toolbar';
+import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
 
 export function DetailsPage() {
     return (
-        <>
-            <Toolbar />
+        <Page toolbar={<ToolbarGroupFilter />}>
             <DetailsTable />
-        </>
+        </Page>
     );
 }

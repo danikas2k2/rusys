@@ -1,5 +1,6 @@
 import CheckIcon from '@icons/Check.svg';
 import CheckIndeterminateIcon from '@icons/CheckIndeterminate.svg';
+import { uniqueId } from '@ui/utils/uniqueId';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { type CommonInputProps, type InputColor, type InputSize, type InputVariant } from '@ui/Input';
 import React, {
@@ -12,7 +13,6 @@ import React, {
     useState,
 } from 'react';
 import cx from './Checkbox.less';
-import { useUniqueId } from './hooks/useUniqueId';
 
 export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {
     variant?: InputVariant;
@@ -23,7 +23,7 @@ export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {
 
 export const Checkbox = forwardRef(function Checkbox(
     {
-        id = useUniqueId('checkbox'),
+        id = uniqueId('checkbox'),
         color = 'neutral',
         variant = 'outlined',
         size = 'medium',

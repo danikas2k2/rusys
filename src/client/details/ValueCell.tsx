@@ -2,11 +2,10 @@ import { useLongPress } from '@ui/hooks/useLongPress';
 import { isEqual } from 'lodash';
 import React, { useCallback, useState } from 'react';
 import { ValueBox } from '~/client/details/dialogs/ValueBox';
+import { ValueAmounts } from '~/client/details/ValueAmounts';
 import { Cell } from '~/client/table/Cell';
-import { ValueVariant } from '~/client/ValueVariant';
 import { type VariantAmount } from '~/common/types';
 import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
-import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
 import cx from './ValueCell.less';
 
 export interface ValueCellProps {
@@ -36,31 +35,20 @@ export function ValueCell({ group, name, year, amounts, removing, last, onChange
     const handleShortPress = editing ? undefined : handleOpen;
 
     const setRemoving = useSetDetailsRemoving();
+    // TODO add setRemoving to edit dialog
     const handleLongPress = useCallback((): void => {
         void setRemoving(group, name, year, !removing);
         navigator?.vibrate?.(200);
     }, [setRemoving, group, name, year, removing]);
     const longPress = useLongPress<HTMLDivElement>(handleLongPress, handleShortPress);
     const empty = !amounts?.length;
-    const compareVariants = useGroupVariantComparator(group);
     return (
         <>
             <Cell
                 className={cx('ValueCell', { empty, last, removing })}
                 {...(empty ? { onClick: handleShortPress, onContextMenu: longPress.onContextMenu } : { ...longPress })}
             >
-                {empty
-                    ? '.'
-                    : [...amounts]
-                          .sort((a, b) => compareVariants(a.variant, b.variant))
-                          .map((v) => (
-                              <span className={cx('value')} key={v.variant}>
-                                  {v.amount}
-                                  <sub>
-                                      <ValueVariant group={group} variant={v.variant} />
-                                  </sub>
-                              </span>
-                          ))}
+                {empty ? '.' : <ValueAmounts group={group} amounts={amounts} />}
             </Cell>
             {editing && <ValueBox group={group} name={name} year={year} amounts={amounts} onClose={handleClose} />}
         </>

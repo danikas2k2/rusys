@@ -42,6 +42,7 @@ export interface Variant {
     order: number;
     long?: string;
     short?: string;
+    used?: boolean;
 }
 
 export interface UpdateVariant {

@@ -1,7 +1,6 @@
 import GoogleIcon from '@icons/Google.svg';
 import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
-import { type ButtonProps } from '@ui/Button';
-import { IconButton } from '@ui/IconButton';
+import { type ButtonProps, IconButton } from '@ui/Button';
 import React, { useCallback, useMemo } from 'react';
 import { Label } from '~/client/common/Label';
 import { useLoginError } from '~/client/user/hooks/useLoginError';

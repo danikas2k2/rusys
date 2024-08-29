@@ -36,14 +36,15 @@ export const enum ApiUrl {
     Groups = '/groups',
     GroupsUpdate = '/groups/update',
     GroupsReorder = '/groups/reorder',
-    GroupsSwitch = '/groups/switch',
     GroupsRename = '/groups/rename',
     GroupsDelete = '/groups/delete',
 
     // Variants
     Variants = '/variants',
     VariantsUpdate = '/variants/update',
+    VariantsReorder = '/variants/reorder',
     VariantsRename = '/variants/rename',
+    VariantsCopy = '/variants/copy',
     VariantsDelete = '/variants/delete',
 }
 
@@ -72,6 +73,7 @@ export interface ApiRequestDetails {
 
 export interface ApiMoveDetails extends ApiRequestDetails {
     newGroup: string;
+    newName?: string;
 }
 
 export interface ApiRenameDetails extends ApiRequestDetails {
@@ -142,6 +144,16 @@ export interface ApiUpdateVariant extends ApiRequestVariant {
     short?: string;
 }
 
-export interface ApiRenameVariant extends ApiRequestVariant {
+export interface ApiRenameVariant extends ApiUpdateVariant {
     newVariant: string;
+}
+
+export interface ApiCopyVariant extends ApiUpdateVariant {
+    newGroup: string;
+    newVariant?: string;
+}
+
+export interface ApiReorderVariants {
+    group: string;
+    variants: Readonly<Record<string, number>>;
 }

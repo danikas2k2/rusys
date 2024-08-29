@@ -1,7 +1,7 @@
 import MenuIcon from '@icons/Menu.svg';
+import { IconButton } from '@ui/Button';
 import { ColorSchemeToggle } from '@ui/ColorSchemeToggle';
 import type { DropdownRef } from '@ui/Dropdown';
-import { IconButton } from '@ui/IconButton';
 import { Menu } from '@ui/Menu';
 import { MenuDivider } from '@ui/MenuDivider';
 import { MenuItem } from '@ui/MenuItem';

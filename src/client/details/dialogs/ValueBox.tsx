@@ -1,8 +1,7 @@
 import CloseIcon from '@icons/Close.svg';
 import ExpandDownIcon from '@icons/ExpandDown.svg';
-import { Button, ButtonGroup } from '@ui/Button';
+import { Button, ButtonGroup, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
-import { IconButton } from '@ui/IconButton';
 import { isEqual } from 'lodash';
 import React, {
     createRef,
@@ -124,8 +123,9 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
     const expandLabel = useLabel('Expand');
     return (
         <Dialog
-            className={cx('ValueBox', { fullScreen: expanded })}
+            className={cx('ValueBox')}
             open
+            fullscreen={expanded}
             closeOnOutsideClick
             closeOnEscape
             onClose={handleClose}

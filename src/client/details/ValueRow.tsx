@@ -1,10 +1,11 @@
 import { Checkbox } from '@ui/Checkbox';
+import { Interactive } from '@ui/Interactive';
 import { isEmpty } from 'lodash';
-import React, { useCallback } from 'react';
+import React, { type ForwardedRef, forwardRef, useCallback } from 'react';
+import { DetailsControls } from '~/client/details/DetailsControls';
 import { ValueCell } from '~/client/details/ValueCell';
-import { InteractiveName } from '~/client/InteractiveName';
 import { Cell } from '~/client/table/Cell';
-import { Row } from '~/client/table/Row';
+import { RowWithSlideControls } from '~/client/table/RowWithSlideControls';
 import { type RemovingYearAmounts, type VariantAmount } from '~/common/types';
 import { useHasRemoving } from '~/state/details/useHasRemoving';
 import { useSetDetailsAmounts } from '~/state/details/useSetDetailsAmounts';
@@ -19,9 +20,17 @@ export interface ValueRowProps {
     name: string;
     amounts?: ReadonlyArray<RemovingYearAmounts>;
     missing?: boolean;
+    active?: boolean;
+    onStart?: (name: string) => void;
+    onStop?: () => void;
+    onPin?: (hide?: boolean) => void;
+    onUnpin?: (hide?: boolean) => void;
 }
 
-export function ValueRow({ className, group, name, amounts, missing }: ValueRowProps) {
+export const ValueRow = forwardRef(function ValueRow(
+    { className, group, name, amounts, missing, active, onStart, onStop, onPin, onUnpin }: ValueRowProps,
+    ref: ForwardedRef<HTMLDivElement>
+) {
     const labelId = `checkbox-${group}-${name}`;
     const available = !isEmpty(amounts);
 
@@ -33,6 +42,7 @@ export function ValueRow({ className, group, name, amounts, missing }: ValueRowP
     const setAmounts = useSetDetailsAmounts();
     const setMissing = useSetDetailsMissing();
     const setRemoving = useSetDetailsRemoving();
+
     const handleValue = useCallback(
         async (
             group: string,
@@ -41,9 +51,13 @@ export function ValueRow({ className, group, name, amounts, missing }: ValueRowP
             amounts?: ReadonlyArray<VariantAmount>,
             withoutHistory = false
         ): Promise<void> => {
+            // TODO optimize to send single request for `removing` and `missing` flags with `amounts`
+            if (!amounts?.length) {
+                await setRemoving(group, name, year, false);
+            }
             await setAmounts(group, name, year, amounts, withoutHistory);
-            await setRemoving(group, name, year, false);
             if (!withoutHistory) {
+                // TODO set missing=false only when any amount is decreased
                 await setMissing(group, name, false);
             }
         },
@@ -51,6 +65,7 @@ export function ValueRow({ className, group, name, amounts, missing }: ValueRowP
     );
 
     const handleClick = useCallback(async (): Promise<void> => {
+        onUnpin?.(true);
         if (available) {
             await setMissing(group, name, !missing);
         }
@@ -58,16 +73,26 @@ export function ValueRow({ className, group, name, amounts, missing }: ValueRowP
 
     const handleChange = useCallback(
         (year: number) =>
-            useCallback(
-                (amounts?: ReadonlyArray<VariantAmount>, withoutHistory = false) =>
-                    handleValue(group, name, year, amounts, withoutHistory),
-                [year]
-            ),
+            (amounts?: ReadonlyArray<VariantAmount>, withoutHistory = false) =>
+                handleValue(group, name, year, amounts, withoutHistory),
         [group, handleValue, name]
     );
 
+    const handleStart = useCallback(() => onStart?.(name), [onStart, name]);
+
+    const handleStop = useCallback(() => onStop?.(), [onStop]);
+
     return (
-        <Row key={name} className={className} aria-checked={!missing}>
+        <RowWithSlideControls
+            ref={active ? ref : undefined}
+            className={className}
+            aria-checked={!missing}
+            onStart={handleStart}
+            onStop={handleStop}
+            controls={
+                active ? <DetailsControls group={group} name={name} onPin={onPin} onUnpin={onUnpin} /> : undefined
+            }
+        >
             <Cell>
                 <Checkbox
                     color="primary"
@@ -79,7 +104,26 @@ export function ValueRow({ className, group, name, amounts, missing }: ValueRowP
                 />
             </Cell>
             <Cell id={labelId} className={cx('name', { unavailable: !available, removing: available && removing })}>
-                <InteractiveName name={name} onClick={handleClick} />
+                <Interactive onClick={handleClick}>{name}</Interactive>
+                {/*<ValueAmounts
+                    className={cx('total')}
+                    group={group}
+                    amounts={amounts?.reduce<VariantAmount[]>(
+                        (res, { year, amounts, removing }) =>
+                            removing || !years.includes(year)
+                                ? res
+                                : amounts.reduce<VariantAmount[]>(
+                                      (res, y) =>
+                                          !res.find((r) => r.variant === y.variant)
+                                              ? [...res, y]
+                                              : res.map((r) =>
+                                                    r.variant === y.variant ? { ...r, amount: r.amount + y.amount } : r
+                                                ),
+                                      res
+                                  ),
+                        []
+                    )}
+                />*/}
             </Cell>
             {years
                 .map((year) => amounts?.find((v) => v.year === year) ?? ({ year } as RemovingYearAmounts))
@@ -95,6 +139,6 @@ export function ValueRow({ className, group, name, amounts, missing }: ValueRowP
                         onChange={handleChange(year)}
                     />
                 ))}
-        </Row>
+        </RowWithSlideControls>
     );
-}
+});

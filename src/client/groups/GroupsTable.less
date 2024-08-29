@@ -2,27 +2,24 @@
 
 .Table {
     position: absolute;
-    inset: calc(var(--toolbar-height) + 3rem) 0 0;
-    grid-template-rows: 1fr;
+    inset: var(--toolbar-height) 0 0;
 }
 
 .SortableRows {
     position: relative;
     margin-block-start: 2px;
+    touch-action: none;
 }
 
 .Row {
     grid-template-columns: 40px 1fr;
+    padding: 0.5rem 0;
     background-color: var(--color-background-body);
     overflow: hidden;
 }
 
 .Name {
-    font-weight: var(--font-weight-xl);
-    font-size: var(--font-size-xl);
-    line-height: var(--line-height-xl);
-    width: 100%;
-    margin: 0.25rem 0.5rem 0.25rem 0;
     justify-self: stretch;
-    background-color: var(--color-background-body);
+    font-weight: var(--font-weight-xl);
+    line-height: var(--line-height-xl);
 }

@@ -44,7 +44,7 @@ export async function updateGroup(group: string, order?: number, session?: Clien
         : groupCollection
               .aggregate([{ $group: { _id: null, order: { $max: '$order' } } }], { session })
               .next()
-              .then(({ order }) => groupCollection.insertOne({ group, order: order + 1 }, { session }))
+              .then((found) => groupCollection.insertOne({ group, order: found ? found.order + 1 : 0 }, { session }))
               .then(hasEffect);
 }
 
@@ -65,34 +65,6 @@ export async function reorderGroups(
             entries.map(([group, order]) => ({
                 updateOne: { filter: { group }, update: { $set: { order } } },
             })),
-            { session }
-        )
-        .then(hasEffect);
-}
-
-export async function switchGroups(group: string, oppositeGroup: string, session?: ClientSession): Promise<boolean> {
-    if (!group || !oppositeGroup) {
-        return false;
-    }
-    console.info('switchGroups', { group, oppositeGroup });
-    const col = await getGroupsCollection();
-    const order = (await col.findOne({ group }, { projection: { _id: 0, order: 1 }, session }))?.order;
-    console.info({ order });
-    if (order == null) {
-        return false;
-    }
-    const oppositeOrder = (await col.findOne({ group: oppositeGroup }, { projection: { _id: 0, order: 1 }, session }))
-        ?.order;
-    console.info({ oppositeOrder });
-    if (oppositeOrder == null) {
-        return false;
-    }
-    return col
-        .bulkWrite(
-            [
-                { updateOne: { filter: { group }, update: { $set: { order: oppositeOrder } } } },
-                { updateOne: { filter: { group: oppositeGroup }, update: { $set: { order } } } },
-            ],
             { session }
         )
         .then(hasEffect);

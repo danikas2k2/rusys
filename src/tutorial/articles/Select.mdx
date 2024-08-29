@@ -1,0 +1,204 @@
+import AddIcon from '@icons/Add.svg';
+import RemoveIcon from '@icons/Remove.svg';
+import { Button, ButtonGroup } from '@ui/Button';
+import { Option, Select } from '@ui/Select';
+import React from 'react';
+
+export const colors = ['neutral', 'primary', 'secondary', 'positive', 'warning', 'negative'];
+export const variants = ['outlined', 'plain', 'soft', 'solid'];
+export const sizes = ['small', 'medium', 'large'];
+export const spacing = ['small', 'medium', 'large', 'half', 'none'];
+export const modes = ['single', 'multiple'];
+
+# Select
+
+```tsx
+import { Select } from '@ui/Select';
+
+<Select
+    variant="outlined"
+    color="neutral"
+    size="small"
+    spacing="small"
+    mode="single"
+    value=""
+    placeholder="Select something"
+    disabled={false}
+    fullWidth={false}
+    // ...
+    // any other valid html attributes, applied to the HTMLInputElement
+/>;
+```
+
+| Property      | Type                                                                               | Default        | Description                                                          |
+| :------------ | :--------------------------------------------------------------------------------- | :------------- | :------------------------------------------------------------------- |
+| `variant`     | _`"solid"`, `"soft"`, `"outlined"`, `"plain"`_                                     | _`"outlined"`_ | The variant of the select.                                           |
+| `color`       | _`"primary"`, `"secondary"`, `"neutral"`, `"positive"`, `"warning"`, `"negative"`_ | _`"neutral"`_  | The color of the select.                                             |
+| `size`        | _`"small"`, `"medium"`, `"large"`_                                                 | _`"small"`_    | The size of the select.                                              |
+| `spacing`     | _`"small"`, `"medium"`, `"large"`_                                                 | _`"small"`_    | The spacing of the select.                                           |
+| `mode`        | _`"single"`, `"multiple"`_                                                         | _`"single"`_   | The mode of the select.                                              |
+| `value`       | `string`, `number`                                                                 | -              | The value of the select.                                             |
+| `placeholder` | `string`, `number`                                                                 | -              | The placeholder of the select.                                       |
+| `disabled`    | `boolean`                                                                          | `false`        | Whether the input is disabled.                                       |
+| `fullWidth`   | `boolean`                                                                          | `false`        | Whether the input is full width.                                     |
+| `label`       | `string`                                                                           | -              | The label input.                                                     |
+| `placeholder` | `string`                                                                           | -              | The placeholder of the select, label is used if placeholder omitted. |
+| `error`       | `boolean`                                                                          | `false`        | Whether the input has error.                                         |
+| `errorLabel`  | `string`                                                                           | -              | The friendly error label.                                            |
+
+export const options = [
+    <Option value={10}>Ten</Option>,
+    <Option value={20}>Twenty</Option>,
+    <Option value={30}>Thirty</Option>,
+];
+
+## Single, no selected value
+
+<Select label="Number" onChange={console.info}>
+    {options}
+</Select>
+
+## Single, with selected value
+
+<Select label="Number" value={20} onChange={console.info}>
+    {options}
+</Select>
+
+## Colors / Variants
+
+```tsx
+<Select color="primary" variant="outlined" />
+```
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {colors.map((color, c) => (
+                <th key={c}>
+                    <code data-default={!c}>{color}</code>
+                </th>
+            ))}
+        </tr>
+    </thead>
+    <tbody>
+        {variants.map((variant, v) => (
+            <tr key={v}>
+                <th>
+                    <code data-default={!v}>{variant}</code>
+                </th>
+                {colors.map((color, c) => (
+                    <td key={c}>
+                        <Select variant={variant} color={color} label="Select">
+                            {options}
+                        </Select>
+                    </td>
+                ))}
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+## Sizes / Spacing
+
+```tsx
+<LabeledInput size="medium" spacing="large" value="Value" />
+```
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {sizes.map((size, s) => (
+                <th key={s}>
+                    <code data-default={!s}>{size}</code>
+                </th>
+            ))}
+        </tr>
+    </thead>
+    <tbody>
+        {spacing.map((sp, x) => (
+            <tr key={x}>
+                <th>
+                    <code data-default={!x}>{sp}</code>
+                </th>
+                {sizes.map((size, s) => (
+                    <td key={s}>
+                        <Select size={size} spacing={sp} label="Select">
+                            {options}
+                        </Select>
+                    </td>
+                ))}
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+## With decorators
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            {sizes.map((size, s) => (
+                <th key={s}>
+                    <code data-default={!s}>{size}</code>
+                </th>
+            ))}
+        </tr>
+    </thead>
+    <tbody>
+        {spacing.map((sp, x) => (
+            <tr key={x}>
+                <th>
+                    <code data-default={!x}>{sp}</code>
+                </th>
+                {sizes.map((size, s) => (
+                    <td key={s}>
+                        <Select
+                            size={size}
+                            spacing={sp}
+                            label="Select"
+                            startDecorator="$"
+                            endDecorator={
+                                <ButtonGroup>
+                                    <Button size={size} spacing={sp}>
+                                        <AddIcon />
+                                    </Button>
+                                    <Button size={size} spacing={sp}>
+                                        <RemoveIcon />
+                                    </Button>
+                                </ButtonGroup>
+                            }
+                        >
+                            {options}
+                        </Select>
+                    </td>
+                ))}
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+## Full width
+
+<table>
+    <tbody>
+        <tr>
+            <th></th>
+            <td>
+                <Select label="Select">{options}</Select>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                <code>fullWidth</code>
+            </th>
+            <td>
+                <Select fullWidth label="Select">
+                    {options}
+                </Select>
+            </td>
+        </tr>
+    </tbody>
+</table>

@@ -1,10 +1,12 @@
 import { useOutsideClick } from '@ui/hooks/useOutsideClick';
 import { isEmpty, isEqual } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Label } from '~/client/common/Label';
 import { GroupControls } from '~/client/groups/GroupControls';
 import { Cell } from '~/client/table/Cell';
 import { DragHandle } from '~/client/table/DragHandle';
 import { LoadingContent } from '~/client/table/LoadingContent';
+import { Row } from '~/client/table/Row';
 import { SortableRow } from '~/client/table/SortableRow';
 import { Table } from '~/client/table/Table';
 import { getChangedIndexes } from '~/client/utils/getChangedIndexes';
@@ -32,7 +34,38 @@ export function GroupsTable() {
         setGroupOrder(initialOrder);
     }, [initialOrder]);
 
+    const reorderGroups = useReorderGroups();
+    const handleReorder = useCallback(
+        (order: string[]) => reorderGroups(getChangedIndexes(initialOrder, order)),
+        [initialOrder, reorderGroups]
+    );
+
     const [activeGroup, setActiveGroup] = useState<string>();
+    const setInactive = useCallback(() => setActiveGroup(undefined), []);
+
+    const [pinned, setPinned] = useState(false);
+    const onPin = useCallback(
+        (hide = false) => {
+            if (hide) {
+                setInactive();
+            }
+            setPinned(true);
+        },
+        [setInactive]
+    );
+    const onUnpin = useCallback(
+        (hide = false) => {
+            if (hide) {
+                setInactive();
+            }
+            setPinned(false);
+        },
+        [setInactive]
+    );
+
+    const ref = useRef<HTMLDivElement>(null);
+    useOutsideClick(pinned ? { current: null } : ref, setInactive);
+
     const onStart = useCallback(
         (group: string) => {
             if (activeGroup !== group) {
@@ -42,32 +75,11 @@ export function GroupsTable() {
         [activeGroup]
     );
 
-    const ref = useRef<HTMLDivElement>(null);
-
-    const [pinned, setPinned] = useState(false);
-    const onPin = useCallback((hide = false) => {
-        console.info('pin', hide);
-        if (hide) {
-            setActiveGroup(undefined);
+    const onStop = useCallback(() => {
+        if (!isEqual(groupOrder, groups)) {
+            void handleReorder(groupOrder);
         }
-        setPinned(true);
-    }, []);
-    const onUnpin = useCallback((hide = false) => {
-        console.info('unpin', hide);
-        if (hide) {
-            setActiveGroup(undefined);
-        }
-        setPinned(false);
-    }, []);
-
-    useOutsideClick(pinned ? { current: null } : ref, () => setActiveGroup(undefined));
-
-    const reorderGroups = useReorderGroups();
-    const onStop = useCallback(async () => {
-        if (!isEqual(groupOrder, initialOrder)) {
-            await reorderGroups(getChangedIndexes(initialOrder, groupOrder));
-        }
-    }, [groupOrder, initialOrder, reorderGroups]);
+    }, [groupOrder, groups, handleReorder]);
 
     const onMove = useCallback(() => {
         if (!activeGroup) {
@@ -87,29 +99,38 @@ export function GroupsTable() {
 
     return (
         <LoadingContent loader={getGroups} hasData={!isEmpty(groups)}>
-            <Table className={cx('Table')}>
+            <Table
+                className={cx('Table')}
+                header={
+                    <Row className={cx('Row', 'HeadRow')}>
+                        <Cell />
+                        <Cell key="name" role="columnheader" className={cx('Name')}>
+                            <Label>Group</Label>
+                        </Cell>
+                    </Row>
+                }
+            >
                 <div className={cx('SortableRows')}>
-                    {groupOrder.map((group, i) => (
-                        <SortableRow
-                            key={group}
-                            index={i}
-                            ref={activeGroup === group ? ref : undefined}
-                            className={cx('Row')}
-                            onStart={() => onStart(group)}
-                            onStop={onStop}
-                            onMove={onMove}
-                            handler={<DragHandle />}
-                            controls={
-                                activeGroup === group ? (
-                                    <GroupControls group={group} onPin={onPin} onUnpin={onUnpin} />
-                                ) : undefined
-                            }
-                        >
-                            <Cell key="name" className={cx('Name')}>
-                                {group}
-                            </Cell>
-                        </SortableRow>
-                    ))}
+                    {groupOrder.map((group, i) => {
+                        const active = activeGroup === group;
+                        return (
+                            <SortableRow
+                                key={group}
+                                index={i}
+                                ref={active ? ref : undefined}
+                                className={cx('Row')}
+                                handle={<DragHandle onPointerDown={setInactive} />}
+                                controls={active && <GroupControls group={group} onPin={onPin} onUnpin={onUnpin} />}
+                                onStart={() => onStart(group)}
+                                onStop={onStop}
+                                onMove={onMove}
+                            >
+                                <Cell key="name" className={cx('Name')}>
+                                    {group}
+                                </Cell>
+                            </SortableRow>
+                        );
+                    })}
                 </div>
             </Table>
         </LoadingContent>

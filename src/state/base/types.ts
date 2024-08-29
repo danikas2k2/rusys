@@ -1,6 +1,7 @@
 import { type WithDetailsState } from '~/state/details/types';
 import { type WithFilterState } from '~/state/filter/types';
 import { type WithGoogleState } from '~/state/google/types';
+import { type WithGroupState } from '~/state/group/types';
 import { type WithGroupsState } from '~/state/groups/types';
 import { type WithLocaleState } from '~/state/locale/types';
 import { type WithProfileState } from '~/state/profile/types';
@@ -11,6 +12,7 @@ import { type WithYearsState } from '~/state/years/types';
 export interface BaseState
     extends WithDetailsState,
         WithFilterState,
+        WithGroupState,
         WithGoogleState,
         WithGroupsState,
         WithLocaleState,

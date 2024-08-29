@@ -1,10 +1,9 @@
 import CancelIcon from '@icons/Cancel.svg';
 import CloseIcon from '@icons/Close.svg';
 import DoneIcon from '@icons/Done.svg';
-import { Button, type ButtonProps } from '@ui/Button';
+import { Button, type ButtonProps, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-import { IconButton } from '@ui/IconButton';
 import { type ReactNodeOrFunction, renderElement } from '@ui/utils/renderElement';
 import React, { type MouseEvent, type ReactNode, useEffect } from 'react';
 import { Label } from '~/client/common/Label';

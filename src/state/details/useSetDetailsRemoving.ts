@@ -14,8 +14,10 @@ export function useSetDetailsRemoving(): (
     const request = useUpdatingApiRequest<ApiSetRemoving>();
     return useCallback(
         async (group: string, name: string, year: number, removing: boolean): Promise<void> => {
-            dispatch(setDetailsRemovingAction(group, name, year, removing));
-            return request(ApiUrl.DetailsSetRemoving, { group, name, year, removing });
+            if (group && name && year) {
+                await request(ApiUrl.DetailsSetRemoving, { group, name, year, removing });
+                dispatch(setDetailsRemovingAction(group, name, year, removing));
+            }
         },
         [request, dispatch]
     );

@@ -2,7 +2,7 @@
 
 .Table {
     position: absolute;
-    inset: calc(var(--toolbar-height) + 3rem) 0 0;
+    inset: var(--toolbar-height) 0 0;
 }
 
 .HeadRow,
@@ -11,26 +11,25 @@
 }
 
 .Row {
+    grid-template-columns: 40px 1fr 1fr 1fr;
+    background-color: var(--color-background-body);
     padding: 0.5rem 0;
 }
 
 .GroupRow {
-    width: 100%;
-    padding: 1.5rem 1rem 0.5rem;
+    padding: 1rem 1rem 0.25rem;
     background-color: var(--color-background-body);
     position: sticky;
     top: 0;
     z-index: 1;
-    border-block-end: 1px solid var(--color-neutral-outlined-disabled-border);
 }
 
 .GroupHeading {
     width: 100%;
-    font-size: var(--font-size-xl2);
+    font-size: var(--font-size-xl);
 }
 
 .Name {
     justify-self: stretch;
     font-weight: var(--font-weight-xl);
-    padding-inline-start: 1.5rem;
 }

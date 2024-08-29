@@ -22,21 +22,4 @@
         background-color: var(--color-negative-solid-bg);
         border-radius: var(--radius-xs);
     }
-
-    .value {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-inline: 0.1rem;
-
-        &:has(+ *) {
-            &::after {
-                content: ",";
-            }
-        }
-
-        sub {
-            font-size: var(--font-size-xs);
-        }
-    }
 }

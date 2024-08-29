@@ -1,12 +1,53 @@
 import { uniq } from 'lodash';
 import { type ClientSession } from 'mongodb';
 import { type UpdateVariant, type Variant } from '~/common/types';
+import { getYearsAndDetails } from '~/server/data/details';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
-import { getVariantsCollection } from '~/server/db';
+import { getDetailsCollection, getVariantsCollection } from '~/server/db';
+
+/*export const getVariants = async (session?: ClientSession): Promise<ReadonlyArray<Variant>> =>
+    (await getVariantsCollection())
+        .find({}, { projection: { _id: 0 }, sort: { group: 1, order: 1, name: 1 }, session })
+        .toArray();*/
 
 export const getVariants = async (session?: ClientSession): Promise<ReadonlyArray<Variant>> =>
     (await getVariantsCollection())
-        .find({}, { projection: { _id: 0 }, sort: { group: 1, order: 1, name: 1 }, session })
+        .aggregate(
+            [
+                {
+                    $lookup: {
+                        from: 'details',
+                        let: {
+                            group: '$group',
+                            years_variant: '$years.amounts.variant',
+                            updates_variant: '$updates.years.amounts.variant',
+                        },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $eq: ['$group', '$$group'] },
+                                            {
+                                                $or: [
+                                                    { $eq: ['$variant', '$$years_variant'] },
+                                                    { $eq: ['$variant', '$$updates_variant'] },
+                                                ],
+                                            },
+                                        ],
+                                    },
+                                },
+                            },
+                            { $group: { _id: null, count: { $count: {} } } },
+                        ],
+                        as: 'usage',
+                    },
+                },
+                { $addFields: { used: { $gt: [{ $sum: '$usage.count' }, 0] } } },
+                { $project: { _id: 0, usage: 0 } },
+            ],
+            { session }
+        )
         .toArray();
 
 export async function setVariants(variants: ReadonlyArray<Variant>, session?: ClientSession): Promise<boolean> {
@@ -92,7 +133,9 @@ export async function updateVariant(
         : col
               .aggregate([{ $match: { group } }, { $group: { _id: null, order: { $max: '$order' } } }], { session })
               .next()
-              .then(({ order }) => col.insertOne({ group, variant, order: order + 1, ...$set }, { session }))
+              .then((found) =>
+                  col.insertOne({ group, variant, order: found ? found.order + 1 : 0, ...$set }, { session })
+              )
               .then(hasEffect);
 }
 
@@ -100,12 +143,115 @@ export const renameVariant = async (
     group: string,
     variant: string,
     newVariant: string,
+    update?: UpdateVariant,
     session?: ClientSession
-): Promise<boolean> =>
-    (await getVariantsCollection())
-        .updateOne({ group, variant }, { $set: { variant: newVariant } }, { session })
+): Promise<boolean> => {
+    const col = await getVariantsCollection();
+    const $set: Omit<UpdateVariant, 'order'> = {};
+    const $unset: Omit<UpdateVariant, 'order'> = {};
+    if (update) {
+        const { long, short } = update;
+        (long ? $set : $unset).long = long;
+        (short ? $set : $unset).short = short;
+    }
+    return col
+        .updateOne({ group, variant }, { $set: { variant: newVariant, ...$set }, $unset }, { session })
         .then(hasEffect)
         .catch(hasDuplicates);
+};
+
+export const copyVariant = async (
+    group: string,
+    variant: string,
+    newGroup: string,
+    newVariant?: string,
+    update?: UpdateVariant,
+    session?: ClientSession
+): Promise<boolean> => {
+    if (!newGroup || group === newGroup) {
+        return false;
+    }
+    const col = await getVariantsCollection();
+    const $set = ((await col.findOne({ group, variant }, { projection: { _id: 0, group: 0, variant: 0 }, session })) ??
+        {}) as UpdateVariant;
+    if (update) {
+        const { order, long, short } = update;
+        if (order != null) {
+            $set.order = order;
+        }
+        if (long) {
+            $set.long = long;
+        } else {
+            delete $set.long;
+        }
+        if (short) {
+            $set.short = short;
+        } else {
+            delete $set.short;
+        }
+    }
+    return col
+        .updateOne({ group: newGroup, variant: newVariant || variant }, { $set }, { upsert: true, session })
+        .then(hasEffect)
+        .catch(hasDuplicates);
+};
+
+export async function copyDetailsVariants(
+    group: string,
+    name: string,
+    newGroup: string,
+    session?: ClientSession
+): Promise<boolean> {
+    if (!newGroup || group === newGroup) {
+        return false;
+    }
+    const detailsCollection = await getDetailsCollection();
+    const amountVariants = await detailsCollection.findOne<{ variant?: string[][] }>(
+        { group: newGroup, name },
+        { projection: { _id: 0, variant: '$years.amounts.variant' }, session }
+    );
+    const updateVariants = await detailsCollection.findOne<{ variant?: string[][][] }>(
+        { group: newGroup, name },
+        { projection: { _id: 0, variant: '$updates.years.amounts.variant' }, session }
+    );
+    const copyingVariants = uniq([
+        ...(amountVariants?.variant?.flatMap((v) => v) ?? []),
+        ...(updateVariants?.variant?.flatMap((v) => v?.flatMap((w) => w)) ?? []),
+    ]);
+    if (!copyingVariants.length) {
+        return false;
+    }
+
+    const variantCollection = await getVariantsCollection();
+    const existingVariants = (
+        await variantCollection
+            .find(
+                { group: newGroup, variant: { $in: copyingVariants } },
+                { projection: { _id: 0, variant: 1 }, session }
+            )
+            .toArray()
+    ).map((v) => v.variant);
+
+    const missingVariants = copyingVariants.filter((v) => !existingVariants.includes(v));
+    if (!missingVariants.length) {
+        return false;
+    }
+
+    const variants = await variantCollection
+        .find({ group, variant: { $in: missingVariants } }, { projection: { _id: 0 }, session })
+        .toArray();
+    if (!variants.length) {
+        return false;
+    }
+
+    return variantCollection
+        .insertMany(
+            variants.map((v) => ({ ...v, group: newGroup })),
+            { session }
+        )
+        .then(hasEffect)
+        .catch(hasDuplicates);
+}
 
 export const renameVariantsGroup = async (group: string, newGroup: string, session?: ClientSession): Promise<boolean> =>
     (await getVariantsCollection())
@@ -118,3 +264,33 @@ export const deleteVariant = async (group: string, variant: string, session?: Cl
 
 export const deleteVariantsGroup = async (group: string, session?: ClientSession): Promise<boolean> =>
     (await getVariantsCollection()).deleteMany({ group }, { session }).then(hasEffect);
+
+export async function reorderVariants(
+    group: string,
+    update?: Readonly<Record<string, number>>,
+    session?: ClientSession
+): Promise<boolean> {
+    if (!update) {
+        return false;
+    }
+    const entries = Object.entries(update);
+    if (!entries.length) {
+        return false;
+    }
+    const col = await getVariantsCollection();
+    return col
+        .bulkWrite(
+            entries.map(([variant, order]) => ({
+                updateOne: { filter: { group, variant }, update: { $set: { order } } },
+            })),
+            { session }
+        )
+        .then(hasEffect);
+}
+
+export async function getDetailsAndVariants() {
+    return {
+        ...(await getYearsAndDetails()),
+        variants: await getVariants(),
+    };
+}
