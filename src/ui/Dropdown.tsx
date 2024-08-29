@@ -31,28 +31,31 @@ interface DropdownTriggerFunctionProps {
 }
 
 export interface DropdownProps extends DialogHTMLAttributes<HTMLDivElement> {
-    anchor?: RefObject<HTMLElement | null>;
     open?: boolean;
     hover?: boolean;
     onOpen?: () => void;
     onClose?: () => void;
     closeOnOutsideClick?: boolean;
     closeOnEscape?: boolean;
+    anchor?: RefObject<HTMLElement | null> | [RefObject<HTMLElement | null>, RefObject<HTMLElement | null>]; // single anchor, or horizontal and vertical anchors
     trigger?: ReactElement<DropdownTriggerElementProps> | ((props: DropdownTriggerFunctionProps) => ReactNode);
+    autoWidth?: boolean;
     children?: ReactNode;
 }
 
 export interface DropdownRef {
-    visible: boolean;
+    isOpen: boolean;
     open: () => void;
     close: () => void;
     toggle: () => void;
+    getDialogElement: () => HTMLElement | null;
 }
 
 export const Dropdown = forwardRef(function Dropdown(
     {
         anchor,
         trigger,
+        autoWidth = true,
         open: initialOpen = false,
         hover,
         closeOnOutsideClick = true,
@@ -70,15 +73,16 @@ export const Dropdown = forwardRef(function Dropdown(
         if (open !== initialOpen) {
             setOpen(initialOpen);
         }
+        // Don't add `open` to the dependencies array, it will cause infinite loop
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialOpen]);
 
     const wasOpen = usePreviousValue(open) ?? open;
     useEffect(() => {
-        if (!wasOpen) {
-            onOpen?.();
+        if (open !== wasOpen) {
+            (open ? onOpen : onClose)?.();
         }
-    }, [onOpen, open, wasOpen]);
+    }, [onClose, onOpen, open, wasOpen]);
 
     const handleOpen = useCallback(() => {
         if (!open) {
@@ -101,11 +105,14 @@ export const Dropdown = forwardRef(function Dropdown(
         }
     }, [handleClose, handleOpen, open]);
 
+    const dialogRef = useRef<HTMLDivElement>(null);
+
     useImperativeHandle(ref, () => ({
-        visible: open,
+        isOpen: open,
         open: handleOpen,
         close: handleClose,
         toggle: handleToggle,
+        getDialogElement: () => dialogRef.current,
     }));
 
     const handleEscape = useCallback(
@@ -120,10 +127,15 @@ export const Dropdown = forwardRef(function Dropdown(
     const stopPropagation = useCallback((e: SyntheticEvent) => e.stopPropagation(), []);
 
     const triggerRef = useRef<HTMLDivElement | null>(null);
-    const rect = (anchor ?? triggerRef)?.current?.getBoundingClientRect();
-    const insetInlineStart = rect?.x ?? 0;
-    const insetBlockStart = (rect?.y ?? 0) + (hover ? 0 : rect?.height ?? 0);
-    const minWidth = rect?.width ?? 0;
+    const anchors = Array.isArray(anchor) ? anchor : [anchor, anchor];
+    const hAnchor = anchors[0] ?? triggerRef;
+    const h = hAnchor?.current?.getBoundingClientRect();
+    const vAnchor = anchors[1] ?? triggerRef;
+    const v = vAnchor?.current?.getBoundingClientRect();
+    const insetInlineStart = (h?.x ?? 0) + window.scrollX;
+    const insetBlockStart = (v?.y ?? 0) + window.scrollY + (hover ? 0 : v?.height ?? 0);
+    const minWidth = h?.width ?? 0;
+    const width = autoWidth ? 'auto' : minWidth;
 
     const dropdown = open ? (
         <Portal>
@@ -135,6 +147,7 @@ export const Dropdown = forwardRef(function Dropdown(
                 onKeyDown={closeOnEscape ? handleEscape : undefined}
             >
                 <Interactive
+                    ref={dialogRef}
                     className={cx('Dropdown', { hover }, className)}
                     role="dialog"
                     onClick={stopPropagation}
@@ -143,6 +156,7 @@ export const Dropdown = forwardRef(function Dropdown(
                         insetInlineStart,
                         insetBlockStart,
                         minWidth,
+                        width,
                     }}
                 >
                     {children}
@@ -158,7 +172,7 @@ export const Dropdown = forwardRef(function Dropdown(
                     cloneElement<DropdownTriggerElementProps>(trigger, { ref: triggerRef, onClick: handleToggle })
                 ) : (
                     <Interactive tag="span" ref={triggerRef} onClick={handleToggle}>
-                        {trigger instanceof Function ? trigger({ open: handleOpen }) : trigger}
+                        {typeof trigger === 'function' ? trigger({ open: handleOpen }) : trigger}
                     </Interactive>
                 ))}
             {dropdown}

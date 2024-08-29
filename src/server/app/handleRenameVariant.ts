@@ -10,10 +10,10 @@ export async function handleRenameVariant(
 ): Promise<void> {
     debugRequest(req);
     headerNoCache(res);
-    const { group, variant, newVariant } = req.body;
+    const { group, variant, newVariant, ...update } = req.body;
     res.json(
         await run(
-            () => renameVariantOccurrences(group, variant, newVariant),
+            () => renameVariantOccurrences(group, variant, newVariant, update),
             () => getYearsAndDetails()
         )
     );

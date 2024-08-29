@@ -1,7 +1,7 @@
 import { Checkbox } from '@ui/Checkbox';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ValueRow } from '~/client/details/ValueRow';
+import { DetailsGroups } from '~/client/details/DetailsGroups';
 import { useUniqueGroups } from '~/client/hooks/useUniqueGroups';
 import { Cell } from '~/client/table/Cell';
 import { LoadingContent } from '~/client/table/LoadingContent';
@@ -15,15 +15,21 @@ import { useGetDetails } from '~/state/details/useGetDetails';
 import { useHasMissing } from '~/state/details/useHasMissing';
 import { useClearFilter } from '~/state/filter/useClearFilter';
 import { useFilter } from '~/state/filter/useFilter';
+import { useGroup } from '~/state/group/useGroup';
 import { useGetGroups } from '~/state/groups/useGetGroups';
+import { useGroups } from '~/state/groups/useGroups';
 import { useGetVariants } from '~/state/variants/useGetVariants';
+import { useVariants } from '~/state/variants/useVariants';
 import { useYears } from '~/state/years/useYears';
 import cx from './DetailsTable.less';
 
+// TODO add obvious header to see if details or summary table displayed
+// TODO add control for quick switch between details and summary
 export function DetailsTable() {
+    // TODO: optimize getDetails loader to load only necessary data
     const getDetails = useGetDetails();
-    const getGroups = useGetGroups();
     const getVariants = useGetVariants();
+    const getGroups = useGetGroups();
 
     const hasMissing = useHasMissing();
     const [missingOnly, setMissingOnly] = useState<boolean>(false);
@@ -36,8 +42,12 @@ export function DetailsTable() {
     const details = useDetails();
     const missingDetails = useMemo(() => details.filter((v) => !missingOnly || v.missing), [details, missingOnly]);
 
+    const group = useGroup();
     const filter = useFilter();
-    const filteredDetails = useMemo(() => details.filter((v) => matchParts(v.name, filter)), [details, filter]);
+    const filteredDetails = useMemo(
+        () => details.filter((v) => (!group || v.group === group) && (!filter || matchParts(v.name, filter))),
+        [details, filter, group]
+    );
 
     const filteredMissing = useMemo(
         () => missingDetails.filter((v) => matchParts(v.name, filter)),
@@ -67,13 +77,16 @@ export function DetailsTable() {
             ),
         [filteredDetails, filteredMissing, missingOnly]
     );
-    const groups = useUniqueGroups(visibleDetails);
-    const years = useYears();
+    const uniqueGroups = useUniqueGroups(visibleDetails);
+    const visibleGroups = group ? [group] : uniqueGroups;
 
+    const years = useYears();
+    const groups = useGroups();
+    const variants = useVariants();
     return (
         <LoadingContent
             loader={() => Promise.all([getDetails(), getGroups(), getVariants()])}
-            hasData={!isEmpty(years) && !isEmpty(details)}
+            hasData={!isEmpty(years) && !isEmpty(details) && !isEmpty(groups) && !isEmpty(variants)}
         >
             <Table
                 className={cx('Table')}
@@ -96,27 +109,7 @@ export function DetailsTable() {
                     </Row>
                 }
             >
-                {groups.map((group) => (
-                    <div key={group} role="rowgroup">
-                        <Row className={cx('Row', 'GroupRow')}>
-                            <Cell role="rowheader" className={cx('GroupHeading')}>
-                                {group}
-                            </Cell>
-                        </Row>
-                        {visibleDetails
-                            .filter((v) => v.group === group)
-                            .map((v) => (
-                                <ValueRow
-                                    key={`${v.group}:${v.name}`}
-                                    className={cx('Row')}
-                                    group={group}
-                                    name={v.name}
-                                    amounts={v.years}
-                                    missing={v.missing}
-                                />
-                            ))}
-                    </div>
-                ))}
+                <DetailsGroups groups={visibleGroups} details={visibleDetails} />
             </Table>
         </LoadingContent>
     );

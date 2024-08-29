@@ -5,7 +5,7 @@ import { Input } from '@ui/Input';
 import React from 'react';
 
 export const colors = ['neutral', 'primary', 'secondary', 'positive', 'warning', 'negative'];
-export const variants = ['outline', 'plain', 'soft', 'solid'];
+export const variants = ['outlined', 'plain', 'soft', 'solid'];
 export const sizes = ['small', 'medium', 'large'];
 export const spacing = ['small', 'medium', 'large', 'half', 'none'];
 export const modes = {
@@ -17,6 +17,7 @@ export const modes = {
     decimal: 123456789,
     search: 'Search',
 };
+export const states = ['default', 'active', 'hover', 'focus'];
 
 # Input
 
@@ -31,6 +32,9 @@ import { Input } from '@ui/Input';
     mode="text"
     value=""
     placeholder="Enter something"
+    label="Input label"
+    invalid={false}
+    error="Error label"
     disabled={false}
     fullWidth={false}
     // ...
@@ -47,10 +51,13 @@ import { Input } from '@ui/Input';
 | `mode`        | `"text"` \| `"tel"` \| `"url"` \| `"email"` \| `"numeric"` \| `"decimal"` \| `"search"`    | `"text"`     | The mode of the input.           |
 | `value`       | `string` \| `number`                                                                       | -            | The value of the input.          |
 | `placeholder` | `string` \| `number`                                                                       | -            | The placeholder of the input.    |
+| `label`       | `string`                                                                                   | -            | The label input.                 |
+| `invalid`     | `boolean`                                                                                  | `false`      | Whether the input is invalid.    |
+| `error`       | `string`                                                                                   | -            | The friendly error label.        |
 | `disabled`    | `boolean`                                                                                  | `false`      | Whether the input is disabled.   |
 | `fullWidth`   | `boolean`                                                                                  | `false`      | Whether the input is full width. |
 
-## Colors / Variants
+## Colors / Variants / States
 
 ```tsx
 <Input color="primary" variant="outlined" />
@@ -75,7 +82,11 @@ import { Input } from '@ui/Input';
                 </th>
                 {colors.map((color, c) => (
                     <td key={c}>
-                        <Input variant={variant} color={color} />
+                        {states.map((state, s) => (
+                            <div style={{ padding: 1 }}>
+                                <Input variant={variant} color={color} state={state} value={state} />
+                            </div>
+                        ))}
                     </td>
                 ))}
             </tr>
@@ -303,3 +314,111 @@ import { Input } from '@ui/Input';
         ))}
     </tbody>
 </table>
+
+## Label / Error
+
+<>
+    {states.map((state, s) => (
+        <>
+            {s ? (
+                <h3>
+                    <code>:{state}</code>
+                </h3>
+            ) : null}
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th colSpan="2">Valid</th>
+                        <th colSpan="2">Invalid</th>
+                        <th colSpan="2">With error</th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th>No label</th>
+                        <th>With label</th>
+                        <th>No label</th>
+                        <th>With label</th>
+                        <th>No label</th>
+                        <th>With label</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>No value</th>
+                        <td>
+                            <Input state={s ? state : undefined} />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} label="Some label" />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} invalid />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} label="Some label" invalid />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} error="Value missing" />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} label="Some label" error="Value missing" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>With placeholder</th>
+                        <td>
+                            <Input state={s ? state : undefined} placeholder="Enter value" />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} placeholder="Enter value" label="Some label" />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} placeholder="Enter value" invalid />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} placeholder="Enter value" label="Some label" invalid />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} placeholder="Enter value" error="Value invalid" />
+                        </td>
+                        <td>
+                            <Input
+                                state={s ? state : undefined}
+                                placeholder="Enter value"
+                                label="Some label"
+                                error="Value invalid"
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>With value</th>
+                        <td>
+                            <Input state={s ? state : undefined} value="value" />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} value="value" label="Some label" />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} value="value" invalid />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} value="value" label="Some label" invalid />
+                        </td>
+                        <td>
+                            <Input state={s ? state : undefined} value="value" error="Value invalid" />
+                        </td>
+                        <td>
+                            <Input
+                                state={s ? state : undefined}
+                                value="value"
+                                label="Some label"
+                                error="Value invalid"
+                            />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </>
+    ))}
+</>

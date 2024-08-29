@@ -1,20 +1,17 @@
 import CancelIcon from '@icons/Cancel.svg';
 import CloseIcon from '@icons/Close.svg';
-import DeleteIcon from '@icons/Delete.svg';
 import DoneIcon from '@icons/Done.svg';
-import { Button } from '@ui/Button';
-import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
+import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-import { IconButton } from '@ui/IconButton';
-import { LabeledInput } from '@ui/LabeledInput';
+import { Input } from '@ui/Input';
+import { isEmpty } from 'lodash';
 import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
-import { Label } from '~/client/common/Label';
 import { compareNames } from '~/client/utils/compareNames';
 import { useAddGroup } from '~/state/groups/useAddGroup';
-import { useDeleteGroup } from '~/state/groups/useDeleteGroup';
 import { useGroups } from '~/state/groups/useGroups';
 import { useRenameGroup } from '~/state/groups/useRenameGroup';
 import { getErrorMessage } from '~/utils/errors';
@@ -25,26 +22,26 @@ interface GroupBoxProps extends WithOnClose {
     onClose: (group?: string) => void;
 }
 
-const ERROR_MISSING = 'Name is required';
+const ERROR_NAME_MISSING = 'Name is required';
 const ERROR_EXISTS = 'Group already exists';
 
 export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
     const [updating, setUpdating] = useState(false);
     const [group, setGroup] = useState<string>(initialGroup ?? '');
-    const [error, setError] = useState<string>();
+    const [errors, setErrors] = useState<Record<string, string>>();
 
     useEffect(() => {
-        setError(undefined);
+        setErrors(undefined);
     }, [group]);
 
     const hasSameGroup = useGroups()?.some((g) => !compareNames(g.group, group));
     const groupRenamed = group !== initialGroup;
     const hasGroup = hasSameGroup && groupRenamed && !updating;
     useEffect(() => {
-        if (hasGroup && !error) {
-            setError(ERROR_EXISTS);
+        if (hasGroup && isEmpty(errors)) {
+            setErrors({ '': ERROR_EXISTS });
         }
-    }, [hasGroup, error]);
+    }, [hasGroup, errors]);
 
     const focusRef = useAutoFocus<HTMLInputElement>();
 
@@ -52,11 +49,9 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
     const renameGroup = useRenameGroup();
     const handleUpdate = useCallback(async (): Promise<void> => {
         if (!group) {
-            setError(ERROR_MISSING);
-            focusRef?.focus();
-            return;
+            setErrors({ group: ERROR_NAME_MISSING });
         }
-        if (hasGroup) {
+        if (!group || hasGroup) {
             focusRef?.focus();
             return;
         }
@@ -70,31 +65,15 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
                 await addGroup(group);
             }
             onClose(group);
-        } catch (e) {
-            setError(getErrorMessage(e));
+        } catch (error) {
+            setErrors({ '': getErrorMessage(error) });
             focusRef?.focus();
         } finally {
             setUpdating(false);
         }
     }, [addGroup, focusRef, group, groupRenamed, hasGroup, initialGroup, onClose, renameGroup]);
 
-    const deleteGroup = useDeleteGroup();
-    const handleDelete = useCallback(async (): Promise<void> => {
-        try {
-            setUpdating(true);
-            await deleteGroup(initialGroup);
-            onClose(initialGroup);
-        } catch (e) {
-            setError(getErrorMessage(e));
-            focusRef?.focus();
-        } finally {
-            setUpdating(false);
-        }
-    }, [focusRef, initialGroup, onClose, deleteGroup]);
-
-    const handleClose = useCallback((): void => {
-        onClose();
-    }, [onClose]);
+    const handleClose = useCallback((): void => onClose(), [onClose]);
 
     const handleGroupInput = useCallback((e: FormEvent<HTMLInputElement>) => setGroup(e.currentTarget.value), []);
 
@@ -108,8 +87,9 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
     );
 
     const closeLabel = useLabel('Close');
-    const errorLabel = useLabel(error ?? '');
+    const errorLabel = useLabel(errors?.[''] ?? '');
     const inputLabel = useLabel('Group name');
+
     return (
         <Dialog className={cx('GroupBox')} open onClose={handleClose}>
             <header>
@@ -123,11 +103,11 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
                 </div>
             </header>
             <main>
-                <LabeledInput
+                <Input
                     ref={focusRef}
                     fullWidth
-                    color={error ? 'negative' : 'primary'}
-                    error={error && error !== ERROR_MISSING ? errorLabel : undefined}
+                    color={errors?.[''] || errors?.group ? 'negative' : 'primary'}
+                    error={errors?.[''] ? errorLabel : undefined}
                     size="large"
                     value={group}
                     label={inputLabel}
@@ -136,20 +116,6 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
                 />
             </main>
             <footer>
-                {initialGroup && (
-                    <>
-                        <ButtonWithConfirmation
-                            variant="outlined"
-                            color="negative"
-                            startDecorator={<DeleteIcon />}
-                            dialogHeader={<Label>Sure to remove?</Label>}
-                            onClick={handleDelete}
-                        >
-                            <Label>Remove</Label>
-                        </ButtonWithConfirmation>
-                        <div className={cx('spacer')} />
-                    </>
-                )}
                 <Button variant="outlined" startDecorator={<CancelIcon />} onClick={handleClose}>
                     <Label>Cancel</Label>
                 </Button>

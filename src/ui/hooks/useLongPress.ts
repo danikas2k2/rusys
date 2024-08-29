@@ -1,3 +1,4 @@
+import { POINTER_LONG_PRESS_DELAY, POINTER_MOVE_THRESHOLD, POINTER_SHORT_PRESS_DELAY } from '@ui/utils/values';
 import {
     type EventHandler,
     type MouseEvent,
@@ -20,17 +21,20 @@ type LongPressPointerEvents<T = Element> =
           onPointerMove?: PointerEventHandler<T>;
           onPointerUp?: PointerEventHandler<T>;
           onPointerLeave?: PointerEventHandler<T>;
+          onPointerCancel?: PointerEventHandler<T>;
       }
     | {
           onTouchStart?: TouchEventHandler<T>;
           onTouchEnd?: TouchEventHandler<T>;
           onTouchMove?: TouchEventHandler<T>;
+          onTouchCancel?: TouchEventHandler<T>;
       }
     | {
           onMouseDown?: MouseEventHandler<T>;
           onMouseUp?: MouseEventHandler<T>;
           onMouseMove?: MouseEventHandler<T>;
           onMouseLeave?: MouseEventHandler<T>;
+          onMouseOut?: MouseEventHandler<T>;
       };
 type LongPressEvents<T = Element> = {
     onClick: (e: MouseEvent<T>) => void;
@@ -40,17 +44,22 @@ type LongPressEvents<T = Element> = {
 export function useLongPress<T = Element>(
     onLongPress: PressEventHandler<T>,
     onShortPress?: PressEventHandler<T>,
-    duration = 400,
-    shortDelay = 100
+    duration = POINTER_LONG_PRESS_DELAY,
+    shortDelay = POINTER_SHORT_PRESS_DELAY
 ): LongPressEvents<T> {
     const timerRef = useRef<NodeJS.Timeout>();
     const longPressRef = useRef(false);
     const shortPressRef = useRef(false);
+    const xRef = useRef(0);
+    const yRef = useRef(0);
 
     const onStart = useCallback(
         (e: PressEvent<T>) => {
+            console.info('onStart', e);
             longPressRef.current = false;
             shortPressRef.current = false;
+            xRef.current = getX(e);
+            yRef.current = getY(e);
             clearTimeout(timerRef.current);
             timerRef.current = setTimeout(() => {
                 if (!shortPressRef.current && !longPressRef.current) {
@@ -81,8 +90,17 @@ export function useLongPress<T = Element>(
         [onShortPress, shortDelay]
     );
 
-    const onMove = useCallback(() => {
+    const onMove = useCallback((e: MouseEvent<T>) => {
+        const x = Math.abs(xRef.current - getX(e));
+        const y = Math.abs(yRef.current - getY(e));
+        if (x > POINTER_MOVE_THRESHOLD || y > POINTER_MOVE_THRESHOLD) {
+            clearTimeout(timerRef.current);
+        }
+    }, []);
+
+    const onCancel = useCallback(() => {
         clearTimeout(timerRef.current);
+        shortPressRef.current = true;
     }, []);
 
     const onClick = useCallback((e: MouseEvent<T>) => {
@@ -102,6 +120,7 @@ export function useLongPress<T = Element>(
                       onTouchStart: onStart,
                       onTouchEnd: onEnd,
                       onTouchMove: onMove,
+                      onTouchCancel: onCancel,
                   }
                 : {}),
             ...(window.PointerEvent
@@ -109,16 +128,27 @@ export function useLongPress<T = Element>(
                       onPointerDown: onStart,
                       onPointerMove: onMove,
                       onPointerUp: onEnd,
-                      onPointerLeave: onMove,
+                      onPointerCancel: onCancel,
+                      onPointerLeave: onCancel,
+                      onPointerOut: onCancel,
                   }
                 : {
                       onMouseDown: onStart,
                       onMouseUp: onEnd,
                       onMouseMove: onMove,
-                      onMouseLeave: onMove,
+                      onMouseLeave: onCancel,
+                      onMouseOut: onCancel,
                   }),
             onClick,
             onContextMenu,
         };
-    }, [onStart, onEnd, onMove, onClick, onContextMenu]);
+    }, [onStart, onEnd, onMove, onCancel, onClick, onContextMenu]);
+}
+
+function getX<T>(e: PressEvent<T>): number {
+    return ((e as unknown as TouchEvent).touches?.[0] ?? (e as unknown as MouseEvent))?.clientX;
+}
+
+function getY<T>(e: PressEvent<T>): number {
+    return ((e as unknown as TouchEvent).touches?.[0] ?? (e as unknown as MouseEvent))?.clientY;
 }

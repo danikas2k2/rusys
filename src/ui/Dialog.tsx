@@ -17,6 +17,7 @@ export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
     onClose?: () => void;
     closeOnOutsideClick?: boolean;
     closeOnEscape?: boolean;
+    fullscreen?: boolean;
     children?: ReactNode;
 }
 
@@ -32,6 +33,7 @@ export function Dialog({
     className,
     onOpen,
     onClose,
+    fullscreen,
     ...props
 }: DialogProps) {
     const wasOpen = usePreviousValue(open) ?? open;
@@ -61,7 +63,12 @@ export function Dialog({
                 onClick={closeOnOutsideClick ? onClose : undefined}
                 onKeyDown={closeOnEscape ? handleEscape : undefined}
             >
-                <Interactive className={cx('Dialog', className)} role="dialog" onClick={stopPropagation} {...props}>
+                <Interactive
+                    className={cx('Dialog', { fullscreen }, className)}
+                    role="dialog"
+                    onClick={stopPropagation}
+                    {...props}
+                >
                     {children}
                 </Interactive>
             </Interactive>

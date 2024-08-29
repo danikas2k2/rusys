@@ -1,13 +1,9 @@
 @import (once) "@ui/theme.less";
 
 .Toolbar {
-    position: absolute;
-    width: 100%;
     display: grid;
-    grid-template-columns: 40px 1fr 40px;
+    grid-template-columns: 40px auto 40px;
     align-items: center;
-    inset-inline: 0;
-    inset-block-start: 0;
     height: var(--toolbar-height);
 
     > * {
@@ -19,5 +15,17 @@
     .title {
         font-size: var(--font-size-lg);
         font-weight: var(--font-weight-lg);
+    }
+
+    .filter {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+
+        > * + *,
+        > *:has(+ *) {
+            flex: 0 1 50%;
+        }
     }
 }

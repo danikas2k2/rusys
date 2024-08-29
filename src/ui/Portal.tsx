@@ -1,13 +1,13 @@
+import { uniqueId } from '@ui/utils/uniqueId';
 import { type ReactNode, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useUniqueId } from './hooks/useUniqueId';
 
 interface PortalProps {
     children: ReactNode;
 }
 
 const usePortalRoot = (): HTMLElement => {
-    const idRef = useRef(useUniqueId('portal'));
+    const idRef = useRef(uniqueId('portal'));
     const rootRef = useRef<HTMLElement | null>(document.getElementById(idRef.current));
     if (!rootRef.current) {
         rootRef.current = document.createElement('div');

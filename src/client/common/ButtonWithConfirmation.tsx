@@ -1,6 +1,6 @@
 import { Button, type ButtonProps } from '@ui/Button';
 import { type ReactNodeOrFunction } from '@ui/utils/renderElement';
-import React, { type ReactNode, useCallback, useState } from 'react';
+import React, { type MouseEvent, type ReactNode, useCallback, useState } from 'react';
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
 
 interface ButtonWithConfirmationProps extends Omit<ButtonProps, 'title' | 'children'> {
@@ -38,6 +38,14 @@ export function ButtonWithConfirmation({
         onClose?.();
     }, [onClose]);
 
+    const handleConfirm = useCallback(
+        (e: MouseEvent<HTMLButtonElement>) => {
+            handleClose();
+            onClick?.(e);
+        },
+        [handleClose, onClick]
+    );
+
     const button =
         typeof children === 'function' ? (
             children?.({ ...props, onClick: handleOpen })
@@ -57,10 +65,7 @@ export function ButtonWithConfirmation({
                 confirmProps={confirmProps}
                 cancelButton={cancelButton}
                 cancelProps={cancelProps}
-                onConfirm={(e) => {
-                    handleClose();
-                    onClick?.(e);
-                }}
+                onConfirm={handleConfirm}
                 onClose={handleClose}
             />
         </>

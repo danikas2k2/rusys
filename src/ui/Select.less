@@ -1,0 +1,49 @@
+@import (once) "@ui/theme.less";
+
+.Option {
+    padding: 0.5rem 1rem;
+    color: var(--color-neutral-plain);
+
+    &:hover {
+        background-color: var(--color-neutral-plain-hover-bg);
+        color: var(--color-neutral-plain-hover);
+    }
+
+    &.selected {
+        background-color: var(--color-neutral-plain-active-bg);
+    }
+
+    &.disabled {
+        color: var(--color-neutral-plain-disabled);
+
+        &:hover {
+            color: var(--color-neutral-plain-disabled);
+        }
+    }
+}
+
+.Select {
+    position: relative;
+
+    &.full-width {
+        display: flex;
+    }
+
+    &:not(.full-width) {
+        display: inline-flex;
+    }
+
+    .expand {
+        svg {
+            transition: transform ease-in-out 0.2s;
+        }
+
+        &.expanded svg {
+            transform: rotate(-180deg);
+        }
+    }
+}
+
+.dropdown {
+    border: 1px solid var(--color-neutral-outlined-border);
+}

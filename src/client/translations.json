@@ -5,6 +5,15 @@
     "Add new entry": {
         "lt-LT": "Pridėti naują įrašą"
     },
+    "Add new group": {
+        "lt-LT": "Pridėti naują grupę"
+    },
+    "Add new variant": {
+        "lt-LT": "Pridėti naują variantą"
+    },
+    "All groups": {
+        "lt-LT": "Visos grupės"
+    },
     "Are you sure?": {
         "lt-LT": "Ar tikrai?"
     },
@@ -17,14 +26,23 @@
     "Confirm": {
         "lt-LT": "Patvirtinti"
     },
+    "Duplicate": {
+        "lt-LT": "Kopijuoti"
+    },
     "Edit": {
         "lt-LT": "Taisyti"
     },
     "Edit group": {
         "lt-LT": "Taisyti grupę"
     },
+    "Edit variant": {
+        "lt-LT": "Taisyti variantą"
+    },
     "Group": {
         "lt-LT": "Grupė"
+    },
+    "Group already exists": {
+        "lt-LT": "Tokia grupė jau yra"
     },
     "Group name": {
         "lt-LT": "Grupės pavadinimas"
@@ -53,6 +71,9 @@
     "Long": {
         "lt-LT": "Ilgas"
     },
+    "Long label": {
+        "lt-LT": "Ilgas žymėjimas"
+    },
     "Name": {
         "lt-LT": "Pavadinimas"
     },
@@ -67,6 +88,9 @@
     },
     "Short": {
         "lt-LT": "Trumpas"
+    },
+    "Short label": {
+        "lt-LT": "Trumpas žymėjimas"
     },
     "Statistics": {
         "lt-LT": "Statistika"
@@ -88,6 +112,12 @@
     },
     "Variant": {
         "lt-LT": "Variantas"
+    },
+    "Variant already exists": {
+        "lt-LT": "Toks variantas jau yra"
+    },
+    "Variant name": {
+        "lt-LT": "Varianto pavadinimas"
     },
     "Variants": {
         "lt-LT": "Variantai"

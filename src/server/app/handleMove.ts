@@ -1,16 +1,26 @@
-import { type ApiRequest, type ApiResponse, type ApiDetails, type ApiMoveDetails } from '~/common/api';
+import {
+    type ApiDetails,
+    type ApiMoveDetails,
+    type ApiRequest,
+    type ApiResponse,
+    type ApiVariants,
+} from '~/common/api';
 import { debugRequest } from '~/server/app/debug';
 import { headerNoCache, run } from '~/server/app/utils';
-import { getYearsAndDetails, moveDetails } from '~/server/data/details';
+import { moveDetailsOccurrences } from '~/server/data/common';
+import { getDetailsAndVariants } from '~/server/data/variants';
 
-export async function handleMove(req: ApiRequest<ApiMoveDetails>, res: ApiResponse<ApiDetails>): Promise<void> {
+export async function handleMove(
+    req: ApiRequest<ApiMoveDetails>,
+    res: ApiResponse<ApiDetails & ApiVariants>
+): Promise<void> {
     debugRequest(req);
     headerNoCache(res);
-    const { group, name, newGroup } = req.body;
+    const { group, name, newGroup, newName } = req.body;
     res.json(
         await run(
-            () => moveDetails(group, name, newGroup),
-            () => getYearsAndDetails()
+            () => moveDetailsOccurrences(group, name, newGroup, newName),
+            () => getDetailsAndVariants()
         )
     );
 }

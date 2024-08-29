@@ -135,35 +135,28 @@ export async function renameDetailsVariant(
     if (!group || !variant || !newVariant) {
         return false;
     }
-    return (
-        (await getDetailsCollection())
-            .bulkWrite(
-                [
-                    {
-                        updateMany: {
-                            filter: { group, 'years.amounts.variant': variant } as UpdateFilter<Details>,
-                            arrayFilters: [{ 'variant.variant': variant }],
-                            update: { $set: { 'years.$[].amounts.$[variant].variant': newVariant } },
-                        },
+    return (await getDetailsCollection())
+        .bulkWrite(
+            [
+                {
+                    updateMany: {
+                        filter: { group, 'years.amounts.variant': variant } as UpdateFilter<Details>,
+                        arrayFilters: [{ 'variant.variant': variant }],
+                        update: { $set: { 'years.$[].amounts.$[variant].variant': newVariant } },
                     },
-                    {
-                        updateMany: {
-                            filter: { group, 'updates.years.amounts.variant': variant } as UpdateFilter<Details>,
-                            arrayFilters: [{ 'variant.variant': variant }],
-                            update: { $set: { 'updates.$[].years.$[].amounts.$[variant].variant': newVariant } },
-                        },
+                },
+                {
+                    updateMany: {
+                        filter: { group, 'updates.years.amounts.variant': variant } as UpdateFilter<Details>,
+                        arrayFilters: [{ 'variant.variant': variant }],
+                        update: { $set: { 'updates.$[].years.$[].amounts.$[variant].variant': newVariant } },
                     },
-                ],
-                { session }
-            )
-            /*.updateMany(
-{ group, 'years.amounts.variant': variant } as UpdateFilter<Details>,
-{ $set: { 'years.$[].amounts.$[variant].variant': newVariant } },
-{ arrayFilters: [{ 'variant.variant': variant }], session }
-)*/
-            .then(hasEffect)
-            .catch(hasDuplicates)
-    );
+                },
+            ],
+            { session }
+        )
+        .then(hasEffect)
+        .catch(hasDuplicates);
 }
 
 export async function renameDetailsGroup(group: string, newGroup: string, session?: ClientSession): Promise<boolean> {
@@ -180,13 +173,18 @@ export async function moveDetails(
     group: string,
     name: string,
     newGroup: string,
+    newName?: string,
     session?: ClientSession
 ): Promise<boolean> {
     if (!group || !name || !newGroup) {
         return false;
     }
+    const $set: { group: string; name?: string } = { group: newGroup };
+    if (newName && name !== newName) {
+        $set.name = newName;
+    }
     return (await getDetailsCollection())
-        .updateOne({ group, name }, { $set: { group: newGroup } }, { session })
+        .updateOne({ group, name }, { $set }, { session })
         .then(hasEffect)
         .catch(hasDuplicates);
 }

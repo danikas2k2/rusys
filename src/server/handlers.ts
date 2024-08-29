@@ -1,6 +1,7 @@
 import { type ApiRequest, type ApiResponse, ApiUrl } from '~/common/api';
 import { handleCheckUser } from '~/server/app/handleCheckUser';
 import { handleClientId } from '~/server/app/handleClientId';
+import { handleCopyVariant } from '~/server/app/handleCopyVariant';
 import { handleDelete } from '~/server/app/handleDelete';
 import { handleDeleteGroup } from '~/server/app/handleDeleteGroup';
 import { handleDeleteVariant } from '~/server/app/handleDeleteVariant';
@@ -11,10 +12,10 @@ import { handleRename } from '~/server/app/handleRename';
 import { handleRenameGroup } from '~/server/app/handleRenameGroup';
 import { handleRenameVariant } from '~/server/app/handleRenameVariant';
 import { handleReorderGroups } from '~/server/app/handleReorderGroups';
+import { handleReorderVariants } from '~/server/app/handleReorderVariants';
 import { handleSetMissing } from '~/server/app/handleSetMissing';
 import { handleSetRemoving } from '~/server/app/handleSetRemoving';
 import { handleSummary } from '~/server/app/handleSummary';
-import { handleSwitchGroups } from '~/server/app/handleSwitchGroups';
 import { handleUpdateDetailsVariants } from '~/server/app/handleUpdateDetailsVariants';
 import { handleUpdateDetailsYears } from '~/server/app/handleUpdateDetailsYears';
 import { handleUpdateGroup } from '~/server/app/handleUpdateGroup';
@@ -34,13 +35,14 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.DetailsMove]: handleMove,
     [ApiUrl.DetailsDelete]: handleDelete,
     [ApiUrl.Groups]: handleGroups,
-    [ApiUrl.GroupsSwitch]: handleSwitchGroups,
     [ApiUrl.GroupsUpdate]: handleUpdateGroup,
     [ApiUrl.GroupsReorder]: handleReorderGroups,
     [ApiUrl.GroupsRename]: handleRenameGroup,
     [ApiUrl.GroupsDelete]: handleDeleteGroup,
     [ApiUrl.Variants]: handleVariants,
     [ApiUrl.VariantsUpdate]: handleUpdateVariant,
+    [ApiUrl.VariantsReorder]: handleReorderVariants,
     [ApiUrl.VariantsRename]: handleRenameVariant,
+    [ApiUrl.VariantsCopy]: handleCopyVariant,
     [ApiUrl.VariantsDelete]: handleDeleteVariant,
 };

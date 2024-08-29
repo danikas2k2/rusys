@@ -12,9 +12,9 @@ export async function run<T, R extends object>(
 ): Promise<ApiResult<R>> {
     try {
         const result = await action();
-        if (result) {
+        if (result || result === false) {
             debug('OK');
-            return response
+            return result && response
                 ? { ok: true, ...(await response(result)) }
                 : { ok: true, ...(typeof result === 'object' ? result : {}) };
         }
