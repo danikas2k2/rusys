@@ -1,4 +1,4 @@
-import { type ApiUserEmail, type ApiUserAllowed } from '~/common/api';
+import { type ApiUserAllowed, type ApiUserEmail } from '~/common/api';
 import { handleCheckUser } from '~/server/app/handleCheckUser';
 import { mockEnv } from '~/tests/mockEnv';
 import { mockRequest } from '~/tests/mockRequest';
@@ -30,7 +30,7 @@ describe('handleCheckUser', () => {
         await handleCheckUser(request, response);
 
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: false });
+        expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
     it('returns allowed user when DEV_MODE is enabled', async () => {
@@ -51,6 +51,6 @@ describe('handleCheckUser', () => {
         await handleCheckUser(request, response);
 
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: false });
+        expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 });

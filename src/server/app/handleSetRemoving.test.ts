@@ -1,5 +1,5 @@
 /** @jest-environment node */
-import { type ApiRequest, type ApiSetRemoving } from '~/common/api';
+import { type ApiSetRemoving } from '~/common/api';
 import { handleSetRemoving } from '~/server/app/handleSetRemoving';
 import { setRemoving } from '~/server/data/details';
 import { mockRequest } from '~/tests/mockRequest';
@@ -31,7 +31,7 @@ describe('handleSetRemoving', () => {
 
         expect(setRemoving).toHaveBeenCalledWith('G', 'A', 21, true);
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: false });
+        expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
     it('returns error response on error', async () => {

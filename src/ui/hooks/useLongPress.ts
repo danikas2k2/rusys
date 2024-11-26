@@ -55,7 +55,6 @@ export function useLongPress<T = Element>(
 
     const onStart = useCallback(
         (e: PressEvent<T>) => {
-            console.info('onStart', e);
             longPressRef.current = false;
             shortPressRef.current = false;
             xRef.current = getX(e);

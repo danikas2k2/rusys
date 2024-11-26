@@ -1,8 +1,8 @@
-import AddIcon from '@icons/Add.svg';
-import CancelIcon from '@icons/Cancel.svg';
-import CloseIcon from '@icons/Close.svg';
-import CopyIcon from '@icons/ContentCopy.svg';
-import DoneIcon from '@icons/Done.svg';
+import AddIcon from '@assets/Add.svg';
+import CancelIcon from '@assets/Cancel.svg';
+import CloseIcon from '@assets/Close.svg';
+import CopyIcon from '@assets/ContentCopy.svg';
+import DoneIcon from '@assets/Done.svg';
 import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
@@ -16,6 +16,7 @@ import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
 import { compareNames } from '~/client/utils/compareNames';
 import { type Variant } from '~/common/types';
+import { getErrorMessage } from '~/common/utils/errors';
 import { useGroups } from '~/state/groups/useGroups';
 import { useAddVariant } from '~/state/variants/useAddVariant';
 import { useCopyVariant } from '~/state/variants/useCopyVariant';
@@ -23,7 +24,6 @@ import { useRenameVariant } from '~/state/variants/useRenameVariant';
 import { useUpdateVariant } from '~/state/variants/useUpdateVariant';
 import { useVariant } from '~/state/variants/useVariant';
 import { useVariants } from '~/state/variants/useVariants';
-import { getErrorMessage } from '~/utils/errors';
 import cx from './VariantBox.less';
 
 interface VariantBoxProps extends WithOnClose {
@@ -32,6 +32,7 @@ interface VariantBoxProps extends WithOnClose {
     onClose: (group?: string, variant?: string) => void;
 }
 
+const PLACEHOLDER = 'Please enter a name';
 const ERROR_GROUP_MISSING = 'Group is required';
 const ERROR_NAME_MISSING = 'Name is required';
 const ERROR_EXISTS = 'Variant already exists';
@@ -41,9 +42,9 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
     const [group, setGroup] = useState<string>(initialGroup);
     const [variant, setVariant] = useState<string>(initialVariant);
     const variantDetails = useVariant(initialGroup, initialVariant);
-    const { long: initialLong, short: initialShort } = variantDetails ?? ({} as Variant);
-    const [longTitle, setLongTitle] = useState<string>(initialLong ?? '');
-    const [shortTitle, setShortTitle] = useState<string>(initialShort ?? '');
+    const { long: initialLong = '', short: initialShort = '' } = variantDetails ?? ({} as Variant);
+    const [longTitle, setLongTitle] = useState<string>(initialLong);
+    const [shortTitle, setShortTitle] = useState<string>(initialShort);
     const [errors, setErrors] = useState<Record<string, string>>();
 
     useEffect(() => {
@@ -54,12 +55,14 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
     const hasSameVariant = useVariants()?.some(
         (v) => !compareNames(v.group, group) && !compareNames(v.variant, variant)
     );
-    const variantCopied = group !== initialGroup;
-    const variantRenamed = variant !== initialVariant;
-    const hasVariant = hasSameVariant && (variantCopied || variantRenamed) && !updating;
+    const variantAdded = !initialGroup || !initialVariant;
+    const variantCopied = !!initialGroup && group !== initialGroup;
+    const variantRenamed = !!initialVariant && variant !== initialVariant;
+    const hasVariant = hasSameVariant && !updating && (variantAdded || variantCopied || variantRenamed);
+
     useEffect(() => {
         if (hasVariant && isEmpty(errors)) {
-            setErrors({ '': ERROR_EXISTS });
+            setErrors({ _: ERROR_EXISTS });
         }
     }, [hasVariant, errors]);
 
@@ -89,30 +92,22 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
         }
         try {
             setUpdating(true);
-            if (initialVariant) {
-                const update = {
-                    long: longTitle,
-                    short: shortTitle,
-                };
-                if (variantCopied) {
-                    await copyVariant(initialGroup, initialVariant, group, variant, update);
-                } else if (variantRenamed) {
-                    await renameVariant(initialGroup, initialVariant, variant, update);
-                } else if (initialLong !== longTitle || initialShort !== shortTitle) {
-                    await updateVariant(group, variant, {
-                        long: longTitle,
-                        short: shortTitle,
-                    });
-                }
-            } else {
-                await addVariant(group, variant, {
-                    long: longTitle,
-                    short: shortTitle,
-                });
+            const update = {
+                long: longTitle,
+                short: shortTitle,
+            };
+            if (!initialVariant) {
+                await addVariant(group, variant, update);
+            } else if (variantCopied) {
+                await copyVariant(initialGroup, initialVariant, group, variant, update);
+            } else if (variantRenamed) {
+                await renameVariant(initialGroup, initialVariant, variant, update);
+            } else if (initialLong !== longTitle || initialShort !== shortTitle) {
+                await updateVariant(group, variant, update);
             }
             onClose(group, variant);
         } catch (e) {
-            setErrors({ '': getErrorMessage(e) });
+            setErrors({ _: getErrorMessage(e) });
             nameRef?.focus();
         } finally {
             setUpdating(false);
@@ -154,7 +149,7 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
     );
 
     const closeLabel = useLabel('Close');
-    const errorLabel = useLabel(errors?.[''] ?? '');
+    const errorLabel = useLabel(errors?._ ?? '');
     const groupLabel = useLabel('Group');
     const variantLabel = useLabel('Variant name');
     const longLabel = useLabel('Long label');
@@ -176,10 +171,12 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
                 <Select
                     ref={groupRef}
                     fullWidth
+                    color={errors?.group ? 'negative' : 'primary'}
+                    invalid={!!errors?.group}
                     size="large"
                     value={group}
                     label={groupLabel}
-                    onChange={(value) => setGroup(value as string)}
+                    onChange={(e, value) => setGroup(value as string)}
                 >
                     {groups.map((g) => (
                         <Option key={g} value={g}>
@@ -190,11 +187,13 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
                 <Input
                     ref={nameRef}
                     fullWidth
-                    color={errors?.[''] || errors?.variant ? 'negative' : 'primary'}
-                    error={errors?.[''] ? errorLabel : undefined}
+                    color={errors?._ || errors?.variant ? 'negative' : 'primary'}
+                    invalid={!!errors?._ || !!errors?.variant}
+                    error={errors?._ ? errorLabel : undefined}
                     size="large"
                     value={variant}
                     label={variantLabel}
+                    placeholder={useLabel(PLACEHOLDER)}
                     onInput={handleVariantInput}
                     onKeyDown={handleEnter}
                 />

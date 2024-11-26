@@ -1,4 +1,4 @@
-import ListAltIcon from '@icons/ListAlt.svg';
+import ListAltIcon from '@assets/ListAlt.svg';
 import React from 'react';
 import { Label } from '~/client/common/Label';
 import { Links } from '~/client/Links';

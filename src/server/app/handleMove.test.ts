@@ -1,12 +1,14 @@
 /** @jest-environment node */
-import { type ApiRequest, type ApiDetails, type ApiMoveDetails } from '~/common/api';
+import { type ApiDetails, type ApiMoveDetails } from '~/common/api';
 import { handleMove } from '~/server/app/handleMove';
-import { getYearsAndDetails, moveDetails } from '~/server/data/details';
-import { getDetailsFixture, getYearsFixture } from '~/tests/fixtures';
+import { moveDetailsOccurrences } from '~/server/data/common';
+import { getDetailsWithYears } from '~/server/data/details';
+import { getDetailsFixture, getVariantsFixture, getYearsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
 
 jest.mock('~/server/app/debug');
+jest.mock('~/server/data/common');
 jest.mock('~/server/data/details');
 
 describe('handleMove', () => {
@@ -14,39 +16,40 @@ describe('handleMove', () => {
     const response = mockResponse<ApiDetails>();
     const years = getYearsFixture();
     const details = getDetailsFixture();
+    const variants = getVariantsFixture();
 
     afterEach(() => jest.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        (moveDetails as jest.Mock).mockResolvedValueOnce(true);
-        (getYearsAndDetails as jest.Mock).mockResolvedValueOnce({ years, details });
+        (moveDetailsOccurrences as jest.Mock).mockResolvedValueOnce(true);
+        (getDetailsWithYears as jest.Mock).mockResolvedValueOnce({ years, details, variants });
 
         await handleMove(request, response);
 
-        expect(moveDetails).toHaveBeenCalledWith('G', 'A', 'H');
-        expect(getYearsAndDetails).toHaveBeenCalledWith();
+        expect(moveDetailsOccurrences).toHaveBeenCalledWith('G', 'A', 'H', undefined);
+        expect(getDetailsWithYears).toHaveBeenCalledWith(true);
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: true, years, details });
+        expect(response.json).toHaveBeenCalledWith({ ok: true, years, details, variants });
     });
 
     it('returns empty response on failure', async () => {
-        (moveDetails as jest.Mock).mockResolvedValueOnce(false);
+        (moveDetailsOccurrences as jest.Mock).mockResolvedValueOnce(false);
 
         await handleMove(request, response);
 
-        expect(moveDetails).toHaveBeenCalledWith('G', 'A', 'H');
-        expect(getYearsAndDetails).not.toHaveBeenCalled();
+        expect(moveDetailsOccurrences).toHaveBeenCalledWith('G', 'A', 'H', undefined);
+        expect(getDetailsWithYears).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: false });
+        expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
     it('returns error response on error', async () => {
-        (moveDetails as jest.Mock).mockRejectedValueOnce('Failed to move');
+        (moveDetailsOccurrences as jest.Mock).mockRejectedValueOnce('Failed to move');
 
         await handleMove(request, response);
 
-        expect(moveDetails).toHaveBeenCalledWith('G', 'A', 'H');
-        expect(getYearsAndDetails).not.toHaveBeenCalled();
+        expect(moveDetailsOccurrences).toHaveBeenCalledWith('G', 'A', 'H', undefined);
+        expect(getDetailsWithYears).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to move' });
     });

@@ -1,7 +1,7 @@
 /** @jest-environment node */
 import { type ApiGroups } from '~/common/api';
 import { handleSetGroups } from '~/server/app/handleSetGroups';
-import { getGroups, setGroups } from '~/server/data/groups';
+import { getGroupsResponse, setGroups } from '~/server/data/groups';
 import { getGroupsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
@@ -18,12 +18,12 @@ describe('handleSetGroups', () => {
 
     it('returns filled response on success', async () => {
         (setGroups as jest.Mock).mockResolvedValueOnce(true);
-        (getGroups as jest.Mock).mockResolvedValueOnce(groups);
+        (getGroupsResponse as jest.Mock).mockResolvedValueOnce({ groups });
 
         await handleSetGroups(request, response);
 
         expect(setGroups).toHaveBeenCalledWith(groups);
-        expect(getGroups).toHaveBeenCalledWith();
+        expect(getGroupsResponse).toHaveBeenCalledWith(true);
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true, groups });
     });
@@ -34,9 +34,9 @@ describe('handleSetGroups', () => {
         await handleSetGroups(request, response);
 
         expect(setGroups).toHaveBeenCalledWith(groups);
-        expect(getGroups).not.toHaveBeenCalled();
+        expect(getGroupsResponse).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: false });
+        expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
     it('returns error response on error', async () => {
@@ -45,7 +45,7 @@ describe('handleSetGroups', () => {
         await handleSetGroups(request, response);
 
         expect(setGroups).toHaveBeenCalledWith(groups);
-        expect(getGroups).not.toHaveBeenCalled();
+        expect(getGroupsResponse).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to set groups' });
     });

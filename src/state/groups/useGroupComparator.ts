@@ -1,6 +1,7 @@
 import { isEqual } from 'lodash';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
+import { compareNames } from '~/client/utils/compareNames';
 import { type WithGroupsState } from './types';
 
 export function useGroupComparator(): (a: string, b: string) => number {
@@ -11,7 +12,8 @@ export function useGroupComparator(): (a: string, b: string) => number {
     );
     return useCallback(
         (a: string, b: string): number =>
-            (groupOrders[a] ?? Number.POSITIVE_INFINITY) - (groupOrders[b] ?? Number.POSITIVE_INFINITY),
+            (groupOrders[a] ?? Number.POSITIVE_INFINITY) - (groupOrders[b] ?? Number.POSITIVE_INFINITY) ||
+            compareNames(a, b),
         [groupOrders]
     );
 }

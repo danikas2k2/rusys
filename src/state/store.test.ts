@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { useDev } from '~/hooks/useDev';
+import { useDev } from '~/common/hooks/useDev';
 import { reducer } from '~/state/base/reducer';
 import { getStore } from '~/state/store';
 
-jest.mock('~/hooks/useDev', () => ({
+jest.mock('~/common/hooks/useDev', () => ({
     useDev: jest.fn().mockReturnValue(false),
 }));
 jest.mock('@reduxjs/toolkit', () => ({

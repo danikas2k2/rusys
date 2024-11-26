@@ -1,15 +1,15 @@
 /** @jest-environment node */
-import { type ApiRequestVariant, type ApiDetails } from '~/common/api';
+import { type ApiDetails, type ApiRequestVariant } from '~/common/api';
 import { handleDeleteVariant } from '~/server/app/handleDeleteVariant';
 import { deleteVariantOccurrences } from '~/server/data/common';
-import { getYearsAndDetails } from '~/server/data/details';
+import { getVariantsResponse } from '~/server/data/variants';
 import { getDetailsFixture, getYearsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
 
 jest.mock('~/server/app/debug');
 jest.mock('~/server/data/common');
-jest.mock('~/server/data/details');
+jest.mock('~/server/data/variants');
 
 describe('handleDeleteVariant', () => {
     const request = mockRequest<ApiRequestVariant>({ group: 'G', variant: 'd' });
@@ -21,12 +21,12 @@ describe('handleDeleteVariant', () => {
 
     it('returns filled response on success', async () => {
         (deleteVariantOccurrences as jest.Mock).mockResolvedValueOnce(true);
-        (getYearsAndDetails as jest.Mock).mockResolvedValueOnce({ years, details });
+        (getVariantsResponse as jest.Mock).mockResolvedValueOnce({ years, details });
 
         await handleDeleteVariant(request, response);
 
         expect(deleteVariantOccurrences).toHaveBeenCalledWith('G', 'd');
-        expect(getYearsAndDetails).toHaveBeenCalledWith();
+        expect(getVariantsResponse).toHaveBeenCalledWith(true);
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true, years, details });
     });
@@ -37,9 +37,9 @@ describe('handleDeleteVariant', () => {
         await handleDeleteVariant(request, response);
 
         expect(deleteVariantOccurrences).toHaveBeenCalledWith('G', 'd');
-        expect(getYearsAndDetails).not.toHaveBeenCalled();
+        expect(getVariantsResponse).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: false });
+        expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
     it('returns error response on error', async () => {
@@ -48,7 +48,7 @@ describe('handleDeleteVariant', () => {
         await handleDeleteVariant(request, response);
 
         expect(deleteVariantOccurrences).toHaveBeenCalledWith('G', 'd');
-        expect(getYearsAndDetails).not.toHaveBeenCalled();
+        expect(getVariantsResponse).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to delete variant' });
     });

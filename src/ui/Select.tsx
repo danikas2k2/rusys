@@ -1,13 +1,16 @@
-import ExpandDownIcon from '@icons/ExpandDown.svg';
+import ExpandDownIcon from '@assets/ExpandDown.svg';
 import { Button } from '@ui/Button';
 import { Dropdown, type DropdownRef } from '@ui/Dropdown';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { useOutsideClick } from '@ui/hooks/useOutsideClick';
 import { Input, type InputProps, type InputState, type InputVariant } from '@ui/Input';
 import { Interactive } from '@ui/Interactive';
+import { uniqueId } from '@ui/utils/uniqueId';
 import classNames from 'classnames';
 import React, {
+    type ChangeEvent,
     cloneElement,
+    type FocusEvent,
     type FormEvent,
     type ForwardedRef,
     forwardRef,
@@ -23,44 +26,20 @@ import React, {
 import { matchParts } from '~/client/utils/matchParts';
 import cx from './Select.less';
 
-export type OptionProps<T = string | number> = PropsWithChildren<{
-    value: T;
-    label?: string;
-    selected?: boolean;
-    disabled?: boolean;
-    className?: string;
-    onClick?: (e: MouseEvent<HTMLDivElement>) => void;
-}>;
-
-export const Option = forwardRef(function Option(
-    { value, label, selected, disabled, className, onClick, children }: OptionProps,
-    forwardedRef: ForwardedRef<HTMLDivElement>
-) {
-    const ref = useForwardedRef(forwardedRef);
-    return (
-        <Interactive
-            ref={ref}
-            role="option"
-            data-value={value}
-            data-label={label}
-            className={classNames(cx('Option', { selected, disabled }), className)}
-            onClick={disabled ? undefined : onClick}
-        >
-            {children}
-        </Interactive>
-    );
-});
-
-export interface SelectProps<T = string> extends Omit<InputProps, 'mode' | 'value' | 'onChange'> {
+export interface SelectProps<T = string | number, E extends HTMLElement = HTMLElement>
+    extends Omit<InputProps, 'mode' | 'value' | 'onChange'> {
     value?: T;
     content?: string;
     mode?: 'single' | 'multiple';
-    children?: ReactElement<OptionProps<T>>[];
-    onChange?: (value: T, text: string | undefined, i: number) => void;
+    // TODO think about using anything for children, not only array of options
+    children?: ReactElement<OptionProps<T, E>>[];
+    onChange?: (e: ChangeEvent<E>, value: T, text: string | undefined, i: number) => void;
 }
 
-export const Select = forwardRef(function Select<T = string>(
+// TODO add translation context and translate toggle button label
+export const Select = forwardRef(function Select<T = string, E extends HTMLElement = HTMLElement>(
     {
+        id = uniqueId('select'),
         value: initialValue,
         content: initialLabel,
         mode = 'single',
@@ -68,12 +47,13 @@ export const Select = forwardRef(function Select<T = string>(
         error,
         invalid = !!error,
         color = invalid ? 'negative' : 'neutral',
+        onClick,
         onChange,
         readOnly,
         className,
         endDecorator,
         ...props
-    }: SelectProps<T>,
+    }: SelectProps<T, E>,
     forwardedRef: ForwardedRef<HTMLInputElement>
 ) {
     const inputRef = useForwardedRef(forwardedRef);
@@ -98,7 +78,7 @@ export const Select = forwardRef(function Select<T = string>(
 
     const [filter, setFilter] = useState<string>();
 
-    const handleInput = useCallback(
+    const handleChange = useCallback(
         (e: FormEvent<HTMLInputElement>) => {
             if (filter !== e.currentTarget.value) {
                 setFilter(e.currentTarget.value);
@@ -116,8 +96,9 @@ export const Select = forwardRef(function Select<T = string>(
     const dropdownRef = useRef<DropdownRef>(null);
 
     const handleOption = useCallback(
-        (value: T, label: string | undefined, children: ReactNode, i: number) => {
-            if (currentValue !== value) {
+        (e: ChangeEvent<E>, value: T, label: string | undefined, children: ReactNode, i: number) => {
+            const changed = currentValue !== value;
+            if (changed) {
                 setCurrentValue(value);
             }
             const content = label ?? children?.toString() ?? undefined;
@@ -130,7 +111,9 @@ export const Select = forwardRef(function Select<T = string>(
             if (mode === 'single') {
                 dropdownRef.current?.close();
             }
-            onChange?.(value, content, i);
+            if (changed) {
+                onChange?.(e, value, content, i);
+            }
         },
         [currentLabel, currentValue, filter, mode, onChange]
     );
@@ -139,33 +122,51 @@ export const Select = forwardRef(function Select<T = string>(
         ?.filter((option) => !filter || matchParts(option.props.label ?? option.props.children?.toString(), filter))
         .map((option, key) => {
             const { value, label, children, disabled } = option.props;
+            const selected = currentValue === value;
             return cloneElement(option, {
                 ...option.props,
                 key,
-                selected: currentValue === value,
-                onClick: disabled ? undefined : () => handleOption(value, label, children, key),
+                selected,
+                onClick: disabled
+                    ? undefined
+                    : (e: MouseEvent<HTMLElement>) => {
+                          onClick?.(e as MouseEvent<HTMLInputElement>);
+                          handleOption(e as unknown as ChangeEvent<E>, value, label, children, key);
+                      },
             });
         });
+    const filteredOut = !filteredOptions?.length;
 
     useEffect(() => {
-        if (filter && filteredOptions?.length) {
+        if (filter && !filteredOut) {
             dropdownRef.current?.open();
         } else {
             dropdownRef.current?.close();
         }
-    }, [filter, filteredOptions?.length]);
+    }, [filter, filteredOut]);
+
+    const [hasFocus, setHasFocus] = useState(false);
 
     const handleFocus = useCallback(() => {
-        if (filteredOptions?.length) {
+        setHasFocus(true);
+        if (!filteredOut) {
             dropdownRef.current?.open();
         }
-    }, [filteredOptions?.length]);
+    }, [filteredOut]);
 
-    const handleBlur = useCallback(() => {
-        if (filter) {
-            setFilter(undefined);
-        }
-    }, [filter]);
+    const handleBlur = useCallback(
+        (e: FocusEvent<HTMLInputElement>) => {
+            setHasFocus(false);
+            if (
+                filter &&
+                !anchorRef.current?.contains(e.relatedTarget) &&
+                !dropdownRef.current?.getDialogElement()?.contains(e.relatedTarget)
+            ) {
+                setFilter(undefined);
+            }
+        },
+        [filter]
+    );
 
     const anchorRef = useRef<HTMLDivElement | null>(null);
 
@@ -173,7 +174,8 @@ export const Select = forwardRef(function Select<T = string>(
         const relatedTarget = e.target as Node;
         if (
             !anchorRef.current?.contains(relatedTarget) &&
-            !dropdownRef.current?.getDialogElement()?.contains(relatedTarget)
+            !dropdownRef.current?.getDialogElement()?.contains(relatedTarget) &&
+            dropdownRef.current?.isOpen
         ) {
             dropdownRef.current?.close();
         }
@@ -181,33 +183,36 @@ export const Select = forwardRef(function Select<T = string>(
 
     const [expanded, setExpanded] = useState(false);
     const [state, setState] = useState<InputState>('default');
+    const active = expanded || hasFocus;
 
     useEffect(() => {
-        if (expanded) {
+        if (active) {
             setState('active');
         } else {
             setState('default');
         }
-    }, [expanded]);
+    }, [active]);
 
     const handlePointerEnter = useCallback(() => {
-        const newState = expanded ? 'active' : 'hover';
+        const newState = active ? 'active' : 'hover';
         if (state !== newState) {
             setState(newState);
         }
-    }, [expanded, state]);
+    }, [active, state]);
 
     const handlePointerLeave = useCallback(() => {
-        const newState = expanded ? 'active' : 'default';
+        const newState = active ? 'active' : 'default';
         if (state !== newState) {
             setState(newState);
         }
-    }, [expanded, state]);
+    }, [active, state]);
 
-    const inputValue = filter ?? currentLabel?.toString();
+    const inputId = `${id}-input`;
+    const inputValue = filter ?? (hasFocus ? undefined : currentLabel?.toString());
 
     return (
         <div
+            id={id}
             ref={anchorRef}
             role="listbox"
             className={classNames(
@@ -216,18 +221,26 @@ export const Select = forwardRef(function Select<T = string>(
                 }),
                 className
             )}
+            aria-expanded={expanded}
+            aria-labelledby={inputId}
         >
             <Input
                 ref={inputRef}
+                id={inputId}
                 mode="text"
-                value={inputValue}
+                value={inputValue ?? ''}
+                placeholder={currentLabel?.toString()}
+                placeholderColor={currentLabel ? color : undefined}
                 error={error}
                 invalid={invalid}
+                aria-invalid={invalid}
                 color={color}
                 readOnly={readOnly}
+                aria-readonly={readOnly}
                 clearable={!readOnly && !!inputValue && state === 'active'}
+                aria-controls={id}
                 onClear={handleClear}
-                onInput={handleInput}
+                onChange={handleChange}
                 onPointerEnter={handlePointerEnter}
                 onPointerLeave={handlePointerLeave}
                 onFocus={handleFocus}
@@ -251,6 +264,10 @@ export const Select = forwardRef(function Select<T = string>(
                                     size="medium"
                                     align="end"
                                     fullHeight
+                                    disabled={filteredOut}
+                                    aria-disabled={filteredOut}
+                                    aria-controls={id}
+                                    aria-label="toggle"
                                 >
                                     <ExpandDownIcon />
                                 </Button>
@@ -267,6 +284,37 @@ export const Select = forwardRef(function Select<T = string>(
         </div>
     );
 }) as <T = string>(props: SelectProps<T> & { ref?: ForwardedRef<HTMLInputElement> }) => ReactElement;
+
+export type OptionProps<T = string | number, E extends HTMLElement = HTMLElement> = PropsWithChildren<{
+    value: T;
+    label?: string;
+    selected?: boolean;
+    disabled?: boolean;
+    className?: string;
+    onClick?: (e: MouseEvent<E>) => void;
+}>;
+
+export const Option = forwardRef(function Option<T = string | number, E extends HTMLElement = HTMLElement>(
+    { value, label, selected, disabled, className, onClick, children }: OptionProps<T, E>,
+    forwardedRef: ForwardedRef<E>
+) {
+    const ref = useForwardedRef(forwardedRef);
+    return (
+        <Interactive
+            ref={ref}
+            role="option"
+            // data-value={value}
+            // data-label={label}
+            className={classNames(cx('Option', { selected, disabled }), className)}
+            aria-selected={selected} // use aria-checked for multiple select
+            aria-disabled={disabled}
+            aria-label={label}
+            onClick={disabled ? undefined : onClick}
+        >
+            {children}
+        </Interactive>
+    );
+});
 
 function getButtonVariant(variant?: InputVariant): typeof variant {
     return !variant || variant === 'outlined' ? 'plain' : variant;

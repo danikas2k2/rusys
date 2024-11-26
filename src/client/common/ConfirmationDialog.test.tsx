@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
 import React from 'react';
+import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
 
 jest.mock('~/client/common/Label');
 

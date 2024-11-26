@@ -56,8 +56,8 @@ describe('Interactive', () => {
         const onKeyDown = jest.fn();
         render(<Interactive onClick={onClick} onKeyDown={onKeyDown} />);
         await userEvent.type(screen.getByRole('button'), 'a');
-        expect(onClick).toHaveBeenCalledTimes(1); // first click is to focus
-        expect(onKeyDown).toHaveBeenCalledTimes(1);
+        expect(onClick).toHaveBeenCalledOnce(); // first click is to focus
+        expect(onKeyDown).toHaveBeenCalledOnce();
         expect(onKeyDown).toHaveBeenCalledWith(expect.objectContaining({ key: 'a' }));
     });
 });

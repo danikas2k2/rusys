@@ -18,7 +18,7 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { usePreviousValue } from '~/hooks/usePreviousValue';
+import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 import cx from './Dropdown.less';
 
 interface DropdownTriggerElementProps {
@@ -51,6 +51,7 @@ export interface DropdownRef {
     getDialogElement: () => HTMLElement | null;
 }
 
+// TODO add translation context and translate backdrop label
 export const Dropdown = forwardRef(function Dropdown(
     {
         anchor,
@@ -133,7 +134,7 @@ export const Dropdown = forwardRef(function Dropdown(
     const vAnchor = anchors[1] ?? triggerRef;
     const v = vAnchor?.current?.getBoundingClientRect();
     const insetInlineStart = (h?.x ?? 0) + window.scrollX;
-    const insetBlockStart = (v?.y ?? 0) + window.scrollY + (hover ? 0 : v?.height ?? 0);
+    const insetBlockStart = (v?.y ?? 0) + window.scrollY + (hover ? 0 : (v?.height ?? 0));
     const minWidth = h?.width ?? 0;
     const width = autoWidth ? 'auto' : minWidth;
 

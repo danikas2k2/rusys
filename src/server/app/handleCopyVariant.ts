@@ -1,13 +1,13 @@
 import {
+    type ApiCopyVariant,
+    type ApiDetails,
     type ApiRequest,
     type ApiResponse,
-    type ApiDetails,
-    type ApiCopyVariant,
     type ApiVariants,
 } from '~/common/api';
 import { debugRequest } from '~/server/app/debug';
 import { headerNoCache, run } from '~/server/app/utils';
-import { getDetailsAndVariants, copyVariant } from '~/server/data/variants';
+import { copyVariant, getDetailsAndVariants } from '~/server/data/variants';
 
 export async function handleCopyVariant(
     req: ApiRequest<ApiCopyVariant>,

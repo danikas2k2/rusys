@@ -53,11 +53,11 @@
     "Invalid Client ID": {
         "lt-LT": "Netinkamas kliento ID"
     },
-    "Items removed": {
+    "Recycled": {
         "lt-LT": "Išmesta"
     },
-    "Items used": {
-        "lt-LT": "Suvalgyta"
+    "Consumed": {
+        "lt-LT": "Sunaudota"
     },
     "List": {
         "lt-LT": "Sąrašas"
@@ -121,6 +121,9 @@
     },
     "Variants": {
         "lt-LT": "Variantai"
+    },
+    "Move": {
+        "lt-LT": "Perkelti"
     },
     "type to filter": {
         "lt-LT": "filtruokite"

@@ -31,7 +31,7 @@ describe('handleUpdateGroup', () => {
 
         expect(updateGroup).toHaveBeenCalledWith('G', 3);
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: false });
+        expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
     it('returns error response on error', async () => {

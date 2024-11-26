@@ -11,16 +11,16 @@ describe('useVariantComparator', () => {
 
     it('returns sorted variants', async () => {
         const { result } = renderHook(() => useVariantComparator(), withReduxState(state));
-        expect(['x', 'd', 'm', 'p', 'e'].sort(result.current('J'))).toEqual(['p', 'd', 'm', 'e', 'x']);
+        expect(['x', 'd', 'm', 'p', 'e'].sort(result.current('Uogienės'))).toEqual(['p', 'd', 'm', 'e', 'x']);
     });
 
     it('returns sorted variants for different group', async () => {
         const { result } = renderHook(() => useVariantComparator(), withReduxState(state));
-        expect(['1', 'p', 'd', 'x', 'm'].sort(result.current('G'))).toEqual(['d', 'p', 'm', '1', 'x']);
+        expect(['1', 'p', 'd', 'x', 'm'].sort(result.current('Daržovės'))).toEqual(['d', 'p', 'm', '1', 'x']);
     });
 
     it('leaves invalid variants at the end of list', async () => {
         const { result } = renderHook(() => useVariantComparator(), withReduxState(state));
-        expect(['1', 'p', 'd', 'm', '3', '2'].sort(result.current('J'))).toEqual(['p', 'd', 'm', '1', '3', '2']);
+        expect(['1', 'p', 'd', 'm', '3', '2'].sort(result.current('Uogienės'))).toEqual(['p', 'd', 'm', '1', '3', '2']);
     });
 });

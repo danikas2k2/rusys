@@ -150,11 +150,22 @@ describe('useLongPress', () => {
         it('stops long press timer on pointer move', () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
 
-            act(() => fireEvent.touchStart(screen.getByRole('button')));
-            act(() => fireEvent.touchMove(screen.getByRole('button')));
+            act(() => fireEvent.touchStart(screen.getByRole('button'), { touches: [{ clientX: 0, clientY: 0 }] }));
+            act(() => fireEvent.touchMove(screen.getByRole('button'), { touches: [{ clientX: 100, clientY: 100 }] }));
             jest.advanceTimersByTime(500);
 
             expect(onLongPress).not.toHaveBeenCalled();
+            expect(onShortPress).not.toHaveBeenCalled();
+        });
+
+        it('calls onLongPress if pointer moves less than threshold', () => {
+            render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
+
+            act(() => fireEvent.touchStart(screen.getByRole('button'), { touches: [{ clientX: 0, clientY: 0 }] }));
+            act(() => fireEvent.touchMove(screen.getByRole('button'), { touches: [{ clientX: 5, clientY: 5 }] }));
+            jest.advanceTimersByTime(500);
+
+            expect(onLongPress).toHaveBeenCalled();
             expect(onShortPress).not.toHaveBeenCalled();
         });
     });

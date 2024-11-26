@@ -1,7 +1,15 @@
 import { useCallback } from 'react';
-import { useSetDetailsYears } from '~/state/details/useSetDetailsYears';
+import { type ApiRequestDetails, ApiUrl } from '~/common/api';
+import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 
 export function useAddDetails(): (group: string, name: string) => Promise<void> {
-    const setYears = useSetDetailsYears();
-    return useCallback(async (group: string, name: string): Promise<void> => setYears(group, name), [setYears]);
+    const request = useUpdatingApiRequest<ApiRequestDetails>();
+    return useCallback(
+        async (group: string, name: string): Promise<void> => {
+            if (group && name) {
+                return request(ApiUrl.DetailsAdd, { group, name });
+            }
+        },
+        [request]
+    );
 }

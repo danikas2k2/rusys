@@ -1,57 +1,66 @@
 /** @jest-environment node */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
+
 import { ClientSession } from 'mongodb';
 import {
     deleteGroupOccurrences,
     deleteVariantOccurrences,
+    moveDetailsOccurrences,
     renameGroupOccurrences,
     renameVariantOccurrences,
 } from '~/server/data/common';
 import {
     deleteDetailsGroup,
     deleteDetailsVariant,
+    moveDetails,
     renameDetailsGroup,
     renameDetailsVariant,
 } from '~/server/data/details';
 import { deleteGroup, renameGroup } from '~/server/data/groups';
+import { getAllDetails, getAllGroups, getAllVariants } from '~/server/data/tests/utils';
 import {
-    getAllDetails,
-    getAllGroups,
-    getAllVariants,
-    LESS_DETAILS_FIELDS,
-    LESS_VARIANTS_FIELDS,
-} from '~/server/data/tests/utils';
-import { deleteVariant, deleteVariantsGroup, renameVariant, renameVariantsGroup } from '~/server/data/variants';
+    copyDetailsVariants,
+    deleteVariant,
+    deleteVariantsGroup,
+    renameVariant,
+    renameVariantsGroup,
+} from '~/server/data/variants';
 import { getDetailsCollection, getGroupsCollection, getVariantsCollection } from '~/server/db';
 import { getDetailsFixture, getGroupsFixture, getVariantsFixture } from '~/tests/fixtures';
 
 jest.mock('~/server/db');
 
-jest.mock('~/server/data/details', () => ({
-    ...jest.requireActual('~/server/data/details'),
-    deleteDetailsGroup: jest.fn().mockImplementation(jest.requireActual('~/server/data/details').deleteDetailsGroup),
-    deleteDetailsVariant: jest
-        .fn()
-        .mockImplementation(jest.requireActual('~/server/data/details').deleteDetailsVariant),
-    renameDetailsGroup: jest.fn().mockImplementation(jest.requireActual('~/server/data/details').renameDetailsGroup),
-    renameDetailsVariant: jest
-        .fn()
-        .mockImplementation(jest.requireActual('~/server/data/details').renameDetailsVariant),
-}));
+jest.mock('~/server/data/details', () => {
+    const actual = jest.requireActual('~/server/data/details');
+    return {
+        ...actual,
+        moveDetails: jest.fn().mockImplementation(actual.moveDetails),
+        deleteDetailsGroup: jest.fn().mockImplementation(actual.deleteDetailsGroup),
+        deleteDetailsVariant: jest.fn().mockImplementation(actual.deleteDetailsVariant),
+        renameDetailsGroup: jest.fn().mockImplementation(actual.renameDetailsGroup),
+        renameDetailsVariant: jest.fn().mockImplementation(actual.renameDetailsVariant),
+    };
+});
 
-jest.mock('~/server/data/groups', () => ({
-    ...jest.requireActual('~/server/data/groups'),
-    deleteGroup: jest.fn().mockImplementation(jest.requireActual('~/server/data/groups').deleteGroup),
-    renameGroup: jest.fn().mockImplementation(jest.requireActual('~/server/data/groups').renameGroup),
-}));
+jest.mock('~/server/data/groups', () => {
+    const actual = jest.requireActual('~/server/data/groups');
+    return {
+        ...actual,
+        deleteGroup: jest.fn().mockImplementation(actual.deleteGroup),
+        renameGroup: jest.fn().mockImplementation(actual.renameGroup),
+    };
+});
 
-jest.mock('~/server/data/variants', () => ({
-    ...jest.requireActual('~/server/data/variants'),
-    deleteVariant: jest.fn().mockImplementation(jest.requireActual('~/server/data/variants').deleteVariant),
-    deleteVariantsGroup: jest.fn().mockImplementation(jest.requireActual('~/server/data/variants').deleteVariantsGroup),
-    renameVariant: jest.fn().mockImplementation(jest.requireActual('~/server/data/variants').renameVariant),
-    renameVariantsGroup: jest.fn().mockImplementation(jest.requireActual('~/server/data/variants').renameVariantsGroup),
-}));
+jest.mock('~/server/data/variants', () => {
+    const actual = jest.requireActual('~/server/data/variants');
+    return {
+        ...actual,
+        copyDetailsVariants: jest.fn().mockImplementation(actual.copyDetailsVariants),
+        deleteVariant: jest.fn().mockImplementation(actual.deleteVariant),
+        deleteVariantsGroup: jest.fn().mockImplementation(actual.deleteVariantsGroup),
+        renameVariant: jest.fn().mockImplementation(actual.renameVariant),
+        renameVariantsGroup: jest.fn().mockImplementation(actual.renameVariantsGroup),
+    };
+});
 
 describe('common', () => {
     jest.setTimeout(30_000);
@@ -75,11 +84,91 @@ describe('common', () => {
 
     const session = expect.any(ClientSession);
 
+    describe('moveDetailsOccurrences', () => {
+        it('moves details occurrences, returns true', async () => {
+            expect(await moveDetailsOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).toBeTrue();
+            expect(moveDetails).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
+            expect(copyDetailsVariants).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', session);
+            expect(await getAllGroups()).toEqual(groups);
+            expect(await getAllVariants()).toEqual([
+                ...variants,
+                { group: 'Šaldyti', variant: 'd', long: '3 l.', order: 0 },
+            ]);
+            expect(await getAllDetails()).toEqual([
+                ...details.slice(0, 2),
+                { ...details[2], group: 'Šaldyti' },
+                ...details.slice(3),
+            ]);
+        });
+
+        it('moves details occurrences with new name, returns true', async () => {
+            expect(await moveDetailsOccurrences('Daržovės', 'Agurkai', 'Šaldyti', 'Agurkėliai')).toBeTrue();
+            expect(moveDetails).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', 'Agurkėliai', session);
+            expect(copyDetailsVariants).toHaveBeenCalledWith('Daržovės', 'Agurkėliai', 'Šaldyti', session);
+            expect(await getAllGroups()).toEqual(groups);
+            expect(await getAllVariants()).toEqual([
+                ...variants,
+                { group: 'Šaldyti', variant: 'd', long: '3 l.', order: 0 },
+            ]);
+            expect(await getAllDetails()).toEqual([
+                ...details.slice(0, 2),
+                { ...details[2], group: 'Šaldyti', name: 'Agurkėliai' },
+                ...details.slice(3),
+            ]);
+        });
+
+        it('returns false if moveDetails returns false', async () => {
+            (moveDetails as jest.Mock).mockResolvedValueOnce(false);
+            expect(await moveDetailsOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).toBeFalse();
+            expect(moveDetails).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
+            expect(copyDetailsVariants).not.toHaveBeenCalledWith();
+            expect(await getAllGroups()).toEqual(groups);
+            expect(await getAllVariants()).toEqual(variants);
+            expect(await getAllDetails()).toEqual(details);
+        });
+
+        it('rejects if moveDetails fails', async () => {
+            (moveDetails as jest.Mock).mockRejectedValueOnce('failed to move details');
+            await expect(moveDetailsOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).toReject();
+            expect(moveDetails).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
+            expect(copyDetailsVariants).not.toHaveBeenCalledWith();
+            expect(await getAllGroups()).toEqual(groups);
+            expect(await getAllVariants()).toEqual(variants);
+            expect(await getAllDetails()).toEqual(details);
+        });
+
+        it('rejects if copyDetailsVariants fails', async () => {
+            (copyDetailsVariants as jest.Mock).mockRejectedValueOnce('failed to rename variants group');
+            await expect(moveDetailsOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).toReject();
+            expect(moveDetails).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
+            expect(copyDetailsVariants).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', session);
+            expect(await getAllGroups()).toEqual(groups);
+            expect(await getAllVariants()).toEqual(variants);
+            expect(await getAllDetails()).toEqual(details);
+        });
+    });
+
     describe('renameGroupOccurrences', () => {
+        it('renames all group occurrences, returns true', async () => {
+            expect(await renameGroupOccurrences('Daržovės', 'Šaldyti')).toBeTrue();
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
+            expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
+            expect(renameDetailsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
+            expect(await getAllGroups()).toEqual([{ ...groups[0], group: 'Šaldyti' }, ...groups.slice(1)]);
+            expect(await getAllVariants()).toEqual([
+                ...variants.slice(0, 5),
+                ...variants.slice(5).map((v) => ({ ...v, group: 'Šaldyti' })),
+            ]);
+            expect(await getAllDetails()).toEqual([
+                ...details.slice(0, 2),
+                ...details.slice(2).map((d) => ({ ...d, group: 'Šaldyti' })),
+            ]);
+        });
+
         it('returns false if renameGroup returns false', async () => {
             (renameGroup as jest.Mock).mockResolvedValueOnce(false);
-            expect(await renameGroupOccurrences('G', 'H')).toBeFalse();
-            expect(renameGroup).toHaveBeenCalledWith('G', 'H', session);
+            expect(await renameGroupOccurrences('Daržovės', 'Šaldyti')).toBeFalse();
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameVariantsGroup).not.toHaveBeenCalled();
             expect(renameDetailsGroup).not.toHaveBeenCalled();
             expect(await getAllGroups()).toEqual(groups);
@@ -87,99 +176,10 @@ describe('common', () => {
             expect(await getAllDetails()).toEqual(details);
         });
 
-        it('returns false if renameVariantsGroup returns false', async () => {
-            (renameVariantsGroup as jest.Mock).mockResolvedValueOnce(false);
-            expect(await renameGroupOccurrences('G', 'H')).toBeFalse();
-            expect(renameGroup).toHaveBeenCalledWith('G', 'H', session);
-            expect(renameVariantsGroup).toHaveBeenCalledWith('G', 'H', session);
-            expect(renameDetailsGroup).not.toHaveBeenCalled();
-            expect(await getAllGroups()).toEqual(groups);
-            expect(await getAllVariants()).toEqual(variants);
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('returns false if renameDetailsGroup returns false', async () => {
-            (renameDetailsGroup as jest.Mock).mockResolvedValueOnce(false);
-            expect(await renameGroupOccurrences('G', 'H')).toBeFalse();
-            expect(renameGroup).toHaveBeenCalledWith('G', 'H', session);
-            expect(renameVariantsGroup).toHaveBeenCalledWith('G', 'H', session);
-            expect(renameDetailsGroup).toHaveBeenCalledWith('G', 'H', session);
-            expect(await getAllGroups()).toEqual(groups);
-            expect(await getAllVariants()).toEqual(variants);
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('returns true if all functions returns true', async () => {
-            expect(await renameGroupOccurrences('G', 'H')).toBeTrue();
-            expect(renameGroup).toHaveBeenCalledWith('G', 'H', session);
-            expect(renameVariantsGroup).toHaveBeenCalledWith('G', 'H', session);
-            expect(renameDetailsGroup).toHaveBeenCalledWith('G', 'H', session);
-            expect(await getAllGroups()).toEqual([
-                { group: 'H', order: 2 },
-                { group: 'J', order: 1 },
-            ]);
-            expect(await getAllVariants(LESS_VARIANTS_FIELDS)).toEqual([
-                { group: 'J', variant: 'p', order: 0 },
-                { group: 'J', variant: 'd', order: 1 },
-                { group: 'J', variant: 'm', order: 2 },
-                { group: 'J', variant: 'e', order: 3 },
-                { group: 'J', variant: 'x', order: 4 },
-                { group: 'H', variant: 'd', order: 0 },
-                { group: 'H', variant: 'p', order: 1 },
-                { group: 'H', variant: 'm', order: 2 },
-                { group: 'H', variant: '1', order: 3 },
-                { group: 'H', variant: 'x', order: 4 },
-            ]);
-            expect(await getAllDetails(LESS_DETAILS_FIELDS)).toEqual([
-                {
-                    group: 'J',
-                    name: 'A',
-                    years: [{ year: 21, amounts: [{ variant: 'p' }] }],
-                    updates: [
-                        {
-                            years: [
-                                { year: 20, amounts: [{ variant: 'p' }] },
-                                { year: 21, amounts: [{ variant: 'p' }] },
-                            ],
-                        },
-                        {
-                            years: [
-                                { year: 21, amounts: [{ variant: 'p' }] },
-                                { year: 22, amounts: [{ variant: 'p' }] },
-                            ],
-                        },
-                        { years: [{ year: 22, amounts: [{ variant: 'p' }] }] },
-                    ],
-                },
-                {
-                    group: 'J',
-                    name: 'B',
-                    years: [{ year: 22, amounts: [{ variant: 'p' }] }],
-                    updates: [
-                        { years: [{ year: 22, amounts: [{ variant: 'p' }] }] },
-                        { years: [{ year: 22, amounts: [{ variant: 'p' }] }] },
-                    ],
-                },
-                {
-                    group: 'H',
-                    name: 'A',
-                    years: [{ year: 22, amounts: [{ variant: 'd' }] }],
-                    updates: [
-                        { years: [{ year: 22, amounts: [{ variant: 'd' }] }] },
-                        { years: [{ year: 22, amounts: [{ variant: 'd' }] }] },
-                    ],
-                },
-                {
-                    group: 'H',
-                    name: 'C',
-                    years: [{ year: 21, amounts: [{ variant: 'p' }] }],
-                },
-            ]);
-        });
-
-        it('does nothing if group not found', async () => {
-            expect(await renameGroupOccurrences('H', 'G')).toBeFalse();
-            expect(renameGroup).toHaveBeenCalledWith('H', 'G', session);
+        it('rejects if renameGroup fails', async () => {
+            (renameGroup as jest.Mock).mockRejectedValueOnce('failed to rename group');
+            await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).toReject();
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameVariantsGroup).not.toHaveBeenCalled();
             expect(renameDetailsGroup).not.toHaveBeenCalled();
             expect(await getAllGroups()).toEqual(groups);
@@ -187,11 +187,23 @@ describe('common', () => {
             expect(await getAllDetails()).toEqual(details);
         });
 
-        it('does nothing if groups are the same', async () => {
-            expect(await renameGroupOccurrences('G', 'G')).toBeFalse();
-            expect(renameGroup).toHaveBeenCalledWith('G', 'G', session);
-            expect(renameVariantsGroup).not.toHaveBeenCalled();
+        it('rejects if renameVariantsGroup fails', async () => {
+            (renameVariantsGroup as jest.Mock).mockRejectedValueOnce('failed to rename variants group');
+            await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).toReject();
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
+            expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameDetailsGroup).not.toHaveBeenCalled();
+            expect(await getAllGroups()).toEqual(groups);
+            expect(await getAllVariants()).toEqual(variants);
+            expect(await getAllDetails()).toEqual(details);
+        });
+
+        it('rejects if renameDetailsGroup fails', async () => {
+            (renameDetailsGroup as jest.Mock).mockRejectedValueOnce('failed to rename details group');
+            await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).toReject();
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
+            expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
+            expect(renameDetailsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(await getAllGroups()).toEqual(groups);
             expect(await getAllVariants()).toEqual(variants);
             expect(await getAllDetails()).toEqual(details);
@@ -199,10 +211,20 @@ describe('common', () => {
     });
 
     describe('deleteGroupOccurrences', () => {
+        it('deletes all group occurrences, returns true', async () => {
+            expect(await deleteGroupOccurrences('Daržovės')).toBeTrue();
+            expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
+            expect(deleteVariantsGroup).toHaveBeenCalledWith('Daržovės', session);
+            expect(deleteDetailsGroup).toHaveBeenCalledWith('Daržovės', session);
+            expect(await getAllGroups()).toEqual(groups.slice(1));
+            expect(await getAllVariants()).toEqual(variants.slice(0, 5));
+            expect(await getAllDetails()).toEqual(details.slice(0, 2));
+        });
+
         it('returns false if deleteGroup returns false', async () => {
             (deleteGroup as jest.Mock).mockResolvedValueOnce(false);
-            expect(await deleteGroupOccurrences('G')).toBeFalse();
-            expect(deleteGroup).toHaveBeenCalledWith('G', session);
+            expect(await deleteGroupOccurrences('Daržovės')).toBeFalse();
+            expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteVariantsGroup).not.toHaveBeenCalled();
             expect(deleteDetailsGroup).not.toHaveBeenCalled();
             expect(await getAllGroups()).toEqual(groups);
@@ -210,79 +232,34 @@ describe('common', () => {
             expect(await getAllDetails()).toEqual(details);
         });
 
-        it('returns false if deleteVariantsGroup returns false', async () => {
-            (deleteVariantsGroup as jest.Mock).mockResolvedValueOnce(false);
-            expect(await deleteGroupOccurrences('G')).toBeFalse();
-            expect(deleteGroup).toHaveBeenCalledWith('G', session);
-            expect(deleteVariantsGroup).toHaveBeenCalledWith('G', session);
-            expect(deleteDetailsGroup).not.toHaveBeenCalled();
-            expect(await getAllGroups()).toEqual(groups);
-            expect(await getAllVariants()).toEqual(variants);
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('returns false if deleteDetailsGroup returns false', async () => {
-            (deleteDetailsGroup as jest.Mock).mockResolvedValueOnce(false);
-            expect(await deleteGroupOccurrences('G')).toBeFalse();
-            expect(deleteGroup).toHaveBeenCalledWith('G', session);
-            expect(deleteVariantsGroup).toHaveBeenCalledWith('G', session);
-            expect(deleteDetailsGroup).toHaveBeenCalledWith('G', session);
-            expect(await getAllGroups()).toEqual(groups);
-            expect(await getAllVariants()).toEqual(variants);
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('returns true if all functions returns true', async () => {
-            expect(await deleteGroupOccurrences('G')).toBeTrue();
-            expect(deleteGroup).toHaveBeenCalledWith('G', session);
-            expect(deleteVariantsGroup).toHaveBeenCalledWith('G', session);
-            expect(deleteDetailsGroup).toHaveBeenCalledWith('G', session);
-            expect(await getAllGroups()).toEqual([{ group: 'J', order: 1 }]);
-            expect(await getAllVariants(LESS_VARIANTS_FIELDS)).toEqual([
-                { group: 'J', variant: 'p', order: 0 },
-                { group: 'J', variant: 'd', order: 1 },
-                { group: 'J', variant: 'm', order: 2 },
-                { group: 'J', variant: 'e', order: 3 },
-                { group: 'J', variant: 'x', order: 4 },
-            ]);
-            expect(await getAllDetails(LESS_DETAILS_FIELDS)).toEqual([
-                {
-                    group: 'J',
-                    name: 'A',
-                    years: [{ year: 21, amounts: [{ variant: 'p' }] }],
-                    updates: [
-                        {
-                            years: [
-                                { year: 20, amounts: [{ variant: 'p' }] },
-                                { year: 21, amounts: [{ variant: 'p' }] },
-                            ],
-                        },
-                        {
-                            years: [
-                                { year: 21, amounts: [{ variant: 'p' }] },
-                                { year: 22, amounts: [{ variant: 'p' }] },
-                            ],
-                        },
-                        { years: [{ year: 22, amounts: [{ variant: 'p' }] }] },
-                    ],
-                },
-                {
-                    group: 'J',
-                    name: 'B',
-                    years: [{ year: 22, amounts: [{ variant: 'p' }] }],
-                    updates: [
-                        { years: [{ year: 22, amounts: [{ variant: 'p' }] }] },
-                        { years: [{ year: 22, amounts: [{ variant: 'p' }] }] },
-                    ],
-                },
-            ]);
-        });
-
-        it('does nothing if group not found', async () => {
-            expect(await deleteGroupOccurrences('H')).toBeFalse();
-            expect(deleteGroup).toHaveBeenCalledWith('H', session);
+        it('rejects if deleteGroup fails', async () => {
+            (deleteGroup as jest.Mock).mockRejectedValueOnce('failed to delete group');
+            await expect(deleteGroupOccurrences('Daržovės')).toReject();
+            expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteVariantsGroup).not.toHaveBeenCalled();
             expect(deleteDetailsGroup).not.toHaveBeenCalled();
+            expect(await getAllGroups()).toEqual(groups);
+            expect(await getAllVariants()).toEqual(variants);
+            expect(await getAllDetails()).toEqual(details);
+        });
+
+        it('rejects if deleteVariantsGroup fails', async () => {
+            (deleteVariantsGroup as jest.Mock).mockRejectedValueOnce('failed to delete variants group');
+            await expect(deleteGroupOccurrences('Daržovės')).toReject();
+            expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
+            expect(deleteVariantsGroup).toHaveBeenCalledWith('Daržovės', session);
+            expect(deleteDetailsGroup).not.toHaveBeenCalled();
+            expect(await getAllGroups()).toEqual(groups);
+            expect(await getAllVariants()).toEqual(variants);
+            expect(await getAllDetails()).toEqual(details);
+        });
+
+        it('rejects if deleteDetailsGroup fails', async () => {
+            (deleteDetailsGroup as jest.Mock).mockRejectedValueOnce('failed to delete details group');
+            await expect(deleteGroupOccurrences('Daržovės')).toReject();
+            expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
+            expect(deleteVariantsGroup).toHaveBeenCalledWith('Daržovės', session);
+            expect(deleteDetailsGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(await getAllGroups()).toEqual(groups);
             expect(await getAllVariants()).toEqual(variants);
             expect(await getAllDetails()).toEqual(details);
@@ -290,28 +267,10 @@ describe('common', () => {
     });
 
     describe('renameVariantOccurrences', () => {
-        it('returns false if renameVariant returns false', async () => {
-            (renameVariant as jest.Mock).mockResolvedValueOnce(false);
-            expect(await renameVariantOccurrences('G', 'd', 'b')).toBeFalse();
-            expect(renameVariant).toHaveBeenCalledWith('G', 'd', 'b', session);
-            expect(renameDetailsVariant).not.toHaveBeenCalled();
-            expect(await getAllVariants()).toEqual(variants);
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('returns false if renameDetailsVariant returns false', async () => {
-            (renameDetailsVariant as jest.Mock).mockResolvedValueOnce(false);
-            expect(await renameVariantOccurrences('G', 'p', '2')).toBeFalse();
-            expect(renameVariant).toHaveBeenCalledWith('G', 'p', '2', session);
-            expect(renameDetailsVariant).toHaveBeenCalledWith('G', 'p', '2', session);
-            expect(await getAllVariants()).toEqual(variants);
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('returns true if all functions returns true', async () => {
-            expect(await renameVariantOccurrences('G', 'p', '2')).toBeTrue();
-            expect(renameVariant).toHaveBeenCalledWith('G', 'p', '2', session);
-            expect(renameDetailsVariant).toHaveBeenCalledWith('G', 'p', '2', session);
+        it('renames all variant occurrences, returns true', async () => {
+            expect(await renameVariantOccurrences('Daržovės', 'p', '2')).toBeTrue();
+            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', undefined, session);
+            expect(renameDetailsVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', session);
             expect(await getAllVariants()).toEqual([
                 ...variants.slice(0, 6),
                 { ...variants[6], variant: '2' },
@@ -319,91 +278,95 @@ describe('common', () => {
             ]);
             expect(await getAllDetails()).toEqual([
                 ...details.slice(0, 3),
-                {
-                    group: 'G',
-                    name: 'C',
-                    years: [{ year: 21, amounts: [{ variant: '2', amount: 2 }], removing: true }],
-                },
+                { ...details[3], years: [{ ...details[3].years![0], amounts: [{ variant: '2', amount: 2 }] }] },
                 ...details.slice(4),
             ]);
         });
 
-        it('does nothing if variant not found', async () => {
-            expect(await renameVariantOccurrences('G', 'b', 'd')).toBeFalse();
-            expect(renameVariant).toHaveBeenCalledWith('G', 'b', 'd', session);
+        it('updates and renames all variant occurrences, returns true', async () => {
+            const update = { long: 'Du litrai', short: '2l' };
+            expect(await renameVariantOccurrences('Daržovės', 'p', '2', update)).toBeTrue();
+            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', update, session);
+            expect(renameDetailsVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', session);
+            expect(await getAllVariants()).toEqual([
+                ...variants.slice(0, 6),
+                { ...variants[6], variant: '2', ...update },
+                ...variants.slice(7),
+            ]);
+            expect(await getAllDetails()).toEqual([
+                ...details.slice(0, 3),
+                { ...details[3], years: [{ ...details[3].years![0], amounts: [{ variant: '2', amount: 2 }] }] },
+                ...details.slice(4),
+            ]);
+        });
+
+        it('returns false if renameVariant returns false', async () => {
+            (renameVariant as jest.Mock).mockResolvedValueOnce(false);
+            expect(await renameVariantOccurrences('Daržovės', 'd', 'b')).toBeFalse();
+            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', undefined, session);
             expect(renameDetailsVariant).not.toHaveBeenCalled();
-            expect(await getAllVariants()).toEqual(variants);
             expect(await getAllVariants()).toEqual(variants);
             expect(await getAllDetails()).toEqual(details);
         });
 
-        it('does nothing if group not found', async () => {
-            expect(await renameVariantOccurrences('H', 'd', 'b')).toBeFalse();
-            expect(renameVariant).toHaveBeenCalledWith('H', 'd', 'b', session);
+        it('rejects if renameVariant fails', async () => {
+            (renameVariant as jest.Mock).mockRejectedValueOnce('failed to rename variant');
+            await expect(renameVariantOccurrences('Daržovės', 'd', 'b')).toReject();
+            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', undefined, session);
             expect(renameDetailsVariant).not.toHaveBeenCalled();
-            expect(await getAllVariants()).toEqual(variants);
             expect(await getAllVariants()).toEqual(variants);
             expect(await getAllDetails()).toEqual(details);
         });
 
-        it('does nothing if variants are the same', async () => {
-            expect(await renameVariantOccurrences('G', 'd', 'd')).toBeFalse();
-            expect(renameVariant).toHaveBeenCalledWith('G', 'd', 'd', session);
-            expect(renameDetailsVariant).not.toHaveBeenCalled();
-            expect(await getAllVariants()).toEqual(variants);
+        it('rejects if renameDetailsVariant rejects', async () => {
+            (renameDetailsVariant as jest.Mock).mockRejectedValueOnce('failed to rename details variant');
+            await expect(renameVariantOccurrences('Daržovės', 'd', 'b')).toReject();
+            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', undefined, session);
+            expect(renameDetailsVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', session);
             expect(await getAllVariants()).toEqual(variants);
             expect(await getAllDetails()).toEqual(details);
         });
     });
 
     describe('deleteVariantOccurrences', () => {
-        it('returns false if deleteVariant returns false', async () => {
-            (deleteVariant as jest.Mock).mockResolvedValueOnce(false);
-            expect(await deleteVariantOccurrences('G', 'd')).toBeFalse();
-            expect(deleteVariant).toHaveBeenCalledWith('G', 'd', session);
-            expect(deleteDetailsVariant).not.toHaveBeenCalled();
-            expect(await getAllVariants()).toEqual(variants);
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('returns false if deleteDetailsVariant returns false', async () => {
-            (deleteDetailsVariant as jest.Mock).mockResolvedValueOnce(false);
-            expect(await deleteVariantOccurrences('G', 'p')).toBeFalse();
-            expect(deleteVariant).toHaveBeenCalledWith('G', 'p', session);
-            expect(deleteDetailsVariant).toHaveBeenCalledWith('G', 'p', session);
-            expect(await getAllVariants()).toEqual(variants);
-            expect(await getAllDetails()).toEqual(details);
-        });
-
-        it('returns true if all functions returns true', async () => {
-            expect(await deleteVariantOccurrences('G', 'p')).toBeTrue();
-            expect(deleteVariant).toHaveBeenCalledWith('G', 'p', session);
-            expect(deleteDetailsVariant).toHaveBeenCalledWith('G', 'p', session);
+        it('removes all variant occurrences, returns true', async () => {
+            expect(await deleteVariantOccurrences('Daržovės', 'p')).toBeTrue();
+            expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
+            expect(deleteDetailsVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
             expect(await getAllVariants()).toEqual([...variants.slice(0, 6), ...variants.slice(7)]);
             expect(await getAllDetails()).toEqual([
                 ...details.slice(0, 3),
                 {
-                    group: 'G',
-                    name: 'C',
+                    group: 'Daržovės',
+                    name: 'Kopūstai',
                 },
                 ...details.slice(4),
             ]);
         });
 
-        it('does nothing if variant not found', async () => {
-            expect(await deleteVariantOccurrences('G', '3/2')).toBeFalse();
-            expect(deleteVariant).toHaveBeenCalledWith('G', '3/2', session);
+        it('returns false if deleteVariant returns false', async () => {
+            (deleteVariant as jest.Mock).mockResolvedValueOnce(false);
+            expect(await deleteVariantOccurrences('Daržovės', 'd')).toBeFalse();
+            expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'd', session);
             expect(deleteDetailsVariant).not.toHaveBeenCalled();
-            expect(await getAllVariants()).toEqual(variants);
             expect(await getAllVariants()).toEqual(variants);
             expect(await getAllDetails()).toEqual(details);
         });
 
-        it('does nothing if group not found', async () => {
-            expect(await deleteVariantOccurrences('H', '1.5')).toBeFalse();
-            expect(deleteVariant).toHaveBeenCalledWith('H', '1.5', session);
+        it('rejects if deleteVariant fails', async () => {
+            (deleteVariant as jest.Mock).mockRejectedValueOnce('failed to delete variant');
+            await expect(deleteVariantOccurrences('Daržovės', 'd')).toReject();
+            expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'd', session);
             expect(deleteDetailsVariant).not.toHaveBeenCalled();
             expect(await getAllVariants()).toEqual(variants);
+            expect(await getAllDetails()).toEqual(details);
+        });
+
+        it('rejects if deleteDetailsVariant fails', async () => {
+            (deleteDetailsVariant as jest.Mock).mockRejectedValueOnce('failed to delete details variant');
+            await expect(deleteVariantOccurrences('Daržovės', 'p')).toReject();
+            expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
+            expect(deleteDetailsVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
             expect(await getAllVariants()).toEqual(variants);
             expect(await getAllDetails()).toEqual(details);
         });

@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
-import { useGetDetails } from '~/state/details/useGetDetails';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
+import { useGetDetails } from '~/state/details/useGetDetails';
 
 jest.mock('~/state/base/useUpdatingApiRequest');
 

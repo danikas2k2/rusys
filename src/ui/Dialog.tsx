@@ -8,7 +8,7 @@ import React, {
     useCallback,
     useEffect,
 } from 'react';
-import { usePreviousValue } from '~/hooks/usePreviousValue';
+import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 import cx from './Dialog.less';
 
 export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
@@ -21,10 +21,9 @@ export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
     children?: ReactNode;
 }
 
-/**
- * TODO refactor to use <dialog/>
- * TODO refactor to use `useFocusTrap` hook
- */
+// TODO refactor to use <dialog/>
+// TODO refactor to use `useFocusTrap` hook
+// TODO add translation context and translate backdrop label
 export function Dialog({
     open,
     closeOnOutsideClick = true,

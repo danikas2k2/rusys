@@ -80,3 +80,5 @@ export const renameGroup = async (group: string, newGroup: string, session?: Cli
 
 export const deleteGroup = async (group: string, session?: ClientSession): Promise<boolean> =>
     group ? (await getGroupsCollection()).deleteOne({ group }, { session }).then(hasEffect) : false;
+
+export const getGroupsResponse = async () => ({ groups: await getGroups() });

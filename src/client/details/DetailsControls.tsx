@@ -1,65 +1,38 @@
-import DeleteIcon from '@icons/Delete.svg';
-import EditIcon from '@icons/Edit.svg';
-import { Button, ButtonGroup } from '@ui/Button';
-import classNames from 'classnames';
 import React, { forwardRef, type HTMLAttributes, type Ref, useCallback, useState } from 'react';
-import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
-import { Label } from '~/client/common/Label';
+import { SlideControls } from '~/client/common/SlideControls';
 import { DetailsBox } from '~/client/details/dialogs/DetailsBox';
 import { useDeleteDetails } from '~/state/details/useDeleteDetails';
-import { getErrorMessage } from '~/utils/errors';
-import cx from './DetailsControls.less';
+import { getErrorMessage } from '~/common/utils/errors';
 
 interface DetailsControlsProps extends HTMLAttributes<HTMLDivElement> {
-    group?: string;
-    name?: string;
-    onPin?: (hide?: boolean) => void;
+    group: string;
+    name: string;
+    onPin?: () => void;
     onUnpin?: (hide?: boolean) => void;
 }
 
 export const DetailsControls = forwardRef(function DetailsControls(
-    { group, name, onPin, onUnpin, className, ...props }: DetailsControlsProps,
+    { group, name, onPin, onUnpin, ...props }: DetailsControlsProps,
     ref: Ref<HTMLDivElement>
 ) {
     const [dialogVisible, setDialogVisible] = useState(false);
 
-    const handleEdit = useCallback(async (): Promise<void> => {
-        onPin?.();
-        setDialogVisible(true);
-    }, [onPin]);
+    const onEdit = useCallback(() => setDialogVisible(true), []);
 
     const deleteDetails = useDeleteDetails();
-    const handleDelete: () => Promise<void> = useCallback(async (): Promise<void> => {
+    const onDelete = useCallback(async () => {
         onUnpin?.(true);
         try {
-            if (group && name) {
-                await deleteDetails(group, name);
-            }
+            await deleteDetails(group, name);
         } catch (e) {
             console.error(getErrorMessage(e));
             // setError(getErrorMessage(e));
         }
     }, [deleteDetails, group, name, onUnpin]);
 
-    return (
+    return group && name ? (
         <>
-            <div ref={ref} className={classNames(className, cx('DetailsControls'))} {...props}>
-                <ButtonGroup align="end">
-                    <Button color="primary" startDecorator={<EditIcon />} onClick={handleEdit}>
-                        <Label>Edit</Label>
-                    </Button>
-                    <ButtonWithConfirmation
-                        color="negative"
-                        startDecorator={<DeleteIcon />}
-                        dialogHeader={<Label>Sure to remove?</Label>}
-                        onClick={handleDelete}
-                        onOpen={onPin}
-                        onClose={onUnpin}
-                    >
-                        <Label>Remove</Label>
-                    </ButtonWithConfirmation>
-                </ButtonGroup>
-            </div>
+            <SlideControls ref={ref} onEdit={onEdit} onRemove={onDelete} onPin={onPin} onUnpin={onUnpin} {...props} />
             {dialogVisible && (
                 <DetailsBox
                     group={group}
@@ -71,5 +44,5 @@ export const DetailsControls = forwardRef(function DetailsControls(
                 />
             )}
         </>
-    );
+    ) : null;
 });

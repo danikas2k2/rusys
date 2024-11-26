@@ -1,10 +1,10 @@
 import { renderHook } from '@testing-library/react';
-import { useApiRequest } from '~/hooks/useApiRequest';
+import { useApiRequest } from '~/common/hooks/useApiRequest';
 import { useUpdateStateFromResponse } from '~/state/base/useUpdateStateFromResponse';
 import { useEmailCheck } from '~/state/profile/useEmailCheck';
 import { withReduxState } from '~/tests/withReduxState';
 
-jest.mock('~/hooks/useApiRequest');
+jest.mock('~/common/hooks/useApiRequest');
 jest.mock('~/state/base/useUpdateStateFromResponse');
 
 describe('useEmailCheck', () => {

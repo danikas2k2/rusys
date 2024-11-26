@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react';
-import { useApiRequest } from '~/hooks/useApiRequest';
+import { useApiRequest } from '~/common/hooks/useApiRequest';
 import { useUpdateStateFromResponse } from '~/state/base/useUpdateStateFromResponse';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 
-jest.mock('~/hooks/useApiRequest');
+jest.mock('~/common/hooks/useApiRequest');
 jest.mock('~/state/base/useUpdateStateFromResponse');
 
 describe('useUpdatingApiRequest', () => {

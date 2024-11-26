@@ -1,20 +1,16 @@
-import CloseIcon from '@icons/Close.svg';
-import ExpandDownIcon from '@icons/ExpandDown.svg';
-import { Button, ButtonGroup, IconButton } from '@ui/Button';
+import CancelIcon from '@assets/Cancel.svg';
+import CloseIcon from '@assets/Close.svg';
+import DoneIcon from '@assets/Done.svg';
+import ExpandDownIcon from '@assets/ExpandDown.svg';
+import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
-import { isEqual } from 'lodash';
-import React, {
-    createRef,
-    type RefObject,
-    type SyntheticEvent,
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-} from 'react';
-import { ValueInput } from '~/client/details/dialogs/ValueInput';
-import { useLabel } from '~/client/hooks/useLabel';
+import React, { type SyntheticEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Label } from '~/client/common/Label';
+import { useRecycled } from '~/client/common/RecycledContext';
+import { RecycledControls } from '~/client/common/RecycledControls';
+import { ValueInput } from '~/client/details/dialogs/ValueInput';
+import { getChangedAmount, getVariantAmount } from '~/client/details/utils/amounts';
+import { useLabel } from '~/client/hooks/useLabel';
 import { type VariantAmount } from '~/common/types';
 import { useAllVariants } from '~/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
@@ -25,99 +21,81 @@ export interface ValueBoxProps {
     name: string;
     year: number;
     amounts?: ReadonlyArray<VariantAmount>;
-    onClose?: (amounts?: ReadonlyArray<VariantAmount>, withoutHistory?: boolean) => void;
+    onClose?: (changes?: ReadonlyArray<VariantAmount>) => void;
 }
 
 // TODO refactor: extract single element with input element and all handlers to avoid multiple re-renders
 export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps) {
     const [expanded, setExpanded] = useState(false);
-    const [removed, setRemoved] = useState(false);
-
-    const [editingAmounts, setEditingAmounts] = useState(amounts);
-    useEffect(() => setEditingAmounts(amounts), [amounts]);
-
     const allVariants = useAllVariants(group);
     const compareVariants = useGroupVariantComparator(group);
+    const amountVariants = useMemo<string[]>(() => amounts?.map((v) => v.variant) ?? [], [amounts]);
     const editingVariants = useMemo(() => {
         if (expanded) {
             return allVariants;
         }
-        const variants = [...(editingAmounts ?? [])].map((v) => v.variant).sort(compareVariants);
+        const variants = amountVariants.sort(compareVariants);
         return variants.length ? variants : allVariants.slice(0, 1);
-    }, [allVariants, compareVariants, editingAmounts, expanded]);
+    }, [allVariants, amountVariants, compareVariants, expanded]);
 
     useEffect(() => {
-        if (editingAmounts) {
-            const optimizedValue = editingAmounts.map(({ variant, amount }) => ({
-                variant,
-                amount: Math.max(0, amount),
-            }));
-            if (!isEqual(editingAmounts, optimizedValue)) {
-                setEditingAmounts(optimizedValue);
-            }
-        }
-    }, [editingAmounts]);
-
-    useEffect(() => {
-        if (editingVariants && allVariants.every((k) => editingVariants.includes(k))) {
+        if (editingVariants?.length === allVariants.length) {
             setExpanded(true);
         }
     }, [allVariants, editingVariants]);
-
-    const refs = useMemo(
-        (): Record<string, RefObject<HTMLInputElement>> =>
-            Object.fromEntries(editingVariants.map((k) => [k, createRef()])),
-        [editingVariants]
-    );
-
-    const [focused, setFocused] = useState<string>(editingVariants[0]);
-    useEffect(() => refs[focused]?.current?.focus(), [focused, refs]);
-    useEffect(() => {
-        if (expanded) {
-            refs[focused]?.current?.focus();
-        }
-    }, [expanded, focused, refs]);
-
-    const handleClose = useCallback((): void => {
-        setExpanded(false);
-        onClose?.(editingAmounts, removed);
-    }, [editingAmounts, onClose, removed]);
 
     const handleExpand = useCallback((): void => {
         setExpanded(true);
     }, []);
 
+    const refs = useRef<Record<string, HTMLInputElement | null>>({});
+    const [focused, setFocused] = useState<string>(editingVariants[0]);
+    useEffect(() => refs.current[focused]?.focus(), [expanded, focused, refs]);
+
+    const handleClose = useCallback((): void => {
+        setExpanded(false);
+        onClose?.();
+    }, [onClose]);
+
+    const [consumedChanges, setConsumedChanges] = useState<ReadonlyArray<VariantAmount>>([]);
+    const [recycledChanges, setRecycledChanges] = useState<ReadonlyArray<VariantAmount>>([]);
+    const handleUpdate = useCallback((): void => {
+        setExpanded(false);
+        onClose?.([...consumedChanges, ...recycledChanges.map((v) => ({ ...v, recycled: true }))]);
+    }, [consumedChanges, onClose, recycledChanges]);
+
     const stopPropagation = useCallback((e: SyntheticEvent) => e.stopPropagation(), []);
 
+    const [recycled] = useRecycled();
+    const currentChanges = recycled ? recycledChanges : consumedChanges;
+    const oppositeChanges = recycled ? consumedChanges : recycledChanges;
+    const setChangingAmounts = recycled ? setRecycledChanges : setConsumedChanges;
+
     const handleChange = useCallback(
-        (variant: string, newValue: number) =>
-            setEditingAmounts(
-                editingAmounts?.some((v) => v.variant === variant)
-                    ? editingAmounts.map((v) => (v.variant !== variant ? v : { ...v, amount: newValue }))
-                    : [...(editingAmounts ?? []), { variant, amount: newValue }]
-            ),
-        [editingAmounts]
+        (variant: string, change: number) => {
+            const oldValue = getVariantAmount(amounts, variant);
+            const oppositeChange = getVariantAmount(oppositeChanges, variant);
+            const newValue = oldValue + change + oppositeChange;
+            if (newValue >= 0) {
+                setChangingAmounts(
+                    currentChanges?.some((v) => v.variant === variant)
+                        ? currentChanges.map((v) => (v.variant !== variant ? v : { ...v, amount: change }))
+                        : [...(currentChanges ?? []), { variant, amount: change }]
+                );
+            }
+        },
+        [amounts, currentChanges, oppositeChanges, setChangingAmounts]
     );
 
     const handleFocus = useCallback(
         (variant: string) => {
+            // TODO
             if (variant !== focused) {
                 setFocused(variant);
             }
         },
         [focused]
     );
-
-    const handleItemsUsed = useCallback(() => {
-        if (removed) {
-            setRemoved(false);
-        }
-    }, [removed]);
-    const handleItemsRemoved = useCallback(() => {
-        if (!removed) {
-            setRemoved(true);
-        }
-    }, [removed]);
 
     const closeLabel = useLabel('Close');
     const expandLabel = useLabel('Expand');
@@ -136,26 +114,10 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
                     <div>{name}</div>
                     <time>{year}</time>
                     <div className={cx('controls')}>
-                        <ButtonGroup>
-                            <Button
-                                role="radio"
-                                aria-checked={!removed}
-                                color={removed ? 'neutral' : 'positive'}
-                                variant={removed ? 'outlined' : 'solid'}
-                                onClick={handleItemsUsed}
-                            >
-                                <Label>Items used</Label>
-                            </Button>
-                            <Button
-                                role="radio"
-                                aria-checked={removed}
-                                color={removed ? 'negative' : 'neutral'}
-                                variant={removed ? 'solid' : 'outlined'}
-                                onClick={handleItemsRemoved}
-                            >
-                                <Label>Items removed</Label>
-                            </Button>
-                        </ButtonGroup>
+                        <RecycledControls
+                            consumedAmount={getChangedAmount(consumedChanges)}
+                            recycledAmount={getChangedAmount(recycledChanges)}
+                        />
                     </div>
                 </div>
                 <div className={cx('close')}>
@@ -164,15 +126,20 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
                     </IconButton>
                 </div>
             </header>
-            <article role="presentation" onClick={stopPropagation} onDoubleClick={stopPropagation}>
+            <article
+                className={cx('article', { recycled })}
+                role="presentation"
+                onClick={stopPropagation}
+                onDoubleClick={stopPropagation}
+            >
                 {editingVariants.map((variant) => (
                     <ValueInput
                         key={variant}
-                        ref={refs[variant]}
+                        ref={(ref) => (refs.current[variant] = ref)}
                         group={group}
                         variant={variant}
-                        initialAmount={amounts?.find((v) => v.variant === variant)?.amount}
-                        amount={editingAmounts?.find((v) => v.variant === variant)?.amount}
+                        amount={getVariantAmount(amounts, variant) + getVariantAmount(oppositeChanges, variant)}
+                        change={getVariantAmount(currentChanges, variant)}
                         onClose={handleClose}
                         onChange={handleChange}
                         focus={variant === focused}
@@ -194,6 +161,14 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
                         </Button>
                     </div>
                 )}
+            </footer>
+            <footer>
+                <Button variant="outlined" startDecorator={<CancelIcon />} onClick={handleClose}>
+                    <Label>Cancel</Label>
+                </Button>
+                <Button variant="solid" color="primary" startDecorator={<DoneIcon />} onClick={handleUpdate}>
+                    <Label>Update</Label>
+                </Button>
             </footer>
         </Dialog>
     );

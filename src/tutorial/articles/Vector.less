@@ -1,0 +1,70 @@
+line {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+line,
+path {
+    &:not([stroke]) {
+        stroke: black;
+    }
+
+    &:not([stroke-width]) {
+        stroke-width: 2px;
+    }
+}
+
+text {
+    font-size: 32px;
+
+    &:not([stroke]) {
+        stroke: black;
+    }
+
+    &:not([fill]) {
+        fill: black;
+    }
+}
+
+article {
+    font-size: 20px;
+    margin-left: -8rem;
+}
+
+sub {
+    font-size: 70%;
+}
+
+.text {
+    font-size: 30px;
+}
+
+ins {
+    text-decoration: overline;
+}
+
+aside {
+    display: none !important;
+}
+
+section {
+    display: grid;
+    grid-template-columns: 40% 60%;
+    grid-column-gap: 5%;
+
+    & + & {
+        margin-block: 80px;
+    }
+
+    page-break-before: auto;
+    page-break-after: auto;
+    page-break-inside: avoid;
+}
+
+h1 {
+    page-break-before: auto;
+
+    + section {
+        page-break-before: avoid;
+    }
+}

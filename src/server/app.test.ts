@@ -3,6 +3,7 @@ import express, { type Request, type Response } from 'express';
 import request from 'supertest';
 import { ApiUrl } from '~/common/api';
 import app from '~/server/app';
+import { handleAdd } from '~/server/app/handleAdd';
 import { handleCheckUser } from '~/server/app/handleCheckUser';
 import { handleClientId } from '~/server/app/handleClientId';
 import { handleDelete } from '~/server/app/handleDelete';
@@ -16,8 +17,7 @@ import { handleRenameVariant } from '~/server/app/handleRenameVariant';
 import { handleSetMissing } from '~/server/app/handleSetMissing';
 import { handleSetRemoving } from '~/server/app/handleSetRemoving';
 import { handleSummary } from '~/server/app/handleSummary';
-import { handleUpdateDetailsVariants } from '~/server/app/handleUpdateDetailsVariants';
-import { handleUpdateDetailsYears } from '~/server/app/handleUpdateDetailsYears';
+import { handleUpdateDetails } from '~/server/app/handleUpdateDetails';
 import { handleUpdateVariant } from '~/server/app/handleUpdateVariant';
 import { handleGroups } from './app/handleGroups';
 import { handleUpdateGroup } from './app/handleUpdateGroup';
@@ -31,9 +31,9 @@ jest.mock('~/server/app/handleCheckUser', () => ({ handleCheckUser: jest.fn() })
 jest.mock('~/server/app/handleSummary', () => ({ handleSummary: jest.fn() }));
 
 // Details
+jest.mock('~/server/app/handleAdd', () => ({ handleAdd: jest.fn() }));
 jest.mock('~/server/app/handleDetails', () => ({ handleDetails: jest.fn() }));
-jest.mock('~/server/app/handleUpdateDetailsYears', () => ({ handleUpdateDetailsYears: jest.fn() }));
-jest.mock('~/server/app/handleUpdateDetailsVariants', () => ({ handleUpdateDetailsVariants: jest.fn() }));
+jest.mock('~/server/app/handleUpdateDetails', () => ({ handleUpdateDetails: jest.fn() }));
 jest.mock('~/server/app/handleSetRemoving', () => ({ handleSetRemoving: jest.fn() }));
 jest.mock('~/server/app/handleSetMissing', () => ({ handleSetMissing: jest.fn() }));
 jest.mock('~/server/app/handleRename', () => ({ handleRename: jest.fn() }));
@@ -134,50 +134,34 @@ describe('app', () => {
         });
 
         describe('request /details/update', () => {
+            (handleUpdateDetails as jest.Mock).mockImplementation(handler);
+
             it('does not respond to POST', async () => {
-                const response = await request(server).post('/details/update');
-                expect(response.status).toBe(404);
-                expect(handleUpdateDetailsYears).not.toHaveBeenCalled();
-                expect(handleUpdateDetailsVariants).not.toHaveBeenCalled();
+                const response = await request(server).post(ApiUrl.DetailsUpdate);
+                expect(response.status).toBe(200);
+                expect(handleUpdateDetails).toHaveBeenCalled();
             });
 
             it('does not respond to GET', async () => {
-                const response = await request(server).get('/details/update');
+                const response = await request(server).get(ApiUrl.DetailsUpdate);
                 expect(response.status).toBe(404);
-                expect(handleUpdateDetailsYears).not.toHaveBeenCalled();
-                expect(handleUpdateDetailsVariants).not.toHaveBeenCalled();
+                expect(handleUpdateDetails).not.toHaveBeenCalled();
             });
         });
 
-        describe('request /details/years', () => {
-            (handleUpdateDetailsYears as jest.Mock).mockImplementation(handler);
+        describe('request /details/add', () => {
+            (handleAdd as jest.Mock).mockImplementation(handler);
 
             it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.DetailsSetYears);
+                const response = await request(server).post(ApiUrl.DetailsAdd);
                 expect(response.status).toBe(200);
-                expect(handleUpdateDetailsYears).toHaveBeenCalled();
+                expect(handleAdd).toHaveBeenCalled();
             });
 
             it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.DetailsSetYears);
+                const response = await request(server).get(ApiUrl.DetailsAdd);
                 expect(response.status).toBe(404);
-                expect(handleUpdateDetailsYears).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /details/varia', () => {
-            (handleUpdateDetailsVariants as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.DetailsSetAmounts);
-                expect(response.status).toBe(200);
-                expect(handleUpdateDetailsVariants).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.DetailsSetAmounts);
-                expect(response.status).toBe(404);
-                expect(handleUpdateDetailsVariants).not.toHaveBeenCalled();
+                expect(handleAdd).not.toHaveBeenCalled();
             });
         });
 

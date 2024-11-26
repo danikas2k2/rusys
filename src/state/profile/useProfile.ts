@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash';
 import { useSelector } from 'react-redux';
-import { useDev } from '~/hooks/useDev';
+import { useDev } from '~/common/hooks/useDev';
 import { type Profile, type WithProfileState } from '~/state/profile/types';
 import { useSetProfile } from '~/state/profile/useSetProfile';
 

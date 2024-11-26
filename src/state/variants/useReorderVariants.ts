@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 // import { useDispatch } from 'react-redux';
 import { type ApiReorderVariants, ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
+
 // import { reorderVariantsAction } from '~/state/variants/actions';
 
 export function useReorderVariants(): (group: string, variants: Readonly<Record<string, number>>) => Promise<void> {

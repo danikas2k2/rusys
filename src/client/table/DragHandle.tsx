@@ -1,4 +1,4 @@
-import DragHandleIcon from '@icons/DragHandle.svg';
+import DragHandleIcon from '@assets/DragHandle.svg';
 import React, { forwardRef, type HTMLAttributes, type Ref } from 'react';
 import cx from './DragHandle.less';
 
@@ -11,7 +11,7 @@ export const DragHandle = forwardRef(function DragHandle(
     ref: Ref<HTMLDivElement>
 ) {
     return (
-        <div ref={ref} className={cx('DragHandle', { dragging })} {...props}>
+        <div ref={ref} role="button" aria-label="Drag" className={cx('DragHandle', { dragging })} {...props}>
             <DragHandleIcon />
         </div>
     );

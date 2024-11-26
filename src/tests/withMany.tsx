@@ -1,5 +1,5 @@
-import { RenderOptions } from '@testing-library/react';
-import React, { PropsWithChildren } from 'react';
+import { type RenderOptions } from '@testing-library/react';
+import React, { type PropsWithChildren } from 'react';
 
 export function withMany(...options: Pick<RenderOptions, 'wrapper'>[]) {
     return {

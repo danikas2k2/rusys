@@ -31,6 +31,30 @@
         }
     }
 
+    article {
+        position: relative;
+        overflow: auto;
+        margin: 0 0.5rem;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--color-positive-outlined-border);
+        background-color: color-mix(in srgb, var(--color-positive-soft-bg) 20%, transparent 80%);
+
+        &.recycled {
+            border-color: var(--color-negative-outlined-border);
+            background-color: color-mix(in srgb, var(--color-negative-soft-bg) 20%, transparent 80%);
+        }
+
+        /*&::before {
+            content: "";
+            position: absolute;
+            display: block;
+            inset: 0 0 auto;
+            height: 2rem;
+            background: linear-gradient(to bottom, var(--color-positive-soft-bg), transparent);
+            z-index: 1;
+        }*/
+    }
+
     @media (width <= 320px) {
         article {
             padding-inline: 0;

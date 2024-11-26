@@ -1,16 +1,14 @@
 /** @jest-environment node */
 import { type ApiSummary } from '~/common/api';
-import { handleSummary } from '~/server/app/handleSummary';
-import { getYearsFixture } from '~/tests/fixtures';
 import { type Summary } from '~/common/types';
-import { getSummary } from '~/server/data/updates';
-import { getYears } from '~/server/data/years';
+import { handleSummary } from '~/server/app/handleSummary';
+import { getFullSummary } from '~/server/data/updates';
+import { getGroupsFixture, getVariantsFixture, getYearsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
 
 jest.mock('~/server/app/debug');
 jest.mock('~/server/data/updates');
-jest.mock('~/server/data/years');
 
 describe('handleSummary', () => {
     const request = mockRequest();
@@ -21,38 +19,37 @@ describe('handleSummary', () => {
         { group: 'G', name: 'A', years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }] },
     ];
     const years = getYearsFixture();
+    const groups = getGroupsFixture();
+    const variants = getVariantsFixture();
 
     afterEach(() => jest.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        (getSummary as jest.Mock).mockResolvedValueOnce(summary);
+        (getFullSummary as jest.Mock).mockResolvedValueOnce({ years, groups, variants, summary });
 
         await handleSummary(request, response);
 
-        expect(getYears).toHaveReturnedWith(years);
-        expect(getSummary).toHaveBeenCalledWith(years);
+        expect(getFullSummary).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: true, years, summary });
+        expect(response.json).toHaveBeenCalledWith({ ok: true, years, groups, variants, summary });
     });
 
     it('returns empty response on failure', async () => {
-        (getSummary as jest.Mock).mockResolvedValueOnce(undefined);
+        (getFullSummary as jest.Mock).mockResolvedValueOnce(undefined);
 
         await handleSummary(request, response);
 
-        expect(getYears).toHaveReturnedWith(years);
-        expect(getSummary).toHaveBeenCalledWith(years);
+        expect(getFullSummary).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false });
     });
 
     it('returns error response on error', async () => {
-        (getSummary as jest.Mock).mockRejectedValueOnce('Failed to get summary');
+        (getFullSummary as jest.Mock).mockRejectedValueOnce('Failed to get summary');
 
         await handleSummary(request, response);
 
-        expect(getYears).toHaveReturnedWith(years);
-        expect(getSummary).toHaveBeenCalledWith(years);
+        expect(getFullSummary).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to get summary' });
     });

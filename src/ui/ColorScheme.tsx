@@ -1,5 +1,5 @@
 import React, { createContext, type PropsWithChildren, useCallback, useEffect, useState } from 'react';
-import { usePreviousValue } from '~/hooks/usePreviousValue';
+import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 
 export type ColorScheme = 'light' | 'dark' | 'auto';
 

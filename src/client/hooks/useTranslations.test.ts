@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { useTranslations } from '~/client/hooks/useTranslations';
-import { useLocale } from '~/state/locale/useLocale';
+import { useLocale } from '~/client/hooks/useLocale';
 
-jest.mock('~/state/locale/useLocale');
+jest.mock('~/client/hooks/useLocale');
 jest.mock('~/client/translations.json', () => ({
     Hello: {
         fr: 'Bonjour',

@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
-import { getDetailsFixture } from '~/tests/fixtures';
 import { useHasRemoving } from '~/state/details/useHasRemoving';
 import { useYears } from '~/state/years/useYears';
+import { getDetailsFixture } from '~/tests/fixtures';
 import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/state/years/useYears');
@@ -13,8 +13,9 @@ describe('useHasRemoving', () => {
     });
 
     const details = getDetailsFixture();
+
     it('return true for filled state', () => {
-        const { result } = renderHook(() => useHasRemoving('G', 'C'), withReduxState({ details }));
+        const { result } = renderHook(() => useHasRemoving('Daržovės', 'Kopūstai'), withReduxState({ details }));
         expect(result.current).toBeTrue();
     });
 

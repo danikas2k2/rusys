@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
-import { getDetailsFixture } from '~/tests/fixtures';
 import { type Details } from '~/common/types';
 import { useDetails } from '~/state/details/useDetails';
+import { getDetailsFixture } from '~/tests/fixtures';
 import { withReduxState } from '~/tests/withReduxState';
 
 describe('useDetails', () => {

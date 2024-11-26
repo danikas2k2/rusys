@@ -1,8 +1,9 @@
-import CancelIcon from '@icons/Cancel.svg';
+import CancelIcon from '@assets/Cancel.svg';
 import { IconButton } from '@ui/Button';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { uniqueId } from '@ui/utils/uniqueId';
 import React, {
+    type FormEvent,
     type ForwardedRef,
     forwardRef,
     type InputHTMLAttributes,
@@ -10,7 +11,10 @@ import React, {
     type MouseEvent,
     type MouseEventHandler,
     useCallback,
+    useEffect,
+    useState,
 } from 'react';
+import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 import cx from './Input.less';
 
 export type InputColor = 'neutral' | 'primary' | 'secondary' | 'positive' | 'warning' | 'negative';
@@ -30,6 +34,7 @@ export type CommonInputProps<T extends HTMLElement> = Omit<InputHTMLAttributes<T
 export interface InputProps extends Omit<CommonInputProps<HTMLInputElement>, 'inputMode' | 'children'> {
     variant?: InputVariant;
     color?: InputColor;
+    placeholderColor?: InputColor;
     size?: InputSize;
     spacing?: InputSpacing;
     mode?: InputMode;
@@ -42,11 +47,11 @@ export interface InputProps extends Omit<CommonInputProps<HTMLInputElement>, 'in
     invalid?: boolean;
     error?: string;
     clearable?: boolean;
+    // TODO call onChange when value is cleared, then deprecate onClear event
     onClear?: MouseEventHandler<HTMLButtonElement>;
 }
 
-// TODO add readOnly support
-// TODO add clearable support
+// TODO add translation context and translate clear button label
 export const Input = forwardRef(function Input(
     {
         id = uniqueId('input'),
@@ -63,8 +68,10 @@ export const Input = forwardRef(function Input(
         error,
         invalid = !!error,
         color = invalid ? 'negative' : 'neutral',
-        value = '',
-        clearable,
+        placeholderColor,
+        value,
+        defaultValue,
+        clearable = false,
         onClear,
         startDecorator,
         endDecorator,
@@ -77,6 +84,7 @@ export const Input = forwardRef(function Input(
     forwardedRef: ForwardedRef<HTMLInputElement>
 ) {
     const ref = useForwardedRef(forwardedRef);
+    const controlled = value != null;
 
     function setCaretPosition(element: HTMLInputElement, position: number): void {
         element.focus();
@@ -111,11 +119,39 @@ export const Input = forwardRef(function Input(
         [onKeyDown, onKeyUp]
     );
 
-    const handleClear = (e: MouseEvent<HTMLButtonElement>) => onClear?.(e);
+    const handleClear = useCallback(
+        (e: MouseEvent<HTMLButtonElement>) => {
+            if (!controlled && ref.current) {
+                ref.current.value = '';
+            }
+            onClear?.(e);
+        },
+        [controlled, onClear, ref]
+    );
+
+    const [clear, setClear] = useState<boolean>(clearable && !!(value || defaultValue));
+    const prevValue = usePreviousValue(value) ?? value;
+    useEffect(() => {
+        if (clearable && value !== prevValue) {
+            setClear(!!value);
+        }
+    }, [clearable, prevValue, value]);
+
+    const handleInput = useCallback(
+        (e: FormEvent<HTMLInputElement>) => {
+            if (clearable) {
+                setClear(!!e.currentTarget.value);
+            }
+            onInput?.(e);
+        },
+        [clearable, onInput]
+    );
 
     return (
         <>
             <div
+                role="figure"
+                aria-labelledby={id}
                 className={cx(
                     'Input',
                     'Element',
@@ -125,6 +161,7 @@ export const Input = forwardRef(function Input(
                     `spacing-${spacing}`,
                     `state-${state}`,
                     {
+                        [`placeholder-color-${placeholderColor}`]: placeholderColor,
                         'full-width': fullWidth,
                         'full-height': fullHeight,
                         'with-label': !!label,
@@ -145,16 +182,18 @@ export const Input = forwardRef(function Input(
                         type="text"
                         inputMode={mode}
                         ref={ref}
+                        aria-label={label}
                         placeholder={placeholder}
                         disabled={disabled}
                         aria-disabled={disabled}
                         value={value}
+                        defaultValue={defaultValue}
                         onKeyDown={handleKey}
                         onKeyUp={handleKey}
-                        onInput={onInput}
+                        onInput={handleInput}
                         {...props}
                     />
-                    {clearable && (
+                    {clear && (
                         <IconButton
                             className={cx('clear')}
                             variant="plain"
@@ -162,6 +201,8 @@ export const Input = forwardRef(function Input(
                             spacing="none"
                             fullHeight
                             onClick={handleClear}
+                            aria-label="clear"
+                            aria-controls={id}
                         >
                             <CancelIcon />
                         </IconButton>

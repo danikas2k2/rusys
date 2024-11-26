@@ -1,8 +1,8 @@
-import CheckIcon from '@icons/Check.svg';
-import CheckIndeterminateIcon from '@icons/CheckIndeterminate.svg';
-import { uniqueId } from '@ui/utils/uniqueId';
+import CheckIcon from '@assets/Check.svg';
+import CheckIndeterminateIcon from '@assets/CheckIndeterminate.svg';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { type CommonInputProps, type InputColor, type InputSize, type InputVariant } from '@ui/Input';
+import { uniqueId } from '@ui/utils/uniqueId';
 import React, {
     type ChangeEvent,
     type ForwardedRef,

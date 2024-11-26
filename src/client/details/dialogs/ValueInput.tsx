@@ -1,5 +1,5 @@
-import AddIcon from '@icons/Add.svg';
-import RemoveIcon from '@icons/Remove.svg';
+import AddIcon from '@assets/Add.svg';
+import RemoveIcon from '@assets/Remove.svg';
 import { Button, ButtonGroup } from '@ui/Button';
 import { useFocusRef } from '@ui/hooks/useFocusRef';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
@@ -12,15 +12,16 @@ import React, {
     useCallback,
     useEffect,
 } from 'react';
+import { ValueChange } from '~/client/details/dialogs/ValueChange';
 import { useLabel } from '~/client/hooks/useLabel';
-import { ValueVariant } from '~/client/ValueVariant';
+import { ValueVariant } from '~/client/common/ValueVariant';
 import cx from './ValueInput.less';
 
 interface ValueInputProps {
     group: string;
     variant: string;
-    initialAmount?: number;
     amount?: number;
+    change?: number;
     onClose?: (variant: string) => void;
     onChange?: (variant: string, value: number) => void;
     focus?: boolean;
@@ -28,8 +29,9 @@ interface ValueInputProps {
     onBlur?: (variant: string) => void;
 }
 
+// TODO select input value on first focus
 export const ValueInput = forwardRef(function ValueInput(
-    { group, variant, initialAmount = 0, amount = 0, onClose, onChange, focus, onFocus, onBlur }: ValueInputProps,
+    { group, variant, amount = 0, change = 0, onClose, onChange, focus, onFocus, onBlur }: ValueInputProps,
     forwardedRef: ForwardedRef<HTMLInputElement>
 ) {
     const ref = useFocusRef(useForwardedRef(forwardedRef));
@@ -39,9 +41,9 @@ export const ValueInput = forwardRef(function ValueInput(
         }
     }, [focus, ref]);
 
-    const decrease = useCallback(() => onChange?.(variant, amount - 1), [onChange, variant, amount]);
+    const decrease = useCallback(() => onChange?.(variant, change - 1), [onChange, variant, change]);
 
-    const increase = useCallback(() => onChange?.(variant, amount + 1), [onChange, variant, amount]);
+    const increase = useCallback(() => onChange?.(variant, change + 1), [onChange, variant, change]);
 
     const onDecreaseClick = useCallback(() => {
         decrease();
@@ -77,16 +79,16 @@ export const ValueInput = forwardRef(function ValueInput(
         (e: ChangeEvent<HTMLInputElement>) => {
             const newValue = +e.currentTarget.value;
             if (!isNaN(newValue)) {
-                onChange?.(variant, newValue);
+                onChange?.(variant, newValue - amount);
             }
         },
-        [onChange, variant]
+        [amount, onChange, variant]
     );
 
     const onInputFocus = useCallback(() => onFocus?.(variant), [onFocus, variant]);
     const onInputBlur = useCallback(() => onBlur?.(variant), [onBlur, variant]);
 
-    const diff = amount - initialAmount;
+    const current = amount + change;
     const decreaseLabel = useLabel('Decrease');
     const increaseLabel = useLabel('Increase');
     return (
@@ -102,7 +104,7 @@ export const ValueInput = forwardRef(function ValueInput(
                 color="primary"
                 size="large"
                 mode="numeric"
-                value={amount}
+                value={current}
                 onChange={onInputChange}
                 onKeyDown={onKeyDown}
                 onFocus={onInputFocus}
@@ -138,11 +140,7 @@ export const ValueInput = forwardRef(function ValueInput(
                     </Button>
                 }
             />
-            {!!diff && (
-                <div role="status" className={cx('diff', { positive: diff > 0 })}>
-                    {Math.abs(diff)}
-                </div>
-            )}
+            <ValueChange change={change} />
         </ButtonGroup>
     );
 });

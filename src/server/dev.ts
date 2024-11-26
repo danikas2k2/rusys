@@ -1,5 +1,5 @@
 import express from 'express';
-// eslint-disable-next-line import/no-named-as-default
+
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';

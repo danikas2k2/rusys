@@ -1,4 +1,4 @@
-import FilterIcon from '@icons/Filter.svg';
+import FilterIcon from '@assets/Filter.svg';
 import React from 'react';
 import { Label } from '~/client/common/Label';
 import { Links } from '~/client/Links';

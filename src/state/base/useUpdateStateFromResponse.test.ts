@@ -1,10 +1,10 @@
 import { renderHook } from '@testing-library/react';
 import { useDispatch } from 'react-redux';
-import { getDetailsFixture, getSummaryFixture, getYearsFixture } from '~/tests/fixtures';
 import { type RefreshResult, useUpdateStateFromResponse } from '~/state/base/useUpdateStateFromResponse';
 import { DetailsActionType } from '~/state/details/actions';
 import { SummaryActionType } from '~/state/summary/actions';
 import { YearsActionType } from '~/state/years/actions';
+import { getDetailsFixture, getSummaryFixture, getYearsFixture } from '~/tests/fixtures';
 
 jest.mock('react-redux', () => ({
     ...jest.requireActual('react-redux'),

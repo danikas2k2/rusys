@@ -1,6 +1,6 @@
 /** @jest-environment node */
-import { hasEffect, hasDuplicates } from '~/server/data/utils';
 import { type DeleteResult, type InsertManyResult, type InsertOneResult, MongoError, type UpdateResult } from 'mongodb';
+import { hasDuplicates, hasEffect } from '~/server/data/utils';
 
 describe('hasEffect', () => {
     it('returns true when insertedId is present', () => {
