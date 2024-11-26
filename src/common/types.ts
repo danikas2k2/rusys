@@ -1,6 +1,7 @@
 export interface VariantAmount {
     variant: string;
     amount: number;
+    recycled?: boolean;
 }
 
 export interface YearAmounts {

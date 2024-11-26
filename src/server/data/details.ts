@@ -1,7 +1,9 @@
 import { type ClientSession, type Filter, type UpdateFilter } from 'mongodb';
-import { type Details, type RemovingYearAmounts, type VariantAmount } from '~/common/types';
-import { addUpdate, addUpdates } from '~/server/data/updates';
+import { type Details, type Group, type Variant, type VariantAmount } from '~/common/types';
+import { getGroups } from '~/server/data/groups';
+import { addUpdate } from '~/server/data/updates';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
+import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
 import { getDetailsCollection, withTransaction } from '~/server/db';
 
@@ -15,99 +17,100 @@ export async function getDetails(years: number[] = getYears()): Promise<Details[
                     { 'years.year': { $in: years } } as Filter<Details>,
                 ],
             },
-            { projection: { _id: 0, updates: 0 }, sort: { group: 1, name: 1, 'years.year': 1 } }
+            { projection: { _id: 0, updates: 0, removes: 0 }, sort: { group: 1, name: 1, 'years.year': 1 } }
         )
         .toArray();
 }
 
-export async function updateDetailsYears(
-    group: string,
-    name: string,
-    years: ReadonlyArray<RemovingYearAmounts> = [],
-    withoutHistory = false
-): Promise<boolean> {
+export async function addDetails(group: string, name: string): Promise<boolean> {
     if (!group || !name) {
         return false;
     }
-    return withTransaction(async (session) => {
-        if (!withoutHistory) {
-            await addUpdates(group, name, years, session);
-        }
-        return (await getDetailsCollection())
-            .updateOne(
-                { group, name } as UpdateFilter<Details>,
-                years?.length ? { $set: { years } } : { $unset: { years: 1, missing: 1 } },
-                { upsert: true, session }
-            )
-            .then(hasEffect);
-    });
+    return (await getDetailsCollection()).insertOne({ group, name }).then(hasEffect);
 }
 
-export async function updateDetailsAmounts(
+export async function updateDetails(
     group: string,
     name: string,
     year: number,
-    amounts: ReadonlyArray<VariantAmount> = [],
-    withoutHistory = false
+    changes: ReadonlyArray<VariantAmount> = []
 ): Promise<boolean> {
-    if (!group || !name) {
+    if (!group || !name || !year || !changes.length) {
         return false;
     }
+
     return withTransaction(async (session) => {
-        if (!withoutHistory) {
-            if (year) {
-                await addUpdate(group, name, year, amounts, session);
-            } else {
-                await addUpdates(group, name, [], session);
-            }
-        }
+        await addUpdate(group, name, year, changes, session);
+
+        const filter = { group, name };
         const col = await getDetailsCollection();
-        if (!year) {
-            return col
-                .updateOne(
-                    { group, name } as UpdateFilter<Details>,
-                    { $unset: { years: 1, missing: 1 } },
-                    { upsert: true, session }
-                )
-                .then(hasEffect);
+        const details = await col.findOne(filter, { projection: { years: 1, missing: 1 }, session });
+        const current = details?.years?.find((y) => y.year === year);
+        const amounts = current?.amounts ?? [];
+
+        // TODO split to smaller functions
+        const updates = changes
+            .reduce((acc, { variant, amount }) => {
+                const a = acc?.find((v) => v.variant === variant);
+                if (a) {
+                    a.amount += amount;
+                    if (a.amount < 0) {
+                        a.amount = 0;
+                    }
+                    return acc;
+                }
+                return [...acc, { variant, amount: amount < 0 ? 0 : amount }];
+            }, amounts)
+            // remove zero amounts
+            .filter((a) => a.amount);
+
+        if (updates.length) {
+            // TODO split to smaller functions
+            const removing =
+                !!current?.removing &&
+                changes?.some(
+                    (a) =>
+                        a.amount +
+                        (changes?.reduce((acc, c) => {
+                            if (c.variant === a.variant) {
+                                acc += c.amount;
+                            }
+                            return acc;
+                        }, 0) ?? 0)
+                );
+            if (removing !== !!current?.removing) {
+                await setRemoving(group, name, year, removing, session);
+            }
+
+            // TODO split to smaller functions
+            const missing = !!details?.missing && changes?.every((a) => a.recycled || a.amount >= 0);
+            if (missing !== !!details?.missing) {
+                await setMissing(group, name, missing, session);
+            }
+
+            return amounts.length
+                ? await col
+                      .updateOne(
+                          { ...filter, 'years.year': year } as UpdateFilter<Details>,
+                          { $set: { 'years.$.amounts': updates } },
+                          { session }
+                      )
+                      .then(hasEffect)
+                : await col
+                      .updateOne(filter, { $push: { years: { year, amounts: updates } } }, { session })
+                      .then(hasEffect);
         }
-        if (amounts?.length) {
-            // TODO if upsert may be used here
-            return (
-                (await col
-                    .updateOne(
-                        { group, name, 'years.year': year } as UpdateFilter<Details>,
-                        { $set: { 'years.$.amounts': amounts } },
-                        { session }
-                    )
-                    .then(hasEffect)) ||
-                (await col
-                    .updateOne({ group, name }, { $push: { years: { year, amounts } } }, { session })
-                    .then(hasEffect))
-            );
+
+        if (!amounts.length) {
+            return false;
         }
-        return col
-            .bulkWrite(
-                [
-                    // removes year
-                    {
-                        updateOne: {
-                            filter: { group, name },
-                            update: { $pull: { years: { year } } },
-                            upsert: true,
-                        },
-                    },
-                    // removes empty years
-                    {
-                        updateOne: {
-                            filter: { group, name, years: { $size: 0 } },
-                            update: { $unset: { years: 1, missing: 1 } },
-                        },
-                    },
-                ],
-                { session }
-            )
-            .then(hasEffect);
+
+        return (
+            (await col.updateOne(filter, { $pull: { years: { year } } }, { session }).then(hasEffect)) ||
+            (await col // removes empty years
+                .updateOne({ ...filter, years: { $size: 0 } }, { $unset: { years: 1, missing: 1 } }, { session })
+                .then(hasEffect))
+        );
     });
 }
 
@@ -291,7 +294,17 @@ export async function setMissing(
         .then(hasEffect);
 }
 
-export async function getYearsAndDetails(): Promise<{ years: number[]; details: Details[] }> {
+export async function getDetailsWithYears(): Promise<{ years: number[]; details: Details[] }> {
     const years = getYears();
     return { years, details: await getDetails(years) };
+}
+
+export async function getFullDetails(): Promise<{
+    years: ReadonlyArray<number>;
+    groups: ReadonlyArray<Group>;
+    variants: ReadonlyArray<Variant>;
+    details: ReadonlyArray<Details>;
+}> {
+    const years = getYears();
+    return { years, groups: await getGroups(), variants: await getVariants(), details: await getDetails(years) };
 }

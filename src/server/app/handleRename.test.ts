@@ -1,7 +1,7 @@
 /** @jest-environment node */
 import { type ApiDetails, type ApiRenameDetails } from '~/common/api';
 import { handleRename } from '~/server/app/handleRename';
-import { getYearsAndDetails, renameDetails } from '~/server/data/details';
+import { getDetailsWithYears, renameDetails } from '~/server/data/details';
 import { getDetailsFixture, getYearsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
@@ -19,12 +19,12 @@ describe('handleRename', () => {
 
     it('returns filled response on success', async () => {
         (renameDetails as jest.Mock).mockResolvedValueOnce(true);
-        (getYearsAndDetails as jest.Mock).mockResolvedValueOnce({ years, details });
+        (getDetailsWithYears as jest.Mock).mockResolvedValueOnce({ years, details });
 
         await handleRename(request, response);
 
         expect(renameDetails).toHaveBeenCalledWith('G', 'A', 'B');
-        expect(getYearsAndDetails).toHaveBeenCalledWith();
+        expect(getDetailsWithYears).toHaveBeenCalledWith(true);
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true, years, details });
     });
@@ -35,9 +35,9 @@ describe('handleRename', () => {
         await handleRename(request, response);
 
         expect(renameDetails).toHaveBeenCalledWith('G', 'A', 'B');
-        expect(getYearsAndDetails).not.toHaveBeenCalled();
+        expect(getDetailsWithYears).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: false });
+        expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
     it('returns error response on error', async () => {
@@ -46,7 +46,7 @@ describe('handleRename', () => {
         await handleRename(request, response);
 
         expect(renameDetails).toHaveBeenCalledWith('G', 'A', 'B');
-        expect(getYearsAndDetails).not.toHaveBeenCalled();
+        expect(getDetailsWithYears).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to rename details' });
     });

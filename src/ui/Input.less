@@ -349,6 +349,31 @@
     }
 
     --input-label-color: color-mix(in srgb, var(--input-color) 50%, transparent);
+    --input-placeholder-color: var(--input-label-color);
+
+    &.placeholder-color-neutral {
+        --input-placeholder-color: var(--color-neutral-plain);
+    }
+
+    &.placeholder-color-primary {
+        --input-placeholder-color: var(--color-primary-plain);
+    }
+
+    &.placeholder-color-secondary {
+        --input-placeholder-color: var(--color-secondary-plain);
+    }
+
+    &.placeholder-color-positive {
+        --input-placeholder-color: var(--color-positive-plain);
+    }
+
+    &.placeholder-color-warning {
+        --input-placeholder-color: var(--color-warning-plain);
+    }
+
+    &.placeholder-color-negative {
+        --input-placeholder-color: var(--color-negative-plain);
+    }
 
     label {
         font-size: 90%;
@@ -384,7 +409,7 @@
         text-overflow: ellipsis;
 
         &::placeholder {
-            color: var(--input-label-color);
+            color: var(--input-placeholder-color);
         }
     }
 
@@ -425,7 +450,8 @@
 
     .clear {
         opacity: 0.25;
-        position: absolute;
-        margin-inline-start: -1rem;
+        width: 2.5rem;
+        padding: 0 0.25rem;
+        margin-inline-start: -2.5rem;
     }
 }

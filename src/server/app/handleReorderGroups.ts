@@ -1,7 +1,7 @@
-import { type ApiRequest, type ApiResponse, type ApiReorderGroups, type ApiGroups } from '~/common/api';
+import { type ApiGroups, type ApiReorderGroups, type ApiRequest, type ApiResponse } from '~/common/api';
 import { debugRequest } from '~/server/app/debug';
 import { headerNoCache, run } from '~/server/app/utils';
-import { getGroups, reorderGroups } from '~/server/data/groups';
+import { getGroupsResponse, reorderGroups } from '~/server/data/groups';
 
 export async function handleReorderGroups(
     req: ApiRequest<ApiReorderGroups>,
@@ -10,10 +10,5 @@ export async function handleReorderGroups(
     debugRequest(req);
     headerNoCache(res);
     const { groups } = req.body;
-    res.json(
-        await run(
-            () => reorderGroups(groups),
-            async () => ({ groups: await getGroups() })
-        )
-    );
+    res.json(await run(() => reorderGroups(groups), getGroupsResponse));
 }

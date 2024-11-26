@@ -35,12 +35,17 @@
 
     .expand {
         svg {
-            transition: transform ease-in-out 0.2s;
+            // TODO combine rotation animation with expand/collapse animation
+            //transition: transform linear 0.2s;
         }
 
         &.expanded svg {
             transform: rotate(-180deg);
         }
+    }
+
+    input[readonly] {
+        cursor: default;
     }
 }
 

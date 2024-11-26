@@ -1,4 +1,4 @@
-import ChartIcon from '@icons/Chart.svg';
+import ChartIcon from '@assets/Chart.svg';
 import React from 'react';
 import { Label } from '~/client/common/Label';
 import { Links } from '~/client/Links';

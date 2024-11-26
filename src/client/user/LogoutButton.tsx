@@ -1,8 +1,8 @@
-import LogoutIcon from '@icons/Logout.svg';
+import LogoutIcon from '@assets/Logout.svg';
 import { googleLogout } from '@react-oauth/google';
 import { Button, type ButtonProps, IconButton } from '@ui/Button';
-import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
 import React, { useCallback } from 'react';
+import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
 import { Label } from '~/client/common/Label';
 import { ProfileAvatar } from '~/client/user/ProfileAvatar';
 import { useResetProfile } from '~/state/profile/useResetProfile';

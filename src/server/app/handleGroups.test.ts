@@ -1,7 +1,7 @@
 /** @jest-environment node */
 import { type ApiGroups } from '~/common/api';
 import { handleGroups } from '~/server/app/handleGroups';
-import { getGroups } from '~/server/data/groups';
+import { getGroupsResponse } from '~/server/data/groups';
 import { getGroupsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
@@ -18,11 +18,11 @@ describe('handleGroups', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        (getGroups as jest.Mock).mockResolvedValueOnce(groups);
+        (getGroupsResponse as jest.Mock).mockResolvedValueOnce({ groups });
 
         await handleGroups(request, response);
 
-        expect(getGroups).toHaveBeenCalledWith();
+        expect(getGroupsResponse).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true, groups });
     });
@@ -30,17 +30,17 @@ describe('handleGroups', () => {
     it('returns empty response on failure', async () => {
         await handleGroups(request, response);
 
-        expect(getGroups).toHaveBeenCalledWith();
+        expect(getGroupsResponse).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false });
     });
 
     it('returns error response on error', async () => {
-        (getGroups as jest.Mock).mockRejectedValueOnce('Failed to get groups');
+        (getGroupsResponse as jest.Mock).mockRejectedValueOnce('Failed to get groups');
 
         await handleGroups(request, response);
 
-        expect(getGroups).toHaveBeenCalledWith();
+        expect(getGroupsResponse).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to get groups' });
     });

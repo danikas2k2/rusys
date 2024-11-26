@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { WithOnClose } from '~/client/common/WithOnClose';
+import { type WithOnClose } from '~/client/common/WithOnClose';
 import { Links } from '~/client/Links';
 import { ToolbarMenu } from '~/client/toolbar/ToolbarMenu';
 import { withMany } from '~/tests/withMany';

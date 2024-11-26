@@ -31,7 +31,7 @@ describe('handleSetMissing', () => {
 
         expect(setMissing).toHaveBeenCalledWith('G', 'A', true);
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: false });
+        expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
     it('returns error response on error', async () => {

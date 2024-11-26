@@ -1,4 +1,5 @@
 import { type ApiRequest, type ApiResponse, ApiUrl } from '~/common/api';
+import { handleAdd } from '~/server/app/handleAdd';
 import { handleCheckUser } from '~/server/app/handleCheckUser';
 import { handleClientId } from '~/server/app/handleClientId';
 import { handleCopyVariant } from '~/server/app/handleCopyVariant';
@@ -16,8 +17,7 @@ import { handleReorderVariants } from '~/server/app/handleReorderVariants';
 import { handleSetMissing } from '~/server/app/handleSetMissing';
 import { handleSetRemoving } from '~/server/app/handleSetRemoving';
 import { handleSummary } from '~/server/app/handleSummary';
-import { handleUpdateDetailsVariants } from '~/server/app/handleUpdateDetailsVariants';
-import { handleUpdateDetailsYears } from '~/server/app/handleUpdateDetailsYears';
+import { handleUpdateDetails } from '~/server/app/handleUpdateDetails';
 import { handleUpdateGroup } from '~/server/app/handleUpdateGroup';
 import { handleUpdateVariant } from '~/server/app/handleUpdateVariant';
 import { handleVariants } from '~/server/app/handleVariants';
@@ -27,8 +27,8 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.CheckUser]: handleCheckUser,
     [ApiUrl.Summary]: handleSummary,
     [ApiUrl.Details]: handleDetails,
-    [ApiUrl.DetailsSetYears]: handleUpdateDetailsYears,
-    [ApiUrl.DetailsSetAmounts]: handleUpdateDetailsVariants,
+    [ApiUrl.DetailsAdd]: handleAdd,
+    [ApiUrl.DetailsUpdate]: handleUpdateDetails,
     [ApiUrl.DetailsSetRemoving]: handleSetRemoving,
     [ApiUrl.DetailsSetMissing]: handleSetMissing,
     [ApiUrl.DetailsRename]: handleRename,

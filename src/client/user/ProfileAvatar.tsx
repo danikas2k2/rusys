@@ -1,4 +1,4 @@
-import SmartToyIcon from '@icons/SmartToy.svg';
+import SmartToyIcon from '@assets/SmartToy.svg';
 import React from 'react';
 import { DEV_MODE_SUB, useProfile } from '~/state/profile/useProfile';
 import cx from './ProfileAvatar.less';

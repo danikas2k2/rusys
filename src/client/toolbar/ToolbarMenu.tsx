@@ -2,7 +2,7 @@ import { type DropdownRef } from '@ui/Dropdown';
 import { MenuDivider } from '@ui/MenuDivider';
 import React, { type FC, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router';
-import { WithOnClose } from '~/client/common/WithOnClose';
+import { type WithOnClose } from '~/client/common/WithOnClose';
 import { DetailsBox } from '~/client/details/dialogs/DetailsBox';
 import { GroupBox } from '~/client/groups/dialogs/GroupBox';
 import { useToggle } from '~/client/hooks/useToggle';

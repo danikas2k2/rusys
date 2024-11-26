@@ -110,11 +110,13 @@ code {
             &[class~="string"],
             &[class~="char"] {
                 color: var(--prism-token-string);
+                font-style: italic;
             }
 
             &[class~="attr-value"],
             &[class~="attr-value"] &[class~="punctuation"] {
                 color: var(--prism-token-attr);
+                font-style: italic;
             }
 
             &[class~="attr-value"] [class~="punctuation"]:first-child {

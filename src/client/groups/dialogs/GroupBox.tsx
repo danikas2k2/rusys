@@ -1,6 +1,7 @@
-import CancelIcon from '@icons/Cancel.svg';
-import CloseIcon from '@icons/Close.svg';
-import DoneIcon from '@icons/Done.svg';
+import AddIcon from '@assets/Add.svg';
+import CancelIcon from '@assets/Cancel.svg';
+import CloseIcon from '@assets/Close.svg';
+import DoneIcon from '@assets/Done.svg';
 import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
@@ -11,10 +12,10 @@ import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
 import { compareNames } from '~/client/utils/compareNames';
+import { getErrorMessage } from '~/common/utils/errors';
 import { useAddGroup } from '~/state/groups/useAddGroup';
 import { useGroups } from '~/state/groups/useGroups';
 import { useRenameGroup } from '~/state/groups/useRenameGroup';
-import { getErrorMessage } from '~/utils/errors';
 import cx from './GroupBox.less';
 
 interface GroupBoxProps extends WithOnClose {
@@ -35,11 +36,12 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
     }, [group]);
 
     const hasSameGroup = useGroups()?.some((g) => !compareNames(g.group, group));
-    const groupRenamed = group !== initialGroup;
-    const hasGroup = hasSameGroup && groupRenamed && !updating;
+    const groupAdded = !initialGroup;
+    const groupRenamed = !!initialGroup && group !== initialGroup;
+    const hasGroup = hasSameGroup && !updating && (groupAdded || groupRenamed);
     useEffect(() => {
         if (hasGroup && isEmpty(errors)) {
-            setErrors({ '': ERROR_EXISTS });
+            setErrors({ _: ERROR_EXISTS });
         }
     }, [hasGroup, errors]);
 
@@ -57,16 +59,14 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
         }
         try {
             setUpdating(true);
-            if (initialGroup) {
-                if (groupRenamed) {
-                    await renameGroup(initialGroup, group);
-                }
-            } else {
+            if (!initialGroup) {
                 await addGroup(group);
+            } else if (groupRenamed) {
+                await renameGroup(initialGroup, group);
             }
             onClose(group);
-        } catch (error) {
-            setErrors({ '': getErrorMessage(error) });
+        } catch (e) {
+            setErrors({ _: getErrorMessage(e) });
             focusRef?.focus();
         } finally {
             setUpdating(false);
@@ -87,7 +87,7 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
     );
 
     const closeLabel = useLabel('Close');
-    const errorLabel = useLabel(errors?.[''] ?? '');
+    const errorLabel = useLabel(errors?._ ?? '');
     const inputLabel = useLabel('Group name');
 
     return (
@@ -106,8 +106,9 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
                 <Input
                     ref={focusRef}
                     fullWidth
-                    color={errors?.[''] || errors?.group ? 'negative' : 'primary'}
-                    error={errors?.[''] ? errorLabel : undefined}
+                    color={errors?._ || errors?.group ? 'negative' : 'primary'}
+                    invalid={!!errors?._ || !!errors?.group}
+                    error={errors?._ ? errorLabel : undefined}
                     size="large"
                     value={group}
                     label={inputLabel}
@@ -119,10 +120,18 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
                 <Button variant="outlined" startDecorator={<CancelIcon />} onClick={handleClose}>
                     <Label>Cancel</Label>
                 </Button>
-                <Button variant="solid" color="primary" startDecorator={<DoneIcon />} onClick={handleUpdate}>
-                    <Label>{initialGroup ? 'Update' : 'Add'}</Label>
+                <Button variant="solid" color="primary" startDecorator={getButtonDecorator()} onClick={handleUpdate}>
+                    <Label>{getButtonLabel()}</Label>
                 </Button>
             </footer>
         </Dialog>
     );
+
+    function getButtonLabel() {
+        return initialGroup ? 'Update' : 'Add';
+    }
+
+    function getButtonDecorator() {
+        return initialGroup ? <DoneIcon /> : <AddIcon />;
+    }
 }

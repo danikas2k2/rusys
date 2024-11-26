@@ -1,5 +1,5 @@
-import AddIcon from '@icons/Add.svg';
-import RemoveIcon from '@icons/Remove.svg';
+import AddIcon from '@assets/Add.svg';
+import RemoveIcon from '@assets/Remove.svg';
 import { Button, ButtonGroup } from '@ui/Button';
 import { Option, Select } from '@ui/Select';
 import React from 'react';
@@ -58,9 +58,19 @@ export const options = [
     {options}
 </Select>
 
+## Single, no options
+
+<Select label="Number" onChange={console.info} />
+
 ## Single, with selected value
 
 <Select label="Number" value={20} onChange={console.info}>
+    {options}
+</Select>
+
+## Single, read-only
+
+<Select label="Number" value={20} readOnly onChange={console.info}>
     {options}
 </Select>
 

@@ -65,8 +65,8 @@ describe('details', () => {
             expect(
                 reducer([], {
                     type: DetailsActionType.SET_REMOVING,
-                    group: 'G',
-                    name: 'A',
+                    group: 'Uogienės',
+                    name: 'Avietės',
                     year: 21,
                     removing: true,
                 })
@@ -77,20 +77,20 @@ describe('details', () => {
             expect(
                 reducer(details, {
                     type: DetailsActionType.SET_REMOVING,
-                    group: 'G',
-                    name: 'A',
+                    group: 'Uogienės',
+                    name: 'Braškės',
                     year: 22,
                     removing: true,
                 })
-            ).toEqual(set(cloneDeep(details), '[2].years[0].removing', true));
+            ).toEqual(set(cloneDeep(details), '[1].years[0].removing', true));
         });
 
         it('updates filled state with false', () => {
             expect(
                 reducer(details, {
                     type: DetailsActionType.SET_REMOVING,
-                    group: 'G',
-                    name: 'C',
+                    group: 'Daržovės',
+                    name: 'Kopūstai',
                     year: 21,
                     removing: false,
                 })
@@ -162,22 +162,22 @@ describe('details', () => {
             expect(
                 reducer(details, {
                     type: DetailsActionType.SET_MISSING,
-                    group: 'G',
-                    name: 'A',
+                    group: 'Uogienės',
+                    name: 'Avietės',
                     missing: true,
                 })
-            ).toEqual(set(cloneDeep(details), '[2].missing', true));
+            ).toEqual(set(cloneDeep(details), '[0].missing', true));
         });
 
         it('updates filled state using false', () => {
             expect(
                 reducer(details, {
                     type: DetailsActionType.SET_MISSING,
-                    group: 'J',
-                    name: 'B',
+                    group: 'Daržovės',
+                    name: 'Agurkai',
                     missing: false,
                 })
-            ).toEqual(set(cloneDeep(details), '[1].missing', undefined));
+            ).toEqual(set(cloneDeep(details), '[2].missing', undefined));
         });
 
         it('does not update filled state using missing name', () => {

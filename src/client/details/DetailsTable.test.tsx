@@ -1,167 +1,206 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { useFilteredList } from '~/client/common/hooks/useFilteredList';
+import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
+import { DetailsGroups } from '~/client/details/DetailsGroups';
 import { DetailsTable } from '~/client/details/DetailsTable';
-import { LoadingState, useLockingLoader } from '~/hooks/useLockingLoader';
-import { useDetails } from '~/state/details/useDetails';
-import { useHasMissing } from '~/state/details/useHasMissing';
+import { useDetailsHasData } from '~/client/details/hooks/useDetailsHasData';
+import { useMissingOnly } from '~/client/details/MissingOnlyContext';
+import { SummaryTable } from '~/client/summary/SummaryTable';
+import { useClearFilter } from '~/state/filter/useClearFilter';
 import { useFilter } from '~/state/filter/useFilter';
-import { useYears } from '~/state/years/useYears';
+import { useGroup } from '~/state/group/useGroup';
+import { getDetailsFixture, getGroupsFixture, getVariantsFixture, getYearsFixture } from '~/tests/fixtures';
 import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/state/years/useYears');
-jest.mock('~/state/details/useDetails');
-jest.mock('~/state/details/useHasMissing', () => ({
-    useHasMissing: jest.fn().mockReturnValue(false),
+jest.mock('~/client/common/hooks/useFilteredList', () => ({
+    useFilteredList: jest.fn(),
 }));
-jest.mock('~/hooks/useLockingLoader', () => ({
-    ...jest.requireActual('~/hooks/useLockingLoader'),
+jest.mock('~/client/details/hooks/useDetailsHasData', () => ({
+    useDetailsHasData: jest.fn().mockReturnValue(true),
+}));
+jest.mock('~/client/details/MissingOnlyContext', () => ({
+    useMissingOnly: jest.fn().mockReturnValue([false, jest.fn()]),
+}));
+jest.mock('~/client/common/hooks/useLockingLoader', () => ({
+    ...jest.requireActual('~/client/common/hooks/useLockingLoader'),
     useLockingLoader: jest.fn(),
 }));
 jest.mock('~/state/filter/useFilter', () => ({
     useFilter: jest.fn().mockReturnValue(''),
 }));
+jest.mock('~/state/filter/useClearFilter', () => ({
+    useClearFilter: jest.fn(),
+}));
+jest.mock('~/state/group/useGroup', () => ({
+    useGroup: jest.fn().mockReturnValue(''),
+}));
+jest.mock('~/client/details/MissingOnlyCheckbox', () => ({
+    MissingOnlyCheckbox: jest.fn(({ onClick }: { onClick: () => void }) => <input type="checkbox" onClick={onClick} />),
+}));
+jest.mock('~/client/details/DetailsGroups', () => ({
+    DetailsGroups: jest.fn().mockReturnValue(null),
+}));
 
 describe('DetailsTable', () => {
+    const details = getDetailsFixture();
+    const state = {
+        years: getYearsFixture(),
+        groups: getGroupsFixture(),
+        variants: getVariantsFixture(),
+        details,
+    };
+
     beforeAll(() => {
         (useLockingLoader as jest.Mock).mockReturnValue(LoadingState.COMPLETE);
+        (useFilteredList as jest.Mock).mockReturnValue(details);
     });
 
     afterEach(() => jest.clearAllMocks());
 
-    it('renders table structure', () => {
-        render(<DetailsTable />, withReduxState());
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-        expect(screen.getByRole('table')).toBeInTheDocument();
+    describe('table', () => {
+        it('renders table for complete state with data', () => {
+            render(<DetailsTable />, withReduxState(state));
+            expect(screen.getByRole('table')).toBeInTheDocument();
 
-        const rows = screen.getAllByRole('row');
-        expect(rows).toHaveLength(7);
+            const row = within(screen.getByRole('row'));
+            expect(row.getAllByRole('columnheader')).toHaveListWithTextContent(['', '', '23', '22', '21']);
 
-        expect(within(rows[0]).getByRole('checkbox')).toBeChecked();
-        expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent(['', '', '23', '22', '21']);
+            expect(DetailsGroups).toHaveBeenCalledWith(
+                {
+                    groups: ['Uogienės', 'Daržovės'],
+                    details,
+                },
+                {}
+            );
+        });
 
-        expect(within(rows[1]).getByRole('rowheader')).toHaveTextContent('G');
+        it('renders table for complete state with data filtered-out', () => {
+            (useFilteredList as jest.Mock).mockReturnValueOnce([]);
+            render(<DetailsTable />, withReduxState(state));
+            expect(screen.getByRole('table')).toBeInTheDocument();
+            expect(DetailsGroups).toHaveBeenCalledWith({ groups: [], details: [] }, {});
+        });
 
-        expect(within(rows[2]).getByRole('checkbox')).toBeChecked();
-        expect(within(rows[2]).getAllByRole('cell')).toHaveListWithTextContent(['', 'A', '.', '1d', '.']);
+        it('renders table with group selected', () => {
+            (useGroup as jest.Mock).mockReturnValueOnce('Uogienės');
+            render(<DetailsTable />, withReduxState(state));
+            expect(screen.getByRole('table')).toBeInTheDocument();
+            expect(DetailsGroups).toHaveBeenCalledWith({ groups: ['Uogienės'], details: expect.any(Array) }, {});
+        });
 
-        expect(within(rows[3]).getByRole('checkbox')).toBeChecked();
-        expect(within(rows[3]).getAllByRole('cell')).toHaveListWithTextContent(['', 'C', '.', '.', '2p']);
+        it('does not render table for initial state', () => {
+            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.INITIAL);
+            render(<DetailsTable />, withReduxState(state));
+            expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        });
 
-        expect(within(rows[4]).getByRole('rowheader')).toHaveTextContent('J');
+        it('does not render table for loading state', () => {
+            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.LOADING);
+            render(<DetailsTable />, withReduxState(state));
+            expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        });
 
-        expect(within(rows[5]).getByRole('checkbox')).toBeChecked();
-        expect(within(rows[5]).getAllByRole('cell')).toHaveListWithTextContent(['', 'A', '.', '.', '2p']);
-
-        expect(within(rows[6]).getByRole('checkbox')).not.toBeChecked();
-        expect(within(rows[6]).getAllByRole('cell')).toHaveListWithTextContent(['', 'B', '.', '1p', '.']);
+        it('does not render table for complete state without data', () => {
+            (useDetailsHasData as jest.Mock).mockReturnValueOnce(false);
+            render(<DetailsTable />, withReduxState(state));
+            expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        });
     });
 
-    describe('renders loader', () => {
+    describe('loader', () => {
+        it('does not render loader for complete state', () => {
+            render(<SummaryTable />, withReduxState(state));
+            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        });
+
         it('renders loader for initial state', () => {
             (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.INITIAL);
-            render(<DetailsTable />, withReduxState());
+            render(<DetailsTable />, withReduxState(state));
             expect(screen.getByRole('progressbar')).toBeInTheDocument();
-            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
         });
 
         it('renders loader for loading state', () => {
             (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.LOADING);
-            render(<DetailsTable />, withReduxState());
+            render(<DetailsTable />, withReduxState(state));
             expect(screen.getByRole('progressbar')).toBeInTheDocument();
-            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        });
+
+        it('does not render loader for failed state', () => {
+            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.FAILED);
+            render(<DetailsTable />, withReduxState(state));
+            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
         });
     });
 
-    describe('renders error', () => {
+    describe('error', () => {
+        it('does not render error for complete state with data', () => {
+            render(<DetailsTable />, withReduxState(state));
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
+
+        it('renders error for complete state without data', () => {
+            (useDetailsHasData as jest.Mock).mockReturnValueOnce(false);
+            render(<DetailsTable />, withReduxState(state));
+            expect(screen.getByRole('alert')).toHaveTextContent('No data');
+        });
+
+        it('does not render error for initial state', () => {
+            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.INITIAL);
+            render(<DetailsTable />, withReduxState(state));
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
+
+        it('does not render error for loading state', () => {
+            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.LOADING);
+            render(<DetailsTable />, withReduxState(state));
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
+
         it('renders error for failed state', () => {
             (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.FAILED);
-            render(<DetailsTable />, withReduxState());
+            render(<DetailsTable />, withReduxState(state));
             expect(screen.getByRole('alert')).toHaveTextContent('Failed to load data');
-            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
-        });
-
-        it('renders error for complete state without years', () => {
-            (useYears as jest.Mock).mockReturnValueOnce([]);
-            render(<DetailsTable />, withReduxState());
-            expect(screen.getByRole('alert')).toHaveTextContent('No data');
-            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
-        });
-
-        it('renders error for complete state without details', () => {
-            (useDetails as jest.Mock).mockReturnValueOnce([]);
-            render(<DetailsTable />, withReduxState());
-            expect(screen.getByRole('alert')).toHaveTextContent('No data');
-            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
         });
     });
 
-    describe('handles filter state', () => {
-        it('renders filtered data', () => {
-            (useFilter as jest.Mock).mockReturnValueOnce('a');
-            render(<DetailsTable />, withReduxState());
-            const rows = screen.getAllByRole('row');
-            expect(rows).toHaveLength(5);
-            const [, groupRow, dataRow] = rows;
-            expect(within(groupRow).getByRole('rowheader')).toHaveTextContent('G');
-            expect(within(dataRow).getAllByRole('cell')[1]).toHaveTextContent('A');
+    describe('missing-only', () => {
+        const setMissingOnly = jest.fn();
+
+        beforeEach(() => {
+            (useMissingOnly as jest.Mock).mockReturnValueOnce([true, setMissingOnly]);
         });
 
-        it('renders filtered out data', () => {
-            (useFilter as jest.Mock).mockReturnValueOnce('third');
-            render(<DetailsTable />, withReduxState());
-            expect(screen.getAllByRole('row')).toHaveLength(1);
-        });
-    });
+        afterEach(() => jest.clearAllMocks());
 
-    describe('handles missing state', () => {
-        beforeAll(() => {
-            (useHasMissing as jest.Mock).mockReturnValue(true);
-            // missing.mockImplementation((group, name) => group === 'Group' && name === 'First');
-        });
-
-        it('renders with missing rows', () => {
-            render(<DetailsTable />, withReduxState());
-
-            const checkboxes = screen.getAllByRole('checkbox');
-            expect(checkboxes).toHaveLength(5);
-            expect(checkboxes[0]).toBeChecked();
-            expect(checkboxes[1]).toBeChecked();
-            expect(checkboxes[2]).toBeChecked();
-            expect(checkboxes[3]).toBeChecked();
-            expect(checkboxes[4]).not.toBeChecked();
+        it('renders missing only rows if missing state is set', () => {
+            render(<DetailsTable />, withReduxState(state));
+            expect(DetailsGroups).toHaveBeenCalledWith(
+                {
+                    groups: ['Uogienės'],
+                    details: details.slice(1, 2),
+                },
+                {}
+            );
         });
 
-        it('renders missing rows only when header checkbox is unchecked', async () => {
-            render(<DetailsTable />, withReduxState());
-
-            await userEvent.click(screen.getAllByRole('checkbox')[0]);
-
-            const checkboxes = screen.getAllByRole('checkbox');
-            expect(checkboxes).toHaveLength(2);
-            expect(checkboxes[0]).not.toBeChecked();
-            expect(checkboxes[1]).not.toBeChecked();
+        it('clears missing-only state if all missing rows are filtered out', () => {
+            (useFilteredList as jest.Mock).mockReturnValueOnce(details.slice(2));
+            render(<DetailsTable />, withReduxState(state));
+            expect(setMissingOnly).toHaveBeenCalledWith(false);
         });
 
-        it('renders with missing rows again when header checkbox is checked back', async () => {
-            render(<DetailsTable />, withReduxState());
-
-            await userEvent.click(screen.getAllByRole('checkbox')[0]);
-            await userEvent.click(screen.getAllByRole('checkbox')[0]);
-
-            const checkboxes = screen.getAllByRole('checkbox');
-            expect(checkboxes).toHaveLength(5);
-            expect(checkboxes[0]).toBeChecked();
-            expect(checkboxes[1]).toBeChecked();
-            expect(checkboxes[2]).toBeChecked();
-            expect(checkboxes[3]).toBeChecked();
-            expect(checkboxes[4]).not.toBeChecked();
+        it('calls clearFilter on missing-only checkbox being clicked when all missing rows are filtered out', async () => {
+            const clearFilter = jest.fn();
+            (useFilter as jest.Mock).mockReturnValueOnce('z');
+            (useClearFilter as jest.Mock).mockReturnValueOnce(clearFilter);
+            (useFilteredList as jest.Mock).mockReturnValueOnce([]);
+            render(<DetailsTable />, withReduxState(state));
+            expect(setMissingOnly).not.toHaveBeenCalled();
+            await userEvent.click(screen.getByRole('checkbox'));
+            expect(clearFilter).toHaveBeenCalled();
         });
     });
 });

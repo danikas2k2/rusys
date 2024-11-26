@@ -1,11 +1,12 @@
 import { useLongPress } from '@ui/hooks/useLongPress';
-import { isEqual } from 'lodash';
 import React, { useCallback, useState } from 'react';
+import { RecycledContextWrapper } from '~/client/common/RecycledContext';
 import { ValueBox } from '~/client/details/dialogs/ValueBox';
 import { ValueAmounts } from '~/client/details/ValueAmounts';
 import { Cell } from '~/client/table/Cell';
 import { type VariantAmount } from '~/common/types';
 import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
+import { useUpdateDetails } from '~/state/details/useUpdateDetails';
 import cx from './ValueCell.less';
 
 export interface ValueCellProps {
@@ -15,26 +16,27 @@ export interface ValueCellProps {
     amounts?: ReadonlyArray<VariantAmount>;
     removing?: boolean;
     last?: boolean;
-    onChange: (amounts?: ReadonlyArray<VariantAmount>, withoutHistory?: boolean) => void;
 }
 
-export function ValueCell({ group, name, year, amounts, removing, last, onChange }: ValueCellProps) {
+export function ValueCell({ group, name, year, amounts, removing = false, last = false }: ValueCellProps) {
+    const updateDetails = useUpdateDetails();
+    const setRemoving = useSetDetailsRemoving();
+
     const [editing, setEditing] = useState(false);
     const handleOpen = useCallback(() => setEditing(true), []);
     const handleClose = useCallback(
-        (updated?: ReadonlyArray<VariantAmount>, withoutHistory = false): void => {
+        (changed?: ReadonlyArray<VariantAmount>): void => {
             setEditing(false);
-            const optimized = updated?.filter(({ amount }) => amount > 0) ?? [];
-            if (!isEqual(amounts, optimized)) {
-                onChange(optimized, withoutHistory);
+            const clean = changed?.filter(({ amount }) => !!amount) ?? [];
+            if (clean.length) {
+                void updateDetails(group, name, year, clean);
             }
         },
-        [onChange, amounts]
+        [updateDetails, group, name, year]
     );
 
     const handleShortPress = editing ? undefined : handleOpen;
 
-    const setRemoving = useSetDetailsRemoving();
     // TODO add setRemoving to edit dialog
     const handleLongPress = useCallback((): void => {
         void setRemoving(group, name, year, !removing);
@@ -50,7 +52,11 @@ export function ValueCell({ group, name, year, amounts, removing, last, onChange
             >
                 {empty ? '.' : <ValueAmounts group={group} amounts={amounts} />}
             </Cell>
-            {editing && <ValueBox group={group} name={name} year={year} amounts={amounts} onClose={handleClose} />}
+            {editing && (
+                <RecycledContextWrapper>
+                    <ValueBox group={group} name={name} year={year} amounts={amounts} onClose={handleClose} />
+                </RecycledContextWrapper>
+            )}
         </>
     );
 }

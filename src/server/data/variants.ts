@@ -1,54 +1,44 @@
 import { uniq } from 'lodash';
 import { type ClientSession } from 'mongodb';
 import { type UpdateVariant, type Variant } from '~/common/types';
-import { getYearsAndDetails } from '~/server/data/details';
+import { getDetailsWithYears } from '~/server/data/details';
+import { getGroups } from '~/server/data/groups';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { getDetailsCollection, getVariantsCollection } from '~/server/db';
 
-/*export const getVariants = async (session?: ClientSession): Promise<ReadonlyArray<Variant>> =>
-    (await getVariantsCollection())
-        .find({}, { projection: { _id: 0 }, sort: { group: 1, order: 1, name: 1 }, session })
-        .toArray();*/
-
-export const getVariants = async (session?: ClientSession): Promise<ReadonlyArray<Variant>> =>
-    (await getVariantsCollection())
+export const getVariants = async (session?: ClientSession): Promise<ReadonlyArray<Variant>> => {
+    const matchGroup = { $eq: ['$group', '$$group'] };
+    const combineUpdatesYears = {
+        input: { $ifNull: ['$updates.years', []] },
+        initialValue: [],
+        in: { $concatArrays: ['$$value', '$$this'] },
+    };
+    const matchVariant = {
+        $reduce: {
+            input: { $concatArrays: [{ $ifNull: ['$years', []] }, { $reduce: combineUpdatesYears }] },
+            initialValue: false,
+            in: { $or: ['$$value', { $in: ['$$variant', '$$this.amounts.variant'] }] },
+        },
+    };
+    return (await getVariantsCollection())
         .aggregate(
             [
                 {
                     $lookup: {
                         from: 'details',
-                        let: {
-                            group: '$group',
-                            years_variant: '$years.amounts.variant',
-                            updates_variant: '$updates.years.amounts.variant',
-                        },
-                        pipeline: [
-                            {
-                                $match: {
-                                    $expr: {
-                                        $and: [
-                                            { $eq: ['$group', '$$group'] },
-                                            {
-                                                $or: [
-                                                    { $eq: ['$variant', '$$years_variant'] },
-                                                    { $eq: ['$variant', '$$updates_variant'] },
-                                                ],
-                                            },
-                                        ],
-                                    },
-                                },
-                            },
-                            { $group: { _id: null, count: { $count: {} } } },
-                        ],
-                        as: 'usage',
+                        let: { group: '$group', variant: '$variant' },
+                        pipeline: [{ $match: { $expr: { $and: [matchGroup, matchVariant] } } }],
+                        as: 'used',
                     },
                 },
-                { $addFields: { used: { $gt: [{ $sum: '$usage.count' }, 0] } } },
-                { $project: { _id: 0, usage: 0 } },
+                { $addFields: { used: { $gt: [{ $size: '$used' }, 0] } } },
+                { $project: { _id: 0 } },
+                { $sort: { group: 1, order: 1, name: 1 } },
             ],
             { session }
         )
         .toArray();
+};
 
 export async function setVariants(variants: ReadonlyArray<Variant>, session?: ClientSession): Promise<boolean> {
     const uniqueGroups = uniq(variants.map(({ group }) => group));
@@ -290,7 +280,11 @@ export async function reorderVariants(
 
 export async function getDetailsAndVariants() {
     return {
-        ...(await getYearsAndDetails()),
+        ...(await getDetailsWithYears()),
         variants: await getVariants(),
     };
 }
+
+export const getVariantsResponse = async () => ({ variants: await getVariants() });
+
+export const getFullVariants = async () => ({ groups: await getGroups(), variants: await getVariants() });

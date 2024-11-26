@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
-import { getSummaryFixture } from '~/tests/fixtures';
 import { useSummary } from '~/state/summary/useSummary';
+import { getSummaryFixture } from '~/tests/fixtures';
 import { withReduxState } from '~/tests/withReduxState';
 
 describe('useSummary', () => {

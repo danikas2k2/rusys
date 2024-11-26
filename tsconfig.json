@@ -5,7 +5,7 @@
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
-            "@icons/*": ["src/icons/*"],
+            "@assets/*": ["src/assets/*"],
             "@ui/*": ["src/ui/*"],
             "~/*": ["src/*"]
         },

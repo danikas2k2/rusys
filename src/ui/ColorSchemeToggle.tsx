@@ -1,9 +1,9 @@
-import DarkModeIcon from '@icons/DarkMode.svg';
-import LightModeIcon from '@icons/LightMode.svg';
-import AutoModeIcon from '@icons/Routine.svg';
+import DarkModeIcon from '@assets/DarkMode.svg';
+import LightModeIcon from '@assets/LightMode.svg';
+import AutoModeIcon from '@assets/Routine.svg';
 import { Button, ButtonGroup } from '@ui/Button';
 import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
-import React, { ComponentType } from 'react';
+import React, { type ComponentType } from 'react';
 
 interface ColorSchemeToggleProps {
     auto?: boolean;

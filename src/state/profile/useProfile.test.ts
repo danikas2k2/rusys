@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useDev } from '~/hooks/useDev';
+import { useDev } from '~/common/hooks/useDev';
 import { profile as reducer } from '~/state/profile/reducer';
 import { type Profile } from '~/state/profile/types';
 import { DEV_MODE_PROFILE, useProfile } from '~/state/profile/useProfile';
@@ -7,7 +7,7 @@ import { useSetProfile } from '~/state/profile/useSetProfile';
 import { mockLocalStorage } from '~/tests/mockLocalStorage';
 import { withReduxState } from '~/tests/withReduxState';
 
-jest.mock('~/hooks/useDev', () => ({
+jest.mock('~/common/hooks/useDev', () => ({
     useDev: jest.fn().mockReturnValue(false),
 }));
 jest.mock('~/state/profile/useSetProfile', () => ({

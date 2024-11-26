@@ -1,4 +1,4 @@
-import GoogleIcon from '@icons/Google.svg';
+import GoogleIcon from '@assets/Google.svg';
 import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import { type ButtonProps, IconButton } from '@ui/Button';
 import React, { useCallback, useMemo } from 'react';

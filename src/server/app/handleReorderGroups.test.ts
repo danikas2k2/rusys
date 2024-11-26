@@ -1,7 +1,7 @@
 /** @jest-environment node */
 import { type ApiGroups, type ApiReorderGroups } from '~/common/api';
 import { handleReorderGroups } from '~/server/app/handleReorderGroups';
-import { getGroups, reorderGroups } from '~/server/data/groups';
+import { getGroupsResponse, reorderGroups } from '~/server/data/groups';
 import { getGroupsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';
@@ -19,12 +19,12 @@ describe('handleReorderGroups', () => {
 
     it('returns filled response on success', async () => {
         (reorderGroups as jest.Mock).mockResolvedValueOnce(true);
-        (getGroups as jest.Mock).mockResolvedValueOnce(groups);
+        (getGroupsResponse as jest.Mock).mockResolvedValueOnce({ groups });
 
         await handleReorderGroups(request, response);
 
         expect(reorderGroups).toHaveBeenCalledWith(reorder);
-        expect(getGroups).toHaveBeenCalledWith();
+        expect(getGroupsResponse).toHaveBeenCalledWith(true);
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true, groups });
     });
@@ -35,9 +35,9 @@ describe('handleReorderGroups', () => {
         await handleReorderGroups(request, response);
 
         expect(reorderGroups).toHaveBeenCalledWith(reorder);
-        expect(getGroups).not.toHaveBeenCalled();
+        expect(getGroupsResponse).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: false });
+        expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
     it('returns error response on error', async () => {
@@ -46,7 +46,7 @@ describe('handleReorderGroups', () => {
         await handleReorderGroups(request, response);
 
         expect(reorderGroups).toHaveBeenCalledWith(reorder);
-        expect(getGroups).not.toHaveBeenCalled();
+        expect(getGroupsResponse).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to reorder groups' });
     });

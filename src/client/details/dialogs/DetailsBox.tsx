@@ -1,8 +1,8 @@
-import AddIcon from '@icons/Add.svg';
-import CancelIcon from '@icons/Cancel.svg';
-import CloseIcon from '@icons/Close.svg';
-import DoneIcon from '@icons/Done.svg';
-import MoveIcon from '@icons/MoveItem.svg';
+import AddIcon from '@assets/Add.svg';
+import CancelIcon from '@assets/Cancel.svg';
+import CloseIcon from '@assets/Close.svg';
+import DoneIcon from '@assets/Done.svg';
+import MoveIcon from '@assets/MoveItem.svg';
 import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
@@ -14,12 +14,13 @@ import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useS
 import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
-import { useNameMatch } from '~/client/hooks/useNameMatch';
+import { compareNames } from '~/client/utils/compareNames';
+import { getErrorMessage } from '~/common/utils/errors';
 import { useAddDetails } from '~/state/details/useAddDetails';
+import { useDetails } from '~/state/details/useDetails';
 import { useMoveDetails } from '~/state/details/useMoveDetails';
 import { useRenameDetails } from '~/state/details/useRenameDetails';
 import { useGroups } from '~/state/groups/useGroups';
-import { getErrorMessage } from '~/utils/errors';
 import cx from './DetailsBox.less';
 
 interface DetailsBoxProps extends WithOnClose {
@@ -44,13 +45,15 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
     }, [group, name]);
 
     const groups = useGroups()?.map((v) => v.group) ?? [];
-    const hasSameName = useNameMatch(group, name);
-    const detailsMoved = group !== initialGroup;
-    const detailsRenamed = name !== initialName;
-    const hasName = hasSameName && (detailsMoved || detailsRenamed) && !updating;
+    const hasSameName = useDetails()?.some((d) => !compareNames(group, d.group) && !compareNames(name, d.name));
+    const detailsAdded = !initialGroup || !initialName;
+    const detailsMoved = !!initialGroup && group !== initialGroup;
+    const detailsRenamed = !!initialName && name !== initialName;
+    const hasName = hasSameName && !updating && (detailsAdded || detailsMoved || detailsRenamed);
+
     useEffect(() => {
         if (hasName && isEmpty(errors)) {
-            setErrors({ '': ERROR_EXISTS });
+            setErrors({ _: ERROR_EXISTS });
         }
     }, [hasName, errors]);
 
@@ -79,18 +82,16 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
         }
         try {
             setUpdating(true);
-            if (initialName) {
-                if (detailsMoved) {
-                    await moveDetails(initialGroup, initialName, group, name);
-                } else if (detailsRenamed) {
-                    await renameDetails(initialGroup, initialName, name);
-                }
-            } else {
-                await addDetails(initialGroup, name);
+            if (!initialName) {
+                await addDetails(group, name);
+            } else if (detailsMoved) {
+                await moveDetails(initialGroup, initialName, group, name);
+            } else if (detailsRenamed) {
+                await renameDetails(initialGroup, initialName, name);
             }
             onClose(group, name);
         } catch (e) {
-            setErrors({ '': getErrorMessage(e) });
+            setErrors({ _: getErrorMessage(e) });
             nameRef?.focus();
         } finally {
             setUpdating(false);
@@ -125,7 +126,7 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
     );
 
     const closeLabel = useLabel('Close');
-    const errorLabel = useLabel(errors?.[''] ?? '');
+    const errorLabel = useLabel(errors?._ ?? '');
     const groupLabel = useLabel('Group');
     const titleLabel = useLabel('Title');
     return (
@@ -144,10 +145,12 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
                 <Select
                     ref={groupRef}
                     fullWidth
+                    color={errors?.group ? 'negative' : 'primary'}
+                    invalid={!!errors?.group}
                     size="large"
                     value={group}
                     label={groupLabel}
-                    onChange={(value) => setGroup(value as string)}
+                    onChange={(e, value) => setGroup(value as string)}
                 >
                     {groups.map((g) => (
                         <Option key={g} value={g}>
@@ -158,8 +161,9 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
                 <Input
                     ref={nameRef}
                     fullWidth
-                    color={errors?.[''] || errors?.name ? 'negative' : 'primary'}
-                    error={errors?.[''] ? errorLabel : undefined}
+                    color={errors?._ || errors?.name ? 'negative' : 'primary'}
+                    invalid={!!errors?._ || !!errors?.name}
+                    error={errors?._ ? errorLabel : undefined}
                     size="large"
                     value={name}
                     label={titleLabel}

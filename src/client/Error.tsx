@@ -1,4 +1,4 @@
-import DangerousIcon from '@icons/Dangerous.svg';
+import DangerousIcon from '@assets/Dangerous.svg';
 import React, { type PropsWithChildren } from 'react';
 import cx from './Error.less';
 

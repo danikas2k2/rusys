@@ -38,6 +38,6 @@ describe('useOutsideClick', () => {
         render(<OutsideClickTest handler={handler} />);
 
         await userEvent.click(screen.getByText('Outside'));
-        expect(handler).toHaveBeenCalledWith();
+        expect(handler).toHaveBeenCalledWith(expect.any(Object));
     });
 });

@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 // import { useDispatch } from 'react-redux';
 import { type ApiRequestVariant, ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
+
 // import { deleteVariantAction } from '~/state/variants/actions';
 
 export function useDeleteVariant(): (group: string, variant: string) => Promise<void> {

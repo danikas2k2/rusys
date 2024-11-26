@@ -1,14 +1,6 @@
 import { type Request, type Response } from 'express';
-// eslint-disable-next-line import/no-unresolved
 import { type ParamsDictionary } from 'express-serve-static-core';
-import {
-    type Details,
-    type Group,
-    type RemovingYearAmounts,
-    type Summary,
-    type Variant,
-    type VariantAmount,
-} from '~/common/types';
+import { type Details, type Group, type Summary, type Variant, type VariantAmount } from '~/common/types';
 
 export type ApiRequest<R = unknown> = Request<ParamsDictionary, unknown, R>;
 export type ApiResult<R = unknown> = { ok: true } | ({ ok: true } & R) | { ok?: false; error?: string };
@@ -24,8 +16,8 @@ export const enum ApiUrl {
 
     // Details
     Details = '/details',
-    DetailsSetYears = '/details/years',
-    DetailsSetAmounts = '/details/amounts',
+    DetailsAdd = '/details/add',
+    DetailsUpdate = '/details/update',
     DetailsSetRemoving = '/details/removing',
     DetailsSetMissing = '/details/missing',
     DetailsRename = '/details/rename',
@@ -89,15 +81,9 @@ export interface ApiSetRemoving extends ApiRequestDetails {
     removing: boolean;
 }
 
-export interface ApiUpdateDetailsYears extends ApiRequestDetails {
-    years?: ReadonlyArray<RemovingYearAmounts>;
-    withoutHistory?: boolean;
-}
-
-export interface ApiUpdateDetailsAmounts extends ApiRequestDetails {
+export interface ApiUpdateDetails extends ApiRequestDetails {
     year: number;
     amounts?: ReadonlyArray<VariantAmount>;
-    withoutHistory?: boolean;
 }
 
 export interface ApiSummary {

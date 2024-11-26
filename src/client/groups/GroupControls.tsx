@@ -1,64 +1,39 @@
-import DeleteIcon from '@icons/Delete.svg';
-import EditIcon from '@icons/Edit.svg';
-import { Button, ButtonGroup } from '@ui/Button';
-import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
-import classNames from 'classnames';
 import React, { forwardRef, type HTMLAttributes, type Ref, useCallback, useState } from 'react';
+import { SlideControls } from '~/client/common/SlideControls';
 import { GroupBox } from '~/client/groups/dialogs/GroupBox';
-import { Label } from '~/client/common/Label';
+import { getErrorMessage } from '~/common/utils/errors';
 import { useDeleteGroup } from '~/state/groups/useDeleteGroup';
-import { getErrorMessage } from '~/utils/errors';
-import cx from './GroupControls.less';
 
 interface GroupControlsProps extends HTMLAttributes<HTMLDivElement> {
-    group?: string;
+    group: string;
     onPin?: (hide?: boolean) => void;
     onUnpin?: (hide?: boolean) => void;
 }
 
 export const GroupControls = forwardRef(function GroupControls(
-    { group, onPin, onUnpin, className, ...props }: GroupControlsProps,
+    { group, onPin, onUnpin, ...props }: GroupControlsProps,
     ref: Ref<HTMLDivElement>
 ) {
     const [dialogVisible, setDialogVisible] = useState(false);
 
-    const handleEdit = useCallback(async (): Promise<void> => {
-        onPin?.();
+    const onEdit = useCallback(() => {
         setDialogVisible(true);
-    }, [onPin]);
+    }, []);
 
     const deleteGroup = useDeleteGroup();
-    const handleDelete: () => Promise<void> = useCallback(async (): Promise<void> => {
+    const onDelete = useCallback(async () => {
         onUnpin?.(true);
         try {
-            if (group) {
-                await deleteGroup(group);
-            }
+            await deleteGroup(group);
         } catch (e) {
             console.error(getErrorMessage(e));
             // setError(getErrorMessage(e));
         }
     }, [deleteGroup, group, onUnpin]);
 
-    return (
+    return group ? (
         <>
-            <div ref={ref} className={classNames(className, cx('GroupControls'))} {...props}>
-                <ButtonGroup align="end">
-                    <Button color="primary" startDecorator={<EditIcon />} onClick={handleEdit}>
-                        <Label>Edit</Label>
-                    </Button>
-                    <ButtonWithConfirmation
-                        color="negative"
-                        startDecorator={<DeleteIcon />}
-                        dialogHeader={<Label>Sure to remove?</Label>}
-                        onClick={handleDelete}
-                        onOpen={onPin}
-                        onClose={onUnpin}
-                    >
-                        <Label>Remove</Label>
-                    </ButtonWithConfirmation>
-                </ButtonGroup>
-            </div>
+            <SlideControls ref={ref} onEdit={onEdit} onRemove={onDelete} onPin={onPin} onUnpin={onUnpin} {...props} />
             {dialogVisible && (
                 <GroupBox
                     group={group}
@@ -69,5 +44,5 @@ export const GroupControls = forwardRef(function GroupControls(
                 />
             )}
         </>
-    );
+    ) : null;
 });

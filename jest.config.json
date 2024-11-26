@@ -2,7 +2,7 @@
     "verbose": true,
     "moduleFileExtensions": ["js", "jsx", "ts", "tsx"],
     "moduleNameMapper": {
-        "^@icons/(.*)$": "<rootDir>/src/icons/$1",
+        "^@assets/(.*)$": "<rootDir>/src/assets/$1",
         "^@ui/(.*)$": "<rootDir>/src/ui/$1",
         "^~/(.*)$": "<rootDir>/src/$1",
         "\\.(c|le)ss$": "<rootDir>/jest/__mocks__/styleMock.js"
@@ -14,7 +14,7 @@
         "jest-chain",
         "jest-to-match-shape-of",
         "jest-expect-message",
-        "<rootDir>/jest/extend.ts"
+        "<rootDir>/jest/expect.ts"
     ],
     "testEnvironment": "jsdom",
     "transform": {

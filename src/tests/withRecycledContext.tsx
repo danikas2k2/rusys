@@ -1,0 +1,14 @@
+import { type RenderHookOptions } from '@testing-library/react';
+import React, { type PropsWithChildren } from 'react';
+import { RecycledContext, RecycledContextWrapper } from '~/client/common/RecycledContext';
+
+export function withRecycledContext<P>(value?: [boolean, (v: boolean) => void]): RenderHookOptions<P> {
+    return {
+        wrapper: ({ children }: PropsWithChildren) =>
+            value ? (
+                <RecycledContext.Provider value={value}>{children}</RecycledContext.Provider>
+            ) : (
+                <RecycledContextWrapper>{children}</RecycledContextWrapper>
+            ),
+    };
+}
