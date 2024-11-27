@@ -1,5 +1,5 @@
 import { Option, Select } from '@ui/Select';
-import React from 'react';
+import React, { type ChangeEvent } from 'react';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useClearGroup } from '~/state/group/useClearGroup';
 import { useGroup } from '~/state/group/useGroup';
@@ -12,7 +12,7 @@ export function ToolbarGroupFilter() {
     const group = useGroup() || '';
     const setGroup = useSetGroup();
     const clearGroup = useClearGroup();
-    const handleChange = (value: string) => (value ? setGroup(value) : clearGroup());
+    const handleChange = (e: ChangeEvent, value: string) => (value ? setGroup(value) : clearGroup());
     return (
         <Select fullWidth color="primary" value={group} onChange={handleChange}>
             {groups.map((g) => (

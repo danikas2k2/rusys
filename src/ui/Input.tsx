@@ -129,7 +129,11 @@ export const Input = forwardRef(function Input(
         [controlled, onClear, ref]
     );
 
-    const [clear, setClear] = useState<boolean>(clearable && !!(value || defaultValue));
+    const hasValue = !!(value || defaultValue);
+    const [clear, setClear] = useState<boolean>(clearable && hasValue);
+    useEffect(() => {
+        setClear(clearable && hasValue);
+    }, [clearable, hasValue]);
     const prevValue = usePreviousValue(value) ?? value;
     useEffect(() => {
         if (clearable && value !== prevValue) {
