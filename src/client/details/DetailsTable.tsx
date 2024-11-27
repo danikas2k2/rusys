@@ -21,8 +21,6 @@ import { useGroup } from '~/state/group/useGroup';
 import { useYears } from '~/state/years/useYears';
 import cx from './DetailsTable.less';
 
-// TODO add obvious header to see if details or summary table displayed
-// TODO add control for quick switch between details and summary
 export function DetailsTable() {
     const filteredDetails = useFilteredList(useDetails());
     const hasFilteredDetails = !!filteredDetails.length;
