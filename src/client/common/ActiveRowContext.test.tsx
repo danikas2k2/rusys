@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import React, { type PropsWithChildren, useState } from 'react';
 import { type ActiveRow, ActiveRowContext, useActiveRow } from '~/client/common/ActiveRowContext';
-import { type ActiveVariant } from '~/client/variants/ActiveVariantContext';
+import { type ActiveVariant } from '~/client/variants/SortableVariant';
 
 function Test({ activeVariant, children }: PropsWithChildren<{ activeVariant?: ActiveVariant }>) {
     const [active, setActive] = useState<ActiveRow | undefined>(activeVariant);
@@ -25,7 +25,7 @@ describe('ActiveRowContext', () => {
     });
 
     it('returns updated active variant if contexts is initialized', () => {
-        const { result } = renderHook(() => useActiveRow(), {
+        const { result } = renderHook(() => useActiveRow<ActiveVariant>(), {
             wrapper: ({ children }) => <Test>{children}</Test>,
         });
         const activeVariant = { group: 'Daržovės', variant: 'd' };
