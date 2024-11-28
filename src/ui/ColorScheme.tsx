@@ -1,4 +1,4 @@
-import React, { createContext, type PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import React, { createContext, type JSX, type PropsWithChildren, useCallback, useEffect, useState } from 'react';
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 
 export type ColorScheme = 'light' | 'dark' | 'auto';

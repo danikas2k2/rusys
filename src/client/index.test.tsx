@@ -7,6 +7,7 @@ jest.mock('~/client/bootstrap', () => ({
 
 describe('index', () => {
     it('calls bootstrap function', async () => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require('~/client/index');
         await waitFor(() => expect(bootstrap).toHaveBeenCalledWith());
     });

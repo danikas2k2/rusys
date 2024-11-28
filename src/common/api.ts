@@ -12,9 +12,11 @@ export const enum ApiUrl {
     CheckUser = '/checkUser',
 
     // Summary
+    // eslint-disable-next-line no-shadow
     Summary = '/summary',
 
     // Details
+    // eslint-disable-next-line no-shadow
     Details = '/details',
     DetailsAdd = '/details/add',
     DetailsUpdate = '/details/update',
@@ -109,10 +111,6 @@ export interface ApiUpdateGroup extends ApiRequestGroup {
 
 export interface ApiReorderGroups {
     groups: Readonly<Record<string, number>>;
-}
-
-export interface ApiSwitchGroups extends ApiRequestGroup {
-    oppositeGroup: string;
 }
 
 export interface ApiVariants {

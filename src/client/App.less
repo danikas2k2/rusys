@@ -1,20 +1,29 @@
 @import (once) "@ui/theme.less";
 
 .App {
-    position: absolute;
-    inset: 44px 0 0;
-    inset: constant(safe-area-inset-top) constant(safe-area-inset-right) constant(safe-area-inset-bottom)
-        constant(safe-area-inset-left);
-    inset: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: absolute;
+    //noinspection CssOverwrittenProperties -- safe-area-inset-* is not supported in all browsers
+    inset: 44px 0 0;
+    //noinspection CssOverwrittenProperties -- safe-area-inset-* is not supported in all browsers
+    inset: constant(safe-area-inset-top) constant(safe-area-inset-right) constant(safe-area-inset-bottom)
+        constant(safe-area-inset-left);
+    //noinspection CssOverwrittenProperties -- safe-area-inset-* is not supported in all browsers
+    inset: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 
     &.center {
-        position: absolute;
-        inset: 0;
         display: flex;
         align-items: center;
         justify-content: center;
+        position: absolute;
+        //noinspection CssOverwrittenProperties -- safe-area-inset-* is not supported in all browsers
+        inset: 0;
+        //noinspection CssOverwrittenProperties -- safe-area-inset-* is not supported in all browsers
+        inset: constant(safe-area-inset-top) constant(safe-area-inset-right) constant(safe-area-inset-bottom)
+            constant(safe-area-inset-left);
+        //noinspection CssOverwrittenProperties -- safe-area-inset-* is not supported in all browsers
+        inset: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 }

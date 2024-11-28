@@ -1,6 +1,6 @@
 import { type GroupAction, GroupActionType } from '~/state/group/actions';
 
-export function group(group: string = '', action: Readonly<GroupAction>): string {
+export function group(state: string = '', action: Readonly<GroupAction>): string {
     switch (action.type) {
         case GroupActionType.SET:
             return action.group;
@@ -9,6 +9,6 @@ export function group(group: string = '', action: Readonly<GroupAction>): string
             return '';
 
         default:
-            return group;
+            return state;
     }
 }

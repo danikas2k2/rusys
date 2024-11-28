@@ -1,7 +1,7 @@
 import { Checkbox } from '@ui/Checkbox';
 import { Interactive } from '@ui/Interactive';
 import { isEmpty } from 'lodash';
-import React, { type ForwardedRef, forwardRef, useCallback, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { type ActiveRow, useActiveRow } from '~/client/common/ActiveRowContext';
 import { DetailsControls } from '~/client/details/DetailsControls';
 import { ValueCell } from '~/client/details/ValueCell';

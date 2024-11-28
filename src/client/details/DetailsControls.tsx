@@ -25,6 +25,7 @@ export const DetailsControls = forwardRef(function DetailsControls(
         try {
             await deleteDetails(group, name);
         } catch (e) {
+            // eslint-disable-next-line no-console
             console.error(getErrorMessage(e));
             // setError(getErrorMessage(e));
         }

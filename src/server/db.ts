@@ -35,23 +35,23 @@ export async function createMissingIndexes(db: Db): Promise<void> {
     await variants.createIndex({ group: 1, variant: 1 }, { name: 'group_variant', unique: true, background: true });
 }
 
-let client: MongoClient;
+let $client: MongoClient;
 
 export async function getClient(uri = process.env.DB): Promise<MongoClient> {
-    if (!client) {
-        client = await MongoClient.connect(uri ?? '', {});
+    if (!$client) {
+        $client = await MongoClient.connect(uri ?? '', {});
     }
-    return client;
+    return $client;
 }
 
-let db: Db;
+let $db: Db;
 
 export async function getDb(name = process.env.DB_NAME, client?: MongoClient): Promise<Db> {
-    if (!db) {
-        db = (client ?? (await getClient())).db(name);
-        await createMissingIndexes(db);
+    if (!$db) {
+        $db = (client ?? (await getClient())).db(name);
+        await createMissingIndexes($db);
     }
-    return db;
+    return $db;
 }
 
 export const getGroupsCollection = async (): Promise<Collection<Group>> => (await getDb()).collection('groups');

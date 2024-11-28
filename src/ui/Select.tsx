@@ -3,7 +3,7 @@ import { Button } from '@ui/Button';
 import { Dropdown, type DropdownRef } from '@ui/Dropdown';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { useOutsideClick } from '@ui/hooks/useOutsideClick';
-import { Input, type InputProps, type InputState, type InputVariant } from '@ui/Input';
+import { Input, type InputProps, type InputState } from '@ui/Input';
 import { Interactive } from '@ui/Interactive';
 import { uniqueId } from '@ui/utils/uniqueId';
 import classNames from 'classnames';
@@ -295,18 +295,15 @@ export type OptionProps<T = string | number, E extends HTMLElement = HTMLElement
 }>;
 
 export const Option = forwardRef(function Option<T = string | number, E extends HTMLElement = HTMLElement>(
-    { value, label, selected, disabled, className, onClick, children }: OptionProps<T, E>,
+    { label, selected, disabled, className, onClick, children }: OptionProps<T, E>,
     forwardedRef: ForwardedRef<E>
 ) {
-    const ref = useForwardedRef(forwardedRef);
     return (
         <Interactive
-            ref={ref}
+            ref={useForwardedRef(forwardedRef)}
             role="option"
-            // data-value={value}
-            // data-label={label}
             className={classNames(cx('Option', { selected, disabled }), className)}
-            aria-selected={selected} // use aria-checked for multiple select
+            aria-selected={selected} // TODO use aria-checked for multiple select
             aria-disabled={disabled}
             aria-label={label}
             onClick={disabled ? undefined : onClick}
@@ -315,7 +312,3 @@ export const Option = forwardRef(function Option<T = string | number, E extends 
         </Interactive>
     );
 });
-
-function getButtonVariant(variant?: InputVariant): typeof variant {
-    return !variant || variant === 'outlined' ? 'plain' : variant;
-}

@@ -104,10 +104,10 @@ type DeprecatedUpdates = { group?: string; name: string; time: number } & Record
     ];
 
     const newDetails: Details[] = details.map(
-        ({ group = '', name, ...values }): Details => ({
+        ({ group = '', name, ...years }): Details => ({
             group: group || 'Uogienės',
             name,
-            years: Object.entries(values).map(([year, amounts]) => ({
+            years: Object.entries(years).map(([year, amounts]) => ({
                 year: +year,
                 amounts: Object.entries(amounts).map(([variant, amount]) => ({
                     variant: variants.find((v) => v.short === variant)?.variant || 'Puslitris',
@@ -132,6 +132,7 @@ type DeprecatedUpdates = { group?: string; name: string; time: number } & Record
                 })),
         })
     );
+    // eslint-disable-next-line no-console
     console.info(`Migrating ${newDetails.length} details...`);
     await (
         await getDetailsCollection()
@@ -142,6 +143,7 @@ type DeprecatedUpdates = { group?: string; name: string; time: number } & Record
         })),
     ]);
 
+    // eslint-disable-next-line no-console
     console.info(`Migrating ${groups.length} groups...`);
     await (
         await getGroupsCollection()
@@ -152,6 +154,7 @@ type DeprecatedUpdates = { group?: string; name: string; time: number } & Record
         })),
     ]);
 
+    // eslint-disable-next-line no-console
     console.info(`Migrating ${variants.length} variants...`);
     await (
         await getVariantsCollection()
@@ -162,6 +165,7 @@ type DeprecatedUpdates = { group?: string; name: string; time: number } & Record
         })),
     ]);
 
+    // eslint-disable-next-line no-console
     console.info('Done!');
     process.exit();
 })();

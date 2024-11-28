@@ -16,6 +16,7 @@ import { getLessRule } from './webpack/rules/less';
 import { getSvgRule } from './webpack/rules/svg';
 import { getTsxRule } from './webpack/rules/tsx';
 
+// noinspection JSUnusedGlobalSymbols
 export default async function (env?: { prod?: boolean }, argv?: { mode?: string }): Promise<Configuration> {
     const isDevMode = !env?.prod && argv?.mode !== 'production';
     const context = process.cwd();

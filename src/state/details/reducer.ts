@@ -2,18 +2,18 @@ import { cloneDeep } from 'lodash';
 import { type Details } from '~/common/types';
 import { type DetailsAction, DetailsActionType } from '~/state/details/actions';
 
-export function details(details: ReadonlyArray<Details> = [], action: Readonly<DetailsAction>): ReadonlyArray<Details> {
+export function details(state: ReadonlyArray<Details> = [], action: Readonly<DetailsAction>): ReadonlyArray<Details> {
     switch (action.type) {
         case DetailsActionType.SET:
             return cloneDeep(action.details);
 
         case DetailsActionType.SET_MISSING:
-            return details.map((d) =>
+            return state.map((d) =>
                 d.group !== action.group || d.name !== action.name ? d : { ...d, missing: action.missing || undefined }
             );
 
         case DetailsActionType.SET_REMOVING:
-            return details.map((d) =>
+            return state.map((d) =>
                 d.group !== action.group || d.name !== action.name
                     ? d
                     : {
@@ -25,6 +25,6 @@ export function details(details: ReadonlyArray<Details> = [], action: Readonly<D
             );
 
         default:
-            return details;
+            return state;
     }
 }

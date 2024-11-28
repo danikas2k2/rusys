@@ -5,24 +5,16 @@ const xOffset = 0;
 const yOffset = 450;
 const scale = 100;
 
-function x(v: number) {
-    return xOffset + v;
-}
-
-function y(v: number) {
-    return yOffset - v;
-}
-
 function scaled(v: number) {
     return v * scale;
 }
 
 function X(v: number) {
-    return x(scaled(v));
+    return xOffset + scaled(v);
 }
 
 function Y(v: number) {
-    return y(scaled(v));
+    return yOffset - scaled(v);
 }
 
 function Dot({ x, y, color, children }: PropsWithChildren<{ x: number; y: number; color?: string }>) {

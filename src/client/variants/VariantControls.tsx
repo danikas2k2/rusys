@@ -27,6 +27,7 @@ export const VariantControls = forwardRef(function VariantControls(
         try {
             await deleteVariant(group, variant);
         } catch (e) {
+            // eslint-disable-next-line no-console
             console.error(getErrorMessage(e));
             // setError(getErrorMessage(e));
         }

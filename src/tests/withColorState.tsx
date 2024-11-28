@@ -1,6 +1,6 @@
 import { type RenderHookOptions } from '@testing-library/react';
 import { ColorSchemeState } from '@ui/ColorScheme';
-import React, { type PropsWithChildren } from 'react';
+import React, { type JSX, type PropsWithChildren } from 'react';
 
 export function withColorState<P>(): RenderHookOptions<P> {
     return {

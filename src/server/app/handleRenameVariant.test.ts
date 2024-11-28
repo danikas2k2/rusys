@@ -2,7 +2,6 @@
 import { type ApiDetails, type ApiRenameVariant } from '~/common/api';
 import { handleRenameVariant } from '~/server/app/handleRenameVariant';
 import { renameVariantOccurrences } from '~/server/data/common';
-import { getDetailsWithYears } from '~/server/data/details';
 import { getVariantsResponse } from '~/server/data/variants';
 import { getDetailsFixture, getVariantsFixture, getYearsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';

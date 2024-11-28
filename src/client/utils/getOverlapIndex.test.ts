@@ -17,15 +17,15 @@ describe('getOverlapIndex', () => {
 
     offsetParent.children[1] = element;
 
-    it('returns index of first overlaped sibling', () => {
+    it('returns index of first overlapped sibling', () => {
         expect(getOverlapIndex(element)).toBe(2);
     });
 
-    it('returns index of first overlapped sibling for larger treshold', () => {
+    it('returns index of first overlapped sibling for larger threshold', () => {
         expect(getOverlapIndex(element, 0.6)).toBe(0);
     });
 
-    it('returns -1 for smaller treshold', () => {
+    it('returns -1 for smaller threshold', () => {
         expect(getOverlapIndex(element, 0.3)).toBe(-1);
     });
 
