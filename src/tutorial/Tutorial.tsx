@@ -1,6 +1,6 @@
 import { ColorSchemeToggle } from '@ui/ColorSchemeToggle';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
-import React from 'react';
+import React, { type JSX } from 'react';
 import { Route, Routes } from 'react-router';
 import { HashRouter, NavLink } from 'react-router-dom';
 import { PAGES } from '~/tutorial/pages';

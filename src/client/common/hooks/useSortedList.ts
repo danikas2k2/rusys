@@ -6,6 +6,6 @@ export function useSortedList<T extends { group: string; name: string }>(list: R
     const compareGroups = useGroupComparator();
     return useMemo(
         () => [...list].sort((a, b) => compareGroups(a.group, b.group) || compareNames(a.name, b.name)),
-        [list]
+        [compareGroups, list]
     );
 }

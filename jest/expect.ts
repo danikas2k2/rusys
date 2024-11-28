@@ -5,6 +5,7 @@ import { matcherHint, printDiffOrStringify, printReceived } from 'jest-matcher-u
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace jest {
+        // noinspection JSUnusedGlobalSymbols
         interface Matchers<R> {
             toHaveListWithTextContent(expected: string[]): R;
 

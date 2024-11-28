@@ -33,20 +33,25 @@ beforeAll(async () => startServer());
 
 afterAll(async () => stopServer());
 
+// noinspection JSUnusedGlobalSymbols
 export const getClient = jest.fn<Promise<MongoClient>, any, any>(() => Promise.resolve(client!));
 
+// noinspection JSUnusedGlobalSymbols
 export const getGroupsCollection = jest.fn<Promise<Collection<Group>>, any, any>(async () =>
     Promise.resolve(client!.db().collection('groups'))
 );
 
+// noinspection JSUnusedGlobalSymbols
 export const getVariantsCollection = jest.fn<Promise<Collection<Variant>>, any, any>(async () =>
     Promise.resolve(client!.db().collection('variants'))
 );
 
+// noinspection JSUnusedGlobalSymbols
 export const getDetailsCollection = jest.fn<Promise<Collection<Details>>, any, any>(async () =>
     Promise.resolve(client!.db().collection('details'))
 );
 
+// noinspection JSUnusedGlobalSymbols
 export const withTransaction = jest.fn<Promise<any>, any, any>(
     async (fn: (session: ClientSession) => Promise<boolean>): Promise<boolean> => {
         const session = client!.startSession();

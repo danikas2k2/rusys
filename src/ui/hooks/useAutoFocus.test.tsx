@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-import React from 'react';
+import React, { type JSX } from 'react';
 
 describe('useAutoFocus', () => {
     it('focuses on the element when the ref is defined', () => {

@@ -63,7 +63,7 @@ describe('LoginButton', () => {
     });
 
     it('calls error actions if login fails', async () => {
-        (useGoogleOneTapLogin as jest.Mock).mockImplementationOnce(({ onError }) => onError());
+        (useGoogleOneTapLogin as jest.Mock).mockImplementationOnce(({ onError: handleError }) => handleError());
 
         render(<LoginButton />, withReduxState());
 
@@ -72,7 +72,7 @@ describe('LoginButton', () => {
     });
 
     it('calls success actions if login passes', async () => {
-        (useGoogleOneTapLogin as jest.Mock).mockImplementationOnce(({ onSuccess }) => onSuccess());
+        (useGoogleOneTapLogin as jest.Mock).mockImplementationOnce(({ onSuccess: handleSuccess }) => handleSuccess());
 
         render(<LoginButton />, withReduxState());
 

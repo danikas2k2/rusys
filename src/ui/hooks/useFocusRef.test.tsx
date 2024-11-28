@@ -1,6 +1,6 @@
 import { render, renderHook, screen } from '@testing-library/react';
 import { useFocusRef } from '@ui/hooks/useFocusRef';
-import React, { useEffect } from 'react';
+import React, { type JSX, useEffect } from 'react';
 
 describe('useFocusRef', () => {
     it('returns a ref object with focus method when forwardedRef is undefined', () => {

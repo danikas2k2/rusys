@@ -26,6 +26,7 @@ export const GroupControls = forwardRef(function GroupControls(
         try {
             await deleteGroup(group);
         } catch (e) {
+            // eslint-disable-next-line no-console
             console.error(getErrorMessage(e));
             // setError(getErrorMessage(e));
         }

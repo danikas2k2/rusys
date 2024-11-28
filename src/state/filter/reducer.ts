@@ -1,6 +1,6 @@
 import { type FilterAction, FilterActionType } from '~/state/filter/actions';
 
-export function filter(filter: string = '', action: Readonly<FilterAction>): string {
+export function filter(state: string = '', action: Readonly<FilterAction>): string {
     switch (action.type) {
         case FilterActionType.SET:
             return action.filter;
@@ -9,6 +9,6 @@ export function filter(filter: string = '', action: Readonly<FilterAction>): str
             return '';
 
         default:
-            return filter;
+            return state;
     }
 }

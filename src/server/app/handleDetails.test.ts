@@ -1,8 +1,7 @@
 /** @jest-environment node */
 import { type ApiDetails } from '~/common/api';
 import { handleDetails } from '~/server/app/handleDetails';
-import { getDetailsWithYears, getFullDetails } from '~/server/data/details';
-import { getVariants } from '~/server/data/variants';
+import { getFullDetails } from '~/server/data/details';
 import { getDetailsFixture, getGroupsFixture, getVariantsFixture, getYearsFixture } from '~/tests/fixtures';
 import { mockRequest } from '~/tests/mockRequest';
 import { mockResponse } from '~/tests/mockResponse';

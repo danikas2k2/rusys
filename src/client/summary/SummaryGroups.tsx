@@ -1,5 +1,4 @@
 import React from 'react';
-import { useRecycled } from '~/client/common/RecycledContext';
 import { SummaryGroup } from '~/client/summary/SummaryGroup';
 import type { Summary } from '~/common/types';
 
