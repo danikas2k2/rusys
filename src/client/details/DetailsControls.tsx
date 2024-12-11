@@ -1,20 +1,17 @@
-import React, { forwardRef, type HTMLAttributes, type Ref, useCallback, useState } from 'react';
+import React, { type HTMLAttributes, type RefAttributes, useCallback, useState } from 'react';
 import { SlideControls } from '~/client/common/SlideControls';
 import { DetailsBox } from '~/client/details/dialogs/DetailsBox';
-import { useDeleteDetails } from '~/state/details/useDeleteDetails';
 import { getErrorMessage } from '~/common/utils/errors';
+import { useDeleteDetails } from '~/state/details/useDeleteDetails';
 
-interface DetailsControlsProps extends HTMLAttributes<HTMLDivElement> {
+interface DetailsControlsProps extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
     group: string;
     name: string;
     onPin?: () => void;
     onUnpin?: (hide?: boolean) => void;
 }
 
-export const DetailsControls = forwardRef(function DetailsControls(
-    { group, name, onPin, onUnpin, ...props }: DetailsControlsProps,
-    ref: Ref<HTMLDivElement>
-) {
+export function DetailsControls({ group, name, onPin, onUnpin, ...props }: DetailsControlsProps) {
     const [dialogVisible, setDialogVisible] = useState(false);
 
     const onEdit = useCallback(() => setDialogVisible(true), []);
@@ -33,7 +30,7 @@ export const DetailsControls = forwardRef(function DetailsControls(
 
     return group && name ? (
         <>
-            <SlideControls ref={ref} onEdit={onEdit} onRemove={onDelete} onPin={onPin} onUnpin={onUnpin} {...props} />
+            <SlideControls onEdit={onEdit} onRemove={onDelete} onPin={onPin} onUnpin={onUnpin} {...props} />
             {dialogVisible && (
                 <DetailsBox
                     group={group}
@@ -46,4 +43,4 @@ export const DetailsControls = forwardRef(function DetailsControls(
             )}
         </>
     ) : null;
-});
+}

@@ -1,17 +1,14 @@
-import React, { type ForwardedRef, forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import React, { type HTMLAttributes, type ReactNode, type RefAttributes } from 'react';
 import cx from './Row.less';
 
-export interface RowProps<T extends HTMLElement = HTMLDivElement> extends HTMLAttributes<T> {
+export interface RowProps<T extends HTMLElement = HTMLDivElement> extends HTMLAttributes<T>, RefAttributes<T> {
     children?: ReactNode;
 }
 
-export const Row = forwardRef(function Row(
-    { role = 'row', className, children, ...other }: RowProps,
-    forwardedRef: ForwardedRef<HTMLDivElement>
-) {
+export function Row({ role = 'row', className, children, ...other }: RowProps) {
     return (
-        <div ref={forwardedRef} role={role} className={cx('Row', className)} {...other}>
+        <div role={role} className={cx('Row', className)} {...other}>
             {children}
         </div>
     );
-});
+}

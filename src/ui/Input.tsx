@@ -4,12 +4,11 @@ import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { uniqueId } from '@ui/utils/uniqueId';
 import React, {
     type FormEvent,
-    type ForwardedRef,
-    forwardRef,
     type InputHTMLAttributes,
     type KeyboardEvent,
     type MouseEvent,
     type MouseEventHandler,
+    type RefAttributes,
     useCallback,
     useEffect,
     useState,
@@ -29,7 +28,7 @@ export type InputMode = 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal'
 
 export type InputState = 'default' | 'active' | 'hover' | 'focus' | 'disabled';
 
-export type CommonInputProps<T extends HTMLElement> = Omit<InputHTMLAttributes<T>, 'type' | 'size'>;
+export type CommonInputProps<T extends HTMLElement> = Omit<InputHTMLAttributes<T>, 'type' | 'size'> & RefAttributes<T>;
 
 export interface InputProps extends Omit<CommonInputProps<HTMLInputElement>, 'inputMode' | 'children'> {
     variant?: InputVariant;
@@ -52,37 +51,35 @@ export interface InputProps extends Omit<CommonInputProps<HTMLInputElement>, 'in
 }
 
 // TODO add translation context and translate clear button label
-export const Input = forwardRef(function Input(
-    {
-        id = uniqueId('input'),
-        variant = 'outlined',
-        size = 'medium',
-        spacing = 'small',
-        mode = 'text',
-        state = 'default',
-        disabled = false,
-        fullWidth,
-        fullHeight,
-        label,
-        placeholder = label,
-        error,
-        invalid = !!error,
-        color = invalid ? 'negative' : 'neutral',
-        placeholderColor,
-        value,
-        defaultValue,
-        clearable = false,
-        onClear,
-        startDecorator,
-        endDecorator,
-        className,
-        onInput,
-        onKeyDown,
-        onKeyUp,
-        ...props
-    }: InputProps,
-    forwardedRef: ForwardedRef<HTMLInputElement>
-) {
+export function Input({
+    ref: forwardedRef,
+    id = uniqueId('input'),
+    variant = 'outlined',
+    size = 'medium',
+    spacing = 'small',
+    mode = 'text',
+    state = 'default',
+    disabled = false,
+    fullWidth,
+    fullHeight,
+    label,
+    placeholder = label,
+    error,
+    invalid = !!error,
+    color = invalid ? 'negative' : 'neutral',
+    placeholderColor,
+    value,
+    defaultValue,
+    clearable = false,
+    onClear,
+    startDecorator,
+    endDecorator,
+    className,
+    onInput,
+    onKeyDown,
+    onKeyUp,
+    ...props
+}: InputProps) {
     const ref = useForwardedRef(forwardedRef);
     const controlled = value != null;
 
@@ -225,7 +222,7 @@ export const Input = forwardRef(function Input(
             )}
         </>
     );
-});
+}
 
 function getDecoratorType(decorator: React.ReactNode): 'text' | 'node' {
     const type = typeof decorator;

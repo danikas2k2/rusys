@@ -59,7 +59,7 @@ describe('SummaryTable', () => {
                     groups: ['Uogienės', 'Daržovės'],
                     summary,
                 },
-                {}
+                undefined
             );
         });
 
@@ -67,14 +67,14 @@ describe('SummaryTable', () => {
             (useFilteredList as jest.Mock).mockReturnValueOnce([]);
             render(<SummaryTable />, withReduxState(state));
             expect(screen.getByRole('table')).toBeInTheDocument();
-            expect(SummaryGroups).toHaveBeenCalledWith({ groups: [], summary: [] }, {});
+            expect(SummaryGroups).toHaveBeenCalledWith({ groups: [], summary: [] }, undefined);
         });
 
         it('renders table with group selected', () => {
             (useGroup as jest.Mock).mockReturnValueOnce('Uogienės');
             render(<SummaryTable />, withReduxState(state));
             expect(screen.getByRole('table')).toBeInTheDocument();
-            expect(SummaryGroups).toHaveBeenCalledWith({ groups: ['Uogienės'], summary: expect.any(Array) }, {});
+            expect(SummaryGroups).toHaveBeenCalledWith({ groups: ['Uogienės'], summary: expect.any(Array) }, undefined);
         });
 
         it('does not render table for initial state', () => {

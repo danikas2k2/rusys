@@ -32,7 +32,7 @@ describe('ValueAmounts', () => {
                     group,
                     variant: 'p',
                 }),
-                {}
+                undefined
             )
             .toHaveBeenNthCalledWith(
                 2,
@@ -40,7 +40,7 @@ describe('ValueAmounts', () => {
                     group,
                     variant: 'd',
                 }),
-                {}
+                undefined
             );
     });
 });

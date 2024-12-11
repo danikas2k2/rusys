@@ -3,10 +3,11 @@ import { POINTER_MOVE_THRESHOLD } from '@ui/utils/values';
 import { defer } from 'lodash';
 import React, {
     cloneElement,
-    forwardRef,
+    type HTMLAttributes,
     isValidElement,
-    type ReactNode,
-    type Ref,
+    type JSX,
+    type ReactElement,
+    type RefAttributes,
     useCallback,
     useEffect,
     useRef,
@@ -16,17 +17,22 @@ import { Row, type RowProps } from '~/client/table/Row';
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 
 export interface RowWithSlideControlsProps extends RowProps {
-    controls: ReactNode;
+    controls?: ReactElement<HTMLAttributes<HTMLElement> & RefAttributes<HTMLElement>>;
     onDragStart?: () => void;
     onDragEnd?: () => void;
     onDrag?: () => void;
 }
 
 // TODO add animation for transform changes (using css transition but not to remove block while in transition)
-export const RowWithSlideControls = forwardRef(function RowWithSlideControls(
-    { children, controls, onDragStart, onDragEnd, onDrag, ...props }: RowWithSlideControlsProps,
-    forwardedRef: Ref<HTMLDivElement>
-) {
+export function RowWithSlideControls({
+    ref: forwardedRef,
+    children,
+    controls,
+    onDragStart,
+    onDragEnd,
+    onDrag,
+    ...props
+}: RowWithSlideControlsProps): JSX.Element {
     const ref = useForwardedRef(forwardedRef);
     const controlsRef = useRef<HTMLDivElement>(null);
     const [sliding, setSliding] = useState(false);
@@ -211,4 +217,4 @@ export const RowWithSlideControls = forwardRef(function RowWithSlideControls(
                 })}
         </Row>
     );
-});
+}

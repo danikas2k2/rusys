@@ -1,7 +1,7 @@
-import { Dropdown, type DropdownProps, type DropdownRef } from '@ui/Dropdown';
-import React, { forwardRef, type Ref } from 'react';
+import { Dropdown, type DropdownProps } from '@ui/Dropdown';
+import React from 'react';
 import cx from './Menu.less';
 
-export const Menu = forwardRef(function Menu({ className, ...props }: DropdownProps, ref: Ref<DropdownRef>) {
-    return <Dropdown ref={ref} role="menu" className={cx('Menu', className)} {...props} />;
-});
+export function Menu({ className, ...props }: DropdownProps) {
+    return <Dropdown role="menu" className={cx('Menu', className)} {...props} />;
+}

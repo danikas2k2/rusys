@@ -1,18 +1,15 @@
 import DragHandleIcon from '@assets/DragHandle.svg';
-import React, { forwardRef, type HTMLAttributes, type Ref } from 'react';
+import React, { type HTMLAttributes, type RefAttributes } from 'react';
 import cx from './DragHandle.less';
 
-interface DragHandleProps extends HTMLAttributes<HTMLDivElement> {
+export interface DragHandleProps extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
     dragging?: boolean;
 }
 
-export const DragHandle = forwardRef(function DragHandle(
-    { dragging, ...props }: DragHandleProps,
-    ref: Ref<HTMLDivElement>
-) {
+export function DragHandle({ dragging, ...props }: DragHandleProps) {
     return (
-        <div ref={ref} role="button" aria-label="Drag" className={cx('DragHandle', { dragging })} {...props}>
+        <div role="button" aria-label="Drag" className={cx('DragHandle', { dragging })} {...props}>
             <DragHandleIcon />
         </div>
     );
-});
+}

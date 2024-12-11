@@ -3,13 +3,13 @@ import cs from 'classnames';
 import { defer } from 'lodash';
 import React, {
     cloneElement,
-    forwardRef,
+    type HTMLAttributes,
     type ReactElement,
-    type Ref,
+    type RefAttributes,
     useCallback,
+    useEffect,
     useRef,
     useState,
-    useEffect,
 } from 'react';
 import { RowWithSlideControls, type RowWithSlideControlsProps } from '~/client/table/RowWithSlideControls';
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
@@ -17,13 +17,21 @@ import cx from './SortableRow.less';
 
 export interface SortableRowProps extends RowWithSlideControlsProps {
     index: number;
-    handle: ReactElement;
+    handle: ReactElement<HTMLAttributes<HTMLElement> & RefAttributes<HTMLElement> & { dragging: boolean }>;
 }
 
-export const SortableRow = forwardRef(function SortableRow(
-    { children, index, className, style, handle, onDragStart, onDragEnd, onDrag, ...props }: SortableRowProps,
-    forwardedRef: Ref<HTMLDivElement>
-) {
+export function SortableRow({
+    ref: forwardedRef,
+    children,
+    index,
+    className,
+    style,
+    handle,
+    onDragStart,
+    onDragEnd,
+    onDrag,
+    ...props
+}: SortableRowProps) {
     const ref = useForwardedRef(forwardedRef);
     const handleRef = useRef<HTMLDivElement>(null);
 
@@ -168,4 +176,4 @@ export const SortableRow = forwardRef(function SortableRow(
             {children}
         </RowWithSlideControls>
     );
-});
+}

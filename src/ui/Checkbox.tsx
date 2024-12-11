@@ -3,15 +3,7 @@ import CheckIndeterminateIcon from '@assets/CheckIndeterminate.svg';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { type CommonInputProps, type InputColor, type InputSize, type InputVariant } from '@ui/Input';
 import { uniqueId } from '@ui/utils/uniqueId';
-import React, {
-    type ChangeEvent,
-    type ForwardedRef,
-    forwardRef,
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-} from 'react';
+import React, { type ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import cx from './Checkbox.less';
 
 export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {
@@ -21,22 +13,20 @@ export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {
     indeterminate?: boolean;
 }
 
-export const Checkbox = forwardRef(function Checkbox(
-    {
-        id = uniqueId('checkbox'),
-        color = 'neutral',
-        variant = 'outlined',
-        size = 'medium',
-        checked = false,
-        disabled = false,
-        indeterminate = false,
-        className,
-        onChange,
-        children,
-        ...props
-    }: CheckboxProps,
-    forwardedRef: ForwardedRef<HTMLInputElement>
-) {
+export function Checkbox({
+    ref: forwardedRef,
+    id = uniqueId('checkbox'),
+    color = 'neutral',
+    variant = 'outlined',
+    size = 'medium',
+    checked = false,
+    disabled = false,
+    indeterminate = false,
+    className,
+    onChange,
+    children,
+    ...props
+}: CheckboxProps) {
     const ref = useForwardedRef(forwardedRef);
 
     const [isIndeterminate, setIndeterminate] = useState(indeterminate);
@@ -91,4 +81,4 @@ export const Checkbox = forwardRef(function Checkbox(
             <span className={cx('label')}>{children}</span>
         </label>
     );
-});
+}

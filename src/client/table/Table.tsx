@@ -1,19 +1,16 @@
-import React, { type ForwardedRef, forwardRef, type ReactNode } from 'react';
+import React, { type HTMLAttributes, type ReactNode, type RefAttributes } from 'react';
 import cx from './Table.less';
 
-interface TableProps {
+interface TableProps extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
     className?: string;
     header?: ReactNode;
     footer?: ReactNode;
     children?: ReactNode;
 }
 
-export const Table = forwardRef(function Table(
-    { className, header, footer, children }: TableProps,
-    forwardedRef: ForwardedRef<HTMLDivElement>
-) {
+export function Table({ className, header, footer, children, ...props }: TableProps) {
     return (
-        <div ref={forwardedRef} role="table" className={cx('Table', className)}>
+        <div role="table" className={cx('Table', className)} {...props}>
             {header && (
                 <div role="rowgroup" className={cx('Head')}>
                     {header}
@@ -29,4 +26,4 @@ export const Table = forwardRef(function Table(
             )}
         </div>
     );
-});
+}

@@ -1,19 +1,16 @@
-import React, { forwardRef, type HTMLAttributes, type Ref, useCallback, useState } from 'react';
+import React, { type HTMLAttributes, type RefAttributes, useCallback, useState } from 'react';
 import { SlideControls } from '~/client/common/SlideControls';
 import { GroupBox } from '~/client/groups/dialogs/GroupBox';
 import { getErrorMessage } from '~/common/utils/errors';
 import { useDeleteGroup } from '~/state/groups/useDeleteGroup';
 
-interface GroupControlsProps extends HTMLAttributes<HTMLDivElement> {
+interface GroupControlsProps extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
     group: string;
     onPin?: (hide?: boolean) => void;
     onUnpin?: (hide?: boolean) => void;
 }
 
-export const GroupControls = forwardRef(function GroupControls(
-    { group, onPin, onUnpin, ...props }: GroupControlsProps,
-    ref: Ref<HTMLDivElement>
-) {
+export function GroupControls({ group, onPin, onUnpin, ...props }: GroupControlsProps) {
     const [dialogVisible, setDialogVisible] = useState(false);
 
     const onEdit = useCallback(() => {
@@ -34,7 +31,7 @@ export const GroupControls = forwardRef(function GroupControls(
 
     return group ? (
         <>
-            <SlideControls ref={ref} onEdit={onEdit} onRemove={onDelete} onPin={onPin} onUnpin={onUnpin} {...props} />
+            <SlideControls onEdit={onEdit} onRemove={onDelete} onPin={onPin} onUnpin={onUnpin} {...props} />
             {dialogVisible && (
                 <GroupBox
                     group={group}
@@ -46,4 +43,4 @@ export const GroupControls = forwardRef(function GroupControls(
             )}
         </>
     ) : null;
-});
+}

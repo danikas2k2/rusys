@@ -4,20 +4,13 @@ import { Button, ButtonGroup } from '@ui/Button';
 import { useFocusRef } from '@ui/hooks/useFocusRef';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { Input } from '@ui/Input';
-import React, {
-    type ChangeEvent,
-    type ForwardedRef,
-    forwardRef,
-    type KeyboardEvent,
-    useCallback,
-    useEffect,
-} from 'react';
+import React, { type ChangeEvent, type KeyboardEvent, type RefAttributes, useCallback, useEffect } from 'react';
+import { ValueVariant } from '~/client/common/ValueVariant';
 import { ValueChange } from '~/client/details/dialogs/ValueChange';
 import { useLabel } from '~/client/hooks/useLabel';
-import { ValueVariant } from '~/client/common/ValueVariant';
 import cx from './ValueInput.less';
 
-interface ValueInputProps {
+interface ValueInputProps extends RefAttributes<HTMLInputElement> {
     group: string;
     variant: string;
     amount?: number;
@@ -30,10 +23,18 @@ interface ValueInputProps {
 }
 
 // TODO select input value on first focus
-export const ValueInput = forwardRef(function ValueInput(
-    { group, variant, amount = 0, change = 0, onClose, onChange, focus, onFocus, onBlur }: ValueInputProps,
-    forwardedRef: ForwardedRef<HTMLInputElement>
-) {
+export function ValueInput({
+    ref: forwardedRef,
+    group,
+    variant,
+    amount = 0,
+    change = 0,
+    onClose,
+    onChange,
+    focus,
+    onFocus,
+    onBlur,
+}: ValueInputProps) {
     const ref = useFocusRef(useForwardedRef(forwardedRef));
     useEffect(() => {
         if (focus) {
@@ -143,4 +144,4 @@ export const ValueInput = forwardRef(function ValueInput(
             <ValueChange change={change} />
         </ButtonGroup>
     );
-});
+}

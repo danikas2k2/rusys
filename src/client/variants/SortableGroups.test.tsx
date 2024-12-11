@@ -20,7 +20,7 @@ describe('SortableGroups', () => {
         render(<SortableGroups groups={groups} />, withReduxState());
         expect(SortableGroup).toHaveBeenCalledTimes(groups.length);
         groups.forEach((group) => {
-            expect(SortableGroup).toHaveBeenCalledWith(expect.objectContaining({ group }), {});
+            expect(SortableGroup).toHaveBeenCalledWith(expect.objectContaining({ group }), undefined);
         });
     });
 

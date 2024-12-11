@@ -3,13 +3,12 @@ import { Portal } from '@ui/Portal';
 import React, {
     cloneElement,
     type DialogHTMLAttributes,
-    forwardRef,
     isValidElement,
     type KeyboardEvent,
     type MouseEventHandler,
     type ReactElement,
     type ReactNode,
-    type Ref,
+    RefAttributes,
     type RefObject,
     type SyntheticEvent,
     useCallback,
@@ -30,7 +29,7 @@ interface DropdownTriggerFunctionProps {
     open: MouseEventHandler;
 }
 
-export interface DropdownProps extends DialogHTMLAttributes<HTMLDivElement> {
+export interface DropdownProps extends DialogHTMLAttributes<HTMLDivElement>, RefAttributes<DropdownRef> {
     open?: boolean;
     hover?: boolean;
     onOpen?: () => void;
@@ -52,23 +51,21 @@ export interface DropdownRef {
 }
 
 // TODO add translation context and translate backdrop label
-export const Dropdown = forwardRef(function Dropdown(
-    {
-        anchor,
-        trigger,
-        autoWidth = true,
-        open: initialOpen = false,
-        hover,
-        closeOnOutsideClick = true,
-        closeOnEscape = true,
-        children,
-        className,
-        onOpen,
-        onClose,
-        ...props
-    }: DropdownProps,
-    ref: Ref<DropdownRef>
-) {
+export function Dropdown({
+    ref,
+    anchor,
+    trigger,
+    autoWidth = true,
+    open: initialOpen = false,
+    hover,
+    closeOnOutsideClick = true,
+    closeOnEscape = true,
+    children,
+    className,
+    onOpen,
+    onClose,
+    ...props
+}: DropdownProps) {
     const [open, setOpen] = useState(initialOpen);
     useEffect(() => {
         if (open !== initialOpen) {
@@ -179,4 +176,4 @@ export const Dropdown = forwardRef(function Dropdown(
             {dropdown}
         </>
     );
-});
+}
