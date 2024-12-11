@@ -8,7 +8,7 @@ export function MissingOnlyContextWrapper({
 }: PropsWithChildren<{
     initialState?: boolean;
 }>) {
-    return <MissingOnlyContext.Provider value={useState(initialState)}>{children}</MissingOnlyContext.Provider>;
+    return <MissingOnlyContext value={useState(initialState)}>{children}</MissingOnlyContext>;
 }
 
 export const useMissingOnly = () => useContext(MissingOnlyContext);

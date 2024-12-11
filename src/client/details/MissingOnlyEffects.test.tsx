@@ -17,9 +17,9 @@ describe('MissingOnlyEffects', () => {
         (useHasMissing as jest.Mock).mockReturnValue(false);
         const setMissingOnly = jest.fn();
         render(
-            <MissingOnlyContext.Provider value={[true, setMissingOnly]}>
+            <MissingOnlyContext value={[true, setMissingOnly]}>
                 <MissingOnlyEffects />
-            </MissingOnlyContext.Provider>
+            </MissingOnlyContext>
         );
         expect(setMissingOnly).toHaveBeenCalledWith(false);
     });
@@ -28,9 +28,9 @@ describe('MissingOnlyEffects', () => {
         (useHasMissing as jest.Mock).mockReturnValue(false);
         const setMissingOnly = jest.fn();
         render(
-            <MissingOnlyContext.Provider value={[false, setMissingOnly]}>
+            <MissingOnlyContext value={[false, setMissingOnly]}>
                 <MissingOnlyEffects />
-            </MissingOnlyContext.Provider>
+            </MissingOnlyContext>
         );
         expect(setMissingOnly).not.toHaveBeenCalled();
     });

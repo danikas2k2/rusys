@@ -5,7 +5,7 @@ import { type ActiveVariant } from '~/client/variants/SortableVariant';
 
 function Test({ activeVariant, children }: PropsWithChildren<{ activeVariant?: ActiveVariant }>) {
     const [active, setActive] = useState<ActiveRow | undefined>(activeVariant);
-    return <ActiveRowContext.Provider value={[active, setActive]}>{children}</ActiveRowContext.Provider>;
+    return <ActiveRowContext value={[active, setActive]}>{children}</ActiveRowContext>;
 }
 
 describe('ActiveRowContext', () => {

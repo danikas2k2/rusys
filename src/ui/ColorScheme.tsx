@@ -42,5 +42,5 @@ export function ColorSchemeState({ children }: PropsWithChildren): JSX.Element {
         return () => removeEventListener('storage', storageListener);
     }, [storageListener]);
 
-    return <ColorSchemeContext.Provider value={[colorScheme, setColorScheme]}>{children}</ColorSchemeContext.Provider>;
+    return <ColorSchemeContext value={[colorScheme, setColorScheme]}>{children}</ColorSchemeContext>;
 }

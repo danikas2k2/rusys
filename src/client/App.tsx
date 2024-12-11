@@ -15,7 +15,7 @@ export function App() {
     const clientId = useClientId();
     const dev = useDev();
     return (
-        <LocaleContext.Provider value={process.env.LOCALE}>
+        <LocaleContext value={process.env.LOCALE}>
             <div className={cx('App', { center: !dev && !clientId })}>
                 {dev ? (
                     <AppContent />
@@ -31,6 +31,6 @@ export function App() {
                     )
                 )}
             </div>
-        </LocaleContext.Provider>
+        </LocaleContext>
     );
 }

@@ -4,8 +4,6 @@ import { LocaleContext } from '~/client/common/LocaleContext';
 
 export function withLocaleContext<P>(locale?: string): RenderHookOptions<P> {
     return {
-        wrapper: ({ children }: PropsWithChildren) => (
-            <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>
-        ),
+        wrapper: ({ children }: PropsWithChildren) => <LocaleContext value={locale}>{children}</LocaleContext>,
     };
 }
