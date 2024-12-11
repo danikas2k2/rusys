@@ -22,7 +22,7 @@ describe('useMissingOnly', () => {
         const setMissingOnly = jest.fn();
         const { result } = renderHook(() => useMissingOnly(), {
             wrapper: ({ children }) => (
-                <MissingOnlyContext.Provider value={[true, setMissingOnly]}>{children}</MissingOnlyContext.Provider>
+                <MissingOnlyContext value={[true, setMissingOnly]}>{children}</MissingOnlyContext>
             ),
         });
         expect(result.current).toEqual([true, setMissingOnly]);

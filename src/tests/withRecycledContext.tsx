@@ -6,7 +6,7 @@ export function withRecycledContext<P>(value?: [boolean, (v: boolean) => void]):
     return {
         wrapper: ({ children }: PropsWithChildren) =>
             value ? (
-                <RecycledContext.Provider value={value}>{children}</RecycledContext.Provider>
+                <RecycledContext value={value}>{children}</RecycledContext>
             ) : (
                 <RecycledContextWrapper>{children}</RecycledContextWrapper>
             ),

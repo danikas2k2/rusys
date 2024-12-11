@@ -19,9 +19,9 @@ describe('ActiveRowOutsideClick', () => {
 
     it('resets active row when clicking outside the row', async () => {
         render(
-            <ActiveRowContext.Provider value={[{ ref }, setActive]}>
+            <ActiveRowContext value={[{ ref }, setActive]}>
                 <ActiveRowOutsideClick />
-            </ActiveRowContext.Provider>,
+            </ActiveRowContext>,
             withReduxState()
         );
         await userEvent.click(document.body);
@@ -30,9 +30,9 @@ describe('ActiveRowOutsideClick', () => {
 
     it('does not reset active row when row is pinned', async () => {
         render(
-            <ActiveRowContext.Provider value={[{ ref, pinned: true }, setActive]}>
+            <ActiveRowContext value={[{ ref, pinned: true }, setActive]}>
                 <ActiveRowOutsideClick />
-            </ActiveRowContext.Provider>,
+            </ActiveRowContext>,
             withReduxState()
         );
         await userEvent.click(document.body);
@@ -41,9 +41,9 @@ describe('ActiveRowOutsideClick', () => {
 
     it('does not reset active row if row is not set', async () => {
         render(
-            <ActiveRowContext.Provider value={[{}, setActive]}>
+            <ActiveRowContext value={[{}, setActive]}>
                 <ActiveRowOutsideClick />
-            </ActiveRowContext.Provider>,
+            </ActiveRowContext>,
             withReduxState()
         );
         await userEvent.click(document.body);

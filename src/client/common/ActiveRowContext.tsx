@@ -1,7 +1,7 @@
 import React, { createContext, type PropsWithChildren, type RefObject, useContext, useState } from 'react';
 
 export interface ActiveRow {
-    ref?: RefObject<HTMLDivElement>;
+    ref?: RefObject<HTMLDivElement | null>;
     pinned?: boolean;
 }
 
@@ -11,11 +11,7 @@ export const ActiveRowContext = createContext<[ActiveRow | undefined, (v: Active
 ]);
 
 export function ActiveRowContextWrapper({ children }: PropsWithChildren) {
-    return (
-        <ActiveRowContext.Provider value={useState<ActiveRow | undefined>(undefined)}>
-            {children}
-        </ActiveRowContext.Provider>
-    );
+    return <ActiveRowContext value={useState<ActiveRow | undefined>(undefined)}>{children}</ActiveRowContext>;
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type

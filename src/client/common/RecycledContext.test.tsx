@@ -19,9 +19,7 @@ describe('useRecycled', () => {
     it('returns custom missing-only context', () => {
         const setRecycled = jest.fn();
         const { result } = renderHook(() => useRecycled(), {
-            wrapper: ({ children }) => (
-                <RecycledContext.Provider value={[true, setRecycled]}>{children}</RecycledContext.Provider>
-            ),
+            wrapper: ({ children }) => <RecycledContext value={[true, setRecycled]}>{children}</RecycledContext>,
         });
         expect(result.current).toEqual([true, setRecycled]);
     });

@@ -6,7 +6,7 @@ export function RecycledContextWrapper({
     initialState = false,
     children,
 }: PropsWithChildren<{ initialState?: boolean }>) {
-    return <RecycledContext.Provider value={useState(initialState)}>{children}</RecycledContext.Provider>;
+    return <RecycledContext value={useState(initialState)}>{children}</RecycledContext>;
 }
 
 export const useRecycled = () => useContext(RecycledContext);
