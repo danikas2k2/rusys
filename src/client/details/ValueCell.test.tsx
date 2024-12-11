@@ -70,7 +70,7 @@ describe('ValueCell', () => {
             render(<ValueCell {...props} />, withReduxState());
             await userEvent.click(screen.getByRole('cell'));
             act(() => jest.advanceTimersByTime(100));
-            expect(ValueBox).toHaveBeenCalledWith(expect.objectContaining(props), {});
+            expect(ValueBox).toHaveBeenCalledWith(expect.objectContaining(props), undefined);
             expect(setRemoving).not.toHaveBeenCalled();
         });
 
@@ -134,7 +134,7 @@ describe('ValueCell', () => {
             render(<ValueCell {...props} />, withReduxState());
             await userEvent.click(screen.getByRole('cell'));
             act(() => jest.advanceTimersByTime(100));
-            expect(ValueBox).toHaveBeenCalledWith(expect.objectContaining(props), {});
+            expect(ValueBox).toHaveBeenCalledWith(expect.objectContaining(props), undefined);
             expect(setRemoving).not.toHaveBeenCalled();
         });
 

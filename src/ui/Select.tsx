@@ -12,12 +12,12 @@ import React, {
     cloneElement,
     type FocusEvent,
     type FormEvent,
-    type ForwardedRef,
-    forwardRef,
+    type JSX,
     type MouseEvent,
     type PropsWithChildren,
     type ReactElement,
     type ReactNode,
+    type RefAttributes,
     useCallback,
     useEffect,
     useRef,
@@ -37,25 +37,23 @@ export interface SelectProps<T = string | number, E extends HTMLElement = HTMLEl
 }
 
 // TODO add translation context and translate toggle button label
-export const Select = forwardRef(function Select<T = string, E extends HTMLElement = HTMLElement>(
-    {
-        id = uniqueId('select'),
-        value: initialValue,
-        content: initialLabel,
-        mode = 'single',
-        children: options,
-        error,
-        invalid = !!error,
-        color = invalid ? 'negative' : 'neutral',
-        onClick,
-        onChange,
-        readOnly,
-        className,
-        endDecorator,
-        ...props
-    }: SelectProps<T, E>,
-    forwardedRef: ForwardedRef<HTMLInputElement>
-) {
+export function Select<T = string, E extends HTMLElement = HTMLElement>({
+    ref: forwardedRef,
+    id = uniqueId('select'),
+    value: initialValue,
+    content: initialLabel,
+    mode = 'single',
+    children: options,
+    error,
+    invalid = !!error,
+    color = invalid ? 'negative' : 'neutral',
+    onClick,
+    onChange,
+    readOnly,
+    className,
+    endDecorator,
+    ...props
+}: SelectProps<T, E>): JSX.Element {
     const inputRef = useForwardedRef(forwardedRef);
 
     const [currentValue, setCurrentValue] = useState<T | undefined>(initialValue);
@@ -283,24 +281,31 @@ export const Select = forwardRef(function Select<T = string, E extends HTMLEleme
             />
         </div>
     );
-}) as <T = string>(props: SelectProps<T> & { ref?: ForwardedRef<HTMLInputElement> }) => ReactElement;
+}
 
-export type OptionProps<T = string | number, E extends HTMLElement = HTMLElement> = PropsWithChildren<{
-    value: T;
-    label?: string;
-    selected?: boolean;
-    disabled?: boolean;
-    className?: string;
-    onClick?: (e: MouseEvent<E>) => void;
-}>;
+export type OptionProps<T = string | number, E extends HTMLElement = HTMLElement> = PropsWithChildren<
+    {
+        value: T;
+        label?: string;
+        selected?: boolean;
+        disabled?: boolean;
+        className?: string;
+        onClick?: (e: MouseEvent<E>) => void;
+    } & RefAttributes<E>
+>;
 
-export const Option = forwardRef(function Option<T = string | number, E extends HTMLElement = HTMLElement>(
-    { label, selected, disabled, className, onClick, children }: OptionProps<T, E>,
-    forwardedRef: ForwardedRef<E>
-) {
+export function Option<T = string | number, E extends HTMLElement = HTMLElement>({
+    ref,
+    label,
+    selected,
+    disabled,
+    className,
+    onClick,
+    children,
+}: OptionProps<T, E>): JSX.Element {
     return (
         <Interactive
-            ref={useForwardedRef(forwardedRef)}
+            ref={useForwardedRef(ref)}
             role="option"
             className={classNames(cx('Option', { selected, disabled }), className)}
             aria-selected={selected} // TODO use aria-checked for multiple select
@@ -311,4 +316,4 @@ export const Option = forwardRef(function Option<T = string | number, E extends 
             {children}
         </Interactive>
     );
-});
+}

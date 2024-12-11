@@ -73,7 +73,7 @@ describe('DetailsTable', () => {
                     groups: ['Uogienės', 'Daržovės'],
                     details,
                 },
-                {}
+                undefined
             );
         });
 
@@ -81,14 +81,14 @@ describe('DetailsTable', () => {
             (useFilteredList as jest.Mock).mockReturnValueOnce([]);
             render(<DetailsTable />, withReduxState(state));
             expect(screen.getByRole('table')).toBeInTheDocument();
-            expect(DetailsGroups).toHaveBeenCalledWith({ groups: [], details: [] }, {});
+            expect(DetailsGroups).toHaveBeenCalledWith({ groups: [], details: [] }, undefined);
         });
 
         it('renders table with group selected', () => {
             (useGroup as jest.Mock).mockReturnValueOnce('Uogienės');
             render(<DetailsTable />, withReduxState(state));
             expect(screen.getByRole('table')).toBeInTheDocument();
-            expect(DetailsGroups).toHaveBeenCalledWith({ groups: ['Uogienės'], details: expect.any(Array) }, {});
+            expect(DetailsGroups).toHaveBeenCalledWith({ groups: ['Uogienės'], details: expect.any(Array) }, undefined);
         });
 
         it('does not render table for initial state', () => {
@@ -182,7 +182,7 @@ describe('DetailsTable', () => {
                     groups: ['Uogienės'],
                     details: details.slice(1, 2),
                 },
-                {}
+                undefined
             );
         });
 

@@ -149,19 +149,19 @@ describe('ValueInput', () => {
         it('renders with positive change', async () => {
             render(<ValueInput group="G" variant="" amount={2} change={1} />, withReduxState());
             expect(screen.getByRole('textbox')).toHaveValue('3');
-            expect(ValueChange).toHaveBeenCalledWith({ change: 1 }, {});
+            expect(ValueChange).toHaveBeenCalledWith({ change: 1 }, undefined);
         });
 
         it('renders with negative change', async () => {
             render(<ValueInput group="G" variant="" amount={2} change={-1} />, withReduxState());
             expect(screen.getByRole('textbox')).toHaveValue('1');
-            expect(ValueChange).toHaveBeenCalledWith({ change: -1 }, {});
+            expect(ValueChange).toHaveBeenCalledWith({ change: -1 }, undefined);
         });
 
         it('renders with zero change', async () => {
             render(<ValueInput group="G" variant="" amount={2} change={0} />, withReduxState());
             expect(screen.getByRole('textbox')).toHaveValue('2');
-            expect(ValueChange).toHaveBeenCalledWith({ change: 0 }, {});
+            expect(ValueChange).toHaveBeenCalledWith({ change: 0 }, undefined);
         });
     });
 });

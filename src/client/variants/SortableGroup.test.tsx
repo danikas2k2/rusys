@@ -29,7 +29,7 @@ describe('SortableGroup', () => {
                     expect.objectContaining({ group, variant: 'x' }),
                 ],
             }),
-            {}
+            undefined
         );
     });
 
@@ -42,7 +42,7 @@ describe('SortableGroup', () => {
                 group,
                 variants: [expect.objectContaining({ group, variant: 'd' })],
             }),
-            {}
+            undefined
         );
     });
 

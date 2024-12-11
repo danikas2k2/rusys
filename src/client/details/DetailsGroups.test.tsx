@@ -32,7 +32,7 @@ describe('DetailsGroups', () => {
                     name: 'Avietės',
                     years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }],
                 }),
-                {}
+                undefined
             )
             .toHaveBeenNthCalledWith(
                 2,
@@ -42,7 +42,7 @@ describe('DetailsGroups', () => {
                     missing: true,
                     years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }],
                 }),
-                {}
+                undefined
             )
             .toHaveBeenNthCalledWith(
                 3,
@@ -51,7 +51,7 @@ describe('DetailsGroups', () => {
                     name: 'Agurkai',
                     years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }],
                 }),
-                {}
+                undefined
             )
             .toHaveBeenNthCalledWith(
                 4,
@@ -60,7 +60,7 @@ describe('DetailsGroups', () => {
                     name: 'Kopūstai',
                     years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }],
                 }),
-                {}
+                undefined
             );
     });
 
@@ -80,7 +80,7 @@ describe('DetailsGroups', () => {
                     name: 'Avietės',
                     years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }],
                 }),
-                {}
+                undefined
             )
             .toHaveBeenNthCalledWith(
                 2,
@@ -90,7 +90,7 @@ describe('DetailsGroups', () => {
                     missing: true,
                     years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }],
                 }),
-                {}
+                undefined
             );
     });
 

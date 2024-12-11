@@ -3,12 +3,12 @@ import EditIcon from '@assets/Edit.svg';
 import { Button, ButtonGroup } from '@ui/Button';
 import { uniqueId } from '@ui/utils/uniqueId';
 import classNames from 'classnames';
-import React, { forwardRef, type HTMLAttributes, type MouseEventHandler, type Ref, useCallback } from 'react';
+import React, { type HTMLAttributes, type MouseEventHandler, type RefAttributes, useCallback } from 'react';
 import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
 import { Label } from '~/client/common/Label';
 import cx from './SlideControls.less';
 
-interface GroupControlsProps extends HTMLAttributes<HTMLDivElement> {
+interface SlideControlsProps extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
     onEdit?: MouseEventHandler<HTMLButtonElement>;
     onRemove?: MouseEventHandler<HTMLButtonElement>;
     group?: string;
@@ -16,10 +16,7 @@ interface GroupControlsProps extends HTMLAttributes<HTMLDivElement> {
     onUnpin?: (hide?: boolean) => void;
 }
 
-export const SlideControls = forwardRef(function SlideControls(
-    { onEdit, onRemove, onPin, onUnpin, className, ...props }: GroupControlsProps,
-    ref: Ref<HTMLDivElement>
-) {
+export function SlideControls({ onEdit, onRemove, onPin, onUnpin, className, ...props }: SlideControlsProps) {
     const handleEdit: MouseEventHandler<HTMLButtonElement> = useCallback(
         (e) => {
             onPin?.();
@@ -58,7 +55,6 @@ export const SlideControls = forwardRef(function SlideControls(
 
     return (
         <div
-            ref={ref}
             role="group"
             aria-labelledby={`${editId} ${removeId}`}
             aria-owns={`${editId} ${removeId}`}
@@ -71,4 +67,4 @@ export const SlideControls = forwardRef(function SlideControls(
             </ButtonGroup>
         </div>
     );
-});
+}

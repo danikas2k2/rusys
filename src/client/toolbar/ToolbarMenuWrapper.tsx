@@ -5,13 +5,10 @@ import type { DropdownRef } from '@ui/Dropdown';
 import { Menu } from '@ui/Menu';
 import { MenuDivider } from '@ui/MenuDivider';
 import { MenuItem } from '@ui/MenuItem';
-import React, { forwardRef, type PropsWithChildren, type Ref } from 'react';
+import React, { type PropsWithChildren, type RefAttributes } from 'react';
 import { useLabel } from '~/client/hooks/useLabel';
 
-export const ToolbarMenuWrapper = forwardRef(function ToolbarMenuWrapper(
-    { children }: PropsWithChildren,
-    ref: Ref<DropdownRef>
-) {
+export function ToolbarMenuWrapper({ ref, children }: PropsWithChildren<RefAttributes<DropdownRef>>) {
     const menuLabel = useLabel('Menu');
     return (
         <Menu
@@ -30,4 +27,4 @@ export const ToolbarMenuWrapper = forwardRef(function ToolbarMenuWrapper(
             </MenuItem>
         </Menu>
     );
-});
+}

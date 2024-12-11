@@ -11,7 +11,9 @@ import { withMany } from '~/tests/withMany';
 import { withRecycledContext } from '~/tests/withRecycledContext';
 import { withReduxState } from '~/tests/withReduxState';
 
-const mockValueInput = jest.spyOn<any, string>(ValueInput, 'render');
+jest.mock('~/client/details/dialogs/ValueInput', () => ({
+    ValueInput: jest.fn(jest.requireActual('~/client/details/dialogs/ValueInput').ValueInput),
+}));
 
 describe('ValueBox', () => {
     beforeEach(() => jest.clearAllMocks());
@@ -53,11 +55,11 @@ describe('ValueBox', () => {
 
     it('renders inputs', () => {
         render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
-        expect(mockValueInput).toHaveBeenCalledTimes(amounts.length);
+        expect(ValueInput).toHaveBeenCalledTimes(amounts.length);
         for (const { variant, amount } of amounts) {
-            expect(mockValueInput).toHaveBeenCalledWith(
+            expect(ValueInput).toHaveBeenCalledWith(
                 expect.objectContaining({ variant, amount, focus: variant === amounts[0].variant }),
-                expect.anything()
+                undefined
             );
         }
     });
@@ -155,7 +157,7 @@ describe('ValueBox', () => {
 
     it('renders all variants when expand pressed', async () => {
         render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
-        mockValueInput.mockClear();
+        (ValueInput as jest.Mock).mockClear();
 
         expect(screen.getByRole('dialog')).not.toHaveClass('fullscreen');
         const expand = screen.getByLabelText('Expand');
@@ -164,15 +166,15 @@ describe('ValueBox', () => {
         expect(expand).not.toBeInTheDocument();
         expect(screen.getByRole('dialog')).toHaveClass('fullscreen');
 
-        expect(mockValueInput).toHaveBeenCalledTimes(allVariants.length);
+        expect(ValueInput).toHaveBeenCalledTimes(allVariants.length);
         for (const variant of allVariants) {
-            expect(mockValueInput).toHaveBeenCalledWith(
+            expect(ValueInput).toHaveBeenCalledWith(
                 expect.objectContaining({
                     variant,
                     amount: getVariantAmount(amounts, variant),
                     focus: !allVariants.indexOf(variant),
                 }),
-                expect.anything()
+                undefined
             );
         }
     });

@@ -135,7 +135,9 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
                 {editingVariants.map((variant) => (
                     <ValueInput
                         key={variant}
-                        ref={(ref) => (refs.current[variant] = ref)}
+                        ref={(ref) => {
+                            refs.current[variant] = ref;
+                        }}
                         group={group}
                         variant={variant}
                         amount={getVariantAmount(amounts, variant) + getVariantAmount(oppositeChanges, variant)}

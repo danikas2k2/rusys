@@ -8,12 +8,14 @@ import {
     type InputVariant,
 } from '@ui/Input';
 import classNames from 'classnames';
-import React, { type ButtonHTMLAttributes, type ForwardedRef, forwardRef, type ReactNode } from 'react';
+import React, { type ButtonHTMLAttributes, type JSX, type ReactNode, type RefAttributes } from 'react';
 import cx from './Button.less';
 
 export type ButtonAlign = 'start' | 'center' | 'end' | 'single';
 
-export interface ButtonProps<T extends HTMLElement = HTMLButtonElement> extends ButtonHTMLAttributes<T> {
+export interface ButtonProps<T extends HTMLElement = HTMLButtonElement>
+    extends ButtonHTMLAttributes<T>,
+        RefAttributes<T> {
     variant?: InputVariant;
     color?: InputColor;
     size?: InputSize;
@@ -26,26 +28,24 @@ export interface ButtonProps<T extends HTMLElement = HTMLButtonElement> extends 
     endDecorator?: ReactNode;
 }
 
-export const Button = forwardRef(function Button(
-    {
-        className,
-        color = 'neutral',
-        variant = 'solid',
-        size = 'medium',
-        spacing = 'small',
-        state = 'default',
-        align = 'single',
-        disabled,
-        fullWidth,
-        fullHeight,
-        // autoFocus,
-        startDecorator,
-        endDecorator,
-        children,
-        ...props
-    }: ButtonProps,
-    forwardedRef: ForwardedRef<HTMLButtonElement>
-) {
+export function Button({
+    ref: forwardedRef,
+    className,
+    color = 'neutral',
+    variant = 'solid',
+    size = 'medium',
+    spacing = 'small',
+    state = 'default',
+    align = 'single',
+    disabled,
+    fullWidth,
+    fullHeight,
+    // autoFocus,
+    startDecorator,
+    endDecorator,
+    children,
+    ...props
+}: ButtonProps): JSX.Element {
     const ref = useForwardedRef(forwardedRef);
     return (
         <button
@@ -75,7 +75,7 @@ export const Button = forwardRef(function Button(
             {endDecorator && <div className={cx('end-decorator')}>{endDecorator}</div>}
         </button>
     );
-});
+}
 
 export interface ButtonGroupProps<T extends HTMLElement = HTMLDivElement> extends CommonInputProps<T> {
     align?: 'start' | 'center' | 'end' | 'full-width';
@@ -84,14 +84,16 @@ export interface ButtonGroupProps<T extends HTMLElement = HTMLDivElement> extend
     fullHeight?: boolean;
 }
 
-export const ButtonGroup = forwardRef(function ButtonGroup(
-    { className, align, spacing, combined = true, fullHeight, ...props }: ButtonGroupProps,
-    forwardedRef: ForwardedRef<HTMLDivElement>
-) {
-    const ref = useForwardedRef(forwardedRef);
+export function ButtonGroup({
+    className,
+    align,
+    spacing,
+    combined = true,
+    fullHeight,
+    ...props
+}: ButtonGroupProps): JSX.Element {
     return (
         <div
-            ref={ref}
             className={classNames(
                 cx('ButtonGroup', {
                     [`align-${align}`]: align,
@@ -104,11 +106,13 @@ export const ButtonGroup = forwardRef(function ButtonGroup(
             {...props}
         />
     );
-});
+}
 
-export const IconButton = forwardRef(function IconButton(
-    { size = 'large', variant = 'plain', spacing = 'none', ...props }: ButtonProps,
-    forwardedRef: ForwardedRef<HTMLButtonElement>
-) {
-    return <Button ref={useForwardedRef(forwardedRef)} size={size} variant={variant} spacing={spacing} {...props} />;
-});
+export function IconButton({
+    size = 'large',
+    variant = 'plain',
+    spacing = 'none',
+    ...props
+}: ButtonProps): JSX.Element {
+    return <Button size={size} variant={variant} spacing={spacing} {...props} />;
+}

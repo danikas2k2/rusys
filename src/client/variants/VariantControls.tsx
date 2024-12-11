@@ -1,20 +1,17 @@
-import React, { forwardRef, type HTMLAttributes, type Ref, useCallback, useState } from 'react';
+import React, { type HTMLAttributes, type RefAttributes, useCallback, useState } from 'react';
 import { SlideControls } from '~/client/common/SlideControls';
 import { VariantBox } from '~/client/variants/dialogs/VariantBox';
 import { getErrorMessage } from '~/common/utils/errors';
 import { useDeleteVariant } from '~/state/variants/useDeleteVariant';
 
-interface VariantControlsProps extends HTMLAttributes<HTMLDivElement> {
+interface VariantControlsProps extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
     group: string;
     variant: string;
     onPin?: (hide?: boolean) => void;
     onUnpin?: (hide?: boolean) => void;
 }
 
-export const VariantControls = forwardRef(function VariantControls(
-    { group, variant, onPin, onUnpin, ...props }: VariantControlsProps,
-    ref: Ref<HTMLDivElement>
-) {
+export function VariantControls({ group, variant, onPin, onUnpin, ...props }: VariantControlsProps) {
     const [dialogVisible, setDialogVisible] = useState(false);
 
     const onEdit = useCallback(() => {
@@ -35,7 +32,7 @@ export const VariantControls = forwardRef(function VariantControls(
 
     return group && variant ? (
         <>
-            <SlideControls ref={ref} onEdit={onEdit} onRemove={onDelete} onPin={onPin} onUnpin={onUnpin} {...props} />
+            <SlideControls onEdit={onEdit} onRemove={onDelete} onPin={onPin} onUnpin={onUnpin} {...props} />
             {dialogVisible && (
                 <VariantBox
                     group={group}
@@ -48,4 +45,4 @@ export const VariantControls = forwardRef(function VariantControls(
             )}
         </>
     ) : null;
-});
+}
