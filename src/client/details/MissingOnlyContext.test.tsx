@@ -1,13 +1,13 @@
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React, { useContext } from 'react';
+import React, { use } from 'react';
 import { MissingOnlyContext, MissingOnlyContextWrapper, useMissingOnly } from '~/client/details/MissingOnlyContext';
 
 describe('MissingOnlyContext', () => {
     afterEach(() => {});
 
     it('uses context with default value', () => {
-        const { result } = renderHook(() => useContext(MissingOnlyContext));
+        const { result } = renderHook(() => use(MissingOnlyContext));
         expect(result.current).toEqual([false, expect.any(Function)]);
     });
 });

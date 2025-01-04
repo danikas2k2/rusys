@@ -1,4 +1,4 @@
-import React, { createContext, type PropsWithChildren, useContext, useState } from 'react';
+import React, { createContext, type PropsWithChildren, use, useState } from 'react';
 
 export const RecycledContext = createContext<[boolean, (v: boolean) => void]>([false, () => void 0]);
 
@@ -9,4 +9,4 @@ export function RecycledContextWrapper({
     return <RecycledContext value={useState(initialState)}>{children}</RecycledContext>;
 }
 
-export const useRecycled = () => useContext(RecycledContext);
+export const useRecycled = () => use(RecycledContext);

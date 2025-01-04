@@ -4,7 +4,6 @@ import { defer } from 'lodash';
 import React, {
     cloneElement,
     type HTMLAttributes,
-    isValidElement,
     type JSX,
     type ReactElement,
     type RefAttributes,
@@ -192,10 +191,6 @@ export function RowWithSlideControls({
             el?.removeEventListener('touchcancel', handleDragEnd);
         };
     }, [handleDragEnd, handleMouseDown, handleMouseMove, handleTouchMove, handleTouchStart, ref]);
-
-    if (!isValidElement(controls)) {
-        controls = <>{controls}</>;
-    }
 
     return (
         <Row

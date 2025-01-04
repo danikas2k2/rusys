@@ -3,12 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { useOutsideClick } from '@ui/hooks/useOutsideClick';
 import React, { useRef } from 'react';
 
-function OutsideClickTest({ handler }: { handler: () => void }) {
+function OutsideClickTest({ handler, noRef }: { handler: () => void; noRef?: boolean }) {
     const ref = useRef<HTMLDivElement>(null);
     useOutsideClick(ref, handler);
     return (
         <>
-            <div ref={ref} role="article" tabIndex={-1}>
+            <div ref={noRef ? null : ref} role="article" tabIndex={-1}>
                 <button>Inside</button>
             </div>
             <button>Outside</button>
@@ -21,7 +21,7 @@ describe('useOutsideClick', () => {
         const handler = jest.fn();
         render(<OutsideClickTest handler={handler} />);
 
-        await userEvent.pointer({ target: screen.getByText('Inside'), keys: '[MouseLeft>]' });
+        await userEvent.click(screen.getByText('Inside'));
         expect(handler).not.toHaveBeenCalled();
     });
 
@@ -39,5 +39,13 @@ describe('useOutsideClick', () => {
 
         await userEvent.click(screen.getByText('Outside'));
         expect(handler).toHaveBeenCalledWith(expect.any(Object));
+    });
+
+    it('does not call handler if has no ref', async () => {
+        const handler = jest.fn();
+        render(<OutsideClickTest handler={handler} noRef />);
+
+        await userEvent.click(screen.getByText('Outside'));
+        expect(handler).not.toHaveBeenCalled();
     });
 });
