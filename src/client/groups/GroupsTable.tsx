@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
-import { ActiveRowContextWrapper } from '~/client/common/ActiveRowContext';
+import { ActiveRowWrapper } from '~/client/common/ActiveRowContext';
 import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
 import { Label } from '~/client/common/Label';
 import { LoadingContent } from '~/client/common/LoadingContent';
+import { ActiveGroupBox } from '~/client/groups/ActiveGroupBox';
 import { useGroupsHasData } from '~/client/groups/hooks/useGroupsHasData';
 import { SortableGroups } from '~/client/groups/SortableGroups';
 import { Cell } from '~/client/table/Cell';
@@ -36,10 +37,11 @@ export function GroupsTable() {
                     </Row>
                 }
             >
-                <ActiveRowContextWrapper>
+                <ActiveRowWrapper>
                     <ActiveRowOutsideClick />
                     <SortableGroups className={cx('Row')} groups={visibleGroups} />
-                </ActiveRowContextWrapper>
+                    <ActiveGroupBox />
+                </ActiveRowWrapper>
             </Table>
         </LoadingContent>
     );

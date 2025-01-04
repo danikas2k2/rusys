@@ -1,10 +1,12 @@
 import React, { useCallback, useRef } from 'react';
+import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
 import { type ActiveRow, useActiveRow } from '~/client/common/ActiveRowContext';
-import { GroupControls } from '~/client/groups/GroupControls';
+import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
+import { SlideControls } from '~/client/common/SlideControls';
 import { Cell } from '~/client/table/Cell';
-import { DragHandle } from '~/client/table/DragHandle';
 import { SortableRow } from '~/client/table/SortableRow';
 import type { Group } from '~/common/types';
+import { useDeleteGroup } from '~/state/groups/useDeleteGroup';
 import cx from './SortableGroup.less';
 
 export interface ActiveGroup extends ActiveRow, Pick<Group, 'group'> {}
@@ -29,31 +31,26 @@ export function SortableGroup({
     const ref = useRef<HTMLDivElement>(null);
     const [active, setActiveGroup] = useActiveRow<ActiveGroup>();
     const isActive = active?.group === group;
-    const setActive = useCallback(() => setActiveGroup({ group, ref }), [group, setActiveGroup]);
-    const setInactive = useCallback(() => setActiveGroup(undefined), [setActiveGroup]);
-    const setPinned = useCallback(
-        (pinned: boolean) => setActiveGroup(active && { ...active, pinned }),
-        [active, setActiveGroup]
-    );
-    const onPin = useCallback(() => setPinned(true), [setPinned]);
-    const onUnpin = useCallback((hide = false) => (hide ? setInactive() : setPinned(false)), [setInactive, setPinned]);
 
     const handleDragStart = useCallback(() => {
         if (!isActive) {
-            setActive();
+            setActiveGroup({ group, ref });
         }
         onDragStart?.(group);
-    }, [isActive, onDragStart, setActive, group]);
+    }, [isActive, onDragStart, group, setActiveGroup]);
 
     const handleDrag = useCallback(() => onDrag?.(ref.current!), [onDrag]);
+
+    const deleteGroup = useDeleteGroup();
+    const handleRemove = useErrorWrapper(() => deleteGroup(group));
 
     return (
         <SortableRow
             ref={ref}
             index={index}
             className={className}
-            handle={<DragHandle onPointerDown={setInactive} />}
-            controls={isActive ? <GroupControls group={group} onPin={onPin} onUnpin={onUnpin} /> : undefined}
+            handle={<ActiveDragHandle />}
+            controls={isActive ? <SlideControls onRemove={handleRemove} /> : undefined}
             onDragStart={handleDragStart}
             onDrag={handleDrag}
             onDragEnd={onDragStop}

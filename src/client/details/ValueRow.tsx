@@ -3,11 +3,13 @@ import { Interactive } from '@ui/Interactive';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useRef } from 'react';
 import { type ActiveRow, useActiveRow } from '~/client/common/ActiveRowContext';
-import { DetailsControls } from '~/client/details/DetailsControls';
+import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
+import { SlideControls } from '~/client/common/SlideControls';
 import { ValueCell } from '~/client/details/ValueCell';
 import { Cell } from '~/client/table/Cell';
 import { RowWithSlideControls } from '~/client/table/RowWithSlideControls';
 import { type Details, type RemovingYearAmounts } from '~/common/types';
+import { useDeleteDetails } from '~/state/details/useDeleteDetails';
 import { useHasRemoving } from '~/state/details/useHasRemoving';
 import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';
 import { useYears } from '~/state/years/useYears';
@@ -43,24 +45,16 @@ export function ValueRow({ className, group, name, years, missing }: ValueRowPro
 
     const onStart = useCallback(() => setActive({ group, name, ref }), [group, name, setActive]);
 
-    const onPin = useCallback(() => setActive({ group, name, ref, pinned: true }), [group, name, setActive]);
-
-    const onUnpin = useCallback(
-        (hide = false) => {
-            if (active) {
-                setActive(hide ? undefined : { ...active, pinned: false });
-            }
-        },
-        [active, setActive]
-    );
-
     const setMissing = useSetDetailsMissing();
     const handleClick = useCallback(async (): Promise<void> => {
-        onUnpin?.(true);
+        setActive(undefined);
         if (available) {
             await setMissing(group, name, !missing);
         }
-    }, [onUnpin, available, setMissing, group, name, missing]);
+    }, [setActive, available, setMissing, group, name, missing]);
+
+    const deleteDetails = useDeleteDetails();
+    const handleRemove = useErrorWrapper(() => deleteDetails(group, name));
 
     return (
         <RowWithSlideControls
@@ -68,9 +62,7 @@ export function ValueRow({ className, group, name, years, missing }: ValueRowPro
             className={className}
             aria-checked={!missing}
             onDragStart={onStart}
-            controls={
-                isActive ? <DetailsControls group={group} name={name} onPin={onPin} onUnpin={onUnpin} /> : undefined
-            }
+            controls={isActive ? <SlideControls onRemove={handleRemove} /> : undefined}
         >
             <Cell>
                 <Checkbox

@@ -40,7 +40,6 @@ export function Button({
     disabled,
     fullWidth,
     fullHeight,
-    // autoFocus,
     startDecorator,
     endDecorator,
     children,

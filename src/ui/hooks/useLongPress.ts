@@ -47,7 +47,7 @@ export function useLongPress<T = Element>(
     duration = POINTER_LONG_PRESS_DELAY,
     shortDelay = POINTER_SHORT_PRESS_DELAY
 ): LongPressEvents<T> {
-    const timerRef = useRef<NodeJS.Timeout>();
+    const timerRef = useRef<NodeJS.Timeout>(undefined);
     const longPressRef = useRef(false);
     const shortPressRef = useRef(false);
     const xRef = useRef(0);

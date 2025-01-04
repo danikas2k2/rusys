@@ -1,11 +1,13 @@
 import cs from 'classnames';
 import React, { useCallback, useRef } from 'react';
+import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
 import { type ActiveRow, useActiveRow } from '~/client/common/ActiveRowContext';
+import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
+import { SlideControls } from '~/client/common/SlideControls';
 import { Cell } from '~/client/table/Cell';
-import { DragHandle } from '~/client/table/DragHandle';
 import { SortableRow } from '~/client/table/SortableRow';
-import { VariantControls } from '~/client/variants/VariantControls';
 import { type Variant } from '~/common/types';
+import { useDeleteVariant } from '~/state/variants/useDeleteVariant';
 import cx from './SortableVariant.less';
 
 export interface ActiveVariant extends ActiveRow, Pick<Variant, 'group' | 'variant'> {}
@@ -30,23 +32,18 @@ export function SortableVariant({
     const ref = useRef<HTMLDivElement>(null);
     const [active, setActiveVariant] = useActiveRow<ActiveVariant>();
     const isActive = active?.group === group && active?.variant === variant;
-    const setActive = useCallback(() => setActiveVariant({ group, variant, ref }), [group, setActiveVariant, variant]);
-    const setInactive = useCallback(() => setActiveVariant(undefined), [setActiveVariant]);
-    const setPinned = useCallback(
-        (pinned: boolean) => setActiveVariant(active && { ...active, pinned }),
-        [active, setActiveVariant]
-    );
-    const onPin = useCallback(() => setPinned(true), [setPinned]);
-    const onUnpin = useCallback((hide = false) => (hide ? setInactive() : setPinned(false)), [setInactive, setPinned]);
 
     const handleDragStart = useCallback(() => {
         if (!isActive) {
-            setActive();
+            setActiveVariant({ group, variant, ref });
         }
         onDragStart?.(variant);
-    }, [isActive, onDragStart, setActive, variant]);
+    }, [group, isActive, onDragStart, setActiveVariant, variant]);
 
     const handleDrag = useCallback(() => onDrag?.(ref.current!), [onDrag]);
+
+    const deleteVariant = useDeleteVariant();
+    const handleRemove = useErrorWrapper(() => deleteVariant(group, variant));
 
     return (
         <SortableRow
@@ -56,12 +53,8 @@ export function SortableVariant({
             onDragStart={handleDragStart}
             onDrag={handleDrag}
             onDragEnd={onDragStop}
-            handle={<DragHandle onPointerDown={setInactive} />}
-            controls={
-                isActive ? (
-                    <VariantControls group={group} variant={variant} onPin={onPin} onUnpin={onUnpin} />
-                ) : undefined
-            }
+            handle={<ActiveDragHandle />}
+            controls={isActive ? <SlideControls onRemove={handleRemove} /> : undefined}
         >
             <Cell key="name" className={cx('Name')}>
                 {variant}

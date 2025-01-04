@@ -5,6 +5,7 @@ import { useActiveRow } from '~/client/common/ActiveRowContext';
 export function ActiveRowOutsideClick() {
     const [active, setActive] = useActiveRow();
     const setInactive = useCallback(() => setActive(undefined), [setActive]);
-    useOutsideClick((!active?.pinned && active?.ref) || { current: null }, setInactive);
+    const ref = (!active?.pinned && active?.ref) || { current: null };
+    useOutsideClick(ref, setInactive);
     return null;
 }

@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import lodash from 'lodash';
 import React from 'react';
-import { DragHandle } from '~/client/table/DragHandle';
+import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
 import { SortableRow, type SortableRowProps } from '~/client/table/SortableRow';
 
 jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(400);
@@ -10,7 +10,7 @@ jest.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(40);
 jest.spyOn(lodash, 'defer').mockImplementation((fn) => fn());
 
 describe('SortableRow', () => {
-    const handle = <DragHandle />;
+    const handle = <ActiveDragHandle />;
     const controls = <button>Controls</button>;
     const children = <div>Content</div>;
     const onDragStart = jest.fn();

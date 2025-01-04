@@ -1,8 +1,9 @@
-import React, { createContext, type PropsWithChildren, type RefObject, useContext, useState } from 'react';
+import React, { createContext, type JSX, type PropsWithChildren, type RefObject, use, useState } from 'react';
 
 export interface ActiveRow {
     ref?: RefObject<HTMLDivElement | null>;
     pinned?: boolean;
+    editing?: boolean;
 }
 
 export const ActiveRowContext = createContext<[ActiveRow | undefined, (v: ActiveRow | undefined) => void]>([
@@ -10,10 +11,9 @@ export const ActiveRowContext = createContext<[ActiveRow | undefined, (v: Active
     () => void 0,
 ]);
 
-export function ActiveRowContextWrapper({ children }: PropsWithChildren) {
+export function ActiveRowWrapper({ children }: PropsWithChildren): JSX.Element {
     return <ActiveRowContext value={useState<ActiveRow | undefined>(undefined)}>{children}</ActiveRowContext>;
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const useActiveRow = <T extends ActiveRow>() =>
-    useContext(ActiveRowContext) as [T | undefined, (v: T | undefined) => void];
+export const useActiveRow = <T extends ActiveRow>(): [T | undefined, (v: T | undefined) => void] =>
+    use(ActiveRowContext) as [T | undefined, (v: T | undefined) => void];

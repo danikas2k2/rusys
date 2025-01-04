@@ -119,11 +119,7 @@ export const getSummaryFixture = (): Summary[] => [
         years: [
             {
                 year: 22,
-                amounts: [
-                    // { variant: 'p', amount: 1 },
-                    { variant: 'd', amount: 1 },
-                    // { variant: 'm', amount: 3 },
-                ],
+                amounts: [{ variant: 'd', amount: 1 }],
             },
         ],
     },

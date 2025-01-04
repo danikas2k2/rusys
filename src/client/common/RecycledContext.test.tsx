@@ -1,11 +1,11 @@
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React, { useContext } from 'react';
+import React, { use } from 'react';
 import { RecycledContext, RecycledContextWrapper, useRecycled } from '~/client/common/RecycledContext';
 
 describe('RecycledContext', () => {
     it('uses context with default value', () => {
-        const { result } = renderHook(() => useContext(RecycledContext));
+        const { result } = renderHook(() => use(RecycledContext));
         expect(result.current).toEqual([false, expect.any(Function)]);
     });
 });

@@ -2,58 +2,59 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { SlideControls } from '~/client/common/SlideControls';
+import { withActiveRowContext } from '~/tests/withActiveRowContext';
 
 jest.mock('~/state/groups/useDeleteGroup');
 
 describe('SlideControls', () => {
+    const setActiveRow = jest.fn();
+    const context = withActiveRowContext({}, setActiveRow);
+
     const onEdit = jest.fn();
     const onDelete = jest.fn();
-    const onPin = jest.fn();
-    const onUnpin = jest.fn();
 
     afterEach(() => jest.clearAllMocks());
 
     it('renders control buttons', () => {
-        render(<SlideControls />);
+        render(<SlideControls />, withActiveRowContext());
         expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
     });
 
-    it('calls onPin and onEdit when Edit button is clicked', async () => {
-        render(<SlideControls onEdit={onEdit} onRemove={onDelete} onPin={onPin} onUnpin={onUnpin} />);
+    it('sets the active row to be pinned and editable, and calls onEdit when Edit button is clicked', async () => {
+        render(<SlideControls onEdit={onEdit} onRemove={onDelete} />, context);
         await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
         expect(onEdit).toHaveBeenCalled();
         expect(onDelete).not.toHaveBeenCalled();
-        expect(onPin).toHaveBeenCalled();
-        expect(onUnpin).not.toHaveBeenCalled();
+        expect(setActiveRow).toHaveBeenCalledWith({ editing: true, pinned: true });
     });
 
-    it('calls onPin when Remove button is clicked', async () => {
-        render(<SlideControls onEdit={onEdit} onRemove={onDelete} onPin={onPin} onUnpin={onUnpin} />);
+    it('set the active row to be pinned when Remove button is clicked (confirmation dialog opens)', async () => {
+        render(<SlideControls onEdit={onEdit} onRemove={onDelete} />, context);
         await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
+        expect(screen.getByRole('alertdialog')).toBeInTheDocument();
         expect(onEdit).not.toHaveBeenCalled();
         expect(onDelete).not.toHaveBeenCalled();
-        expect(onPin).toHaveBeenCalled();
-        expect(onUnpin).not.toHaveBeenCalled();
+        expect(setActiveRow).toHaveBeenCalledWith({ pinned: true });
     });
 
-    it('calls onUnpin when Remove is cancelled', async () => {
-        render(<SlideControls onEdit={onEdit} onRemove={onDelete} onPin={onPin} onUnpin={onUnpin} />);
+    it('set the active row to be unpinned when remove action is cancelled', async () => {
+        render(<SlideControls onEdit={onEdit} onRemove={onDelete} />, context);
         await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
         await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }));
         expect(onEdit).not.toHaveBeenCalled();
         expect(onDelete).not.toHaveBeenCalled();
-        expect(onPin).toHaveBeenCalled();
-        expect(onUnpin).toHaveBeenCalled();
+        expect(setActiveRow).toHaveBeenCalledWith({ pinned: true });
+        expect(setActiveRow).toHaveBeenLastCalledWith({ pinned: false });
     });
 
     it('calls onUnpin and onRemove when Remove is confirmed', async () => {
-        render(<SlideControls onEdit={onEdit} onRemove={onDelete} onPin={onPin} onUnpin={onUnpin} />);
+        render(<SlideControls onEdit={onEdit} onRemove={onDelete} />, context);
         await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
         await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Remove' }));
         expect(onEdit).not.toHaveBeenCalled();
         expect(onDelete).toHaveBeenCalled();
-        expect(onPin).toHaveBeenCalled();
-        expect(onUnpin).toHaveBeenCalled();
+        expect(setActiveRow).toHaveBeenCalledWith({ pinned: true });
+        expect(setActiveRow).toHaveBeenLastCalledWith(undefined);
     });
 });

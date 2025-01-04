@@ -99,6 +99,19 @@ describe('useLongPress', () => {
             expect(onLongPress).not.toHaveBeenCalled();
             expect(onShortPress).not.toHaveBeenCalled();
         });
+
+        it('cancels context menu', async () => {
+            const onContextMenu = jest.fn();
+            render(
+                <div onContextMenu={onContextMenu}>
+                    <TestComponent onLongPress={onLongPress} />
+                </div>
+            );
+
+            await userEvent.pointer([{ target: screen.getByRole('button'), keys: '[MouseRight]' }]);
+
+            expect(onContextMenu).not.toHaveBeenCalled();
+        });
     });
 
     describe('touch events', () => {

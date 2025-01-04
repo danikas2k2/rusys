@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { ActiveRowContextWrapper } from '~/client/common/ActiveRowContext';
+import { ActiveRowWrapper } from '~/client/common/ActiveRowContext';
 import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
 import { useFilteredList } from '~/client/common/hooks/useFilteredList';
 import { useSortedList } from '~/client/common/hooks/useSortedList';
@@ -66,10 +66,10 @@ export function DetailsTable() {
                     </Row>
                 }
             >
-                <ActiveRowContextWrapper>
+                <ActiveRowWrapper>
                     <ActiveRowOutsideClick />
                     <DetailsGroups groups={visibleGroups} details={visibleDetails} />
-                </ActiveRowContextWrapper>
+                </ActiveRowWrapper>
             </Table>
         </LoadingContent>
     );

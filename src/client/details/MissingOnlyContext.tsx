@@ -1,4 +1,4 @@
-import React, { createContext, type PropsWithChildren, useContext, useState } from 'react';
+import React, { createContext, type PropsWithChildren, use, useState } from 'react';
 
 export const MissingOnlyContext = createContext<[boolean, (v: boolean) => void]>([false, () => void 0]);
 
@@ -11,4 +11,4 @@ export function MissingOnlyContextWrapper({
     return <MissingOnlyContext value={useState(initialState)}>{children}</MissingOnlyContext>;
 }
 
-export const useMissingOnly = () => useContext(MissingOnlyContext);
+export const useMissingOnly = () => use(MissingOnlyContext);
