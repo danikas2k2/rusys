@@ -9,7 +9,7 @@ import ToolbarMenu from '~/client/toolbar/ToolbarMenu';
 import LogoutButton from '~/client/user/LogoutButton';
 import { type BaseState } from '~/store/base/types';
 import { setFilterAction } from '~/store/filter/actions';
-import './Toolbar.less';
+import cx from './Toolbar.less';
 
 export default memo(function Toolbar() {
     const placeholder = useLabel('type to filter');
@@ -29,11 +29,11 @@ export default memo(function Toolbar() {
     }, [dispatch]);
 
     return (
-        <div className="Toolbar">
+        <div className={cx('Toolbar')}>
             <div>
                 <ToolbarMenu />
             </div>
-            <div className="title">
+            <div className={cx('title')}>
                 <Input
                     inputMode="search"
                     fullWidth
@@ -50,7 +50,7 @@ export default memo(function Toolbar() {
                     }
                 />
             </div>
-            <div className="icon">
+            <div className={cx('icon')}>
                 <LogoutButton />
             </div>
         </div>

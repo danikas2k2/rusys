@@ -4,7 +4,6 @@ import Button, { ButtonGroup } from '@ui/Button';
 import useFocusRef from '@ui/hooks/useFocusRef';
 import useForwardedRef from '@ui/hooks/useForwardedRef';
 import Input from '@ui/Input';
-import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, {
     type ChangeEvent,
@@ -17,7 +16,7 @@ import React, {
 } from 'react';
 import ValueVariant from '~/client/ValueVariant';
 import { type Variant } from '~/store/details/types';
-import './ValueInput.less';
+import cx from './ValueInput.less';
 
 interface ValueInputProps {
     variant: Variant;
@@ -99,13 +98,13 @@ export default memo(
         const diff = value - prevValue;
 
         return (
-            <ButtonGroup className="ValueInput">
-                <div className="label">
+            <ButtonGroup className={cx('ValueInput')}>
+                <div className={cx('label')}>
                     <ValueVariant variant={variant} format="long" />
                 </div>
                 <Input
                     ref={ref}
-                    className="value"
+                    className={cx('value')}
                     color="primary"
                     size="large"
                     inputMode="numeric"
@@ -139,7 +138,7 @@ export default memo(
                 />
                 {!!diff && (
                     <div
-                        className={classNames('diff', {
+                        className={cx('diff', {
                             positive: diff > 0,
                         })}
                     >

@@ -10,7 +10,7 @@ import Label from '~/client/Label';
 import { resetProfileAction, setProfileAction } from '~/store/profile/actions';
 import { type Profile } from '~/store/profile/types';
 import useEmailCheck from '~/store/profile/useEmailCheck';
-import './LoginButton.less';
+import cx from './LoginButton.less';
 
 export default memo(function LoginButton({ children }: ButtonProps) {
     const dispatch = useDispatch();
@@ -53,7 +53,7 @@ export default memo(function LoginButton({ children }: ButtonProps) {
 
     return (
         <IconButton color="neutral" variant="outlined" onClick={handleClick}>
-            <div className="LoginButton">
+            <div className={cx('LoginButton')}>
                 {children || (
                     <>
                         <GoogleIcon />

@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { type Express, type Request, type Response } from 'express';
-import { remove, rename } from '~/server/data/common';
+import { getEverything, remove, rename } from '~/server/data/common';
 import { getDetails, setDetails, updateDetails } from '~/server/data/details';
 import { getMissing, setMissing } from '~/server/data/missing';
 import { getRemoving, setRemoving } from '~/server/data/removing';
@@ -148,6 +148,16 @@ export default function (app = express()): Express {
         const { name } = req.body;
         await remove(name);
         await getAllDetails(req, res);
+        debug('OK');
+    });
+
+    app.get('/export', async (req: Request, res: Response) => {
+        debug();
+        debug('GET /export');
+        res.json({
+            ok: true,
+            ...(await getEverything()),
+        });
         debug('OK');
     });
 

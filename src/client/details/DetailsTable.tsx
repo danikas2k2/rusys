@@ -13,7 +13,7 @@ import { type BaseState } from '~/store/base/types';
 import useInitialLoader from '~/store/base/useInitialLoader';
 import { type Amounts } from '~/store/details/types';
 import { type Name } from '~/store/types';
-import './DetailsTable.less';
+import cx from './DetailsTable.less';
 
 export default memo(function DetailsTable() {
     const [loading, setLoading] = useState(false);
@@ -62,9 +62,9 @@ export default memo(function DetailsTable() {
 
     return (
         <Table
-            className="Table"
+            className={cx('Table')}
             header={
-                <Row className="Row HeadRow">
+                <Row className={cx('Row', 'HeadRow')}>
                     <Cell>
                         <Checkbox color="primary" checked={!missingOnly} disabled={!hasMissing} onClick={handleClick} />
                     </Cell>
@@ -79,7 +79,7 @@ export default memo(function DetailsTable() {
                 const isMissing = missing.includes(name);
                 return (
                     (!missingOnly || isMissing) && (
-                        <ValueRow className="Row" key={name} name={name} values={values} isMissing={isMissing} />
+                        <ValueRow className={cx('Row')} key={name} name={name} values={values} isMissing={isMissing} />
                     )
                 );
             })}

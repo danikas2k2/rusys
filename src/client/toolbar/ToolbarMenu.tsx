@@ -2,6 +2,7 @@ import AddCircleIcon from '@icons/AddCircle.svg';
 import ChartIcon from '@icons/Chart.svg';
 import ListAltIcon from '@icons/ListAlt.svg';
 import MenuIcon from '@icons/Menu.svg';
+import UploadIcon from '@icons/Upload.svg';
 import ColorSchemeToggler from '@ui/ColorSchemeToggler';
 import IconButton from '@ui/IconButton';
 import Menu, { MenuDivider, MenuItem } from '@ui/Menu';
@@ -12,11 +13,19 @@ import { useNavigate } from 'react-router-dom';
 import EditBox from '~/client/details/dialogs/EditBox';
 import Label from '~/client/Label';
 import { Links } from '~/client/Links';
+import { download } from '~/utils/download';
 
 export default memo(function ToolbarMenu() {
     const navigate = useNavigate();
     const gotoDetails = useCallback((): void => navigate(Links.DETAILS), [navigate]);
     const gotoSummary = useCallback((): void => navigate(Links.SUMMARY), [navigate]);
+
+    const handleExport = useCallback(async (): Promise<void> => {
+        const data = await fetch('/export').then((response) => response.json());
+        console.info(data);
+        download(data);
+    }, [navigate]);
+
     const location = useLocation();
 
     const [opened, setOpened] = useState(false);
@@ -61,6 +70,17 @@ export default memo(function ToolbarMenu() {
                             }
                         >
                             <Label>Statistics</Label>
+                        </MenuItem>
+                        <MenuDivider />
+                        <MenuItem
+                            onClick={handleExport}
+                            startDecorator={
+                                <IconButton variant="plain" color="primary">
+                                    <UploadIcon />
+                                </IconButton>
+                            }
+                        >
+                            <Label>Export</Label>
                         </MenuItem>
                     </>
                 )}

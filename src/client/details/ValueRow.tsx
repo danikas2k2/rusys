@@ -1,5 +1,4 @@
 import Checkbox from '@ui/Checkbox';
-import classNames from 'classnames';
 import { isEmpty, isEqual } from 'lodash';
 import React, { memo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
@@ -14,7 +13,7 @@ import useAddMissing from '~/store/missing/useAddMissing';
 import useRemoveMissing from '~/store/missing/useRemoveMissing';
 import useUpdateRemoving from '~/store/removing/useUpdateRemoving';
 import { type Name, type Year } from '~/store/types';
-import './ValueRow.less';
+import cx from './ValueRow.less';
 
 interface ValueRowProps {
     className?: string;
@@ -73,7 +72,7 @@ export default memo(function ValueRow({ className, name, values, isMissing }: Va
     );
 
     return (
-        <Row key={name} className={classNames('Row', className, { selected: isMissing })} aria-checked={!isMissing}>
+        <Row key={name} className={cx('Row', className, { selected: isMissing })} aria-checked={!isMissing}>
             <Cell>
                 <Checkbox
                     color="primary"
@@ -86,7 +85,7 @@ export default memo(function ValueRow({ className, name, values, isMissing }: Va
             </Cell>
             <Cell
                 id={labelId}
-                className={classNames('name', { unavailable: !isAvailable, removing: isAvailable && isRemoving })}
+                className={cx('name', { unavailable: !isAvailable, removing: isAvailable && isRemoving })}
             >
                 <InteractiveName name={name} onClick={handleClick} />
             </Cell>

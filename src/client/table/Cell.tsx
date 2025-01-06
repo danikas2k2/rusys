@@ -1,7 +1,6 @@
-import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, { type HTMLAttributes, memo, type ReactNode } from 'react';
-import './Cell.less';
+import cx from './Cell.less';
 
 interface CellProps<T extends HTMLElement = HTMLDivElement> extends HTMLAttributes<T> {
     children?: ReactNode;
@@ -9,7 +8,7 @@ interface CellProps<T extends HTMLElement = HTMLDivElement> extends HTMLAttribut
 
 export default memo(function Cell({ role = 'cell', className, children, ...other }: CellProps) {
     return (
-        <div role={role} className={classNames('Cell', className)} {...other}>
+        <div role={role} className={cx('Cell', className)} {...other}>
             {children}
         </div>
     );

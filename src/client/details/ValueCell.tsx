@@ -1,5 +1,4 @@
 import useLongPress from '@ui/hooks/useLongPress';
-import classNames from 'classnames';
 import { isEmpty, isEqual } from 'lodash';
 import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -11,7 +10,7 @@ import { type Amount, type Variant } from '~/store/details/types';
 import useVariantComparator from '~/store/details/useVariantComparator';
 import useUpdateRemoving from '~/store/removing/useUpdateRemoving';
 import { type Name, type Year } from '~/store/types';
-import './ValueCell.less';
+import cx from './ValueCell.less';
 
 interface ValueCellProps {
     name: Name;
@@ -56,7 +55,7 @@ export default memo(function ValueCell({ name, year, value, last, onChange }: Va
     return (
         <>
             <Cell
-                className={classNames('ValueCell', { empty, last, removing })}
+                className={cx('ValueCell', { empty, last, removing })}
                 {...(empty ? { onClick: handleShortPress, onContextMenu: longPress.onContextMenu } : { ...longPress })}
             >
                 {empty
@@ -64,7 +63,7 @@ export default memo(function ValueCell({ name, year, value, last, onChange }: Va
                     : Object.entries(value)
                           .sort(([a], [b]) => cmpVariants(a, b))
                           .map(([k, v]) => (
-                              <span className={classNames('value')} key={k}>
+                              <span className={cx('value')} key={k}>
                                   {v}
                                   <sub>
                                       <ValueVariant variant={k as Variant} />

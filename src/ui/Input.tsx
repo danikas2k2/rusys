@@ -1,5 +1,4 @@
 import useForwardedRef from '@ui/hooks/useForwardedRef';
-import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, {
     type FormEvent,
@@ -12,7 +11,7 @@ import React, {
     useEffect,
     useState,
 } from 'react';
-import './Input.less';
+import cx from './Input.less';
 
 export type InputColor = 'neutral' | 'primary' | 'secondary' | 'positive' | 'warning' | 'negative';
 
@@ -117,7 +116,7 @@ export default memo(
 
         return (
             <div
-                className={classNames(
+                className={cx(
                     'Input',
                     `color-${color}`,
                     `variant-${variant}`,
@@ -127,7 +126,7 @@ export default memo(
                 )}
             >
                 {startDecorator && (
-                    <div className={classNames('start-decorator', `type-${getDecoratorType(startDecorator)}`)}>
+                    <div className={cx('start-decorator', `type-${getDecoratorType(startDecorator)}`)}>
                         {startDecorator}
                     </div>
                 )}
@@ -147,9 +146,7 @@ export default memo(
                     {children}
                 </input>
                 {endDecorator && (
-                    <div className={classNames('end-decorator', `type-${getDecoratorType(endDecorator)}`)}>
-                        {endDecorator}
-                    </div>
+                    <div className={cx('end-decorator', `type-${getDecoratorType(endDecorator)}`)}>{endDecorator}</div>
                 )}
             </div>
         );

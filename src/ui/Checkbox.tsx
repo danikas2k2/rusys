@@ -2,7 +2,6 @@ import CheckIcon from '@icons/Check.svg';
 import CheckIndeterminateIcon from '@icons/CheckIndeterminate.svg';
 import useForwardedRef from '@ui/hooks/useForwardedRef';
 import { type CommonInputProps, type InputColor, type InputSize, type InputVariant } from '@ui/Input';
-import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, {
     type ChangeEvent,
@@ -14,7 +13,7 @@ import React, {
     useMemo,
     useState,
 } from 'react';
-import './Checkbox.less';
+import cx from './Checkbox.less';
 
 export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {
     variant?: InputVariant;
@@ -75,7 +74,7 @@ export default memo(
         return (
             <label
                 htmlFor={id}
-                className={classNames('Checkbox', `color-${color}`, `variant-${variant}`, `size-${size}`, className)}
+                className={cx('Checkbox', `color-${color}`, `variant-${variant}`, `size-${size}`, className)}
             >
                 <input
                     ref={ref}
@@ -88,8 +87,8 @@ export default memo(
                     onChange={handleChange}
                     {...props}
                 />
-                <span className="checkbox">{icon}</span>
-                <span className="label">{children}</span>
+                <span className={cx('checkbox')}>{icon}</span>
+                <span className={cx('label')}>{children}</span>
             </label>
         );
     }),

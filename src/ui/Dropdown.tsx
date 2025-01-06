@@ -1,6 +1,5 @@
 import Interactive from '@ui/Interactive';
 import Portal from '@ui/Portal';
-import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, {
     cloneElement,
@@ -19,7 +18,7 @@ import React, {
     useState,
 } from 'react';
 import usePreviousValue from '~/hooks/usePreviousValue';
-import './Dropdown.less';
+import cx from './Dropdown.less';
 
 interface DropdownTriggerElementProps {
     onClick: MouseEventHandler;
@@ -103,13 +102,13 @@ export default memo(function Dropdown({
     const dropdown = open ? (
         <Portal>
             <Interactive
-                className="Backdrop"
+                className={cx('Backdrop')}
                 role="presentation"
                 onClick={closeOnOutsideClick ? handleClose : undefined}
                 onKeyDown={closeOnEscape ? handleEscape : undefined}
             >
                 <Interactive
-                    className={classNames('Dropdown', { hover }, className)}
+                    className={cx('Dropdown', { hover }, className)}
                     role="listbox"
                     onClick={stopPropagation}
                     {...props}

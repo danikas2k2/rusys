@@ -18,7 +18,7 @@ import useRemoveDetails from '~/store/details/useRemoveDetails';
 import useRenameDetails from '~/store/details/useRenameDetails';
 import { type Name } from '~/store/types';
 import { getErrorMessage } from '~/utils/errors';
-import './EditBox.less';
+import cx from './EditBox.less';
 
 interface EditBoxProps {
     name?: Name;
@@ -100,12 +100,12 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
     );
 
     return (
-        <Dialog className="EditBox" open onClose={handleClose}>
+        <Dialog className={cx('EditBox')} open onClose={handleClose}>
             <header>
-                <div className="title">
+                <div className={cx('title')}>
                     <Label>{initialName ? 'Update entry' : 'Add new entry'}</Label>
                 </div>
-                <div className="close">
+                <div className={cx('close')}>
                     <IconButton onClick={handleClose}>
                         <CloseIcon />
                     </IconButton>
@@ -123,7 +123,7 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
                     onKeyDown={handleEnter}
                 />
                 {error && error !== PLACEHOLDER && (
-                    <div className="error">
+                    <div className={cx('error')}>
                         <Label>{error}</Label>
                     </div>
                 )}
@@ -153,7 +153,7 @@ export default memo(function EditBox({ name: initialName = '', onClose }: EditBo
                             <DeleteIcon />
                             <Label>Remove</Label>
                         </ButtonWithConfirmation>
-                        <div className="spacer" />
+                        <div className={cx('spacer')} />
                     </>
                 )}
                 <Button variant="outlined" onClick={handleClose}>

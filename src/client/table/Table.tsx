@@ -1,7 +1,6 @@
-import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, { memo, type ReactNode } from 'react';
-import './Table.less';
+import cx from './Table.less';
 
 interface TableProps {
     className?: string;
@@ -11,9 +10,9 @@ interface TableProps {
 
 export default memo(function Table({ className, header, children }: TableProps) {
     return (
-        <div className={classNames('Table', className)}>
-            {header && <div className="Head">{header}</div>}
-            <div className="Body">{children}</div>
+        <div className={cx('Table', className)}>
+            {header && <div className={cx('Head')}>{header}</div>}
+            <div className={cx('Body')}>{children}</div>
         </div>
     );
 }, isEqual);

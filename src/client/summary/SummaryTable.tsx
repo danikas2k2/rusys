@@ -1,5 +1,4 @@
 import Loader from '@ui/Loader';
-import classNames from 'classnames';
 import { isEmpty, isEqual } from 'lodash';
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -15,7 +14,7 @@ import { type Amounts, type Variant } from '~/store/details/types';
 import useVariantComparator from '~/store/details/useVariantComparator';
 import useSummaryLoader from '~/store/summary/useSummaryLoader';
 import { type Name } from '~/store/types';
-import './SummaryTable.less';
+import cx from './SummaryTable.less';
 
 export default memo(function SummaryTable() {
     const [loading, setLoading] = useState(false);
@@ -54,12 +53,12 @@ export default memo(function SummaryTable() {
 
     return (
         <Table
-            className="Table"
+            className={cx('Table')}
             header={
-                <Row className="Row HeadRow">
+                <Row className={cx('Row', 'HeadRow')}>
                     <Cell />
                     {years.map((year) => (
-                        <Cell key={year} className="year">
+                        <Cell key={year} className={cx('year')}>
                             <sup>{year}</sup>/<sub>{year + 1}</sub>
                         </Cell>
                     ))}
@@ -67,16 +66,16 @@ export default memo(function SummaryTable() {
             }
         >
             {filteredEntries.map(([name, values]) => (
-                <Row key={name} className="Row">
-                    <Cell className="name">
+                <Row key={name} className={cx('Row')}>
+                    <Cell className={cx('name')}>
                         <InteractiveName name={name} />
                     </Cell>
                     {years.map((year) => (
-                        <Cell key={year} className={classNames('ValueCell', { empty: isEmpty(values[year]) })}>
+                        <Cell key={year} className={cx('ValueCell', { empty: isEmpty(values[year]) })}>
                             {Object.entries(values[year] ?? {})
                                 .sort(([a], [b]) => cmpVariants(a, b))
                                 .map(([k, v]) => (
-                                    <span className="value" key={k}>
+                                    <span className={cx('value')} key={k}>
                                         {v}
                                         <sub>
                                             <ValueVariant variant={k as Variant} />

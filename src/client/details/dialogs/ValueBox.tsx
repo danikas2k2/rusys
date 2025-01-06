@@ -3,7 +3,6 @@ import ExpandDownIcon from '@icons/ExpandDown.svg';
 import Button, { ButtonGroup } from '@ui/Button';
 import Dialog from '@ui/Dialog';
 import IconButton from '@ui/IconButton';
-import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, {
     createRef,
@@ -21,7 +20,7 @@ import { type Amount, Variant } from '~/store/details/types';
 import useAllVariants from '~/store/details/useAllVariants';
 import useVariantComparator from '~/store/details/useVariantComparator';
 import { type Name, type Year } from '~/store/types';
-import './ValueBox.less';
+import cx from './ValueBox.less';
 
 interface ValueBoxProps {
     name?: Name;
@@ -124,17 +123,17 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
 
     return (
         <Dialog
-            className={classNames('ValueBox', { fullScreen: expanded })}
+            className={cx('ValueBox', { fullScreen: expanded })}
             open
             closeOnOutsideClick
             closeOnEscape
             onClose={handleClose}
         >
             <header>
-                <div className="title">
+                <div className={cx('title')}>
                     <span>{name}</span>
                     <time>{year}</time>
-                    <div className="controls">
+                    <div className={cx('controls')}>
                         <ButtonGroup>
                             <Button
                                 color={removed ? 'neutral' : 'positive'}
@@ -153,7 +152,7 @@ export default memo(function ValueBox({ name, year, value, onClose }: ValueBoxPr
                         </ButtonGroup>
                     </div>
                 </div>
-                <div className="close">
+                <div className={cx('close')}>
                     <IconButton onClick={handleClose}>
                         <CloseIcon />
                     </IconButton>

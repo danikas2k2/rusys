@@ -6,11 +6,10 @@ import Dialog from '@ui/Dialog';
 import useAutoFocus from '@ui/hooks/useAutoFocus';
 import IconButton from '@ui/IconButton';
 import { type InputColor } from '@ui/Input';
-import classNames from 'classnames';
 import { isEqual } from 'lodash';
 import React, { memo, type MouseEvent, type ReactNode, useEffect } from 'react';
 import Label from '~/client/Label';
-import './ConfirmationDialog.less';
+import cx from './ConfirmationDialog.less';
 
 export interface ConfirmationDialogProps {
     header?: ReactNode; // TODO (options?: HeaderOptions}) => ReactNode;
@@ -45,15 +44,15 @@ export default memo(function ConfirmationDialog({
     }, [open, focusRef]);
     return (
         <Dialog
-            className={classNames('ConfirmationDialog', className)}
+            className={cx('ConfirmationDialog', className)}
             open={open}
             closeOnOutsideClick
             closeOnEscape
             onClose={onClose}
         >
             <header>
-                <div className="title">{header || <Label>Are you sure?</Label>}</div>
-                <div className="close">
+                <div className={cx('title')}>{header || <Label>Are you sure?</Label>}</div>
+                <div className={cx('close')}>
                     <IconButton onClick={onClose}>
                         <CloseIcon />
                     </IconButton>
