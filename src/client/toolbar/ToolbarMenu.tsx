@@ -9,7 +9,9 @@ import { useToggle } from '~/client/hooks/useToggle';
 import { Links } from '~/client/Links';
 import { AddMenuItem } from '~/client/toolbar/items/AddMenuItem';
 import { DetailsItem } from '~/client/toolbar/items/DetailsItem';
+import { ExportItem } from '~/client/toolbar/items/ExportItem';
 import { GroupsItem } from '~/client/toolbar/items/GroupsItem';
+import { ImportItem } from '~/client/toolbar/items/ImportItem';
 import { SummaryItem } from '~/client/toolbar/items/SummaryItem';
 import { VariantsItem } from '~/client/toolbar/items/VariantsItem';
 import { ToolbarMenuWrapper } from '~/client/toolbar/ToolbarMenuWrapper';
@@ -48,6 +50,9 @@ export function ToolbarMenu() {
                 <MenuDivider />
                 <GroupsItem current={link === Links.GROUPS} />
                 <VariantsItem current={link === Links.VARIANTS} />
+                <MenuDivider />
+                <ExportItem />
+                <ImportItem />
             </ToolbarMenuWrapper>
             {AddBox && opened && <AddBox onClose={close} />}
         </>

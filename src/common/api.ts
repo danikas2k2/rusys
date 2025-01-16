@@ -7,6 +7,10 @@ export type ApiResult<R = unknown> = { ok: true } | ({ ok: true } & R) | { ok?: 
 export type ApiResponse<R = unknown> = Response<ApiResult<R>>;
 
 export const enum ApiUrl {
+    // Export/Import
+    Export = '/export',
+    Import = '/import',
+
     // Client/User
     ClientId = '/clientId',
     CheckUser = '/checkUser',
