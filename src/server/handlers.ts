@@ -7,7 +7,9 @@ import { handleDelete } from '~/server/app/handleDelete';
 import { handleDeleteGroup } from '~/server/app/handleDeleteGroup';
 import { handleDeleteVariant } from '~/server/app/handleDeleteVariant';
 import { handleDetails } from '~/server/app/handleDetails';
+import { handleExport } from '~/server/app/handleExport';
 import { handleGroups } from '~/server/app/handleGroups';
+import { handleImport } from '~/server/app/handleImport';
 import { handleMove } from '~/server/app/handleMove';
 import { handleRename } from '~/server/app/handleRename';
 import { handleRenameGroup } from '~/server/app/handleRenameGroup';
@@ -23,6 +25,8 @@ import { handleUpdateVariant } from '~/server/app/handleUpdateVariant';
 import { handleVariants } from '~/server/app/handleVariants';
 
 export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiResponse) => Promise<void>> = {
+    [ApiUrl.Export]: handleExport,
+    [ApiUrl.Import]: handleImport,
     [ApiUrl.ClientId]: handleClientId,
     [ApiUrl.CheckUser]: handleCheckUser,
     [ApiUrl.Summary]: handleSummary,
