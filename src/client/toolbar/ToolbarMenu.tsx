@@ -22,8 +22,12 @@ export default memo(function ToolbarMenu() {
 
     const handleExport = useCallback(async (): Promise<void> => {
         const data = await fetch('/export').then((response) => response.json());
-        console.info(data);
-        download(data);
+        if (data.ok) {
+            delete data.ok;
+            download(data);
+        } else {
+            throw new Error('Export failed:' + data.error);
+        }
     }, [navigate]);
 
     const location = useLocation();

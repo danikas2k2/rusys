@@ -1,8 +1,6 @@
 {
-    "extends": "@tsconfig/node18",
-    "include": [
-        "webpack/**/*"
-    ],
+    "extends": "@tsconfig/node20",
+    "include": ["webpack/**/*"],
     "exclude": [],
     "compilerOptions": {
         "baseUrl": ".",
