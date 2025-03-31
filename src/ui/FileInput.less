@@ -1,0 +1,461 @@
+@import (once) "@ui/theme.less";
+
+.File {
+    input {
+        opacity: 0;
+    }
+
+    // TODO add colors for active with hover/focus states
+    &.variant-solid {
+        &.color-neutral {
+            --input-variant-color: var(--color-neutral-solid);
+            --input-variant-bg: var(--color-neutral-solid-bg);
+            --input-variant-active-bg: var(--color-neutral-solid-active-bg);
+            --input-variant-hover-bg: var(--color-neutral-solid-hover-bg);
+            --input-variant-disabled: var(--color-neutral-solid-disabled);
+            --input-variant-disabled-bg: var(--color-neutral-solid-disabled-bg);
+        }
+
+        &.color-primary {
+            --input-variant-color: var(--color-primary-solid);
+            --input-variant-bg: var(--color-primary-solid-bg);
+            --input-variant-active-bg: var(--color-primary-solid-active-bg);
+            --input-variant-hover-bg: var(--color-primary-solid-hover-bg);
+            --input-variant-disabled: var(--color-primary-solid-disabled);
+            --input-variant-disabled-bg: var(--color-primary-solid-disabled-bg);
+        }
+
+        &.color-secondary {
+            --input-variant-color: var(--color-secondary-solid);
+            --input-variant-bg: var(--color-secondary-solid-bg);
+            --input-variant-active-bg: var(--color-secondary-solid-active-bg);
+            --input-variant-hover-bg: var(--color-secondary-solid-hover-bg);
+            --input-variant-disabled: var(--color-secondary-solid-disabled);
+            --input-variant-disabled-bg: var(--color-secondary-solid-disabled-bg);
+        }
+
+        &.color-positive {
+            --input-variant-color: var(--color-positive-solid);
+            --input-variant-bg: var(--color-positive-solid-bg);
+            --input-variant-active-bg: var(--color-positive-solid-active-bg);
+            --input-variant-hover-bg: var(--color-positive-solid-hover-bg);
+            --input-variant-disabled: var(--color-positive-solid-disabled);
+            --input-variant-disabled-bg: var(--color-positive-solid-disabled-bg);
+        }
+
+        &.color-warning {
+            --input-variant-color: var(--color-warning-solid);
+            --input-variant-bg: var(--color-warning-solid-bg);
+            --input-variant-active-bg: var(--color-warning-solid-active-bg);
+            --input-variant-hover-bg: var(--color-warning-solid-hover-bg);
+            --input-variant-disabled: var(--color-warning-solid-disabled);
+            --input-variant-disabled-bg: var(--color-warning-solid-disabled-bg);
+        }
+
+        &.color-negative {
+            --input-variant-color: var(--color-negative-solid);
+            --input-variant-bg: var(--color-negative-solid-bg);
+            --input-variant-active-bg: var(--color-negative-solid-active-bg);
+            --input-variant-hover-bg: var(--color-negative-solid-hover-bg);
+            --input-variant-disabled: var(--color-negative-solid-disabled);
+            --input-variant-disabled-bg: var(--color-negative-solid-disabled-bg);
+        }
+    }
+
+    &.variant-soft {
+        &.color-neutral {
+            --input-variant-color: var(--color-neutral-soft);
+            --input-variant-bg: var(--color-neutral-soft-bg);
+            --input-variant-active-bg: var(--color-neutral-soft-active-bg);
+            --input-variant-hover: var(--color-neutral-soft-hover);
+            --input-variant-hover-bg: var(--color-neutral-soft-hover-bg);
+            --input-variant-disabled: var(--color-neutral-soft-disabled);
+            --input-variant-disabled-bg: var(--color-neutral-soft-disabled-bg);
+        }
+
+        &.color-primary {
+            --input-variant-color: var(--color-primary-soft);
+            --input-variant-bg: var(--color-primary-soft-bg);
+            --input-variant-active-bg: var(--color-primary-soft-active-bg);
+            --input-variant-hover-bg: var(--color-primary-soft-hover-bg);
+            --input-variant-disabled: var(--color-primary-soft-disabled);
+            --input-variant-disabled-bg: var(--color-primary-soft-disabled-bg);
+        }
+
+        &.color-secondary {
+            --input-variant-color: var(--color-secondary-soft);
+            --input-variant-bg: var(--color-secondary-soft-bg);
+            --input-variant-active-bg: var(--color-secondary-soft-active-bg);
+            --input-variant-hover-bg: var(--color-secondary-soft-hover-bg);
+            --input-variant-disabled: var(--color-secondary-soft-disabled);
+            --input-variant-disabled-bg: var(--color-secondary-soft-disabled-bg);
+        }
+
+        &.color-positive {
+            --input-variant-color: var(--color-positive-soft);
+            --input-variant-bg: var(--color-positive-soft-bg);
+            --input-variant-active-bg: var(--color-positive-soft-active-bg);
+            --input-variant-hover-bg: var(--color-positive-soft-hover-bg);
+            --input-variant-disabled: var(--color-positive-soft-disabled);
+            --input-variant-disabled-bg: var(--color-positive-soft-disabled-bg);
+        }
+
+        &.color-warning {
+            --input-variant-color: var(--color-warning-soft);
+            --input-variant-bg: var(--color-warning-soft-bg);
+            --input-variant-active-bg: var(--color-warning-soft-active-bg);
+            --input-variant-hover-bg: var(--color-warning-soft-hover-bg);
+            --input-variant-disabled: var(--color-warning-soft-disabled);
+            --input-variant-disabled-bg: var(--color-warning-soft-disabled-bg);
+        }
+
+        &.color-negative {
+            --input-variant-color: var(--color-negative-soft);
+            --input-variant-bg: var(--color-negative-soft-bg);
+            --input-variant-active-bg: var(--color-negative-soft-active-bg);
+            --input-variant-hover-bg: var(--color-negative-soft-hover-bg);
+            --input-variant-disabled: var(--color-negative-soft-disabled);
+            --input-variant-disabled-bg: var(--color-negative-soft-disabled-bg);
+        }
+    }
+
+    &.variant-outlined {
+        &.color-neutral {
+            --input-variant-color: var(--color-neutral-outlined);
+            --input-variant-border: var(--color-neutral-outlined-border);
+            --input-variant-active-bg: var(--color-neutral-outlined-active-bg);
+            --input-variant-hover: var(--color-neutral-outlined-hover);
+            --input-variant-hover-bg: var(--color-neutral-outlined-hover-bg);
+            --input-variant-hover-border: var(--color-neutral-outlined-hover-border);
+            --input-variant-disabled: var(--color-neutral-outlined-disabled);
+            --input-variant-disabled-border: var(--color-neutral-outlined-disabled-border);
+        }
+
+        &.color-primary {
+            --input-variant-color: var(--color-primary-outlined);
+            --input-variant-border: var(--color-primary-outlined-border);
+            --input-variant-active-bg: var(--color-primary-outlined-active-bg);
+            --input-variant-hover-bg: var(--color-primary-outlined-hover-bg);
+            --input-variant-hover-border: var(--color-primary-outlined-hover-border);
+            --input-variant-disabled: var(--color-primary-outlined-disabled);
+            --input-variant-disabled-border: var(--color-primary-outlined-disabled-border);
+        }
+
+        &.color-secondary {
+            --input-variant-color: var(--color-secondary-outlined);
+            --input-variant-border: var(--color-secondary-outlined-border);
+            --input-variant-active-bg: var(--color-secondary-outlined-active-bg);
+            --input-variant-hover-bg: var(--color-secondary-outlined-hover-bg);
+            --input-variant-hover-border: var(--color-secondary-outlined-hover-border);
+            --input-variant-disabled: var(--color-secondary-outlined-disabled);
+            --input-variant-disabled-border: var(--color-secondary-outlined-disabled-border);
+        }
+
+        &.color-positive {
+            --input-variant-color: var(--color-positive-outlined);
+            --input-variant-border: var(--color-positive-outlined-border);
+            --input-variant-active-bg: var(--color-positive-outlined-active-bg);
+            --input-variant-hover-bg: var(--color-positive-outlined-hover-bg);
+            --input-variant-hover-border: var(--color-positive-outlined-hover-border);
+            --input-variant-disabled: var(--color-positive-outlined-disabled);
+            --input-variant-disabled-border: var(--color-positive-outlined-disabled-border);
+        }
+
+        &.color-warning {
+            --input-variant-color: var(--color-warning-outlined);
+            --input-variant-border: var(--color-warning-outlined-border);
+            --input-variant-active-bg: var(--color-warning-outlined-active-bg);
+            --input-variant-hover-bg: var(--color-warning-outlined-hover-bg);
+            --input-variant-hover-border: var(--color-warning-outlined-hover-border);
+            --input-variant-disabled: var(--color-warning-outlined-disabled);
+            --input-variant-disabled-border: var(--color-warning-outlined-disabled-border);
+        }
+
+        &.color-negative {
+            --input-variant-color: var(--color-negative-outlined);
+            --input-variant-border: var(--color-negative-outlined-border);
+            --input-variant-active-bg: var(--color-negative-outlined-active-bg);
+            --input-variant-hover-bg: var(--color-negative-outlined-hover-bg);
+            --input-variant-hover-border: var(--color-negative-outlined-hover-border);
+            --input-variant-disabled: var(--color-negative-outlined-disabled);
+            --input-variant-disabled-border: var(--color-negative-outlined-disabled-border);
+        }
+    }
+
+    &.variant-plain {
+        &.color-neutral {
+            --input-variant-color: var(--color-neutral-plain);
+            --input-variant-active-bg: var(--color-neutral-plain-active-bg);
+            --input-variant-hover: var(--color-neutral-plain-hover);
+            --input-variant-hover-bg: var(--color-neutral-plain-hover-bg);
+            --input-variant-disabled: var(--color-neutral-plain-disabled);
+        }
+
+        &.color-primary {
+            --input-variant-color: var(--color-primary-plain);
+            --input-variant-active-bg: var(--color-primary-plain-active-bg);
+            --input-variant-hover-bg: var(--color-primary-plain-hover-bg);
+            --input-variant-disabled: var(--color-primary-plain-disabled);
+        }
+
+        &.color-secondary {
+            --input-variant-color: var(--color-secondary-plain);
+            --input-variant-active-bg: var(--color-secondary-plain-active-bg);
+            --input-variant-hover-bg: var(--color-secondary-plain-hover-bg);
+            --input-variant-disabled: var(--color-secondary-plain-disabled);
+        }
+
+        &.color-positive {
+            --input-variant-color: var(--color-positive-plain);
+            --input-variant-active-bg: var(--color-positive-plain-active-bg);
+            --input-variant-hover-bg: var(--color-positive-plain-hover-bg);
+            --input-variant-disabled: var(--color-positive-plain-disabled);
+        }
+
+        &.color-warning {
+            --input-variant-color: var(--color-warning-plain);
+            --input-variant-active-bg: var(--color-warning-plain-active-bg);
+            --input-variant-hover-bg: var(--color-warning-plain-hover-bg);
+            --input-variant-disabled: var(--color-warning-plain-disabled);
+        }
+
+        &.color-negative {
+            --input-variant-color: var(--color-negative-plain);
+            --input-variant-active-bg: var(--color-negative-plain-active-bg);
+            --input-variant-hover-bg: var(--color-negative-plain-hover-bg);
+            --input-variant-disabled: var(--color-negative-plain-disabled);
+        }
+    }
+
+    --input-color: var(--input-variant-color);
+    --input-bg: var(--input-variant-bg);
+    --input-border: var(--input-variant-border);
+    --input-active: var(--input-variant-active, var(--input-variant-color));
+    --input-active-bg: var(--input-variant-active-bg, var(--input-variant-bg));
+    --input-active-border: var(--input-variant-active-border, var(--input-variant-border));
+    --input-hover: var(--input-variant-hover, var(--input-variant-color));
+    --input-hover-bg: var(--input-variant-hover-bg, var(--input-variant-bg));
+    --input-hover-border: var(--input-variant-hover-border, var(--input-variant-border));
+    --input-disabled: var(--input-variant-disabled, var(--input-variant-color));
+    --input-disabled-bg: var(--input-variant-disabled-bg, var(--input-variant-bg));
+    --input-disabled-border: var(--input-variant-disabled-border, var(--input-variant-border));
+
+    &.state-hover,
+    &:hover,
+    &:has(:hover) {
+        --input-color: var(--input-hover);
+        --input-bg: var(--input-hover-bg);
+        --input-border: var(--input-hover-border);
+    }
+
+    // TODO add outline colors
+    &.state-focus,
+    &:focus,
+    &:has(:focus) {
+        --input-color: var(--input-hover);
+        --input-bg: var(--input-hover-bg);
+        --input-border: var(--input-hover-border);
+    }
+
+    &.state-active,
+    &:active,
+    &:has(:active) {
+        --input-color: var(--input-active);
+        --input-bg: var(--input-active-bg);
+        --input-border: var(--input-active-border);
+    }
+
+    &.state-disabled,
+    &:disabled,
+    &:has(:disabled) {
+        --input-color: var(--input-disabled);
+        --input-bg: var(--input-disabled-bg);
+        --input-border: var(--input-disabled-border);
+    }
+
+    &.size-small {
+        --input-icon-size: var(--font-size-md);
+        --input-font-size: var(--font-size-sm);
+        --input-min-size: 2rem;
+        --input-padding-block: 0.125rem;
+        --input-padding-inline: 0.75rem;
+        --input-radius-size: var(--radius-sm);
+    }
+
+    &.size-medium {
+        --input-icon-size: var(--font-size-xl);
+        --input-font-size: var(--font-size-md);
+        --input-min-size: 2.5rem;
+        --input-padding-block: 0.25rem;
+        --input-padding-inline: 1rem;
+        --input-radius-size: var(--radius-md);
+    }
+
+    &.size-large {
+        --input-icon-size: var(--font-size-xl2);
+        --input-font-size: var(--font-size-lg);
+        --input-min-size: 3rem;
+        --input-padding-block: 0.375rem;
+        --input-padding-inline: 1.5rem;
+        --input-radius-size: var(--radius-lg);
+    }
+
+    &.spacing-none {
+        --input-min-size: calc(var(--input-icon-size) + 2px);
+        --input-spacing: 0;
+        --input-radius-size: var(--radius-xs);
+    }
+
+    &.spacing-half {
+        --input-spacing: 0.75;
+    }
+
+    &.spacing-small {
+        --input-spacing: 1;
+    }
+
+    &.spacing-medium {
+        --input-spacing: 1.25;
+    }
+
+    &.spacing-large {
+        --input-spacing: 1.5;
+    }
+
+    position: relative;
+    display: inline-flex;
+    flex-flow: column nowrap;
+    align-items: stretch;
+    justify-content: center;
+
+    .content {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: stretch;
+        justify-content: space-between;
+    }
+
+    color: var(--input-color);
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--input-radius-size);
+
+    &.full-width {
+        width: 100%;
+    }
+
+    &.full-height {
+        height: 100%;
+    }
+
+    &.with-label {
+        margin-block-start: 2rem;
+    }
+
+    --input-label-color: color-mix(in srgb, var(--input-color) 50%, transparent);
+    --input-placeholder-color: var(--input-label-color);
+
+    &.placeholder-color-neutral {
+        --input-placeholder-color: var(--color-neutral-plain);
+    }
+
+    &.placeholder-color-primary {
+        --input-placeholder-color: var(--color-primary-plain);
+    }
+
+    &.placeholder-color-secondary {
+        --input-placeholder-color: var(--color-secondary-plain);
+    }
+
+    &.placeholder-color-positive {
+        --input-placeholder-color: var(--color-positive-plain);
+    }
+
+    &.placeholder-color-warning {
+        --input-placeholder-color: var(--color-warning-plain);
+    }
+
+    &.placeholder-color-negative {
+        --input-placeholder-color: var(--color-negative-plain);
+    }
+
+    label {
+        font-size: 90%;
+        position: absolute;
+        inset: -1.5rem auto auto 0.125rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--input-label-color);
+        z-index: 1;
+    }
+
+    --min-width: calc(var(--input-min-size) * var(--input-spacing, 1));
+    --min-height: calc(var(--input-min-size) * var(--input-spacing, 1));
+    --padding-block: 0;
+    --padding-inline: calc(var(--input-padding-inline) * var(--input-spacing, 1));
+
+    input {
+        font-family: var(--font-family-body);
+        font-weight: var(--font-weight-sm);
+        font-size: var(--input-font-size);
+        min-width: var(--min-width);
+        min-height: var(--min-height);
+        padding-block: var(--padding-block);
+        padding-inline: var(--padding-inline);
+        line-height: 1;
+        text-decoration: none;
+        color: inherit;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        width: 100%;
+        text-overflow: ellipsis;
+
+        &::placeholder {
+            color: var(--input-placeholder-color);
+        }
+    }
+
+    + .error {
+        font-size: 90%;
+        color: var(--color-negative-solid-bg);
+        padding: 0.25rem 1rem 0.25rem 0.5rem;
+        margin-block-start: -0.125rem;
+    }
+
+    .start-decorator,
+    .end-decorator {
+        display: flex;
+        align-items: center; // stretch
+        flex-shrink: 0;
+        flex-flow: row nowrap;
+
+        &.type-text {
+            padding-inline: calc(var(--input-padding-inline) * var(--input-spacing, 1));
+        }
+    }
+
+    .start-decorator {
+        justify-content: flex-start;
+    }
+
+    .end-decorator {
+        justify-content: flex-end;
+    }
+
+    &:has(.start-decorator.type-text) input {
+        padding-inline-start: 0;
+    }
+
+    &:has(.end-decorator.type-text) input {
+        padding-inline-end: 0;
+    }
+
+    .clear {
+        opacity: 0.25;
+        width: 2.5rem;
+        padding: 0 0.25rem;
+        margin-inline-start: -2.5rem;
+    }
+}
