@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
+import { useImport } from '~/state/common/useImport';
 
 export function useImportHandler() {
-    return useCallback(() => {
-        console.log('Importing...');
-    }, []);
+    const handle = useImport();
+    return useCallback((data: FormData) => handle(data), [handle]);
 }

@@ -28,6 +28,11 @@ export function useApiRequest(): <R, D = object | string>(url: string, data?: D,
             method: method ?? 'POST',
             responseType: 'json',
             data,
+            ...(data instanceof FormData
+                ? {
+                      headers: { 'Content-Type': 'multipart/form-data' },
+                  }
+                : {}),
         });
         return response.data;
     }, []);

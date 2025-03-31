@@ -1,0 +1,39 @@
+@import (once) "@ui/theme.less";
+
+.ImportBox {
+    header {
+        flex-wrap: nowrap;
+
+        .title {
+            flex: 1 0 auto;
+            padding: 0 1.75rem;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: center;
+
+            time {
+                font-size: var(--font-size-xl3);
+                font-weight: var(--font-weight-lg);
+            }
+        }
+
+        .close {
+            flex: 0;
+            width: 0;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: flex-end;
+        }
+    }
+
+    .error {
+        color: var(--color-negative-outlined);
+        font-size: var(--font-size-sm);
+        margin: 0.2rem 0.5rem 0;
+    }
+
+    .spacer {
+        width: 1rem;
+    }
+}
