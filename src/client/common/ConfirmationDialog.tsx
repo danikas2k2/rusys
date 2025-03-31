@@ -1,6 +1,6 @@
-import CancelIcon from '@assets/Cancel.svg';
-import CloseIcon from '@assets/Close.svg';
-import DoneIcon from '@assets/Done.svg';
+import CancelIcon from '@assets/cancel.svg';
+import CloseIcon from '@assets/close.svg';
+import DoneIcon from '@assets/done.svg';
 import { Button, type ButtonProps, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';

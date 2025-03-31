@@ -16,6 +16,7 @@ import { SummaryItem } from '~/client/toolbar/items/SummaryItem';
 import { VariantsItem } from '~/client/toolbar/items/VariantsItem';
 import { ToolbarMenuWrapper } from '~/client/toolbar/ToolbarMenuWrapper';
 import { VariantBox } from '~/client/variants/dialogs/VariantBox';
+import { ImportBox } from '~/client/common/dialogs/ImportBox';
 
 const AddBoxMap: Partial<Record<Links, FC<WithOnClose>>> = {
     [Links.DETAILS]: DetailsBox,
@@ -25,16 +26,22 @@ const AddBoxMap: Partial<Record<Links, FC<WithOnClose>>> = {
 
 export function ToolbarMenu() {
     const ref = useRef<DropdownRef>(null);
+    const hideMenu = useCallback(() => ref.current?.close(), []);
 
-    const [opened, , open, close] = useToggle();
+    const [addBoxOpened, , openAddBox, closeAddBox] = useToggle();
     const location = useLocation();
     const link = location.pathname as Links;
     const AddBox = AddBoxMap[link];
-
     const onAddClick = useCallback(() => {
-        ref.current?.close();
-        open();
-    }, [open]);
+        hideMenu();
+        openAddBox();
+    }, [hideMenu, openAddBox]);
+
+    const [importOpened, , openImport, closeImport] = useToggle(true);
+    const onImportClick = useCallback(() => {
+        hideMenu();
+        openImport();
+    }, [hideMenu, openImport]);
 
     return (
         <>
@@ -51,10 +58,11 @@ export function ToolbarMenu() {
                 <GroupsItem current={link === Links.GROUPS} />
                 <VariantsItem current={link === Links.VARIANTS} />
                 <MenuDivider />
-                <ExportItem />
-                <ImportItem />
+                <ExportItem onClick={hideMenu} />
+                <ImportItem onClick={onImportClick} />
             </ToolbarMenuWrapper>
-            {AddBox && opened && <AddBox onClose={close} />}
+            {AddBox && addBoxOpened && <AddBox onClose={closeAddBox} />}
+            {importOpened && <ImportBox onClose={closeImport} />}
         </>
     );
 }

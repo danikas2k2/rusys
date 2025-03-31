@@ -1,4 +1,4 @@
-import LogoutIcon from '@assets/Logout.svg';
+import LogoutIcon from '@assets/logout.svg';
 import { googleLogout } from '@react-oauth/google';
 import { Button, type ButtonProps, IconButton } from '@ui/Button';
 import React, { useCallback } from 'react';

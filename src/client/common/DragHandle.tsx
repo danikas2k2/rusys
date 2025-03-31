@@ -1,4 +1,4 @@
-import DragHandleIcon from '@assets/DragHandle.svg';
+import DragHandleIcon from '@assets/drag-handle.svg';
 import React, { type HTMLAttributes, type RefAttributes } from 'react';
 import cx from './DragHandle.less';
 

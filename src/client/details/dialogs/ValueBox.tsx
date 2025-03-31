@@ -1,7 +1,7 @@
-import CancelIcon from '@assets/Cancel.svg';
-import CloseIcon from '@assets/Close.svg';
-import DoneIcon from '@assets/Done.svg';
-import ExpandDownIcon from '@assets/ExpandDown.svg';
+import CancelIcon from '@assets/cancel.svg';
+import CloseIcon from '@assets/close.svg';
+import DoneIcon from '@assets/done.svg';
+import ExpandDownIcon from '@assets/expand-down.svg';
 import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import React, { type SyntheticEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
