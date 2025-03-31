@@ -59,7 +59,7 @@ export default async function (env?: { prod?: boolean }, argv?: { mode?: string 
         externals: getExternals(isDevMode),
         resolve: getResolve(),
         optimization: getOptimization(isDevMode),
-        performance: getPerformance(),
+        performance: getPerformance(isDevMode),
         devServer: {
             static: {
                 directory: path.join(context, 'public'),
