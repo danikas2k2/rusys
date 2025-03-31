@@ -1,5 +1,5 @@
-import AddIcon from '@assets/Add.svg';
-import RemoveIcon from '@assets/Remove.svg';
+import AddIcon from '@assets/add.svg';
+import RemoveIcon from '@assets/remove.svg';
 import { Button, ButtonGroup } from '@ui/Button';
 import { useFocusRef } from '@ui/hooks/useFocusRef';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';

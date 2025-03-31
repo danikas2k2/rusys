@@ -1,4 +1,4 @@
-import MenuIcon from '@assets/Menu.svg';
+import MenuIcon from '@assets/menu.svg';
 import { IconButton } from '@ui/Button';
 import { ColorSchemeToggle } from '@ui/ColorSchemeToggle';
 import type { DropdownRef } from '@ui/Dropdown';

@@ -1,5 +1,5 @@
-import DeleteIcon from '@assets/Delete.svg';
-import EditIcon from '@assets/Edit.svg';
+import DeleteIcon from '@assets/delete.svg';
+import EditIcon from '@assets/edit.svg';
 import { Button, ButtonGroup } from '@ui/Button';
 import { uniqueId } from '@ui/utils/uniqueId';
 import classNames from 'classnames';

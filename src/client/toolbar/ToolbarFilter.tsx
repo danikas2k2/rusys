@@ -1,4 +1,4 @@
-import CancelIcon from '@assets/Cancel.svg';
+import CancelIcon from '@assets/cancel.svg';
 import { Button } from '@ui/Button';
 import { Input } from '@ui/Input';
 import React, { type FormEvent, useCallback } from 'react';

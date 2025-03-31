@@ -1,4 +1,4 @@
-import ExpandDownIcon from '@assets/ExpandDown.svg';
+import ExpandDownIcon from '@assets/expand-down.svg';
 import { Button } from '@ui/Button';
 import { Dropdown, type DropdownRef } from '@ui/Dropdown';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';

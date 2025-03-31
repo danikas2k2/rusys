@@ -1,4 +1,4 @@
-import CategoryIcon from '@assets/Category.svg';
+import CategoryIcon from '@assets/category.svg';
 import React from 'react';
 import { Label } from '~/client/common/Label';
 import { Links } from '~/client/Links';

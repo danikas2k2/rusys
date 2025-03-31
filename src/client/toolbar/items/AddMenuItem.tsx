@@ -1,4 +1,4 @@
-import AddCircleIcon from '@assets/AddCircle.svg';
+import AddCircleIcon from '@assets/add-circle.svg';
 import React from 'react';
 import { Label } from '~/client/common/Label';
 import { ToolbarMenuItem } from '~/client/toolbar/ToolbarMenuItem';

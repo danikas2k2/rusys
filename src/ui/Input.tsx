@@ -1,4 +1,4 @@
-import CancelIcon from '@assets/Cancel.svg';
+import CancelIcon from '@assets/cancel.svg';
 import { IconButton } from '@ui/Button';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { uniqueId } from '@ui/utils/uniqueId';

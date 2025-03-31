@@ -1,5 +1,5 @@
-import CheckIcon from '@assets/Check.svg';
-import CheckIndeterminateIcon from '@assets/CheckIndeterminate.svg';
+import CheckIcon from '@assets/check.svg';
+import CheckIndeterminateIcon from '@assets/check-indeterminate.svg';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { type CommonInputProps, type InputColor, type InputSize, type InputVariant } from '@ui/Input';
 import { uniqueId } from '@ui/utils/uniqueId';

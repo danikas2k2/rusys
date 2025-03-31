@@ -1,13 +1,11 @@
-import DownloadIcon from '@assets/Download.svg';
+import DownloadIcon from '@assets/download.svg';
 import React from 'react';
-import { useImportHandler } from '~/client/common/hooks/useImportHandler';
 import { Label } from '~/client/common/Label';
 import { ToolbarMenuItem } from '~/client/toolbar/ToolbarMenuItem';
 
-export function ImportItem() {
-    const handleImport = useImportHandler();
+export function ImportItem({ onClick }: { onClick: () => void }) {
     return (
-        <ToolbarMenuItem icon={<DownloadIcon />} onClick={handleImport}>
+        <ToolbarMenuItem icon={<DownloadIcon />} onClick={onClick}>
             <Label>Import</Label>
         </ToolbarMenuItem>
     );
