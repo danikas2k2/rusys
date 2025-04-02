@@ -158,7 +158,7 @@ export function FileInput({
 
     const [files, setFiles] = useState<File[]>([]);
     useEffect(() => {
-        setFiles([...(ref.current.files ?? [])]);
+        setFiles([...(ref.current?.files ?? [])]);
     }, [ref]);
 
     const handleInput = useCallback(
