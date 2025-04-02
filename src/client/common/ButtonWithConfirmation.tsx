@@ -14,7 +14,7 @@ interface ButtonWithConfirmationProps extends Omit<ButtonProps, 'title' | 'child
     onClose?: () => void;
 }
 
-export function ButtonWithConfirmation({
+export async function ButtonWithConfirmation({
     dialogHeader,
     confirmButton,
     confirmProps,
@@ -46,9 +46,9 @@ export function ButtonWithConfirmation({
         [handleClose, onClick]
     );
 
-    const button =
+    const button: typeof confirmButton =
         typeof children === 'function' ? (
-            children?.({ ...props, onClick: handleOpen })
+            await children?.({ ...props, onClick: handleOpen })
         ) : children ? (
             <Button onClick={handleOpen} {...props}>
                 {children}

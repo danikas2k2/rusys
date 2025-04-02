@@ -5,14 +5,14 @@ import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { FileInput } from '@ui/FileInput';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-import { isEmpty } from 'lodash';
+// import { isEmpty } from 'lodash';
 import React, { type FormEvent, useActionState, useCallback, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useImportHandler } from '~/client/common/hooks/useImportHandler';
 import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
-import { getErrorMessage } from '~/common/utils/errors';
+// import { getErrorMessage } from '~/common/utils/errors';
 import cx from './ImportBox.less';
 
 interface ImportBoxProps extends WithOnClose {
@@ -20,8 +20,8 @@ interface ImportBoxProps extends WithOnClose {
 }
 
 const PLACEHOLDER = 'Please choose a file';
-const ERROR_GROUP_MISSING = 'Group is required';
-const ERROR_FILE_MISSING = 'File is required';
+// const ERROR_GROUP_MISSING = 'Group is required';
+// const ERROR_FILE_MISSING = 'File is required';
 
 interface ImportFooterProps {
     onCancel?: () => void;
@@ -50,7 +50,7 @@ function ImportFooter({ onCancel, onSubmit }: ImportFooterProps) {
 }
 
 export function ImportBox({ onClose }: ImportBoxProps) {
-    const [updating, setUpdating] = useState(false);
+    // const [updating, setUpdating] = useState(false);
     const [file, setFile] = useState<string>();
     const [errors, setErrors] = useState<Record<string, string>>();
 
@@ -61,13 +61,17 @@ export function ImportBox({ onClose }: ImportBoxProps) {
         return newState;
     }, {});
 
+    console.info({
+        state,
+    });
+
     useEffect(() => {
         setErrors(undefined);
     }, [file]);
 
     const fileRef = useAutoFocus<HTMLInputElement>();
 
-    const handleSubmit = useCallback(async (): Promise<void> => {
+    /*const handleSubmit = useCallback(async (): Promise<void> => {
         const newErrors: Record<string, string> = {};
         if (!file) {
             newErrors.variant = ERROR_FILE_MISSING;
@@ -87,7 +91,7 @@ export function ImportBox({ onClose }: ImportBoxProps) {
         } finally {
             setUpdating(false);
         }
-    }, [fileRef, file, handleImport, onClose]);
+    }, [fileRef, file, handleImport, onClose]);*/
 
     const handleClose = useCallback((): void => onClose(), [onClose]);
 

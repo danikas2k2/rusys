@@ -4,7 +4,7 @@ const $array = <T, R>(value: T, path: _.PropertyPath, defaultValue: R[] = []): R
     ...(_.get(value, path) ?? defaultValue),
 ];
 
-const $paths = (s: unknown | unknown[]): _.PropertyPath[] => (Array.isArray(s) ? s : [s]);
+const $paths = (s: unknown | unknown[]): _.PropertyPath[] => (Array.isArray(s) ? s : [s as _.PropertyName]);
 
 type PathObject = Record<string, unknown>;
 type SetOperation = { $set: PathObject };
