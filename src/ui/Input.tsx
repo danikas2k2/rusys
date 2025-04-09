@@ -1,6 +1,8 @@
 import CancelIcon from '@assets/cancel.svg';
 import { IconButton } from '@ui/Button';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
+import { getDecoratorType } from '@ui/utils/getDecoratorType';
+import { setCaretPosition } from '@ui/utils/setCaretPosition';
 import { uniqueId } from '@ui/utils/uniqueId';
 import React, {
     type FormEvent,
@@ -82,11 +84,6 @@ export function Input({
 }: InputProps) {
     const ref = useForwardedRef(forwardedRef);
     const controlled = value != null;
-
-    function setCaretPosition(element: HTMLInputElement, position: number): void {
-        element.focus();
-        element.setSelectionRange?.(position, position);
-    }
 
     const handleKey = useCallback(
         (e: KeyboardEvent<HTMLInputElement>) => {
@@ -222,12 +219,4 @@ export function Input({
             )}
         </>
     );
-}
-
-function getDecoratorType(decorator: React.ReactNode): 'text' | 'node' {
-    const type = typeof decorator;
-    if (type === 'string' || type === 'number' || type === 'boolean') {
-        return 'text';
-    }
-    return 'node';
 }
