@@ -1,5 +1,5 @@
-import { Button, type ButtonProps } from '@ui/Button';
-import { type ReactNodeOrFunction } from '@ui/utils/renderElement';
+import { type ButtonProps } from '@ui/Button';
+import { type ReactNodeOrFunction, renderElement } from '@ui/utils/renderElement';
 import React, { type MouseEvent, type ReactNode, useCallback, useState } from 'react';
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
 
@@ -23,7 +23,7 @@ export function ButtonWithConfirmation({
     onClick,
     onOpen,
     onClose,
-    children: Children,
+    children,
     ...props
 }: ButtonWithConfirmationProps) {
     const [open, setOpen] = useState(false);
@@ -46,15 +46,7 @@ export function ButtonWithConfirmation({
         [handleClose, onClick]
     );
 
-    const button =
-        typeof Children === 'function' ? (
-            <Children {...props} onClick={handleOpen} />
-        ) : (
-            <Button onClick={handleOpen} {...props}>
-                {Children}
-            </Button>
-        );
-
+    const button = renderElement(children, { onClick: handleOpen }, props);
     return (
         <>
             {button}
