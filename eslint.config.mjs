@@ -82,7 +82,7 @@ export default [
                 },
             ],
             '@typescript-eslint/no-angle-bracket-type-assertion': 'off',
-            '@typescript-eslint/no-unused-expressions': 'error',
+            '@typescript-eslint/no-unused-expressions': ['error', {}],
             '@typescript-eslint/no-unused-vars': [
                 'error',
                 {

@@ -8,7 +8,7 @@ import React, {
     type MouseEventHandler,
     type ReactElement,
     type ReactNode,
-    RefAttributes,
+    type RefAttributes,
     type RefObject,
     type SyntheticEvent,
     useCallback,

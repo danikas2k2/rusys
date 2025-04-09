@@ -91,9 +91,7 @@ function FileDisplay({ file }: { file: File }): JSX.Element {
     );
 }
 
-export interface FileInputProps extends Omit<InputProps, 'mode' | 'value'> {
-    // export interface FileInputProps extends InputProps {
-}
+export type FileInputProps = Omit<InputProps, 'mode' | 'value'>;
 
 // TODO add translation context and translate clear button label
 export function FileInput({

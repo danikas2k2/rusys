@@ -12,6 +12,18 @@ export default {
         {
             files: ['*.less', '**/*.less'],
             customSyntax: 'postcss-less',
+            rules: {
+                'at-rule-prelude-no-invalid': [true, { ignoreAtRules: ['import'] }],
+                'declaration-property-value-no-unknown': [
+                    true,
+                    {
+                        ignoreValues: {
+                            inset: /constant\(safe-area-inset-(top|bottom|left|right)\)/,
+                            padding: /constant\(safe-area-inset-(top|bottom|left|right)\)/,
+                        },
+                    },
+                ],
+            },
         },
         {
             files: ['*.htm', '**/*.htm', '*.html', '**/*.html'],
