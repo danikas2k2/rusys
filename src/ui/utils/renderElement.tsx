@@ -15,9 +15,10 @@ export function renderElement<P extends HTMLAttributes<T> & RefAttributes<T>, T 
     element: ReactNodeOrFunction<P, T>,
     props: P & RefAttributes<T> = {} as P,
     defaultProps: P & RefAttributes<T> = {} as P
-): ReactNode | Promise<ReactNode> {
+): ReactNode {
     if (typeof element === 'function') {
-        return element({ ...defaultProps, ...props });
+        const Element = element as FunctionComponent<P>;
+        return <Element {...defaultProps} {...props} />;
     }
     if (isValidElement(element)) {
         return cloneElement(element, { ...defaultProps, ...(element.props as HTMLAttributes<T>), ...props });
