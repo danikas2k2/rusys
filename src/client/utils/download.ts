@@ -1,4 +1,4 @@
-export function download(data: any, filename = `data-${new Date().toISOString().split('T').shift()}.json`): void {
+export function download(data: unknown, filename = `data-${new Date().toISOString().split('T').shift()}.json`): void {
     const a = document.createElement('a');
     const objectURL = URL.createObjectURL(new Blob([JSON.stringify(data)]));
     a.href = objectURL;
