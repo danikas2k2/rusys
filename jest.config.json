@@ -3,6 +3,7 @@
     "moduleFileExtensions": ["js", "jsx", "ts", "tsx"],
     "moduleNameMapper": {
         "^@assets/(.*)$": "<rootDir>/src/assets/$1",
+        "^@tests/(.*)$": "<rootDir>/src/tests/$1",
         "^@ui/(.*)$": "<rootDir>/src/ui/$1",
         "^~/(.*)$": "<rootDir>/src/$1",
         "\\.(c|le)ss$": "<rootDir>/jest/__mocks__/styleMock.js"

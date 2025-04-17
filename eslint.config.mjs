@@ -11,39 +11,44 @@ import hooks from 'eslint-plugin-react-hooks';
 
 export default [
     {
-        plugins: { react },
-        rules: react.configs['jsx-runtime'].rules,
+        ...react.configs.flat['recommended'],
         settings: {
             react: {
                 version: 'detect', // You can add this if you get a warning about the React version when you lint
             },
         },
     },
+    a11y.flatConfigs['recommended'],
+    hooks.configs['recommended-latest'],
     {
-        plugins: { 'jsx-a11y': a11y },
-        rules: a11y.configs.recommended.rules,
-    },
-    {
-        plugins: { 'react-hooks': hooks },
-        rules: hooks.configs.recommended.rules,
-    },
-    {
-        plugins: { jest },
-        rules: jest.configs.recommended.rules,
+        files: ['**/*.test.{ts,tsx}', '**/__mocks__/*.{ts,tsx}'],
+        ...jest.configs['flat/all'],
+        rules: {
+            ...jest.configs['flat/all'].rules,
+            'jest/no-hooks': 'off',
+            'jest/no-untyped-mock-factory': 'off',
+            'jest/prefer-expect-assertions': 'off',
+            'jest/prefer-importing-jest-globals': 'off',
+            'jest/max-expects': [
+                'error',
+                {
+                    max: 9,
+                },
+            ],
+            'jest/require-hook': [
+                'error',
+                {
+                    allowedFunctionCalls: ['mockEnv', 'mockWindow'],
+                },
+            ],
+        },
     },
     {
         plugins: { prettier },
         ...prettierConfig,
     },
     {
-        ignores: [
-            'coverage/*',
-            'data/*',
-            'dist/*',
-            'docker/*',
-            'node_modules/*',
-            'public/*',
-        ],
+        ignores: ['coverage/*', 'data/*', 'dist/*', 'docker/*', 'node_modules/*', 'public/*'],
     },
     {
         files: ['**/*.{ts,tsx}'],
@@ -69,7 +74,6 @@ export default [
             ...ts.configs['eslint-recommended'].rules,
             ...ts.configs['recommended'].rules,
             // 'ts/return-await': 2,
-
             '@typescript-eslint/explicit-function-return-type': [
                 'warn',
                 {
@@ -95,14 +99,38 @@ export default [
                     destructuredArrayIgnorePattern: '^_',
                 },
             ],
-            '@typescript-eslint/consistent-type-assertions': [
-                'error',
-                { assertionStyle: 'as' },
-            ],
+            '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'as' }],
             'comma-dangle': ['error', 'only-multiline'],
             'import/no-nodejs-modules': 'off',
             'import/no-unresolved': 'off',
             'import/prefer-default-export': 'off',
+            /*'import/order': [
+                'error',
+                {
+                    groups: [
+                        ['builtin', 'external'], // <- External imports
+                        'internal', // <- Absolute imports
+                        ['sibling', 'parent'], // <- Relative imports, the sibling and parent types they can be mingled together
+                        'index', // <- index imports
+                        'unknown', // <- unknown
+                        {
+                            pattern: '@testing-library/react',
+                            group: 'internal',
+                            position: 'before',
+                        },
+                        {
+                            pattern: '@tests/!**',
+                            group: 'internal',
+                            position: 'before',
+                        },
+                    ],
+                    'newlines-between': 'always',
+                    alphabetize: {
+                        order: 'asc',
+                        caseInsensitive: true,
+                    },
+                },
+            ],*/
             'no-console': 'warn',
             'no-unused-expressions': 'error',
             'no-unused-labels': 'error',
@@ -119,12 +147,6 @@ export default [
                 },
             ],
             'prettier/prettier': 'error',
-            'jest/no-disabled-tests': 'warn',
-            'jest/no-focused-tests': 'error',
-            'jest/no-identical-title': 'error',
-            'jest/prefer-to-have-length': 'warn',
-            'jest/valid-expect': 'error',
-            // 'react-hooks/exhaustive-deps': 'off', // disabled because of errors
             'react-hooks/exhaustive-deps': 'error',
             'react/prop-types': 0,
             '@typescript-eslint/consistent-type-imports': [
@@ -144,6 +166,23 @@ export default [
             'no-redeclare': 'off',
             '@typescript-eslint/no-redeclare': 'error',
             'block-scoped-var': 'error',
+            'sort-imports': [
+                'error',
+                {
+                    allowSeparatedGroups: true,
+                    ignoreCase: true,
+                    ignoreDeclarationSort: true,
+                    ignoreMemberSort: false,
+                    memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
+                },
+            ],
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    project: './tsconfig.json',
+                },
+            },
         },
     },
     {

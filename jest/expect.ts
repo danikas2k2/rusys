@@ -15,6 +15,11 @@ declare global {
 
             toBeSelected(): R;
         }
+
+        interface Expect {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            event(type: Event['type'], props?: object): any;
+        }
     }
 }
 
@@ -83,6 +88,11 @@ expect.extend({
                 ].join('\n'),
         };
     },
+});
+
+Object.defineProperty(expect, 'event', {
+    writable: true,
+    value: (type: Event['type'], props?: object) => expect.objectContaining({ type, ...props }),
 });
 
 /*
