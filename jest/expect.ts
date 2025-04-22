@@ -1,4 +1,5 @@
 import { matcherHint, printDiffOrStringify, printReceived } from 'jest-matcher-utils';
+
 // import { toHaveAttribute } from '@testing-library/jest-dom/matchers';
 // import { aria, roles } from 'aria-query';
 
@@ -19,6 +20,15 @@ declare global {
         interface Expect {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             event(type: Event['type'], props?: object): any;
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-function-type
+            element<P = object>(type: Function, props?: Partial<P>): any;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            element<P = object>(type: string, props?: Partial<P>): any;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            element<P = object>(props: Partial<P>): any;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            element(): any;
         }
     }
 }
@@ -90,9 +100,41 @@ expect.extend({
     },
 });
 
-Object.defineProperty(expect, 'event', {
-    writable: true,
-    value: (type: Event['type'], props?: object) => expect.objectContaining({ type, ...props }),
+Object.defineProperties(expect, {
+    event: {
+        writable: true,
+        value: (type: Event['type'], props?: object) => expect.objectContaining({ type, ...props }),
+    },
+    element: {
+        writable: true,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+        value: (type?: string | Function | object, props?: object) => {
+            const element = {
+                $$typeof: expect.any(Symbol),
+            };
+
+            switch (typeof type) {
+                case 'undefined':
+                    return expect.objectContaining(element);
+
+                case 'function':
+                case 'string':
+                    const typedElement = {
+                        ...element,
+                        type,
+                    };
+                    return props
+                        ? expect.objectContaining({
+                              ...typedElement,
+                              props: expect.objectContaining({ ...props }),
+                          })
+                        : expect.objectContaining(typedElement);
+
+                default:
+                    return expect.objectContaining({ ...element, props: expect.objectContaining({ ...type }) });
+            }
+        },
+    },
 });
 
 /*
