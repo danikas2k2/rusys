@@ -1,6 +1,6 @@
-import type { RenderHookOptions } from '@testing-library/react';
 import React, { type PropsWithChildren } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { type RenderHookOptions } from '@testing-library/react';
 
 export function withRouter<P>(initialEntries?: string[]): RenderHookOptions<P> {
     return {

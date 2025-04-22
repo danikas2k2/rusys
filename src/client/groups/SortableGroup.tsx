@@ -1,11 +1,11 @@
 import React, { useCallback, useRef } from 'react';
 import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
-import { type ActiveRow, useActiveRow } from '~/client/common/ActiveRowContext';
+import { useActiveRow, type ActiveRow } from '~/client/common/ActiveRowContext';
 import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
 import { SlideControls } from '~/client/common/SlideControls';
 import { Cell } from '~/client/table/Cell';
 import { SortableRow } from '~/client/table/SortableRow';
-import type { Group } from '~/common/types';
+import { type Group } from '~/common/types';
 import { useDeleteGroup } from '~/state/groups/useDeleteGroup';
 import cx from './SortableGroup.less';
 

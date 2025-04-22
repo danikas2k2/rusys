@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { withMany } from '~/tests/withMany';
-import { withReduxState } from '~/tests/withReduxState';
-import { withRouter } from '~/tests/withRouter';
+import { render, screen } from '@testing-library/react';
+import { withMany } from '@tests/withMany';
+import { withReduxState } from '@tests/withReduxState';
+import { withRouter } from '@tests/withRouter';
 import { VariantsPage } from './VariantsPage';
 
 jest.mock('~/client/variants/VariantsTable', () => ({
@@ -15,14 +15,16 @@ jest.mock('~/client/toolbar/ToolbarGroupFilter', () => ({
     ToolbarGroupFilter: () => <div>ToolbarGroupFilter</div>,
 }));
 
-describe('VariantsPage', () => {
+describe('<VariantsPage>', () => {
     it('renders variant table', async () => {
         render(<VariantsPage />, withMany(withRouter(), withReduxState()));
+
         expect(screen.getByText('VariantsTable')).toBeInTheDocument();
     });
 
     it('renders toolbar filters', async () => {
         render(<VariantsPage />, withMany(withRouter(), withReduxState()));
+
         expect(screen.getByText('ToolbarFilter')).toBeInTheDocument();
         expect(screen.getByText('ToolbarGroupFilter')).toBeInTheDocument();
     });

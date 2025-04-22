@@ -1,11 +1,11 @@
-import { isEqual } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { getChangedIndexes } from '~/client/utils/getChangedIndexes';
 import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
-import { type ActiveVariant, SortableVariant } from '~/client/variants/SortableVariant';
+import { SortableVariant, type ActiveVariant } from '~/client/variants/SortableVariant';
 import { type Variant } from '~/common/types';
 import { useReorderVariants } from '~/state/variants/useReorderVariants';
+import { isEqual } from 'lodash';
 import cx from './SortableVariants.less';
 
 interface SortableVariantsProps {

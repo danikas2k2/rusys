@@ -1,14 +1,15 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { ToolbarMenuItem } from '~/client/toolbar/ToolbarMenuItem';
 
-describe('ToolbarMenuItem', () => {
+describe('<ToolbarMenuItem>', () => {
     const onClick = jest.fn();
     const props = { onClick, icon: <div>TestIcon</div> };
 
     it('renders menu item with icon and text', () => {
         render(<ToolbarMenuItem {...props}>TestItem</ToolbarMenuItem>);
+
         expect(screen.getByRole('menuitem')).toBeInTheDocument();
         expect(screen.getByText('TestIcon')).toBeInTheDocument();
         expect(screen.getByText('TestItem')).toBeInTheDocument();
@@ -20,12 +21,14 @@ describe('ToolbarMenuItem', () => {
                 TestItem
             </ToolbarMenuItem>
         );
+
         expect(screen.getByRole('menuitem')).toHaveClass('current');
     });
 
     it('handles click', async () => {
         render(<ToolbarMenuItem {...props}>TestItem</ToolbarMenuItem>);
         await userEvent.click(screen.getByRole('menuitem'));
-        expect(onClick).toHaveBeenCalled();
+
+        expect(onClick).toHaveBeenCalledWith(expect.event('click'));
     });
 });

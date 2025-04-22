@@ -1,8 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
-import { jwtDecode } from 'jwt-decode';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
 import { useEmailCheck } from '~/state/profile/useEmailCheck';
 import { useSetProfile } from '~/state/profile/useSetProfile';
+import { jwtDecode } from 'jwt-decode';
 
 jest.mock('~/state/profile/useEmailCheck');
 jest.mock('~/state/profile/useSetProfile');
@@ -13,26 +13,26 @@ describe('useLoginSuccess', () => {
     const emailCheck = jest.fn().mockResolvedValue(true);
 
     beforeAll(() => {
-        (useSetProfile as jest.Mock).mockReturnValue(setProfile);
-        (useEmailCheck as jest.Mock).mockReturnValue(emailCheck);
+        jest.mocked(useSetProfile).mockReturnValue(setProfile);
+        jest.mocked(useEmailCheck).mockReturnValue(emailCheck);
     });
 
     afterEach(() => jest.clearAllMocks());
 
     it('sets profile and checks email when response contains valid data', async () => {
-        (jwtDecode as jest.Mock).mockReturnValue({ email: 'test.email@email.com' });
+        jest.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
 
         const onError = jest.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
         await act(() => result.current({ credential: 'test' }));
 
-        expect(setProfile).toHaveBeenCalled();
-        expect(emailCheck).toHaveBeenCalled();
+        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com' });
+        expect(emailCheck).toHaveBeenCalledWith('test.email@email.com');
         expect(onError).not.toHaveBeenCalled();
     });
 
     it('calls onError when response does not contain valid data', async () => {
-        (jwtDecode as jest.Mock).mockReturnValue({});
+        jest.mocked(jwtDecode).mockReturnValue({});
 
         const onError = jest.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
@@ -40,6 +40,6 @@ describe('useLoginSuccess', () => {
 
         expect(setProfile).not.toHaveBeenCalled();
         expect(emailCheck).not.toHaveBeenCalled();
-        expect(onError).toHaveBeenCalled();
+        expect(onError).toHaveBeenCalledWith();
     });
 });

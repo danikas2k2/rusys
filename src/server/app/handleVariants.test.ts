@@ -1,10 +1,10 @@
 /** @jest-environment node */
+import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
+import { mockRequest } from '@tests/mockRequest';
+import { mockResponse } from '@tests/mockResponse';
 import { type ApiVariants } from '~/common/api';
 import { handleVariants } from '~/server/app/handleVariants';
 import { getFullVariants } from '~/server/data/variants';
-import { getGroupsFixture, getVariantsFixture } from '~/tests/fixtures';
-import { mockRequest } from '~/tests/mockRequest';
-import { mockResponse } from '~/tests/mockResponse';
 
 jest.mock('~/server/app/debug');
 jest.mock('~/server/data/details');
@@ -19,7 +19,7 @@ describe('handleVariants', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        (getFullVariants as jest.Mock).mockResolvedValueOnce({ groups, variants });
+        jest.mocked(getFullVariants).mockResolvedValueOnce({ groups, variants });
 
         await handleVariants(request, response);
 
@@ -37,7 +37,7 @@ describe('handleVariants', () => {
     });
 
     it('returns error response on error', async () => {
-        (getFullVariants as jest.Mock).mockRejectedValueOnce('Failed to get variants');
+        jest.mocked(getFullVariants).mockRejectedValueOnce('Failed to get variants');
 
         await handleVariants(request, response);
 

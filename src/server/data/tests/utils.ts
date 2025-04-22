@@ -1,8 +1,9 @@
 import { type Details } from '~/common/types';
-import { getDetailsCollection, getGroupsCollection, getVariantsCollection } from '~/server/db';
+import { db } from '~/server/db';
 
 export const getUpdatesCount = async (): Promise<{ count: number } | null> =>
-    (await getDetailsCollection())
+    (await db())
+        .collection('details')
         .aggregate([
             { $match: { updates: { $exists: true } } },
             { $project: { count: { $size: '$updates' } } },
@@ -12,7 +13,8 @@ export const getUpdatesCount = async (): Promise<{ count: number } | null> =>
         .next();
 
 export const getLastUpdate = async (): Promise<Details | null> =>
-    (await getDetailsCollection())
+    (await db())
+        .collection('details')
         .aggregate([
             { $match: { updates: { $exists: true } } },
             { $project: { group: 1, name: 1, updates: { $last: '$updates' } } },
@@ -22,10 +24,19 @@ export const getLastUpdate = async (): Promise<Details | null> =>
         .next();
 
 export const getAllGroups = async (projection: object = {}) =>
-    (await getGroupsCollection()).find({}, { projection: { _id: 0, ...projection } }).toArray();
+    (await db())
+        .collection('groups')
+        .find({}, { projection: { _id: 0, ...projection } })
+        .toArray();
 
 export const getAllVariants = async (projection: object = {}) =>
-    (await getVariantsCollection()).find({}, { projection: { _id: 0, ...projection } }).toArray();
+    (await db())
+        .collection('variants')
+        .find({}, { projection: { _id: 0, ...projection } })
+        .toArray();
 
 export const getAllDetails = async (projection: object = {}) =>
-    (await getDetailsCollection()).find({}, { projection: { _id: 0, ...projection } }).toArray();
+    (await db())
+        .collection('details')
+        .find({}, { projection: { _id: 0, ...projection } })
+        .toArray();

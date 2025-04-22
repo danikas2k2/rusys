@@ -13,30 +13,35 @@ jest.mock('~/state/summary/useSummary');
 describe('useSummaryHasData', () => {
     it('returns true if has all required summary data', () => {
         const { result } = renderHook(() => useSummaryHasData());
+
         expect(result.current).toBeTrue();
     });
 
     it('returns false if has no years', () => {
-        (useYears as jest.Mock).mockReturnValueOnce([]);
+        jest.mocked(useYears).mockReturnValueOnce([]);
         const { result } = renderHook(() => useSummaryHasData());
+
         expect(result.current).toBeFalse();
     });
 
     it('returns false if has no groups', () => {
-        (useGroups as jest.Mock).mockReturnValueOnce([]);
+        jest.mocked(useGroups).mockReturnValueOnce([]);
         const { result } = renderHook(() => useSummaryHasData());
+
         expect(result.current).toBeFalse();
     });
 
     it('returns false if has no variants', () => {
-        (useVariants as jest.Mock).mockReturnValueOnce([]);
+        jest.mocked(useVariants).mockReturnValueOnce([]);
         const { result } = renderHook(() => useSummaryHasData());
+
         expect(result.current).toBeFalse();
     });
 
     it('returns false if has no summary', () => {
-        (useSummary as jest.Mock).mockReturnValueOnce([]);
+        jest.mocked(useSummary).mockReturnValueOnce([]);
         const { result } = renderHook(() => useSummaryHasData());
+
         expect(result.current).toBeFalse();
     });
 });

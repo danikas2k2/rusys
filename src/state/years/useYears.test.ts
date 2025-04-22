@@ -1,16 +1,18 @@
 import { renderHook } from '@testing-library/react';
+import { withReduxState } from '@tests/withReduxState';
 import { useYears } from '~/state/years/useYears';
-import { withReduxState } from '~/tests/withReduxState';
 
 describe('useYears', () => {
     it('return empty list for empty state', () => {
         const { result } = renderHook(() => useYears(), withReduxState());
-        expect(result.current).toEqual([]);
+
+        expect(result.current).toStrictEqual([]);
     });
 
     it('return filled state', () => {
         const years: number[] = [21, 22, 23];
         const { result } = renderHook(() => useYears(), withReduxState({ years }));
-        expect(result.current).toEqual(years);
+
+        expect(result.current).toStrictEqual(years);
     });
 });

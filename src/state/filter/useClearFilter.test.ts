@@ -1,8 +1,8 @@
-import { renderHook } from '@testing-library/react';
 import { useDispatch } from 'react-redux';
+import { renderHook } from '@testing-library/react';
+import { withReduxState } from '@tests/withReduxState';
 import { FilterActionType } from '~/state/filter/actions';
 import { useClearFilter } from '~/state/filter/useClearFilter';
-import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('react-redux', () => ({
     ...jest.requireActual('react-redux'),
@@ -12,15 +12,14 @@ jest.mock('react-redux', () => ({
 describe('useClearFilter', () => {
     const dispatch = jest.fn();
 
-    beforeAll(() => {
-        (useDispatch as unknown as jest.Mock).mockReturnValue(dispatch);
-    });
+    beforeAll(() => jest.mocked(useDispatch).mockReturnValue(dispatch));
 
     afterEach(() => jest.clearAllMocks());
 
-    it('calls set filter action', async () => {
+    it('calls set filter action', () => {
         const { result } = renderHook(() => useClearFilter(), withReduxState());
-        await result.current();
+        result.current();
+
         expect(dispatch).toHaveBeenCalledWith({ type: FilterActionType.CLEAR });
     });
 });

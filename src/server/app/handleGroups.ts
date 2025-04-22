@@ -6,5 +6,5 @@ import { getGroupsResponse } from '~/server/data/groups';
 export async function handleGroups(req: ApiRequest, res: ApiResponse<ApiGroups>): Promise<void> {
     debugRequest(req);
     headerNoCache(res);
-    res.json(await run(getGroupsResponse));
+    res.json(await run(() => getGroupsResponse()));
 }

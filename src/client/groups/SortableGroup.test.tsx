@@ -1,12 +1,12 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import { withActiveRowContext } from '@tests/withActiveRowContext';
+import { withMany } from '@tests/withMany';
+import { withReduxState } from '@tests/withReduxState';
 import { SortableGroup } from '~/client/groups/SortableGroup';
-import { withActiveRowContext } from '~/tests/withActiveRowContext';
-import { withMany } from '~/tests/withMany';
-import { withReduxState } from '~/tests/withReduxState';
 
-describe('SortableGroup', () => {
+describe('<SortableGroup>', () => {
     afterEach(() => jest.clearAllMocks());
 
     const group = { group: 'Uogienės', order: 1 };
@@ -14,6 +14,7 @@ describe('SortableGroup', () => {
 
     it('renders with details', () => {
         render(<SortableGroup index={0} group={group} />, redux);
+
         expect(screen.getByRole('cell')).toHaveTextContent('Uogienės');
     });
 
@@ -24,6 +25,7 @@ describe('SortableGroup', () => {
             render(<SortableGroup index={0} group={group} onDragStart={onDragStart} />, redux);
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer({ target, coords: { y: 0 }, keys: '[MouseLeft>]' });
+
             expect(onDragStart).toHaveBeenCalledWith('Uogienės');
         });
 
@@ -34,8 +36,9 @@ describe('SortableGroup', () => {
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
-                { target, coords: { y: 0 }, keys: '[/MouseLeft]' },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(onDragStop).toHaveBeenCalledWith();
         });
 
@@ -47,8 +50,10 @@ describe('SortableGroup', () => {
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
                 { target, coords: { y: 10 } },
-                { target, coords: { y: 20 }, keys: '[/MouseLeft]' },
+                { target, coords: { y: 20 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(onDrag).toHaveBeenCalledTimes(2);
             expect(onDrag).toHaveBeenCalledWith(expect.any(HTMLDivElement));
         });
@@ -62,6 +67,7 @@ describe('SortableGroup', () => {
                 <SortableGroup index={0} group={group} />,
                 withMany(redux, withActiveRowContext(null, setActiveGroup))
             );
+
             expect(screen.queryByRole('group', { name: 'Edit Remove' })).not.toBeInTheDocument();
         });
 
@@ -72,6 +78,7 @@ describe('SortableGroup', () => {
             );
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer({ target, coords: { y: 0 }, keys: '[MouseLeft>]' });
+
             expect(setActiveGroup).toHaveBeenCalledWith({ group: 'Uogienės', ref: expect.any(Object) });
         });
 
@@ -82,6 +89,7 @@ describe('SortableGroup', () => {
                 <SortableGroup index={0} group={group} />,
                 withMany(redux, withActiveRowContext(activeGroup, setActiveGroup))
             );
+
             expect(screen.getByRole('group', { name: 'Edit Remove' })).toBeInTheDocument();
         });
 
@@ -91,6 +99,7 @@ describe('SortableGroup', () => {
                 withMany(redux, withActiveRowContext(activeGroup, setActiveGroup))
             );
             await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
+
             expect(setActiveGroup).toHaveBeenCalledWith({ ...activeGroup, pinned: true });
         });
 
@@ -101,6 +110,7 @@ describe('SortableGroup', () => {
             );
             await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
             await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+
             expect(setActiveGroup).toHaveBeenCalledWith({ ...activeGroup, pinned: false });
         });
 
@@ -111,6 +121,7 @@ describe('SortableGroup', () => {
             );
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer({ target, keys: '[MouseLeft>]' });
+
             expect(setActiveGroup).toHaveBeenCalledWith(undefined);
         });
     });

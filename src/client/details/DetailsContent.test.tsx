@@ -1,5 +1,5 @@
-import { render } from '@testing-library/react';
 import React from 'react';
+import { render } from '@testing-library/react';
 import { DetailsContent } from '~/client/details/DetailsContent';
 import { DetailsTable } from '~/client/details/DetailsTable';
 import { MissingOnlyContextWrapper } from '~/client/details/MissingOnlyContext';
@@ -19,11 +19,15 @@ jest.mock('~/client/details/MissingOnlyContext', () => {
     };
 });
 
-describe('DetailsContent', () => {
+describe('<DetailsContent>', () => {
     it('renders into the document', () => {
         render(<DetailsContent />);
-        expect(MissingOnlyContextWrapper).toHaveBeenCalled();
-        expect(MissingOnlyEffects).toHaveBeenCalled();
-        expect(DetailsTable).toHaveBeenCalled();
+
+        expect(MissingOnlyContextWrapper).toHaveBeenCalledWith(
+            { children: [expect.element(), expect.element()] },
+            undefined
+        );
+        expect(MissingOnlyEffects).toHaveBeenCalledWith({}, undefined);
+        expect(DetailsTable).toHaveBeenCalledWith({}, undefined);
     });
 });

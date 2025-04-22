@@ -1,3 +1,4 @@
+import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 import AddIcon from '@assets/add.svg';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
@@ -9,8 +10,6 @@ import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { useFocusRef } from '@ui/hooks/useFocusRef';
 import { Input } from '@ui/Input';
 import { Option, Select } from '@ui/Select';
-import { isEmpty } from 'lodash';
-import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
@@ -24,6 +23,7 @@ import { useRenameVariant } from '~/state/variants/useRenameVariant';
 import { useUpdateVariant } from '~/state/variants/useUpdateVariant';
 import { useVariant } from '~/state/variants/useVariant';
 import { useVariants } from '~/state/variants/useVariants';
+import { isEmpty } from 'lodash';
 import cx from './VariantBox.less';
 
 interface VariantBoxProps extends WithOnClose {

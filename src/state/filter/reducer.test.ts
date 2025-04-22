@@ -1,4 +1,4 @@
-import { type FilterAction, FilterActionType } from '~/state/filter/actions';
+import { FilterActionType, type FilterAction } from '~/state/filter/actions';
 import { filter as reducer } from '~/state/filter/reducer';
 
 describe('filter', () => {
@@ -6,15 +6,15 @@ describe('filter', () => {
         const unknownAction = { type: 'unknown' as FilterActionType } as FilterAction;
 
         it('leave set unchanged', () => {
-            expect(reducer('filtered', unknownAction)).toEqual('filtered');
+            expect(reducer('filtered', unknownAction)).toBe('filtered');
         });
 
         it('leave empty set unchanged', () => {
-            expect(reducer('', unknownAction)).toEqual('');
+            expect(reducer('', unknownAction)).toBe('');
         });
 
         it('return default state for undefined', () => {
-            expect(reducer(undefined, unknownAction)).toEqual('');
+            expect(reducer(undefined, unknownAction)).toBe('');
         });
     });
 
@@ -25,7 +25,7 @@ describe('filter', () => {
                     type: FilterActionType.SET,
                     filter: 'filtered',
                 })
-            ).toEqual('filtered');
+            ).toBe('filtered');
         });
 
         it('update empty state with empty set', () => {
@@ -34,7 +34,7 @@ describe('filter', () => {
                     type: FilterActionType.SET,
                     filter: '',
                 })
-            ).toEqual('');
+            ).toBe('');
         });
 
         it('update filled state', () => {
@@ -43,7 +43,7 @@ describe('filter', () => {
                     type: FilterActionType.SET,
                     filter: 'updated',
                 })
-            ).toEqual('updated');
+            ).toBe('updated');
         });
 
         it('update undefined state', () => {
@@ -52,7 +52,7 @@ describe('filter', () => {
                     type: FilterActionType.SET,
                     filter: 'filtered',
                 })
-            ).toEqual('filtered');
+            ).toBe('filtered');
         });
     });
 
@@ -62,7 +62,7 @@ describe('filter', () => {
                 reducer('filtered', {
                     type: FilterActionType.CLEAR,
                 })
-            ).toEqual('');
+            ).toBe('');
         });
 
         it('return updated undefined state', () => {
@@ -70,7 +70,7 @@ describe('filter', () => {
                 reducer(undefined, {
                     type: FilterActionType.CLEAR,
                 })
-            ).toEqual('');
+            ).toBe('');
         });
     });
 });

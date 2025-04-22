@@ -1,5 +1,5 @@
-import DangerousIcon from '@assets/dangerous.svg';
 import React, { type JSX, type PropsWithChildren } from 'react';
+import DangerousIcon from '@assets/dangerous.svg';
 import cx from './Error.less';
 
 export function Error({ children }: PropsWithChildren): JSX.Element {

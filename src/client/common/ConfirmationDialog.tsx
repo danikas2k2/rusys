@@ -1,21 +1,18 @@
+import React, { cloneElement, useEffect, type MouseEvent, type ReactElement, type ReactNode } from 'react';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
 import DoneIcon from '@assets/done.svg';
-import { Button, type ButtonProps, IconButton } from '@ui/Button';
+import { Button, IconButton, type ButtonProps } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-import { type ReactNodeOrFunction, renderElement } from '@ui/utils/renderElement';
-import React, { type MouseEvent, type ReactNode, useEffect } from 'react';
 import { Label } from '~/client/common/Label';
 import cx from './ConfirmationDialog.less';
 
 export interface ConfirmationDialogProps {
-    header?: ReactNode; // TODO (options?: HeaderOptions}) => ReactNode;
-    footer?: ReactNode; // TODO (options?: FooterOptions}) => ReactNode;
-    confirmButton?: ReactNodeOrFunction<ButtonProps>;
-    confirmProps?: ButtonProps;
-    cancelButton?: ReactNodeOrFunction<ButtonProps>;
-    cancelProps?: ButtonProps;
+    header?: ReactElement;
+    footer?: ReactElement;
+    confirmButton?: ReactElement<ButtonProps>;
+    cancelButton?: ReactElement<ButtonProps>;
     // TODO add `trigger: ReactNode | ({ open, onOpen, onClose }) => ReactNode` prop, then remove `open` prop
     open?: boolean;
     onConfirm?: (e: MouseEvent<HTMLButtonElement>) => void;
@@ -25,14 +22,14 @@ export interface ConfirmationDialogProps {
     children?: ReactNode;
 }
 
-const defaultConfirmProps: ButtonProps = {
+export const confirmButtonProps: ButtonProps = {
     variant: 'solid',
     color: 'primary',
     startDecorator: <DoneIcon />,
     children: <Label>Confirm</Label>,
 };
 
-const defaultCancelProps: ButtonProps = {
+export const cancelButtonProps: ButtonProps = {
     variant: 'outlined',
     startDecorator: <CancelIcon />,
     children: <Label>Cancel</Label>,
@@ -41,10 +38,8 @@ const defaultCancelProps: ButtonProps = {
 export function ConfirmationDialog({
     header = <Label>Are you sure?</Label>,
     footer,
-    confirmProps,
-    confirmButton = <Button {...defaultConfirmProps} />,
-    cancelProps,
-    cancelButton = <Button {...defaultCancelProps} />,
+    confirmButton,
+    cancelButton,
     open,
     onConfirm,
     onClose,
@@ -79,22 +74,23 @@ export function ConfirmationDialog({
             <footer>
                 {footer || (
                     <>
-                        {renderElement<ButtonProps>(
-                            cancelButton,
-                            {
-                                ...cancelProps,
+                        {cancelButton ? (
+                            cloneElement(cancelButton, {
+                                ...cancelButtonProps,
+                                ...cancelButton.props,
                                 onClick: onClose,
-                            },
-                            defaultCancelProps
+                            })
+                        ) : (
+                            <Button {...cancelButtonProps} onClick={onClose} />
                         )}
-                        {renderElement<ButtonProps>(
-                            confirmButton,
-                            {
-                                ...confirmProps,
-                                ref: focusRef,
+                        {confirmButton ? (
+                            cloneElement(confirmButton, {
+                                ...confirmButtonProps,
+                                ...confirmButton.props,
                                 onClick: onConfirm,
-                            },
-                            defaultConfirmProps
+                            })
+                        ) : (
+                            <Button {...confirmButtonProps} onClick={onConfirm} />
                         )}
                     </>
                 )}

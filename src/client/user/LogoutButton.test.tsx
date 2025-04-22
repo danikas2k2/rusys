@@ -1,10 +1,10 @@
-import { googleLogout } from '@react-oauth/google';
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import { withReduxState } from '@tests/withReduxState';
 import { LogoutButton } from '~/client/user/LogoutButton';
 import { useResetProfile } from '~/state/profile/useResetProfile';
-import { withReduxState } from '~/tests/withReduxState';
+import { googleLogout } from '@react-oauth/google';
 
 jest.mock('@react-oauth/google', () => ({
     googleLogout: jest.fn(),
@@ -14,11 +14,11 @@ jest.mock('~/client/user/ProfileAvatar', () => ({
 }));
 jest.mock('~/state/profile/useResetProfile');
 
-describe('LogoutButton', () => {
+describe('<LogoutButton>', () => {
     const resetProfile = jest.fn();
 
     beforeAll(() => {
-        (useResetProfile as jest.Mock).mockReturnValue(resetProfile);
+        jest.mocked(useResetProfile).mockReturnValue(resetProfile);
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -46,10 +46,10 @@ describe('LogoutButton', () => {
     it('calls googleLogout and dispatches resetProfileAction when confirm is clicked', async () => {
         render(<LogoutButton />, withReduxState());
 
-        await userEvent.click(screen.getByRole('button'));
-        await userEvent.click(screen.getByText('Logout'));
+        await userEvent.click(screen.getByRole('button', { name: 'ProfileAvatar' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Logout' }));
 
-        expect(googleLogout).toHaveBeenCalled();
-        expect(resetProfile).toHaveBeenCalled();
+        expect(googleLogout).toHaveBeenCalledWith();
+        expect(resetProfile).toHaveBeenCalledWith();
     });
 });

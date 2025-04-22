@@ -2,7 +2,7 @@ import { type ApiRequest, type ApiRequestVariant, type ApiResponse, type ApiVari
 import { debugRequest } from '~/server/app/debug';
 import { headerNoCache, run } from '~/server/app/utils';
 import { deleteVariantOccurrences } from '~/server/data/common';
-import { getVariantsResponse } from '~/server/data/variants';
+import { getDetailsAndVariants } from '~/server/data/variants';
 
 export async function handleDeleteVariant(
     req: ApiRequest<ApiRequestVariant>,
@@ -11,5 +11,10 @@ export async function handleDeleteVariant(
     debugRequest(req);
     headerNoCache(res);
     const { group, variant } = req.body;
-    res.json(await run(() => deleteVariantOccurrences(group, variant), getVariantsResponse));
+    res.json(
+        await run(
+            () => deleteVariantOccurrences(group, variant),
+            () => getDetailsAndVariants()
+        )
+    );
 }

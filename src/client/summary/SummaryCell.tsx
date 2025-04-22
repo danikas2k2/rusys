@@ -1,7 +1,7 @@
 import React from 'react';
-import { Cell } from '~/client/table/Cell';
 import { ValueVariant } from '~/client/common/ValueVariant';
-import type { VariantAmount } from '~/common/types';
+import { Cell } from '~/client/table/Cell';
+import { type VariantAmount } from '~/common/types';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
 import cx from './SummaryCell.less';
 

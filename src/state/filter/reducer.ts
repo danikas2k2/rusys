@@ -1,4 +1,4 @@
-import { type FilterAction, FilterActionType } from '~/state/filter/actions';
+import { FilterActionType, type FilterAction } from '~/state/filter/actions';
 
 export function filter(state: string = '', action: Readonly<FilterAction>): string {
     switch (action.type) {

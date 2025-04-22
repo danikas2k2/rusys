@@ -1,10 +1,10 @@
 /** @jest-environment node */
+import { getGroupsFixture } from '@tests/fixtures';
+import { mockRequest } from '@tests/mockRequest';
+import { mockResponse } from '@tests/mockResponse';
 import { type ApiGroups } from '~/common/api';
 import { handleGroups } from '~/server/app/handleGroups';
 import { getGroupsResponse } from '~/server/data/groups';
-import { getGroupsFixture } from '~/tests/fixtures';
-import { mockRequest } from '~/tests/mockRequest';
-import { mockResponse } from '~/tests/mockResponse';
 
 jest.mock('~/server/app/debug');
 jest.mock('~/server/data/details');
@@ -18,7 +18,7 @@ describe('handleGroups', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        (getGroupsResponse as jest.Mock).mockResolvedValueOnce({ groups });
+        jest.mocked(getGroupsResponse).mockResolvedValueOnce({ groups });
 
         await handleGroups(request, response);
 
@@ -36,7 +36,7 @@ describe('handleGroups', () => {
     });
 
     it('returns error response on error', async () => {
-        (getGroupsResponse as jest.Mock).mockRejectedValueOnce('Failed to get groups');
+        jest.mocked(getGroupsResponse).mockRejectedValueOnce('Failed to get groups');
 
         await handleGroups(request, response);
 

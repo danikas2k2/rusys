@@ -1,4 +1,4 @@
-import { type YearsAction, YearsActionType } from '~/state/years/actions';
+import { YearsActionType, type YearsAction } from '~/state/years/actions';
 
 export function years(state: ReadonlyArray<number> = [], action: YearsAction): ReadonlyArray<number> {
     switch (action.type) {

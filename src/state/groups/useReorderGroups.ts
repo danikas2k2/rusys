@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { type ApiReorderGroups, ApiUrl } from '~/common/api';
+import { ApiUrl, type ApiReorderGroups } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 
 export function useReorderGroups(): (groups: Readonly<Record<string, number>>) => Promise<void> {

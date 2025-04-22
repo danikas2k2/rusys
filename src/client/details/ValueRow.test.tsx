@@ -1,14 +1,14 @@
+import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import UserEvent from '@testing-library/user-event';
-import React from 'react';
+import { getDetailsFixture, getVariantsFixture } from '@tests/fixtures';
+import { withReduxState } from '@tests/withReduxState';
 import { ValueRow, type ValueRowProps } from '~/client/details/ValueRow';
 import { useHasRemoving } from '~/state/details/useHasRemoving';
-import { useUpdateDetails } from '~/state/details/useUpdateDetails';
 import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';
 import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
+import { useUpdateDetails } from '~/state/details/useUpdateDetails';
 import { type WithVariantsState } from '~/state/variants/types';
-import { getDetailsFixture, getVariantsFixture } from '~/tests/fixtures';
-import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/state/details/useUpdateDetails', () => ({
     useUpdateDetails: jest.fn(),
@@ -24,7 +24,7 @@ jest.mock('~/state/details/useHasRemoving', () => ({
 }));
 jest.mock('~/state/years/useYears');
 
-describe('ValueRow', () => {
+describe('<ValueRow>', () => {
     const userEvent = UserEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const updateAmounts = jest.fn();
@@ -32,9 +32,9 @@ describe('ValueRow', () => {
     const setRemoving = jest.fn();
 
     beforeAll(() => {
-        (useUpdateDetails as jest.Mock).mockReturnValue(updateAmounts);
-        (useSetDetailsMissing as jest.Mock).mockReturnValue(setMissing);
-        (useSetDetailsRemoving as jest.Mock).mockReturnValue(setRemoving);
+        jest.mocked(useUpdateDetails).mockReturnValue(updateAmounts);
+        jest.mocked(useSetDetailsMissing).mockReturnValue(setMissing);
+        jest.mocked(useSetDetailsRemoving).mockReturnValue(setRemoving);
     });
 
     beforeEach(() => jest.useFakeTimers());
@@ -56,23 +56,27 @@ describe('ValueRow', () => {
     describe('with value', () => {
         it('renders into the document', () => {
             render(<ValueRow {...props} />, withReduxState(state));
+
             expect(screen.getByRole('row')).toBeInTheDocument();
         });
 
         it('renders cells with values only for matching years', () => {
             render(<ValueRow {...props} />, withReduxState(state));
+
             expect(screen.getByRole('cell', { name: '2 p' })).toBeInTheDocument();
             expect(screen.queryByRole('cell', { name: '1 p' })).not.toBeInTheDocument();
         });
 
         it('renders cells without values', () => {
             render(<ValueRow {...props} />, withReduxState(state));
+
             expect(screen.getAllByRole('cell', { name: '.' })).toHaveLength(2);
         });
 
         it('renders last cell with last class', () => {
             render(<ValueRow {...props} />, withReduxState(state));
             const [beforeLastCell, lastCell] = screen.getAllByRole('cell').slice(-2);
+
             expect(beforeLastCell).not.toHaveClass('last');
             expect(lastCell).toHaveClass('last');
         });
@@ -80,25 +84,29 @@ describe('ValueRow', () => {
         it('renders name cell without unavailable class', () => {
             render(<ValueRow {...props} />, withReduxState(state));
             const [, cell] = screen.getAllByRole('cell', { name });
+
             expect(cell).not.toHaveClass('unavailable');
         });
 
         it('renders name cell without removing class', () => {
             render(<ValueRow {...props} />, withReduxState(state));
             const [, cell] = screen.getAllByRole('cell', { name });
+
             expect(cell).not.toHaveClass('removing');
         });
 
         it('renders name cell with removing class', () => {
-            (useHasRemoving as jest.Mock).mockReturnValue(true);
+            jest.mocked(useHasRemoving).mockReturnValue(true);
             render(<ValueRow {...props} />, withReduxState(state));
             const [, cell] = screen.getAllByRole('cell', { name });
+
             expect(cell).toHaveClass('removing');
         });
 
         it('renders available row checkbox', async () => {
             render(<ValueRow {...props} />, withReduxState(state));
             const checkbox = screen.getByRole('checkbox');
+
             expect(checkbox).toBeEnabled();
             expect(checkbox).toBeChecked();
         });
@@ -106,6 +114,7 @@ describe('ValueRow', () => {
         it('calls setMissing with true when clicking on available row checkbox', async () => {
             render(<ValueRow {...props} />, withReduxState(state));
             await userEvent.click(screen.getByRole('checkbox'));
+
             expect(setMissing).toHaveBeenCalledWith(group, name, true);
             expect(setRemoving).not.toHaveBeenCalled();
         });
@@ -113,6 +122,7 @@ describe('ValueRow', () => {
         it('renders missing row checkbox', async () => {
             render(<ValueRow {...props} missing />, withReduxState(state));
             const checkbox = screen.getByRole('checkbox');
+
             expect(checkbox).toBeEnabled();
             expect(checkbox).not.toBeChecked();
         });
@@ -120,6 +130,7 @@ describe('ValueRow', () => {
         it('calls setMissing with false when clicking on unchecked checkbox', async () => {
             render(<ValueRow {...props} missing />, withReduxState(state));
             await userEvent.click(screen.getByRole('checkbox'));
+
             expect(setMissing).toHaveBeenCalledWith(group, name, false);
             expect(setRemoving).not.toHaveBeenCalled();
         });
@@ -128,6 +139,7 @@ describe('ValueRow', () => {
             render(<ValueRow {...props} />, withReduxState(state));
             await userEvent.click(screen.getByRole('button', { name }));
             act(() => jest.advanceTimersByTime(100));
+
             expect(setMissing).toHaveBeenCalledWith(group, name, true);
             expect(setRemoving).not.toHaveBeenCalled();
         });
@@ -136,6 +148,7 @@ describe('ValueRow', () => {
             render(<ValueRow {...props} missing />, withReduxState(state));
             await userEvent.click(screen.getByRole('button', { name }));
             act(() => jest.advanceTimersByTime(100));
+
             expect(setMissing).toHaveBeenCalledWith(group, name, false);
             expect(setRemoving).not.toHaveBeenCalled();
         });
@@ -147,6 +160,7 @@ describe('ValueRow', () => {
             await userEvent.click(screen.getByLabelText('Increase'));
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByText('Update'));
+
             expect(updateAmounts).toHaveBeenCalledWith(group, name, year, [{ variant: 'p', amount: 1 }]);
             expect(setRemoving).not.toHaveBeenCalled();
             expect(setMissing).not.toHaveBeenCalled();
@@ -159,6 +173,7 @@ describe('ValueRow', () => {
             await userEvent.click(screen.getByLabelText('Decrease'));
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByText('Update'));
+
             expect(updateAmounts).toHaveBeenCalledWith(group, name, year, [{ variant: 'p', amount: -1 }]);
         });
 
@@ -171,6 +186,7 @@ describe('ValueRow', () => {
             await userEvent.click(screen.getByLabelText('Decrease'));
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByText('Update'));
+
             expect(updateAmounts).toHaveBeenCalledWith(group, name, year, [{ variant: 'p', amount: -2 }]);
         });
 
@@ -179,6 +195,7 @@ describe('ValueRow', () => {
             await userEvent.click(screen.getByRole('cell', { name: '2 p' }));
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+
             expect(updateAmounts).not.toHaveBeenCalled();
         });
     });
@@ -186,17 +203,20 @@ describe('ValueRow', () => {
     describe('without value', () => {
         it('renders into the document', () => {
             render(<ValueRow {...props} years={[]} />, withReduxState(state));
+
             expect(screen.getByRole('row')).toBeInTheDocument();
         });
 
         it('renders cells without values', () => {
             render(<ValueRow {...props} years={[]} />, withReduxState(state));
+
             expect(screen.getAllByRole('cell', { name: '.' })).toHaveLength(3);
         });
 
         it('renders last cell with last class', () => {
             render(<ValueRow {...props} years={[]} />, withReduxState(state));
             const [beforeLastCell, lastCell] = screen.getAllByRole('cell').slice(-2);
+
             expect(beforeLastCell).not.toHaveClass('last');
             expect(lastCell).toHaveClass('last');
         });
@@ -204,25 +224,29 @@ describe('ValueRow', () => {
         it('renders name cell without unavailable class', () => {
             render(<ValueRow {...props} years={[]} />, withReduxState(state));
             const [, cell] = screen.getAllByRole('cell', { name });
+
             expect(cell).toHaveClass('unavailable');
         });
 
         it('renders name cell without removing class', () => {
             render(<ValueRow {...props} years={[]} />, withReduxState(state));
             const [, cell] = screen.getAllByRole('cell', { name });
+
             expect(cell).not.toHaveClass('removing');
         });
 
         it('renders name cell without removing class even has removing', () => {
-            (useHasRemoving as jest.Mock).mockReturnValue(true);
+            jest.mocked(useHasRemoving).mockReturnValue(true);
             render(<ValueRow {...props} years={[]} />, withReduxState(state));
             const [, cell] = screen.getAllByRole('cell', { name });
+
             expect(cell).not.toHaveClass('removing');
         });
 
         it('renders available row checkbox', async () => {
             render(<ValueRow {...props} years={[]} />, withReduxState(state));
             const checkbox = screen.getByRole('checkbox');
+
             expect(checkbox).toBeDisabled();
             expect(checkbox).toBePartiallyChecked();
         });
@@ -230,6 +254,7 @@ describe('ValueRow', () => {
         it('does not call addMissing when clicking on available row checkbox', async () => {
             render(<ValueRow {...props} years={[]} />, withReduxState(state));
             await userEvent.click(screen.getByRole('checkbox'));
+
             expect(setMissing).not.toHaveBeenCalled();
             expect(setRemoving).not.toHaveBeenCalled();
         });
@@ -237,6 +262,7 @@ describe('ValueRow', () => {
         it('renders missing row checkbox', async () => {
             render(<ValueRow {...props} years={[]} missing />, withReduxState(state));
             const checkbox = screen.getByRole('checkbox');
+
             expect(checkbox).toBeDisabled();
             expect(checkbox).toBePartiallyChecked();
         });
@@ -244,6 +270,7 @@ describe('ValueRow', () => {
         it('does not call setRemoving when clicking on missing row checkbox', async () => {
             render(<ValueRow {...props} years={[]} missing />, withReduxState(state));
             await userEvent.click(screen.getByRole('checkbox'));
+
             expect(setRemoving).not.toHaveBeenCalledWith();
             expect(setMissing).not.toHaveBeenCalled();
         });
@@ -252,6 +279,7 @@ describe('ValueRow', () => {
             render(<ValueRow {...props} years={[]} />, withReduxState(state));
             await userEvent.click(screen.getByRole('button', { name }));
             act(() => jest.advanceTimersByTime(100));
+
             expect(setMissing).not.toHaveBeenCalled();
             expect(setRemoving).not.toHaveBeenCalled();
         });
@@ -260,6 +288,7 @@ describe('ValueRow', () => {
             render(<ValueRow {...props} years={[]} missing />, withReduxState(state));
             await userEvent.click(screen.getByRole('button', { name }));
             act(() => jest.advanceTimersByTime(100));
+
             expect(setRemoving).not.toHaveBeenCalled();
             expect(setMissing).not.toHaveBeenCalled();
         });

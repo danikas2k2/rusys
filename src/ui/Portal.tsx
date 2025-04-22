@@ -1,6 +1,6 @@
-import { uniqueId } from '@ui/utils/uniqueId';
-import { type ReactNode, useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { uniqueId } from '@ui/utils/uniqueId';
 
 interface PortalProps {
     children: ReactNode;

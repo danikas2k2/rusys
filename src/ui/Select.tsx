@@ -1,15 +1,10 @@
-import ExpandDownIcon from '@assets/expand-down.svg';
-import { Button } from '@ui/Button';
-import { Dropdown, type DropdownRef } from '@ui/Dropdown';
-import { useForwardedRef } from '@ui/hooks/useForwardedRef';
-import { useOutsideClick } from '@ui/hooks/useOutsideClick';
-import { Input, type InputProps, type InputState } from '@ui/Input';
-import { Interactive } from '@ui/Interactive';
-import { uniqueId } from '@ui/utils/uniqueId';
-import classNames from 'classnames';
 import React, {
-    type ChangeEvent,
     cloneElement,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    type ChangeEvent,
     type FocusEvent,
     type FormEvent,
     type JSX,
@@ -18,12 +13,17 @@ import React, {
     type ReactElement,
     type ReactNode,
     type RefAttributes,
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
 } from 'react';
+import ExpandDownIcon from '@assets/expand-down.svg';
+import { Button } from '@ui/Button';
+import { Dropdown, type DropdownRef } from '@ui/Dropdown';
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
+import { useOutsideClick } from '@ui/hooks/useOutsideClick';
+import { Input, type InputProps, type InputState } from '@ui/Input';
+import { Interactive } from '@ui/Interactive';
+import { uniqueId } from '@ui/utils/uniqueId';
 import { matchParts } from '~/client/utils/matchParts';
+import classNames from 'classnames';
 import cx from './Select.less';
 
 export interface SelectProps<T = string | number, E extends HTMLElement = HTMLElement>

@@ -1,4 +1,4 @@
-import { type GroupAction, GroupActionType } from '~/state/group/actions';
+import { GroupActionType, type GroupAction } from '~/state/group/actions';
 
 export function group(state: string = '', action: Readonly<GroupAction>): string {
     switch (action.type) {

@@ -1,7 +1,7 @@
+import React, { useCallback, type FormEvent } from 'react';
 import CancelIcon from '@assets/cancel.svg';
 import { Button } from '@ui/Button';
 import { Input } from '@ui/Input';
-import React, { type FormEvent, useCallback } from 'react';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useClearFilter } from '~/state/filter/useClearFilter';
 import { useFilter } from '~/state/filter/useFilter';

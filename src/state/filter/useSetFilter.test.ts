@@ -1,8 +1,8 @@
-import { renderHook } from '@testing-library/react';
 import { useDispatch } from 'react-redux';
+import { renderHook } from '@testing-library/react';
+import { withReduxState } from '@tests/withReduxState';
 import { FilterActionType } from '~/state/filter/actions';
 import { useSetFilter } from '~/state/filter/useSetFilter';
-import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('react-redux', () => ({
     ...jest.requireActual('react-redux'),
@@ -12,21 +12,21 @@ jest.mock('react-redux', () => ({
 describe('useSetFilter', () => {
     const dispatch = jest.fn();
 
-    beforeAll(() => {
-        (useDispatch as unknown as jest.Mock).mockReturnValue(dispatch);
-    });
+    beforeAll(() => jest.mocked(useDispatch).mockReturnValue(dispatch));
 
     afterEach(() => jest.clearAllMocks());
 
-    it('calls set filter action', async () => {
+    it('calls set filter action', () => {
         const { result } = renderHook(() => useSetFilter(), withReduxState());
-        await result.current('filtered');
+        result.current('filtered');
+
         expect(dispatch).toHaveBeenCalledWith({ type: FilterActionType.SET, filter: 'filtered' });
     });
 
-    it('calls set filter action with empty value', async () => {
+    it('calls set filter action with empty value', () => {
         const { result } = renderHook(() => useSetFilter(), withReduxState());
-        await result.current('');
+        result.current('');
+
         expect(dispatch).toHaveBeenCalledWith({ type: FilterActionType.SET, filter: '' });
     });
 });

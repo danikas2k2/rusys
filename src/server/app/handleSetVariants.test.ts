@@ -1,10 +1,10 @@
 /** @jest-environment node */
+import { getVariantsFixture } from '@tests/fixtures';
+import { mockRequest } from '@tests/mockRequest';
+import { mockResponse } from '@tests/mockResponse';
 import { type ApiVariants } from '~/common/api';
 import { handleSetVariants } from '~/server/app/handleSetVariants';
 import { getVariantsResponse, setVariants } from '~/server/data/variants';
-import { getVariantsFixture } from '~/tests/fixtures';
-import { mockRequest } from '~/tests/mockRequest';
-import { mockResponse } from '~/tests/mockResponse';
 
 jest.mock('~/server/app/debug');
 jest.mock('~/server/data/variants');
@@ -17,19 +17,19 @@ describe('handleSetVariants', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        (setVariants as jest.Mock).mockResolvedValueOnce(true);
-        (getVariantsResponse as jest.Mock).mockResolvedValueOnce({ variants });
+        jest.mocked(setVariants).mockResolvedValueOnce(true);
+        jest.mocked(getVariantsResponse).mockResolvedValueOnce({ variants });
 
         await handleSetVariants(request, response);
 
         expect(setVariants).toHaveBeenCalledWith(variants);
-        expect(getVariantsResponse).toHaveBeenCalledWith(true);
+        expect(getVariantsResponse).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true, variants });
     });
 
     it('returns empty response on failure', async () => {
-        (setVariants as jest.Mock).mockResolvedValueOnce(false);
+        jest.mocked(setVariants).mockResolvedValueOnce(false);
 
         await handleSetVariants(request, response);
 
@@ -40,7 +40,7 @@ describe('handleSetVariants', () => {
     });
 
     it('returns error response on error', async () => {
-        (setVariants as jest.Mock).mockRejectedValueOnce('Failed to set variants');
+        jest.mocked(setVariants).mockRejectedValueOnce('Failed to set variants');
 
         await handleSetVariants(request, response);
 

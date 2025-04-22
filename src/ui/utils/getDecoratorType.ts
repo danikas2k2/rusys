@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 export function getDecoratorType(decorator: ReactNode): 'text' | 'node' {
     const type = typeof decorator;

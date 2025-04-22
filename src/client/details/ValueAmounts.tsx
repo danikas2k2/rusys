@@ -1,6 +1,6 @@
 import React from 'react';
 import { ValueVariant } from '~/client/common/ValueVariant';
-import type { VariantAmount } from '~/common/types';
+import { type VariantAmount } from '~/common/types';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
 import cx from './ValueAmounts.less';
 

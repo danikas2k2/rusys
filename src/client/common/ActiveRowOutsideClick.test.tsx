@@ -1,9 +1,9 @@
+import React from 'react';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import { withReduxState } from '@tests/withReduxState';
 import { ActiveRowContext } from '~/client/common/ActiveRowContext';
 import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
-import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/state/filter/useFilter');
 jest.mock('~/state/variants/useGroupVariants');
@@ -11,7 +11,7 @@ jest.mock('~/client/variants/SortableGroup', () => ({
     SortableGroup: jest.fn(jest.requireActual('~/client/variants/SortableGroup').SortableGroup),
 }));
 
-describe('ActiveRowOutsideClick', () => {
+describe('<ActiveRowOutsideClick>', () => {
     afterEach(() => jest.clearAllMocks());
 
     const setActive = jest.fn();
@@ -25,6 +25,7 @@ describe('ActiveRowOutsideClick', () => {
             withReduxState()
         );
         await userEvent.click(document.body);
+
         expect(setActive).toHaveBeenCalledWith(undefined);
     });
 
@@ -36,6 +37,7 @@ describe('ActiveRowOutsideClick', () => {
             withReduxState()
         );
         await userEvent.click(document.body);
+
         expect(setActive).not.toHaveBeenCalled();
     });
 
@@ -47,6 +49,7 @@ describe('ActiveRowOutsideClick', () => {
             withReduxState()
         );
         await userEvent.click(document.body);
+
         expect(setActive).not.toHaveBeenCalled();
     });
 });

@@ -1,7 +1,7 @@
-import { isEqual } from 'lodash';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import type { WithVariantsState } from '~/state/variants/types';
+import { type WithVariantsState } from '~/state/variants/types';
+import { isEqual } from 'lodash';
 
 export function useVariantComparator(): (group: string) => (a: string, b: string) => number {
     const variantOrders = useSelector(

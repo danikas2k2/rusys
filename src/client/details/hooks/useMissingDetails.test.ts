@@ -1,22 +1,25 @@
 import { renderHook } from '@testing-library/react';
+import { getDetailsFixture } from '@tests/fixtures';
 import { useMissingDetails } from '~/client/details/hooks/useMissingDetails';
-import { getDetailsFixture } from '~/tests/fixtures';
 
 describe('useMissingDetails', () => {
     it('returns nothing for empty list', () => {
         const { result } = renderHook(() => useMissingDetails([]));
-        expect(result.current).toEqual([]);
+
+        expect(result.current).toStrictEqual([]);
     });
 
     const details = getDetailsFixture();
 
     it('returns nothing if no missing items in the list', () => {
         const { result } = renderHook(() => useMissingDetails(details.slice(2)));
-        expect(result.current).toEqual([]);
+
+        expect(result.current).toStrictEqual([]);
     });
 
     it('returns missing items', () => {
         const { result } = renderHook(() => useMissingDetails(details));
-        expect(result.current).toEqual([details[1]]);
+
+        expect(result.current).toStrictEqual([details[1]]);
     });
 });

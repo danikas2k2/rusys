@@ -1,5 +1,5 @@
-import { cloneDeep } from 'lodash';
 import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
+import { cloneDeep } from 'lodash';
 
 describe('getOverlapIndex', () => {
     const offsetParent = {
@@ -34,11 +34,13 @@ describe('getOverlapIndex', () => {
         // @ts-expect-error -- updating readonly properties for testing
         // noinspection JSConstantReassignment
         onlyElement.offsetParent.children = [onlyElement];
+
         expect(getOverlapIndex(onlyElement)).toBe(-1);
     });
 
     it('returns -1 if element does not overlap', () => {
         element.getBoundingClientRect = () => ({ top: 25, height: 10 }) as DOMRect;
+
         expect(getOverlapIndex(element)).toBe(-1);
     });
 });

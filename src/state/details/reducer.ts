@@ -1,6 +1,6 @@
-import { cloneDeep } from 'lodash';
 import { type Details } from '~/common/types';
-import { type DetailsAction, DetailsActionType } from '~/state/details/actions';
+import { DetailsActionType, type DetailsAction } from '~/state/details/actions';
+import { cloneDeep } from 'lodash';
 
 export function details(state: ReadonlyArray<Details> = [], action: Readonly<DetailsAction>): ReadonlyArray<Details> {
     switch (action.type) {

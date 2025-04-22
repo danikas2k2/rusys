@@ -1,5 +1,3 @@
-import moment from 'moment';
-import { type ClientSession } from 'mongodb';
 import {
     type Details,
     type Group,
@@ -12,7 +10,9 @@ import { getGroups } from '~/server/data/groups';
 import { hasEffect } from '~/server/data/utils';
 import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
-import { getDetailsCollection } from '~/server/db';
+import { db } from '~/server/db';
+import moment from 'moment';
+import { type ClientSession } from 'mongodb';
 
 const startMonth = 9; // September
 
@@ -21,63 +21,58 @@ function getYearFromTime(time: number): number {
     return +t.format('YY') - +(+t.format('M') < startMonth);
 }
 
-export async function getSummary(
-    years: number[] = getYears(),
-    session?: ClientSession
-): Promise<ReadonlyArray<Summary>> {
+export async function getSummary(years: number[] = getYears()): Promise<ReadonlyArray<Summary>> {
     const fromYear = 2000 + Math.min(...years);
     const from = moment(`${fromYear}-0${startMonth}-01`).valueOf();
-    const col = await getDetailsCollection();
+    const col = (await db()).collection('details');
 
     const details = await col
-        .aggregate<Details>(
-            [
-                {
-                    $match: {
-                        'updates.time': { $gte: from },
-                        'updates.years.amounts.amount': { $lt: 0 },
-                    },
+        .aggregate<Details>([
+            {
+                $match: {
+                    'updates.time': { $gte: from },
+                    'updates.years.amounts.amount': { $lt: 0 },
                 },
-                {
-                    $project: {
-                        group: 1,
-                        name: 1,
-                        updates: {
-                            $filter: {
-                                input: '$updates',
-                                as: 'update',
-                                cond: {
-                                    $and: [
-                                        { $gte: ['$$update.time', from] },
-                                        // { $ne: ['$$update.years.recycled', !recycled] },
-                                    ],
-                                },
+            },
+            {
+                $project: {
+                    group: 1,
+                    name: 1,
+                    updates: {
+                        $filter: {
+                            input: '$updates',
+                            as: 'update',
+                            cond: {
+                                $and: [
+                                    { $gte: ['$$update.time', from] },
+                                    // { $ne: ['$$update.years.recycled', !recycled] },
+                                ],
                             },
                         },
                     },
                 },
-                {
-                    $project: {
-                        group: 1,
-                        name: 1,
-                        updates: {
-                            $map: {
-                                input: '$updates',
-                                as: 'update',
-                                in: {
-                                    time: '$$update.time',
-                                    years: {
-                                        $map: {
-                                            input: '$$update.years',
-                                            as: 'year',
-                                            in: {
-                                                year: '$$year.year',
-                                                amounts: {
-                                                    $filter: {
-                                                        input: '$$year.amounts',
-                                                        as: 'variant',
-                                                        cond: { $lt: ['$$variant.amount', 0] },
-                                                    },
+            },
+            {
+                $project: {
+                    group: 1,
+                    name: 1,
+                    updates: {
+                        $map: {
+                            input: '$updates',
+                            as: 'update',
+                            in: {
+                                time: '$$update.time',
+                                years: {
+                                    $map: {
+                                        input: '$$update.years',
+                                        as: 'year',
+                                        in: {
+                                            year: '$$year.year',
+                                            amounts: {
+                                                $filter: {
+                                                    input: '$$year.amounts',
+                                                    as: 'variant',
+                                                    cond: { $lt: ['$$variant.amount', 0] },
                                                 },
                                             },
                                         },
@@ -87,12 +82,11 @@ export async function getSummary(
                         },
                     },
                 },
-                {
-                    $sort: { group: 1, name: 1, 'updates.time': 1, 'updates.years.year': 1 },
-                },
-            ],
-            { session }
-        )
+            },
+            {
+                $sort: { group: 1, name: 1, 'updates.time': 1, 'updates.years.year': 1 },
+            },
+        ])
         .toArray();
 
     let summary: ReadonlyArray<Summary> = [];
@@ -134,19 +128,11 @@ export async function getSummary(
     return summary;
 }
 
-export async function addUpdates(
-    group: string,
-    name: string,
-    years?: ReadonlyArray<YearAmounts>,
-    session?: ClientSession
-): Promise<boolean> {
+export async function addUpdates(group: string, name: string, years?: ReadonlyArray<YearAmounts>): Promise<boolean> {
     return years?.length
-        ? (await getDetailsCollection())
-              .updateOne(
-                  { group, name },
-                  { $push: { updates: { time: Date.now(), years } } },
-                  { upsert: true, session }
-              )
+        ? (await db())
+              .collection('details')
+              .updateOne({ group, name }, { $push: { updates: { time: Date.now(), years } } }, { upsert: true })
               .then(hasEffect)
         : false;
 }
@@ -161,7 +147,8 @@ export async function addUpdate(
     if (!group || !name || !year || !amounts.length) {
         return false;
     }
-    return (await getDetailsCollection())
+    return (await db())
+        .collection('details')
         .updateOne(
             { group, name },
             { $push: { updates: { time: Date.now(), years: [{ year, amounts }] } } },

@@ -1,3 +1,5 @@
+import React, { useActionState, useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useFormStatus } from 'react-dom';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
 import DownloadIcon from '@assets/download.svg';
@@ -5,9 +7,6 @@ import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { FileInput } from '@ui/FileInput';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-// import { isEmpty } from 'lodash';
-import React, { type FormEvent, useActionState, useCallback, useEffect, useState } from 'react';
-import { useFormStatus } from 'react-dom';
 import { useImportHandler } from '~/client/common/hooks/useImportHandler';
 import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
@@ -56,6 +55,7 @@ export function ImportBox({ onClose }: ImportBoxProps) {
 
     const handleImport = useImportHandler();
     const [state, formAction] = useActionState<{ file?: File }, FormData>(async (newState, data) => {
+        console.info(data);
         // console.info('upload', newState, (data.get('file') as File).arrayBuffer());
         await handleImport(data);
         return newState;
@@ -126,6 +126,7 @@ export function ImportBox({ onClose }: ImportBoxProps) {
                     <FileInput
                         ref={fileRef}
                         name="import"
+                        accept=".json"
                         fullWidth
                         color={errors?._ || errors?.variant ? 'negative' : 'primary'}
                         invalid={!!errors?._ || !!errors?.variant}

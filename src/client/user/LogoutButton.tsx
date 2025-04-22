@@ -1,11 +1,11 @@
-import LogoutIcon from '@assets/logout.svg';
-import { googleLogout } from '@react-oauth/google';
-import { Button, type ButtonProps, IconButton } from '@ui/Button';
 import React, { useCallback } from 'react';
+import LogoutIcon from '@assets/logout.svg';
+import { Button, IconButton, type ButtonProps } from '@ui/Button';
 import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
 import { Label } from '~/client/common/Label';
 import { ProfileAvatar } from '~/client/user/ProfileAvatar';
 import { useResetProfile } from '~/state/profile/useResetProfile';
+import { googleLogout } from '@react-oauth/google';
 
 export function LogoutButton({ children, ...props }: ButtonProps) {
     const resetProfile = useResetProfile();
@@ -24,11 +24,7 @@ export function LogoutButton({ children, ...props }: ButtonProps) {
             }
             onClick={handleConfirm}
         >
-            {(innerProps) => (
-                <IconButton size="small" {...innerProps}>
-                    {children || <ProfileAvatar />}
-                </IconButton>
-            )}
+            <IconButton size="small">{children || <ProfileAvatar />}</IconButton>
         </ButtonWithConfirmation>
     );
 }

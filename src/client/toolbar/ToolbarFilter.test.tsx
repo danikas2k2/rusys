@@ -1,21 +1,21 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import { withReduxState } from '@tests/withReduxState';
 import { ToolbarFilter } from '~/client/toolbar/ToolbarFilter';
 import { useClearFilter } from '~/state/filter/useClearFilter';
 import { useFilter } from '~/state/filter/useFilter';
 import { useSetFilter } from '~/state/filter/useSetFilter';
-import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/state/filter/useClearFilter');
 jest.mock('~/state/filter/useFilter');
 jest.mock('~/state/filter/useSetFilter');
 
-describe('ToolbarFilter', () => {
+describe('<ToolbarFilter>', () => {
     beforeEach(() => {
-        (useFilter as jest.Mock).mockReturnValue('');
-        (useSetFilter as jest.Mock).mockReturnValue(jest.fn());
-        (useClearFilter as jest.Mock).mockReturnValue(jest.fn());
+        jest.mocked(useFilter).mockReturnValue('');
+        jest.mocked(useSetFilter).mockReturnValue(jest.fn());
+        jest.mocked(useClearFilter).mockReturnValue(jest.fn());
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -28,22 +28,24 @@ describe('ToolbarFilter', () => {
 
     it('updates filter value when input field is changed', async () => {
         const setFilter = jest.fn();
-        (useSetFilter as jest.Mock).mockReturnValue(setFilter);
+        jest.mocked(useSetFilter).mockReturnValue(setFilter);
 
         render(<ToolbarFilter />, withReduxState());
 
         await userEvent.type(screen.getByPlaceholderText('type to filter'), 'x');
+
         expect(setFilter).toHaveBeenCalledWith('x');
     });
 
     it('clears filter value when clear button is clicked', async () => {
         const clearFilter = jest.fn();
-        (useClearFilter as jest.Mock).mockReturnValue(clearFilter);
-        (useFilter as jest.Mock).mockReturnValue('x');
+        jest.mocked(useClearFilter).mockReturnValue(clearFilter);
+        jest.mocked(useFilter).mockReturnValue('x');
 
         render(<ToolbarFilter />, withReduxState());
 
         await userEvent.click(screen.getByRole('button', { name: 'Clear' }));
-        expect(clearFilter).toHaveBeenCalled();
+
+        expect(clearFilter).toHaveBeenCalledWith();
     });
 });

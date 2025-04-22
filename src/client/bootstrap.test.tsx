@@ -1,7 +1,8 @@
-import { screen, waitFor } from '@testing-library/react';
-import { ColorSchemeState } from '@ui/ColorScheme';
 import React from 'react';
 import { Provider } from 'react-redux';
+import { screen, waitFor } from '@testing-library/react';
+import { ColorSchemeState } from '@ui/ColorScheme';
+import { App } from '~/client/App';
 import { bootstrap } from '~/client/bootstrap';
 import { getStore } from '~/state/store';
 
@@ -21,7 +22,12 @@ jest.mock('~/client/App', () => ({
 describe('bootstrap', () => {
     beforeEach(() => {
         document.body.innerHTML = '<div id="root"></div>';
-        console.error = jest.fn();
+        jest.spyOn(console, 'error').mockImplementation();
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+        document.body.innerHTML = '';
     });
 
     it('logs error when #root container is not found', async () => {
@@ -37,12 +43,28 @@ describe('bootstrap', () => {
 
     it('renders ColorSchemeState wrapper', async () => {
         bootstrap();
-        await waitFor(() => expect(ColorSchemeState).toHaveBeenCalled());
+        await waitFor(() =>
+            expect(ColorSchemeState).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    children: expect.element(App),
+                }),
+                undefined
+            )
+        );
     });
 
     it('renders redux Provider with store', async () => {
         bootstrap();
-        await waitFor(() => expect(Provider).toHaveBeenCalled());
-        await waitFor(() => expect(getStore).toHaveBeenCalled());
+        await waitFor(() =>
+            expect(Provider).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    children: expect.element({
+                        children: expect.element(App),
+                    }),
+                }),
+                undefined
+            )
+        );
+        await waitFor(() => expect(getStore).toHaveBeenCalledWith());
     });
 });

@@ -1,5 +1,7 @@
-import { POINTER_LONG_PRESS_DELAY, POINTER_MOVE_THRESHOLD, POINTER_SHORT_PRESS_DELAY } from '@ui/utils/values';
 import {
+    useCallback,
+    useMemo,
+    useRef,
     type EventHandler,
     type MouseEvent,
     type MouseEventHandler,
@@ -7,10 +9,8 @@ import {
     type PointerEventHandler,
     type TouchEvent,
     type TouchEventHandler,
-    useCallback,
-    useMemo,
-    useRef,
 } from 'react';
+import { POINTER_LONG_PRESS_DELAY, POINTER_MOVE_THRESHOLD, POINTER_SHORT_PRESS_DELAY } from '@ui/utils/values';
 
 export type PressEvent<T = Element> = PointerEvent<T> | TouchEvent<T> | MouseEvent<T>;
 export type PressEventHandler<T = Element> = EventHandler<PressEvent<T>>;

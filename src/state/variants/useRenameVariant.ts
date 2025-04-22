@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { type ApiRenameVariant, ApiUrl } from '~/common/api';
-import type { UpdateVariant } from '~/common/types';
+import { ApiUrl, type ApiRenameVariant } from '~/common/api';
+import { type UpdateVariant } from '~/common/types';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 
 export function useRenameVariant(): (

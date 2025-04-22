@@ -1,7 +1,7 @@
-import { IconButton } from '@ui/Button';
-import type { InputColor } from '@ui/Input';
-import { MenuItem } from '@ui/MenuItem';
 import React, { type PropsWithChildren, type ReactNode } from 'react';
+import { IconButton } from '@ui/Button';
+import { type InputColor } from '@ui/Input';
+import { MenuItem } from '@ui/MenuItem';
 import cx from './ToolbarMenuItem.less';
 
 export interface ToolbarMenuItemProps {

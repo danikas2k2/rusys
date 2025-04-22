@@ -1,4 +1,4 @@
-import { type GroupAction, GroupActionType } from '~/state/group/actions';
+import { GroupActionType, type GroupAction } from '~/state/group/actions';
 import { group as reducer } from '~/state/group/reducer';
 
 describe('group', () => {
@@ -6,15 +6,15 @@ describe('group', () => {
         const unknownAction = { type: 'unknown' as GroupActionType } as GroupAction;
 
         it('leave set unchanged', () => {
-            expect(reducer('grouped', unknownAction)).toEqual('grouped');
+            expect(reducer('grouped', unknownAction)).toBe('grouped');
         });
 
         it('leave empty set unchanged', () => {
-            expect(reducer('', unknownAction)).toEqual('');
+            expect(reducer('', unknownAction)).toBe('');
         });
 
         it('return default state for undefined', () => {
-            expect(reducer(undefined, unknownAction)).toEqual('');
+            expect(reducer(undefined, unknownAction)).toBe('');
         });
     });
 
@@ -25,7 +25,7 @@ describe('group', () => {
                     type: GroupActionType.SET,
                     group: 'grouped',
                 })
-            ).toEqual('grouped');
+            ).toBe('grouped');
         });
 
         it('update empty state with empty set', () => {
@@ -34,7 +34,7 @@ describe('group', () => {
                     type: GroupActionType.SET,
                     group: '',
                 })
-            ).toEqual('');
+            ).toBe('');
         });
 
         it('update filled state', () => {
@@ -43,7 +43,7 @@ describe('group', () => {
                     type: GroupActionType.SET,
                     group: 'updated',
                 })
-            ).toEqual('updated');
+            ).toBe('updated');
         });
 
         it('update undefined state', () => {
@@ -52,7 +52,7 @@ describe('group', () => {
                     type: GroupActionType.SET,
                     group: 'grouped',
                 })
-            ).toEqual('grouped');
+            ).toBe('grouped');
         });
     });
 
@@ -62,7 +62,7 @@ describe('group', () => {
                 reducer('grouped', {
                     type: GroupActionType.CLEAR,
                 })
-            ).toEqual('');
+            ).toBe('');
         });
 
         it('return updated undefined state', () => {
@@ -70,7 +70,7 @@ describe('group', () => {
                 reducer(undefined, {
                     type: GroupActionType.CLEAR,
                 })
-            ).toEqual('');
+            ).toBe('');
         });
     });
 });

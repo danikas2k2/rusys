@@ -1,13 +1,19 @@
+import { ApiUrlHandlers } from '~/server/handlers';
 import bodyParser from 'body-parser';
-import fileUpload from 'express-fileupload';
 import cors from 'cors';
 import express, { type Express } from 'express';
-import { ApiUrlHandlers } from '~/server/handlers';
+import fileUpload from 'express-fileupload';
 
 export default function (app = express()): Express {
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json({ inflate: true }));
-    app.use(fileUpload(/*{ limits: { fileSize: 1 << 20 } }*/));
+    app.use(
+        fileUpload({
+            abortOnLimit: true,
+            safeFileNames: true,
+            limits: { fileSize: 1 << 20 }, // 1MB
+        })
+    );
     app.use(cors());
 
     app.use(express.static('public'));

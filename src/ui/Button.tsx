@@ -1,3 +1,11 @@
+import React, {
+    isValidElement,
+    type ButtonHTMLAttributes,
+    type JSX,
+    type ReactElement,
+    type ReactNode,
+    type RefAttributes,
+} from 'react';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import {
     type CommonInputProps,
@@ -8,7 +16,6 @@ import {
     type InputVariant,
 } from '@ui/Input';
 import classNames from 'classnames';
-import React, { type ButtonHTMLAttributes, type JSX, type ReactNode, type RefAttributes } from 'react';
 import cx from './Button.less';
 
 export type ButtonAlign = 'start' | 'center' | 'end' | 'single';
@@ -28,6 +35,7 @@ export interface ButtonProps<T extends HTMLElement = HTMLButtonElement>
     endDecorator?: ReactNode;
 }
 
+// TODO - add support for `button` children
 export function Button({
     ref: forwardedRef,
     className,
@@ -115,3 +123,6 @@ export function IconButton({
 }: ButtonProps): JSX.Element {
     return <Button size={size} variant={variant} spacing={spacing} {...props} />;
 }
+
+export const isButtonElement = (element: ReactNode): element is ReactElement<ButtonProps> =>
+    isValidElement(element) && (element.type === Button || element.type === IconButton);

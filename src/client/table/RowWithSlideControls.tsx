@@ -1,19 +1,19 @@
-import { useForwardedRef } from '@ui/hooks/useForwardedRef';
-import { POINTER_MOVE_THRESHOLD } from '@ui/utils/values';
-import { defer } from 'lodash';
 import React, {
     cloneElement,
-    type HTMLAttributes,
-    type JSX,
-    type ReactElement,
-    type RefAttributes,
     useCallback,
     useEffect,
     useRef,
     useState,
+    type HTMLAttributes,
+    type JSX,
+    type ReactElement,
+    type RefAttributes,
 } from 'react';
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
+import { POINTER_MOVE_THRESHOLD } from '@ui/utils/values';
 import { Row, type RowProps } from '~/client/table/Row';
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
+import { defer } from 'lodash';
 
 export interface RowWithSlideControlsProps extends RowProps {
     controls?: ReactElement<HTMLAttributes<HTMLElement> & RefAttributes<HTMLElement>>;

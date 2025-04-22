@@ -1,10 +1,10 @@
 /** @jest-environment node */
+import { getGroupsFixture } from '@tests/fixtures';
+import { mockRequest } from '@tests/mockRequest';
+import { mockResponse } from '@tests/mockResponse';
 import { type ApiGroups, type ApiReorderGroups } from '~/common/api';
 import { handleReorderGroups } from '~/server/app/handleReorderGroups';
 import { getGroupsResponse, reorderGroups } from '~/server/data/groups';
-import { getGroupsFixture } from '~/tests/fixtures';
-import { mockRequest } from '~/tests/mockRequest';
-import { mockResponse } from '~/tests/mockResponse';
 
 jest.mock('~/server/app/debug');
 jest.mock('~/server/data/groups');
@@ -18,19 +18,19 @@ describe('handleReorderGroups', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        (reorderGroups as jest.Mock).mockResolvedValueOnce(true);
-        (getGroupsResponse as jest.Mock).mockResolvedValueOnce({ groups });
+        jest.mocked(reorderGroups).mockResolvedValueOnce(true);
+        jest.mocked(getGroupsResponse).mockResolvedValueOnce({ groups });
 
         await handleReorderGroups(request, response);
 
         expect(reorderGroups).toHaveBeenCalledWith(reorder);
-        expect(getGroupsResponse).toHaveBeenCalledWith(true);
+        expect(getGroupsResponse).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true, groups });
     });
 
     it('returns empty response on failure', async () => {
-        (reorderGroups as jest.Mock).mockResolvedValueOnce(false);
+        jest.mocked(reorderGroups).mockResolvedValueOnce(false);
 
         await handleReorderGroups(request, response);
 
@@ -41,7 +41,7 @@ describe('handleReorderGroups', () => {
     });
 
     it('returns error response on error', async () => {
-        (reorderGroups as jest.Mock).mockRejectedValueOnce('Failed to reorder groups');
+        jest.mocked(reorderGroups).mockRejectedValueOnce('Failed to reorder groups');
 
         await handleReorderGroups(request, response);
 

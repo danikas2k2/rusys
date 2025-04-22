@@ -2,14 +2,14 @@ import { clearFilterAction, FilterActionType, setFilterAction } from '~/state/fi
 
 describe('setFilterAction', () => {
     it('returns valid action', () => {
-        expect(setFilterAction('filtered')).toEqual({
+        expect(setFilterAction('filtered')).toStrictEqual({
             type: FilterActionType.SET,
             filter: 'filtered',
         });
     });
 
     it('returns valid action for empty set', () => {
-        expect(setFilterAction('')).toEqual({
+        expect(setFilterAction('')).toStrictEqual({
             type: FilterActionType.SET,
             filter: '',
         });
@@ -18,7 +18,7 @@ describe('setFilterAction', () => {
 
 describe('clearFilterAction', () => {
     it('returns valid action', () => {
-        expect(clearFilterAction()).toEqual({
+        expect(clearFilterAction()).toStrictEqual({
             type: FilterActionType.CLEAR,
         });
     });

@@ -1,5 +1,5 @@
-import { renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 
@@ -11,32 +11,33 @@ describe('useLockingLoader', () => {
     const request = jest.fn();
 
     beforeEach(() => {
-        (useUpdatingApiRequest as jest.Mock).mockReturnValue(request);
+        jest.mocked(useUpdatingApiRequest).mockReturnValue(request);
     });
 
     afterEach(() => jest.clearAllMocks());
 
     it('return INITIAL state while no loading started', () => {
-        (React.useEffect as jest.Mock).mockReturnValueOnce(undefined);
+        jest.mocked(React.useEffect).mockReturnValueOnce(undefined);
         const { result } = renderHook(() => useLockingLoader(loader));
-        expect(result.current).toEqual(LoadingState.INITIAL);
+
+        expect(result.current).toStrictEqual(LoadingState.INITIAL);
     });
 
     it('return LOADING state when loading started', async () => {
         const { result } = renderHook(() => useLockingLoader(loader));
-        await waitFor(() => expect(result.current).toEqual(LoadingState.LOADING));
+        await waitFor(() => expect(result.current).toStrictEqual(LoadingState.LOADING));
     });
 
     it('return COMPLETE state when loading finished', async () => {
-        loader.mockReturnValueOnce(Promise.resolve());
+        loader.mockResolvedValueOnce(undefined);
         const { result } = renderHook(() => useLockingLoader(loader));
-        await waitFor(() => expect(result.current).toEqual(LoadingState.COMPLETE));
+        await waitFor(() => expect(result.current).toStrictEqual(LoadingState.COMPLETE));
     });
 
     it('return FAILED state when loading failed', async () => {
-        loader.mockReturnValueOnce(Promise.reject());
+        loader.mockRejectedValueOnce(undefined);
         const { result } = renderHook(() => useLockingLoader(loader));
-        await waitFor(() => expect(result.current).toEqual(LoadingState.FAILED));
+        await waitFor(() => expect(result.current).toStrictEqual(LoadingState.FAILED));
     });
 
     it('return FAILED state when loader throws an error', async () => {
@@ -44,6 +45,6 @@ describe('useLockingLoader', () => {
             throw new Error();
         });
         const { result } = renderHook(() => useLockingLoader(loader));
-        await waitFor(() => expect(result.current).toEqual(LoadingState.FAILED));
+        await waitFor(() => expect(result.current).toStrictEqual(LoadingState.FAILED));
     });
 });

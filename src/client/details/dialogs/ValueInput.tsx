@@ -1,10 +1,10 @@
+import React, { useCallback, useEffect, type ChangeEvent, type KeyboardEvent, type RefAttributes } from 'react';
 import AddIcon from '@assets/add.svg';
 import RemoveIcon from '@assets/remove.svg';
 import { Button, ButtonGroup } from '@ui/Button';
 import { useFocusRef } from '@ui/hooks/useFocusRef';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { Input } from '@ui/Input';
-import React, { type ChangeEvent, type KeyboardEvent, type RefAttributes, useCallback, useEffect } from 'react';
 import { ValueVariant } from '~/client/common/ValueVariant';
 import { ValueChange } from '~/client/details/dialogs/ValueChange';
 import { useLabel } from '~/client/hooks/useLabel';

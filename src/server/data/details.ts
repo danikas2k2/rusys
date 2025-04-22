@@ -1,14 +1,16 @@
-import { type ClientSession, type Filter, type UpdateFilter } from 'mongodb';
-import { type Details, type Group, type Variant, type VariantAmount } from '~/common/types';
+import { type ApiAllDetails, type ApiDetailsWithYears } from '~/common/api';
+import { type Details, type VariantAmount } from '~/common/types';
 import { getGroups } from '~/server/data/groups';
 import { addUpdate } from '~/server/data/updates';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
-import { getDetailsCollection, withTransaction } from '~/server/db';
+import { db, withTransaction } from '~/server/db';
+import { type ClientSession, type Filter, type UpdateFilter } from 'mongodb';
 
-export async function getDetails(years: number[] = getYears()): Promise<Details[]> {
-    return (await getDetailsCollection())
+export async function getDetails(years: ReadonlyArray<number>): Promise<Details[]> {
+    return (await db())
+        .collection('details')
         .find(
             {
                 $or: [
@@ -26,7 +28,7 @@ export async function addDetails(group: string, name: string): Promise<boolean> 
     if (!group || !name) {
         return false;
     }
-    return (await getDetailsCollection()).insertOne({ group, name }).then(hasEffect);
+    return (await db()).collection('details').insertOne({ group, name }).then(hasEffect);
 }
 
 export async function updateDetails(
@@ -43,7 +45,7 @@ export async function updateDetails(
         await addUpdate(group, name, year, changes, session);
 
         const filter = { group, name };
-        const col = await getDetailsCollection();
+        const col = (await db()).collection<Details>('details');
         const details = await col.findOne(filter, { projection: { years: 1, missing: 1 }, session });
         const current = details?.years?.find((y) => y.year === year);
         const amounts = current?.amounts ?? [];
@@ -114,17 +116,13 @@ export async function updateDetails(
     });
 }
 
-export async function renameDetails(
-    group: string,
-    name: string,
-    newName: string,
-    session?: ClientSession
-): Promise<boolean> {
+export async function renameDetails(group: string, name: string, newName: string): Promise<boolean> {
     if (!group || !name || !newName) {
         return false;
     }
-    return (await getDetailsCollection())
-        .updateOne({ group, name }, { $set: { name: newName } }, { session })
+    return (await db())
+        .collection('details')
+        .updateOne({ group, name }, { $set: { name: newName } })
         .then(hasEffect)
         .catch(hasDuplicates);
 }
@@ -138,7 +136,8 @@ export async function renameDetailsVariant(
     if (!group || !variant || !newVariant) {
         return false;
     }
-    return (await getDetailsCollection())
+    return (await db())
+        .collection('details')
         .bulkWrite(
             [
                 {
@@ -166,7 +165,8 @@ export async function renameDetailsGroup(group: string, newGroup: string, sessio
     if (!group || !newGroup) {
         return false;
     }
-    return (await getDetailsCollection())
+    return (await db())
+        .collection('details')
         .updateMany({ group }, { $set: { group: newGroup } }, { session })
         .then(hasEffect)
         .catch(hasDuplicates);
@@ -186,24 +186,26 @@ export async function moveDetails(
     if (newName && name !== newName) {
         $set.name = newName;
     }
-    return (await getDetailsCollection())
+    return (await db())
+        .collection('details')
         .updateOne({ group, name }, { $set }, { session })
         .then(hasEffect)
         .catch(hasDuplicates);
 }
 
-export async function deleteDetails(group: string, name: string, session?: ClientSession): Promise<boolean> {
+export async function deleteDetails(group: string, name: string): Promise<boolean> {
     if (!group || !name) {
         return false;
     }
-    return (await getDetailsCollection()).deleteOne({ group, name }, { session }).then(hasEffect);
+    return (await db()).collection('details').deleteOne({ group, name }).then(hasEffect);
 }
 
 export async function deleteDetailsVariant(group: string, variant: string, session?: ClientSession): Promise<boolean> {
     if (!group || !variant) {
         return false;
     }
-    return (await getDetailsCollection())
+    return (await db())
+        .collection('details')
         .bulkWrite(
             [
                 {
@@ -258,7 +260,7 @@ export async function deleteDetailsGroup(group: string, session?: ClientSession)
     if (!group) {
         return false;
     }
-    return (await getDetailsCollection()).deleteMany({ group }, { session }).then(hasEffect);
+    return (await db()).collection('details').deleteMany({ group }, { session }).then(hasEffect);
 }
 
 export async function setRemoving(
@@ -271,7 +273,8 @@ export async function setRemoving(
     if (!group || !name || !year) {
         return false;
     }
-    return (await getDetailsCollection())
+    return (await db())
+        .collection('details')
         .updateOne(
             { group, name, 'years.year': year } as Filter<Details>,
             { [removing ? '$set' : '$unset']: { 'years.$.removing': removing } },
@@ -289,22 +292,23 @@ export async function setMissing(
     if (!group || !name) {
         return false;
     }
-    return (await getDetailsCollection())
+    return (await db())
+        .collection('details')
         .updateOne({ group, name }, { [missing ? '$set' : '$unset']: { missing } }, { session })
         .then(hasEffect);
 }
 
-export async function getDetailsWithYears(): Promise<{ years: number[]; details: Details[] }> {
+export async function getDetailsWithYears(): Promise<ApiDetailsWithYears> {
     const years = getYears();
     return { years, details: await getDetails(years) };
 }
 
-export async function getFullDetails(): Promise<{
-    years: ReadonlyArray<number>;
-    groups: ReadonlyArray<Group>;
-    variants: ReadonlyArray<Variant>;
-    details: ReadonlyArray<Details>;
-}> {
+export async function getAllDetails(): Promise<ApiAllDetails> {
     const years = getYears();
-    return { years, groups: await getGroups(), variants: await getVariants(), details: await getDetails(years) };
+    return {
+        years,
+        details: await getDetails(years),
+        variants: await getVariants(),
+        groups: await getGroups(),
+    };
 }

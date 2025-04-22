@@ -1,3 +1,4 @@
+import React, { type FunctionComponent, type JSX, type SVGProps } from 'react';
 import BinaryFileIcon from '@assets/files/binary.svg';
 import CodeFileIcon from '@assets/files/code.svg';
 import CssFileIcon from '@assets/files/css.svg';
@@ -13,8 +14,7 @@ import PowerpointFileIcon from '@assets/files/powerpoint.svg';
 import VideoFileIcon from '@assets/files/video.svg';
 import WordFileIcon from '@assets/files/word.svg';
 import ZipperFileIcon from '@assets/files/zipper.svg';
-import cx from '@ui/FileInput.less';
-import React, { type FunctionComponent, JSX, type SVGProps } from 'react';
+import cx from './FileDisplay.less';
 
 const FileTypes: Record<string, FunctionComponent<SVGProps<SVGSVGElement>>> = {
     '': FileIcon,
@@ -68,7 +68,7 @@ const FileTypes: Record<string, FunctionComponent<SVGProps<SVGSVGElement>>> = {
 export function FileDisplay({ file }: { file: File }): JSX.Element {
     const Icon = FileTypes[file.type] ?? FileTypes[file.type.split('/')[0]] ?? FileTypes[''];
     return (
-        <div className={cx('file')}>
+        <div className={cx('FileDisplay')}>
             <div className={cx('icon')}>
                 <Icon />
             </div>

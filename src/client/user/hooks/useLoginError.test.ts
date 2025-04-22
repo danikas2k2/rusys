@@ -7,11 +7,11 @@ jest.mock('~/state/profile/useResetProfile');
 describe('useLoginError', () => {
     it('calls resetProfile when invoked', () => {
         const resetProfile = jest.fn();
-        (useResetProfile as jest.Mock).mockReturnValue(resetProfile);
+        jest.mocked(useResetProfile).mockReturnValue(resetProfile);
 
         const { result } = renderHook(() => useLoginError());
         result.current();
 
-        expect(resetProfile).toHaveBeenCalled();
+        expect(resetProfile).toHaveBeenCalledWith();
     });
 });

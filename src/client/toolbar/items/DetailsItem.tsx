@@ -1,5 +1,5 @@
-import ListAltIcon from '@assets/list-alt.svg';
 import React from 'react';
+import ListAltIcon from '@assets/list-alt.svg';
 import { Label } from '~/client/common/Label';
 import { Links } from '~/client/Links';
 import { LinkMenuItem, type LinkMenuItemProps } from '~/client/toolbar/items/LinkMenuItem';

@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { render, screen } from '@testing-library/react';
 import { ValueVariant } from '~/client/common/ValueVariant';
 import { ValueAmounts } from '~/client/details/ValueAmounts';
 
@@ -10,7 +10,7 @@ jest.mock('~/client/common/ValueVariant', () => ({
     ValueVariant: jest.fn().mockReturnValue(null),
 }));
 
-describe('ValueAmounts', () => {
+describe('<ValueAmounts>', () => {
     const group = 'Daržovės';
     const amounts = [
         { variant: 'p', amount: 2 },
@@ -21,6 +21,7 @@ describe('ValueAmounts', () => {
 
     it('renders details groups with groups and details', () => {
         render(<ValueAmounts group={group} amounts={amounts} />);
+
         expect(screen.getByText('2')).toBeInTheDocument();
         expect(screen.getByText('1')).toBeInTheDocument();
 

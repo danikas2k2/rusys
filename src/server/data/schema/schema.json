@@ -1,0 +1,142 @@
+{
+    "type": "object",
+    "properties": {
+        "details": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "group": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "years": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "year": {
+                                    "type": "integer"
+                                },
+                                "amounts": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "variant": {
+                                                "type": "string"
+                                            },
+                                            "amount": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "required": ["variant", "amount"],
+                                        "additionalProperties": false
+                                    }
+                                },
+                                "removing": {
+                                    "type": "boolean"
+                                }
+                            },
+                            "required": ["year"],
+                            "additionalProperties": false
+                        }
+                    },
+                    "updates": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "time": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                "years": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "year": {
+                                                "type": "integer"
+                                            },
+                                            "amounts": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "variant": {
+                                                            "type": "string"
+                                                        },
+                                                        "amount": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "required": ["variant", "amount"],
+                                                    "additionalProperties": false
+                                                }
+                                            }
+                                        },
+                                        "required": ["year"],
+                                        "additionalProperties": false
+                                    }
+                                }
+                            },
+                            "required": ["time", "years"],
+                            "additionalProperties": false
+                        }
+                    },
+                    "missing": {
+                        "type": "boolean"
+                    }
+                },
+                "required": ["group", "name"],
+                "additionalProperties": false
+            }
+        },
+        "groups": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "group": {
+                        "type": "string"
+                    },
+                    "order": {
+                        "type": "integer"
+                    }
+                },
+                "required": ["group", "order"],
+                "additionalProperties": false
+            }
+        },
+        "variants": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "group": {
+                        "type": "string"
+                    },
+                    "variant": {
+                        "type": "string"
+                    },
+                    "order": {
+                        "type": "integer"
+                    },
+                    "long": {
+                        "type": "string"
+                    },
+                    "short": {
+                        "type": "string"
+                    }
+                },
+                "required": ["group", "variant", "order"],
+                "additionalProperties": false
+            }
+        }
+    },
+    "required": ["details", "groups", "variants"],
+    "additionalProperties": false
+}

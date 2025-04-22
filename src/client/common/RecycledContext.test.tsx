@@ -1,19 +1,21 @@
+import React, { use } from 'react';
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React, { use } from 'react';
 import { RecycledContext, RecycledContextWrapper, useRecycled } from '~/client/common/RecycledContext';
 
-describe('RecycledContext', () => {
+describe('<RecycledContext>', () => {
     it('uses context with default value', () => {
         const { result } = renderHook(() => use(RecycledContext));
-        expect(result.current).toEqual([false, expect.any(Function)]);
+
+        expect(result.current).toStrictEqual([false, expect.any(Function)]);
     });
 });
 
 describe('useRecycled', () => {
     it('returns default missing-only context', () => {
         const { result } = renderHook(() => useRecycled());
-        expect(result.current).toEqual([false, expect.any(Function)]);
+
+        expect(result.current).toStrictEqual([false, expect.any(Function)]);
     });
 
     it('returns custom missing-only context', () => {
@@ -21,11 +23,12 @@ describe('useRecycled', () => {
         const { result } = renderHook(() => useRecycled(), {
             wrapper: ({ children }) => <RecycledContext value={[true, setRecycled]}>{children}</RecycledContext>,
         });
-        expect(result.current).toEqual([true, setRecycled]);
+
+        expect(result.current).toStrictEqual([true, setRecycled]);
     });
 });
 
-describe('RecycledContextWrapper', () => {
+describe('<RecycledContextWrapper>', () => {
     function Test() {
         const [recycled, setRecycled] = useRecycled();
         return <button onClick={() => setRecycled(true)}>{recycled ? 'Recycled' : 'Consumed'}</button>;
@@ -37,6 +40,7 @@ describe('RecycledContextWrapper', () => {
                 <Test />
             </RecycledContextWrapper>
         );
+
         expect(screen.getByRole('button')).toHaveTextContent('Consumed');
     });
 
@@ -47,6 +51,7 @@ describe('RecycledContextWrapper', () => {
             </RecycledContextWrapper>
         );
         await userEvent.click(screen.getByRole('button'));
+
         expect(screen.getByRole('button')).toHaveTextContent('Recycled');
     });
 });

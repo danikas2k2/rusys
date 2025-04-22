@@ -1,9 +1,12 @@
-import { Interactive } from '@ui/Interactive';
-import { Portal } from '@ui/Portal';
 import React, {
     cloneElement,
-    type DialogHTMLAttributes,
     isValidElement,
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState,
+    type DialogHTMLAttributes,
     type KeyboardEvent,
     type MouseEventHandler,
     type ReactElement,
@@ -11,12 +14,9 @@ import React, {
     type RefAttributes,
     type RefObject,
     type SyntheticEvent,
-    useCallback,
-    useEffect,
-    useImperativeHandle,
-    useRef,
-    useState,
 } from 'react';
+import { Interactive } from '@ui/Interactive';
+import { Portal } from '@ui/Portal';
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 import cx from './Dropdown.less';
 

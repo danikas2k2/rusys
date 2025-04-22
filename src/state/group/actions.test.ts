@@ -2,14 +2,14 @@ import { clearGroupAction, GroupActionType, setGroupAction } from '~/state/group
 
 describe('setGroupAction', () => {
     it('returns valid action', () => {
-        expect(setGroupAction('grouped')).toEqual({
+        expect(setGroupAction('grouped')).toStrictEqual({
             type: GroupActionType.SET,
             group: 'grouped',
         });
     });
 
     it('returns valid action for empty set', () => {
-        expect(setGroupAction('')).toEqual({
+        expect(setGroupAction('')).toStrictEqual({
             type: GroupActionType.SET,
             group: '',
         });
@@ -18,7 +18,7 @@ describe('setGroupAction', () => {
 
 describe('clearGroupAction', () => {
     it('returns valid action', () => {
-        expect(clearGroupAction()).toEqual({
+        expect(clearGroupAction()).toStrictEqual({
             type: GroupActionType.CLEAR,
         });
     });

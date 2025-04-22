@@ -7,5 +7,10 @@ export async function handleSetGroups(req: ApiRequest<ApiGroups>, res: ApiRespon
     debugRequest(req);
     headerNoCache(res);
     const { groups } = req.body;
-    res.json(await run(() => setGroups(groups), getGroupsResponse));
+    res.json(
+        await run(
+            () => setGroups(groups),
+            () => getGroupsResponse()
+        )
+    );
 }

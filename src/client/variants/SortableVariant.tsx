@@ -1,13 +1,13 @@
-import cs from 'classnames';
 import React, { useCallback, useRef } from 'react';
 import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
-import { type ActiveRow, useActiveRow } from '~/client/common/ActiveRowContext';
+import { useActiveRow, type ActiveRow } from '~/client/common/ActiveRowContext';
 import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
 import { SlideControls } from '~/client/common/SlideControls';
 import { Cell } from '~/client/table/Cell';
 import { SortableRow } from '~/client/table/SortableRow';
 import { type Variant } from '~/common/types';
 import { useDeleteVariant } from '~/state/variants/useDeleteVariant';
+import cs from 'classnames';
 import cx from './SortableVariant.less';
 
 export interface ActiveVariant extends ActiveRow, Pick<Variant, 'group' | 'variant'> {}

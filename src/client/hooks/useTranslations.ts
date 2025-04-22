@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import translations from '~/client/translations.json';
 import { useLocale } from '~/client/hooks/useLocale';
+import translations from '~/client/translations.json';
 
 export function useTranslations(): (label: string, overrideLocale?: string) => string | undefined {
     const locale = useLocale();

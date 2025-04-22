@@ -7,15 +7,14 @@ jest.mock('~/state/base/useUpdatingApiRequest');
 describe('useGetDetails', () => {
     const request = jest.fn();
 
-    beforeEach(() => {
-        (useUpdatingApiRequest as jest.Mock).mockReturnValue(request);
-    });
+    beforeEach(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
 
     afterEach(() => jest.clearAllMocks());
 
     it('request data from /details and update current state', async () => {
         const { result } = renderHook(() => useGetDetails());
         await result.current();
+
         expect(request).toHaveBeenCalledWith('/details');
     });
 });
