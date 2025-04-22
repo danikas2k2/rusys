@@ -80,6 +80,7 @@
         "@babel/preset-typescript": "^7.27.0",
         "@catppuccin/palette": "^1.7.1",
         "@ecomfe/class-names-loader": "^2.0.0",
+        "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
         "@mapbox/rehype-prism": "^0.9.0",
         "@mdx-js/esbuild": "^3.1.0",
         "@mdx-js/loader": "^3.1.0",

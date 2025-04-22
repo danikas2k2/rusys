@@ -166,16 +166,6 @@ export default [
             'no-redeclare': 'off',
             '@typescript-eslint/no-redeclare': 'error',
             'block-scoped-var': 'error',
-            'sort-imports': [
-                'error',
-                {
-                    allowSeparatedGroups: true,
-                    ignoreCase: true,
-                    ignoreDeclarationSort: true,
-                    ignoreMemberSort: false,
-                    memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
-                },
-            ],
         },
         settings: {
             'import/resolver': {
