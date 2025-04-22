@@ -1,54 +1,56 @@
 /** @jest-environment node */
-import { type ApiDetails, type ApiRequestVariant } from '~/common/api';
+
+import { getDetailsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
+import { mockRequest } from '@tests/mockRequest';
+import { mockResponse } from '@tests/mockResponse';
+import { type ApiDetailsWithYears, type ApiRequestVariant } from '~/common/api';
 import { handleDeleteVariant } from '~/server/app/handleDeleteVariant';
 import { deleteVariantOccurrences } from '~/server/data/common';
-import { getVariantsResponse } from '~/server/data/variants';
-import { getDetailsFixture, getYearsFixture } from '~/tests/fixtures';
-import { mockRequest } from '~/tests/mockRequest';
-import { mockResponse } from '~/tests/mockResponse';
+import { getDetailsAndVariants } from '~/server/data/variants';
 
 jest.mock('~/server/app/debug');
 jest.mock('~/server/data/common');
 jest.mock('~/server/data/variants');
 
 describe('handleDeleteVariant', () => {
-    const request = mockRequest<ApiRequestVariant>({ group: 'G', variant: 'd' });
-    const response = mockResponse<ApiDetails>();
+    const request = mockRequest<ApiRequestVariant>({ group: 'Uogienės', variant: 'd' });
+    const response = mockResponse<ApiDetailsWithYears>();
     const years = getYearsFixture();
     const details = getDetailsFixture();
+    const variants = getVariantsFixture();
 
     afterEach(() => jest.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        (deleteVariantOccurrences as jest.Mock).mockResolvedValueOnce(true);
-        (getVariantsResponse as jest.Mock).mockResolvedValueOnce({ years, details });
+        jest.mocked(deleteVariantOccurrences).mockResolvedValueOnce(true);
+        jest.mocked(getDetailsAndVariants).mockResolvedValueOnce({ years, details, variants });
 
         await handleDeleteVariant(request, response);
 
-        expect(deleteVariantOccurrences).toHaveBeenCalledWith('G', 'd');
-        expect(getVariantsResponse).toHaveBeenCalledWith(true);
+        expect(deleteVariantOccurrences).toHaveBeenCalledWith('Uogienės', 'd');
+        expect(getDetailsAndVariants).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: true, years, details });
+        expect(response.json).toHaveBeenCalledWith({ ok: true, years, details, variants });
     });
 
     it('returns empty response on failure', async () => {
-        (deleteVariantOccurrences as jest.Mock).mockResolvedValueOnce(false);
+        jest.mocked(deleteVariantOccurrences).mockResolvedValueOnce(false);
 
         await handleDeleteVariant(request, response);
 
-        expect(deleteVariantOccurrences).toHaveBeenCalledWith('G', 'd');
-        expect(getVariantsResponse).not.toHaveBeenCalled();
+        expect(deleteVariantOccurrences).toHaveBeenCalledWith('Uogienės', 'd');
+        expect(getDetailsAndVariants).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
     it('returns error response on error', async () => {
-        (deleteVariantOccurrences as jest.Mock).mockRejectedValueOnce('Failed to delete variant');
+        jest.mocked(deleteVariantOccurrences).mockRejectedValueOnce('Failed to delete variant');
 
         await handleDeleteVariant(request, response);
 
-        expect(deleteVariantOccurrences).toHaveBeenCalledWith('G', 'd');
-        expect(getVariantsResponse).not.toHaveBeenCalled();
+        expect(deleteVariantOccurrences).toHaveBeenCalledWith('Uogienės', 'd');
+        expect(getDetailsAndVariants).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to delete variant' });
     });

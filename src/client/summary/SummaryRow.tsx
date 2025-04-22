@@ -3,7 +3,7 @@ import { useSummaryYears } from '~/client/summary/hooks/useSummaryYears';
 import { SummaryCell } from '~/client/summary/SummaryCell';
 import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';
-import type { YearAmounts } from '~/common/types';
+import { type YearAmounts } from '~/common/types';
 import cx from './SummaryRow.less';
 
 export function SummaryRow({

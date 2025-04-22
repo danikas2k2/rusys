@@ -1,3 +1,4 @@
+import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 import AddIcon from '@assets/add.svg';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
@@ -6,8 +7,6 @@ import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { Input } from '@ui/Input';
-import { isEmpty } from 'lodash';
-import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
@@ -16,6 +15,7 @@ import { getErrorMessage } from '~/common/utils/errors';
 import { useAddGroup } from '~/state/groups/useAddGroup';
 import { useGroups } from '~/state/groups/useGroups';
 import { useRenameGroup } from '~/state/groups/useRenameGroup';
+import { isEmpty } from 'lodash';
 import cx from './GroupBox.less';
 
 interface GroupBoxProps extends WithOnClose {

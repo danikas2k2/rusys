@@ -10,5 +10,10 @@ export async function handleReorderVariants(
     debugRequest(req);
     headerNoCache(res);
     const { group, variants } = req.body;
-    res.json(await run(() => reorderVariants(group, variants), getVariantsResponse));
+    res.json(
+        await run(
+            () => reorderVariants(group, variants),
+            () => getVariantsResponse()
+        )
+    );
 }

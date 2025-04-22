@@ -1,8 +1,8 @@
-import { act, renderHook } from '@testing-library/react';
 import { useDispatch } from 'react-redux';
+import { act, renderHook } from '@testing-library/react';
+import { withReduxState } from '@tests/withReduxState';
 import { resetProfileAction } from '~/state/profile/actions';
 import { useResetProfile } from '~/state/profile/useResetProfile';
-import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('react-redux', () => ({
     ...jest.requireActual('react-redux'),
@@ -12,9 +12,7 @@ jest.mock('react-redux', () => ({
 describe('useResetProfile', () => {
     const dispatch = jest.fn();
 
-    beforeAll(() => {
-        (useDispatch as unknown as jest.Mock).mockReturnValue(dispatch);
-    });
+    beforeAll(() => jest.mocked(useDispatch).mockReturnValue(dispatch));
 
     afterEach(() => jest.clearAllMocks());
 

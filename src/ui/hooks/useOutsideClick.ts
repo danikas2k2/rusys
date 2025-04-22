@@ -1,4 +1,4 @@
-import { type RefObject, useEffect } from 'react';
+import { useEffect, type RefObject } from 'react';
 
 // TODO improve outside click handler to use single event listener for all components:
 //  - individual refs with handlers should be stored in a map, and the handler should be called based on the ref

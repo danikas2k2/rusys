@@ -1,8 +1,8 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Portal } from '@ui/Portal';
-import React from 'react';
 
-describe('Portal', () => {
+describe('<Portal>', () => {
     it('renders children in portal', () => {
         render(
             <div>
@@ -12,8 +12,9 @@ describe('Portal', () => {
             </div>
         );
         const child = screen.getByText('Test');
+
         expect(child).toBeInTheDocument();
-        expect(child.parentElement).toEqual(screen.getByRole('complementary', { name: 'portal' }));
+        expect(child.parentElement).toStrictEqual(screen.getByRole('complementary', { name: 'portal' }));
     });
 
     it('use one portal for one element', () => {
@@ -28,7 +29,8 @@ describe('Portal', () => {
                 <div>Updated</div>
             </Portal>
         );
-        expect(initialPortal).toEqual(screen.getByRole('complementary', { name: 'portal' }));
+
+        expect(initialPortal).toStrictEqual(screen.getByRole('complementary', { name: 'portal' }));
     });
 
     it('removes portal on unmount', () => {
@@ -38,6 +40,7 @@ describe('Portal', () => {
             </Portal>
         );
         unmount();
+
         expect(screen.queryByRole('complementary', { name: 'portal' })).not.toBeInTheDocument();
     });
 
@@ -52,6 +55,7 @@ describe('Portal', () => {
                 </Portal>
             </>
         );
+
         expect(screen.getAllByRole('complementary', { name: 'portal' })).toHaveLength(2);
     });
 });

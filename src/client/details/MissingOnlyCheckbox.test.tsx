@@ -1,6 +1,6 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { MissingOnlyCheckbox } from '~/client/details/MissingOnlyCheckbox';
 import { useMissingOnly } from '~/client/details/MissingOnlyContext';
 import { useHasMissing } from '~/state/details/useHasMissing';
@@ -12,48 +12,54 @@ jest.mock('~/state/details/useHasMissing', () => ({
     useHasMissing: jest.fn(),
 }));
 
-describe('MissingOnlyCheckbox', () => {
+describe('<MissingOnlyCheckbox>', () => {
     const setMissingOnly = jest.fn();
 
     beforeEach(() => {
-        (useMissingOnly as jest.Mock).mockReturnValue([false, setMissingOnly]);
-        (useHasMissing as jest.Mock).mockReturnValue(true);
+        jest.mocked(useMissingOnly).mockReturnValue([false, setMissingOnly]);
+        jest.mocked(useHasMissing).mockReturnValue(true);
     });
 
     afterEach(() => jest.clearAllMocks());
 
     it('renders enabled checkbox if has missing items', () => {
         render(<MissingOnlyCheckbox />);
+
         expect(screen.getByRole('checkbox')).toBeEnabled();
     });
 
     it('renders disabled checkbox if has no missing items', () => {
-        (useHasMissing as jest.Mock).mockReturnValue(false);
+        jest.mocked(useHasMissing).mockReturnValue(false);
         render(<MissingOnlyCheckbox />);
+
         expect(screen.getByRole('checkbox')).toBeDisabled();
     });
 
     it('renders checked checkbox if missing only items are not selected', () => {
         render(<MissingOnlyCheckbox />);
+
         expect(screen.getByRole('checkbox')).toBeChecked();
     });
 
     it('renders unchecked checkbox if missing only items selected', () => {
-        (useMissingOnly as jest.Mock).mockReturnValueOnce([true, jest.fn()]);
+        jest.mocked(useMissingOnly).mockReturnValueOnce([true, jest.fn()]);
         render(<MissingOnlyCheckbox />);
+
         expect(screen.getByRole('checkbox')).not.toBeChecked();
     });
 
     it('changes missing only state if missing only items are not selected', async () => {
         render(<MissingOnlyCheckbox />);
         await userEvent.click(screen.getByRole('checkbox'));
+
         expect(setMissingOnly).toHaveBeenCalledWith(true);
     });
 
     it('changes missing only state if missing only items selected', async () => {
-        (useMissingOnly as jest.Mock).mockReturnValueOnce([true, setMissingOnly]);
+        jest.mocked(useMissingOnly).mockReturnValueOnce([true, setMissingOnly]);
         render(<MissingOnlyCheckbox />);
         await userEvent.click(screen.getByRole('checkbox'));
+
         expect(setMissingOnly).toHaveBeenCalledWith(false);
     });
 
@@ -61,6 +67,7 @@ describe('MissingOnlyCheckbox', () => {
         const onClick = jest.fn();
         render(<MissingOnlyCheckbox onClick={onClick} />);
         await userEvent.click(screen.getByRole('checkbox'));
+
         expect(onClick).toHaveBeenCalledWith();
     });
 });

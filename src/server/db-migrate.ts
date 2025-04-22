@@ -1,7 +1,7 @@
-import nedb from 'nedb-promises';
 import path from 'path';
 import { type Details, type Group, type Variant } from '~/common/types';
-import { getDetailsCollection, getGroupsCollection, getVariantsCollection } from '~/server/db';
+import { db } from '~/server/db';
+import nedb from 'nedb-promises';
 
 type DeprecatedDetails = { group?: string; name: string } & Record<string, Record<string, number>>;
 type DeprecatedMissing = { missing: (string | { group?: string; name: string })[] };
@@ -134,9 +134,7 @@ type DeprecatedUpdates = { group?: string; name: string; time: number } & Record
     );
     // eslint-disable-next-line no-console
     console.info(`Migrating ${newDetails.length} details...`);
-    await (
-        await getDetailsCollection()
-    ).bulkWrite([
+    await (await db()).collection('details').bulkWrite([
         { deleteMany: { filter: {} } },
         ...newDetails.map((v) => ({
             replaceOne: { filter: { group: v.group, name: v.name }, replacement: v, upsert: true },
@@ -144,24 +142,20 @@ type DeprecatedUpdates = { group?: string; name: string; time: number } & Record
     ]);
 
     // eslint-disable-next-line no-console
-    console.info(`Migrating ${groups.length} groups...`);
-    await (
-        await getGroupsCollection()
-    ).bulkWrite([
+    console.info(`Migrating ${variants.length} variants...`);
+    await (await db()).collection('variants').bulkWrite([
         { deleteMany: { filter: {} } },
-        ...groups.map((v) => ({
-            replaceOne: { filter: { group: v.group }, replacement: v, upsert: true },
+        ...variants.map((v) => ({
+            replaceOne: { filter: { group: v.group, variant: v.variant }, replacement: v, upsert: true },
         })),
     ]);
 
     // eslint-disable-next-line no-console
-    console.info(`Migrating ${variants.length} variants...`);
-    await (
-        await getVariantsCollection()
-    ).bulkWrite([
+    console.info(`Migrating ${groups.length} groups...`);
+    await (await db()).collection('groups').bulkWrite([
         { deleteMany: { filter: {} } },
-        ...variants.map((v) => ({
-            replaceOne: { filter: { group: v.group, variant: v.variant }, replacement: v, upsert: true },
+        ...groups.map((v) => ({
+            replaceOne: { filter: { group: v.group }, replacement: v, upsert: true },
         })),
     ]);
 

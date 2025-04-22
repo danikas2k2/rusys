@@ -1,6 +1,6 @@
-import { ColorSchemeState } from '@ui/ColorScheme';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { ColorSchemeState } from '@ui/ColorScheme';
 import { Tutorial } from '~/tutorial/Tutorial';
 import './index.less';
 

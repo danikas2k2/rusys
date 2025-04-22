@@ -1,9 +1,9 @@
 import {
+    MongoError,
     type BulkWriteResult,
     type DeleteResult,
     type InsertManyResult,
     type InsertOneResult,
-    MongoError,
     type UpdateResult,
 } from 'mongodb';
 

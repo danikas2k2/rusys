@@ -19,7 +19,7 @@ describe('amounts', () => {
         });
 
         it('returns the variant if found', () => {
-            expect(getVariant([{ variant: 'p', amount: 1 }], 'p')).toEqual({ variant: 'p', amount: 1 });
+            expect(getVariant([{ variant: 'p', amount: 1 }], 'p')).toStrictEqual({ variant: 'p', amount: 1 });
         });
     });
 

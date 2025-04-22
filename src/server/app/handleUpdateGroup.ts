@@ -7,5 +7,10 @@ export async function handleUpdateGroup(req: ApiRequest<ApiUpdateGroup>, res: Ap
     debugRequest(req);
     headerNoCache(res);
     const { group, order } = req.body;
-    res.json(await run(() => updateGroup(group, order), getGroupsResponse));
+    res.json(
+        await run(
+            () => updateGroup(group, order),
+            () => getGroupsResponse()
+        )
+    );
 }

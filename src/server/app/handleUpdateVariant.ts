@@ -10,5 +10,10 @@ export async function handleUpdateVariant(
     debugRequest(req);
     headerNoCache(res);
     const { group, variant, ...update } = req.body;
-    res.json(await run(() => updateVariant(group, variant, update), getVariantsResponse));
+    res.json(
+        await run(
+            () => updateVariant(group, variant, update),
+            () => getVariantsResponse()
+        )
+    );
 }

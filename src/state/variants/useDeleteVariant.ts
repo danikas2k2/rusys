@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { type ApiRequestVariant, ApiUrl } from '~/common/api';
+import { ApiUrl, type ApiRequestVariant } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 
 export function useDeleteVariant(): (group: string, variant: string) => Promise<void> {

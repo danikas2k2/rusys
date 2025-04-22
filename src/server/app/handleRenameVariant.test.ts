@@ -1,11 +1,12 @@
 /** @jest-environment node */
-import { type ApiDetails, type ApiRenameVariant } from '~/common/api';
+
+import { getDetailsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
+import { mockRequest } from '@tests/mockRequest';
+import { mockResponse } from '@tests/mockResponse';
+import { type ApiDetailsWithYears, type ApiRenameVariant } from '~/common/api';
 import { handleRenameVariant } from '~/server/app/handleRenameVariant';
 import { renameVariantOccurrences } from '~/server/data/common';
-import { getVariantsResponse } from '~/server/data/variants';
-import { getDetailsFixture, getVariantsFixture, getYearsFixture } from '~/tests/fixtures';
-import { mockRequest } from '~/tests/mockRequest';
-import { mockResponse } from '~/tests/mockResponse';
+import { getDetailsAndVariants } from '~/server/data/variants';
 
 jest.mock('~/server/app/debug');
 jest.mock('~/server/data/common');
@@ -13,14 +14,14 @@ jest.mock('~/server/data/variants');
 
 describe('handleRenameVariant', () => {
     const request = mockRequest<ApiRenameVariant>({
-        group: 'G',
+        group: 'Uogienės',
         variant: 'd',
         newVariant: '3/4',
         order: 7,
         long: 'Long',
         short: 'Short',
     });
-    const response = mockResponse<ApiDetails>();
+    const response = mockResponse<ApiDetailsWithYears>();
     const years = getYearsFixture();
     const details = getDetailsFixture();
     const variants = getVariantsFixture();
@@ -34,35 +35,35 @@ describe('handleRenameVariant', () => {
     };
 
     it('returns filled response on success', async () => {
-        (renameVariantOccurrences as jest.Mock).mockResolvedValueOnce(true);
-        (getVariantsResponse as jest.Mock).mockResolvedValueOnce({ years, details, variants });
+        jest.mocked(renameVariantOccurrences).mockResolvedValueOnce(true);
+        jest.mocked(getDetailsAndVariants).mockResolvedValueOnce({ years, details, variants });
 
         await handleRenameVariant(request, response);
 
-        expect(renameVariantOccurrences).toHaveBeenCalledWith('G', 'd', '3/4', update);
-        expect(getVariantsResponse).toHaveBeenCalledWith(true);
+        expect(renameVariantOccurrences).toHaveBeenCalledWith('Uogienės', 'd', '3/4', update);
+        expect(getDetailsAndVariants).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true, years, details, variants });
     });
 
     it('returns empty response on failure', async () => {
-        (renameVariantOccurrences as jest.Mock).mockResolvedValueOnce(false);
+        jest.mocked(renameVariantOccurrences).mockResolvedValueOnce(false);
 
         await handleRenameVariant(request, response);
 
-        expect(renameVariantOccurrences).toHaveBeenCalledWith('G', 'd', '3/4', update);
-        expect(getVariantsResponse).not.toHaveBeenCalled();
+        expect(renameVariantOccurrences).toHaveBeenCalledWith('Uogienės', 'd', '3/4', update);
+        expect(getDetailsAndVariants).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
     it('returns error response on error', async () => {
-        (renameVariantOccurrences as jest.Mock).mockRejectedValueOnce('Failed to rename variant');
+        jest.mocked(renameVariantOccurrences).mockRejectedValueOnce('Failed to rename variant');
 
         await handleRenameVariant(request, response);
 
-        expect(renameVariantOccurrences).toHaveBeenCalledWith('G', 'd', '3/4', update);
-        expect(getVariantsResponse).not.toHaveBeenCalled();
+        expect(renameVariantOccurrences).toHaveBeenCalledWith('Uogienės', 'd', '3/4', update);
+        expect(getDetailsAndVariants).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to rename variant' });
     });

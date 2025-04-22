@@ -1,4 +1,4 @@
-import { type GoogleAction, GoogleActionType } from '~/state/google/actions';
+import { GoogleActionType, type GoogleAction } from '~/state/google/actions';
 import { google as reducer } from '~/state/google/reducer';
 import { type Google } from '~/state/google/types';
 
@@ -14,15 +14,15 @@ describe('google', () => {
         const unknownAction = { type: 'unknown' as GoogleActionType } as GoogleAction;
 
         it('does not change state', () => {
-            expect(reducer(google, unknownAction)).toEqual(google);
+            expect(reducer(google, unknownAction)).toStrictEqual(google);
         });
 
         it('does not change empty set', () => {
-            expect(reducer({}, unknownAction)).toEqual({});
+            expect(reducer({}, unknownAction)).toStrictEqual({});
         });
 
         it('return default state for undefined', () => {
-            expect(reducer(undefined, unknownAction)).toEqual({});
+            expect(reducer(undefined, unknownAction)).toStrictEqual({});
         });
     });
 
@@ -36,7 +36,7 @@ describe('google', () => {
                         loading: true,
                     }
                 )
-            ).toEqual({ loading: true });
+            ).toStrictEqual({ loading: true });
         });
 
         it('update empty state with false', () => {
@@ -48,7 +48,7 @@ describe('google', () => {
                         loading: false,
                     }
                 )
-            ).toEqual({ loading: false });
+            ).toStrictEqual({ loading: false });
         });
 
         it('update filled state with true', () => {
@@ -57,7 +57,7 @@ describe('google', () => {
                     type: GoogleActionType.SET_LOADING,
                     loading: true,
                 })
-            ).toEqual({ ...google, loading: true });
+            ).toStrictEqual({ ...google, loading: true });
         });
 
         it('update undefined state', () => {
@@ -66,7 +66,7 @@ describe('google', () => {
                     type: GoogleActionType.SET_LOADING,
                     loading: false,
                 })
-            ).toEqual({ loading: false });
+            ).toStrictEqual({ loading: false });
         });
     });
 
@@ -80,7 +80,7 @@ describe('google', () => {
                         clientId: '123',
                     }
                 )
-            ).toEqual({ clientId: '123' });
+            ).toStrictEqual({ clientId: '123' });
         });
 
         it('update empty state with empty value', () => {
@@ -92,7 +92,7 @@ describe('google', () => {
                         clientId: '',
                     }
                 )
-            ).toEqual({ clientId: '' });
+            ).toStrictEqual({ clientId: '' });
         });
 
         it('update filled state', () => {
@@ -101,7 +101,7 @@ describe('google', () => {
                     type: GoogleActionType.SET_CLIENT_ID,
                     clientId: '456',
                 })
-            ).toEqual({ ...google, clientId: '456' });
+            ).toStrictEqual({ ...google, clientId: '456' });
         });
 
         it('update filled state with empty', () => {
@@ -110,7 +110,7 @@ describe('google', () => {
                     type: GoogleActionType.SET_CLIENT_ID,
                     clientId: '',
                 })
-            ).toEqual({ ...google, clientId: '' });
+            ).toStrictEqual({ ...google, clientId: '' });
         });
 
         it('update undefined state', () => {
@@ -119,7 +119,7 @@ describe('google', () => {
                     type: GoogleActionType.SET_CLIENT_ID,
                     clientId: '123',
                 })
-            ).toEqual({ clientId: '123' });
+            ).toStrictEqual({ clientId: '123' });
         });
     });
 });

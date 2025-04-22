@@ -1,13 +1,10 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import lodash from 'lodash';
-import React from 'react';
 import { RowWithSlideControls, type RowWithSlideControlsProps } from '~/client/table/RowWithSlideControls';
+import lodash from 'lodash';
 
-jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(400);
-jest.spyOn(lodash, 'defer').mockImplementation((fn) => fn());
-
-describe('RowWithSlideControls', () => {
+describe('<RowWithSlideControls>', () => {
     const controls = <button>Controls</button>;
     const children = <div>Content</div>;
     const onDragStart = jest.fn();
@@ -21,12 +18,18 @@ describe('RowWithSlideControls', () => {
         onDrag,
     };
 
+    beforeEach(() => {
+        jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(400);
+        jest.spyOn(lodash, 'defer').mockImplementation((fn) => fn());
+    });
+
     afterEach(() => jest.clearAllMocks());
 
     it('calls drag start handler', async () => {
         render(<RowWithSlideControls {...props} />);
         const target = screen.getByText('Content');
-        await userEvent.pointer([{ target, keys: '[MouseLeft>]', coords: { x: 200 } }]);
+        await userEvent.pointer([{ target, coords: { x: 200 }, keys: '[MouseLeft>]' }]);
+
         expect(onDragStart).toHaveBeenCalledWith();
     });
 
@@ -34,9 +37,11 @@ describe('RowWithSlideControls', () => {
         render(<RowWithSlideControls {...props} />);
         const target = screen.getByText('Content');
         await userEvent.pointer([
-            { target, keys: '[MouseLeft>]', coords: { x: 200 } },
-            { target, keys: '[/MouseLeft]', coords: { x: 100 } },
+            { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
+            { target, coords: { x: 100 } },
+            { target, keys: '[/MouseLeft]' },
         ]);
+
         expect(onDragEnd).toHaveBeenCalledWith();
     });
 
@@ -44,10 +49,12 @@ describe('RowWithSlideControls', () => {
         render(<RowWithSlideControls {...props} />);
         const target = screen.getByText('Content');
         await userEvent.pointer([
-            { target, keys: '[MouseLeft>]', coords: { x: 200 } },
+            { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
             { target, coords: { x: 150 } },
-            { target, keys: '[/MouseLeft]', coords: { x: 100 } },
+            { target, coords: { x: 100 } },
+            { target, keys: '[/MouseLeft]' },
         ]);
+
         expect(onDrag).toHaveBeenCalledTimes(2);
     });
 
@@ -55,12 +62,14 @@ describe('RowWithSlideControls', () => {
         render(<RowWithSlideControls {...props} />);
         const target = screen.getByText('Content');
         await userEvent.pointer([
-            { target, keys: '[MouseLeft>]', coords: { x: 200 } },
+            { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
             { target, coords: { x: 175 } },
             { target, coords: { x: 150 } },
             { target, coords: { x: 125 } },
-            { target, keys: '[/MouseLeft]', coords: { x: 100 } },
+            { target, coords: { x: 100 } },
+            { target, keys: '[/MouseLeft]' },
         ]);
+
         expect(onDrag).toHaveBeenCalledTimes(4);
     });
 
@@ -68,15 +77,18 @@ describe('RowWithSlideControls', () => {
         render(<RowWithSlideControls {...props} />);
         const target = screen.getByText('Content');
         await userEvent.pointer([
-            { target, keys: '[MouseLeft>]', coords: { x: 200 } },
+            { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
             { target, coords: { x: 150 } },
         ]);
+
         expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: 'translateX(-50px)' });
 
         await userEvent.pointer([{ target, coords: { x: 100 } }]);
+
         expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: 'translateX(-100px)' });
 
         await userEvent.pointer([{ target, coords: { x: 50 } }]);
+
         expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: 'translateX(-150px)' });
     });
 
@@ -84,9 +96,11 @@ describe('RowWithSlideControls', () => {
         render(<RowWithSlideControls {...props} />);
         const target = screen.getByText('Content');
         await userEvent.pointer([
-            { target, keys: '[MouseLeft>]', coords: { x: 200 } },
-            { target, keys: '[/MouseLeft]', coords: { x: 100 } },
+            { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
+            { target, coords: { x: 100 } },
+            { target, keys: '[/MouseLeft]' },
         ]);
+
         expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: 'translateX(-400px)' });
     });
 
@@ -94,13 +108,16 @@ describe('RowWithSlideControls', () => {
         render(<RowWithSlideControls {...props} />);
         const target = screen.getByText('Content');
         await userEvent.pointer([
-            { target, keys: '[MouseLeft>]', coords: { x: 200 } },
-            { target, keys: '[/MouseLeft]', coords: { x: 100 } },
+            { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
+            { target, coords: { x: 100 } },
+            { target, keys: '[/MouseLeft]' },
         ]);
         await userEvent.pointer([
-            { target, keys: '[MouseLeft>]', coords: { x: 100 } },
-            { target, keys: '[/MouseLeft]', coords: { x: 150 } },
+            { target, coords: { x: 100 }, keys: '[MouseLeft>]' },
+            { target, coords: { x: 150 } },
+            { target, keys: '[/MouseLeft]' },
         ]);
+
         expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: '' });
     });
 
@@ -108,9 +125,11 @@ describe('RowWithSlideControls', () => {
         render(<RowWithSlideControls {...props} />);
         const target = screen.getByText('Content');
         await userEvent.pointer([
-            { target, keys: '[MouseLeft>]', coords: { x: 200 } },
-            { target, keys: '[/MouseLeft]', coords: { x: 190 } },
+            { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
+            { target, coords: { x: 190 } },
+            { target, keys: '[/MouseLeft]' },
         ]);
+
         expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: '' });
     });
 });

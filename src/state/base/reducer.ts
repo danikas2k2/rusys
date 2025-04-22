@@ -1,4 +1,3 @@
-import { combineReducers } from 'redux';
 import { details } from '~/state/details/reducer';
 import { filter } from '~/state/filter/reducer';
 import { google } from '~/state/google/reducer';
@@ -8,6 +7,7 @@ import { profile } from '~/state/profile/reducer';
 import { summary } from '~/state/summary/reducer';
 import { variants } from '~/state/variants/reducer';
 import { years } from '~/state/years/reducer';
+import { combineReducers } from 'redux';
 
 export const reducer = combineReducers({
     google,

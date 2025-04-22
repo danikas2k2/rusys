@@ -7,7 +7,8 @@ describe('setProfileAction', () => {
             name: 'Big Buddy',
             email: 'big.buddy@email.com',
         };
-        expect(setProfileAction(profile)).toEqual({
+
+        expect(setProfileAction(profile)).toStrictEqual({
             type: ProfileActionType.SET,
             profile,
         });
@@ -16,7 +17,7 @@ describe('setProfileAction', () => {
 
 describe('resetProfileAction', () => {
     it('returns valid action', () => {
-        expect(resetProfileAction()).toEqual({
+        expect(resetProfileAction()).toStrictEqual({
             type: ProfileActionType.RESET,
         });
     });
@@ -24,7 +25,7 @@ describe('resetProfileAction', () => {
 
 describe('setAllowedAction', () => {
     it('returns valid action', () => {
-        expect(setAllowedAction(true)).toEqual({
+        expect(setAllowedAction(true)).toStrictEqual({
             type: ProfileActionType.SET_ALLOWED,
             allowed: true,
         });

@@ -1,7 +1,8 @@
+import React, { useCallback, useRef, type FC } from 'react';
+import { useLocation } from 'react-router';
 import { type DropdownRef } from '@ui/Dropdown';
 import { MenuDivider } from '@ui/MenuDivider';
-import React, { type FC, useCallback, useRef } from 'react';
-import { useLocation } from 'react-router';
+import { ImportBox } from '~/client/common/dialogs/ImportBox';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { DetailsBox } from '~/client/details/dialogs/DetailsBox';
 import { GroupBox } from '~/client/groups/dialogs/GroupBox';
@@ -16,7 +17,6 @@ import { SummaryItem } from '~/client/toolbar/items/SummaryItem';
 import { VariantsItem } from '~/client/toolbar/items/VariantsItem';
 import { ToolbarMenuWrapper } from '~/client/toolbar/ToolbarMenuWrapper';
 import { VariantBox } from '~/client/variants/dialogs/VariantBox';
-import { ImportBox } from '~/client/common/dialogs/ImportBox';
 
 const AddBoxMap: Partial<Record<Links, FC<WithOnClose>>> = {
     [Links.DETAILS]: DetailsBox,

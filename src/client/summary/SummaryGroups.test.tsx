@@ -1,12 +1,12 @@
-import { render, screen, within } from '@testing-library/react';
 import React from 'react';
+import { render, screen, within } from '@testing-library/react';
+import { getSummaryFixture } from '@tests/fixtures';
+import { withReduxState } from '@tests/withReduxState';
 import { SummaryGroups } from '~/client/summary/SummaryGroups';
-import { getSummaryFixture } from '~/tests/fixtures';
-import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/state/years/useYears');
 
-describe('SummaryGroups', () => {
+describe('<SummaryGroups>', () => {
     const groups = ['Daržovės', 'Uogienės'];
     const summary = getSummaryFixture();
 
@@ -14,6 +14,7 @@ describe('SummaryGroups', () => {
         render(<SummaryGroups groups={groups} summary={summary} />, withReduxState());
 
         const rows = screen.getAllByRole('row');
+
         expect(rows).toHaveLength(6);
 
         expect(within(rows[0]).getByRole('rowheader')).toHaveTextContent('Daržovės');

@@ -1,9 +1,9 @@
-import { type CredentialResponse, type TokenResponse } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
 import { useCallback } from 'react';
 import { type Profile } from '~/state/profile/types';
 import { useEmailCheck } from '~/state/profile/useEmailCheck';
 import { useSetProfile } from '~/state/profile/useSetProfile';
+import { type CredentialResponse, type TokenResponse } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 
 export function useLoginSuccess(
     onError: () => void

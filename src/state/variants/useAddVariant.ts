@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import type { UpdateVariant } from '~/common/types';
+import { type UpdateVariant } from '~/common/types';
 import { useUpdateVariant } from '~/state/variants/useUpdateVariant';
 
 export function useAddVariant(): (group: string, variant: string, update?: UpdateVariant) => Promise<void> {

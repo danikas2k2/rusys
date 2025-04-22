@@ -1,5 +1,5 @@
-import { useLongPress } from '@ui/hooks/useLongPress';
 import React, { useCallback, useState } from 'react';
+import { useLongPress } from '@ui/hooks/useLongPress';
 import { RecycledContextWrapper } from '~/client/common/RecycledContext';
 import { ValueBox } from '~/client/details/dialogs/ValueBox';
 import { ValueAmounts } from '~/client/details/ValueAmounts';

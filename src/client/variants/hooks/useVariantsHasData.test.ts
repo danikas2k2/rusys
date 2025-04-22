@@ -9,18 +9,21 @@ jest.mock('~/state/variants/useVariants');
 describe('useVariantsHasData', () => {
     it('returns true if has all required Variants data', () => {
         const { result } = renderHook(() => useVariantsHasData());
+
         expect(result.current).toBeTrue();
     });
 
     it('returns false if has no groups', () => {
-        (useGroups as jest.Mock).mockReturnValueOnce([]);
+        jest.mocked(useGroups).mockReturnValueOnce([]);
         const { result } = renderHook(() => useVariantsHasData());
+
         expect(result.current).toBeFalse();
     });
 
     it('returns false if has no variants', () => {
-        (useVariants as jest.Mock).mockReturnValueOnce([]);
+        jest.mocked(useVariants).mockReturnValueOnce([]);
         const { result } = renderHook(() => useVariantsHasData());
+
         expect(result.current).toBeFalse();
     });
 });

@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { render, screen } from '@testing-library/react';
 import { Toolbar } from '~/client/toolbar/Toolbar';
 
 jest.mock('~/client/toolbar/ToolbarMenu', () => ({
@@ -12,24 +12,28 @@ jest.mock('~/client/user/LogoutButton', () => ({
     LogoutButton: () => <div>LogoutButton</div>,
 }));
 
-describe('Toolbar', () => {
+describe('<Toolbar>', () => {
     it('renders ToolbarFilter', () => {
         render(<Toolbar />);
+
         expect(screen.getByText('ToolbarFilter')).toBeInTheDocument();
     });
 
     it('renders ToolbarMenu', () => {
         render(<Toolbar />);
+
         expect(screen.getByText('ToolbarMenu')).toBeInTheDocument();
     });
 
     it('renders LogoutButton', () => {
         render(<Toolbar />);
+
         expect(screen.getByText('LogoutButton')).toBeInTheDocument();
     });
 
     it('renders passed children', () => {
         render(<Toolbar>children</Toolbar>);
+
         expect(screen.getByText('children')).toBeInTheDocument();
     });
 });

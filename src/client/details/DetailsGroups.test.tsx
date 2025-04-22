@@ -1,9 +1,9 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { getDetailsFixture } from '@tests/fixtures';
 import { DetailsGroups } from '~/client/details/DetailsGroups';
 import { ValueRow } from '~/client/details/ValueRow';
 import { useGroup } from '~/state/group/useGroup';
-import { getDetailsFixture } from '~/tests/fixtures';
 
 jest.mock('~/state/group/useGroup', () => ({
     useGroup: jest.fn().mockReturnValue(''),
@@ -12,7 +12,7 @@ jest.mock('~/client/details/ValueRow', () => ({
     ValueRow: jest.fn().mockReturnValue(null),
 }));
 
-describe('DetailsGroups', () => {
+describe('<DetailsGroups>', () => {
     const groups = ['Uogienės', 'Daržovės'];
     const details = getDetailsFixture();
 
@@ -20,6 +20,7 @@ describe('DetailsGroups', () => {
 
     it('renders details groups with groups and details', () => {
         render(<DetailsGroups groups={groups} details={details} />);
+
         expect(screen.getAllByRole('rowgroup')).toHaveLength(2);
         expect(screen.getAllByRole('rowheader')).toHaveListWithTextContent(groups);
 
@@ -66,8 +67,9 @@ describe('DetailsGroups', () => {
 
     it('renders filtered groups with details', () => {
         const [group] = groups;
-        (useGroup as jest.Mock).mockReturnValue(group);
+        jest.mocked(useGroup).mockReturnValue(group);
         render(<DetailsGroups groups={[group]} details={details} />);
+
         expect(screen.getByRole('rowgroup')).toBeInTheDocument();
         expect(screen.getByRole('rowheader')).toHaveTextContent(group);
 
@@ -98,14 +100,16 @@ describe('DetailsGroups', () => {
 
     it('renders missing group without details', () => {
         render(<DetailsGroups groups={[missing]} details={details} />);
+
         expect(screen.queryByRole('rowgroup')).not.toBeInTheDocument();
         expect(screen.queryByRole('rowheader')).not.toBeInTheDocument();
         expect(ValueRow).not.toHaveBeenCalled();
     });
 
     it('renders missing filtered group without details', () => {
-        (useGroup as jest.Mock).mockReturnValue(missing);
+        jest.mocked(useGroup).mockReturnValue(missing);
         render(<DetailsGroups groups={[missing]} details={details} />);
+
         expect(screen.getByRole('rowgroup')).toBeInTheDocument();
         expect(screen.getByRole('rowheader')).toHaveTextContent(missing);
         expect(ValueRow).not.toHaveBeenCalled();

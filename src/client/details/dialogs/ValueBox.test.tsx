@@ -1,21 +1,21 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import { getVariantsFixture } from '@tests/fixtures';
+import { withMany } from '@tests/withMany';
+import { withRecycledContext } from '@tests/withRecycledContext';
+import { withReduxState } from '@tests/withReduxState';
 import { ValueBox, type ValueBoxProps } from '~/client/details/dialogs/ValueBox';
 import { ValueInput } from '~/client/details/dialogs/ValueInput';
 import { getVariantAmount } from '~/client/details/utils/amounts';
 import { type VariantAmount } from '~/common/types';
 import { type WithVariantsState } from '~/state/variants/types';
-import { getVariantsFixture } from '~/tests/fixtures';
-import { withMany } from '~/tests/withMany';
-import { withRecycledContext } from '~/tests/withRecycledContext';
-import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/client/details/dialogs/ValueInput', () => ({
     ValueInput: jest.fn(jest.requireActual('~/client/details/dialogs/ValueInput').ValueInput),
 }));
 
-describe('ValueBox', () => {
+describe('<ValueBox>', () => {
     beforeEach(() => jest.clearAllMocks());
 
     const group = 'Uogienės';
@@ -37,6 +37,7 @@ describe('ValueBox', () => {
 
     it('renders heading details', () => {
         render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
+
         expect(screen.getByRole('dialog')).toBeInTheDocument();
         expect(screen.getByText('Uogienės')).toBeInTheDocument();
         expect(screen.getByText('Braškės')).toBeInTheDocument();
@@ -45,6 +46,7 @@ describe('ValueBox', () => {
 
     it('renders controls', () => {
         render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
+
         expect(screen.getByLabelText('Close')).toBeInTheDocument();
         expect(screen.getByText('Consumed')).toBeInTheDocument();
         expect(screen.getByText('Recycled')).toBeInTheDocument();
@@ -55,7 +57,9 @@ describe('ValueBox', () => {
 
     it('renders inputs', () => {
         render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
+
         expect(ValueInput).toHaveBeenCalledTimes(amounts.length);
+
         for (const { variant, amount } of amounts) {
             expect(ValueInput).toHaveBeenCalledWith(
                 expect.objectContaining({ variant, amount, focus: variant === amounts[0].variant }),
@@ -71,6 +75,7 @@ describe('ValueBox', () => {
             withMany(withReduxState(state), withRecycledContext())
         );
         await userEvent.click(screen.getByLabelText('Close'));
+
         expect(onClose).toHaveBeenCalledWith();
     });
 
@@ -81,6 +86,7 @@ describe('ValueBox', () => {
             withMany(withReduxState(state), withRecycledContext())
         );
         await userEvent.click(screen.getByText('Cancel'));
+
         expect(onClose).toHaveBeenCalledWith();
     });
 
@@ -91,6 +97,7 @@ describe('ValueBox', () => {
             withMany(withReduxState(state), withRecycledContext())
         );
         await userEvent.click(screen.getByText('Update'));
+
         expect(onClose).toHaveBeenCalledWith([]);
     });
 
@@ -111,6 +118,7 @@ describe('ValueBox', () => {
         await userEvent.type(screen.getByLabelText('m'), '6', selection);
 
         await userEvent.click(screen.getByText('Update'));
+
         expect(onClose).toHaveBeenCalledWith([
             { variant: 'p', amount: 1 },
             { variant: 'd', amount: 1 },
@@ -131,6 +139,7 @@ describe('ValueBox', () => {
         await userEvent.type(screen.getByLabelText('m'), '2', selection);
 
         await userEvent.click(screen.getByText('Update'));
+
         expect(onClose).toHaveBeenCalledWith([
             { variant: 'p', amount: -1, recycled: true },
             { variant: 'd', amount: -2, recycled: true },
@@ -149,6 +158,7 @@ describe('ValueBox', () => {
         await userEvent.type(screen.getByLabelText('d'), '1', selection);
 
         await userEvent.click(screen.getByText('Update'));
+
         expect(onClose).toHaveBeenCalledWith([
             { variant: 'p', amount: 1 },
             { variant: 'd', amount: -2, recycled: true },
@@ -157,9 +167,10 @@ describe('ValueBox', () => {
 
     it('renders all variants when expand pressed', async () => {
         render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
-        (ValueInput as jest.Mock).mockClear();
+        jest.mocked(ValueInput).mockClear();
 
         expect(screen.getByRole('dialog')).not.toHaveClass('fullscreen');
+
         const expand = screen.getByLabelText('Expand');
         await userEvent.click(expand);
 
@@ -167,6 +178,7 @@ describe('ValueBox', () => {
         expect(screen.getByRole('dialog')).toHaveClass('fullscreen');
 
         expect(ValueInput).toHaveBeenCalledTimes(allVariants.length);
+
         for (const variant of allVariants) {
             expect(ValueInput).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -183,12 +195,15 @@ describe('ValueBox', () => {
         render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
 
         await userEvent.type(screen.getByLabelText('p'), '2', selection);
+
         expect(screen.getByLabelText('p')).toHaveValue('2');
 
         await userEvent.type(screen.getByLabelText('d'), '4', selection);
+
         expect(screen.getByLabelText('d')).toHaveValue('4');
 
         await userEvent.type(screen.getByLabelText('m'), '6', selection);
+
         expect(screen.getByLabelText('m')).toHaveValue('6');
 
         await userEvent.click(screen.getByLabelText('Expand'));
@@ -202,6 +217,7 @@ describe('ValueBox', () => {
         render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
 
         await userEvent.click(screen.getByLabelText('m'));
+
         expect(screen.getByLabelText('m')).toHaveFocus();
 
         await userEvent.click(screen.getByLabelText('Expand'));
@@ -224,12 +240,15 @@ describe('ValueBox', () => {
             render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
 
             await userEvent.type(screen.getByLabelText('p'), '-', selection);
+
             expect(screen.getByLabelText('p')).toHaveValue('1');
 
             await userEvent.type(screen.getByLabelText('p'), '.', selection);
+
             expect(screen.getByLabelText('p')).toHaveValue('1');
 
             await userEvent.type(screen.getByLabelText('p'), 'a', selection);
+
             expect(screen.getByLabelText('p')).toHaveValue('1');
         });
 
@@ -237,12 +256,15 @@ describe('ValueBox', () => {
             render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
 
             await userEvent.type(screen.getByLabelText('p'), '0', selection);
+
             expect(screen.getByLabelText('p')).toHaveValue('0');
 
             await userEvent.click(screen.getByRole('spinbutton', { name: 'Decrease', current: true }));
+
             expect(screen.getByLabelText('p')).toHaveValue('0');
 
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Increase', current: true }), '{ArrowDown}');
+
             expect(screen.getByLabelText('p')).toHaveValue('0');
         });
     });

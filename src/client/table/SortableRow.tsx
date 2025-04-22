@@ -1,18 +1,18 @@
-import { useForwardedRef } from '@ui/hooks/useForwardedRef';
-import cs from 'classnames';
-import { defer } from 'lodash';
 import React, {
     cloneElement,
-    type HTMLAttributes,
-    type ReactElement,
-    type RefAttributes,
     useCallback,
     useEffect,
     useRef,
     useState,
+    type HTMLAttributes,
+    type ReactElement,
+    type RefAttributes,
 } from 'react';
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { RowWithSlideControls, type RowWithSlideControlsProps } from '~/client/table/RowWithSlideControls';
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
+import cs from 'classnames';
+import { defer } from 'lodash';
 import cx from './SortableRow.less';
 
 export interface SortableRowProps extends RowWithSlideControlsProps {

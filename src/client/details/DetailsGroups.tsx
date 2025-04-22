@@ -2,7 +2,7 @@ import React from 'react';
 import { ValueRow } from '~/client/details/ValueRow';
 import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';
-import type { Details } from '~/common/types';
+import { type Details } from '~/common/types';
 import { useGroup } from '~/state/group/useGroup';
 import cx from './DetailsGroups.less';
 

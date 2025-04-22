@@ -1,29 +1,29 @@
 /** @jest-environment node */
+import { getDetailsFixture } from '@tests/fixtures';
 import { getLastUpdate, getUpdatesCount } from '~/server/data/tests/utils';
 import { addUpdate, addUpdates, getSummary } from '~/server/data/updates';
-import { getDetailsCollection } from '~/server/db';
-import { getDetailsFixture } from '~/tests/fixtures';
+import { db } from '~/server/db';
+
+jest.setTimeout(30_000);
 
 jest.mock('~/server/db');
 jest.mock('~/server/data/years');
 
 describe('updates', () => {
-    jest.setTimeout(30_000);
-
     const testDetails = getDetailsFixture();
 
     beforeEach(async () => {
-        await (await getDetailsCollection()).insertMany(testDetails);
+        await (await db()).collection('details').insertMany(testDetails);
     });
 
     afterEach(async () => {
-        await (await getDetailsCollection()).deleteMany({});
+        await (await db()).collection('details').deleteMany({});
         jest.clearAllMocks();
     });
 
     describe('getSummary', () => {
         it('returns summary', async () => {
-            expect(await getSummary()).toEqual([
+            await expect(getSummary()).resolves.toStrictEqual([
                 { group: 'Daržovės', name: 'Agurkai', years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }] },
                 {
                     group: 'Uogienės',
@@ -54,7 +54,7 @@ describe('updates', () => {
         });
 
         it('returns summary for specified years', async () => {
-            expect(await getSummary([22, 23])).toEqual([
+            await expect(getSummary([22, 23])).resolves.toStrictEqual([
                 { group: 'Daržovės', name: 'Agurkai', years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }] },
                 { group: 'Uogienės', name: 'Avietės', years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }] },
                 {
@@ -76,14 +76,14 @@ describe('updates', () => {
 
     describe('addUpdates', () => {
         it('adds new updates', async () => {
-            expect(
-                await addUpdates('Daržovės', 'Agurkai', [
+            await expect(
+                addUpdates('Daržovės', 'Agurkai', [
                     { year: 21, amounts: [{ variant: 'p', amount: 1 }] },
                     { year: 22, amounts: [{ variant: 'd', amount: 2 }] },
                 ])
-            ).toBeTrue();
-            expect(await getUpdatesCount()).toEqual({ count: 9 });
-            expect(await getLastUpdate()).toEqual({
+            ).resolves.toBeTrue();
+            await expect(getUpdatesCount()).resolves.toStrictEqual({ count: 9 });
+            await expect(getLastUpdate()).resolves.toStrictEqual({
                 group: 'Daržovės',
                 name: 'Agurkai',
                 years: [
@@ -94,8 +94,8 @@ describe('updates', () => {
         });
 
         it('adds new updates with recycled', async () => {
-            expect(
-                await addUpdates('Daržovės', 'Agurkai', [
+            await expect(
+                addUpdates('Daržovės', 'Agurkai', [
                     {
                         year: 21,
                         amounts: [
@@ -104,9 +104,9 @@ describe('updates', () => {
                         ],
                     },
                 ])
-            ).toBeTrue();
-            expect(await getUpdatesCount()).toEqual({ count: 9 });
-            expect(await getLastUpdate()).toEqual({
+            ).resolves.toBeTrue();
+            await expect(getUpdatesCount()).resolves.toStrictEqual({ count: 9 });
+            await expect(getLastUpdate()).resolves.toStrictEqual({
                 group: 'Daržovės',
                 name: 'Agurkai',
                 years: [
@@ -122,25 +122,25 @@ describe('updates', () => {
         });
 
         it('does not add empty update', async () => {
-            expect(await addUpdates('Daržovės', 'Agurkai', [])).toBeFalse();
+            await expect(addUpdates('Daržovės', 'Agurkai', [])).resolves.toBeFalse();
         });
 
         it('does not add undefined update', async () => {
-            expect(await addUpdates('Daržovės', 'Agurkai', undefined)).toBeFalse();
+            await expect(addUpdates('Daržovės', 'Agurkai', undefined)).resolves.toBeFalse();
         });
     });
 
     describe('addUpdate', () => {
         it('adds new update for specified group, name, and year', async () => {
-            expect(
-                await addUpdate('Daržovės', 'Agurkai', 22, [
+            await expect(
+                addUpdate('Daržovės', 'Agurkai', 22, [
                     { variant: 'p', amount: 1 },
                     { variant: 'm', amount: 2 },
                     { variant: 'd', amount: -1 },
                 ])
-            ).toBeTrue();
-            expect(await getUpdatesCount()).toEqual({ count: 9 });
-            expect(await getLastUpdate()).toEqual({
+            ).resolves.toBeTrue();
+            await expect(getUpdatesCount()).resolves.toStrictEqual({ count: 9 });
+            await expect(getLastUpdate()).resolves.toStrictEqual({
                 group: 'Daržovės',
                 name: 'Agurkai',
                 years: [
@@ -157,15 +157,15 @@ describe('updates', () => {
         });
 
         it('adds new update with recycled for specified group, name, and year', async () => {
-            expect(
-                await addUpdate('Daržovės', 'Agurkai', 22, [
+            await expect(
+                addUpdate('Daržovės', 'Agurkai', 22, [
                     { variant: 'p', amount: 1 },
                     { variant: 'm', amount: 2 },
                     { variant: 'd', amount: -1, recycled: true },
                 ])
-            ).toBeTrue();
-            expect(await getUpdatesCount()).toEqual({ count: 9 });
-            expect(await getLastUpdate()).toEqual({
+            ).resolves.toBeTrue();
+            await expect(getUpdatesCount()).resolves.toStrictEqual({ count: 9 });
+            await expect(getLastUpdate()).resolves.toStrictEqual({
                 group: 'Daržovės',
                 name: 'Agurkai',
                 years: [
@@ -182,19 +182,19 @@ describe('updates', () => {
         });
 
         it('does not add update for empty group', async () => {
-            expect(await addUpdate('', 'Agurkai', 21, [{ variant: 'p', amount: 1 }])).toBeFalse();
+            await expect(addUpdate('', 'Agurkai', 21, [{ variant: 'p', amount: 1 }])).resolves.toBeFalse();
         });
 
         it('does not add update for empty name', async () => {
-            expect(await addUpdate('Daržovės', '', 21, [{ variant: 'p', amount: 1 }])).toBeFalse();
+            await expect(addUpdate('Daržovės', '', 21, [{ variant: 'p', amount: 1 }])).resolves.toBeFalse();
         });
 
         it('does not add empty update for specified group, name, and year', async () => {
-            expect(await addUpdate('Daržovės', 'Agurkai', 22, [])).toBeFalse();
+            await expect(addUpdate('Daržovės', 'Agurkai', 22, [])).resolves.toBeFalse();
         });
 
         it('does not add undefined as update for specified name and year', async () => {
-            expect(await addUpdate('Daržovės', 'Agurkai', 21, undefined)).toBeFalse();
+            await expect(addUpdate('Daržovės', 'Agurkai', 21, undefined)).resolves.toBeFalse();
         });
     });
 });

@@ -1,23 +1,15 @@
+import React, { type JSX, type ReactNode } from 'react';
 import { fireEvent } from '@testing-library/dom';
 import { act, render, screen } from '@testing-library/react';
-import UserEvent from '@testing-library/user-event';
-import React, { type JSX, type ReactNode } from 'react';
-import { type PressEventHandler, useLongPress } from './useLongPress';
+import userEvent from '@testing-library/user-event';
+import { useLongPress, type PressEventHandler } from './useLongPress';
 
 describe('useLongPress', () => {
-    beforeEach(() => {
-        jest.useFakeTimers();
-    });
+    beforeEach(() => jest.useFakeTimers());
 
-    afterEach(() => {
-        jest.runOnlyPendingTimers();
-        jest.clearAllTimers();
-        jest.clearAllMocks();
-    });
+    afterEach(() => jest.clearAllMocks());
 
-    afterAll(() => {
-        jest.useRealTimers();
-    });
+    afterAll(() => jest.useRealTimers());
 
     function TestComponent({
         onLongPress,
@@ -43,23 +35,23 @@ describe('useLongPress', () => {
     const onLongPress = jest.fn();
     const onShortPress = jest.fn();
 
-    const userEvent = UserEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     describe('mouse events', () => {
         it('triggers onLongPress after duration', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
 
-            await userEvent.pointer({ target: screen.getByRole('button'), keys: '[MouseLeft>]' });
+            await user.pointer({ target: screen.getByRole('button'), keys: '[MouseLeft>]' });
             jest.advanceTimersByTime(500);
 
-            expect(onLongPress).toHaveBeenCalled();
+            expect(onLongPress).toHaveBeenCalledWith(expect.event('mousedown'));
             expect(onShortPress).not.toHaveBeenCalled();
         });
 
         it('does not trigger onLongPress if duration has not passed', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
 
-            await userEvent.pointer({ target: screen.getByRole('button'), keys: '[MouseLeft>]' });
+            await user.pointer({ target: screen.getByRole('button'), keys: '[MouseLeft>]' });
 
             expect(onLongPress).not.toHaveBeenCalled();
             expect(onShortPress).not.toHaveBeenCalled();
@@ -68,29 +60,30 @@ describe('useLongPress', () => {
         it('triggers onShortPress if duration has not passed and pointer is released', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} shortDelay={0} />);
 
-            await userEvent.pointer({ target: screen.getByRole('button'), keys: '[MouseLeft]' });
+            await user.pointer({ target: screen.getByRole('button'), keys: '[MouseLeft]' });
 
             expect(onLongPress).not.toHaveBeenCalled();
-            expect(onShortPress).toHaveBeenCalled();
+            expect(onShortPress).toHaveBeenCalledWith(expect.event('mouseup'));
         });
 
         it('triggers onShortPress after short delay if duration has not passed and pointer is released', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
 
-            await userEvent.pointer({ target: screen.getByRole('button'), keys: '[MouseLeft]' });
+            await user.pointer({ target: screen.getByRole('button'), keys: '[MouseLeft]' });
 
             expect(onLongPress).not.toHaveBeenCalled();
             expect(onShortPress).not.toHaveBeenCalled();
 
             jest.advanceTimersByTime(100);
 
-            expect(onShortPress).toHaveBeenCalled();
+            expect(onLongPress).not.toHaveBeenCalled();
+            expect(onShortPress).toHaveBeenCalledWith(expect.event('mouseup'));
         });
 
         it('stops long press timer on pointer move', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
 
-            await userEvent.pointer([
+            await user.pointer([
                 { target: screen.getByRole('button'), keys: '[MouseLeft>]' },
                 { target: document.body },
             ]);
@@ -108,14 +101,14 @@ describe('useLongPress', () => {
                 </div>
             );
 
-            await userEvent.pointer([{ target: screen.getByRole('button'), keys: '[MouseRight]' }]);
+            await user.pointer([{ target: screen.getByRole('button'), keys: '[MouseRight]' }]);
 
             expect(onContextMenu).not.toHaveBeenCalled();
         });
     });
 
     describe('touch events', () => {
-        // TODO use userEvent.pointer() when touch event will be available
+        // TODO use user.pointer() when touch event will be available
 
         it('triggers onLongPress after duration', () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
@@ -123,7 +116,7 @@ describe('useLongPress', () => {
             act(() => fireEvent.touchStart(screen.getByRole('button')));
             jest.advanceTimersByTime(500);
 
-            expect(onLongPress).toHaveBeenCalled();
+            expect(onLongPress).toHaveBeenCalledWith(expect.event('touchstart'));
             expect(onShortPress).not.toHaveBeenCalled();
         });
 
@@ -143,7 +136,7 @@ describe('useLongPress', () => {
             act(() => fireEvent.touchEnd(screen.getByRole('button')));
 
             expect(onLongPress).not.toHaveBeenCalled();
-            expect(onShortPress).toHaveBeenCalled();
+            expect(onShortPress).toHaveBeenCalledWith(expect.event('touchend'));
         });
 
         it('triggers onShortPress after short delay if duration has not passed and pointer is released', () => {
@@ -157,7 +150,8 @@ describe('useLongPress', () => {
 
             jest.advanceTimersByTime(100);
 
-            expect(onShortPress).toHaveBeenCalled();
+            expect(onLongPress).not.toHaveBeenCalled();
+            expect(onShortPress).toHaveBeenCalledWith(expect.event('touchend'));
         });
 
         it('stops long press timer on pointer move', () => {
@@ -178,7 +172,7 @@ describe('useLongPress', () => {
             act(() => fireEvent.touchMove(screen.getByRole('button'), { touches: [{ clientX: 5, clientY: 5 }] }));
             jest.advanceTimersByTime(500);
 
-            expect(onLongPress).toHaveBeenCalled();
+            expect(onLongPress).toHaveBeenCalledWith(expect.event('touchstart'));
             expect(onShortPress).not.toHaveBeenCalled();
         });
     });
@@ -191,17 +185,17 @@ describe('useLongPress', () => {
         it('triggers onLongPress after duration', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
 
-            await userEvent.pointer({ target: screen.getByRole('button'), keys: '[TouchA>]' });
+            await user.pointer({ target: screen.getByRole('button'), keys: '[TouchA>]' });
             jest.advanceTimersByTime(500);
 
-            expect(onLongPress).toHaveBeenCalled();
+            expect(onLongPress).toHaveBeenCalledWith(expect.event('pointerdown'));
             expect(onShortPress).not.toHaveBeenCalled();
         });
 
         it('does not trigger onLongPress if duration has not passed', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
 
-            await userEvent.pointer({ target: screen.getByRole('button'), keys: '[TouchA>]' });
+            await user.pointer({ target: screen.getByRole('button'), keys: '[TouchA>]' });
 
             expect(onLongPress).not.toHaveBeenCalled();
             expect(onShortPress).not.toHaveBeenCalled();
@@ -210,29 +204,30 @@ describe('useLongPress', () => {
         it('triggers onShortPress if duration has not passed and pointer is released', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} shortDelay={0} />);
 
-            await userEvent.pointer({ target: screen.getByRole('button'), keys: '[TouchA]' });
+            await user.pointer({ target: screen.getByRole('button'), keys: '[TouchA]' });
 
             expect(onLongPress).not.toHaveBeenCalled();
-            expect(onShortPress).toHaveBeenCalled();
+            expect(onShortPress).toHaveBeenCalledWith(expect.event('pointerup'));
         });
 
         it('triggers onShortPress after short delay if duration has not passed and pointer is released', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
 
-            await userEvent.pointer({ target: screen.getByRole('button'), keys: '[TouchA]' });
+            await user.pointer({ target: screen.getByRole('button'), keys: '[TouchA]' });
 
             expect(onLongPress).not.toHaveBeenCalled();
             expect(onShortPress).not.toHaveBeenCalled();
 
             jest.advanceTimersByTime(100);
 
-            expect(onShortPress).toHaveBeenCalled();
+            expect(onLongPress).not.toHaveBeenCalled();
+            expect(onShortPress).toHaveBeenCalledWith(expect.event('pointerup'));
         });
 
         it('stops long press timer on pointer move', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
 
-            await userEvent.pointer([
+            await user.pointer([
                 { target: screen.getByRole('button'), keys: '[TouchA>]' },
                 { target: document.body, pointerName: 'TouchA' },
             ]);

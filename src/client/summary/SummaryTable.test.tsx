@@ -1,13 +1,13 @@
-import { render, screen, within } from '@testing-library/react';
 import React from 'react';
+import { render, screen, within } from '@testing-library/react';
+import { getGroupsFixture, getSummaryFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
+import { withReduxState } from '@tests/withReduxState';
 import { useFilteredList } from '~/client/common/hooks/useFilteredList';
+import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
 import { useSummaryHasData } from '~/client/summary/hooks/useSummaryHasData';
 import { SummaryGroups } from '~/client/summary/SummaryGroups';
 import { SummaryTable } from '~/client/summary/SummaryTable';
-import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
 import { useGroup } from '~/state/group/useGroup';
-import { getGroupsFixture, getSummaryFixture, getVariantsFixture, getYearsFixture } from '~/tests/fixtures';
-import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/state/years/useYears');
 jest.mock('~/client/common/hooks/useFilteredList', () => ({
@@ -30,7 +30,7 @@ jest.mock('~/client/summary/SummaryGroups', () => ({
     SummaryGroups: jest.fn().mockReturnValue(null),
 }));
 
-describe('SummaryTable', () => {
+describe('<SummaryTable>', () => {
     const summary = getSummaryFixture();
     const state = {
         years: getYearsFixture(),
@@ -40,8 +40,8 @@ describe('SummaryTable', () => {
     };
 
     beforeAll(() => {
-        (useLockingLoader as jest.Mock).mockReturnValue(LoadingState.COMPLETE);
-        (useFilteredList as jest.Mock).mockReturnValue(summary);
+        jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
+        jest.mocked(useFilteredList).mockReturnValue(summary);
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -49,9 +49,11 @@ describe('SummaryTable', () => {
     describe('table', () => {
         it('renders table for complete state with data', () => {
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.getByRole('table')).toBeInTheDocument();
 
             const row = within(screen.getByRole('row'));
+
             expect(row.getAllByRole('columnheader')).toHaveListWithTextContent(['', '23/24', '22/23', '21/22']);
 
             expect(SummaryGroups).toHaveBeenCalledWith(
@@ -64,34 +66,39 @@ describe('SummaryTable', () => {
         });
 
         it('renders table for complete state with data filtered-out', () => {
-            (useFilteredList as jest.Mock).mockReturnValueOnce([]);
+            jest.mocked(useFilteredList).mockReturnValueOnce([]);
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.getByRole('table')).toBeInTheDocument();
             expect(SummaryGroups).toHaveBeenCalledWith({ groups: [], summary: [] }, undefined);
         });
 
         it('renders table with group selected', () => {
-            (useGroup as jest.Mock).mockReturnValueOnce('Uogienės');
+            jest.mocked(useGroup).mockReturnValueOnce('Uogienės');
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.getByRole('table')).toBeInTheDocument();
             expect(SummaryGroups).toHaveBeenCalledWith({ groups: ['Uogienės'], summary: expect.any(Array) }, undefined);
         });
 
         it('does not render table for initial state', () => {
-            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.INITIAL);
+            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.queryByRole('table')).not.toBeInTheDocument();
         });
 
         it('does not render table for loading state', () => {
-            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.LOADING);
+            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.queryByRole('table')).not.toBeInTheDocument();
         });
 
         it('does not render table for complete state without data', () => {
-            (useSummaryHasData as jest.Mock).mockReturnValueOnce(false);
+            jest.mocked(useSummaryHasData).mockReturnValueOnce(false);
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.queryByRole('table')).not.toBeInTheDocument();
         });
     });
@@ -99,24 +106,28 @@ describe('SummaryTable', () => {
     describe('loader', () => {
         it('does not render loader for complete state', () => {
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
         });
 
         it('renders loader for initial state', () => {
-            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.INITIAL);
+            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.getByRole('progressbar')).toBeInTheDocument();
         });
 
         it('renders loader for loading state', () => {
-            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.LOADING);
+            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.getByRole('progressbar')).toBeInTheDocument();
         });
 
         it('does not render loader for failed state', () => {
-            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.FAILED);
+            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.FAILED);
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
         });
     });
@@ -124,30 +135,35 @@ describe('SummaryTable', () => {
     describe('error', () => {
         it('does not render error for complete state with data', () => {
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
 
         it('renders error for complete state without data', () => {
-            (useSummaryHasData as jest.Mock).mockReturnValueOnce(false);
+            jest.mocked(useSummaryHasData).mockReturnValueOnce(false);
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.getByRole('alert')).toHaveTextContent('No data');
         });
 
         it('does not render error for initial state', () => {
-            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.INITIAL);
+            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
 
         it('does not render error for loading state', () => {
-            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.LOADING);
+            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
 
         it('renders error for failed state', () => {
-            (useLockingLoader as jest.Mock).mockReturnValueOnce(LoadingState.FAILED);
+            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.FAILED);
             render(<SummaryTable />, withReduxState(state));
+
             expect(screen.getByRole('alert')).toHaveTextContent('Failed to load data');
         });
     });

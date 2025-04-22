@@ -1,5 +1,5 @@
-import { Option, Select } from '@ui/Select';
 import React, { type ChangeEvent } from 'react';
+import { Option, Select } from '@ui/Select';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useClearGroup } from '~/state/group/useClearGroup';
 import { useGroup } from '~/state/group/useGroup';

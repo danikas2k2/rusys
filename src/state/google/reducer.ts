@@ -1,4 +1,4 @@
-import { type GoogleAction, GoogleActionType } from '~/state/google/actions';
+import { GoogleActionType, type GoogleAction } from '~/state/google/actions';
 import { type Google } from '~/state/google/types';
 
 export function google(state: Readonly<Google> = {}, action: Readonly<GoogleAction>): Readonly<Google> {

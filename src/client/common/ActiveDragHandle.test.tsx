@@ -1,17 +1,19 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import { withActiveRowContext } from '@tests/withActiveRowContext';
 import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
-import { withActiveRowContext } from '~/tests/withActiveRowContext';
 
-describe('ActiveDragHandle', () => {
+describe('<ActiveDragHandle>', () => {
     it('renders drag button', () => {
         render(<ActiveDragHandle />);
+
         expect(screen.getByRole('button', { name: 'Drag' })).not.toHaveClass('dragging');
     });
 
     it('renders drag button with dragging state', () => {
         render(<ActiveDragHandle dragging />);
+
         expect(screen.getByRole('button', { name: 'Drag' })).toHaveClass('dragging');
     });
 
@@ -20,6 +22,7 @@ describe('ActiveDragHandle', () => {
         render(<ActiveDragHandle />, withActiveRowContext(null, setActiveRow));
         const target = screen.getByRole('button', { name: 'Drag' });
         await userEvent.pointer([{ target, keys: '[MouseLeft>]' }]);
+
         expect(setActiveRow).toHaveBeenCalledWith(undefined);
     });
 
@@ -28,6 +31,7 @@ describe('ActiveDragHandle', () => {
         render(<ActiveDragHandle onPointerDown={onPointerDown} />, withActiveRowContext());
         const target = screen.getByRole('button', { name: 'Drag' });
         await userEvent.pointer([{ target, keys: '[MouseLeft>]' }]);
-        expect(onPointerDown).toHaveBeenCalled();
+
+        expect(onPointerDown).toHaveBeenCalledWith(expect.event('pointerdown', { target }));
     });
 });

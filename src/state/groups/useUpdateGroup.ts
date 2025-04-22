@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { type ApiUpdateGroup, ApiUrl } from '~/common/api';
+import { ApiUrl, type ApiUpdateGroup } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 
 export function useUpdateGroup(): (group: string, order?: number) => Promise<void> {

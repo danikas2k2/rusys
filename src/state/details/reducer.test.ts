@@ -1,7 +1,7 @@
-import { cloneDeep, set } from 'lodash';
-import { type DetailsAction, DetailsActionType } from '~/state/details/actions';
+import { getDetailsFixture } from '@tests/fixtures';
+import { DetailsActionType, type DetailsAction } from '~/state/details/actions';
 import { details as reducer } from '~/state/details/reducer';
-import { getDetailsFixture } from '~/tests/fixtures';
+import { cloneDeep, set } from 'lodash';
 
 describe('details', () => {
     const details = getDetailsFixture();
@@ -10,15 +10,15 @@ describe('details', () => {
         const unknownAction = { type: 'unknown' as DetailsActionType } as DetailsAction;
 
         it('leave set unchanged', () => {
-            expect(reducer(details, unknownAction)).toEqual(details);
+            expect(reducer(details, unknownAction)).toStrictEqual(details);
         });
 
         it('leave empty set unchanged', () => {
-            expect(reducer([], unknownAction)).toEqual([]);
+            expect(reducer([], unknownAction)).toStrictEqual([]);
         });
 
         it('return default state for undefined', () => {
-            expect(reducer(undefined, unknownAction)).toEqual([]);
+            expect(reducer(undefined, unknownAction)).toStrictEqual([]);
         });
     });
 
@@ -29,7 +29,7 @@ describe('details', () => {
                     type: DetailsActionType.SET,
                     details,
                 })
-            ).toEqual(details);
+            ).toStrictEqual(details);
         });
 
         it('updates empty state with empty set', () => {
@@ -38,7 +38,7 @@ describe('details', () => {
                     type: DetailsActionType.SET,
                     details: [],
                 })
-            ).toEqual([]);
+            ).toStrictEqual([]);
         });
 
         it('updates filled state', () => {
@@ -47,7 +47,7 @@ describe('details', () => {
                     type: DetailsActionType.SET,
                     details,
                 })
-            ).toEqual(details);
+            ).toStrictEqual(details);
         });
 
         it('updates undefined state', () => {
@@ -56,7 +56,7 @@ describe('details', () => {
                     type: DetailsActionType.SET,
                     details,
                 })
-            ).toEqual(details);
+            ).toStrictEqual(details);
         });
     });
 
@@ -70,7 +70,7 @@ describe('details', () => {
                     year: 21,
                     removing: true,
                 })
-            ).toEqual([]);
+            ).toStrictEqual([]);
         });
 
         it('updates filled state', () => {
@@ -82,7 +82,7 @@ describe('details', () => {
                     year: 22,
                     removing: true,
                 })
-            ).toEqual(set(cloneDeep(details), '[1].years[0].removing', true));
+            ).toStrictEqual(set(cloneDeep(details), '[1].years[0].removing', true));
         });
 
         it('updates filled state with false', () => {
@@ -94,7 +94,7 @@ describe('details', () => {
                     year: 21,
                     removing: false,
                 })
-            ).toEqual(set(cloneDeep(details), '[3].years[0].removing', undefined));
+            ).toStrictEqual(set(cloneDeep(details), '[3].years[0].removing', undefined));
         });
 
         it('does not update filled state using missing year', () => {
@@ -106,7 +106,7 @@ describe('details', () => {
                     year: 23,
                     removing: true,
                 })
-            ).toEqual(details);
+            ).toStrictEqual(details);
         });
 
         it('does not update filled state using missing name', () => {
@@ -118,7 +118,7 @@ describe('details', () => {
                     year: 21,
                     removing: true,
                 })
-            ).toEqual(details);
+            ).toStrictEqual(details);
         });
 
         it('does not update filled state using missing group', () => {
@@ -130,7 +130,7 @@ describe('details', () => {
                     year: 21,
                     removing: true,
                 })
-            ).toEqual(details);
+            ).toStrictEqual(details);
         });
 
         it('does not update undefined state', () => {
@@ -142,7 +142,7 @@ describe('details', () => {
                     year: 21,
                     removing: true,
                 })
-            ).toEqual([]);
+            ).toStrictEqual([]);
         });
     });
 
@@ -155,7 +155,7 @@ describe('details', () => {
                     name: 'A',
                     missing: true,
                 })
-            ).toEqual([]);
+            ).toStrictEqual([]);
         });
 
         it('updates filled state', () => {
@@ -166,7 +166,7 @@ describe('details', () => {
                     name: 'Avietės',
                     missing: true,
                 })
-            ).toEqual(set(cloneDeep(details), '[0].missing', true));
+            ).toStrictEqual(set(cloneDeep(details), '[0].missing', true));
         });
 
         it('updates filled state using false', () => {
@@ -177,7 +177,7 @@ describe('details', () => {
                     name: 'Agurkai',
                     missing: false,
                 })
-            ).toEqual(set(cloneDeep(details), '[2].missing', undefined));
+            ).toStrictEqual(set(cloneDeep(details), '[2].missing', undefined));
         });
 
         it('does not update filled state using missing name', () => {
@@ -188,7 +188,7 @@ describe('details', () => {
                     name: 'B',
                     missing: true,
                 })
-            ).toEqual(details);
+            ).toStrictEqual(details);
         });
 
         it('does not update filled state using missing group', () => {
@@ -199,7 +199,7 @@ describe('details', () => {
                     name: 'A',
                     missing: true,
                 })
-            ).toEqual(details);
+            ).toStrictEqual(details);
         });
 
         it('does not update undefined state', () => {
@@ -210,7 +210,7 @@ describe('details', () => {
                     name: 'A',
                     missing: true,
                 })
-            ).toEqual([]);
+            ).toStrictEqual([]);
         });
     });
 });

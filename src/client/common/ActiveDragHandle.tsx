@@ -1,7 +1,7 @@
-import React, { type PointerEventHandler, useCallback } from 'react';
+import React, { useCallback, type PointerEventHandler } from 'react';
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { DragHandle, type DragHandleProps } from '~/client/common/DragHandle';
-import type { ActiveGroup } from '~/client/groups/SortableGroup';
+import { type ActiveGroup } from '~/client/groups/SortableGroup';
 
 export function ActiveDragHandle({ dragging, onPointerDown, ...props }: DragHandleProps) {
     const [, setActiveGroup] = useActiveRow<ActiveGroup>();

@@ -1,6 +1,6 @@
-import { cloneDeep } from 'lodash';
 import { type Summary } from '~/common/types';
-import { type SummaryAction, SummaryActionType } from './actions';
+import { SummaryActionType, type SummaryAction } from './actions';
+import { cloneDeep } from 'lodash';
 
 export function summary(state: ReadonlyArray<Summary> = [], action: SummaryAction): ReadonlyArray<Summary> {
     switch (action.type) {

@@ -1,6 +1,4 @@
 /** @jest-environment node */
-import express, { type Request, type Response } from 'express';
-import request from 'supertest';
 import { ApiUrl } from '~/common/api';
 import app from '~/server/app';
 import { handleAdd } from '~/server/app/handleAdd';
@@ -22,6 +20,8 @@ import { handleUpdateVariant } from '~/server/app/handleUpdateVariant';
 import { handleGroups } from './app/handleGroups';
 import { handleUpdateGroup } from './app/handleUpdateGroup';
 import { handleVariants } from './app/handleVariants';
+import express, { type Request, type Response } from 'express';
+import request from 'supertest';
 
 // Client/User
 jest.mock('~/server/app/handleClientId', () => ({ handleClientId: jest.fn() }));
@@ -39,7 +39,6 @@ jest.mock('~/server/app/handleSetMissing', () => ({ handleSetMissing: jest.fn() 
 jest.mock('~/server/app/handleRename', () => ({ handleRename: jest.fn() }));
 jest.mock('~/server/app/handleMove', () => ({ handleMove: jest.fn() }));
 jest.mock('~/server/app/handleDelete', () => ({ handleDelete: jest.fn() }));
-jest.mock('~/server/app/handleDetails', () => ({ handleDetails: jest.fn() }));
 
 // Groups
 jest.mock('~/server/app/handleGroups', () => ({ handleGroups: jest.fn() }));
@@ -57,342 +56,61 @@ jest.mock('~/server/app/handleDeleteVariant', () => ({ handleDeleteVariant: jest
 
 describe('app', () => {
     const server = app(express());
-    const handler = (_req: Request, res: Response): Response => res.json({ ok: true });
+    const handler = async (_req: Request, res: Response): Promise<void> => void res.json({ ok: true });
 
     afterEach(() => jest.clearAllMocks());
 
-    // Client/User
-    describe('Client/User', () => {
-        describe('request /clientId', () => {
-            (handleClientId as jest.Mock).mockImplementation(handler);
+    describe.each`
+        url                          | handle
+        ${ApiUrl.ClientId}           | ${handleClientId}
+        ${ApiUrl.CheckUser}          | ${handleCheckUser}
+        ${ApiUrl.Summary}            | ${handleSummary}
+        ${ApiUrl.Details}            | ${handleDetails}
+        ${ApiUrl.DetailsUpdate}      | ${handleUpdateDetails}
+        ${ApiUrl.DetailsAdd}         | ${handleAdd}
+        ${ApiUrl.DetailsSetRemoving} | ${handleSetRemoving}
+        ${ApiUrl.DetailsSetMissing}  | ${handleSetMissing}
+        ${ApiUrl.DetailsRename}      | ${handleRename}
+        ${ApiUrl.DetailsMove}        | ${handleMove}
+        ${ApiUrl.DetailsDelete}      | ${handleDelete}
+        ${ApiUrl.Groups}             | ${handleGroups}
+        ${ApiUrl.GroupsUpdate}       | ${handleUpdateGroup}
+        ${ApiUrl.GroupsRename}       | ${handleRenameGroup}
+        ${ApiUrl.GroupsDelete}       | ${handleDeleteGroup}
+        ${ApiUrl.Variants}           | ${handleVariants}
+        ${ApiUrl.VariantsUpdate}     | ${handleUpdateVariant}
+        ${ApiUrl.VariantsRename}     | ${handleRenameVariant}
+        ${ApiUrl.VariantsDelete}     | ${handleDeleteVariant}
+    `('request $url', ({ url, handle }) => {
+        jest.mocked(handle).mockImplementation(handler);
 
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.ClientId);
-                expect(response.status).toBe(200);
-                expect(handleClientId).toHaveBeenCalled();
-            });
+        it('responds to POST', async () => {
+            const response = await request(server).post(url);
 
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.ClientId);
-                expect(response.status).toBe(404);
-                expect(handleClientId).not.toHaveBeenCalled();
-            });
+            expect(response.status).toBe(200);
+            // eslint-disable-next-line jest/prefer-called-with
+            expect(handle).toHaveBeenCalled();
         });
 
-        describe('request /checkUser', () => {
-            (handleCheckUser as jest.Mock).mockImplementation(handler);
+        it('does not respond to GET', async () => {
+            const response = await request(server).get(url);
 
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.CheckUser);
-                expect(response.status).toBe(200);
-                expect(handleCheckUser).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.CheckUser);
-                expect(response.status).toBe(404);
-                expect(handleCheckUser).not.toHaveBeenCalled();
-            });
-        });
-    });
-
-    // Summary
-    describe('Summary', () => {
-        describe('request /summary', () => {
-            (handleSummary as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.Summary);
-                expect(response.status).toBe(200);
-                expect(handleSummary).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.Summary);
-                expect(response.status).toBe(404);
-                expect(handleSummary).not.toHaveBeenCalled();
-            });
+            expect(response.status).toBe(404);
+            expect(handle).not.toHaveBeenCalled();
         });
     });
 
-    // Details
-    describe('Details', () => {
-        describe('request /details', () => {
-            (handleDetails as jest.Mock).mockImplementation(handler);
+    describe('request /*', () => {
+        it('does not respond to GET', async () => {
+            const response = await request(server).get('/other');
 
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.Details);
-                expect(response.status).toBe(200);
-                expect(handleDetails).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.Details);
-                expect(response.status).toBe(404);
-                expect(handleDetails).not.toHaveBeenCalled();
-            });
+            expect(response.status).toBe(404);
         });
 
-        describe('request /details/update', () => {
-            (handleUpdateDetails as jest.Mock).mockImplementation(handler);
+        it('does not respond to POST', async () => {
+            const response = await request(server).post('/other');
 
-            it('does not respond to POST', async () => {
-                const response = await request(server).post(ApiUrl.DetailsUpdate);
-                expect(response.status).toBe(200);
-                expect(handleUpdateDetails).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.DetailsUpdate);
-                expect(response.status).toBe(404);
-                expect(handleUpdateDetails).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /details/add', () => {
-            (handleAdd as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.DetailsAdd);
-                expect(response.status).toBe(200);
-                expect(handleAdd).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.DetailsAdd);
-                expect(response.status).toBe(404);
-                expect(handleAdd).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /details/removing', () => {
-            (handleSetRemoving as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.DetailsSetRemoving);
-                expect(response.status).toBe(200);
-                expect(handleSetRemoving).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.DetailsSetRemoving);
-                expect(response.status).toBe(404);
-                expect(handleSetRemoving).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /details/missing', () => {
-            (handleSetMissing as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.DetailsSetMissing);
-                expect(response.status).toBe(200);
-                expect(handleSetMissing).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.DetailsSetMissing);
-                expect(response.status).toBe(404);
-                expect(handleSetMissing).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /details/rename', () => {
-            (handleRename as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.DetailsRename);
-                expect(response.status).toBe(200);
-                expect(handleRename).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.DetailsRename);
-                expect(response.status).toBe(404);
-                expect(handleRename).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /details/move', () => {
-            (handleMove as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.DetailsMove);
-                expect(response.status).toBe(200);
-                expect(handleMove).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.DetailsMove);
-                expect(response.status).toBe(404);
-                expect(handleMove).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /details/delete', () => {
-            (handleDelete as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.DetailsDelete);
-                expect(response.status).toBe(200);
-                expect(handleDelete).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.DetailsDelete);
-                expect(response.status).toBe(404);
-                expect(handleDelete).not.toHaveBeenCalled();
-            });
-        });
-    });
-
-    // Groups
-    describe('Groups', () => {
-        describe('request /groups', () => {
-            (handleGroups as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.Groups);
-                expect(response.status).toBe(200);
-                expect(handleGroups).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.Groups);
-                expect(response.status).toBe(404);
-                expect(handleGroups).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /groups/update', () => {
-            (handleUpdateGroup as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.GroupsUpdate);
-                expect(response.status).toBe(200);
-                expect(handleUpdateGroup).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.GroupsUpdate);
-                expect(response.status).toBe(404);
-                expect(handleUpdateGroup).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /groups/rename', () => {
-            (handleRenameGroup as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.GroupsRename);
-                expect(response.status).toBe(200);
-                expect(handleRenameGroup).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.GroupsRename);
-                expect(response.status).toBe(404);
-                expect(handleRenameGroup).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /groups/delete', () => {
-            (handleDeleteGroup as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.GroupsDelete);
-                expect(response.status).toBe(200);
-                expect(handleDeleteGroup).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.GroupsDelete);
-                expect(response.status).toBe(404);
-                expect(handleDeleteGroup).not.toHaveBeenCalled();
-            });
-        });
-    });
-
-    // Variants
-    describe('Variants', () => {
-        describe('request /variants', () => {
-            (handleVariants as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.Variants);
-                expect(response.status).toBe(200);
-                expect(handleVariants).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.Variants);
-                expect(response.status).toBe(404);
-                expect(handleVariants).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /variants/update', () => {
-            (handleUpdateVariant as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.VariantsUpdate);
-                expect(response.status).toBe(200);
-                expect(handleUpdateVariant).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.VariantsUpdate);
-                expect(response.status).toBe(404);
-                expect(handleUpdateVariant).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /variants/rename', () => {
-            (handleRenameVariant as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.VariantsRename);
-                expect(response.status).toBe(200);
-                expect(handleRenameVariant).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.VariantsRename);
-                expect(response.status).toBe(404);
-                expect(handleRenameVariant).not.toHaveBeenCalled();
-            });
-        });
-
-        describe('request /variants/delete', () => {
-            (handleDeleteVariant as jest.Mock).mockImplementation(handler);
-
-            it('responds to POST', async () => {
-                const response = await request(server).post(ApiUrl.VariantsDelete);
-                expect(response.status).toBe(200);
-                expect(handleDeleteVariant).toHaveBeenCalled();
-            });
-
-            it('does not respond to GET', async () => {
-                const response = await request(server).get(ApiUrl.VariantsDelete);
-                expect(response.status).toBe(404);
-                expect(handleDeleteVariant).not.toHaveBeenCalled();
-            });
-        });
-    });
-
-    // Other
-
-    describe('Other', () => {
-        describe('request /*', () => {
-            it('does not respond to GET', async () => {
-                const response = await request(server).get('/other');
-                expect(response.status).toBe(404);
-            });
-
-            it('does not respond to POST', async () => {
-                const response = await request(server).post('/other');
-                expect(response.status).toBe(404);
-            });
+            expect(response.status).toBe(404);
         });
     });
 });

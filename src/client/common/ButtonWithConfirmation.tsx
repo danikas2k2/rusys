@@ -1,15 +1,12 @@
-import { type ButtonProps } from '@ui/Button';
-import { type ReactNodeOrFunction, renderElement } from '@ui/utils/renderElement';
-import React, { type MouseEvent, type ReactNode, useCallback, useState } from 'react';
+import React, { cloneElement, useCallback, useState, type MouseEvent, type ReactElement, type ReactNode } from 'react';
+import { Button, isButtonElement, type ButtonProps } from '@ui/Button';
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
 
 interface ButtonWithConfirmationProps extends Omit<ButtonProps, 'title' | 'children'> {
-    children?: ReactNodeOrFunction<ButtonProps>;
-    dialogHeader?: ReactNode;
-    confirmButton?: ReactNodeOrFunction<ButtonProps>;
-    confirmProps?: ButtonProps;
-    cancelButton?: ReactNodeOrFunction<ButtonProps>;
-    cancelProps?: ButtonProps;
+    children?: ReactNode;
+    dialogHeader?: ReactElement;
+    confirmButton?: ReactElement<ButtonProps>;
+    cancelButton?: ReactElement<ButtonProps>;
     onOpen?: () => void;
     onClose?: () => void;
 }
@@ -17,9 +14,7 @@ interface ButtonWithConfirmationProps extends Omit<ButtonProps, 'title' | 'child
 export function ButtonWithConfirmation({
     dialogHeader,
     confirmButton,
-    confirmProps,
     cancelButton,
-    cancelProps,
     onClick,
     onOpen,
     onClose,
@@ -46,17 +41,31 @@ export function ButtonWithConfirmation({
         [handleClose, onClick]
     );
 
-    const button = renderElement(children, { onClick: handleOpen }, props);
+    const button = isButtonElement(children) ? (
+        children.type === 'button' ? (
+            cloneElement(children as ReactElement<ButtonProps>, {
+                onClick: handleOpen,
+            })
+        ) : (
+            cloneElement(children as ReactElement<ButtonProps>, {
+                onClick: handleOpen,
+                ...props,
+            })
+        )
+    ) : (
+        <Button onClick={handleOpen} {...props}>
+            {children}
+        </Button>
+    );
+
     return (
         <>
             {button}
             <ConfirmationDialog
                 open={open}
                 header={dialogHeader}
-                confirmButton={confirmButton ?? button}
-                confirmProps={confirmProps}
+                confirmButton={confirmButton ?? (children ? button : undefined)}
                 cancelButton={cancelButton}
-                cancelProps={cancelProps}
                 onConfirm={handleConfirm}
                 onClose={handleClose}
             />

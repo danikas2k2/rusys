@@ -1,6 +1,6 @@
+import { type Details, type Group, type Summary, type Variant, type VariantAmount } from '~/common/types';
 import { type Request, type Response } from 'express';
 import { type ParamsDictionary } from 'express-serve-static-core';
-import { type Details, type Group, type Summary, type Variant, type VariantAmount } from '~/common/types';
 
 export type ApiRequest<R = unknown> = Request<ParamsDictionary, unknown, R>;
 export type ApiResult<R = unknown> = { ok: true } | ({ ok: true } & R) | { ok?: false; error?: string };
@@ -60,8 +60,11 @@ export interface ApiClientId {
 }
 
 export interface ApiDetails {
-    years: ReadonlyArray<number>;
     details: ReadonlyArray<Details>;
+}
+
+export interface ApiYears {
+    years: ReadonlyArray<number>;
 }
 
 export interface ApiRequestDetails {
@@ -145,3 +148,15 @@ export interface ApiReorderVariants {
     group: string;
     variants: Readonly<Record<string, number>>;
 }
+
+export type ApiDetailsWithYears = ApiYears & ApiDetails;
+
+export type ApiDetailsWithVariants = ApiDetailsWithYears & ApiVariants;
+
+export type ApiAllDetails = ApiDetailsWithVariants & ApiGroups;
+
+export type ApiVariantsWithGroups = ApiVariants & ApiGroups;
+
+export type ApiAllSummary = ApiSummary & ApiVariantsWithGroups;
+
+export type ApiExport = ApiDetails & ApiVariantsWithGroups;

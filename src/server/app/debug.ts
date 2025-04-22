@@ -14,7 +14,7 @@ export function debugRequest(req: Request): void {
     if (!isEmpty(req.files)) {
         debug(
             JSON.stringify(
-                Object.values(req.files).flatMap((f) => (Array.isArray(f) ? f.map(f2s) : f2s(f))),
+                Object.values(req.files).flatMap((f) => (Array.isArray(f) ? f.map(formatFileInfo) : formatFileInfo(f))),
                 null,
                 2
             )
@@ -22,16 +22,17 @@ export function debugRequest(req: Request): void {
     }
 }
 
-function f2s(f: UploadedFile): string {
-    return `${f.name} (${n2k(f.size)})`;
+function formatFileInfo(f: UploadedFile): string {
+    return `${f.name} (${formatFileSize(f.size)})`;
 }
 
-const k = 'KMGTPEZY';
-function n2k(n: number): string {
+const suffixes = 'KMGTPEZY';
+
+function formatFileSize(size: number): string {
     let x = -1;
-    while (n >= 1024) {
-        n /= 1024;
+    while (size >= 1024) {
+        size /= 1024;
         x++;
     }
-    return `${n.toFixed(1)}${k[x]}`;
+    return `${size.toFixed(1)}${suffixes[x]}`;
 }

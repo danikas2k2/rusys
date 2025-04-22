@@ -1,10 +1,10 @@
+import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { FileDisplay } from '@ui/FileDisplay';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { type InputProps } from '@ui/Input';
 import { getDecoratorType } from '@ui/utils/getDecoratorType';
 import { setCaretPosition } from '@ui/utils/setCaretPosition';
 import { uniqueId } from '@ui/utils/uniqueId';
-import React, { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import cx from './FileInput.less';
 
 export type FileInputProps = Omit<InputProps, 'mode' | 'value'>;

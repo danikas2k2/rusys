@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { type ApiRenameGroup, ApiUrl } from '~/common/api';
+import { ApiUrl, type ApiRenameGroup } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 
 export function useRenameGroup(): (group: string, newGroup: string) => Promise<void> {

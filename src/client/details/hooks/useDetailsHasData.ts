@@ -1,8 +1,8 @@
-import { isEmpty } from 'lodash';
 import { useDetails } from '~/state/details/useDetails';
 import { useGroups } from '~/state/groups/useGroups';
 import { useVariants } from '~/state/variants/useVariants';
 import { useYears } from '~/state/years/useYears';
+import { isEmpty } from 'lodash';
 
 export function useDetailsHasData() {
     const years = useYears();

@@ -1,11 +1,12 @@
+import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
-import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
+import { withReduxState } from '@tests/withReduxState';
 import { useActiveRow } from '~/client/common/ActiveRowContext';
+import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
+import { type ActiveVariant } from '~/client/variants/SortableVariant';
 import { SortableVariants } from '~/client/variants/SortableVariants';
 import { useReorderVariants } from '~/state/variants/useReorderVariants';
-import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/client/common/ActiveRowContext', () => ({
     useActiveRow: jest.fn(() => [null, jest.fn()]),
@@ -17,7 +18,7 @@ jest.mock('~/client/utils/getOverlapIndex', () => ({
     getOverlapIndex: jest.fn(() => -1),
 }));
 
-describe('SortableVariants', () => {
+describe('<SortableVariants>', () => {
     const group = 'Uogienės';
     const variants = [
         { group, variant: 'p', order: 0, long: '500 ml.' },
@@ -35,6 +36,7 @@ describe('SortableVariants', () => {
     it('renders with details', () => {
         render(<SortableVariants group={group} variants={variants} />, withReduxState());
         const rows = screen.getAllByRole('row');
+
         expect(rows).toHaveLength(2);
         expect(within(rows[0]).getAllByRole('cell')).toHaveListWithTextContent(['p', '500 ml.', '']);
         expect(within(rows[1]).getAllByRole('cell')).toHaveListWithTextContent(['d', '750 ml.', 'D.']);
@@ -44,14 +46,15 @@ describe('SortableVariants', () => {
         const reorderVariants = jest.fn();
 
         beforeEach(() => {
-            (useActiveRow as jest.Mock).mockReturnValue([activeVariant, setActiveVariant]);
-            (useReorderVariants as jest.Mock).mockReturnValue(reorderVariants);
+            jest.mocked(useActiveRow<ActiveVariant>).mockReturnValue([activeVariant, setActiveVariant]);
+            jest.mocked(useReorderVariants).mockReturnValue(reorderVariants);
         });
 
         it('does not call reorder on drag start', async () => {
             render(<SortableVariants group={group} variants={variants} />, withReduxState());
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer({ target, coords: { y: 0 }, keys: '[MouseLeft>]' });
+
             expect(reorderVariants).not.toHaveBeenCalled();
         });
 
@@ -60,8 +63,9 @@ describe('SortableVariants', () => {
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
-                { target, coords: { y: 0 }, keys: '[/MouseLeft]' },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(reorderVariants).not.toHaveBeenCalled();
         });
 
@@ -71,54 +75,60 @@ describe('SortableVariants', () => {
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
                 { target, coords: { y: 10 } },
-                { target, coords: { y: 20 }, keys: '[/MouseLeft]' },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(reorderVariants).not.toHaveBeenCalled();
         });
 
         it('calls reorder on drag when elements overlaps', async () => {
-            (getOverlapIndex as jest.Mock).mockReturnValue(0);
+            jest.mocked(getOverlapIndex).mockReturnValue(0);
             render(<SortableVariants group={group} variants={variants} />, withReduxState());
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
                 { target, coords: { y: 10 } },
-                { target, coords: { y: 20 }, keys: '[/MouseLeft]' },
+                { target, coords: { y: 20 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(reorderVariants).toHaveBeenCalledWith(group, { d: 0, p: 1 });
         });
 
         it('does not call reorder on drag when elements overlaps with different group', async () => {
-            (useActiveRow as jest.Mock).mockReturnValue([
+            jest.mocked(useActiveRow<ActiveVariant>).mockReturnValue([
                 {
                     ...activeVariant,
                     group: 'Daržovės',
                 },
                 setActiveVariant,
             ]);
-            (getOverlapIndex as jest.Mock).mockReturnValue(0);
+            jest.mocked(getOverlapIndex).mockReturnValue(0);
             render(<SortableVariants group={group} variants={variants} />, withReduxState());
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
                 { target, coords: { y: 10 } },
-                { target, coords: { y: 20 }, keys: '[/MouseLeft]' },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(reorderVariants).not.toHaveBeenCalled();
         });
     });
 
     describe('slide controls', () => {
         it('renders rows without controls', () => {
-            (useActiveRow as jest.Mock).mockReturnValue([null, setActiveVariant]);
+            jest.mocked(useActiveRow<ActiveVariant>).mockReturnValue([undefined, setActiveVariant]);
             render(<SortableVariants group={group} variants={variants} />, withReduxState());
+
             expect(screen.queryByRole('group', { name: 'Edit Remove' })).not.toBeInTheDocument();
         });
 
         it('renders active variant row with controls', () => {
-            (useActiveRow as jest.Mock).mockReturnValue([activeVariant, setActiveVariant]);
+            jest.mocked(useActiveRow<ActiveVariant>).mockReturnValue([activeVariant, setActiveVariant]);
             render(<SortableVariants group={group} variants={variants} />, withReduxState());
             const rows = screen.getAllByRole('row');
+
             expect(within(rows[0]).queryByRole('group', { name: 'Edit Remove' })).not.toBeInTheDocument();
             expect(within(rows[1]).getByRole('group', { name: 'Edit Remove' })).toBeInTheDocument();
         });

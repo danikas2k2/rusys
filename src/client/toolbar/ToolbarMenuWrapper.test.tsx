@@ -1,14 +1,14 @@
+import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import { withReduxState } from '@tests/withReduxState';
 import { ToolbarMenuWrapper } from '~/client/toolbar/ToolbarMenuWrapper';
-import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('@ui/ColorSchemeToggle', () => ({
     ColorSchemeToggle: () => <div>ColorSchemeToggle</div>,
 }));
 
-describe('ToolbarMenuWrapper', () => {
+describe('<ToolbarMenuWrapper>', () => {
     it('renders menu trigger only when is not clicked', async () => {
         render(
             <ToolbarMenuWrapper>
@@ -16,6 +16,7 @@ describe('ToolbarMenuWrapper', () => {
             </ToolbarMenuWrapper>,
             withReduxState()
         );
+
         expect(screen.getByRole('button', { name: 'Menu' })).toBeInTheDocument();
         expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
@@ -29,6 +30,7 @@ describe('ToolbarMenuWrapper', () => {
         );
         await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
         const menu = screen.getByRole('menu');
+
         expect(menu).toBeInTheDocument();
         expect(within(menu).getByText('Content')).toBeInTheDocument();
         expect(within(menu).getByText('ColorSchemeToggle')).toBeInTheDocument();

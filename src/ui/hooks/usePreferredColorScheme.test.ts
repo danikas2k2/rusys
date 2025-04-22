@@ -1,28 +1,27 @@
 import { renderHook } from '@testing-library/react';
+import { mockWindow } from '@tests/mockWindow';
 import { usePreferredColorScheme } from '@ui/hooks/usePreferredColorScheme';
 
 describe('usePreferredColorScheme', () => {
-    beforeAll(() => {
-        window.matchMedia = jest.fn();
-    });
+    mockWindow();
 
-    afterAll(() => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        delete window.matchMedia;
+    beforeAll(() => {
+        jest.spyOn(window, 'matchMedia');
     });
 
     afterEach(() => jest.clearAllMocks());
 
     it('returns "dark" when system prefers dark color scheme', () => {
-        (window.matchMedia as jest.Mock).mockReturnValue({ matches: true });
+        jest.mocked(window.matchMedia).mockReturnValue({ matches: true } as MediaQueryList);
         const { result } = renderHook(() => usePreferredColorScheme());
-        expect(result.current).toEqual('dark');
+
+        expect(result.current).toBe('dark');
     });
 
     it('returns "light" when system does not prefer dark color scheme', () => {
-        (window.matchMedia as jest.Mock).mockReturnValue({ matches: false });
+        jest.mocked(window.matchMedia).mockReturnValue({ matches: false } as MediaQueryList);
         const { result } = renderHook(() => usePreferredColorScheme());
-        expect(result.current).toEqual('light');
+
+        expect(result.current).toBe('light');
     });
 });

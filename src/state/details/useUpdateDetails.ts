@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { type ApiUpdateDetails, ApiUrl } from '~/common/api';
+import { ApiUrl, type ApiUpdateDetails } from '~/common/api';
 import { type VariantAmount } from '~/common/types';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 

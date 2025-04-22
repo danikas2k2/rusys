@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { type ActionCreatorsMapObject } from 'redux';
-import { type RequestMethod, useApiRequest } from '~/common/hooks/useApiRequest';
+import { useApiRequest, type RequestMethod } from '~/common/hooks/useApiRequest';
 import { useUpdateStateFromResponse } from '~/state/base/useUpdateStateFromResponse';
+import { type ActionCreatorsMapObject } from 'redux';
 
 export function useUpdatingApiRequest<T = object | string>(
     updateActions?: ActionCreatorsMapObject

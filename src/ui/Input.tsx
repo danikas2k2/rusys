@@ -1,20 +1,20 @@
-import CancelIcon from '@assets/cancel.svg';
-import { IconButton } from '@ui/Button';
-import { useForwardedRef } from '@ui/hooks/useForwardedRef';
-import { getDecoratorType } from '@ui/utils/getDecoratorType';
-import { setCaretPosition } from '@ui/utils/setCaretPosition';
-import { uniqueId } from '@ui/utils/uniqueId';
 import React, {
+    useCallback,
+    useEffect,
+    useState,
     type FormEvent,
     type InputHTMLAttributes,
     type KeyboardEvent,
     type MouseEvent,
     type MouseEventHandler,
     type RefAttributes,
-    useCallback,
-    useEffect,
-    useState,
 } from 'react';
+import CancelIcon from '@assets/cancel.svg';
+import { IconButton } from '@ui/Button';
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
+import { getDecoratorType } from '@ui/utils/getDecoratorType';
+import { setCaretPosition } from '@ui/utils/setCaretPosition';
+import { uniqueId } from '@ui/utils/uniqueId';
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 import cx from './Input.less';
 

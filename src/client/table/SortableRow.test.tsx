@@ -1,15 +1,11 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import lodash from 'lodash';
-import React from 'react';
 import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
 import { SortableRow, type SortableRowProps } from '~/client/table/SortableRow';
+import lodash from 'lodash';
 
-jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(400);
-jest.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(40);
-jest.spyOn(lodash, 'defer').mockImplementation((fn) => fn());
-
-describe('SortableRow', () => {
+describe('<SortableRow>', () => {
     const handle = <ActiveDragHandle />;
     const controls = <button>Controls</button>;
     const children = <div>Content</div>;
@@ -26,13 +22,20 @@ describe('SortableRow', () => {
         onDrag,
     };
 
+    beforeEach(() => {
+        jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(400);
+        jest.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(40);
+        jest.spyOn(lodash, 'defer').mockImplementation((fn) => fn());
+    });
+
     afterEach(() => jest.clearAllMocks());
 
     describe('slide controls', () => {
         it('calls drag start handler', async () => {
             render(<SortableRow {...props} />);
             const target = screen.getByText('Content');
-            await userEvent.pointer([{ target, keys: '[MouseLeft>]', coords: { x: 200 } }]);
+            await userEvent.pointer([{ target, coords: { x: 200 }, keys: '[MouseLeft>]' }]);
+
             expect(onDragStart).toHaveBeenCalledWith();
         });
 
@@ -40,9 +43,11 @@ describe('SortableRow', () => {
             render(<SortableRow {...props} />);
             const target = screen.getByText('Content');
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { x: 200 } },
-                { target, keys: '[/MouseLeft]', coords: { x: 100 } },
+                { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
+                { target, coords: { x: 150 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(onDragEnd).toHaveBeenCalledWith();
         });
 
@@ -50,10 +55,11 @@ describe('SortableRow', () => {
             render(<SortableRow {...props} />);
             const target = screen.getByText('Content');
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { x: 200 } },
+                { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
                 { target, coords: { x: 150 } },
-                { target, keys: '[/MouseLeft]', coords: { x: 100 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(onDrag).not.toHaveBeenCalled();
         });
 
@@ -61,15 +67,18 @@ describe('SortableRow', () => {
             render(<SortableRow {...props} />);
             const target = screen.getByText('Content');
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { x: 200 } },
+                { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
                 { target, coords: { x: 150 } },
             ]);
+
             expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: 'translateX(-50px)' });
 
             await userEvent.pointer([{ target, coords: { x: 100 } }]);
+
             expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: 'translateX(-100px)' });
 
             await userEvent.pointer([{ target, coords: { x: 50 } }]);
+
             expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: 'translateX(-150px)' });
         });
 
@@ -77,9 +86,11 @@ describe('SortableRow', () => {
             render(<SortableRow {...props} />);
             const target = screen.getByText('Content');
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { x: 200 } },
-                { target, keys: '[/MouseLeft]', coords: { x: 100 } },
+                { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
+                { target, coords: { x: 100 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: 'translateX(-400px)' });
         });
 
@@ -87,13 +98,16 @@ describe('SortableRow', () => {
             render(<SortableRow {...props} />);
             const target = screen.getByText('Content');
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { x: 200 } },
-                { target, keys: '[/MouseLeft]', coords: { x: 100 } },
+                { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
+                { target, coords: { x: 100 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { x: 100 } },
-                { target, keys: '[/MouseLeft]', coords: { x: 150 } },
+                { target, coords: { x: 100 }, keys: '[MouseLeft>]' },
+                { target, coords: { x: 150 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: '' });
         });
 
@@ -101,9 +115,11 @@ describe('SortableRow', () => {
             render(<SortableRow {...props} />);
             const target = screen.getByText('Content');
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { x: 200 } },
-                { target, keys: '[/MouseLeft]', coords: { x: 190 } },
+                { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
+                { target, coords: { x: 190 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: '' });
         });
     });
@@ -130,28 +146,33 @@ describe('SortableRow', () => {
         it('calls drag start handler', async () => {
             render(<SortableRow {...props} />);
             const target = screen.getByRole('button', { name: 'Drag' });
-            await userEvent.pointer([{ target, keys: '[MouseLeft>]', coords: { y: 10 } }]);
-            expect(onDragStart).toHaveBeenCalled();
+            await userEvent.pointer([{ target, coords: { y: 10 }, keys: '[MouseLeft>]' }]);
+
+            expect(onDragStart).toHaveBeenCalledWith();
         });
 
         it('calls drag end handler', async () => {
             render(<SortableRow {...props} />);
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { y: 10 } },
-                { target, keys: '[/MouseLeft]', coords: { y: 20 } },
+                { target, coords: { y: 10 }, keys: '[MouseLeft>]' },
+                { target, coords: { y: 20 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
-            expect(onDragEnd).toHaveBeenCalled();
+
+            expect(onDragEnd).toHaveBeenCalledWith();
         });
 
         it('calls drag handler', async () => {
             render(<SortableRow {...props} />);
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { y: 10 } },
+                { target, coords: { y: 10 }, keys: '[MouseLeft>]' },
                 { target, coords: { y: 20 } },
-                { target, keys: '[/MouseLeft]', coords: { y: 30 } },
+                { target, coords: { y: 30 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(onDrag).toHaveBeenCalledTimes(2);
         });
 
@@ -159,18 +180,21 @@ describe('SortableRow', () => {
             render(<SortableRow {...props} />);
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { y: 10 } },
+                { target, coords: { y: 10 }, keys: '[MouseLeft>]' },
                 { target, coords: { y: 20 } },
                 { target, coords: { y: 30 } },
-                { target, keys: '[/MouseLeft]', coords: { y: 40 } },
+                { target, coords: { y: 40 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(onDrag).toHaveBeenCalledTimes(3);
         });
 
         it('does not move row on drag start', async () => {
             render(<SortableRow {...props} />);
             const target = screen.getByRole('button', { name: 'Drag' });
-            await userEvent.pointer([{ target, keys: '[MouseLeft>]', coords: { y: 10 } }]);
+            await userEvent.pointer([{ target, coords: { y: 10 }, keys: '[MouseLeft>]' }]);
+
             expect(screen.getByRole('row')).toHaveStyle({ transform: '' });
         });
 
@@ -178,9 +202,11 @@ describe('SortableRow', () => {
             render(<SortableRow {...props} />);
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { y: 10 } },
-                { target, keys: '[/MouseLeft]', coords: { y: 20 } },
+                { target, coords: { y: 10 }, keys: '[MouseLeft>]' },
+                { target, coords: { y: 20 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(screen.getByRole('row')).toHaveStyle({ transform: '' });
         });
 
@@ -189,15 +215,18 @@ describe('SortableRow', () => {
 
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { y: 10 } },
+                { target, coords: { y: 10 }, keys: '[MouseLeft>]' },
                 { target, coords: { y: 20 } },
             ]);
+
             expect(screen.getByRole('row')).toHaveStyle({ transform: 'translateY(10px)' });
 
             await userEvent.pointer([{ target, coords: { y: 30 } }]);
+
             expect(screen.getByRole('row')).toHaveStyle({ transform: 'translateY(20px)' });
 
             await userEvent.pointer([{ target, coords: { y: 40 } }]);
+
             expect(screen.getByRole('row')).toHaveStyle({ transform: 'translateY(30px)' });
         });
 
@@ -214,9 +243,10 @@ describe('SortableRow', () => {
 
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { y: 10 } },
+                { target, coords: { y: 10 }, keys: '[MouseLeft>]' },
                 { target, coords: { y: -400 } },
             ]);
+
             expect(screen.getByRole('row')).toHaveStyle({ transform: 'translateY(-40px)' });
         });
 
@@ -233,9 +263,10 @@ describe('SortableRow', () => {
 
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { y: 10 } },
+                { target, coords: { y: 10 }, keys: '[MouseLeft>]' },
                 { target, coords: { y: 400 } },
             ]);
+
             expect(screen.getByRole('row')).toHaveStyle({ transform: 'translateY(120px)' });
         });
 
@@ -255,11 +286,12 @@ describe('SortableRow', () => {
 
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { y: 10 } },
+                { target, coords: { y: 10 }, keys: '[MouseLeft>]' },
                 { target, coords: { y: 80 } },
             ]);
 
             rerender(<SortableRow {...props} index={1} />);
+
             expect(screen.getByRole('row')).toHaveStyle({ transform: 'translateY(40px)' });
         });
 
@@ -279,11 +311,12 @@ describe('SortableRow', () => {
 
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { y: 90 } },
+                { target, coords: { y: 90 }, keys: '[MouseLeft>]' },
                 { target, coords: { y: 60 } },
             ]);
 
             rerender(<SortableRow {...props} />);
+
             expect(screen.getByRole('row')).toHaveStyle({ transform: 'translateY(-10px)' });
         });
     });
@@ -293,9 +326,10 @@ describe('SortableRow', () => {
             render(<SortableRow {...props} />);
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { x: 200 } },
+                { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
                 { target, coords: { x: 150 } },
             ]);
+
             expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: '' });
         });
 
@@ -303,10 +337,11 @@ describe('SortableRow', () => {
             render(<SortableRow {...props} />);
             const target = screen.getByText('Content');
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { y: 10 } },
+                { target, coords: { y: 10 }, keys: '[MouseLeft>]' },
                 { target, coords: { y: 20 } },
-                { target, keys: '[/MouseLeft]', coords: { y: 30 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(onDrag).not.toHaveBeenCalled();
         });
 
@@ -316,16 +351,20 @@ describe('SortableRow', () => {
 
             let target = screen.getByText('Content');
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { x: 200 } },
-                { target, keys: '[/MouseLeft]', coords: { x: 100 } },
+                { target, coords: { x: 200 }, keys: '[MouseLeft>]' },
+                { target, coords: { x: 100 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: 'translateX(-400px)' });
 
             target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
-                { target, keys: '[MouseLeft>]', coords: { y: 10 } },
-                { target, keys: '[/MouseLeft]', coords: { y: 20 } },
+                { target, coords: { y: 10 }, keys: '[MouseLeft>]' },
+                { target, coords: { y: 20 } },
+                { target, keys: '[/MouseLeft]' },
             ]);
+
             expect(screen.getByRole('button', { name: 'Controls' })).toHaveStyle({ transform: '' });
         });
     });

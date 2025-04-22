@@ -1,5 +1,5 @@
+import { useCallback, type ForwardedRef, type RefObject } from 'react';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
-import { type ForwardedRef, type RefObject, useCallback } from 'react';
 
 export interface FocusRefObject<T> extends RefObject<T> {
     focus: () => void;

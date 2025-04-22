@@ -1,10 +1,10 @@
-import GoogleIcon from '@assets/google.svg';
-import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
-import { type ButtonProps, IconButton } from '@ui/Button';
 import React, { useCallback, useMemo } from 'react';
+import GoogleIcon from '@assets/google.svg';
+import { IconButton, type ButtonProps } from '@ui/Button';
 import { Label } from '~/client/common/Label';
 import { useLoginError } from '~/client/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
+import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import cx from './LoginButton.less';
 
 export function LoginButton({ children }: ButtonProps) {

@@ -1,7 +1,7 @@
+import React, { useRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useOutsideClick } from '@ui/hooks/useOutsideClick';
-import React, { useRef } from 'react';
 
 function OutsideClickTest({ handler, noRef }: { handler: () => void; noRef?: boolean }) {
     const ref = useRef<HTMLDivElement>(null);
@@ -22,6 +22,7 @@ describe('useOutsideClick', () => {
         render(<OutsideClickTest handler={handler} />);
 
         await userEvent.click(screen.getByText('Inside'));
+
         expect(handler).not.toHaveBeenCalled();
     });
 
@@ -30,6 +31,7 @@ describe('useOutsideClick', () => {
         render(<OutsideClickTest handler={handler} />);
 
         await userEvent.click(screen.getByRole('article'));
+
         expect(handler).not.toHaveBeenCalled();
     });
 
@@ -38,6 +40,7 @@ describe('useOutsideClick', () => {
         render(<OutsideClickTest handler={handler} />);
 
         await userEvent.click(screen.getByText('Outside'));
+
         expect(handler).toHaveBeenCalledWith(expect.any(Object));
     });
 
@@ -46,6 +49,7 @@ describe('useOutsideClick', () => {
         render(<OutsideClickTest handler={handler} noRef />);
 
         await userEvent.click(screen.getByText('Outside'));
+
         expect(handler).not.toHaveBeenCalled();
     });
 });

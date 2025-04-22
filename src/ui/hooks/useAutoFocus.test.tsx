@@ -1,6 +1,6 @@
+import React, { type JSX } from 'react';
 import { render, screen } from '@testing-library/react';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-import React, { type JSX } from 'react';
 
 describe('useAutoFocus', () => {
     it('focuses on the element when the ref is defined', () => {
@@ -10,6 +10,7 @@ describe('useAutoFocus', () => {
         }
 
         render(<TestComponent />);
+
         expect(screen.getByRole('button')).toHaveFocus();
     });
 
@@ -20,6 +21,7 @@ describe('useAutoFocus', () => {
         }
 
         render(<TestComponent />);
+
         expect(screen.getByRole('button')).not.toHaveFocus();
     });
 });

@@ -2,7 +2,7 @@ import { GoogleActionType, setClientIdAction, setLoadingAction } from '~/state/g
 
 describe('setLoadingAction', () => {
     it('returns valid action', () => {
-        expect(setLoadingAction(true)).toEqual({
+        expect(setLoadingAction(true)).toStrictEqual({
             type: GoogleActionType.SET_LOADING,
             loading: true,
         });
@@ -11,7 +11,7 @@ describe('setLoadingAction', () => {
 
 describe('setClientIdAction', () => {
     it('returns valid action', () => {
-        expect(setClientIdAction('123')).toEqual({
+        expect(setClientIdAction('123')).toStrictEqual({
             type: GoogleActionType.SET_CLIENT_ID,
             clientId: '123',
         });

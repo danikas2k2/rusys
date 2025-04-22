@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { type ApiReorderVariants, ApiUrl } from '~/common/api';
+import { ApiUrl, type ApiReorderVariants } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 
 export function useReorderVariants(): (group: string, variants: Readonly<Record<string, number>>) => Promise<void> {

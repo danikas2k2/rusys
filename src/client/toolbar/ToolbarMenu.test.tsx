@@ -1,12 +1,12 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import { withMany } from '@tests/withMany';
+import { withReduxState } from '@tests/withReduxState';
+import { withRouter } from '@tests/withRouter';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { Links } from '~/client/Links';
 import { ToolbarMenu } from '~/client/toolbar/ToolbarMenu';
-import { withMany } from '~/tests/withMany';
-import { withReduxState } from '~/tests/withReduxState';
-import { withRouter } from '~/tests/withRouter';
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
@@ -22,7 +22,7 @@ jest.mock('~/client/variants/dialogs/VariantBox', () => ({
     VariantBox: ({ onClose }: WithOnClose) => <button onClick={onClose}>VariantBox</button>,
 }));
 
-describe('ToolbarMenu', () => {
+describe('<ToolbarMenu>', () => {
     describe('details page', () => {
         it('renders details menu collapsed by default', async () => {
             render(<ToolbarMenu />, withMany(withRouter([Links.DETAILS]), withReduxState()));

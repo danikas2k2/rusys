@@ -1,5 +1,5 @@
-import { Dropdown, type DropdownProps } from '@ui/Dropdown';
 import React from 'react';
+import { Dropdown, type DropdownProps } from '@ui/Dropdown';
 import cx from './Menu.less';
 
 export function Menu({ className, ...props }: DropdownProps) {

@@ -1,10 +1,10 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent } from 'react';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
 import DoneIcon from '@assets/done.svg';
 import ExpandDownIcon from '@assets/expand-down.svg';
 import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
-import React, { type SyntheticEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Label } from '~/client/common/Label';
 import { useRecycled } from '~/client/common/RecycledContext';
 import { RecycledControls } from '~/client/common/RecycledControls';

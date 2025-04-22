@@ -1,8 +1,8 @@
+import { mockEnv } from '@tests/mockEnv';
+import { mockRequest } from '@tests/mockRequest';
+import { mockResponse } from '@tests/mockResponse';
 import { type ApiUserAllowed, type ApiUserEmail } from '~/common/api';
 import { handleCheckUser } from '~/server/app/handleCheckUser';
-import { mockEnv } from '~/tests/mockEnv';
-import { mockRequest } from '~/tests/mockRequest';
-import { mockResponse } from '~/tests/mockResponse';
 
 jest.mock('~/server/app/debug');
 

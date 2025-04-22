@@ -11,27 +11,32 @@ describe('useGroupMatch', () => {
 
     it('returns true when group matches', () => {
         const { result } = renderHook(() => useGroupMatch('Group'));
+
         expect(result.current).toBeTrue();
     });
 
     it('returns false when group does not match', () => {
         const { result } = renderHook(() => useGroupMatch('Some'));
+
         expect(result.current).toBeFalse();
     });
 
     it('is case insensitive', () => {
         const { result } = renderHook(() => useGroupMatch('OTHER'));
+
         expect(result.current).toBeTrue();
     });
 
     it('ignores leading and trailing spaces', () => {
         const { result } = renderHook(() => useGroupMatch('  Group  '));
+
         expect(result.current).toBeTrue();
     });
 
     it('returns false when there are no details', () => {
-        (useDetails as jest.Mock).mockReturnValueOnce(undefined);
+        jest.mocked(useDetails).mockReturnValueOnce([]);
         const { result } = renderHook(() => useGroupMatch('Group'));
+
         expect(result.current).toBeFalse();
     });
 });

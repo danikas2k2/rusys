@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { render, screen } from '@testing-library/react';
 import { SortableGroup } from '~/client/variants/SortableGroup';
 import { SortableVariants } from '~/client/variants/SortableVariants';
 import { useFilter } from '~/state/filter/useFilter';
@@ -10,13 +10,14 @@ jest.mock('~/client/variants/SortableVariants', () => ({
     SortableVariants: jest.fn(() => null),
 }));
 
-describe('SortableGroup', () => {
+describe('<SortableGroup>', () => {
     afterEach(() => jest.clearAllMocks());
 
     const group = 'Uogienės';
 
     it('renders with details', () => {
         render(<SortableGroup group={group} />);
+
         expect(screen.getByRole('rowheader')).toHaveTextContent(group);
         expect(SortableVariants).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -34,8 +35,9 @@ describe('SortableGroup', () => {
     });
 
     it('renders with filtered details', () => {
-        (useFilter as jest.Mock).mockReturnValue('d');
+        jest.mocked(useFilter).mockReturnValue('d');
         render(<SortableGroup group={group} />);
+
         expect(screen.getByRole('rowheader')).toHaveTextContent(group);
         expect(SortableVariants).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -47,8 +49,9 @@ describe('SortableGroup', () => {
     });
 
     it('renders without filtered out details', () => {
-        (useFilter as jest.Mock).mockReturnValue('a');
+        jest.mocked(useFilter).mockReturnValue('a');
         render(<SortableGroup group={group} />);
+
         expect(screen.queryByRole('rowheader')).not.toBeInTheDocument();
         expect(SortableVariants).not.toHaveBeenCalled();
     });

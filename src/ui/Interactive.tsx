@@ -1,12 +1,12 @@
 import {
     createElement,
+    useCallback,
     type HTMLAttributes,
     type JSX,
     type KeyboardEvent,
     type MouseEvent,
     type ReactNode,
     type RefAttributes,
-    useCallback,
 } from 'react';
 
 interface InteractiveProps<T extends HTMLElement> extends HTMLAttributes<T>, RefAttributes<T> {

@@ -1,9 +1,9 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import { withReduxState } from '@tests/withReduxState';
 import { ValueChange } from '~/client/details/dialogs/ValueChange';
 import { ValueInput } from '~/client/details/dialogs/ValueInput';
-import { withReduxState } from '~/tests/withReduxState';
 
 jest.mock('~/state/details/useAddDetails');
 jest.mock('~/state/details/useDeleteDetails');
@@ -12,7 +12,7 @@ jest.mock('~/client/details/dialogs/ValueChange', () => ({
     ValueChange: jest.fn().mockReturnValue(null),
 }));
 
-describe('ValueInput', () => {
+describe('<ValueInput>', () => {
     afterEach(() => jest.clearAllMocks());
 
     const onClose = jest.fn();
@@ -25,7 +25,8 @@ describe('ValueInput', () => {
                 withReduxState()
             );
             await userEvent.type(screen.getByRole('textbox'), '{Enter}');
-            expect(onClose).toHaveBeenCalled();
+
+            expect(onClose).toHaveBeenCalledWith('');
         });
 
         it('on the increase button', async () => {
@@ -34,7 +35,8 @@ describe('ValueInput', () => {
                 withReduxState()
             );
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Increase' }), '{Enter}');
-            expect(onClose).toHaveBeenCalled();
+
+            expect(onClose).toHaveBeenCalledWith('');
         });
 
         it('on the decrease button', async () => {
@@ -43,7 +45,8 @@ describe('ValueInput', () => {
                 withReduxState()
             );
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Decrease' }), '{Enter}');
-            expect(onClose).toHaveBeenCalled();
+
+            expect(onClose).toHaveBeenCalledWith('');
         });
     });
 
@@ -54,6 +57,7 @@ describe('ValueInput', () => {
                 withReduxState()
             );
             await userEvent.type(screen.getByRole('textbox'), '{ArrowUp}');
+
             expect(onChange).toHaveBeenCalledWith('p', 1);
             expect(onClose).not.toHaveBeenCalled();
         });
@@ -64,6 +68,7 @@ describe('ValueInput', () => {
                 withReduxState()
             );
             await userEvent.click(screen.getByRole('spinbutton', { name: 'Increase' }));
+
             expect(onChange).toHaveBeenCalledWith('p', 1);
             expect(onClose).not.toHaveBeenCalled();
         });
@@ -74,6 +79,7 @@ describe('ValueInput', () => {
                 withReduxState()
             );
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Increase' }), '{ArrowUp}');
+
             expect(onChange).toHaveBeenCalledWith('p', 1);
             expect(onClose).not.toHaveBeenCalled();
         });
@@ -84,6 +90,7 @@ describe('ValueInput', () => {
                 withReduxState()
             );
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Decrease' }), '{ArrowUp}');
+
             expect(onChange).toHaveBeenCalledWith('p', -1);
             expect(onClose).not.toHaveBeenCalled();
         });
@@ -96,6 +103,7 @@ describe('ValueInput', () => {
                 withReduxState()
             );
             await userEvent.type(screen.getByRole('textbox'), '{ArrowDown}');
+
             expect(onChange).toHaveBeenCalledWith('p', -1);
             expect(onClose).not.toHaveBeenCalled();
         });
@@ -106,6 +114,7 @@ describe('ValueInput', () => {
                 withReduxState()
             );
             await userEvent.click(screen.getByRole('spinbutton', { name: 'Decrease' }));
+
             expect(onChange).toHaveBeenCalledWith('p', -1);
             expect(onClose).not.toHaveBeenCalled();
         });
@@ -116,6 +125,7 @@ describe('ValueInput', () => {
                 withReduxState()
             );
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Decrease' }), '{ArrowDown}');
+
             expect(onChange).toHaveBeenCalledWith('p', -1);
             expect(onClose).not.toHaveBeenCalled();
         });
@@ -126,6 +136,7 @@ describe('ValueInput', () => {
                 withReduxState()
             );
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Increase' }), '{ArrowDown}');
+
             expect(onChange).toHaveBeenCalledWith('p', -1);
             expect(onClose).not.toHaveBeenCalled();
         });
@@ -134,6 +145,7 @@ describe('ValueInput', () => {
     it('calls onChange when input amount is changed', async () => {
         render(<ValueInput group="G" variant="p" onClose={onClose} onChange={onChange} />, withReduxState());
         await userEvent.type(screen.getByRole('textbox'), '5');
+
         expect(onChange).toHaveBeenCalledWith('p', 5);
         expect(onClose).not.toHaveBeenCalled();
     });
@@ -141,6 +153,7 @@ describe('ValueInput', () => {
     it('does not call onChange when input amount is not a number', async () => {
         render(<ValueInput group="G" variant="" onClose={onClose} onChange={onChange} />, withReduxState());
         await userEvent.type(screen.getByRole('textbox'), 'a');
+
         expect(onChange).not.toHaveBeenCalled();
         expect(onClose).not.toHaveBeenCalled();
     });
@@ -148,18 +161,21 @@ describe('ValueInput', () => {
     describe('difference status', () => {
         it('renders with positive change', async () => {
             render(<ValueInput group="G" variant="" amount={2} change={1} />, withReduxState());
+
             expect(screen.getByRole('textbox')).toHaveValue('3');
             expect(ValueChange).toHaveBeenCalledWith({ change: 1 }, undefined);
         });
 
         it('renders with negative change', async () => {
             render(<ValueInput group="G" variant="" amount={2} change={-1} />, withReduxState());
+
             expect(screen.getByRole('textbox')).toHaveValue('1');
             expect(ValueChange).toHaveBeenCalledWith({ change: -1 }, undefined);
         });
 
         it('renders with zero change', async () => {
             render(<ValueInput group="G" variant="" amount={2} change={0} />, withReduxState());
+
             expect(screen.getByRole('textbox')).toHaveValue('2');
             expect(ValueChange).toHaveBeenCalledWith({ change: 0 }, undefined);
         });

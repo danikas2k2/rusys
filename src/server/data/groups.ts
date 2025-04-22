@@ -1,8 +1,8 @@
+import { type Group } from '~/common/types';
+import { db } from '~/server/db';
+import { hasDuplicates, hasEffect } from './utils';
 import { uniq } from 'lodash';
 import { type ClientSession } from 'mongodb';
-import { type Group } from '~/common/types';
-import { getGroupsCollection } from '~/server/db';
-import { hasDuplicates, hasEffect } from './utils';
 
 // Daržovės: 0.5l, 0.75l, 0.25l, 0.01l, x
 // Uogienės: 0.5l, 0.75l, 0.25l, 0.01l, x
@@ -16,42 +16,40 @@ import { hasDuplicates, hasEffect } from './utils';
 // Šaldytuve: vnt.
 // Priemonės (skalbimo, valymo): ...
 
-export const getGroups = async (session?: ClientSession): Promise<ReadonlyArray<Group>> =>
-    (await getGroupsCollection()).find({}, { projection: { _id: 0 }, sort: { order: 1, group: 1 }, session }).toArray();
+export const getGroups = async (): Promise<ReadonlyArray<Group>> =>
+    (await db())
+        .collection('groups')
+        .find({}, { projection: { _id: 0 }, sort: { order: 1, group: 1 } })
+        .toArray();
 
-export const setGroups = async (groups: ReadonlyArray<Group>, session?: ClientSession): Promise<boolean> =>
-    (await getGroupsCollection())
-        .bulkWrite(
-            [
-                { deleteMany: { filter: { group: { $nin: uniq(groups.map(({ group }) => group)) } } } },
-                ...groups
-                    .filter(({ group }) => !!group)
-                    .map(({ group, ...details }) => ({
-                        updateOne: { filter: { group }, update: { $set: details }, upsert: true },
-                    })),
-            ],
-            { session }
-        )
+export const setGroups = async (groups: ReadonlyArray<Group>): Promise<boolean> =>
+    (await db())
+        .collection('groups')
+        .bulkWrite([
+            { deleteMany: { filter: { group: { $nin: uniq(groups.map(({ group }) => group)) } } } },
+            ...groups
+                .filter(({ group }) => !!group)
+                .map(({ group, ...details }) => ({
+                    updateOne: { filter: { group }, update: { $set: details }, upsert: true },
+                })),
+        ])
         .then(hasEffect);
 
-export async function updateGroup(group: string, order?: number, session?: ClientSession): Promise<boolean> {
+export async function updateGroup(group: string, order?: number): Promise<boolean> {
     if (!group) {
         return false;
     }
-    const groupCollection = await getGroupsCollection();
+    const groupCollection = (await db()).collection('groups');
     return order != null
-        ? groupCollection.updateOne({ group }, { $set: { order } }, { upsert: true, session }).then(hasEffect)
+        ? groupCollection.updateOne({ group }, { $set: { order } }, { upsert: true }).then(hasEffect)
         : groupCollection
-              .aggregate([{ $group: { _id: null, order: { $max: '$order' } } }], { session })
+              .aggregate([{ $group: { _id: null, order: { $max: '$order' } } }])
               .next()
-              .then((found) => groupCollection.insertOne({ group, order: found ? found.order + 1 : 0 }, { session }))
+              .then((found) => groupCollection.insertOne({ group, order: found ? found.order + 1 : 0 }))
               .then(hasEffect);
 }
 
-export async function reorderGroups(
-    update?: Readonly<Record<string, number>>,
-    session?: ClientSession
-): Promise<boolean> {
+export async function reorderGroups(update?: Readonly<Record<string, number>>): Promise<boolean> {
     if (!update) {
         return false;
     }
@@ -59,26 +57,26 @@ export async function reorderGroups(
     if (!entries.length) {
         return false;
     }
-    const col = await getGroupsCollection();
-    return col
+    return (await db())
+        .collection('groups')
         .bulkWrite(
             entries.map(([group, order]) => ({
                 updateOne: { filter: { group }, update: { $set: { order } } },
-            })),
-            { session }
+            }))
         )
         .then(hasEffect);
 }
 
 export const renameGroup = async (group: string, newGroup: string, session?: ClientSession): Promise<boolean> =>
     group && newGroup
-        ? (await getGroupsCollection())
+        ? (await db())
+              .collection('groups')
               .updateOne({ group }, { $set: { group: newGroup } }, { session })
               .then(hasEffect)
               .catch(hasDuplicates)
         : false;
 
 export const deleteGroup = async (group: string, session?: ClientSession): Promise<boolean> =>
-    group ? (await getGroupsCollection()).deleteOne({ group }, { session }).then(hasEffect) : false;
+    group ? (await db()).collection('groups').deleteOne({ group }, { session }).then(hasEffect) : false;
 
 export const getGroupsResponse = async () => ({ groups: await getGroups() });

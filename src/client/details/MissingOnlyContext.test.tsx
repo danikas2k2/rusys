@@ -1,21 +1,23 @@
+import React, { use } from 'react';
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React, { use } from 'react';
 import { MissingOnlyContext, MissingOnlyContextWrapper, useMissingOnly } from '~/client/details/MissingOnlyContext';
 
-describe('MissingOnlyContext', () => {
+describe('<MissingOnlyContext>', () => {
     afterEach(() => {});
 
     it('uses context with default value', () => {
         const { result } = renderHook(() => use(MissingOnlyContext));
-        expect(result.current).toEqual([false, expect.any(Function)]);
+
+        expect(result.current).toStrictEqual([false, expect.any(Function)]);
     });
 });
 
 describe('useMissingOnly', () => {
     it('returns default missing-only context', () => {
         const { result } = renderHook(() => useMissingOnly());
-        expect(result.current).toEqual([false, expect.any(Function)]);
+
+        expect(result.current).toStrictEqual([false, expect.any(Function)]);
     });
 
     it('returns custom missing-only context', () => {
@@ -25,11 +27,12 @@ describe('useMissingOnly', () => {
                 <MissingOnlyContext value={[true, setMissingOnly]}>{children}</MissingOnlyContext>
             ),
         });
-        expect(result.current).toEqual([true, setMissingOnly]);
+
+        expect(result.current).toStrictEqual([true, setMissingOnly]);
     });
 });
 
-describe('MissingOnlyContextWrapper', () => {
+describe('<MissingOnlyContextWrapper>', () => {
     function Test() {
         const [missingOnly, setMissingOnly] = useMissingOnly();
         return <button onClick={() => setMissingOnly(true)}>{missingOnly ? 'MissingOnly' : 'Everything'}</button>;
@@ -41,6 +44,7 @@ describe('MissingOnlyContextWrapper', () => {
                 <Test />
             </MissingOnlyContextWrapper>
         );
+
         expect(screen.getByRole('button')).toHaveTextContent('Everything');
     });
 
@@ -51,6 +55,7 @@ describe('MissingOnlyContextWrapper', () => {
             </MissingOnlyContextWrapper>
         );
         await userEvent.click(screen.getByRole('button'));
+
         expect(screen.getByRole('button')).toHaveTextContent('MissingOnly');
     });
 });

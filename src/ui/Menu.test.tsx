@@ -1,11 +1,12 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Menu } from '@ui/Menu';
-import React from 'react';
 
-describe('Menu', () => {
+describe('<Menu>', () => {
     it('renders trigger only while not clicked', async () => {
         render(<Menu trigger={<button>Open</button>}>Content</Menu>);
+
         expect(screen.getByRole('button', { name: 'Open' })).toBeInTheDocument();
         expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
@@ -13,6 +14,7 @@ describe('Menu', () => {
     it('renders menu content when clicked on trigger', async () => {
         render(<Menu trigger={<button>Open</button>}>Content</Menu>);
         await userEvent.click(screen.getByRole('button', { name: 'Open' }));
+
         expect(screen.getByRole('menu')).toHaveTextContent('Content');
     });
 
@@ -20,6 +22,7 @@ describe('Menu', () => {
         render(<Menu trigger={<button>Open</button>}>Content</Menu>);
         await userEvent.click(screen.getByRole('button', { name: 'Open' }));
         await userEvent.click(screen.getByRole('button', { name: 'Open' }));
+
         expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
 });

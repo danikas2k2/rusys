@@ -1,13 +1,13 @@
-import { Interactive } from '@ui/Interactive';
-import { Portal } from '@ui/Portal';
 import React, {
+    useCallback,
+    useEffect,
     type DialogHTMLAttributes,
     type KeyboardEvent,
     type ReactNode,
     type SyntheticEvent,
-    useCallback,
-    useEffect,
 } from 'react';
+import { Interactive } from '@ui/Interactive';
+import { Portal } from '@ui/Portal';
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 import cx from './Dialog.less';
 

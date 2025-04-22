@@ -2,7 +2,7 @@ import { type ApiRenameVariant, type ApiRequest, type ApiResponse, type ApiVaria
 import { debugRequest } from '~/server/app/debug';
 import { headerNoCache, run } from '~/server/app/utils';
 import { renameVariantOccurrences } from '~/server/data/common';
-import { getVariantsResponse } from '~/server/data/variants';
+import { getDetailsAndVariants } from '~/server/data/variants';
 
 export async function handleRenameVariant(
     req: ApiRequest<ApiRenameVariant>,
@@ -11,5 +11,10 @@ export async function handleRenameVariant(
     debugRequest(req);
     headerNoCache(res);
     const { group, variant, newVariant, ...update } = req.body;
-    res.json(await run(() => renameVariantOccurrences(group, variant, newVariant, update), getVariantsResponse));
+    res.json(
+        await run(
+            () => renameVariantOccurrences(group, variant, newVariant, update),
+            () => getDetailsAndVariants()
+        )
+    );
 }

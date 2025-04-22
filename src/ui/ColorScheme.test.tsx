@@ -1,27 +1,27 @@
-import { act, renderHook } from '@testing-library/react';
-import { COLOR_SCHEME_KEY, ColorSchemeContext } from '@ui/ColorScheme';
 import { use } from 'react';
-import { mockLocalStorage } from '~/tests/mockLocalStorage';
-import { withColorState } from '~/tests/withColorState';
+import { act, renderHook } from '@testing-library/react';
+import { mockLocalStorage } from '@tests/mockLocalStorage';
+import { withColorState } from '@tests/withColorState';
+import { COLOR_SCHEME_KEY, ColorSchemeContext } from '@ui/ColorScheme';
 
-describe('ColorSchemeState', () => {
+describe('<ColorSchemeState>', () => {
     const localStorage = mockLocalStorage();
 
-    afterEach(() => {
-        localStorage.clear();
-    });
+    afterEach(() => localStorage.clear());
 
     it('initializes with auto color scheme', () => {
         const { result } = renderHook(() => use(ColorSchemeContext), withColorState());
         const [colorScheme] = result.current;
-        expect(colorScheme).toEqual('auto');
+
+        expect(colorScheme).toBe('auto');
     });
 
     it('initializes with stored color scheme', () => {
         localStorage.setItem(COLOR_SCHEME_KEY, 'dark');
         const { result } = renderHook(() => use(ColorSchemeContext), withColorState());
         const [colorScheme] = result.current;
-        expect(colorScheme).toEqual('dark');
+
+        expect(colorScheme).toBe('dark');
     });
 
     it('updates color scheme', () => {
@@ -29,14 +29,16 @@ describe('ColorSchemeState', () => {
         const [, setColorScheme] = result.current;
         act(() => setColorScheme('light'));
         const [colorScheme] = result.current;
-        expect(colorScheme).toEqual('light');
+
+        expect(colorScheme).toBe('light');
     });
 
     it('stores color scheme', () => {
         const { result } = renderHook(() => use(ColorSchemeContext), withColorState());
         const [, setColorScheme] = result.current;
         act(() => setColorScheme('dark'));
-        expect(localStorage.getItem(COLOR_SCHEME_KEY)).toEqual('dark');
+
+        expect(localStorage.getItem(COLOR_SCHEME_KEY)).toBe('dark');
     });
 
     it('removes stored color scheme when set to auto', () => {
@@ -44,6 +46,7 @@ describe('ColorSchemeState', () => {
         const { result } = renderHook(() => use(ColorSchemeContext), withColorState());
         const [, setColorScheme] = result.current;
         act(() => setColorScheme('auto'));
+
         expect(localStorage.getItem(COLOR_SCHEME_KEY)).toBeNull();
     });
 
@@ -58,6 +61,7 @@ describe('ColorSchemeState', () => {
             );
         });
         const [colorScheme] = result.current;
-        expect(colorScheme).toEqual('light');
+
+        expect(colorScheme).toBe('light');
     });
 });

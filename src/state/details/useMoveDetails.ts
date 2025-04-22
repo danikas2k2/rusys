@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { type ApiMoveDetails, ApiUrl } from '~/common/api';
+import { ApiUrl, type ApiMoveDetails } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 
 export function useMoveDetails(): (group: string, name: string, newGroup: string, newName?: string) => Promise<void> {

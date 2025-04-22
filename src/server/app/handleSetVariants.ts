@@ -7,5 +7,10 @@ export async function handleSetVariants(req: ApiRequest<ApiVariants>, res: ApiRe
     debugRequest(req);
     headerNoCache(res);
     const { variants } = req.body;
-    res.json(await run(() => setVariants(variants), getVariantsResponse));
+    res.json(
+        await run(
+            () => setVariants(variants),
+            () => getVariantsResponse()
+        )
+    );
 }

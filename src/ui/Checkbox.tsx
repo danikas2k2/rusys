@@ -1,9 +1,9 @@
-import CheckIcon from '@assets/check.svg';
+import React, { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import CheckIndeterminateIcon from '@assets/check-indeterminate.svg';
+import CheckIcon from '@assets/check.svg';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { type CommonInputProps, type InputColor, type InputSize, type InputVariant } from '@ui/Input';
 import { uniqueId } from '@ui/utils/uniqueId';
-import React, { type ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import cx from './Checkbox.less';
 
 export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {

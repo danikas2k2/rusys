@@ -1,6 +1,6 @@
-import { type GroupsAction, GroupsActionType } from '~/state/groups/actions';
+import { getGroupsFixture } from '@tests/fixtures';
+import { GroupsActionType, type GroupsAction } from '~/state/groups/actions';
 import { groups as reducer } from '~/state/groups/reducer';
-import { getGroupsFixture } from '~/tests/fixtures';
 
 describe('groups', () => {
     const groups = getGroupsFixture();
@@ -9,15 +9,15 @@ describe('groups', () => {
         const unknownAction = { type: 'unknown' as GroupsActionType } as GroupsAction;
 
         it('leave set unchanged', () => {
-            expect(reducer(groups, unknownAction)).toEqual(groups);
+            expect(reducer(groups, unknownAction)).toStrictEqual(groups);
         });
 
         it('leave empty set unchanged', () => {
-            expect(reducer([], unknownAction)).toEqual([]);
+            expect(reducer([], unknownAction)).toStrictEqual([]);
         });
 
         it('return default state for undefined', () => {
-            expect(reducer(undefined, unknownAction)).toEqual([]);
+            expect(reducer(undefined, unknownAction)).toStrictEqual([]);
         });
     });
 
@@ -28,7 +28,7 @@ describe('groups', () => {
                     type: GroupsActionType.SET,
                     groups,
                 })
-            ).toEqual(groups);
+            ).toStrictEqual(groups);
         });
 
         it('update empty state with empty set', () => {
@@ -37,7 +37,7 @@ describe('groups', () => {
                     type: GroupsActionType.SET,
                     groups: [],
                 })
-            ).toEqual([]);
+            ).toStrictEqual([]);
         });
 
         it('update filled state', () => {
@@ -46,7 +46,7 @@ describe('groups', () => {
                     type: GroupsActionType.SET,
                     groups,
                 })
-            ).toEqual(groups);
+            ).toStrictEqual(groups);
         });
 
         it('update undefined state', () => {
@@ -55,7 +55,7 @@ describe('groups', () => {
                     type: GroupsActionType.SET,
                     groups,
                 })
-            ).toEqual(groups);
+            ).toStrictEqual(groups);
         });
     });
 });

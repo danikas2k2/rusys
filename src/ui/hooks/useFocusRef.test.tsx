@@ -1,18 +1,18 @@
+import React, { useEffect, type JSX } from 'react';
 import { render, renderHook, screen } from '@testing-library/react';
 import { useFocusRef } from '@ui/hooks/useFocusRef';
-import React, { type JSX, useEffect } from 'react';
 
 describe('useFocusRef', () => {
     it('returns a ref object with focus method when forwardedRef is undefined', () => {
         const { result } = renderHook(() => useFocusRef<HTMLElement>());
 
-        expect(result.current).toEqual({ current: null, focus: expect.any(Function) });
+        expect(result.current).toStrictEqual({ current: null, focus: expect.any(Function) });
     });
 
     it('returns a ref object with focus method when forwardedRef is a ref object', () => {
         const { result } = renderHook(() => useFocusRef<HTMLElement>({ current: null }));
 
-        expect(result.current).toEqual({ current: null, focus: expect.any(Function) });
+        expect(result.current).toStrictEqual({ current: null, focus: expect.any(Function) });
     });
 
     it('calls forwardedRef function with current ref when forwardedRef is a function', () => {
@@ -33,6 +33,7 @@ describe('useFocusRef', () => {
         }
 
         render(<TestComponent />);
+
         expect(screen.getByRole('button')).toHaveFocus();
     });
 });

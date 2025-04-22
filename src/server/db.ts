@@ -1,8 +1,12 @@
-import { type ClientSession, type Collection, type Db, MongoClient } from 'mongodb';
-import { type Details, type Group, type Variant } from '~/common/types';
+import { MongoClient, type ClientSession, type Db } from 'mongodb';
 
-export async function createMissingIndexes(db: Db): Promise<void> {
-    const details = db.collection('details');
+/**
+ * Create missing indexes for the collections in the database.
+ *
+ * @param database The database to create indexes for.
+ */
+export async function createMissingIndexes(database: Db): Promise<void> {
+    const details = database.collection('details');
     await details.createIndex({ group: 1 }, { name: 'group', background: true });
     await details.createIndex({ name: 1 }, { name: 'name', background: true });
     await details.createIndex({ group: 1, name: 1 }, { name: 'group_name', unique: true, background: true });
@@ -24,42 +28,66 @@ export async function createMissingIndexes(db: Db): Promise<void> {
         { name: 'group_name_time_year_variant', unique: true, background: true }
     );
 
-    const groups = db.collection('groups');
-    await groups.createIndex({ group: 1 }, { name: 'group', unique: true, background: true });
-    await groups.createIndex({ order: 1 }, { name: 'order', background: true });
-
-    const variants = db.collection('variants');
+    const variants = database.collection('variants');
     await variants.createIndex({ group: 1 }, { name: 'group', background: true });
     await variants.createIndex({ variant: 1 }, { name: 'variant', background: true });
     await variants.createIndex({ order: 1 }, { name: 'order', background: true });
     await variants.createIndex({ group: 1, variant: 1 }, { name: 'group_variant', unique: true, background: true });
+
+    const groups = database.collection('groups');
+    await groups.createIndex({ group: 1 }, { name: 'group', unique: true, background: true });
+    await groups.createIndex({ order: 1 }, { name: 'order', background: true });
 }
 
-let $client: MongoClient;
+const $client = new Map<string, MongoClient>();
 
-export async function getClient(uri = process.env.DB): Promise<MongoClient> {
-    if (!$client) {
-        $client = await MongoClient.connect(uri ?? '', {});
+/**
+ * Get a MongoDB client instance.
+ *
+ * @param uri The connection URI for the MongoDB server.
+ * @returns A promise that resolves to the MongoDB client instance.
+ */
+export async function getClient(uri = process.env.DB ?? ''): Promise<MongoClient> {
+    if (!$client.has(uri)) {
+        const _client = await MongoClient.connect(uri ?? '', {});
+        $client.set(uri, _client);
+        return _client;
     }
-    return $client;
+    return $client.get(uri)!;
 }
 
-let $db: Db;
+const $db = new Map<string, Db>();
 
-export async function getDb(name = process.env.DB_NAME, client?: MongoClient): Promise<Db> {
-    if (!$db) {
-        $db = (client ?? (await getClient())).db(name);
-        await createMissingIndexes($db);
+/**
+ * Get a MongoDB database instance.
+ *
+ * @param name The name of the database to connect to. If not provided, the default database name from the environment variable DB_NAME will be used.
+ * @param client An optional MongoDB client instance. If not provided, a new client will be created.
+ * @returns A promise that resolves to the MongoDB database instance.
+ */
+export async function db(name = process.env.DB_NAME ?? '', client?: MongoClient): Promise<Db> {
+    if (!$db.has(name)) {
+        const _db = (client ?? (await getClient())).db(name);
+        $db.set(name, _db);
+        await createMissingIndexes(_db);
+        return _db;
     }
-    return $db;
+
+    return $db.get(name)!;
 }
 
-export const getGroupsCollection = async (): Promise<Collection<Group>> => (await getDb()).collection('groups');
-export const getVariantsCollection = async (): Promise<Collection<Variant>> => (await getDb()).collection('variants');
-export const getDetailsCollection = async (): Promise<Collection<Details>> => (await getDb()).collection('details');
-
-export const withTransaction = async (fn: (session: ClientSession) => Promise<boolean>): Promise<boolean> => {
-    const session = (await getClient()).startSession();
+/**
+ * Execute a function within a MongoDB transaction.
+ *
+ * @param fn The function to execute within the transaction. It receives a MongoDB session as an argument.
+ * @param client An optional MongoDB client instance. If not provided, a new client will be created.
+ * @returns A promise that resolves to true if the transaction was successful, false otherwise.
+ */
+export async function withTransaction(
+    fn: (session: ClientSession) => Promise<boolean>,
+    client?: MongoClient
+): Promise<boolean> {
+    const session = (client ?? (await getClient())).startSession();
     try {
         session.startTransaction({
             readPreference: 'primary',
@@ -78,4 +106,4 @@ export const withTransaction = async (fn: (session: ClientSession) => Promise<bo
     } finally {
         await session.endSession();
     }
-};
+}

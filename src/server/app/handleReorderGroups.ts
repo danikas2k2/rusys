@@ -10,5 +10,10 @@ export async function handleReorderGroups(
     debugRequest(req);
     headerNoCache(res);
     const { groups } = req.body;
-    res.json(await run(() => reorderGroups(groups), getGroupsResponse));
+    res.json(
+        await run(
+            () => reorderGroups(groups),
+            () => getGroupsResponse()
+        )
+    );
 }

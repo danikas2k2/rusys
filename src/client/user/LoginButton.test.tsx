@@ -1,11 +1,11 @@
-import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import { withReduxState } from '@tests/withReduxState';
 import { useLoginError } from '~/client/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
 import { LoginButton } from '~/client/user/LoginButton';
-import { withReduxState } from '~/tests/withReduxState';
+import { useGoogleLogin, useGoogleOneTapLogin, type CredentialResponse } from '@react-oauth/google';
 
 jest.mock('@react-oauth/google', () => ({
     useGoogleLogin: jest.fn(),
@@ -14,15 +14,15 @@ jest.mock('@react-oauth/google', () => ({
 jest.mock('~/client/user/hooks/useLoginError');
 jest.mock('~/client/user/hooks/useLoginSuccess');
 
-describe('LoginButton', () => {
+describe('<LoginButton>', () => {
     const login = jest.fn();
     const onError = jest.fn();
     const onSuccess = jest.fn();
 
     beforeEach(() => {
-        (useGoogleLogin as jest.Mock).mockReturnValue(login);
-        (useLoginError as jest.Mock).mockReturnValue(onError);
-        (useLoginSuccess as jest.Mock).mockReturnValue(onSuccess);
+        jest.mocked(useGoogleLogin).mockReturnValue(login);
+        jest.mocked(useLoginError).mockReturnValue(onError);
+        jest.mocked(useLoginSuccess).mockReturnValue(onSuccess);
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -50,7 +50,7 @@ describe('LoginButton', () => {
 
         await userEvent.click(screen.getByText('Login with Google'));
 
-        expect(login).toHaveBeenCalled();
+        expect(login).toHaveBeenCalledWith();
     });
 
     it('calls Google one tap login on render', async () => {
@@ -63,20 +63,23 @@ describe('LoginButton', () => {
     });
 
     it('calls error actions if login fails', async () => {
-        (useGoogleOneTapLogin as jest.Mock).mockImplementationOnce(({ onError: handleError }) => handleError());
+        jest.mocked(useGoogleOneTapLogin).mockImplementationOnce(({ onError: handleError }) => handleError?.());
 
         render(<LoginButton />, withReduxState());
 
-        expect(onError).toHaveBeenCalled();
+        expect(onError).toHaveBeenCalledWith();
         expect(onSuccess).not.toHaveBeenCalled();
     });
 
     it('calls success actions if login passes', async () => {
-        (useGoogleOneTapLogin as jest.Mock).mockImplementationOnce(({ onSuccess: handleSuccess }) => handleSuccess());
+        const credentialResponse: CredentialResponse = { credential: 'test-credential' };
+        jest.mocked(useGoogleOneTapLogin).mockImplementationOnce(({ onSuccess: handleSuccess }) =>
+            handleSuccess(credentialResponse)
+        );
 
         render(<LoginButton />, withReduxState());
 
-        expect(onSuccess).toHaveBeenCalled();
+        expect(onSuccess).toHaveBeenCalledWith(credentialResponse);
         expect(onError).not.toHaveBeenCalled();
     });
 });

@@ -1,4 +1,4 @@
-import { type ProfileAction, ProfileActionType } from '~/state/profile/actions';
+import { ProfileActionType, type ProfileAction } from '~/state/profile/actions';
 import { type Profile } from '~/state/profile/types';
 
 export function profile(state: Readonly<Profile> = {}, action: ProfileAction): Readonly<Profile> {
