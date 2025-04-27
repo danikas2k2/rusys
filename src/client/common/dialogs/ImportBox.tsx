@@ -2,7 +2,7 @@ import React, { useActionState, useCallback, useEffect, useState, type FormEvent
 import { useFormStatus } from 'react-dom';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
-import DownloadIcon from '@assets/download.svg';
+import ImportIcon from '@assets/import.svg';
 import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { FileInput } from '@ui/FileInput';
@@ -38,7 +38,7 @@ function ImportFooter({ onCancel, onSubmit }: ImportFooterProps) {
                 type="submit"
                 variant="solid"
                 color="primary"
-                startDecorator={<DownloadIcon />}
+                startDecorator={<ImportIcon />}
                 disabled={pending}
                 onClick={onSubmit}
             >
@@ -60,10 +60,6 @@ export function ImportBox({ onClose }: ImportBoxProps) {
         await handleImport(data);
         return newState;
     }, {});
-
-    console.info({
-        state,
-    });
 
     useEffect(() => {
         setErrors(undefined);
