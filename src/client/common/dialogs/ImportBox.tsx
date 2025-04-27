@@ -54,7 +54,7 @@ export function ImportBox({ onClose }: ImportBoxProps) {
     const [errors, setErrors] = useState<Record<string, string>>();
 
     const handleImport = useImportHandler();
-    const [state, formAction] = useActionState<{ file?: File }, FormData>(async (newState, data) => {
+    const [, formAction] = useActionState<{ file?: File }, FormData>(async (newState, data) => {
         console.info(data);
         // console.info('upload', newState, (data.get('file') as File).arrayBuffer());
         await handleImport(data);
