@@ -18,7 +18,7 @@ export const getVariants = async (): Promise<ReadonlyArray<Variant>> => {
         $reduce: {
             input: { $concatArrays: [{ $ifNull: ['$years', []] }, { $reduce: combineUpdatesYears }] },
             initialValue: false,
-            in: { $or: ['$$value', { $in: ['$$variant', '$$this.amounts.variant'] }] },
+            in: { $or: ['$$value', { $in: ['$$variant', { $ifNull: ['$$this.amounts.variant', []] }] }] },
         },
     };
     return (await db())

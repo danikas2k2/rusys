@@ -37,7 +37,7 @@ export function ToolbarMenu() {
         openAddBox();
     }, [hideMenu, openAddBox]);
 
-    const [importOpened, , openImport, closeImport] = useToggle(true);
+    const [importOpened, , openImport, closeImport] = useToggle(false);
     const onImportClick = useCallback(() => {
         hideMenu();
         openImport();

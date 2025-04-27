@@ -112,11 +112,13 @@ export function FileInput({
                             {startDecorator}
                         </div>
                     )}
-                    {files.length === 1 ? (
-                        <FileDisplay file={files[0]} />
-                    ) : (
-                        <div className={cx('placeholder')}>{placeholder}</div>
-                    )}
+                    <div className={cx('display')}>
+                        {files.length === 1 ? (
+                            <FileDisplay file={files[0]} />
+                        ) : (
+                            <div className={cx('placeholder')}>{placeholder}</div>
+                        )}
+                    </div>
                     <input
                         id={id}
                         type="file"
