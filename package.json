@@ -37,8 +37,8 @@
         "remote:upload": "rsync -avr --exclude \"tutorial.*\" --exclude \"data\" ./dist/* dan@vd:/var/www/rusys/",
         "remote:restart": "ssh dan@vd \"pm2 restart rusys --update-env\"",
         "deploy": "pnpm test && pnpm build && pnpm remote:upload && pnpm remote:restart",
-        "preversion": "git pull && pnpm lint && pnpm test",
-        "version": "pnpm build && git add --all && git commit -m \"$npm_package_version\"",
+        "preversion": "git pull && pnpm lint && pnpm test && pnpm build",
+        "version:commit": "git add --all && git commit -m \"$npm_package_version\"",
         "postversion": "git push && git push --tags",
         "migrate": "DATA_PATH=/Users/asteponavicius/dev/rusys/data DB=mongodb://rusiodb1:30201,rusiodb2:30202,rusiodb3:30203/rusys?replicaSet=rusiors esr src/server/db-migrate.ts --platform=node --target=node22 --external:express --external:cors --external:body-parser --external:moment --external:nedb-promises"
     },
