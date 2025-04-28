@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  rusys-db1:
+    container_name: rusys-db1
+    hostname: rusys-db1
+    image: mongo
+    expose:
+      - 30201
+    ports:
+      - 30201:30201
+    volumes:
+      - rusys-db1-data:/data/db
+    restart: unless-stopped
+    networks:
+      - rusys-db
+    command: mongod --replSet rusys-rs --port 30201
+
+  rusys-db2:
+    container_name: rusys-db2
+    hostname: rusys-db2
+    image: mongo
+    expose:
+      - 30202
+    ports:
+      - 30202:30202
+    volumes:
+      - rusys-db2-data:/data/db
+    restart: unless-stopped
+    networks:
+      - rusys-db
+    command: mongod --replSet rusys-rs --port 30202
+
+  rusys-db3:
+    container_name: rusys-db3
+    hostname: rusys-db3
+    image: mongo
+    expose:
+      - 30203
+    ports:
+      - 30203:30203
+    volumes:
+      - rusys-db3-data:/data/db
+    restart: unless-stopped
+    networks:
+      - rusys-db
+    command: mongod --replSet rusys-rs --port 30203
+
+  rusys-app:
+    container_name: rusys-app
+    image: rusys-app
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      - DB=mongodb://rusys-db1:30201,rusys-db2:30202,rusys-db3:30203/?replicaSet=rusys-rs
+    depends_on:
+      - rusys-db1
+      - rusys-db2
+      - rusys-db3
+    networks:
+      - rusys-db
+
+networks:
+  rusys-db:
+    driver: bridge
+
+volumes:
+  rusys-db1-data:
+  rusys-db2-data:
+  rusys-db3-data:
