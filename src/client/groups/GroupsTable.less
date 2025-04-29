@@ -1,0 +1,19 @@
+@import (once) "@ui/theme.less";
+
+.Table {
+    position: absolute;
+    inset: var(--toolbar-height) 0 0;
+}
+
+.Row {
+    grid-template-columns: 40px 1fr;
+    padding: 0.5rem 0;
+    background-color: var(--color-background-body);
+    overflow: hidden;
+}
+
+.Name {
+    justify-self: stretch;
+    font-weight: var(--font-weight-xl);
+    line-height: var(--line-height-xl);
+}

@@ -1,26 +1,33 @@
-import { type ColorScheme, type ColorSchemeHandler } from '@ui/ColorScheme.types';
-import React, { createContext, type PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useState, type JSX, type PropsWithChildren } from 'react';
+import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 
-const LOCAL_STORAGE_KEY = 'preferred-color-scheme';
+export type ColorScheme = 'light' | 'dark' | 'auto';
 
-export const ColorSchemeContext = createContext<[ColorScheme, ColorSchemeHandler]>(['auto', () => {}]);
+export type ColorSchemeHandler = (colorScheme: ColorScheme) => void;
+
+export const COLOR_SCHEME_KEY = 'preferred-color-scheme';
+
+export const ColorSchemeContext = createContext<[ColorScheme, ColorSchemeHandler]>(['auto', () => void 0]);
 
 export function ColorSchemeState({ children }: PropsWithChildren): JSX.Element {
     const [colorScheme, setColorScheme] = useState<ColorScheme>(
-        (localStorage.getItem(LOCAL_STORAGE_KEY) as ColorScheme) ?? 'auto'
+        (localStorage.getItem(COLOR_SCHEME_KEY) as ColorScheme) ?? 'auto'
     );
 
+    const previousColorScheme = usePreviousValue(colorScheme) ?? colorScheme;
     useEffect(() => {
-        if (colorScheme === 'auto') {
-            localStorage.removeItem(LOCAL_STORAGE_KEY);
-        } else {
-            localStorage.setItem(LOCAL_STORAGE_KEY, colorScheme);
+        if (previousColorScheme !== colorScheme) {
+            if (colorScheme === 'auto') {
+                localStorage.removeItem(COLOR_SCHEME_KEY);
+            } else {
+                localStorage.setItem(COLOR_SCHEME_KEY, colorScheme);
+            }
         }
-    }, [colorScheme]);
+    }, [colorScheme, previousColorScheme]);
 
     const storageListener = useCallback(
         (e: StorageEvent) => {
-            if (e.key == null || e.key === LOCAL_STORAGE_KEY) {
+            if (e.key == null || e.key === COLOR_SCHEME_KEY) {
                 const newScheme = (e.newValue ?? 'auto') as ColorScheme;
                 if (colorScheme !== newScheme) {
                     setColorScheme(newScheme);
@@ -35,5 +42,5 @@ export function ColorSchemeState({ children }: PropsWithChildren): JSX.Element {
         return () => removeEventListener('storage', storageListener);
     }, [storageListener]);
 
-    return <ColorSchemeContext.Provider value={[colorScheme, setColorScheme]}>{children}</ColorSchemeContext.Provider>;
+    return <ColorSchemeContext value={[colorScheme, setColorScheme]}>{children}</ColorSchemeContext>;
 }

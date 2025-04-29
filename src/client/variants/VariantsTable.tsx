@@ -1,0 +1,41 @@
+import React from 'react';
+import { Label } from '~/client/common/Label';
+import { LoadingContent } from '~/client/common/LoadingContent';
+import { Cell } from '~/client/table/Cell';
+import { Row } from '~/client/table/Row';
+import { Table } from '~/client/table/Table';
+import { useVariantsHasData } from '~/client/variants/hooks/useVariantsHasData';
+import { SortableGroups } from '~/client/variants/SortableGroups';
+import { useGroup } from '~/state/group/useGroup';
+import { useGroups } from '~/state/groups/useGroups';
+import { useGetVariants } from '~/state/variants/useGetVariants';
+import cx from './VariantsTable.less';
+
+export function VariantsTable() {
+    const group = useGroup();
+    const groups = useGroups().map((v) => v.group);
+    const visibleGroups = group ? [group] : groups;
+    return (
+        <LoadingContent loader={useGetVariants()} hasData={useVariantsHasData()}>
+            <Table
+                className={cx('Table')}
+                header={
+                    <Row className={cx('Row', 'HeadRow')}>
+                        <Cell />
+                        <Cell key="name" role="columnheader" className={cx('Name')}>
+                            <Label>Variant</Label>
+                        </Cell>
+                        <Cell key="long" role="columnheader">
+                            <Label>Long</Label>
+                        </Cell>
+                        <Cell key="short" role="columnheader">
+                            <Label>Short</Label>
+                        </Cell>
+                    </Row>
+                }
+            >
+                <SortableGroups className={cx('Row')} groups={visibleGroups} />
+            </Table>
+        </LoadingContent>
+    );
+}

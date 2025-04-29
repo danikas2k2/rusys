@@ -1,19 +1,20 @@
 import { getYears } from '~/server/data/years';
+import moment from 'moment/moment';
 
 describe('getYears', () => {
-    beforeEach(() => {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date('2023-05-01'));
-    });
+    beforeEach(() => jest.useFakeTimers());
 
-    afterAll(jest.useRealTimers);
+    afterAll(() => jest.useRealTimers());
 
     it('get list of years after switch month', () => {
-        expect(getYears()).toEqual([23, 22, 21, 20, 19]);
+        jest.setSystemTime(moment('2025-05-05T12:11:10.123Z').valueOf());
+
+        expect(getYears()).toStrictEqual([25, 24, 23, 22, 21]);
     });
 
     it('get list of years before switch month', () => {
-        jest.setSystemTime(new Date('2023-01-01'));
-        expect(getYears()).toEqual([22, 21, 20, 19, 18]);
+        jest.setSystemTime(moment('2025-01-01T12:11:10.123Z').valueOf());
+
+        expect(getYears()).toStrictEqual([24, 23, 22, 21, 20]);
     });
 });

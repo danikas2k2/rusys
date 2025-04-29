@@ -1,13 +1,12 @@
-import { isEqual } from 'lodash';
-import React, { memo } from 'react';
-import DetailsTable from '~/client/details/DetailsTable';
-import Toolbar from '~/client/toolbar/Toolbar';
+import React from 'react';
+import { Page } from '~/client/common/Page';
+import { DetailsContent } from '~/client/details/DetailsContent';
+import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
 
-export default memo(function DetailsPage() {
+export function DetailsPage() {
     return (
-        <>
-            <Toolbar />
-            <DetailsTable />
-        </>
+        <Page toolbar={<ToolbarGroupFilter />}>
+            <DetailsContent />
+        </Page>
     );
-}, isEqual);
+}

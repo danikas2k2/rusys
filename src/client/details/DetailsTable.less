@@ -1,11 +1,7 @@
-.Table {
-    /* with sticky header and medium size */
-    position: absolute;
-    inset: var(--toolbar-height) 0 0;
-    grid-template-rows: 32px 1fr;
-}
+@import (once) "@ui/theme.less";
 
-.HeadRow {
+.HeadRow,
+.GroupRow {
     font-weight: var(--font-weight-xl);
 }
 
@@ -13,4 +9,17 @@
     > :nth-child(2) {
         grid-column: span 3;
     }
+}
+
+.GroupRow {
+    padding: 0.75rem 1rem 0.25rem;
+    background-color: var(--color-background-body);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.GroupHeading {
+    width: 100%;
+    font-size: var(--font-size-xl2);
 }

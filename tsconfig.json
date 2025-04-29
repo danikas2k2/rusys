@@ -1,15 +1,18 @@
 {
-    "extends": "@tsconfig/node20",
-    "include": ["src/**/*"],
-    "exclude": ["node_modules", "**/*.spec.ts", "src/server/**/*"],
+    "extends": "@tsconfig/node22",
+    "include": ["src/**/*", "jest/*.ts"],
+    "exclude": ["node_modules", "**/*.spec.ts"],
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
-            "@icons/*": ["src/icons/*"],
+            "@assets/*": ["src/assets/*"],
+            "@tests/*": ["src/tests/*"],
             "@ui/*": ["src/ui/*"],
             "~/*": ["src/*"]
         },
-        "lib": ["es2024", "dom", "dom.iterable"],
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "target": "ESNext",
+        "moduleResolution": "NodeNext",
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
         "noFallthroughCasesInSwitch": true,
@@ -22,10 +25,11 @@
             "express",
             "mdx",
             "jest",
+            "@testing-library/jest-dom",
             "jest-extended",
-            "jest-chain",
             "jest-to-match-shape-of",
-            "jest-expect-message"
+            "jest-expect-message",
+            "jest-chain"
         ],
         "strict": true,
         "esModuleInterop": true,

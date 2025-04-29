@@ -1,0 +1,10 @@
+.idea
+.git
+.github
+.gitignore
+node_modules
+README.md
+public
+src
+package.json
+pnpm-lock.yaml

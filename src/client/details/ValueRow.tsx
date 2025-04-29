@@ -1,104 +1,95 @@
-import Checkbox from '@ui/Checkbox';
-import { isEmpty, isEqual } from 'lodash';
-import React, { memo, useCallback } from 'react';
-import { useSelector } from 'react-redux';
-import ValueCell from '~/client/details/ValueCell';
-import InteractiveName from '~/client/InteractiveName';
-import Cell from '~/client/table/Cell';
-import Row from '~/client/table/Row';
-import { type BaseState } from '~/store/base/types';
-import { type Amount, type Amounts } from '~/store/details/types';
-import useUpdateDetails from '~/store/details/useUpdateDetails';
-import useAddMissing from '~/store/missing/useAddMissing';
-import useRemoveMissing from '~/store/missing/useRemoveMissing';
-import useUpdateRemoving from '~/store/removing/useUpdateRemoving';
-import { type Name, type Year } from '~/store/types';
+import React, { useCallback, useRef } from 'react';
+import { Checkbox } from '@ui/Checkbox';
+import { Interactive } from '@ui/Interactive';
+import { useActiveRow, type ActiveRow } from '~/client/common/ActiveRowContext';
+import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
+import { SlideControls } from '~/client/common/SlideControls';
+import { ValueCell } from '~/client/details/ValueCell';
+import { Cell } from '~/client/table/Cell';
+import { RowWithSlideControls } from '~/client/table/RowWithSlideControls';
+import { type Details, type RemovingYearAmounts } from '~/common/types';
+import { useDeleteDetails } from '~/state/details/useDeleteDetails';
+import { useHasRemoving } from '~/state/details/useHasRemoving';
+import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';
+import { useYears } from '~/state/years/useYears';
+import { isEmpty } from 'lodash';
 import cx from './ValueRow.less';
 
-interface ValueRowProps {
+export interface ActiveDetails extends ActiveRow, Pick<Details, 'group' | 'name'> {}
+
+export interface ValueRowProps {
     className?: string;
-    name: Name;
-    values: Amounts;
-    isMissing?: boolean;
+    group: string;
+    name: string;
+    years?: ReadonlyArray<RemovingYearAmounts>;
+    missing?: boolean;
+    onStart?: (name: string) => void;
+    onStop?: () => void;
+    onPin?: (hide?: boolean) => void;
+    onUnpin?: (hide?: boolean) => void;
 }
 
-export default memo(function ValueRow({ className, name, values, isMissing }: ValueRowProps) {
-    const labelId = `checkbox-${name}`;
-    const isAvailable = !isEmpty(values);
+export function ValueRow({ className, group, name, years, missing }: ValueRowProps) {
+    const labelId = `checkbox-${group}-${name}`;
+    const available = !isEmpty(years);
 
-    const [years, isRemoving] = useSelector(
-        (state: BaseState) => [state.years, state.years.some((year) => state.removing?.[name]?.[year])] as const,
-        isEqual
-    );
-    const lastYear = years[years.length - 1];
+    const allYears = useYears();
+    const lastYear = allYears[allYears.length - 1];
 
-    const addMissing = useAddMissing();
-    const removeMissing = useRemoveMissing();
-    const handleMissing = useCallback(
-        async (name: string, isMissing: boolean): Promise<void> => {
-            if (isMissing) {
-                await addMissing(name);
-            } else {
-                await removeMissing(name);
-            }
-        },
-        [addMissing, removeMissing]
-    );
+    const hasRemoving = useHasRemoving(group, name);
 
-    const updateDetails = useUpdateDetails();
-    const updateRemoving = useUpdateRemoving();
-    const handleValue = useCallback(
-        async (name: string, year: Year, value?: Amount, updateWithoutHistory = false): Promise<void> => {
-            await updateDetails(name, year, value, updateWithoutHistory);
-            await updateRemoving(name, year, false);
-            return handleMissing(name, false);
-        },
-        [handleMissing, updateDetails, updateRemoving]
-    );
+    const [active, setActive] = useActiveRow<ActiveDetails>();
 
-    const handleClick = useCallback((): void => {
-        if (isAvailable) {
-            handleMissing(name, !isMissing);
+    const ref = useRef<HTMLDivElement>(null);
+    const isActive = active?.group === group && active?.name === name;
+
+    const onStart = useCallback(() => setActive({ group, name, ref }), [group, name, setActive]);
+
+    const setMissing = useSetDetailsMissing();
+    const handleClick = useCallback(async (): Promise<void> => {
+        setActive(undefined);
+        if (available) {
+            await setMissing(group, name, !missing);
         }
-    }, [handleMissing, isAvailable, isMissing, name]);
+    }, [setActive, available, setMissing, group, name, missing]);
 
-    const handleChange = useCallback(
-        (year: Year) =>
-            useCallback(
-                (value?: Amount, updateWithoutHistory = false) => handleValue(name, year, value, updateWithoutHistory),
-                [year]
-            ),
-        [handleValue, name]
-    );
+    const deleteDetails = useDeleteDetails();
+    const handleRemove = useErrorWrapper(() => deleteDetails(group, name));
 
     return (
-        <Row key={name} className={cx('Row', className, { selected: isMissing })} aria-checked={!isMissing}>
+        <RowWithSlideControls
+            ref={ref}
+            className={className}
+            aria-checked={!missing}
+            onDragStart={onStart}
+            controls={isActive ? <SlideControls onRemove={handleRemove} /> : undefined}
+        >
             <Cell>
                 <Checkbox
                     color="primary"
-                    checked={!isMissing}
-                    disabled={!isAvailable}
-                    indeterminate={!isAvailable}
+                    checked={!missing}
+                    disabled={!available}
+                    indeterminate={!available}
                     aria-labelledby={labelId}
                     onClick={handleClick}
                 />
             </Cell>
-            <Cell
-                id={labelId}
-                className={cx('name', { unavailable: !isAvailable, removing: isAvailable && isRemoving })}
-            >
-                <InteractiveName name={name} onClick={handleClick} />
+            <Cell id={labelId} className={cx('name', { unavailable: !available, removing: available && hasRemoving })}>
+                <Interactive onClick={handleClick}>{name}</Interactive>
             </Cell>
-            {years.map((year) => (
-                <ValueCell
-                    key={year}
-                    name={name}
-                    year={year}
-                    value={values[year]}
-                    last={year === lastYear}
-                    onChange={handleChange(year)}
-                />
-            ))}
-        </Row>
+            {allYears
+                .map((year) => years?.find((v) => v.year === year) ?? ({ year } as RemovingYearAmounts))
+                .map(({ year, amounts, removing }) => (
+                    <ValueCell
+                        key={year}
+                        group={group}
+                        name={name}
+                        year={year}
+                        amounts={amounts}
+                        removing={removing}
+                        last={year === lastYear}
+                    />
+                ))}
+        </RowWithSlideControls>
     );
-}, isEqual);
+}

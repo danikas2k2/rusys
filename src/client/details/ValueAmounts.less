@@ -1,0 +1,25 @@
+@import (once) "@ui/theme.less";
+
+.ValueAmounts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+
+    .value {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-inline: 0.1rem;
+
+        &:has(+ *) {
+            &::after {
+                content: ",";
+            }
+        }
+
+        sub {
+            font-size: var(--font-size-xs);
+        }
+    }
+}

@@ -1,3 +1,3 @@
-import { type Year } from '../../../store/types';
+import { getYearsFixture } from '@tests/fixtures';
 
-export const getYears = (): Year[] => [23, 22, 21];
+export const getYears = jest.fn().mockReturnValue(getYearsFixture());

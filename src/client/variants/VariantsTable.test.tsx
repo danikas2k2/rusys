@@ -1,0 +1,144 @@
+import React from 'react';
+import { render, screen, within } from '@testing-library/react';
+import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
+import { withReduxState } from '@tests/withReduxState';
+import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
+import { VariantsTable } from '~/client/variants/VariantsTable';
+import { useFilter } from '~/state/filter/useFilter';
+import { useGroups } from '~/state/groups/useGroups';
+import { useVariants } from '~/state/variants/useVariants';
+
+jest.mock('~/state/years/useYears');
+jest.mock('~/state/groups/useGroups');
+jest.mock('~/state/variants/useVariants');
+jest.mock('~/state/variants/useGroupVariants');
+jest.mock('~/client/common/hooks/useLockingLoader');
+jest.mock('~/state/filter/useFilter', () => ({
+    useFilter: jest.fn().mockReturnValue(''),
+}));
+jest.mock('~/client/utils/getOverlapIndex');
+
+describe('<VariantsTable>', () => {
+    beforeEach(() => {
+        jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
+        jest.mocked(useVariants).mockReturnValue(getVariantsFixture());
+        jest.mocked(useGroups).mockReturnValue(getGroupsFixture());
+    });
+
+    afterEach(() => jest.clearAllMocks());
+
+    it('renders table structure', () => {
+        render(<VariantsTable />, withReduxState());
+
+        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(screen.getByRole('table')).toBeInTheDocument();
+
+        const rowData = {
+            Daržovės: [
+                ['d', '3 l.', ''],
+                ['p', '2 l.', ''],
+                ['m', '1.5 l.', ''],
+                ['1', '1 l.', ''],
+                ['x', '', 'B.'],
+            ],
+            Uogienės: [
+                ['p', '500 ml.', ''],
+                ['d', '750 ml.', 'D.'],
+                ['m', '250 ml.', 'M.'],
+                ['e', '', 'E.'],
+                ['x', '', 'B.'],
+            ],
+        };
+
+        const rows = screen.getAllByRole('row');
+        let count = 0;
+
+        expect(within(rows[count++]).getAllByRole('columnheader')).toHaveListWithTextContent([
+            'Variant',
+            'Long',
+            'Short',
+        ]);
+
+        for (const [group, cells] of Object.entries(rowData)) {
+            expect(within(rows[count++]).getAllByRole('rowheader')).toHaveListWithTextContent([group]);
+
+            for (const cell of cells) {
+                expect(within(rows[count++]).getAllByRole('cell')).toHaveListWithTextContent(cell);
+            }
+        }
+
+        expect(rows).toHaveLength(count);
+    });
+
+    describe('renders loader', () => {
+        it('renders loader for initial state', () => {
+            jest.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
+            render(<VariantsTable />, withReduxState());
+
+            expect(screen.getByRole('progressbar')).toBeInTheDocument();
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+            expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        });
+
+        it('renders loader for loading state', () => {
+            jest.mocked(useLockingLoader).mockReturnValue(LoadingState.LOADING);
+            render(<VariantsTable />, withReduxState());
+
+            expect(screen.getByRole('progressbar')).toBeInTheDocument();
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+            expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('renders error', () => {
+        it('renders error for failed state', () => {
+            jest.mocked(useLockingLoader).mockReturnValue(LoadingState.FAILED);
+            render(<VariantsTable />, withReduxState());
+
+            expect(screen.getByRole('alert')).toHaveTextContent('Failed to load data');
+            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+            expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        });
+
+        it('renders error for complete state without variants', () => {
+            jest.mocked(useVariants).mockReturnValue([]);
+            render(<VariantsTable />, withReduxState());
+
+            expect(screen.getByRole('alert')).toHaveTextContent('No data');
+            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+            expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        });
+
+        it('renders error for complete state without groups', () => {
+            jest.mocked(useGroups).mockReturnValue([]);
+            render(<VariantsTable />, withReduxState());
+
+            expect(screen.getByRole('alert')).toHaveTextContent('No data');
+            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+            expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('handles filter state', () => {
+        it('renders filtered data', () => {
+            jest.mocked(useFilter).mockReturnValue('e');
+            render(<VariantsTable />, withReduxState());
+            const rows = screen.getAllByRole('row');
+
+            expect(rows).toHaveLength(3);
+
+            const [, headerRow, dataRow] = rows;
+
+            expect(within(headerRow).getByRole('rowheader')).toHaveTextContent('Uogienės');
+            expect(within(dataRow).getAllByRole('cell')).toHaveListWithTextContent(['e', '', 'E.']);
+        });
+
+        it('renders filtered out data', () => {
+            jest.mocked(useFilter).mockReturnValue('h');
+            render(<VariantsTable />, withReduxState());
+
+            expect(screen.getAllByRole('row')).toHaveLength(1);
+        });
+    });
+});

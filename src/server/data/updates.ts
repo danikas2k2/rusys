@@ -1,123 +1,175 @@
-import moment from 'moment';
-import { compact, DETAILS, UPDATES } from '~/server/db';
 import {
-    type Amount,
-    type Amounts,
-    type AmountSet,
-    type NamedAmounts,
-    type TimedAmounts,
+    type Details,
+    type Group,
+    type Summary,
     type Variant,
-} from '~/store/details/types';
-import { type Name, type Year } from '~/store/types';
+    type VariantAmount,
+    type YearAmounts,
+} from '~/common/types';
+import { getGroups } from '~/server/data/groups';
+import { hasEffect } from '~/server/data/utils';
+import { getVariants } from '~/server/data/variants';
+import { getYears } from '~/server/data/years';
+import { db } from '~/server/db';
+import moment from 'moment';
+import { type ClientSession } from 'mongodb';
 
-export async function getSummary(years: number[]): Promise<AmountSet> {
-    const startYear = 2000 + Math.min(...years);
-    const startMonth = 9; // September
-    const s = `${startYear}-0${startMonth}-01`;
-    const from = moment(s);
-    const data = await UPDATES.find<TimedAmounts>(
-        {
-            time: { $gte: from.valueOf() },
-        },
-        { _id: 0, name: 1, time: 1, ...Object.fromEntries(years.map((y) => [y, 1])) }
-    ).sort({ name: 1, time: 1 });
+const startMonth = 9; // September
 
-    const grouped: AmountSet = {};
-    for (const { name, time, ...v } of data) {
-        const t = moment(time);
-        const year: Year = +t.format('YY') - +(+t.format('M') < startMonth);
-        for (const yv of Object.values(v)) {
-            for (const [k, v] of Object.entries(yv)) {
-                if (v >= 0) {
-                    continue;
+function getYearFromTime(time: number): number {
+    const t = moment(time);
+    return +t.format('YY') - +(+t.format('M') < startMonth);
+}
+
+export async function getSummary(years: number[] = getYears()): Promise<ReadonlyArray<Summary>> {
+    const fromYear = 2000 + Math.min(...years);
+    const from = moment(`${fromYear}-0${startMonth}-01`).valueOf();
+    const col = (await db()).collection('details');
+
+    const details = await col
+        .aggregate<Details>([
+            {
+                $match: {
+                    'updates.time': { $gte: from },
+                    'updates.years.amounts.amount': { $lt: 0 },
+                },
+            },
+            {
+                $project: {
+                    group: 1,
+                    name: 1,
+                    updates: {
+                        $filter: {
+                            input: '$updates',
+                            as: 'update',
+                            cond: {
+                                $and: [
+                                    { $gte: ['$$update.time', from] },
+                                    // { $ne: ['$$update.years.recycled', !recycled] },
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                $project: {
+                    group: 1,
+                    name: 1,
+                    updates: {
+                        $map: {
+                            input: '$updates',
+                            as: 'update',
+                            in: {
+                                time: '$$update.time',
+                                years: {
+                                    $map: {
+                                        input: '$$update.years',
+                                        as: 'year',
+                                        in: {
+                                            year: '$$year.year',
+                                            amounts: {
+                                                $filter: {
+                                                    input: '$$year.amounts',
+                                                    as: 'variant',
+                                                    cond: { $lt: ['$$variant.amount', 0] },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                $sort: { group: 1, name: 1, 'updates.time': 1, 'updates.years.year': 1 },
+            },
+        ])
+        .toArray();
+
+    let summary: ReadonlyArray<Summary> = [];
+    for (const { group = '', name = '', updates } of details) {
+        for (const { time, years: updateYears } of updates || []) {
+            const year = getYearFromTime(time);
+            for (const { amounts } of updateYears) {
+                for (const { variant, amount, recycled } of amounts) {
+                    const item = { variant, amount: -amount, ...(recycled ? { recycled } : {}) };
+                    summary = summary.some((v) => v.group === group && v.name === name)
+                        ? summary.map((v) =>
+                              v.group !== group || v.name !== name
+                                  ? v
+                                  : {
+                                        ...v,
+                                        years: v.years?.some((y) => y.year === year)
+                                            ? v.years?.map((y) =>
+                                                  y.year !== year
+                                                      ? y
+                                                      : {
+                                                            ...y,
+                                                            amounts: y.amounts?.some((a) => a.variant === variant)
+                                                                ? y.amounts.map((a) =>
+                                                                      a.variant !== variant
+                                                                          ? a
+                                                                          : { ...a, amount: a.amount - amount }
+                                                                  )
+                                                                : [...(y.amounts ?? []), item],
+                                                        }
+                                              )
+                                            : [...(v.years ?? []), { year, amounts: [item] }],
+                                    }
+                          )
+                        : [...summary, { group, name, years: [{ year, amounts: [item] }] }];
                 }
-                const variant = k as string as Variant;
-                const vv = grouped[name]?.[year]?.[variant] ?? 0;
-                if (!(name in grouped)) {
-                    grouped[name] = { [year]: {} };
-                } else if (!(year in grouped[name])) {
-                    grouped[name][year] = {};
-                }
-                grouped[name][year][variant] = vv - v;
             }
         }
     }
-    return grouped;
+    return summary;
 }
 
-export async function addUpdates(name: Name, values?: Amounts | null): Promise<boolean> {
-    const prev = await DETAILS.findOne<NamedAmounts>({ name });
-    const { _id, name: _name, ...prevValues } = prev ?? {};
-    const diff = getDiff(prev ? (prevValues as Amounts) : undefined, values);
-    if (diff) {
-        const time = Date.now();
-        await UPDATES.insert({ name, time, ...diff });
-        await compact(UPDATES);
-        return true;
-    }
-    return false;
+export async function addUpdates(group: string, name: string, years?: ReadonlyArray<YearAmounts>): Promise<boolean> {
+    return years?.length
+        ? (await db())
+              .collection('details')
+              .updateOne({ group, name }, { $push: { updates: { time: Date.now(), years } } }, { upsert: true })
+              .then(hasEffect)
+        : false;
 }
 
-export async function addUpdate(name: Name, year: Year, value?: Amount | null): Promise<boolean> {
-    const prev = await DETAILS.findOne<NamedAmounts>({ name, [year]: { $exists: true } }, { _id: 0, [year]: 1 });
-    const diff = getDiff(prev, value ? { [year]: value } : undefined);
-    if (diff) {
-        const time = Date.now();
-        await UPDATES.insert({ name, time, ...diff });
-        await compact(UPDATES);
-        return true;
+export async function addUpdate(
+    group: string,
+    name: string,
+    year: number,
+    amounts: ReadonlyArray<VariantAmount> = [],
+    session?: ClientSession
+): Promise<boolean> {
+    if (!group || !name || !year || !amounts.length) {
+        return false;
     }
-    return false;
+    return (await db())
+        .collection('details')
+        .updateOne(
+            { group, name },
+            { $push: { updates: { time: Date.now(), years: [{ year, amounts }] } } },
+            { upsert: true, session }
+        )
+        .then(hasEffect);
 }
 
-export function getDiff(prevValues?: Amounts | null, values?: Amounts | null): Amounts | null | undefined {
-    const diff: Amounts = {};
-    if (values) {
-        for (const [k, v] of Object.entries(values)) {
-            const year = k as unknown as Year;
-            const prev = prevValues?.[year] ?? {};
-            for (const [kk, vv] of Object.entries(v)) {
-                const variant = kk as unknown as Variant;
-                addDiff(year, variant, vv, prev[variant]);
-            }
-        }
-    }
-    if (prevValues) {
-        for (const [k, v] of Object.entries(prevValues)) {
-            const year = k as unknown as Year;
-            for (const [kk, vv] of Object.entries(v)) {
-                const variant = kk as unknown as Variant;
-                if (!values?.[year]?.[variant]) {
-                    addDiff(year, variant, null, vv);
-                }
-            }
-        }
-    }
-    return Object.keys(diff).length ? diff : null;
-
-    function addDiff(year: Year, variant: Variant, after?: number | null, before?: number | null): void {
-        const d = (after ?? 0) - (before ?? 0);
-        if (d !== 0) {
-            diff[year] = diff[year] ?? {};
-            diff[year][variant] = d;
-        }
-    }
-}
-
-export async function renameUpdates(name: Name, newName: Name): Promise<boolean> {
-    const updated = await UPDATES.update({ name }, { $set: { name: newName } }, { multi: true });
-    if (updated) {
-        await compact(UPDATES);
-        return true;
-    }
-    return false;
-}
-
-export async function removeUpdates(name: Name): Promise<boolean> {
-    const removed = await UPDATES.remove({ name }, { multi: true });
-    if (removed) {
-        await compact(UPDATES);
-        return true;
-    }
-    return false;
-}
+export const getFullSummary = async (): Promise<
+    Readonly<{
+        years: ReadonlyArray<number>;
+        groups: ReadonlyArray<Group>;
+        variants: ReadonlyArray<Variant>;
+        summary: ReadonlyArray<Summary>;
+    }>
+> => {
+    const years = getYears();
+    return {
+        years,
+        groups: await getGroups(),
+        variants: await getVariants(),
+        summary: await getSummary(years),
+    };
+};

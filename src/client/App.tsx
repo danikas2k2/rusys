@@ -1,38 +1,36 @@
-import DangerousIcon from '@icons/Dangerous.svg';
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import React from 'react';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
-import Loader from '@ui/Loader';
-import { isEqual } from 'lodash';
-import React, { memo } from 'react';
-import AppContent from '~/client/AppContent';
-import useLabel from '~/client/hooks/useLabel';
-import { useDev } from '~/hooks/useDev';
-import useClientId from '~/store/google/useClientId';
-import useLocale from '~/store/locale/useLocale';
+import { Loader } from '@ui/Loader';
+import { AppContent } from '~/client/AppContent';
+import { Label } from '~/client/common/Label';
+import { LocaleContext } from '~/client/common/LocaleContext';
+import { Error } from '~/client/Error';
+import { useDev } from '~/common/hooks/useDev';
+import { useClientId } from '~/state/google/useClientId';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import cx from './App.less';
 
-export default memo(function App() {
+export function App() {
     useDocumentColorScheme();
-    useLocale(process.env.LOCALE);
     const clientId = useClientId();
-    const invalidClientId = useLabel('Invalid Client ID');
     const dev = useDev();
     return (
-        <div className={cx('App', { center: !dev && !clientId })}>
-            {dev ? (
-                <AppContent />
-            ) : clientId ? (
-                <GoogleOAuthProvider clientId={clientId}>
+        <LocaleContext value={process.env.LOCALE}>
+            <div className={cx('App', { center: !dev && !clientId })}>
+                {dev ? (
                     <AppContent />
-                </GoogleOAuthProvider>
-            ) : (
-                (clientId == null && <Loader />) || (
-                    <div className={cx('error')}>
-                        <DangerousIcon />
-                        {invalidClientId}
-                    </div>
-                )
-            )}
-        </div>
+                ) : clientId ? (
+                    <GoogleOAuthProvider clientId={clientId}>
+                        <AppContent />
+                    </GoogleOAuthProvider>
+                ) : (
+                    (clientId == null && <Loader />) || (
+                        <Error>
+                            <Label>Invalid Client ID</Label>
+                        </Error>
+                    )
+                )}
+            </div>
+        </LocaleContext>
     );
-}, isEqual);
+}

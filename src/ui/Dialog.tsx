@@ -1,16 +1,14 @@
-import Interactive from '@ui/Interactive';
-import Portal from '@ui/Portal';
-import { isEqual } from 'lodash';
 import React, {
-    type DialogHTMLAttributes,
-    type KeyboardEvent,
-    memo,
-    type ReactNode,
-    type SyntheticEvent,
     useCallback,
     useEffect,
+    type DialogHTMLAttributes,
+    type KeyboardEvent,
+    type ReactNode,
+    type SyntheticEvent,
 } from 'react';
-import usePreviousValue from '~/hooks/usePreviousValue';
+import { Interactive } from '@ui/Interactive';
+import { Portal } from '@ui/Portal';
+import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 import cx from './Dialog.less';
 
 export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
@@ -19,14 +17,14 @@ export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
     onClose?: () => void;
     closeOnOutsideClick?: boolean;
     closeOnEscape?: boolean;
+    fullscreen?: boolean;
     children?: ReactNode;
 }
 
-/**
- * TODO refactor to use <dialog/>
- * TODO refactor to use `useFocusTrap` hook
- */
-export default memo(function Dialog({
+// TODO refactor to use <dialog/>
+// TODO refactor to use `useFocusTrap` hook
+// TODO add translation context and translate backdrop label
+export function Dialog({
     open,
     closeOnOutsideClick = true,
     closeOnEscape = true,
@@ -34,6 +32,7 @@ export default memo(function Dialog({
     className,
     onOpen,
     onClose,
+    fullscreen,
     ...props
 }: DialogProps) {
     const wasOpen = usePreviousValue(open) ?? open;
@@ -58,14 +57,20 @@ export default memo(function Dialog({
         <Portal>
             <Interactive
                 className={cx('Backdrop')}
-                role="presentation"
+                role="complementary"
+                aria-label="backdrop"
                 onClick={closeOnOutsideClick ? onClose : undefined}
                 onKeyDown={closeOnEscape ? handleEscape : undefined}
             >
-                <Interactive className={cx('Dialog', className)} role="dialog" onClick={stopPropagation} {...props}>
+                <Interactive
+                    className={cx('Dialog', { fullscreen }, className)}
+                    role="dialog"
+                    onClick={stopPropagation}
+                    {...props}
+                >
                     {children}
                 </Interactive>
             </Interactive>
         </Portal>
     ) : null;
-}, isEqual);
+}

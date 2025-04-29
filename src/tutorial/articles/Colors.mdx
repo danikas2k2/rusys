@@ -1,5 +1,5 @@
-import React from 'react';
 import { generate } from 'random-words';
+import React from 'react';
 
 export const colors = ['neutral', 'primary', 'secondary', 'positive', 'warning', 'negative'];
 export const variants = ['solid', 'soft', 'outlined', 'plain'];
@@ -79,10 +79,18 @@ There are two palette values in this group: **white** and **black**.
                 <code>common</code>
             </th>
             <td>
-                <Box color={paletteVariable('common-black')} background={paletteVariable('common-white')} border={paletteVariable('common-black')} />
+                <Box
+                    color={paletteVariable('common-black')}
+                    background={paletteVariable('common-white')}
+                    border={paletteVariable('common-black')}
+                />
             </td>
             <td>
-                <Box color={paletteVariable('common-white')} background={paletteVariable('common-black')} border={paletteVariable('common-white')} />
+                <Box
+                    color={paletteVariable('common-white')}
+                    background={paletteVariable('common-black')}
+                    border={paletteVariable('common-white')}
+                />
             </td>
         </tr>
     </tbody>
@@ -104,7 +112,10 @@ There are two palette values in this group: **white** and **black**.
                 </th>
                 {colors.map((color, c) => (
                     <td key={c}>
-                        <Box color={paletteVariable('common', step < 500 ? 'black' : 'white')} background={paletteVariable(color, step)} />
+                        <Box
+                            color={paletteVariable('common', step < 500 ? 'black' : 'white')}
+                            background={paletteVariable(color, step)}
+                        />
                     </td>
                 ))}
             </tr>
@@ -143,48 +154,49 @@ input {
 }
 ```
 
-<>
-    {colors.map((color, c) => (
-        <>
-            <h3><code>{color}</code> colors</h3>
+    <>
+        {colors.map((color, c) => (
+            <>
+                <h3><code>{color}</code> colors</h3>
 
-            <table
-                key={c}
-                style={{
-                    tableLayout: 'fixed',
-                }}
-            >
-                <thead>
-                <tr>
-                    <th></th>
-                    {states.map((state, s) => (
-                        <th key={s}>
-                            <code>{state}</code>
-                        </th>
-                    ))}
-                </tr>
-                </thead>
-                <tbody>
-                {variants.map((variant, v) => (
-                    <tr key={v}>
-                        <th>
-                            <code>{variant}</code>
-                        </th>
+                <table
+                    key={c}
+                    style={{
+                        tableLayout: 'fixed',
+                    }}
+                >
+                    <thead>
+                    <tr>
+                        <th></th>
                         {states.map((state, s) => (
-                            <td key={s}>
-                                <Box color={colorVariable(color, variant, state)} background={colorVariable(color, variant, state, 'bg')}
-                                     border={colorVariable(color, variant, state, 'border')} />
-                            </td>
+                            <th key={s}>
+                                <code>{state}</code>
+                            </th>
                         ))}
                     </tr>
-                ))}
-                </tbody>
-            </table>
-        </>
-    ))}
-</>
+                    </thead>
+                    <tbody>
+                    {variants.map((variant, v) => (
+                        <tr key={v}>
+                            <th>
+                                <code>{variant}</code>
+                            </th>
+                            {states.map((state, s) => (
+                                <td key={s}>
+                                    <Box color={colorVariable(color, variant, state)} background={colorVariable(color, variant, state, 'bg')}
+                                         border={colorVariable(color, variant, state, 'border')} />
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </>
+        ))}
 
-## Text variables
+    </>
+
+    ## Text variables
 
 export const textColors = ['primary', 'secondary', 'tertiary', 'icon'];
 
@@ -196,7 +208,11 @@ export const textColors = ['primary', 'secondary', 'tertiary', 'icon'];
                     <code>{name('color-text', variant)}</code>
                 </th>
                 <td>
-                    <Box color={colorVariable('text', variant)} background={colorVariable('background-body')} border={colorVariable('text', variant)}>
+                    <Box
+                        color={colorVariable('text', variant)}
+                        background={colorVariable('background-body')}
+                        border={colorVariable('text', variant)}
+                    >
                         {long()}
                     </Box>
                 </td>
@@ -217,7 +233,11 @@ export const bgColors = ['body', 'surface', 'popup', 'level1', 'level2', 'level3
                     <code>{name('color-background', variant)}</code>
                 </th>
                 <td>
-                    <Box color={colorVariable('text-primary')} background={colorVariable('background', variant)} border={colorVariable('text-primary')}>
+                    <Box
+                        color={colorVariable('text-primary')}
+                        background={colorVariable('background', variant)}
+                        border={colorVariable('text-primary')}
+                    >
                         {long()}
                     </Box>
                 </td>
@@ -232,31 +252,31 @@ export const shadows = ['xs', 'sm', 'md', 'lg', 'xl'];
 
 <table>
     <tbody>
-    {shadows.map((variant, v) => (
-        <tr key={v}>
-            <th style={{ whiteSpace: 'nowrap' }}>
-                <code>{name('shadow', variant)}</code>
-            </th>
-            <td>
-                <div
-                    style={{
-                        color: colorVariable('text-primary'),
-                        background: colorVariable('background-level1'),
-                        border: `1px solid ${variable('shadow-color')}`,
-                        boxShadow: variable('shadow', variant),
-                        borderRadius: 4,
-                        padding: '1rem .25rem',
-                        textAlign: 'center',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                    }}
-                >
-                    {long()}
-                </div>
-            </td>
-        </tr>
-    ))}
+        {shadows.map((variant, v) => (
+            <tr key={v}>
+                <th style={{ whiteSpace: 'nowrap' }}>
+                    <code>{name('shadow', variant)}</code>
+                </th>
+                <td>
+                    <div
+                        style={{
+                            color: colorVariable('text-primary'),
+                            background: colorVariable('background-level1'),
+                            border: `1px solid ${variable('shadow-color')}`,
+                            boxShadow: variable('shadow', variant),
+                            borderRadius: 4,
+                            padding: '1rem .25rem',
+                            textAlign: 'center',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                        }}
+                    >
+                        {long()}
+                    </div>
+                </td>
+            </tr>
+        ))}
     </tbody>
 </table>
 
@@ -269,7 +289,11 @@ export const shadows = ['xs', 'sm', 'md', 'lg', 'xl'];
                 <code>{name('color-focus-visible')}</code>
             </th>
             <td>
-                <Box color={colorVariable('focus-visible')} background={colorVariable('background-body')} border={colorVariable('focus-visible')}>
+                <Box
+                    color={colorVariable('focus-visible')}
+                    background={colorVariable('background-body')}
+                    border={colorVariable('focus-visible')}
+                >
                     {long()}
                 </Box>
             </td>
@@ -279,7 +303,11 @@ export const shadows = ['xs', 'sm', 'md', 'lg', 'xl'];
                 <code>{name('color-divider')}</code>
             </th>
             <td>
-                <Box color={colorVariable('divider')} background={colorVariable('background-body')} border={colorVariable('divider')}>
+                <Box
+                    color={colorVariable('divider')}
+                    background={colorVariable('background-body')}
+                    border={colorVariable('divider')}
+                >
                     {long()}
                 </Box>
             </td>

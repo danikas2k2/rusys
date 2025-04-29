@@ -1,6 +1,7 @@
 @import (once) "@ui/theme.less";
 
 .Button {
+    // TODO add colors for active with hover/focus states
     &.variant-solid {
         &.color-neutral {
             --button-variant-color: var(--color-neutral-solid);
@@ -223,17 +224,50 @@
     }
 
     --button-color: var(--button-variant-color);
-    --button-bg: var(--button-variant-bg, transparent);
-    --button-border: var(--button-variant-border, var(--button-bg));
-    --button-hover: var(--button-variant-hover, var(--button-color));
-    --button-hover-bg: var(--button-variant-hover-bg, var(--button-bg));
-    --button-hover-border: var(--button-variant-hover-border, var(--button-border));
-    --button-active: var(--button-variant-color);
-    --button-active-bg: var(--button-variant-active-bg, var(--button-bg));
-    --button-active-border: var(--button-variant-active-bg, var(--button-border));
-    --button-disabled: var(--button-variant-disabled, var(--button-color));
-    --button-disabled-bg: var(--button-variant-disabled-bg, var(--button-bg));
-    --button-disabled-border: var(--button-variant-disabled-bg, var(--button-border));
+    --button-bg: var(--button-variant-bg);
+    --button-border: var(--button-variant-border);
+    --button-active: var(--button-variant-active, var(--button-variant-color));
+    --button-active-bg: var(--button-variant-active-bg, var(--button-variant-bg));
+    --button-active-border: var(--button-variant-active-border, var(--button-variant-border));
+    --button-hover: var(--button-variant-hover, var(--button-variant-color));
+    --button-hover-bg: var(--button-variant-hover-bg, var(--button-variant-bg));
+    --button-hover-border: var(--button-variant-hover-border, var(--button-variant-border));
+    --button-disabled: var(--button-variant-disabled, var(--button-variant-color));
+    --button-disabled-bg: var(--button-variant-disabled-bg, var(--button-variant-bg));
+    --button-disabled-border: var(--button-variant-disabled-border, var(--button-variant-border));
+
+    &.state-hover,
+    &:hover,
+    &:has(:hover) {
+        --button-color: var(--button-hover);
+        --button-bg: var(--button-hover-bg);
+        --button-border: var(--button-hover-border);
+    }
+
+    // TODO add outline colors
+    &.state-focus,
+    &:focus,
+    &:has(:focus) {
+        --button-color: var(--button-hover);
+        --button-bg: var(--button-hover-bg);
+        --button-border: var(--button-hover-border);
+    }
+
+    &.state-active,
+    &:active,
+    &:has(:active) {
+        --button-color: var(--button-active);
+        --button-bg: var(--button-active-bg);
+        --button-border: var(--button-active-border);
+    }
+
+    &.state-disabled,
+    &:disabled,
+    &:has(:disabled) {
+        --button-color: var(--button-disabled);
+        --button-bg: var(--button-disabled-bg);
+        --button-border: var(--button-disabled-border);
+    }
 
     &.size-small {
         --button-icon-size: var(--font-size-md);
@@ -241,7 +275,7 @@
         --button-min-size: 2rem;
         --button-padding-block: 0.125rem;
         --button-padding-inline: 0.75rem;
-        --button-radius: var(--radius-sm);
+        --button-radius-size: var(--radius-sm);
     }
 
     &.size-medium {
@@ -250,7 +284,7 @@
         --button-min-size: 2.5rem;
         --button-padding-block: 0.25rem;
         --button-padding-inline: 1rem;
-        --button-radius: var(--radius-md);
+        --button-radius-size: var(--radius-md);
     }
 
     &.size-large {
@@ -259,13 +293,13 @@
         --button-min-size: 3rem;
         --button-padding-block: 0.375rem;
         --button-padding-inline: 1.5rem;
-        --button-radius: var(--radius-lg);
+        --button-radius-size: var(--radius-lg);
     }
 
     &.spacing-none {
         --button-min-size: calc(var(--button-icon-size) + 2px);
         --button-spacing: 0;
-        --button-radius: var(--radius-xs);
+        --button-radius-size: var(--radius-xs);
     }
 
     &.spacing-half {
@@ -284,44 +318,47 @@
         --button-spacing: 1.5;
     }
 
+    &.align-single {
+        --button-radius: var(--button-radius-size);
+    }
+
+    &.align-start {
+        --button-radius: var(--button-radius-size) 0 0 var(--button-radius-size);
+    }
+
+    &.align-center {
+        --button-radius: 0;
+    }
+
+    &.align-end {
+        --button-radius: 0 var(--button-radius-size) var(--button-radius-size) 0;
+    }
+
+    color: var(--button-color);
+    background-color: var(--button-bg);
+    border: 1px solid var(--button-border);
+    border-radius: var(--button-radius);
+
+    --min-width: calc(var(--button-min-size) * var(--button-spacing, 1));
+    --min-height: calc(var(--button-min-size) * var(--button-spacing, 1));
+    --padding-block: calc(var(--button-padding-block) * var(--button-spacing, 1));
+    --padding-inline: calc(var(--button-padding-inline) * var(--button-spacing, 1));
+
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: fit-content;
     height: fit-content;
-    min-width: calc(var(--button-min-size) * var(--button-spacing, 1));
-    min-height: calc(var(--button-min-size) * var(--button-spacing, 1));
-    padding-block: calc(var(--button-padding-block) * var(--button-spacing, 1));
-    padding-inline: calc(var(--button-padding-inline) * var(--button-spacing, 1));
+    min-width: var(--min-width);
+    min-height: var(--min-height);
+    padding-block: var(--padding-block);
+    padding-inline: var(--padding-inline);
     font-family: var(--font-family-body);
     font-weight: var(--font-weight-lg);
     font-size: var(--button-font-size);
     line-height: 1;
     text-decoration: none;
-    color: var(--button-color);
-    background-color: var(--button-bg);
-    border: 1px solid var(--button-border);
-    border-radius: var(--button-radius);
-
-    &:active {
-        color: var(--button-active);
-        background-color: var(--button-active-bg);
-        border-color: var(--button-active-border);
-    }
-
-    &:hover,
-    &:focus {
-        color: var(--button-hover);
-        background-color: var(--button-hover-bg);
-        border-color: var(--button-hover-border);
-    }
-
-    &:disabled {
-        color: var(--button-disabled);
-        background-color: var(--button-disabled-bg);
-        border-color: var(--button-disabled-border);
-    }
 
     &:not(:disabled) {
         cursor: pointer;
@@ -350,21 +387,94 @@
         }
     }
 
+    .start-decorator,
+    .end-decorator {
+        display: flex;
+        align-items: stretch;
+        flex-shrink: 0;
+    }
+
+    .start-decorator {
+        justify-content: flex-start;
+        padding-inline-end: calc(var(--padding-inline) / 2);
+    }
+
+    .end-decorator {
+        justify-content: flex-end;
+        padding-inline-start: calc(var(--padding-inline) / 2);
+    }
+
     + .Button {
-        margin-inline-start: 1px;
+        margin-inline-start: 1rem;
     }
 }
 
 .ButtonGroup {
-    .Button {
-        + .Button {
-            border-start-start-radius: 0;
-            border-end-start-radius: 0;
-        }
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
 
-        &:has(+ .Button) {
-            border-start-end-radius: 0;
-            border-end-end-radius: 0;
+    &.align-start {
+        justify-content: flex-start;
+    }
+
+    &.align-center {
+        justify-content: center;
+    }
+
+    &.align-end {
+        justify-content: flex-end;
+    }
+
+    &.align-full-width {
+        width: 100%;
+
+        .Button {
+            width: 100%;
         }
+    }
+
+    &.spacing-large {
+        --button-group-spacing: 1.5;
+    }
+
+    &.spacing-medium {
+        --button-group-spacing: 1.25;
+    }
+
+    &.spacing-small {
+        --button-group-spacing: 1;
+    }
+
+    &.spacing-half {
+        --button-group-spacing: 0.75;
+    }
+
+    &.spacing-none,
+    &.combined {
+        --button-group-spacing: 1px;
+    }
+
+    .Button + .Button {
+        margin-inline-start: var(--button-group-spacing);
+    }
+
+    &.combined {
+        .Button {
+            + .Button {
+                border-start-start-radius: 0;
+                border-end-start-radius: 0;
+            }
+
+            &:has(+ .Button) {
+                border-start-end-radius: 0;
+                border-end-end-radius: 0;
+            }
+        }
+    }
+
+    &.full-height {
+        height: 100%;
+        align-items: stretch;
     }
 }

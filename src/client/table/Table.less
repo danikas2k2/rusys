@@ -1,13 +1,15 @@
+@import (once) "@ui/theme.less";
+
 .Table {
     display: grid;
-    grid-template-rows: 1fr;
+    grid-template-rows: auto 1fr;
 }
 
 .Head {
     position: relative;
     background-color: var(--color-background-body);
-    z-index: 1;
-    box-shadow: var(--shadow-sm);
+    z-index: 2;
+    box-shadow: var(--shadow-xs);
 }
 
 .Body {

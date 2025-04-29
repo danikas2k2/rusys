@@ -1,8 +1,8 @@
+@import (once) "@ui/theme.less";
+
 .Table {
-    /* with sticky header and medium size */
-    position: absolute;
-    inset: var(--toolbar-height) 0 0;
-    grid-template-rows: 2.25rem 1fr;
+    //position: relative;
+    //inset: calc(var(--toolbar-height) * 2.4) 0 0;
 }
 
 .HeadRow {
@@ -17,41 +17,5 @@
     > :first-child {
         grid-column: span 3;
         padding-inline-start: 1rem;
-    }
-}
-
-.name {
-    justify-self: stretch;
-    font-weight: var(--font-weight-xl);
-}
-
-.ValueCell {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    transition:
-        color 0.2s ease-in-out,
-        background-color 0.2s ease-in-out;
-
-    &.empty {
-        color: var(--color-neutral-plain-disabled);
-    }
-
-    .value {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-inline: 0.1rem;
-
-        &:has(+ *) {
-            &::after {
-                content: ",";
-            }
-        }
-
-        sub {
-            font-size: var(--font-size-xs);
-        }
     }
 }

@@ -1,104 +1,146 @@
-import { removeDetails, renameDetails } from '~/server/data/details';
-import { removeMissing, renameMissing } from '~/server/data/missing';
-import { removeRemoving, renameRemoving } from '~/server/data/removing';
-import { removeUpdates, renameUpdates } from '~/server/data/updates';
-import { DETAILS, MISSING, REMOVING, UPDATES } from '~/server/db';
-import { Amount, NamedAmounts, type TimedAmounts } from '~/store/details/types';
-import { NamedRemoving } from '~/store/removing/types';
-import { type Name } from '~/store/types';
+import { type ApiExport } from '~/common/api';
+import { type Details, type Group, type UpdateVariant, type Variant } from '~/common/types';
+import {
+    deleteDetailsGroup,
+    deleteDetailsVariant,
+    moveDetails,
+    renameDetailsGroup,
+    renameDetailsVariant,
+} from '~/server/data/details';
+import { deleteGroup, renameGroup } from '~/server/data/groups';
+import { hasEffect } from '~/server/data/utils';
+import {
+    copyDetailsVariants,
+    deleteVariant,
+    deleteVariantsGroup,
+    renameVariant,
+    renameVariantsGroup,
+} from '~/server/data/variants';
+import { db, withTransaction } from '~/server/db';
+import moment from 'moment';
+import { type Db } from 'mongodb';
 
-export async function rename(name: Name, newName: Name): Promise<boolean> {
-    if (name === newName) {
+export const moveDetailsOccurrences = (
+    group: string,
+    name: string,
+    newGroup: string,
+    newName?: string
+): Promise<boolean> =>
+    withTransaction(async (session) => {
+        if (await moveDetails(group, name, newGroup, newName, session)) {
+            await copyDetailsVariants(group, newName ?? name, newGroup, session);
+            return true;
+        }
         return false;
-    }
-    const updated = await renameDetails(name, newName);
-    await renameUpdates(name, newName);
-    await renameRemoving(name, newName);
-    await renameMissing(name, newName);
-    return updated;
-}
-
-export async function remove(name: Name): Promise<boolean> {
-    const removed = await removeDetails(name);
-    await removeUpdates(name);
-    await removeRemoving(name);
-    await removeMissing(name);
-    return removed;
-}
-
-export async function getEverything(): Promise<Record<string, any>> {
-    const _details = await DETAILS.find<NamedAmounts & { group?: string }>({});
-    const _updates = await UPDATES.find<TimedAmounts & { group?: string }>({});
-    const _removing = await REMOVING.find<NamedRemoving & { group?: string }>({});
-    const _missing =
-        (await MISSING.find<{ missing?: (Name | { group?: string; name?: string })[] }>({}))?.[0]?.missing ?? [];
-
-    const groups = [{ group: 'Uogienės', order: 0 }];
-
-    const variants = [
-        { group: 'Uogienės', variant: 'Puslitris', order: 0, long: '500 ml.', short: '' }, // '½', '1/2',
-        { group: 'Uogienės', variant: 'Didesnis', order: 1, long: '750 ml.', short: 'd' }, // '¾', '3/4',
-        { group: 'Uogienės', variant: 'Mažesnis', order: 2, long: '250 ml.', short: 'm' }, // '¼', '1/4',
-        { group: 'Uogienės', variant: 'Eglytės', order: 3, short: 'e' },
-        { group: 'Uogienės', variant: 'Litras', order: 4, long: '1 l.', short: '1' },
-        { group: 'Uogienės', variant: 'Pusantro', order: 5, long: '1.5 l.', short: '1½' },
-        { group: 'Uogienės', variant: 'Dvilitris', order: 6, long: '2 l.', short: '2' },
-        { group: 'Uogienės', variant: 'Trilitris', order: 7, long: '3 l.', short: '3' },
-        { group: 'Uogienės', variant: 'Blogas/Cypė', order: 8, long: 'Blogas', short: '×' },
-    ];
-
-    const getVariant = (variant: string) => variants.find((v) => v.short === variant)?.variant || 'Puslitris';
-
-    const getAmounts = (amounts: Amount) =>
-        Object.entries(amounts).map(([variant, amount]) => ({
-            variant: getVariant(variant),
-            amount,
-        }));
-
-    const details = _details.map(({ _id, group = '', name, ..._years }) => {
-        const years = Object.entries(_years).map(([year, _amounts]) => {
-            const amounts = getAmounts(_amounts);
-            const removing = _removing.some((v) => (v.group ?? '') === group && v.name === name && v[+year]);
-            return {
-                year: +year,
-                ...(amounts.length && { amounts }),
-                ...(removing && { removing }),
-            };
-        });
-
-        const updates = _updates
-            .filter((v) => (v.group ?? '') === group && v.name === name)
-            .map(({ _id, group: _group, name: _name, time, ...values }) => {
-                const years = Object.entries(values).map(([year, _amounts]) => {
-                    const amounts = getAmounts(_amounts);
-                    return {
-                        year: +year,
-                        ...(amounts.length && { amounts }),
-                    };
-                });
-
-                return {
-                    time: new Date(time).toISOString(),
-                    ...(years.length && { years }),
-                };
-            });
-
-        const missing = _missing.some((v) =>
-            typeof v === 'string' ? !group && v === name : (v.group ?? '') === group && v.name === name
-        );
-
-        return {
-            group: group || 'Uogienės',
-            name,
-            ...(years.length && { years }),
-            ...(updates.length && { updates }),
-            ...(missing && { missing }),
-        };
     });
 
+export const renameVariantOccurrences = (
+    group: string,
+    variant: string,
+    newVariant: string,
+    update?: UpdateVariant
+): Promise<boolean> =>
+    withTransaction(async (session) => {
+        if (await renameVariant(group, variant, newVariant, update, session)) {
+            await renameDetailsVariant(group, variant, newVariant, session);
+            return true;
+        }
+        return false;
+    });
+
+export const deleteVariantOccurrences = (group: string, variant: string): Promise<boolean> =>
+    withTransaction(async (session) => {
+        if (await deleteVariant(group, variant, session)) {
+            await deleteDetailsVariant(group, variant, session);
+            return true;
+        }
+        return false;
+    });
+
+export const renameGroupOccurrences = (group: string, newGroup: string): Promise<boolean> =>
+    withTransaction(async (session) => {
+        if (await renameGroup(group, newGroup, session)) {
+            await renameVariantsGroup(group, newGroup, session);
+            await renameDetailsGroup(group, newGroup, session);
+            return true;
+        }
+        return false;
+    });
+
+export const deleteGroupOccurrences = (group: string): Promise<boolean> =>
+    withTransaction(async (session) => {
+        if (await deleteGroup(group, session)) {
+            await deleteVariantsGroup(group, session);
+            await deleteDetailsGroup(group, session);
+            return true;
+        }
+        return false;
+    });
+
+export async function exportEverything(): Promise<ApiExport> {
+    const d = await db();
     return {
-        details,
-        groups,
-        variants,
+        details: await d
+            .collection('details')
+            .find({}, { projection: { _id: 0 } })
+            .toArray(),
+        variants: await d
+            .collection('variants')
+            .find({}, { projection: { _id: 0 } })
+            .toArray(),
+        groups: await d
+            .collection('groups')
+            .find({}, { projection: { _id: 0 } })
+            .toArray(),
     };
+}
+
+const copyCollection = async (src: Db, dst: Db, collectionName: string): Promise<boolean> => {
+    const srcCollection = src.collection(collectionName);
+    await srcCollection.aggregate([{ $match: {} }, { $out: { db: dst.databaseName, coll: collectionName } }]).toArray();
+    return (await srcCollection.countDocuments()) === (await dst.collection(collectionName).countDocuments());
+};
+
+const moveEverything = async (src: Db, dst: Db): Promise<boolean> => {
+    return (
+        (await copyCollection(src, dst, 'details')) &&
+        (await copyCollection(src, dst, 'variants')) &&
+        (await copyCollection(src, dst, 'groups')) &&
+        (await src.dropDatabase())
+    );
+};
+
+export async function importEverything(
+    details: ReadonlyArray<Details>,
+    variants: ReadonlyArray<Variant>,
+    groups: ReadonlyArray<Group>
+): Promise<boolean> {
+    const current = await db();
+    const name = current.databaseName;
+    const now = moment().format('YYYYMMDD_HHmmss');
+
+    // Create a temporary database
+    const temporary = await db(`${name}_temp_${now}`);
+
+    // Insert combined data into temporary database
+    const options = { forceServerObjectId: true };
+    if (
+        !(await temporary.collection('details').insertMany(details, options).then(hasEffect)) ||
+        !(await temporary.collection('variants').insertMany(variants, options).then(hasEffect)) ||
+        !(await temporary.collection('groups').insertMany(groups, options).then(hasEffect))
+    ) {
+        throw new Error('Failed to insert data into temporary database');
+    }
+
+    // Move data from the original database to a backup database
+    if (!(await moveEverything(current, await db(`${name}_backup_${now}`)))) {
+        throw new Error('Failed to move original data to backup database');
+    }
+
+    // Move data from the temporary database to the original database
+    if (!(await moveEverything(temporary, current))) {
+        throw new Error('Failed to move data from temporary database to original database');
+    }
+
+    return true;
 }

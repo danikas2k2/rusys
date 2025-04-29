@@ -1,0 +1,22 @@
+@import (once) "@ui/theme.less";
+
+.FileDisplay {
+    display: flex;
+    flex-flow: row;
+
+    .icon {
+        flex: 1 0 auto;
+    }
+
+    .name {
+        flex: 1 0 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .size {
+        flex: 0 0 auto;
+        text-align: right;
+    }
+}

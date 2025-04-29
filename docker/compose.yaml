@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  rusys-db1:
+    container_name: rusys-db1
+    hostname: rusys-db1
+    image: mongo
+    expose:
+      - 27017
+    volumes:
+      - rusys-db1-data:/data/db
+    restart: unless-stopped
+    networks:
+      - rusys-net
+    command: mongod --replSet rusys-rs
+
+  rusys-db2:
+    container_name: rusys-db2
+    hostname: rusys-db2
+    image: mongo
+    expose:
+      - 27017
+    volumes:
+      - rusys-db2-data:/data/db
+    restart: unless-stopped
+    networks:
+      - rusys-net
+    command: mongod --replSet rusys-rs
+
+  rusys-db3:
+    container_name: rusys-db3
+    hostname: rusys-db3
+    image: mongo
+    expose:
+      - 27017
+    volumes:
+      - rusys-db3-data:/data/db
+    restart: unless-stopped
+    networks:
+      - rusys-net
+    command: mongod --replSet rusys-rs
+
+  rusys-app:
+    container_name: rusys-app
+    image: rusys-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_VERSION: "2.2.4"
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      - NODE_ENV
+      - LOCALE
+      - TZ
+      - GOOGLE_CLIENT_ID
+      - GOOGLE_ALLOWED_USERS
+      - DB
+      - HOST
+      - PORT
+      - HTTPS_PORT
+      - HTTPS_KEY
+      - HTTPS_CERT
+    depends_on:
+      - rusys-db1
+      - rusys-db2
+      - rusys-db3
+    expose:
+      - 3000
+      - 4000
+    ports:
+      - 3000:3000
+      - 4000:4000
+    networks:
+      - rusys-net
+    volumes:
+      - /volume1/docker/rusys-app/certs:/app/certs:ro
+
+networks:
+  rusys-net:
+    driver: bridge
+
+volumes:
+  rusys-db1-data:
+  rusys-db2-data:
+  rusys-db3-data:

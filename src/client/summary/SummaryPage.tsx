@@ -1,13 +1,20 @@
-import { isEqual } from 'lodash';
-import React, { memo } from 'react';
-import SummaryTable from '~/client/summary/SummaryTable';
-import Toolbar from '~/client/toolbar/Toolbar';
+import React from 'react';
+import { Page } from '~/client/common/Page';
+import { RecycledContextWrapper } from '~/client/common/RecycledContext';
+import { RecycledControls } from '~/client/common/RecycledControls';
+import { SummaryTable } from '~/client/summary/SummaryTable';
+import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
+import cx from './SummaryPage.less';
 
-export default memo(function SummaryPage() {
+export function SummaryPage() {
     return (
-        <>
-            <Toolbar />
-            <SummaryTable />
-        </>
+        <Page toolbar={<ToolbarGroupFilter />} className={cx('SummaryPage')}>
+            <RecycledContextWrapper>
+                <div className={cx('controls')}>
+                    <RecycledControls />
+                </div>
+                <SummaryTable />
+            </RecycledContextWrapper>
+        </Page>
     );
-}, isEqual);
+}

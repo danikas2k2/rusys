@@ -1,6 +1,6 @@
 import { type WebpackExternalsMap } from './types';
 
-export function getExternals(isDevMode?: boolean): WebpackExternalsMap {
+export function getExternals(_isDevMode?: boolean): WebpackExternalsMap {
     return {
         // fs: 'fs',
         // moment: 'moment',

@@ -1,7 +1,6 @@
-import { ColorSchemeContext } from '@ui/ColorScheme';
-import { type ColorScheme, type ColorSchemeHandler } from '@ui/ColorScheme.types';
-import { useContext } from 'react';
+import { use } from 'react';
+import { ColorSchemeContext, type ColorScheme, type ColorSchemeHandler } from '@ui/ColorScheme';
 
 export function useColorSchemeState(): [ColorScheme, ColorSchemeHandler] {
-    return useContext(ColorSchemeContext);
+    return use(ColorSchemeContext);
 }

@@ -1,88 +1,76 @@
-import Checkbox from '@ui/Checkbox';
-import Loader from '@ui/Loader';
-import { isEqual } from 'lodash';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
-import ValueRow from '~/client/details/ValueRow';
-import Cell from '~/client/table/Cell';
-import Row from '~/client/table/Row';
-import Table from '~/client/table/Table';
-import { cmp } from '~/client/utils/cmp';
-import { matchParts } from '~/client/utils/matchParts';
-import { type BaseState } from '~/store/base/types';
-import useInitialLoader from '~/store/base/useInitialLoader';
-import { type Amounts } from '~/store/details/types';
-import { type Name } from '~/store/types';
+import React, { useCallback, useEffect } from 'react';
+import { ActiveRowWrapper } from '~/client/common/ActiveRowContext';
+import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
+import { useFilteredList } from '~/client/common/hooks/useFilteredList';
+import { useSortedList } from '~/client/common/hooks/useSortedList';
+import { LoadingContent } from '~/client/common/LoadingContent';
+import { DetailsGroups } from '~/client/details/DetailsGroups';
+import { useDetailsHasData } from '~/client/details/hooks/useDetailsHasData';
+import { useMissingDetails } from '~/client/details/hooks/useMissingDetails';
+import { MissingOnlyCheckbox } from '~/client/details/MissingOnlyCheckbox';
+import { useMissingOnly } from '~/client/details/MissingOnlyContext';
+import { useUniqueGroups } from '~/client/hooks/useUniqueGroups';
+import { Cell } from '~/client/table/Cell';
+import { Row } from '~/client/table/Row';
+import { Table } from '~/client/table/Table';
+import { useDetails } from '~/state/details/useDetails';
+import { useGetDetails } from '~/state/details/useGetDetails';
+import { useClearFilter } from '~/state/filter/useClearFilter';
+import { useFilter } from '~/state/filter/useFilter';
+import { useGroup } from '~/state/group/useGroup';
+import { useYears } from '~/state/years/useYears';
 import cx from './DetailsTable.less';
 
-export default memo(function DetailsTable() {
-    const [loading, setLoading] = useState(false);
-    const [loaded, setLoaded] = useState(false);
-    const initialLoad = useInitialLoader();
-    useEffect(() => {
-        (async () => {
-            if (!loading && !loaded) {
-                setLoading(true);
-                await initialLoad();
-                setLoaded(true);
-                setLoading(false);
-            }
-        })();
-    }, [loading, loaded, initialLoad]);
+export function DetailsTable() {
+    const filteredDetails = useFilteredList(useDetails());
+    const hasFilteredDetails = !!filteredDetails.length;
 
-    const [missing, years, details, filter] = useSelector(
-        (state: BaseState) => [state.missing, state.years, state.details, state.filter] as const,
-        isEqual
-    );
-    const [missingOnly, setMissingOnly] = useState<boolean>(false);
-    const hasMissing = !!missing.length;
+    const [missingOnly, setMissingOnly] = useMissingOnly();
+    const missingDetails = useMissingDetails(filteredDetails);
+    const hasMissingDetails = !!missingDetails.length;
 
     useEffect(() => {
-        if (missingOnly && !hasMissing) {
+        if (missingOnly && !hasMissingDetails && hasFilteredDetails) {
             setMissingOnly(false);
         }
-    }, [hasMissing, missingOnly]);
+    }, [hasFilteredDetails, hasMissingDetails, missingOnly, setMissingOnly]);
 
-    const handleClick = useCallback(() => hasMissing && setMissingOnly(!missingOnly), [hasMissing, missingOnly]);
+    const filter = useFilter();
+    const clearFilter = useClearFilter();
+    const handleClick = useCallback(() => {
+        if (missingOnly && filter && !hasMissingDetails) {
+            clearFilter();
+        }
+    }, [clearFilter, filter, hasMissingDetails, missingOnly]);
 
-    const detailsEntries: [Name, Amounts][] = useMemo(
-        () => Object.entries(details).sort(([a], [b]) => cmp(a.toLowerCase(), b.toLowerCase())),
-        [details]
-    );
-
-    const filteredEntries = detailsEntries.filter(([name]) => matchParts(name, filter));
-
-    if (!years?.length && !details?.length) {
-        return (
-            <div>
-                <Loader />
-            </div>
-        );
-    }
+    const group = useGroup();
+    const visibleDetails = useSortedList(missingOnly ? missingDetails : filteredDetails);
+    const uniqueGroups = useUniqueGroups(visibleDetails);
+    const visibleGroups = group ? [group] : uniqueGroups;
 
     return (
-        <Table
-            className={cx('Table')}
-            header={
-                <Row className={cx('Row', 'HeadRow')}>
-                    <Cell>
-                        <Checkbox color="primary" checked={!missingOnly} disabled={!hasMissing} onClick={handleClick} />
-                    </Cell>
-                    <Cell />
-                    {years.map((year) => (
-                        <Cell key={year}>{year}</Cell>
-                    ))}
-                </Row>
-            }
-        >
-            {filteredEntries.map(([name, values]) => {
-                const isMissing = missing.includes(name);
-                return (
-                    (!missingOnly || isMissing) && (
-                        <ValueRow className={cx('Row')} key={name} name={name} values={values} isMissing={isMissing} />
-                    )
-                );
-            })}
-        </Table>
+        <LoadingContent loader={useGetDetails()} hasData={useDetailsHasData()}>
+            <Table
+                className={cx('Table')}
+                header={
+                    <Row className={cx('Row', 'HeadRow')}>
+                        <Cell role="columnheader">
+                            <MissingOnlyCheckbox onClick={handleClick} />
+                        </Cell>
+                        <Cell role="columnheader" />
+                        {useYears().map((year) => (
+                            <Cell key={year} role="columnheader">
+                                {year}
+                            </Cell>
+                        ))}
+                    </Row>
+                }
+            >
+                <ActiveRowWrapper>
+                    <ActiveRowOutsideClick />
+                    <DetailsGroups groups={visibleGroups} details={visibleDetails} />
+                </ActiveRowWrapper>
+            </Table>
+        </LoadingContent>
     );
-}, isEqual);
+}

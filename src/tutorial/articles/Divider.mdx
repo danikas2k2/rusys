@@ -1,7 +1,7 @@
-import AddCircleIcon from '@icons/AddCircle.svg';
-import RemoveIcon from '@icons/Remove.svg';
-import Button from '@ui/Button';
-import ButtonGroup from '@ui/ButtonGroup';
+import AddCircleIcon from '@assets/AddCircle.svg';
+import RemoveIcon from '@assets/Remove.svg';
+import { Button } from '@ui/Button';
+import { ButtonGroup } from '@ui/ButtonGroup';
 import React from 'react';
 
 export const colors = ['neutral', 'primary', 'secondary', 'positive', 'warning', 'negative'];
@@ -11,7 +11,7 @@ export const sizes = ['small', 'medium', 'large'];
 # ButtonGroup
 
 ```tsx
-import ButtonGroup from '@ui/ButtonGroup';
+import { ButtonGroup } from '@ui/ButtonGroup';
 
 <ButtonGroup
     variant="solid"
@@ -26,13 +26,13 @@ import ButtonGroup from '@ui/ButtonGroup';
 </ButtonGroup>;
 ```
 
-| Property   | Type                                                                                     | Default     | Description                     |
-| :--------- | :--------------------------------------------------------------------------------------- | :---------- | :------------------------------ |
-| `variant`  | `"solid"` \| `"soft"` \| `"outlined"` \| `"plain"`                                       | `"solid"`   | The variant of the button.      |
+| Property   | Type                                                                                       | Default     | Description                     |
+| :--------- | :----------------------------------------------------------------------------------------- | :---------- | :------------------------------ |
+| `variant`  | `"solid"` \| `"soft"` \| `"outlined"` \| `"plain"`                                         | `"solid"`   | The variant of the button.      |
 | `color`    | `"primary"` \| `"secondary"` \| `"neutral"` \| `"positive"` \| `"warning"` \| `"negative"` | `"neutral"` | The color of the button.        |
-| `size`     | `"small"` \| `"medium"` \| `"large"`                                                     | `"small"`   | The size of the button.         |
-| `spacing`  | `"small"` \| `"medium"` \| `"large"` \| `"none"`                                         | `"small"`   | The spacing of the button.      |
-| `disabled` | `boolean`                                                                                | `false`     | Whether the button is disabled. |
+| `size`     | `"small"` \| `"medium"` \| `"large"`                                                       | `"small"`   | The size of the button.         |
+| `spacing`  | `"small"` \| `"medium"` \| `"large"` \| `"none"`                                           | `"small"`   | The spacing of the button.      |
+| `disabled` | `boolean`                                                                                  | `false`     | Whether the button is disabled. |
 
 ## Two Buttons
 

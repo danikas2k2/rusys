@@ -1,152 +1,147 @@
-import AddIcon from '@icons/Add.svg';
-import RemoveIcon from '@icons/Remove.svg';
-import Button, { ButtonGroup } from '@ui/Button';
-import useFocusRef from '@ui/hooks/useFocusRef';
-import useForwardedRef from '@ui/hooks/useForwardedRef';
-import Input from '@ui/Input';
-import { isEqual } from 'lodash';
-import React, {
-    type ChangeEvent,
-    type ForwardedRef,
-    forwardRef,
-    type KeyboardEvent,
-    memo,
-    useCallback,
-    useEffect,
-} from 'react';
-import ValueVariant from '~/client/ValueVariant';
-import { type Variant } from '~/store/details/types';
+import React, { useCallback, useEffect, type ChangeEvent, type KeyboardEvent, type RefAttributes } from 'react';
+import AddIcon from '@assets/add.svg';
+import RemoveIcon from '@assets/remove.svg';
+import { Button, ButtonGroup } from '@ui/Button';
+import { useFocusRef } from '@ui/hooks/useFocusRef';
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
+import { Input } from '@ui/Input';
+import { ValueVariant } from '~/client/common/ValueVariant';
+import { ValueChange } from '~/client/details/dialogs/ValueChange';
+import { useLabel } from '~/client/hooks/useLabel';
 import cx from './ValueInput.less';
 
-interface ValueInputProps {
-    variant: Variant;
-    prevValue?: number;
-    value?: number;
-    onClose?: () => void;
-    onChange?: (value: number) => void;
+interface ValueInputProps extends RefAttributes<HTMLInputElement> {
+    group: string;
+    variant: string;
+    amount?: number;
+    change?: number;
+    onClose?: (variant: string) => void;
+    onChange?: (variant: string, value: number) => void;
     focus?: boolean;
-    onFocus?: () => void;
-    onBlur?: () => void;
+    onFocus?: (variant: string) => void;
+    onBlur?: (variant: string) => void;
 }
 
-export default memo(
-    forwardRef(function ValueInput(
-        { variant, prevValue = 0, value = 0, onClose, onChange, focus, onFocus, onBlur }: ValueInputProps,
-        forwardedRef: ForwardedRef<HTMLInputElement>
-    ) {
-        const ref = useFocusRef(useForwardedRef(forwardedRef));
-        useEffect(() => {
-            if (focus) {
-                ref?.focus();
+// TODO select input value on first focus
+export function ValueInput({
+    ref: forwardedRef,
+    group,
+    variant,
+    amount = 0,
+    change = 0,
+    onClose,
+    onChange,
+    focus,
+    onFocus,
+    onBlur,
+}: ValueInputProps) {
+    const ref = useFocusRef(useForwardedRef(forwardedRef));
+    useEffect(() => {
+        if (focus) {
+            ref?.focus();
+        }
+    }, [focus, ref]);
+
+    const decrease = useCallback(() => onChange?.(variant, change - 1), [onChange, variant, change]);
+
+    const increase = useCallback(() => onChange?.(variant, change + 1), [onChange, variant, change]);
+
+    const onDecreaseClick = useCallback(() => {
+        decrease();
+        ref?.focus();
+    }, [decrease, ref]);
+
+    const onIncreaseClick = useCallback(() => {
+        increase();
+        ref?.focus();
+    }, [increase, ref]);
+
+    const onKeyDown = useCallback(
+        (e: KeyboardEvent) => {
+            e.stopPropagation();
+            switch (e.key) {
+                case 'Enter':
+                    onClose?.(variant);
+                    break;
+
+                case 'ArrowDown':
+                    decrease();
+                    break;
+
+                case 'ArrowUp':
+                    increase();
+                    break;
             }
-        }, [focus, ref]);
+        },
+        [decrease, increase, onClose, variant]
+    );
 
-        const decrease = useCallback(() => onChange?.(value - 1), [onChange, value]);
+    const onInputChange = useCallback(
+        (e: ChangeEvent<HTMLInputElement>) => {
+            const newValue = +e.currentTarget.value;
+            if (!isNaN(newValue)) {
+                onChange?.(variant, newValue - amount);
+            }
+        },
+        [amount, onChange, variant]
+    );
 
-        const increase = useCallback(() => onChange?.(value + 1), [onChange, value]);
+    const onInputFocus = useCallback(() => onFocus?.(variant), [onFocus, variant]);
+    const onInputBlur = useCallback(() => onBlur?.(variant), [onBlur, variant]);
 
-        const onDecreaseClick = useCallback(() => {
-            decrease();
-            ref?.focus();
-        }, [decrease, ref]);
-
-        const onIncreaseClick = useCallback(() => {
-            increase();
-            ref?.focus();
-        }, [increase, ref]);
-
-        const onKeyDown = useCallback(
-            (e: KeyboardEvent) => {
-                e.stopPropagation();
-                switch (e.key) {
-                    case 'Enter':
-                        onClose?.();
-                        break;
-
-                    case 'ArrowDown':
-                        decrease();
-                        break;
-
-                    case 'ArrowUp':
-                        increase();
-                        break;
-                }
-            },
-            [decrease, increase, onClose]
-        );
-
-        const onEnter = useCallback(
-            (e: KeyboardEvent) => {
-                e.stopPropagation();
-                if (e.key === 'Enter') {
-                    onClose?.();
-                }
-            },
-            [onClose]
-        );
-
-        const onInputChange = useCallback(
-            (e: ChangeEvent<HTMLInputElement>) => {
-                const newValue = +e.currentTarget.value;
-                if (!isNaN(newValue)) {
-                    onChange?.(newValue);
-                }
-            },
-            [onChange]
-        );
-
-        const diff = value - prevValue;
-
-        return (
-            <ButtonGroup className={cx('ValueInput')}>
-                <div className={cx('label')}>
-                    <ValueVariant variant={variant} format="long" />
-                </div>
-                <Input
-                    ref={ref}
-                    className={cx('value')}
-                    color="primary"
-                    size="large"
-                    inputMode="numeric"
-                    value={value}
-                    onChange={onInputChange}
-                    onKeyDown={onKeyDown}
-                    onFocus={onFocus}
-                    onBlur={onBlur}
-                    startDecorator={
-                        <Button
-                            onClick={onDecreaseClick}
-                            onKeyDown={onEnter}
-                            variant="plain"
-                            color="primary"
-                            spacing="half"
-                        >
-                            <RemoveIcon />
-                        </Button>
-                    }
-                    endDecorator={
-                        <Button
-                            onClick={onIncreaseClick}
-                            onKeyDown={onEnter}
-                            variant="plain"
-                            color="primary"
-                            spacing="half"
-                        >
-                            <AddIcon />
-                        </Button>
-                    }
-                />
-                {!!diff && (
-                    <div
-                        className={cx('diff', {
-                            positive: diff > 0,
-                        })}
+    const current = amount + change;
+    const decreaseLabel = useLabel('Decrease');
+    const increaseLabel = useLabel('Increase');
+    return (
+        <ButtonGroup className={cx('ValueInput')}>
+            <div className={cx('label')}>
+                <ValueVariant group={group} variant={variant} format="long" />
+            </div>
+            <Input
+                ref={ref}
+                aria-label={variant}
+                aria-current={focus}
+                className={cx('value')}
+                color="primary"
+                size="large"
+                mode="numeric"
+                value={current}
+                onChange={onInputChange}
+                onKeyDown={onKeyDown}
+                onFocus={onInputFocus}
+                onBlur={onInputBlur}
+                startDecorator={
+                    <Button
+                        role="spinbutton"
+                        aria-label={decreaseLabel}
+                        aria-controls={variant}
+                        aria-current={focus}
+                        onClick={onDecreaseClick}
+                        onKeyDown={onKeyDown}
+                        variant="plain"
+                        color="primary"
+                        spacing="half"
                     >
-                        {Math.abs(diff)}
-                    </div>
-                )}
-            </ButtonGroup>
-        );
-    }),
-    isEqual
-);
+                        <RemoveIcon />
+                    </Button>
+                }
+                endDecorator={
+                    <Button
+                        role="spinbutton"
+                        aria-label={increaseLabel}
+                        aria-controls={variant}
+                        aria-current={focus}
+                        onClick={onIncreaseClick}
+                        onKeyDown={onKeyDown}
+                        variant="plain"
+                        color="primary"
+                        spacing="half"
+                    >
+                        <AddIcon />
+                    </Button>
+                }
+            />
+            <ValueChange change={change} />
+        </ButtonGroup>
+    );
+}

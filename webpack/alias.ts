@@ -4,7 +4,8 @@ import { type WebpackAliasMap } from './types';
 export function getAlias(): WebpackAliasMap {
     const base = process.cwd();
     return {
-        '@icons': path.resolve(base, 'src/icons'),
+        '@assets': path.resolve(base, 'src/assets'),
+        '@tests': path.resolve(base, 'src/tests'),
         '@ui': path.resolve(base, 'src/ui'),
         '~': path.resolve(base, 'src'),
     };

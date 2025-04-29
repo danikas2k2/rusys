@@ -1,42 +1,15 @@
-import GoogleIcon from '@icons/Google.svg';
-import { type CredentialResponse, type TokenResponse, useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
-import { type ButtonProps } from '@ui/Button';
-import IconButton from '@ui/IconButton';
-import { jwtDecode } from 'jwt-decode';
-import { isEqual } from 'lodash';
-import React, { memo, useCallback, useMemo } from 'react';
-import { useDispatch } from 'react-redux';
-import Label from '~/client/Label';
-import { resetProfileAction, setProfileAction } from '~/store/profile/actions';
-import { type Profile } from '~/store/profile/types';
-import useEmailCheck from '~/store/profile/useEmailCheck';
+import React, { useCallback, useMemo } from 'react';
+import GoogleIcon from '@assets/google.svg';
+import { IconButton, type ButtonProps } from '@ui/Button';
+import { Label } from '~/client/common/Label';
+import { useLoginError } from '~/client/user/hooks/useLoginError';
+import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
+import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import cx from './LoginButton.less';
 
-export default memo(function LoginButton({ children }: ButtonProps) {
-    const dispatch = useDispatch();
-
-    const emailCheck = useEmailCheck();
-    const onSuccess = useCallback(
-        async (response: CredentialResponse | TokenResponse) => {
-            const data = (response as CredentialResponse)?.credential ?? (response as TokenResponse)?.access_token;
-            if (data) {
-                const profile = jwtDecode<Profile>(data);
-                const { email } = profile;
-                if (email) {
-                    dispatch(setProfileAction(profile));
-                    await emailCheck(email);
-                    return;
-                }
-            }
-            // reset profile if no response or email
-            dispatch(resetProfileAction());
-        },
-        [dispatch, emailCheck]
-    );
-
-    const onError = useCallback(() => {
-        dispatch(resetProfileAction());
-    }, [dispatch]);
+export function LoginButton({ children }: ButtonProps) {
+    const onError = useLoginError();
+    const onSuccess = useLoginSuccess(onError);
 
     const loginOptions = useMemo(
         () => ({
@@ -63,4 +36,4 @@ export default memo(function LoginButton({ children }: ButtonProps) {
             </div>
         </IconButton>
     );
-}, isEqual);
+}

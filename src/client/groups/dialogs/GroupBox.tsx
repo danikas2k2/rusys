@@ -1,0 +1,137 @@
+import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
+import AddIcon from '@assets/add.svg';
+import CancelIcon from '@assets/cancel.svg';
+import CloseIcon from '@assets/close.svg';
+import DoneIcon from '@assets/done.svg';
+import { Button, IconButton } from '@ui/Button';
+import { Dialog } from '@ui/Dialog';
+import { useAutoFocus } from '@ui/hooks/useAutoFocus';
+import { Input } from '@ui/Input';
+import { Label } from '~/client/common/Label';
+import { type WithOnClose } from '~/client/common/WithOnClose';
+import { useLabel } from '~/client/hooks/useLabel';
+import { compareNames } from '~/client/utils/compareNames';
+import { getErrorMessage } from '~/common/utils/errors';
+import { useAddGroup } from '~/state/groups/useAddGroup';
+import { useGroups } from '~/state/groups/useGroups';
+import { useRenameGroup } from '~/state/groups/useRenameGroup';
+import { isEmpty } from 'lodash';
+import cx from './GroupBox.less';
+
+interface GroupBoxProps extends WithOnClose {
+    group?: string;
+    onClose: (group?: string) => void;
+}
+
+const ERROR_NAME_MISSING = 'Name is required';
+const ERROR_EXISTS = 'Group already exists';
+
+export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
+    const [updating, setUpdating] = useState(false);
+    const [group, setGroup] = useState<string>(initialGroup ?? '');
+    const [errors, setErrors] = useState<Record<string, string>>();
+
+    useEffect(() => {
+        setErrors(undefined);
+    }, [group]);
+
+    const hasSameGroup = useGroups()?.some((g) => !compareNames(g.group, group));
+    const groupAdded = !initialGroup;
+    const groupRenamed = !!initialGroup && group !== initialGroup;
+    const hasGroup = hasSameGroup && !updating && (groupAdded || groupRenamed);
+    useEffect(() => {
+        if (hasGroup && isEmpty(errors)) {
+            setErrors({ _: ERROR_EXISTS });
+        }
+    }, [hasGroup, errors]);
+
+    const focusRef = useAutoFocus<HTMLInputElement>();
+
+    const addGroup = useAddGroup();
+    const renameGroup = useRenameGroup();
+    const handleUpdate = useCallback(async (): Promise<void> => {
+        if (!group) {
+            setErrors({ group: ERROR_NAME_MISSING });
+        }
+        if (!group || hasGroup) {
+            focusRef?.focus();
+            return;
+        }
+        try {
+            setUpdating(true);
+            if (!initialGroup) {
+                await addGroup(group);
+            } else if (groupRenamed) {
+                await renameGroup(initialGroup, group);
+            }
+            onClose(group);
+        } catch (e) {
+            setErrors({ _: getErrorMessage(e) });
+            focusRef?.focus();
+        } finally {
+            setUpdating(false);
+        }
+    }, [addGroup, focusRef, group, groupRenamed, hasGroup, initialGroup, onClose, renameGroup]);
+
+    const handleClose = useCallback((): void => onClose(), [onClose]);
+
+    const handleGroupInput = useCallback((e: FormEvent<HTMLInputElement>) => setGroup(e.currentTarget.value), []);
+
+    const handleEnter = useCallback(
+        (e: KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === 'Enter') {
+                void handleUpdate();
+            }
+        },
+        [handleUpdate]
+    );
+
+    const closeLabel = useLabel('Close');
+    const errorLabel = useLabel(errors?._ ?? '');
+    const inputLabel = useLabel('Group name');
+
+    return (
+        <Dialog className={cx('GroupBox')} open onClose={handleClose}>
+            <header>
+                <div className={cx('title')}>
+                    <Label>{initialGroup ? 'Edit group' : 'Add new group'}</Label>
+                </div>
+                <div className={cx('close')}>
+                    <IconButton aria-label={closeLabel} onClick={handleClose}>
+                        <CloseIcon />
+                    </IconButton>
+                </div>
+            </header>
+            <main>
+                <Input
+                    ref={focusRef}
+                    fullWidth
+                    color={errors?._ || errors?.group ? 'negative' : 'primary'}
+                    invalid={!!errors?._ || !!errors?.group}
+                    error={errors?._ ? errorLabel : undefined}
+                    size="large"
+                    value={group}
+                    label={inputLabel}
+                    onInput={handleGroupInput}
+                    onKeyDown={handleEnter}
+                />
+            </main>
+            <footer>
+                <Button variant="outlined" startDecorator={<CancelIcon />} onClick={handleClose}>
+                    <Label>Cancel</Label>
+                </Button>
+                <Button variant="solid" color="primary" startDecorator={getButtonDecorator()} onClick={handleUpdate}>
+                    <Label>{getButtonLabel()}</Label>
+                </Button>
+            </footer>
+        </Dialog>
+    );
+
+    function getButtonLabel() {
+        return initialGroup ? 'Update' : 'Add';
+    }
+
+    function getButtonDecorator() {
+        return initialGroup ? <DoneIcon /> : <AddIcon />;
+    }
+}

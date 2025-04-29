@@ -1,22 +1,27 @@
-import { isEqual } from 'lodash';
-import React, { memo } from 'react';
-import useProfile from '~/store/profile/useProfile';
+import React from 'react';
+import SmartToyIcon from '@assets/smart-toy.svg';
+import { DEV_MODE_SUB, useProfile } from '~/state/profile/useProfile';
 import cx from './ProfileAvatar.less';
 
-export default memo(function ProfileAvatar() {
+export function ProfileAvatar() {
     const profile = useProfile();
-    return (
+    const name = profile?.name ?? [profile?.given_name ?? '', profile?.family_name ?? ''].filter(Boolean).join(' ');
+    return name ? (
         <div className={cx('Avatar')}>
-            {profile?.picture ? (
-                <img className={cx('picture')} src={profile?.picture} alt={profile?.name} />
+            {profile.picture ? (
+                <img className={cx('picture')} src={profile.picture} alt={name} />
+            ) : profile.dev || profile.sub === DEV_MODE_SUB ? (
+                <div className={cx('robot')}>
+                    <SmartToyIcon />
+                </div>
             ) : (
-                <div className={cx('letters')}>
-                    {profile?.name
-                        ?.split(' ', 2)
-                        .map((name) => name[0])
+                <div className={cx('letters')} aria-label={name}>
+                    {name
+                        .split(' ', 2)
+                        .map(([letter]) => letter)
                         .join('')}
                 </div>
             )}
         </div>
-    );
-}, isEqual);
+    ) : null;
+}

@@ -1,3 +1,5 @@
+@import (once) "@ui/theme.less";
+
 .ValueInput {
     position: relative;
     padding: 0.25rem 1rem;
@@ -28,39 +30,5 @@
 
     input {
         text-align: center;
-    }
-
-    .diff {
-        position: absolute;
-        display: flex;
-        justify-content: center;
-        inset-inline-end: 4em;
-        inset-block-start: -2px;
-        font-size: var(--font-size-sm);
-        font-weight: var(--font-weight-lg);
-        padding-inline: 0.5em;
-        margin-inline: -0.5em;
-        border: 1px solid;
-        border-radius: var(--radius-lg);
-
-        &.positive {
-            color: var(--color-positive-outlined);
-            background-color: var(--color-positive-outlined-hover-bg);
-            border-color: var(--color-positive-outlined-hover-border);
-
-            &::before {
-                content: "+";
-            }
-        }
-
-        &:not(.positive) {
-            color: var(--color-negative-outlined);
-            background-color: var(--color-negative-outlined-hover-bg);
-            border-color: var(--color-negative-outlined-hover-border);
-
-            &::before {
-                content: "–";
-            }
-        }
     }
 }

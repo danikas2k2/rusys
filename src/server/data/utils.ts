@@ -1,12 +1,25 @@
-import { merge } from 'lodash';
-import { type Name } from '~/store/types';
+import {
+    MongoError,
+    type BulkWriteResult,
+    type DeleteResult,
+    type InsertManyResult,
+    type InsertOneResult,
+    type UpdateResult,
+} from 'mongodb';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getNamedMap<T>(data: Record<Name, any>[]): T {
-    return merge(
-        {},
-        ...data.map(({ name, ...v }) => ({
-            [name]: v,
-        }))
-    );
+export const hasEffect = (
+    res: BulkWriteResult | UpdateResult | DeleteResult | InsertOneResult | InsertManyResult
+): boolean =>
+    !!(res as InsertOneResult).insertedId ||
+    !!(res as InsertManyResult).insertedCount ||
+    !!(res as UpdateResult).modifiedCount ||
+    !!(res as UpdateResult).upsertedCount ||
+    !!(res as DeleteResult).deletedCount;
+
+export function hasDuplicates(e: unknown): boolean {
+    if (e instanceof MongoError && e.code === 11000) {
+        return false;
+    }
+    // rethrow error
+    throw e;
 }

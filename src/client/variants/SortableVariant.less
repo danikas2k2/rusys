@@ -1,0 +1,17 @@
+@import (once) "@ui/theme.less";
+
+.Name {
+    justify-self: stretch;
+    font-weight: var(--font-weight-xl);
+}
+
+.Row {
+    border-block-start: 1px solid var(--color-neutral-outlined-disabled-border);
+    overflow: hidden;
+
+    &.unused .Name {
+        font-weight: var(--font-weight-sm);
+        text-decoration: underline wavy var(--color-negative-outlined-border) 1px;
+        text-underline-position: under;
+    }
+}

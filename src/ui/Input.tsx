@@ -1,16 +1,21 @@
-import useForwardedRef from '@ui/hooks/useForwardedRef';
-import { isEqual } from 'lodash';
 import React, {
-    type FormEvent,
-    type ForwardedRef,
-    forwardRef,
-    type InputHTMLAttributes,
-    type KeyboardEvent,
-    memo,
     useCallback,
     useEffect,
     useState,
+    type FormEvent,
+    type InputHTMLAttributes,
+    type KeyboardEvent,
+    type MouseEvent,
+    type MouseEventHandler,
+    type RefAttributes,
 } from 'react';
+import CancelIcon from '@assets/cancel.svg';
+import { IconButton } from '@ui/Button';
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
+import { getDecoratorType } from '@ui/utils/getDecoratorType';
+import { setCaretPosition } from '@ui/utils/setCaretPosition';
+import { uniqueId } from '@ui/utils/uniqueId';
+import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 import cx from './Input.less';
 
 export type InputColor = 'neutral' | 'primary' | 'secondary' | 'positive' | 'warning' | 'negative';
@@ -23,141 +28,195 @@ export type InputSpacing = 'small' | 'medium' | 'large' | 'half' | 'none';
 
 export type InputMode = 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search';
 
-export type CommonInputProps<T extends HTMLElement> = Omit<InputHTMLAttributes<T>, 'type' | 'size'>;
+export type InputState = 'default' | 'active' | 'hover' | 'focus' | 'disabled';
 
-export interface InputProps extends CommonInputProps<HTMLInputElement> {
+export type CommonInputProps<T extends HTMLElement> = Omit<InputHTMLAttributes<T>, 'type' | 'size'> & RefAttributes<T>;
+
+export interface InputProps extends Omit<CommonInputProps<HTMLInputElement>, 'inputMode' | 'children'> {
     variant?: InputVariant;
     color?: InputColor;
+    placeholderColor?: InputColor;
     size?: InputSize;
+    spacing?: InputSpacing;
     mode?: InputMode;
+    state?: InputState;
     fullWidth?: boolean;
     fullHeight?: boolean;
     startDecorator?: React.ReactNode;
     endDecorator?: React.ReactNode;
+    label?: string;
+    invalid?: boolean;
+    error?: string;
+    clearable?: boolean;
+    // TODO call onChange when value is cleared, then deprecate onClear event
+    onClear?: MouseEventHandler<HTMLButtonElement>;
 }
 
-export default memo(
-    forwardRef(function Input(
-        {
-            children,
-            color = 'neutral',
-            variant = 'outlined',
-            size = 'medium',
-            mode = 'text',
-            disabled,
-            fullWidth,
-            fullHeight,
-            placeholder,
-            value: initialValue,
-            startDecorator,
-            endDecorator,
-            className,
-            onKeyDown,
-            onKeyUp,
-            ...props
-        }: InputProps,
-        forwardedRef: ForwardedRef<HTMLInputElement>
-    ) {
-        const ref = useForwardedRef(forwardedRef);
+// TODO add translation context and translate clear button label
+export function Input({
+    ref: forwardedRef,
+    id = uniqueId('input'),
+    variant = 'outlined',
+    size = 'medium',
+    spacing = 'small',
+    mode = 'text',
+    state = 'default',
+    disabled = false,
+    fullWidth,
+    fullHeight,
+    label,
+    placeholder = label,
+    error,
+    invalid = !!error,
+    color = invalid ? 'negative' : 'neutral',
+    placeholderColor,
+    value,
+    defaultValue,
+    clearable = false,
+    onClear,
+    startDecorator,
+    endDecorator,
+    className,
+    onInput,
+    onKeyDown,
+    onKeyUp,
+    ...props
+}: InputProps) {
+    const ref = useForwardedRef(forwardedRef);
+    const controlled = value != null;
 
-        function setCaretPosition(element: HTMLInputElement, position: number): void {
-            if (element.setSelectionRange) {
-                // if (document.activeElement !== element) {
-                element.focus();
-                // }
-                element.setSelectionRange(position, position);
-                // element.scrollIntoView();
-            } /*else if (element.createTextRange) { // IE
-                const range = element.createTextRange();
-                range.collapse(true);
-                range.moveEnd('character', position);
-                range.moveStart('character', position);
-                range.select();
-            }*/
-        }
-
-        const onKey = useCallback(
-            (ev: KeyboardEvent<HTMLInputElement>) => {
-                if (ev.key === 'Home' || ev.key === 'End' || ev.key === 'PageUp' || ev.key === 'PageDown') {
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    const el = ev.currentTarget ?? (ev.target as HTMLInputElement);
-                    if (ev.key === 'Home' || ev.key === 'PageUp') {
-                        setCaretPosition(el, 0);
-                        if (el.scrollLeft !== 0) {
-                            el.scrollLeft = 0;
-                        }
-                    } else if (ev.key === 'End' || ev.key === 'PageDown') {
-                        setCaretPosition(el, el.value.length);
-                        if (el.scrollWidth > el.clientWidth) {
-                            el.scrollLeft = el.scrollWidth - el.clientWidth;
-                        }
+    const handleKey = useCallback(
+        (e: KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === 'Home' || e.key === 'End' || e.key === 'PageUp' || e.key === 'PageDown') {
+                e.preventDefault();
+                e.stopPropagation();
+                const t = e.currentTarget ?? (e.target as HTMLInputElement);
+                if (e.key === 'Home' || e.key === 'PageUp') {
+                    setCaretPosition(t, 0);
+                    if (t.scrollLeft !== 0) {
+                        t.scrollLeft = 0;
+                    }
+                } else if (e.key === 'End' || e.key === 'PageDown') {
+                    setCaretPosition(t, t.value.length);
+                    if (t.scrollWidth > t.clientWidth) {
+                        t.scrollLeft = t.scrollWidth - t.clientWidth;
                     }
                 }
+            }
 
-                if (ev.type === 'keydown') {
-                    onKeyDown?.(ev);
-                } else if (ev.type === 'keyup') {
-                    onKeyUp?.(ev);
-                }
-            },
-            [onKeyDown, onKeyUp]
-        );
+            if (e.type === 'keydown') {
+                onKeyDown?.(e);
+            } else if (e.type === 'keyup') {
+                onKeyUp?.(e);
+            }
+        },
+        [onKeyDown, onKeyUp]
+    );
 
-        const [value, setValue] = useState(initialValue);
-        useEffect(() => {
-            setValue(initialValue);
-        }, [initialValue]);
+    const handleClear = useCallback(
+        (e: MouseEvent<HTMLButtonElement>) => {
+            if (!controlled && ref.current) {
+                ref.current.value = '';
+            }
+            onClear?.(e);
+        },
+        [controlled, onClear, ref]
+    );
 
-        const onInput = useCallback((e: FormEvent<HTMLInputElement>) => {
-            e.stopPropagation();
-            setValue(e.currentTarget.value);
-        }, []);
+    const hasValue = !!(value || defaultValue);
+    const [clear, setClear] = useState<boolean>(clearable && hasValue);
+    useEffect(() => {
+        setClear(clearable && hasValue);
+    }, [clearable, hasValue]);
+    const prevValue = usePreviousValue(value) ?? value;
+    useEffect(() => {
+        if (clearable && value !== prevValue) {
+            setClear(!!value);
+        }
+    }, [clearable, prevValue, value]);
 
-        return (
+    const handleInput = useCallback(
+        (e: FormEvent<HTMLInputElement>) => {
+            if (clearable) {
+                setClear(!!e.currentTarget.value);
+            }
+            onInput?.(e);
+        },
+        [clearable, onInput]
+    );
+
+    return (
+        <>
             <div
+                role="figure"
+                aria-labelledby={id}
                 className={cx(
                     'Input',
+                    'Element',
                     `color-${color}`,
                     `variant-${variant}`,
                     `size-${size}`,
-                    { 'full-width': fullWidth, 'full-height': fullHeight },
+                    `spacing-${spacing}`,
+                    `state-${state}`,
+                    {
+                        [`placeholder-color-${placeholderColor}`]: placeholderColor,
+                        'full-width': fullWidth,
+                        'full-height': fullHeight,
+                        'with-label': !!label,
+                        'with-error': invalid,
+                    },
                     className
                 )}
             >
-                {startDecorator && (
-                    <div className={cx('start-decorator', `type-${getDecoratorType(startDecorator)}`)}>
-                        {startDecorator}
-                    </div>
-                )}
-                <input
-                    type="text"
-                    inputMode={mode}
-                    ref={ref}
-                    placeholder={placeholder}
-                    disabled={disabled}
-                    aria-disabled={disabled}
-                    value={value}
-                    onInput={onInput}
-                    onKeyDown={onKey}
-                    onKeyUp={onKey}
-                    {...props}
-                >
-                    {children}
-                </input>
-                {endDecorator && (
-                    <div className={cx('end-decorator', `type-${getDecoratorType(endDecorator)}`)}>{endDecorator}</div>
-                )}
+                {label && (value || placeholder !== label) && <label htmlFor={id}>{label}</label>}
+                <div className={cx('content')}>
+                    {startDecorator && (
+                        <div className={cx('start-decorator', `type-${getDecoratorType(startDecorator)}`)}>
+                            {startDecorator}
+                        </div>
+                    )}
+                    <input
+                        id={id}
+                        type="text"
+                        inputMode={mode}
+                        ref={ref}
+                        aria-label={label}
+                        placeholder={placeholder}
+                        disabled={disabled}
+                        aria-disabled={disabled}
+                        value={value}
+                        defaultValue={defaultValue}
+                        onKeyDown={handleKey}
+                        onKeyUp={handleKey}
+                        onInput={handleInput}
+                        {...props}
+                    />
+                    {clear && (
+                        <IconButton
+                            className={cx('clear')}
+                            variant="plain"
+                            color={color}
+                            spacing="none"
+                            fullHeight
+                            onClick={handleClear}
+                            aria-label="clear"
+                            aria-controls={id}
+                        >
+                            <CancelIcon />
+                        </IconButton>
+                    )}
+                    {endDecorator && (
+                        <div className={cx('end-decorator', `type-${getDecoratorType(endDecorator)}`)}>
+                            {endDecorator}
+                        </div>
+                    )}
+                </div>
             </div>
-        );
-    }),
-    isEqual
-);
-
-function getDecoratorType(decorator: React.ReactNode): 'simple' | 'composite' {
-    const type = typeof decorator;
-    if (type === 'string' || type === 'number' || type === 'boolean') {
-        return 'simple';
-    }
-    return 'composite';
+            {error && (
+                <div role="alert" className={cx('error')}>
+                    {error}
+                </div>
+            )}
+        </>
+    );
 }

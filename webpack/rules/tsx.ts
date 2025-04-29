@@ -11,8 +11,7 @@ export function getTsxRule(): RuleSetRule {
             {
                 loader: 'esbuild-loader',
                 options: {
-                    target: 'es2015',
-                    // tsconfig: './tsconfig.json',
+                    target: 'esnext',
                 },
             },
         ],
