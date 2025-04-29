@@ -40,8 +40,8 @@
         "deploy:only": "bin/deploy.sh",
         "deploy": "pnpm build:safe && pnpm deploy:version",
         "preversion.": "git pull && pnpm build:safe",
-        "preversion": "git pull && git push",
-        "version": "sed -i '' 's/APP_VERSION: \".*\"/APP_VERSION: \"'\"$npm_package_version\"'\"/' ./docker/compose.yaml && git add --all && git commit -m \"$npm_package_version\"",
+        "preversion": "git pull",
+        "version": "sed -i '' 's/APP_VERSION: \\\".*\\\"/APP_VERSION: \\\"$npm_package_version\\\"/' ./docker/compose.yaml && git add --all && (git diff --cached --quiet || git commit -m \"$npm_package_version\")",
         "postversion": "git push && git push --tags"
     },
     "browserslist": {
