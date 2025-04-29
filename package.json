@@ -37,10 +37,10 @@
         "test:coverage": "jest --coverage",
         "remote:upload": "rsync -avr --exclude \"tutorial.*\" --exclude \"data\" ./dist/* dan@vd:/var/www/rusys/",
         "remote:restart": "ssh dan@vd \"pm2 restart rusys --update-env\"",
-        "deploy:version": "bin/deploy.sh --version $npm_package_version",
+        "deploy:only": "bin/deploy.sh",
         "deploy": "pnpm build:safe && pnpm deploy:version",
         "preversion": "git pull && pnpm build:safe",
-        "version:commit": "git add --all && git commit -m \"$npm_package_version\"",
+        "version": "sed -i \"s/APP_VERSION: \\\".*\\\"/APP_VERSION: \\\"$npm_package_version\\\"/\" ./docker/compose.yaml\n && git add --all && git commit -m \"$npm_package_version\"",
         "postversion": "git push && git push --tags"
     },
     "browserslist": {
