@@ -16,7 +16,22 @@ export default function (app = express()): Express {
         })
     );
     app.use(cors());
-    app.use(helmet());
+    app.use(
+        helmet({
+            contentSecurityPolicy: {
+                directives: {
+                    defaultSrc: ["'self'"],
+                    imgSrc: ["'self'", 'https://lh3.googleusercontent.com'],
+                    styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+                    fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+                    connectSrc: ["'self'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
+                    scriptSrc: ["'self'", 'https://accounts.google.com'],
+                    objectSrc: ["'none'"],
+                    upgradeInsecureRequests: [],
+                },
+            },
+        })
+    );
 
     app.use(express.static('public'));
 
