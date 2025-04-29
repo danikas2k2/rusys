@@ -39,7 +39,7 @@
         "remote:restart": "ssh dan@vd \"pm2 restart rusys --update-env\"",
         "deploy:version": "bin/deploy.sh --version $npm_package_version",
         "deploy": "pnpm build:safe && pnpm deploy:version",
-        "preversion": "git pull && build:safe",
+        "preversion": "git pull && pnpm build:safe",
         "version:commit": "git add --all && git commit -m \"$npm_package_version\"",
         "postversion": "git push && git push --tags"
     },
