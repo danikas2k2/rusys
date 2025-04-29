@@ -1,6 +1,6 @@
 {
     "name": "rusys",
-    "version": "2.2.12",
+    "version": "2.2.11",
     "private": true,
     "main": "index.js",
     "description": "",
@@ -41,7 +41,8 @@
         "deploy": "pnpm build:safe && pnpm deploy:version",
         "preversion.": "git pull && pnpm build:safe",
         "preversion": "git pull",
-        "version": "sed -i '' 's/APP_VERSION: \\\".*\\\"/APP_VERSION: \\\"$npm_package_version\\\"/' ./docker/compose.yaml && git add --all && (git diff --cached --quiet || git commit -m \"$npm_package_version\")",
+        "version": "sed -i '' 's/APP_VERSION: \".*\"/APP_VERSION: \"'\"$npm_package_version\"'\"/' ./docker/compose.yaml && git add --all",
+        "version2": "sed -i '' 's/APP_VERSION: \\\".*\\\"/APP_VERSION: \\\"$npm_package_version\\\"/' ./docker/compose.yaml && git add --all && (git diff --cached --quiet || git commit -m \"$npm_package_version\")",
         "postversion": "git push && git push --tags"
     },
     "browserslist": {
