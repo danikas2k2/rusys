@@ -1,6 +1,7 @@
 # TODO
 
 - get rid of `punycode`
+- fix menu items to have pointer cursor, not only icons
 - use `@catppuccin/palette` for colors
 - improve loader design by adding more semi-transparent layers
 - migrate from webpack to esbuild or vite

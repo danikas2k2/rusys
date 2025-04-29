@@ -6,65 +6,79 @@ services:
     hostname: rusys-db1
     image: mongo
     expose:
-      - 30201
-    ports:
-      - 30201:30201
+      - 27017
     volumes:
       - rusys-db1-data:/data/db
     restart: unless-stopped
     networks:
-      - rusys-db
-    command: mongod --replSet rusys-rs --port 30201
+      - rusys-net
+    command: mongod --replSet rusys-rs
 
   rusys-db2:
     container_name: rusys-db2
     hostname: rusys-db2
     image: mongo
     expose:
-      - 30202
-    ports:
-      - 30202:30202
+      - 27017
     volumes:
       - rusys-db2-data:/data/db
     restart: unless-stopped
     networks:
-      - rusys-db
-    command: mongod --replSet rusys-rs --port 30202
+      - rusys-net
+    command: mongod --replSet rusys-rs
 
   rusys-db3:
     container_name: rusys-db3
     hostname: rusys-db3
     image: mongo
     expose:
-      - 30203
-    ports:
-      - 30203:30203
+      - 27017
     volumes:
       - rusys-db3-data:/data/db
     restart: unless-stopped
     networks:
-      - rusys-db
-    command: mongod --replSet rusys-rs --port 30203
+      - rusys-net
+    command: mongod --replSet rusys-rs
 
   rusys-app:
     container_name: rusys-app
     image: rusys-app
     build:
-      context: ..
-      dockerfile: docker/Dockerfile
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_VERSION: "2.2.3"
     platform: linux/amd64
     restart: unless-stopped
     environment:
-      - DB=mongodb://rusys-db1:30201,rusys-db2:30202,rusys-db3:30203/?replicaSet=rusys-rs
+      - NODE_ENV
+      - LOCALE
+      - TZ
+      - GOOGLE_CLIENT_ID
+      - GOOGLE_ALLOWED_USERS
+      - DB
+      - HOST
+      - PORT
+      - HTTPS_PORT
+      - HTTPS_KEY
+      - HTTPS_CERT
     depends_on:
       - rusys-db1
       - rusys-db2
       - rusys-db3
+    expose:
+      - 3000
+      - 4000
+    ports:
+      - 3000:3000
+      - 4000:4000
     networks:
-      - rusys-db
+      - rusys-net
+    volumes:
+      - /volume1/docker/rusys-app/certs:/app/certs:ro
 
 networks:
-  rusys-db:
+  rusys-net:
     driver: bridge
 
 volumes:

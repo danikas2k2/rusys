@@ -78,10 +78,6 @@ export function FileInput({
         [onInput]
     );
 
-    useEffect(() => {
-        console.info(files);
-    }, [files]);
-
     return (
         <>
             <div
