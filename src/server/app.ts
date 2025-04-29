@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
 import fileUpload from 'express-fileupload';
+import helmet from 'helmet';
 
 export default function (app = express()): Express {
     app.use(bodyParser.urlencoded({ extended: false }));
@@ -15,6 +16,22 @@ export default function (app = express()): Express {
         })
     );
     app.use(cors());
+    app.use(
+        helmet({
+            contentSecurityPolicy: {
+                directives: {
+                    defaultSrc: ["'self'"],
+                    imgSrc: ["'self'", 'https://lh3.googleusercontent.com'],
+                    styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+                    fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+                    connectSrc: ["'self'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
+                    scriptSrc: ["'self'"],
+                    objectSrc: ["'none'"],
+                    upgradeInsecureRequests: [],
+                },
+            },
+        })
+    );
 
     app.use(express.static('public'));
 
