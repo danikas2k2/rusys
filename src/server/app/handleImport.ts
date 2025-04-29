@@ -4,6 +4,7 @@ import { headerNoCache, run } from '~/server/app/utils';
 import { importEverything } from '~/server/data/common';
 import { getAllDetails } from '~/server/data/details';
 import { getValidator } from '~/server/data/schema/getValidator';
+import moment from 'moment';
 
 const validate = getValidator();
 
@@ -39,7 +40,17 @@ export async function handleImport(req: ApiRequest, res: ApiResponse): Promise<v
                     );
                 }
 
-                return importEverything(data.details, data.variants, data.groups);
+                return importEverything(
+                    data.details.map((d) => ({
+                        ...d,
+                        updates: d.updates?.map((u) => ({
+                            ...u,
+                            time: moment(u.time).valueOf(),
+                        })),
+                    })),
+                    data.variants,
+                    data.groups
+                );
             },
             () => getAllDetails()
         )
