@@ -7,9 +7,9 @@ on:
     branches: [ main ]
 
 jobs:
-  lint:
+  lint-test:
     runs-on: ubuntu-latest
-    name: Lint
+    name: Lint, Tests, and Coverage
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -29,49 +29,6 @@ jobs:
 
       - name: Run linter
         run: pnpm lint
-
-  test:
-    runs-on: ubuntu-latest
-    name: Test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 9
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Run tests
-        run: pnpm test
-
-  coverage:
-    runs-on: ubuntu-latest
-    name: Coverage
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 9
-
-      - name: Install dependencies
-        run: pnpm install
 
       - name: Run coverage check
         run: pnpm test:coverage
