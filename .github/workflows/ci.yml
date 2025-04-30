@@ -27,8 +27,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run linter
+      - name: Run TS compiler and ES linter
         run: pnpm lint
 
-      - name: Run coverage check
+      - name: Run tests with coverage check
         run: pnpm test:coverage

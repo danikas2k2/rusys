@@ -39,7 +39,7 @@ export async function createMissingIndexes(database: Db): Promise<void> {
     await groups.createIndex({ order: 1 }, { name: 'order', background: true });
 }
 
-const $client = new Map<string, MongoClient>();
+export const $clients = new Map<string, MongoClient>();
 
 /**
  * Get a MongoDB client instance.
@@ -48,15 +48,15 @@ const $client = new Map<string, MongoClient>();
  * @returns A promise that resolves to the MongoDB client instance.
  */
 export async function getClient(uri = process.env.DB ?? ''): Promise<MongoClient> {
-    if (!$client.has(uri)) {
+    if (!$clients.has(uri)) {
         const _client = await MongoClient.connect(uri ?? '', {});
-        $client.set(uri, _client);
+        $clients.set(uri, _client);
         return _client;
     }
-    return $client.get(uri)!;
+    return $clients.get(uri)!;
 }
 
-const $db = new Map<string, Db>();
+export const $dbs = new Map<string, Db>();
 
 /**
  * Get a MongoDB database instance.
@@ -66,14 +66,14 @@ const $db = new Map<string, Db>();
  * @returns A promise that resolves to the MongoDB database instance.
  */
 export async function db(name = process.env.DB_NAME ?? '', client?: MongoClient): Promise<Db> {
-    if (!$db.has(name)) {
+    if (!$dbs.has(name)) {
         const _db = (client ?? (await getClient())).db(name);
-        $db.set(name, _db);
+        $dbs.set(name, _db);
         await createMissingIndexes(_db);
         return _db;
     }
 
-    return $db.get(name)!;
+    return $dbs.get(name)!;
 }
 
 /**
