@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import { ApiUrl } from '~/common/api';
-import app from '~/server/app';
+import { setup } from '~/server/app';
 import { handleAdd } from '~/server/app/handleAdd';
 import { handleCheckUser } from '~/server/app/handleCheckUser';
 import { handleClientId } from '~/server/app/handleClientId';
@@ -8,6 +8,7 @@ import { handleDelete } from '~/server/app/handleDelete';
 import { handleDeleteGroup } from '~/server/app/handleDeleteGroup';
 import { handleDeleteVariant } from '~/server/app/handleDeleteVariant';
 import { handleDetails } from '~/server/app/handleDetails';
+import { handleGroups } from '~/server/app/handleGroups';
 import { handleMove } from '~/server/app/handleMove';
 import { handleRename } from '~/server/app/handleRename';
 import { handleRenameGroup } from '~/server/app/handleRenameGroup';
@@ -16,10 +17,9 @@ import { handleSetMissing } from '~/server/app/handleSetMissing';
 import { handleSetRemoving } from '~/server/app/handleSetRemoving';
 import { handleSummary } from '~/server/app/handleSummary';
 import { handleUpdateDetails } from '~/server/app/handleUpdateDetails';
+import { handleUpdateGroup } from '~/server/app/handleUpdateGroup';
 import { handleUpdateVariant } from '~/server/app/handleUpdateVariant';
-import { handleGroups } from './app/handleGroups';
-import { handleUpdateGroup } from './app/handleUpdateGroup';
-import { handleVariants } from './app/handleVariants';
+import { handleVariants } from '~/server/app/handleVariants';
 import express, { type Request, type Response } from 'express';
 import request from 'supertest';
 
@@ -55,7 +55,7 @@ jest.mock('~/server/app/handleRenameVariant', () => ({ handleRenameVariant: jest
 jest.mock('~/server/app/handleDeleteVariant', () => ({ handleDeleteVariant: jest.fn() }));
 
 describe('app', () => {
-    const server = app(express());
+    const app = setup(express());
     const handler = async (_req: Request, res: Response): Promise<void> => void res.json({ ok: true });
 
     afterEach(() => jest.clearAllMocks());
@@ -85,7 +85,7 @@ describe('app', () => {
         jest.mocked(handle).mockImplementation(handler);
 
         it('responds to POST', async () => {
-            const response = await request(server).post(url);
+            const response = await request(app).post(url);
 
             expect(response.status).toBe(200);
             // eslint-disable-next-line jest/prefer-called-with
@@ -93,7 +93,7 @@ describe('app', () => {
         });
 
         it('does not respond to GET', async () => {
-            const response = await request(server).get(url);
+            const response = await request(app).get(url);
 
             expect(response.status).toBe(404);
             expect(handle).not.toHaveBeenCalled();
@@ -102,13 +102,13 @@ describe('app', () => {
 
     describe('request /*', () => {
         it('does not respond to GET', async () => {
-            const response = await request(server).get('/other');
+            const response = await request(app).get('/other');
 
             expect(response.status).toBe(404);
         });
 
         it('does not respond to POST', async () => {
-            const response = await request(server).post('/other');
+            const response = await request(app).post('/other');
 
             expect(response.status).toBe(404);
         });

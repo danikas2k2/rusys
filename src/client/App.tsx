@@ -5,7 +5,7 @@ import { AppContent } from '~/client/AppContent';
 import { Label } from '~/client/common/Label';
 import { LocaleContext } from '~/client/common/LocaleContext';
 import { Error } from '~/client/Error';
-import { useDev } from '~/common/hooks/useDev';
+import { isDevMode } from '~/common/utils/env';
 import { useClientId } from '~/state/google/useClientId';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import cx from './App.less';
@@ -13,7 +13,7 @@ import cx from './App.less';
 export function App() {
     useDocumentColorScheme();
     const clientId = useClientId();
-    const dev = useDev();
+    const dev = isDevMode();
     return (
         <LocaleContext value={process.env.LOCALE}>
             <div className={cx('App', { center: !dev && !clientId })}>

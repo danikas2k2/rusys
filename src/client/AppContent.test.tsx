@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { AppContent } from '~/client/AppContent';
-import { useDev } from '~/common/hooks/useDev';
+import { isDevMode } from '~/common/utils/env';
 import { useProfile } from '~/state/profile/useProfile';
 
-jest.mock('~/common/hooks/useDev');
+jest.mock('~/common/utils/env');
 jest.mock('~/state/profile/useProfile');
 jest.mock('~/client/AppRouter', () => ({
     AppRouter: () => <div>AppRouter</div>,
@@ -18,7 +18,7 @@ jest.mock('~/client/user/LogoutButton', () => ({
 
 describe('<AppContent>', () => {
     beforeAll(() => {
-        jest.mocked(useDev).mockReturnValue(false);
+        jest.mocked(isDevMode).mockReturnValue(false);
         jest.mocked(useProfile).mockReturnValue({ sub: undefined });
     });
 
@@ -36,7 +36,7 @@ describe('<AppContent>', () => {
     });
 
     it('renders AppRouter when has profile and user is.allowed', () => {
-        jest.mocked(useDev).mockReturnValue(false);
+        jest.mocked(isDevMode).mockReturnValue(false);
         jest.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: true });
         render(<AppContent />);
 
@@ -44,7 +44,7 @@ describe('<AppContent>', () => {
     });
 
     it('renders AppRouter when in dev mode event without profile', () => {
-        jest.mocked(useDev).mockReturnValue(true);
+        jest.mocked(isDevMode).mockReturnValue(true);
         render(<AppContent />);
 
         expect(screen.getByText('AppRouter')).toBeInTheDocument();

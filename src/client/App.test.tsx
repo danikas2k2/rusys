@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { mockEnv } from '@tests/mockEnv';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
 import { App } from '~/client/App';
-import { useDev } from '~/common/hooks/useDev';
+import { isDevMode } from '~/common/utils/env';
 import { useClientId } from '~/state/google/useClientId';
 
 jest.mock('@react-oauth/google', () => ({
@@ -13,7 +13,7 @@ jest.mock('@ui/hooks/useDocumentColorScheme');
 jest.mock('~/client/AppContent', () => ({
     AppContent: () => <div>AppContent</div>,
 }));
-jest.mock('~/common/hooks/useDev');
+jest.mock('~/common/utils/env');
 jest.mock('~/state/google/useClientId');
 
 describe('<App>', () => {
@@ -35,7 +35,7 @@ describe('<App>', () => {
     });
 
     it('renders AppContent when dev mode is on even if clientId is null', () => {
-        jest.mocked(useDev).mockReturnValueOnce(true);
+        jest.mocked(isDevMode).mockReturnValueOnce(true);
         render(<App />);
 
         expect(screen.getByText('AppContent')).toBeInTheDocument();

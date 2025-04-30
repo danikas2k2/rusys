@@ -1,10 +1,10 @@
-import { useDev } from '~/common/hooks/useDev';
+import { isDevMode } from '~/common/utils/env';
 import { reducer } from '~/state/base/reducer';
 import { getStore } from '~/state/store';
 import { configureStore } from '@reduxjs/toolkit';
 
-jest.mock('~/common/hooks/useDev', () => ({
-    useDev: jest.fn().mockReturnValue(false),
+jest.mock('~/common/utils/env', () => ({
+    isDevMode: jest.fn().mockReturnValue(false),
 }));
 jest.mock('@reduxjs/toolkit', () => ({
     ...jest.requireActual('@reduxjs/toolkit'),
@@ -25,7 +25,7 @@ describe('store configuration', () => {
     });
 
     it('enables devTools in development mode', () => {
-        jest.mocked(useDev).mockReturnValue(true);
+        jest.mocked(isDevMode).mockReturnValue(true);
         getStore();
 
         expect(configureStore).toHaveBeenCalledWith({ reducer, devTools: true });

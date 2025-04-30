@@ -1,34 +1,26 @@
-import fs from 'fs';
-import https from 'https';
-import app from './app';
+import { setup, startHttpServer, startHttpsServer } from '~/server/app';
 
 (async () => {
-    const { debug } = console;
+    const app = setup();
+
     const {
         PORT = 3000,
         HOST = 'localhost',
-        HTTPS_PORT = 3333,
+        HTTPS_PORT = 4000,
         HTTPS_HOST = HOST,
         HTTPS_KEY,
         HTTPS_CERT,
     } = process.env;
 
-    const APP = app();
-
-    // Create HTTP server
-    APP.listen(+PORT, HOST, () => {
-        debug(`HTTP Server listening on ${HOST}:${PORT}`);
+    startHttpServer(app, {
+        port: +PORT,
+        host: HOST,
     });
 
-    if (HTTPS_KEY && HTTPS_CERT) {
-        // Create HTTPS server
-        const httpsOptions = {
-            key: fs.readFileSync(HTTPS_KEY),
-            cert: fs.readFileSync(HTTPS_CERT),
-        };
-
-        https.createServer(httpsOptions, APP).listen(+HTTPS_PORT, HTTPS_HOST, () => {
-            debug(`HTTPS Server listening on ${HTTPS_HOST}:${HTTPS_PORT}`);
-        });
-    }
+    startHttpsServer(app, {
+        port: +HTTPS_PORT,
+        host: HTTPS_HOST,
+        keyFile: HTTPS_KEY,
+        certFile: HTTPS_CERT,
+    });
 })();

@@ -25,7 +25,7 @@
         "build:server": "esbuild src/server/index.ts --bundle --minify --platform=node --target=node22 --external:express --external:cors --external:body-parser --external:moment --external:nedb-promises --outfile=dist/server.js",
         "build:safe": "pnpm check && pnpm build",
         "build:tutorial": "webpack --config webpack.tutorial.config.ts --mode production --progress",
-        "dev": "NODE_ENV=development DB=mongodb://rusiodb1:30201,rusiodb2:30202,rusiodb3:30203/rusys?replicaSet=rusiors pnpm dev:start",
+        "dev": "NODE_ENV=development DB=mongodb://rusiodb1:30201,rusiodb2:30202,rusiodb3:30203/rusys?replicaSet=rusiors HTTPS_KEY=certs/key.pem HTTPS_CERT=certs/cert.pem pnpm dev:start",
         "dev:ts": "tsc --watch --noEmit",
         "dev:start": "esr src/server/dev.ts --platform=node --target=node22 --external:express --external:cors --external:body-parser --external:moment --external:nedb-promises",
         "dev:tutorial": "NODE_ENV=development webpack serve --config webpack.tutorial.config.ts --mode development",

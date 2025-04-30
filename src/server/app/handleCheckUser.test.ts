@@ -11,6 +11,11 @@ describe('handleCheckUser', () => {
 
     mockEnv();
 
+    beforeEach(() => {
+        process.env.GOOGLE_ALLOWED_USERS = undefined;
+        process.env.NODE_ENV = 'production';
+    });
+
     afterEach(() => jest.clearAllMocks());
 
     it('returns allowed user when email is in GOOGLE_ALLOWED_USERS', async () => {
@@ -20,7 +25,7 @@ describe('handleCheckUser', () => {
         await handleCheckUser(request, response);
 
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: true });
+        expect(response.json).toHaveBeenCalledWith({ ok: true, allowed: true });
     });
 
     it('returns not allowed user when email is not in GOOGLE_ALLOWED_USERS', async () => {
@@ -33,15 +38,15 @@ describe('handleCheckUser', () => {
         expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
-    it('returns allowed user when DEV_MODE is enabled', async () => {
+    it('returns allowed user when dev mode is enabled', async () => {
         process.env.GOOGLE_ALLOWED_USERS = 'test@example.com';
-        process.env.DEV_MODE = 'true';
+        process.env.NODE_ENV = 'development';
         const request = mockRequest<ApiUserEmail>({ email: 'other@example.com' });
 
         await handleCheckUser(request, response);
 
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: true });
+        expect(response.json).toHaveBeenCalledWith({ ok: true, allowed: true });
     });
 
     it('returns error when no email requested', async () => {

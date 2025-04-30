@@ -1,4 +1,4 @@
-import setupApp from '~/server/app';
+import { setupHandlers, setupHelmet, startHttpServer, startHttpsServer } from '~/server/app';
 import webpackDevConfig from '../../webpack.dev.config';
 import express from 'express';
 import webpack from 'webpack';
@@ -6,9 +6,8 @@ import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 
 (async () => {
-    const { debug } = console;
+    const app = setupHelmet(express());
 
-    const app = express();
     const config = await webpackDevConfig();
     const compiler = webpack(config);
 
@@ -23,11 +22,26 @@ import webpackHotMiddleware from 'webpack-hot-middleware';
     // Enable "webpack-hot-middleware"
     app.use(webpackHotMiddleware(compiler));
 
-    setupApp(app);
+    setupHandlers(app);
 
-    const port = +(process.env.PORT || 3000);
-    const host = process.env.HOST || 'localhost';
-    app.listen(port, host, () => {
-        debug(`Server listening on ${host}:${port}`);
+    const {
+        PORT = 3000,
+        HOST = 'localhost',
+        HTTPS_PORT = 4000,
+        HTTPS_HOST = HOST,
+        HTTPS_KEY,
+        HTTPS_CERT,
+    } = process.env;
+
+    startHttpServer(app, {
+        port: +PORT,
+        host: HOST,
+    });
+
+    startHttpsServer(app, {
+        port: +HTTPS_PORT,
+        host: HTTPS_HOST,
+        keyFile: HTTPS_KEY,
+        certFile: HTTPS_CERT,
     });
 })();

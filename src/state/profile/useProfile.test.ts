@@ -1,14 +1,14 @@
 import { renderHook } from '@testing-library/react';
 import { mockLocalStorage } from '@tests/mockLocalStorage';
 import { withReduxState } from '@tests/withReduxState';
-import { useDev } from '~/common/hooks/useDev';
+import { isDevMode } from '~/common/utils/env';
 import { profile as reducer } from '~/state/profile/reducer';
 import { type Profile } from '~/state/profile/types';
 import { DEV_MODE_PROFILE, useProfile } from '~/state/profile/useProfile';
 import { useSetProfile } from '~/state/profile/useSetProfile';
 
-jest.mock('~/common/hooks/useDev', () => ({
-    useDev: jest.fn().mockReturnValue(false),
+jest.mock('~/common/utils/env', () => ({
+    isDevMode: jest.fn().mockReturnValue(false),
 }));
 jest.mock('~/state/profile/useSetProfile', () => ({
     useSetProfile: jest.fn(),
@@ -55,14 +55,14 @@ describe('useProfile', () => {
     });
 
     it('return current profile if dev mode enabled but has profile', () => {
-        jest.mocked(useDev).mockReturnValue(true);
+        jest.mocked(isDevMode).mockReturnValue(true);
         const { result } = renderHook(() => useProfile(), withReduxState({ profile: value }, { profile: reducer }));
 
         expect(result.current).toStrictEqual(value);
     });
 
     it('return profile from localStorage if dev mode enabled', () => {
-        jest.mocked(useDev).mockReturnValueOnce(true);
+        jest.mocked(isDevMode).mockReturnValueOnce(true);
         getItem.mockReturnValueOnce(JSON.stringify(value));
         const { result } = renderHook(() => useProfile(), withReduxState({}, { profile: reducer }));
 
@@ -72,7 +72,7 @@ describe('useProfile', () => {
     });
 
     it('return dev profile if dev mode enabled and has no profile neither in state nor in localStorage', () => {
-        jest.mocked(useDev).mockReturnValueOnce(true);
+        jest.mocked(isDevMode).mockReturnValueOnce(true);
         const { result } = renderHook(() => useProfile(), withReduxState({}, { profile: reducer }));
 
         expect(result.current).toStrictEqual(DEV_MODE_PROFILE);

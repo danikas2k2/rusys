@@ -2,11 +2,11 @@ import React from 'react';
 import { AppRouter } from '~/client/AppRouter';
 import { LoginButton } from '~/client/user/LoginButton';
 import { LogoutButton } from '~/client/user/LogoutButton';
-import { useDev } from '~/common/hooks/useDev';
+import { isDevMode } from '~/common/utils/env';
 import { useProfile } from '~/state/profile/useProfile';
 
 export function AppContent() {
-    const dev = useDev();
+    const dev = isDevMode();
     const profile = useProfile();
     if (!dev) {
         if (!profile.sub) {
