@@ -47,7 +47,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        APP_VERSION: "2.2.14"
+        APP_VERSION: "2.2.15"
     platform: linux/amd64
     restart: unless-stopped
     environment:
