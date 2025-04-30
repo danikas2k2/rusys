@@ -29,5 +29,13 @@
         "\\.svg": "jest-transformer-svg"
     },
     "collectCoverage": false,
-    "collectCoverageFrom": ["src/**/*.{ts,tsx}", "!src/**/*.d.ts", "!src/tutorial/**", "!src/tests/**"]
+    "collectCoverageFrom": ["src/**/*.{ts,tsx}", "!src/**/*.d.ts", "!src/tutorial/**", "!src/tests/**"],
+    "coverageThreshold": {
+        "global": {
+            "branches": 95,
+            "functions": 95,
+            "lines": 95,
+            "statements": 95
+        }
+    }
 }
