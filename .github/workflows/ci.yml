@@ -1,16 +1,15 @@
-name: CI on Main
+name: CI on main
 
 on:
   push:
+    branches: [ main ]
+  pull_request:
     branches: [ main ]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [ 22, 20, 18 ]
-    name: Lint (Node ${{ matrix.node }})
+    name: Lint
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -18,7 +17,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 22
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -33,10 +32,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [ 22, 20, 18 ]
-    name: Test (Node ${{ matrix.node }})
+    name: Test
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -44,7 +40,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 22
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -59,10 +55,7 @@ jobs:
 
   coverage:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [ 22, 20, 18 ]
-    name: Coverage (Node ${{ matrix.node }})
+    name: Coverage
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -70,7 +63,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 22
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
