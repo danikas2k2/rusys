@@ -182,6 +182,7 @@ export default [
             'react/display-name': 'off',
             'import/no-named-as-default': 'off',
             'no-console': 'off',
+            'jest/valid-title': ['error', { disallowedWords: ['should'] }],
         },
     },
     {
