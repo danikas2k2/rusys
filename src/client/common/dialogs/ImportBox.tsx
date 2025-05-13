@@ -51,7 +51,7 @@ function ImportFooter({ onCancel, onSubmit }: ImportFooterProps) {
 export function ImportBox({ onClose }: ImportBoxProps) {
     // const [updating, setUpdating] = useState(false);
     // const [file, setFile] = useState<string>();
-    const [errors, setErrors] = useState<Record<string, string>>();
+    const [errors /*, setErrors*/] = useState<Record<string, string>>();
 
     const handleImport = useImportHandler();
     const [, formAction] = useActionState<{ import?: File }, FormData>(async (state, data) => {
@@ -129,7 +129,7 @@ export function ImportBox({ onClose }: ImportBoxProps) {
                     </div>
                 </header>
                 <main>
-                    {/*<FileInput
+                    <FileInput
                         ref={fileRef}
                         name="import"
                         accept="application/json"
@@ -141,14 +141,6 @@ export function ImportBox({ onClose }: ImportBoxProps) {
                         placeholder={useLabel(PLACEHOLDER)}
                         // onInput={handleFileInput}
                         // onKeyDown={handleEnter}
-                    />*/}
-                    <input
-                        ref={fileRef}
-                        type="file"
-                        name="import"
-                        accept="application/json"
-                        className={cx('FileInput')}
-                        placeholder={useLabel(PLACEHOLDER)}
                         // required
                     />
                 </main>

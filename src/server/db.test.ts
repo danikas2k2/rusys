@@ -107,7 +107,7 @@ describe('db.ts', () => {
             await database.dropDatabase();
         });
 
-        it('should execute a function within a transaction successfully', async () => {
+        it('executes a function within a transaction successfully', async () => {
             await expect(
                 withTransaction(async (session) => {
                     const col1 = database.collection('collection1');
@@ -121,7 +121,7 @@ describe('db.ts', () => {
             await expect(database.collection('collection2').countDocuments({})).resolves.toBe(1);
         });
 
-        it('should abort the transaction on failure', async () => {
+        it('aborts the transaction on failure', async () => {
             await expect(
                 withTransaction(async (session) => {
                     const col1 = database.collection('collection1');
@@ -135,7 +135,7 @@ describe('db.ts', () => {
             await expect(database.collection('collection2').countDocuments({})).resolves.toBe(0);
         });
 
-        it('should abort the transaction on false return', async () => {
+        it('aborts the transaction on false return', async () => {
             await expect(
                 withTransaction(async (session) => {
                     const col1 = database.collection('collection1');
