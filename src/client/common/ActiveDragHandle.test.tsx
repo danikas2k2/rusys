@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { withActiveRowContext } from '@tests/withActiveRowContext';
+import { MockActiveRow } from '@tests/MockActiveRow';
 import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
 
 describe('<ActiveDragHandle>', () => {
@@ -19,7 +19,11 @@ describe('<ActiveDragHandle>', () => {
 
     it('removes active state on pointer down event', async () => {
         const setActiveRow = jest.fn();
-        render(<ActiveDragHandle />, withActiveRowContext(null, setActiveRow));
+        render(
+            <MockActiveRow setState={setActiveRow}>
+                <ActiveDragHandle />
+            </MockActiveRow>
+        );
         const target = screen.getByRole('button', { name: 'Drag' });
         await userEvent.pointer([{ target, keys: '[MouseLeft>]' }]);
 
@@ -28,7 +32,11 @@ describe('<ActiveDragHandle>', () => {
 
     it('calls onPointerDown passed handler', async () => {
         const onPointerDown = jest.fn();
-        render(<ActiveDragHandle onPointerDown={onPointerDown} />, withActiveRowContext());
+        render(
+            <MockActiveRow>
+                <ActiveDragHandle onPointerDown={onPointerDown} />
+            </MockActiveRow>
+        );
         const target = screen.getByRole('button', { name: 'Drag' });
         await userEvent.pointer([{ target, keys: '[MouseLeft>]' }]);
 

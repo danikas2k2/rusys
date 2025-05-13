@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { ActiveRowContext } from '~/client/common/ActiveRowContext';
 import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
 
@@ -19,10 +19,11 @@ describe('<ActiveRowOutsideClick>', () => {
 
     it('resets active row when clicking outside the row', async () => {
         render(
-            <ActiveRowContext value={[{ ref }, setActive]}>
-                <ActiveRowOutsideClick />
-            </ActiveRowContext>,
-            withReduxState()
+            <MockRedux>
+                <ActiveRowContext value={[{ ref }, setActive]}>
+                    <ActiveRowOutsideClick />
+                </ActiveRowContext>
+            </MockRedux>
         );
         await userEvent.click(document.body);
 
@@ -31,10 +32,11 @@ describe('<ActiveRowOutsideClick>', () => {
 
     it('does not reset active row when row is pinned', async () => {
         render(
-            <ActiveRowContext value={[{ ref, pinned: true }, setActive]}>
-                <ActiveRowOutsideClick />
-            </ActiveRowContext>,
-            withReduxState()
+            <MockRedux>
+                <ActiveRowContext value={[{ ref, pinned: true }, setActive]}>
+                    <ActiveRowOutsideClick />
+                </ActiveRowContext>
+            </MockRedux>
         );
         await userEvent.click(document.body);
 
@@ -43,10 +45,11 @@ describe('<ActiveRowOutsideClick>', () => {
 
     it('does not reset active row if row is not set', async () => {
         render(
-            <ActiveRowContext value={[{}, setActive]}>
-                <ActiveRowOutsideClick />
-            </ActiveRowContext>,
-            withReduxState()
+            <MockRedux>
+                <ActiveRowContext value={[{}, setActive]}>
+                    <ActiveRowOutsideClick />
+                </ActiveRowContext>
+            </MockRedux>
         );
         await userEvent.click(document.body);
 

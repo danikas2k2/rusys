@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
 import { type ActiveVariant } from '~/client/variants/SortableVariant';
@@ -34,7 +34,11 @@ describe('<SortableVariants>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('renders with details', () => {
-        render(<SortableVariants group={group} variants={variants} />, withReduxState());
+        render(
+            <MockRedux>
+                <SortableVariants group={group} variants={variants} />
+            </MockRedux>
+        );
         const rows = screen.getAllByRole('row');
 
         expect(rows).toHaveLength(2);
@@ -51,7 +55,11 @@ describe('<SortableVariants>', () => {
         });
 
         it('does not call reorder on drag start', async () => {
-            render(<SortableVariants group={group} variants={variants} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableVariants group={group} variants={variants} />
+                </MockRedux>
+            );
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer({ target, coords: { y: 0 }, keys: '[MouseLeft>]' });
 
@@ -59,7 +67,11 @@ describe('<SortableVariants>', () => {
         });
 
         it('does not call reorder on drag stop without position change', async () => {
-            render(<SortableVariants group={group} variants={variants} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableVariants group={group} variants={variants} />
+                </MockRedux>
+            );
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
@@ -70,7 +82,11 @@ describe('<SortableVariants>', () => {
         });
 
         it('does not call reorder on drag when elements does not overlap', async () => {
-            render(<SortableVariants group={group} variants={variants} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableVariants group={group} variants={variants} />
+                </MockRedux>
+            );
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
@@ -83,7 +99,11 @@ describe('<SortableVariants>', () => {
 
         it('calls reorder on drag when elements overlaps', async () => {
             jest.mocked(getOverlapIndex).mockReturnValue(0);
-            render(<SortableVariants group={group} variants={variants} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableVariants group={group} variants={variants} />
+                </MockRedux>
+            );
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
@@ -104,7 +124,11 @@ describe('<SortableVariants>', () => {
                 setActiveVariant,
             ]);
             jest.mocked(getOverlapIndex).mockReturnValue(0);
-            render(<SortableVariants group={group} variants={variants} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableVariants group={group} variants={variants} />
+                </MockRedux>
+            );
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
@@ -119,14 +143,22 @@ describe('<SortableVariants>', () => {
     describe('slide controls', () => {
         it('renders rows without controls', () => {
             jest.mocked(useActiveRow<ActiveVariant>).mockReturnValue([undefined, setActiveVariant]);
-            render(<SortableVariants group={group} variants={variants} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableVariants group={group} variants={variants} />
+                </MockRedux>
+            );
 
             expect(screen.queryByRole('group', { name: 'Edit Remove' })).not.toBeInTheDocument();
         });
 
         it('renders active variant row with controls', () => {
             jest.mocked(useActiveRow<ActiveVariant>).mockReturnValue([activeVariant, setActiveVariant]);
-            render(<SortableVariants group={group} variants={variants} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableVariants group={group} variants={variants} />
+                </MockRedux>
+            );
             const rows = screen.getAllByRole('row');
 
             expect(within(rows[0]).queryByRole('group', { name: 'Edit Remove' })).not.toBeInTheDocument();

@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux';
 import { renderHook } from '@testing-library/react';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { FilterActionType } from '~/state/filter/actions';
 import { useClearFilter } from '~/state/filter/useClearFilter';
 
@@ -17,7 +17,7 @@ describe('useClearFilter', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('calls set filter action', () => {
-        const { result } = renderHook(() => useClearFilter(), withReduxState());
+        const { result } = renderHook(() => useClearFilter(), { wrapper: MockRedux });
         result.current();
 
         expect(dispatch).toHaveBeenCalledWith({ type: FilterActionType.CLEAR });

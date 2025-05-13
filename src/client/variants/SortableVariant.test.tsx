@@ -1,31 +1,41 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { withActiveRowContext } from '@tests/withActiveRowContext';
-import { withMany } from '@tests/withMany';
-import { withReduxState } from '@tests/withReduxState';
+import { MockActiveRow } from '@tests/MockActiveRow';
+import { MockRedux } from '@tests/MockRedux';
 import { SortableVariant } from '~/client/variants/SortableVariant';
 
 describe('<SortableVariant>', () => {
     afterEach(() => jest.clearAllMocks());
 
     const variant = { group: 'Uogienės', variant: 'd', order: 1, long: '750 ml.', short: 'D.' };
-    const redux = withReduxState();
 
     it('renders with details', () => {
-        render(<SortableVariant index={0} variant={variant} />, redux);
+        render(
+            <MockRedux>
+                <SortableVariant index={0} variant={variant} />
+            </MockRedux>
+        );
 
         expect(screen.getAllByRole('cell')).toHaveListWithTextContent(['d', '750 ml.', 'D.']);
     });
 
     it('renders with unused class if not used', () => {
-        render(<SortableVariant index={0} variant={{ ...variant, used: false }} />, redux);
+        render(
+            <MockRedux>
+                <SortableVariant index={0} variant={{ ...variant, used: false }} />
+            </MockRedux>
+        );
 
         expect(screen.getByRole('row')).toHaveClass('unused');
     });
 
     it('renders without unused class if is used', () => {
-        render(<SortableVariant index={0} variant={{ ...variant, used: true }} />, redux);
+        render(
+            <MockRedux>
+                <SortableVariant index={0} variant={{ ...variant, used: true }} />
+            </MockRedux>
+        );
 
         expect(screen.getByRole('row')).not.toHaveClass('unused');
     });
@@ -34,7 +44,11 @@ describe('<SortableVariant>', () => {
         const onDragStart = jest.fn();
 
         it('calls onDragStart on drag start', async () => {
-            render(<SortableVariant index={0} variant={variant} onDragStart={onDragStart} />, redux);
+            render(
+                <MockRedux>
+                    <SortableVariant index={0} variant={variant} onDragStart={onDragStart} />
+                </MockRedux>
+            );
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer({ target, coords: { y: 0 }, keys: '[MouseLeft>]' });
 
@@ -44,7 +58,11 @@ describe('<SortableVariant>', () => {
         const onDragStop = jest.fn();
 
         it('calls onDragStop on drag stop', async () => {
-            render(<SortableVariant index={0} variant={variant} onDragStop={onDragStop} />, redux);
+            render(
+                <MockRedux>
+                    <SortableVariant index={0} variant={variant} onDragStop={onDragStop} />
+                </MockRedux>
+            );
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
@@ -57,7 +75,11 @@ describe('<SortableVariant>', () => {
         const onDrag = jest.fn();
 
         it('calls onDrag on drag', async () => {
-            render(<SortableVariant index={0} variant={variant} onDrag={onDrag} />, redux);
+            render(
+                <MockRedux>
+                    <SortableVariant index={0} variant={variant} onDrag={onDrag} />
+                </MockRedux>
+            );
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
@@ -76,8 +98,11 @@ describe('<SortableVariant>', () => {
 
         it('renders without controls if not active', async () => {
             render(
-                <SortableVariant index={0} variant={variant} />,
-                withMany(redux, withActiveRowContext(undefined, setActiveVariant))
+                <MockRedux>
+                    <MockActiveRow setState={setActiveVariant}>
+                        <SortableVariant index={0} variant={variant} />
+                    </MockActiveRow>
+                </MockRedux>
             );
 
             expect(screen.queryByRole('group', { name: 'Edit Remove' })).not.toBeInTheDocument();
@@ -85,8 +110,11 @@ describe('<SortableVariant>', () => {
 
         it('sets active variant on drag start', async () => {
             render(
-                <SortableVariant index={0} variant={variant} />,
-                withMany(redux, withActiveRowContext(undefined, setActiveVariant))
+                <MockRedux>
+                    <MockActiveRow setState={setActiveVariant}>
+                        <SortableVariant index={0} variant={variant} />
+                    </MockActiveRow>
+                </MockRedux>
             );
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer({ target, coords: { y: 0 }, keys: '[MouseLeft>]' });
@@ -102,8 +130,11 @@ describe('<SortableVariant>', () => {
 
         it('renders controls when variant is active', () => {
             render(
-                <SortableVariant index={0} variant={variant} />,
-                withMany(redux, withActiveRowContext(activeVariant, setActiveVariant))
+                <MockRedux>
+                    <MockActiveRow state={activeVariant} setState={setActiveVariant}>
+                        <SortableVariant index={0} variant={variant} />
+                    </MockActiveRow>
+                </MockRedux>
             );
 
             expect(screen.getByRole('group', { name: 'Edit Remove' })).toBeInTheDocument();
@@ -111,8 +142,11 @@ describe('<SortableVariant>', () => {
 
         it('pins row when interacting with controls', async () => {
             render(
-                <SortableVariant index={0} variant={variant} />,
-                withMany(redux, withActiveRowContext(activeVariant, setActiveVariant))
+                <MockRedux>
+                    <MockActiveRow state={activeVariant} setState={setActiveVariant}>
+                        <SortableVariant index={0} variant={variant} />
+                    </MockActiveRow>
+                </MockRedux>
             );
             await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
 
@@ -121,8 +155,11 @@ describe('<SortableVariant>', () => {
 
         it('unpins row when interacting with control dialog', async () => {
             render(
-                <SortableVariant index={0} variant={variant} />,
-                withMany(redux, withActiveRowContext(activeVariant, setActiveVariant))
+                <MockRedux>
+                    <MockActiveRow state={activeVariant} setState={setActiveVariant}>
+                        <SortableVariant index={0} variant={variant} />
+                    </MockActiveRow>
+                </MockRedux>
             );
             await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
             await userEvent.click(screen.getByRole('button', { name: 'Close' }));
@@ -132,8 +169,11 @@ describe('<SortableVariant>', () => {
 
         it('hides controls when dragging by handler', async () => {
             render(
-                <SortableVariant index={0} variant={variant} />,
-                withMany(redux, withActiveRowContext(activeVariant, setActiveVariant))
+                <MockRedux>
+                    <MockActiveRow state={activeVariant} setState={setActiveVariant}>
+                        <SortableVariant index={0} variant={variant} />
+                    </MockActiveRow>
+                </MockRedux>
             );
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer({ target, keys: '[MouseLeft>]' });

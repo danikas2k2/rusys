@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { useAddDetails } from '~/state/details/useAddDetails';
@@ -18,7 +18,7 @@ describe('useAddDetails', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('calls add action', async () => {
-        const { result } = renderHook(() => useAddDetails(), withReduxState());
+        const { result } = renderHook(() => useAddDetails(), { wrapper: MockRedux });
         await result.current('G', 'A');
 
         expect(request).toHaveBeenCalledWith(ApiUrl.DetailsAdd, {
@@ -28,14 +28,14 @@ describe('useAddDetails', () => {
     });
 
     it('does not call update action with blank name', async () => {
-        const { result } = renderHook(() => useAddDetails(), withReduxState());
+        const { result } = renderHook(() => useAddDetails(), { wrapper: MockRedux });
         await result.current('G', '');
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call update action with blank group', async () => {
-        const { result } = renderHook(() => useAddDetails(), withReduxState());
+        const { result } = renderHook(() => useAddDetails(), { wrapper: MockRedux });
         await result.current('', 'A');
 
         expect(request).not.toHaveBeenCalled();

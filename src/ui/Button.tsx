@@ -54,6 +54,11 @@ export function Button({
     ...props
 }: ButtonProps): JSX.Element {
     const ref = useForwardedRef(forwardedRef);
+    const isButtonWrapped = isValidElement<HTMLButtonElement>(children) && children.type === 'button';
+    if (isButtonWrapped) {
+        // eslint-disable-next-line no-console
+        console.warn('Button component cannot be used with a button child.');
+    }
     return (
         <button
             ref={ref}
@@ -78,7 +83,7 @@ export function Button({
             {...props}
         >
             {startDecorator && <div className={cx('start-decorator')}>{startDecorator}</div>}
-            {children}
+            {isButtonWrapped ? <>{(children as ReactElement<HTMLButtonElement>).props.children}</> : children}
             {endDecorator && <div className={cx('end-decorator')}>{endDecorator}</div>}
         </button>
     );

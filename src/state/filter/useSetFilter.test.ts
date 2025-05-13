@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux';
 import { renderHook } from '@testing-library/react';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { FilterActionType } from '~/state/filter/actions';
 import { useSetFilter } from '~/state/filter/useSetFilter';
 
@@ -17,14 +17,14 @@ describe('useSetFilter', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('calls set filter action', () => {
-        const { result } = renderHook(() => useSetFilter(), withReduxState());
+        const { result } = renderHook(() => useSetFilter(), { wrapper: MockRedux });
         result.current('filtered');
 
         expect(dispatch).toHaveBeenCalledWith({ type: FilterActionType.SET, filter: 'filtered' });
     });
 
     it('calls set filter action with empty value', () => {
-        const { result } = renderHook(() => useSetFilter(), withReduxState());
+        const { result } = renderHook(() => useSetFilter(), { wrapper: MockRedux });
         result.current('');
 
         expect(dispatch).toHaveBeenCalledWith({ type: FilterActionType.SET, filter: '' });

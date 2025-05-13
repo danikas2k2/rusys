@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
 import { useClearGroup } from '~/state/group/useClearGroup';
 import { useGroup } from '~/state/group/useGroup';
@@ -22,7 +22,11 @@ describe('<ToolbarGroupFilter>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('renders select with placeholder', () => {
-        render(<ToolbarGroupFilter />, withReduxState());
+        render(
+            <MockRedux>
+                <ToolbarGroupFilter />
+            </MockRedux>
+        );
 
         expect(screen.getByPlaceholderText('All groups')).toBeInTheDocument();
     });
@@ -31,7 +35,11 @@ describe('<ToolbarGroupFilter>', () => {
         const setGroup = jest.fn();
         jest.mocked(useSetGroup).mockReturnValue(setGroup);
 
-        render(<ToolbarGroupFilter />, withReduxState());
+        render(
+            <MockRedux>
+                <ToolbarGroupFilter />
+            </MockRedux>
+        );
 
         await userEvent.click(screen.getByPlaceholderText('All groups'));
         await userEvent.click(screen.getByText('Uogienės'));
@@ -44,7 +52,11 @@ describe('<ToolbarGroupFilter>', () => {
         jest.mocked(useClearGroup).mockReturnValue(clearGroup);
         jest.mocked(useGroup).mockReturnValue('Daržovės');
 
-        render(<ToolbarGroupFilter />, withReduxState());
+        render(
+            <MockRedux>
+                <ToolbarGroupFilter />
+            </MockRedux>
+        );
 
         await userEvent.click(screen.getByPlaceholderText('Daržovės'));
         await userEvent.click(screen.getByText('All groups'));

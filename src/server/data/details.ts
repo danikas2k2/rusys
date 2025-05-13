@@ -31,6 +31,15 @@ export async function addDetails(group: string, name: string): Promise<boolean> 
     return (await db()).collection('details').insertOne({ group, name }).then(hasEffect);
 }
 
+export function addVariantAmount(acc: ReadonlyArray<VariantAmount>, { variant, amount }: VariantAmount): typeof acc {
+    const a = acc?.find((v) => v.variant === variant);
+    if (a) {
+        a.amount += amount;
+        return acc;
+    }
+    return [...acc, { variant, amount }];
+}
+
 export async function updateDetails(
     group: string,
     name: string,
@@ -42,77 +51,60 @@ export async function updateDetails(
     }
 
     return withTransaction(async (session) => {
+        // adding changes to updates
         await addUpdate(group, name, year, changes, session);
 
         const filter = { group, name };
         const col = (await db()).collection<Details>('details');
         const details = await col.findOne(filter, { projection: { years: 1, missing: 1 }, session });
+
+        // removing missing flag if amount decreased but not recycled
+        if (details?.missing && changes?.some((a) => !a.recycled && a.amount < 0)) {
+            await setMissing(group, name, false, session);
+        }
+
+        // calculates amount updates
         const current = details?.years?.find((y) => y.year === year);
         const amounts = current?.amounts ?? [];
-
-        // TODO split to smaller functions
         const updates = changes
-            .reduce((acc, { variant, amount }) => {
-                const a = acc?.find((v) => v.variant === variant);
-                if (a) {
-                    a.amount += amount;
-                    if (a.amount < 0) {
-                        a.amount = 0;
-                    }
-                    return acc;
-                }
-                return [...acc, { variant, amount: amount < 0 ? 0 : amount }];
-            }, amounts)
-            // remove zero amounts
-            .filter((a) => a.amount);
+            // update amounts
+            .reduce(addVariantAmount, amounts)
+            // remove invalid amounts
+            .filter((a) => a.amount > 0);
 
-        if (updates.length) {
-            // TODO split to smaller functions
-            const removing =
-                !!current?.removing &&
-                changes?.some(
-                    (a) =>
-                        a.amount +
-                        (changes?.reduce((acc, c) => {
-                            if (c.variant === a.variant) {
-                                acc += c.amount;
-                            }
-                            return acc;
-                        }, 0) ?? 0)
-                );
-            if (removing !== !!current?.removing) {
-                await setRemoving(group, name, year, removing, session);
+        // no updates
+        if (!updates.length) {
+            // and currently no amounts
+            if (!amounts.length) {
+                // do nothing
+                return false;
             }
 
-            // TODO split to smaller functions
-            const missing = !!details?.missing && changes?.every((a) => a.recycled || a.amount >= 0);
-            if (missing !== !!details?.missing) {
-                await setMissing(group, name, missing, session);
-            }
-
-            return amounts.length
-                ? await col
-                      .updateOne(
-                          { ...filter, 'years.year': year } as UpdateFilter<Details>,
-                          { $set: { 'years.$.amounts': updates } },
-                          { session }
-                      )
-                      .then(hasEffect)
-                : await col
-                      .updateOne(filter, { $push: { years: { year, amounts: updates } } }, { session })
-                      .then(hasEffect);
+            return (
+                // removes updating year
+                (await col.updateOne(filter, { $pull: { years: { year } } }, { session }).then(hasEffect)) ||
+                // removes all other empty years
+                (await col
+                    .updateOne({ ...filter, years: { $size: 0 } }, { $unset: { years: 1, missing: 1 } }, { session })
+                    .then(hasEffect))
+            );
         }
 
+        // add year if not exists
         if (!amounts.length) {
-            return false;
+            return await col
+                .updateOne(filter, { $push: { years: { year, amounts: updates } } }, { session })
+                .then(hasEffect);
         }
 
-        return (
-            (await col.updateOne(filter, { $pull: { years: { year } } }, { session }).then(hasEffect)) ||
-            (await col // removes empty years
-                .updateOne({ ...filter, years: { $size: 0 } }, { $unset: { years: 1, missing: 1 } }, { session })
-                .then(hasEffect))
-        );
+        // updates amounts
+        return await col
+            .updateOne(
+                { ...filter, 'years.year': year } as UpdateFilter<Details>,
+                { $set: { 'years.$.amounts': updates } },
+                { session }
+            )
+            .then(hasEffect);
     });
 }
 

@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux';
 import { act, renderHook } from '@testing-library/react';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { setProfileAction } from '~/state/profile/actions';
 import { useSetProfile } from '~/state/profile/useSetProfile';
 
@@ -17,7 +17,7 @@ describe('useSetProfile', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('dispatches setProfileAction with provided profile', () => {
-        const { result } = renderHook(() => useSetProfile(), withReduxState());
+        const { result } = renderHook(() => useSetProfile(), { wrapper: MockRedux });
         const profile = { name: 'Test User', email: 'test.user@email.com' };
 
         act(() => result.current(profile));

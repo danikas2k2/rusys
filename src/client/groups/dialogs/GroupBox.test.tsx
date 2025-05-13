@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getGroupsFixture } from '@tests/fixtures';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { GroupBox } from '~/client/groups/dialogs/GroupBox';
 import { useAddGroup } from '~/state/groups/useAddGroup';
 import { useRenameGroup } from '~/state/groups/useRenameGroup';
@@ -21,13 +21,21 @@ describe('<GroupBox>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('renders with cancel button', () => {
-        render(<GroupBox onClose={onClose} />, withReduxState(state));
+        render(
+            <MockRedux state={state}>
+                <GroupBox onClose={onClose} />
+            </MockRedux>
+        );
 
         expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
 
     it('renders without initial value', () => {
-        render(<GroupBox onClose={onClose} />, withReduxState(state));
+        render(
+            <MockRedux state={state}>
+                <GroupBox onClose={onClose} />
+            </MockRedux>
+        );
 
         expect(screen.getByText('Add new group')).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Group name' })).toHaveValue('');
@@ -35,7 +43,11 @@ describe('<GroupBox>', () => {
     });
 
     it('renders with initial name', () => {
-        render(<GroupBox group="Initial Group" onClose={onClose} />, withReduxState(state));
+        render(
+            <MockRedux state={state}>
+                <GroupBox group="Initial Group" onClose={onClose} />
+            </MockRedux>
+        );
 
         expect(screen.getByText('Edit group')).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Group name' })).toHaveValue('Initial Group');
@@ -43,7 +55,11 @@ describe('<GroupBox>', () => {
     });
 
     it('calls onClose when close button is clicked', async () => {
-        render(<GroupBox onClose={onClose} />, withReduxState(state));
+        render(
+            <MockRedux state={state}>
+                <GroupBox onClose={onClose} />
+            </MockRedux>
+        );
         await userEvent.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onClose).toHaveBeenCalledWith();
@@ -54,7 +70,11 @@ describe('<GroupBox>', () => {
 
         it('closes dialog without error when successfully added', async () => {
             jest.mocked(useAddGroup).mockReturnValue(addGroup.mockResolvedValue(true));
-            render(<GroupBox onClose={onClose} />, withReduxState(state));
+            render(
+                <MockRedux state={state}>
+                    <GroupBox onClose={onClose} />
+                </MockRedux>
+            );
             await userEvent.type(screen.getByRole('textbox'), 'Buitinė chemija');
             await userEvent.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -65,7 +85,11 @@ describe('<GroupBox>', () => {
 
         it('displays error without closing dialog when adding fails', async () => {
             jest.mocked(useAddGroup).mockReturnValue(addGroup.mockRejectedValueOnce('Failed to add'));
-            render(<GroupBox onClose={onClose} />, withReduxState(state));
+            render(
+                <MockRedux state={state}>
+                    <GroupBox onClose={onClose} />
+                </MockRedux>
+            );
             await userEvent.type(screen.getByRole('textbox'), 'Buitinė chemija');
             await userEvent.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -76,7 +100,11 @@ describe('<GroupBox>', () => {
 
         it('displays error without closing dialog when empty name field left', async () => {
             jest.mocked(useAddGroup).mockReturnValue(addGroup);
-            render(<GroupBox onClose={onClose} />, withReduxState(state));
+            render(
+                <MockRedux state={state}>
+                    <GroupBox onClose={onClose} />
+                </MockRedux>
+            );
             await userEvent.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(addGroup).not.toHaveBeenCalled();
@@ -86,7 +114,11 @@ describe('<GroupBox>', () => {
 
         it('displays error without closing dialog when name already exists', async () => {
             jest.mocked(useAddGroup).mockReturnValue(addGroup);
-            render(<GroupBox onClose={onClose} />, withReduxState(state));
+            render(
+                <MockRedux state={state}>
+                    <GroupBox onClose={onClose} />
+                </MockRedux>
+            );
             await userEvent.type(screen.getByRole('textbox'), 'Uogienės');
             await userEvent.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -102,7 +134,11 @@ describe('<GroupBox>', () => {
 
         it('closes dialog without error when successfully renamed', async () => {
             jest.mocked(useRenameGroup).mockReturnValue(renameGroup.mockResolvedValueOnce(true));
-            render(<GroupBox group="Daržovės" onClose={onClose} />, withReduxState(state));
+            render(
+                <MockRedux state={state}>
+                    <GroupBox group="Daržovės" onClose={onClose} />
+                </MockRedux>
+            );
             await userEvent.clear(screen.getByRole('textbox'));
             await userEvent.type(screen.getByRole('textbox'), 'Konservai');
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
@@ -114,7 +150,11 @@ describe('<GroupBox>', () => {
 
         it('displays error without closing dialog when rename fails', async () => {
             jest.mocked(useRenameGroup).mockReturnValue(renameGroup.mockRejectedValueOnce('Failed to rename'));
-            render(<GroupBox group="Daržovės" onClose={onClose} />, withReduxState(state));
+            render(
+                <MockRedux state={state}>
+                    <GroupBox group="Daržovės" onClose={onClose} />
+                </MockRedux>
+            );
             await userEvent.clear(screen.getByRole('textbox'));
             await userEvent.type(screen.getByRole('textbox'), 'Konservai');
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
@@ -126,7 +166,11 @@ describe('<GroupBox>', () => {
 
         it('displays error without closing dialog when empty name field left', async () => {
             jest.mocked(useRenameGroup).mockReturnValue(renameGroup);
-            render(<GroupBox group="Daržovės" onClose={onClose} />, withReduxState(state));
+            render(
+                <MockRedux state={state}>
+                    <GroupBox group="Daržovės" onClose={onClose} />
+                </MockRedux>
+            );
             await userEvent.clear(screen.getByRole('textbox'));
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
@@ -137,7 +181,11 @@ describe('<GroupBox>', () => {
 
         it('displays error without closing dialog when name already exists', async () => {
             jest.mocked(useRenameGroup).mockReturnValue(renameGroup);
-            render(<GroupBox group="Daržovės" onClose={onClose} />, withReduxState(state));
+            render(
+                <MockRedux state={state}>
+                    <GroupBox group="Daržovės" onClose={onClose} />
+                </MockRedux>
+            );
             await userEvent.clear(screen.getByRole('textbox'));
             await userEvent.type(screen.getByRole('textbox'), 'Uogienės');
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
@@ -150,7 +198,11 @@ describe('<GroupBox>', () => {
 
         it('closes without updating when name was not changed', async () => {
             jest.mocked(useRenameGroup).mockReturnValue(renameGroup);
-            render(<GroupBox group="Daržovės" onClose={onClose} />, withReduxState(state));
+            render(
+                <MockRedux state={state}>
+                    <GroupBox group="Daržovės" onClose={onClose} />
+                </MockRedux>
+            );
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
             expect(renameGroup).not.toHaveBeenCalled();

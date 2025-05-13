@@ -1,5 +1,4 @@
 /** @jest-environment node */
-
 import { mockEnv } from '@tests/mockEnv';
 import { $clients, db, getClient, withTransaction } from '~/server/db';
 import { Db, MongoClient } from 'mongodb';

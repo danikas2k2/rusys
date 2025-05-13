@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux';
 import { renderHook } from '@testing-library/react';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { GroupActionType } from '~/state/group/actions';
 import { useClearGroup } from '~/state/group/useClearGroup';
 
@@ -17,7 +17,7 @@ describe('useClearGroup', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('calls set group action', () => {
-        const { result } = renderHook(() => useClearGroup(), withReduxState());
+        const { result } = renderHook(() => useClearGroup(), { wrapper: MockRedux });
         result.current();
 
         expect(dispatch).toHaveBeenCalledWith({ type: GroupActionType.CLEAR });

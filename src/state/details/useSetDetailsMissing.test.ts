@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';
@@ -14,7 +14,7 @@ describe('useSetDetailsMissing', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('calls update action', async () => {
-        const { result } = renderHook(() => useSetDetailsMissing(), withReduxState());
+        const { result } = renderHook(() => useSetDetailsMissing(), { wrapper: MockRedux });
         await result.current('G', 'A', true);
 
         expect(request).toHaveBeenCalledWith(ApiUrl.DetailsSetMissing, {
@@ -25,7 +25,7 @@ describe('useSetDetailsMissing', () => {
     });
 
     it('calls update action with false value', async () => {
-        const { result } = renderHook(() => useSetDetailsMissing(), withReduxState());
+        const { result } = renderHook(() => useSetDetailsMissing(), { wrapper: MockRedux });
         await result.current('G', 'A', false);
 
         expect(request).toHaveBeenCalledWith(ApiUrl.DetailsSetMissing, {

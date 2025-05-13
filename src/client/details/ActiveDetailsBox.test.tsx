@@ -1,25 +1,30 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { getGroupsFixture } from '@tests/fixtures';
-import { withActiveRowContext } from '@tests/withActiveRowContext';
-import { withMany } from '@tests/withMany';
-import { withReduxState } from '@tests/withReduxState';
+import { MockActiveRow } from '@tests/MockActiveRow';
+import { MockRedux } from '@tests/MockRedux';
 import { ActiveDetailsBox } from '~/client/details/ActiveDetailsBox';
 
 describe('<ActiveDetailsBox>', () => {
     it('does not render box if not active', () => {
-        render(<ActiveDetailsBox />, withMany(withActiveRowContext(), withReduxState()));
+        render(
+            <MockRedux>
+                <MockActiveRow>
+                    <ActiveDetailsBox />
+                </MockActiveRow>
+            </MockRedux>
+        );
 
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
     it('renders box if active', () => {
         render(
-            <ActiveDetailsBox />,
-            withMany(
-                withActiveRowContext({ editing: true, group: 'Uogienės', name: 'Avietės' }),
-                withReduxState({ groups: getGroupsFixture() })
-            )
+            <MockRedux state={{ groups: getGroupsFixture() }}>
+                <MockActiveRow state={{ editing: true, group: 'Uogienės', name: 'Avietės' }}>
+                    <ActiveDetailsBox />
+                </MockActiveRow>
+            </MockRedux>
         );
 
         expect(screen.getByRole('dialog')).toBeInTheDocument();

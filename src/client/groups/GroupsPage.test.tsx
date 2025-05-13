@@ -1,8 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { withMany } from '@tests/withMany';
-import { withReduxState } from '@tests/withReduxState';
-import { withRouter } from '@tests/withRouter';
+import { MockRedux } from '@tests/MockRedux';
+import { MockRoute } from '@tests/MockRoute';
 import { GroupsPage } from './GroupsPage';
 
 jest.mock('~/client/groups/GroupsTable', () => ({
@@ -14,13 +13,25 @@ jest.mock('~/client/toolbar/ToolbarFilter', () => ({
 
 describe('<GroupsPage>', () => {
     it('renders group table', async () => {
-        render(<GroupsPage />, withMany(withRouter(), withReduxState()));
+        render(
+            <MockRedux>
+                <MockRoute>
+                    <GroupsPage />
+                </MockRoute>
+            </MockRedux>
+        );
 
         expect(screen.getByText('GroupsTable')).toBeInTheDocument();
     });
 
     it('renders toolbar filter', async () => {
-        render(<GroupsPage />, withMany(withRouter(), withReduxState()));
+        render(
+            <MockRedux>
+                <MockRoute>
+                    <GroupsPage />
+                </MockRoute>
+            </MockRedux>
+        );
 
         expect(screen.getByText('ToolbarFilter')).toBeInTheDocument();
     });

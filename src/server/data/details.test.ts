@@ -47,7 +47,7 @@ describe('details', () => {
                 {
                     group: 'Uogienės',
                     name: 'Braškės',
-                    years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }],
+                    years: [{ year: 22, amounts: [{ variant: 'p', amount: 2 }] }],
                     missing: true,
                 },
             ]);
@@ -80,6 +80,14 @@ describe('details', () => {
             await expect(addDetails('Šaldyti', 'Cukai')).resolves.toBeTrue();
             await expect(getAllDetails()).resolves.toStrictEqual([...details, { group: 'Šaldyti', name: 'Cukai' }]);
         });
+
+        it('does not add details if group is missing', async () => {
+            await expect(addDetails('', 'Cukai')).resolves.toBeFalse();
+        });
+
+        it('does not add details if name is missing', async () => {
+            await expect(addDetails('Šaldyti', '')).resolves.toBeFalse();
+        });
     });
 
     describe('updateDetails', () => {
@@ -104,6 +112,18 @@ describe('details', () => {
             );
         });
 
+        it('updates details for existing group, name, and year but with different variant', async () => {
+            const amount = { variant: 'x', amount: 1 };
+
+            await expect(updateDetails('Daržovės', 'Agurkai', 22, [amount])).resolves.toBeTrue();
+            await expect(getAllDetails()).resolves.toStrictEqual(
+                bulk(details, {
+                    $set: { '2.years.0.amounts': [{ variant: 'd', amount: 1 }, amount] },
+                    $push: { '2.updates': { time, years: [{ year: 22, amounts: [amount] }] } },
+                })
+            );
+        });
+
         it('updates details for existing group, name and year but without amounts', async () => {
             await expect(updateDetails('Uogienės', 'Avietės', 21)).resolves.toBeFalse();
             await expect(getAllDetails()).resolves.toStrictEqual(details);
@@ -122,6 +142,56 @@ describe('details', () => {
         it('updates details for existing group, name, and year without value', async () => {
             await expect(updateDetails('Daržovės', 'Agurkai', 22)).resolves.toBeFalse();
             await expect(getAllDetails()).resolves.toStrictEqual(details);
+        });
+
+        it('removes missing flag when missing and negative update received', async () => {
+            const amount = { variant: 'p', amount: -1 };
+            await updateDetails('Uogienės', 'Braškės', 22, [amount]);
+
+            await expect(getAllDetails()).resolves.toStrictEqual(
+                bulk(details, {
+                    $unset: ['1.missing'],
+                    $set: { '1.years.0.amounts.0.amount': 1 },
+                    $push: { '1.updates': { time, years: [{ year: 22, amounts: [amount] }] } },
+                })
+            );
+        });
+
+        it('does not remove missing flag when missing and positive update received', async () => {
+            const amount = { variant: 'p', amount: 1 };
+            await updateDetails('Uogienės', 'Braškės', 22, [amount]);
+
+            await expect(getAllDetails()).resolves.toStrictEqual(
+                bulk(details, {
+                    $set: { '1.years.0.amounts.0.amount': 3 },
+                    $push: { '1.updates': { time, years: [{ year: 22, amounts: [amount] }] } },
+                })
+            );
+        });
+
+        it('does not remove missing flag when missing and recycled update received', async () => {
+            const amount = { variant: 'p', amount: -1, recycled: true };
+            await updateDetails('Uogienės', 'Braškės', 22, [amount]);
+
+            await expect(getAllDetails()).resolves.toStrictEqual(
+                bulk(details, {
+                    $set: { '1.years.0.amounts.0.amount': 1 },
+                    $push: { '1.updates': { time, years: [{ year: 22, amounts: [amount] }] } },
+                })
+            );
+        });
+
+        it('removes missing flag when missing and recycled update received and no amount left', async () => {
+            const amount = { variant: 'p', amount: -2 };
+            await updateDetails('Uogienės', 'Braškės', 22, [amount]);
+
+            await expect(getAllDetails()).resolves.toStrictEqual(
+                bulk(details, {
+                    $unset: ['1.missing'],
+                    $set: { '1.years': [] },
+                    $push: { '1.updates': { time, years: [{ year: 22, amounts: [amount] }] } },
+                })
+            );
         });
     });
 

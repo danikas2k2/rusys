@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { useApiRequest } from '~/common/hooks/useApiRequest';
 import { useUpdateStateFromResponse } from '~/state/base/useUpdateStateFromResponse';
 import { useEmailCheck } from '~/state/profile/useEmailCheck';
@@ -21,7 +21,7 @@ describe('useEmailCheck', () => {
     it('calls user check', async () => {
         const response = { ok: true, allowed: true };
         request.mockResolvedValueOnce(response);
-        const { result } = renderHook(() => useEmailCheck(), withReduxState());
+        const { result } = renderHook(() => useEmailCheck(), { wrapper: MockRedux });
         await result.current('big.buddy@email.com');
 
         expect(request).toHaveBeenCalledWith('/checkUser', {
@@ -33,7 +33,7 @@ describe('useEmailCheck', () => {
     it('calls user check with empty value', async () => {
         const response = { ok: true, allowed: true };
         request.mockResolvedValueOnce(response);
-        const { result } = renderHook(() => useEmailCheck(), withReduxState());
+        const { result } = renderHook(() => useEmailCheck(), { wrapper: MockRedux });
         await result.current('');
 
         expect(request).not.toHaveBeenCalled();

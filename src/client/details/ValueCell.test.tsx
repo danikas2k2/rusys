@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import UserEvent from '@testing-library/user-event';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { ValueBox } from '~/client/details/dialogs/ValueBox';
 import { ValueCell, type ValueCellProps } from '~/client/details/ValueCell';
 import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
@@ -54,13 +54,21 @@ describe('<ValueCell>', () => {
         };
 
         it('renders cell into the document', () => {
-            render(<ValueCell {...props} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueCell {...props} />
+                </MockRedux>
+            );
 
             expect(screen.getByRole('cell', { name: '2 p 3 d' })).toBeInTheDocument();
         });
 
         it('handles long press', async () => {
-            render(<ValueCell {...props} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueCell {...props} />
+                </MockRedux>
+            );
             await userEvent.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
             act(() => jest.advanceTimersByTime(500));
 
@@ -69,7 +77,11 @@ describe('<ValueCell>', () => {
         });
 
         it('handles short press when not editing', async () => {
-            render(<ValueCell {...props} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueCell {...props} />
+                </MockRedux>
+            );
             await userEvent.click(screen.getByRole('cell'));
             act(() => jest.advanceTimersByTime(100));
 
@@ -92,7 +104,11 @@ describe('<ValueCell>', () => {
                     ValueBox
                 </button>
             ));
-            render(<ValueCell {...props} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueCell {...props} />
+                </MockRedux>
+            );
             await userEvent.click(screen.getByRole('cell'));
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByRole('button', { name: 'ValueBox' }));
@@ -109,7 +125,11 @@ describe('<ValueCell>', () => {
             jest.mocked(ValueBox).mockImplementation(({ onClose }) => (
                 <button onClick={() => onClose?.()}>ValueBox</button>
             ));
-            render(<ValueCell {...props} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueCell {...props} />
+                </MockRedux>
+            );
             await userEvent.click(screen.getByRole('cell'));
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByRole('button', { name: 'ValueBox' }));
@@ -123,13 +143,21 @@ describe('<ValueCell>', () => {
         const props: Omit<ValueCellProps, 'onChange'> = { ...defaultProps, amounts: [] };
 
         it('renders cell into the document', () => {
-            render(<ValueCell {...props} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueCell {...props} />
+                </MockRedux>
+            );
 
             expect(screen.getByRole('cell', { name: '.' })).toBeInTheDocument();
         });
 
         it('does not handle long press for empty cell', async () => {
-            render(<ValueCell {...props} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueCell {...props} />
+                </MockRedux>
+            );
             await userEvent.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
             act(() => jest.advanceTimersByTime(500));
 
@@ -138,7 +166,11 @@ describe('<ValueCell>', () => {
         });
 
         it('handles short press when not editing', async () => {
-            render(<ValueCell {...props} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueCell {...props} />
+                </MockRedux>
+            );
             await userEvent.click(screen.getByRole('cell'));
             act(() => jest.advanceTimersByTime(100));
 
@@ -161,7 +193,11 @@ describe('<ValueCell>', () => {
                     ValueBox
                 </button>
             ));
-            render(<ValueCell {...props} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueCell {...props} />
+                </MockRedux>
+            );
             await userEvent.click(screen.getByRole('cell'));
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByRole('button', { name: 'ValueBox' }));
@@ -178,7 +214,11 @@ describe('<ValueCell>', () => {
             jest.mocked(ValueBox).mockImplementation(({ onClose }) => (
                 <button onClick={() => onClose?.()}>ValueBox</button>
             ));
-            render(<ValueCell {...props} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueCell {...props} />
+                </MockRedux>
+            );
             await userEvent.click(screen.getByRole('cell'));
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByRole('button', { name: 'ValueBox' }));

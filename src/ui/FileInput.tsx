@@ -126,6 +126,7 @@ export function FileInput({
                         onKeyDown={handleKey}
                         onKeyUp={handleKey}
                         onInput={handleInput}
+                        placeholder={placeholder}
                         {...props}
                     />
                     {endDecorator && (

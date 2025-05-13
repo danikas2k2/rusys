@@ -61,7 +61,7 @@ export const getDetailsFixture = (): Details[] => [
     {
         group: 'Uogienės',
         name: 'Braškės',
-        years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }],
+        years: [{ year: 22, amounts: [{ variant: 'p', amount: 2 }] }],
         missing: true,
         updates: [
             {

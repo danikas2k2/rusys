@@ -41,7 +41,7 @@ describe('<DetailsGroups>', () => {
                     group: 'Uogienės',
                     name: 'Braškės',
                     missing: true,
-                    years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }],
+                    years: [{ year: 22, amounts: [{ variant: 'p', amount: 2 }] }],
                 }),
                 undefined
             )
@@ -90,7 +90,7 @@ describe('<DetailsGroups>', () => {
                     group: 'Uogienės',
                     name: 'Braškės',
                     missing: true,
-                    years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }],
+                    years: [{ year: 22, amounts: [{ variant: 'p', amount: 2 }] }],
                 }),
                 undefined
             );

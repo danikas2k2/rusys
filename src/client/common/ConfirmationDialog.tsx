@@ -1,10 +1,9 @@
-import React, { cloneElement, useEffect, type MouseEvent, type ReactElement, type ReactNode } from 'react';
+import React, { cloneElement, type MouseEvent, type ReactElement, type ReactNode } from 'react';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
 import DoneIcon from '@assets/done.svg';
 import { Button, IconButton, type ButtonProps } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
-import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { Label } from '~/client/common/Label';
 import cx from './ConfirmationDialog.less';
 
@@ -47,12 +46,6 @@ export function ConfirmationDialog({
     className,
     children,
 }: ConfirmationDialogProps) {
-    const focusRef = useAutoFocus<HTMLButtonElement>();
-    useEffect(() => {
-        if (open) {
-            focusRef?.focus();
-        }
-    }, [open, focusRef]);
     return (
         <Dialog
             role="alertdialog"

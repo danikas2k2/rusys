@@ -1,9 +1,8 @@
-import React, {
+import {
     cloneElement,
     isValidElement,
     type FunctionComponent,
     type HTMLAttributes,
-    type JSX,
     type ReactNode,
     type RefAttributes,
 } from 'react';
@@ -25,19 +24,4 @@ export function renderElement<P extends HTMLAttributes<T> & RefAttributes<T>, T 
         return cloneElement(element, { ...defaultProps, ...(element.props as HTMLAttributes<T>), ...props });
     }
     return element;
-}
-
-export function RenderElement<P extends HTMLAttributes<T> & RefAttributes<T>, T extends HTMLElement = HTMLElement>({
-    element,
-    props = {} as P,
-    defaultProps = {} as P,
-}: {
-    element: ReactNodeOrFunction<P, T>;
-    props: P & RefAttributes<T>;
-    defaultProps: P & RefAttributes<T>;
-}): JSX.Element | null {
-    if (isValidElement(element)) {
-        return cloneElement(element, { ...defaultProps, ...(element.props as HTMLAttributes<T>), ...props });
-    }
-    return <>{typeof element === 'function' ? element({ ...defaultProps, ...props }) : element}</>;
 }

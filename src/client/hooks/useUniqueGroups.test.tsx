@@ -1,25 +1,32 @@
+import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { getDetailsFixture, getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { useUniqueGroups } from '~/client/hooks/useUniqueGroups';
 
 describe('useUniqueGroups', () => {
     const state = { groups: getGroupsFixture() };
 
     it('returns unique groups from variants', () => {
-        const { result } = renderHook(() => useUniqueGroups(getVariantsFixture()), withReduxState(state));
+        const { result } = renderHook(() => useUniqueGroups(getVariantsFixture()), {
+            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+        });
 
         expect(result.current).toStrictEqual(['Uogienės', 'Daržovės']);
     });
 
     it('returns unique groups from details', () => {
-        const { result } = renderHook(() => useUniqueGroups(getDetailsFixture()), withReduxState(state));
+        const { result } = renderHook(() => useUniqueGroups(getDetailsFixture()), {
+            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+        });
 
         expect(result.current).toStrictEqual(['Uogienės', 'Daržovės']);
     });
 
     it('returns empty group list for empty list', () => {
-        const { result } = renderHook(() => useUniqueGroups([]), withReduxState(state));
+        const { result } = renderHook(() => useUniqueGroups([]), {
+            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+        });
 
         expect(result.current).toStrictEqual([]);
     });

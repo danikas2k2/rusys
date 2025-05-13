@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { ToolbarFilter } from '~/client/toolbar/ToolbarFilter';
 import { useClearFilter } from '~/state/filter/useClearFilter';
 import { useFilter } from '~/state/filter/useFilter';
@@ -21,7 +21,11 @@ describe('<ToolbarFilter>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('renders input field with placeholder', () => {
-        render(<ToolbarFilter />, withReduxState());
+        render(
+            <MockRedux>
+                <ToolbarFilter />
+            </MockRedux>
+        );
 
         expect(screen.getByPlaceholderText('type to filter')).toBeInTheDocument();
     });
@@ -30,7 +34,11 @@ describe('<ToolbarFilter>', () => {
         const setFilter = jest.fn();
         jest.mocked(useSetFilter).mockReturnValue(setFilter);
 
-        render(<ToolbarFilter />, withReduxState());
+        render(
+            <MockRedux>
+                <ToolbarFilter />
+            </MockRedux>
+        );
 
         await userEvent.type(screen.getByPlaceholderText('type to filter'), 'x');
 
@@ -42,7 +50,11 @@ describe('<ToolbarFilter>', () => {
         jest.mocked(useClearFilter).mockReturnValue(clearFilter);
         jest.mocked(useFilter).mockReturnValue('x');
 
-        render(<ToolbarFilter />, withReduxState());
+        render(
+            <MockRedux>
+                <ToolbarFilter />
+            </MockRedux>
+        );
 
         await userEvent.click(screen.getByRole('button', { name: 'Clear' }));
 

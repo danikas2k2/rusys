@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { LogoutButton } from '~/client/user/LogoutButton';
 import { useResetProfile } from '~/state/profile/useResetProfile';
 import { googleLogout } from '@react-oauth/google';
@@ -24,19 +24,31 @@ describe('<LogoutButton>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('renders ProfileAvatar when no children are provided', () => {
-        render(<LogoutButton />, withReduxState());
+        render(
+            <MockRedux>
+                <LogoutButton />
+            </MockRedux>
+        );
 
         expect(screen.getByText('ProfileAvatar')).toBeInTheDocument();
     });
 
     it('renders children when provided', () => {
-        render(<LogoutButton>Test Child</LogoutButton>, withReduxState());
+        render(
+            <MockRedux>
+                <LogoutButton>Test Child</LogoutButton>
+            </MockRedux>
+        );
 
         expect(screen.getByText('Test Child')).toBeInTheDocument();
     });
 
     it('opens ConfirmationDialog when button is clicked', async () => {
-        render(<LogoutButton />, withReduxState());
+        render(
+            <MockRedux>
+                <LogoutButton />
+            </MockRedux>
+        );
 
         await userEvent.click(screen.getByRole('button'));
 
@@ -44,7 +56,11 @@ describe('<LogoutButton>', () => {
     });
 
     it('calls googleLogout and dispatches resetProfileAction when confirm is clicked', async () => {
-        render(<LogoutButton />, withReduxState());
+        render(
+            <MockRedux>
+                <LogoutButton />
+            </MockRedux>
+        );
 
         await userEvent.click(screen.getByRole('button', { name: 'ProfileAvatar' }));
         await userEvent.click(screen.getByRole('button', { name: 'Logout' }));

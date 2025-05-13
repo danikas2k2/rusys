@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { getSummaryFixture } from '@tests/fixtures';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { SummaryGroups } from '~/client/summary/SummaryGroups';
 
 jest.mock('~/state/years/useYears');
@@ -11,7 +11,11 @@ describe('<SummaryGroups>', () => {
     const summary = getSummaryFixture();
 
     it('renders table structure', () => {
-        render(<SummaryGroups groups={groups} summary={summary} />, withReduxState());
+        render(
+            <MockRedux>
+                <SummaryGroups groups={groups} summary={summary} />
+            </MockRedux>
+        );
 
         const rows = screen.getAllByRole('row');
 

@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux';
 import { renderHook } from '@testing-library/react';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { GroupActionType } from '~/state/group/actions';
 import { useSetGroup } from '~/state/group/useSetGroup';
 
@@ -17,14 +17,14 @@ describe('useSetGroup', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('calls set group action', () => {
-        const { result } = renderHook(() => useSetGroup(), withReduxState());
+        const { result } = renderHook(() => useSetGroup(), { wrapper: MockRedux });
         result.current('grouped');
 
         expect(dispatch).toHaveBeenCalledWith({ type: GroupActionType.SET, group: 'grouped' });
     });
 
     it('calls set group action with empty value', () => {
-        const { result } = renderHook(() => useSetGroup(), withReduxState());
+        const { result } = renderHook(() => useSetGroup(), { wrapper: MockRedux });
         result.current('');
 
         expect(dispatch).toHaveBeenCalledWith({ type: GroupActionType.SET, group: '' });

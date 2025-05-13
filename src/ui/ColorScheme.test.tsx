@@ -1,8 +1,7 @@
 import { use } from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { mockLocalStorage } from '@tests/mockLocalStorage';
-import { withColorState } from '@tests/withColorState';
-import { COLOR_SCHEME_KEY, ColorSchemeContext } from '@ui/ColorScheme';
+import { COLOR_SCHEME_KEY, ColorSchemeContext, ColorSchemeState } from '@ui/ColorScheme';
 
 describe('<ColorSchemeState>', () => {
     const localStorage = mockLocalStorage();
@@ -10,7 +9,7 @@ describe('<ColorSchemeState>', () => {
     afterEach(() => localStorage.clear());
 
     it('initializes with auto color scheme', () => {
-        const { result } = renderHook(() => use(ColorSchemeContext), withColorState());
+        const { result } = renderHook(() => use(ColorSchemeContext), { wrapper: ColorSchemeState });
         const [colorScheme] = result.current;
 
         expect(colorScheme).toBe('auto');
@@ -18,14 +17,14 @@ describe('<ColorSchemeState>', () => {
 
     it('initializes with stored color scheme', () => {
         localStorage.setItem(COLOR_SCHEME_KEY, 'dark');
-        const { result } = renderHook(() => use(ColorSchemeContext), withColorState());
+        const { result } = renderHook(() => use(ColorSchemeContext), { wrapper: ColorSchemeState });
         const [colorScheme] = result.current;
 
         expect(colorScheme).toBe('dark');
     });
 
     it('updates color scheme', () => {
-        const { result } = renderHook(() => use(ColorSchemeContext), withColorState());
+        const { result } = renderHook(() => use(ColorSchemeContext), { wrapper: ColorSchemeState });
         const [, setColorScheme] = result.current;
         act(() => setColorScheme('light'));
         const [colorScheme] = result.current;
@@ -34,7 +33,7 @@ describe('<ColorSchemeState>', () => {
     });
 
     it('stores color scheme', () => {
-        const { result } = renderHook(() => use(ColorSchemeContext), withColorState());
+        const { result } = renderHook(() => use(ColorSchemeContext), { wrapper: ColorSchemeState });
         const [, setColorScheme] = result.current;
         act(() => setColorScheme('dark'));
 
@@ -43,7 +42,7 @@ describe('<ColorSchemeState>', () => {
 
     it('removes stored color scheme when set to auto', () => {
         localStorage.setItem(COLOR_SCHEME_KEY, 'dark');
-        const { result } = renderHook(() => use(ColorSchemeContext), withColorState());
+        const { result } = renderHook(() => use(ColorSchemeContext), { wrapper: ColorSchemeState });
         const [, setColorScheme] = result.current;
         act(() => setColorScheme('auto'));
 
@@ -51,7 +50,7 @@ describe('<ColorSchemeState>', () => {
     });
 
     it('updates color scheme on storage event', () => {
-        const { result } = renderHook(() => use(ColorSchemeContext), withColorState());
+        const { result } = renderHook(() => use(ColorSchemeContext), { wrapper: ColorSchemeState });
         act(() => {
             window.dispatchEvent(
                 new StorageEvent('storage', {

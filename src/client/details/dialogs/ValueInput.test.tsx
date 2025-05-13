@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { ValueChange } from '~/client/details/dialogs/ValueChange';
 import { ValueInput } from '~/client/details/dialogs/ValueInput';
 
@@ -21,8 +21,9 @@ describe('<ValueInput>', () => {
     describe('calls onClose when Enter key is pressed', () => {
         it('on the input', async () => {
             render(
-                <ValueInput group="G" variant="" amount={2} onClose={onClose} onChange={onChange} />,
-                withReduxState()
+                <MockRedux>
+                    <ValueInput group="G" variant="" amount={2} onClose={onClose} onChange={onChange} />
+                </MockRedux>
             );
             await userEvent.type(screen.getByRole('textbox'), '{Enter}');
 
@@ -31,8 +32,9 @@ describe('<ValueInput>', () => {
 
         it('on the increase button', async () => {
             render(
-                <ValueInput group="G" variant="" amount={2} onClose={onClose} onChange={onChange} />,
-                withReduxState()
+                <MockRedux>
+                    <ValueInput group="G" variant="" amount={2} onClose={onClose} onChange={onChange} />
+                </MockRedux>
             );
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Increase' }), '{Enter}');
 
@@ -41,8 +43,9 @@ describe('<ValueInput>', () => {
 
         it('on the decrease button', async () => {
             render(
-                <ValueInput group="G" variant="" amount={2} onClose={onClose} onChange={onChange} />,
-                withReduxState()
+                <MockRedux>
+                    <ValueInput group="G" variant="" amount={2} onClose={onClose} onChange={onChange} />
+                </MockRedux>
             );
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Decrease' }), '{Enter}');
 
@@ -53,8 +56,9 @@ describe('<ValueInput>', () => {
     describe('calls onChange when amount is increased', () => {
         it('pressing arrow up on the input element', async () => {
             render(
-                <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />,
-                withReduxState()
+                <MockRedux>
+                    <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                </MockRedux>
             );
             await userEvent.type(screen.getByRole('textbox'), '{ArrowUp}');
 
@@ -64,8 +68,9 @@ describe('<ValueInput>', () => {
 
         it('clicking the increase button', async () => {
             render(
-                <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />,
-                withReduxState()
+                <MockRedux>
+                    <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                </MockRedux>
             );
             await userEvent.click(screen.getByRole('spinbutton', { name: 'Increase' }));
 
@@ -75,8 +80,9 @@ describe('<ValueInput>', () => {
 
         it('pressing arrow up on the increase button', async () => {
             render(
-                <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />,
-                withReduxState()
+                <MockRedux>
+                    <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                </MockRedux>
             );
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Increase' }), '{ArrowUp}');
 
@@ -86,8 +92,9 @@ describe('<ValueInput>', () => {
 
         it('pressing arrow up on the decrease button', async () => {
             render(
-                <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />,
-                withReduxState()
+                <MockRedux>
+                    <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                </MockRedux>
             );
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Decrease' }), '{ArrowUp}');
 
@@ -99,8 +106,9 @@ describe('<ValueInput>', () => {
     describe('calls onChange when amount is decreased', () => {
         it('pressing arrow down on the input element', async () => {
             render(
-                <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />,
-                withReduxState()
+                <MockRedux>
+                    <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                </MockRedux>
             );
             await userEvent.type(screen.getByRole('textbox'), '{ArrowDown}');
 
@@ -110,8 +118,9 @@ describe('<ValueInput>', () => {
 
         it('clicking the decrease button', async () => {
             render(
-                <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />,
-                withReduxState()
+                <MockRedux>
+                    <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                </MockRedux>
             );
             await userEvent.click(screen.getByRole('spinbutton', { name: 'Decrease' }));
 
@@ -121,8 +130,9 @@ describe('<ValueInput>', () => {
 
         it('pressing arrow down on the decrease button', async () => {
             render(
-                <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />,
-                withReduxState()
+                <MockRedux>
+                    <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                </MockRedux>
             );
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Decrease' }), '{ArrowDown}');
 
@@ -132,8 +142,9 @@ describe('<ValueInput>', () => {
 
         it('pressing arrow down on the increase button', async () => {
             render(
-                <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />,
-                withReduxState()
+                <MockRedux>
+                    <ValueInput group="G" variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                </MockRedux>
             );
             await userEvent.type(screen.getByRole('spinbutton', { name: 'Increase' }), '{ArrowDown}');
 
@@ -143,7 +154,11 @@ describe('<ValueInput>', () => {
     });
 
     it('calls onChange when input amount is changed', async () => {
-        render(<ValueInput group="G" variant="p" onClose={onClose} onChange={onChange} />, withReduxState());
+        render(
+            <MockRedux>
+                <ValueInput group="G" variant="p" onClose={onClose} onChange={onChange} />
+            </MockRedux>
+        );
         await userEvent.type(screen.getByRole('textbox'), '5');
 
         expect(onChange).toHaveBeenCalledWith('p', 5);
@@ -151,7 +166,11 @@ describe('<ValueInput>', () => {
     });
 
     it('does not call onChange when input amount is not a number', async () => {
-        render(<ValueInput group="G" variant="" onClose={onClose} onChange={onChange} />, withReduxState());
+        render(
+            <MockRedux>
+                <ValueInput group="G" variant="" onClose={onClose} onChange={onChange} />
+            </MockRedux>
+        );
         await userEvent.type(screen.getByRole('textbox'), 'a');
 
         expect(onChange).not.toHaveBeenCalled();
@@ -160,21 +179,33 @@ describe('<ValueInput>', () => {
 
     describe('difference status', () => {
         it('renders with positive change', async () => {
-            render(<ValueInput group="G" variant="" amount={2} change={1} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueInput group="G" variant="" amount={2} change={1} />
+                </MockRedux>
+            );
 
             expect(screen.getByRole('textbox')).toHaveValue('3');
             expect(ValueChange).toHaveBeenCalledWith({ change: 1 }, undefined);
         });
 
         it('renders with negative change', async () => {
-            render(<ValueInput group="G" variant="" amount={2} change={-1} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueInput group="G" variant="" amount={2} change={-1} />
+                </MockRedux>
+            );
 
             expect(screen.getByRole('textbox')).toHaveValue('1');
             expect(ValueChange).toHaveBeenCalledWith({ change: -1 }, undefined);
         });
 
         it('renders with zero change', async () => {
-            render(<ValueInput group="G" variant="" amount={2} change={0} />, withReduxState());
+            render(
+                <MockRedux>
+                    <ValueInput group="G" variant="" amount={2} change={0} />
+                </MockRedux>
+            );
 
             expect(screen.getByRole('textbox')).toHaveValue('2');
             expect(ValueChange).toHaveBeenCalledWith({ change: 0 }, undefined);

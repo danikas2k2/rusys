@@ -1,6 +1,7 @@
+import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { mockLocalStorage } from '@tests/mockLocalStorage';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { isDevMode } from '~/common/utils/env';
 import { profile as reducer } from '~/state/profile/reducer';
 import { type Profile } from '~/state/profile/types';
@@ -30,7 +31,13 @@ describe('useProfile', () => {
     const { getItem } = mockLocalStorage();
 
     it('return stored profile', () => {
-        const { result } = renderHook(() => useProfile(), withReduxState({ profile: value }, { profile: reducer }));
+        const { result } = renderHook(() => useProfile(), {
+            wrapper: ({ children }) => (
+                <MockRedux state={{ profile: value }} reducers={{ profile: reducer }}>
+                    {children}
+                </MockRedux>
+            ),
+        });
 
         expect(result.current).toStrictEqual(value);
         expect(getItem).not.toHaveBeenCalled();
@@ -38,7 +45,9 @@ describe('useProfile', () => {
     });
 
     it('return empty profile for empty state', () => {
-        const { result } = renderHook(() => useProfile(), withReduxState({}, { profile: reducer }));
+        const { result } = renderHook(() => useProfile(), {
+            wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
+        });
 
         expect(result.current).toStrictEqual({});
         expect(getItem).toHaveBeenCalledWith('profile');
@@ -47,7 +56,9 @@ describe('useProfile', () => {
 
     it('return profile from localStorage and store it to redux', () => {
         getItem.mockReturnValueOnce(JSON.stringify(value));
-        const { result } = renderHook(() => useProfile(), withReduxState({}, { profile: reducer }));
+        const { result } = renderHook(() => useProfile(), {
+            wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
+        });
 
         expect(result.current).toStrictEqual(value);
         expect(getItem).toHaveBeenCalledWith('profile');
@@ -56,7 +67,13 @@ describe('useProfile', () => {
 
     it('return current profile if dev mode enabled but has profile', () => {
         jest.mocked(isDevMode).mockReturnValue(true);
-        const { result } = renderHook(() => useProfile(), withReduxState({ profile: value }, { profile: reducer }));
+        const { result } = renderHook(() => useProfile(), {
+            wrapper: ({ children }) => (
+                <MockRedux state={{ profile: value }} reducers={{ profile: reducer }}>
+                    {children}
+                </MockRedux>
+            ),
+        });
 
         expect(result.current).toStrictEqual(value);
     });
@@ -64,7 +81,9 @@ describe('useProfile', () => {
     it('return profile from localStorage if dev mode enabled', () => {
         jest.mocked(isDevMode).mockReturnValueOnce(true);
         getItem.mockReturnValueOnce(JSON.stringify(value));
-        const { result } = renderHook(() => useProfile(), withReduxState({}, { profile: reducer }));
+        const { result } = renderHook(() => useProfile(), {
+            wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
+        });
 
         expect(result.current).toStrictEqual(value);
         expect(getItem).toHaveBeenCalledWith('profile');
@@ -73,7 +92,9 @@ describe('useProfile', () => {
 
     it('return dev profile if dev mode enabled and has no profile neither in state nor in localStorage', () => {
         jest.mocked(isDevMode).mockReturnValueOnce(true);
-        const { result } = renderHook(() => useProfile(), withReduxState({}, { profile: reducer }));
+        const { result } = renderHook(() => useProfile(), {
+            wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
+        });
 
         expect(result.current).toStrictEqual(DEV_MODE_PROFILE);
         expect(getItem).toHaveBeenCalledWith('profile');

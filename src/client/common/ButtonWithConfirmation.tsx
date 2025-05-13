@@ -43,9 +43,9 @@ export function ButtonWithConfirmation({
 
     const button = isButtonElement(children) ? (
         children.type === 'button' ? (
-            cloneElement(children as ReactElement<ButtonProps>, {
-                onClick: handleOpen,
-            })
+            <Button onClick={handleOpen} {...props}>
+                {children.props.children}
+            </Button>
         ) : (
             cloneElement(children as ReactElement<ButtonProps>, {
                 onClick: handleOpen,

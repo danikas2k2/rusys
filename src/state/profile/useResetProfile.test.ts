@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux';
 import { act, renderHook } from '@testing-library/react';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { resetProfileAction } from '~/state/profile/actions';
 import { useResetProfile } from '~/state/profile/useResetProfile';
 
@@ -17,7 +17,7 @@ describe('useResetProfile', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('dispatches resetProfileAction', () => {
-        const { result } = renderHook(() => useResetProfile(), withReduxState());
+        const { result } = renderHook(() => useResetProfile(), { wrapper: MockRedux });
 
         act(() => result.current());
 

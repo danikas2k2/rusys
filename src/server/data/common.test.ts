@@ -1,5 +1,4 @@
 /** @jest-environment node */
-
 import { getDetailsFixture, getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import {
     deleteGroupOccurrences,

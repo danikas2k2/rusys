@@ -1,9 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { withMany } from '@tests/withMany';
-import { withReduxState } from '@tests/withReduxState';
-import { withRouter } from '@tests/withRouter';
+import { MockRedux } from '@tests/MockRedux';
+import { MockRoute } from '@tests/MockRoute';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { Links } from '~/client/Links';
 import { ToolbarMenu } from '~/client/toolbar/ToolbarMenu';
@@ -25,13 +24,25 @@ jest.mock('~/client/variants/dialogs/VariantBox', () => ({
 describe('<ToolbarMenu>', () => {
     describe('details page', () => {
         it('renders details menu collapsed by default', async () => {
-            render(<ToolbarMenu />, withMany(withRouter([Links.DETAILS]), withReduxState()));
+            render(
+                <MockRedux>
+                    <MockRoute initialEntries={[Links.DETAILS]}>
+                        <ToolbarMenu />
+                    </MockRoute>
+                </MockRedux>
+            );
 
             expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
         });
 
         it('renders details menu items', async () => {
-            render(<ToolbarMenu />, withMany(withRouter([Links.DETAILS]), withReduxState()));
+            render(
+                <MockRedux>
+                    <MockRoute initialEntries={[Links.DETAILS]}>
+                        <ToolbarMenu />
+                    </MockRoute>
+                </MockRedux>
+            );
 
             await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
 
@@ -45,7 +56,13 @@ describe('<ToolbarMenu>', () => {
         });
 
         it('renders DetailsBox on click', async () => {
-            render(<ToolbarMenu />, withMany(withRouter([Links.DETAILS]), withReduxState()));
+            render(
+                <MockRedux>
+                    <MockRoute initialEntries={[Links.DETAILS]}>
+                        <ToolbarMenu />
+                    </MockRoute>
+                </MockRedux>
+            );
 
             await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
             await userEvent.click(screen.getByRole('menuitem', { name: 'Add' }));
@@ -56,13 +73,25 @@ describe('<ToolbarMenu>', () => {
 
     describe('groups page', () => {
         it('renders groups menu collapsed by default', async () => {
-            render(<ToolbarMenu />, withMany(withRouter([Links.GROUPS]), withReduxState()));
+            render(
+                <MockRedux>
+                    <MockRoute initialEntries={[Links.GROUPS]}>
+                        <ToolbarMenu />
+                    </MockRoute>
+                </MockRedux>
+            );
 
             expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
         });
 
         it('renders groups menu items', async () => {
-            render(<ToolbarMenu />, withMany(withRouter([Links.GROUPS]), withReduxState()));
+            render(
+                <MockRedux>
+                    <MockRoute initialEntries={[Links.GROUPS]}>
+                        <ToolbarMenu />
+                    </MockRoute>
+                </MockRedux>
+            );
 
             await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
 
@@ -76,7 +105,13 @@ describe('<ToolbarMenu>', () => {
         });
 
         it('renders GroupBox on click', async () => {
-            render(<ToolbarMenu />, withMany(withRouter([Links.GROUPS]), withReduxState()));
+            render(
+                <MockRedux>
+                    <MockRoute initialEntries={[Links.GROUPS]}>
+                        <ToolbarMenu />
+                    </MockRoute>
+                </MockRedux>
+            );
 
             await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
             await userEvent.click(screen.getByRole('menuitem', { name: 'Add' }));
@@ -87,13 +122,25 @@ describe('<ToolbarMenu>', () => {
 
     describe('variants page', () => {
         it('renders variants menu collapsed by default', async () => {
-            render(<ToolbarMenu />, withMany(withRouter([Links.VARIANTS]), withReduxState()));
+            render(
+                <MockRedux>
+                    <MockRoute initialEntries={[Links.VARIANTS]}>
+                        <ToolbarMenu />
+                    </MockRoute>
+                </MockRedux>
+            );
 
             expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
         });
 
         it('renders variants menu items', async () => {
-            render(<ToolbarMenu />, withMany(withRouter([Links.VARIANTS]), withReduxState()));
+            render(
+                <MockRedux>
+                    <MockRoute initialEntries={[Links.VARIANTS]}>
+                        <ToolbarMenu />
+                    </MockRoute>
+                </MockRedux>
+            );
 
             await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
 
@@ -107,7 +154,13 @@ describe('<ToolbarMenu>', () => {
         });
 
         it('renders VariantBox on click', async () => {
-            render(<ToolbarMenu />, withMany(withRouter([Links.VARIANTS]), withReduxState()));
+            render(
+                <MockRedux>
+                    <MockRoute initialEntries={[Links.VARIANTS]}>
+                        <ToolbarMenu />
+                    </MockRoute>
+                </MockRedux>
+            );
 
             await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
             await userEvent.click(screen.getByRole('menuitem', { name: 'Add' }));
@@ -118,13 +171,25 @@ describe('<ToolbarMenu>', () => {
 
     describe('summary page', () => {
         it('renders details menu collapsed by default', async () => {
-            render(<ToolbarMenu />, withMany(withRouter([Links.SUMMARY]), withReduxState()));
+            render(
+                <MockRedux>
+                    <MockRoute initialEntries={[Links.SUMMARY]}>
+                        <ToolbarMenu />
+                    </MockRoute>
+                </MockRedux>
+            );
 
             expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
         });
 
         it('renders details menu items', async () => {
-            render(<ToolbarMenu />, withMany(withRouter([Links.SUMMARY]), withReduxState()));
+            render(
+                <MockRedux>
+                    <MockRoute initialEntries={[Links.SUMMARY]}>
+                        <ToolbarMenu />
+                    </MockRoute>
+                </MockRedux>
+            );
 
             await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
 

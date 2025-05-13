@@ -1,4 +1,4 @@
-import React, { useActionState, useCallback, useEffect, useState, type FormEvent } from 'react';
+import React, { useActionState, useCallback, useState, type SyntheticEvent } from 'react';
 import { useFormStatus } from 'react-dom';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
@@ -50,20 +50,25 @@ function ImportFooter({ onCancel, onSubmit }: ImportFooterProps) {
 
 export function ImportBox({ onClose }: ImportBoxProps) {
     // const [updating, setUpdating] = useState(false);
-    const [file, setFile] = useState<string>();
+    // const [file, setFile] = useState<string>();
     const [errors, setErrors] = useState<Record<string, string>>();
 
     const handleImport = useImportHandler();
-    const [, formAction] = useActionState<{ file?: File }, FormData>(async (newState, data) => {
+    const [, formAction] = useActionState<{ import?: File }, FormData>(async (state, data) => {
         await handleImport(data);
-        return newState;
+        return state;
     }, {});
 
-    useEffect(() => {
-        setErrors(undefined);
-    }, [file]);
+    // console.info('ImportBox: formAction', state, (data.get('import') as File).name);
+    // useEffect(() => {
+    //     setErrors(undefined);
+    // }, [file]);
 
     const fileRef = useAutoFocus<HTMLInputElement>();
+
+    // console.info({
+    //     state,
+    // });
 
     /*const handleSubmit = useCallback(async (): Promise<void> => {
         const newErrors: Record<string, string> = {};
@@ -87,9 +92,16 @@ export function ImportBox({ onClose }: ImportBoxProps) {
         }
     }, [fileRef, file, handleImport, onClose]);*/
 
-    const handleClose = useCallback((): void => onClose(), [onClose]);
+    const handleClose = useCallback(
+        (e: SyntheticEvent): void => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+        },
+        [onClose]
+    );
 
-    const handleFileInput = useCallback((e: FormEvent<HTMLInputElement>) => setFile(e.currentTarget.value), []);
+    // const handleFileInput = useCallback((e: FormEvent<HTMLInputElement>) => setFile(e.currentTarget.value), []);
 
     // const handleEnter = useCallback(
     //     (e: KeyboardEvent<HTMLInputElement>) => {
@@ -104,7 +116,7 @@ export function ImportBox({ onClose }: ImportBoxProps) {
     const errorLabel = useLabel(errors?._ ?? '');
 
     return (
-        <Dialog className={cx('ImportBox')} open onClose={handleClose}>
+        <Dialog className={cx('ImportBox')} open onClose={onClose}>
             <form action={formAction}>
                 <header>
                     <div className={cx('title')}>
@@ -117,21 +129,30 @@ export function ImportBox({ onClose }: ImportBoxProps) {
                     </div>
                 </header>
                 <main>
-                    <FileInput
+                    {/*<FileInput
                         ref={fileRef}
                         name="import"
-                        accept=".json"
+                        accept="application/json"
                         fullWidth
                         color={errors?._ || errors?.variant ? 'negative' : 'primary'}
                         invalid={!!errors?._ || !!errors?.variant}
                         error={errors?._ ? errorLabel : undefined}
                         size="large"
                         placeholder={useLabel(PLACEHOLDER)}
-                        onInput={handleFileInput}
+                        // onInput={handleFileInput}
                         // onKeyDown={handleEnter}
+                    />*/}
+                    <input
+                        ref={fileRef}
+                        type="file"
+                        name="import"
+                        accept="application/json"
+                        className={cx('FileInput')}
+                        placeholder={useLabel(PLACEHOLDER)}
+                        // required
                     />
                 </main>
-                <ImportFooter onCancel={handleClose} /*onSubmit={handleSubmit}*/ />
+                <ImportFooter onCancel={onClose} />
             </form>
         </Dialog>
     );

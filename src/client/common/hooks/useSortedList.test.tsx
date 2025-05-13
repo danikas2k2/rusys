@@ -1,11 +1,12 @@
+import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { getGroupsFixture, getSummaryFixture } from '@tests/fixtures';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { useSortedList } from '~/client/common/hooks/useSortedList';
 
 describe('useSortedList', () => {
     it('returns sorted summary if group orders are not available', () => {
-        const { result } = renderHook(() => useSortedList(getSummaryFixture()), withReduxState());
+        const { result } = renderHook(() => useSortedList(getSummaryFixture()), { wrapper: MockRedux });
 
         expect(result.current).toStrictEqual([
             expect.objectContaining({ group: 'Daržovės', name: 'Agurkai' }),
@@ -16,10 +17,9 @@ describe('useSortedList', () => {
     });
 
     it('returns sorted summary if group orders are available', () => {
-        const { result } = renderHook(
-            () => useSortedList(getSummaryFixture()),
-            withReduxState({ groups: getGroupsFixture() })
-        );
+        const { result } = renderHook(() => useSortedList(getSummaryFixture()), {
+            wrapper: ({ children }) => <MockRedux state={{ groups: getGroupsFixture() }}>{children}</MockRedux>,
+        });
 
         expect(result.current).toStrictEqual([
             expect.objectContaining({ group: 'Uogienės', name: 'Avietės' }),

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { SortableGroup } from '~/client/variants/SortableGroup';
 import { SortableGroups } from '~/client/variants/SortableGroups';
 
@@ -17,7 +17,11 @@ describe('<SortableGroups>', () => {
     const groups = ['Uogienės', 'Daržovės'];
 
     it('renders with groups', () => {
-        render(<SortableGroups groups={groups} />, withReduxState());
+        render(
+            <MockRedux>
+                <SortableGroups groups={groups} />
+            </MockRedux>
+        );
 
         expect(SortableGroup).toHaveBeenCalledTimes(groups.length);
 
@@ -27,7 +31,11 @@ describe('<SortableGroups>', () => {
     });
 
     it('resets active variant when clicking outside the row', async () => {
-        render(<SortableGroups groups={groups} />, withReduxState());
+        render(
+            <MockRedux>
+                <SortableGroups groups={groups} />
+            </MockRedux>
+        );
         const target = screen.getAllByRole('row')[2];
         await userEvent.pointer([
             { target, keys: '[MouseLeft>]', coords: { x: 200 } },

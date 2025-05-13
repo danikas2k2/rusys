@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { type ActiveGroup } from '~/client/groups/SortableGroup';
 import { SortableGroups } from '~/client/groups/SortableGroups';
@@ -33,7 +33,11 @@ describe('<SortableGroups>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('renders with details', () => {
-        render(<SortableGroups groups={groups} />, withReduxState());
+        render(
+            <MockRedux>
+                <SortableGroups groups={groups} />
+            </MockRedux>
+        );
         const rows = screen.getAllByRole('row');
 
         expect(rows).toHaveLength(2);
@@ -50,7 +54,11 @@ describe('<SortableGroups>', () => {
         });
 
         it('does not call reorder on drag start', async () => {
-            render(<SortableGroups groups={groups} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableGroups groups={groups} />
+                </MockRedux>
+            );
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer({ target, coords: { y: 0 }, keys: '[MouseLeft>]' });
 
@@ -58,7 +66,11 @@ describe('<SortableGroups>', () => {
         });
 
         it('does not call reorder on drag stop without position change', async () => {
-            render(<SortableGroups groups={groups} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableGroups groups={groups} />
+                </MockRedux>
+            );
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
@@ -69,7 +81,11 @@ describe('<SortableGroups>', () => {
         });
 
         it('does not call reorder on drag when elements does not overlap', async () => {
-            render(<SortableGroups groups={groups} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableGroups groups={groups} />
+                </MockRedux>
+            );
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
@@ -82,7 +98,11 @@ describe('<SortableGroups>', () => {
 
         it('calls reorder on drag when elements overlaps', async () => {
             jest.mocked(getOverlapIndex).mockReturnValue(0);
-            render(<SortableGroups groups={groups} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableGroups groups={groups} />
+                </MockRedux>
+            );
             const [target] = screen.getAllByRole('button', { name: 'Drag' });
             await userEvent.pointer([
                 { target, coords: { y: 0 }, keys: '[MouseLeft>]' },
@@ -98,14 +118,22 @@ describe('<SortableGroups>', () => {
     describe('slide controls', () => {
         it('renders rows without controls', () => {
             jest.mocked(useActiveRow<ActiveGroup>).mockReturnValue([undefined, setActiveGroup]);
-            render(<SortableGroups groups={groups} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableGroups groups={groups} />
+                </MockRedux>
+            );
 
             expect(screen.queryByRole('group', { name: 'Edit Remove' })).not.toBeInTheDocument();
         });
 
         it('renders active group row with controls', () => {
             jest.mocked(useActiveRow<ActiveGroup>).mockReturnValue([activeGroup, setActiveGroup]);
-            render(<SortableGroups groups={groups} />, withReduxState());
+            render(
+                <MockRedux>
+                    <SortableGroups groups={groups} />
+                </MockRedux>
+            );
             const rows = screen.getAllByRole('row');
 
             expect(within(rows[0]).queryByRole('group', { name: 'Edit Remove' })).not.toBeInTheDocument();

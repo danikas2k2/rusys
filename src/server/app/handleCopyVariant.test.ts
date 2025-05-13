@@ -1,5 +1,4 @@
 /** @jest-environment node */
-
 import { getDetailsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';

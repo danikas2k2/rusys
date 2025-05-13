@@ -1,7 +1,7 @@
 import React, { createRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Button, IconButton } from '@ui/Button';
+import { Button, IconButton, isButtonElement } from '@ui/Button';
 
 describe('<Button>', () => {
     it('renders to the document', () => {
@@ -14,6 +14,16 @@ describe('<Button>', () => {
         render(<Button>Content</Button>);
 
         expect(screen.getByRole('button')).toHaveTextContent('Content');
+    });
+
+    it('renders with a button element as content', () => {
+        render(
+            <Button>
+                <button>Inner Button</button>
+            </Button>
+        );
+
+        expect(screen.getByRole('button', { name: 'Inner Button' })).toBeInTheDocument();
     });
 
     it('applies className prop', () => {
@@ -139,5 +149,33 @@ describe('<IconButton>', () => {
         await userEvent.click(screen.getByRole('button'));
 
         expect(onClick).not.toHaveBeenCalled();
+    });
+});
+
+describe('isButtonElement', () => {
+    it('returns true for a Button element', () => {
+        const element = <Button>Content</Button>;
+
+        expect(isButtonElement(element)).toBeTrue();
+    });
+
+    it('returns true for an IconButton element', () => {
+        const element = <IconButton />;
+
+        expect(isButtonElement(element)).toBeTrue();
+    });
+
+    it('returns false for a non-button element', () => {
+        const element = <div>Not a button</div>;
+
+        expect(isButtonElement(element)).toBeFalse();
+    });
+
+    it('returns false for null', () => {
+        expect(isButtonElement(null)).toBeFalse();
+    });
+
+    it('returns false for undefined', () => {
+        expect(isButtonElement(undefined)).toBeFalse();
     });
 });

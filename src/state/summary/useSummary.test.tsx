@@ -1,18 +1,21 @@
+import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { getSummaryFixture } from '@tests/fixtures';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { useSummary } from '~/state/summary/useSummary';
 
 describe('useSummary', () => {
     it('return empty list for empty state', () => {
-        const { result } = renderHook(() => useSummary(), withReduxState());
+        const { result } = renderHook(() => useSummary(), { wrapper: MockRedux });
 
         expect(result.current).toStrictEqual([]);
     });
 
     it('return filled state', () => {
         const summary = getSummaryFixture();
-        const { result } = renderHook(() => useSummary(), withReduxState({ summary }));
+        const { result } = renderHook(() => useSummary(), {
+            wrapper: ({ children }) => <MockRedux state={{ summary }}>{children}</MockRedux>,
+        });
 
         expect(result.current).toStrictEqual(summary);
     });

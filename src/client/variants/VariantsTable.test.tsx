@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
 import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
 import { VariantsTable } from '~/client/variants/VariantsTable';
 import { useFilter } from '~/state/filter/useFilter';
@@ -28,7 +28,11 @@ describe('<VariantsTable>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('renders table structure', () => {
-        render(<VariantsTable />, withReduxState());
+        render(
+            <MockRedux>
+                <VariantsTable />
+            </MockRedux>
+        );
 
         expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -74,7 +78,11 @@ describe('<VariantsTable>', () => {
     describe('renders loader', () => {
         it('renders loader for initial state', () => {
             jest.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
-            render(<VariantsTable />, withReduxState());
+            render(
+                <MockRedux>
+                    <VariantsTable />
+                </MockRedux>
+            );
 
             expect(screen.getByRole('progressbar')).toBeInTheDocument();
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -83,7 +91,11 @@ describe('<VariantsTable>', () => {
 
         it('renders loader for loading state', () => {
             jest.mocked(useLockingLoader).mockReturnValue(LoadingState.LOADING);
-            render(<VariantsTable />, withReduxState());
+            render(
+                <MockRedux>
+                    <VariantsTable />
+                </MockRedux>
+            );
 
             expect(screen.getByRole('progressbar')).toBeInTheDocument();
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -94,7 +106,11 @@ describe('<VariantsTable>', () => {
     describe('renders error', () => {
         it('renders error for failed state', () => {
             jest.mocked(useLockingLoader).mockReturnValue(LoadingState.FAILED);
-            render(<VariantsTable />, withReduxState());
+            render(
+                <MockRedux>
+                    <VariantsTable />
+                </MockRedux>
+            );
 
             expect(screen.getByRole('alert')).toHaveTextContent('Failed to load data');
             expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
@@ -103,7 +119,11 @@ describe('<VariantsTable>', () => {
 
         it('renders error for complete state without variants', () => {
             jest.mocked(useVariants).mockReturnValue([]);
-            render(<VariantsTable />, withReduxState());
+            render(
+                <MockRedux>
+                    <VariantsTable />
+                </MockRedux>
+            );
 
             expect(screen.getByRole('alert')).toHaveTextContent('No data');
             expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
@@ -112,7 +132,11 @@ describe('<VariantsTable>', () => {
 
         it('renders error for complete state without groups', () => {
             jest.mocked(useGroups).mockReturnValue([]);
-            render(<VariantsTable />, withReduxState());
+            render(
+                <MockRedux>
+                    <VariantsTable />
+                </MockRedux>
+            );
 
             expect(screen.getByRole('alert')).toHaveTextContent('No data');
             expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
@@ -123,7 +147,11 @@ describe('<VariantsTable>', () => {
     describe('handles filter state', () => {
         it('renders filtered data', () => {
             jest.mocked(useFilter).mockReturnValue('e');
-            render(<VariantsTable />, withReduxState());
+            render(
+                <MockRedux>
+                    <VariantsTable />
+                </MockRedux>
+            );
             const rows = screen.getAllByRole('row');
 
             expect(rows).toHaveLength(3);
@@ -136,7 +164,11 @@ describe('<VariantsTable>', () => {
 
         it('renders filtered out data', () => {
             jest.mocked(useFilter).mockReturnValue('h');
-            render(<VariantsTable />, withReduxState());
+            render(
+                <MockRedux>
+                    <VariantsTable />
+                </MockRedux>
+            );
 
             expect(screen.getAllByRole('row')).toHaveLength(1);
         });

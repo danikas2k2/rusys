@@ -162,4 +162,15 @@ describe('<ButtonWithConfirmation>', () => {
 
         expect(screen.getAllByRole('button', { name: 'Content' })).toHaveLength(2);
     });
+
+    it('renders with button element passed to confirm button when button content is re-wrapped with Button', async () => {
+        render(
+            <ButtonWithConfirmation>
+                <button>Content</button>
+            </ButtonWithConfirmation>
+        );
+        await userEvent.click(screen.getByRole('button', { name: 'Content' }));
+
+        expect(screen.getAllByRole('button', { name: 'Content' })).toHaveLength(2);
+    });
 });

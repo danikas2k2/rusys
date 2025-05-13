@@ -2,9 +2,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getVariantsFixture } from '@tests/fixtures';
-import { withMany } from '@tests/withMany';
-import { withRecycledContext } from '@tests/withRecycledContext';
-import { withReduxState } from '@tests/withReduxState';
+import { MockRedux } from '@tests/MockRedux';
+import { RecycledContextWrapper } from '~/client/common/RecycledContext';
 import { ValueBox, type ValueBoxProps } from '~/client/details/dialogs/ValueBox';
 import { ValueInput } from '~/client/details/dialogs/ValueInput';
 import { getVariantAmount } from '~/client/details/utils/amounts';
@@ -36,7 +35,13 @@ describe('<ValueBox>', () => {
     const state: WithVariantsState = { variants };
 
     it('renders heading details', () => {
-        render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
+        render(
+            <MockRedux state={state}>
+                <RecycledContextWrapper>
+                    <ValueBox {...props} amounts={amounts} />
+                </RecycledContextWrapper>
+            </MockRedux>
+        );
 
         expect(screen.getByRole('dialog')).toBeInTheDocument();
         expect(screen.getByText('Uogienės')).toBeInTheDocument();
@@ -45,7 +50,13 @@ describe('<ValueBox>', () => {
     });
 
     it('renders controls', () => {
-        render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
+        render(
+            <MockRedux state={state}>
+                <RecycledContextWrapper>
+                    <ValueBox {...props} amounts={amounts} />
+                </RecycledContextWrapper>
+            </MockRedux>
+        );
 
         expect(screen.getByLabelText('Close')).toBeInTheDocument();
         expect(screen.getByText('Consumed')).toBeInTheDocument();
@@ -56,7 +67,13 @@ describe('<ValueBox>', () => {
     });
 
     it('renders inputs', () => {
-        render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
+        render(
+            <MockRedux state={state}>
+                <RecycledContextWrapper>
+                    <ValueBox {...props} amounts={amounts} />
+                </RecycledContextWrapper>
+            </MockRedux>
+        );
 
         expect(ValueInput).toHaveBeenCalledTimes(amounts.length);
 
@@ -71,8 +88,11 @@ describe('<ValueBox>', () => {
     it('calls onClose when dialog is closed', async () => {
         const onClose = jest.fn();
         render(
-            <ValueBox {...props} onClose={onClose} amounts={amounts} />,
-            withMany(withReduxState(state), withRecycledContext())
+            <MockRedux state={state}>
+                <RecycledContextWrapper>
+                    <ValueBox {...props} onClose={onClose} amounts={amounts} />
+                </RecycledContextWrapper>
+            </MockRedux>
         );
         await userEvent.click(screen.getByLabelText('Close'));
 
@@ -82,8 +102,11 @@ describe('<ValueBox>', () => {
     it('calls onClose when `Cancel` is clicked', async () => {
         const onClose = jest.fn();
         render(
-            <ValueBox {...props} onClose={onClose} amounts={amounts} />,
-            withMany(withReduxState(state), withRecycledContext())
+            <MockRedux state={state}>
+                <RecycledContextWrapper>
+                    <ValueBox {...props} onClose={onClose} amounts={amounts} />
+                </RecycledContextWrapper>
+            </MockRedux>
         );
         await userEvent.click(screen.getByText('Cancel'));
 
@@ -93,8 +116,11 @@ describe('<ValueBox>', () => {
     it('calls onClose without changes when `Update` is clicked', async () => {
         const onClose = jest.fn();
         render(
-            <ValueBox {...props} onClose={onClose} amounts={amounts} />,
-            withMany(withReduxState(state), withRecycledContext())
+            <MockRedux state={state}>
+                <RecycledContextWrapper>
+                    <ValueBox {...props} onClose={onClose} amounts={amounts} />
+                </RecycledContextWrapper>
+            </MockRedux>
         );
         await userEvent.click(screen.getByText('Update'));
 
@@ -109,8 +135,11 @@ describe('<ValueBox>', () => {
     it('calls onClose with changes when `Update` is clicked after some changes in `Consumed` tab', async () => {
         const onClose = jest.fn();
         render(
-            <ValueBox {...props} onClose={onClose} amounts={amounts} />,
-            withMany(withReduxState(state), withRecycledContext())
+            <MockRedux state={state}>
+                <RecycledContextWrapper>
+                    <ValueBox {...props} onClose={onClose} amounts={amounts} />
+                </RecycledContextWrapper>
+            </MockRedux>
         );
 
         await userEvent.type(screen.getByLabelText('p'), '2', selection);
@@ -129,8 +158,11 @@ describe('<ValueBox>', () => {
     it('calls onClose with changes when `Update` is clicked after some changes in `Recycled` tab', async () => {
         const onClose = jest.fn();
         render(
-            <ValueBox {...props} onClose={onClose} amounts={amounts} />,
-            withMany(withReduxState(state), withRecycledContext())
+            <MockRedux state={state}>
+                <RecycledContextWrapper>
+                    <ValueBox {...props} onClose={onClose} amounts={amounts} />
+                </RecycledContextWrapper>
+            </MockRedux>
         );
         await userEvent.click(screen.getByText('Recycled'));
 
@@ -149,8 +181,11 @@ describe('<ValueBox>', () => {
     it('calls onClose with changes when `Update` is clicked after some changes in `Consumed` and `Recycled` tabs', async () => {
         const onClose = jest.fn();
         render(
-            <ValueBox {...props} onClose={onClose} amounts={amounts} />,
-            withMany(withReduxState(state), withRecycledContext())
+            <MockRedux state={state}>
+                <RecycledContextWrapper>
+                    <ValueBox {...props} onClose={onClose} amounts={amounts} />
+                </RecycledContextWrapper>
+            </MockRedux>
         );
 
         await userEvent.type(screen.getByLabelText('p'), '2', selection);
@@ -166,7 +201,13 @@ describe('<ValueBox>', () => {
     });
 
     it('renders all variants when expand pressed', async () => {
-        render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
+        render(
+            <MockRedux state={state}>
+                <RecycledContextWrapper>
+                    <ValueBox {...props} amounts={amounts} />
+                </RecycledContextWrapper>
+            </MockRedux>
+        );
         jest.mocked(ValueInput).mockClear();
 
         expect(screen.getByRole('dialog')).not.toHaveClass('fullscreen');
@@ -192,7 +233,13 @@ describe('<ValueBox>', () => {
     });
 
     it('ensure all changed values are preserved after expansion', async () => {
-        render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
+        render(
+            <MockRedux state={state}>
+                <RecycledContextWrapper>
+                    <ValueBox {...props} amounts={amounts} />
+                </RecycledContextWrapper>
+            </MockRedux>
+        );
 
         await userEvent.type(screen.getByLabelText('p'), '2', selection);
 
@@ -214,7 +261,13 @@ describe('<ValueBox>', () => {
     });
 
     it('ensure focused item is still focused after expansion', async () => {
-        render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
+        render(
+            <MockRedux state={state}>
+                <RecycledContextWrapper>
+                    <ValueBox {...props} amounts={amounts} />
+                </RecycledContextWrapper>
+            </MockRedux>
+        );
 
         await userEvent.click(screen.getByLabelText('m'));
 
@@ -227,8 +280,9 @@ describe('<ValueBox>', () => {
 
     it('expand by default if value contains all available variants', async () => {
         render(
-            <ValueBox {...props} amounts={allVariants.map((variant) => ({ variant, amount: 1 }))} />,
-            withReduxState(state)
+            <MockRedux state={state}>
+                <ValueBox {...props} amounts={allVariants.map((variant) => ({ variant, amount: 1 }))} />
+            </MockRedux>
         );
 
         expect(screen.queryByLabelText('Expand')).not.toBeInTheDocument();
@@ -237,7 +291,13 @@ describe('<ValueBox>', () => {
 
     describe('ensure to have no negative amounts', () => {
         it('does not accept any other symbols, but digits', async () => {
-            render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
+            render(
+                <MockRedux state={state}>
+                    <RecycledContextWrapper>
+                        <ValueBox {...props} amounts={amounts} />
+                    </RecycledContextWrapper>
+                </MockRedux>
+            );
 
             await userEvent.type(screen.getByLabelText('p'), '-', selection);
 
@@ -253,7 +313,13 @@ describe('<ValueBox>', () => {
         });
 
         it('does not decrease value below zero while using `Increase`/`Decrease` buttons', async () => {
-            render(<ValueBox {...props} amounts={amounts} />, withMany(withReduxState(state), withRecycledContext()));
+            render(
+                <MockRedux state={state}>
+                    <RecycledContextWrapper>
+                        <ValueBox {...props} amounts={amounts} />
+                    </RecycledContextWrapper>
+                </MockRedux>
+            );
 
             await userEvent.type(screen.getByLabelText('p'), '0', selection);
 
