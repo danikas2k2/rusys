@@ -39,7 +39,7 @@ describe('<SlideControls>', () => {
 
     it('set the active row to be pinned when Remove button is clicked (confirmation dialog opens)', async () => {
         render(
-            <MockActiveRow setState={setActiveRow}>
+            <MockActiveRow state={{}} setState={setActiveRow}>
                 <SlideControls onEdit={onEdit} onRemove={onDelete} />
             </MockActiveRow>
         );
@@ -53,7 +53,7 @@ describe('<SlideControls>', () => {
 
     it('set the active row to be unpinned when remove action is cancelled', async () => {
         render(
-            <MockActiveRow setState={setActiveRow}>
+            <MockActiveRow state={{}} setState={setActiveRow}>
                 <SlideControls onEdit={onEdit} onRemove={onDelete} />
             </MockActiveRow>
         );
@@ -68,7 +68,7 @@ describe('<SlideControls>', () => {
 
     it('calls onUnpin and onRemove when Remove is confirmed', async () => {
         render(
-            <MockActiveRow setState={setActiveRow}>
+            <MockActiveRow state={{}} setState={setActiveRow}>
                 <SlideControls onEdit={onEdit} onRemove={onDelete} />
             </MockActiveRow>
         );
