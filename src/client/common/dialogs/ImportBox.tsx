@@ -7,7 +7,6 @@ import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { FileInput } from '@ui/FileInput';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-import { Input } from '@ui/Input';
 import { useImportHandler } from '~/client/common/hooks/useImportHandler';
 import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
