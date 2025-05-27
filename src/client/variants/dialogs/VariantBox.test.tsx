@@ -71,6 +71,7 @@ describe('<VariantBox>', () => {
                 <VariantBox onClose={onClose} />
             </MockRedux>
         );
+
         await userEvent.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onClose).toHaveBeenCalledWith();
@@ -81,11 +82,13 @@ describe('<VariantBox>', () => {
 
         it('closes dialog without error when successfully added', async () => {
             jest.mocked(useUpdateVariant).mockReturnValue(updateVariant.mockResolvedValue(true));
+
             render(
                 <MockRedux state={state}>
                     <VariantBox onClose={onClose} />
                 </MockRedux>
             );
+
             await userEvent.click(screen.getByRole('textbox', { name: 'Group' }));
             await userEvent.click(screen.getByRole('option', { name: 'Daržovės' }));
             await userEvent.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
@@ -99,12 +102,14 @@ describe('<VariantBox>', () => {
         });
 
         it('displays error without closing dialog when adding fails', async () => {
-            jest.mocked(useUpdateVariant).mockReturnValue(updateVariant.mockRejectedValueOnce('Failed to update'));
+            jest.mocked(useUpdateVariant).mockReturnValue(updateVariant.mockRejectedValueOnce('Failed to add'));
+
             render(
                 <MockRedux state={state}>
                     <VariantBox onClose={onClose} />
                 </MockRedux>
             );
+
             await userEvent.click(screen.getByRole('textbox', { name: 'Group' }));
             await userEvent.click(screen.getByRole('option', { name: 'Daržovės' }));
             await userEvent.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
@@ -117,11 +122,13 @@ describe('<VariantBox>', () => {
 
         it('displays error without closing dialog when empty name field left', async () => {
             jest.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+
             render(
                 <MockRedux state={state}>
                     <VariantBox onClose={onClose} />
                 </MockRedux>
             );
+
             await userEvent.click(screen.getByRole('textbox', { name: 'Group' }));
             await userEvent.click(screen.getByRole('option', { name: 'Daržovės' }));
             await userEvent.click(screen.getByRole('button', { name: 'Add' }));
@@ -133,11 +140,13 @@ describe('<VariantBox>', () => {
 
         it('displays error without closing dialog when name already exists', async () => {
             jest.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+
             render(
                 <MockRedux state={state}>
                     <VariantBox onClose={onClose} />
                 </MockRedux>
             );
+
             await userEvent.click(screen.getByRole('textbox', { name: 'Group' }));
             await userEvent.click(screen.getByRole('option', { name: 'Daržovės' }));
             await userEvent.type(screen.getByRole('textbox', { name: 'Variant name' }), 'd');
@@ -155,11 +164,13 @@ describe('<VariantBox>', () => {
 
         it('closes dialog without error when successfully renamed', async () => {
             jest.mocked(useRenameVariant).mockReturnValue(renameVariant.mockResolvedValueOnce(true));
+
             render(
                 <MockRedux state={state}>
                     <VariantBox group="Daržovės" variant="d" onClose={onClose} />
                 </MockRedux>
             );
+
             await userEvent.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await userEvent.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await userEvent.clear(screen.getByRole('textbox', { name: 'Long label' }));
@@ -175,11 +186,13 @@ describe('<VariantBox>', () => {
 
         it('displays error without closing dialog when rename fails', async () => {
             jest.mocked(useRenameVariant).mockReturnValue(renameVariant.mockRejectedValueOnce('Failed to rename'));
+
             render(
                 <MockRedux state={state}>
                     <VariantBox group="Daržovės" variant="d" onClose={onClose} />
                 </MockRedux>
             );
+
             await userEvent.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await userEvent.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
@@ -191,11 +204,13 @@ describe('<VariantBox>', () => {
 
         it('displays error without closing dialog when empty name field left', async () => {
             jest.mocked(useRenameVariant).mockReturnValue(renameVariant);
+
             render(
                 <MockRedux state={state}>
                     <VariantBox group="Daržovės" variant="d" onClose={onClose} />
                 </MockRedux>
             );
+
             await userEvent.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
@@ -207,11 +222,13 @@ describe('<VariantBox>', () => {
 
         it('displays error without closing dialog when name already exists', async () => {
             jest.mocked(useRenameVariant).mockReturnValue(renameVariant);
+
             render(
                 <MockRedux state={state}>
                     <VariantBox group="Daržovės" variant="d" onClose={onClose} />
                 </MockRedux>
             );
+
             await userEvent.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await userEvent.type(screen.getByRole('textbox', { name: 'Variant name' }), 'x');
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
@@ -224,11 +241,13 @@ describe('<VariantBox>', () => {
 
         it('closes without updating when name was not changed', async () => {
             jest.mocked(useRenameVariant).mockReturnValue(renameVariant);
+
             render(
                 <MockRedux state={state}>
                     <VariantBox group="Daržovės" variant="d" onClose={onClose} />
                 </MockRedux>
             );
+
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
             expect(renameVariant).not.toHaveBeenCalled();
