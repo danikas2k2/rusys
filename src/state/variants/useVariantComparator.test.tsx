@@ -2,35 +2,63 @@ import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { getVariantsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
-import { type WithVariantsState } from '~/state/variants/types';
 import { useVariantComparator } from '~/state/variants/useVariantComparator';
 
 describe('useVariantComparator', () => {
-    const state: WithVariantsState = {
-        variants: getVariantsFixture(),
-    };
+    const variants = getVariantsFixture();
 
-    it('returns sorted variants', async () => {
+    it('compares variants based on order', async () => {
         const { result } = renderHook(() => useVariantComparator(), {
-            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockRedux state={{ variants }}>{children}</MockRedux>,
         });
 
-        expect(['x', 'd', 'm', 'p', 'e'].sort(result.current('Uogienės'))).toStrictEqual(['p', 'd', 'm', 'e', 'x']);
+        const cmp = result.current('Uogienės');
+
+        expect(cmp('p', 'd')).toBeLessThan(0);
+        expect(cmp('e', 'm')).toBeGreaterThan(0);
     });
 
-    it('returns sorted variants for different group', async () => {
+    it('compares variants alphabetically if order is the same', () => {
         const { result } = renderHook(() => useVariantComparator(), {
-            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+            wrapper: ({ children }) => (
+                <MockRedux state={{ variants: variants.map((v) => ({ ...v, order: 1 })) }}>{children}</MockRedux>
+            ),
         });
 
-        expect(['1', 'p', 'd', 'x', 'm'].sort(result.current('Daržovės'))).toStrictEqual(['d', 'p', 'm', '1', 'x']);
+        const cmp = result.current('Daržovės');
+
+        expect(cmp('p', 'd')).toBeGreaterThan(0);
+        expect(cmp('1', 'm')).toBeLessThan(0);
     });
 
-    it('leaves invalid variants at the end of list', async () => {
+    it('compares variants according to state order and not in the state', () => {
         const { result } = renderHook(() => useVariantComparator(), {
-            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockRedux state={{ variants }}>{children}</MockRedux>,
         });
 
-        expect(['3', 'p', 'd', 'm', '1'].sort(result.current('Uogienės'))).toStrictEqual(['p', 'd', 'm', '3', '1']);
+        const cmp = result.current('Uogienės');
+
+        expect(cmp('p', 'b')).toBeLessThan(0);
+        expect(cmp('k', 'm')).toBeGreaterThan(0);
+    });
+
+    it('compares variants alphabetically if not in the state', () => {
+        const { result } = renderHook(() => useVariantComparator(), {
+            wrapper: ({ children }) => <MockRedux state={{ variants }}>{children}</MockRedux>,
+        });
+
+        const cmp = result.current('Daržovės');
+
+        expect(cmp('c', 'b')).toBeGreaterThan(0);
+        expect(cmp('k', 'n')).toBeLessThan(0);
+    });
+
+    it('compares variants alphabetically if no state', () => {
+        const { result } = renderHook(() => useVariantComparator(), { wrapper: MockRedux });
+
+        const cmp = result.current('Šaldyti');
+
+        expect(cmp('p', 'd')).toBeGreaterThan(0);
+        expect(cmp('e', 'm')).toBeLessThan(0);
     });
 });

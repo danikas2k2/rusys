@@ -31,6 +31,12 @@ describe('db.ts', () => {
             );
         });
 
+        it('fails to create MongoClient instance if empty uri is passed', async () => {
+            await expect(getClient('')).rejects.toThrow(
+                'Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://"'
+            );
+        });
+
         it('returns MongoClient instance for specified uri', async () => {
             await expect(getClient(uri)).resolves.toBeInstanceOf(MongoClient);
         });

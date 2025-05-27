@@ -1,6 +1,6 @@
 import { getGroupsFixture } from '@tests/fixtures';
-import { type Group } from '~/common/types';
 import { GroupsActionType, setGroupsAction } from '~/state/groups/actions';
+import { type Group } from '~/types/data';
 
 describe('setGroupsAction', () => {
     it('returns valid action', () => {

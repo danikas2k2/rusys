@@ -9,7 +9,7 @@ jest.mock('~/state/years/useYears');
 
 describe('useHasRemoving', () => {
     it('return false for empty state', () => {
-        const { result } = renderHook(() => useHasRemoving('G', 'C'), { wrapper: MockRedux });
+        const { result } = renderHook(() => useHasRemoving('Uogienės', 'Bruknės'), { wrapper: MockRedux });
 
         expect(result.current).toBeFalse();
     });
@@ -24,17 +24,35 @@ describe('useHasRemoving', () => {
         expect(result.current).toBeTrue();
     });
 
-    it('return false for mismatched years', () => {
-        jest.mocked(useYears).mockReturnValueOnce([18, 19]);
-        const { result } = renderHook(() => useHasRemoving('G', 'C'), {
+    it('return false if not removing', () => {
+        const { result } = renderHook(() => useHasRemoving('Daržovės', 'Agurkai'), {
             wrapper: ({ children }) => <MockRedux state={{ details }}>{children}</MockRedux>,
         });
 
         expect(result.current).toBeFalse();
     });
 
+    it('return false for mismatched years', () => {
+        jest.mocked(useYears).mockReturnValueOnce([18, 19]);
+        const { result } = renderHook(() => useHasRemoving('Daržovės', 'Kopūstai'), {
+            wrapper: ({ children }) => <MockRedux state={{ details }}>{children}</MockRedux>,
+        });
+
+        expect(result.current).toBeFalse();
+    });
+
+    it('return false for missing years in state', () => {
+        const { result } = renderHook(() => useHasRemoving('Daržovės', 'Kopūstai'), {
+            wrapper: ({ children }) => (
+                <MockRedux state={{ details: [{ ...details[3], years: undefined }] }}>{children}</MockRedux>
+            ),
+        });
+
+        expect(result.current).toBeFalse();
+    });
+
     it('return false for missing name', () => {
-        const { result } = renderHook(() => useHasRemoving('G', 'B'), {
+        const { result } = renderHook(() => useHasRemoving('Daržovės', 'Braškės'), {
             wrapper: ({ children }) => <MockRedux state={{ details }}>{children}</MockRedux>,
         });
 
@@ -42,7 +60,7 @@ describe('useHasRemoving', () => {
     });
 
     it('return false for missing group', () => {
-        const { result } = renderHook(() => useHasRemoving('H', 'C'), {
+        const { result } = renderHook(() => useHasRemoving('Šaldyti', 'Braškės'), {
             wrapper: ({ children }) => <MockRedux state={{ details }}>{children}</MockRedux>,
         });
 

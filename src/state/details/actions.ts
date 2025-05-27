@@ -1,4 +1,4 @@
-import { type Details } from '~/common/types';
+import { type Details } from '~/types/data';
 
 export const enum DetailsActionType {
     SET = 'details.set',

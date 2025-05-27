@@ -12,9 +12,9 @@ import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/common/utils/errors';
-import { useAddGroup } from '~/state/groups/useAddGroup';
 import { useGroups } from '~/state/groups/useGroups';
 import { useRenameGroup } from '~/state/groups/useRenameGroup';
+import { useUpdateGroup } from '~/state/groups/useUpdateGroup';
 import { isEmpty } from 'lodash';
 import cx from './GroupBox.less';
 
@@ -47,7 +47,7 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
 
     const focusRef = useAutoFocus<HTMLInputElement>();
 
-    const addGroup = useAddGroup();
+    const updateGroup = useUpdateGroup();
     const renameGroup = useRenameGroup();
     const handleUpdate = useCallback(async (): Promise<void> => {
         if (!group) {
@@ -60,7 +60,7 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
         try {
             setUpdating(true);
             if (!initialGroup) {
-                await addGroup(group);
+                await updateGroup(group);
             } else if (groupRenamed) {
                 await renameGroup(initialGroup, group);
             }
@@ -71,7 +71,7 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
         } finally {
             setUpdating(false);
         }
-    }, [addGroup, focusRef, group, groupRenamed, hasGroup, initialGroup, onClose, renameGroup]);
+    }, [updateGroup, focusRef, group, groupRenamed, hasGroup, initialGroup, onClose, renameGroup]);
 
     const handleClose = useCallback((): void => onClose(), [onClose]);
 

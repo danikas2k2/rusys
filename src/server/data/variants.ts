@@ -1,13 +1,9 @@
-import { type ApiDetailsWithVariants, type ApiVariants, type ApiVariantsWithGroups } from '~/common/api';
-import { type UpdateVariant, type Variant } from '~/common/types';
-import { getDetailsWithYears } from '~/server/data/details';
-import { getGroups } from '~/server/data/groups';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
-import { uniq } from 'lodash';
+import { type UpdateVariant, type Variant } from '~/types/data';
 import { type ClientSession } from 'mongodb';
 
-export const getVariants = async (): Promise<ReadonlyArray<Variant>> => {
+export async function getVariants(): Promise<ReadonlyArray<Variant>> {
     const matchGroup = { $eq: ['$group', '$$group'] };
     const combineUpdatesYears = {
         input: { $ifNull: ['$updates.years', []] },
@@ -37,77 +33,13 @@ export const getVariants = async (): Promise<ReadonlyArray<Variant>> => {
             { $sort: { group: 1, order: 1, name: 1 } },
         ])
         .toArray();
-};
-
-export async function setVariants(variants: ReadonlyArray<Variant>): Promise<boolean> {
-    const uniqueGroups = uniq(variants.map(({ group }) => group));
-    return (await db())
-        .collection('variants')
-        .bulkWrite([
-            { deleteMany: { filter: { group: { $nin: uniqueGroups } } } },
-            ...uniqueGroups.map((group) => ({
-                deleteMany: {
-                    filter: {
-                        group,
-                        variant: {
-                            $nin: uniq(variants.filter((v) => v.group === group).map(({ variant }) => variant)),
-                        },
-                    },
-                },
-            })),
-            ...variants.map(({ group, variant, order }) => ({
-                deleteOne: { filter: { group, variant, order: { $ne: order } } },
-            })),
-            ...variants.map(({ group, variant, order }) => ({
-                deleteOne: { filter: { group, order, variant: { $ne: variant } } },
-            })),
-            ...variants.map(({ group, variant, ...details }) => ({
-                updateOne: { filter: { group, variant }, update: { $set: details }, upsert: true },
-            })),
-        ])
-        .then(hasEffect);
-}
-
-/**
- * TODO check if used
- * @deprecated
- */
-export async function setGroupVariants(
-    group: string,
-    variants: Omit<Variant, 'group'>[],
-    session?: ClientSession
-): Promise<boolean> {
-    return (await db())
-        .collection('variants')
-        .bulkWrite(
-            [
-                {
-                    deleteMany: {
-                        filter: {
-                            group,
-                            variant: {
-                                $nin: uniq(variants.map(({ variant }) => variant)),
-                            },
-                        },
-                    },
-                },
-                ...variants.map(({ variant, order }) => ({
-                    deleteOne: { filter: { group, variant, order: { $ne: order } } },
-                })),
-                ...variants.map(({ variant, order }) => ({
-                    deleteOne: { filter: { group, order, variant: { $ne: variant } } },
-                })),
-                ...variants.map(({ variant, ...details }) => ({
-                    updateOne: { filter: { group, variant }, update: { $set: details }, upsert: true },
-                })),
-            ],
-            { session }
-        )
-        .then(hasEffect);
 }
 
 export async function updateVariant(group: string, variant: string, update: UpdateVariant): Promise<boolean> {
-    const col = (await db()).collection('variants');
+    if (!group || !variant) {
+        return false;
+    }
+    const col = (await db()).collection<Variant>('variants');
     const { order, long, short } = update;
     const $set: Omit<UpdateVariant, 'order'> = {};
     const $unset: Omit<UpdateVariant, 'order'> = {};
@@ -122,13 +54,16 @@ export async function updateVariant(group: string, variant: string, update: Upda
               .then(hasEffect);
 }
 
-export const renameVariant = async (
+export async function renameVariant(
     group: string,
     variant: string,
     newVariant: string,
     update?: UpdateVariant,
     session?: ClientSession
-): Promise<boolean> => {
+): Promise<boolean> {
+    if (!group || !variant || !newVariant || variant === newVariant) {
+        return false;
+    }
     const col = (await db()).collection('variants');
     const $set: Omit<UpdateVariant, 'order'> = {};
     const $unset: Omit<UpdateVariant, 'order'> = {};
@@ -141,115 +76,108 @@ export const renameVariant = async (
         .updateOne({ group, variant }, { $set: { variant: newVariant, ...$set }, $unset }, { session })
         .then(hasEffect)
         .catch(hasDuplicates);
-};
+}
 
-export const copyVariant = async (
+export const renameVariantsGroup = async (
+    group: string,
+    newGroup: string,
+    session?: ClientSession
+): Promise<boolean> =>
+    group && newGroup && group !== newGroup
+        ? (await db())
+              .collection('variants')
+              .updateMany({ group }, { $set: { group: newGroup } }, { session })
+              .then(hasEffect)
+              .catch(hasDuplicates)
+        : false;
+
+export async function copyVariant(
     group: string,
     variant: string,
     newGroup: string,
     newVariant?: string,
     update?: UpdateVariant
-): Promise<boolean> => {
-    if (!newGroup || group === newGroup) {
+): Promise<boolean> {
+    if (!group || !variant || !newGroup || group === newGroup) {
         return false;
     }
     const col = (await db()).collection('variants');
-    const $set = ((await col.findOne({ group, variant }, { projection: { _id: 0, group: 0, variant: 0 } })) ??
-        {}) as UpdateVariant;
+    const found = await col.findOne({ group, variant }, { projection: { _id: 0, group: 0, variant: 0 } });
+    if (!found) {
+        return false;
+    }
+    const copied: Variant = {
+        ...found,
+        group: newGroup,
+        variant: newVariant ?? variant,
+    };
     if (update) {
         const { order, long, short } = update;
         if (order != null) {
-            $set.order = order;
+            copied.order = order;
         }
         if (long) {
-            $set.long = long;
+            copied.long = long;
         } else {
-            delete $set.long;
+            delete copied.long;
         }
         if (short) {
-            $set.short = short;
+            copied.short = short;
         } else {
-            delete $set.short;
+            delete copied.short;
         }
     }
-    return col
-        .updateOne({ group: newGroup, variant: newVariant || variant }, { $set }, { upsert: true })
-        .then(hasEffect)
-        .catch(hasDuplicates);
-};
+    return col.insertOne(copied).then(hasEffect).catch(hasDuplicates);
+}
 
-export async function copyDetailsVariants(
+export async function copyVariants(
     group: string,
-    name: string,
     newGroup: string,
+    variants: ReadonlyArray<string>,
     session?: ClientSession
 ): Promise<boolean> {
-    if (!newGroup || group === newGroup) {
-        return false;
-    }
-    const detailsCollection = (await db()).collection('details');
-    const amountVariants = await detailsCollection.findOne<{ variant?: string[][] }>(
-        { group: newGroup, name },
-        { projection: { _id: 0, variant: '$years.amounts.variant' }, session }
-    );
-    const updateVariants = await detailsCollection.findOne<{ variant?: string[][][] }>(
-        { group: newGroup, name },
-        { projection: { _id: 0, variant: '$updates.years.amounts.variant' }, session }
-    );
-    const copyingVariants = uniq([
-        ...(amountVariants?.variant?.flatMap((v) => v) ?? []),
-        ...(updateVariants?.variant?.flatMap((v) => v?.flatMap((w) => w)) ?? []),
-    ]);
-    if (!copyingVariants.length) {
+    if (!group || !newGroup || group === newGroup || !variants.length) {
         return false;
     }
 
-    const variantCollection = (await db()).collection('variants');
+    const col = (await db()).collection('variants');
     const existingVariants = (
-        await variantCollection
-            .find(
-                { group: newGroup, variant: { $in: copyingVariants } },
-                { projection: { _id: 0, variant: 1 }, session }
-            )
+        await col
+            .find({ group: newGroup, variant: { $in: variants } }, { projection: { _id: 0, variant: 1 }, session })
             .toArray()
     ).map((v) => v.variant);
 
-    const missingVariants = copyingVariants.filter((v) => !existingVariants.includes(v));
+    const missingVariants = variants.filter((v) => !existingVariants.includes(v));
     if (!missingVariants.length) {
         return false;
     }
 
-    const variants = await variantCollection
+    const copyingVariants = await col
         .find({ group, variant: { $in: missingVariants } }, { projection: { _id: 0 }, session })
         .toArray();
-    if (!variants.length) {
+    if (!copyingVariants.length) {
         return false;
     }
 
-    return variantCollection
+    return col
         .insertMany(
-            variants.map((v) => ({ ...v, group: newGroup })),
+            copyingVariants.map((v) => ({ ...v, group: newGroup })),
             { session }
         )
         .then(hasEffect)
         .catch(hasDuplicates);
 }
 
-export const renameVariantsGroup = async (group: string, newGroup: string, session?: ClientSession): Promise<boolean> =>
-    (await db())
-        .collection('variants')
-        .updateMany({ group }, { $set: { group: newGroup } }, { session })
-        .then(hasEffect)
-        .catch(hasDuplicates);
-
 export const deleteVariant = async (group: string, variant: string, session?: ClientSession): Promise<boolean> =>
-    (await db()).collection('variants').deleteOne({ group, variant }, { session }).then(hasEffect);
+    group && variant
+        ? (await db()).collection('variants').deleteOne({ group, variant }, { session }).then(hasEffect)
+        : false;
 
 export const deleteVariantsGroup = async (group: string, session?: ClientSession): Promise<boolean> =>
-    (await db()).collection('variants').deleteMany({ group }, { session }).then(hasEffect);
+    group ? (await db()).collection('variants').deleteMany({ group }, { session }).then(hasEffect) : false;
 
 export async function reorderVariants(group: string, update?: Readonly<Record<string, number>>): Promise<boolean> {
-    if (!update) {
+    if (!group || !update) {
         return false;
     }
     const entries = Object.entries(update);
@@ -265,15 +193,3 @@ export async function reorderVariants(group: string, update?: Readonly<Record<st
         )
         .then(hasEffect);
 }
-
-export const getDetailsAndVariants = async (): Promise<ApiDetailsWithVariants> => ({
-    ...(await getDetailsWithYears()),
-    variants: await getVariants(),
-});
-
-export const getVariantsResponse = async (): Promise<ApiVariants> => ({ variants: await getVariants() });
-
-export const getFullVariants = async (): Promise<ApiVariantsWithGroups> => ({
-    variants: await getVariants(),
-    groups: await getGroups(),
-});

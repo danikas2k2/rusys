@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
-import { ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { useMoveDetails } from '~/state/details/useMoveDetails';
+import { ApiUrl } from '~/types/api';
 
 jest.mock('~/state/base/useUpdatingApiRequest');
 
@@ -15,35 +15,39 @@ describe('useMoveDetails', () => {
 
     it('calls move action', async () => {
         const { result } = renderHook(() => useMoveDetails(), { wrapper: MockRedux });
-        await result.current('G', 'A', 'H');
+        await result.current('Uogienės', 'Avietės', 'Daržovės');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.DetailsMove, { group: 'G', name: 'A', newGroup: 'H' });
+        expect(request).toHaveBeenCalledWith(ApiUrl.DetailsMove, {
+            group: 'Uogienės',
+            name: 'Avietės',
+            newGroup: 'Daržovės',
+        });
     });
 
     it('does not call move action with same name', async () => {
         const { result } = renderHook(() => useMoveDetails(), { wrapper: MockRedux });
-        await result.current('G', 'A', 'G');
+        await result.current('Uogienės', 'Avietės', 'Uogienės');
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call move action with empty name', async () => {
         const { result } = renderHook(() => useMoveDetails(), { wrapper: MockRedux });
-        await result.current('G', '', 'H');
+        await result.current('Uogienės', '', 'Daržovės');
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call move action with empty group', async () => {
         const { result } = renderHook(() => useMoveDetails(), { wrapper: MockRedux });
-        await result.current('', 'A', 'H');
+        await result.current('', 'Avietės', 'Daržovės');
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call move action with empty new group', async () => {
         const { result } = renderHook(() => useMoveDetails(), { wrapper: MockRedux });
-        await result.current('G', 'A', '');
+        await result.current('Uogienės', 'Avietės', '');
 
         expect(request).not.toHaveBeenCalled();
     });

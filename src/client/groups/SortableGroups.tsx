@@ -3,8 +3,8 @@ import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { SortableGroup, type ActiveGroup } from '~/client/groups/SortableGroup';
 import { getChangedIndexes } from '~/client/utils/getChangedIndexes';
 import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
-import { type Group } from '~/common/types';
 import { useReorderGroups } from '~/state/groups/useReorderGroups';
+import { type Group } from '~/types/data';
 import { isEqual } from 'lodash';
 import cx from './SortableGroups.less';
 

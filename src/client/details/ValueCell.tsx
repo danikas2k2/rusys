@@ -4,9 +4,9 @@ import { RecycledContextWrapper } from '~/client/common/RecycledContext';
 import { ValueBox } from '~/client/details/dialogs/ValueBox';
 import { ValueAmounts } from '~/client/details/ValueAmounts';
 import { Cell } from '~/client/table/Cell';
-import { type VariantAmount } from '~/common/types';
 import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
 import { useUpdateDetails } from '~/state/details/useUpdateDetails';
+import { type VariantAmount } from '~/types/data';
 import cx from './ValueCell.less';
 
 export interface ValueCellProps {

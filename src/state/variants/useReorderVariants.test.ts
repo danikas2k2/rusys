@@ -1,28 +1,37 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
-import { ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
-import { useReorderGroups } from '~/state/groups/useReorderGroups';
+import { useReorderVariants } from '~/state/variants/useReorderVariants';
+import { ApiUrl } from '~/types/api';
 
 jest.mock('~/state/base/useUpdatingApiRequest');
 
-describe('useReorderGroups', () => {
+describe('useReorderVariants', () => {
     const request = jest.fn();
 
     beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
 
     afterEach(() => jest.clearAllMocks());
 
-    it('calls reorder action', async () => {
-        const { result } = renderHook(() => useReorderGroups(), { wrapper: MockRedux });
-        await result.current({ G: 3, H: 2 });
+    const variants = { p: 3, d: 2 };
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsReorder, { groups: { G: 3, H: 2 } });
+    it('calls reorder action', async () => {
+        const { result } = renderHook(() => useReorderVariants(), { wrapper: MockRedux });
+        await result.current('Uogienės', variants);
+
+        expect(request).toHaveBeenCalledWith(ApiUrl.VariantsReorder, { group: 'Uogienės', variants });
     });
 
-    it('does not call reorder action with empty group set', async () => {
-        const { result } = renderHook(() => useReorderGroups(), { wrapper: MockRedux });
-        await result.current({});
+    it('does not call reorder action with empty group', async () => {
+        const { result } = renderHook(() => useReorderVariants(), { wrapper: MockRedux });
+        await result.current('', variants);
+
+        expect(request).not.toHaveBeenCalled();
+    });
+
+    it('does not call reorder action with empty variant set', async () => {
+        const { result } = renderHook(() => useReorderVariants(), { wrapper: MockRedux });
+        await result.current('Uogienės', {});
 
         expect(request).not.toHaveBeenCalled();
     });

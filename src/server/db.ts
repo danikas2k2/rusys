@@ -6,37 +6,54 @@ import { MongoClient, type ClientSession, type Db } from 'mongodb';
  * @param database The database to create indexes for.
  */
 export async function createMissingIndexes(database: Db): Promise<void> {
-    const details = database.collection('details');
-    await details.createIndex({ group: 1 }, { name: 'group', background: true });
-    await details.createIndex({ name: 1 }, { name: 'name', background: true });
-    await details.createIndex({ group: 1, name: 1 }, { name: 'group_name', unique: true, background: true });
-    await details.createIndex(
-        { group: 1, name: 1, 'years.year': 1 },
-        { name: 'group_name_year', unique: true, background: true }
-    );
-    await details.createIndex(
-        { group: 1, name: 1, 'years.year': 1, 'years.amounts.variant': 1 },
-        { name: 'group_name_year_variant', unique: true, background: true }
-    );
-    await details.createIndex({ 'updates.time': -1 }, { name: 'update_time', background: true });
-    await details.createIndex(
-        { group: 1, name: 1, 'updates.time': -1, 'updates.years.year': 1 },
-        { name: 'group_name_time_year', unique: true, background: true }
-    );
-    await details.createIndex(
-        { group: 1, name: 1, 'updates.time': -1, 'updates.years.year': 1, 'updates.years.amounts.variant': 1 },
-        { name: 'group_name_time_year_variant', unique: true, background: true }
-    );
-
-    const variants = database.collection('variants');
-    await variants.createIndex({ group: 1 }, { name: 'group', background: true });
-    await variants.createIndex({ variant: 1 }, { name: 'variant', background: true });
-    await variants.createIndex({ order: 1 }, { name: 'order', background: true });
-    await variants.createIndex({ group: 1, variant: 1 }, { name: 'group_variant', unique: true, background: true });
-
-    const groups = database.collection('groups');
-    await groups.createIndex({ group: 1 }, { name: 'group', unique: true, background: true });
-    await groups.createIndex({ order: 1 }, { name: 'order', background: true });
+    await Promise.all([
+        database.collection('details').createIndexes([
+            { key: { group: 1 }, name: 'group', background: true },
+            { key: { name: 1 }, name: 'name', background: true },
+            { key: { group: 1, name: 1 }, name: 'group_name', unique: true, background: true },
+            {
+                key: { group: 1, name: 1, 'years.year': 1 },
+                name: 'group_name_year',
+                unique: true,
+                background: true,
+            },
+            {
+                key: { group: 1, name: 1, 'years.year': 1, 'years.amounts.variant': 1 },
+                name: 'group_name_year_variant',
+                unique: true,
+                background: true,
+            },
+            { key: { 'updates.time': -1 }, name: 'update_time', background: true },
+            {
+                key: { group: 1, name: 1, 'updates.time': -1, 'updates.years.year': 1 },
+                name: 'group_name_time_year',
+                unique: true,
+                background: true,
+            },
+            {
+                key: {
+                    group: 1,
+                    name: 1,
+                    'updates.time': -1,
+                    'updates.years.year': 1,
+                    'updates.years.amounts.variant': 1,
+                },
+                name: 'group_name_time_year_variant',
+                unique: true,
+                background: true,
+            },
+        ]),
+        database.collection('variants').createIndexes([
+            { key: { group: 1 }, name: 'group', background: true },
+            { key: { variant: 1 }, name: 'variant', background: true },
+            { key: { order: 1 }, name: 'order', background: true },
+            { key: { group: 1, variant: 1 }, name: 'group_variant', unique: true, background: true },
+        ]),
+        database.collection('groups').createIndexes([
+            { key: { group: 1 }, name: 'group', unique: true, background: true },
+            { key: { order: 1 }, name: 'order', background: true },
+        ]),
+    ]);
 }
 
 export const $clients = new Map<string, MongoClient>();
@@ -49,7 +66,7 @@ export const $clients = new Map<string, MongoClient>();
  */
 export async function getClient(uri = process.env.DB ?? ''): Promise<MongoClient> {
     if (!$clients.has(uri)) {
-        const _client = await MongoClient.connect(uri ?? '', {});
+        const _client = await MongoClient.connect(uri, {});
         $clients.set(uri, _client);
         return _client;
     }

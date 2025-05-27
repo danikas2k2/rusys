@@ -1,8 +1,7 @@
-import { type ApiExport } from '~/common/api';
-import { type Details, type Group, type UpdateVariant, type Variant } from '~/common/types';
 import {
     deleteDetailsGroup,
     deleteDetailsVariant,
+    getDetailsVariants,
     moveDetails,
     renameDetailsGroup,
     renameDetailsVariant,
@@ -10,13 +9,15 @@ import {
 import { deleteGroup, renameGroup } from '~/server/data/groups';
 import { hasEffect } from '~/server/data/utils';
 import {
-    copyDetailsVariants,
+    copyVariants,
     deleteVariant,
     deleteVariantsGroup,
     renameVariant,
     renameVariantsGroup,
 } from '~/server/data/variants';
 import { db, withTransaction } from '~/server/db';
+import { type ApiExport } from '~/types/api';
+import { type Details, type Group, type UpdateVariant, type Variant } from '~/types/data';
 import moment from 'moment';
 import { type Db } from 'mongodb';
 
@@ -27,11 +28,14 @@ export const moveDetailsOccurrences = (
     newName?: string
 ): Promise<boolean> =>
     withTransaction(async (session) => {
-        if (await moveDetails(group, name, newGroup, newName, session)) {
-            await copyDetailsVariants(group, newName ?? name, newGroup, session);
-            return true;
+        if (!(await moveDetails(group, name, newGroup, newName, session))) {
+            return false;
         }
-        return false;
+        const variants = await getDetailsVariants(newGroup, newName ?? name, session);
+        if (variants?.length) {
+            await copyVariants(group, newGroup, variants, session);
+        }
+        return true;
     });
 
 export const renameVariantOccurrences = (

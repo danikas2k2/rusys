@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { ApiUrl, type ApiRenameVariant } from '~/common/api';
-import { type UpdateVariant } from '~/common/types';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
+import { ApiUrl, type ApiRenameVariant } from '~/types/api';
+import { type UpdateVariant } from '~/types/data';
 
 export function useRenameVariant(): (
     group: string,
@@ -12,7 +12,7 @@ export function useRenameVariant(): (
     const request = useUpdatingApiRequest<ApiRenameVariant>();
     return useCallback(
         async (group, variant, newVariant, update): Promise<void> => {
-            if (newVariant && variant !== newVariant) {
+            if (group && variant && newVariant && variant !== newVariant) {
                 return request(ApiUrl.VariantsRename, { group, variant, newVariant, ...update });
             }
         },

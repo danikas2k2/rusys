@@ -175,6 +175,18 @@ describe('useLongPress', () => {
             expect(onLongPress).toHaveBeenCalledWith(expect.event('touchstart'));
             expect(onShortPress).not.toHaveBeenCalled();
         });
+
+        it('does nothing if touch events are not available on device', () => {
+            Object.assign(window, { TouchEvent: undefined });
+
+            render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} shortDelay={0} />);
+
+            act(() => fireEvent.touchStart(screen.getByRole('button')));
+            act(() => fireEvent.touchEnd(screen.getByRole('button')));
+
+            expect(onLongPress).not.toHaveBeenCalled();
+            expect(onShortPress).not.toHaveBeenCalled();
+        });
     });
 
     describe('pointer events', () => {

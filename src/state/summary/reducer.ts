@@ -1,4 +1,4 @@
-import { type Summary } from '~/common/types';
+import { type Summary } from '~/types/data';
 import { SummaryActionType, type SummaryAction } from './actions';
 import { cloneDeep } from 'lodash';
 

@@ -78,10 +78,10 @@ export function useLongPress<T = Element>(
                     shortPressRef.current = true;
                     if (shortDelay) {
                         setTimeout(() => {
-                            onShortPress?.(e);
+                            onShortPress(e);
                         }, shortDelay);
                     } else {
-                        onShortPress?.(e);
+                        onShortPress(e);
                     }
                 }
             }
@@ -145,9 +145,9 @@ export function useLongPress<T = Element>(
 }
 
 function getX<T>(e: PressEvent<T>): number {
-    return ((e as unknown as TouchEvent).touches?.[0] ?? (e as unknown as MouseEvent))?.clientX;
+    return ((e as unknown as TouchEvent).touches?.[0] ?? (e as unknown as MouseEvent)).clientX;
 }
 
 function getY<T>(e: PressEvent<T>): number {
-    return ((e as unknown as TouchEvent).touches?.[0] ?? (e as unknown as MouseEvent))?.clientY;
+    return ((e as unknown as TouchEvent).touches?.[0] ?? (e as unknown as MouseEvent)).clientY;
 }

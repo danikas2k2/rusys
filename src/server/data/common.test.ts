@@ -12,14 +12,15 @@ import {
 import {
     deleteDetailsGroup,
     deleteDetailsVariant,
+    getDetailsVariants,
     moveDetails,
     renameDetailsGroup,
     renameDetailsVariant,
 } from '~/server/data/details';
 import { deleteGroup, renameGroup } from '~/server/data/groups';
-import { getAllDetails, getAllGroups, getAllVariants } from '~/server/data/tests/utils';
+import { $all } from '~/server/data/tests/utils';
 import {
-    copyDetailsVariants,
+    copyVariants,
     deleteVariant,
     deleteVariantsGroup,
     renameVariant,
@@ -37,11 +38,12 @@ jest.mock('~/server/data/details', () => {
     const actual = jest.requireActual('~/server/data/details');
     return {
         ...actual,
-        moveDetails: jest.fn().mockImplementation(actual.moveDetails),
-        deleteDetailsGroup: jest.fn().mockImplementation(actual.deleteDetailsGroup),
-        deleteDetailsVariant: jest.fn().mockImplementation(actual.deleteDetailsVariant),
-        renameDetailsGroup: jest.fn().mockImplementation(actual.renameDetailsGroup),
-        renameDetailsVariant: jest.fn().mockImplementation(actual.renameDetailsVariant),
+        moveDetails: jest.fn(actual.moveDetails),
+        getDetailsVariants: jest.fn(actual.getDetailsVariants),
+        deleteDetailsGroup: jest.fn(actual.deleteDetailsGroup),
+        deleteDetailsVariant: jest.fn(actual.deleteDetailsVariant),
+        renameDetailsGroup: jest.fn(actual.renameDetailsGroup),
+        renameDetailsVariant: jest.fn(actual.renameDetailsVariant),
     };
 });
 
@@ -49,8 +51,8 @@ jest.mock('~/server/data/groups', () => {
     const actual = jest.requireActual('~/server/data/groups');
     return {
         ...actual,
-        deleteGroup: jest.fn().mockImplementation(actual.deleteGroup),
-        renameGroup: jest.fn().mockImplementation(actual.renameGroup),
+        deleteGroup: jest.fn(actual.deleteGroup),
+        renameGroup: jest.fn(actual.renameGroup),
     };
 });
 
@@ -58,11 +60,11 @@ jest.mock('~/server/data/variants', () => {
     const actual = jest.requireActual('~/server/data/variants');
     return {
         ...actual,
-        copyDetailsVariants: jest.fn().mockImplementation(actual.copyDetailsVariants),
-        deleteVariant: jest.fn().mockImplementation(actual.deleteVariant),
-        deleteVariantsGroup: jest.fn().mockImplementation(actual.deleteVariantsGroup),
-        renameVariant: jest.fn().mockImplementation(actual.renameVariant),
-        renameVariantsGroup: jest.fn().mockImplementation(actual.renameVariantsGroup),
+        copyVariants: jest.fn(actual.copyVariants),
+        deleteVariant: jest.fn(actual.deleteVariant),
+        deleteVariantsGroup: jest.fn(actual.deleteVariantsGroup),
+        renameVariant: jest.fn(actual.renameVariant),
+        renameVariantsGroup: jest.fn(actual.renameVariantsGroup),
     };
 });
 
@@ -93,13 +95,14 @@ describe('common', () => {
         it('moves details occurrences, returns true', async () => {
             await expect(moveDetailsOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBeTrue();
             expect(moveDetails).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
-            expect(copyDetailsVariants).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', session);
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual([
+            expect(getDetailsVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkai', session);
+            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Šaldyti', ['d'], session);
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual([
                 ...variants,
                 { group: 'Šaldyti', variant: 'd', long: '3 l.', order: 0 },
             ]);
-            await expect(getAllDetails()).resolves.toStrictEqual([
+            await expect($all('details')).resolves.toStrictEqual([
                 ...details.slice(0, 2),
                 { ...details[2], group: 'Šaldyti' },
                 ...details.slice(3),
@@ -109,15 +112,36 @@ describe('common', () => {
         it('moves details occurrences with new name, returns true', async () => {
             await expect(moveDetailsOccurrences('Daržovės', 'Agurkai', 'Šaldyti', 'Agurkėliai')).resolves.toBeTrue();
             expect(moveDetails).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', 'Agurkėliai', session);
-            expect(copyDetailsVariants).toHaveBeenCalledWith('Daržovės', 'Agurkėliai', 'Šaldyti', session);
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual([
+            expect(getDetailsVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkėliai', session);
+            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Šaldyti', ['d'], session);
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual([
                 ...variants,
                 { group: 'Šaldyti', variant: 'd', long: '3 l.', order: 0 },
             ]);
-            await expect(getAllDetails()).resolves.toStrictEqual([
+            await expect($all('details')).resolves.toStrictEqual([
                 ...details.slice(0, 2),
                 { ...details[2], group: 'Šaldyti', name: 'Agurkėliai' },
+                ...details.slice(3),
+            ]);
+        });
+
+        it.each`
+            title           | value
+            ${'empty list'} | ${[]}
+            ${'undefined'}  | ${undefined}
+        `('returns true but does not copy variants if getDetailsVariants returns $title', async ({ value }) => {
+            jest.mocked(getDetailsVariants).mockResolvedValueOnce(value);
+
+            await expect(moveDetailsOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBeTrue();
+            expect(moveDetails).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
+            expect(getDetailsVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkai', session);
+            expect(copyVariants).not.toHaveBeenCalledWith();
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual([
+                ...details.slice(0, 2),
+                { ...details[2], group: 'Šaldyti', name: 'Agurkai' },
                 ...details.slice(3),
             ]);
         });
@@ -127,10 +151,11 @@ describe('common', () => {
 
             await expect(moveDetailsOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBeFalse();
             expect(moveDetails).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
-            expect(copyDetailsVariants).not.toHaveBeenCalledWith();
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            expect(getDetailsVariants).not.toHaveBeenCalled();
+            expect(copyVariants).not.toHaveBeenCalledWith();
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
         it('rejects if moveDetails fails', async () => {
@@ -140,23 +165,25 @@ describe('common', () => {
                 'Failed to move details'
             );
             expect(moveDetails).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
-            expect(copyDetailsVariants).not.toHaveBeenCalledWith();
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            expect(getDetailsVariants).not.toHaveBeenCalled();
+            expect(copyVariants).not.toHaveBeenCalledWith();
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
-        it('rejects if copyDetailsVariants fails', async () => {
-            jest.mocked(copyDetailsVariants).mockRejectedValueOnce('Failed to rename variants group');
+        it('rejects if copyVariants fails', async () => {
+            jest.mocked(copyVariants).mockRejectedValueOnce('Failed to rename variants group');
 
             await expect(moveDetailsOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).rejects.toBe(
                 'Failed to rename variants group'
             );
             expect(moveDetails).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
-            expect(copyDetailsVariants).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', session);
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            expect(getDetailsVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkai', session);
+            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Šaldyti', ['d'], session);
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
@@ -166,15 +193,15 @@ describe('common', () => {
             expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameDetailsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
-            await expect(getAllGroups()).resolves.toStrictEqual([
+            await expect($all('groups')).resolves.toStrictEqual([
                 { ...groups[0], group: 'Šaldyti' },
                 ...groups.slice(1),
             ]);
-            await expect(getAllVariants()).resolves.toStrictEqual([
+            await expect($all('variants')).resolves.toStrictEqual([
                 ...variants.slice(0, 5),
                 ...variants.slice(5).map((v) => ({ ...v, group: 'Šaldyti' })),
             ]);
-            await expect(getAllDetails()).resolves.toStrictEqual([
+            await expect($all('details')).resolves.toStrictEqual([
                 ...details.slice(0, 2),
                 ...details.slice(2).map((d) => ({ ...d, group: 'Šaldyti' })),
             ]);
@@ -187,9 +214,9 @@ describe('common', () => {
             expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameVariantsGroup).not.toHaveBeenCalled();
             expect(renameDetailsGroup).not.toHaveBeenCalled();
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
         it('rejects if renameGroup fails', async () => {
@@ -199,9 +226,9 @@ describe('common', () => {
             expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameVariantsGroup).not.toHaveBeenCalled();
             expect(renameDetailsGroup).not.toHaveBeenCalled();
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
         it('rejects if renameVariantsGroup fails', async () => {
@@ -211,9 +238,9 @@ describe('common', () => {
             expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameDetailsGroup).not.toHaveBeenCalled();
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
         it('rejects if renameDetailsGroup fails', async () => {
@@ -223,9 +250,9 @@ describe('common', () => {
             expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameDetailsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
@@ -235,9 +262,9 @@ describe('common', () => {
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteVariantsGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteDetailsGroup).toHaveBeenCalledWith('Daržovės', session);
-            await expect(getAllGroups()).resolves.toStrictEqual(groups.slice(1));
-            await expect(getAllVariants()).resolves.toStrictEqual(variants.slice(0, 5));
-            await expect(getAllDetails()).resolves.toStrictEqual(details.slice(0, 2));
+            await expect($all('groups')).resolves.toStrictEqual(groups.slice(1));
+            await expect($all('variants')).resolves.toStrictEqual(variants.slice(0, 5));
+            await expect($all('details')).resolves.toStrictEqual(details.slice(0, 2));
         });
 
         it('returns false if deleteGroup returns false', async () => {
@@ -247,9 +274,9 @@ describe('common', () => {
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteVariantsGroup).not.toHaveBeenCalled();
             expect(deleteDetailsGroup).not.toHaveBeenCalled();
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
         it('rejects if deleteGroup fails', async () => {
@@ -259,9 +286,9 @@ describe('common', () => {
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteVariantsGroup).not.toHaveBeenCalled();
             expect(deleteDetailsGroup).not.toHaveBeenCalled();
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
         it('rejects if deleteVariantsGroup fails', async () => {
@@ -271,9 +298,9 @@ describe('common', () => {
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteVariantsGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteDetailsGroup).not.toHaveBeenCalled();
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
         it('rejects if deleteDetailsGroup fails', async () => {
@@ -283,9 +310,9 @@ describe('common', () => {
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteVariantsGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteDetailsGroup).toHaveBeenCalledWith('Daržovės', session);
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
@@ -294,12 +321,12 @@ describe('common', () => {
             await expect(renameVariantOccurrences('Daržovės', 'p', '2')).resolves.toBeTrue();
             expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', undefined, session);
             expect(renameDetailsVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', session);
-            await expect(getAllVariants()).resolves.toStrictEqual([
+            await expect($all('variants')).resolves.toStrictEqual([
                 ...variants.slice(0, 6),
                 { ...variants[6], variant: '2' },
                 ...variants.slice(7),
             ]);
-            await expect(getAllDetails()).resolves.toStrictEqual([
+            await expect($all('details')).resolves.toStrictEqual([
                 ...details.slice(0, 3),
                 { ...details[3], years: [{ ...details[3].years![0], amounts: [{ variant: '2', amount: 2 }] }] },
                 ...details.slice(4),
@@ -312,12 +339,12 @@ describe('common', () => {
             await expect(renameVariantOccurrences('Daržovės', 'p', '2', update)).resolves.toBeTrue();
             expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', update, session);
             expect(renameDetailsVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', session);
-            await expect(getAllVariants()).resolves.toStrictEqual([
+            await expect($all('variants')).resolves.toStrictEqual([
                 ...variants.slice(0, 6),
                 { ...variants[6], variant: '2', ...update },
                 ...variants.slice(7),
             ]);
-            await expect(getAllDetails()).resolves.toStrictEqual([
+            await expect($all('details')).resolves.toStrictEqual([
                 ...details.slice(0, 3),
                 { ...details[3], years: [{ ...details[3].years![0], amounts: [{ variant: '2', amount: 2 }] }] },
                 ...details.slice(4),
@@ -330,8 +357,8 @@ describe('common', () => {
             await expect(renameVariantOccurrences('Daržovės', 'd', 'b')).resolves.toBeFalse();
             expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', undefined, session);
             expect(renameDetailsVariant).not.toHaveBeenCalled();
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
         it('rejects if renameVariant fails', async () => {
@@ -340,8 +367,8 @@ describe('common', () => {
             await expect(renameVariantOccurrences('Daržovės', 'd', 'b')).rejects.toBe('Failed to rename variant');
             expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', undefined, session);
             expect(renameDetailsVariant).not.toHaveBeenCalled();
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
         it('rejects if renameDetailsVariant rejects', async () => {
@@ -352,8 +379,8 @@ describe('common', () => {
             );
             expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', undefined, session);
             expect(renameDetailsVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', session);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
@@ -362,8 +389,8 @@ describe('common', () => {
             await expect(deleteVariantOccurrences('Daržovės', 'p')).resolves.toBeTrue();
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
             expect(deleteDetailsVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
-            await expect(getAllVariants()).resolves.toStrictEqual([...variants.slice(0, 6), ...variants.slice(7)]);
-            await expect(getAllDetails()).resolves.toStrictEqual([
+            await expect($all('variants')).resolves.toStrictEqual([...variants.slice(0, 6), ...variants.slice(7)]);
+            await expect($all('details')).resolves.toStrictEqual([
                 ...details.slice(0, 3),
                 {
                     group: 'Daržovės',
@@ -379,8 +406,8 @@ describe('common', () => {
             await expect(deleteVariantOccurrences('Daržovės', 'd')).resolves.toBeFalse();
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'd', session);
             expect(deleteDetailsVariant).not.toHaveBeenCalled();
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
         it('rejects if deleteVariant fails', async () => {
@@ -389,8 +416,8 @@ describe('common', () => {
             await expect(deleteVariantOccurrences('Daržovės', 'd')).rejects.toBe('Failed to delete variant');
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'd', session);
             expect(deleteDetailsVariant).not.toHaveBeenCalled();
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
         it('rejects if deleteDetailsVariant fails', async () => {
@@ -399,8 +426,8 @@ describe('common', () => {
             await expect(deleteVariantOccurrences('Daržovės', 'p')).rejects.toBe('Failed to delete details variant');
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
             expect(deleteDetailsVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
@@ -414,9 +441,10 @@ describe('common', () => {
         });
 
         it('handles an empty database', async () => {
-            await (await db()).collection('details').deleteMany({});
-            await (await db()).collection('variants').deleteMany({});
-            await (await db()).collection('groups').deleteMany({});
+            const d = await db();
+            await d.collection('details').deleteMany({});
+            await d.collection('variants').deleteMany({});
+            await d.collection('groups').deleteMany({});
 
             const result = await exportEverything();
 
@@ -437,9 +465,9 @@ describe('common', () => {
 
         it('inserts data into the database and returns true', async () => {
             await expect(importEverything(details, variants, groups)).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-            await expect(getAllGroups()).resolves.toStrictEqual(groups);
-            await expect(getAllVariants()).resolves.toStrictEqual(variants);
+            await expect($all('details')).resolves.toStrictEqual(details);
+            await expect($all('groups')).resolves.toStrictEqual(groups);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
         });
 
         it('rejects if inserting fails', async () => {

@@ -2,8 +2,8 @@ import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { getDetailsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
-import { type Details } from '~/common/types';
 import { useDetails } from '~/state/details/useDetails';
+import { type Details } from '~/types/data';
 
 describe('useDetails', () => {
     it('return empty list for empty state', () => {

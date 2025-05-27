@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { ApiUrl, type ApiRequestGroup } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
+import { ApiUrl, type ApiRequestGroup } from '~/types/api';
 
 export function useDeleteGroup(): (group: string) => Promise<void> {
     const request = useUpdatingApiRequest<ApiRequestGroup>();

@@ -1,4 +1,4 @@
-import { type ApiResponse } from '~/common/api';
+import { type ApiResponse } from '~/types/api';
 import { type Response } from 'express';
 
 export function mockResponse<R extends Response>(): R;

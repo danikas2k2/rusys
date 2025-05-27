@@ -1,6 +1,6 @@
 import React from 'react';
 import { SummaryGroup } from '~/client/summary/SummaryGroup';
-import { type Summary } from '~/common/types';
+import { type Summary } from '~/types/data';
 
 interface SummaryGroupsProps {
     groups: ReadonlyArray<string>;

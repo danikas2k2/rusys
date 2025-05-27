@@ -11,9 +11,9 @@ import { RecycledControls } from '~/client/common/RecycledControls';
 import { ValueInput } from '~/client/details/dialogs/ValueInput';
 import { getChangedAmount, getVariantAmount } from '~/client/details/utils/amounts';
 import { useLabel } from '~/client/hooks/useLabel';
-import { type VariantAmount } from '~/common/types';
 import { useAllVariants } from '~/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
+import { type VariantAmount } from '~/types/data';
 import cx from './ValueBox.less';
 
 export interface ValueBoxProps {

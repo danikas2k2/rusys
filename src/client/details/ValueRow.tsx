@@ -7,11 +7,11 @@ import { SlideControls } from '~/client/common/SlideControls';
 import { ValueCell } from '~/client/details/ValueCell';
 import { Cell } from '~/client/table/Cell';
 import { RowWithSlideControls } from '~/client/table/RowWithSlideControls';
-import { type Details, type RemovingYearAmounts } from '~/common/types';
 import { useDeleteDetails } from '~/state/details/useDeleteDetails';
 import { useHasRemoving } from '~/state/details/useHasRemoving';
 import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';
 import { useYears } from '~/state/years/useYears';
+import { type Details, type RemovingYearAmounts } from '~/types/data';
 import { isEmpty } from 'lodash';
 import cx from './ValueRow.less';
 

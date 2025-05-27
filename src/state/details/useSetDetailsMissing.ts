@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { ApiUrl, type ApiSetMissing } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { setDetailsMissingAction } from '~/state/details/actions';
+import { ApiUrl, type ApiSetMissing } from '~/types/api';
 
 export function useSetDetailsMissing(): (group: string, name: string, missing: boolean) => Promise<void> {
     const dispatch = useDispatch();

@@ -5,8 +5,8 @@ import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
 import { SlideControls } from '~/client/common/SlideControls';
 import { Cell } from '~/client/table/Cell';
 import { SortableRow } from '~/client/table/SortableRow';
-import { type Variant } from '~/common/types';
 import { useDeleteVariant } from '~/state/variants/useDeleteVariant';
+import { type Variant } from '~/types/data';
 import cs from 'classnames';
 import cx from './SortableVariant.less';
 

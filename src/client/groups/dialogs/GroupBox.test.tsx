@@ -4,12 +4,12 @@ import userEvent from '@testing-library/user-event';
 import { getGroupsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
 import { GroupBox } from '~/client/groups/dialogs/GroupBox';
-import { useAddGroup } from '~/state/groups/useAddGroup';
 import { useRenameGroup } from '~/state/groups/useRenameGroup';
+import { useUpdateGroup } from '~/state/groups/useUpdateGroup';
 
 jest.mock('~/client/common/Label');
-jest.mock('~/state/groups/useAddGroup');
 jest.mock('~/state/groups/useRenameGroup');
+jest.mock('~/state/groups/useUpdateGroup');
 
 describe('<GroupBox>', () => {
     const state = {
@@ -69,7 +69,7 @@ describe('<GroupBox>', () => {
         const addGroup = jest.fn();
 
         it('closes dialog without error when successfully added', async () => {
-            jest.mocked(useAddGroup).mockReturnValue(addGroup.mockResolvedValue(true));
+            jest.mocked(useUpdateGroup).mockReturnValue(addGroup.mockResolvedValue(true));
             render(
                 <MockRedux state={state}>
                     <GroupBox onClose={onClose} />
@@ -84,7 +84,7 @@ describe('<GroupBox>', () => {
         });
 
         it('displays error without closing dialog when adding fails', async () => {
-            jest.mocked(useAddGroup).mockReturnValue(addGroup.mockRejectedValueOnce('Failed to add'));
+            jest.mocked(useUpdateGroup).mockReturnValue(addGroup.mockRejectedValueOnce('Failed to add'));
             render(
                 <MockRedux state={state}>
                     <GroupBox onClose={onClose} />
@@ -99,7 +99,7 @@ describe('<GroupBox>', () => {
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
-            jest.mocked(useAddGroup).mockReturnValue(addGroup);
+            jest.mocked(useUpdateGroup).mockReturnValue(addGroup);
             render(
                 <MockRedux state={state}>
                     <GroupBox onClose={onClose} />
@@ -113,7 +113,7 @@ describe('<GroupBox>', () => {
         });
 
         it('displays error without closing dialog when name already exists', async () => {
-            jest.mocked(useAddGroup).mockReturnValue(addGroup);
+            jest.mocked(useUpdateGroup).mockReturnValue(addGroup);
             render(
                 <MockRedux state={state}>
                     <GroupBox onClose={onClose} />

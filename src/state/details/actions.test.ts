@@ -1,6 +1,6 @@
 import { getDetailsFixture } from '@tests/fixtures';
-import { type Details } from '~/common/types';
 import { DetailsActionType, setDetailsAction } from '~/state/details/actions';
+import { type Details } from '~/types/data';
 
 describe('setDetailsAction', () => {
     it('returns valid action', () => {

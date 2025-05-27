@@ -1,7 +1,6 @@
 /** @jest-environment node */
 import { getGroupsFixture } from '@tests/fixtures';
-import { type Group } from '~/common/types';
-import { deleteGroup, getGroups, renameGroup, reorderGroups, setGroups, updateGroup } from '~/server/data/groups';
+import { deleteGroup, getGroups, renameGroup, reorderGroups, updateGroup } from '~/server/data/groups';
 import { db } from '~/server/db';
 
 jest.setTimeout(30_000);
@@ -26,43 +25,6 @@ describe('groups', () => {
         });
     });
 
-    describe('setGroups', () => {
-        it('updates groups and deletes non-existing ones', async () => {
-            await expect(
-                setGroups([
-                    { group: 'C', order: 2 },
-                    { group: 'Uogienės', order: 1 },
-                ])
-            ).resolves.toBeTrue();
-            await expect(getGroups()).resolves.toStrictEqual([
-                { group: 'Uogienės', order: 1 },
-                { group: 'C', order: 2 },
-            ]);
-        });
-
-        it('updates groups by empty set', async () => {
-            await expect(setGroups([])).resolves.toBeTrue();
-            await expect(getGroups()).resolves.toStrictEqual([]);
-        });
-
-        it('does nothing if no groups are updated or deleted', async () => {
-            await expect(
-                setGroups([
-                    { group: 'Daržovės', order: 2 },
-                    { group: 'Uogienės', order: 1 },
-                ])
-            ).resolves.toBeFalse();
-            await expect(getGroups()).resolves.toStrictEqual(groups);
-        });
-
-        it('updates groups ignoring empty names or records', async () => {
-            await expect(
-                setGroups([{ group: '', order: 1 }, { group: 'C', order: 2 }, { order: 3 } as Group, {} as Group])
-            ).resolves.toBeTrue();
-            await expect(getGroups()).resolves.toStrictEqual([{ group: 'C', order: 2 }]);
-        });
-    });
-
     describe('updateGroup', () => {
         it('updates a group', async () => {
             await expect(updateGroup('Daržovės', 3)).resolves.toBeTrue();
@@ -72,6 +34,23 @@ describe('groups', () => {
         it('updates a group with order field', async () => {
             await expect(updateGroup('Daržovės', 3)).resolves.toBeTrue();
             await expect(getGroups()).resolves.toStrictEqual([groups[0], { group: 'Daržovės', order: 3 }]);
+        });
+
+        it('updates a group without order field', async () => {
+            await expect(updateGroup('Šaldyti')).resolves.toBeTrue();
+            await expect(getGroups()).resolves.toStrictEqual([...groups, { group: 'Šaldyti', order: 3 }]);
+        });
+
+        it('ads a new group to empty collection without order field', async () => {
+            await (await db()).collection('groups').deleteMany({});
+
+            await expect(updateGroup('Šaldyti')).resolves.toBeTrue();
+            await expect(getGroups()).resolves.toStrictEqual([{ group: 'Šaldyti', order: 0 }]);
+        });
+
+        it('does notupdate a group with existing name without order field', async () => {
+            await expect(updateGroup('Daržovės')).resolves.toBeFalse();
+            await expect(getGroups()).resolves.toStrictEqual(groups);
         });
 
         it('adds a group', async () => {
@@ -172,7 +151,7 @@ describe('groups', () => {
         });
 
         it('does nothing if group does not exists', async () => {
-            await expect(deleteGroup('C')).resolves.toBeFalse();
+            await expect(deleteGroup('Šaldyti')).resolves.toBeFalse();
             await expect(getGroups()).resolves.toStrictEqual(groups);
         });
     });

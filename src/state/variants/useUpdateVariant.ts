@@ -1,13 +1,15 @@
 import { useCallback } from 'react';
-import { ApiUrl, type ApiUpdateVariant } from '~/common/api';
-import { type UpdateVariant } from '~/common/types';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
+import { ApiUrl, type ApiUpdateVariant } from '~/types/api';
+import { type UpdateVariant } from '~/types/data';
 
 export function useUpdateVariant(): (group: string, variant: string, update: UpdateVariant) => Promise<void> {
     const request = useUpdatingApiRequest<ApiUpdateVariant>();
     return useCallback(
         async (group: string, variant: string, update: UpdateVariant): Promise<void> => {
-            return request(ApiUrl.VariantsUpdate, { group, variant, ...update });
+            if (group && variant) {
+                return request(ApiUrl.VariantsUpdate, { group, variant, ...update });
+            }
         },
         [request]
     );

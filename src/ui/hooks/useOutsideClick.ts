@@ -8,7 +8,7 @@ export function useOutsideClick(ref: RefObject<Element | null>, handler: (e: Eve
     useEffect(() => {
         const handleOutsideClick = (e: Event) => {
             const target = e.target as Element;
-            if (ref?.current && ref?.current !== target && !ref?.current.contains(target)) {
+            if (ref.current && ref.current !== target && !ref.current.contains(target)) {
                 handler(e);
             }
         };

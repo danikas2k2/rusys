@@ -1,6 +1,6 @@
 import React from 'react';
-import { type Variant } from '~/common/types';
 import { useVariant } from '~/state/variants/useVariant';
+import { type Variant } from '~/types/data';
 
 interface ValueVariantProps {
     group: string;

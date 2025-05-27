@@ -5,13 +5,10 @@ export interface FocusRefObject<T> extends RefObject<T> {
     focus: () => void;
 }
 
-export function useFocusRef<T extends HTMLElement>(forwardedRef?: ForwardedRef<T>): FocusRefObject<T> | undefined {
+export function useFocusRef<T extends HTMLElement>(forwardedRef?: ForwardedRef<T>): FocusRefObject<T> {
     const ref = useForwardedRef(forwardedRef);
-    const focus = useCallback(() => {
-        ref?.current?.focus();
+    (ref as FocusRefObject<T>).focus = useCallback(() => {
+        ref.current?.focus();
     }, [ref]);
-    if (ref) {
-        (ref as FocusRefObject<T>).focus = focus;
-    }
     return ref as FocusRefObject<T>;
 }

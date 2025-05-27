@@ -33,4 +33,10 @@ describe('useAllVariants', () => {
 
         expect(result.current).toStrictEqual([]);
     });
+
+    it('returns empty list if has no state', async () => {
+        const { result } = renderHook(() => useAllVariants('Skalbikliai'), { wrapper: MockRedux });
+
+        expect(result.current).toStrictEqual([]);
+    });
 });

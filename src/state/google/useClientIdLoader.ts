@@ -1,8 +1,8 @@
 import { useDispatch } from 'react-redux';
-import { ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { setClientIdAction, setLoadingAction } from '~/state/google/actions';
 import { useGoogle } from '~/state/google/useGoogle';
+import { ApiUrl } from '~/types/api';
 
 export function useClientIdLoader(): () => Promise<void> {
     const dispatch = useDispatch();

@@ -1,12 +1,12 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { type ApiResult } from '~/common/api';
-import { type Details, type Summary } from '~/common/types';
 import { setDetailsAction } from '~/state/details/actions';
 import { setGroupsAction } from '~/state/groups/actions';
 import { setSummaryAction } from '~/state/summary/actions';
 import { setVariantsAction } from '~/state/variants/actions';
 import { setYearsAction } from '~/state/years/actions';
+import { type ApiResult } from '~/types/api';
+import { type Details, type Summary } from '~/types/data';
 import { type ActionCreatorsMapObject } from 'redux';
 
 export type RefreshResult = ApiResult<{

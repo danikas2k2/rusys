@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
-import { ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { useReorderGroups } from '~/state/groups/useReorderGroups';
+import { ApiUrl } from '~/types/api';
 
 jest.mock('~/state/base/useUpdatingApiRequest');
 
@@ -15,9 +15,10 @@ describe('useReorderGroups', () => {
 
     it('calls reorder action', async () => {
         const { result } = renderHook(() => useReorderGroups(), { wrapper: MockRedux });
-        await result.current({ G: 3, H: 2 });
+        const groups = { Uogienės: 3, Daržovės: 2 };
+        await result.current(groups);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsReorder, { groups: { G: 3, H: 2 } });
+        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsReorder, { groups });
     });
 
     it('does not call reorder action with empty group set', async () => {

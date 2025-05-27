@@ -45,6 +45,26 @@ describe('useProfile', () => {
     });
 
     it('return empty profile for empty state', () => {
+        const { result } = renderHook(() => useProfile(), { wrapper: MockRedux });
+
+        expect(result.current).toStrictEqual({});
+        expect(getItem).toHaveBeenCalledWith('profile');
+        expect(setProfile).not.toHaveBeenCalled();
+    });
+
+    it('return empty profile from localStorage if not defined', () => {
+        getItem.mockReturnValueOnce(null);
+        const { result } = renderHook(() => useProfile(), {
+            wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
+        });
+
+        expect(result.current).toStrictEqual({});
+        expect(getItem).toHaveBeenCalledWith('profile');
+        expect(setProfile).not.toHaveBeenCalled();
+    });
+
+    it('return empty profile from localStorage if invalid', () => {
+        getItem.mockReturnValueOnce('null');
         const { result } = renderHook(() => useProfile(), {
             wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
         });

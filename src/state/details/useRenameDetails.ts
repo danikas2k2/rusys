@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { ApiUrl, type ApiRenameDetails } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
+import { ApiUrl, type ApiRenameDetails } from '~/types/api';
 
 export function useRenameDetails(): (group: string, name: string, newName: string) => Promise<void> {
     const request = useUpdatingApiRequest<ApiRenameDetails>();

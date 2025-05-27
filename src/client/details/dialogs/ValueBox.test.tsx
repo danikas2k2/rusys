@@ -7,8 +7,8 @@ import { RecycledContextWrapper } from '~/client/common/RecycledContext';
 import { ValueBox, type ValueBoxProps } from '~/client/details/dialogs/ValueBox';
 import { ValueInput } from '~/client/details/dialogs/ValueInput';
 import { getVariantAmount } from '~/client/details/utils/amounts';
-import { type VariantAmount } from '~/common/types';
 import { type WithVariantsState } from '~/state/variants/types';
+import { type VariantAmount } from '~/types/data';
 
 jest.mock('~/client/details/dialogs/ValueInput', () => ({
     ValueInput: jest.fn(jest.requireActual('~/client/details/dialogs/ValueInput').ValueInput),

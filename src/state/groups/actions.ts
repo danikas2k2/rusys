@@ -1,4 +1,4 @@
-import { type Group } from '~/common/types';
+import { type Group } from '~/types/data';
 
 export const enum GroupsActionType {
     SET = 'groups.set',

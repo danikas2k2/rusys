@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
-import { ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { useDeleteGroup } from '~/state/groups/useDeleteGroup';
+import { ApiUrl } from '~/types/api';
 
 jest.mock('~/state/base/useUpdatingApiRequest');
 
@@ -15,9 +15,9 @@ describe('useDeleteGroup', () => {
 
     it('calls delete action', async () => {
         const { result } = renderHook(() => useDeleteGroup(), { wrapper: MockRedux });
-        await result.current('G');
+        await result.current('Uogienės');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsDelete, { group: 'G' });
+        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsDelete, { group: 'Uogienės' });
     });
 
     it('does not call delete action with empty group', async () => {

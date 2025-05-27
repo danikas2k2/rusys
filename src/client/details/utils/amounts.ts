@@ -1,4 +1,4 @@
-import { type VariantAmount } from '~/common/types';
+import { type VariantAmount } from '~/types/data';
 
 export function getVariant(
     amounts: ReadonlyArray<VariantAmount> | undefined,

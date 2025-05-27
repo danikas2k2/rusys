@@ -26,6 +26,18 @@ describe('<Button>', () => {
         expect(screen.getByRole('button', { name: 'Inner Button' })).toBeInTheDocument();
     });
 
+    it('renders with a startDecorator element', () => {
+        render(<Button startDecorator={<div>start-decorator</div>} />);
+
+        expect(screen.getByRole('button')).toHaveTextContent('start-decorator');
+    });
+
+    it('renders with an endDecorator element', () => {
+        render(<Button endDecorator={<div>end-decorator</div>} />);
+
+        expect(screen.getByRole('button')).toHaveTextContent('end-decorator');
+    });
+
     it('applies className prop', () => {
         render(<Button className="test-class" />);
 

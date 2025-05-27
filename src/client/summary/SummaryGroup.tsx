@@ -3,7 +3,7 @@ import { useRecycled } from '~/client/common/RecycledContext';
 import { SummaryRow } from '~/client/summary/SummaryRow';
 import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';
-import { type Summary } from '~/common/types';
+import { type Summary } from '~/types/data';
 import cx from './SummaryGroup.less';
 
 interface SummaryGroupProps {

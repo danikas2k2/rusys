@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useRecycled } from '~/client/common/RecycledContext';
-import { type Summary } from '~/common/types';
 import { useSummary } from '~/state/summary/useSummary';
+import { type Summary } from '~/types/data';
 
 export function useRecycledSummary(): ReadonlyArray<Summary> {
     const [recycled] = useRecycled();

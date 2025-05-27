@@ -3,8 +3,8 @@ import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { getChangedIndexes } from '~/client/utils/getChangedIndexes';
 import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
 import { SortableVariant, type ActiveVariant } from '~/client/variants/SortableVariant';
-import { type Variant } from '~/common/types';
 import { useReorderVariants } from '~/state/variants/useReorderVariants';
+import { type Variant } from '~/types/data';
 import { isEqual } from 'lodash';
 import cx from './SortableVariants.less';
 

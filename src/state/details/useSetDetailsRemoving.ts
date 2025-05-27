@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { ApiUrl, type ApiSetRemoving } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { setDetailsRemovingAction } from '~/state/details/actions';
+import { ApiUrl, type ApiSetRemoving } from '~/types/api';
 
 export function useSetDetailsRemoving(): (
     group: string,

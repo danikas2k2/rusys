@@ -14,15 +14,14 @@ import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
 import { compareNames } from '~/client/utils/compareNames';
-import { type Variant } from '~/common/types';
 import { getErrorMessage } from '~/common/utils/errors';
 import { useGroups } from '~/state/groups/useGroups';
-import { useAddVariant } from '~/state/variants/useAddVariant';
 import { useCopyVariant } from '~/state/variants/useCopyVariant';
 import { useRenameVariant } from '~/state/variants/useRenameVariant';
 import { useUpdateVariant } from '~/state/variants/useUpdateVariant';
 import { useVariant } from '~/state/variants/useVariant';
 import { useVariants } from '~/state/variants/useVariants';
+import { type Variant } from '~/types/data';
 import { isEmpty } from 'lodash';
 import cx from './VariantBox.less';
 
@@ -69,7 +68,6 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
     const groupRef = useFocusRef<HTMLInputElement>();
     const nameRef = useAutoFocus<HTMLInputElement>();
 
-    const addVariant = useAddVariant();
     const copyVariant = useCopyVariant();
     const renameVariant = useRenameVariant();
     const updateVariant = useUpdateVariant();
@@ -97,7 +95,7 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
                 short: shortTitle,
             };
             if (!initialVariant) {
-                await addVariant(group, variant, update);
+                await updateVariant(group, variant, update);
             } else if (variantCopied) {
                 await copyVariant(initialGroup, initialVariant, group, variant, update);
             } else if (variantRenamed) {
@@ -130,7 +128,6 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
         initialGroup,
         renameVariant,
         updateVariant,
-        addVariant,
     ]);
 
     const handleClose = useCallback((): void => onClose(), [onClose]);

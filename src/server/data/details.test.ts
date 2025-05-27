@@ -3,10 +3,12 @@ import { bulk } from '@tests/bulk';
 import { getDetailsFixture } from '@tests/fixtures';
 import {
     addDetails,
+    addVariantAmount,
     deleteDetails,
     deleteDetailsGroup,
     deleteDetailsVariant,
     getDetails,
+    getDetailsVariants,
     moveDetails,
     renameDetails,
     renameDetailsGroup,
@@ -15,13 +17,15 @@ import {
     setRemoving,
     updateDetails,
 } from '~/server/data/details';
-import { getAllDetails } from '~/server/data/tests/utils';
+import { $all } from '~/server/data/tests/utils';
 import { db } from '~/server/db';
 
 jest.setTimeout(30_000);
 
 jest.mock('~/server/db');
 jest.mock('~/server/data/years');
+jest.mock('~/server/data/groups');
+jest.mock('~/server/data/variants');
 
 describe('details', () => {
     const details = getDetailsFixture();
@@ -64,12 +68,28 @@ describe('details', () => {
             ]);
         });
 
-        it('returns no details for missing years', async () => {
-            await expect(getDetails([23, 24])).resolves.toStrictEqual([]);
+        it.each`
+            title              | years
+            ${'invalid years'} | ${[23, 24]}
+            ${'empty years'}   | ${[]}
+        `('returns no details for $title', async ({ years }) => {
+            await expect(getDetails(years)).resolves.toStrictEqual([]);
+        });
+    });
+
+    describe('getDetailsVariants', () => {
+        it('returns details variants', async () => {
+            await expect(getDetailsVariants('Uogienės', 'Braškės')).resolves.toIncludeSameMembers(['p', 'm']);
         });
 
-        it('returns no details for empty array', async () => {
-            await expect(getDetails([])).resolves.toStrictEqual([]);
+        it.each`
+            title              | group         | name
+            ${'invalid group'} | ${'Šaldyti'}  | ${'Braškės'}
+            ${'invalid name'}  | ${'Uogienės'} | ${'Bruknės'}
+            ${'empty group'}   | ${''}         | ${'Braškės'}
+            ${'empty name'}    | ${'Uogienės'} | ${''}
+        `('returns no variants for $title', async ({ group, name }) => {
+            await expect(getDetailsVariants(group, name)).resolves.toBeUndefined();
         });
     });
 
@@ -78,15 +98,16 @@ describe('details', () => {
     describe('addDetails', () => {
         it('adds details for new group and specified name', async () => {
             await expect(addDetails('Šaldyti', 'Cukai')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual([...details, { group: 'Šaldyti', name: 'Cukai' }]);
+            await expect($all('details')).resolves.toStrictEqual([...details, { group: 'Šaldyti', name: 'Cukai' }]);
         });
 
-        it('does not add details if group is missing', async () => {
-            await expect(addDetails('', 'Cukai')).resolves.toBeFalse();
-        });
-
-        it('does not add details if name is missing', async () => {
-            await expect(addDetails('Šaldyti', '')).resolves.toBeFalse();
+        it.each`
+            title            | group         | name
+            ${'empty group'} | ${''}         | ${'Braškės'}
+            ${'empty name'}  | ${'Uogienės'} | ${''}
+        `('does not add details for $title', async ({ group, name }) => {
+            await expect(addDetails(group, name)).resolves.toBeFalse();
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
@@ -99,7 +120,7 @@ describe('details', () => {
 
         it('updates details for existing group, name, and year', async () => {
             await expect(updateDetails('Daržovės', 'Agurkai', 22, amounts)).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, {
                     $set: {
                         '2.years.0.amounts': [
@@ -116,7 +137,7 @@ describe('details', () => {
             const amount = { variant: 'x', amount: 1 };
 
             await expect(updateDetails('Daržovės', 'Agurkai', 22, [amount])).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, {
                     $set: { '2.years.0.amounts': [{ variant: 'd', amount: 1 }, amount] },
                     $push: { '2.updates': { time, years: [{ year: 22, amounts: [amount] }] } },
@@ -124,31 +145,35 @@ describe('details', () => {
             );
         });
 
-        it('updates details for existing group, name and year but without amounts', async () => {
-            await expect(updateDetails('Uogienės', 'Avietės', 21)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it('does not update details if no updates made', async () => {
+            const bruknes = { group: 'Uogienės', name: 'Bruknės', years: [{ year: 21, amounts: [] }] };
+            await (await db()).collection('details').insertOne(bruknes, { forceServerObjectId: true });
+
+            await expect(updateDetails('Uogienės', 'Bruknės', 21, [{ variant: 'p', amount: 0 }])).resolves.toBeFalse();
+            await expect($all('details')).resolves.toStrictEqual([...details, bruknes]);
         });
 
-        it('does not update details if no value and year missing', async () => {
-            await expect(updateDetails('Uogienės', 'Avietės', 22)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
+        const change = { variant: 'p', amount: 1 };
 
-        it('updates details for new group, existing name, and different year without value', async () => {
-            await expect(updateDetails('Šaldyti', 'Krapai', 22)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('updates details for existing group, name, and year without value', async () => {
-            await expect(updateDetails('Daržovės', 'Agurkai', 22)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it.each`
+            title                  | group         | name         | year  | changes
+            ${'invalid name'}      | ${'Uogienės'} | ${'Bruknės'} | ${22} | ${[change]}
+            ${'invalid group'}     | ${'Šaldyti'}  | ${'Agurkai'} | ${22} | ${[change]}
+            ${'empty group'}       | ${''}         | ${'Agurkai'} | ${22} | ${[change]}
+            ${'empty name'}        | ${'Daržovės'} | ${''}        | ${22} | ${[change]}
+            ${'empty year'}        | ${'Daržovės'} | ${'Agurkai'} | ${0}  | ${[change]}
+            ${'empty changes'}     | ${'Uogienės'} | ${'Avietės'} | ${22} | ${[]}
+            ${'undefined changes'} | ${'Uogienės'} | ${'Avietės'} | ${22} | ${undefined}
+        `('does not update details for $title', async ({ group, name, year, changes }) => {
+            await expect(updateDetails(group, name, year, changes)).resolves.toBeFalse();
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
 
         it('removes missing flag when missing and negative update received', async () => {
             const amount = { variant: 'p', amount: -1 };
             await updateDetails('Uogienės', 'Braškės', 22, [amount]);
 
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, {
                     $unset: ['1.missing'],
                     $set: { '1.years.0.amounts.0.amount': 1 },
@@ -161,7 +186,7 @@ describe('details', () => {
             const amount = { variant: 'p', amount: 1 };
             await updateDetails('Uogienės', 'Braškės', 22, [amount]);
 
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, {
                     $set: { '1.years.0.amounts.0.amount': 3 },
                     $push: { '1.updates': { time, years: [{ year: 22, amounts: [amount] }] } },
@@ -173,7 +198,7 @@ describe('details', () => {
             const amount = { variant: 'p', amount: -1, recycled: true };
             await updateDetails('Uogienės', 'Braškės', 22, [amount]);
 
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, {
                     $set: { '1.years.0.amounts.0.amount': 1 },
                     $push: { '1.updates': { time, years: [{ year: 22, amounts: [amount] }] } },
@@ -185,52 +210,109 @@ describe('details', () => {
             const amount = { variant: 'p', amount: -2 };
             await updateDetails('Uogienės', 'Braškės', 22, [amount]);
 
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, {
-                    $unset: ['1.missing'],
-                    $set: { '1.years': [] },
+                    $unset: ['1.missing', '1.years'],
                     $push: { '1.updates': { time, years: [{ year: 22, amounts: [amount] }] } },
                 })
             );
         });
     });
 
+    describe('addVariantAmount', () => {
+        it('adds variant amount to empty array', async () => {
+            expect(addVariantAmount([], { variant: 'p', amount: 1 })).toStrictEqual([{ variant: 'p', amount: 1 }]);
+        });
+
+        it('adds variant amount to array with different variant', async () => {
+            expect(addVariantAmount([{ variant: 'd', amount: 1 }], { variant: 'p', amount: 1 })).toStrictEqual([
+                { variant: 'd', amount: 1 },
+                { variant: 'p', amount: 1 },
+            ]);
+        });
+
+        it('adds variant amount to array with same variant', async () => {
+            expect(addVariantAmount([{ variant: 'p', amount: 1 }], { variant: 'p', amount: 1 })).toStrictEqual([
+                { variant: 'p', amount: 2 },
+            ]);
+        });
+
+        it('adds variant amount to array with more variants', async () => {
+            expect(
+                addVariantAmount(
+                    [
+                        { variant: 'd', amount: 1 },
+                        { variant: 'p', amount: 1 },
+                    ],
+                    { variant: 'p', amount: 1 }
+                )
+            ).toStrictEqual([
+                { variant: 'd', amount: 1 },
+                { variant: 'p', amount: 2 },
+            ]);
+        });
+
+        it('adds variant amount to array with negative amount', async () => {
+            expect(
+                addVariantAmount(
+                    [
+                        { variant: 'p', amount: 2 },
+                        { variant: 'd', amount: 1 },
+                    ],
+                    { variant: 'p', amount: -1 }
+                )
+            ).toStrictEqual([
+                { variant: 'p', amount: 1 },
+                { variant: 'd', amount: 1 },
+            ]);
+        });
+
+        it('adds variant amount to array with negative amount to get zero in result', async () => {
+            expect(
+                addVariantAmount(
+                    [
+                        { variant: 'p', amount: 1 },
+                        { variant: 'd', amount: 1 },
+                    ],
+                    { variant: 'p', amount: -1 }
+                )
+            ).toStrictEqual([
+                { variant: 'p', amount: 0 },
+                { variant: 'd', amount: 1 },
+            ]);
+        });
+    });
+
     describe('renameDetails', () => {
         it('renames details', async () => {
             await expect(renameDetails('Daržovės', 'Agurkai', 'Z')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(bulk(details, { $set: { '2.name': 'Z' } }));
+            await expect($all('details')).resolves.toStrictEqual(bulk(details, { $set: { '2.name': 'Z' } }));
         });
 
         it('renames details for different group', async () => {
             await expect(renameDetails('Uogienės', 'Avietės', 'Agrastai')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(bulk(details, { $set: { '0.name': 'Agrastai' } }));
+            await expect($all('details')).resolves.toStrictEqual(bulk(details, { $set: { '0.name': 'Agrastai' } }));
         });
 
-        it('does not rename if name not found', async () => {
-            await expect(renameDetails('Daržovės', 'Burokai', 'Runkeliai')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does not rename if group not found', async () => {
-            await expect(renameDetails('Šaldyti', 'Krapai', 'Krabai')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does not rename if names are the same', async () => {
-            await expect(renameDetails('Uogienės', 'Avietės', 'Avietės')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does not rename if name already in use', async () => {
-            await expect(renameDetails('Uogienės', 'Avietės', 'Braškės')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it.each`
+            title                  | group         | name         | newName
+            ${'invalid group'}     | ${'Šaldyti'}  | ${'Krapai'}  | ${'Krabai'}
+            ${'invalid name'}      | ${'Daržovės'} | ${'Burokai'} | ${'Runkeliai'}
+            ${'same names'}        | ${'Uogienės'} | ${'Avietės'} | ${'Avietės'}
+            ${'already used name'} | ${'Uogienės'} | ${'Avietės'} | ${'Braškės'}
+            ${'empty group'}       | ${''}         | ${'Krapai'}  | ${'Krabai'}
+            ${'empty name'}        | ${'Šaldyti'}  | ${''}        | ${'Krabai'}
+            ${'empty new name'}    | ${'Šaldyti'}  | ${'Krapai'}  | ${''}
+        `('does not rename details for $title', async ({ group, name, newName }) => {
+            await expect(renameDetails(group, name, newName)).resolves.toBeFalse();
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
     describe('renameDetailsVariant', () => {
         it('renames details variant', async () => {
             await expect(renameDetailsVariant('Daržovės', 'd', '3/4')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, {
                     $set: {
                         '2.years.0.amounts.0.variant': '3/4',
@@ -243,7 +325,7 @@ describe('details', () => {
 
         it('renames details variant for different group', async () => {
             await expect(renameDetailsVariant('Uogienės', 'p', '1/2')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, {
                     $set: {
                         '0.years.0.amounts.0.variant': '1/2',
@@ -265,7 +347,7 @@ describe('details', () => {
             await updateDetails('Daržovės', 'Kopūstai', 22, [{ variant: 'p', amount: 1 }]);
 
             await expect(renameDetailsVariant('Daržovės', 'p', '1/2')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, {
                     $set: { '3.years.0.amounts.0.variant': '1/2' },
                     $push: {
@@ -280,7 +362,7 @@ describe('details', () => {
             await updateDetails('Daržovės', 'Kopūstai', 21, [{ variant: 'd', amount: 1 }]);
 
             await expect(renameDetailsVariant('Daržovės', 'd', '3/4')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, {
                     $set: {
                         '2.years.0.amounts.0.variant': '3/4',
@@ -295,106 +377,117 @@ describe('details', () => {
             );
         });
 
-        it('does not rename if name not found', async () => {
-            await expect(renameDetailsVariant('Daržovės', '0.5', '1/2')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does not rename if group not found', async () => {
-            await expect(renameDetailsVariant('Šaldyti', 'p', '1/2')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it.each`
+            title                  | group         | variant  | newVariant
+            ${'invalid group'}     | ${'Šaldyti'}  | ${'p'}   | ${'1/2'}
+            ${'invalid variant'}   | ${'Daržovės'} | ${'0.5'} | ${'1/2'}
+            ${'same variants'}     | ${'Daržovės'} | ${'p'}   | ${'p'}
+            ${'empty group'}       | ${''}         | ${'p'}   | ${'b'}
+            ${'empty variant'}     | ${'Daržovės'} | ${''}    | ${'b'}
+            ${'empty new variant'} | ${'Daržovės'} | ${'p'}   | ${''}
+        `('does not rename variant for $title', async ({ group, variant, newVariant }) => {
+            await expect(renameDetailsVariant(group, variant, newVariant)).resolves.toBeFalse();
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
     describe('renameDetailsGroup', () => {
         it('renames details group', async () => {
             await expect(renameDetailsGroup('Daržovės', 'Šaldyti')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, { $set: { '2.group': 'Šaldyti', '3.group': 'Šaldyti' } })
             );
         });
 
         it('renames different group', async () => {
             await expect(renameDetailsGroup('Uogienės', 'Šaldyti')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, { $set: { '0.group': 'Šaldyti', '1.group': 'Šaldyti' } })
             );
         });
 
-        it('does not rename if group not found', async () => {
-            await expect(renameDetailsGroup('Šaldyti', 'Uogienės')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does not rename if group is the same', async () => {
-            await expect(renameDetailsGroup('Daržovės', 'Daržovės')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it.each`
+            title              | group         | newGroup
+            ${'invalid group'} | ${'Šaldyti'}  | ${'Uogienės'}
+            ${'same groups'}   | ${'Daržovės'} | ${'Daržovės'}
+            ${'empty group'}   | ${''}         | ${'Daržovės'}
+            ${'empty variant'} | ${'Daržovės'} | ${''}
+        `('does not rename group for $title', async ({ group, newGroup }) => {
+            await expect(renameDetailsGroup(group, newGroup)).resolves.toBeFalse();
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
     describe('moveDetails', () => {
         it('moves details', async () => {
             await expect(moveDetails('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(bulk(details, { $set: { '2.group': 'Šaldyti' } }));
+            await expect($all('details')).resolves.toStrictEqual(bulk(details, { $set: { '2.group': 'Šaldyti' } }));
         });
 
         it('moves details from different group', async () => {
             await expect(moveDetails('Uogienės', 'Avietės', 'Šaldyti')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(bulk(details, { $set: { '0.group': 'Šaldyti' } }));
+            await expect($all('details')).resolves.toStrictEqual(bulk(details, { $set: { '0.group': 'Šaldyti' } }));
         });
 
-        it('does not move if name not found', async () => {
-            await expect(moveDetails('Daržovės', 'B', 'Šaldyti')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it('moves details with new name', async () => {
+            await expect(moveDetails('Daržovės', 'Agurkai', 'Šaldyti', 'Agurkėliai')).resolves.toBeTrue();
+            await expect($all('details')).resolves.toStrictEqual(
+                bulk(details, { $set: { '2.group': 'Šaldyti', '2.name': 'Agurkėliai' } })
+            );
         });
 
-        it('does not move if group not found', async () => {
-            await expect(moveDetails('Šaldyti', 'Krapai', 'Uogienės')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it('moves details with old name if new name is empty', async () => {
+            await expect(moveDetails('Daržovės', 'Agurkai', 'Šaldyti', '')).resolves.toBeTrue();
+            await expect($all('details')).resolves.toStrictEqual(bulk(details, { $set: { '2.group': 'Šaldyti' } }));
         });
 
-        it('does not move if groups are the same', async () => {
-            await expect(moveDetails('Daržovės', 'Agurkai', 'Daržovės')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does not move if name already exists in target group', async () => {
-            await expect(moveDetails('Uogienės', 'Agurkai', 'Daržovės')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it.each`
+            title                       | group         | name         | newGroup
+            ${'invalid group'}          | ${'Šaldyti'}  | ${'Krapai'}  | ${'Uogienės'}
+            ${'invalid name'}           | ${'Daržovės'} | ${'Braškės'} | ${'Šaldyti'}
+            ${'same groups'}            | ${'Daržovės'} | ${'Agurkai'} | ${'Daržovės'}
+            ${'same name in new group'} | ${'Uogienės'} | ${'Agurkai'} | ${'Daržovės'}
+            ${'empty group'}            | ${''}         | ${'Agurkai'} | ${'Daržovės'}
+            ${'empty name'}             | ${'Daržovės'} | ${''}        | ${'Šaldyti'}
+            ${'empty new group'}        | ${'Daržovės'} | ${'Agurkai'} | ${''}
+        `('does not move details for $title', async ({ group, name, newGroup }) => {
+            await expect(moveDetails(group, name, newGroup)).resolves.toBeFalse();
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
     describe('deleteDetails', () => {
         it('deletes details', async () => {
             await expect(deleteDetails('Daržovės', 'Agurkai')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(bulk(details, { $remove: 2 }));
+            await expect($all('details')).resolves.toStrictEqual(bulk(details, { $remove: 2 }));
         });
 
         it('deletes details from different group', async () => {
             await expect(deleteDetails('Uogienės', 'Avietės')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(details.slice(1));
+            await expect($all('details')).resolves.toStrictEqual(details.slice(1));
         });
 
-        it('does not delete if group not found', async () => {
-            await expect(deleteDetails('Šaldyti', 'Krapai')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does not delete if name not found', async () => {
-            await expect(deleteDetails('Daržovės', 'B')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it.each`
+            title              | group         | name
+            ${'invalid group'} | ${'Šaldyti'}  | ${'Krapai'}
+            ${'invalid name'}  | ${'Daržovės'} | ${'Braškės'}
+            ${'empty group'}   | ${''}         | ${'Agurkai'}
+            ${'empty name'}    | ${'Daržovės'} | ${''}
+        `('does not delete details for $title', async ({ group, name }) => {
+            await expect(deleteDetails(group, name)).resolves.toBeFalse();
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
     describe('deleteDetailsVariant', () => {
         it('deletes details variant', async () => {
             await expect(deleteDetailsVariant('Daržovės', 'p')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(bulk(details, { $unset: ['3.years', '3.updates'] }));
+            await expect($all('details')).resolves.toStrictEqual(bulk(details, { $unset: ['3.years', '3.updates'] }));
         });
 
         it('deletes details variant for different group', async () => {
             await expect(deleteDetailsVariant('Uogienės', 'p')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(
                     details,
                     { $unset: ['0.years', '0.updates', '1.years'] },
@@ -410,7 +503,7 @@ describe('details', () => {
             ]);
 
             await expect(deleteDetailsVariant('Daržovės', 'd')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, {
                     $unset: ['2.years', '2.updates'],
                     $push: {
@@ -421,109 +514,97 @@ describe('details', () => {
             );
         });
 
-        it('does not delete if variant not found', async () => {
-            await expect(deleteDetailsVariant('Daržovės', '0.5')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does not delete if group not found', async () => {
-            await expect(deleteDetailsVariant('Šaldyti', 'p')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it.each`
+            title                | group         | variant
+            ${'invalid group'}   | ${'Šaldyti'}  | ${'p'}
+            ${'invalid variant'} | ${'Daržovės'} | ${'0.5'}
+            ${'empty group'}     | ${''}         | ${'Agurkai'}
+            ${'empty variant'}   | ${'Daržovės'} | ${''}
+        `('does not delete variant for $title', async ({ group, variant }) => {
+            await expect(deleteDetailsVariant(group, variant)).resolves.toBeFalse();
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
     describe('deleteDetailsGroup', () => {
         it('deletes details by group', async () => {
             await expect(deleteDetailsGroup('Daržovės')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(details.slice(0, 2));
+            await expect($all('details')).resolves.toStrictEqual(details.slice(0, 2));
         });
 
         it('deletes details by different group', async () => {
             await expect(deleteDetailsGroup('Uogienės')).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(details.slice(2));
+            await expect($all('details')).resolves.toStrictEqual(details.slice(2));
         });
 
-        it('does not delete if group not found', async () => {
-            await expect(deleteDetailsGroup('Šaldyti')).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it.each`
+            title              | group
+            ${'invalid group'} | ${'Šaldyti'}
+            ${'empty group'}   | ${''}
+        `('does not delete variant for $title', async ({ group }) => {
+            await expect(deleteDetailsGroup(group)).resolves.toBeFalse();
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
     describe('setRemoving', () => {
         it('sets removing by group, name, and year', async () => {
             await expect(setRemoving('Daržovės', 'Agurkai', 22, true)).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, { $set: { '2.years.0.removing': true } })
             );
         });
 
         it('sets removing by different group, name, and year', async () => {
             await expect(setRemoving('Uogienės', 'Braškės', 22, true)).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(
+            await expect($all('details')).resolves.toStrictEqual(
                 bulk(details, { $set: { '1.years.0.removing': true } })
             );
         });
 
         it('sets not removing by group, name, and year', async () => {
             await expect(setRemoving('Daržovės', 'Kopūstai', 21, false)).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(bulk(details, { $unset: '3.years.0.removing' }));
+            await expect($all('details')).resolves.toStrictEqual(bulk(details, { $unset: '3.years.0.removing' }));
         });
 
-        it('does nothing if already removing', async () => {
-            await expect(setRemoving('Daržovės', 'Kopūstai', 21, true)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does nothing if already not removing', async () => {
-            await expect(setRemoving('Uogienės', 'Avietės', 21, false)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does nothing if year not found', async () => {
-            await expect(setRemoving('Daržovės', 'Braškės', 21, true)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does nothing if name not found', async () => {
-            await expect(setRemoving('Daržovės', 'Z', 22, true)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does nothing if group not found', async () => {
-            await expect(setRemoving('Šaldyti', 'Krapai', 22, true)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it.each`
+            title                     | group         | name          | year  | removing
+            ${'already removing'}     | ${'Daržovės'} | ${'Kopūstai'} | ${21} | ${true}
+            ${'already not removing'} | ${'Uogienės'} | ${'Avietės'}  | ${21} | ${false}
+            ${'invalid group'}        | ${'Šaldyti'}  | ${'Krapai'}   | ${22} | ${true}
+            ${'invalid name'}         | ${'Uogienės'} | ${'Bruknės'}  | ${22} | ${true}
+            ${'invalid year'}         | ${'Uogienės'} | ${'Avietės'}  | ${20} | ${true}
+            ${'empty group'}          | ${''}         | ${'Krapai'}   | ${22} | ${true}
+            ${'empty name'}           | ${'Uogienės'} | ${''}         | ${22} | ${true}
+            ${'empty year'}           | ${'Uogienės'} | ${'Avietės'}  | ${0}  | ${true}
+        `('does not change removing for $title', async ({ group, name, year, removing }) => {
+            await expect(setRemoving(group, name, year, removing)).resolves.toBeFalse();
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 
     describe('setMissing', () => {
         it('sets missing item', async () => {
             await expect(setMissing('Uogienės', 'Avietės', true)).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(bulk(details, { $set: { '0.missing': true } }));
+            await expect($all('details')).resolves.toStrictEqual(bulk(details, { $set: { '0.missing': true } }));
         });
 
         it('unsets missing item', async () => {
             await expect(setMissing('Uogienės', 'Braškės', false)).resolves.toBeTrue();
-            await expect(getAllDetails()).resolves.toStrictEqual(bulk(details, { $unset: '1.missing' }));
+            await expect($all('details')).resolves.toStrictEqual(bulk(details, { $unset: '1.missing' }));
         });
 
-        it('does nothing if already missing', async () => {
-            await expect(setMissing('Uogienės', 'Braškės', true)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does nothing if already not missing', async () => {
-            await expect(setMissing('Uogienės', 'Avietės', false)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does nothing if name not found', async () => {
-            await expect(setMissing('Uogienės', 'Citrinos', true)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
-        });
-
-        it('does nothing if group not found', async () => {
-            await expect(setMissing('Šaldyti', 'Krapai', true)).resolves.toBeFalse();
-            await expect(getAllDetails()).resolves.toStrictEqual(details);
+        it.each`
+            title                    | group         | name          | missing
+            ${'already missing'}     | ${'Uogienės'} | ${'Braškės'}  | ${true}
+            ${'already not missing'} | ${'Uogienės'} | ${'Avietės'}  | ${false}
+            ${'invalid group'}       | ${'Šaldyti'}  | ${'Krapai'}   | ${true}
+            ${'invalid name'}        | ${'Uogienės'} | ${'Citrinos'} | ${true}
+            ${'empty group'}         | ${''}         | ${'Krapai'}   | ${true}
+            ${'empty name'}          | ${'Uogienės'} | ${''}         | ${true}
+        `('does not change invalid for $title', async ({ group, name, missing }) => {
+            await expect(setMissing(group, name, missing)).resolves.toBeFalse();
+            await expect($all('details')).resolves.toStrictEqual(details);
         });
     });
 });

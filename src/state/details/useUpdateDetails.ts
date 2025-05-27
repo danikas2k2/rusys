@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { ApiUrl, type ApiUpdateDetails } from '~/common/api';
-import { type VariantAmount } from '~/common/types';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
+import { ApiUrl, type ApiUpdateDetails } from '~/types/api';
+import { type VariantAmount } from '~/types/data';
 
 export function useUpdateDetails(): (
     group: string,

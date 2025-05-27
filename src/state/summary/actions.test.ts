@@ -1,6 +1,6 @@
 import { getSummaryFixture } from '@tests/fixtures';
-import { type Summary } from '~/common/types';
 import { setSummaryAction, SummaryActionType } from '~/state/summary/actions';
+import { type Summary } from '~/types/data';
 
 describe('setSummaryAction', () => {
     it('returns valid action', () => {

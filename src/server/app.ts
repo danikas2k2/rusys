@@ -1,6 +1,6 @@
 import fs from 'fs';
 import https from 'https';
-import { debug } from '~/server/app/debug';
+import { debug } from '~/server/api/debug';
 import { ApiUrlHandlers } from '~/server/handlers';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -63,7 +63,7 @@ interface HttpServerOptions {
 
 export function startHttpServer(app: Express, { port = 3000, host = 'localhost' }: HttpServerOptions): Express {
     app.listen(port, host, () => {
-        debug(`HTTP server listening on ${host}:${port}`);
+        debug(`HTTP server listening on http://${host}:${port}`);
     });
     return app;
 }
@@ -81,7 +81,7 @@ export function startHttpsServer(
         https
             .createServer({ key: fs.readFileSync(keyFile), cert: fs.readFileSync(certFile) }, app)
             .listen(port, host, () => {
-                debug(`HTTPS server listening on ${host}:${port}`);
+                debug(`HTTPS server listening on https://${host}:${port}`);
             });
     }
     return app;

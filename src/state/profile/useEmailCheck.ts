@@ -1,6 +1,6 @@
-import { ApiUrl, type ApiUserEmail } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { setAllowedAction } from '~/state/profile/actions';
+import { ApiUrl, type ApiUserEmail } from '~/types/api';
 
 export function useEmailCheck(): (email: string) => Promise<void> {
     const request = useUpdatingApiRequest<ApiUserEmail>({ allowed: setAllowedAction });

@@ -7,6 +7,7 @@ import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { FileInput } from '@ui/FileInput';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
+import { Input } from '@ui/Input';
 import { useImportHandler } from '~/client/common/hooks/useImportHandler';
 import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
@@ -55,6 +56,7 @@ export function ImportBox({ onClose }: ImportBoxProps) {
 
     const handleImport = useImportHandler();
     const [, formAction] = useActionState<{ import?: File }, FormData>(async (state, data) => {
+        // console.info('ImportBox: formAction', state, JSON.stringify(Object.fromEntries(data)));
         await handleImport(data);
         return state;
     }, {});

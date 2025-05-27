@@ -8,6 +8,16 @@ describe('<ColorSchemeState>', () => {
 
     afterEach(() => localStorage.clear());
 
+    it('uses default color scheme context without color scheme state', () => {
+        const { result } = renderHook(() => use(ColorSchemeContext));
+        const [colorScheme, setColorScheme] = result.current;
+
+        // setter returned by context should be a no-op
+        setColorScheme('dark');
+
+        expect(colorScheme).toBe('auto');
+    });
+
     it('initializes with auto color scheme', () => {
         const { result } = renderHook(() => use(ColorSchemeContext), { wrapper: ColorSchemeState });
         const [colorScheme] = result.current;

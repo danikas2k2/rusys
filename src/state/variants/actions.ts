@@ -1,4 +1,4 @@
-import { type Variant } from '~/common/types';
+import { type Variant } from '~/types/data';
 
 export const enum VariantsActionType {
     SET = 'variants.set',

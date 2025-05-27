@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { ApiUrl, type ApiExport, type ApiResult } from '~/common/api';
 import { useApiRequest } from '~/common/hooks/useApiRequest';
+import { ApiUrl, type ApiExport, type ApiResult } from '~/types/api';
 
 export function useExport() {
     const request = useApiRequest();

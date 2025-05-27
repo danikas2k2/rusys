@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
+import { compareNames } from '~/client/utils/compareNames';
 import { type WithVariantsState } from '~/state/variants/types';
 import { isEqual } from 'lodash';
 
@@ -13,7 +14,8 @@ export function useGroupVariantComparator(group: string): (a: string, b: string)
     );
     return useCallback(
         (a: string, b: string): number =>
-            (variantOrders[a] ?? Number.POSITIVE_INFINITY) - (variantOrders[b] ?? Number.POSITIVE_INFINITY),
+            (variantOrders[a] ?? Number.POSITIVE_INFINITY) - (variantOrders[b] ?? Number.POSITIVE_INFINITY) ||
+            compareNames(a, b),
         [variantOrders]
     );
 }

@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
-import { ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
+import { ApiUrl } from '~/types/api';
 
 jest.mock('~/state/base/useUpdatingApiRequest');
 
@@ -15,11 +15,11 @@ describe('useSetDetailsRemoving', () => {
 
     it('calls update action', async () => {
         const { result } = renderHook(() => useSetDetailsRemoving(), { wrapper: MockRedux });
-        await result.current('G', 'A', 21, true);
+        await result.current('Uogienės', 'Avietės', 21, true);
 
         expect(request).toHaveBeenCalledWith(ApiUrl.DetailsSetRemoving, {
-            group: 'G',
-            name: 'A',
+            group: 'Uogienės',
+            name: 'Avietės',
             year: 21,
             removing: true,
         });
@@ -27,11 +27,11 @@ describe('useSetDetailsRemoving', () => {
 
     it('calls update action with false value', async () => {
         const { result } = renderHook(() => useSetDetailsRemoving(), { wrapper: MockRedux });
-        await result.current('G', 'A', 22, false);
+        await result.current('Uogienės', 'Avietės', 22, false);
 
         expect(request).toHaveBeenCalledWith(ApiUrl.DetailsSetRemoving, {
-            group: 'G',
-            name: 'A',
+            group: 'Uogienės',
+            name: 'Avietės',
             year: 22,
             removing: false,
         });

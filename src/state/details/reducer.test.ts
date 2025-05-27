@@ -43,10 +43,19 @@ describe('details', () => {
 
         it('updates filled state', () => {
             expect(
-                reducer([{ group: 'G', name: 'A', years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }] }], {
-                    type: DetailsActionType.SET,
-                    details,
-                })
+                reducer(
+                    [
+                        {
+                            group: 'Uogienės',
+                            name: 'Avietės',
+                            years: [{ year: 21, amounts: [{ variant: 'p', amount: 1 }] }],
+                        },
+                    ],
+                    {
+                        type: DetailsActionType.SET,
+                        details,
+                    }
+                )
             ).toStrictEqual(details);
         });
 
@@ -101,8 +110,8 @@ describe('details', () => {
             expect(
                 reducer(details, {
                     type: DetailsActionType.SET_REMOVING,
-                    group: 'G',
-                    name: 'A',
+                    group: 'Uogienės',
+                    name: 'Avietės',
                     year: 23,
                     removing: true,
                 })
@@ -113,8 +122,8 @@ describe('details', () => {
             expect(
                 reducer(details, {
                     type: DetailsActionType.SET_REMOVING,
-                    group: 'G',
-                    name: 'B',
+                    group: 'Uogienės',
+                    name: 'Braškės',
                     year: 21,
                     removing: true,
                 })
@@ -125,8 +134,8 @@ describe('details', () => {
             expect(
                 reducer(details, {
                     type: DetailsActionType.SET_REMOVING,
-                    group: 'H',
-                    name: 'A',
+                    group: 'Daržovės',
+                    name: 'Avietės',
                     year: 21,
                     removing: true,
                 })
@@ -137,8 +146,8 @@ describe('details', () => {
             expect(
                 reducer(undefined, {
                     type: DetailsActionType.SET_REMOVING,
-                    group: 'G',
-                    name: 'A',
+                    group: 'Uogienės',
+                    name: 'Avietės',
                     year: 21,
                     removing: true,
                 })
@@ -151,8 +160,8 @@ describe('details', () => {
             expect(
                 reducer([], {
                     type: DetailsActionType.SET_MISSING,
-                    group: 'G',
-                    name: 'A',
+                    group: 'Uogienės',
+                    name: 'Avietės',
                     missing: true,
                 })
             ).toStrictEqual([]);
@@ -184,8 +193,8 @@ describe('details', () => {
             expect(
                 reducer(details, {
                     type: DetailsActionType.SET_MISSING,
-                    group: 'G',
-                    name: 'B',
+                    group: 'Uogienės',
+                    name: 'Braškės',
                     missing: true,
                 })
             ).toStrictEqual(details);
@@ -195,8 +204,8 @@ describe('details', () => {
             expect(
                 reducer(details, {
                     type: DetailsActionType.SET_MISSING,
-                    group: 'H',
-                    name: 'A',
+                    group: 'Daržovės',
+                    name: 'Avietės',
                     missing: true,
                 })
             ).toStrictEqual(details);
@@ -206,8 +215,8 @@ describe('details', () => {
             expect(
                 reducer(undefined, {
                     type: DetailsActionType.SET_MISSING,
-                    group: 'G',
-                    name: 'A',
+                    group: 'Uogienės',
+                    name: 'Avietės',
                     missing: true,
                 })
             ).toStrictEqual([]);

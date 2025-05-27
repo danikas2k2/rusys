@@ -19,11 +19,31 @@ describe('useDocumentColorScheme', () => {
         expect(document.documentElement.dataset.colorScheme).toBe('dark');
     });
 
+    it('returns current color scheme when auto is not defined and current color scheme is not auto', () => {
+        jest.mocked(useColorSchemeState).mockReturnValue(['dark', jest.fn()]);
+        jest.mocked(usePreferredColorScheme).mockReturnValue('light');
+
+        const { result } = renderHook(() => useDocumentColorScheme());
+
+        expect(result.current).toBe('dark');
+        expect(document.documentElement.dataset.colorScheme).toBe('dark');
+    });
+
     it('returns "auto" when auto is true and current color scheme is auto', () => {
         jest.mocked(useColorSchemeState).mockReturnValue(['auto', jest.fn()]);
         jest.mocked(usePreferredColorScheme).mockReturnValue('light');
 
         const { result } = renderHook(() => useDocumentColorScheme(true));
+
+        expect(result.current).toBe('auto');
+        expect(document.documentElement.dataset.colorScheme).toBeUndefined();
+    });
+
+    it('returns "auto" when auto is not defined and current color scheme is auto', () => {
+        jest.mocked(useColorSchemeState).mockReturnValue(['auto', jest.fn()]);
+        jest.mocked(usePreferredColorScheme).mockReturnValue('light');
+
+        const { result } = renderHook(() => useDocumentColorScheme());
 
         expect(result.current).toBe('auto');
         expect(document.documentElement.dataset.colorScheme).toBeUndefined();

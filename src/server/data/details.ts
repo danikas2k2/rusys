@@ -1,16 +1,11 @@
-import { type ApiAllDetails, type ApiDetailsWithYears } from '~/common/api';
-import { type Details, type VariantAmount } from '~/common/types';
-import { getGroups } from '~/server/data/groups';
-import { addUpdate } from '~/server/data/updates';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
-import { getVariants } from '~/server/data/variants';
-import { getYears } from '~/server/data/years';
 import { db, withTransaction } from '~/server/db';
+import { type Details, type VariantAmount } from '~/types/data';
 import { type ClientSession, type Filter, type UpdateFilter } from 'mongodb';
 
 export async function getDetails(years: ReadonlyArray<number>): Promise<Details[]> {
-    return (await db())
-        .collection('details')
+    const col = (await db()).collection('details');
+    return col
         .find(
             {
                 $or: [
@@ -24,6 +19,40 @@ export async function getDetails(years: ReadonlyArray<number>): Promise<Details[
         .toArray();
 }
 
+export async function getDetailsVariants(
+    group: string,
+    name: string,
+    session?: ClientSession
+): Promise<ReadonlyArray<string> | undefined> {
+    if (!group || !name) {
+        return undefined;
+    }
+    const col = (await db()).collection('details');
+    const concatVariants = {
+        $concatArrays: ['$$value', { $map: { input: '$$this.amounts', as: 'a', in: '$$a.variant' } }],
+    };
+    const collectCurrentVariants = { $reduce: { input: '$years', initialValue: [], in: concatVariants } };
+    const collectUpdateVariants = { $reduce: { input: '$$this.years', initialValue: [], in: concatVariants } };
+    const concatUpdateVariants = { $concatArrays: ['$$value', collectUpdateVariants] };
+    const collectUpdatesVariants = { $reduce: { input: '$updates', initialValue: [], in: concatUpdateVariants } };
+    return (
+        await col
+            .aggregate<{
+                variants?: string[];
+            }>(
+                [
+                    { $match: { group, name } },
+                    { $project: { allVariants: { $setUnion: [collectCurrentVariants, collectUpdatesVariants] } } },
+                    { $unwind: '$allVariants' },
+                    { $group: { _id: null, variants: { $addToSet: '$allVariants' } } },
+                    { $project: { _id: 0, variants: 1 } },
+                ],
+                { session }
+            )
+            .next()
+    )?.variants;
+}
+
 export async function addDetails(group: string, name: string): Promise<boolean> {
     if (!group || !name) {
         return false;
@@ -32,10 +61,11 @@ export async function addDetails(group: string, name: string): Promise<boolean> 
 }
 
 export function addVariantAmount(acc: ReadonlyArray<VariantAmount>, { variant, amount }: VariantAmount): typeof acc {
-    const a = acc?.find((v) => v.variant === variant);
-    if (a) {
-        a.amount += amount;
-        return acc;
+    const i = acc.findIndex((v) => v.variant === variant);
+    if (i >= 0) {
+        const res = [...acc];
+        res[i] = { ...res[i], amount: res[i].amount + amount };
+        return res;
     }
     return [...acc, { variant, amount }];
 }
@@ -51,19 +81,11 @@ export async function updateDetails(
     }
 
     return withTransaction(async (session) => {
-        // adding changes to updates
-        await addUpdate(group, name, year, changes, session);
-
-        const filter = { group, name };
         const col = (await db()).collection<Details>('details');
-        const details = await col.findOne(filter, { projection: { years: 1, missing: 1 }, session });
-
-        // removing missing flag if amount decreased but not recycled
-        if (details?.missing && changes?.some((a) => !a.recycled && a.amount < 0)) {
-            await setMissing(group, name, false, session);
-        }
 
         // calculates amount updates
+        const filter: UpdateFilter<Details> = { group, name };
+        const details = await col.findOne(filter, { projection: { years: 1, missing: 1 }, session });
         const current = details?.years?.find((y) => y.year === year);
         const amounts = current?.amounts ?? [];
         const updates = changes
@@ -72,6 +94,11 @@ export async function updateDetails(
             // remove invalid amounts
             .filter((a) => a.amount > 0);
 
+        const update: UpdateFilter<Details> = {
+            // adding changes to updates
+            $push: { updates: { time: Date.now(), years: [{ year, amounts: changes }] } },
+        };
+
         // no updates
         if (!updates.length) {
             // and currently no amounts
@@ -79,29 +106,35 @@ export async function updateDetails(
                 // do nothing
                 return false;
             }
-
-            return (
-                // removes updating year
-                (await col.updateOne(filter, { $pull: { years: { year } } }, { session }).then(hasEffect)) ||
-                // removes all other empty years
-                (await col
-                    .updateOne({ ...filter, years: { $size: 0 } }, { $unset: { years: 1, missing: 1 } }, { session })
-                    .then(hasEffect))
-            );
+            // remove year
+            update.$pull = { years: { year } };
+        } else if (!amounts.length) {
+            // add year if not exists
+            update.$push = { ...update.$push, years: { year, amounts: updates } };
+        } else {
+            // update amounts
+            filter['years.year'] = year;
+            update.$set = { ...update.$set, 'years.$.amounts': updates };
         }
 
-        // add year if not exists
-        if (!amounts.length) {
-            return await col
-                .updateOne(filter, { $push: { years: { year, amounts: updates } } }, { session })
-                .then(hasEffect);
+        // remove missing flag if amount decreased but not recycled
+        if (details?.missing && changes.some((a) => !a.recycled && a.amount < 0)) {
+            update.$unset = { missing: 1 };
         }
 
-        // updates amounts
         return await col
-            .updateOne(
-                { ...filter, 'years.year': year } as UpdateFilter<Details>,
-                { $set: { 'years.$.amounts': updates } },
+            .bulkWrite(
+                [
+                    // update details
+                    { updateOne: { filter, update } },
+                    // clear all other empty years
+                    {
+                        updateOne: {
+                            filter: { group, name, years: { $size: 0 } },
+                            update: { $unset: { years: 1, missing: 1 } },
+                        },
+                    },
+                ],
                 { session }
             )
             .then(hasEffect);
@@ -109,7 +142,7 @@ export async function updateDetails(
 }
 
 export async function renameDetails(group: string, name: string, newName: string): Promise<boolean> {
-    if (!group || !name || !newName) {
+    if (!group || !name || !newName || name === newName) {
         return false;
     }
     return (await db())
@@ -125,7 +158,7 @@ export async function renameDetailsVariant(
     newVariant: string,
     session?: ClientSession
 ): Promise<boolean> {
-    if (!group || !variant || !newVariant) {
+    if (!group || !variant || !newVariant || variant === newVariant) {
         return false;
     }
     return (await db())
@@ -154,7 +187,7 @@ export async function renameDetailsVariant(
 }
 
 export async function renameDetailsGroup(group: string, newGroup: string, session?: ClientSession): Promise<boolean> {
-    if (!group || !newGroup) {
+    if (!group || !newGroup || group === newGroup) {
         return false;
     }
     return (await db())
@@ -171,7 +204,7 @@ export async function moveDetails(
     newName?: string,
     session?: ClientSession
 ): Promise<boolean> {
-    if (!group || !name || !newGroup) {
+    if (!group || !name || !newGroup || group === newGroup) {
         return false;
     }
     const $set: { group: string; name?: string } = { group: newGroup };
@@ -288,19 +321,4 @@ export async function setMissing(
         .collection('details')
         .updateOne({ group, name }, { [missing ? '$set' : '$unset']: { missing } }, { session })
         .then(hasEffect);
-}
-
-export async function getDetailsWithYears(): Promise<ApiDetailsWithYears> {
-    const years = getYears();
-    return { years, details: await getDetails(years) };
-}
-
-export async function getAllDetails(): Promise<ApiAllDetails> {
-    const years = getYears();
-    return {
-        years,
-        details: await getDetails(years),
-        variants: await getVariants(),
-        groups: await getGroups(),
-    };
 }

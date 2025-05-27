@@ -100,7 +100,7 @@ describe('<GroupsTable>', () => {
 
     describe('handles filter state', () => {
         it('renders filtered data', () => {
-            jest.mocked(useFilter).mockReturnValue('g');
+            jest.mocked(useFilter).mockReturnValue('Uogienės');
             render(
                 <MockRedux>
                     <GroupsTable />

@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
-import { ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';
+import { ApiUrl } from '~/types/api';
 
 jest.mock('~/state/base/useUpdatingApiRequest');
 
@@ -15,22 +15,22 @@ describe('useSetDetailsMissing', () => {
 
     it('calls update action', async () => {
         const { result } = renderHook(() => useSetDetailsMissing(), { wrapper: MockRedux });
-        await result.current('G', 'A', true);
+        await result.current('Uogienės', 'Avietės', true);
 
         expect(request).toHaveBeenCalledWith(ApiUrl.DetailsSetMissing, {
-            group: 'G',
-            name: 'A',
+            group: 'Uogienės',
+            name: 'Avietės',
             missing: true,
         });
     });
 
     it('calls update action with false value', async () => {
         const { result } = renderHook(() => useSetDetailsMissing(), { wrapper: MockRedux });
-        await result.current('G', 'A', false);
+        await result.current('Uogienės', 'Avietės', false);
 
         expect(request).toHaveBeenCalledWith(ApiUrl.DetailsSetMissing, {
-            group: 'G',
-            name: 'A',
+            group: 'Uogienės',
+            name: 'Avietės',
             missing: false,
         });
     });

@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
-import { ApiUrl } from '~/common/api';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { useRenameGroup } from '~/state/groups/useRenameGroup';
+import { ApiUrl } from '~/types/api';
 
 jest.mock('~/state/base/useUpdatingApiRequest');
 
@@ -15,28 +15,22 @@ describe('useRenameGroup', () => {
 
     it('calls rename action', async () => {
         const { result } = renderHook(() => useRenameGroup(), { wrapper: MockRedux });
-        await result.current('G', 'H');
+        await result.current('Uogienės', 'Daržovės');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsRename, { group: 'G', newGroup: 'H' });
+        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsRename, {
+            group: 'Uogienės',
+            newGroup: 'Daržovės',
+        });
     });
 
-    it('does not call rename action with same group', async () => {
+    it.each`
+        title                | group         | newGroup
+        ${'same group'}      | ${'Uogienės'} | ${'Uogienės'}
+        ${'empty group'}     | ${''}         | ${'Šaldytos'}
+        ${'empty new group'} | ${'Uogienės'} | ${''}
+    `('does not call rename action with $title', async ({ group, newGroup }) => {
         const { result } = renderHook(() => useRenameGroup(), { wrapper: MockRedux });
-        await result.current('G', 'G');
-
-        expect(request).not.toHaveBeenCalled();
-    });
-
-    it('does not call rename action with empty group', async () => {
-        const { result } = renderHook(() => useRenameGroup(), { wrapper: MockRedux });
-        await result.current('', 'G');
-
-        expect(request).not.toHaveBeenCalled();
-    });
-
-    it('does not call rename action with empty new group', async () => {
-        const { result } = renderHook(() => useRenameGroup(), { wrapper: MockRedux });
-        await result.current('G', '');
+        await result.current(group, newGroup);
 
         expect(request).not.toHaveBeenCalled();
     });

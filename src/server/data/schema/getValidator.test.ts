@@ -1,0 +1,41 @@
+import { getValidator } from '~/server/data/schema/getValidator';
+
+jest.mock('~/server/data/schema/schema.json', () => ({
+    type: 'object',
+    properties: {
+        name: { type: 'string' },
+        age: { type: 'number' },
+        date: { type: 'string', format: 'date-time' },
+    },
+    required: ['name', 'age', 'date'],
+}));
+
+describe('getValidator', () => {
+    it('returns a validate function', () => {
+        const validator = getValidator();
+
+        expect(validator).toBeInstanceOf(Function);
+    });
+
+    it('validates a valid schema', () => {
+        const validator = getValidator();
+        const validData = {
+            name: 'test',
+            age: 30,
+            date: '2023-10-01T12:00:00Z',
+        };
+
+        expect(validator(validData)).toBeTrue();
+    });
+
+    it('invalidates an invalid schema', () => {
+        const validator = getValidator();
+        const invalidData = {
+            name: 'test',
+            age: 'invalid_age',
+            date: 'invalid_date',
+        };
+
+        expect(validator(invalidData)).toBeFalse();
+    });
+});

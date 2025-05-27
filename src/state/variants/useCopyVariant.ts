@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { ApiUrl, type ApiCopyVariant } from '~/common/api';
-import { type UpdateVariant } from '~/common/types';
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
+import { ApiUrl, type ApiCopyVariant } from '~/types/api';
+import { type UpdateVariant } from '~/types/data';
 
 export function useCopyVariant(): (
     group: string,
@@ -13,7 +13,7 @@ export function useCopyVariant(): (
     const request = useUpdatingApiRequest<ApiCopyVariant>();
     return useCallback(
         async (group, variant, newGroup, newVariant, update): Promise<void> => {
-            if (newGroup && group !== newGroup) {
+            if (group && variant && newGroup && (group !== newGroup || (newVariant && variant !== newVariant))) {
                 return request(ApiUrl.VariantsCopy, {
                     group,
                     variant,
