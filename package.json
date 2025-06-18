@@ -21,7 +21,7 @@
         "start": "cd dist && esr server.js",
         "build": "npm-run-all --parallel build:server build:client",
         "build:client": "webpack --config webpack.config.ts --mode production --progress && pnpm build:client:cleanup",
-        "build:client:cleanup": "rm -rf dist/**/*.LICENSE.txt && if [ -f dist/public/package.json ]; then mv -n dist/public/package.json dist/; fi",
+        "build:client:cleanup": "rm -rf dist/**/*.LICENSE.txt && if [ -f dist/public/package.json ]; then mv dist/public/package.json dist/; fi",
         "build:server": "esbuild src/server/index.ts --bundle --minify --platform=node --target=node22 --external:express --external:cors --external:body-parser --external:moment --external:mongodb --outfile=dist/server.js",
         "build:safe": "pnpm check && pnpm build",
         "build:tutorial": "webpack --config webpack.tutorial.config.ts --mode production --progress",
