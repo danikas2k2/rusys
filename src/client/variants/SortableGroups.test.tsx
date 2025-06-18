@@ -16,6 +16,7 @@ describe('<SortableGroups>', () => {
 
     const groups = ['Uogienės', 'Daržovės'];
 
+    // eslint-disable-next-line jest/prefer-ending-with-an-expect
     it('renders with groups', () => {
         render(
             <MockRedux>
@@ -25,9 +26,9 @@ describe('<SortableGroups>', () => {
 
         expect(SortableGroup).toHaveBeenCalledTimes(groups.length);
 
-        groups.forEach((group) => {
+        for (const group of groups) {
             expect(SortableGroup).toHaveBeenCalledWith(expect.objectContaining({ group }), undefined);
-        });
+        }
     });
 
     it('resets active variant when clicking outside the row', async () => {

@@ -17,7 +17,7 @@ describe('useErrorWrapper', () => {
         const mockCallback = jest.fn().mockImplementation(() => {
             throw new Error('Test error');
         });
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        jest.spyOn(console, 'error').mockImplementation(() => {});
 
         const { result } = renderHook(() => useErrorWrapper(mockCallback));
 
@@ -25,9 +25,7 @@ describe('useErrorWrapper', () => {
         await wrappedCallback();
 
         expect(mockCallback).toHaveBeenCalledTimes(1);
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Test error');
-
-        consoleErrorSpy.mockRestore();
+        expect(console.error).toHaveBeenCalledWith('Test error');
     });
 
     it('handles error with custom onError', async () => {

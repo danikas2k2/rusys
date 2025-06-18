@@ -23,7 +23,6 @@
         "types": [
             "node",
             "express",
-            "mdx",
             "jest",
             "@testing-library/jest-dom",
             "jest-extended",

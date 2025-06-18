@@ -123,22 +123,26 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
     );
 
     const filteredOptions = options
-        ?.filter((option) => !filter || matchParts(option.props.label ?? option.props.children?.toString(), filter))
-        .map((option, key) => {
-            const { value, label, children, disabled } = option.props;
-            const selected = currentValue === value;
-            return cloneElement(option, {
-                ...option.props,
+        ?.filter((o) => !filter || matchParts(o.props.label ?? o.props.children?.toString(), filter))
+        .map((o, key) =>
+            cloneElement(o, {
+                ...o.props,
                 key,
-                selected,
-                onClick: disabled
+                selected: currentValue === o.props.value,
+                onClick: o.props.disabled
                     ? undefined
                     : (e: MouseEvent<HTMLElement>) => {
                           onClick?.(e as MouseEvent<HTMLInputElement>);
-                          handleOption(e as unknown as ChangeEvent<E>, value, label, children, key);
+                          handleOption(
+                              e as unknown as ChangeEvent<E>,
+                              o.props.value,
+                              o.props.label,
+                              o.props.children,
+                              key
+                          );
                       },
-            });
-        });
+            })
+        );
     const filteredOut = !filteredOptions?.length;
 
     useEffect(() => {

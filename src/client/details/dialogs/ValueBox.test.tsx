@@ -66,6 +66,7 @@ describe('<ValueBox>', () => {
         expect(screen.getByText('Update')).toBeInTheDocument();
     });
 
+    // eslint-disable-next-line jest/prefer-ending-with-an-expect
     it('renders inputs', () => {
         render(
             <MockRedux state={state}>
@@ -200,6 +201,7 @@ describe('<ValueBox>', () => {
         ]);
     });
 
+    // eslint-disable-next-line jest/prefer-ending-with-an-expect
     it('renders all variants when expand pressed', async () => {
         render(
             <MockRedux state={state}>

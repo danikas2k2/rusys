@@ -17,11 +17,9 @@ export const enum ApiUrl {
     CheckUser = '/checkUser',
 
     // Summary
-    // eslint-disable-next-line no-shadow
     Summary = '/summary',
 
     // Details
-    // eslint-disable-next-line no-shadow
     Details = '/details',
     DetailsAdd = '/details/add',
     DetailsUpdate = '/details/update',
