@@ -63,15 +63,15 @@ describe('<Checkbox>', () => {
     });
 
     it('applies color class based on color prop', () => {
-        render(<Checkbox color="primary" />);
+        render(<Checkbox color="blue" />);
 
-        expect(screen.getByRole('checkbox').parentElement).toHaveClass('color-primary');
+        expect(screen.getByRole('checkbox').parentElement).toHaveClass('ui-color-blue');
     });
 
     it('applies variant class based on variant prop', () => {
         render(<Checkbox variant="solid" />);
 
-        expect(screen.getByRole('checkbox').parentElement).toHaveClass('variant-solid');
+        expect(screen.getByRole('checkbox').parentElement).toHaveClass('ui-variant-solid');
     });
 
     it('applies size class based on size prop', () => {

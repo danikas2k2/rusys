@@ -4,46 +4,48 @@ import React, {
     useState,
     type FormEvent,
     type InputHTMLAttributes,
+    type JSX,
     type KeyboardEvent,
     type MouseEvent,
     type MouseEventHandler,
+    type ReactNode,
     type RefAttributes,
 } from 'react';
 import CancelIcon from '@assets/cancel.svg';
 import { IconButton } from '@ui/Button';
+import {
+    type ElementColor,
+    type ElementSize,
+    type ElementSpacing,
+    type ElementState,
+    type ElementVariant,
+} from '@ui/Element';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { getDecoratorType } from '@ui/utils/getDecoratorType';
 import { setCaretPosition } from '@ui/utils/setCaretPosition';
 import { uniqueId } from '@ui/utils/uniqueId';
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
-import cx from './Input.less';
-
-export type InputColor = 'neutral' | 'primary' | 'secondary' | 'positive' | 'warning' | 'negative';
-
-export type InputVariant = 'solid' | 'soft' | 'outlined' | 'plain';
-
-export type InputSize = 'small' | 'medium' | 'large';
-
-export type InputSpacing = 'small' | 'medium' | 'large' | 'half' | 'none';
+import cs from 'classnames';
+import cx from './Input.pcss';
 
 export type InputMode = 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search';
 
-export type InputState = 'default' | 'active' | 'hover' | 'focus' | 'disabled';
-
-export type CommonInputProps<T extends HTMLElement> = Omit<InputHTMLAttributes<T>, 'type' | 'size'> & RefAttributes<T>;
+export type CommonInputProps<T extends HTMLElement> = Omit<InputHTMLAttributes<T>, 'size'> & RefAttributes<T>;
 
 export interface InputProps extends Omit<CommonInputProps<HTMLInputElement>, 'inputMode' | 'children'> {
-    variant?: InputVariant;
-    color?: InputColor;
-    placeholderColor?: InputColor;
-    size?: InputSize;
-    spacing?: InputSpacing;
+    variant?: ElementVariant;
+    color?: ElementColor;
+    placeholderColor?: ElementColor;
+    size?: ElementSize;
+    spacing?: ElementSpacing;
     mode?: InputMode;
-    state?: InputState;
+    state?: ElementState;
     fullWidth?: boolean;
     fullHeight?: boolean;
-    startDecorator?: React.ReactNode;
-    endDecorator?: React.ReactNode;
+    startDecorator?: ReactNode;
+    endDecorator?: ReactNode;
+    inputDecorator?: (children?: ReactNode) => JSX.Element;
+    contentDecorator?: (children?: ReactNode) => JSX.Element;
     label?: string;
     invalid?: boolean;
     error?: string;
@@ -68,7 +70,7 @@ export function Input({
     placeholder = label,
     error,
     invalid = !!error,
-    color = invalid ? 'negative' : 'neutral',
+    color = invalid ? 'red' : 'gray',
     placeholderColor,
     value,
     defaultValue,
@@ -76,6 +78,8 @@ export function Input({
     onClear,
     startDecorator,
     endDecorator,
+    inputDecorator,
+    contentDecorator,
     className,
     onInput,
     onKeyDown,
@@ -145,72 +149,77 @@ export function Input({
         [clearable, onInput]
     );
 
+    const input = (
+        <>
+            <input
+                id={id}
+                type="text"
+                inputMode={mode}
+                ref={ref}
+                aria-label={label}
+                placeholder={placeholder}
+                disabled={disabled}
+                aria-disabled={disabled}
+                value={value}
+                defaultValue={defaultValue}
+                onKeyDown={handleKey}
+                onKeyUp={handleKey}
+                onInput={handleInput}
+                {...props}
+            />
+            {clear && (
+                <IconButton
+                    className={cx('clear')}
+                    variant="plain"
+                    color={color}
+                    spacing="none"
+                    fullHeight
+                    onClick={handleClear}
+                    aria-label="clear"
+                    aria-controls={id}
+                >
+                    <CancelIcon />
+                </IconButton>
+            )}
+        </>
+    );
+
+    const content = (
+        <div className={cx('content')}>
+            {startDecorator && (
+                <div className={cx('start-decorator', `type-${getDecoratorType(startDecorator)}`)}>
+                    {startDecorator}
+                </div>
+            )}
+            {inputDecorator ? inputDecorator(input) : input}
+            {endDecorator && (
+                <div className={cx('end-decorator', `type-${getDecoratorType(endDecorator)}`)}>{endDecorator}</div>
+            )}
+        </div>
+    );
+
     return (
         <>
             <div
                 role="figure"
                 aria-labelledby={id}
-                className={cx(
-                    'Input',
-                    'Element',
-                    `color-${color}`,
-                    `variant-${variant}`,
-                    `size-${size}`,
-                    `spacing-${spacing}`,
-                    `state-${state}`,
+                className={cs(
                     {
+                        [`ui-color-${color}`]: color,
+                        [`ui-variant-${variant}`]: variant,
+                    },
+                    cx('Input', `size-${size}`, `spacing-${spacing}`, `state-${state}`, {
                         [`placeholder-color-${placeholderColor}`]: placeholderColor,
                         'full-width': fullWidth,
                         'full-height': fullHeight,
                         'with-label': !!label,
                         'with-error': invalid,
-                    },
+                    }),
                     className
                 )}
             >
                 {label && (value || placeholder !== label) && <label htmlFor={id}>{label}</label>}
-                <div className={cx('content')}>
-                    {startDecorator && (
-                        <div className={cx('start-decorator', `type-${getDecoratorType(startDecorator)}`)}>
-                            {startDecorator}
-                        </div>
-                    )}
-                    <input
-                        id={id}
-                        type="text"
-                        inputMode={mode}
-                        ref={ref}
-                        aria-label={label}
-                        placeholder={placeholder}
-                        disabled={disabled}
-                        aria-disabled={disabled}
-                        value={value}
-                        defaultValue={defaultValue}
-                        onKeyDown={handleKey}
-                        onKeyUp={handleKey}
-                        onInput={handleInput}
-                        {...props}
-                    />
-                    {clear && (
-                        <IconButton
-                            className={cx('clear')}
-                            variant="plain"
-                            color={color}
-                            spacing="none"
-                            fullHeight
-                            onClick={handleClear}
-                            aria-label="clear"
-                            aria-controls={id}
-                        >
-                            <CancelIcon />
-                        </IconButton>
-                    )}
-                    {endDecorator && (
-                        <div className={cx('end-decorator', `type-${getDecoratorType(endDecorator)}`)}>
-                            {endDecorator}
-                        </div>
-                    )}
-                </div>
+                {contentDecorator ? contentDecorator(content) : content}
             </div>
             {error && (
                 <div role="alert" className={cx('error')}>

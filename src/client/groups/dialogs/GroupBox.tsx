@@ -16,7 +16,7 @@ import { useGroups } from '~/state/groups/useGroups';
 import { useRenameGroup } from '~/state/groups/useRenameGroup';
 import { useUpdateGroup } from '~/state/groups/useUpdateGroup';
 import { isEmpty } from 'lodash';
-import cx from './GroupBox.less';
+import cx from './GroupBox.pcss';
 
 interface GroupBoxProps extends WithOnClose {
     group?: string;
@@ -106,7 +106,7 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
                 <Input
                     ref={focusRef}
                     fullWidth
-                    color={errors?._ || errors?.group ? 'negative' : 'primary'}
+                    color={errors?._ || errors?.group ? 'red' : 'blue'}
                     invalid={!!errors?._ || !!errors?.group}
                     error={errors?._ ? errorLabel : undefined}
                     size="large"
@@ -120,7 +120,7 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
                 <Button variant="outlined" startDecorator={<CancelIcon />} onClick={handleClose}>
                     <Label>Cancel</Label>
                 </Button>
-                <Button variant="solid" color="primary" startDecorator={getButtonDecorator()} onClick={handleUpdate}>
+                <Button variant="solid" color="blue" startDecorator={getButtonDecorator()} onClick={handleUpdate}>
                     <Label>{getButtonLabel()}</Label>
                 </Button>
             </footer>

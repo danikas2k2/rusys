@@ -7,7 +7,7 @@ import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
 import { Label } from '~/client/common/Label';
 import classNames from 'classnames';
-import cx from './SlideControls.less';
+import cx from './SlideControls.pcss';
 
 export interface SlideControlsProps extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
     onEdit?: MouseEventHandler<HTMLButtonElement>;
@@ -33,7 +33,7 @@ export function SlideControls({ onEdit, onRemove, className, ...props }: SlideCo
     );
     const editId = uniqueId('edit');
     const editButton = (
-        <Button id={editId} color="primary" startDecorator={<EditIcon />} onClick={handleEdit}>
+        <Button id={editId} color="blue" startDecorator={<EditIcon />} onClick={handleEdit}>
             <Label>Edit</Label>
         </Button>
     );
@@ -49,7 +49,7 @@ export function SlideControls({ onEdit, onRemove, className, ...props }: SlideCo
     const removeButton = (
         <ButtonWithConfirmation
             id={removeId}
-            color="negative"
+            color="red"
             startDecorator={<DeleteIcon />}
             dialogHeader={<Label>Sure to remove?</Label>}
             onClick={handleRemove}

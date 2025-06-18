@@ -1,0 +1,37 @@
+.FileDisplay {
+    display: grid;
+    grid-template-columns: auto minmax(50%, 1fr) auto;
+    column-gap: max(4px, 0.25rem);
+    align-items: center;
+    min-width: 0;
+    container-name: file;
+    container-type: inline-size;
+
+    svg {
+        fill: currentcolor;
+    }
+
+    .icon {
+        display: flex;
+        align-items: center;
+    }
+
+    .name {
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .size {
+        text-align: right;
+        font-size: var(--font-size-xsmall);
+        white-space: nowrap;
+    }
+
+    @container file (max-width: 150px) {
+        .size {
+            display: none;
+        }
+    }
+}

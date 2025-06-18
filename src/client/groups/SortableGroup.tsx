@@ -7,7 +7,7 @@ import { Cell } from '~/client/table/Cell';
 import { SortableRow } from '~/client/table/SortableRow';
 import { useDeleteGroup } from '~/state/groups/useDeleteGroup';
 import { type Group } from '~/types/data';
-import cx from './SortableGroup.less';
+import cx from './SortableGroup.pcss';
 
 export interface ActiveGroup extends ActiveRow, Pick<Group, 'group'> {}
 

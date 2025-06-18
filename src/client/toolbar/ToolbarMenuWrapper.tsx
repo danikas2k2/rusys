@@ -15,7 +15,7 @@ export function ToolbarMenuWrapper({ ref, children }: PropsWithChildren<RefAttri
             ref={ref}
             role="menu"
             trigger={
-                <IconButton variant="plain" color="neutral">
+                <IconButton variant="plain">
                     <MenuIcon aria-label={menuLabel} />
                 </IconButton>
             }

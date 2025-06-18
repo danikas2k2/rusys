@@ -1,5 +1,5 @@
 import React from 'react';
-import cx from './Loader.less';
+import cx from './Loader.pcss';
 
 export function Loader() {
     return (

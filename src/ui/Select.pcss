@@ -1,0 +1,56 @@
+.Option {
+    padding: 0.5rem 1rem;
+    color: var(--element-color);
+    background-color: var(--element-bg);
+
+    &:hover,
+    &:focus {
+        color: var(--element-hover);
+        background-color: var(--element-hover-bg);
+    }
+
+    &.selected {
+        color: var(--element-active);
+        background-color: var(--element-active-bg);
+    }
+
+    &.disabled {
+        &,
+        &:hover,
+        &:focus {
+            color: var(--element-disabled);
+            background-color: var(--element-disabled-bg);
+        }
+    }
+}
+
+.Select {
+    position: relative;
+
+    &.full-width {
+        display: flex;
+    }
+
+    &:not(.full-width) {
+        display: inline-flex;
+    }
+
+    .expand {
+        svg {
+            // TODO combine rotation animation with expand/collapse animation
+            //transition: transform linear 0.2s;
+        }
+
+        &.expanded svg {
+            transform: rotate(-180deg);
+        }
+    }
+
+    input[readonly] {
+        cursor: default;
+    }
+}
+
+.dropdown {
+    border: 1px solid var(--element-border);
+}

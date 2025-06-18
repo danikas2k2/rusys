@@ -4,7 +4,8 @@ import { Provider } from 'react-redux';
 import { ColorSchemeState } from '@ui/ColorScheme';
 import { App } from '~/client/App';
 import { getStore } from '~/state/store';
-import './bootstrap.less';
+import '@ui/theme.pcss';
+import './bootstrap.pcss';
 
 export function bootstrap(): void {
     const container = document.getElementById('root');

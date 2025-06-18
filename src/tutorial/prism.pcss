@@ -1,0 +1,194 @@
+// TODO recalc color-mix to real colors pcss
+:root {
+    --prism-token-comment: var(--color-overlay0);
+    --prism-token-keyword: var(--color-mauve);
+    --prism-token-punctuation: var(--color-text);
+    --prism-token-tag: var(--color-teal);
+    --prism-token-tag-name: var(--color-blue);
+    --prism-token-number: var(--color-sky);
+    --prism-token-variable: var(--color-blue);
+    --prism-token-string: var(--color-lavender);
+    --prism-token-attr-name: var(--color-yellow);
+    --prism-token-attr-value: var(--color-green);
+    --prism-token-attr-prefix: var(--color-teal);
+    --prism-token-url: var(--color-lavender);
+    --prism-token-function: var(--color-peach);
+    --prism-token-css-property: var(--color-text);
+    --prism-token-css-id: var(--color-peach);
+    --prism-token-css-class: var(--color-yellow);
+    --prism-token-regex-bg: color(from var(--color-blue) srgb r g b / 50%);
+    --prism-token-inserted-bg: color(from var(--color-green) srgb r g b / 50%);
+    --prism-token-deleted-bg: color(from var(--color-red) srgb r g b / 50%);
+}
+
+/* Code blocks */
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+    background: color(from var(--color-surface0) srgb r g b / 50%);
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+    padding: 0.1rem;
+    border-radius: 0.3rem;
+}
+
+pre[class*="language-"] {
+    padding: 1rem;
+    margin: 0.5rem 0;
+    overflow: auto;
+}
+
+/* Code syntax */
+pre[class~="prismjs"] {
+    //background: color(from var(--color-surface0) srgb r g b / 50%);
+    background: var(--color-mantle);
+    tab-size: 4;
+
+    code[class*="language-"] {
+        color: var(--color-subtext1);
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-light);
+        line-height: var(--line-height-small);
+        direction: ltr;
+        text-align: left;
+        white-space: pre;
+        word-spacing: normal;
+        word-break: normal;
+        tab-size: 4;
+        hyphens: none;
+
+        &::selection,
+        ::selection {
+            color: inherit;
+            background: color(from var(--color-blue) srgb r g b / 50%);
+        }
+
+        [class~="token"] {
+            &[class~="comment"],
+            &[class~="prolog"],
+            &[class~="cdata"] {
+                color: var(--prism-token-comment);
+                font-style: italic;
+            }
+
+            &[class~="delimiter"],
+            &[class~="boolean"],
+            &[class~="keyword"],
+            &[class~="selector"],
+            &[class~="important"],
+            &[class~="atrule"] {
+                color: var(--prism-token-keyword);
+            }
+
+            &[class~="keyword"] {
+                font-weight: var(--font-weight-medium);
+            }
+
+            &[class~="operator"],
+            &[class~="punctuation"] {
+                color: var(--prism-token-punctuation);
+            }
+
+            &[class~="tag"][class~="punctuation"],
+            &[class~="doctype"],
+            &[class~="builtin"] {
+                color: var(--prism-token-tag);
+            }
+
+            &[class~="tag"][class~="class-name"] {
+                color: var(--prism-token-tag-name);
+            }
+
+            &[class~="attr-name"] {
+                color: var(--prism-token-attr-name);
+            }
+
+            &[class~="entity"],
+            &[class~="number"],
+            &[class~="symbol"] {
+                color: var(--prism-token-number);
+            }
+
+            &[class~="property"],
+            &[class~="constant"],
+            &[class~="variable"],
+            &[class~="maybe-class-name"] {
+                color: var(--prism-token-variable);
+            }
+
+            &[class~="string"],
+            &[class~="char"] {
+                color: var(--prism-token-string);
+                font-style: italic;
+            }
+
+            &[class~="attr-value"],
+            &[class~="attr-value"] [class~="punctuation"] {
+                color: var(--prism-token-attr-value);
+                font-style: italic;
+            }
+
+            &[class~="attr-value"] [class~="attr-equals"] {
+                color: var(--prism-token-attr-prefix);
+            }
+
+            &[class~="url"] {
+                color: var(--prism-token-url);
+                text-decoration: underline;
+            }
+
+            &[class~="function"] {
+                color: var(--prism-token-function);
+            }
+
+            &[class~="regex"] {
+                background: var(--prism-token-regex-bg);
+            }
+
+            &[class~="bold"] {
+                font-weight: bold;
+            }
+
+            &[class~="italic"] {
+                font-style: italic;
+            }
+
+            &[class~="inserted"] {
+                background: var(--prism-token-inserted-bg);
+            }
+
+            &[class~="deleted"] {
+                background: var(--prism-token-deleted-bg);
+            }
+        }
+
+        &[class~="language-css"] [class~="token"] {
+            [class~="property"] {
+                &,
+                & + [class~="punctuation"] {
+                    color: var(--prism-token-css-property);
+                }
+            }
+
+            &[class~="id"] {
+                color: var(--prism-token-css-id);
+                font-weight: var(--font-weight-medium);
+            }
+
+            &[class~="selector"] > [class~="token"] {
+                &[class~="class"],
+                &[class~="attribute"],
+                &[class~="pseudo-class"],
+                &[class~="pseudo-element"] {
+                    color: var(--prism-token-css-class);
+                }
+
+                &[class~="pseudo-class"],
+                &[class~="pseudo-element"] {
+                    font-style: italic;
+                }
+            }
+        }
+    }
+}

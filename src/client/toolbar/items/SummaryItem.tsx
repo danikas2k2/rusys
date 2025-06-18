@@ -6,7 +6,7 @@ import { LinkMenuItem, type LinkMenuItemProps } from '~/client/toolbar/items/Lin
 
 export function SummaryItem({ current }: Pick<LinkMenuItemProps, 'current'>) {
     return (
-        <LinkMenuItem link={Links.SUMMARY} icon={<ChartIcon />} color="primary" current={current}>
+        <LinkMenuItem link={Links.SUMMARY} icon={<ChartIcon />} color="blue" current={current}>
             <Label>Statistics</Label>
         </LinkMenuItem>
     );

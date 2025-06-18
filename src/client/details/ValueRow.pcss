@@ -1,0 +1,19 @@
+.name {
+    justify-self: stretch;
+    font-weight: var(--font-weight-semi-bold);
+
+    &.unavailable {
+        color: var(--color-subtext0);
+        text-decoration: line-through;
+    }
+
+    &:not(.unavailable).removing {
+        color: var(--color-red);
+        text-decoration: line-through;
+    }
+}
+
+.total {
+    font-size: var(--font-size-small);
+    justify-content: flex-end;
+}

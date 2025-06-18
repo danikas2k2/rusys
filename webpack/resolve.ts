@@ -3,7 +3,7 @@ import { type WebpackResolve } from './types';
 
 export function getResolve(): WebpackResolve {
     return {
-        extensions: ['.jsx', '.js', '.tsx', '.ts', '.css', '.less', '.pcss', '.svg'],
+        extensions: ['.jsx', '.js', '.tsx', '.ts', '.pcss', '.css', '.svg'],
         modules: ['node_modules'],
         alias: getAlias(),
         fallback: {

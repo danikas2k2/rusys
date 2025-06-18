@@ -1,5 +1,5 @@
 import React from 'react';
-import cx from './ValueChange.less';
+import cx from './ValueChange.pcss';
 
 interface ValueChangeProps {
     change: number | boolean;

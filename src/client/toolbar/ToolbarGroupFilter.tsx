@@ -14,7 +14,7 @@ export function ToolbarGroupFilter() {
     const clearGroup = useClearGroup();
     const handleChange = (e: ChangeEvent, value: string) => (value ? setGroup(value) : clearGroup());
     return (
-        <Select fullWidth color="primary" value={group} onChange={handleChange}>
+        <Select fullWidth value={group} onChange={handleChange}>
             {groups.map((g) => (
                 <Option key={g} value={g}>
                     {g || allGroups}

@@ -29,18 +29,9 @@ export default [
             'jest/no-untyped-mock-factory': 'off',
             'jest/prefer-expect-assertions': 'off',
             'jest/prefer-importing-jest-globals': 'off',
-            'jest/max-expects': [
-                'error',
-                {
-                    max: 9,
-                },
-            ],
-            'jest/require-hook': [
-                'error',
-                {
-                    allowedFunctionCalls: ['mockEnv', 'mockWindow'],
-                },
-            ],
+            'jest/max-expects': ['error', { max: 9 }],
+            'jest/prefer-ending-with-an-expect': ['error', { assertFunctionNames: ['waitFor'] }],
+            'jest/require-hook': ['error', { allowedFunctionCalls: ['mockEnv', 'mockWindow'] }],
         },
     },
     {

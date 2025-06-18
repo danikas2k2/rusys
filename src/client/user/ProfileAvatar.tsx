@@ -1,7 +1,7 @@
 import React from 'react';
 import SmartToyIcon from '@assets/smart-toy.svg';
 import { DEV_MODE_SUB, useProfile } from '~/state/profile/useProfile';
-import cx from './ProfileAvatar.less';
+import cx from './ProfileAvatar.pcss';
 
 export function ProfileAvatar() {
     const profile = useProfile();

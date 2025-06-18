@@ -12,7 +12,7 @@ import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
 // import { getErrorMessage } from '~/common/utils/errors';
-import cx from './ImportBox.less';
+import cx from './ImportBox.pcss';
 
 interface ImportBoxProps extends WithOnClose {
     onClose: () => void;
@@ -37,7 +37,7 @@ function ImportFooter({ onCancel, onSubmit }: ImportFooterProps) {
             <Button
                 type="submit"
                 variant="solid"
-                color="primary"
+                color="blue"
                 startDecorator={<ImportIcon />}
                 disabled={pending}
                 onClick={onSubmit}
@@ -135,7 +135,7 @@ export function ImportBox({ onClose }: ImportBoxProps) {
                         name="import"
                         accept="application/json"
                         fullWidth
-                        color={errors?._ || errors?.variant ? 'negative' : 'primary'}
+                        color={errors?._ || errors?.variant ? 'red' : 'blue'}
                         invalid={!!errors?._ || !!errors?.variant}
                         error={errors?._ ? errorLabel : undefined}
                         size="large"

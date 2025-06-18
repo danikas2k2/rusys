@@ -3,7 +3,7 @@ import { ValueVariant } from '~/client/common/ValueVariant';
 import { Cell } from '~/client/table/Cell';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
 import { type VariantAmount } from '~/types/data';
-import cx from './SummaryCell.less';
+import cx from './SummaryCell.pcss';
 
 export function SummaryCell({ group, amounts }: { group: string; amounts?: ReadonlyArray<VariantAmount> }) {
     const compareVariants = useGroupVariantComparator(group);

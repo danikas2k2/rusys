@@ -4,7 +4,7 @@ import { SummaryCell } from '~/client/summary/SummaryCell';
 import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';
 import { type YearAmounts } from '~/types/data';
-import cx from './SummaryRow.less';
+import cx from './SummaryRow.pcss';
 
 export function SummaryRow({
     group,

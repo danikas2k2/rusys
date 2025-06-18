@@ -4,7 +4,7 @@ import { RecycledContextWrapper } from '~/client/common/RecycledContext';
 import { RecycledControls } from '~/client/common/RecycledControls';
 import { SummaryTable } from '~/client/summary/SummaryTable';
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
-import cx from './SummaryPage.less';
+import cx from './SummaryPage.pcss';
 
 export function SummaryPage() {
     return (

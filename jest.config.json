@@ -2,11 +2,11 @@
     "verbose": true,
     "moduleFileExtensions": ["js", "jsx", "ts", "tsx"],
     "moduleNameMapper": {
+        "\\.p?css$": "<rootDir>/jest/__mocks__/styleMock.js",
         "^@assets/(.*)$": "<rootDir>/src/assets/$1",
         "^@tests/(.*)$": "<rootDir>/src/tests/$1",
         "^@ui/(.*)$": "<rootDir>/src/ui/$1",
-        "^~/(.*)$": "<rootDir>/src/$1",
-        "\\.(c|le)ss$": "<rootDir>/jest/__mocks__/styleMock.js"
+        "^~/(.*)$": "<rootDir>/src/$1"
     },
     "modulePathIgnorePatterns": ["<rootDir>/src/.*?\\.d\\.ts$", "<rootDir>/src/.*?/types\\.ts$"],
     "setupFilesAfterEnv": [

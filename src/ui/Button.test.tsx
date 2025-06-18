@@ -45,15 +45,15 @@ describe('<Button>', () => {
     });
 
     it('applies color class based on color prop', () => {
-        render(<Button color="primary" />);
+        render(<Button color="blue" />);
 
-        expect(screen.getByRole('button')).toHaveClass('color-primary');
+        expect(screen.getByRole('button')).toHaveClass('ui-color-blue');
     });
 
     it('applies variant class based on variant prop', () => {
         render(<Button variant="outlined" />);
 
-        expect(screen.getByRole('button')).toHaveClass('variant-outlined');
+        expect(screen.getByRole('button')).toHaveClass('ui-variant-outlined');
     });
 
     it('applies size class based on size prop', () => {
@@ -138,7 +138,7 @@ describe('<IconButton>', () => {
     it('renders with custom variant', () => {
         render(<IconButton variant="solid" />);
 
-        expect(screen.getByRole('button')).toHaveClass('variant-solid');
+        expect(screen.getByRole('button')).toHaveClass('ui-variant-solid');
     });
 
     it('renders with custom spacing', () => {

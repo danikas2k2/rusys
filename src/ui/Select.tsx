@@ -17,20 +17,22 @@ import React, {
 import ExpandDownIcon from '@assets/expand-down.svg';
 import { Button } from '@ui/Button';
 import { Dropdown, type DropdownRef } from '@ui/Dropdown';
+import { type ElementState } from '@ui/Element';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { useOutsideClick } from '@ui/hooks/useOutsideClick';
-import { Input, type InputProps, type InputState } from '@ui/Input';
+import { Input, type InputProps } from '@ui/Input';
 import { Interactive } from '@ui/Interactive';
 import { uniqueId } from '@ui/utils/uniqueId';
 import { matchParts } from '~/client/utils/matchParts';
-import classNames from 'classnames';
-import cx from './Select.less';
+import cs from 'classnames';
+import cx from './Select.pcss';
 
 export interface SelectProps<T = string | number, E extends HTMLElement = HTMLElement>
     extends Omit<InputProps, 'mode' | 'value' | 'onChange'> {
     value?: T;
     content?: string;
-    mode?: 'single' | 'multiple';
+    multiple?: boolean;
+    expanded?: boolean;
     // TODO think about using anything for children, not only array of options
     children?: ReactElement<OptionProps<T, E>>[];
     onChange?: (e: ChangeEvent<E>, value: T, text: string | undefined, i: number) => void;
@@ -42,14 +44,18 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
     id = uniqueId('select'),
     value: initialValue,
     content: initialLabel,
-    mode = 'single',
+    multiple = false,
+    expanded: initialExpanded = false,
     children: options,
     error,
     invalid = !!error,
-    color = invalid ? 'negative' : 'neutral',
+    color = invalid ? 'red' : 'gray',
+    variant = 'outlined',
     onClick,
     onChange,
+    disabled,
     readOnly,
+    fullWidth,
     className,
     endDecorator,
     ...props
@@ -106,14 +112,14 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
             if (filter) {
                 setFilter(undefined);
             }
-            if (mode === 'single') {
+            if (!multiple) {
                 dropdownRef.current?.close();
             }
             if (changed) {
                 onChange?.(e, value, content, i);
             }
         },
-        [currentLabel, currentValue, filter, mode, onChange]
+        [currentLabel, currentValue, filter, multiple, onChange]
     );
 
     const filteredOptions = options
@@ -179,8 +185,14 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
         }
     });
 
-    const [expanded, setExpanded] = useState(false);
-    const [state, setState] = useState<InputState>('default');
+    const [expanded, setExpanded] = useState(initialExpanded);
+    useEffect(() => {
+        if (initialExpanded) {
+            dropdownRef.current?.open();
+        }
+    }, [initialExpanded]);
+
+    const [state, setState] = useState<ElementState>('default');
     const active = expanded || hasFocus;
 
     useEffect(() => {
@@ -213,9 +225,9 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
             id={id}
             ref={anchorRef}
             role="listbox"
-            className={classNames(
+            className={cs(
                 cx('Select', {
-                    'full-width': props.fullWidth,
+                    'full-width': fullWidth,
                 }),
                 className
             )}
@@ -233,6 +245,9 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
                 invalid={invalid}
                 aria-invalid={invalid}
                 color={color}
+                variant={variant}
+                disabled={disabled}
+                fullWidth={fullWidth}
                 readOnly={readOnly}
                 aria-readonly={readOnly}
                 clearable={!readOnly && !!inputValue && state === 'active'}
@@ -250,11 +265,13 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
                             ref={dropdownRef}
                             anchor={[anchorRef, inputRef]}
                             autoWidth={false}
-                            className={cx('dropdown')}
+                            className={cs(cx('dropdown'), {
+                                [`ui-color-${color}`]: color,
+                                [`ui-variant-${variant}`]: variant,
+                            })}
                             trigger={
                                 <Button
                                     className={cx('expand', { expanded })}
-                                    // variant={getButtonVariant(props.variant)}
                                     variant="plain"
                                     color={color}
                                     spacing="half"
@@ -262,8 +279,7 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
                                     size="medium"
                                     align="end"
                                     fullHeight
-                                    disabled={filteredOut}
-                                    aria-disabled={filteredOut}
+                                    disabled={disabled || filteredOut}
                                     aria-controls={id}
                                     aria-label="toggle"
                                 >
@@ -272,6 +288,7 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
                             }
                             onOpen={() => setExpanded(true)}
                             onClose={() => setExpanded(false)}
+                            // open={expanded} // TODO use `open` instead of imperative open/close commands
                         >
                             {filteredOptions}
                         </Dropdown>
@@ -307,7 +324,7 @@ export function Option<T = string | number, E extends HTMLElement = HTMLElement>
         <Interactive
             ref={useForwardedRef(ref)}
             role="option"
-            className={classNames(cx('Option', { selected, disabled }), className)}
+            className={cs(cx('Option', { selected, disabled }), className)}
             aria-selected={selected} // TODO use aria-checked for multiple select
             aria-disabled={disabled}
             aria-label={label}

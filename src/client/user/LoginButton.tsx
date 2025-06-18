@@ -5,7 +5,7 @@ import { Label } from '~/client/common/Label';
 import { useLoginError } from '~/client/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
 import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
-import cx from './LoginButton.less';
+import cx from './LoginButton.pcss';
 
 export function LoginButton({ children }: ButtonProps) {
     const onError = useLoginError();
@@ -25,7 +25,7 @@ export function LoginButton({ children }: ButtonProps) {
     const handleClick = useCallback(() => login(), [login]);
 
     return (
-        <IconButton color="neutral" variant="outlined" onClick={handleClick}>
+        <IconButton color="gray" variant="outlined" onClick={handleClick}>
             <div className={cx('LoginButton')}>
                 {children || (
                     <>

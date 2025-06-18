@@ -1,0 +1,27 @@
+.HeadRow,
+.GroupRow {
+    font-weight: var(--font-weight-semi-bold);
+}
+
+.Row {
+    > :nth-child(2) {
+        grid-column: span 3;
+    }
+}
+
+.HeadRow {
+    padding-inline: 0.25rem 0.5rem;
+}
+
+.GroupRow {
+    padding: 0.75rem 1rem 0.25rem;
+    background-color: var(--color-base);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.GroupHeading {
+    width: 100%;
+    font-size: var(--font-size-xxlarge);
+}

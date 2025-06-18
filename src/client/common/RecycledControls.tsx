@@ -16,7 +16,7 @@ export function RecycledControls({ consumedAmount, recycledAmount }: RecycledCon
             <Button
                 role="radio"
                 aria-checked={!recycled}
-                color={recycled ? 'neutral' : 'positive'}
+                color={recycled ? 'gray' : 'green'}
                 variant={recycled ? 'outlined' : 'solid'}
                 onClick={() => setRecycled(false)}
                 startDecorator={consumedAmount && <ValueChange position="left" change={consumedAmount} />}
@@ -26,7 +26,7 @@ export function RecycledControls({ consumedAmount, recycledAmount }: RecycledCon
             <Button
                 role="radio"
                 aria-checked={recycled}
-                color={recycled ? 'negative' : 'neutral'}
+                color={recycled ? 'red' : 'gray'}
                 variant={recycled ? 'solid' : 'outlined'}
                 onClick={() => setRecycled(true)}
                 endDecorator={recycledAmount && <ValueChange position="right" change={recycledAmount} />}

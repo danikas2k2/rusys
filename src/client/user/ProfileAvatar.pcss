@@ -1,0 +1,43 @@
+.Avatar {
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+
+    .picture {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+
+        &::part(alttext) {
+            display: none;
+        }
+    }
+
+    .letters {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        background: var(--color-mantle);
+        border-radius: 50%;
+        overflow: hidden;
+        font-size: var(--font-size-small);
+    }
+
+    .robot {
+        display: block;
+        width: 24px;
+        height: 24px;
+        background: var(--color-mantle);
+        padding: 4px;
+        border-radius: 50%;
+        line-height: 32px;
+        overflow: hidden;
+        font-size: var(--font-size-small);
+
+        svg {
+            fill: var(--color-sky);
+            width: 24px;
+            height: 24px;
+        }
+    }
+}

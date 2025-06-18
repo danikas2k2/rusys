@@ -8,7 +8,7 @@ import { SortableRow } from '~/client/table/SortableRow';
 import { useDeleteVariant } from '~/state/variants/useDeleteVariant';
 import { type Variant } from '~/types/data';
 import cs from 'classnames';
-import cx from './SortableVariant.less';
+import cx from './SortableVariant.pcss';
 
 export interface ActiveVariant extends ActiveRow, Pick<Variant, 'group' | 'variant'> {}
 

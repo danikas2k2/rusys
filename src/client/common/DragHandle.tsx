@@ -1,6 +1,6 @@
 import React, { type HTMLAttributes, type RefAttributes } from 'react';
 import DragHandleIcon from '@assets/drag-handle.svg';
-import cx from './DragHandle.less';
+import cx from './DragHandle.pcss';
 
 export interface DragHandleProps extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
     dragging?: boolean;

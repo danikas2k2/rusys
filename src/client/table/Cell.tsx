@@ -1,5 +1,5 @@
 import React, { type HTMLAttributes, type ReactNode } from 'react';
-import cx from './Cell.less';
+import cx from './Cell.pcss';
 
 interface CellProps<T extends HTMLElement = HTMLDivElement> extends HTMLAttributes<T> {
     children?: ReactNode;

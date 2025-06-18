@@ -13,7 +13,7 @@ import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';
 import { useYears } from '~/state/years/useYears';
 import { type Details, type RemovingYearAmounts } from '~/types/data';
 import { isEmpty } from 'lodash';
-import cx from './ValueRow.less';
+import cx from './ValueRow.pcss';
 
 export interface ActiveDetails extends ActiveRow, Pick<Details, 'group' | 'name'> {}
 
@@ -66,7 +66,7 @@ export function ValueRow({ className, group, name, years, missing }: ValueRowPro
         >
             <Cell>
                 <Checkbox
-                    color="primary"
+                    color="blue"
                     checked={!missing}
                     disabled={!available}
                     indeterminate={!available}

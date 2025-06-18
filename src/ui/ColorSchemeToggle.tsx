@@ -29,7 +29,7 @@ export function ColorSchemeToggle({
         <nav>
             <ButtonGroup>
                 <Button
-                    color={scheme === 'light' ? 'primary' : 'neutral'}
+                    color={scheme === 'light' ? 'blue' : 'gray'}
                     variant={scheme === 'light' ? 'solid' : 'outlined'}
                     aria-label={lightModeLabel}
                     aria-pressed={scheme === 'light'}
@@ -39,7 +39,7 @@ export function ColorSchemeToggle({
                 </Button>
                 {auto && (
                     <Button
-                        color={scheme === 'auto' ? 'primary' : 'neutral'}
+                        color={scheme === 'auto' ? 'blue' : 'gray'}
                         variant={scheme === 'auto' ? 'solid' : 'outlined'}
                         aria-label={autoModeLabel}
                         aria-pressed={scheme === 'auto'}
@@ -49,7 +49,7 @@ export function ColorSchemeToggle({
                     </Button>
                 )}
                 <Button
-                    color={scheme === 'dark' ? 'primary' : 'neutral'}
+                    color={scheme === 'dark' ? 'blue' : 'gray'}
                     variant={scheme === 'dark' ? 'solid' : 'outlined'}
                     aria-label={darkModeLabel}
                     aria-pressed={scheme === 'dark'}

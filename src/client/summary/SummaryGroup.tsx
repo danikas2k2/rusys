@@ -4,7 +4,7 @@ import { SummaryRow } from '~/client/summary/SummaryRow';
 import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';
 import { type Summary } from '~/types/data';
-import cx from './SummaryGroup.less';
+import cx from './SummaryGroup.pcss';
 
 interface SummaryGroupProps {
     group: string;
@@ -20,9 +20,11 @@ export function SummaryGroup({ group, summary }: SummaryGroupProps) {
                     {group}
                 </Cell>
             </Row>
-            {summary.map(({ name, years }) => (
-                <SummaryRow key={name} group={group} name={name} amounts={years} />
-            ))}
+            <div className={cx('GroupedRows')}>
+                {summary.map(({ name, years }) => (
+                    <SummaryRow key={name} group={group} name={name} amounts={years} />
+                ))}
+            </div>
         </div>
     );
 }

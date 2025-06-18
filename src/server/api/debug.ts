@@ -1,3 +1,4 @@
+import { formatFileSize } from '~/common/utils/format';
 import { type Request } from 'express';
 import { type UploadedFile } from 'express-fileupload';
 import { isEmpty } from 'lodash';
@@ -25,15 +26,4 @@ export function debugRequest(req: Request): void {
 
 function formatFileInfo(f: UploadedFile): string {
     return `${f.name} (${formatFileSize(f.size)})`;
-}
-
-const suffixes = 'KMGTPEZY';
-
-function formatFileSize(size: number): string {
-    let x = -1;
-    while (size >= 1024) {
-        size /= 1024;
-        x++;
-    }
-    return `${size.toFixed(1)}${suffixes[x]}`;
 }

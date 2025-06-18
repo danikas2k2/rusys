@@ -8,7 +8,7 @@ import { Error } from '~/client/Error';
 import { isDevMode } from '~/common/utils/env';
 import { useClientId } from '~/state/google/useClientId';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import cx from './App.less';
+import cx from './App.pcss';
 
 export function App() {
     useDocumentColorScheme();

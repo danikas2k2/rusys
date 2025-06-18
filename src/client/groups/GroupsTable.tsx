@@ -13,7 +13,7 @@ import { matchParts } from '~/client/utils/matchParts';
 import { useFilter } from '~/state/filter/useFilter';
 import { useGetGroups } from '~/state/groups/useGetGroups';
 import { useGroups } from '~/state/groups/useGroups';
-import cx from './GroupsTable.less';
+import cx from './GroupsTable.pcss';
 
 export function GroupsTable() {
     const groups = useGroups();

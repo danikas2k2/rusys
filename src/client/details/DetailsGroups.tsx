@@ -4,7 +4,7 @@ import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';
 import { useGroup } from '~/state/group/useGroup';
 import { type Details } from '~/types/data';
-import cx from './DetailsGroups.less';
+import cx from './DetailsGroups.pcss';
 
 interface DetailsGroupsProps {
     groups: ReadonlyArray<string>;

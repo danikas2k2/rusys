@@ -19,13 +19,12 @@ export function ToolbarFilter() {
         <Input
             mode="search"
             fullWidth
-            color="primary"
             placeholder={placeholder}
             onInput={handleInput}
             value={filter}
             endDecorator={
                 filter ? (
-                    <Button onClick={handleClear} spacing="small" variant="plain" color="primary">
+                    <Button onClick={handleClear} spacing="small" variant="plain" color="blue">
                         <CancelIcon aria-label={clearLabel} />
                     </Button>
                 ) : null

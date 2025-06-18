@@ -3,7 +3,7 @@ import { Loader } from '@ui/Loader';
 import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
 import { Label } from '~/client/common/Label';
 import { Error } from '~/client/Error';
-import cx from './LoadingContent.less';
+import cx from './LoadingContent.pcss';
 
 interface LoadingTableProps {
     loader: () => Promise<unknown>;

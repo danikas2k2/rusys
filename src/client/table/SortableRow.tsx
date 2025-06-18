@@ -13,7 +13,7 @@ import { RowWithSlideControls, type RowWithSlideControlsProps } from '~/client/t
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 import cs from 'classnames';
 import { defer } from 'lodash';
-import cx from './SortableRow.less';
+import cx from './SortableRow.pcss';
 
 export interface SortableRowProps extends RowWithSlideControlsProps {
     index: number;

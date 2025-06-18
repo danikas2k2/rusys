@@ -1,0 +1,13 @@
+.DragHandle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-base);
+    color: var(--color-text);
+    fill: currentcolor;
+    cursor: grab;
+
+    &.dragging {
+        cursor: grabbing;
+    }
+}

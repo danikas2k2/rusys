@@ -14,7 +14,7 @@ import { useLabel } from '~/client/hooks/useLabel';
 import { useAllVariants } from '~/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
 import { type VariantAmount } from '~/types/data';
-import cx from './ValueBox.less';
+import cx from './ValueBox.pcss';
 
 export interface ValueBoxProps {
     group: string;
@@ -156,7 +156,7 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
                             aria-label={expandLabel}
                             onClick={handleExpand}
                             variant="plain"
-                            color="primary"
+                            color="blue"
                             size="large"
                         >
                             <ExpandDownIcon />
@@ -168,7 +168,7 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
                 <Button variant="outlined" startDecorator={<CancelIcon />} onClick={handleClose}>
                     <Label>Cancel</Label>
                 </Button>
-                <Button variant="solid" color="primary" startDecorator={<DoneIcon />} onClick={handleUpdate}>
+                <Button variant="solid" color="blue" startDecorator={<DoneIcon />} onClick={handleUpdate}>
                     <Label>Update</Label>
                 </Button>
             </footer>

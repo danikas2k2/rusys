@@ -4,6 +4,7 @@ import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
 import { useFilteredList } from '~/client/common/hooks/useFilteredList';
 import { useSortedList } from '~/client/common/hooks/useSortedList';
 import { LoadingContent } from '~/client/common/LoadingContent';
+import { ActiveDetailsBox } from '~/client/details/ActiveDetailsBox';
 import { DetailsGroups } from '~/client/details/DetailsGroups';
 import { useDetailsHasData } from '~/client/details/hooks/useDetailsHasData';
 import { useMissingDetails } from '~/client/details/hooks/useMissingDetails';
@@ -19,7 +20,7 @@ import { useClearFilter } from '~/state/filter/useClearFilter';
 import { useFilter } from '~/state/filter/useFilter';
 import { useGroup } from '~/state/group/useGroup';
 import { useYears } from '~/state/years/useYears';
-import cx from './DetailsTable.less';
+import cx from './DetailsTable.pcss';
 
 export function DetailsTable() {
     const filteredDetails = useFilteredList(useDetails());
@@ -69,6 +70,7 @@ export function DetailsTable() {
                 <ActiveRowWrapper>
                     <ActiveRowOutsideClick />
                     <DetailsGroups groups={visibleGroups} details={visibleDetails} />
+                    <ActiveDetailsBox />
                 </ActiveRowWrapper>
             </Table>
         </LoadingContent>

@@ -1,0 +1,257 @@
+.Button {
+    --button-color: var(--element-color);
+    --button-bg: var(--element-bg);
+    --button-border: var(--element-border);
+    --button-hover: var(--element-hover, var(--element-color));
+    --button-hover-bg: var(--element-hover-bg, var(--element-bg));
+    --button-hover-border: var(--element-hover-border, var(--element-border));
+    --button-active: var(--element-active, var(--element-color));
+    --button-active-bg: var(--element-active-bg, var(--element-bg));
+    --button-active-border: var(--element-active-border, var(--element-border));
+    --button-disabled: var(--element-disabled, var(--element-color));
+    --button-disabled-bg: var(--element-disabled-bg, var(--element-bg));
+    --button-disabled-border: var(--element-disabled-border, var(--element-border));
+
+    &.state-hover,
+    &:hover,
+    &:has(:hover) {
+        --button-color: var(--button-hover);
+        --button-bg: var(--button-hover-bg);
+        --button-border: var(--button-hover-border);
+    }
+
+    // TODO add outline colors
+
+    &.state-focus,
+    &:focus,
+    &:has(:focus) {
+        --button-color: var(--button-hover);
+        --button-bg: var(--button-hover-bg);
+        --button-border: var(--button-hover-border);
+    }
+
+    &.state-active,
+    &:active,
+    &:has(:active) {
+        --button-color: var(--button-active);
+        --button-bg: var(--button-active-bg);
+        --button-border: var(--button-active-border);
+    }
+
+    &.state-disabled,
+    &:disabled,
+    &:has(:disabled) {
+        --button-color: var(--button-disabled);
+        --button-bg: var(--button-disabled-bg);
+        --button-border: var(--button-disabled-border);
+    }
+
+    &.size-small {
+        --button-icon-size: var(--font-size-base);
+        --button-font-size: var(--font-size-small);
+        --button-min-size: 2rem;
+        --button-padding-block: 0.125rem;
+        --button-padding-inline: 0.75rem;
+        --button-radius-size: var(--radius-small);
+    }
+
+    &.size-medium {
+        --button-icon-size: var(--font-size-large);
+        --button-font-size: var(--font-size-base);
+        --button-min-size: 2.5rem;
+        --button-padding-block: 0.25rem;
+        --button-padding-inline: 1rem;
+        --button-radius-size: var(--radius-medium);
+    }
+
+    &.size-large {
+        --button-icon-size: var(--font-size-xxlarge);
+        --button-font-size: var(--font-size-medium);
+        --button-min-size: 3rem;
+        --button-padding-block: 0.375rem;
+        --button-padding-inline: 1.5rem;
+        --button-radius-size: var(--radius-large);
+    }
+
+    &.spacing-none {
+        --button-min-size: calc(var(--button-icon-size) + 2px);
+        --button-spacing: 0;
+        --button-radius-size: var(--radius-xsmall);
+    }
+
+    &.spacing-half {
+        --button-spacing: 0.75;
+    }
+
+    &.spacing-small {
+        --button-spacing: 1;
+    }
+
+    &.spacing-medium {
+        --button-spacing: 1.25;
+    }
+
+    &.spacing-large {
+        --button-spacing: 1.5;
+    }
+
+    &.align-single {
+        --button-radius: var(--button-radius-size);
+    }
+
+    &.align-start {
+        --button-radius: var(--button-radius-size) 0 0 var(--button-radius-size);
+    }
+
+    &.align-center {
+        --button-radius: 0;
+    }
+
+    &.align-end {
+        --button-radius: 0 var(--button-radius-size) var(--button-radius-size) 0;
+    }
+
+    color: var(--button-color);
+    background-color: var(--button-bg);
+    border: 1px solid var(--button-border);
+    border-radius: var(--button-radius);
+
+    --min-width: calc(var(--button-min-size) * var(--button-spacing, 1));
+    --min-height: calc(var(--button-min-size) * var(--button-spacing, 1));
+    --padding-block: calc(var(--button-padding-block) * var(--button-spacing, 1));
+    --padding-inline: calc(var(--button-padding-inline) * var(--button-spacing, 1));
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    height: fit-content;
+    min-width: var(--min-width);
+    min-height: var(--min-height);
+    padding-block: var(--padding-block);
+    padding-inline: var(--padding-inline);
+    font-family: var(--font-family-body), sans-serif;
+    font-weight: var(--font-weight-medium);
+    font-size: var(--button-font-size);
+    line-height: 1;
+    text-decoration: none;
+
+    &:not(:disabled) {
+        cursor: pointer;
+    }
+
+    &.full-width {
+        width: 100%;
+    }
+
+    &.full-height {
+        height: 100%;
+    }
+
+    svg {
+        width: var(--button-icon-size);
+        height: var(--button-icon-size);
+        color: inherit;
+        fill: currentcolor;
+
+        &:first-child:not(:last-child) {
+            margin-inline-end: 0.25rem;
+        }
+
+        &:last-child:not(:first-child) {
+            margin-inline-start: 0.25rem;
+        }
+    }
+
+    .start-decorator,
+    .end-decorator {
+        display: flex;
+        align-items: stretch;
+        flex-shrink: 0;
+    }
+
+    .start-decorator {
+        justify-content: flex-start;
+        padding-inline-end: calc(var(--padding-inline) / 2);
+    }
+
+    .end-decorator {
+        justify-content: flex-end;
+        padding-inline-start: calc(var(--padding-inline) / 2);
+    }
+
+    + .Button {
+        margin-inline-start: 1rem;
+    }
+}
+
+.ButtonGroup {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+
+    &.align-start {
+        justify-content: flex-start;
+    }
+
+    &.align-center {
+        justify-content: center;
+    }
+
+    &.align-end {
+        justify-content: flex-end;
+    }
+
+    &.align-full-width {
+        width: 100%;
+
+        .Button {
+            width: 100%;
+        }
+    }
+
+    &.spacing-large {
+        --button-group-spacing: 1.5;
+    }
+
+    &.spacing-medium {
+        --button-group-spacing: 1.25;
+    }
+
+    &.spacing-small {
+        --button-group-spacing: 1;
+    }
+
+    &.spacing-half {
+        --button-group-spacing: 0.75;
+    }
+
+    &.spacing-none,
+    &.combined {
+        --button-group-spacing: 1px;
+    }
+
+    .Button + .Button {
+        margin-inline-start: var(--button-group-spacing);
+    }
+
+    &.combined {
+        .Button {
+            + .Button {
+                border-start-start-radius: 0;
+                border-end-start-radius: 0;
+            }
+
+            &:has(+ .Button) {
+                border-start-end-radius: 0;
+                border-end-end-radius: 0;
+            }
+        }
+    }
+
+    &.full-height {
+        height: 100%;
+        align-items: stretch;
+    }
+}

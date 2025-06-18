@@ -1,0 +1,23 @@
+.ValueCell {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-xlarge);
+    transition:
+        color 0.2s ease-in-out,
+        background-color 0.2s ease-in-out;
+
+    &.last {
+        color: var(--color-red);
+    }
+
+    &.empty {
+        color: var(--color-subtext0);
+    }
+
+    &.removing {
+        color: var(--color-base);
+        background-color: var(--color-red);
+    }
+}

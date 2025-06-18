@@ -1,4 +1,4 @@
-// import cx from './Vector.less';
+// import cx from './Vector.pcss';
 // import { type PropsWithChildren } from 'react';
 //
 // const xOffset = 0;

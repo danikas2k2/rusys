@@ -9,7 +9,7 @@ import React, {
 import { Interactive } from '@ui/Interactive';
 import { Portal } from '@ui/Portal';
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
-import cx from './Dialog.less';
+import cx from './Dialog.pcss';
 
 export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
     open?: boolean;

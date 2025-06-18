@@ -21,7 +21,7 @@ import { useMoveDetails } from '~/state/details/useMoveDetails';
 import { useRenameDetails } from '~/state/details/useRenameDetails';
 import { useGroups } from '~/state/groups/useGroups';
 import { isEmpty } from 'lodash';
-import cx from './DetailsBox.less';
+import cx from './DetailsBox.pcss';
 
 interface DetailsBoxProps extends WithOnClose {
     group?: string;
@@ -145,7 +145,7 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
                 <Select
                     ref={groupRef}
                     fullWidth
-                    color={errors?.group ? 'negative' : 'primary'}
+                    color={errors?.group ? 'red' : 'blue'}
                     invalid={!!errors?.group}
                     size="large"
                     value={group}
@@ -161,7 +161,7 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
                 <Input
                     ref={nameRef}
                     fullWidth
-                    color={errors?._ || errors?.name ? 'negative' : 'primary'}
+                    color={errors?._ || errors?.name ? 'red' : 'blue'}
                     invalid={!!errors?._ || !!errors?.name}
                     error={errors?._ ? errorLabel : undefined}
                     size="large"
@@ -176,7 +176,7 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
                 <Button variant="outlined" startDecorator={<CancelIcon />} onClick={handleClose}>
                     <Label>Cancel</Label>
                 </Button>
-                <Button variant="solid" color="primary" startDecorator={getButtonDecorator()} onClick={handleUpdate}>
+                <Button variant="solid" color="blue" startDecorator={getButtonDecorator()} onClick={handleUpdate}>
                     <Label>{getButtonLabel()}</Label>
                 </Button>
             </footer>

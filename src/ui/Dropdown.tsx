@@ -18,7 +18,7 @@ import React, {
 import { Interactive } from '@ui/Interactive';
 import { Portal } from '@ui/Portal';
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
-import cx from './Dropdown.less';
+import cx from './Dropdown.pcss';
 
 interface DropdownTriggerElementProps {
     onClick: MouseEventHandler;
@@ -151,10 +151,10 @@ export function Dropdown({
                     onClick={stopPropagation}
                     {...props}
                     style={{
-                        insetInlineStart,
-                        insetBlockStart,
-                        minWidth,
-                        width,
+                        insetInlineStart: `${insetInlineStart}px`,
+                        insetBlockStart: `${insetBlockStart}px`,
+                        minWidth: `${minWidth}px`,
+                        width: `${width}px`,
                     }}
                 >
                     {children}

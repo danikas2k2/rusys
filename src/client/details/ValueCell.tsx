@@ -7,7 +7,7 @@ import { Cell } from '~/client/table/Cell';
 import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
 import { useUpdateDetails } from '~/state/details/useUpdateDetails';
 import { type VariantAmount } from '~/types/data';
-import cx from './ValueCell.less';
+import cx from './ValueCell.pcss';
 
 export interface ValueCellProps {
     group: string;

@@ -1,0 +1,33 @@
+.Row {
+    min-height: 2rem;
+    overflow: hidden;
+
+    > :nth-child(2) {
+        grid-column: span 3;
+    }
+}
+
+.GroupedRows {
+    position: relative;
+    margin-block-start: 0.125rem;
+    margin-inline: 0.25rem 0.5rem;
+}
+
+.GroupRow {
+    font-weight: var(--font-weight-semi-bold);
+    padding: 1.25rem 1rem 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-index-badge);
+    background: var(--color-base)
+        linear-gradient(
+            135deg,
+            color(from var(--color-blue) srgb r g b / 0%) 30%,
+            color(from var(--color-blue) srgb r g b / 50%) 100%
+        );
+}
+
+.GroupHeading {
+    width: 100%;
+    font-size: var(--font-size-xxlarge);
+}

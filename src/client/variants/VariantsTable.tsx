@@ -9,7 +9,7 @@ import { SortableGroups } from '~/client/variants/SortableGroups';
 import { useGroup } from '~/state/group/useGroup';
 import { useGroups } from '~/state/groups/useGroups';
 import { useGetVariants } from '~/state/variants/useGetVariants';
-import cx from './VariantsTable.less';
+import cx from './VariantsTable.pcss';
 
 export function VariantsTable() {
     const group = useGroup();

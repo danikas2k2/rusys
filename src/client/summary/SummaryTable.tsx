@@ -12,7 +12,7 @@ import { Row } from '~/client/table/Row';
 import { Table } from '~/client/table/Table';
 import { useGroup } from '~/state/group/useGroup';
 import { useGetSummary } from '~/state/summary/useGetSummary';
-import cx from './SummaryTable.less';
+import cx from './SummaryTable.pcss';
 
 export function SummaryTable() {
     const group = useGroup();

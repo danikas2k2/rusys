@@ -5,7 +5,7 @@ module.exports = {
     trailingComma: 'es5',
     overrides: [
         {
-            files: ['*.html', '*.less'],
+            files: ['*.html', '*.pcss', '*.css'],
             options: {
                 singleQuote: false,
             },
@@ -23,8 +23,8 @@ module.exports = {
                     '^@assets/',
                     '^@ui/',
                     '^~/',
-                    '^(?!.*\\.less$)(.*)$',
-                    '\.less$',
+                    '^(?!.*\\.p?css$)(.*)$',
+                    '\.p?css$',
                 ],
                 importOrderCaseInsensitive: true,
                 importOrderParserPlugins: ['typescript', 'jsx'],

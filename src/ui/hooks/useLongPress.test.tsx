@@ -108,6 +108,14 @@ describe('useLongPress', () => {
     });
 
     describe('touch events', () => {
+        beforeEach(() => {
+            Object.assign(navigator, { maxTouchPoints: 1 }); // Simulate a touch-capable device
+        });
+
+        afterAll(() => {
+            Object.assign(navigator, { maxTouchPoints: 0 }); // Reset after tests
+        });
+
         // TODO use user.pointer() when touch event will be available
 
         it('triggers onLongPress after duration', () => {

@@ -9,7 +9,7 @@ interface AddMenuItemProps {
 
 export function AddMenuItem({ onClick }: AddMenuItemProps) {
     return (
-        <ToolbarMenuItem onClick={onClick} icon={<AddCircleIcon />} color="positive">
+        <ToolbarMenuItem onClick={onClick} icon={<AddCircleIcon />} color="green">
             <Label>Add</Label>
         </ToolbarMenuItem>
     );

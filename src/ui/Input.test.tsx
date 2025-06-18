@@ -33,15 +33,15 @@ describe('<Input>', () => {
     });
 
     it('applies color class based on color prop', () => {
-        render(<Input color="primary" />);
+        render(<Input color="blue" />);
 
-        expect(screen.getByRole('figure')).toHaveClass('color-primary');
+        expect(screen.getByRole('figure')).toHaveClass('ui-color-blue');
     });
 
     it('applies variant class based on variant prop', () => {
         render(<Input variant="solid" />);
 
-        expect(screen.getByRole('figure')).toHaveClass('variant-solid');
+        expect(screen.getByRole('figure')).toHaveClass('ui-variant-solid');
     });
 
     it('applies size class based on size prop', () => {

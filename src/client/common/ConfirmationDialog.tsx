@@ -5,7 +5,7 @@ import DoneIcon from '@assets/done.svg';
 import { Button, IconButton, type ButtonProps } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { Label } from '~/client/common/Label';
-import cx from './ConfirmationDialog.less';
+import cx from './ConfirmationDialog.pcss';
 
 export interface ConfirmationDialogProps {
     header?: ReactElement;
@@ -23,7 +23,7 @@ export interface ConfirmationDialogProps {
 
 export const confirmButtonProps: ButtonProps = {
     variant: 'solid',
-    color: 'primary',
+    color: 'blue',
     startDecorator: <DoneIcon />,
     children: <Label>Confirm</Label>,
 };

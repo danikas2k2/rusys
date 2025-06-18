@@ -1,24 +1,35 @@
 import React, { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import CheckIndeterminateIcon from '@assets/check-indeterminate.svg';
 import CheckIcon from '@assets/check.svg';
+import {
+    type ElementColor,
+    type ElementSize,
+    type ElementSpacing,
+    type ElementState,
+    type ElementVariant,
+} from '@ui/Element';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
-import { type CommonInputProps, type InputColor, type InputSize, type InputVariant } from '@ui/Input';
+import { type CommonInputProps } from '@ui/Input';
 import { uniqueId } from '@ui/utils/uniqueId';
-import cx from './Checkbox.less';
+import cs from 'classnames';
+import cx from './Checkbox.pcss';
 
 export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {
-    variant?: InputVariant;
-    color?: InputColor;
-    size?: InputSize;
+    variant?: ElementVariant;
+    color?: ElementColor;
+    size?: ElementSize;
+    spacing?: ElementSpacing;
+    state?: ElementState;
     indeterminate?: boolean;
 }
 
 export function Checkbox({
     ref: forwardedRef,
     id = uniqueId('checkbox'),
-    color = 'neutral',
+    color = 'gray',
     variant = 'outlined',
     size = 'medium',
+    state = 'default',
     checked = false,
     disabled = false,
     indeterminate = false,
@@ -35,7 +46,7 @@ export function Checkbox({
     }, [indeterminate]);
     useEffect(() => {
         if (ref.current) {
-            ref.current.indeterminate = !!indeterminate;
+            ref.current.indeterminate = indeterminate;
         }
     }, [indeterminate, ref]);
 
@@ -64,7 +75,17 @@ export function Checkbox({
     return (
         <label
             htmlFor={id}
-            className={cx('Checkbox', `color-${color}`, `variant-${variant}`, `size-${size}`, className)}
+            className={cs(
+                {
+                    [`ui-color-${color}`]: color,
+                    [`ui-variant-${variant}`]: variant,
+                },
+                cx('Checkbox', {
+                    [`size-${size}`]: size,
+                    [`state-${state}`]: state,
+                }),
+                className
+            )}
         >
             <input
                 ref={ref}

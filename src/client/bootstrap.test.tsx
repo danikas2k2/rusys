@@ -33,16 +33,19 @@ describe('bootstrap', () => {
     it('logs error when #root container is not found', async () => {
         document.body.innerHTML = '';
         bootstrap();
+
         await waitFor(() => expect(console.error).toHaveBeenCalledWith('No #root container found'));
     });
 
     it('renders App when #root container is found', async () => {
         bootstrap();
+
         await waitFor(() => expect(screen.getByText('App')).toBeInTheDocument());
     });
 
     it('renders ColorSchemeState wrapper', async () => {
         bootstrap();
+
         await waitFor(() =>
             expect(ColorSchemeState).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -55,6 +58,7 @@ describe('bootstrap', () => {
 
     it('renders redux Provider with store', async () => {
         bootstrap();
+
         await waitFor(() =>
             expect(Provider).toHaveBeenCalledWith(
                 expect.objectContaining({

@@ -1,13 +1,21 @@
-import { type RuleSetRule } from 'webpack';
-import { getCssLoaders } from '../loaders/css-loaders';
+import { getClassNamesLoader } from '../loaders/class-names';
+import { getCssLoader } from '../loaders/css';
+import { getPostCssLoader } from '../loaders/postcss';
+import { getStyleLoader } from '../loaders/style';
 import { getExcludeList } from '../paths/exclude';
 import { getIncludeList } from '../paths/include';
+import { type RuleSetRule } from 'webpack';
 
 export function getCssRule(isDevMode: boolean): RuleSetRule {
     return {
-        test: /\.css$/,
+        test: /\.p?css$/,
         include: getIncludeList(),
         exclude: getExcludeList(),
-        use: [...getCssLoaders(isDevMode), 'less-import-once'],
+        use: [
+            getClassNamesLoader(isDevMode),
+            getStyleLoader(isDevMode),
+            getCssLoader(isDevMode),
+            getPostCssLoader(isDevMode),
+        ],
     };
 }

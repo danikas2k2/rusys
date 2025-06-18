@@ -1,16 +1,17 @@
 // noinspection JSUnusedGlobalSymbols
 export default {
-    extends: ['stylelint-config-standard', 'stylelint-config-recommended-less'],
+    extends: ['stylelint-config-standard'],
     plugins: [
         // TODO custom stylelint-no-unused-selectors need to be added
     ],
     rules: {
         'selector-class-pattern': null,
+        'import-notation': null,
     },
-    customSyntax: 'postcss-syntax',
+    customSyntax: 'postcss-less',
     overrides: [
         {
-            files: ['*.less', '**/*.less'],
+            files: ['*.pcss', '**/*.pcss'],
             customSyntax: 'postcss-less',
             rules: {
                 'at-rule-prelude-no-invalid': [true, { ignoreAtRules: ['import'] }],

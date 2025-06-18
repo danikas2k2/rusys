@@ -6,7 +6,7 @@ import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
 import { useReorderGroups } from '~/state/groups/useReorderGroups';
 import { type Group } from '~/types/data';
 import { isEqual } from 'lodash';
-import cx from './SortableGroups.less';
+import cx from './SortableGroups.pcss';
 
 interface SortableGroupsProps {
     className?: string;

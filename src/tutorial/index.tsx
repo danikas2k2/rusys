@@ -1,8 +1,9 @@
+import '@ui/theme.pcss';
+import './index.pcss';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { ColorSchemeState } from '@ui/ColorScheme';
 import { Tutorial } from '~/tutorial/Tutorial';
-import './index.less';
 
 const container = document.getElementById('root');
 if (!container) {

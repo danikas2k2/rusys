@@ -4,7 +4,7 @@ import { HashRouter, NavLink } from 'react-router-dom';
 import { ColorSchemeToggle } from '@ui/ColorSchemeToggle';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
 import { PAGES } from '~/tutorial/pages';
-import cx from './Tutorial.less';
+import cx from './Tutorial.pcss';
 
 export function Tutorial(): JSX.Element {
     useDocumentColorScheme();

@@ -5,4 +5,6 @@ declare module '*.svg' {
     export default ReactComponent;
 }
 
-declare module '*.less';
+declare module '*.css';
+
+declare module '*.pcss';

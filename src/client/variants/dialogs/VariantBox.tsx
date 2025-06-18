@@ -23,7 +23,7 @@ import { useVariant } from '~/state/variants/useVariant';
 import { useVariants } from '~/state/variants/useVariants';
 import { type Variant } from '~/types/data';
 import { isEmpty } from 'lodash';
-import cx from './VariantBox.less';
+import cx from './VariantBox.pcss';
 
 interface VariantBoxProps extends WithOnClose {
     group?: string;
@@ -168,7 +168,7 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
                 <Select
                     ref={groupRef}
                     fullWidth
-                    color={errors?.group ? 'negative' : 'primary'}
+                    color={errors?.group ? 'red' : 'blue'}
                     invalid={!!errors?.group}
                     size="large"
                     value={group}
@@ -184,7 +184,7 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
                 <Input
                     ref={nameRef}
                     fullWidth
-                    color={errors?._ || errors?.variant ? 'negative' : 'primary'}
+                    color={errors?._ || errors?.variant ? 'red' : 'blue'}
                     invalid={!!errors?._ || !!errors?.variant}
                     error={errors?._ ? errorLabel : undefined}
                     size="large"
@@ -215,7 +215,7 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
                 <Button variant="outlined" startDecorator={<CancelIcon />} onClick={handleClose}>
                     <Label>Cancel</Label>
                 </Button>
-                <Button variant="solid" color="primary" startDecorator={getButtonDecorator()} onClick={handleUpdate}>
+                <Button variant="solid" color="blue" startDecorator={getButtonDecorator()} onClick={handleUpdate}>
                     <Label>{getButtonLabel()}</Label>
                 </Button>
             </footer>

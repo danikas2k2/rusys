@@ -49,15 +49,15 @@ describe('<Select>', () => {
     });
 
     it('applies color class based on color prop', () => {
-        render(<Select color="primary">{options}</Select>);
+        render(<Select color="blue">{options}</Select>);
 
-        expect(screen.getByRole('figure')).toHaveClass('color-primary');
+        expect(screen.getByRole('figure')).toHaveClass('ui-color-blue');
     });
 
     it('applies variant class based on variant prop', () => {
         render(<Select variant="solid">{options}</Select>);
 
-        expect(screen.getByRole('figure')).toHaveClass('variant-solid');
+        expect(screen.getByRole('figure')).toHaveClass('ui-variant-solid');
     });
 
     it('applies size class based on size prop', () => {

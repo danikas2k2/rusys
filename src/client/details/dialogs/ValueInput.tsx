@@ -8,7 +8,7 @@ import { Input } from '@ui/Input';
 import { ValueVariant } from '~/client/common/ValueVariant';
 import { ValueChange } from '~/client/details/dialogs/ValueChange';
 import { useLabel } from '~/client/hooks/useLabel';
-import cx from './ValueInput.less';
+import cx from './ValueInput.pcss';
 
 interface ValueInputProps extends RefAttributes<HTMLInputElement> {
     group: string;
@@ -102,7 +102,7 @@ export function ValueInput({
                 aria-label={variant}
                 aria-current={focus}
                 className={cx('value')}
-                color="primary"
+                color="blue"
                 size="large"
                 mode="numeric"
                 value={current}
@@ -119,7 +119,7 @@ export function ValueInput({
                         onClick={onDecreaseClick}
                         onKeyDown={onKeyDown}
                         variant="plain"
-                        color="primary"
+                        color="blue"
                         spacing="half"
                     >
                         <RemoveIcon />
@@ -134,7 +134,7 @@ export function ValueInput({
                         onClick={onIncreaseClick}
                         onKeyDown={onKeyDown}
                         variant="plain"
-                        color="primary"
+                        color="blue"
                         spacing="half"
                     >
                         <AddIcon />

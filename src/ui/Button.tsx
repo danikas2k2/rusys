@@ -6,28 +6,28 @@ import React, {
     type ReactNode,
     type RefAttributes,
 } from 'react';
-import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import {
-    type CommonInputProps,
-    type InputColor,
-    type InputSize,
-    type InputSpacing,
-    type InputState,
-    type InputVariant,
-} from '@ui/Input';
-import classNames from 'classnames';
-import cx from './Button.less';
+    type ElementColor,
+    type ElementSize,
+    type ElementSpacing,
+    type ElementState,
+    type ElementVariant,
+} from '@ui/Element';
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
+import { type CommonInputProps } from '@ui/Input';
+import cs from 'classnames';
+import cx from './Button.pcss';
 
-export type ButtonAlign = 'start' | 'center' | 'end' | 'single';
+export type ButtonAlign = 'single' | 'start' | 'center' | 'end';
 
 export interface ButtonProps<T extends HTMLElement = HTMLButtonElement>
     extends ButtonHTMLAttributes<T>,
         RefAttributes<T> {
-    variant?: InputVariant;
-    color?: InputColor;
-    size?: InputSize;
-    spacing?: InputSpacing;
-    state?: InputState;
+    variant?: ElementVariant;
+    color?: ElementColor;
+    size?: ElementSize;
+    spacing?: ElementSpacing;
+    state?: ElementState;
     align?: ButtonAlign;
     fullWidth?: boolean;
     fullHeight?: boolean;
@@ -39,7 +39,7 @@ export interface ButtonProps<T extends HTMLElement = HTMLButtonElement>
 export function Button({
     ref: forwardedRef,
     className,
-    color = 'neutral',
+    color = 'gray',
     variant = 'solid',
     size = 'medium',
     spacing = 'small',
@@ -62,21 +62,20 @@ export function Button({
     return (
         <button
             ref={ref}
-            className={classNames(
-                className,
-                cx(
-                    'Button',
-                    `variant-${variant}`,
-                    `color-${color}`,
-                    `size-${size}`,
-                    `spacing-${spacing}`,
-                    `state-${state}`,
-                    `align-${align}`,
-                    {
-                        'full-width': fullWidth,
-                        'full-height': fullHeight,
-                    }
-                )
+            className={cs(
+                {
+                    [`ui-color-${color}`]: color,
+                    [`ui-variant-${variant}`]: variant,
+                },
+                cx('Button', {
+                    [`size-${size}`]: size,
+                    [`spacing-${spacing}`]: spacing,
+                    [`state-${state}`]: state,
+                    [`align-${align}`]: align,
+                    'full-width': fullWidth,
+                    'full-height': fullHeight,
+                }),
+                className
             )}
             disabled={disabled}
             aria-disabled={disabled}
@@ -89,9 +88,11 @@ export function Button({
     );
 }
 
+export type ButtonGroupAlign = 'full-width' | 'start' | 'center' | 'end';
+
 export interface ButtonGroupProps<T extends HTMLElement = HTMLDivElement> extends CommonInputProps<T> {
-    align?: 'start' | 'center' | 'end' | 'full-width';
-    spacing?: InputSpacing;
+    align?: ButtonGroupAlign;
+    spacing?: ElementSpacing;
     combined?: boolean;
     fullHeight?: boolean;
 }
@@ -106,7 +107,7 @@ export function ButtonGroup({
 }: ButtonGroupProps): JSX.Element {
     return (
         <div
-            className={classNames(
+            className={cs(
                 cx('ButtonGroup', {
                     [`align-${align}`]: align,
                     [`spacing-${spacing}`]: spacing,
