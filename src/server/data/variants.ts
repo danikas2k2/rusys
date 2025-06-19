@@ -40,17 +40,21 @@ export async function updateVariant(group: string, variant: string, update: Upda
         return false;
     }
     const col = (await db()).collection<Variant>('variants');
+    const found = await col.findOne({ group, variant }, { projection: { _id: 0, order: 1 } });
     const { order, long, short } = update;
-    const $set: Omit<UpdateVariant, 'order'> = {};
+    const $set: UpdateVariant = {};
+    if (order != null) {
+        $set.order = order;
+    }
     const $unset: Omit<UpdateVariant, 'order'> = {};
     (long == null ? $unset : $set).long = long;
     (short == null ? $unset : $set).short = short;
-    return order != null
-        ? col.updateOne({ group, variant }, { $set: { order, ...$set }, $unset }, { upsert: true }).then(hasEffect)
+    return found != null
+        ? col.updateOne({ group, variant }, { $set, $unset }, { upsert: true }).then(hasEffect)
         : col
               .aggregate([{ $match: { group } }, { $group: { _id: null, order: { $max: '$order' } } }])
               .next()
-              .then((found) => col.insertOne({ group, variant, order: found ? found.order + 1 : 0, ...$set }))
+              .then((next) => col.insertOne({ group, variant, order: next ? next.order + 1 : 0, ...$set }))
               .then(hasEffect);
 }
 
