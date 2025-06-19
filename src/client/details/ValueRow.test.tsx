@@ -71,8 +71,8 @@ describe('<ValueRow>', () => {
                 </MockRedux>
             );
 
-            expect(screen.getByRole('cell', { name: '2 p' })).toBeInTheDocument();
-            expect(screen.queryByRole('cell', { name: '1 p' })).not.toBeInTheDocument();
+            expect(screen.getByRole('cell', { name: '2' })).toBeInTheDocument();
+            expect(screen.queryByRole('cell', { name: '1' })).not.toBeInTheDocument();
         });
 
         it('renders cells without values', () => {
@@ -260,7 +260,7 @@ describe('<ValueRow>', () => {
                     <ValueRow {...props} missing />
                 </MockRedux>
             );
-            await userEvent.click(screen.getByRole('cell', { name: '2 p' }));
+            await userEvent.click(screen.getByRole('cell', { name: '2' }));
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByRole('button', { name: 'Close' }));
 

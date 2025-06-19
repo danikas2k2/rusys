@@ -22,8 +22,8 @@ describe('<ValueCell>', () => {
     const name = 'Kopūstai';
     const variants = [
         { group, variant: 'p', order: 0 },
-        { group, variant: 'd', order: 1 },
-        { group, variant: 'm', order: 2 },
+        { group, variant: 'd', order: 1, short: 'd' },
+        { group, variant: 'm', order: 2, short: 'm' },
     ];
     const userEvent = UserEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
@@ -63,7 +63,7 @@ describe('<ValueCell>', () => {
                 </MockRedux>
             );
 
-            expect(screen.getByRole('cell', { name: '2 p 3 d' })).toBeInTheDocument();
+            expect(screen.getByRole('cell', { name: '2 3 d' })).toBeInTheDocument();
         });
 
         it('handles long press', async () => {
