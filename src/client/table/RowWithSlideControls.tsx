@@ -54,12 +54,15 @@ export function RowWithSlideControls({
         defer(() => onDrag?.());
     }
 
-    const getControlWidth = (): number =>
-        // right offset
-        (document.documentElement?.getBoundingClientRect()?.right ?? 0) -
-        (ref.current?.getBoundingClientRect()?.right ?? 0) +
-        // controls width
-        (controlsRef.current?.offsetWidth ?? 0);
+    const getControlWidth = useCallback(
+        (): number =>
+            // right offset
+            (document.documentElement?.getBoundingClientRect()?.right ?? 0) -
+            (ref.current?.getBoundingClientRect()?.right ?? 0) +
+            // controls width
+            (controlsRef.current?.offsetWidth ?? 0),
+        [ref]
+    );
 
     // TODO optimize not to render controls while not dragging if not visible
     const handleDragStart = useCallback(
