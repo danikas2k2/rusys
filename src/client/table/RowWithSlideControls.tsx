@@ -54,6 +54,13 @@ export function RowWithSlideControls({
         defer(() => onDrag?.());
     }
 
+    const getControlWidth = (): number =>
+        // right offset
+        (document.documentElement?.getBoundingClientRect()?.right ?? 0) -
+        (ref.current?.getBoundingClientRect()?.right ?? 0) +
+        // controls width
+        (controlsRef.current?.offsetWidth ?? 0);
+
     // TODO optimize not to render controls while not dragging if not visible
     const handleDragStart = useCallback(
         (clientX: number, clientY: number, left = 0) => {
@@ -84,7 +91,7 @@ export function RowWithSlideControls({
                     setMoving(true);
                 }
                 if (slide) {
-                    const width = controlsRef.current?.offsetWidth ?? 0;
+                    const width = getControlWidth();
                     if (width) {
                         if (-dx > width) {
                             dx = -width;
@@ -101,27 +108,27 @@ export function RowWithSlideControls({
             }
             return false;
         },
-        [dragging, moving, offsetX, offsetY, sliding, x]
+        [dragging, getControlWidth, moving, offsetX, offsetY, sliding, x]
     );
 
     const handleDragEnd = useCallback(() => {
         if (dragging && sliding) {
             if (x != null) {
-                const width = controlsRef.current?.offsetWidth ?? 0;
+                const width = getControlWidth();
                 if (width) {
-                    let h: number | undefined;
+                    let w: number | undefined;
                     if (-x >= width * (x > initialX ? 0.95 : 0.75)) {
-                        h = -width;
+                        w = -width;
                     } else if (-x < width * 0.25) {
-                        h = undefined;
+                        w = undefined;
                     } else if (initialX > x) {
-                        h = -width;
+                        w = -width;
                     } else {
-                        h = undefined;
+                        w = undefined;
                     }
-                    h &&= Math.round(h);
-                    if (x !== h) {
-                        setX(h);
+                    w &&= Math.round(w);
+                    if (x !== w) {
+                        setX(w);
                     }
                 }
             }
@@ -130,7 +137,7 @@ export function RowWithSlideControls({
             setMoving(false);
             onDragEnd?.();
         }
-    }, [dragging, initialX, onDragEnd, sliding, x]);
+    }, [dragging, getControlWidth, initialX, onDragEnd, sliding, x]);
 
     const handleMouseDown = useCallback(
         (e: MouseEvent) => {
