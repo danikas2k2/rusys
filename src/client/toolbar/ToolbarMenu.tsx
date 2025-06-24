@@ -8,6 +8,7 @@ import { DetailsBox } from '~/client/details/dialogs/DetailsBox';
 import { GroupBox } from '~/client/groups/dialogs/GroupBox';
 import { useToggle } from '~/client/hooks/useToggle';
 import { Links } from '~/client/Links';
+import { AboutItem } from '~/client/toolbar/items/AboutItem';
 import { AddMenuItem } from '~/client/toolbar/items/AddMenuItem';
 import { DetailsItem } from '~/client/toolbar/items/DetailsItem';
 import { ExportItem } from '~/client/toolbar/items/ExportItem';
@@ -60,6 +61,7 @@ export function ToolbarMenu() {
                 <MenuDivider />
                 <ExportItem onClick={hideMenu} />
                 <ImportItem onClick={onImportClick} />
+                <AboutItem />
             </ToolbarMenuWrapper>
             {AddBox && addBoxOpened && <AddBox onClose={closeAddBox} />}
             {importOpened && <ImportBox onClose={closeImport} />}
