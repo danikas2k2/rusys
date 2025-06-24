@@ -6,7 +6,7 @@ import { uniqueId } from '@ui/utils/uniqueId';
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
 import { Label } from '~/client/common/Label';
-import classNames from 'classnames';
+import cs from 'classnames';
 import cx from './SlideControls.pcss';
 
 export interface SlideControlsProps extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {
@@ -65,10 +65,10 @@ export function SlideControls({ onEdit, onRemove, className, ...props }: SlideCo
             role="group"
             aria-labelledby={`${editId} ${removeId}`}
             aria-owns={`${editId} ${removeId}`}
-            className={classNames(className, cx('SlideControls'))}
+            className={cs(className, cx('SlideControls'))}
             {...props}
         >
-            <ButtonGroup align="end">
+            <ButtonGroup align="end" className={cx('Buttons')}>
                 {editButton}
                 {removeButton}
             </ButtonGroup>
