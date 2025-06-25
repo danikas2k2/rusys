@@ -46,8 +46,4 @@ export interface Variant {
     used?: boolean;
 }
 
-export interface UpdateVariant {
-    order?: number;
-    long?: string;
-    short?: string;
-}
+export type UpdateVariant = Partial<Pick<Variant, 'order' | 'long' | 'short'>>;

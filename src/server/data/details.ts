@@ -161,6 +161,33 @@ export async function renameDetailsVariant(
     if (!group || !variant || !newVariant || variant === newVariant) {
         return false;
     }
+    const updateYearAmounts = {
+        $cond: [
+            { $isArray: '$$year.amounts' },
+            {
+                $mergeObjects: [
+                    '$$year',
+                    {
+                        amounts: {
+                            $map: {
+                                input: '$$year.amounts',
+                                as: 'a',
+                                in: {
+                                    $cond: [
+                                        { $eq: ['$$a.variant', variant] },
+                                        { $mergeObjects: ['$$a', { variant: newVariant }] },
+                                        '$$a',
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
+            '$$year',
+        ],
+    };
+
     return (await db())
         .collection('details')
         .bulkWrite(
@@ -168,15 +195,50 @@ export async function renameDetailsVariant(
                 {
                     updateMany: {
                         filter: { group, 'years.amounts.variant': variant } as UpdateFilter<Details>,
-                        arrayFilters: [{ 'variant.variant': variant }],
-                        update: { $set: { 'years.$[].amounts.$[variant].variant': newVariant } },
+                        update: [
+                            {
+                                $set: {
+                                    years: {
+                                        $map: {
+                                            input: '$years',
+                                            as: 'year',
+                                            in: updateYearAmounts,
+                                        },
+                                    },
+                                },
+                            },
+                        ],
                     },
                 },
                 {
                     updateMany: {
                         filter: { group, 'updates.years.amounts.variant': variant } as UpdateFilter<Details>,
-                        arrayFilters: [{ 'variant.variant': variant }],
-                        update: { $set: { 'updates.$[].years.$[].amounts.$[variant].variant': newVariant } },
+                        update: [
+                            {
+                                $set: {
+                                    updates: {
+                                        $map: {
+                                            input: '$updates',
+                                            as: 'upd',
+                                            in: {
+                                                $mergeObjects: [
+                                                    '$$upd',
+                                                    {
+                                                        years: {
+                                                            $map: {
+                                                                input: '$$upd.years',
+                                                                as: 'year',
+                                                                in: updateYearAmounts,
+                                                            },
+                                                        },
+                                                    },
+                                                ],
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        ],
                     },
                 },
             ],

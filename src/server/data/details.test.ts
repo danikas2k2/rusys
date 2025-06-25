@@ -323,6 +323,45 @@ describe('details', () => {
             );
         });
 
+        it('renames details variant when some structure data is missing', async () => {
+            const d = {
+                group: 'Daržovės',
+                name: 'Pustuštis',
+                years: [
+                    { year: 21 },
+                    { year: 22, amounts: [{ variant: 'd', amount: 5 }] },
+                    { year: 24, amounts: [{ variant: 'd', amount: 5 }] },
+                ],
+                updates: [
+                    {
+                        time: Date.parse('2025-01-01T12:00:00.000Z'),
+                        years: [
+                            { year: 21 },
+                            { year: 22, amounts: [{ variant: 'd', amount: -1 }] },
+                            { year: 24, amounts: [{ variant: 'd', amount: -2 }] },
+                        ],
+                    },
+                ],
+            };
+
+            await (await db()).collection('details').insertOne(d, { forceServerObjectId: true });
+
+            await expect(renameDetailsVariant('Daržovės', 'd', '3/4')).resolves.toBeTrue();
+            await expect($all('details')).resolves.toStrictEqual(
+                bulk([...details, d], {
+                    $set: {
+                        '2.years.0.amounts.0.variant': '3/4',
+                        '2.updates.0.years.0.amounts.0.variant': '3/4',
+                        '2.updates.1.years.0.amounts.0.variant': '3/4',
+                        '4.years.1.amounts.0.variant': '3/4',
+                        '4.years.2.amounts.0.variant': '3/4',
+                        '4.updates.0.years.1.amounts.0.variant': '3/4',
+                        '4.updates.0.years.2.amounts.0.variant': '3/4',
+                    },
+                })
+            );
+        });
+
         it('renames details variant for different group', async () => {
             await expect(renameDetailsVariant('Uogienės', 'p', '1/2')).resolves.toBeTrue();
             await expect($all('details')).resolves.toStrictEqual(
