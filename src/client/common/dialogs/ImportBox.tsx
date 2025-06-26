@@ -11,7 +11,6 @@ import { useImportHandler } from '~/client/common/hooks/useImportHandler';
 import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
-// import { getErrorMessage } from '~/common/utils/errors';
 import cx from './ImportBox.pcss';
 
 interface ImportBoxProps extends WithOnClose {
@@ -19,8 +18,6 @@ interface ImportBoxProps extends WithOnClose {
 }
 
 const PLACEHOLDER = 'Please choose a file';
-// const ERROR_GROUP_MISSING = 'Group is required';
-// const ERROR_FILE_MISSING = 'File is required';
 
 interface ImportFooterProps {
     onCancel?: () => void;
@@ -49,49 +46,20 @@ function ImportFooter({ onCancel, onSubmit }: ImportFooterProps) {
 }
 
 export function ImportBox({ onClose }: ImportBoxProps) {
-    // const [updating, setUpdating] = useState(false);
-    // const [file, setFile] = useState<string>();
-    const [errors /*, setErrors*/] = useState<Record<string, string>>();
+    const [error, setError] = useState<string>();
 
     const handleImport = useImportHandler();
     const [, formAction] = useActionState<{ import?: File }, FormData>(async (state, data) => {
-        // console.info('ImportBox: formAction', state, JSON.stringify(Object.fromEntries(data)));
-        await handleImport(data);
+        const response = await handleImport(data);
+        if (response.ok) {
+            onClose();
+        } else {
+            setError(response.error ?? 'Failed to import file');
+        }
         return state;
     }, {});
 
-    // console.info('ImportBox: formAction', state, (data.get('import') as File).name);
-    // useEffect(() => {
-    //     setErrors(undefined);
-    // }, [file]);
-
     const fileRef = useAutoFocus<HTMLInputElement>();
-
-    // console.info({
-    //     state,
-    // });
-
-    /*const handleSubmit = useCallback(async (): Promise<void> => {
-        const newErrors: Record<string, string> = {};
-        if (!file) {
-            newErrors.variant = ERROR_FILE_MISSING;
-        }
-        if (!isEmpty(newErrors)) {
-            setErrors(newErrors);
-            fileRef?.focus();
-            return;
-        }
-        try {
-            setUpdating(true);
-            await handleImport(file);
-            onClose();
-        } catch (e) {
-            setErrors({ _: getErrorMessage(e) });
-            fileRef?.focus();
-        } finally {
-            setUpdating(false);
-        }
-    }, [fileRef, file, handleImport, onClose]);*/
 
     const handleClose = useCallback(
         (e: SyntheticEvent): void => {
@@ -102,19 +70,8 @@ export function ImportBox({ onClose }: ImportBoxProps) {
         [onClose]
     );
 
-    // const handleFileInput = useCallback((e: FormEvent<HTMLInputElement>) => setFile(e.currentTarget.value), []);
-
-    // const handleEnter = useCallback(
-    //     (e: KeyboardEvent<HTMLInputElement>) => {
-    //         if (e.key === 'Enter') {
-    //             void handleSubmit();
-    //         }
-    //     },
-    //     [handleSubmit]
-    // );
-
     const closeLabel = useLabel('Close');
-    const errorLabel = useLabel(errors?._ ?? '');
+    const errorLabel = useLabel(error ?? '');
 
     return (
         <Dialog className={cx('ImportBox')} open onClose={onClose}>
@@ -135,14 +92,11 @@ export function ImportBox({ onClose }: ImportBoxProps) {
                         name="import"
                         accept="application/json"
                         fullWidth
-                        color={errors?._ || errors?.variant ? 'red' : 'blue'}
-                        invalid={!!errors?._ || !!errors?.variant}
-                        error={errors?._ ? errorLabel : undefined}
+                        color={error ? 'red' : 'blue'}
+                        invalid={!!error}
+                        error={error ? errorLabel : undefined}
                         size="large"
                         placeholder={useLabel(PLACEHOLDER)}
-                        // onInput={handleFileInput}
-                        // onKeyDown={handleEnter}
-                        // required
                     />
                 </main>
                 <ImportFooter onCancel={onClose} />

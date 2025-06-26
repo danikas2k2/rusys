@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useApiRequest } from '~/common/hooks/useApiRequest';
-import { ApiUrl } from '~/types/api';
+import { ApiUrl, type ApiResult } from '~/types/api';
 
-export function useImport(): (data: FormData) => Promise<void> {
+export function useImport(): (data: FormData) => Promise<ApiResult<boolean>> {
     const request = useApiRequest();
-    return useCallback(async (data: FormData): Promise<void> => request(ApiUrl.Import, data), [request]);
+    return useCallback(async (data: FormData): Promise<ApiResult<boolean>> => request(ApiUrl.Import, data), [request]);
 }

@@ -32,11 +32,13 @@ export async function handleImport(req: ApiRequest, res: ApiResponse<ApiDetailsW
                 try {
                     data = JSON.parse(file.data.toString());
                 } catch (_e) {
+                    console.error(_e);
                     throw new Error('Invalid file content');
                 }
 
                 const validate = getValidator();
                 if (!validate(data)) {
+                    console.error(validate.errors);
                     throw new Error('Invalid file content');
                 }
 
