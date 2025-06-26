@@ -11,7 +11,6 @@ import { useLabel } from '~/client/hooks/useLabel';
 import cx from './ValueInput.pcss';
 
 interface ValueInputProps extends RefAttributes<HTMLInputElement> {
-    group: string;
     variant: string;
     amount?: number;
     change?: number;
@@ -25,7 +24,6 @@ interface ValueInputProps extends RefAttributes<HTMLInputElement> {
 // TODO select input value on first focus
 export function ValueInput({
     ref: forwardedRef,
-    group,
     variant,
     amount = 0,
     change = 0,

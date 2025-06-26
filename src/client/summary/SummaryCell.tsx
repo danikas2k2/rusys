@@ -1,6 +1,5 @@
 import React from 'react';
 import { ValueSuffix } from '~/client/common/ValueSuffix';
-import { ValueVariant } from '~/client/common/ValueVariant';
 import { Cell } from '~/client/table/Cell';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
 import { type VariantAmount } from '~/types/data';

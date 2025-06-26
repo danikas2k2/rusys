@@ -138,7 +138,6 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
                         ref={(ref) => {
                             refs.current[variant] = ref;
                         }}
-                        group={group}
                         variant={variant}
                         amount={getVariantAmount(amounts, variant) + getVariantAmount(oppositeChanges, variant)}
                         change={getVariantAmount(currentChanges, variant)}
