@@ -6,6 +6,7 @@ import { ValueAmounts } from '~/client/details/ValueAmounts';
 import { Cell } from '~/client/table/Cell';
 import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
 import { useUpdateDetails } from '~/state/details/useUpdateDetails';
+import { useProfile } from '~/state/profile/useProfile';
 import { type VariantAmount } from '~/types/data';
 import cx from './ValueCell.pcss';
 
@@ -19,6 +20,7 @@ export interface ValueCellProps {
 }
 
 export function ValueCell({ group, name, year, amounts, removing = false, last = false }: ValueCellProps) {
+    const profile = useProfile();
     const updateDetails = useUpdateDetails();
     const setRemoving = useSetDetailsRemoving();
 
@@ -29,10 +31,10 @@ export function ValueCell({ group, name, year, amounts, removing = false, last =
             setEditing(false);
             const clean = changed?.filter(({ amount }) => !!amount) ?? [];
             if (clean.length) {
-                void updateDetails(group, name, year, clean);
+                void updateDetails(group, name, year, clean, profile.email);
             }
         },
-        [updateDetails, group, name, year]
+        [updateDetails, group, name, year, profile.email]
     );
 
     const handleShortPress = editing ? undefined : handleOpen;

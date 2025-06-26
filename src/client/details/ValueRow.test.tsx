@@ -8,6 +8,7 @@ import { useHasRemoving } from '~/state/details/useHasRemoving';
 import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';
 import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
 import { useUpdateDetails } from '~/state/details/useUpdateDetails';
+import { DEV_MODE_EMAIL } from '~/state/profile/dev';
 import { type WithVariantsState } from '~/state/variants/types';
 
 jest.mock('~/state/details/useUpdateDetails', () => ({
@@ -23,6 +24,7 @@ jest.mock('~/state/details/useHasRemoving', () => ({
     useHasRemoving: jest.fn(),
 }));
 jest.mock('~/state/years/useYears');
+jest.mock('~/state/profile/useProfile');
 
 describe('<ValueRow>', () => {
     const userEvent = UserEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -52,6 +54,7 @@ describe('<ValueRow>', () => {
     const details = getDetailsFixture();
     const props: ValueRowProps = details[3];
     const { group, name, years: [{ year }] = [] } = props;
+    const user = DEV_MODE_EMAIL;
 
     describe('with value', () => {
         it('renders into the document', () => {
@@ -217,7 +220,7 @@ describe('<ValueRow>', () => {
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByText('Update'));
 
-            expect(updateAmounts).toHaveBeenCalledWith(group, name, year, [{ variant: 'p', amount: 1 }]);
+            expect(updateAmounts).toHaveBeenCalledWith(group, name, year, [{ variant: 'p', amount: 1 }], user);
             expect(setRemoving).not.toHaveBeenCalled();
             expect(setMissing).not.toHaveBeenCalled();
         });
@@ -234,7 +237,7 @@ describe('<ValueRow>', () => {
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByText('Update'));
 
-            expect(updateAmounts).toHaveBeenCalledWith(group, name, year, [{ variant: 'p', amount: -1 }]);
+            expect(updateAmounts).toHaveBeenCalledWith(group, name, year, [{ variant: 'p', amount: -1 }], user);
         });
 
         it('calls updateAmounts, setMissing, and setRemoving when decreasing a value to zero', async () => {
@@ -251,7 +254,7 @@ describe('<ValueRow>', () => {
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByText('Update'));
 
-            expect(updateAmounts).toHaveBeenCalledWith(group, name, year, [{ variant: 'p', amount: -2 }]);
+            expect(updateAmounts).toHaveBeenCalledWith(group, name, year, [{ variant: 'p', amount: -2 }], user);
         });
 
         it('does not call setAmounts, setMissing and setRemoving for unchanged value', async () => {

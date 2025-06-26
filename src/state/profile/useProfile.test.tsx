@@ -3,9 +3,10 @@ import { renderHook } from '@testing-library/react';
 import { mockLocalStorage } from '@tests/mockLocalStorage';
 import { MockRedux } from '@tests/MockRedux';
 import { isDevMode } from '~/common/utils/env';
+import { DEV_MODE_PROFILE } from '~/state/profile/dev';
 import { profile as reducer } from '~/state/profile/reducer';
 import { type Profile } from '~/state/profile/types';
-import { DEV_MODE_PROFILE, useProfile } from '~/state/profile/useProfile';
+import { useProfile } from '~/state/profile/useProfile';
 import { useSetProfile } from '~/state/profile/useSetProfile';
 
 jest.mock('~/common/utils/env', () => ({

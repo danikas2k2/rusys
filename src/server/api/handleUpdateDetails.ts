@@ -10,10 +10,10 @@ export async function handleUpdateDetails(
 ): Promise<void> {
     debugRequest(req);
     headerNoCache(res);
-    const { group, name, year, amounts } = req.body;
+    const { group, name, year, amounts, user } = req.body;
     res.json(
         await run(
-            () => updateDetails(group, name, year, amounts),
+            () => updateDetails(group, name, year, amounts, user),
             () => getDetailsWithYears()
         )
     );

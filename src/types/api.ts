@@ -92,6 +92,7 @@ export interface ApiSetRemoving extends ApiRequestDetails {
 export interface ApiUpdateDetails extends ApiRequestDetails {
     year: number;
     amounts?: ReadonlyArray<VariantAmount>;
+    user?: string;
 }
 
 export interface ApiSummary {

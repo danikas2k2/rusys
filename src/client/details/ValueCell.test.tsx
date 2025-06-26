@@ -6,6 +6,7 @@ import { ValueBox } from '~/client/details/dialogs/ValueBox';
 import { ValueCell, type ValueCellProps } from '~/client/details/ValueCell';
 import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
 import { useUpdateDetails } from '~/state/details/useUpdateDetails';
+import { DEV_MODE_EMAIL } from '~/state/profile/dev';
 
 jest.mock('~/client/details/dialogs/ValueBox', () => ({
     ValueBox: jest.fn().mockReturnValue(null),
@@ -121,11 +122,17 @@ describe('<ValueCell>', () => {
             await userEvent.click(screen.getByRole('button', { name: 'ValueBox' }));
 
             expect(screen.queryByRole('button', { name: 'ValueBox' })).not.toBeInTheDocument();
-            expect(updateDetails).toHaveBeenCalledWith(group, name, 22, [
-                { variant: 'p', amount: 2 },
-                { variant: 'd', amount: 1 },
-                { variant: 'm', amount: -1 },
-            ]);
+            expect(updateDetails).toHaveBeenCalledWith(
+                group,
+                name,
+                22,
+                [
+                    { variant: 'p', amount: 2 },
+                    { variant: 'd', amount: 1 },
+                    { variant: 'm', amount: -1 },
+                ],
+                DEV_MODE_EMAIL
+            );
         });
 
         it('calls onClose with unchanged value', async () => {
@@ -216,11 +223,17 @@ describe('<ValueCell>', () => {
             await userEvent.click(screen.getByRole('button', { name: 'ValueBox' }));
 
             expect(screen.queryByRole('button', { name: 'ValueBox' })).not.toBeInTheDocument();
-            expect(updateDetails).toHaveBeenCalledWith(group, name, 22, [
-                { variant: 'p', amount: 2 },
-                { variant: 'd', amount: 1 },
-                { variant: 'm', amount: -1 },
-            ]);
+            expect(updateDetails).toHaveBeenCalledWith(
+                group,
+                name,
+                22,
+                [
+                    { variant: 'p', amount: 2 },
+                    { variant: 'd', amount: 1 },
+                    { variant: 'm', amount: -1 },
+                ],
+                DEV_MODE_EMAIL
+            );
         });
 
         it('calls onClose with unchanged value', async () => {

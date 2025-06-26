@@ -9,6 +9,8 @@ describe('<ProfileAvatar>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('renders nothing when profile does not exist', () => {
+        jest.mocked(useProfile).mockReturnValueOnce({});
+
         const { container } = render(<ProfileAvatar />);
 
         expect(container).toBeEmptyDOMElement();

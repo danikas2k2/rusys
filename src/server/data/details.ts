@@ -74,7 +74,8 @@ export async function updateDetails(
     group: string,
     name: string,
     year: number,
-    changes: ReadonlyArray<VariantAmount> = []
+    changes: ReadonlyArray<VariantAmount> = [],
+    user?: string
 ): Promise<boolean> {
     if (!group || !name || !year || !changes.length) {
         return false;
@@ -96,7 +97,7 @@ export async function updateDetails(
 
         const update: UpdateFilter<Details> = {
             // adding changes to updates
-            $push: { updates: { time: Date.now(), years: [{ year, amounts: changes }] } },
+            $push: { updates: { time: Date.now(), user, years: [{ year, amounts: changes }] } },
         };
 
         // no updates

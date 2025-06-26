@@ -5,6 +5,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleUpdateDetails } from '~/server/api/handleUpdateDetails';
 import { getDetailsWithYears } from '~/server/api/response';
 import { updateDetails } from '~/server/data/details';
+import { DEV_MODE_EMAIL } from '~/state/profile/dev';
 import { type ApiDetailsWithYears, type ApiUpdateDetails } from '~/types/api';
 import { type VariantAmount } from '~/types/data';
 
@@ -12,8 +13,10 @@ jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');
 jest.mock('~/server/data/details');
 jest.mock('~/server/data/years');
+jest.mock('~/server/data/years');
 
 describe('handleUpdateDetails', () => {
+    const user = DEV_MODE_EMAIL;
     const amounts: VariantAmount[] = [
         { variant: 'd', amount: 2 },
         { variant: 'p', amount: -1, recycled: true },
@@ -23,6 +26,7 @@ describe('handleUpdateDetails', () => {
         name: 'Braškės',
         year: 21,
         amounts,
+        user,
     });
     const response = mockResponse<ApiDetailsWithYears>();
     const years = getYearsFixture();
@@ -36,7 +40,7 @@ describe('handleUpdateDetails', () => {
 
         await handleUpdateDetails(request, response);
 
-        expect(updateDetails).toHaveBeenCalledWith('Uogienės', 'Braškės', 21, amounts);
+        expect(updateDetails).toHaveBeenCalledWith('Uogienės', 'Braškės', 21, amounts, user);
         expect(getDetailsWithYears).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true, years, details });
@@ -47,7 +51,7 @@ describe('handleUpdateDetails', () => {
 
         await handleUpdateDetails(request, response);
 
-        expect(updateDetails).toHaveBeenCalledWith('Uogienės', 'Braškės', 21, amounts);
+        expect(updateDetails).toHaveBeenCalledWith('Uogienės', 'Braškės', 21, amounts, user);
         expect(getDetailsWithYears).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true });
@@ -58,7 +62,7 @@ describe('handleUpdateDetails', () => {
 
         await handleUpdateDetails(request, response);
 
-        expect(updateDetails).toHaveBeenCalledWith('Uogienės', 'Braškės', 21, amounts);
+        expect(updateDetails).toHaveBeenCalledWith('Uogienės', 'Braškės', 21, amounts, user);
         expect(getDetailsWithYears).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to update details' });

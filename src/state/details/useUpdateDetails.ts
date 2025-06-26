@@ -7,13 +7,20 @@ export function useUpdateDetails(): (
     group: string,
     name: string,
     year: number,
-    amounts?: ReadonlyArray<VariantAmount>
+    amounts?: ReadonlyArray<VariantAmount>,
+    user?: string
 ) => Promise<void> {
     const request = useUpdatingApiRequest<ApiUpdateDetails>();
     return useCallback(
-        async (group: string, name: string, year: number, amounts?: ReadonlyArray<VariantAmount>): Promise<void> => {
+        async (
+            group: string,
+            name: string,
+            year: number,
+            amounts?: ReadonlyArray<VariantAmount>,
+            user?: string
+        ): Promise<void> => {
             if (group && name && year) {
-                return request(ApiUrl.DetailsUpdate, { group, name, year, amounts });
+                return request(ApiUrl.DetailsUpdate, { group, name, year, amounts, user });
             }
         },
         [request]

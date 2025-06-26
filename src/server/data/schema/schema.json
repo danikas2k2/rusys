@@ -76,6 +76,9 @@
                                                 }
                                             ]
                                         },
+                                        "user": {
+                                            "type": "string"
+                                        },
                                         "years": {
                                             "anyOf": [
                                                 {
