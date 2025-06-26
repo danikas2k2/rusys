@@ -1,18 +1,10 @@
 import React from 'react';
-import { useVariant } from '~/state/variants/useVariant';
 
 interface ValueVariantProps {
-    group: string;
     variant: string;
-    suffix?: boolean;
 }
 
-export function ValueVariant({ group, variant, suffix = true }: ValueVariantProps) {
-    const details = useVariant(group, variant);
-    if (suffix) {
-        return <>{details ? details.suffix : variant}</>;
-    }
-
+export function ValueVariant({ variant }: ValueVariantProps) {
     const index = variant.trim().indexOf(' ');
     if (index > 0) {
         return (

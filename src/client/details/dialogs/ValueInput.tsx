@@ -95,7 +95,7 @@ export function ValueInput({
     return (
         <ButtonGroup className={cx('ValueInput')}>
             <div className={cx('label')}>
-                <ValueVariant group={group} variant={variant} suffix={false} />
+                <ValueVariant variant={variant} />
             </div>
             <Input
                 ref={ref}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { ValueSuffix } from '~/client/common/ValueSuffix';
 import { ValueVariant } from '~/client/common/ValueVariant';
 import { Cell } from '~/client/table/Cell';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
@@ -19,9 +20,7 @@ export function SummaryCell({ group, amounts }: { group: string; amounts?: Reado
                     .map((v) => (
                         <span className={cx('value')} key={v.variant}>
                             {v.amount}
-                            <sub>
-                                <ValueVariant group={group} variant={v.variant} />
-                            </sub>
+                            <ValueSuffix group={group} variant={v.variant} />
                         </span>
                     ))}
         </Cell>

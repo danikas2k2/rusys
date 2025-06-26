@@ -1,13 +1,13 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { ValueVariant } from '~/client/common/ValueVariant';
+import { ValueSuffix } from '~/client/common/ValueSuffix';
 import { ValueAmounts } from '~/client/details/ValueAmounts';
 
 jest.mock('~/state/variants/useGroupVariantComparator', () => ({
     useGroupVariantComparator: jest.fn().mockReturnValue(() => 0),
 }));
-jest.mock('~/client/common/ValueVariant', () => ({
-    ValueVariant: jest.fn().mockReturnValue(null),
+jest.mock('~/client/common/ValueSuffix', () => ({
+    ValueSuffix: jest.fn().mockReturnValue(null),
 }));
 
 describe('<ValueAmounts>', () => {
@@ -25,7 +25,7 @@ describe('<ValueAmounts>', () => {
         expect(screen.getByText('2')).toBeInTheDocument();
         expect(screen.getByText('1')).toBeInTheDocument();
 
-        expect(ValueVariant)
+        expect(ValueSuffix)
             .toHaveBeenCalledTimes(2)
             .toHaveBeenNthCalledWith(
                 1,
