@@ -17,6 +17,10 @@ jest.mock('~/server/data/schema/getValidator', () => ({
 }));
 
 describe('handleImport', () => {
+    beforeEach(() => {
+        jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
     afterEach(() => jest.clearAllMocks());
 
     it('returns error when no files are provided', async () => {
