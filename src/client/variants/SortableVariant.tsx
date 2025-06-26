@@ -24,7 +24,7 @@ interface SortableVariantProps {
 export function SortableVariant({
     className,
     index,
-    variant: { group, variant, used, long, short },
+    variant: { group, variant, used, suffix },
     onDragStart,
     onDragStop,
     onDrag,
@@ -59,8 +59,7 @@ export function SortableVariant({
             <Cell key="name" className={cx('Name')}>
                 {variant}
             </Cell>
-            <Cell key="long">{long}</Cell>
-            <Cell key="short">{short}</Cell>
+            <Cell key="suffix">{suffix}</Cell>
         </SortableRow>
     );
 }

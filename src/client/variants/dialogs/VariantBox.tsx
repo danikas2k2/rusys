@@ -41,9 +41,8 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
     const [group, setGroup] = useState<string>(initialGroup);
     const [variant, setVariant] = useState<string>(initialVariant);
     const variantDetails = useVariant(initialGroup, initialVariant);
-    const { long: initialLong = '', short: initialShort = '' } = variantDetails ?? ({} as Variant);
-    const [longTitle, setLongTitle] = useState<string>(initialLong);
-    const [shortTitle, setShortTitle] = useState<string>(initialShort);
+    const { suffix: initialSuffix = '' } = variantDetails ?? ({} as Variant);
+    const [suffix, setSuffix] = useState<string>(initialSuffix);
     const [errors, setErrors] = useState<Record<string, string>>();
 
     useEffect(() => {
@@ -90,17 +89,14 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
         }
         try {
             setUpdating(true);
-            const update = {
-                long: longTitle,
-                short: shortTitle,
-            };
+            const update = { suffix };
             if (!initialVariant) {
                 await updateVariant(group, variant, update);
             } else if (variantCopied) {
                 await copyVariant(initialGroup, initialVariant, group, variant, update);
             } else if (variantRenamed) {
                 await renameVariant(initialGroup, initialVariant, variant, update);
-            } else if (initialLong !== longTitle || initialShort !== shortTitle) {
+            } else if (initialSuffix !== suffix) {
                 await updateVariant(group, variant, update);
             }
             onClose(group, variant);
@@ -116,25 +112,22 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
         variant,
         hasVariant,
         groupRef,
+        suffix,
         initialVariant,
-        onClose,
-        longTitle,
-        shortTitle,
         variantCopied,
         variantRenamed,
-        initialLong,
-        initialShort,
+        initialSuffix,
+        onClose,
+        updateVariant,
         copyVariant,
         initialGroup,
         renameVariant,
-        updateVariant,
     ]);
 
     const handleClose = useCallback((): void => onClose(), [onClose]);
 
     const handleVariantInput = useCallback((e: FormEvent<HTMLInputElement>) => setVariant(e.currentTarget.value), []);
-    const handleLongInput = useCallback((e: FormEvent<HTMLInputElement>) => setLongTitle(e.currentTarget.value), []);
-    const handleShortInput = useCallback((e: FormEvent<HTMLInputElement>) => setShortTitle(e.currentTarget.value), []);
+    const handleShortInput = useCallback((e: FormEvent<HTMLInputElement>) => setSuffix(e.currentTarget.value), []);
 
     const handleEnter = useCallback(
         (e: KeyboardEvent<HTMLInputElement>) => {
@@ -148,9 +141,8 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
     const closeLabel = useLabel('Close');
     const errorLabel = useLabel(errors?._ ?? '');
     const groupLabel = useLabel('Group');
-    const variantLabel = useLabel('Variant name');
-    const longLabel = useLabel('Long label');
-    const shortLabel = useLabel('Short label');
+    const variantLabel = useLabel('Variant');
+    const suffixLabel = useLabel('Suffix');
 
     return (
         <Dialog className={cx('VariantBox')} open onClose={handleClose}>
@@ -197,16 +189,8 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
                 <Input
                     fullWidth
                     size="large"
-                    value={longTitle}
-                    label={longLabel}
-                    onInput={handleLongInput}
-                    onKeyDown={handleEnter}
-                />
-                <Input
-                    fullWidth
-                    size="large"
-                    value={shortTitle}
-                    label={shortLabel}
+                    value={suffix}
+                    label={suffixLabel}
                     onInput={handleShortInput}
                     onKeyDown={handleEnter}
                 />

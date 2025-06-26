@@ -25,11 +25,8 @@ export function VariantsTable() {
                         <Cell key="name" role="columnheader" className={cx('Name')}>
                             <Label>Variant</Label>
                         </Cell>
-                        <Cell key="long" role="columnheader">
-                            <Label>Long</Label>
-                        </Cell>
-                        <Cell key="short" role="columnheader">
-                            <Label>Short</Label>
+                        <Cell key="suffix" role="columnheader">
+                            <Label>Suffix</Label>
                         </Cell>
                     </Row>
                 }

@@ -22,8 +22,8 @@ describe('<ValueCell>', () => {
     const name = 'Kopūstai';
     const variants = [
         { group, variant: 'p', order: 0 },
-        { group, variant: 'd', order: 1, short: 'd' },
-        { group, variant: 'm', order: 2, short: 'm' },
+        { group, variant: 'd', order: 1, suffix: 'd' },
+        { group, variant: 'm', order: 2, suffix: 'm' },
     ];
     const userEvent = UserEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 

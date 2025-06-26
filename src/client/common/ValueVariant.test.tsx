@@ -7,7 +7,7 @@ import { ValueVariant } from '~/client/common/ValueVariant';
 describe('<ValueVariant>', () => {
     const state = { variants: getVariantsFixture() };
 
-    it('renders short format when format prop is not provided', () => {
+    it('renders variant suffix by default', () => {
         render(
             <MockRedux state={state}>
                 <ValueVariant group="Uogienės" variant="d" />
@@ -17,25 +17,24 @@ describe('<ValueVariant>', () => {
         expect(screen.getByText('D.')).toBeInTheDocument();
     });
 
-    it('renders short format when format prop is "short"', () => {
+    it('renders variant suffix if true passed', () => {
         render(
             <MockRedux state={state}>
-                <ValueVariant group="Uogienės" variant="d" format="short" />
+                <ValueVariant group="Uogienės" variant="d" suffix />
             </MockRedux>
         );
 
         expect(screen.getByText('D.')).toBeInTheDocument();
     });
 
-    it('renders long format when format prop is "long"', () => {
+    it('renders full variant if false passed', () => {
         render(
             <MockRedux state={state}>
-                <ValueVariant group="Uogienės" variant="d" format="long" />
+                <ValueVariant group="Uogienės" variant="d" suffix={false} />
             </MockRedux>
         );
 
-        expect(screen.getByText('750')).toBeInTheDocument();
-        expect(screen.getByText('ml.')).toBeInTheDocument();
+        expect(screen.getByText('d')).toBeInTheDocument();
     });
 
     it('renders variant as is when no format is found', () => {
@@ -48,13 +47,34 @@ describe('<ValueVariant>', () => {
         expect(screen.getByText('unknown')).toBeInTheDocument();
     });
 
-    it('renders variant as is when no format is found and format prop is "long"', () => {
+    it('renders variant as is when no format is found and full variant requested', () => {
         render(
             <MockRedux state={state}>
-                <ValueVariant group="Uogienės" variant="unknown" format="long" />
+                <ValueVariant group="Uogienės" variant="unknown" suffix={false} />
             </MockRedux>
         );
 
         expect(screen.getByText('unknown')).toBeInTheDocument();
+    });
+
+    it('renders suffix as a single string', () => {
+        render(
+            <MockRedux state={state}>
+                <ValueVariant group="Uogienės" variant="500 ml" suffix />
+            </MockRedux>
+        );
+
+        expect(screen.getByText('500 ml')).toBeInTheDocument();
+    });
+
+    it('renders full variant parts', () => {
+        render(
+            <MockRedux state={state}>
+                <ValueVariant group="Uogienės" variant="500 ml" suffix={false} />
+            </MockRedux>
+        );
+
+        expect(screen.getByText('500')).toBeInTheDocument();
+        expect(screen.getByText('ml')).toBeInTheDocument();
     });
 });

@@ -130,8 +130,7 @@ export interface ApiRequestVariant {
 
 export interface ApiUpdateVariant extends ApiRequestVariant {
     order?: number;
-    long?: string;
-    short?: string;
+    suffix?: string;
 }
 
 export interface ApiRenameVariant extends ApiUpdateVariant {

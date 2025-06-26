@@ -7,16 +7,16 @@ export const getGroupsFixture = (): Group[] => [
 ];
 
 export const getVariantsFixture = (): Variant[] => [
-    { group: 'Uogienės', variant: 'p', order: 0, long: '500 ml.' },
-    { group: 'Uogienės', variant: 'd', order: 1, long: '750 ml.', short: 'D.' },
-    { group: 'Uogienės', variant: 'm', order: 2, long: '250 ml.', short: 'M.' },
-    { group: 'Uogienės', variant: 'e', order: 3, short: 'E.' },
-    { group: 'Uogienės', variant: 'x', order: 4, short: 'B.' },
-    { group: 'Daržovės', variant: 'd', order: 0, long: '3 l.' },
-    { group: 'Daržovės', variant: 'p', order: 1, long: '2 l.' },
-    { group: 'Daržovės', variant: 'm', order: 2, long: '1.5 l.' },
-    { group: 'Daržovės', variant: '1', order: 3, long: '1 l.' },
-    { group: 'Daržovės', variant: 'x', order: 4, short: 'B.' },
+    { group: 'Uogienės', variant: 'p', order: 0 },
+    { group: 'Uogienės', variant: 'd', order: 1, suffix: 'D.' },
+    { group: 'Uogienės', variant: 'm', order: 2, suffix: 'M.' },
+    { group: 'Uogienės', variant: 'e', order: 3, suffix: 'E.' },
+    { group: 'Uogienės', variant: 'x', order: 4, suffix: 'B.' },
+    { group: 'Daržovės', variant: 'd', order: 0 },
+    { group: 'Daržovės', variant: 'p', order: 1 },
+    { group: 'Daržovės', variant: 'm', order: 2 },
+    { group: 'Daržovės', variant: '1', order: 3 },
+    { group: 'Daržovės', variant: 'x', order: 4, suffix: 'B.' },
 ];
 
 export const getAggregatedVariantsFixture = (): Variant[] => {

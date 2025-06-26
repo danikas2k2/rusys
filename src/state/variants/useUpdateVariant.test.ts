@@ -22,14 +22,13 @@ describe('useUpdateVariant', () => {
 
     it('calls update action with additional parameters', async () => {
         const { result } = renderHook(() => useUpdateVariant(), { wrapper: MockRedux });
-        await result.current('Uogienės', 'p', { order: 1, long: 'Puslitris', short: '1/2' });
+        await result.current('Uogienės', 'p', { order: 1, suffix: '1/2' });
 
         expect(request).toHaveBeenCalledWith(ApiUrl.VariantsUpdate, {
             group: 'Uogienės',
             variant: 'p',
             order: 1,
-            long: 'Puslitris',
-            short: '1/2',
+            suffix: '1/2',
         });
     });
 

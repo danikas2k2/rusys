@@ -4,24 +4,23 @@ import { useVariant } from '~/state/variants/useVariant';
 interface ValueVariantProps {
     group: string;
     variant: string;
-    format?: 'short' | 'long';
+    suffix?: boolean;
 }
 
-export function ValueVariant({ group, variant, format = 'short' }: ValueVariantProps) {
+export function ValueVariant({ group, variant, suffix = true }: ValueVariantProps) {
     const details = useVariant(group, variant);
-    if (format === 'short') {
-        return <>{details ? details.short : variant}</>;
+    if (suffix) {
+        return <>{details ? details.suffix : variant}</>;
     }
 
-    const long = details?.long || variant;
-    const [first, ...other] = long.split(' ');
-    if (other.length) {
+    const index = variant.trim().indexOf(' ');
+    if (index > 0) {
         return (
             <>
-                {first}
-                <small>{other.join(' ')}</small>
+                {variant.slice(0, index).trim()}
+                <small>{variant.slice(index).trim()}</small>
             </>
         );
     }
-    return <>{long}</>;
+    return <>{variant}</>;
 }

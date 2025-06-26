@@ -41,9 +41,8 @@ export interface Variant {
     group: string;
     variant: string;
     order: number;
-    long?: string;
-    short?: string;
+    suffix?: string;
     used?: boolean;
 }
 
-export type UpdateVariant = Partial<Pick<Variant, 'order' | 'long' | 'short'>>;
+export type UpdateVariant = Partial<Pick<Variant, 'order' | 'suffix'>>;

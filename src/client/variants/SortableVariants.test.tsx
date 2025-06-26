@@ -21,8 +21,8 @@ jest.mock('~/client/utils/getOverlapIndex', () => ({
 describe('<SortableVariants>', () => {
     const group = 'Uogienės';
     const variants = [
-        { group, variant: 'p', order: 0, long: '500 ml.' },
-        { group, variant: 'd', order: 1, long: '750 ml.', short: 'D.' },
+        { group, variant: 'p', order: 0 },
+        { group, variant: 'd', order: 1, suffix: 'D.' },
     ];
     const activeVariant = {
         group,
@@ -42,8 +42,8 @@ describe('<SortableVariants>', () => {
         const rows = screen.getAllByRole('row');
 
         expect(rows).toHaveLength(2);
-        expect(within(rows[0]).getAllByRole('cell')).toHaveListWithTextContent(['p', '500 ml.', '']);
-        expect(within(rows[1]).getAllByRole('cell')).toHaveListWithTextContent(['d', '750 ml.', 'D.']);
+        expect(within(rows[0]).getAllByRole('cell')).toHaveListWithTextContent(['p', '']);
+        expect(within(rows[1]).getAllByRole('cell')).toHaveListWithTextContent(['d', 'D.']);
     });
 
     describe('dragging', () => {

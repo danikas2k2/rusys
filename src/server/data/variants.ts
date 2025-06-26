@@ -41,14 +41,13 @@ export async function updateVariant(group: string, variant: string, update: Upda
     }
     const col = (await db()).collection<Variant>('variants');
     const found = await col.findOne({ group, variant }, { projection: { _id: 0, order: 1 } });
-    const { order, long, short } = update;
+    const { order, suffix } = update;
     const $set: UpdateVariant = {};
     if (order != null) {
         $set.order = order;
     }
     const $unset: Omit<UpdateVariant, 'order'> = {};
-    (long == null ? $unset : $set).long = long;
-    (short == null ? $unset : $set).short = short;
+    (suffix ? $set : $unset).suffix = suffix;
     return found != null
         ? col.updateOne({ group, variant }, { $set, $unset }, { upsert: true }).then(hasEffect)
         : col
@@ -72,9 +71,8 @@ export async function renameVariant(
     const $set: Omit<UpdateVariant, 'order'> = {};
     const $unset: Omit<UpdateVariant, 'order'> = {};
     if (update) {
-        const { long, short } = update;
-        (long ? $set : $unset).long = long;
-        (short ? $set : $unset).short = short;
+        const { suffix } = update;
+        (suffix ? $set : $unset).suffix = suffix;
     }
     return col
         .updateOne({ group, variant }, { $set: { variant: newVariant, ...$set }, $unset }, { session })
@@ -116,19 +114,14 @@ export async function copyVariant(
         variant: newVariant ?? variant,
     };
     if (update) {
-        const { order, long, short } = update;
+        const { order, suffix } = update;
         if (order != null) {
             copied.order = order;
         }
-        if (long) {
-            copied.long = long;
+        if (suffix) {
+            copied.suffix = suffix;
         } else {
-            delete copied.long;
-        }
-        if (short) {
-            copied.short = short;
-        } else {
-            delete copied.short;
+            delete copied.suffix;
         }
     }
     return col.insertOne(copied).then(hasEffect).catch(hasDuplicates);

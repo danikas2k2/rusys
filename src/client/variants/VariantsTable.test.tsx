@@ -40,29 +40,25 @@ describe('<VariantsTable>', () => {
 
         const rowData = {
             Daržovės: [
-                ['d', '3 l.', ''],
-                ['p', '2 l.', ''],
-                ['m', '1.5 l.', ''],
-                ['1', '1 l.', ''],
-                ['x', '', 'B.'],
+                ['d', ''],
+                ['p', ''],
+                ['m', ''],
+                ['1', ''],
+                ['x', 'B.'],
             ],
             Uogienės: [
-                ['p', '500 ml.', ''],
-                ['d', '750 ml.', 'D.'],
-                ['m', '250 ml.', 'M.'],
-                ['e', '', 'E.'],
-                ['x', '', 'B.'],
+                ['p', ''],
+                ['d', 'D.'],
+                ['m', 'M.'],
+                ['e', 'E.'],
+                ['x', 'B.'],
             ],
         };
 
         const rows = screen.getAllByRole('row');
         let count = 0;
 
-        expect(within(rows[count++]).getAllByRole('columnheader')).toHaveListWithTextContent([
-            'Variant',
-            'Long',
-            'Short',
-        ]);
+        expect(within(rows[count++]).getAllByRole('columnheader')).toHaveListWithTextContent(['Variant', 'Suffix']);
 
         for (const [group, cells] of Object.entries(rowData)) {
             expect(within(rows[count++]).getAllByRole('rowheader')).toHaveListWithTextContent([group]);
@@ -159,7 +155,7 @@ describe('<VariantsTable>', () => {
             const [, headerRow, dataRow] = rows;
 
             expect(within(headerRow).getByRole('rowheader')).toHaveTextContent('Uogienės');
-            expect(within(dataRow).getAllByRole('cell')).toHaveListWithTextContent(['e', '', 'E.']);
+            expect(within(dataRow).getAllByRole('cell')).toHaveListWithTextContent(['e', 'E.']);
         });
 
         it('renders filtered out data', () => {

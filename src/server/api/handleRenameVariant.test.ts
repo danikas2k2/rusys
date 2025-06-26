@@ -18,8 +18,7 @@ describe('handleRenameVariant', () => {
         variant: 'd',
         newVariant: '3/4',
         order: 7,
-        long: 'Long',
-        short: 'Short',
+        suffix: 'Suffix',
     });
     const response = mockResponse<ApiDetailsWithYears>();
     const years = getYearsFixture();
@@ -30,8 +29,7 @@ describe('handleRenameVariant', () => {
 
     const update = {
         order: 7,
-        long: 'Long',
-        short: 'Short',
+        suffix: 'Suffix',
     };
 
     it('returns filled response on success', async () => {

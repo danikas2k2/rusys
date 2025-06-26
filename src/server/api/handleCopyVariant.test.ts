@@ -57,16 +57,14 @@ describe('handleCopyVariant', () => {
                 group: 'Uogienės',
                 variant: 'Trilitris',
                 newGroup: 'Daržovės',
-                short: '3l',
-                long: '3 L.',
+                suffix: '3l',
                 order: 5,
             }),
             response
         );
 
         expect(copyVariant).toHaveBeenCalledWith('Uogienės', 'Trilitris', 'Daržovės', undefined, {
-            short: '3l',
-            long: '3 L.',
+            suffix: '3l',
             order: 5,
         });
         expect(getDetailsWithVariants).toHaveBeenCalledWith();

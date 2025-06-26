@@ -33,7 +33,7 @@ describe('useCopyVariant', () => {
 
     it('calls copy action with more fields', async () => {
         const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
-        await result.current('Uogienės', 'p', 'Daržovės', '1/2', { order: 1, long: 'Puslitris', short: '1/2' });
+        await result.current('Uogienės', 'p', 'Daržovės', '1/2', { order: 1, suffix: '1/2' });
 
         expect(request).toHaveBeenCalledWith(ApiUrl.VariantsCopy, {
             group: 'Uogienės',
@@ -41,8 +41,7 @@ describe('useCopyVariant', () => {
             newGroup: 'Daržovės',
             newVariant: '1/2',
             order: 1,
-            long: 'Puslitris',
-            short: '1/2',
+            suffix: '1/2',
         });
     });
 

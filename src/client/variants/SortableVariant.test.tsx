@@ -8,7 +8,7 @@ import { SortableVariant } from '~/client/variants/SortableVariant';
 describe('<SortableVariant>', () => {
     afterEach(() => jest.clearAllMocks());
 
-    const variant = { group: 'Uogienės', variant: 'd', order: 1, long: '750 ml.', short: 'D.' };
+    const variant = { group: 'Uogienės', variant: 'd', order: 1, suffix: 'D.' };
 
     it('renders with details', () => {
         render(
@@ -17,7 +17,7 @@ describe('<SortableVariant>', () => {
             </MockRedux>
         );
 
-        expect(screen.getAllByRole('cell')).toHaveListWithTextContent(['d', '750 ml.', 'D.']);
+        expect(screen.getAllByRole('cell')).toHaveListWithTextContent(['d', 'D.']);
     });
 
     it('renders with unused class if not used', () => {

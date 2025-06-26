@@ -100,7 +100,7 @@ describe('common', () => {
             await expect($all('groups')).resolves.toStrictEqual(groups);
             await expect($all('variants')).resolves.toStrictEqual([
                 ...variants,
-                { group: 'Šaldyti', variant: 'd', long: '3 l.', order: 0 },
+                { group: 'Šaldyti', variant: 'd', order: 0 },
             ]);
             await expect($all('details')).resolves.toStrictEqual([
                 ...details.slice(0, 2),
@@ -117,7 +117,7 @@ describe('common', () => {
             await expect($all('groups')).resolves.toStrictEqual(groups);
             await expect($all('variants')).resolves.toStrictEqual([
                 ...variants,
-                { group: 'Šaldyti', variant: 'd', long: '3 l.', order: 0 },
+                { group: 'Šaldyti', variant: 'd', order: 0 },
             ]);
             await expect($all('details')).resolves.toStrictEqual([
                 ...details.slice(0, 2),
@@ -334,7 +334,7 @@ describe('common', () => {
         });
 
         it('updates and renames all variant occurrences, returns true', async () => {
-            const update = { long: 'Du litrai', short: '2l' };
+            const update = { suffix: '2l' };
 
             await expect(renameVariantOccurrences('Daržovės', 'p', '2', update)).resolves.toBeTrue();
             expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', update, session);

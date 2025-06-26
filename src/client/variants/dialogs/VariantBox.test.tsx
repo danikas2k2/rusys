@@ -39,7 +39,7 @@ describe('<VariantBox>', () => {
         );
 
         expect(screen.getByText('Add new variant')).toBeInTheDocument();
-        expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveValue('');
+        expect(screen.getByRole('textbox', { name: 'Variant' })).toHaveValue('');
         expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
     });
 
@@ -51,7 +51,7 @@ describe('<VariantBox>', () => {
         );
 
         expect(screen.getByText('Edit variant')).toBeInTheDocument();
-        expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveValue('Initial Variant');
+        expect(screen.getByRole('textbox', { name: 'Variant' })).toHaveValue('Initial Variant');
         expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
     });
 
@@ -91,12 +91,11 @@ describe('<VariantBox>', () => {
 
             await userEvent.click(screen.getByRole('textbox', { name: 'Group' }));
             await userEvent.click(screen.getByRole('option', { name: 'Daržovės' }));
-            await userEvent.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
-            await userEvent.type(screen.getByRole('textbox', { name: 'Long label' }), '4.5 l.');
-            await userEvent.type(screen.getByRole('textbox', { name: 'Short label' }), '4½');
+            await userEvent.type(screen.getByRole('textbox', { name: 'Variant' }), '4.5');
+            await userEvent.type(screen.getByRole('textbox', { name: 'Suffix' }), '4½');
             await userEvent.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(updateVariant).toHaveBeenCalledWith('Daržovės', '4.5', { long: '4.5 l.', short: '4½' });
+            expect(updateVariant).toHaveBeenCalledWith('Daržovės', '4.5', { suffix: '4½' });
             expect(onClose).toHaveBeenCalledWith('Daržovės', '4.5');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -112,10 +111,10 @@ describe('<VariantBox>', () => {
 
             await userEvent.click(screen.getByRole('textbox', { name: 'Group' }));
             await userEvent.click(screen.getByRole('option', { name: 'Daržovės' }));
-            await userEvent.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
+            await userEvent.type(screen.getByRole('textbox', { name: 'Variant' }), '4.5');
             await userEvent.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(updateVariant).toHaveBeenCalledWith('Daržovės', '4.5', { long: '', short: '' });
+            expect(updateVariant).toHaveBeenCalledWith('Daržovės', '4.5', { suffix: '' });
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('alert')).toHaveTextContent('Failed to add');
         });
@@ -135,7 +134,7 @@ describe('<VariantBox>', () => {
 
             expect(updateVariant).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveFocus();
+            expect(screen.getByRole('textbox', { name: 'Variant' })).toHaveFocus();
         });
 
         it('displays error without closing dialog when name already exists', async () => {
@@ -149,12 +148,12 @@ describe('<VariantBox>', () => {
 
             await userEvent.click(screen.getByRole('textbox', { name: 'Group' }));
             await userEvent.click(screen.getByRole('option', { name: 'Daržovės' }));
-            await userEvent.type(screen.getByRole('textbox', { name: 'Variant name' }), 'd');
+            await userEvent.type(screen.getByRole('textbox', { name: 'Variant' }), 'd');
             await userEvent.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(updateVariant).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveFocus();
+            expect(screen.getByRole('textbox', { name: 'Variant' })).toHaveFocus();
             expect(screen.getByRole('alert')).toHaveTextContent('Variant already exists');
         });
     });
@@ -171,15 +170,13 @@ describe('<VariantBox>', () => {
                 </MockRedux>
             );
 
-            await userEvent.clear(screen.getByRole('textbox', { name: 'Variant name' }));
-            await userEvent.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
-            await userEvent.clear(screen.getByRole('textbox', { name: 'Long label' }));
-            await userEvent.type(screen.getByRole('textbox', { name: 'Long label' }), '4.5 l.');
-            await userEvent.clear(screen.getByRole('textbox', { name: 'Short label' }));
-            await userEvent.type(screen.getByRole('textbox', { name: 'Short label' }), '4½');
+            await userEvent.clear(screen.getByRole('textbox', { name: 'Variant' }));
+            await userEvent.type(screen.getByRole('textbox', { name: 'Variant' }), '4.5');
+            await userEvent.clear(screen.getByRole('textbox', { name: 'Suffix' }));
+            await userEvent.type(screen.getByRole('textbox', { name: 'Suffix' }), '4½');
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', '4.5', { long: '4.5 l.', short: '4½' });
+            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', '4.5', { suffix: '4½' });
             expect(onClose).toHaveBeenCalledWith('Daržovės', '4.5');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -193,11 +190,11 @@ describe('<VariantBox>', () => {
                 </MockRedux>
             );
 
-            await userEvent.clear(screen.getByRole('textbox', { name: 'Variant name' }));
-            await userEvent.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
+            await userEvent.clear(screen.getByRole('textbox', { name: 'Variant' }));
+            await userEvent.type(screen.getByRole('textbox', { name: 'Variant' }), '4.5');
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', '4.5', { long: '3 l.', short: '' });
+            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', '4.5', { suffix: '' });
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('alert')).toHaveTextContent('Failed to rename');
         });
@@ -211,13 +208,13 @@ describe('<VariantBox>', () => {
                 </MockRedux>
             );
 
-            await userEvent.clear(screen.getByRole('textbox', { name: 'Variant name' }));
+            await userEvent.clear(screen.getByRole('textbox', { name: 'Variant' }));
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
             expect(renameVariant).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-            expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveFocus();
+            expect(screen.getByRole('textbox', { name: 'Variant' })).toHaveFocus();
         });
 
         it('displays error without closing dialog when name already exists', async () => {
@@ -229,13 +226,13 @@ describe('<VariantBox>', () => {
                 </MockRedux>
             );
 
-            await userEvent.clear(screen.getByRole('textbox', { name: 'Variant name' }));
-            await userEvent.type(screen.getByRole('textbox', { name: 'Variant name' }), 'x');
+            await userEvent.clear(screen.getByRole('textbox', { name: 'Variant' }));
+            await userEvent.type(screen.getByRole('textbox', { name: 'Variant' }), 'x');
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
             expect(renameVariant).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveFocus();
+            expect(screen.getByRole('textbox', { name: 'Variant' })).toHaveFocus();
             expect(screen.queryByRole('alert')).toHaveTextContent('Variant already exists');
         });
 

@@ -46,18 +46,10 @@ describe('variants', () => {
     });
 
     describe('updateVariant', () => {
-        it('updates variant by changing order, long and title', async () => {
-            await expect(updateVariant('Uogienės', 'p', { order: 0, long: 'aa', short: 'AA' })).resolves.toBeTrue();
+        it('updates variant by changing order and suffix', async () => {
+            await expect(updateVariant('Uogienės', 'p', { order: 0, suffix: 'AA' })).resolves.toBeTrue();
             await expect($all('variants')).resolves.toStrictEqual([
-                { ...variants[0], order: 0, long: 'aa', short: 'AA' },
-                ...variants.slice(1),
-            ]);
-        });
-
-        it('updates variant by changing order and long', async () => {
-            await expect(updateVariant('Uogienės', 'p', { order: 0, long: 'aa' })).resolves.toBeTrue();
-            await expect($all('variants')).resolves.toStrictEqual([
-                { ...variants[0], order: 0, long: 'aa' },
+                { ...variants[0], order: 0, suffix: 'AA' },
                 ...variants.slice(1),
             ]);
         });
@@ -71,54 +63,31 @@ describe('variants', () => {
             ]);
         });
 
-        it('updates variant by changing title only', async () => {
-            await expect(updateVariant('Uogienės', 'd', { order: 1, short: 'D.' })).resolves.toBeTrue();
+        it('updates variant by changing suffix only', async () => {
+            await expect(updateVariant('Uogienės', 'd', { order: 1, suffix: 'DD' })).resolves.toBeTrue();
             await expect($all('variants')).resolves.toStrictEqual([
                 ...variants.slice(0, 1),
-                { group: 'Uogienės', variant: 'd', order: 1, short: 'D.' },
-                ...variants.slice(2),
-            ]);
-        });
-
-        it('updates variant by changing long only', async () => {
-            await expect(updateVariant('Uogienės', 'd', { order: 1, long: '0.75 l' })).resolves.toBeTrue();
-            await expect($all('variants')).resolves.toStrictEqual([
-                ...variants.slice(0, 1),
-                { group: 'Uogienės', variant: 'd', order: 1, long: '0.75 l' },
+                { group: 'Uogienės', variant: 'd', order: 1, suffix: 'DD' },
                 ...variants.slice(2),
             ]);
         });
 
         it.each`
             title                | group         | variant | update
-            ${'nothing changes'} | ${'Uogienės'} | ${'m'}  | ${{ order: 2, long: '250 ml.', short: 'M.' }}
-            ${'empty group'}     | ${''}         | ${'p'}  | ${{ order: 0, long: 'aa', short: 'AA' }}
-            ${'empty variant'}   | ${'Uogienės'} | ${''}   | ${{ order: 0, long: 'aa', short: 'AA' }}
+            ${'nothing changes'} | ${'Uogienės'} | ${'m'}  | ${{ order: 2, suffix: 'M.' }}
+            ${'empty group'}     | ${''}         | ${'p'}  | ${{ order: 0, suffix: 'AA' }}
+            ${'empty variant'}   | ${'Uogienės'} | ${''}   | ${{ order: 0, suffix: 'AA' }}
         `('does not update variant when $title', async ({ group, variant, update }) => {
             await expect(updateVariant(group, variant, update)).resolves.toBeFalse();
             await expect($all('variants')).resolves.toStrictEqual(variants);
         });
 
         it.each`
-            title | group | variant | update | expected
-            ${'same order'} | ${'Uogienės'} | ${'z'} | ${{
-    order: 3,
-    long: '250 ml.',
-    short: 'M.',
-}} | ${{}}
-            ${'incremented order'} | ${'Uogienės'} | ${'z'} | ${{
-    long: '250 ml.',
-    short: 'M.',
-}} | ${{ order: 5 }}
-            ${'new group'} | ${'Šaldyti'} | ${'m'} | ${{
-    order: 3,
-    long: '250 ml.',
-    short: 'M.',
-}} | ${{}}
-            ${'new group without order'} | ${'Šaldyti'} | ${'m'} | ${{
-    long: '250 ml.',
-    short: 'M.',
-}} | ${{ order: 0 }}
+            title                        | group         | variant | update                        | expected
+            ${'same order'}              | ${'Uogienės'} | ${'z'}  | ${{ order: 3, suffix: 'M.' }} | ${{}}
+            ${'incremented order'}       | ${'Uogienės'} | ${'z'}  | ${{ suffix: 'M.' }}           | ${{ order: 5 }}
+            ${'new group'}               | ${'Šaldyti'}  | ${'m'}  | ${{ order: 3, suffix: 'M.' }} | ${{}}
+            ${'new group without order'} | ${'Šaldyti'}  | ${'m'}  | ${{ suffix: 'M.' }}           | ${{ order: 0 }}
         `('adds new variant with $title', async ({ group, variant, update, expected }) => {
             await expect(updateVariant(group, variant, update)).resolves.toBeTrue();
             await expect($all('variants')).resolves.toStrictEqual([
@@ -148,10 +117,10 @@ describe('variants', () => {
         });
 
         it('renames variant and set updated fields', async () => {
-            await expect(renameVariant('Daržovės', 'p', '1/2', { long: 'Puslitris', short: '½' })).resolves.toBeTrue();
+            await expect(renameVariant('Daržovės', 'p', '1/2', { suffix: '½' })).resolves.toBeTrue();
             await expect($all('variants')).resolves.toStrictEqual([
                 ...variants.slice(0, 6),
-                { ...variants[6], variant: '1/2', long: 'Puslitris', short: '½' },
+                { ...variants[6], variant: '1/2', suffix: '½' },
                 ...variants.slice(7),
             ]);
         });
@@ -234,11 +203,11 @@ describe('variants', () => {
 
         it('copies variant with updated details', async () => {
             await expect(
-                copyVariant('Uogienės', 'p', 'Šaldyti', undefined, { order: 7, long: 'Puslitris', short: '1/2' })
+                copyVariant('Uogienės', 'p', 'Šaldyti', undefined, { order: 7, suffix: '1/2' })
             ).resolves.toBeTrue();
             await expect($all('variants')).resolves.toStrictEqual([
                 ...variants,
-                { ...variants[0], group: 'Šaldyti', order: 7, long: 'Puslitris', short: '1/2' },
+                { ...variants[0], group: 'Šaldyti', order: 7, suffix: '1/2' },
             ]);
         });
 
@@ -250,21 +219,21 @@ describe('variants', () => {
             ]);
         });
 
-        it('copies variant without long name', async () => {
-            await expect(
-                copyVariant('Uogienės', 'p', 'Šaldyti', undefined, { order: 7, short: '1/2' })
-            ).resolves.toBeTrue();
+        it('copies variant with suffix only', async () => {
+            await expect(copyVariant('Uogienės', 'e', 'Daržovės', undefined, { suffix: '1/2' })).resolves.toBeTrue();
             await expect($all('variants')).resolves.toStrictEqual([
                 ...variants,
-                { group: 'Šaldyti', variant: 'p', order: 7, short: '1/2' },
+                { group: 'Daržovės', variant: 'e', order: 3, suffix: '1/2' },
             ]);
         });
 
-        it('copies variant with long name only', async () => {
-            await expect(copyVariant('Uogienės', 'e', 'Daržovės', undefined, { long: 'Eglytės' })).resolves.toBeTrue();
+        it('copies variant with order and suffix', async () => {
+            await expect(
+                copyVariant('Uogienės', 'p', 'Šaldyti', undefined, { order: 7, suffix: '1/2' })
+            ).resolves.toBeTrue();
             await expect($all('variants')).resolves.toStrictEqual([
                 ...variants,
-                { group: 'Daržovės', variant: 'e', order: 3, long: 'Eglytės' },
+                { group: 'Šaldyti', variant: 'p', order: 7, suffix: '1/2' },
             ]);
         });
 

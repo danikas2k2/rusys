@@ -68,12 +68,6 @@
     "Logout": {
         "lt-LT": "Atsijungti"
     },
-    "Long": {
-        "lt-LT": "Ilgas"
-    },
-    "Long label": {
-        "lt-LT": "Ilgas žymėjimas"
-    },
     "Name": {
         "lt-LT": "Pavadinimas"
     },
@@ -86,10 +80,7 @@
     "Remove": {
         "lt-LT": "Šalinti"
     },
-    "Short": {
-        "lt-LT": "Trumpas"
-    },
-    "Short label": {
+    "Suffix": {
         "lt-LT": "Trumpas žymėjimas"
     },
     "Statistics": {
@@ -115,9 +106,6 @@
     },
     "Variant already exists": {
         "lt-LT": "Toks variantas jau yra"
-    },
-    "Variant name": {
-        "lt-LT": "Varianto pavadinimas"
     },
     "Variants": {
         "lt-LT": "Variantai"

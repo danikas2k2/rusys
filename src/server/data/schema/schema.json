@@ -132,10 +132,7 @@
                     "order": {
                         "type": "integer"
                     },
-                    "long": {
-                        "type": "string"
-                    },
-                    "short": {
+                    "suffix": {
                         "type": "string"
                     }
                 },
