@@ -1,6 +1,5 @@
 import React, { type JSX } from 'react';
-import { Route, Routes } from 'react-router';
-import { HashRouter, NavLink } from 'react-router-dom';
+import { HashRouter, NavLink, Route, Routes } from 'react-router-dom';
 import { ColorSchemeToggle } from '@ui/ColorSchemeToggle';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
 import { PAGES } from '~/tutorial/pages';

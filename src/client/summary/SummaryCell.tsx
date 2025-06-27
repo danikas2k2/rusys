@@ -7,21 +7,19 @@ import cx from './SummaryCell.pcss';
 
 export function SummaryCell({ group, amounts }: { group: string; amounts?: ReadonlyArray<VariantAmount> }) {
     const compareVariants = useGroupVariantComparator(group);
+    const empty = !amounts?.length;
     return (
-        <Cell
-            className={cx('Cell', {
-                empty: !amounts?.length,
-            })}
-        >
-            {amounts &&
-                [...amounts]
-                    .sort((a, b) => compareVariants(a.variant, b.variant))
-                    .map((v) => (
-                        <span className={cx('value')} key={v.variant}>
-                            {v.amount}
-                            <ValueSuffix group={group} variant={v.variant} />
-                        </span>
-                    ))}
+        <Cell className={cx('Cell', { empty })}>
+            {empty
+                ? '.'
+                : [...amounts]
+                      .sort((a, b) => compareVariants(a.variant, b.variant))
+                      .map((v) => (
+                          <span className={cx('value')} key={v.variant}>
+                              {v.amount}
+                              <ValueSuffix group={group} variant={v.variant} />
+                          </span>
+                      ))}
         </Cell>
     );
 }

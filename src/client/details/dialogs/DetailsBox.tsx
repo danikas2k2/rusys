@@ -145,12 +145,14 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
                 <Select
                     ref={groupRef}
                     fullWidth
-                    color={errors?.group ? 'red' : 'blue'}
-                    invalid={!!errors?.group}
                     size="large"
                     value={group}
                     label={groupLabel}
                     onChange={(e, value) => setGroup(value as string)}
+                    {...(errors?.group && {
+                        color: 'red',
+                        invalid: true,
+                    })}
                 >
                     {groups.map((g) => (
                         <Option key={g} value={g}>
@@ -161,15 +163,19 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
                 <Input
                     ref={nameRef}
                     fullWidth
-                    color={errors?._ || errors?.name ? 'red' : 'blue'}
-                    invalid={!!errors?._ || !!errors?.name}
-                    error={errors?._ ? errorLabel : undefined}
                     size="large"
                     value={name}
                     label={titleLabel}
                     placeholder={useLabel(PLACEHOLDER)}
                     onInput={handleInput}
                     onKeyDown={handleEnter}
+                    {...((errors?._ || errors?.name) && {
+                        color: 'red',
+                        invalid: true,
+                    })}
+                    {...(errors?._ && {
+                        error: errorLabel,
+                    })}
                 />
             </main>
             <footer>

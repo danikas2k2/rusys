@@ -160,12 +160,14 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
                 <Select
                     ref={groupRef}
                     fullWidth
-                    color={errors?.group ? 'red' : 'blue'}
-                    invalid={!!errors?.group}
                     size="large"
                     value={group}
                     label={groupLabel}
                     onChange={(e, value) => setGroup(value as string)}
+                    {...(errors?.group && {
+                        color: 'red',
+                        invalid: true,
+                    })}
                 >
                     {groups.map((g) => (
                         <Option key={g} value={g}>
@@ -176,15 +178,19 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
                 <Input
                     ref={nameRef}
                     fullWidth
-                    color={errors?._ || errors?.variant ? 'red' : 'blue'}
-                    invalid={!!errors?._ || !!errors?.variant}
-                    error={errors?._ ? errorLabel : undefined}
                     size="large"
                     value={variant}
                     label={variantLabel}
                     placeholder={useLabel(PLACEHOLDER)}
                     onInput={handleVariantInput}
                     onKeyDown={handleEnter}
+                    {...((errors?._ || errors?.variant) && {
+                        color: 'red',
+                        invalid: true,
+                    })}
+                    {...(errors?._ && {
+                        error: errorLabel,
+                    })}
                 />
                 <Input
                     fullWidth

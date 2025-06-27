@@ -106,14 +106,18 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
                 <Input
                     ref={focusRef}
                     fullWidth
-                    color={errors?._ || errors?.group ? 'red' : 'blue'}
-                    invalid={!!errors?._ || !!errors?.group}
-                    error={errors?._ ? errorLabel : undefined}
                     size="large"
                     value={group}
                     label={inputLabel}
                     onInput={handleGroupInput}
                     onKeyDown={handleEnter}
+                    {...((errors?._ || errors?.group) && {
+                        color: 'red',
+                        invalid: true,
+                    })}
+                    {...(errors?._ && {
+                        error: errorLabel,
+                    })}
                 />
             </main>
             <footer>

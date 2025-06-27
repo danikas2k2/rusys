@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, type FC } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { type DropdownRef } from '@ui/Dropdown';
 import { MenuDivider } from '@ui/MenuDivider';
 import { ImportBox } from '~/client/common/dialogs/ImportBox';
