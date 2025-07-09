@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useState, type FormEvent } from 'react';
+import React, { useCallback, useEffect, useId, useState, type FormEvent } from 'react';
 import { FileDisplay } from '@ui/FileDisplay';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { Input, type InputProps } from '@ui/Input';
-import { uniqueId } from '@ui/utils/uniqueId';
 import cs from 'classnames';
 import cx from './FileInput.pcss';
 
@@ -11,7 +10,7 @@ export type FileInputProps = Omit<InputProps, 'mode' | 'value'>;
 // TODO add translation context and translate clear button label
 export function FileInput({
     ref: forwardedRef,
-    id = uniqueId('file'),
+    id: initialId,
     label,
     placeholder = label,
     className,
@@ -33,10 +32,11 @@ export function FileInput({
         [onInput]
     );
 
+    const id = useId();
     return (
         <Input
             ref={ref}
-            id={id}
+            id={initialId ?? id}
             label={label}
             placeholder={placeholder}
             onInput={handleInput}

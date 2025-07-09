@@ -1,6 +1,7 @@
 import React, {
     useCallback,
     useEffect,
+    useId,
     useState,
     type FormEvent,
     type InputHTMLAttributes,
@@ -23,7 +24,6 @@ import {
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { getDecoratorType } from '@ui/utils/getDecoratorType';
 import { setCaretPosition } from '@ui/utils/setCaretPosition';
-import { uniqueId } from '@ui/utils/uniqueId';
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 import cs from 'classnames';
 import cx from './Input.pcss';
@@ -57,7 +57,7 @@ export interface InputProps extends Omit<CommonInputProps<HTMLInputElement>, 'in
 // TODO add translation context and translate clear button label
 export function Input({
     ref: forwardedRef,
-    id = uniqueId('input'),
+    id: initialId,
     variant = 'outlined',
     size = 'medium',
     spacing = 'small',
@@ -149,10 +149,13 @@ export function Input({
         [clearable, onInput]
     );
 
+    const id = useId();
+    const inputId = initialId ?? id;
+
     const input = (
         <>
             <input
-                id={id}
+                id={inputId}
                 type="text"
                 inputMode={mode}
                 ref={ref}
@@ -176,7 +179,7 @@ export function Input({
                     fullHeight
                     onClick={handleClear}
                     aria-label="clear"
-                    aria-controls={id}
+                    aria-controls={inputId}
                 >
                     <CancelIcon />
                 </IconButton>
@@ -202,7 +205,7 @@ export function Input({
         <>
             <div
                 role="figure"
-                aria-labelledby={id}
+                aria-labelledby={inputId}
                 className={cs(
                     {
                         [`ui-color-${color}`]: color,
@@ -218,7 +221,7 @@ export function Input({
                     className
                 )}
             >
-                {label && (value || placeholder !== label) && <label htmlFor={id}>{label}</label>}
+                {label && (value || placeholder !== label) && <label htmlFor={inputId}>{label}</label>}
                 {contentDecorator ? contentDecorator(content) : content}
             </div>
             {error && (

@@ -1,8 +1,7 @@
-import React, { useCallback, type HTMLAttributes, type MouseEventHandler, type RefAttributes } from 'react';
+import React, { useCallback, useId, type HTMLAttributes, type MouseEventHandler, type RefAttributes } from 'react';
 import DeleteIcon from '@assets/delete.svg';
 import EditIcon from '@assets/edit.svg';
 import { Button, ButtonGroup } from '@ui/Button';
-import { uniqueId } from '@ui/utils/uniqueId';
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
 import { Label } from '~/client/common/Label';
@@ -31,7 +30,7 @@ export function SlideControls({ onEdit, onRemove, className, ...props }: SlideCo
         },
         [activeRow, onEdit, setActiveRow]
     );
-    const editId = uniqueId('edit');
+    const editId = useId();
     const editButton = (
         <Button id={editId} color="blue" startDecorator={<EditIcon />} onClick={handleEdit}>
             <Label>Edit</Label>
@@ -45,7 +44,7 @@ export function SlideControls({ onEdit, onRemove, className, ...props }: SlideCo
         },
         [onRemove, setActiveRow]
     );
-    const removeId = uniqueId('remove');
+    const removeId = useId();
     const removeButton = (
         <ButtonWithConfirmation
             id={removeId}

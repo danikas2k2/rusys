@@ -2,6 +2,7 @@ import React, {
     cloneElement,
     useCallback,
     useEffect,
+    useId,
     useRef,
     useState,
     type ChangeEvent,
@@ -22,7 +23,6 @@ import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { useOutsideClick } from '@ui/hooks/useOutsideClick';
 import { Input, type InputProps } from '@ui/Input';
 import { Interactive } from '@ui/Interactive';
-import { uniqueId } from '@ui/utils/uniqueId';
 import { matchParts } from '~/client/utils/matchParts';
 import cs from 'classnames';
 import cx from './Select.pcss';
@@ -41,7 +41,7 @@ export interface SelectProps<T = string | number, E extends HTMLElement = HTMLEl
 // TODO add translation context and translate toggle button label
 export function Select<T = string, E extends HTMLElement = HTMLElement>({
     ref: forwardedRef,
-    id = uniqueId('select'),
+    id: initialId,
     value: initialValue,
     content: initialLabel,
     multiple = false,
@@ -221,12 +221,14 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
         }
     }, [active, state]);
 
-    const inputId = `${id}-input`;
+    const id = useId();
+    const selectId = initialId ?? id;
+    const inputId = `${selectId}-input`;
     const inputValue = filter ?? (hasFocus ? undefined : currentLabel?.toString());
 
     return (
         <div
-            id={id}
+            id={selectId}
             ref={anchorRef}
             role="listbox"
             className={cs(
@@ -255,7 +257,7 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
                 readOnly={readOnly}
                 aria-readonly={readOnly}
                 clearable={!readOnly && !!inputValue && state === 'active'}
-                aria-controls={id}
+                aria-controls={selectId}
                 onClear={handleClear}
                 onChange={handleChange}
                 onPointerEnter={handlePointerEnter}
@@ -284,7 +286,7 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
                                     align="end"
                                     fullHeight
                                     disabled={disabled || filteredOut}
-                                    aria-controls={id}
+                                    aria-controls={selectId}
                                     aria-label="toggle"
                                 >
                                     <ExpandDownIcon />

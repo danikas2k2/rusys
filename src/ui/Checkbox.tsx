@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useState, type ChangeEvent } from 'react';
 import CheckIndeterminateIcon from '@assets/check-indeterminate.svg';
 import CheckIcon from '@assets/check.svg';
 import {
@@ -10,7 +10,6 @@ import {
 } from '@ui/Element';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { type CommonInputProps } from '@ui/Input';
-import { uniqueId } from '@ui/utils/uniqueId';
 import cs from 'classnames';
 import cx from './Checkbox.pcss';
 
@@ -25,7 +24,7 @@ export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {
 
 export function Checkbox({
     ref: forwardedRef,
-    id = uniqueId('checkbox'),
+    id: initialId,
     color = 'gray',
     variant = 'outlined',
     size = 'medium',
@@ -72,9 +71,11 @@ export function Checkbox({
         return isIndeterminate ? <CheckIndeterminateIcon /> : <CheckIcon />;
     }, [isIndeterminate]);
 
+    const id = useId();
+    const checkboxId = initialId ?? id;
     return (
         <label
-            htmlFor={id}
+            htmlFor={checkboxId}
             className={cs(
                 {
                     [`ui-color-${color}`]: color,
@@ -89,7 +90,7 @@ export function Checkbox({
         >
             <input
                 ref={ref}
-                id={id}
+                id={checkboxId}
                 type="checkbox"
                 checked={isChecked}
                 aria-checked={isChecked}
