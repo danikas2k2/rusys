@@ -27,18 +27,19 @@ export async function handleImport(req: ApiRequest, res: ApiResponse<ApiDetailsW
                     }
                 }
 
+                const { error } = console;
                 const file = Array.isArray(filesReceived) ? filesReceived[0] : filesReceived;
                 let data: ApiExport;
                 try {
                     data = JSON.parse(file.data.toString());
                 } catch (_e) {
-                    console.error(_e);
+                    error(_e);
                     throw new Error('Invalid file content');
                 }
 
                 const validate = getValidator();
                 if (!validate(data)) {
-                    console.error(validate.errors);
+                    error(validate.errors);
                     throw new Error('Invalid file content');
                 }
 
