@@ -17,6 +17,7 @@ jest.mock('~/state/details/useSetDetailsRemoving', () => ({
 jest.mock('~/state/details/useUpdateDetails', () => ({
     useUpdateDetails: jest.fn(),
 }));
+jest.mock('~/state/profile/useProfile');
 
 describe('<ValueCell>', () => {
     const group = 'Daržovės';
