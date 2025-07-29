@@ -34,6 +34,9 @@
                                                             },
                                                             "amount": {
                                                                 "type": "integer"
+                                                            },
+                                                            "recycled": {
+                                                                "type": "boolean"
                                                             }
                                                         },
                                                         "required": ["variant", "amount"],
@@ -101,6 +104,9 @@
                                                                                 },
                                                                                 "amount": {
                                                                                     "type": "integer"
+                                                                                },
+                                                                                "recycled": {
+                                                                                    "type": "boolean"
                                                                                 }
                                                                             },
                                                                             "required": ["variant", "amount"],
