@@ -10,6 +10,9 @@ import webpackHotMiddleware from 'webpack-hot-middleware';
 
     const config = await webpackDevConfig();
     const compiler = webpack(config);
+    if (!compiler) {
+        throw new Error('Failed to create webpack compiler');
+    }
 
     // Enable "webpack-dev-middleware"
     app.use(
