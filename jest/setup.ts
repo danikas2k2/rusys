@@ -1,6 +1,9 @@
-import { TextEncoder } from 'util';
+import { TextDecoder as NodeTextDecoder, TextEncoder as NodeTextEncoder } from 'node:util';
 
-global.TextEncoder = TextEncoder;
+Object.assign(globalThis, {
+    TextEncoder: NodeTextEncoder as unknown as typeof globalThis.TextEncoder,
+    TextDecoder: NodeTextDecoder as unknown as typeof globalThis.TextDecoder,
+});
 
 beforeEach(() => {
     jest.spyOn(console, 'error').mockImplementation((...args) => {
