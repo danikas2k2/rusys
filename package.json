@@ -166,7 +166,7 @@
         "prism-themes": "^1.9.0",
         "react-router": "^7.8.1",
         "react-router-dom": "^7.8.1",
-        "react-syntax-highlighter": "^15.6.1",
+        "react-syntax-highlighter": "^15.6.5",
         "rehype": "^13.0.2",
         "rehype-prism": "^2.3.3",
         "rehype-prism-plus": "^2.0.1",

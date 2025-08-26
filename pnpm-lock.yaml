@@ -355,8 +355,8 @@ importers:
         specifier: ^7.8.1
         version: 7.8.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react-syntax-highlighter:
-        specifier: ^15.6.1
-        version: 15.6.1(react@19.1.1)
+        specifier: ^15.6.5
+        version: 15.6.5(react@19.1.1)
       rehype:
         specifier: ^13.0.2
         version: 13.0.2
@@ -6061,8 +6061,8 @@ packages:
       react-dom:
         optional: true
 
-  react-syntax-highlighter@15.6.1:
-    resolution: {integrity: sha512-OqJ2/vL7lEeV5zTJyG7kmARppUjiB9h9udl4qHQjjgEos66z00Ia0OckwYfRxCSFrW8RJIBnsBwQsHZbVPspqg==}
+  react-syntax-highlighter@15.6.5:
+    resolution: {integrity: sha512-Sscw/qACcdp3UIuDVN+PhdKkQZTmAv55+RTzwTJZS+UFFpLilogVnKelDqHuc4E//d7lgEAo2dcDY9h4xhEtJw==}
     peerDependencies:
       react: '>= 0.14.0'
 
@@ -13969,7 +13969,7 @@ snapshots:
     optionalDependencies:
       react-dom: 19.1.1(react@19.1.1)
 
-  react-syntax-highlighter@15.6.1(react@19.1.1):
+  react-syntax-highlighter@15.6.5(react@19.1.1):
     dependencies:
       '@babel/runtime': 7.28.3
       highlight.js: 10.7.3
