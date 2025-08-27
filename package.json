@@ -189,12 +189,14 @@
         "webpack-dev-server": "^5.2.2",
         "webpack-hot-middleware": "^2.26.1"
     },
-    "peerDependencies": {
-        "braces": "^3.0.3",
-        "jsdom": "^26.1.0",
-        "micromatch": "^4.0.8",
-        "nth-check": "^2.1.1",
-        "prismjs": "^1.30.0",
-        "tough-cookie": "^5.1.2"
+    "pnpm": {
+        "overrides": {
+            "braces": "^3.0.3",
+            "jsdom": "^26.1.0",
+            "micromatch": "^4.0.8",
+            "nth-check": "^2.1.1",
+            "prismjs": "^1.30.0",
+            "tough-cookie": "^6.0.0"
+        }
     }
 }
