@@ -157,7 +157,7 @@
         "postcss-import": "^16.1.1",
         "postcss-jsx": "^0.36.4",
         "postcss-less": "^6.0.0",
-        "postcss-loader": "^8.1.1",
+        "postcss-loader": "^8.2.0",
         "postcss-logical-properties": "^0.0.4",
         "postcss-nested": "^7.0.2",
         "postcss-preset-env": "^10.3.1",
