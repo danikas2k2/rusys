@@ -10,10 +10,29 @@ import type {
     ApiVariants,
     ApiVariantsWithGroups,
 } from '~/types/api';
+import type { Details } from '~/types/data';
 
 export async function getDetailsWithYears(): Promise<ApiDetailsWithYears> {
     const years = getYears();
-    return { years, details: await getDetails(years) };
+    const details = await getDetails();
+    return {
+        details,
+        years: details
+            .reduce(
+                (acc: number[], d: Details) => {
+                    if (d.years) {
+                        for (const dy of d.years) {
+                            if (!acc.includes(dy.year)) {
+                                acc.push(dy.year);
+                            }
+                        }
+                    }
+                    return acc;
+                },
+                years.slice(0, 5)
+            )
+            .sort((a, b) => b - a),
+    };
 }
 
 export const getGroupsResponse = async (): Promise<ApiGroups> => ({ groups: await getGroups() });

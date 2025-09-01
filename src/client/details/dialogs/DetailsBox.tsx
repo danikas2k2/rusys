@@ -19,6 +19,7 @@ import { useAddDetails } from '~/state/details/useAddDetails';
 import { useDetails } from '~/state/details/useDetails';
 import { useMoveDetails } from '~/state/details/useMoveDetails';
 import { useRenameDetails } from '~/state/details/useRenameDetails';
+import { useGroup } from '~/state/group/useGroup';
 import { useGroups } from '~/state/groups/useGroups';
 import { isEmpty } from 'lodash';
 import cx from './DetailsBox.pcss';
@@ -35,8 +36,10 @@ const ERROR_NAME_MISSING = 'Name is required';
 const ERROR_EXISTS = 'This name already exists';
 
 export function DetailsBox({ group: initialGroup = '', name: initialName = '', onClose }: DetailsBoxProps) {
+    const filterGroup = useGroup();
+
     const [updating, setUpdating] = useState(false);
-    const [group, setGroup] = useState<string>(initialGroup);
+    const [group, setGroup] = useState<string>(initialGroup || filterGroup);
     const [name, setName] = useState<string>(initialName);
     const [errors, setErrors] = useState<Record<string, string>>();
 

@@ -69,12 +69,26 @@ describe('details', () => {
             ]);
         });
 
-        it.each`
-            title              | years
-            ${'invalid years'} | ${[23, 24]}
-            ${'empty years'}   | ${[]}
-        `('returns no details for $title', async ({ years }) => {
-            await expect(getDetails(years)).resolves.toStrictEqual([]);
+        it('returns details for empty years', async () => {
+            await expect(getDetails()).resolves.toStrictEqual([
+                { group: 'Daržovės', name: 'Agurkai', years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }] },
+                {
+                    group: 'Daržovės',
+                    name: 'Kopūstai',
+                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }],
+                },
+                { group: 'Uogienės', name: 'Avietės', years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }] },
+                {
+                    group: 'Uogienės',
+                    name: 'Braškės',
+                    years: [{ year: 22, amounts: [{ variant: 'p', amount: 2 }] }],
+                    missing: true,
+                },
+            ]);
+        });
+
+        it('returns no details for invalid years', async () => {
+            await expect(getDetails([23, 24])).resolves.toStrictEqual([]);
         });
     });
 

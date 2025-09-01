@@ -1,21 +1,21 @@
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
-import { type Details, type VariantAmount } from '~/types/data';
-import { type ClientSession, type Filter, type UpdateFilter } from 'mongodb';
+import type { Details, VariantAmount } from '~/types/data';
+import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter } from 'mongodb';
 
-export async function getDetails(years: ReadonlyArray<number>): Promise<Details[]> {
+export async function getDetails(years: ReadonlyArray<number> = []): Promise<Details[]> {
     const col = (await db()).collection('details');
+    const filter: Filter<Details> = years.length
+        ? {
+              $or: [
+                  { years: { $exists: false } },
+                  { years: { $size: 0 } },
+                  { 'years.year': { $in: years } } as Filter<Details>,
+              ],
+          }
+        : {};
     return col
-        .find(
-            {
-                $or: [
-                    { years: { $exists: false } },
-                    { years: { $size: 0 } },
-                    { 'years.year': { $in: years } } as Filter<Details>,
-                ],
-            },
-            { projection: { _id: 0, updates: 0, removes: 0 }, sort: { group: 1, name: 1, 'years.year': 1 } }
-        )
+        .find(filter, { projection: { _id: 0, updates: 0, removes: 0 }, sort: { group: 1, name: 1, 'years.year': 1 } })
         .toArray();
 }
 
@@ -95,10 +95,31 @@ export async function updateDetails(
             // remove invalid amounts
             .filter((a) => a.amount > 0);
 
-        const update: UpdateFilter<Details> = {
-            // adding changes to updates
-            $push: { updates: { time: Date.now(), user, years: [{ year, amounts: changes }] } },
-        };
+        const update = { time: Date.now(), user, years: [{ year, amounts: changes }] };
+
+        // adding changes to updates
+        const operations: AnyBulkWriteOperation<Details>[] = [
+            {
+                updateOne: {
+                    filter,
+                    update: [
+                        {
+                            $set: {
+                                updates: {
+                                    $cond: [
+                                        { $isArray: '$updates' },
+                                        // add to existing updates
+                                        { $concatArrays: ['$updates', [update]] },
+                                        // create new updates
+                                        [update],
+                                    ],
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+        ];
 
         // no updates
         if (!updates.length) {
@@ -108,37 +129,35 @@ export async function updateDetails(
                 return false;
             }
             // remove year
-            update.$pull = { years: { year } };
+            operations.push({ updateOne: { filter, update: { $pull: { years: { year } } } } });
         } else if (!amounts.length) {
             // add year if not exists
-            update.$push = { ...update.$push, years: { year, amounts: updates } };
+            operations.push({ updateOne: { filter, update: { $push: { years: { year, amounts: updates } } } } });
         } else {
             // update amounts
-            filter['years.year'] = year;
-            update.$set = { ...update.$set, 'years.$.amounts': updates };
+            operations.push({
+                updateOne: {
+                    filter,
+                    update: { $set: { 'years.$[y].amounts': updates } },
+                    arrayFilters: [{ 'y.year': year }],
+                },
+            });
         }
 
         // remove missing flag if amount decreased but not recycled
         if (details?.missing && changes.some((a) => !a.recycled && a.amount < 0)) {
-            update.$unset = { missing: 1 };
+            operations.push({ updateOne: { filter, update: { $unset: { missing: 1 } } } });
         }
 
-        return await col
-            .bulkWrite(
-                [
-                    // update details
-                    { updateOne: { filter, update } },
-                    // clear all other empty years
-                    {
-                        updateOne: {
-                            filter: { group, name, years: { $size: 0 } },
-                            update: { $unset: { years: 1, missing: 1 } },
-                        },
-                    },
-                ],
-                { session }
-            )
-            .then(hasEffect);
+        // clear all other empty years
+        operations.push({
+            updateOne: {
+                filter: { group, name, years: { $size: 0 } },
+                update: { $unset: { years: 1, missing: 1 } },
+            },
+        });
+
+        return await col.bulkWrite(operations, { session }).then(hasEffect);
     });
 }
 

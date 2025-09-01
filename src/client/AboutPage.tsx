@@ -1,8 +1,7 @@
 import React from 'react';
+import pkg from '~/../package.json';
 import { Label } from '~/client/common/Label';
 import { Page } from '~/client/common/Page';
-// @ts-expect-error import * from '/package.json';
-import { version } from '/package.json';
 import cx from './AboutPage.pcss';
 
 export function AboutPage() {
@@ -16,7 +15,7 @@ export function AboutPage() {
                     <dt>
                         <Label>Version</Label>
                     </dt>
-                    <dd>{version}</dd>
+                    <dd>{pkg.version}</dd>
                 </dl>
             </article>
         </Page>

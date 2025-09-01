@@ -15,6 +15,7 @@ import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/common/utils/errors';
+import { useGroup } from '~/state/group/useGroup';
 import { useGroups } from '~/state/groups/useGroups';
 import { useCopyVariant } from '~/state/variants/useCopyVariant';
 import { useRenameVariant } from '~/state/variants/useRenameVariant';
@@ -37,8 +38,10 @@ const ERROR_NAME_MISSING = 'Name is required';
 const ERROR_EXISTS = 'Variant already exists';
 
 export function VariantBox({ group: initialGroup = '', variant: initialVariant = '', onClose }: VariantBoxProps) {
+    const filterGroup = useGroup();
+
     const [updating, setUpdating] = useState(false);
-    const [group, setGroup] = useState<string>(initialGroup);
+    const [group, setGroup] = useState<string>(initialGroup || filterGroup);
     const [variant, setVariant] = useState<string>(initialVariant);
     const variantDetails = useVariant(initialGroup, initialVariant);
     const { suffix: initialSuffix = '' } = variantDetails ?? ({} as Variant);
