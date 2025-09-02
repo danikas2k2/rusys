@@ -41,7 +41,7 @@
         "preversion": "git pull",
         "version": "sed -i '' 's/APP_VERSION: \".*\"/APP_VERSION: \"'\"$npm_package_version\"'\"/' ./docker/compose.yaml && git add --all",
         "postversion": "git push && git push --tags",
-        "update-deps": "npx npm-check-updates --upgrade --dep prod,dev,peer,optional,overrides,packageManager --install always"
+        "update-deps": "syncpack update && pnpm install"
     },
     "browserslist": {
         "production": [
@@ -190,13 +190,15 @@
         "webpack-dev-server": "^5.2.2",
         "webpack-hot-middleware": "^2.26.1"
     },
-    "overrides": {
-        "braces": "^3.0.3",
-        "jsdom": "^26.1.0",
-        "micromatch": "^4.0.8",
-        "nth-check": "^2.1.1",
-        "postcss": "^8.5.6",
-        "prismjs": "^1.30.0",
-        "tough-cookie": "^6.0.0"
+    "pnpm": {
+        "overrides": {
+            "braces": "^3.0.3",
+            "jsdom": "^26.1.0",
+            "micromatch": "^4.0.8",
+            "nth-check": "^2.1.1",
+            "postcss": "^8.5.6",
+            "prismjs": "^1.30.0",
+            "tough-cookie": "^6.0.0"
+        }
     }
 }
