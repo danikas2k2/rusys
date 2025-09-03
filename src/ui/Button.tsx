@@ -31,7 +31,9 @@ export interface ButtonProps<T extends HTMLElement = HTMLButtonElement>
     align?: ButtonAlign;
     fullWidth?: boolean;
     fullHeight?: boolean;
+    startDecoratorSpacing?: ElementSpacing;
     startDecorator?: ReactNode;
+    endDecoratorSpacing?: ElementSpacing;
     endDecorator?: ReactNode;
 }
 
@@ -49,7 +51,9 @@ export function Button({
     fullWidth,
     fullHeight,
     startDecorator,
+    startDecoratorSpacing = 'small',
     endDecorator,
+    endDecoratorSpacing = 'small',
     children,
     ...props
 }: ButtonProps): JSX.Element {
@@ -81,9 +85,17 @@ export function Button({
             aria-disabled={disabled}
             {...props}
         >
-            {startDecorator && <div className={cx('start-decorator')}>{startDecorator}</div>}
+            {startDecorator && (
+                <div className={cx('start-decorator', { [`spacing-${startDecoratorSpacing}`]: startDecoratorSpacing })}>
+                    {startDecorator}
+                </div>
+            )}
             {isButtonWrapped ? <>{(children as ReactElement<HTMLButtonElement>).props.children}</> : children}
-            {endDecorator && <div className={cx('end-decorator')}>{endDecorator}</div>}
+            {endDecorator && (
+                <div className={cx('end-decorator', { [`spacing-${endDecoratorSpacing}`]: endDecoratorSpacing })}>
+                    {endDecorator}
+                </div>
+            )}
         </button>
     );
 }
