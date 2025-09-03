@@ -70,6 +70,8 @@ export function addVariantAmount(acc: ReadonlyArray<VariantAmount>, { variant, a
     return [...acc, { variant, amount }];
 }
 
+const cleanupRecycled = ({ recycled, ...v }: VariantAmount): VariantAmount => (recycled ? { ...v, recycled } : v);
+
 export async function updateDetails(
     group: string,
     name: string,
@@ -82,20 +84,18 @@ export async function updateDetails(
     }
 
     return withTransaction(async (session) => {
-        const col = (await db()).collection<Details>('details');
-
-        // calculates amount updates
         const filter: UpdateFilter<Details> = { group, name };
-        const details = await col.findOne(filter, { projection: { years: 1, missing: 1 }, session });
-        const current = details?.years?.find((y) => y.year === year);
-        const amounts = current?.amounts ?? [];
-        const updates = changes
-            // update amounts
-            .reduce(addVariantAmount, amounts)
-            // remove invalid amounts
-            .filter((a) => a.amount > 0);
 
-        const update = { time: Date.now(), user, years: [{ year, amounts: changes }] };
+        const update = {
+            time: Date.now(),
+            user,
+            years: [
+                {
+                    year,
+                    amounts: changes.filter((v) => v.recycled != null).map(cleanupRecycled),
+                },
+            ],
+        };
 
         // adding changes to updates
         const operations: AnyBulkWriteOperation<Details>[] = [
@@ -120,6 +120,18 @@ export async function updateDetails(
                 },
             },
         ];
+
+        // calculates amount updates
+        const col = (await db()).collection<Details>('details');
+        const details = await col.findOne(filter, { projection: { years: 1, missing: 1 }, session });
+        const current = details?.years?.find((y) => y.year === year);
+        const amounts = current?.amounts ?? [];
+        const updates = changes
+            // update amounts
+            .reduce(addVariantAmount, amounts)
+            // remove invalid amounts
+            .filter((a) => a.amount > 0)
+            .map(cleanupRecycled);
 
         // no updates
         if (!updates.length) {

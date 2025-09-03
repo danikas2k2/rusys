@@ -6,10 +6,10 @@ import ExpandDownIcon from '@assets/expand-down.svg';
 import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { Label } from '~/client/common/Label';
-import { useRecycled } from '~/client/common/RecycledContext';
-import { RecycledControls } from '~/client/common/RecycledControls';
+import { UpdateTypes, useUpdateType } from '~/client/common/UpdateTypeContext';
+import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
 import { ValueInput } from '~/client/details/dialogs/ValueInput';
-import { getChangedAmount, getVariantAmount } from '~/client/details/utils/amounts';
+import { getVariantAmount } from '~/client/details/utils/amounts';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useAllVariants } from '~/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
@@ -57,25 +57,43 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
         onClose?.();
     }, [onClose]);
 
-    const [consumedChanges, setConsumedChanges] = useState<ReadonlyArray<VariantAmount>>([]);
-    const [recycledChanges, setRecycledChanges] = useState<ReadonlyArray<VariantAmount>>([]);
+    const [changes, setChanges] = useState<Record<UpdateTypes, ReadonlyArray<VariantAmount>>>({
+        [UpdateTypes.Consumed]: [],
+        [UpdateTypes.Updated]: [],
+        [UpdateTypes.Recycled]: [],
+    });
+
     const handleUpdate = useCallback((): void => {
         setExpanded(false);
-        onClose?.([...consumedChanges, ...recycledChanges.map((v) => ({ ...v, recycled: true }))]);
-    }, [consumedChanges, onClose, recycledChanges]);
+        onClose?.([
+            ...changes[UpdateTypes.Updated],
+            ...changes[UpdateTypes.Consumed].map((v) => ({ ...v, recycled: false })),
+            ...changes[UpdateTypes.Recycled].map((v) => ({ ...v, recycled: true })),
+        ]);
+    }, [changes, onClose]);
 
     const stopPropagation = useCallback((e: SyntheticEvent) => e.stopPropagation(), []);
 
-    const [recycled] = useRecycled();
-    const currentChanges = recycled ? recycledChanges : consumedChanges;
-    const oppositeChanges = recycled ? consumedChanges : recycledChanges;
-    const setChangingAmounts = recycled ? setRecycledChanges : setConsumedChanges;
+    const [currentVariant] = useUpdateType();
+    const currentChanges = changes[currentVariant];
+    const oppositeChanges = useMemo(
+        () =>
+            Object.entries(changes)
+                .filter(([k]) => k !== currentVariant)
+                .map(([, v]) => v)
+                .flat(),
+        [changes, currentVariant]
+    );
+    const setChangingAmounts = useCallback(
+        (c: ReadonlyArray<VariantAmount>) => setChanges((prev) => ({ ...prev, [currentVariant]: c })),
+        [currentVariant]
+    );
 
     const handleChange = useCallback(
         (variant: string, change: number) => {
             const oldValue = getVariantAmount(amounts, variant);
-            const oppositeChange = getVariantAmount(oppositeChanges, variant);
-            const newValue = oldValue + change + oppositeChange;
+            const oppositeValue = getVariantAmount(oppositeChanges, variant);
+            const newValue = oldValue + change + oppositeValue;
             if (newValue >= 0) {
                 setChangingAmounts(
                     currentChanges?.some((v) => v.variant === variant)
@@ -114,10 +132,7 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
                     <div>{name}</div>
                     <time>{year}</time>
                     <div className={cx('controls')}>
-                        <RecycledControls
-                            consumedAmount={getChangedAmount(consumedChanges)}
-                            recycledAmount={getChangedAmount(recycledChanges)}
-                        />
+                        <UpdateTypeToggle changes={changes} />
                     </div>
                 </div>
                 <div className={cx('close')}>
@@ -127,7 +142,7 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
                 </div>
             </header>
             <article
-                className={cx('article', { recycled })}
+                className={cx('article', currentVariant)}
                 role="presentation"
                 onClick={stopPropagation}
                 onDoubleClick={stopPropagation}

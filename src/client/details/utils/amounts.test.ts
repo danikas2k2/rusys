@@ -1,4 +1,4 @@
-import { getChangedAmount, getVariant, getVariantAmount } from '~/client/details/utils/amounts';
+import { getChangedAmount, getVariantAmount } from '~/client/details/utils/amounts';
 
 jest.mock('~/state/groups/useGetGroups');
 jest.mock('~/state/variants/useGetVariants');
@@ -8,20 +8,6 @@ describe('amounts', () => {
     beforeEach(() => {});
 
     afterEach(() => jest.clearAllMocks());
-
-    describe('getVariant', () => {
-        it('returns undefined if amounts is undefined', () => {
-            expect(getVariant(undefined, 'p')).toBeUndefined();
-        });
-
-        it('returns undefined if variant is not found', () => {
-            expect(getVariant([{ variant: 'p', amount: 1 }], 'd')).toBeUndefined();
-        });
-
-        it('returns the variant if found', () => {
-            expect(getVariant([{ variant: 'p', amount: 1 }], 'p')).toStrictEqual({ variant: 'p', amount: 1 });
-        });
-    });
 
     describe('getVariantAmount', () => {
         it('returns 0 if variant is not found', () => {

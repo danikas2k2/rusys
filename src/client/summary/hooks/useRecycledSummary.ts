@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
-import { useRecycled } from '~/client/common/RecycledContext';
+import { UpdateTypes, useUpdateType } from '~/client/common/UpdateTypeContext';
 import { useSummary } from '~/state/summary/useSummary';
 import { type Summary } from '~/types/data';
 
 export function useRecycledSummary(): ReadonlyArray<Summary> {
-    const [recycled] = useRecycled();
+    const [updateType] = useUpdateType();
+    const recycled = updateType === UpdateTypes.Recycled;
     const summary = useSummary();
     return useMemo(
         () =>
@@ -19,6 +20,6 @@ export function useRecycledSummary(): ReadonlyArray<Summary> {
                         .filter((y) => y.amounts.length),
                 }))
                 .filter((v) => v.years?.length),
-        [recycled, summary]
+        [summary, recycled]
     );
 }

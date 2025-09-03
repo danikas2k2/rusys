@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getVariantsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
-import { RecycledContextWrapper } from '~/client/common/RecycledContext';
+import { UpdateTypeContextWrapper } from '~/client/common/UpdateTypeContext';
 import { ValueBox, type ValueBoxProps } from '~/client/details/dialogs/ValueBox';
 import { ValueInput } from '~/client/details/dialogs/ValueInput';
 import { getVariantAmount } from '~/client/details/utils/amounts';
@@ -37,9 +37,9 @@ describe('<ValueBox>', () => {
     it('renders heading details', () => {
         render(
             <MockRedux state={state}>
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox {...props} amounts={amounts} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             </MockRedux>
         );
 
@@ -52,9 +52,9 @@ describe('<ValueBox>', () => {
     it('renders controls', () => {
         render(
             <MockRedux state={state}>
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox {...props} amounts={amounts} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             </MockRedux>
         );
 
@@ -70,9 +70,9 @@ describe('<ValueBox>', () => {
     it('renders inputs', () => {
         render(
             <MockRedux state={state}>
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox {...props} amounts={amounts} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             </MockRedux>
         );
 
@@ -90,9 +90,9 @@ describe('<ValueBox>', () => {
         const onClose = jest.fn();
         render(
             <MockRedux state={state}>
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox {...props} onClose={onClose} amounts={amounts} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             </MockRedux>
         );
         await userEvent.click(screen.getByLabelText('Close'));
@@ -104,9 +104,9 @@ describe('<ValueBox>', () => {
         const onClose = jest.fn();
         render(
             <MockRedux state={state}>
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox {...props} onClose={onClose} amounts={amounts} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             </MockRedux>
         );
         await userEvent.click(screen.getByText('Cancel'));
@@ -118,9 +118,9 @@ describe('<ValueBox>', () => {
         const onClose = jest.fn();
         render(
             <MockRedux state={state}>
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox {...props} onClose={onClose} amounts={amounts} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             </MockRedux>
         );
         await userEvent.click(screen.getByText('Update'));
@@ -137,9 +137,9 @@ describe('<ValueBox>', () => {
         const onClose = jest.fn();
         render(
             <MockRedux state={state}>
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox {...props} onClose={onClose} amounts={amounts} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             </MockRedux>
         );
 
@@ -160,9 +160,9 @@ describe('<ValueBox>', () => {
         const onClose = jest.fn();
         render(
             <MockRedux state={state}>
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox {...props} onClose={onClose} amounts={amounts} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             </MockRedux>
         );
         await userEvent.click(screen.getByText('Recycled'));
@@ -183,9 +183,9 @@ describe('<ValueBox>', () => {
         const onClose = jest.fn();
         render(
             <MockRedux state={state}>
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox {...props} onClose={onClose} amounts={amounts} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             </MockRedux>
         );
 
@@ -205,9 +205,9 @@ describe('<ValueBox>', () => {
     it('renders all variants when expand pressed', async () => {
         render(
             <MockRedux state={state}>
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox {...props} amounts={amounts} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             </MockRedux>
         );
         jest.mocked(ValueInput).mockClear();
@@ -237,9 +237,9 @@ describe('<ValueBox>', () => {
     it('ensure all changed values are preserved after expansion', async () => {
         render(
             <MockRedux state={state}>
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox {...props} amounts={amounts} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             </MockRedux>
         );
 
@@ -265,9 +265,9 @@ describe('<ValueBox>', () => {
     it('ensure focused item is still focused after expansion', async () => {
         render(
             <MockRedux state={state}>
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox {...props} amounts={amounts} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             </MockRedux>
         );
 
@@ -295,9 +295,9 @@ describe('<ValueBox>', () => {
         it('does not accept any other symbols, but digits', async () => {
             render(
                 <MockRedux state={state}>
-                    <RecycledContextWrapper>
+                    <UpdateTypeContextWrapper>
                         <ValueBox {...props} amounts={amounts} />
-                    </RecycledContextWrapper>
+                    </UpdateTypeContextWrapper>
                 </MockRedux>
             );
 
@@ -317,9 +317,9 @@ describe('<ValueBox>', () => {
         it('does not decrease value below zero while using `Increase`/`Decrease` buttons', async () => {
             render(
                 <MockRedux state={state}>
-                    <RecycledContextWrapper>
+                    <UpdateTypeContextWrapper>
                         <ValueBox {...props} amounts={amounts} />
-                    </RecycledContextWrapper>
+                    </UpdateTypeContextWrapper>
                 </MockRedux>
             );
 

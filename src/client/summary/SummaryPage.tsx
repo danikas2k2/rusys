@@ -1,7 +1,7 @@
 import React from 'react';
 import { Page } from '~/client/common/Page';
-import { RecycledContextWrapper } from '~/client/common/RecycledContext';
-import { RecycledControls } from '~/client/common/RecycledControls';
+import { UpdateTypeContextWrapper } from '~/client/common/UpdateTypeContext';
+import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
 import { SummaryTable } from '~/client/summary/SummaryTable';
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
 import cx from './SummaryPage.pcss';
@@ -9,12 +9,12 @@ import cx from './SummaryPage.pcss';
 export function SummaryPage() {
     return (
         <Page toolbar={<ToolbarGroupFilter />} className={cx('SummaryPage')}>
-            <RecycledContextWrapper>
+            <UpdateTypeContextWrapper>
                 <div className={cx('controls')}>
-                    <RecycledControls />
+                    <UpdateTypeToggle updated={false} />
                 </div>
                 <SummaryTable />
-            </RecycledContextWrapper>
+            </UpdateTypeContextWrapper>
         </Page>
     );
 }

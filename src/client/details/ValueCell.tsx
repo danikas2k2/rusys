@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useLongPress } from '@ui/hooks/useLongPress';
-import { RecycledContextWrapper } from '~/client/common/RecycledContext';
+import { UpdateTypeContextWrapper } from '~/client/common/UpdateTypeContext';
 import { ValueBox } from '~/client/details/dialogs/ValueBox';
 import { ValueAmounts } from '~/client/details/ValueAmounts';
 import { Cell } from '~/client/table/Cell';
@@ -55,9 +55,9 @@ export function ValueCell({ group, name, year, amounts, removing = false, last =
                 {empty ? '.' : <ValueAmounts group={group} amounts={amounts} />}
             </Cell>
             {editing && (
-                <RecycledContextWrapper>
+                <UpdateTypeContextWrapper>
                     <ValueBox group={group} name={name} year={year} amounts={amounts} onClose={handleClose} />
-                </RecycledContextWrapper>
+                </UpdateTypeContextWrapper>
             )}
         </>
     );
