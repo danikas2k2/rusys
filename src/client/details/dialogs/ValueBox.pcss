@@ -30,17 +30,22 @@
     }
 
     article {
+        --article-color: var(--color-overlay0);
+
+        &.consumed {
+            --article-color: var(--color-green);
+        }
+
+        &.recycled {
+            --article-color: var(--color-red);
+        }
+
         position: relative;
         overflow: auto;
         margin: 0 0.5rem;
         border-radius: var(--radius-medium);
-        border: 1px solid var(--color-green);
-        background-color: color-mix(in srgb, var(--color-green) 20%, transparent 80%);
-
-        &.recycled {
-            border-color: var(--color-red);
-            background-color: color-mix(in srgb, var(--color-red) 20%, transparent 80%);
-        }
+        border: 1px solid var(--article-color);
+        background-color: color-mix(in srgb, var(--article-color) 20%, transparent 80%);
     }
 
     @media (width <= 320px) {

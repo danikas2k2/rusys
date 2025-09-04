@@ -173,12 +173,54 @@
 
     .start-decorator {
         justify-content: flex-start;
-        padding-inline-end: calc(var(--padding-inline) / 2);
+
+        &.spacing-none {
+            --button-decorator-spacing: 0;
+        }
+
+        &.spacing-half {
+            --button-decorator-spacing: calc(var(--padding-inline) / 4);
+        }
+
+        &.spacing-small {
+            --button-decorator-spacing: calc(var(--padding-inline) / 2);
+        }
+
+        &.spacing-medium {
+            --button-decorator-spacing: var(--padding-inline);
+        }
+
+        &.spacing-large {
+            --button-decorator-spacing: calc(var(--padding-inline) * 2);
+        }
+
+        padding-inline-end: var(--button-decorator-spacing);
     }
 
     .end-decorator {
         justify-content: flex-end;
-        padding-inline-start: calc(var(--padding-inline) / 2);
+
+        &.spacing-none {
+            --button-decorator-spacing: 0;
+        }
+
+        &.spacing-half {
+            --button-decorator-spacing: calc(var(--padding-inline) / 4);
+        }
+
+        &.spacing-small {
+            --button-decorator-spacing: calc(var(--padding-inline) / 2);
+        }
+
+        &.spacing-medium {
+            --button-decorator-spacing: var(--padding-inline);
+        }
+
+        &.spacing-large {
+            --button-decorator-spacing: calc(var(--padding-inline) * 2);
+        }
+
+        padding-inline-start: var(--button-decorator-spacing);
     }
 
     + .Button {

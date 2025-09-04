@@ -95,51 +95,53 @@ export function ValueInput({
             <div className={cx('label')}>
                 <ValueVariant variant={variant} />
             </div>
-            <Input
-                ref={ref}
-                aria-label={variant}
-                aria-current={focus}
-                className={cx('value')}
-                color="blue"
-                size="large"
-                mode="numeric"
-                value={current}
-                onChange={onInputChange}
-                onKeyDown={onKeyDown}
-                onFocus={onInputFocus}
-                onBlur={onInputBlur}
-                startDecorator={
-                    <Button
-                        role="spinbutton"
-                        aria-label={decreaseLabel}
-                        aria-controls={variant}
-                        aria-current={focus}
-                        onClick={onDecreaseClick}
-                        onKeyDown={onKeyDown}
-                        variant="plain"
-                        color="blue"
-                        spacing="half"
-                    >
-                        <RemoveIcon />
-                    </Button>
-                }
-                endDecorator={
-                    <Button
-                        role="spinbutton"
-                        aria-label={increaseLabel}
-                        aria-controls={variant}
-                        aria-current={focus}
-                        onClick={onIncreaseClick}
-                        onKeyDown={onKeyDown}
-                        variant="plain"
-                        color="blue"
-                        spacing="half"
-                    >
-                        <AddIcon />
-                    </Button>
-                }
-            />
-            <ValueChange change={change} />
+            <div className={cx('input')}>
+                <Input
+                    ref={ref}
+                    aria-label={variant}
+                    aria-current={focus}
+                    className={cx('value')}
+                    color="blue"
+                    size="large"
+                    mode="numeric"
+                    value={current}
+                    onChange={onInputChange}
+                    onKeyDown={onKeyDown}
+                    onFocus={onInputFocus}
+                    onBlur={onInputBlur}
+                    startDecorator={
+                        <Button
+                            role="spinbutton"
+                            aria-label={decreaseLabel}
+                            aria-controls={variant}
+                            aria-current={focus}
+                            onClick={onDecreaseClick}
+                            onKeyDown={onKeyDown}
+                            variant="plain"
+                            color="blue"
+                            spacing="half"
+                        >
+                            <RemoveIcon />
+                        </Button>
+                    }
+                    endDecorator={
+                        <Button
+                            role="spinbutton"
+                            aria-label={increaseLabel}
+                            aria-controls={variant}
+                            aria-current={focus}
+                            onClick={onIncreaseClick}
+                            onKeyDown={onKeyDown}
+                            variant="plain"
+                            color="blue"
+                            spacing="half"
+                        >
+                            <AddIcon />
+                        </Button>
+                    }
+                />
+                <ValueChange change={change} />
+            </div>
         </ButtonGroup>
     );
 }

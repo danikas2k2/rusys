@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRecycled } from '~/client/common/RecycledContext';
+import { useUpdateType } from '~/client/common/UpdateTypeContext';
 import { SummaryRow } from '~/client/summary/SummaryRow';
 import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';
@@ -12,7 +12,7 @@ interface SummaryGroupProps {
 }
 
 export function SummaryGroup({ group, summary }: SummaryGroupProps) {
-    const [recycled] = useRecycled();
+    const [recycled] = useUpdateType();
     return (
         <div role="rowgroup">
             <Row className={cx('Row', 'GroupRow', { recycled })}>
