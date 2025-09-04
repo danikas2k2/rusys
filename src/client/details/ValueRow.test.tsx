@@ -220,7 +220,13 @@ describe('<ValueRow>', () => {
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByText('Update'));
 
-            expect(updateAmounts).toHaveBeenCalledWith(group, name, year, [{ variant: 'p', amount: 1 }], user);
+            expect(updateAmounts).toHaveBeenCalledWith(
+                group,
+                name,
+                year,
+                [{ variant: 'p', amount: 1, recycled: false }],
+                user
+            );
             expect(setRemoving).not.toHaveBeenCalled();
             expect(setMissing).not.toHaveBeenCalled();
         });
@@ -237,7 +243,13 @@ describe('<ValueRow>', () => {
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByText('Update'));
 
-            expect(updateAmounts).toHaveBeenCalledWith(group, name, year, [{ variant: 'p', amount: -1 }], user);
+            expect(updateAmounts).toHaveBeenCalledWith(
+                group,
+                name,
+                year,
+                [{ variant: 'p', amount: -1, recycled: false }],
+                user
+            );
         });
 
         it('calls updateAmounts, setMissing, and setRemoving when decreasing a value to zero', async () => {
@@ -254,7 +266,13 @@ describe('<ValueRow>', () => {
             act(() => jest.advanceTimersByTime(100));
             await userEvent.click(screen.getByText('Update'));
 
-            expect(updateAmounts).toHaveBeenCalledWith(group, name, year, [{ variant: 'p', amount: -2 }], user);
+            expect(updateAmounts).toHaveBeenCalledWith(
+                group,
+                name,
+                year,
+                [{ variant: 'p', amount: -2, recycled: false }],
+                user
+            );
         });
 
         it('does not call setAmounts, setMissing and setRemoving for unchanged value', async () => {

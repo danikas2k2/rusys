@@ -59,8 +59,9 @@ describe('<ValueBox>', () => {
         );
 
         expect(screen.getByLabelText('Close')).toBeInTheDocument();
-        expect(screen.getByText('Consumed')).toBeInTheDocument();
-        expect(screen.getByText('Recycled')).toBeInTheDocument();
+        expect(screen.getByLabelText('Consumed')).toBeInTheDocument();
+        expect(screen.getByLabelText('Updated')).toBeInTheDocument();
+        expect(screen.getByLabelText('Recycled')).toBeInTheDocument();
         expect(screen.getByLabelText('Expand')).toBeInTheDocument();
         expect(screen.getByText('Cancel')).toBeInTheDocument();
         expect(screen.getByText('Update')).toBeInTheDocument();
@@ -150,9 +151,9 @@ describe('<ValueBox>', () => {
         await userEvent.click(screen.getByText('Update'));
 
         expect(onClose).toHaveBeenCalledWith([
-            { variant: 'p', amount: 1 },
-            { variant: 'd', amount: 1 },
-            { variant: 'm', amount: 4 },
+            { variant: 'p', amount: 1, recycled: false },
+            { variant: 'd', amount: 1, recycled: false },
+            { variant: 'm', amount: 4, recycled: false },
         ]);
     });
 
@@ -165,7 +166,7 @@ describe('<ValueBox>', () => {
                 </UpdateTypeContextWrapper>
             </MockRedux>
         );
-        await userEvent.click(screen.getByText('Recycled'));
+        await userEvent.click(screen.getByLabelText('Recycled'));
 
         await userEvent.type(screen.getByLabelText('p'), '0', selection);
         await userEvent.type(screen.getByLabelText('d'), '1', selection);
@@ -190,13 +191,13 @@ describe('<ValueBox>', () => {
         );
 
         await userEvent.type(screen.getByLabelText('p'), '2', selection);
-        await userEvent.click(screen.getByText('Recycled'));
+        await userEvent.click(screen.getByLabelText('Recycled'));
         await userEvent.type(screen.getByLabelText('d'), '1', selection);
 
         await userEvent.click(screen.getByText('Update'));
 
         expect(onClose).toHaveBeenCalledWith([
-            { variant: 'p', amount: 1 },
+            { variant: 'p', amount: 1, recycled: false },
             { variant: 'd', amount: -2, recycled: true },
         ]);
     });
