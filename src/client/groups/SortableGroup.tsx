@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-import CheckboxSelect from '@assets/checkbox-select.svg';
+import CalendarClockIcon from '@assets/calendar-clock.svg';
 import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
 import { useActiveRow, type ActiveRow } from '~/client/common/ActiveRowContext';
 import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
@@ -60,7 +60,7 @@ export function SortableGroup({
                 {group}
             </Cell>
             <Cell key="annual" className={cx('Annual')}>
-                {annual && <CheckboxSelect />}
+                {annual && <CalendarClockIcon />}
             </Cell>
         </SortableRow>
     );
