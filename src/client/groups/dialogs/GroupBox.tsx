@@ -4,6 +4,7 @@ import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
 import DoneIcon from '@assets/done.svg';
 import { Button, IconButton } from '@ui/Button';
+import { Checkbox } from '@ui/Checkbox';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { Input } from '@ui/Input';
@@ -20,15 +21,17 @@ import cx from './GroupBox.pcss';
 
 interface GroupBoxProps extends WithOnClose {
     group?: string;
+    annual?: boolean;
     onClose: (group?: string) => void;
 }
 
 const ERROR_NAME_MISSING = 'Name is required';
 const ERROR_EXISTS = 'Group already exists';
 
-export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
+export function GroupBox({ group: initialGroup = '', annual: initialAnnual = true, onClose }: GroupBoxProps) {
     const [updating, setUpdating] = useState(false);
-    const [group, setGroup] = useState<string>(initialGroup ?? '');
+    const [group, setGroup] = useState<string>(initialGroup);
+    const [annual, setAnnual] = useState<boolean>(initialAnnual);
     const [errors, setErrors] = useState<Record<string, string>>();
 
     useEffect(() => {
@@ -45,10 +48,12 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
         }
     }, [hasGroup, errors]);
 
-    const focusRef = useAutoFocus<HTMLInputElement>();
-
     const updateGroup = useUpdateGroup();
     const renameGroup = useRenameGroup();
+
+    const annualChanged = annual !== initialAnnual;
+
+    const focusRef = useAutoFocus<HTMLInputElement>();
     const handleUpdate = useCallback(async (): Promise<void> => {
         if (!group) {
             setErrors({ group: ERROR_NAME_MISSING });
@@ -59,10 +64,10 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
         }
         try {
             setUpdating(true);
-            if (!initialGroup) {
-                await updateGroup(group);
-            } else if (groupRenamed) {
-                await renameGroup(initialGroup, group);
+            if (groupRenamed) {
+                await renameGroup(initialGroup, group, annual);
+            } else if (groupAdded || annualChanged) {
+                await updateGroup(group, annual);
             }
             onClose(group);
         } catch (e) {
@@ -71,7 +76,19 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
         } finally {
             setUpdating(false);
         }
-    }, [updateGroup, focusRef, group, groupRenamed, hasGroup, initialGroup, onClose, renameGroup]);
+    }, [
+        group,
+        hasGroup,
+        focusRef,
+        groupRenamed,
+        groupAdded,
+        annualChanged,
+        onClose,
+        renameGroup,
+        initialGroup,
+        annual,
+        updateGroup,
+    ]);
 
     const handleClose = useCallback((): void => onClose(), [onClose]);
 
@@ -119,6 +136,15 @@ export function GroupBox({ group: initialGroup = '', onClose }: GroupBoxProps) {
                         error: errorLabel,
                     })}
                 />
+                <Checkbox
+                    className={cx('Annual')}
+                    size="large"
+                    checked={annual}
+                    onChange={(e) => setAnnual(e.currentTarget.checked)}
+                    onKeyDown={handleEnter}
+                >
+                    <Label>Annual</Label>
+                </Checkbox>
             </main>
             <footer>
                 <Button variant="outlined" startDecorator={<CancelIcon />} onClick={handleClose}>

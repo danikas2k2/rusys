@@ -5,9 +5,9 @@ import RestaurantIcon from '@assets/restaurant.svg';
 import { Button } from '@ui/Button';
 import { UpdateTypes, useUpdateType } from '~/client/common/UpdateTypeContext';
 import { ValueChange } from '~/client/details/dialogs/ValueChange';
-import { getChangedAmount } from '~/client/details/utils/amounts';
 import { useLabel } from '~/client/hooks/useLabel';
 import { ButtonToggle } from '~/client/ui/ButtonToggle';
+import { getChangedAmount } from '~/common/utils/amounts';
 import { type VariantAmount } from '~/types/data';
 
 interface UpdateTypeToggleProps {

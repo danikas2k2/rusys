@@ -7,6 +7,7 @@ import { SlideControls } from '~/client/common/SlideControls';
 import { ValueCell } from '~/client/details/ValueCell';
 import { Cell } from '~/client/table/Cell';
 import { RowWithSlideControls } from '~/client/table/RowWithSlideControls';
+import { getCombinedAmounts } from '~/common/utils/amounts';
 import { useDeleteDetails } from '~/state/details/useDeleteDetails';
 import { useHasRemoving } from '~/state/details/useHasRemoving';
 import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';
@@ -22,6 +23,7 @@ export interface ValueRowProps {
     group: string;
     name: string;
     years?: ReadonlyArray<RemovingYearAmounts>;
+    annual?: boolean;
     missing?: boolean;
     onStart?: (name: string) => void;
     onStop?: () => void;
@@ -29,7 +31,7 @@ export interface ValueRowProps {
     onUnpin?: (hide?: boolean) => void;
 }
 
-export function ValueRow({ className, group, name, years, missing }: ValueRowProps) {
+export function ValueRow({ className, group, name, years, annual = true, missing }: ValueRowProps) {
     const labelId = `checkbox-${group}-${name}`;
     const available = !isEmpty(years);
 
@@ -77,19 +79,30 @@ export function ValueRow({ className, group, name, years, missing }: ValueRowPro
             <Cell id={labelId} className={cx('name', { unavailable: !available, removing: available && hasRemoving })}>
                 <Interactive onClick={handleClick}>{name}</Interactive>
             </Cell>
-            {allYears
-                .map((year) => years?.find((v) => v.year === year) ?? ({ year } as RemovingYearAmounts))
-                .map(({ year, amounts, removing }) => (
-                    <ValueCell
-                        key={year}
-                        group={group}
-                        name={name}
-                        year={year}
-                        amounts={amounts}
-                        removing={removing}
-                        last={year === lastYear}
-                    />
-                ))}
+            {annual ? (
+                allYears
+                    .map((year) => years?.find((v) => v.year === year) ?? ({ year } as RemovingYearAmounts))
+                    .map(({ year, amounts, removing }) => (
+                        <ValueCell
+                            key={year}
+                            group={group}
+                            name={name}
+                            year={year}
+                            amounts={amounts}
+                            removing={removing}
+                            last={year === lastYear}
+                        />
+                    ))
+            ) : (
+                <ValueCell
+                    key={0}
+                    group={group}
+                    name={name}
+                    year={0}
+                    amounts={getCombinedAmounts(years)}
+                    span={allYears.length}
+                />
+            )}
         </RowWithSlideControls>
     );
 }

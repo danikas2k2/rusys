@@ -61,9 +61,9 @@ export const deleteVariantOccurrences = (group: string, variant: string): Promis
         return false;
     });
 
-export const renameGroupOccurrences = (group: string, newGroup: string): Promise<boolean> =>
+export const renameGroupOccurrences = (group: string, newGroup: string, annual: boolean = true): Promise<boolean> =>
     withTransaction(async (session) => {
-        if (await renameGroup(group, newGroup, session)) {
+        if (await renameGroup(group, newGroup, annual, session)) {
             await renameVariantsGroup(group, newGroup, session);
             await renameDetailsGroup(group, newGroup, session);
             return true;

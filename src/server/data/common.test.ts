@@ -190,11 +190,11 @@ describe('common', () => {
     describe('renameGroupOccurrences', () => {
         it('renames all group occurrences, returns true', async () => {
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).resolves.toBeTrue();
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, session);
             expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameDetailsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             await expect($all('groups')).resolves.toStrictEqual([
-                { ...groups[0], group: 'Šaldyti' },
+                { ...groups[0], group: 'Šaldyti', annual: true },
                 ...groups.slice(1),
             ]);
             await expect($all('variants')).resolves.toStrictEqual([
@@ -211,7 +211,7 @@ describe('common', () => {
             jest.mocked(renameGroup).mockResolvedValueOnce(false);
 
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).resolves.toBeFalse();
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, session);
             expect(renameVariantsGroup).not.toHaveBeenCalled();
             expect(renameDetailsGroup).not.toHaveBeenCalled();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -223,7 +223,7 @@ describe('common', () => {
             jest.mocked(renameGroup).mockRejectedValueOnce('Failed to rename group');
 
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).rejects.toBe('Failed to rename group');
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, session);
             expect(renameVariantsGroup).not.toHaveBeenCalled();
             expect(renameDetailsGroup).not.toHaveBeenCalled();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -235,7 +235,7 @@ describe('common', () => {
             jest.mocked(renameVariantsGroup).mockRejectedValueOnce('Failed to rename variants group');
 
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).rejects.toBe('Failed to rename variants group');
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, session);
             expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameDetailsGroup).not.toHaveBeenCalled();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -247,7 +247,7 @@ describe('common', () => {
             jest.mocked(renameDetailsGroup).mockRejectedValueOnce('Failed to rename details group');
 
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).rejects.toBe('Failed to rename details group');
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, session);
             expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameDetailsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             await expect($all('groups')).resolves.toStrictEqual(groups);

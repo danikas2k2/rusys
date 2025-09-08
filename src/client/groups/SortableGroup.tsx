@@ -1,4 +1,5 @@
 import React, { useCallback, useRef } from 'react';
+import CheckboxSelect from '@assets/checkbox-select.svg';
 import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
 import { useActiveRow, type ActiveRow } from '~/client/common/ActiveRowContext';
 import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
@@ -9,7 +10,7 @@ import { useDeleteGroup } from '~/state/groups/useDeleteGroup';
 import { type Group } from '~/types/data';
 import cx from './SortableGroup.pcss';
 
-export interface ActiveGroup extends ActiveRow, Pick<Group, 'group'> {}
+export interface ActiveGroup extends ActiveRow, Pick<Group, 'group' | 'annual'> {}
 
 interface SortableGroupProps {
     className?: string;
@@ -23,7 +24,7 @@ interface SortableGroupProps {
 export function SortableGroup({
     className,
     index,
-    group: { group },
+    group: { group, annual = true },
     onDragStart,
     onDragStop,
     onDrag,
@@ -34,10 +35,10 @@ export function SortableGroup({
 
     const handleDragStart = useCallback(() => {
         if (!isActive) {
-            setActiveGroup({ group, ref });
+            setActiveGroup({ group, annual, ref });
         }
         onDragStart?.(group);
-    }, [isActive, onDragStart, group, setActiveGroup]);
+    }, [isActive, onDragStart, group, setActiveGroup, annual]);
 
     const handleDrag = useCallback(() => onDrag?.(ref.current!), [onDrag]);
 
@@ -57,6 +58,9 @@ export function SortableGroup({
         >
             <Cell key="name" className={cx('Name')}>
                 {group}
+            </Cell>
+            <Cell key="annual" className={cx('Annual')}>
+                {annual && <CheckboxSelect />}
             </Cell>
         </SortableRow>
     );

@@ -35,6 +35,7 @@ export interface Summary {
 export interface Group {
     group: string;
     order: number;
+    annual?: boolean;
 }
 
 export interface Variant {

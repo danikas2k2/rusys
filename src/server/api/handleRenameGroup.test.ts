@@ -29,7 +29,7 @@ describe('handleRenameGroup', () => {
 
         await handleRenameGroup(request, response);
 
-        expect(renameGroupOccurrences).toHaveBeenCalledWith('Uogienės', 'Daržovės');
+        expect(renameGroupOccurrences).toHaveBeenCalledWith('Uogienės', 'Daržovės', undefined);
         expect(getDetailsWithGroups).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true, years, details, variants, groups });
@@ -40,7 +40,7 @@ describe('handleRenameGroup', () => {
 
         await handleRenameGroup(request, response);
 
-        expect(renameGroupOccurrences).toHaveBeenCalledWith('Uogienės', 'Daržovės');
+        expect(renameGroupOccurrences).toHaveBeenCalledWith('Uogienės', 'Daržovės', undefined);
         expect(getDetailsWithGroups).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true });
@@ -51,7 +51,7 @@ describe('handleRenameGroup', () => {
 
         await handleRenameGroup(request, response);
 
-        expect(renameGroupOccurrences).toHaveBeenCalledWith('Uogienės', 'Daržovės');
+        expect(renameGroupOccurrences).toHaveBeenCalledWith('Uogienės', 'Daržovės', undefined);
         expect(getDetailsWithGroups).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to rename group' });

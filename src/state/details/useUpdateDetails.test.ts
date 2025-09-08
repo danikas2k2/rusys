@@ -40,11 +40,15 @@ describe('useUpdateDetails', () => {
         });
     });
 
-    it('does not call update action with blank year', async () => {
+    it('calls update action with zero year (non-annual)', async () => {
         const { result } = renderHook(() => useUpdateDetails(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės', 0);
 
-        expect(request).not.toHaveBeenCalled();
+        expect(request).toHaveBeenCalledWith(ApiUrl.DetailsUpdate, {
+            group: 'Uogienės',
+            name: 'Avietės',
+            year: 0,
+        });
     });
 
     it('does not call update action with blank name', async () => {

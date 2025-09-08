@@ -1,4 +1,4 @@
-import { getChangedAmount, getVariantAmount } from '~/client/details/utils/amounts';
+import { getChangedAmount, getVariantAmount } from '~/common/utils/amounts';
 
 jest.mock('~/state/groups/useGetGroups');
 jest.mock('~/state/variants/useGetVariants');

@@ -19,7 +19,7 @@ export function useUpdateDetails(): (
             amounts?: ReadonlyArray<VariantAmount>,
             user?: string
         ): Promise<void> => {
-            if (group && name && year) {
+            if (group && name) {
                 return request(ApiUrl.DetailsUpdate, { group, name, year, amounts, user });
             }
         },

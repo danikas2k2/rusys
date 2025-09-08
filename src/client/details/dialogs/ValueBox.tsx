@@ -9,8 +9,8 @@ import { Label } from '~/client/common/Label';
 import { UpdateTypes, useUpdateType } from '~/client/common/UpdateTypeContext';
 import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
 import { ValueInput } from '~/client/details/dialogs/ValueInput';
-import { getVariantAmount } from '~/client/details/utils/amounts';
 import { useLabel } from '~/client/hooks/useLabel';
+import { getVariantAmount } from '~/common/utils/amounts';
 import { useAllVariants } from '~/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
 import { type VariantAmount } from '~/types/data';
@@ -118,19 +118,12 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
     const closeLabel = useLabel('Close');
     const expandLabel = useLabel('Expand');
     return (
-        <Dialog
-            className={cx('ValueBox')}
-            open
-            fullscreen={expanded}
-            closeOnOutsideClick
-            closeOnEscape
-            onClose={handleClose}
-        >
+        <Dialog className={cx('ValueBox')} open fullscreen closeOnOutsideClick closeOnEscape onClose={handleClose}>
             <header>
                 <div className={cx('title')}>
-                    <div>{group}</div>
-                    <div>{name}</div>
-                    <time>{year}</time>
+                    <div className={cx('group')}>{group}</div>
+                    <div className={cx('name')}>{name}</div>
+                    {!!year && <time>{year}</time>}
                     <div className={cx('controls')}>
                         <UpdateTypeToggle changes={changes} />
                     </div>

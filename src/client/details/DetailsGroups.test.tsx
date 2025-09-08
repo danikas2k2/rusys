@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { getDetailsFixture } from '@tests/fixtures';
+import { MockRedux } from '@tests/MockRedux';
 import { DetailsGroups } from '~/client/details/DetailsGroups';
 import { ValueRow } from '~/client/details/ValueRow';
 import { useGroup } from '~/state/group/useGroup';
@@ -19,7 +20,11 @@ describe('<DetailsGroups>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('renders details groups with groups and details', () => {
-        render(<DetailsGroups groups={groups} details={details} />);
+        render(
+            <MockRedux>
+                <DetailsGroups groups={groups} details={details} />
+            </MockRedux>
+        );
 
         expect(screen.getAllByRole('rowgroup')).toHaveLength(2);
         expect(screen.getAllByRole('rowheader')).toHaveListWithTextContent(groups);
@@ -68,7 +73,11 @@ describe('<DetailsGroups>', () => {
     it('renders filtered groups with details', () => {
         const [group] = groups;
         jest.mocked(useGroup).mockReturnValue(group);
-        render(<DetailsGroups groups={[group]} details={details} />);
+        render(
+            <MockRedux>
+                <DetailsGroups groups={[group]} details={details} />
+            </MockRedux>
+        );
 
         expect(screen.getByRole('rowgroup')).toBeInTheDocument();
         expect(screen.getByRole('rowheader')).toHaveTextContent(group);
@@ -99,7 +108,11 @@ describe('<DetailsGroups>', () => {
     const missing = 'Šaldytos';
 
     it('renders missing group without details', () => {
-        render(<DetailsGroups groups={[missing]} details={details} />);
+        render(
+            <MockRedux>
+                <DetailsGroups groups={[missing]} details={details} />
+            </MockRedux>
+        );
 
         expect(screen.queryByRole('rowgroup')).not.toBeInTheDocument();
         expect(screen.queryByRole('rowheader')).not.toBeInTheDocument();
@@ -108,7 +121,11 @@ describe('<DetailsGroups>', () => {
 
     it('renders missing filtered group without details', () => {
         jest.mocked(useGroup).mockReturnValue(missing);
-        render(<DetailsGroups groups={[missing]} details={details} />);
+        render(
+            <MockRedux>
+                <DetailsGroups groups={[missing]} details={details} />
+            </MockRedux>
+        );
 
         expect(screen.getByRole('rowgroup')).toBeInTheDocument();
         expect(screen.getByRole('rowheader')).toHaveTextContent(missing);

@@ -1,9 +1,9 @@
 /** @jest-environment node */
 import { bulk } from '@tests/bulk';
 import { getDetailsFixture } from '@tests/fixtures';
+import { addVariantAmount } from '~/common/utils/amounts';
 import {
     addDetails,
-    addVariantAmount,
     deleteDetails,
     deleteDetailsGroup,
     deleteDetailsVariant,
@@ -183,6 +183,36 @@ describe('details', () => {
             );
         });
 
+        it('updates details for existing group, name, but with 0 year for non-annual items', async () => {
+            await expect(updateDetails('Daržovės', 'Agurkai', 0, amounts, user)).resolves.toBeTrue();
+            await expect($all('details')).resolves.toStrictEqual(
+                bulk(details, {
+                    $set: {
+                        '2.years.0.year': 0,
+                        '2.years.0.amounts': [
+                            { variant: 'p', amount: 1 },
+                            { variant: 'm', amount: 2 },
+                        ],
+                    },
+                    $push: {
+                        '2.updates': {
+                            time,
+                            user,
+                            years: [
+                                {
+                                    year: 0,
+                                    amounts: [
+                                        { variant: 'p', amount: 1 },
+                                        { variant: 'd', amount: -1, recycled: true },
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                })
+            );
+        });
+
         it('does not update details if no updates made', async () => {
             const bruknes = { group: 'Uogienės', name: 'Bruknės', years: [{ year: 21, amounts: [] }] };
             await (await db()).collection('details').insertOne(bruknes, { forceServerObjectId: true });
@@ -199,7 +229,6 @@ describe('details', () => {
             ${'invalid group'}     | ${'Šaldyti'}  | ${'Agurkai'} | ${22} | ${[change]}
             ${'empty group'}       | ${''}         | ${'Agurkai'} | ${22} | ${[change]}
             ${'empty name'}        | ${'Daržovės'} | ${''}        | ${22} | ${[change]}
-            ${'empty year'}        | ${'Daržovės'} | ${'Agurkai'} | ${0}  | ${[change]}
             ${'empty changes'}     | ${'Uogienės'} | ${'Avietės'} | ${22} | ${[]}
             ${'undefined changes'} | ${'Uogienės'} | ${'Avietės'} | ${22} | ${undefined}
         `('does not update details for $title', async ({ group, name, year, changes }) => {

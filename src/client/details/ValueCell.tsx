@@ -17,9 +17,10 @@ export interface ValueCellProps {
     amounts?: ReadonlyArray<VariantAmount>;
     removing?: boolean;
     last?: boolean;
+    span?: number;
 }
 
-export function ValueCell({ group, name, year, amounts, removing = false, last = false }: ValueCellProps) {
+export function ValueCell({ group, name, year, amounts, removing = false, last = false, span }: ValueCellProps) {
     const profile = useProfile();
     const updateDetails = useUpdateDetails();
     const setRemoving = useSetDetailsRemoving();
@@ -31,10 +32,10 @@ export function ValueCell({ group, name, year, amounts, removing = false, last =
             setEditing(false);
             const clean = changed?.filter(({ amount }) => !!amount) ?? [];
             if (clean.length) {
-                void updateDetails(group, name, year, clean, profile.email);
+                void updateDetails(group, name, span ? 0 : year, clean, profile.email);
             }
         },
-        [updateDetails, group, name, year, profile.email]
+        [updateDetails, group, name, year, span, profile.email]
     );
 
     const handleShortPress = editing ? undefined : handleOpen;
@@ -49,7 +50,8 @@ export function ValueCell({ group, name, year, amounts, removing = false, last =
     return (
         <>
             <Cell
-                className={cx('ValueCell', { empty, last, removing })}
+                className={cx('ValueCell', { empty, last, removing, span: !!span })}
+                style={span ? { gridColumn: `span ${span}` } : undefined}
                 {...(empty ? { onClick: handleShortPress, onContextMenu: longPress.onContextMenu } : { ...longPress })}
             >
                 {empty ? '.' : <ValueAmounts group={group} amounts={amounts} />}

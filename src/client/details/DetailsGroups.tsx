@@ -3,6 +3,7 @@ import { ValueRow } from '~/client/details/ValueRow';
 import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';
 import { useGroup } from '~/state/group/useGroup';
+import { useGroups } from '~/state/groups/useGroups';
 import { type Details } from '~/types/data';
 import cx from './DetailsGroups.pcss';
 
@@ -13,6 +14,7 @@ interface DetailsGroupsProps {
 
 export function DetailsGroups({ groups, details }: DetailsGroupsProps) {
     const group = useGroup();
+    const allGroups = useGroups();
     return (
         <>
             {groups.map((g) => {
@@ -32,6 +34,7 @@ export function DetailsGroups({ groups, details }: DetailsGroupsProps) {
                                     group={g}
                                     name={d.name}
                                     years={d.years}
+                                    annual={allGroups?.find((v) => v.group === g)?.annual ?? true}
                                     missing={d.missing}
                                 />
                             ))}
