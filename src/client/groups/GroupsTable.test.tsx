@@ -37,9 +37,9 @@ describe('<GroupsTable>', () => {
         const rows = screen.getAllByRole('row');
 
         expect(rows).toHaveLength(3);
-        expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent(['Group']);
-        expect(within(rows[1]).getAllByRole('cell')).toHaveListWithTextContent(['Uogienės']);
-        expect(within(rows[2]).getAllByRole('cell')).toHaveListWithTextContent(['Daržovės']);
+        expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent(['Group', 'Annual']);
+        expect(within(rows[1]).getAllByRole('cell')).toHaveListWithTextContent(['Uogienės', '']);
+        expect(within(rows[2]).getAllByRole('cell')).toHaveListWithTextContent(['Daržovės', '']);
     });
 
     describe('renders loader', () => {
@@ -112,7 +112,7 @@ describe('<GroupsTable>', () => {
 
             const [, dataRow] = rows;
 
-            expect(within(dataRow).getByRole('cell')).toHaveTextContent('Uogienės');
+            expect(within(dataRow).getAllByRole('cell')).toHaveListWithTextContent(['Uogienės', '']);
         });
 
         it('renders filtered out data', () => {

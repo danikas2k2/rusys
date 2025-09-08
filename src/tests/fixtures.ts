@@ -3,7 +3,7 @@ import { type Details, type Group, type Summary, type Variant } from '~/types/da
 
 export const getGroupsFixture = (): Group[] => [
     { group: 'Daržovės', order: 2 },
-    { group: 'Uogienės', order: 1 },
+    { group: 'Uogienės', order: 1, annual: true },
 ];
 
 export const getVariantsFixture = (): Variant[] => [

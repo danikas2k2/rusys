@@ -78,7 +78,7 @@ describe('<GroupBox>', () => {
             await userEvent.type(screen.getByRole('textbox'), 'Buitinė chemija');
             await userEvent.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addGroup).toHaveBeenCalledWith('Buitinė chemija');
+            expect(addGroup).toHaveBeenCalledWith('Buitinė chemija', true);
             expect(onClose).toHaveBeenCalledWith('Buitinė chemija');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -93,7 +93,7 @@ describe('<GroupBox>', () => {
             await userEvent.type(screen.getByRole('textbox'), 'Buitinė chemija');
             await userEvent.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addGroup).toHaveBeenCalledWith('Buitinė chemija');
+            expect(addGroup).toHaveBeenCalledWith('Buitinė chemija', true);
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('alert')).toHaveTextContent('Failed to add');
         });
@@ -143,7 +143,7 @@ describe('<GroupBox>', () => {
             await userEvent.type(screen.getByRole('textbox'), 'Konservai');
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Konservai');
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Konservai', true);
             expect(onClose).toHaveBeenCalledWith('Konservai');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -159,7 +159,7 @@ describe('<GroupBox>', () => {
             await userEvent.type(screen.getByRole('textbox'), 'Konservai');
             await userEvent.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Konservai');
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Konservai', true);
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('alert')).toHaveTextContent('Failed to rename');
         });

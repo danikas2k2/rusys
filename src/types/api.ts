@@ -108,12 +108,12 @@ export interface ApiRequestGroup {
     group: string;
 }
 
-export interface ApiRenameGroup extends ApiRequestGroup {
-    newGroup: string;
+export interface ApiUpdateGroup extends ApiRequestGroup {
+    annual?: boolean;
 }
 
-export interface ApiUpdateGroup extends ApiRequestGroup {
-    order?: number;
+export interface ApiRenameGroup extends ApiUpdateGroup {
+    newGroup: string;
 }
 
 export interface ApiReorderGroups {

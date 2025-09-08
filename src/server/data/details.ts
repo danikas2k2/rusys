@@ -1,3 +1,4 @@
+import { addVariantAmount, cleanupRecycled, getCombinedAmounts, hasAmount } from '~/common/utils/amounts';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
 import type { Details, VariantAmount } from '~/types/data';
@@ -60,18 +61,6 @@ export async function addDetails(group: string, name: string): Promise<boolean> 
     return (await db()).collection('details').insertOne({ group, name }).then(hasEffect);
 }
 
-export function addVariantAmount(acc: ReadonlyArray<VariantAmount>, { variant, amount }: VariantAmount): typeof acc {
-    const i = acc.findIndex((v) => v.variant === variant);
-    if (i >= 0) {
-        const res = [...acc];
-        res[i] = { ...res[i], amount: res[i].amount + amount };
-        return res;
-    }
-    return [...acc, { variant, amount }];
-}
-
-const cleanupRecycled = ({ recycled, ...v }: VariantAmount): VariantAmount => (recycled ? { ...v, recycled } : v);
-
 export async function updateDetails(
     group: string,
     name: string,
@@ -79,7 +68,7 @@ export async function updateDetails(
     changes: ReadonlyArray<VariantAmount> = [],
     user?: string
 ): Promise<boolean> {
-    if (!group || !name || !year || !changes.length) {
+    if (!group || !name || !changes.length) {
         return false;
     }
 
@@ -124,13 +113,14 @@ export async function updateDetails(
         // calculates amount updates
         const col = (await db()).collection<Details>('details');
         const details = await col.findOne(filter, { projection: { years: 1, missing: 1 }, session });
-        const current = details?.years?.find((y) => y.year === year);
-        const amounts = current?.amounts ?? [];
+        const amounts =
+            (year ? details?.years?.find((y) => y.year === year)?.amounts : getCombinedAmounts(details?.years)) ?? [];
         const updates = changes
             // update amounts
             .reduce(addVariantAmount, amounts)
             // remove invalid amounts
-            .filter((a) => a.amount > 0)
+            .filter(hasAmount)
+            // remove recycled if not set
             .map(cleanupRecycled);
 
         // no updates
@@ -148,11 +138,16 @@ export async function updateDetails(
         } else {
             // update amounts
             operations.push({
-                updateOne: {
-                    filter,
-                    update: { $set: { 'years.$[y].amounts': updates } },
-                    arrayFilters: [{ 'y.year': year }],
-                },
+                updateOne: year
+                    ? {
+                          filter,
+                          update: { $set: { 'years.$[y].amounts': updates } },
+                          arrayFilters: [{ 'y.year': year }],
+                      }
+                    : {
+                          filter,
+                          update: { $set: { years: [{ year, amounts: updates }] } },
+                      },
             });
         }
 

@@ -17,7 +17,7 @@ describe('<SortableGroup>', () => {
             </MockRedux>
         );
 
-        expect(screen.getByRole('cell')).toHaveTextContent('Uogienės');
+        expect(screen.getAllByRole('cell')).toHaveListWithTextContent(['Uogienės', '']);
     });
 
     describe('dragging', () => {
@@ -99,7 +99,7 @@ describe('<SortableGroup>', () => {
             const target = screen.getByRole('button', { name: 'Drag' });
             await userEvent.pointer({ target, coords: { y: 0 }, keys: '[MouseLeft>]' });
 
-            expect(setActiveGroup).toHaveBeenCalledWith({ group: 'Uogienės', ref: expect.any(Object) });
+            expect(setActiveGroup).toHaveBeenCalledWith({ group: 'Uogienės', annual: true, ref: expect.any(Object) });
         });
 
         const activeGroup = { group: 'Uogienės', ref: { current: null } };

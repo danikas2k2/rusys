@@ -156,6 +156,9 @@
                     },
                     "order": {
                         "type": "integer"
+                    },
+                    "annual": {
+                        "type": "boolean"
                     }
                 },
                 "required": ["group", "order"],

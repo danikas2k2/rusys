@@ -34,6 +34,9 @@ export function GroupsTable() {
                         <Cell key="name" role="columnheader" className={cx('Name')}>
                             <Label>Group</Label>
                         </Cell>
+                        <Cell key="annual" role="columnheader" className={cx('Annual')}>
+                            <Label>Annual</Label>
+                        </Cell>
                     </Row>
                 }
             >

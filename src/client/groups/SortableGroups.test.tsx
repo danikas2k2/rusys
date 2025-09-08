@@ -41,8 +41,8 @@ describe('<SortableGroups>', () => {
         const rows = screen.getAllByRole('row');
 
         expect(rows).toHaveLength(2);
-        expect(within(rows[0]).getByRole('cell')).toHaveTextContent('Uogienės');
-        expect(within(rows[1]).getByRole('cell')).toHaveTextContent('Daržovės');
+        expect(within(rows[0]).getAllByRole('cell')).toHaveListWithTextContent(['Uogienės', '']);
+        expect(within(rows[1]).getAllByRole('cell')).toHaveListWithTextContent(['Daržovės', '']);
     });
 
     describe('dragging', () => {

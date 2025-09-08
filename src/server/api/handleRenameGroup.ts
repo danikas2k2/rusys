@@ -10,10 +10,10 @@ export async function handleRenameGroup(
 ): Promise<void> {
     debugRequest(req);
     headerNoCache(res);
-    const { group, newGroup } = req.body;
+    const { group, newGroup, annual } = req.body;
     res.json(
         await run(
-            () => renameGroupOccurrences(group, newGroup),
+            () => renameGroupOccurrences(group, newGroup, annual),
             () => getDetailsWithGroups()
         )
     );

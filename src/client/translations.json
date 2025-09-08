@@ -14,6 +14,9 @@
     "All groups": {
         "lt-LT": "Visos grupės"
     },
+    "Annual": {
+        "lt-LT": "Metiniai"
+    },
     "Are you sure?": {
         "lt-LT": "Ar tikrai?"
     },
@@ -25,6 +28,9 @@
     },
     "Confirm": {
         "lt-LT": "Patvirtinti"
+    },
+    "Consumed": {
+        "lt-LT": "Sunaudota"
     },
     "Duplicate": {
         "lt-LT": "Kopijuoti"
@@ -53,15 +59,6 @@
     "Invalid Client ID": {
         "lt-LT": "Netinkamas kliento ID"
     },
-    "Recycled": {
-        "lt-LT": "Išmesta"
-    },
-    "Consumed": {
-        "lt-LT": "Sunaudota"
-    },
-    "Updated": {
-        "lt-LT": "Atnaujinta"
-    },
     "List": {
         "lt-LT": "Sąrašas"
     },
@@ -70,6 +67,9 @@
     },
     "Logout": {
         "lt-LT": "Atsijungti"
+    },
+    "Move": {
+        "lt-LT": "Perkelti"
     },
     "Name": {
         "lt-LT": "Pavadinimas"
@@ -80,14 +80,17 @@
     "Please enter a name": {
         "lt-LT": "Įveskite pavadinimą"
     },
+    "Recycled": {
+        "lt-LT": "Išmesta"
+    },
     "Remove": {
         "lt-LT": "Šalinti"
     },
-    "Suffix": {
-        "lt-LT": "Trumpas žymėjimas"
-    },
     "Statistics": {
         "lt-LT": "Statistika"
+    },
+    "Suffix": {
+        "lt-LT": "Trumpas žymėjimas"
     },
     "Sure to logout?": {
         "lt-LT": "Tikrai atsijungti?"
@@ -104,6 +107,9 @@
     "Update entry": {
         "lt-LT": "Naujinti įrašą"
     },
+    "Updated": {
+        "lt-LT": "Atnaujinta"
+    },
     "Variant": {
         "lt-LT": "Variantas"
     },
@@ -112,9 +118,6 @@
     },
     "Variants": {
         "lt-LT": "Variantai"
-    },
-    "Move": {
-        "lt-LT": "Perkelti"
     },
     "type to filter": {
         "lt-LT": "filtruokite"

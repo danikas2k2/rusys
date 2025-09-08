@@ -21,20 +21,38 @@ export const getGroups = async (): Promise<ReadonlyArray<Group>> =>
         .find({}, { projection: { _id: 0 }, sort: { order: 1, group: 1 } })
         .toArray();
 
-export async function updateGroup(group: string, order?: number): Promise<boolean> {
+export async function updateGroup(group: string, annual: boolean = true): Promise<boolean> {
     if (!group) {
         return false;
     }
     const col = (await db()).collection('groups');
+    const order = (await col.findOne<Group>({ group }))?.order;
     return order != null
-        ? col.updateOne({ group }, { $set: { order } }, { upsert: true }).then(hasEffect)
+        ? col.updateOne({ group }, { $set: { annual } }).then(hasEffect)
         : col
               .aggregate([{ $group: { _id: null, order: { $max: '$order' } } }])
               .next()
-              .then((found) => col.insertOne({ group, order: found ? found.order + 1 : 0 }))
+              .then((found) => col.insertOne({ group, order: found ? found.order + 1 : 0, annual }))
               .then(hasEffect)
               .catch(hasDuplicates);
 }
+
+export const renameGroup = async (
+    group: string,
+    newGroup: string,
+    annual: boolean = true,
+    session?: ClientSession
+): Promise<boolean> =>
+    group && newGroup && group !== newGroup
+        ? (await db())
+              .collection('groups')
+              .updateOne({ group }, { $set: { group: newGroup, annual } }, { session })
+              .then(hasEffect)
+              .catch(hasDuplicates)
+        : false;
+
+export const deleteGroup = async (group: string, session?: ClientSession): Promise<boolean> =>
+    group ? (await db()).collection('groups').deleteOne({ group }, { session }).then(hasEffect) : false;
 
 export async function reorderGroups(update?: Readonly<Record<string, number>>): Promise<boolean> {
     if (!update) {
@@ -53,15 +71,3 @@ export async function reorderGroups(update?: Readonly<Record<string, number>>): 
         )
         .then(hasEffect);
 }
-
-export const renameGroup = async (group: string, newGroup: string, session?: ClientSession): Promise<boolean> =>
-    group && newGroup && group !== newGroup
-        ? (await db())
-              .collection('groups')
-              .updateOne({ group }, { $set: { group: newGroup } }, { session })
-              .then(hasEffect)
-              .catch(hasDuplicates)
-        : false;
-
-export const deleteGroup = async (group: string, session?: ClientSession): Promise<boolean> =>
-    group ? (await db()).collection('groups').deleteOne({ group }, { session }).then(hasEffect) : false;

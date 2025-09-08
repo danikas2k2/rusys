@@ -20,11 +20,11 @@ describe('useUpdateGroup', () => {
         expect(request).toHaveBeenCalledWith(ApiUrl.GroupsUpdate, { group: 'Uogienės' });
     });
 
-    it('calls update action with order parameter', async () => {
+    it('calls update action with annual parameter', async () => {
         const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });
-        await result.current('Uogienės', 2);
+        await result.current('Uogienės', true);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsUpdate, { group: 'Uogienės', order: 2 });
+        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsUpdate, { group: 'Uogienės', annual: true });
     });
 
     it('does not call update action with empty group', async () => {
