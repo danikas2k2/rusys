@@ -9,7 +9,9 @@
 
     &.unused .Name {
         font-weight: var(--font-weight-light);
-        text-decoration: underline wavy var(--color-red) 1px;
+        color: var(--color-subtext0);
+        text-decoration: underline wavy 1px;
+        text-decoration-color: var(--color-red); // separated as shorthand not supported in Safari
         text-underline-position: under;
     }
 }
