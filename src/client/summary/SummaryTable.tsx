@@ -2,6 +2,7 @@ import React from 'react';
 import { useFilteredList } from '~/client/common/hooks/useFilteredList';
 import { useSortedList } from '~/client/common/hooks/useSortedList';
 import { LoadingContent } from '~/client/common/LoadingContent';
+import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
 import { useUniqueGroups } from '~/client/hooks/useUniqueGroups';
 import { useRecycledSummary } from '~/client/summary/hooks/useRecycledSummary';
 import { useSummaryHasData } from '~/client/summary/hooks/useSummaryHasData';
@@ -25,7 +26,9 @@ export function SummaryTable() {
                 className={cx('Table')}
                 header={
                     <Row className={cx('Row', 'HeadRow')}>
-                        <Cell role="columnheader" />
+                        <Cell role="columnheader" className={cx('controls')}>
+                            <UpdateTypeToggle updated={false} />
+                        </Cell>
                         {useSummaryYears().map((year) => (
                             <Cell key={year} role="columnheader" className={cx('year')}>
                                 <sup>{year}</sup>/<sub>{year + 1}</sub>
