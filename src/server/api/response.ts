@@ -22,7 +22,7 @@ export async function getDetailsWithYears(): Promise<ApiDetailsWithYears> {
                 (acc: number[], d: Details) => {
                     if (d.years) {
                         for (const dy of d.years) {
-                            if (!acc.includes(dy.year)) {
+                            if (dy.year && !acc.includes(dy.year)) {
                                 acc.push(dy.year);
                             }
                         }
