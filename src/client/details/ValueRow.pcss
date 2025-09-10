@@ -4,12 +4,14 @@
 
     &.unavailable {
         color: var(--color-subtext0);
-        text-decoration: line-through;
+        font-weight: var(--font-weight-light);
     }
 
     &:not(.unavailable).removing {
         color: var(--color-red);
-        text-decoration: line-through;
+        font-weight: var(--font-weight-bold);
+        text-decoration: underline dashed 1px;
+        text-underline-position: under;
     }
 }
 
