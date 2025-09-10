@@ -4,6 +4,7 @@ import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
 import { type Group, type Summary, type Variant } from '~/types/data';
 
+const MAX_YEARS = 3;
 const START_MONTH = 9; // September
 
 export const getSummary = async (years: number[] = getYears()): Promise<ReadonlyArray<Summary>> =>
@@ -161,7 +162,7 @@ export const getFullSummary = async (): Promise<
         summary: ReadonlyArray<Summary>;
     }>
 > => {
-    const years = getYears();
+    const years = getYears(MAX_YEARS);
     return {
         years,
         groups: await getGroups(),
