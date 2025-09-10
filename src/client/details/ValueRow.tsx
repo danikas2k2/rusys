@@ -12,8 +12,9 @@ import { useDeleteDetails } from '~/state/details/useDeleteDetails';
 import { useHasRemoving } from '~/state/details/useHasRemoving';
 import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';
 import { useYears } from '~/state/years/useYears';
-import { type Details, type RemovingYearAmounts } from '~/types/data';
+import { type Details, type RemovingYearAmounts, type VariantAmount } from '~/types/data';
 import { isEmpty } from 'lodash';
+import moment from 'moment';
 import cx from './ValueRow.pcss';
 
 export interface ActiveDetails extends ActiveRow, Pick<Details, 'group' | 'name'> {}
@@ -37,6 +38,8 @@ export function ValueRow({ className, group, name, years, annual = true, missing
 
     const allYears = useYears();
     const lastYear = allYears[allYears.length - 1];
+    const thisYear = +moment().format('YY');
+    const prevYear = thisYear - 1;
 
     const hasRemoving = useHasRemoving(group, name);
 
@@ -89,6 +92,7 @@ export function ValueRow({ className, group, name, years, annual = true, missing
                             name={name}
                             year={year}
                             amounts={amounts}
+                            preferred={!removing && isPreferred(year, amounts)}
                             removing={removing}
                             last={year === lastYear}
                         />
@@ -105,4 +109,17 @@ export function ValueRow({ className, group, name, years, annual = true, missing
             )}
         </RowWithSlideControls>
     );
+
+    function isPreferred(year: number, amounts?: ReadonlyArray<VariantAmount>): boolean {
+        if (!amounts?.length) {
+            return false;
+        }
+        if (year === thisYear) {
+            return !years?.some((v) => v.year === prevYear && !!v.amounts?.length && !v.removing);
+        }
+        if (year === prevYear) {
+            return true;
+        }
+        return !years?.some((v) => v.year > year && !!v.amounts?.length && !v.removing);
+    }
 }

@@ -15,12 +15,22 @@ export interface ValueCellProps {
     name: string;
     year: number;
     amounts?: ReadonlyArray<VariantAmount>;
+    preferred?: boolean;
     removing?: boolean;
     last?: boolean;
     span?: number;
 }
 
-export function ValueCell({ group, name, year, amounts, removing = false, last = false, span }: ValueCellProps) {
+export function ValueCell({
+    group,
+    name,
+    year,
+    amounts,
+    preferred,
+    removing = false,
+    last = false,
+    span,
+}: ValueCellProps) {
     const profile = useProfile();
     const updateDetails = useUpdateDetails();
     const setRemoving = useSetDetailsRemoving();
@@ -50,7 +60,7 @@ export function ValueCell({ group, name, year, amounts, removing = false, last =
     return (
         <>
             <Cell
-                className={cx('ValueCell', { empty, last, removing, span: !!span })}
+                className={cx('ValueCell', { empty, last, preferred, removing, span: !!span })}
                 style={span ? { gridColumn: `span ${span}` } : undefined}
                 {...(empty ? { onClick: handleShortPress, onContextMenu: longPress.onContextMenu } : { ...longPress })}
             >
