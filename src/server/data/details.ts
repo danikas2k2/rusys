@@ -131,7 +131,12 @@ export async function updateDetails(
                 return false;
             }
             // remove year
-            operations.push({ updateOne: { filter, update: { $pull: { years: { year } } } } });
+            operations.push({
+                updateOne: {
+                    filter,
+                    update: year ? { $pull: { years: { year } } } : { $unset: { years: 1, missing: 1 } },
+                },
+            });
         } else if (!amounts.length) {
             // add year if not exists
             operations.push({ updateOne: { filter, update: { $push: { years: { year, amounts: updates } } } } });
