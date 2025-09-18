@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
+
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { setDetailsMissingAction } from '~/state/details/actions';
 import { ApiUrl, type ApiSetMissing } from '~/types/api';

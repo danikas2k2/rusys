@@ -1,7 +1,9 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { getVariantsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
 
 describe('useGroupVariantComparator', () => {

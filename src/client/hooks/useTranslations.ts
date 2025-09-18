@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+
 import { useLocale } from '~/client/hooks/useLocale';
 import translations from '~/client/translations.json';
 

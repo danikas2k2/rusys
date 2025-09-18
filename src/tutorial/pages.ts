@@ -1,4 +1,5 @@
 import { type FunctionComponent } from 'react';
+
 import ButtonArticle from '~/tutorial/articles/Button';
 import CheckboxArticle from '~/tutorial/articles/Checkbox';
 import ColorsArticle from '~/tutorial/articles/Colors';

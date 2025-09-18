@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { getDecoratorType } from './getDecoratorType';
 
 describe('getDecoratorType', () => {

@@ -1,4 +1,5 @@
 import React, { useCallback, type PointerEventHandler } from 'react';
+
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { DragHandle, type DragHandleProps } from '~/client/common/DragHandle';
 import { type ActiveGroup } from '~/client/groups/SortableGroup';

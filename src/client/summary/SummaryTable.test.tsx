@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { getGroupsFixture, getSummaryFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { useFilteredList } from '~/client/common/hooks/useFilteredList';
 import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
 import { useSummaryHasData } from '~/client/summary/hooks/useSummaryHasData';

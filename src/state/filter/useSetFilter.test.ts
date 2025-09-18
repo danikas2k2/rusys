@@ -1,6 +1,8 @@
-import { useDispatch } from 'react-redux';
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
+
+import { useDispatch } from 'react-redux';
+
 import { FilterActionType } from '~/state/filter/actions';
 import { useSetFilter } from '~/state/filter/useSetFilter';
 

@@ -1,4 +1,5 @@
 import React, { type JSX } from 'react';
+
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { DetailsBox } from '~/client/details/dialogs/DetailsBox';
 import { type ActiveDetails } from '~/client/details/ValueRow';

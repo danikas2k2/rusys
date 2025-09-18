@@ -6,6 +6,9 @@ import React, {
     type ReactNode,
     type RefAttributes,
 } from 'react';
+
+import cs from 'classnames';
+
 import {
     type ElementColor,
     type ElementSize,
@@ -15,7 +18,7 @@ import {
 } from '@ui/Element';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { type CommonInputProps } from '@ui/Input';
-import cs from 'classnames';
+
 import cx from './Button.pcss';
 
 export type ButtonAlign = 'single' | 'start' | 'center' | 'end';

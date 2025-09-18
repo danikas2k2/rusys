@@ -1,5 +1,7 @@
-import React, { type JSX } from 'react';
 import { render, screen } from '@testing-library/react';
+
+import React, { type JSX } from 'react';
+
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 
 describe('useAutoFocus', () => {

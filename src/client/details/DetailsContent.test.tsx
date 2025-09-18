@@ -1,5 +1,7 @@
-import React from 'react';
 import { render } from '@testing-library/react';
+
+import React from 'react';
+
 import { DetailsContent } from '~/client/details/DetailsContent';
 import { DetailsTable } from '~/client/details/DetailsTable';
 import { MissingOnlyContextWrapper } from '~/client/details/MissingOnlyContext';

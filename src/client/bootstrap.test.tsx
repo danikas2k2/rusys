@@ -1,7 +1,10 @@
+import { screen, waitFor } from '@testing-library/react';
+
 import React from 'react';
 import { Provider } from 'react-redux';
-import { screen, waitFor } from '@testing-library/react';
+
 import { ColorSchemeState } from '@ui/ColorScheme';
+
 import { App } from '~/client/App';
 import { bootstrap } from '~/client/bootstrap';
 import { getStore } from '~/state/store';

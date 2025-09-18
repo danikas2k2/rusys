@@ -1,5 +1,7 @@
 import React, { type JSX } from 'react';
+
 import { FileIcon } from '@ui/FileIcon';
+
 import { formatFileSize } from '~/common/utils/format';
 import cx from './FileDisplay.pcss';
 

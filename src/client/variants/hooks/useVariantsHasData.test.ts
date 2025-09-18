@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+
 import { useVariantsHasData } from '~/client/variants/hooks/useVariantsHasData';
 import { useGroups } from '~/state/groups/useGroups';
 import { useVariants } from '~/state/variants/useVariants';

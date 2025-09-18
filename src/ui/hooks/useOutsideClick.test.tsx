@@ -1,6 +1,8 @@
-import React, { useRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import React, { useRef } from 'react';
+
 import { useOutsideClick } from '@ui/hooks/useOutsideClick';
 
 function OutsideClickTest({ handler, noRef }: { handler: () => void; noRef?: boolean }) {

@@ -1,6 +1,8 @@
-import React, { createRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import React, { createRef } from 'react';
+
 import { Button, IconButton, isButtonElement } from '@ui/Button';
 
 describe('<Button>', () => {

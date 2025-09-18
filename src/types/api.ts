@@ -1,7 +1,8 @@
-import { type Details, type Group, type Summary, type Variant, type VariantAmount } from '~/types/data';
 import { type Request, type Response } from 'express';
 import { type FileArray } from 'express-fileupload';
 import { type ParamsDictionary } from 'express-serve-static-core';
+
+import { type Details, type Group, type Summary, type Variant, type VariantAmount } from '~/types/data';
 
 export type ApiRequest<R = unknown> = Request<ParamsDictionary, unknown, R>;
 export type ApiResult<R = unknown> = { ok: true } | ({ ok: true } & R) | { ok?: false; error?: string };

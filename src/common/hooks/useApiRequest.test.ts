@@ -1,6 +1,8 @@
 import { renderHook } from '@testing-library/react';
-import { useApiRequest } from '~/common/hooks/useApiRequest';
+
 import axios from 'axios';
+
+import { useApiRequest } from '~/common/hooks/useApiRequest';
 
 jest.mock('axios', () => jest.fn().mockResolvedValue({}));
 

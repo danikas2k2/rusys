@@ -1,4 +1,5 @@
 import React, { type JSX } from 'react';
+
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { VariantBox } from '~/client/variants/dialogs/VariantBox';
 import { type ActiveVariant } from '~/client/variants/SortableVariant';

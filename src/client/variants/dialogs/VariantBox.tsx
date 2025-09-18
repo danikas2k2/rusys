@@ -1,15 +1,20 @@
-import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 import AddIcon from '@assets/add.svg';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
 import CopyIcon from '@assets/content-copy.svg';
 import DoneIcon from '@assets/done.svg';
+
+import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
+
+import { isEmpty } from 'lodash';
+
 import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { useFocusRef } from '@ui/hooks/useFocusRef';
 import { Input } from '@ui/Input';
 import { Option, Select } from '@ui/Select';
+
 import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
@@ -23,7 +28,6 @@ import { useUpdateVariant } from '~/state/variants/useUpdateVariant';
 import { useVariant } from '~/state/variants/useVariant';
 import { useVariants } from '~/state/variants/useVariants';
 import { type Variant } from '~/types/data';
-import { isEmpty } from 'lodash';
 import cx from './VariantBox.pcss';
 
 interface VariantBoxProps extends WithOnClose {

@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { getVariantsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { ValueSuffix } from '~/client/common/ValueSuffix';
 
 describe('<ValueSuffix>', () => {

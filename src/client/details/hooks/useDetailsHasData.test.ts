@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+
 import { useDetailsHasData } from '~/client/details/hooks/useDetailsHasData';
 import { useDetails } from '~/state/details/useDetails';
 import { useGroups } from '~/state/groups/useGroups';

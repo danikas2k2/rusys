@@ -1,7 +1,10 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { mockEnv } from '@tests/mockEnv';
+
+import React from 'react';
+
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
+
 import { App } from '~/client/App';
 import { isDevMode } from '~/common/utils/env';
 import { useClientId } from '~/state/google/useClientId';

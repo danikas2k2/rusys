@@ -1,11 +1,15 @@
-import React, { useCallback } from 'react';
 import LogoutIcon from '@assets/logout.svg';
+
+import React, { useCallback } from 'react';
+
+import { googleLogout } from '@react-oauth/google';
+
 import { Button, IconButton, type ButtonProps } from '@ui/Button';
+
 import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
 import { Label } from '~/client/common/Label';
 import { ProfileAvatar } from '~/client/user/ProfileAvatar';
 import { useResetProfile } from '~/state/profile/useResetProfile';
-import { googleLogout } from '@react-oauth/google';
 
 export function LogoutButton({ children, ...props }: ButtonProps) {
     const resetProfile = useResetProfile();

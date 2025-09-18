@@ -2,6 +2,7 @@
 import { getDetailsFixture, getGroupsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
+
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { getDetailsWithGroups } from '~/server/api/response';
 import { renameGroupOccurrences } from '~/server/data/common';

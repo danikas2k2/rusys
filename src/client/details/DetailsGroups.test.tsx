@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { getDetailsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { DetailsGroups } from '~/client/details/DetailsGroups';
 import { ValueRow } from '~/client/details/ValueRow';
 import { useGroup } from '~/state/group/useGroup';

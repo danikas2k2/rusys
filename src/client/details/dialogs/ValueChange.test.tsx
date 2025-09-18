@@ -1,5 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+
+import React from 'react';
+
 import { ValueChange } from '~/client/details/dialogs/ValueChange';
 
 describe('<ValueChange>', () => {

@@ -1,6 +1,8 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { useFilter } from '~/state/filter/useFilter';
 
 describe('useFilter', () => {

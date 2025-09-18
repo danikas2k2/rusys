@@ -1,6 +1,7 @@
 /** @jest-environment node */
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
+
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { updateVariant } from '~/server/data/variants';
 import { type Variant } from '~/types/data';

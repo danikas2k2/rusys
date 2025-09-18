@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
+
 import { setProfileAction } from '~/state/profile/actions';
 import { type Profile } from '~/state/profile/types';
 

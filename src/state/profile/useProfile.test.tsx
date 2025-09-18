@@ -1,7 +1,9 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { mockLocalStorage } from '@tests/mockLocalStorage';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { isDevMode } from '~/common/utils/env';
 import { DEV_MODE_PROFILE } from '~/state/profile/dev';
 import { profile as reducer } from '~/state/profile/reducer';

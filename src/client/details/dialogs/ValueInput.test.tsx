@@ -1,6 +1,8 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import React from 'react';
+
 import { ValueChange } from '~/client/details/dialogs/ValueChange';
 import { ValueInput } from '~/client/details/dialogs/ValueInput';
 

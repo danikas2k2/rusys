@@ -8,11 +8,14 @@ import React, {
     type ReactElement,
     type RefAttributes,
 } from 'react';
-import { useForwardedRef } from '@ui/hooks/useForwardedRef';
-import { RowWithSlideControls, type RowWithSlideControlsProps } from '~/client/table/RowWithSlideControls';
-import { usePreviousValue } from '~/common/hooks/usePreviousValue';
+
 import cs from 'classnames';
 import { defer } from 'lodash';
+
+import { useForwardedRef } from '@ui/hooks/useForwardedRef';
+
+import { RowWithSlideControls, type RowWithSlideControlsProps } from '~/client/table/RowWithSlideControls';
+import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 import cx from './SortableRow.pcss';
 
 export interface SortableRowProps extends RowWithSlideControlsProps {

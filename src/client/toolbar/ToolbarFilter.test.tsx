@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { ToolbarFilter } from '~/client/toolbar/ToolbarFilter';
 import { useClearFilter } from '~/state/filter/useClearFilter';
 import { useFilter } from '~/state/filter/useFilter';

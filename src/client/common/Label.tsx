@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { useLabel } from '~/client/hooks/useLabel';
 
 interface LabelProps {

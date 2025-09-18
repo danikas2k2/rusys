@@ -1,4 +1,5 @@
 import { mockLocalStorage } from '@tests/mockLocalStorage';
+
 import { ProfileActionType, type ProfileAction } from '~/state/profile/actions';
 import { profile as reducer } from '~/state/profile/reducer';
 import { type Profile } from '~/state/profile/types';

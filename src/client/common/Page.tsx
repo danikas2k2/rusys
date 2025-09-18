@@ -1,6 +1,8 @@
 import React, { type ReactNode } from 'react';
-import { Toolbar } from '~/client/toolbar/Toolbar';
+
 import cs from 'classnames';
+
+import { Toolbar } from '~/client/toolbar/Toolbar';
 import cx from './Page.pcss';
 
 interface PageProps {

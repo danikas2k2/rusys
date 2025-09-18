@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+
 import { compareNames } from '~/client/utils/compareNames';
 import { useGroupComparator } from '~/state/groups/useGroupComparator';
 

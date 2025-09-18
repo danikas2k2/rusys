@@ -1,5 +1,6 @@
-import { getYears } from '~/server/data/years';
 import moment from 'moment/moment';
+
+import { getYears } from '~/server/data/years';
 
 describe('getYears', () => {
     beforeEach(() => jest.useFakeTimers());

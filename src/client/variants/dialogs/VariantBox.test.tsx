@@ -1,8 +1,10 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { VariantBox } from '~/client/variants/dialogs/VariantBox';
 import { useRenameVariant } from '~/state/variants/useRenameVariant';
 import { useUpdateVariant } from '~/state/variants/useUpdateVariant';

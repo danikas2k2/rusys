@@ -1,6 +1,11 @@
 /** @jest-environment node */
 import fs from 'fs';
 import https from 'https';
+
+import express, { type Request, type Response } from 'express';
+import { type Express } from 'express-serve-static-core';
+import request from 'supertest';
+
 import { debug } from '~/server/api/debug';
 import { handleAdd } from '~/server/api/handleAdd';
 import { handleCheckUser } from '~/server/api/handleCheckUser';
@@ -23,9 +28,6 @@ import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { handleVariants } from '~/server/api/handleVariants';
 import { setup, startHttpServer, startHttpsServer } from '~/server/app';
 import { ApiUrl } from '~/types/api';
-import express, { type Request, type Response } from 'express';
-import { type Express } from 'express-serve-static-core';
-import request from 'supertest';
 
 jest.mock('~/server/api/debug');
 

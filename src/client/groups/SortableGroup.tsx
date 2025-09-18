@@ -1,5 +1,7 @@
-import React, { useCallback, useRef } from 'react';
 import CalendarClockIcon from '@assets/calendar-clock.svg';
+
+import React, { useCallback, useRef } from 'react';
+
 import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
 import { useActiveRow, type ActiveRow } from '~/client/common/ActiveRowContext';
 import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';

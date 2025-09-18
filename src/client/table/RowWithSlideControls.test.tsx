@@ -1,8 +1,11 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { RowWithSlideControls, type RowWithSlideControlsProps } from '~/client/table/RowWithSlideControls';
+
+import React from 'react';
+
 import lodash from 'lodash';
+
+import { RowWithSlideControls, type RowWithSlideControlsProps } from '~/client/table/RowWithSlideControls';
 
 describe('<RowWithSlideControls>', () => {
     const controls = <button>Controls</button>;

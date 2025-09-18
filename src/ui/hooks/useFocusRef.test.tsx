@@ -1,5 +1,7 @@
-import React, { useEffect, type JSX } from 'react';
 import { render, renderHook, screen } from '@testing-library/react';
+
+import React, { useEffect, type JSX } from 'react';
+
 import { useFocusRef } from '@ui/hooks/useFocusRef';
 
 describe('useFocusRef', () => {

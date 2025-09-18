@@ -1,4 +1,5 @@
 import { getDetailsFixture } from '@tests/fixtures';
+
 import { DetailsActionType, setDetailsAction } from '~/state/details/actions';
 import { type Details } from '~/types/data';
 

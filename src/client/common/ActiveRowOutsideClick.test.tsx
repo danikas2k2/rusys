@@ -1,7 +1,9 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { ActiveRowContext } from '~/client/common/ActiveRowContext';
 import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
 

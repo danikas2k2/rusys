@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { isEqual } from 'lodash';
+
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { getChangedIndexes } from '~/client/utils/getChangedIndexes';
 import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
 import { SortableVariant, type ActiveVariant } from '~/client/variants/SortableVariant';
 import { useReorderVariants } from '~/state/variants/useReorderVariants';
 import { type Variant } from '~/types/data';
-import { isEqual } from 'lodash';
 import cx from './SortableVariants.pcss';
 
 interface SortableVariantsProps {

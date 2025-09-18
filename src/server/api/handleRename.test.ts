@@ -2,6 +2,7 @@
 import { getDetailsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
+
 import { handleRename } from '~/server/api/handleRename';
 import { getDetailsWithYears } from '~/server/api/response';
 import { renameDetails } from '~/server/data/details';

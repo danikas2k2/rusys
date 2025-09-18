@@ -1,7 +1,9 @@
-import React, { type JSX, type ReactNode } from 'react';
 import { fireEvent } from '@testing-library/dom';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import React, { type JSX, type ReactNode } from 'react';
+
 import { useLongPress, type PressEventHandler } from './useLongPress';
 
 describe('useLongPress', () => {

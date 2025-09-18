@@ -1,8 +1,9 @@
+import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter } from 'mongodb';
+
 import { addVariantAmount, cleanupRecycled, getCombinedAmounts, hasAmount } from '~/common/utils/amounts';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
 import type { Details, VariantAmount } from '~/types/data';
-import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter } from 'mongodb';
 
 export async function getDetails(years: ReadonlyArray<number> = []): Promise<Details[]> {
     const col = (await db()).collection('details');

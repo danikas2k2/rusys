@@ -10,6 +10,7 @@ import {
     type TouchEvent,
     type TouchEventHandler,
 } from 'react';
+
 import { POINTER_LONG_PRESS_DELAY, POINTER_MOVE_THRESHOLD, POINTER_SHORT_PRESS_DELAY } from '@ui/utils/values';
 
 export type PressEvent<T = HTMLElement> = PointerEvent<T> | TouchEvent<T> | MouseEvent<T>;

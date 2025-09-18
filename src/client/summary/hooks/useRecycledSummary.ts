@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+
 import { UpdateTypes, useUpdateType } from '~/client/common/UpdateTypeContext';
 import { useSummary } from '~/state/summary/useSummary';
 import { type Summary } from '~/types/data';

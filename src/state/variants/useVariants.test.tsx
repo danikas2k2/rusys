@@ -1,9 +1,12 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { getVariantsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
-import { useVariants } from '~/state/variants/useVariants';
+
+import React from 'react';
+
 import { isEqual } from 'lodash';
+
+import { useVariants } from '~/state/variants/useVariants';
 
 jest.mock('lodash', () => ({
     ...jest.requireActual('lodash'),

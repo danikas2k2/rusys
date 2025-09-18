@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
 import { useClearGroup } from '~/state/group/useClearGroup';
 import { useGroup } from '~/state/group/useGroup';

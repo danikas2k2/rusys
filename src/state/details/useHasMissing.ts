@@ -1,4 +1,5 @@
 import { useSelector } from 'react-redux';
+
 import { type WithDetailsState } from '~/state/details/types';
 
 export function useHasMissing(): boolean {

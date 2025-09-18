@@ -1,6 +1,8 @@
-import { use } from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { mockLocalStorage } from '@tests/mockLocalStorage';
+
+import { use } from 'react';
+
 import { COLOR_SCHEME_KEY, ColorSchemeContext, ColorSchemeState } from '@ui/ColorScheme';
 
 describe('<ColorSchemeState>', () => {

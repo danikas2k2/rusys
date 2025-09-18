@@ -1,6 +1,8 @@
-import { useDispatch } from 'react-redux';
 import { renderHook } from '@testing-library/react';
 import { getDetailsFixture, getSummaryFixture, getYearsFixture } from '@tests/fixtures';
+
+import { useDispatch } from 'react-redux';
+
 import { useUpdateStateFromResponse, type RefreshResult } from '~/state/base/useUpdateStateFromResponse';
 import { DetailsActionType } from '~/state/details/actions';
 import { SummaryActionType } from '~/state/summary/actions';

@@ -1,4 +1,5 @@
 import React, { type JSX, type PropsWithChildren } from 'react';
+
 import { ActiveRowContext, type ActiveRow } from '~/client/common/ActiveRowContext';
 
 export function MockActiveRow<P extends ActiveRow>({

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { SummaryGroup } from '~/client/summary/SummaryGroup';
 import { type Summary } from '~/types/data';
 

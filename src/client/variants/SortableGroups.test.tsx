@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { SortableGroup } from '~/client/variants/SortableGroup';
 import { SortableGroups } from '~/client/variants/SortableGroups';
 

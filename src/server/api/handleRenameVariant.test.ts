@@ -2,6 +2,7 @@
 import { getDetailsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
+
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
 import { getDetailsWithVariants } from '~/server/api/response';
 import { renameVariantOccurrences } from '~/server/data/common';

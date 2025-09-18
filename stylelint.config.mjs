@@ -1,6 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 export default {
-    extends: ['stylelint-config-standard'],
+    extends: ['stylelint-config-standard', 'stylelint-config-prettier'],
     plugins: [
         // TODO custom stylelint-no-unused-selectors need to be added
     ],
@@ -11,7 +11,7 @@ export default {
     customSyntax: 'postcss-less',
     overrides: [
         {
-            files: ['*.pcss', '**/*.pcss'],
+            files: ['**/*.pcss'],
             customSyntax: 'postcss-less',
             rules: {
                 'at-rule-prelude-no-invalid': [true, { ignoreAtRules: ['import'] }],
@@ -27,14 +27,16 @@ export default {
             },
         },
         {
-            files: ['*.htm', '**/*.htm', '*.html', '**/*.html'],
+            files: ['**/*.{htm,html}'],
             customSyntax: 'postcss-html',
         },
         {
-            files: ['*.jsx', '**/*.jsx', '*.tsx', '**/*.tsx'],
+            files: ['**/*.{jsx,tsx}'],
             customSyntax: 'postcss-jsx',
             rules: {
                 'value-keyword-case': null,
+                'no-invalid-position-declaration': null,
+                'declaration-property-value-no-unknown': null,
             },
         },
     ],

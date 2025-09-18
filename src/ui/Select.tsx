@@ -1,3 +1,5 @@
+import ExpandDownIcon from '@assets/expand-down.svg';
+
 import React, {
     cloneElement,
     useCallback,
@@ -15,7 +17,9 @@ import React, {
     type ReactNode,
     type RefAttributes,
 } from 'react';
-import ExpandDownIcon from '@assets/expand-down.svg';
+
+import cs from 'classnames';
+
 import { Button } from '@ui/Button';
 import { Dropdown, type DropdownRef } from '@ui/Dropdown';
 import { type ElementState } from '@ui/Element';
@@ -23,8 +27,8 @@ import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { useOutsideClick } from '@ui/hooks/useOutsideClick';
 import { Input, type InputProps } from '@ui/Input';
 import { Interactive } from '@ui/Interactive';
+
 import { matchParts } from '~/client/utils/matchParts';
-import cs from 'classnames';
 import cx from './Select.pcss';
 
 export interface SelectProps<T = string | number, E extends HTMLElement = HTMLElement>

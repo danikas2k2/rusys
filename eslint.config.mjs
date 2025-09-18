@@ -95,33 +95,9 @@ export default [
             'import/no-nodejs-modules': 'off',
             'import/no-unresolved': 'off',
             'import/prefer-default-export': 'off',
-            /*'import/order': [
-                'error',
-                {
-                    groups: [
-                        ['builtin', 'external'], // <- External imports
-                        'internal', // <- Absolute imports
-                        ['sibling', 'parent'], // <- Relative imports, the sibling and parent types they can be mingled together
-                        'index', // <- index imports
-                        'unknown', // <- unknown
-                        {
-                            pattern: '@testing-library/react',
-                            group: 'internal',
-                            position: 'before',
-                        },
-                        {
-                            pattern: '@tests/!**',
-                            group: 'internal',
-                            position: 'before',
-                        },
-                    ],
-                    'newlines-between': 'always',
-                    alphabetize: {
-                        order: 'asc',
-                        caseInsensitive: true,
-                    },
-                },
-            ],*/
+            'import/order': 'off',
+            'simple-import-sort/imports': 'off',
+            'simple-import-sort/exports': 'off',
             'no-console': 'warn',
             'no-unused-expressions': 'error',
             'no-unused-labels': 'error',

@@ -1,5 +1,6 @@
 import { act, fireEvent, renderHook } from '@testing-library/react';
 import { mockLocalStorage } from '@tests/mockLocalStorage';
+
 import { COLOR_SCHEME_KEY, ColorSchemeState } from '@ui/ColorScheme';
 import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
 

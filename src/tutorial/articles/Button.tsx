@@ -1,9 +1,12 @@
-import React, { type JSX } from 'react';
-import { Prism } from 'react-syntax-highlighter';
 import AddCircleIcon from '@assets/add-circle.svg';
 import MenuIcon from '@assets/menu.svg';
 import RemoveIcon from '@assets/remove.svg';
+
+import React, { type JSX } from 'react';
+import { Prism } from 'react-syntax-highlighter';
+
 import { Button, ButtonGroup } from '@ui/Button';
+
 import { ordered, value, values } from '~/tutorial/articles/common';
 import * as data from '~/tutorial/articles/element';
 

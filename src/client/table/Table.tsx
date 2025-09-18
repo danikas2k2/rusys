@@ -1,4 +1,5 @@
 import React, { type HTMLAttributes, type ReactNode, type RefAttributes } from 'react';
+
 import cx from './Table.pcss';
 
 interface TableProps extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {

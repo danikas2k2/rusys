@@ -1,5 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+
+import React from 'react';
+
 import { AppContent } from '~/client/AppContent';
 import { isDevMode } from '~/common/utils/env';
 import { useProfile } from '~/state/profile/useProfile';

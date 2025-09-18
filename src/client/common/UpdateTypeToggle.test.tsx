@@ -1,6 +1,8 @@
-import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import React from 'react';
+
 import { UpdateTypeContextWrapper, UpdateTypes } from '~/client/common/UpdateTypeContext';
 import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
 

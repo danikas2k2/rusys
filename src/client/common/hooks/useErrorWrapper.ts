@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+
 import { getErrorMessage } from '~/common/utils/errors';
 
 export function useErrorWrapper(

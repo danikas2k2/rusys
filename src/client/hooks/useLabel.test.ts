@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+
 import { useLabel } from '~/client/hooks/useLabel';
 import { useTranslations } from '~/client/hooks/useTranslations';
 

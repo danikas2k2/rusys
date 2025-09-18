@@ -1,5 +1,7 @@
-import React from 'react';
 import { render } from '@testing-library/react';
+
+import React from 'react';
+
 import { MissingOnlyContext } from '~/client/details/MissingOnlyContext';
 import { MissingOnlyEffects } from '~/client/details/MissingOnlyEffects';
 import { useHasMissing } from '~/state/details/useHasMissing';

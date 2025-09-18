@@ -1,5 +1,7 @@
-import React from 'react';
 import SmartToyIcon from '@assets/smart-toy.svg';
+
+import React from 'react';
+
 import { DEV_MODE_SUB } from '~/state/profile/dev';
 import { useProfile } from '~/state/profile/useProfile';
 import cx from './ProfileAvatar.pcss';

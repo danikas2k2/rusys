@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { useVariant } from '~/state/variants/useVariant';
 
 interface ValueSuffixProps {

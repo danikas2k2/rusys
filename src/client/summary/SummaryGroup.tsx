@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { UpdateTypes, useUpdateType } from '~/client/common/UpdateTypeContext';
 import { SummaryRow } from '~/client/summary/SummaryRow';
 import { Cell } from '~/client/table/Cell';

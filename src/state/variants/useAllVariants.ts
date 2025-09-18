@@ -1,6 +1,8 @@
 import { useSelector } from 'react-redux';
-import { type WithVariantsState } from '~/state/variants/types';
+
 import { isEqual } from 'lodash';
+
+import { type WithVariantsState } from '~/state/variants/types';
 
 export function useAllVariants(group: string): string[] {
     return useSelector(

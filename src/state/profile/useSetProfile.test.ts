@@ -1,6 +1,8 @@
-import { useDispatch } from 'react-redux';
 import { act, renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
+
+import { useDispatch } from 'react-redux';
+
 import { setProfileAction } from '~/state/profile/actions';
 import { useSetProfile } from '~/state/profile/useSetProfile';
 

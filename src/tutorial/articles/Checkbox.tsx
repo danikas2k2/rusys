@@ -1,6 +1,8 @@
 import React, { type JSX } from 'react';
 import { Prism } from 'react-syntax-highlighter';
+
 import { Checkbox } from '@ui/Checkbox';
+
 import { ordered, value, values } from '~/tutorial/articles/common';
 import * as data from '~/tutorial/articles/element';
 

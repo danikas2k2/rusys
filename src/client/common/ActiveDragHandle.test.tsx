@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockActiveRow } from '@tests/MockActiveRow';
+
+import React from 'react';
+
 import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
 
 describe('<ActiveDragHandle>', () => {

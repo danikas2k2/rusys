@@ -1,8 +1,10 @@
-import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import UserEvent from '@testing-library/user-event';
 import { getDetailsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { ValueRow, type ValueRowProps } from '~/client/details/ValueRow';
 import { useHasRemoving } from '~/state/details/useHasRemoving';
 import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';

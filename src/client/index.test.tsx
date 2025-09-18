@@ -1,4 +1,5 @@
 import { waitFor } from '@testing-library/react';
+
 import { bootstrap } from '~/client/bootstrap';
 
 jest.mock('~/client/bootstrap', () => ({

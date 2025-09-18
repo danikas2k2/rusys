@@ -1,7 +1,9 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { getDetailsFixture, getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { useUniqueGroups } from '~/client/hooks/useUniqueGroups';
 
 describe('useUniqueGroups', () => {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { HashRouter, Route, Routes } from 'react-router-dom';
+
 import { AboutPage } from '~/client/AboutPage';
 import { DetailsPage } from '~/client/details/DetailsPage';
 import { GroupsPage } from '~/client/groups/GroupsPage';

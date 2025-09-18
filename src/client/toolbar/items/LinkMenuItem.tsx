@@ -1,5 +1,6 @@
 import React, { useCallback, type PropsWithChildren } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { type Links } from '~/client/Links';
 import { ToolbarMenuItem, type ToolbarMenuItemProps } from '~/client/toolbar/ToolbarMenuItem';
 

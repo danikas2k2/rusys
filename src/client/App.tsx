@@ -1,13 +1,16 @@
 import React from 'react';
+
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
 import { Loader } from '@ui/Loader';
+
 import { AppContent } from '~/client/AppContent';
 import { Label } from '~/client/common/Label';
 import { LocaleContext } from '~/client/common/LocaleContext';
 import { Error } from '~/client/Error';
 import { isDevMode } from '~/common/utils/env';
 import { useClientId } from '~/state/google/useClientId';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import cx from './App.pcss';
 
 export function App() {

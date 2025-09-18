@@ -2,6 +2,7 @@
 import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
+
 import { handleVariants } from '~/server/api/handleVariants';
 import { getVariantsWithGroups } from '~/server/api/response';
 import { type ApiVariants } from '~/types/api';

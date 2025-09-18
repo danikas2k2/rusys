@@ -1,9 +1,12 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import React from 'react';
+
+import lodash from 'lodash';
+
 import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
 import { SortableRow, type SortableRowProps } from '~/client/table/SortableRow';
-import lodash from 'lodash';
 
 describe('<SortableRow>', () => {
     const handle = <ActiveDragHandle />;

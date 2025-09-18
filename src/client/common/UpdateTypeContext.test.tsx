@@ -1,6 +1,8 @@
-import React, { use } from 'react';
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import React, { use } from 'react';
+
 import {
     UpdateTypeContext,
     UpdateTypeContextWrapper,

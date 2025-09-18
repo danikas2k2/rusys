@@ -1,3 +1,6 @@
+import moment from 'moment';
+import { type Db } from 'mongodb';
+
 import {
     deleteDetailsGroup,
     deleteDetailsVariant,
@@ -18,8 +21,6 @@ import {
 import { db, withTransaction } from '~/server/db';
 import { type ApiExport } from '~/types/api';
 import { type Details, type Group, type UpdateVariant, type Variant } from '~/types/data';
-import moment from 'moment';
-import { type Db } from 'mongodb';
 
 export const moveDetailsOccurrences = (
     group: string,

@@ -1,5 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+
+import React from 'react';
+
 import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
 import { LoadingContent } from '~/client/common/LoadingContent';
 

@@ -1,8 +1,10 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockRedux } from '@tests/MockRedux';
 import { MockRoute } from '@tests/MockRoute';
+
+import React from 'react';
+
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { Links } from '~/client/Links';
 import { ToolbarMenu } from '~/client/toolbar/ToolbarMenu';

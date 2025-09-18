@@ -1,5 +1,7 @@
-import React from 'react';
 import FilterIcon from '@assets/filter.svg';
+
+import React from 'react';
+
 import { Label } from '~/client/common/Label';
 import { Links } from '~/client/Links';
 import { LinkMenuItem, type LinkMenuItemProps } from '~/client/toolbar/items/LinkMenuItem';

@@ -1,7 +1,9 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { getDetailsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { useDetails } from '~/state/details/useDetails';
 import { type Details } from '~/types/data';
 

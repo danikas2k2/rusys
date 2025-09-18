@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { mockWindow } from '@tests/mockWindow';
+
 import { usePreferredColorScheme } from '@ui/hooks/usePreferredColorScheme';
 
 describe('usePreferredColorScheme', () => {

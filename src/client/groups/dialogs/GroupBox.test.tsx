@@ -1,8 +1,10 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getGroupsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { GroupBox } from '~/client/groups/dialogs/GroupBox';
 import { useRenameGroup } from '~/state/groups/useRenameGroup';
 import { useUpdateGroup } from '~/state/groups/useUpdateGroup';

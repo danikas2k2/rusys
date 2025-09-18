@@ -1,6 +1,8 @@
-import { useDispatch } from 'react-redux';
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
+
+import { useDispatch } from 'react-redux';
+
 import { GroupActionType } from '~/state/group/actions';
 import { useSetGroup } from '~/state/group/useSetGroup';
 

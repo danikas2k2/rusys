@@ -1,4 +1,3 @@
-import React, { type FunctionComponent, type JSX, type SVGProps } from 'react';
 import BinaryFileIcon from '@assets/files/binary.svg';
 import CodeFileIcon from '@assets/files/code.svg';
 import CssFileIcon from '@assets/files/css.svg';
@@ -14,6 +13,8 @@ import PowerpointFileIcon from '@assets/files/powerpoint.svg';
 import VideoFileIcon from '@assets/files/video.svg';
 import WordFileIcon from '@assets/files/word.svg';
 import ZipperFileIcon from '@assets/files/zipper.svg';
+
+import React, { type FunctionComponent, type JSX, type SVGProps } from 'react';
 
 const FileTypes: Record<string, FunctionComponent<SVGProps<SVGSVGElement>>> = {
     '': CommonFileIcon,

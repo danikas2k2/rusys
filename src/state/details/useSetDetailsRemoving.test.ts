@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
+
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { useSetDetailsRemoving } from '~/state/details/useSetDetailsRemoving';
 import { ApiUrl } from '~/types/api';
