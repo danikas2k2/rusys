@@ -1,8 +1,10 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getVariantsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { UpdateTypeContextWrapper } from '~/client/common/UpdateTypeContext';
 import { ValueBox, type ValueBoxProps } from '~/client/details/dialogs/ValueBox';
 import { ValueInput } from '~/client/details/dialogs/ValueInput';

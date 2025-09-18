@@ -1,6 +1,7 @@
 /** @jest-environment node */
 import { bulk } from '@tests/bulk';
 import { getDetailsFixture } from '@tests/fixtures';
+
 import { addVariantAmount } from '~/common/utils/amounts';
 import {
     addDetails,

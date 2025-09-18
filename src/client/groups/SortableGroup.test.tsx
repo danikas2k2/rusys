@@ -1,8 +1,10 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockActiveRow } from '@tests/MockActiveRow';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { SortableGroup } from '~/client/groups/SortableGroup';
 
 describe('<SortableGroup>', () => {

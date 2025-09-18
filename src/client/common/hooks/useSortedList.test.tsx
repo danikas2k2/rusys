@@ -1,7 +1,9 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { getGroupsFixture, getSummaryFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { useSortedList } from '~/client/common/hooks/useSortedList';
 
 describe('useSortedList', () => {

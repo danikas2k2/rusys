@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
+
 import { useOutsideClick } from '@ui/hooks/useOutsideClick';
+
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 
 export function ActiveRowOutsideClick() {

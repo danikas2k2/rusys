@@ -1,3 +1,5 @@
+import CancelIcon from '@assets/cancel.svg';
+
 import React, {
     useCallback,
     useEffect,
@@ -12,7 +14,9 @@ import React, {
     type ReactNode,
     type RefAttributes,
 } from 'react';
-import CancelIcon from '@assets/cancel.svg';
+
+import cs from 'classnames';
+
 import { IconButton } from '@ui/Button';
 import {
     type ElementColor,
@@ -24,8 +28,8 @@ import {
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { getDecoratorType } from '@ui/utils/getDecoratorType';
 import { setCaretPosition } from '@ui/utils/setCaretPosition';
+
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
-import cs from 'classnames';
 import cx from './Input.pcss';
 
 export type InputMode = 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search';

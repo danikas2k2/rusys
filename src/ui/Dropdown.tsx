@@ -15,8 +15,10 @@ import React, {
     type RefObject,
     type SyntheticEvent,
 } from 'react';
+
 import { Interactive } from '@ui/Interactive';
 import { Portal } from '@ui/Portal';
+
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 import cx from './Dropdown.pcss';
 

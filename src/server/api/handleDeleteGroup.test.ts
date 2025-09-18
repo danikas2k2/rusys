@@ -2,6 +2,7 @@
 import { getDetailsFixture, getGroupsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
+
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
 import { getDetailsWithGroups } from '~/server/api/response';
 import { deleteGroupOccurrences } from '~/server/data/common';

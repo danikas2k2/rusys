@@ -1,4 +1,5 @@
 import { useSelector } from 'react-redux';
+
 import { type WithDetailsState } from '~/state/details/types';
 import { useYears } from '~/state/years/useYears';
 

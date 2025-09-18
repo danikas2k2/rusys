@@ -1,8 +1,10 @@
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
+
+import { isEqual } from 'lodash';
+
 import { compareNames } from '~/client/utils/compareNames';
 import { type WithGroupsState } from './types';
-import { isEqual } from 'lodash';
 
 export function useGroupComparator(): (a: string, b: string) => number {
     const groupOrders = useSelector(

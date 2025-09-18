@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { ToolbarMenuWrapper } from '~/client/toolbar/ToolbarMenuWrapper';
 
 jest.mock('@ui/ColorSchemeToggle', () => ({

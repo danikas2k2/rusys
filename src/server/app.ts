@@ -1,12 +1,14 @@
 import fs from 'fs';
 import https from 'https';
-import { debug } from '~/server/api/debug';
-import { ApiUrlHandlers } from '~/server/handlers';
+
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
 import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
+
+import { debug } from '~/server/api/debug';
+import { ApiUrlHandlers } from '~/server/handlers';
 
 export function setup(app = express()): Express {
     setupHelmet(app);

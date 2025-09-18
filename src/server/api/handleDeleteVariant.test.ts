@@ -2,6 +2,7 @@
 import { getDetailsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
+
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { getDetailsWithVariants } from '~/server/api/response';
 import { deleteVariantOccurrences } from '~/server/data/common';

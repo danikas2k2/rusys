@@ -1,4 +1,5 @@
 import React from 'react';
+
 import pkg from '~/../package.json';
 import { Label } from '~/client/common/Label';
 import { Page } from '~/client/common/Page';

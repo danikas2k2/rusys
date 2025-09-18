@@ -1,7 +1,9 @@
-import React, { type ComponentType } from 'react';
 import DarkModeIcon from '@assets/dark-mode.svg';
 import LightModeIcon from '@assets/light-mode.svg';
 import AutoModeIcon from '@assets/routine.svg';
+
+import React, { type ComponentType } from 'react';
+
 import { Button, ButtonGroup } from '@ui/Button';
 import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
 

@@ -1,5 +1,6 @@
 /** @jest-environment node */
 import { getDetailsFixture, getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
+
 import { getGroups } from '~/server/data/groups';
 import { getFullSummary, getSummary } from '~/server/data/updates';
 import { getVariants } from '~/server/data/variants';

@@ -1,5 +1,7 @@
 import React, { type PropsWithChildren } from 'react';
+
 import { Loader } from '@ui/Loader';
+
 import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
 import { Label } from '~/client/common/Label';
 import { Error } from '~/client/Error';

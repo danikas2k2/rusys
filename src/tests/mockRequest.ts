@@ -1,6 +1,7 @@
-import { type ApiRequest, type ApiWithFiles } from '~/types/api';
 import { type Request } from 'express';
 import { type FileArray } from 'express-fileupload';
+
+import { type ApiRequest, type ApiWithFiles } from '~/types/api';
 
 export function mockRequest<R extends Request>(body?: R['body'], files?: FileArray): R;
 export function mockRequest<T extends object = object & ApiWithFiles, R extends Request = ApiRequest<T>>(

@@ -1,13 +1,18 @@
-import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 import AddIcon from '@assets/add.svg';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
 import DoneIcon from '@assets/done.svg';
+
+import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
+
+import { isEmpty } from 'lodash';
+
 import { Button, IconButton } from '@ui/Button';
 import { Checkbox } from '@ui/Checkbox';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { Input } from '@ui/Input';
+
 import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
@@ -16,7 +21,6 @@ import { getErrorMessage } from '~/common/utils/errors';
 import { useGroups } from '~/state/groups/useGroups';
 import { useRenameGroup } from '~/state/groups/useRenameGroup';
 import { useUpdateGroup } from '~/state/groups/useUpdateGroup';
-import { isEmpty } from 'lodash';
 import cx from './GroupBox.pcss';
 
 interface GroupBoxProps extends WithOnClose {

@@ -1,8 +1,11 @@
-import React from 'react';
 import DeleteIcon from '@assets/delete.svg';
 import EditSquareIcon from '@assets/edit-square.svg';
 import RestaurantIcon from '@assets/restaurant.svg';
+
+import React from 'react';
+
 import { Button } from '@ui/Button';
+
 import { UpdateTypes, useUpdateType } from '~/client/common/UpdateTypeContext';
 import { ValueChange } from '~/client/details/dialogs/ValueChange';
 import { useLabel } from '~/client/hooks/useLabel';

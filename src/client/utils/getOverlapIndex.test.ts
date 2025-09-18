@@ -1,5 +1,6 @@
-import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
 import { cloneDeep } from 'lodash';
+
+import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
 
 describe('getOverlapIndex', () => {
     const offsetParent = {

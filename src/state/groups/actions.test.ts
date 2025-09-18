@@ -1,4 +1,5 @@
 import { getGroupsFixture } from '@tests/fixtures';
+
 import { GroupsActionType, setGroupsAction } from '~/state/groups/actions';
 import { type Group } from '~/types/data';
 

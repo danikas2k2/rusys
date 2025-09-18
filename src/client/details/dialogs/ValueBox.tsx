@@ -1,10 +1,13 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent } from 'react';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
 import DoneIcon from '@assets/done.svg';
 import ExpandDownIcon from '@assets/expand-down.svg';
+
+import React, { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent } from 'react';
+
 import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
+
 import { Label } from '~/client/common/Label';
 import { UpdateTypes, useUpdateType } from '~/client/common/UpdateTypeContext';
 import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';

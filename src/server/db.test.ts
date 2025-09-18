@@ -1,8 +1,10 @@
 /** @jest-environment node */
 import { mockEnv } from '@tests/mockEnv';
-import { $clients, db, getClient, withTransaction } from '~/server/db';
+
 import { Db, MongoClient } from 'mongodb';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
+
+import { $clients, db, getClient, withTransaction } from '~/server/db';
 
 jest.setTimeout(30_000);
 

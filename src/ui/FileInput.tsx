@@ -1,8 +1,11 @@
 import React, { useCallback, useEffect, useId, useState, type FormEvent } from 'react';
+
+import cs from 'classnames';
+
 import { FileDisplay } from '@ui/FileDisplay';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { Input, type InputProps } from '@ui/Input';
-import cs from 'classnames';
+
 import cx from './FileInput.pcss';
 
 export type FileInputProps = Omit<InputProps, 'mode' | 'value'>;

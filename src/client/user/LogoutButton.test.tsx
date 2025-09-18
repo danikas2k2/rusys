@@ -1,10 +1,13 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
+import { googleLogout } from '@react-oauth/google';
+
 import { LogoutButton } from '~/client/user/LogoutButton';
 import { useResetProfile } from '~/state/profile/useResetProfile';
-import { googleLogout } from '@react-oauth/google';
 
 jest.mock('@react-oauth/google', () => ({
     googleLogout: jest.fn(),

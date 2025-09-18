@@ -1,7 +1,9 @@
 import { getDetailsFixture } from '@tests/fixtures';
+
+import { cloneDeep, set } from 'lodash';
+
 import { DetailsActionType, type DetailsAction } from '~/state/details/actions';
 import { details as reducer } from '~/state/details/reducer';
-import { cloneDeep, set } from 'lodash';
 
 describe('details', () => {
     const details = getDetailsFixture();

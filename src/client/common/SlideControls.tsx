@@ -1,11 +1,15 @@
-import React, { useCallback, useId, type HTMLAttributes, type MouseEventHandler, type RefAttributes } from 'react';
 import DeleteIcon from '@assets/delete.svg';
 import EditIcon from '@assets/edit.svg';
+
+import React, { useCallback, useId, type HTMLAttributes, type MouseEventHandler, type RefAttributes } from 'react';
+
+import cs from 'classnames';
+
 import { Button, ButtonGroup } from '@ui/Button';
+
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
 import { Label } from '~/client/common/Label';
-import cs from 'classnames';
 import cx from './SlideControls.pcss';
 
 export interface SlideControlsProps extends HTMLAttributes<HTMLDivElement>, RefAttributes<HTMLDivElement> {

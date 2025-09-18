@@ -1,4 +1,7 @@
 import React, { useCallback, useRef } from 'react';
+
+import cs from 'classnames';
+
 import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
 import { useActiveRow, type ActiveRow } from '~/client/common/ActiveRowContext';
 import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
@@ -7,7 +10,6 @@ import { Cell } from '~/client/table/Cell';
 import { SortableRow } from '~/client/table/SortableRow';
 import { useDeleteVariant } from '~/state/variants/useDeleteVariant';
 import { type Variant } from '~/types/data';
-import cs from 'classnames';
 import cx from './SortableVariant.pcss';
 
 export interface ActiveVariant extends ActiveRow, Pick<Variant, 'group' | 'variant'> {}

@@ -1,6 +1,10 @@
-import React, { useCallback, useEffect, useId, useMemo, useState, type ChangeEvent } from 'react';
 import CheckIndeterminateIcon from '@assets/check-indeterminate.svg';
 import CheckIcon from '@assets/check.svg';
+
+import React, { useCallback, useEffect, useId, useMemo, useState, type ChangeEvent } from 'react';
+
+import cs from 'classnames';
+
 import {
     type ElementColor,
     type ElementSize,
@@ -10,7 +14,7 @@ import {
 } from '@ui/Element';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { type CommonInputProps } from '@ui/Input';
-import cs from 'classnames';
+
 import cx from './Checkbox.pcss';
 
 export interface CheckboxProps extends CommonInputProps<HTMLInputElement> {

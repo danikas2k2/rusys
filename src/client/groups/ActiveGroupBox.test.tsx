@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MockActiveRow } from '@tests/MockActiveRow';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { ActiveGroupBox } from '~/client/groups/ActiveGroupBox';
 
 describe('<ActiveGroupBox>', () => {

@@ -1,4 +1,5 @@
 import { getVariantsFixture } from '@tests/fixtures';
+
 import { setVariantsAction, VariantsActionType } from '~/state/variants/actions';
 import { type Variant } from '~/types/data';
 

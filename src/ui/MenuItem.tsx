@@ -1,7 +1,9 @@
 import React from 'react';
+
 import { type ButtonProps } from '@ui/Button';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { Interactive } from '@ui/Interactive';
+
 import cx from './MenuItem.pcss';
 
 interface MenuItemProps extends ButtonProps {

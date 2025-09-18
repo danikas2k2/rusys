@@ -1,5 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+
+import React from 'react';
+
 import { ValueSuffix } from '~/client/common/ValueSuffix';
 import { ValueAmounts } from '~/client/details/ValueAmounts';
 

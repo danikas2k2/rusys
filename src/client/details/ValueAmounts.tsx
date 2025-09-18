@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { ValueSuffix } from '~/client/common/ValueSuffix';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';
 import { type VariantAmount } from '~/types/data';

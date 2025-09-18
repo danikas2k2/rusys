@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from 'react';
+
 import { useLongPress } from '@ui/hooks/useLongPress';
+
 import { UpdateTypeContextWrapper } from '~/client/common/UpdateTypeContext';
 import { ValueBox } from '~/client/details/dialogs/ValueBox';
 import { ValueAmounts } from '~/client/details/ValueAmounts';

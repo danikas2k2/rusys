@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { getSummaryFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { SummaryGroups } from '~/client/summary/SummaryGroups';
 
 jest.mock('~/state/years/useYears');

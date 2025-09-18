@@ -1,8 +1,10 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getDetailsFixture, getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { DetailsBox } from '~/client/details/dialogs/DetailsBox';
 import { useAddDetails } from '~/state/details/useAddDetails';
 import { useMoveDetails } from '~/state/details/useMoveDetails';

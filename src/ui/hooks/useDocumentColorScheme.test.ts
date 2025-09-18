@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+
 import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
 import { usePreferredColorScheme } from '@ui/hooks/usePreferredColorScheme';

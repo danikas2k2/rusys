@@ -1,12 +1,15 @@
-import React from 'react';
-import { useDispatch } from 'react-redux';
 import { act, renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+import { useDispatch } from 'react-redux';
+
+import { type Reducer } from 'redux';
+
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { google as reducer } from '~/state/google/reducer';
 import { useClientIdLoader } from '~/state/google/useClientIdLoader';
 import { useGoogle } from '~/state/google/useGoogle';
-import { type Reducer } from 'redux';
 
 jest.mock('react-redux', () => ({
     ...jest.requireActual('react-redux'),

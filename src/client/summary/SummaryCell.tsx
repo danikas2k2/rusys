@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { ValueSuffix } from '~/client/common/ValueSuffix';
 import { Cell } from '~/client/table/Cell';
 import { useGroupVariantComparator } from '~/state/variants/useGroupVariantComparator';

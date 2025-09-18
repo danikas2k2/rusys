@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
+
 import { clearGroupAction } from '~/state/group/actions';
 
 export function useClearGroup(): () => void {

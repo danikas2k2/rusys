@@ -1,9 +1,10 @@
-import { setupHandlers, setupHelmet, startHttpServer, startHttpsServer } from '~/server/app';
-import webpackDevConfig from '../../webpack.dev.config';
 import express from 'express';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
+
+import { setupHandlers, setupHelmet, startHttpServer, startHttpsServer } from '~/server/app';
+import webpackDevConfig from '../../webpack.dev.config';
 
 (async () => {
     const app = setupHelmet(express());

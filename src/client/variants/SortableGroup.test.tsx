@@ -1,5 +1,7 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+
+import React from 'react';
+
 import { SortableGroup } from '~/client/variants/SortableGroup';
 import { SortableVariants } from '~/client/variants/SortableVariants';
 import { useFilter } from '~/state/filter/useFilter';

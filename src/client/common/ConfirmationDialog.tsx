@@ -1,9 +1,12 @@
-import React, { cloneElement, type MouseEvent, type ReactElement, type ReactNode } from 'react';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
 import DoneIcon from '@assets/done.svg';
+
+import React, { cloneElement, type MouseEvent, type ReactElement, type ReactNode } from 'react';
+
 import { Button, IconButton, type ButtonProps } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
+
 import { Label } from '~/client/common/Label';
 import cx from './ConfirmationDialog.pcss';
 

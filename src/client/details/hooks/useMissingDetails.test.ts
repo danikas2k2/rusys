@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { getDetailsFixture } from '@tests/fixtures';
+
 import { useMissingDetails } from '~/client/details/hooks/useMissingDetails';
 
 describe('useMissingDetails', () => {

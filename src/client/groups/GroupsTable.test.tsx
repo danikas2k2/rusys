@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { getGroupsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
 import { GroupsTable } from '~/client/groups/GroupsTable';
 import { useFilter } from '~/state/filter/useFilter';

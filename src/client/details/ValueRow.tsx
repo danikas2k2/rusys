@@ -1,6 +1,11 @@
 import React, { useCallback, useRef } from 'react';
+
+import { isEmpty } from 'lodash';
+import moment from 'moment';
+
 import { Checkbox } from '@ui/Checkbox';
 import { Interactive } from '@ui/Interactive';
+
 import { useActiveRow, type ActiveRow } from '~/client/common/ActiveRowContext';
 import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
 import { SlideControls } from '~/client/common/SlideControls';
@@ -13,8 +18,6 @@ import { useHasRemoving } from '~/state/details/useHasRemoving';
 import { useSetDetailsMissing } from '~/state/details/useSetDetailsMissing';
 import { useYears } from '~/state/years/useYears';
 import { type Details, type RemovingYearAmounts, type VariantAmount } from '~/types/data';
-import { isEmpty } from 'lodash';
-import moment from 'moment';
 import cx from './ValueRow.pcss';
 
 export interface ActiveDetails extends ActiveRow, Pick<Details, 'group' | 'name'> {}

@@ -1,4 +1,5 @@
 import React, { type HTMLAttributes } from 'react';
+
 import cx from './MenuDivider.pcss';
 
 export function MenuDivider({ className, ...props }: HTMLAttributes<HTMLDivElement>) {

@@ -1,4 +1,5 @@
 import React, { type JSX } from 'react';
+
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { GroupBox } from '~/client/groups/dialogs/GroupBox';
 import { type ActiveGroup } from '~/client/groups/SortableGroup';

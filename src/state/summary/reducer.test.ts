@@ -1,4 +1,5 @@
 import { getSummaryFixture } from '@tests/fixtures';
+
 import { SummaryActionType, type SummaryAction } from '~/state/summary/actions';
 import { summary as reducer } from '~/state/summary/reducer';
 

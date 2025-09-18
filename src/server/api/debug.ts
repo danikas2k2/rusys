@@ -1,7 +1,8 @@
-import { formatFileSize } from '~/common/utils/format';
 import { type Request } from 'express';
 import { type UploadedFile } from 'express-fileupload';
 import { isEmpty } from 'lodash';
+
+import { formatFileSize } from '~/common/utils/format';
 
 // eslint-disable-next-line no-console
 const debug: typeof console.debug = process.env.NODE_ENV === 'development' ? console.debug : () => {};

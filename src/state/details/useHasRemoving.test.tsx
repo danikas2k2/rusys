@@ -1,7 +1,9 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { getDetailsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
+
+import React from 'react';
+
 import { useHasRemoving } from '~/state/details/useHasRemoving';
 import { useYears } from '~/state/years/useYears';
 

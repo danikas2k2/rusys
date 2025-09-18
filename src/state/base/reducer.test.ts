@@ -1,4 +1,5 @@
 import { getDetailsFixture, getProfileFixture } from '@tests/fixtures';
+
 import { reducer } from '~/state/base/reducer';
 import { setDetailsAction } from '~/state/details/actions';
 import { setFilterAction } from '~/state/filter/actions';

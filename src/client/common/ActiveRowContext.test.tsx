@@ -1,5 +1,7 @@
-import React, { useState, type PropsWithChildren } from 'react';
 import { act, renderHook } from '@testing-library/react';
+
+import React, { useState, type PropsWithChildren } from 'react';
+
 import { ActiveRowContext, useActiveRow, type ActiveRow } from '~/client/common/ActiveRowContext';
 import { type ActiveVariant } from '~/client/variants/SortableVariant';
 

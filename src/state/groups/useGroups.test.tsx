@@ -1,9 +1,12 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { getGroupsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
-import { useGroups } from '~/state/groups/useGroups';
+
+import React from 'react';
+
 import { isEqual } from 'lodash';
+
+import { useGroups } from '~/state/groups/useGroups';
 
 jest.mock('lodash', () => ({
     ...jest.requireActual('lodash'),

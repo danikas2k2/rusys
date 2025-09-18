@@ -1,7 +1,9 @@
 import { useCallback } from 'react';
+
+import { isEmpty } from 'lodash';
+
 import { useUpdatingApiRequest } from '~/state/base/useUpdatingApiRequest';
 import { ApiUrl, type ApiReorderVariants } from '~/types/api';
-import { isEmpty } from 'lodash';
 
 export function useReorderVariants(): (group: string, variants: Readonly<Record<string, number>>) => Promise<void> {
     const request = useUpdatingApiRequest<ApiReorderVariants>();

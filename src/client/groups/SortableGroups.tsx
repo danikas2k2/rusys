@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { isEqual } from 'lodash';
+
 import { useActiveRow } from '~/client/common/ActiveRowContext';
 import { SortableGroup, type ActiveGroup } from '~/client/groups/SortableGroup';
 import { getChangedIndexes } from '~/client/utils/getChangedIndexes';
 import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
 import { useReorderGroups } from '~/state/groups/useReorderGroups';
 import { type Group } from '~/types/data';
-import { isEqual } from 'lodash';
 import cx from './SortableGroups.pcss';
 
 interface SortableGroupsProps {

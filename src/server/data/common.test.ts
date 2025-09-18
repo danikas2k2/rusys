@@ -1,5 +1,9 @@
 /** @jest-environment node */
 import { getDetailsFixture, getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
+
+import moment from 'moment';
+import { AggregationCursor, ClientSession, Collection, Db } from 'mongodb';
+
 import {
     deleteGroupOccurrences,
     deleteVariantOccurrences,
@@ -27,8 +31,6 @@ import {
     renameVariantsGroup,
 } from '~/server/data/variants';
 import { db } from '~/server/db';
-import moment from 'moment';
-import { AggregationCursor, ClientSession, Collection, Db } from 'mongodb';
 
 jest.setTimeout(30_000);
 

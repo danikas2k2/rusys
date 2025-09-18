@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+
 import { useGroupComparator } from '~/state/groups/useGroupComparator';
 
 export function useUniqueGroups(records: ReadonlyArray<{ group: string }>): ReadonlyArray<string> {

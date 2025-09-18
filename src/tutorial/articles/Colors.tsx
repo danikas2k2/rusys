@@ -1,4 +1,5 @@
 import React, { type CSSProperties, type JSX } from 'react';
+
 import { colors, schemes } from './element';
 
 function Box({

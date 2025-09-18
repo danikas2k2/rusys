@@ -1,8 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
+
+import { jwtDecode } from 'jwt-decode';
+
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
 import { useEmailCheck } from '~/state/profile/useEmailCheck';
 import { useSetProfile } from '~/state/profile/useSetProfile';
-import { jwtDecode } from 'jwt-decode';
 
 jest.mock('~/state/profile/useEmailCheck');
 jest.mock('~/state/profile/useSetProfile');

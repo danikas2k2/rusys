@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockActiveRow } from '@tests/MockActiveRow';
+
+import React from 'react';
+
 import { SlideControls } from '~/client/common/SlideControls';
 
 jest.mock('~/state/groups/useDeleteGroup');

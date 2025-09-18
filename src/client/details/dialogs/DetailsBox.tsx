@@ -1,15 +1,20 @@
-import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
 import AddIcon from '@assets/add.svg';
 import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
 import DoneIcon from '@assets/done.svg';
 import MoveIcon from '@assets/move-item.svg';
+
+import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
+
+import { isEmpty } from 'lodash';
+
 import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
 import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { useFocusRef } from '@ui/hooks/useFocusRef';
 import { Input } from '@ui/Input';
 import { Option, Select } from '@ui/Select';
+
 import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
@@ -21,7 +26,6 @@ import { useMoveDetails } from '~/state/details/useMoveDetails';
 import { useRenameDetails } from '~/state/details/useRenameDetails';
 import { useGroup } from '~/state/group/useGroup';
 import { useGroups } from '~/state/groups/useGroups';
-import { isEmpty } from 'lodash';
 import cx from './DetailsBox.pcss';
 
 interface DetailsBoxProps extends WithOnClose {

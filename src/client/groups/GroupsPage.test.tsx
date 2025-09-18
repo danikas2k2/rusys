@@ -1,7 +1,9 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 import { MockRoute } from '@tests/MockRoute';
+
+import React from 'react';
+
 import { GroupsPage } from './GroupsPage';
 
 jest.mock('~/client/groups/GroupsTable', () => ({

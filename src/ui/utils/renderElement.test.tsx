@@ -1,5 +1,7 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
+
+import React from 'react';
+
 import { renderElement } from '@ui/utils/renderElement';
 
 describe('renderElement', () => {

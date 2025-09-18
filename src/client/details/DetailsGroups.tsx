@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { ValueRow } from '~/client/details/ValueRow';
 import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';

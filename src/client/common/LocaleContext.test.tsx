@@ -1,5 +1,7 @@
-import React, { use, type PropsWithChildren } from 'react';
 import { renderHook } from '@testing-library/react';
+
+import React, { use, type PropsWithChildren } from 'react';
+
 import { LocaleContext } from '~/client/common/LocaleContext';
 
 describe('<LocaleContext>', () => {

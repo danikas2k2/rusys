@@ -2,6 +2,7 @@
 import { getDetailsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
+
 import { handleDelete } from '~/server/api/handleDelete';
 import { getDetailsWithYears } from '~/server/api/response';
 import { deleteDetails } from '~/server/data/details';

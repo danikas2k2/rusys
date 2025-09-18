@@ -1,7 +1,8 @@
+import { configureStore } from '@reduxjs/toolkit';
+
 import { isDevMode } from '~/common/utils/env';
 import { reducer } from '~/state/base/reducer';
 import { getStore } from '~/state/store';
-import { configureStore } from '@reduxjs/toolkit';
 
 jest.mock('~/common/utils/env', () => ({
     isDevMode: jest.fn().mockReturnValue(false),
