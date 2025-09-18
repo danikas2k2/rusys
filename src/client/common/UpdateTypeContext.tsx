@@ -1,15 +1,14 @@
 import React, { createContext, use, useState, type PropsWithChildren } from 'react';
 
+import { noop } from 'lodash';
+
 export enum UpdateTypes {
     Consumed = 'consumed',
     Updated = 'updated',
     Recycled = 'recycled',
 }
 
-export const UpdateTypeContext = createContext<[UpdateTypes, (v: UpdateTypes) => void]>([
-    UpdateTypes.Consumed,
-    () => void 0,
-]);
+export const UpdateTypeContext = createContext<[UpdateTypes, (v: UpdateTypes) => void]>([UpdateTypes.Consumed, noop]);
 
 export function UpdateTypeContextWrapper({
     initialState = UpdateTypes.Consumed,

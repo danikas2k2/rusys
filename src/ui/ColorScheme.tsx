@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useEffect, useState, type JSX, type PropsWithChildren } from 'react';
 
+import { noop } from 'lodash';
+
 import { usePreviousValue } from '~/common/hooks/usePreviousValue';
 
 export type ColorScheme = 'light' | 'dark' | 'auto';
@@ -8,7 +10,7 @@ export type ColorSchemeHandler = (colorScheme: ColorScheme) => void;
 
 export const COLOR_SCHEME_KEY = 'preferred-color-scheme';
 
-export const ColorSchemeContext = createContext<[ColorScheme, ColorSchemeHandler]>(['auto', () => void 0]);
+export const ColorSchemeContext = createContext<[ColorScheme, ColorSchemeHandler]>(['auto', noop]);
 
 export function ColorSchemeState({ children }: PropsWithChildren): JSX.Element {
     const [colorScheme, setColorScheme] = useState<ColorScheme>(

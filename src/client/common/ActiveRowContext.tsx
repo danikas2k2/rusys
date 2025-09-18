@@ -1,5 +1,7 @@
 import React, { createContext, use, useState, type JSX, type PropsWithChildren, type RefObject } from 'react';
 
+import { noop } from 'lodash';
+
 export interface ActiveRow {
     ref?: RefObject<HTMLDivElement | null>;
     pinned?: boolean;
@@ -8,7 +10,7 @@ export interface ActiveRow {
 
 export const ActiveRowContext = createContext<[ActiveRow | undefined, (v: ActiveRow | undefined) => void]>([
     undefined,
-    () => void 0,
+    noop,
 ]);
 
 export function ActiveRowWrapper({ children }: PropsWithChildren): JSX.Element {
