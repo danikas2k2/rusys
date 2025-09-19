@@ -2,19 +2,19 @@ import React from 'react';
 
 import { Label } from '~/client/common/Label';
 import { LoadingContent } from '~/client/common/LoadingContent';
+import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
 import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';
 import { Table } from '~/client/table/Table';
 import { useVariantsHasData } from '~/client/variants/hooks/useVariantsHasData';
 import { SortableGroups } from '~/client/variants/SortableGroups';
-import { useGroup } from '~/state/group/useGroup';
 import { useGroups } from '~/state/groups/useGroups';
 import { useGetVariants } from '~/state/variants/useGetVariants';
 import cx from './VariantsTable.pcss';
 
 export function VariantsTable() {
-    const group = useGroup();
     const groups = useGroups().map((v) => v.group);
+    const group = useGroupFilter();
     const visibleGroups = group ? [group] : groups;
     return (
         <LoadingContent loader={useGetVariants()} hasData={useVariantsHasData()}>

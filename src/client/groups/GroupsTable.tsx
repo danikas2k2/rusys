@@ -4,6 +4,7 @@ import { ActiveRowWrapper } from '~/client/common/ActiveRowContext';
 import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
 import { Label } from '~/client/common/Label';
 import { LoadingContent } from '~/client/common/LoadingContent';
+import { useQuickFilter } from '~/client/filters/hooks/useQuickFilter';
 import { ActiveGroupBox } from '~/client/groups/ActiveGroupBox';
 import { useGroupsHasData } from '~/client/groups/hooks/useGroupsHasData';
 import { SortableGroups } from '~/client/groups/SortableGroups';
@@ -11,14 +12,13 @@ import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';
 import { Table } from '~/client/table/Table';
 import { matchParts } from '~/client/utils/matchParts';
-import { useFilter } from '~/state/filter/useFilter';
 import { useGetGroups } from '~/state/groups/useGetGroups';
 import { useGroups } from '~/state/groups/useGroups';
 import cx from './GroupsTable.pcss';
 
 export function GroupsTable() {
     const groups = useGroups();
-    const filter = useFilter();
+    const filter = useQuickFilter();
     const visibleGroups = useMemo(
         () => groups.filter((v) => matchParts(v.group, filter)).sort((a, b) => a.order - b.order),
         [filter, groups]

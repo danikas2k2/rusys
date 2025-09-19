@@ -5,15 +5,15 @@ import { MockRedux } from '@tests/MockRedux';
 import React from 'react';
 
 import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
+import { useQuickFilter } from '~/client/filters/hooks/useQuickFilter';
 import { GroupsTable } from '~/client/groups/GroupsTable';
-import { useFilter } from '~/state/filter/useFilter';
 import { useGroups } from '~/state/groups/useGroups';
 
 jest.mock('~/state/years/useYears');
 jest.mock('~/state/groups/useGroups');
 jest.mock('~/client/common/hooks/useLockingLoader');
-jest.mock('~/state/filter/useFilter', () => ({
-    useFilter: jest.fn().mockReturnValue(''),
+jest.mock('~/client/filters/hooks/useQuickFilter', () => ({
+    useQuickFilter: jest.fn().mockReturnValue(''),
 }));
 jest.mock('~/client/utils/getOverlapIndex');
 
@@ -102,7 +102,7 @@ describe('<GroupsTable>', () => {
 
     describe('handles filter state', () => {
         it('renders filtered data', () => {
-            jest.mocked(useFilter).mockReturnValue('Uogienės');
+            jest.mocked(useQuickFilter).mockReturnValue('Uogienės');
             render(
                 <MockRedux>
                     <GroupsTable />
@@ -118,7 +118,7 @@ describe('<GroupsTable>', () => {
         });
 
         it('renders filtered out data', () => {
-            jest.mocked(useFilter).mockReturnValue('h');
+            jest.mocked(useQuickFilter).mockReturnValue('h');
             render(
                 <MockRedux>
                     <GroupsTable />

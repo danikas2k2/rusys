@@ -17,6 +17,7 @@ import { Option, Select } from '@ui/Select';
 
 import { Label } from '~/client/common/Label';
 import { type WithOnClose } from '~/client/common/WithOnClose';
+import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
 import { useLabel } from '~/client/hooks/useLabel';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/common/utils/errors';
@@ -24,7 +25,6 @@ import { useAddDetails } from '~/state/details/useAddDetails';
 import { useDetails } from '~/state/details/useDetails';
 import { useMoveDetails } from '~/state/details/useMoveDetails';
 import { useRenameDetails } from '~/state/details/useRenameDetails';
-import { useGroup } from '~/state/group/useGroup';
 import { useGroups } from '~/state/groups/useGroups';
 import cx from './DetailsBox.pcss';
 
@@ -40,7 +40,7 @@ const ERROR_NAME_MISSING = 'Name is required';
 const ERROR_EXISTS = 'This name already exists';
 
 export function DetailsBox({ group: initialGroup = '', name: initialName = '', onClose }: DetailsBoxProps) {
-    const filterGroup = useGroup();
+    const filterGroup = useGroupFilter();
 
     const [updating, setUpdating] = useState(false);
     const [group, setGroup] = useState<string>(initialGroup || filterGroup);

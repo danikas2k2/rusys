@@ -2,7 +2,6 @@ import { getDetailsFixture, getProfileFixture } from '@tests/fixtures';
 
 import { reducer } from '~/state/base/reducer';
 import { setDetailsAction } from '~/state/details/actions';
-import { setFilterAction } from '~/state/filter/actions';
 import { setClientIdAction } from '~/state/google/actions';
 import { setProfileAction } from '~/state/profile/actions';
 import { setSummaryAction } from '~/state/summary/actions';
@@ -23,10 +22,6 @@ describe('base', () => {
 
     it('update summary state', () => {
         expect(reducer({}, setSummaryAction(details))).toStrictEqual(expect.objectContaining({ summary: details }));
-    });
-
-    it('update filter state', () => {
-        expect(reducer({}, setFilterAction('filtered'))).toStrictEqual(expect.objectContaining({ filter: 'filtered' }));
     });
 
     it('update google state', () => {

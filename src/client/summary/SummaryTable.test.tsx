@@ -4,15 +4,15 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { useFilteredList } from '~/client/common/hooks/useFilteredList';
 import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
+import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
+import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
 import { useSummaryHasData } from '~/client/summary/hooks/useSummaryHasData';
 import { SummaryGroups } from '~/client/summary/SummaryGroups';
 import { SummaryTable } from '~/client/summary/SummaryTable';
-import { useGroup } from '~/state/group/useGroup';
 
 jest.mock('~/state/years/useYears');
-jest.mock('~/client/common/hooks/useFilteredList', () => ({
+jest.mock('~/client/filters/hooks/useFilteredList', () => ({
     useFilteredList: jest.fn(),
 }));
 jest.mock('~/client/summary/hooks/useSummaryHasData', () => ({
@@ -22,11 +22,11 @@ jest.mock('~/client/common/hooks/useLockingLoader', () => ({
     ...jest.requireActual('~/client/common/hooks/useLockingLoader'),
     useLockingLoader: jest.fn(),
 }));
-jest.mock('~/state/filter/useFilter', () => ({
-    useFilter: jest.fn().mockReturnValue(''),
+jest.mock('~/client/filters/hooks/useQuickFilter', () => ({
+    useQuickFilter: jest.fn().mockReturnValue(''),
 }));
-jest.mock('~/state/group/useGroup', () => ({
-    useGroup: jest.fn().mockReturnValue(''),
+jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
+    useGroupFilter: jest.fn(),
 }));
 jest.mock('~/client/summary/SummaryGroups', () => ({
     SummaryGroups: jest.fn().mockReturnValue(null),
@@ -44,6 +44,7 @@ describe('<SummaryTable>', () => {
     beforeAll(() => {
         jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
         jest.mocked(useFilteredList).mockReturnValue(summary);
+        jest.mocked(useGroupFilter).mockReturnValue('');
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -84,7 +85,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('renders table with group selected', () => {
-            jest.mocked(useGroup).mockReturnValueOnce('Uogienės');
+            jest.mocked(useGroupFilter).mockReturnValue('Uogienės');
             render(
                 <MockRedux state={state}>
                     <SummaryTable />

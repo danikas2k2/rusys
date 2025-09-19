@@ -4,21 +4,15 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
+import { useQuickFilterContext } from '~/client/filters/QuickFilterContext';
 import { ToolbarFilter } from '~/client/toolbar/ToolbarFilter';
-import { useClearFilter } from '~/state/filter/useClearFilter';
-import { useFilter } from '~/state/filter/useFilter';
-import { useSetFilter } from '~/state/filter/useSetFilter';
 
-jest.mock('~/state/filter/useClearFilter');
-jest.mock('~/state/filter/useFilter');
-jest.mock('~/state/filter/useSetFilter');
+jest.mock('~/client/filters/QuickFilterContext');
 
 describe('<ToolbarFilter>', () => {
-    beforeEach(() => {
-        jest.mocked(useFilter).mockReturnValue('');
-        jest.mocked(useSetFilter).mockReturnValue(jest.fn());
-        jest.mocked(useClearFilter).mockReturnValue(jest.fn());
-    });
+    const setFilter = jest.fn();
+
+    beforeEach(() => jest.mocked(useQuickFilterContext).mockReturnValue(['', setFilter]));
 
     afterEach(() => jest.clearAllMocks());
 
@@ -33,9 +27,6 @@ describe('<ToolbarFilter>', () => {
     });
 
     it('updates filter value when input field is changed', async () => {
-        const setFilter = jest.fn();
-        jest.mocked(useSetFilter).mockReturnValue(setFilter);
-
         render(
             <MockRedux>
                 <ToolbarFilter />
@@ -48,9 +39,7 @@ describe('<ToolbarFilter>', () => {
     });
 
     it('clears filter value when clear button is clicked', async () => {
-        const clearFilter = jest.fn();
-        jest.mocked(useClearFilter).mockReturnValue(clearFilter);
-        jest.mocked(useFilter).mockReturnValue('x');
+        jest.mocked(useQuickFilterContext).mockReturnValue(['x', setFilter]);
 
         render(
             <MockRedux>
@@ -60,6 +49,6 @@ describe('<ToolbarFilter>', () => {
 
         await userEvent.click(screen.getByRole('button', { name: 'Clear' }));
 
-        expect(clearFilter).toHaveBeenCalledWith();
+        expect(setFilter).toHaveBeenCalledWith('');
     });
 });

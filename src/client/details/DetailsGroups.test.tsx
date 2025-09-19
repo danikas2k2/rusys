@@ -6,10 +6,10 @@ import React from 'react';
 
 import { DetailsGroups } from '~/client/details/DetailsGroups';
 import { ValueRow } from '~/client/details/ValueRow';
-import { useGroup } from '~/state/group/useGroup';
+import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
 
-jest.mock('~/state/group/useGroup', () => ({
-    useGroup: jest.fn().mockReturnValue(''),
+jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
+    useGroupFilter: jest.fn().mockReturnValue(''),
 }));
 jest.mock('~/client/details/ValueRow', () => ({
     ValueRow: jest.fn().mockReturnValue(null),
@@ -74,7 +74,7 @@ describe('<DetailsGroups>', () => {
 
     it('renders filtered groups with details', () => {
         const [group] = groups;
-        jest.mocked(useGroup).mockReturnValue(group);
+        jest.mocked(useGroupFilter).mockReturnValue(group);
         render(
             <MockRedux>
                 <DetailsGroups groups={[group]} details={details} />
@@ -122,7 +122,7 @@ describe('<DetailsGroups>', () => {
     });
 
     it('renders missing filtered group without details', () => {
-        jest.mocked(useGroup).mockReturnValue(missing);
+        jest.mocked(useGroupFilter).mockReturnValue(missing);
         render(
             <MockRedux>
                 <DetailsGroups groups={[missing]} details={details} />

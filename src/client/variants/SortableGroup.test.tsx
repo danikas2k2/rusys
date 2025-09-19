@@ -2,11 +2,11 @@ import { render, screen } from '@testing-library/react';
 
 import React from 'react';
 
+import { useQuickFilter } from '~/client/filters/hooks/useQuickFilter';
 import { SortableGroup } from '~/client/variants/SortableGroup';
 import { SortableVariants } from '~/client/variants/SortableVariants';
-import { useFilter } from '~/state/filter/useFilter';
 
-jest.mock('~/state/filter/useFilter');
+jest.mock('~/client/filters/hooks/useQuickFilter');
 jest.mock('~/state/variants/useGroupVariants');
 jest.mock('~/client/variants/SortableVariants', () => ({
     SortableVariants: jest.fn(() => null),
@@ -37,7 +37,7 @@ describe('<SortableGroup>', () => {
     });
 
     it('renders with filtered details', () => {
-        jest.mocked(useFilter).mockReturnValue('d');
+        jest.mocked(useQuickFilter).mockReturnValue('d');
         render(<SortableGroup group={group} />);
 
         expect(screen.getByRole('rowheader')).toHaveTextContent(group);
@@ -51,7 +51,7 @@ describe('<SortableGroup>', () => {
     });
 
     it('renders without filtered out details', () => {
-        jest.mocked(useFilter).mockReturnValue('a');
+        jest.mocked(useQuickFilter).mockReturnValue('a');
         render(<SortableGroup group={group} />);
 
         expect(screen.queryByRole('rowheader')).not.toBeInTheDocument();

@@ -2,7 +2,6 @@ import React, { useCallback, useEffect } from 'react';
 
 import { ActiveRowWrapper } from '~/client/common/ActiveRowContext';
 import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
-import { useFilteredList } from '~/client/common/hooks/useFilteredList';
 import { useSortedList } from '~/client/common/hooks/useSortedList';
 import { LoadingContent } from '~/client/common/LoadingContent';
 import { ActiveDetailsBox } from '~/client/details/ActiveDetailsBox';
@@ -11,20 +10,21 @@ import { useDetailsHasData } from '~/client/details/hooks/useDetailsHasData';
 import { useMissingDetails } from '~/client/details/hooks/useMissingDetails';
 import { MissingOnlyCheckbox } from '~/client/details/MissingOnlyCheckbox';
 import { useMissingOnly } from '~/client/details/MissingOnlyContext';
+import { useDetailsFilters } from '~/client/filters/hooks/useDetailsFilters';
+import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
+import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
+import { useQuickFilterContext } from '~/client/filters/QuickFilterContext';
 import { useUniqueGroups } from '~/client/hooks/useUniqueGroups';
 import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';
 import { Table } from '~/client/table/Table';
 import { useDetails } from '~/state/details/useDetails';
 import { useGetDetails } from '~/state/details/useGetDetails';
-import { useClearFilter } from '~/state/filter/useClearFilter';
-import { useFilter } from '~/state/filter/useFilter';
-import { useGroup } from '~/state/group/useGroup';
 import { useYears } from '~/state/years/useYears';
 import cx from './DetailsTable.pcss';
 
 export function DetailsTable() {
-    const filteredDetails = useFilteredList(useDetails());
+    const filteredDetails = useFilteredList(useDetails(), useDetailsFilters());
     const hasFilteredDetails = !!filteredDetails.length;
 
     const [missingOnly, setMissingOnly] = useMissingOnly();
@@ -37,17 +37,16 @@ export function DetailsTable() {
         }
     }, [hasFilteredDetails, hasMissingDetails, missingOnly, setMissingOnly]);
 
-    const filter = useFilter();
-    const clearFilter = useClearFilter();
+    const [filter, setFilter] = useQuickFilterContext();
     const handleClick = useCallback(() => {
         if (missingOnly && filter && !hasMissingDetails) {
-            clearFilter();
+            setFilter('');
         }
-    }, [clearFilter, filter, hasMissingDetails, missingOnly]);
+    }, [filter, hasMissingDetails, missingOnly, setFilter]);
 
-    const group = useGroup();
     const visibleDetails = useSortedList(missingOnly ? missingDetails : filteredDetails);
     const uniqueGroups = useUniqueGroups(visibleDetails);
+    const group = useGroupFilter();
     const visibleGroups = group ? [group] : uniqueGroups;
 
     return (
