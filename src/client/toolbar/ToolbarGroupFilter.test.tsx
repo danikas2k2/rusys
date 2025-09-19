@@ -4,22 +4,16 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
+import { useGroupFilterContext } from '~/client/filters/GroupFilterContext';
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
-import { useClearGroup } from '~/state/group/useClearGroup';
-import { useGroup } from '~/state/group/useGroup';
-import { useSetGroup } from '~/state/group/useSetGroup';
 
 jest.mock('~/state/groups/useGroups');
-jest.mock('~/state/group/useGroup');
-jest.mock('~/state/group/useSetGroup');
-jest.mock('~/state/group/useClearGroup');
+jest.mock('~/client/filters/GroupFilterContext');
 
 describe('<ToolbarGroupFilter>', () => {
-    beforeEach(() => {
-        jest.mocked(useGroup).mockReturnValue('');
-        jest.mocked(useSetGroup).mockReturnValue(jest.fn());
-        jest.mocked(useClearGroup).mockReturnValue(jest.fn());
-    });
+    const setGroup = jest.fn();
+
+    beforeEach(() => jest.mocked(useGroupFilterContext).mockReturnValue(['', setGroup]));
 
     afterEach(() => jest.clearAllMocks());
 
@@ -34,9 +28,6 @@ describe('<ToolbarGroupFilter>', () => {
     });
 
     it('updates group value when some group selected', async () => {
-        const setGroup = jest.fn();
-        jest.mocked(useSetGroup).mockReturnValue(setGroup);
-
         render(
             <MockRedux>
                 <ToolbarGroupFilter />
@@ -50,9 +41,7 @@ describe('<ToolbarGroupFilter>', () => {
     });
 
     it('clears group value when clear button is clicked', async () => {
-        const clearGroup = jest.fn();
-        jest.mocked(useClearGroup).mockReturnValue(clearGroup);
-        jest.mocked(useGroup).mockReturnValue('Daržovės');
+        jest.mocked(useGroupFilterContext).mockReturnValue(['Daržovės', setGroup]);
 
         render(
             <MockRedux>
@@ -63,6 +52,6 @@ describe('<ToolbarGroupFilter>', () => {
         await userEvent.click(screen.getByPlaceholderText('Daržovės'));
         await userEvent.click(screen.getByText('All groups'));
 
-        expect(clearGroup).toHaveBeenCalledWith();
+        expect(setGroup).toHaveBeenCalledWith('');
     });
 });

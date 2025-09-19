@@ -7,7 +7,6 @@ import React from 'react';
 import { SortableGroup } from '~/client/variants/SortableGroup';
 import { SortableGroups } from '~/client/variants/SortableGroups';
 
-jest.mock('~/state/filter/useFilter');
 jest.mock('~/state/variants/useGroupVariants');
 jest.mock('~/client/variants/SortableGroup', () => ({
     SortableGroup: jest.fn(jest.requireActual('~/client/variants/SortableGroup').SortableGroup),

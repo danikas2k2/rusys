@@ -2,11 +2,11 @@ import React, { useMemo } from 'react';
 
 import cs from 'classnames';
 
+import { useQuickFilter } from '~/client/filters/hooks/useQuickFilter';
 import { Cell } from '~/client/table/Cell';
 import { Row } from '~/client/table/Row';
 import { matchParts } from '~/client/utils/matchParts';
 import { SortableVariants } from '~/client/variants/SortableVariants';
-import { useFilter } from '~/state/filter/useFilter';
 import { useGroupVariants } from '~/state/variants/useGroupVariants';
 import cx from './SortableGroup.pcss';
 
@@ -16,7 +16,7 @@ interface SortableVariantsProps {
 }
 
 export function SortableGroup({ className, group }: SortableVariantsProps) {
-    const filter = useFilter();
+    const filter = useQuickFilter();
     const variants = useGroupVariants(group);
     const filteredVariants = useMemo(
         () => variants.filter((v) => !filter || matchParts(v.variant, filter)).sort((a, b) => a.order - b.order),

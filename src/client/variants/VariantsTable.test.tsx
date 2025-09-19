@@ -5,8 +5,8 @@ import { MockRedux } from '@tests/MockRedux';
 import React from 'react';
 
 import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
+import { useQuickFilter } from '~/client/filters/hooks/useQuickFilter';
 import { VariantsTable } from '~/client/variants/VariantsTable';
-import { useFilter } from '~/state/filter/useFilter';
 import { useGroups } from '~/state/groups/useGroups';
 import { useVariants } from '~/state/variants/useVariants';
 
@@ -15,8 +15,8 @@ jest.mock('~/state/groups/useGroups');
 jest.mock('~/state/variants/useVariants');
 jest.mock('~/state/variants/useGroupVariants');
 jest.mock('~/client/common/hooks/useLockingLoader');
-jest.mock('~/state/filter/useFilter', () => ({
-    useFilter: jest.fn().mockReturnValue(''),
+jest.mock('~/client/filters/hooks/useQuickFilter', () => ({
+    useQuickFilter: jest.fn().mockReturnValue(''),
 }));
 jest.mock('~/client/utils/getOverlapIndex');
 
@@ -144,7 +144,7 @@ describe('<VariantsTable>', () => {
 
     describe('handles filter state', () => {
         it('renders filtered data', () => {
-            jest.mocked(useFilter).mockReturnValue('e');
+            jest.mocked(useQuickFilter).mockReturnValue('e');
             render(
                 <MockRedux>
                     <VariantsTable />
@@ -161,7 +161,7 @@ describe('<VariantsTable>', () => {
         });
 
         it('renders filtered out data', () => {
-            jest.mocked(useFilter).mockReturnValue('h');
+            jest.mocked(useQuickFilter).mockReturnValue('h');
             render(
                 <MockRedux>
                     <VariantsTable />

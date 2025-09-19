@@ -5,19 +5,17 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { useFilteredList } from '~/client/common/hooks/useFilteredList';
 import { LoadingState, useLockingLoader } from '~/client/common/hooks/useLockingLoader';
 import { DetailsGroups } from '~/client/details/DetailsGroups';
 import { DetailsTable } from '~/client/details/DetailsTable';
 import { useDetailsHasData } from '~/client/details/hooks/useDetailsHasData';
 import { useMissingOnly } from '~/client/details/MissingOnlyContext';
-import { SummaryTable } from '~/client/summary/SummaryTable';
-import { useClearFilter } from '~/state/filter/useClearFilter';
-import { useFilter } from '~/state/filter/useFilter';
-import { useGroup } from '~/state/group/useGroup';
+import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
+import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
+import { useQuickFilterContext } from '~/client/filters/QuickFilterContext';
 
 jest.mock('~/state/years/useYears');
-jest.mock('~/client/common/hooks/useFilteredList', () => ({
+jest.mock('~/client/filters/hooks/useFilteredList', () => ({
     useFilteredList: jest.fn(),
 }));
 jest.mock('~/client/details/hooks/useDetailsHasData', () => ({
@@ -30,14 +28,11 @@ jest.mock('~/client/common/hooks/useLockingLoader', () => ({
     ...jest.requireActual('~/client/common/hooks/useLockingLoader'),
     useLockingLoader: jest.fn(),
 }));
-jest.mock('~/state/filter/useFilter', () => ({
-    useFilter: jest.fn().mockReturnValue(''),
+jest.mock('~/client/filters/QuickFilterContext', () => ({
+    useQuickFilterContext: jest.fn().mockReturnValue(['', jest.fn()]),
 }));
-jest.mock('~/state/filter/useClearFilter', () => ({
-    useClearFilter: jest.fn(),
-}));
-jest.mock('~/state/group/useGroup', () => ({
-    useGroup: jest.fn().mockReturnValue(''),
+jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
+    useGroupFilter: jest.fn(),
 }));
 jest.mock('~/client/details/MissingOnlyCheckbox', () => ({
     MissingOnlyCheckbox: jest.fn(({ onClick }: { onClick: () => void }) => <input type="checkbox" onClick={onClick} />),
@@ -55,8 +50,12 @@ describe('<DetailsTable>', () => {
         details,
     };
 
-    beforeAll(() => {
+    const setFilter = jest.fn();
+
+    beforeEach(() => {
         jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
+        jest.mocked(useQuickFilterContext).mockReturnValue(['', setFilter]);
+        jest.mocked(useGroupFilter).mockReturnValue('');
         jest.mocked(useFilteredList).mockReturnValue(details);
     });
 
@@ -86,7 +85,7 @@ describe('<DetailsTable>', () => {
         });
 
         it('renders table for complete state with data filtered-out', () => {
-            jest.mocked(useFilteredList).mockReturnValueOnce([]);
+            jest.mocked(useFilteredList).mockReturnValue([]);
             render(
                 <MockRedux state={state}>
                     <DetailsTable />
@@ -98,7 +97,7 @@ describe('<DetailsTable>', () => {
         });
 
         it('renders table with group selected', () => {
-            jest.mocked(useGroup).mockReturnValueOnce('Uogienės');
+            jest.mocked(useGroupFilter).mockReturnValue('Uogienės');
             render(
                 <MockRedux state={state}>
                     <DetailsTable />
@@ -110,7 +109,7 @@ describe('<DetailsTable>', () => {
         });
 
         it('does not render table for initial state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
+            jest.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
             render(
                 <MockRedux state={state}>
                     <DetailsTable />
@@ -147,7 +146,7 @@ describe('<DetailsTable>', () => {
         it('does not render loader for complete state', () => {
             render(
                 <MockRedux state={state}>
-                    <SummaryTable />
+                    <DetailsTable />
                 </MockRedux>
             );
 
@@ -247,9 +246,7 @@ describe('<DetailsTable>', () => {
     describe('missing-only', () => {
         const setMissingOnly = jest.fn();
 
-        beforeEach(() => {
-            jest.mocked(useMissingOnly).mockReturnValueOnce([true, setMissingOnly]);
-        });
+        beforeEach(() => jest.mocked(useMissingOnly).mockReturnValueOnce([true, setMissingOnly]));
 
         afterEach(() => jest.clearAllMocks());
 
@@ -281,10 +278,8 @@ describe('<DetailsTable>', () => {
         });
 
         it('calls clearFilter on missing-only checkbox being clicked when all missing rows are filtered out', async () => {
-            const clearFilter = jest.fn();
-            jest.mocked(useFilter).mockReturnValueOnce('z');
-            jest.mocked(useClearFilter).mockReturnValueOnce(clearFilter);
-            jest.mocked(useFilteredList).mockReturnValueOnce([]);
+            jest.mocked(useQuickFilterContext).mockReturnValue(['z', setFilter]);
+            jest.mocked(useFilteredList).mockReturnValue([]);
             render(
                 <MockRedux state={state}>
                     <DetailsTable />
@@ -295,7 +290,7 @@ describe('<DetailsTable>', () => {
 
             await userEvent.click(screen.getByRole('checkbox'));
 
-            expect(clearFilter).toHaveBeenCalledWith();
+            expect(setFilter).toHaveBeenCalledWith('');
         });
     });
 });
