@@ -101,7 +101,7 @@
         "@types/lodash": "^4.17.20",
         "@types/moment-locales-webpack-plugin": "^1.2.6",
         "@types/nedb": "^1.8.16",
-        "@types/node": "^24.4.0",
+        "@types/node": "^24.5.2",
         "@types/postcss-import": "^14.0.3",
         "@types/postcss-preset-env": "^8.0.0",
         "@types/qs": "^6.14.0",
