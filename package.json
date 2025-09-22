@@ -113,7 +113,7 @@
         "@types/supertest": "^6.0.3",
         "@types/webpack-hot-middleware": "^2.25.10",
         "@typescript-eslint/eslint-plugin": "^8.44.0",
-        "@typescript-eslint/parser": "^8.44.0",
+        "@typescript-eslint/parser": "^8.44.1",
         "aria-query": "^5.3.2",
         "autoprefixer": "^10.4.21",
         "classnames": "^2.5.1",
