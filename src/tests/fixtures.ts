@@ -1,4 +1,4 @@
-import { type Profile } from '~/state/profile/types';
+import { type Profile } from '~/client/state/profile/types';
 import { type Details, type Group, type Summary, type Variant } from '~/types/data';
 
 export const getGroupsFixture = (): Group[] => [

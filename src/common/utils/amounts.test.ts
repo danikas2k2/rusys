@@ -1,8 +1,8 @@
 import { getChangedAmount, getVariantAmount } from '~/common/utils/amounts';
 
-jest.mock('~/state/groups/useGetGroups');
-jest.mock('~/state/variants/useGetVariants');
-jest.mock('~/state/details/useGetDetails');
+jest.mock('~/client/state/groups/useGetGroups');
+jest.mock('~/client/state/variants/useGetVariants');
+jest.mock('~/client/state/details/useGetDetails');
 
 describe('amounts', () => {
     beforeEach(() => {});

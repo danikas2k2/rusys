@@ -3,10 +3,10 @@ import { getDetailsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
 import { handleUpdateDetails } from '~/server/api/handleUpdateDetails';
 import { getDetailsWithYears } from '~/server/api/response';
 import { updateDetails } from '~/server/data/details';
-import { DEV_MODE_EMAIL } from '~/state/profile/dev';
 import { type ApiDetailsWithYears, type ApiUpdateDetails } from '~/types/api';
 import { type VariantAmount } from '~/types/data';
 

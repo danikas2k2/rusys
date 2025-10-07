@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useEffect, useState, type JSX, type 
 
 import { noop } from 'lodash';
 
-import { usePreviousValue } from '~/common/hooks/usePreviousValue';
+import { usePreviousValue } from '~/client/state/common/usePreviousValue';
 
 export type ColorScheme = 'light' | 'dark' | 'auto';
 

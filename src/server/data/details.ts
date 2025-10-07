@@ -1,6 +1,6 @@
 import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter } from 'mongodb';
 
-import { addVariantAmount, cleanupRecycled, getCombinedAmounts, hasAmount } from '~/common/utils/amounts';
+import { addVariantAmount, getCombinedAmounts } from '~/common/utils/amounts';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
 import type { Details, VariantAmount } from '~/types/data';
@@ -61,6 +61,11 @@ export async function addDetails(group: string, name: string): Promise<boolean> 
     }
     return (await db()).collection('details').insertOne({ group, name }).then(hasEffect);
 }
+
+export const cleanupRecycled = ({ recycled, ...v }: VariantAmount): VariantAmount =>
+    recycled ? { ...v, recycled } : v;
+
+export const hasAmount = (a: VariantAmount) => a.amount > 0;
 
 export async function updateDetails(
     group: string,

@@ -29,7 +29,7 @@ import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { getDecoratorType } from '@ui/utils/getDecoratorType';
 import { setCaretPosition } from '@ui/utils/setCaretPosition';
 
-import { usePreviousValue } from '~/common/hooks/usePreviousValue';
+import { usePreviousValue } from '~/client/state/common/usePreviousValue';
 import cx from './Input.pcss';
 
 export type InputMode = 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search';

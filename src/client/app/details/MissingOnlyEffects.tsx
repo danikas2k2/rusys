@@ -1,0 +1,15 @@
+import { useEffect } from 'react';
+
+import { useMissingOnly } from '~/client/app/details/MissingOnlyContext';
+import { useHasMissing } from '~/client/state/details/useHasMissing';
+
+export function MissingOnlyEffects() {
+    const hasMissing = useHasMissing();
+    const [missingOnly, setMissingOnly] = useMissingOnly();
+    useEffect(() => {
+        if (missingOnly && !hasMissing) {
+            setMissingOnly(false);
+        }
+    }, [hasMissing, missingOnly, setMissingOnly]);
+    return null;
+}

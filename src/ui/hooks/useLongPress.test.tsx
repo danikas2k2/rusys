@@ -40,6 +40,16 @@ describe('useLongPress', () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     describe('mouse events', () => {
+        const bak = (window as any).PointerEvent;
+
+        beforeAll(() => {
+            delete (window as any).PointerEvent;
+        });
+
+        afterAll(() => {
+            (window as any).PointerEvent = bak;
+        });
+
         it('triggers onLongPress after duration', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
 
@@ -110,17 +120,21 @@ describe('useLongPress', () => {
     });
 
     describe('touch events', () => {
-        beforeEach(() => {
+        const bak = (window as any).PointerEvent;
+
+        beforeAll(() => {
+            delete (window as any).PointerEvent;
             Object.assign(navigator, { maxTouchPoints: 1 }); // Simulate a touch-capable device
         });
 
         afterAll(() => {
             Object.assign(navigator, { maxTouchPoints: 0 }); // Reset after tests
+            (window as any).PointerEvent = bak;
         });
 
         // TODO use user.pointer() when touch event will be available
 
-        it('triggers onLongPress after duration', () => {
+        it('triggers onLongPress after duration', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
 
             act(() => fireEvent.touchStart(screen.getByRole('button')));
@@ -200,10 +214,6 @@ describe('useLongPress', () => {
     });
 
     describe('pointer events', () => {
-        beforeEach(() => {
-            window.PointerEvent = window.PointerEvent ?? window.MouseEvent;
-        });
-
         it('triggers onLongPress after duration', async () => {
             render(<TestComponent onLongPress={onLongPress} onShortPress={onShortPress} />);
 

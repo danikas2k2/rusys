@@ -2,6 +2,7 @@
 import { bulk } from '@tests/bulk';
 import { getDetailsFixture } from '@tests/fixtures';
 
+import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
 import { addVariantAmount } from '~/common/utils/amounts';
 import {
     addDetails,
@@ -20,7 +21,6 @@ import {
 } from '~/server/data/details';
 import { $all } from '~/server/data/tests/utils';
 import { db } from '~/server/db';
-import { DEV_MODE_EMAIL } from '~/state/profile/dev';
 
 jest.setTimeout(30_000);
 

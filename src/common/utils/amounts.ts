@@ -7,6 +7,7 @@ export function getVariantAmount(amounts: ReadonlyArray<VariantAmount> | undefin
 export function getChangedAmount(amounts: ReadonlyArray<VariantAmount> | undefined): number | boolean {
     return amounts?.reduce((a, v) => a + v.amount, 0) || !!amounts?.some((v) => !!v.amount);
 }
+
 export function getCombinedAmounts(
     years: ReadonlyArray<YearAmounts> | undefined
 ): ReadonlyArray<VariantAmount> | undefined {
@@ -22,8 +23,3 @@ export function addVariantAmount(acc: ReadonlyArray<VariantAmount>, { variant, a
         ? [...acc.slice(0, i), { variant, amount: acc[i].amount + amount }, ...acc.slice(i + 1)]
         : [...acc, { variant, amount }];
 }
-
-export const hasAmount = (a: VariantAmount) => a.amount > 0;
-
-export const cleanupRecycled = ({ recycled, ...v }: VariantAmount): VariantAmount =>
-    recycled ? { ...v, recycled } : v;

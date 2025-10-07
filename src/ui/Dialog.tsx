@@ -10,7 +10,7 @@ import React, {
 import { Interactive } from '@ui/Interactive';
 import { Portal } from '@ui/Portal';
 
-import { usePreviousValue } from '~/common/hooks/usePreviousValue';
+import { usePreviousValue } from '~/client/state/common/usePreviousValue';
 import cx from './Dialog.pcss';
 
 export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
