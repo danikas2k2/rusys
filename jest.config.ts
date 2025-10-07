@@ -51,7 +51,7 @@ const config: Config = {
     collectCoverageFrom: [
         'src/**/*.{ts,tsx}',
         '!src/**/*.d.ts',
-        '!src/tutorial/**',
+        '!src/ui/tutorial/**',
         '!src/tests/**',
         '!src/server/index.ts',
         '!src/server/dev.ts',
