@@ -2,9 +2,8 @@ import React, { type JSX } from 'react';
 import { Prism } from 'react-syntax-highlighter';
 
 import { Checkbox } from '@ui/Checkbox';
-
-import { ordered, value, values } from '~/tutorial/articles/common';
-import * as data from '~/tutorial/articles/element';
+import { ordered, value, values } from '@ui/tutorial/articles/common';
+import * as data from '@ui/tutorial/articles/element';
 
 export default function CheckboxArticle(): JSX.Element {
     const colors = ordered(data.colors, 'gray');

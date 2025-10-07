@@ -1,6 +1,9 @@
 import path from 'path';
+
 import { type Configuration } from 'webpack';
+
 import 'webpack-dev-server';
+
 import { getExternals } from './webpack/externals';
 import { getOptimization } from './webpack/optimization';
 import { getPerformance } from './webpack/performance';
@@ -24,7 +27,7 @@ export default async function (env?: { prod?: boolean }, argv?: { mode?: string 
         context,
         entry: {
             tutorial: {
-                import: './src/tutorial/index.tsx',
+                import: './src/ui/tutorial/index.tsx',
                 dependOn: ['react', 'router'],
             },
             react: ['react', 'react-dom'],

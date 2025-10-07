@@ -1,4 +1,7 @@
 import path from 'path';
+
+import { type Configuration } from 'webpack';
+
 import { getExternals } from './webpack/externals';
 import { getOptimization } from './webpack/optimization';
 import { getPerformance } from './webpack/performance';
@@ -13,7 +16,6 @@ import { getResolve } from './webpack/resolve';
 import { getCssRule } from './webpack/rules/css';
 import { getSvgRule } from './webpack/rules/svg';
 import { getTsxRule } from './webpack/rules/tsx';
-import { type Configuration } from 'webpack';
 
 // noinspection JSUnusedGlobalSymbols
 export default async function (env?: { prod?: boolean }, argv?: { mode?: string }): Promise<Configuration> {
@@ -26,7 +28,7 @@ export default async function (env?: { prod?: boolean }, argv?: { mode?: string 
         context,
         entry: {
             app: {
-                import: './src/client/index.tsx',
+                import: './src/client/app/index.tsx',
                 dependOn: ['react', 'router'],
             },
             react: ['react', 'react-dom'],

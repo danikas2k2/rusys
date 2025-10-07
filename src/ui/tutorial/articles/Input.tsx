@@ -5,30 +5,31 @@ import React, { type JSX } from 'react';
 import { Prism } from 'react-syntax-highlighter';
 
 import { Button, ButtonGroup } from '@ui/Button';
-import { FileInput } from '@ui/FileInput';
+import { Input, type InputMode } from '@ui/Input';
+import { ordered, value, values } from '@ui/tutorial/articles/common';
+import * as data from '@ui/tutorial/articles/element';
 
-import { ordered, value, values } from '~/tutorial/articles/common';
-import * as data from '~/tutorial/articles/element';
-
-export default function FileArticle(): JSX.Element {
+export default function InputArticle(): JSX.Element {
     const colors = ordered(data.colors, 'gray');
     const variants = ordered(data.variants, 'outlined');
     const sizes = ordered(data.sizes, 'small');
     const spacing = ordered(data.spacing, 'small');
     const states = ordered(data.states, 'default');
+    const modes = ordered(Object.keys(data.modes) as InputMode[], 'text');
 
     // noinspection HtmlUnknownAttribute
     return (
         <article>
-            <h1>File Input</h1>
+            <h1>Input</h1>
             <Prism language="tsx" style={{}} useInlineStyles={false}>
-                {`import { FileInput } from '@ui/FileInput';\n
-<FileInput
+                {`import { Input } from '@ui/Input';\n
+<Input
     variant="outlined"
     color="gray"
     size="small"
     spacing="small"
-    multiple={false}
+    mode="text"
+    value=""
     placeholder="Enter something"
     label="Input label"
     invalid={false}
@@ -72,6 +73,20 @@ export default function FileArticle(): JSX.Element {
                         <td>{values(spacing)}</td>
                         <td>{value(spacing[0])}</td>
                         <td>The spacing of the input.</td>
+                    </tr>
+                    <tr>
+                        <td>mode</td>
+                        <td>{values(modes)}</td>
+                        <td>{value(modes[0])}</td>
+                        <td>The mode of the input.</td>
+                    </tr>
+                    <tr>
+                        <td>value</td>
+                        <td>
+                            <code>string</code> | <code>number</code>
+                        </td>
+                        <td>—</td>
+                        <td>The value of the input.</td>
                     </tr>
                     <tr>
                         <td>placeholder</td>
@@ -132,7 +147,7 @@ export default function FileArticle(): JSX.Element {
 
             <h2>Colors / Variants / States</h2>
             <Prism language="tsx" style={{}} useInlineStyles={false}>
-                {`<FileInput color='blue' variant='outlined' />`}
+                {`<Input color="blue" variant="outlined" />`}
             </Prism>
             <section>
                 <table>
@@ -161,7 +176,15 @@ export default function FileArticle(): JSX.Element {
                                         {states.map((state) => (
                                             <>
                                                 <p key={state}>
-                                                    <FileInput
+                                                    <Input
+                                                        variant={variant}
+                                                        color={color}
+                                                        state={state}
+                                                        value={state}
+                                                    />
+                                                </p>
+                                                <p key={state}>
+                                                    <Input
                                                         variant={variant}
                                                         color={color}
                                                         placeholder={state}
@@ -171,12 +194,7 @@ export default function FileArticle(): JSX.Element {
                                             </>
                                         ))}
                                         <p key="disabled">
-                                            <FileInput
-                                                variant={variant}
-                                                color={color}
-                                                placeholder="disabled"
-                                                disabled
-                                            />
+                                            <Input variant={variant} color={color} value="disabled" disabled />
                                         </p>
                                     </td>
                                 ))}
@@ -188,7 +206,7 @@ export default function FileArticle(): JSX.Element {
 
             <h2>Sizes / Spacing</h2>
             <Prism language="tsx" style={{}} useInlineStyles={false}>
-                {`<Input size='medium' spacing='large' value='Value' />`}
+                {`<Input size="medium" spacing="large" value="Value" />`}
             </Prism>
             <section>
                 <table>
@@ -210,7 +228,7 @@ export default function FileArticle(): JSX.Element {
                                 </th>
                                 {sizes.map((size) => (
                                     <td key={size}>
-                                        <FileInput size={size} spacing={sp} placeholder={`${size}, ${sp}`} />
+                                        <Input size={size} spacing={sp} value={`${size}, ${sp}`} />
                                     </td>
                                 ))}
                             </tr>
@@ -221,9 +239,10 @@ export default function FileArticle(): JSX.Element {
 
             <h2>With decorators</h2>
             <Prism language="tsx" style={{}} useInlineStyles={false}>
-                {`<FileInput
+                {`<Input
     size="medium"
     spacing="small"
+    value="12.34"
     startDecorator="$"
     endDecorator={
         <ButtonGroup>
@@ -257,10 +276,10 @@ export default function FileArticle(): JSX.Element {
                                 </th>
                                 {sizes.map((size) => (
                                     <td key={size}>
-                                        <FileInput
+                                        <Input
                                             size={size}
                                             spacing={sp}
-                                            placeholder={`${size}, ${sp}`}
+                                            value={`${size}, ${sp}`}
                                             startDecorator="$"
                                             endDecorator={
                                                 <ButtonGroup>
@@ -289,7 +308,7 @@ export default function FileArticle(): JSX.Element {
                         <tr>
                             <th></th>
                             <td>
-                                <FileInput />
+                                <Input />
                             </td>
                         </tr>
                         <tr>
@@ -297,32 +316,28 @@ export default function FileArticle(): JSX.Element {
                                 <code>fullWidth</code>
                             </th>
                             <td>
-                                <FileInput fullWidth accept="application/png, image/jpeg" />
+                                <Input fullWidth />
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </section>
 
-            <h2>Multiple</h2>
+            <h2>Modes</h2>
 
             <section>
-                <table>
+                <table aria-expanded="false">
                     <tbody>
-                        <tr>
-                            <th></th>
-                            <td>
-                                <FileInput />
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                <code>multiple</code>
-                            </th>
-                            <td>
-                                <FileInput multiple accept="application/png, image/jpeg" />
-                            </td>
-                        </tr>
+                        {modes.map((mode, m) => (
+                            <tr key={m}>
+                                <th>
+                                    <code data-default={!m}>{mode}</code>
+                                </th>
+                                <td>
+                                    <Input mode={mode} value={data.modes[mode]} />
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </section>
@@ -359,43 +374,43 @@ export default function FileArticle(): JSX.Element {
                                 <tr>
                                     <th>No value</th>
                                     <td>
-                                        <FileInput state={state} />
+                                        <Input state={state} />
                                     </td>
                                     <td>
-                                        <FileInput state={state} label="Some label" />
+                                        <Input state={state} label="Some label" />
                                     </td>
                                     <td>
-                                        <FileInput state={state} invalid />
+                                        <Input state={state} invalid />
                                     </td>
                                     <td>
-                                        <FileInput state={state} label="Some label" invalid />
+                                        <Input state={state} label="Some label" invalid />
                                     </td>
                                     <td>
-                                        <FileInput state={state} error="Value missing" />
+                                        <Input state={state} error="Value missing" />
                                     </td>
                                     <td>
-                                        <FileInput state={state} label="Some label" error="Value missing" />
+                                        <Input state={state} label="Some label" error="Value missing" />
                                     </td>
                                 </tr>
                                 <tr>
                                     <th>With placeholder</th>
                                     <td>
-                                        <FileInput state={state} placeholder="Enter value" />
+                                        <Input state={state} placeholder="Enter value" />
                                     </td>
                                     <td>
-                                        <FileInput state={state} placeholder="Enter value" label="Some label" />
+                                        <Input state={state} placeholder="Enter value" label="Some label" />
                                     </td>
                                     <td>
-                                        <FileInput state={state} placeholder="Enter value" invalid />
+                                        <Input state={state} placeholder="Enter value" invalid />
                                     </td>
                                     <td>
-                                        <FileInput state={state} placeholder="Enter value" label="Some label" invalid />
+                                        <Input state={state} placeholder="Enter value" label="Some label" invalid />
                                     </td>
                                     <td>
-                                        <FileInput state={state} placeholder="Enter value" error="Value invalid" />
+                                        <Input state={state} placeholder="Enter value" error="Value invalid" />
                                     </td>
                                     <td>
-                                        <FileInput
+                                        <Input
                                             state={state}
                                             placeholder="Enter value"
                                             label="Some label"
@@ -406,27 +421,22 @@ export default function FileArticle(): JSX.Element {
                                 <tr>
                                     <th>With value</th>
                                     <td>
-                                        <FileInput state={state} />
+                                        <Input state={state} value="value" />
                                     </td>
                                     <td>
-                                        <FileInput state={state} label="Some label" />
+                                        <Input state={state} value="value" label="Some label" />
                                     </td>
                                     <td>
-                                        <FileInput state={state} invalid />
+                                        <Input state={state} value="value" invalid />
                                     </td>
                                     <td>
-                                        <FileInput state={state} label="Some label" invalid />
+                                        <Input state={state} value="value" label="Some label" invalid />
                                     </td>
                                     <td>
-                                        <FileInput state={state} error="Value invalid" />
+                                        <Input state={state} value="value" error="Value invalid" />
                                     </td>
                                     <td>
-                                        <FileInput
-                                            state={state}
-                                            placeholder="value"
-                                            label="Some label"
-                                            error="Value invalid"
-                                        />
+                                        <Input state={state} value="value" label="Some label" error="Value invalid" />
                                     </td>
                                 </tr>
                             </tbody>

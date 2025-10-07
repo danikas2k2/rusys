@@ -3,9 +3,8 @@ import { Prism } from 'react-syntax-highlighter';
 
 import { Button } from '@ui/Button';
 import { Dropdown } from '@ui/Dropdown';
-
-import { ordered, value, values } from '~/tutorial/articles/common';
-import * as data from '~/tutorial/articles/element';
+import { ordered, value, values } from '@ui/tutorial/articles/common';
+import * as data from '@ui/tutorial/articles/element';
 
 function Demo() {
     return (

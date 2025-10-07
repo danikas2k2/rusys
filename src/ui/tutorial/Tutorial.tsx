@@ -3,8 +3,8 @@ import { HashRouter, NavLink, Route, Routes } from 'react-router-dom';
 
 import { ColorSchemeToggle } from '@ui/ColorSchemeToggle';
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
+import { PAGES } from '@ui/tutorial/pages';
 
-import { PAGES } from '~/tutorial/pages';
 import cx from './Tutorial.pcss';
 
 export function Tutorial(): JSX.Element {
