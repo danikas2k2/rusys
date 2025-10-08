@@ -1,6 +1,9 @@
 import path from 'path';
+
 import { HotModuleReplacementPlugin, type Configuration } from 'webpack';
+
 import 'webpack-dev-server';
+
 import { getExternals } from './webpack/externals';
 import { getOptimization } from './webpack/optimization';
 import { getPerformance } from './webpack/performance';
@@ -26,7 +29,7 @@ export default async function (): Promise<Configuration> {
         context,
         entry: {
             app: {
-                import: [webpackHotMiddleware, './src/client/index.tsx'],
+                import: [webpackHotMiddleware, './src/client/app/index.tsx'],
                 dependOn: ['react', 'router'],
             },
             react: ['react', 'react-dom'],
