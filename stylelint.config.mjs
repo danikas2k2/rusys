@@ -1,9 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 export default {
-    extends: ['stylelint-config-standard', 'stylelint-config-prettier'],
-    plugins: [
-        // TODO custom stylelint-no-unused-selectors need to be added
-    ],
+    plugins: ['@stylistic/stylelint-plugin'],
+    extends: ['stylelint-config-standard'],
     rules: {
         'selector-class-pattern': null,
         'import-notation': null,
@@ -18,12 +16,13 @@ export default {
                 'declaration-property-value-no-unknown': [
                     true,
                     {
-                        ignoreValues: {
-                            inset: /constant\(safe-area-inset-(top|bottom|left|right)\)/,
-                            padding: /constant\(safe-area-inset-(top|bottom|left|right)\)/,
+                        ignoreProperties: {
+                            inset: ['/(constant|env)\\(safe-area-inset-(top|bottom|left|right)\\)/'],
+                            padding: ['/(constant|env)\\(safe-area-inset-(top|bottom|left|right)\\)/'],
                         },
                     },
                 ],
+                'function-no-unknown': [true, { ignoreFunctions: ['constant', 'env'] }],
             },
         },
         {
