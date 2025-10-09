@@ -28,7 +28,7 @@ export default async function (env?: { prod?: boolean }, argv?: { mode?: string 
         context,
         entry: {
             app: {
-                import: './src/client/app/index.tsx',
+                import: './src/client/index.tsx',
                 dependOn: ['react', 'router'],
             },
             react: ['react', 'react-dom'],

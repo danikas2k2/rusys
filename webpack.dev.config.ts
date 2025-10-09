@@ -29,7 +29,7 @@ export default async function (): Promise<Configuration> {
         context,
         entry: {
             app: {
-                import: [webpackHotMiddleware, './src/client/app/index.tsx'],
+                import: [webpackHotMiddleware, './src/client/index.tsx'],
                 dependOn: ['react', 'router'],
             },
             react: ['react', 'react-dom'],

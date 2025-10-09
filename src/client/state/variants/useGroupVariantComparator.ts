@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 
 import { isEqual } from 'lodash';
 
-import { compareNames } from '~/client/app/utils/compareNames';
 import { type WithVariantsState } from '~/client/state/variants/types';
+import { compareNames } from '~/client/utils/compareNames';
 
 export function useGroupVariantComparator(group: string): (a: string, b: string) => number {
     const variantOrders: Record<string, number> = useSelector(

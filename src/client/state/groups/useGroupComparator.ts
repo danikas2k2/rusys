@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 
 import { isEqual } from 'lodash';
 
-import { compareNames } from '~/client/app/utils/compareNames';
+import { compareNames } from '~/client/utils/compareNames';
 import { type WithGroupsState } from './types';
 
 export function useGroupComparator(): (a: string, b: string) => number {

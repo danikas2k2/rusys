@@ -28,7 +28,7 @@ import { useOutsideClick } from '@ui/hooks/useOutsideClick';
 import { Input, type InputProps } from '@ui/Input';
 import { Interactive } from '@ui/Interactive';
 
-import { matchParts } from '~/client/app/utils/matchParts';
+import { matchParts } from '~/client/utils/matchParts';
 import cx from './Select.pcss';
 
 export interface SelectProps<T = string | number, E extends HTMLElement = HTMLElement>

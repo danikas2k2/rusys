@@ -18,6 +18,7 @@ export default {
                     {
                         ignoreProperties: {
                             inset: ['/(constant|env)\\(safe-area-inset-(top|bottom|left|right)\\)/'],
+                            margin: ['/(constant|env)\\(safe-area-inset-(top|bottom|left|right)\\)/'],
                             padding: ['/(constant|env)\\(safe-area-inset-(top|bottom|left|right)\\)/'],
                         },
                     },
