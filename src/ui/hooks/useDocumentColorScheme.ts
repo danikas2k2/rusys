@@ -10,8 +10,10 @@ export function useDocumentColorScheme(auto = true): ColorScheme {
     const documentColorScheme = document.documentElement.dataset.colorScheme ?? 'auto';
     if (colorScheme !== documentColorScheme) {
         if (auto && colorScheme === 'auto') {
+            // eslint-disable-next-line react-hooks/immutability
             delete document.documentElement.dataset.colorScheme;
         } else {
+            // eslint-disable-next-line react-hooks/immutability
             document.documentElement.dataset.colorScheme = colorScheme;
         }
     }

@@ -19,7 +19,7 @@ export default [
             },
         },
     },
-    ...(reactHooks as any).configs['flat/recommended'],
+    reactHooks.configs.flat['recommended-latest'],
     a11y.flatConfigs.recommended,
     {
         files: ['**/*.test.{ts,tsx}', '**/__mocks__/*.{ts,tsx}'],

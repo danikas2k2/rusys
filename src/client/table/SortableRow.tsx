@@ -83,16 +83,19 @@ export function SortableRow({
         }
     }, [dragging, onDragEnd, y]);
 
+    // eslint-disable-next-line react-hooks/refs
     const { top = 0, bottom = 0 } = ref.current?.offsetParent?.getBoundingClientRect() ?? {};
     const oy =
+        // eslint-disable-next-line react-hooks/refs
         Math.max(Math.min(y ?? 0, bottom - (ref.current?.getBoundingClientRect()?.height ?? 0)), top) -
         top -
+        // eslint-disable-next-line react-hooks/refs
         ((y && ref.current?.offsetTop) ?? 0);
 
     // calculates delta for vertical position when index changes
-    const sibling = (
-        direction > 0 ? ref.current?.nextElementSibling : ref.current?.previousElementSibling
-    ) as HTMLElement | null;
+    const sibling = // eslint-disable-next-line react-hooks/refs
+        (direction > 0 ? ref.current?.nextElementSibling : ref.current?.previousElementSibling) as HTMLElement | null;
+    // eslint-disable-next-line react-hooks/refs
     const dy = oy && oy - direction * (direction ? (sibling?.offsetHeight ?? 0) : 0);
 
     const handleContextMenu = useCallback((e: MouseEvent) => {
@@ -172,6 +175,7 @@ export function SortableRow({
             onDragEnd={onDragEnd}
         >
             {handle &&
+                // eslint-disable-next-line react-hooks/refs
                 cloneElement(handle, {
                     ref: handleRef,
                     dragging,

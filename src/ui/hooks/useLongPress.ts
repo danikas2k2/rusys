@@ -125,6 +125,7 @@ export function useLongPress<T = HTMLElement>(
 
     return useMemo(() => {
         return {
+            // eslint-disable-next-line react-hooks/refs
             ...getEvents(onStart, onMove, onEnd, onCancel),
             onClick,
             onContextMenu,

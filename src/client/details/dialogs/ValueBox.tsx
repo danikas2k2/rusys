@@ -43,6 +43,7 @@ export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps)
 
     useEffect(() => {
         if (editingVariants?.length === allVariants.length) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setExpanded(true);
         }
     }, [allVariants, editingVariants]);

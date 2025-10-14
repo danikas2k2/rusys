@@ -24,6 +24,7 @@ export function FileInput({
 
     const [files, setFiles] = useState<File[]>([]);
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setFiles([...(ref.current?.files ?? [])]);
     }, [ref]);
 

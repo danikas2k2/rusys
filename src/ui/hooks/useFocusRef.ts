@@ -8,6 +8,7 @@ export interface FocusRefObject<T> extends RefObject<T> {
 
 export function useFocusRef<T extends HTMLElement>(forwardedRef?: ForwardedRef<T>): FocusRefObject<T> {
     const ref = useForwardedRef(forwardedRef);
+    // eslint-disable-next-line react-hooks/refs
     (ref as FocusRefObject<T>).focus = useCallback(() => {
         ref.current?.focus();
     }, [ref]);
