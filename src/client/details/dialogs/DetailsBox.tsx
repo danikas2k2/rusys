@@ -4,14 +4,12 @@ import CloseIcon from '@assets/close.svg';
 import DoneIcon from '@assets/done.svg';
 import MoveIcon from '@assets/move-item.svg';
 
-import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
+import React, { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 
 import { isEmpty } from 'lodash';
 
 import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
-import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-import { useFocusRef } from '@ui/hooks/useFocusRef';
 import { Input } from '@ui/Input';
 import { Option, Select } from '@ui/Select';
 
@@ -57,15 +55,16 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
     const detailsMoved = !!initialGroup && group !== initialGroup;
     const detailsRenamed = !!initialName && name !== initialName;
     const hasName = hasSameName && !updating && (detailsAdded || detailsMoved || detailsRenamed);
-
     useEffect(() => {
         if (hasName && isEmpty(errors)) {
             setErrors({ _: ERROR_EXISTS });
         }
     }, [hasName, errors]);
 
-    const groupRef = useFocusRef<HTMLInputElement>();
-    const nameRef = useAutoFocus<HTMLInputElement>();
+    const groupRef = useRef<HTMLInputElement>(null);
+
+    const nameRef = useRef<HTMLInputElement>(null);
+    useEffect(() => nameRef.current?.focus(), []);
 
     const addDetails = useAddDetails();
     const moveDetails = useMoveDetails();
@@ -84,7 +83,7 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
             setErrors(newErrors);
         }
         if (!isEmpty(newErrors) || hasName) {
-            focusRef?.focus();
+            focusRef.current?.focus();
             return;
         }
         try {
@@ -99,7 +98,7 @@ export function DetailsBox({ group: initialGroup = '', name: initialName = '', o
             onClose(group, name);
         } catch (e) {
             setErrors({ _: getErrorMessage(e) });
-            nameRef?.focus();
+            nameRef.current?.focus();
         } finally {
             setUpdating(false);
         }
