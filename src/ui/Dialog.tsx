@@ -1,7 +1,7 @@
 import React, {
     useCallback,
     useEffect,
-    useState,
+    useRef,
     type DialogHTMLAttributes,
     type KeyboardEvent,
     type ReactNode,
@@ -37,12 +37,13 @@ export function Dialog({
     fullscreen,
     ...props
 }: DialogProps) {
-    const [wasOpen] = useState(open);
+    const openRef = useRef(open);
     useEffect(() => {
-        if (!wasOpen && open) {
+        if (!openRef.current && open) {
             onOpen?.();
         }
-    }, [onOpen, open, wasOpen]);
+        openRef.current = open;
+    }, [onOpen, open]);
 
     const handleEscape = useCallback(
         (e: KeyboardEvent<HTMLElement>) => {
@@ -55,7 +56,7 @@ export function Dialog({
 
     const stopPropagation = useCallback((e: SyntheticEvent) => e.stopPropagation(), []);
 
-    return wasOpen ? (
+    return open ? (
         <Portal>
             <Interactive
                 className={cx('Backdrop')}
