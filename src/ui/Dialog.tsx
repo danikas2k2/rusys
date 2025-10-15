@@ -1,6 +1,7 @@
 import React, {
     useCallback,
     useEffect,
+    useState,
     type DialogHTMLAttributes,
     type KeyboardEvent,
     type ReactNode,
@@ -10,7 +11,6 @@ import React, {
 import { Interactive } from '@ui/Interactive';
 import { Portal } from '@ui/Portal';
 
-import { usePreviousValue } from '~/client/state/common/usePreviousValue';
 import cx from './Dialog.pcss';
 
 export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
@@ -27,7 +27,7 @@ export interface DialogProps extends DialogHTMLAttributes<HTMLDivElement> {
 // TODO refactor to use `useFocusTrap` hook
 // TODO add translation context and translate backdrop label
 export function Dialog({
-    open,
+    open = false,
     closeOnOutsideClick = true,
     closeOnEscape = true,
     children,
@@ -37,9 +37,9 @@ export function Dialog({
     fullscreen,
     ...props
 }: DialogProps) {
-    const wasOpen = usePreviousValue(open) ?? open;
+    const [wasOpen] = useState(open);
     useEffect(() => {
-        if (!wasOpen) {
+        if (!wasOpen && open) {
             onOpen?.();
         }
     }, [onOpen, open, wasOpen]);
@@ -55,7 +55,7 @@ export function Dialog({
 
     const stopPropagation = useCallback((e: SyntheticEvent) => e.stopPropagation(), []);
 
-    return open ? (
+    return wasOpen ? (
         <Portal>
             <Interactive
                 className={cx('Backdrop')}

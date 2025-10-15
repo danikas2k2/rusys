@@ -14,7 +14,6 @@ import { defer } from 'lodash';
 
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 
-import { usePreviousValue } from '~/client/state/common/usePreviousValue';
 import { RowWithSlideControls, type RowWithSlideControlsProps } from '~/client/table/RowWithSlideControls';
 import cx from './SortableRow.pcss';
 
@@ -40,18 +39,29 @@ export function SortableRow({
 
     const [dragging, setDragging] = useState(false);
     const [y, setY] = useState<number>(0);
+    const [dy, setDy] = useState(0);
     const [offsetY, setOffsetY] = useState(0);
-    const yChanged = y !== (usePreviousValue(y) ?? 0);
+    const [bottom, setBottom] = useState(0);
+    const [top, setTop] = useState(0);
+    const [offsetTop, setOffsetTop] = useState(0);
+    const [sibling, setSibling] = useState<HTMLElement | null>(null);
 
-    const prevIndex = usePreviousValue(index) ?? index;
+    const [prevIndex, setPrevIndex] = useState(index);
     const direction = Math.sign(index - prevIndex);
-    if (dragging && !direction && yChanged) {
-        defer(() => onDrag?.());
-    }
+    useEffect(() => setPrevIndex(index), [index]);
+
+    const [prevY, setPrevY] = useState(0);
+    const dragged = y !== prevY && dragging && !direction;
+    useEffect(() => setPrevY(y), [y]);
+    useEffect(() => {
+        if (dragged) {
+            defer(() => onDrag?.());
+        }
+    }, [dragged, onDrag]);
 
     const handleDragStart = useCallback(
-        (clientY: number, top = 0) => {
-            setOffsetY(clientY - top);
+        (clientY: number, clientTop = 0) => {
+            setOffsetY(clientY - clientTop);
             if (y) {
                 setY(0);
             }
@@ -83,20 +93,31 @@ export function SortableRow({
         }
     }, [dragging, onDragEnd, y]);
 
-    // eslint-disable-next-line react-hooks/refs
-    const { top = 0, bottom = 0 } = ref.current?.offsetParent?.getBoundingClientRect() ?? {};
-    const oy =
-        // eslint-disable-next-line react-hooks/refs
-        Math.max(Math.min(y ?? 0, bottom - (ref.current?.getBoundingClientRect()?.height ?? 0)), top) -
-        top -
-        // eslint-disable-next-line react-hooks/refs
-        ((y && ref.current?.offsetTop) ?? 0);
+    // Update ref-dependent values when dragging or y changes
+    useEffect(() => {
+        if (ref.current) {
+            const { top: newTop = 0, bottom: newBottom = 0 } = ref.current.offsetParent?.getBoundingClientRect() ?? {};
+            setTop(newTop);
+            setBottom(newBottom);
+            setOffsetTop(ref.current.offsetTop);
 
-    // calculates delta for vertical position when index changes
-    const sibling = // eslint-disable-next-line react-hooks/refs
-        (direction > 0 ? ref.current?.nextElementSibling : ref.current?.previousElementSibling) as HTMLElement | null;
-    // eslint-disable-next-line react-hooks/refs
-    const dy = oy && oy - direction * (direction ? (sibling?.offsetHeight ?? 0) : 0);
+            const newSibling = (
+                direction > 0 ? ref.current.nextElementSibling : ref.current.previousElementSibling
+            ) as HTMLElement | null;
+            setSibling(newSibling);
+        }
+    }, [dragging, y, direction, ref]);
+
+    // Calculate oy and dy when relevant values change
+    useEffect(() => {
+        const oy =
+            Math.max(Math.min(y ?? 0, bottom - (ref.current?.getBoundingClientRect()?.height ?? 0)), top) -
+            top -
+            ((y && offsetTop) ?? 0);
+
+        const newDy = oy && oy - direction * (direction ? (sibling?.offsetHeight ?? 0) : 0);
+        setDy(newDy);
+    }, [y, bottom, top, offsetTop, direction, sibling, ref]);
 
     const handleContextMenu = useCallback((e: MouseEvent) => {
         e.preventDefault();
@@ -160,7 +181,7 @@ export function SortableRow({
             el?.removeEventListener('touchmove', handleTouchMove);
             el?.removeEventListener('touchcancel', handleEnd);
         };
-    }, [handleContextMenu, handleEnd, handleMouseDown, handleMouseMove, handleTouchMove, handleTouchStart, ref]);
+    }, [handleContextMenu, handleEnd, handleMouseDown, handleMouseMove, handleTouchMove, handleTouchStart]);
 
     return (
         <RowWithSlideControls

@@ -2,8 +2,6 @@ import React, { createContext, useCallback, useEffect, useState, type JSX, type 
 
 import { noop } from 'lodash';
 
-import { usePreviousValue } from '~/client/state/common/usePreviousValue';
-
 export type ColorScheme = 'light' | 'dark' | 'auto';
 
 export type ColorSchemeHandler = (colorScheme: ColorScheme) => void;
@@ -17,16 +15,13 @@ export function ColorSchemeState({ children }: PropsWithChildren): JSX.Element {
         (localStorage.getItem(COLOR_SCHEME_KEY) as ColorScheme) ?? 'auto'
     );
 
-    const previousColorScheme = usePreviousValue(colorScheme) ?? colorScheme;
     useEffect(() => {
-        if (previousColorScheme !== colorScheme) {
-            if (colorScheme === 'auto') {
-                localStorage.removeItem(COLOR_SCHEME_KEY);
-            } else {
-                localStorage.setItem(COLOR_SCHEME_KEY, colorScheme);
-            }
+        if (colorScheme === 'auto') {
+            localStorage.removeItem(COLOR_SCHEME_KEY);
+        } else {
+            localStorage.setItem(COLOR_SCHEME_KEY, colorScheme);
         }
-    }, [colorScheme, previousColorScheme]);
+    }, [colorScheme]);
 
     const storageListener = useCallback(
         (e: StorageEvent) => {

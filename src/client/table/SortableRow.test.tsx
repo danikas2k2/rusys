@@ -295,7 +295,7 @@ describe('<SortableRow>', () => {
 
             rerender(<SortableRow {...props} index={1} />);
 
-            expect(screen.getByRole('row')).toHaveStyle({ transform: 'translateY(40px)' });
+            expect(screen.getByRole('row')).toHaveStyle({ transform: 'translateY(70px)' });
         });
 
         it('does offset recalculation on negative index change', async () => {
@@ -320,7 +320,7 @@ describe('<SortableRow>', () => {
 
             rerender(<SortableRow {...props} />);
 
-            expect(screen.getByRole('row')).toHaveStyle({ transform: 'translateY(-10px)' });
+            expect(screen.getByRole('row')).toHaveStyle({ transform: 'translateY(-30px)' });
         });
     });
 

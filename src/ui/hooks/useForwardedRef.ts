@@ -1,21 +1,21 @@
 import { useEffect, useRef, type ForwardedRef, type RefObject } from 'react';
 
 export function useForwardedRef<T extends Element>(
-    ref: ForwardedRef<T> | undefined,
+    forwardedRef: ForwardedRef<T> | undefined,
     initialValue: T | null = null
 ): RefObject<T | null> {
-    const targetRef = useRef<T>(initialValue);
-    const refCurrent = (ref as RefObject<T>)?.current;
+    const localRef = useRef<T>(initialValue);
     useEffect(() => {
-        if (!ref) {
-            return;
+        if (forwardedRef) {
+            const current = localRef.current;
+            if (typeof forwardedRef === 'function') {
+                forwardedRef(current);
+            } else {
+                // TODO rewrite to avoid mutation
+                // eslint-disable-next-line react-hooks/immutability
+                forwardedRef.current = current;
+            }
         }
-        if (typeof ref === 'function') {
-            ref(targetRef.current);
-        } else {
-            // eslint-disable-next-line react-hooks/immutability
-            ref.current = targetRef.current;
-        }
-    }, [ref, refCurrent]);
-    return targetRef;
+    }, [forwardedRef]);
+    return localRef;
 }
