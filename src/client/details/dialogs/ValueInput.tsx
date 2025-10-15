@@ -1,10 +1,9 @@
 import AddIcon from '@assets/add.svg';
 import RemoveIcon from '@assets/remove.svg';
 
-import React, { useCallback, useEffect, type ChangeEvent, type KeyboardEvent, type RefAttributes } from 'react';
+import React, { useCallback, useEffect, useRef, type ChangeEvent, type KeyboardEvent, type RefAttributes } from 'react';
 
 import { Button, ButtonGroup } from '@ui/Button';
-import { useFocusRef } from '@ui/hooks/useFocusRef';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { Input } from '@ui/Input';
 
@@ -36,10 +35,11 @@ export function ValueInput({
     onFocus,
     onBlur,
 }: ValueInputProps) {
-    const ref = useFocusRef(useForwardedRef(forwardedRef));
+    const [ref, setRef] = useForwardedRef(forwardedRef);
+
     useEffect(() => {
         if (focus) {
-            ref?.focus();
+            ref.current?.focus();
         }
     }, [focus, ref]);
 
@@ -49,12 +49,12 @@ export function ValueInput({
 
     const onDecreaseClick = useCallback(() => {
         decrease();
-        ref?.focus();
+        ref.current?.focus();
     }, [decrease, ref]);
 
     const onIncreaseClick = useCallback(() => {
         increase();
-        ref?.focus();
+        ref.current?.focus();
     }, [increase, ref]);
 
     const onKeyDown = useCallback(
@@ -100,7 +100,7 @@ export function ValueInput({
             </div>
             <div className={cx('input')}>
                 <Input
-                    ref={ref}
+                    ref={setRef}
                     aria-label={variant}
                     aria-current={focus}
                     className={cx('value')}

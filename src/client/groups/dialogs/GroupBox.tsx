@@ -3,14 +3,13 @@ import CancelIcon from '@assets/cancel.svg';
 import CloseIcon from '@assets/close.svg';
 import DoneIcon from '@assets/done.svg';
 
-import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
+import React, { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 
 import { isEmpty } from 'lodash';
 
 import { Button, IconButton } from '@ui/Button';
 import { Checkbox } from '@ui/Checkbox';
 import { Dialog } from '@ui/Dialog';
-import { useAutoFocus } from '@ui/hooks/useAutoFocus';
 import { Input } from '@ui/Input';
 
 import { Label } from '~/client/common/Label';
@@ -57,13 +56,15 @@ export function GroupBox({ group: initialGroup = '', annual: initialAnnual = tru
 
     const annualChanged = annual !== initialAnnual;
 
-    const focusRef = useAutoFocus<HTMLInputElement>();
+    const focusRef = useRef<HTMLInputElement>(null);
+    useEffect(() => focusRef.current?.focus(), []);
+
     const handleUpdate = useCallback(async (): Promise<void> => {
         if (!group) {
             setErrors({ group: ERROR_NAME_MISSING });
         }
         if (!group || hasGroup) {
-            focusRef?.focus();
+            focusRef.current?.focus();
             return;
         }
         try {
@@ -76,7 +77,7 @@ export function GroupBox({ group: initialGroup = '', annual: initialAnnual = tru
             onClose(group);
         } catch (e) {
             setErrors({ _: getErrorMessage(e) });
-            focusRef?.focus();
+            focusRef.current?.focus();
         } finally {
             setUpdating(false);
         }
