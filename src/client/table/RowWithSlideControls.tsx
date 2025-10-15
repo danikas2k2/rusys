@@ -15,7 +15,6 @@ import { defer } from 'lodash';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { POINTER_MOVE_THRESHOLD } from '@ui/utils/values';
 
-import { usePreviousValue } from '~/client/state/common/usePreviousValue';
 import { Row, type RowProps } from '~/client/table/Row';
 
 export interface RowWithSlideControlsProps extends RowProps {
@@ -52,10 +51,14 @@ export function RowWithSlideControls({
         setInitialX(0);
     }
 
-    const xChanged = x !== (usePreviousValue(x) ?? 0);
-    if (dragging && moving && xChanged) {
-        defer(() => onDrag?.());
-    }
+    const [prevX, setPrevX] = useState(0);
+    const dragged = x !== prevX && dragging && moving;
+    useEffect(() => setPrevX(x ?? 0), [x]);
+    useEffect(() => {
+        if (dragged) {
+            defer(() => onDrag?.());
+        }
+    }, [dragged, onDrag]);
 
     const getControlWidth = useCallback(
         (): number =>

@@ -19,7 +19,6 @@ import React, {
 import { Interactive } from '@ui/Interactive';
 import { Portal } from '@ui/Portal';
 
-import { usePreviousValue } from '~/client/state/common/usePreviousValue';
 import cx from './Dropdown.pcss';
 
 interface DropdownTriggerElementProps {
@@ -71,18 +70,9 @@ export function Dropdown({
     const [open, setOpen] = useState(initialOpen);
     useEffect(() => {
         if (open !== initialOpen) {
-            setOpen(initialOpen);
-        }
-        // Don't add `open` to the dependencies array, it will cause infinite loop
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [initialOpen]);
-
-    const wasOpen = usePreviousValue(open) ?? open;
-    useEffect(() => {
-        if (open !== wasOpen) {
             (open ? onOpen : onClose)?.();
         }
-    }, [onClose, onOpen, open, wasOpen]);
+    }, [initialOpen, onClose, onOpen, open]);
 
     const handleOpen = useCallback(() => {
         if (!open) {
@@ -129,8 +119,10 @@ export function Dropdown({
     const triggerRef = useRef<HTMLDivElement | null>(null);
     const anchors = Array.isArray(anchor) ? anchor : [anchor, anchor];
     const hAnchor = anchors[0] ?? triggerRef;
+    // eslint-disable-next-line react-hooks/refs
     const h = hAnchor?.current?.getBoundingClientRect();
     const vAnchor = anchors[1] ?? triggerRef;
+    // eslint-disable-next-line react-hooks/refs
     const v = vAnchor?.current?.getBoundingClientRect();
     const insetInlineStart = (h?.x ?? 0) + window.scrollX;
     const insetBlockStart = (v?.y ?? 0) + window.scrollY + (hover ? 0 : (v?.height ?? 0));
@@ -169,6 +161,7 @@ export function Dropdown({
         <>
             {trigger &&
                 (isValidElement(trigger) ? (
+                    // eslint-disable-next-line react-hooks/refs
                     cloneElement<DropdownTriggerElementProps>(trigger, { ref: triggerRef, onClick: handleToggle })
                 ) : (
                     <Interactive tag="span" ref={triggerRef} onClick={handleToggle}>
