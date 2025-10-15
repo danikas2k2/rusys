@@ -23,7 +23,7 @@ import cx from './Dropdown.pcss';
 
 interface DropdownTriggerElementProps {
     onClick: MouseEventHandler;
-    ref: RefObject<HTMLElement | null>;
+    ref?: RefObject<HTMLElement | null> | ((node: HTMLElement | null) => void);
 }
 
 interface DropdownTriggerFunctionProps {
@@ -117,17 +117,60 @@ export function Dropdown({
     const stopPropagation = useCallback((e: SyntheticEvent) => e.stopPropagation(), []);
 
     const triggerRef = useRef<HTMLDivElement | null>(null);
+    const [position, setPosition] = useState({
+        insetInlineStart: 0,
+        insetBlockStart: 0,
+        minWidth: 0,
+        width: 'auto' as string | number,
+    });
+
     const anchors = Array.isArray(anchor) ? anchor : [anchor, anchor];
     const hAnchor = anchors[0] ?? triggerRef;
-    // eslint-disable-next-line react-hooks/refs
-    const h = hAnchor?.current?.getBoundingClientRect();
     const vAnchor = anchors[1] ?? triggerRef;
-    // eslint-disable-next-line react-hooks/refs
-    const v = vAnchor?.current?.getBoundingClientRect();
-    const insetInlineStart = (h?.x ?? 0) + window.scrollX;
-    const insetBlockStart = (v?.y ?? 0) + window.scrollY + (hover ? 0 : (v?.height ?? 0));
-    const minWidth = h?.width ?? 0;
-    const width = autoWidth ? 'auto' : minWidth;
+
+    const updatePosition = useCallback(() => {
+        if (!open) {
+            return;
+        }
+
+        const h = hAnchor?.current?.getBoundingClientRect();
+        const v = vAnchor?.current?.getBoundingClientRect();
+
+        if (h && v) {
+            const insetInlineStart = h.x + window.scrollX;
+            const insetBlockStart = v.y + window.scrollY + (hover ? 0 : v.height);
+            const minWidth = h.width;
+            const width = autoWidth ? 'auto' : minWidth;
+
+            setPosition({
+                insetInlineStart,
+                insetBlockStart,
+                minWidth,
+                width,
+            });
+        }
+    }, [open, hAnchor, vAnchor, hover, autoWidth]);
+
+    useEffect(() => {
+        updatePosition();
+    }, [updatePosition]);
+
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+
+        const handleResize = () => updatePosition();
+        const handleScroll = () => updatePosition();
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('scroll', handleScroll, true);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('scroll', handleScroll, true);
+        };
+    }, [open, updatePosition]);
 
     const dropdown = open ? (
         <Portal>
@@ -145,10 +188,10 @@ export function Dropdown({
                     onClick={stopPropagation}
                     {...props}
                     style={{
-                        insetInlineStart: `${insetInlineStart}px`,
-                        insetBlockStart: `${insetBlockStart}px`,
-                        minWidth: `${minWidth}px`,
-                        width: `${width}px`,
+                        insetInlineStart: `${position.insetInlineStart}px`,
+                        insetBlockStart: `${position.insetBlockStart}px`,
+                        minWidth: `${position.minWidth}px`,
+                        width: typeof position.width === 'number' ? `${position.width}px` : position.width,
                     }}
                 >
                     {children}
