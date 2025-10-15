@@ -1,6 +1,5 @@
 import {
     useCallback,
-    useMemo,
     useRef,
     type EventHandler,
     type MouseEvent,
@@ -123,14 +122,12 @@ export function useLongPress<T = HTMLElement>(
         e.stopPropagation();
     }, []);
 
-    return useMemo(() => {
-        return {
-            // eslint-disable-next-line react-hooks/refs
-            ...getEvents(onStart, onMove, onEnd, onCancel),
-            onClick,
-            onContextMenu,
-        };
-    }, [onStart, onEnd, onMove, onCancel, onClick, onContextMenu]);
+    return {
+        // eslint-disable-next-line react-hooks/refs -- refs are used to keep the same reference for the event handlers
+        ...getEvents(onStart, onMove, onEnd, onCancel),
+        onClick,
+        onContextMenu,
+    };
 }
 
 function getX<T>(e: PressEvent<T>): number {
