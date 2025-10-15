@@ -29,7 +29,6 @@ import { useForwardedRef } from '@ui/hooks/useForwardedRef';
 import { getDecoratorType } from '@ui/utils/getDecoratorType';
 import { setCaretPosition } from '@ui/utils/setCaretPosition';
 
-import { usePreviousValue } from '~/client/state/common/usePreviousValue';
 import cx from './Input.pcss';
 
 export type InputMode = 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search';
@@ -133,15 +132,12 @@ export function Input({
 
     const hasValue = !!(value || defaultValue);
     const [clear, setClear] = useState<boolean>(clearable && hasValue);
+    useEffect(() => setClear(clearable && hasValue), [clearable, hasValue]);
     useEffect(() => {
-        setClear(clearable && hasValue);
-    }, [clearable, hasValue]);
-    const prevValue = usePreviousValue(value) ?? value;
-    useEffect(() => {
-        if (clearable && value !== prevValue) {
+        if (clearable) {
             setClear(!!value);
         }
-    }, [clearable, prevValue, value]);
+    }, [clearable, value]);
 
     const handleInput = useCallback(
         (e: FormEvent<HTMLInputElement>) => {

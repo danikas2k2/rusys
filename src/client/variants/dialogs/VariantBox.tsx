@@ -4,14 +4,12 @@ import CloseIcon from '@assets/close.svg';
 import CopyIcon from '@assets/content-copy.svg';
 import DoneIcon from '@assets/done.svg';
 
-import React, { useCallback, useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
+import React, { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 
 import { isEmpty } from 'lodash';
 
 import { Button, IconButton } from '@ui/Button';
 import { Dialog } from '@ui/Dialog';
-import { useAutoFocus } from '@ui/hooks/useAutoFocus';
-import { useFocusRef } from '@ui/hooks/useFocusRef';
 import { Input } from '@ui/Input';
 import { Option, Select } from '@ui/Select';
 
@@ -71,8 +69,10 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
         }
     }, [hasVariant, errors]);
 
-    const groupRef = useFocusRef<HTMLInputElement>();
-    const nameRef = useAutoFocus<HTMLInputElement>();
+    const groupRef = useRef<HTMLInputElement>(null);
+
+    const nameRef = useRef<HTMLInputElement>(null);
+    useEffect(() => nameRef.current?.focus(), []);
 
     const copyVariant = useCopyVariant();
     const renameVariant = useRenameVariant();
@@ -91,7 +91,7 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
             setErrors(newErrors);
         }
         if (!isEmpty(newErrors) || hasVariant) {
-            focusRef?.focus();
+            focusRef.current?.focus();
             return;
         }
         try {
@@ -109,7 +109,7 @@ export function VariantBox({ group: initialGroup = '', variant: initialVariant =
             onClose(group, variant);
         } catch (e) {
             setErrors({ _: getErrorMessage(e) });
-            nameRef?.focus();
+            nameRef.current?.focus();
         } finally {
             setUpdating(false);
         }
