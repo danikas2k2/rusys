@@ -35,10 +35,7 @@ export function FileInput({
     const id = useId();
     return (
         <Input
-            ref={(node) => {
-                ref.current = node;
-                setFiles([...(node?.files ?? [])]);
-            }}
+            ref={ref}
             id={initialId ?? id}
             label={label}
             placeholder={placeholder}
