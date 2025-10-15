@@ -29,28 +29,20 @@ export interface ValueBoxProps {
 
 // TODO refactor: extract single element with input element and all handlers to avoid multiple re-renders
 export function ValueBox({ group, name, year, amounts, onClose }: ValueBoxProps) {
-    const [expanded, setExpanded] = useState(false);
     const allVariants = useAllVariants(group);
-    const compareVariants = useGroupVariantComparator(group);
     const amountVariants = useMemo<string[]>(() => amounts?.map((v) => v.variant) ?? [], [amounts]);
-    const editingVariants = useMemo(() => {
-        if (expanded) {
-            return allVariants;
-        }
+    const compareVariants = useGroupVariantComparator(group);
+    const availableVariants = useMemo(() => {
         const variants = amountVariants.sort(compareVariants);
         return variants.length ? variants : allVariants.slice(0, 1);
-    }, [allVariants, amountVariants, compareVariants, expanded]);
+    }, [allVariants, amountVariants, compareVariants]);
 
-    useEffect(() => {
-        if (editingVariants?.length === allVariants.length) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setExpanded(true);
-        }
-    }, [allVariants, editingVariants]);
-
+    const [expanded, setExpanded] = useState(allVariants.length === availableVariants.length);
     const handleExpand = useCallback((): void => {
         setExpanded(true);
     }, []);
+
+    const editingVariants = expanded ? allVariants : availableVariants;
 
     const refs = useRef<Record<string, HTMLInputElement | null>>({});
     const [focused, setFocused] = useState<string>(editingVariants[0]);

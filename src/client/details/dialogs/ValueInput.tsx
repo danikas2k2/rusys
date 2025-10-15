@@ -1,7 +1,7 @@
 import AddIcon from '@assets/add.svg';
 import RemoveIcon from '@assets/remove.svg';
 
-import React, { useCallback, useEffect, useRef, type ChangeEvent, type KeyboardEvent, type RefAttributes } from 'react';
+import React, { useCallback, useEffect, type ChangeEvent, type KeyboardEvent, type RefAttributes } from 'react';
 
 import { Button, ButtonGroup } from '@ui/Button';
 import { useForwardedRef } from '@ui/hooks/useForwardedRef';
@@ -35,7 +35,7 @@ export function ValueInput({
     onFocus,
     onBlur,
 }: ValueInputProps) {
-    const [ref, setRef] = useForwardedRef(forwardedRef);
+    const ref = useForwardedRef(forwardedRef);
 
     useEffect(() => {
         if (focus) {
@@ -100,7 +100,7 @@ export function ValueInput({
             </div>
             <div className={cx('input')}>
                 <Input
-                    ref={setRef}
+                    ref={ref}
                     aria-label={variant}
                     aria-current={focus}
                     className={cx('value')}
