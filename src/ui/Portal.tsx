@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { useId, useLayoutEffect, useMemo, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 interface PortalProps {
@@ -6,30 +6,31 @@ interface PortalProps {
 }
 
 const usePortalRoot = (): HTMLElement => {
-    const idRef = useRef(useId());
-    // eslint-disable-next-line react-hooks/refs
-    const rootRef = useRef<HTMLElement | null>(document.getElementById(idRef.current));
-    // eslint-disable-next-line react-hooks/refs
-    if (!rootRef.current) {
-        rootRef.current = document.createElement('div');
-        // eslint-disable-next-line react-hooks/refs
-        rootRef.current.id = idRef.current;
-        // eslint-disable-next-line react-hooks/refs
-        rootRef.current.setAttribute('role', 'complementary');
-        // eslint-disable-next-line react-hooks/refs
-        rootRef.current.setAttribute('aria-label', 'portal');
-        // eslint-disable-next-line react-hooks/refs
-        document.body.appendChild(rootRef.current);
-    }
+    const id = useId();
 
-    useEffect(() => {
+    const portalRoot = useMemo(() => {
+        // Check if element already exists
+        const existingElement = document.getElementById(id);
+        if (existingElement) {
+            return existingElement;
+        }
+
+        // Create new element
+        const element = document.createElement('div');
+        element.id = id;
+        element.setAttribute('role', 'complementary');
+        element.setAttribute('aria-label', 'portal');
+        document.body.appendChild(element);
+        return element;
+    }, [id]);
+
+    useLayoutEffect(() => {
         return () => {
-            rootRef.current?.remove();
+            document.getElementById(id)?.remove();
         };
-    }, []);
+    }, [id]);
 
-    // eslint-disable-next-line react-hooks/refs
-    return rootRef.current;
+    return portalRoot;
 };
 
 export function Portal({ children }: PortalProps) {
