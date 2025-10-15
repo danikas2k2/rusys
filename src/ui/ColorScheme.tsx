@@ -12,12 +12,15 @@ export const ColorSchemeContext = createContext<[ColorScheme, ColorSchemeHandler
 
 export function ColorSchemeState({ children }: PropsWithChildren): JSX.Element {
     const [colorScheme, setColorScheme] = useState<ColorScheme>(
-        (localStorage.getItem(COLOR_SCHEME_KEY) as ColorScheme) ?? 'auto'
+        () => (localStorage.getItem(COLOR_SCHEME_KEY) as ColorScheme) ?? 'auto'
     );
 
     useEffect(() => {
         if (colorScheme === 'auto') {
-            localStorage.removeItem(COLOR_SCHEME_KEY);
+            const current = localStorage.getItem(COLOR_SCHEME_KEY);
+            if (current !== null) {
+                localStorage.removeItem(COLOR_SCHEME_KEY);
+            }
         } else {
             localStorage.setItem(COLOR_SCHEME_KEY, colorScheme);
         }
