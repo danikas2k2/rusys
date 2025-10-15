@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import { type ColorScheme } from '@ui/ColorScheme';
 import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
 import { usePreferredColorScheme } from '@ui/hooks/usePreferredColorScheme';
@@ -7,16 +9,16 @@ export function useDocumentColorScheme(auto = true): ColorScheme {
     const preferredColorScheme = usePreferredColorScheme();
     const colorScheme = auto || currentColorScheme !== 'auto' ? currentColorScheme : preferredColorScheme;
 
-    const documentColorScheme = document.documentElement.dataset.colorScheme ?? 'auto';
-    if (colorScheme !== documentColorScheme) {
-        if (auto && colorScheme === 'auto') {
-            // eslint-disable-next-line react-hooks/immutability
-            delete document.documentElement.dataset.colorScheme;
-        } else {
-            // eslint-disable-next-line react-hooks/immutability
-            document.documentElement.dataset.colorScheme = colorScheme;
+    useEffect(() => {
+        const dataset = document.documentElement.dataset;
+        if (colorScheme !== (dataset.colorScheme ?? 'auto')) {
+            if (auto && colorScheme === 'auto') {
+                delete dataset.colorScheme;
+            } else {
+                dataset.colorScheme = colorScheme;
+            }
         }
-    }
+    }, [auto, colorScheme]);
 
     return colorScheme as ColorScheme;
 }
