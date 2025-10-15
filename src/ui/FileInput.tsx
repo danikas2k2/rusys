@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useId, useState, type FormEvent } from 'react';
+import React, { useCallback, useId, useState, type FormEvent } from 'react';
 
 import cs from 'classnames';
 
@@ -23,10 +23,6 @@ export function FileInput({
     const ref = useForwardedRef(forwardedRef);
 
     const [files, setFiles] = useState<File[]>([]);
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setFiles([...(ref.current?.files ?? [])]);
-    }, [ref]);
 
     const handleInput = useCallback(
         (e: FormEvent<HTMLInputElement>) => {
@@ -39,7 +35,10 @@ export function FileInput({
     const id = useId();
     return (
         <Input
-            ref={ref}
+            ref={(node) => {
+                ref.current = node;
+                setFiles([...(node?.files ?? [])]);
+            }}
             id={initialId ?? id}
             label={label}
             placeholder={placeholder}
