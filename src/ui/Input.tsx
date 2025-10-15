@@ -132,12 +132,11 @@ export function Input({
 
     const hasValue = !!(value || defaultValue);
     const [clear, setClear] = useState<boolean>(clearable && hasValue);
-    useEffect(() => setClear(clearable && hasValue), [clearable, hasValue]);
     useEffect(() => {
         if (clearable) {
-            setClear(!!value);
+            setClear(!!(value || defaultValue));
         }
-    }, [clearable, value]);
+    }, [clearable, value, defaultValue]);
 
     const handleInput = useCallback(
         (e: FormEvent<HTMLInputElement>) => {
