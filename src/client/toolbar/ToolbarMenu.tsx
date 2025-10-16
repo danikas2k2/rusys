@@ -5,7 +5,6 @@ import { type DropdownRef } from '@ui/Dropdown';
 import { MenuDivider } from '@ui/MenuDivider';
 
 import { ImportBox } from '~/client/common/dialogs/ImportBox';
-import { type WithOnClose } from '~/client/common/WithOnClose';
 import { DetailsBox } from '~/client/details/dialogs/DetailsBox';
 import { GroupBox } from '~/client/groups/dialogs/GroupBox';
 import { useToggle } from '~/client/hooks/useToggle';
@@ -21,7 +20,7 @@ import { VariantsItem } from '~/client/toolbar/items/VariantsItem';
 import { ToolbarMenuWrapper } from '~/client/toolbar/ToolbarMenuWrapper';
 import { VariantBox } from '~/client/variants/dialogs/VariantBox';
 
-const AddBoxMap: Partial<Record<Links, FC<WithOnClose>>> = {
+const AddBoxMap: Partial<Record<Links, FC<{ onClose: () => void }>>> = {
     [Links.DETAILS]: DetailsBox,
     [Links.GROUPS]: GroupBox,
     [Links.VARIANTS]: VariantBox,

@@ -5,7 +5,6 @@ import { MockRoute } from '@tests/MockRoute';
 
 import React from 'react';
 
-import { type WithOnClose } from '~/client/common/WithOnClose';
 import { Links } from '~/client/Links';
 import { ToolbarMenu } from '~/client/toolbar/ToolbarMenu';
 
@@ -14,13 +13,13 @@ jest.mock('react-router-dom', () => ({
     useNavigate: jest.fn(),
 }));
 jest.mock('~/client/details/dialogs/DetailsBox', () => ({
-    DetailsBox: ({ onClose }: WithOnClose) => <button onClick={onClose}>DetailsBox</button>,
+    DetailsBox: ({ onClose }: { onClose: () => void }) => <button onClick={onClose}>DetailsBox</button>,
 }));
 jest.mock('~/client/groups/dialogs/GroupBox', () => ({
-    GroupBox: ({ onClose }: WithOnClose) => <button onClick={onClose}>GroupBox</button>,
+    GroupBox: ({ onClose }: { onClose: () => void }) => <button onClick={onClose}>GroupBox</button>,
 }));
 jest.mock('~/client/variants/dialogs/VariantBox', () => ({
-    VariantBox: ({ onClose }: WithOnClose) => <button onClick={onClose}>VariantBox</button>,
+    VariantBox: ({ onClose }: { onClose: () => void }) => <button onClick={onClose}>VariantBox</button>,
 }));
 
 describe('<ToolbarMenu>', () => {

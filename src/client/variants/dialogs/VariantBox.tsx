@@ -14,7 +14,6 @@ import { Input } from '@ui/Input';
 import { Option, Select } from '@ui/Select';
 
 import { Label } from '~/client/common/Label';
-import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useGroups } from '~/client/state/groups/useGroups';
@@ -28,7 +27,7 @@ import { getErrorMessage } from '~/client/utils/errors';
 import { type Variant } from '~/types/data';
 import cx from './VariantBox.pcss';
 
-interface VariantBoxProps extends WithOnClose {
+interface VariantBoxProps {
     group?: string;
     variant?: string;
     onClose: (group?: string, variant?: string) => void;
