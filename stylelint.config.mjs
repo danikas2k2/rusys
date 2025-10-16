@@ -23,7 +23,7 @@ export default {
                         },
                     },
                 ],
-                'function-no-unknown': [true, { ignoreFunctions: ['constant', 'env'] }],
+                'function-no-unknown': [true, { ignoreFunctions: ['constant', 'env', 'light-dark'] }],
             },
         },
         {
