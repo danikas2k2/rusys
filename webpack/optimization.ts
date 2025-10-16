@@ -1,7 +1,8 @@
-import { type WebpackOptimization } from './types';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { EsbuildPlugin } from 'esbuild-loader';
+
+import { type WebpackOptimization } from './types';
 
 export function getOptimization(isDevMode: boolean): WebpackOptimization {
     const esbuild = new EsbuildPlugin({
