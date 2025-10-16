@@ -204,7 +204,7 @@ export function Dropdown({
         <>
             {trigger &&
                 (isValidElement(trigger) ? (
-                    // eslint-disable-next-line react-hooks/refs
+                    // eslint-disable-next-line react-hooks/refs -- ref is needed here
                     cloneElement<DropdownTriggerElementProps>(trigger, { ref: triggerRef, onClick: handleToggle })
                 ) : (
                     <Interactive tag="span" ref={triggerRef} onClick={handleToggle}>

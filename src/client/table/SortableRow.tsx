@@ -196,7 +196,7 @@ export function SortableRow({
             onDragEnd={onDragEnd}
         >
             {handle &&
-                // eslint-disable-next-line react-hooks/refs
+                // eslint-disable-next-line react-hooks/refs -- ref is needed here
                 cloneElement(handle, {
                     ref: handleRef,
                     dragging,
