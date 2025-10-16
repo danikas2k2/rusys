@@ -10,7 +10,10 @@ import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 
 export default [
-    { ignores: ['coverage/*', 'data/*', 'dist/*', 'docker/*', 'node_modules/*', 'public/*'] },
+    {
+        ignores: ['coverage/*', 'data/*', 'dist/*', 'docker/*', 'node_modules/*', 'public/*'],
+        files: ['src/**/*.{ts,tsx}'],
+    },
     {
         ...react.configs.flat['recommended'],
         settings: {
@@ -40,7 +43,7 @@ export default [
         ...prettierConfig,
     },
     {
-        files: ['**/*.{ts,tsx}'],
+        files: ['src/**/*.{ts,tsx}'],
         languageOptions: {
             parser,
             parserOptions: {
@@ -151,12 +154,26 @@ export default [
         },
     },
     {
-        files: ['*.config.{js,ts}'],
+        files: ['*.config.{js,ts}', 'webpack/**/*.ts'],
+        languageOptions: {
+            parser,
+            parserOptions: {
+                ecmaFeatures: { modules: true },
+                ecmaVersion: 'latest',
+            },
+        },
+        plugins: {
+            '@typescript-eslint': ts,
+            ts,
+        },
         rules: {
             'no-undef': 'off',
             'import/no-commonjs': 'off',
             'prettier/prettier': 'off',
             '@typescript-eslint/no-var-requires': 'off',
+            '@typescript-eslint/explicit-function-return-type': 'off',
+            '@typescript-eslint/no-unused-vars': 'off',
+            '@typescript-eslint/ban-ts-comment': 'off',
         },
     },
     {
