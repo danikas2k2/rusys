@@ -11,7 +11,7 @@ echo "Setting up mongo replica set"
 
 ssh "$SERVER_USER@$SERVER_IP" "
   docker exec rusys-db1 mongosh --eval 'rs.initiate({
-    _id: "rusys-rs",
+    _id: \"rusys-rs\",
     members: [
       { _id: 0, host: \"rusys-db1\" },
       { _id: 1, host: \"rusys-db2\" },

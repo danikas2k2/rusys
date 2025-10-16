@@ -70,8 +70,8 @@ services:
       - 3000
       - 4000
     ports:
-      - 3000:3000
-      - 4000:4000
+      - "3000:3000"
+      - "4000:4000"
     networks:
       - rusys-net
     volumes:
