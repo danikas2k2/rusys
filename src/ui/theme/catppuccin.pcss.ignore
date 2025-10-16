@@ -196,7 +196,7 @@ button,
 Use the modern Firefox focus style for all focusable elements.
 */
 
-:-moz-focusring {
+:-moz-focusing {
     outline: auto;
 }
 
