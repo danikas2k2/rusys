@@ -11,11 +11,10 @@ import { FileInput } from '@ui/FileInput';
 
 import { useImportHandler } from '~/client/common/hooks/useImportHandler';
 import { Label } from '~/client/common/Label';
-import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
 import cx from './ImportBox.pcss';
 
-interface ImportBoxProps extends WithOnClose {
+interface ImportBoxProps {
     onClose: () => void;
 }
 

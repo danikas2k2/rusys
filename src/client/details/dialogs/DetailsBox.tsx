@@ -14,7 +14,6 @@ import { Input } from '@ui/Input';
 import { Option, Select } from '@ui/Select';
 
 import { Label } from '~/client/common/Label';
-import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useAddDetails } from '~/client/state/details/useAddDetails';
@@ -26,7 +25,7 @@ import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
 import cx from './DetailsBox.pcss';
 
-interface DetailsBoxProps extends WithOnClose {
+interface DetailsBoxProps {
     group?: string;
     name?: string;
     onClose: (group?: string, name?: string) => void;

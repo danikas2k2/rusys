@@ -13,7 +13,6 @@ import { Dialog } from '@ui/Dialog';
 import { Input } from '@ui/Input';
 
 import { Label } from '~/client/common/Label';
-import { type WithOnClose } from '~/client/common/WithOnClose';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useRenameGroup } from '~/client/state/groups/useRenameGroup';
@@ -22,7 +21,7 @@ import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
 import cx from './GroupBox.pcss';
 
-interface GroupBoxProps extends WithOnClose {
+interface GroupBoxProps {
     group?: string;
     annual?: boolean;
     onClose: (group?: string) => void;
