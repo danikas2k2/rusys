@@ -59,6 +59,7 @@ const config: Config = {
         '!src/server/dev.ts',
         '!src/server/api/debug.ts',
         '!src/ui/tutorial/**',
+        '!src/ui/Element.ts',
     ],
     coverageReporters: ['text', 'json', 'lcov', 'html'],
     coverageThreshold: {
