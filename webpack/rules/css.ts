@@ -1,10 +1,11 @@
+import { type RuleSetRule } from 'webpack';
+
 import { getClassNamesLoader } from '../loaders/class-names';
 import { getCssLoader } from '../loaders/css';
 import { getPostCssLoader } from '../loaders/postcss';
 import { getStyleLoader } from '../loaders/style';
 import { getExcludeList } from '../paths/exclude';
 import { getIncludeList } from '../paths/include';
-import { type RuleSetRule } from 'webpack';
 
 export function getCssRule(isDevMode: boolean): RuleSetRule {
     return {

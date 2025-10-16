@@ -1,7 +1,8 @@
-import { getAlias } from '../alias';
-import { type WebpackModuleLoader } from '../types';
 import postcssDiscardComments from 'postcss-discard-comments';
 import postcssImport from 'postcss-import';
+
+import { getAlias } from '../alias';
+import { type WebpackModuleLoader } from '../types';
 
 export function getPostCssLoader(_isDevMode?: boolean): WebpackModuleLoader {
     const alias = getAlias() as Record<string, string>;

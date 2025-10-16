@@ -1,4 +1,5 @@
 import { EnvironmentPlugin } from 'webpack';
+
 import { type WebpackPlugin } from '../types';
 
 export function getEnvironmentPlugin(isDevMode: boolean): WebpackPlugin {

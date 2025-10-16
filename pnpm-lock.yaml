@@ -81,6 +81,9 @@ importers:
       '@catppuccin/palette':
         specifier: ^1.7.1
         version: 1.7.1
+      '@css-modules-kit/stylelint-plugin':
+        specifier: ^0.4.0
+        version: 0.4.0(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)
       '@ecomfe/class-names-loader':
         specifier: ^2.0.0
         version: 2.0.0(webpack@5.102.1)
@@ -1080,6 +1083,18 @@ packages:
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
+
+  '@css-modules-kit/core@0.6.0':
+    resolution: {integrity: sha512-3cTD030BbKsRb5aLw7s7psB2ijzALCIJbn2xZ6AX1rPziS8G4wQJ+xtzJfRUM9bjigchQt1pbthmX4ZP7esicQ==}
+    engines: {node: '>=20.19.0'}
+    peerDependencies:
+      typescript: ^5.7.3
+
+  '@css-modules-kit/stylelint-plugin@0.4.0':
+    resolution: {integrity: sha512-oLEW/Wmi13Jw5o4l1xJhfxZ4Q5wrrZ/W8+MaTEdQLJDtjYVvalZuVomLBzbQ8BPk6PYkOzhkLqAMEfIPAUoDWg==}
+    engines: {node: '>=20.19.0'}
+    peerDependencies:
+      stylelint: ^16.0.0
 
   '@csstools/cascade-layer-name-parser@2.0.5':
     resolution: {integrity: sha512-p1ko5eHgV+MgXFVa4STPKpvPxr6ReS8oS2jzTukjR74i5zJNyWO1ZM1m8YKBXnzDKWfBN1ztLYlHxbVemDD88A==}
@@ -7870,6 +7885,21 @@ snapshots:
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
+
+  '@css-modules-kit/core@0.6.0(typescript@5.9.3)':
+    dependencies:
+      postcss: 8.5.6
+      postcss-safe-parser: 7.0.1(postcss@8.5.6)
+      postcss-selector-parser: 7.1.0
+      postcss-value-parser: 4.2.0
+      typescript: 5.9.3
+
+  '@css-modules-kit/stylelint-plugin@0.4.0(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)':
+    dependencies:
+      '@css-modules-kit/core': 0.6.0(typescript@5.9.3)
+      stylelint: 16.25.0(typescript@5.9.3)
+    transitivePeerDependencies:
+      - typescript
 
   '@csstools/cascade-layer-name-parser@2.0.5(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)':
     dependencies:

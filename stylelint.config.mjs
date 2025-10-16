@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 export default {
     plugins: ['@stylistic/stylelint-plugin'],
-    extends: ['stylelint-config-standard'],
+    extends: ['stylelint-config-standard', '@css-modules-kit/stylelint-plugin/recommended'],
     rules: {
         'selector-class-pattern': null,
         'import-notation': null,

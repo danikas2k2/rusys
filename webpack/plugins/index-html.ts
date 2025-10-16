@@ -1,4 +1,5 @@
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+
 import { type WebpackPlugin } from '../types';
 
 interface IndexHtmlPluginOptions {
