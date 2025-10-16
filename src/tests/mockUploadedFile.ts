@@ -11,7 +11,7 @@ export function mockUploadedFile(
     const file: Partial<UploadedFile> = {};
     if (typeof name === 'string') {
         file.name = name;
-        if (typeof data === 'string' || data instanceof Buffer) {
+        if (typeof data === 'string' || Buffer.isBuffer(data)) {
             file.data = Buffer.from(data);
             Object.assign(file, more);
         } else {
