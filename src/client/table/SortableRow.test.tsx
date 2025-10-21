@@ -348,6 +348,7 @@ describe('<SortableRow>', () => {
             expect(onDrag).not.toHaveBeenCalled();
         });
 
+        // TODO this should be implemented
         // eslint-disable-next-line jest/no-disabled-tests
         it.skip('hide expanded controls when dragging by the handler', async () => {
             render(<SortableRow {...props} />);
