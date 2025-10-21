@@ -1,12 +1,12 @@
 import React from 'react';
 import { HashRouter, Route, Routes } from 'react-router-dom';
 
-import { AboutPage } from '~/client/AboutPage';
-import { DetailsPage } from '~/client/details/DetailsPage';
-import { GroupsPage } from '~/client/groups/GroupsPage';
 import { Links } from '~/client/Links';
-import { SummaryPage } from '~/client/summary/SummaryPage';
-import { VariantsPage } from '~/client/variants/VariantsPage';
+import { AboutPage } from '~/client/pages/AboutPage';
+import { DetailsPage } from '~/client/pages/details/DetailsPage';
+import { GroupsPage } from '~/client/pages/groups/GroupsPage';
+import { SummaryPage } from '~/client/pages/summary/SummaryPage';
+import { VariantsPage } from '~/client/pages/variants/VariantsPage';
 
 export function AppRouter() {
     return (

@@ -12,13 +12,13 @@ jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
     useNavigate: jest.fn(),
 }));
-jest.mock('~/client/details/dialogs/DetailsBox', () => ({
+jest.mock('~/client/pages/details/dialogs/DetailsBox', () => ({
     DetailsBox: ({ onClose }: { onClose: () => void }) => <button onClick={onClose}>DetailsBox</button>,
 }));
-jest.mock('~/client/groups/dialogs/GroupBox', () => ({
+jest.mock('~/client/pages/groups/dialogs/GroupBox', () => ({
     GroupBox: ({ onClose }: { onClose: () => void }) => <button onClick={onClose}>GroupBox</button>,
 }));
-jest.mock('~/client/variants/dialogs/VariantBox', () => ({
+jest.mock('~/client/pages/variants/dialogs/VariantBox', () => ({
     VariantBox: ({ onClose }: { onClose: () => void }) => <button onClick={onClose}>VariantBox</button>,
 }));
 
@@ -40,7 +40,7 @@ describe('<ToolbarMenu>', () => {
             render(
                 <MockRedux>
                     <MockRoute initialEntries={[Links.DETAILS]}>
-                        <ToolbarMenu />
+                        <ToolbarMenu addBox={<div>DetailsBox</div>} />
                     </MockRoute>
                 </MockRedux>
             );
@@ -60,7 +60,7 @@ describe('<ToolbarMenu>', () => {
             render(
                 <MockRedux>
                     <MockRoute initialEntries={[Links.DETAILS]}>
-                        <ToolbarMenu />
+                        <ToolbarMenu addBox={<div>DetailsBox</div>} />
                     </MockRoute>
                 </MockRedux>
             );
@@ -89,7 +89,7 @@ describe('<ToolbarMenu>', () => {
             render(
                 <MockRedux>
                     <MockRoute initialEntries={[Links.GROUPS]}>
-                        <ToolbarMenu />
+                        <ToolbarMenu addBox={<div>GroupBox</div>} />
                     </MockRoute>
                 </MockRedux>
             );
@@ -109,7 +109,7 @@ describe('<ToolbarMenu>', () => {
             render(
                 <MockRedux>
                     <MockRoute initialEntries={[Links.GROUPS]}>
-                        <ToolbarMenu />
+                        <ToolbarMenu addBox={<div>GroupBox</div>} />
                     </MockRoute>
                 </MockRedux>
             );
@@ -138,7 +138,7 @@ describe('<ToolbarMenu>', () => {
             render(
                 <MockRedux>
                     <MockRoute initialEntries={[Links.VARIANTS]}>
-                        <ToolbarMenu />
+                        <ToolbarMenu addBox={<div>VariantBox</div>} />
                     </MockRoute>
                 </MockRedux>
             );
@@ -158,7 +158,7 @@ describe('<ToolbarMenu>', () => {
             render(
                 <MockRedux>
                     <MockRoute initialEntries={[Links.VARIANTS]}>
-                        <ToolbarMenu />
+                        <ToolbarMenu addBox={<div>VariantBox</div>} />
                     </MockRoute>
                 </MockRedux>
             );

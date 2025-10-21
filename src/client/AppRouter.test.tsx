@@ -4,10 +4,10 @@ import React from 'react';
 
 import { AppRouter } from '~/client/AppRouter';
 
-jest.mock('~/client/details/DetailsPage', () => ({
+jest.mock('~/client/pages/details/DetailsPage', () => ({
     DetailsPage: () => <div>DetailsPage</div>,
 }));
-jest.mock('~/client/summary/SummaryPage', () => ({
+jest.mock('~/client/pages/summary/SummaryPage', () => ({
     SummaryPage: () => <div>SummaryPage</div>,
 }));
 

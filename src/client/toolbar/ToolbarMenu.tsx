@@ -1,12 +1,10 @@
-import React, { useCallback, useRef, type FC } from 'react';
+import React, { cloneElement, isValidElement, useCallback, useRef, type ReactElement } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { type DropdownRef } from '@ui/Dropdown';
 import { MenuDivider } from '@ui/MenuDivider';
 
 import { ImportBox } from '~/client/common/dialogs/ImportBox';
-import { DetailsBox } from '~/client/details/dialogs/DetailsBox';
-import { GroupBox } from '~/client/groups/dialogs/GroupBox';
 import { useToggle } from '~/client/hooks/useToggle';
 import { Links } from '~/client/Links';
 import { AboutItem } from '~/client/toolbar/items/AboutItem';
@@ -18,22 +16,19 @@ import { ImportItem } from '~/client/toolbar/items/ImportItem';
 import { SummaryItem } from '~/client/toolbar/items/SummaryItem';
 import { VariantsItem } from '~/client/toolbar/items/VariantsItem';
 import { ToolbarMenuWrapper } from '~/client/toolbar/ToolbarMenuWrapper';
-import { VariantBox } from '~/client/variants/dialogs/VariantBox';
 
-const AddBoxMap: Partial<Record<Links, FC<{ onClose: () => void }>>> = {
-    [Links.DETAILS]: DetailsBox,
-    [Links.GROUPS]: GroupBox,
-    [Links.VARIANTS]: VariantBox,
-};
+export interface ToolbarMenuProps {
+    addBox?: ReactElement<{ onClose?: () => void }>;
+}
 
-export function ToolbarMenu() {
+export function ToolbarMenu({ addBox }: ToolbarMenuProps) {
     const ref = useRef<DropdownRef>(null);
     const hideMenu = useCallback(() => ref.current?.close(), []);
 
     const [addBoxOpened, , openAddBox, closeAddBox] = useToggle();
     const location = useLocation();
     const link = location.pathname as Links;
-    const AddBox = AddBoxMap[link];
+    // const AddBox = AddBoxMap[link];
     const onAddClick = useCallback(() => {
         hideMenu();
         openAddBox();
@@ -45,10 +40,11 @@ export function ToolbarMenu() {
         openImport();
     }, [hideMenu, openImport]);
 
+    const hasAddBox = isValidElement(addBox);
     return (
         <>
             <ToolbarMenuWrapper ref={ref}>
-                {AddBox && (
+                {hasAddBox && (
                     <>
                         <AddMenuItem onClick={onAddClick} />
                         <MenuDivider />
@@ -64,7 +60,11 @@ export function ToolbarMenu() {
                 <ImportItem onClick={onImportClick} />
                 <AboutItem />
             </ToolbarMenuWrapper>
-            {AddBox && addBoxOpened && <AddBox onClose={closeAddBox} />}
+            {hasAddBox &&
+                addBoxOpened &&
+                cloneElement(addBox, {
+                    onClose: closeAddBox,
+                })}
             {importOpened && <ImportBox onClose={closeImport} />}
         </>
     );

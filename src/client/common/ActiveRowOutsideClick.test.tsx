@@ -7,11 +7,6 @@ import React from 'react';
 import { ActiveRowContext } from '~/client/common/ActiveRowContext';
 import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
 
-jest.mock('~/client/state/variants/useGroupVariants');
-jest.mock('~/client/variants/SortableGroup', () => ({
-    SortableGroup: jest.fn(jest.requireActual('~/client/variants/SortableGroup').SortableGroup),
-}));
-
 describe('<ActiveRowOutsideClick>', () => {
     afterEach(() => jest.clearAllMocks());
 

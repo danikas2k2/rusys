@@ -1,0 +1,52 @@
+.ChangeBadge {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-base);
+    padding-inline: 0.5em;
+    margin-inline: -0.5em;
+    border: 1px solid;
+    border-radius: var(--radius-large);
+    color: var(--color-yellow);
+    background-color: color-mix(in srgb, var(--color-yellow), var(--color-soft) 80%);
+    border-color: var(--color-yellow);
+
+    &.positive {
+        color: var(--color-green);
+        background-color: color-mix(in srgb, var(--color-green), var(--color-soft) 80%);
+        border-color: var(--color-green);
+
+        &::before {
+            content: "+";
+        }
+    }
+
+    &.negative {
+        color: var(--color-red);
+        background-color: color-mix(in srgb, var(--color-red), var(--color-soft) 80%);
+        border-color: var(--color-red);
+
+        &::before {
+            content: "–";
+        }
+    }
+
+    &.position-top {
+        inset-inline: 0;
+        inset-block-start: -0.75rem;
+        width: min-content;
+        margin: auto;
+    }
+
+    &.position-left {
+        inset-inline-end: 100%;
+        inset-block-start: 0.5rem;
+    }
+
+    &.position-right {
+        inset-inline-start: 100%;
+        inset-block-start: 0.5rem;
+    }
+}

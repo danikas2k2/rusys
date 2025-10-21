@@ -6,8 +6,8 @@ import React from 'react';
 
 import { Button } from '@ui/Button';
 
+import { ChangeBadge } from '~/client/common/ChangeBadge';
 import { UpdateTypes, useUpdateType } from '~/client/common/UpdateTypeContext';
-import { ValueChange } from '~/client/details/dialogs/ValueChange';
 import { useLabel } from '~/client/hooks/useLabel';
 import { ButtonToggle } from '~/client/ui/ButtonToggle';
 import { getChangedAmount } from '~/common/utils/amounts';
@@ -35,7 +35,7 @@ export function UpdateTypeToggle({ changes, updated = true }: UpdateTypeTogglePr
                 key={UpdateTypes.Consumed}
                 value={UpdateTypes.Consumed}
                 color="green"
-                startDecorator={consumedAmount && <ValueChange position="left" change={consumedAmount} />}
+                startDecorator={consumedAmount && <ChangeBadge position="left" change={consumedAmount} />}
                 startDecoratorSpacing="none"
                 aria-label={consumedLabel}
                 aria-checked={UpdateTypes.Consumed === value}
@@ -49,7 +49,7 @@ export function UpdateTypeToggle({ changes, updated = true }: UpdateTypeTogglePr
                     key={UpdateTypes.Updated}
                     value={UpdateTypes.Updated}
                     color="blue"
-                    endDecorator={updatedAmount && <ValueChange position="top" change={updatedAmount} />}
+                    endDecorator={updatedAmount && <ChangeBadge position="top" change={updatedAmount} />}
                     endDecoratorSpacing="none"
                     aria-label={updatedLabel}
                     aria-checked={UpdateTypes.Updated === value}
@@ -63,7 +63,7 @@ export function UpdateTypeToggle({ changes, updated = true }: UpdateTypeTogglePr
                 key={UpdateTypes.Recycled}
                 value={UpdateTypes.Recycled}
                 color="red"
-                endDecorator={recycledAmount && <ValueChange position="right" change={recycledAmount} />}
+                endDecorator={recycledAmount && <ChangeBadge position="right" change={recycledAmount} />}
                 endDecoratorSpacing="none"
                 aria-label={recycledLabel}
                 aria-checked={UpdateTypes.Recycled === value}
