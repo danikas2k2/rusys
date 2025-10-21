@@ -55,11 +55,10 @@ describe('<ImportBox>', () => {
     });
 
     describe('calls import details handler when importing a file', () => {
-        const importData = jest.fn();
+        it('closes dialog without error when successfully imported', async () => {
+            const importData = jest.fn().mockResolvedValue({ ok: true });
+            jest.mocked(useImport).mockReturnValue(importData);
 
-        // eslint-disable-next-line jest/no-disabled-tests
-        it.skip('closes dialog without error when successfully imported', async () => {
-            jest.mocked(useImport).mockReturnValue(importData.mockResolvedValue(true));
             render(
                 <MockRedux state={state}>
                     <ImportBox onClose={onClose} />
@@ -75,16 +74,9 @@ describe('<ImportBox>', () => {
 
             await userEvent.click(screen.getByRole('button', { name: 'Import' }));
 
-            expect(importData).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    import: expect.anything() /*expect.objectContaining({
-                        name: 'test.json',
-                        size: 5,
-                        type: 'application/json',
-                    })*/,
-                })
-            );
-            expect(onClose).toHaveBeenCalledWith('Daržovės', '4.5');
+            expect(importData).toHaveBeenCalledWith(expect.any(FormData));
+            expect(importData.mock.calls[0][0].get('import')).toStrictEqual(file);
+            expect(onClose).toHaveBeenCalledWith();
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
     });
