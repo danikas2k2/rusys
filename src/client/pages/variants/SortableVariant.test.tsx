@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MockActiveRow } from '@tests/MockActiveRow';
+import { MockActiveContent } from '@tests/MockActiveContent';
 import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
@@ -101,9 +101,9 @@ describe('<SortableVariant>', () => {
         it('renders without controls if not active', async () => {
             render(
                 <MockRedux>
-                    <MockActiveRow setState={setActiveVariant}>
+                    <MockActiveContent setState={setActiveVariant}>
                         <SortableVariant index={0} variant={variant} />
-                    </MockActiveRow>
+                    </MockActiveContent>
                 </MockRedux>
             );
 
@@ -113,9 +113,9 @@ describe('<SortableVariant>', () => {
         it('sets active variant on drag start', async () => {
             render(
                 <MockRedux>
-                    <MockActiveRow setState={setActiveVariant}>
+                    <MockActiveContent setState={setActiveVariant}>
                         <SortableVariant index={0} variant={variant} />
-                    </MockActiveRow>
+                    </MockActiveContent>
                 </MockRedux>
             );
             const target = screen.getByRole('button', { name: 'Drag' });
@@ -133,9 +133,9 @@ describe('<SortableVariant>', () => {
         it('renders controls when variant is active', () => {
             render(
                 <MockRedux>
-                    <MockActiveRow state={activeVariant} setState={setActiveVariant}>
+                    <MockActiveContent state={activeVariant} setState={setActiveVariant}>
                         <SortableVariant index={0} variant={variant} />
-                    </MockActiveRow>
+                    </MockActiveContent>
                 </MockRedux>
             );
 
@@ -145,9 +145,9 @@ describe('<SortableVariant>', () => {
         it('pins row when interacting with controls', async () => {
             render(
                 <MockRedux>
-                    <MockActiveRow state={activeVariant} setState={setActiveVariant}>
+                    <MockActiveContent state={activeVariant} setState={setActiveVariant}>
                         <SortableVariant index={0} variant={variant} />
-                    </MockActiveRow>
+                    </MockActiveContent>
                 </MockRedux>
             );
             await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
@@ -158,9 +158,9 @@ describe('<SortableVariant>', () => {
         it('unpins row when interacting with control dialog', async () => {
             render(
                 <MockRedux>
-                    <MockActiveRow state={activeVariant} setState={setActiveVariant}>
+                    <MockActiveContent state={activeVariant} setState={setActiveVariant}>
                         <SortableVariant index={0} variant={variant} />
-                    </MockActiveRow>
+                    </MockActiveContent>
                 </MockRedux>
             );
             await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
@@ -172,9 +172,9 @@ describe('<SortableVariant>', () => {
         it('hides controls when dragging by handler', async () => {
             render(
                 <MockRedux>
-                    <MockActiveRow state={activeVariant} setState={setActiveVariant}>
+                    <MockActiveContent state={activeVariant} setState={setActiveVariant}>
                         <SortableVariant index={0} variant={variant} />
-                    </MockActiveRow>
+                    </MockActiveContent>
                 </MockRedux>
             );
             const target = screen.getByRole('button', { name: 'Drag' });

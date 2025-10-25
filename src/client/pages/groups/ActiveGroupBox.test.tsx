@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { MockActiveRow } from '@tests/MockActiveRow';
+import { MockActiveContent } from '@tests/MockActiveContent';
 import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
@@ -10,9 +10,9 @@ describe('<ActiveGroupBox>', () => {
     it('does not render box if not active', () => {
         render(
             <MockRedux>
-                <MockActiveRow>
+                <MockActiveContent>
                     <ActiveGroupBox />
-                </MockActiveRow>
+                </MockActiveContent>
             </MockRedux>
         );
 
@@ -22,9 +22,9 @@ describe('<ActiveGroupBox>', () => {
     it('renders box if active', () => {
         render(
             <MockRedux>
-                <MockActiveRow state={{ editing: true, group: 'Uogienės' }}>
+                <MockActiveContent state={{ editing: true, group: 'Uogienės' }}>
                     <ActiveGroupBox />
-                </MockActiveRow>
+                </MockActiveContent>
             </MockRedux>
         );
 

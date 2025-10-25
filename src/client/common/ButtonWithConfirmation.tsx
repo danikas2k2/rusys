@@ -1,14 +1,17 @@
-import React, { cloneElement, useCallback, useState, type MouseEvent, type ReactElement, type ReactNode } from 'react';
+import React, { cloneElement, useCallback, type MouseEvent, type ReactElement, type ReactNode } from 'react';
 
-import { Button, isButtonElement, type ButtonProps } from '@ui/Button';
+import { Button } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
-import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
+import { isButtonElement } from '@ui/Button';
 
-interface ButtonWithConfirmationProps extends Omit<ButtonProps, 'title' | 'children'> {
+import { ConfirmationDialog, type ButtonElement, type ButtonElementProps } from '~/client/common/ConfirmationDialog';
+
+interface ButtonWithConfirmationProps extends Omit<ButtonElementProps, 'title' | 'children'> {
     children?: ReactNode;
     dialogHeader?: ReactElement;
-    confirmButton?: ReactElement<ButtonProps>;
-    cancelButton?: ReactElement<ButtonProps>;
+    confirmButton?: ButtonElement;
+    cancelButton?: ButtonElement;
     onOpen?: () => void;
     onClose?: () => void;
 }
@@ -23,17 +26,17 @@ export function ButtonWithConfirmation({
     children,
     ...props
 }: ButtonWithConfirmationProps) {
-    const [open, setOpen] = useState(false);
+    const [opened, { open, close }] = useDisclosure(false);
 
     const handleOpen = useCallback(() => {
-        setOpen(true);
+        open();
         onOpen?.();
-    }, [onOpen]);
+    }, [onOpen, open]);
 
     const handleClose = useCallback(() => {
-        setOpen(false);
+        close();
         onClose?.();
-    }, [onClose]);
+    }, [close, onClose]);
 
     const handleConfirm = useCallback(
         (e: MouseEvent<HTMLButtonElement>) => {
@@ -49,7 +52,7 @@ export function ButtonWithConfirmation({
                 {children.props.children}
             </Button>
         ) : (
-            cloneElement(children as ReactElement<ButtonProps>, {
+            cloneElement(children as ButtonElement, {
                 onClick: handleOpen,
                 ...props,
             })
@@ -64,8 +67,8 @@ export function ButtonWithConfirmation({
         <>
             {button}
             <ConfirmationDialog
-                open={open}
-                header={dialogHeader}
+                opened={opened}
+                title={dialogHeader}
                 confirmButton={confirmButton ?? (children ? button : undefined)}
                 cancelButton={cancelButton}
                 onConfirm={handleConfirm}

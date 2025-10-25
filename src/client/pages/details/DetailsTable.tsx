@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 
-import { ActiveRowWrapper } from '~/client/common/ActiveRowContext';
-import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
+import { ActiveContentWrapper } from '~/client/common/ActiveContentContext';
+import { ActiveContentOutsideClick } from '~/client/common/ActiveContentOutsideClick';
 import { useSortedList } from '~/client/common/hooks/useSortedList';
 import { LoadingContent } from '~/client/common/LoadingContent';
 import { useDetailsFilters } from '~/client/filters/hooks/useDetailsFilters';
@@ -67,11 +67,11 @@ export function DetailsTable() {
                     </Row>
                 }
             >
-                <ActiveRowWrapper>
-                    <ActiveRowOutsideClick />
+                <ActiveContentWrapper>
+                    <ActiveContentOutsideClick />
                     <DetailsGroups groups={visibleGroups} details={visibleDetails} />
                     <ActiveDetailsBox />
-                </ActiveRowWrapper>
+                </ActiveContentWrapper>
             </Table>
         </LoadingContent>
     );

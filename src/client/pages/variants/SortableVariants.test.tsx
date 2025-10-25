@@ -4,14 +4,15 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { useActiveRow } from '~/client/common/ActiveRowContext';
-import { type ActiveVariant } from '~/client/pages/variants/SortableVariant';
+import { cloneDeep, set } from 'lodash';
+
+import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { SortableVariants } from '~/client/pages/variants/SortableVariants';
 import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
 import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
 
-jest.mock('~/client/common/ActiveRowContext', () => ({
-    useActiveRow: jest.fn(() => [null, jest.fn()]),
+jest.mock('~/client/common/ActiveContentContext', () => ({
+    useActiveContent: jest.fn(() => [null, jest.fn()]),
 }));
 jest.mock('~/client/state/variants/useReorderVariants', () => ({
     useReorderVariants: jest.fn(),
@@ -26,12 +27,12 @@ describe('<SortableVariants>', () => {
         { group, variant: 'p', order: 0 },
         { group, variant: 'd', order: 1, suffix: 'D.' },
     ];
-    const activeVariant = {
-        group,
-        variant: 'd',
+    const active = {
+        id: `d@${group}`,
+        data: { group, variant: 'd' },
         ref: { current: null },
     };
-    const setActiveVariant = jest.fn();
+    const setActive = jest.fn();
 
     afterEach(() => jest.clearAllMocks());
 
@@ -52,7 +53,7 @@ describe('<SortableVariants>', () => {
         const reorderVariants = jest.fn();
 
         beforeEach(() => {
-            jest.mocked(useActiveRow<ActiveVariant>).mockReturnValue([activeVariant, setActiveVariant]);
+            jest.mocked(useActiveContent).mockReturnValue([active, setActive]);
             jest.mocked(useReorderVariants).mockReturnValue(reorderVariants);
         });
 
@@ -118,12 +119,9 @@ describe('<SortableVariants>', () => {
         });
 
         it('does not call reorder on drag when elements overlaps with different group', async () => {
-            jest.mocked(useActiveRow<ActiveVariant>).mockReturnValue([
-                {
-                    ...activeVariant,
-                    group: 'Daržovės',
-                },
-                setActiveVariant,
+            jest.mocked(useActiveContent).mockReturnValue([
+                set(cloneDeep({ ...active }), 'data.group', 'Daržovės'),
+                setActive,
             ]);
             jest.mocked(getOverlapIndex).mockReturnValue(0);
             render(
@@ -144,7 +142,7 @@ describe('<SortableVariants>', () => {
 
     describe('slide controls', () => {
         it('renders rows without controls', () => {
-            jest.mocked(useActiveRow<ActiveVariant>).mockReturnValue([undefined, setActiveVariant]);
+            jest.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
             render(
                 <MockRedux>
                     <SortableVariants group={group} variants={variants} />
@@ -155,7 +153,7 @@ describe('<SortableVariants>', () => {
         });
 
         it('renders active variant row with controls', () => {
-            jest.mocked(useActiveRow<ActiveVariant>).mockReturnValue([activeVariant, setActiveVariant]);
+            jest.mocked(useActiveContent).mockReturnValue([active, setActive]);
             render(
                 <MockRedux>
                     <SortableVariants group={group} variants={variants} />

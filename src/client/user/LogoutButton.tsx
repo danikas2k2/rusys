@@ -1,17 +1,16 @@
-import LogoutIcon from '@assets/logout.svg';
-
 import React, { useCallback } from 'react';
 
+import { ActionIcon, Button } from '@mantine/core';
 import { googleLogout } from '@react-oauth/google';
-
-import { Button, IconButton, type ButtonProps } from '@ui/Button';
+import { IconLogout } from '@tabler/icons-react';
 
 import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
+import { type ButtonElementProps } from '~/client/common/ConfirmationDialog';
 import { Label } from '~/client/common/Label';
 import { useResetProfile } from '~/client/state/profile/useResetProfile';
 import { ProfileAvatar } from '~/client/user/ProfileAvatar';
 
-export function LogoutButton({ children, ...props }: ButtonProps) {
+export function LogoutButton({ children, ...props }: ButtonElementProps) {
     const resetProfile = useResetProfile();
     const handleConfirm = useCallback(() => {
         resetProfile();
@@ -22,13 +21,15 @@ export function LogoutButton({ children, ...props }: ButtonProps) {
             {...props}
             dialogHeader={<Label>Sure to logout?</Label>}
             confirmButton={
-                <Button startDecorator={<LogoutIcon />}>
+                <Button leftSection={<IconLogout />}>
                     <Label>Logout</Label>
                 </Button>
             }
             onClick={handleConfirm}
         >
-            <IconButton size="small">{children || <ProfileAvatar />}</IconButton>
+            <ActionIcon variant="light" size="lg" radius="xl">
+                {children || <ProfileAvatar />}
+            </ActionIcon>
         </ButtonWithConfirmation>
     );
 }

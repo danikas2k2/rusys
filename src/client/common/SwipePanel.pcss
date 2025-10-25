@@ -1,0 +1,16 @@
+.SwipePanel {
+    background-color: var(--mantine-color-white);
+    position: fixed;
+    left: 100vw;
+    padding-inline-end: 0.5rem;
+    transition: transform 0.2s ease-out;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 100;
+
+    &.closing {
+        pointer-events: none;
+    }
+}

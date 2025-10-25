@@ -1,17 +1,15 @@
-import GoogleIcon from '@assets/google.svg';
+import React, { useCallback, useMemo, type PropsWithChildren } from 'react';
 
-import React, { useCallback, useMemo } from 'react';
-
+import { ActionIcon } from '@mantine/core';
 import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
-
-import { IconButton, type ButtonProps } from '@ui/Button';
+import { IconBrandGoogleFilled } from '@tabler/icons-react';
 
 import { Label } from '~/client/common/Label';
 import { useLoginError } from '~/client/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
 import cx from './LoginButton.pcss';
 
-export function LoginButton({ children }: ButtonProps) {
+export function LoginButton({ children }: PropsWithChildren) {
     const onError = useLoginError();
     const onSuccess = useLoginSuccess(onError);
 
@@ -29,15 +27,15 @@ export function LoginButton({ children }: ButtonProps) {
     const handleClick = useCallback(() => login(), [login]);
 
     return (
-        <IconButton color="gray" variant="outlined" onClick={handleClick}>
+        <ActionIcon color="gray" variant="outlined" onClick={handleClick}>
             <div className={cx('LoginButton')}>
                 {children || (
                     <>
-                        <GoogleIcon />
+                        <IconBrandGoogleFilled />
                         <Label>Login with Google</Label>
                     </>
                 )}
             </div>
-        </IconButton>
+        </ActionIcon>
     );
 }

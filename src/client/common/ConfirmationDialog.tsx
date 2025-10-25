@@ -1,96 +1,93 @@
-import CancelIcon from '@assets/cancel.svg';
-import CloseIcon from '@assets/close.svg';
-import DoneIcon from '@assets/done.svg';
+import React, {
+    cloneElement,
+    type AriaAttributes,
+    type DOMAttributes,
+    type MouseEvent,
+    type ReactElement,
+} from 'react';
 
-import React, { cloneElement, type MouseEvent, type ReactElement, type ReactNode } from 'react';
-
-import { Button, IconButton, type ButtonProps } from '@ui/Button';
-import { Dialog } from '@ui/Dialog';
+import { Button, Group, Modal, type ButtonProps, type ModalProps } from '@mantine/core';
+import { IconCancel, IconCheck, IconChecks, IconX } from '@tabler/icons-react';
 
 import { Label } from '~/client/common/Label';
-import cx from './ConfirmationDialog.pcss';
 
-export interface ConfirmationDialogProps {
-    header?: ReactElement;
-    footer?: ReactElement;
-    confirmButton?: ReactElement<ButtonProps>;
-    cancelButton?: ReactElement<ButtonProps>;
-    // TODO add `trigger: ReactNode | ({ open, onOpen, onClose }) => ReactNode` prop, then remove `open` prop
-    open?: boolean;
-    onConfirm?: (e: MouseEvent<HTMLButtonElement>) => void;
-    onClose?: () => void;
+export type ButtonElementProps = ButtonProps & AriaAttributes & DOMAttributes<HTMLButtonElement>;
+export type ButtonElement = ReactElement<ButtonElementProps>;
+
+export interface ConfirmationDialogProps extends ModalProps {
+    actions?: ReactElement;
+    confirmButton?: ButtonElement;
+    cancelButton?: ButtonElement;
+    onConfirm: (e: MouseEvent<HTMLButtonElement>) => void;
     closeLabel?: string;
-    className?: string;
-    children?: ReactNode;
 }
 
 export const confirmButtonProps: ButtonProps = {
     variant: 'solid',
     color: 'blue',
-    startDecorator: <DoneIcon />,
+    leftSection: <IconCheck size={18} />,
     children: <Label>Confirm</Label>,
 };
 
 export const cancelButtonProps: ButtonProps = {
-    variant: 'outlined',
-    startDecorator: <CancelIcon />,
+    variant: 'outline',
+    color: 'gray',
+    leftSection: <IconX size={18} />,
     children: <Label>Cancel</Label>,
 };
 
 export function ConfirmationDialog({
-    header = <Label>Are you sure?</Label>,
-    footer,
+    title = <Label>Are you sure?</Label>,
+    actions,
     confirmButton,
     cancelButton,
-    open,
+    opened = false,
     onConfirm,
     onClose,
     closeLabel = 'Close',
-    className,
     children,
+    closeButtonProps,
+    ...props
 }: ConfirmationDialogProps) {
     return (
-        <Dialog
+        <Modal
             role="alertdialog"
-            className={cx('ConfirmationDialog', className)}
-            open={open}
-            closeOnOutsideClick
+            size="auto"
             closeOnEscape
+            closeOnClickOutside
+            centered
+            opened={opened}
             onClose={onClose}
+            closeButtonProps={{
+                content: closeLabel,
+                ...closeButtonProps,
+            }}
+            title={title}
+            {...props}
         >
-            <header>
-                <div className={cx('title')}>{header}</div>
-                <div className={cx('close')}>
-                    <IconButton aria-label={closeLabel} onClick={onClose}>
-                        <CloseIcon />
-                    </IconButton>
-                </div>
-            </header>
-            <main>{children}</main>
-            <footer>
-                {footer || (
-                    <>
-                        {cancelButton ? (
-                            cloneElement(cancelButton, {
-                                ...cancelButtonProps,
-                                ...cancelButton.props,
-                                onClick: onClose,
-                            })
-                        ) : (
-                            <Button {...cancelButtonProps} onClick={onClose} />
-                        )}
-                        {confirmButton ? (
-                            cloneElement(confirmButton, {
-                                ...confirmButtonProps,
-                                ...confirmButton.props,
-                                onClick: onConfirm,
-                            })
-                        ) : (
-                            <Button {...confirmButtonProps} onClick={onConfirm} />
-                        )}
-                    </>
-                )}
-            </footer>
-        </Dialog>
+            {children}
+            {actions || (
+                <Group justify="center">
+                    {cancelButton ? (
+                        cloneElement(cancelButton, {
+                            ...cancelButtonProps,
+                            ...cancelButton.props,
+                            onClick: onClose,
+                        })
+                    ) : (
+                        <Button {...cancelButtonProps} onClick={onClose} />
+                    )}
+                    {confirmButton ? (
+                        cloneElement(confirmButton, {
+                            ...confirmButtonProps,
+                            ...confirmButton.props,
+                            onClick: onConfirm,
+                        })
+                    ) : (
+                        <Button {...confirmButtonProps} onClick={onConfirm} />
+                    )}
+                </Group>
+            )}
+        </Modal>
     );
 }

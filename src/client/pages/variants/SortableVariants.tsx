@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { isEqual } from 'lodash';
 
-import { useActiveRow } from '~/client/common/ActiveRowContext';
-import { SortableVariant, type ActiveVariant } from '~/client/pages/variants/SortableVariant';
+import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { SortableVariant } from '~/client/pages/variants/SortableVariant';
 import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
 import { getChangedIndexes } from '~/client/utils/getChangedIndexes';
 import { getOverlapIndex } from '~/client/utils/getOverlapIndex';
@@ -29,7 +29,7 @@ export function SortableVariants({ className, group, variants }: SortableVariant
         [group, initialOrder, reorderVariants]
     );
 
-    const [active] = useActiveRow<ActiveVariant>();
+    const [active] = useActiveContent<Pick<Variant, 'group' | 'variant'>>();
 
     const handleDragStop = useCallback(() => {
         if (!isEqual(variantOrder, initialOrder)) {
@@ -39,20 +39,20 @@ export function SortableVariants({ className, group, variants }: SortableVariant
 
     const handleDrag = useCallback(
         (current: HTMLDivElement) => {
-            if (active?.group === group) {
+            if (active?.data?.group === group) {
                 const overlap = getOverlapIndex(current);
                 if (overlap >= 0) {
                     const overlapVariant = variantOrder[overlap];
-                    if (overlapVariant && overlapVariant !== active?.variant) {
+                    if (overlapVariant && overlapVariant !== active?.data?.variant) {
                         const order = [...variantOrder];
-                        order[variantOrder.indexOf(active?.variant)] = overlapVariant;
-                        order[variantOrder.indexOf(overlapVariant)] = active?.variant;
+                        order[variantOrder.indexOf(active?.data?.variant)] = overlapVariant;
+                        order[variantOrder.indexOf(overlapVariant)] = active?.data?.variant;
                         setVariantOrder(order);
                     }
                 }
             }
         },
-        [active?.group, active?.variant, group, variantOrder]
+        [active?.data?.group, active?.data?.variant, group, variantOrder]
     );
 
     return (

@@ -6,9 +6,9 @@ import moment from 'moment';
 import { Checkbox } from '@ui/Checkbox';
 import { Interactive } from '@ui/Interactive';
 
-import { useActiveRow, type ActiveRow } from '~/client/common/ActiveRowContext';
+import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
-import { SlideControls } from '~/client/common/SlideControls';
+import { SwipePanel } from '~/client/common/SwipePanel';
 import { ValueCell } from '~/client/pages/details/ValueCell';
 import { useDeleteDetails } from '~/client/state/details/useDeleteDetails';
 import { useHasRemoving } from '~/client/state/details/useHasRemoving';
@@ -19,8 +19,6 @@ import { RowWithSlideControls } from '~/client/table/RowWithSlideControls';
 import { getCombinedAmounts } from '~/common/utils/amounts';
 import { type Details, type RemovingYearAmounts, type VariantAmount } from '~/types/data';
 import cx from './ValueRow.pcss';
-
-export interface ActiveDetails extends ActiveRow, Pick<Details, 'group' | 'name'> {}
 
 export interface ValueRowProps {
     className?: string;
@@ -46,12 +44,15 @@ export function ValueRow({ className, group, name, years, annual = true, missing
 
     const hasRemoving = useHasRemoving(group, name);
 
-    const [active, setActive] = useActiveRow<ActiveDetails>();
+    const [active, setActive] = useActiveContent<Pick<Details, 'group' | 'name'>>();
 
     const ref = useRef<HTMLDivElement>(null);
-    const isActive = active?.group === group && active?.name === name;
+    const isActive = active?.data?.group === group && active?.data?.name === name;
 
-    const onStart = useCallback(() => setActive({ group, name, ref }), [group, name, setActive]);
+    const onStart = useCallback(
+        () => setActive({ id: `${name}@${group}`, data: { group, name }, ref }),
+        [group, name, setActive]
+    );
 
     const setMissing = useSetDetailsMissing();
     const handleClick = useCallback(async (): Promise<void> => {
@@ -70,7 +71,7 @@ export function ValueRow({ className, group, name, years, annual = true, missing
             className={className}
             aria-checked={!missing}
             onDragStart={onStart}
-            controls={isActive ? <SlideControls onRemove={handleRemove} /> : undefined}
+            controls={isActive ? <SwipePanel onRemove={handleRemove} /> : undefined}
         >
             <Cell>
                 <Checkbox

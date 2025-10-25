@@ -14,25 +14,25 @@ describe('<ConfirmationDialog>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('does not render if not open', () => {
-        render(<ConfirmationDialog />);
+        render(<ConfirmationDialog opened={false} onConfirm={onConfirm} onClose={onClose} />);
 
         expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
 
     it('renders to the document', () => {
-        render(<ConfirmationDialog open />);
+        render(<ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />);
 
         expect(screen.getByRole('alertdialog')).toBeInTheDocument();
     });
 
     it('renders with provided className', () => {
-        render(<ConfirmationDialog open className="test-class" />);
+        render(<ConfirmationDialog opened className="test-class" onConfirm={onConfirm} onClose={onClose} />);
 
         expect(screen.getByRole('alertdialog')).toHaveClass('test-class');
     });
 
     it('calls onConfirm when confirm button is clicked', async () => {
-        render(<ConfirmationDialog open onConfirm={onConfirm} />);
+        render(<ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />);
         const target = screen.getByRole('button', { name: 'Confirm' });
         await userEvent.click(target);
 
@@ -40,7 +40,7 @@ describe('<ConfirmationDialog>', () => {
     });
 
     it('calls onClose when close button is clicked', async () => {
-        render(<ConfirmationDialog open onClose={onClose} />);
+        render(<ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />);
         const target = screen.getByRole('button', { name: 'Close' });
         await userEvent.click(target);
 
@@ -48,7 +48,7 @@ describe('<ConfirmationDialog>', () => {
     });
 
     it('calls onClose when cancel button is clicked', async () => {
-        render(<ConfirmationDialog open onClose={onClose} />);
+        render(<ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />);
         const target = screen.getByRole('button', { name: 'Cancel' });
         await userEvent.click(target);
 

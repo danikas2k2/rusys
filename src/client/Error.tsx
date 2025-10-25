@@ -1,14 +1,16 @@
-import DangerousIcon from '@assets/dangerous.svg';
-
 import React, { type JSX, type PropsWithChildren } from 'react';
 
-import cx from './Error.pcss';
+import { Alert, Center } from '@mantine/core';
+import { IconAlertOctagon } from '@tabler/icons-react';
+
+import { useLabel } from './hooks/useLabel';
 
 export function Error({ children }: PropsWithChildren): JSX.Element {
     return (
-        <div role="alert" className={cx('Error')}>
-            <DangerousIcon />
-            {children}
-        </div>
+        <Center pos="fixed" inset={0}>
+            <Alert variant="filled" color="red" radius="md" title={useLabel('Error')} icon={<IconAlertOctagon />}>
+                {children}
+            </Alert>
+        </Center>
     );
 }

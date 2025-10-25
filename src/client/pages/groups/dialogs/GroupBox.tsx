@@ -1,25 +1,16 @@
-import AddIcon from '@assets/add.svg';
-import CancelIcon from '@assets/cancel.svg';
-import CloseIcon from '@assets/close.svg';
-import DoneIcon from '@assets/done.svg';
+import React, { useEffect, useRef } from 'react';
 
-import React, { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
-
-import { isEmpty } from 'lodash';
-
-import { Button, IconButton } from '@ui/Button';
-import { Checkbox } from '@ui/Checkbox';
-import { Dialog } from '@ui/Dialog';
-import { Input } from '@ui/Input';
+import { Button, Checkbox, Group, Modal, Stack, TextInput } from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { IconCalendarClock, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 
 import { Label } from '~/client/common/Label';
-import { useLabel } from '~/client/hooks/useLabel';
+import { useTranslations } from '~/client/hooks/useTranslations';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useRenameGroup } from '~/client/state/groups/useRenameGroup';
 import { useUpdateGroup } from '~/client/state/groups/useUpdateGroup';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
-import cx from './GroupBox.pcss';
 
 interface GroupBoxProps {
     group?: string;
@@ -27,145 +18,117 @@ interface GroupBoxProps {
     onClose?: (group?: string) => void;
 }
 
-const ERROR_NAME_MISSING = 'Name is required';
-const ERROR_EXISTS = 'Group already exists';
-
 export function GroupBox({ group: initialGroup = '', annual: initialAnnual = true, onClose }: GroupBoxProps) {
-    const [updating, setUpdating] = useState(false);
-    const [group, setGroup] = useState<string>(initialGroup);
-    const [annual, setAnnual] = useState<boolean>(initialAnnual);
-    const [errors, setErrors] = useState<Record<string, string>>();
-
-    useEffect(() => {
-        setErrors(undefined);
-    }, [group]);
-
-    const hasSameGroup = useGroups()?.some((g) => !compareNames(g.group, group));
-    const groupAdded = !initialGroup;
-    const groupRenamed = !!initialGroup && group !== initialGroup;
-    const hasGroup = hasSameGroup && !updating && (groupAdded || groupRenamed);
-    useEffect(() => {
-        if (hasGroup && isEmpty(errors)) {
-            setErrors({ _: ERROR_EXISTS });
-        }
-    }, [hasGroup, errors]);
-
+    const _ = useTranslations();
+    const groups = useGroups();
     const updateGroup = useUpdateGroup();
     const renameGroup = useRenameGroup();
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    const annualChanged = annual !== initialAnnual;
+    const isEditing = !!initialGroup;
 
-    const focusRef = useRef<HTMLInputElement>(null);
-    useEffect(() => focusRef.current?.focus(), []);
+    const form = useForm({
+        initialValues: {
+            group: initialGroup,
+            annual: initialAnnual,
+        },
+        validate: {
+            group: (value) => {
+                if (!value?.trim()) {
+                    return _('Name is required');
+                }
+                // Check if group exists (for new groups or renamed groups)
+                const groupExists = groups?.some((g) => !compareNames(g.group, value));
+                const groupAdded = !initialGroup;
+                const groupRenamed = !!initialGroup && value !== initialGroup;
 
-    const handleUpdate = useCallback(async (): Promise<void> => {
-        if (!group) {
-            setErrors({ group: ERROR_NAME_MISSING });
+                if (groupExists && (groupAdded || groupRenamed)) {
+                    return _('Group already exists');
+                }
+                return null;
+            },
+        },
+    });
+
+    // Focus input after modal opens
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            inputRef.current?.focus();
+        }, 100);
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Revalidate when group name changes to show duplicate errors in real-time
+    useEffect(() => {
+        if (form.isTouched('group')) {
+            form.validateField('group');
         }
-        if (!group || hasGroup) {
-            focusRef.current?.focus();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [form.values.group]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const validation = form.validate();
+        if (validation.hasErrors) {
+            // Focus first invalid field
+            inputRef.current?.focus();
             return;
         }
+
         try {
-            setUpdating(true);
+            const values = form.values;
+            const groupRenamed = isEditing && values.group !== initialGroup;
+            const annualChanged = values.annual !== initialAnnual;
+
             if (groupRenamed) {
-                await renameGroup(initialGroup, group, annual);
-            } else if (groupAdded || annualChanged) {
-                await updateGroup(group, annual);
+                await renameGroup(initialGroup, values.group, values.annual);
+            } else if (!isEditing || annualChanged) {
+                await updateGroup(values.group, values.annual);
             }
-            onClose?.(group);
-        } catch (e) {
-            setErrors({ _: getErrorMessage(e) });
-            focusRef.current?.focus();
-        } finally {
-            setUpdating(false);
+            onClose?.(values.group);
+        } catch (error) {
+            form.setFieldError('group', getErrorMessage(error));
+            inputRef.current?.focus();
         }
-    }, [
-        group,
-        hasGroup,
-        focusRef,
-        groupRenamed,
-        groupAdded,
-        annualChanged,
-        onClose,
-        renameGroup,
-        initialGroup,
-        annual,
-        updateGroup,
-    ]);
+    };
 
-    const handleClose = useCallback((): void => onClose?.(), [onClose]);
-
-    const handleGroupInput = useCallback((e: FormEvent<HTMLInputElement>) => setGroup(e.currentTarget.value), []);
-
-    const handleEnter = useCallback(
-        (e: KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === 'Enter') {
-                void handleUpdate();
-            }
-        },
-        [handleUpdate]
-    );
-
-    const closeLabel = useLabel('Close');
-    const errorLabel = useLabel(errors?._ ?? '');
-    const inputLabel = useLabel('Group name');
+    const handleClose = () => onClose?.();
 
     return (
-        <Dialog className={cx('GroupBox')} open onClose={handleClose}>
-            <header>
-                <div className={cx('title')}>
-                    <Label>{initialGroup ? 'Edit group' : 'Add new group'}</Label>
-                </div>
-                <div className={cx('close')}>
-                    <IconButton aria-label={closeLabel} onClick={handleClose}>
-                        <CloseIcon />
-                    </IconButton>
-                </div>
-            </header>
-            <main>
-                <Input
-                    ref={focusRef}
-                    fullWidth
-                    size="large"
-                    value={group}
-                    label={inputLabel}
-                    onInput={handleGroupInput}
-                    onKeyDown={handleEnter}
-                    {...((errors?._ || errors?.group) && {
-                        color: 'red',
-                        invalid: true,
-                    })}
-                    {...(errors?._ && {
-                        error: errorLabel,
-                    })}
-                />
-                <Checkbox
-                    className={cx('Annual')}
-                    size="large"
-                    checked={annual}
-                    onChange={(e) => setAnnual(e.currentTarget.checked)}
-                    onKeyDown={handleEnter}
-                >
-                    <Label>Annual</Label>
-                </Checkbox>
-            </main>
-            <footer>
-                <Button variant="outlined" startDecorator={<CancelIcon />} onClick={handleClose}>
-                    <Label>Cancel</Label>
-                </Button>
-                <Button variant="solid" color="blue" startDecorator={getButtonDecorator()} onClick={handleUpdate}>
-                    <Label>{getButtonLabel()}</Label>
-                </Button>
-            </footer>
-        </Dialog>
+        <Modal opened onClose={handleClose} title={_(isEditing ? 'Edit group' : 'Add new group')} centered>
+            <form onSubmit={handleSubmit}>
+                <Stack>
+                    <TextInput
+                        ref={inputRef}
+                        label={_('Group name')}
+                        placeholder={_('Enter group name')}
+                        withAsterisk
+                        {...form.getInputProps('group')}
+                    />
+                    <Checkbox
+                        label={
+                            <Group gap="xs">
+                                <IconCalendarClock size={18} />
+                                <Label>Annual</Label>
+                            </Group>
+                        }
+                        {...form.getInputProps('annual', { type: 'checkbox' })}
+                    />
+                    <Group justify="flex-end" mt="md">
+                        <Button variant="default" leftSection={<IconX size={18} />} onClick={handleClose}>
+                            <Label>Cancel</Label>
+                        </Button>
+                        <Button
+                            type="submit"
+                            leftSection={isEditing ? <IconCheck size={18} /> : <IconPlus size={18} />}
+                            loading={form.submitting}
+                        >
+                            <Label>{isEditing ? 'Update' : 'Add'}</Label>
+                        </Button>
+                    </Group>
+                </Stack>
+            </form>
+        </Modal>
     );
-
-    function getButtonLabel() {
-        return initialGroup ? 'Update' : 'Add';
-    }
-
-    function getButtonDecorator() {
-        return initialGroup ? <DoneIcon /> : <AddIcon />;
-    }
 }

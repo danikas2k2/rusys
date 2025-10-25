@@ -1,24 +1,24 @@
 import { useEffect } from 'react';
 
-import { type ColorScheme } from '@ui/ColorScheme';
-import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
+import { useMantineColorScheme, type MantineColorScheme } from '@mantine/core';
+
 import { usePreferredColorScheme } from '@ui/hooks/usePreferredColorScheme';
 
-export function useDocumentColorScheme(auto = true): ColorScheme {
-    const [currentColorScheme] = useColorSchemeState();
+export function useDocumentColorScheme(auto = true): MantineColorScheme {
+    const { colorScheme } = useMantineColorScheme();
     const preferredColorScheme = usePreferredColorScheme();
-    const colorScheme = auto || currentColorScheme !== 'auto' ? currentColorScheme : preferredColorScheme;
+    const documentColorScheme = auto || colorScheme !== 'auto' ? colorScheme : preferredColorScheme;
 
     useEffect(() => {
         const dataset = document.documentElement.dataset;
-        if (colorScheme !== (dataset.colorScheme ?? 'auto')) {
-            if (auto && colorScheme === 'auto') {
+        if (documentColorScheme !== (dataset.colorScheme ?? 'auto')) {
+            if (auto && documentColorScheme === 'auto') {
                 delete dataset.colorScheme;
             } else {
-                dataset.colorScheme = colorScheme;
+                dataset.colorScheme = documentColorScheme;
             }
         }
-    }, [auto, colorScheme]);
+    }, [auto, documentColorScheme]);
 
-    return colorScheme as ColorScheme;
+    return documentColorScheme as MantineColorScheme;
 }

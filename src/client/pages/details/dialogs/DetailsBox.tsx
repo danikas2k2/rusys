@@ -34,7 +34,7 @@ interface DetailsBoxProps {
 const PLACEHOLDER = 'Please enter a name';
 const ERROR_GROUP_MISSING = 'Group is required';
 const ERROR_NAME_MISSING = 'Name is required';
-const ERROR_EXISTS = 'This name already exists';
+const ERROR_EXISTS = 'Name already exists';
 
 export function DetailsBox({ group: initialGroup = '', name: initialName = '', onClose }: DetailsBoxProps) {
     const filterGroup = useGroupFilter();

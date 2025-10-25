@@ -13,9 +13,11 @@ export function useOutsideClick(ref: RefObject<Element | null>, handler: (e: Eve
             }
         };
 
-        document.addEventListener('mousedown', handleOutsideClick);
+        document.addEventListener('mousedown', handleOutsideClick, { passive: true });
+        document.addEventListener('touchstart', handleOutsideClick, { passive: true });
         return () => {
             document.removeEventListener('mousedown', handleOutsideClick);
+            document.removeEventListener('touchstart', handleOutsideClick);
         };
     }, [ref, handler]);
 }

@@ -1,3 +1,5 @@
+// TODO move all types to Cellar namespace to avoid name collision
+
 export interface VariantAmount {
     variant: string;
     amount: number;

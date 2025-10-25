@@ -1,17 +1,29 @@
 import { renderHook } from '@testing-library/react';
 
-import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
+import { useMantineColorScheme } from '@mantine/core';
+
 import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
 import { usePreferredColorScheme } from '@ui/hooks/usePreferredColorScheme';
 
-jest.mock('@ui/hooks/useColorSchemeState');
+jest.mock('@mantine/core');
 jest.mock('@ui/hooks/usePreferredColorScheme');
 
 describe('useDocumentColorScheme', () => {
+    const mockMantineColorScheme: ReturnType<typeof useMantineColorScheme> = {
+        colorScheme: 'auto',
+        setColorScheme: jest.fn(),
+        toggleColorScheme: jest.fn(),
+        clearColorScheme: jest.fn(),
+    };
+
+    beforeEach(() => {
+        jest.mocked(useMantineColorScheme).mockReturnValue(mockMantineColorScheme);
+    });
+
     afterEach(() => jest.clearAllMocks());
 
     it('returns current color scheme when auto is true and current color scheme is not auto', () => {
-        jest.mocked(useColorSchemeState).mockReturnValue(['dark', jest.fn()]);
+        jest.mocked(useMantineColorScheme).mockReturnValue({ ...mockMantineColorScheme, colorScheme: 'dark' });
         jest.mocked(usePreferredColorScheme).mockReturnValue('light');
 
         const { result } = renderHook(() => useDocumentColorScheme(true));
@@ -21,7 +33,7 @@ describe('useDocumentColorScheme', () => {
     });
 
     it('returns current color scheme when auto is not defined and current color scheme is not auto', () => {
-        jest.mocked(useColorSchemeState).mockReturnValue(['dark', jest.fn()]);
+        jest.mocked(useMantineColorScheme).mockReturnValue({ ...mockMantineColorScheme, colorScheme: 'dark' });
         jest.mocked(usePreferredColorScheme).mockReturnValue('light');
 
         const { result } = renderHook(() => useDocumentColorScheme());
@@ -31,7 +43,6 @@ describe('useDocumentColorScheme', () => {
     });
 
     it('returns "auto" when auto is true and current color scheme is auto', () => {
-        jest.mocked(useColorSchemeState).mockReturnValue(['auto', jest.fn()]);
         jest.mocked(usePreferredColorScheme).mockReturnValue('light');
 
         const { result } = renderHook(() => useDocumentColorScheme(true));
@@ -41,7 +52,6 @@ describe('useDocumentColorScheme', () => {
     });
 
     it('returns "auto" when auto is not defined and current color scheme is auto', () => {
-        jest.mocked(useColorSchemeState).mockReturnValue(['auto', jest.fn()]);
         jest.mocked(usePreferredColorScheme).mockReturnValue('light');
 
         const { result } = renderHook(() => useDocumentColorScheme());
@@ -51,7 +61,7 @@ describe('useDocumentColorScheme', () => {
     });
 
     it('returns current color scheme when auto is false', () => {
-        jest.mocked(useColorSchemeState).mockReturnValue(['dark', jest.fn()]);
+        jest.mocked(useMantineColorScheme).mockReturnValue({ ...mockMantineColorScheme, colorScheme: 'dark' });
         jest.mocked(usePreferredColorScheme).mockReturnValue('light');
 
         const { result } = renderHook(() => useDocumentColorScheme(false));
@@ -61,7 +71,6 @@ describe('useDocumentColorScheme', () => {
     });
 
     it('returns preferred color scheme when auto is false and current color scheme is auto', () => {
-        jest.mocked(useColorSchemeState).mockReturnValue(['auto', jest.fn()]);
         jest.mocked(usePreferredColorScheme).mockReturnValue('light');
 
         const { result } = renderHook(() => useDocumentColorScheme(false));
@@ -71,7 +80,6 @@ describe('useDocumentColorScheme', () => {
     });
 
     it('removes color scheme from document when auto is true and current color scheme is auto', () => {
-        jest.mocked(useColorSchemeState).mockReturnValue(['auto', jest.fn()]);
         jest.mocked(usePreferredColorScheme).mockReturnValue('light');
         jest.spyOn(document.documentElement, 'dataset', 'get').mockReturnValue({ colorScheme: 'dark' });
 

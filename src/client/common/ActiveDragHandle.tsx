@@ -1,16 +1,16 @@
 import React, { useCallback, type PointerEventHandler } from 'react';
 
-import { useActiveRow } from '~/client/common/ActiveRowContext';
+import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { DragHandle, type DragHandleProps } from '~/client/common/DragHandle';
 
 export function ActiveDragHandle({ dragging, onPointerDown, ...props }: DragHandleProps) {
-    const [, setActiveRow] = useActiveRow();
+    const [, setActive] = useActiveContent();
     const handlePointerDown: PointerEventHandler<HTMLDivElement> = useCallback(
         (e) => {
-            setActiveRow(undefined);
+            setActive(undefined);
             onPointerDown?.(e);
         },
-        [onPointerDown, setActiveRow]
+        [onPointerDown, setActive]
     );
 
     return <DragHandle dragging={dragging} onPointerDown={handlePointerDown} {...props} />;

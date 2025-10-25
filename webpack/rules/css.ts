@@ -10,7 +10,6 @@ import { getIncludeList } from '../paths/include';
 export function getCssRule(isDevMode: boolean): RuleSetRule {
     return {
         test: /\.p?css$/,
-        include: getIncludeList(),
         exclude: getExcludeList(),
         use: [
             getClassNamesLoader(isDevMode),

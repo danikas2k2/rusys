@@ -44,6 +44,12 @@
     "Edit variant": {
         "lt-LT": "Taisyti variantą"
     },
+    "Error": {
+        "lt-LT": "Klaida"
+    },
+    "Failed to load data": {
+        "lt-LT": "Nepavyko įkelti duomenų"
+    },
     "Group": {
         "lt-LT": "Grupė"
     },
@@ -74,6 +80,12 @@
     "Name": {
         "lt-LT": "Pavadinimas"
     },
+    "Name already exists": {
+        "lt-LT": "Toks pavadinimas jau yra"
+    },
+    "Name is required": {
+        "lt-LT": "Pavadinimas yra privalomas"
+    },
     "No data": {
         "lt-LT": "Duomenų nėra"
     },
@@ -97,9 +109,6 @@
     },
     "Sure to remove?": {
         "lt-LT": "Tikrai pašalinti?"
-    },
-    "This name already exists": {
-        "lt-LT": "Toks pavadinimas jau yra"
     },
     "Update": {
         "lt-LT": "Naujinti"

@@ -1,12 +1,13 @@
-import React, { type JSX } from 'react';
+import React, { useCallback } from 'react';
 
-import { useActiveRow } from '~/client/common/ActiveRowContext';
+import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { GroupBox } from '~/client/pages/groups/dialogs/GroupBox';
-import { type ActiveGroup } from '~/client/pages/groups/SortableGroup';
+import { type Group } from '~/types/data';
 
-export function ActiveGroupBox(): JSX.Element | null {
-    const [activeGroup, setActiveGroup] = useActiveRow<ActiveGroup>();
-    return activeGroup?.editing ? (
-        <GroupBox group={activeGroup.group} annual={activeGroup.annual} onClose={() => setActiveGroup(undefined)} />
-    ) : null;
+export function ActiveGroupBox(): React.JSX.Element | null {
+    const [active, setActive] = useActiveContent<Pick<Group, 'group'>>();
+
+    const handleClose = useCallback(() => setActive(undefined), [setActive]);
+
+    return active?.editing ? <GroupBox {...active.data} onClose={handleClose} /> : null;
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { ActiveRowWrapper } from '~/client/common/ActiveRowContext';
-import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
+import { ActiveContentWrapper } from '~/client/common/ActiveContentContext';
+import { ActiveContentOutsideClick } from '~/client/common/ActiveContentOutsideClick';
 import { ActiveVariantBox } from '~/client/pages/variants/ActiveVariantBox';
 import { SortableGroup } from '~/client/pages/variants/SortableGroup';
 
@@ -12,12 +12,12 @@ interface SortableVariantsProps {
 
 export function SortableGroups({ className, groups }: SortableVariantsProps) {
     return (
-        <ActiveRowWrapper>
-            <ActiveRowOutsideClick />
+        <ActiveContentWrapper>
+            <ActiveContentOutsideClick />
             {groups.map((g) => (
                 <SortableGroup key={g} className={className} group={g} />
             ))}
             <ActiveVariantBox />
-        </ActiveRowWrapper>
+        </ActiveContentWrapper>
     );
 }

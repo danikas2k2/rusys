@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { getGroupsFixture } from '@tests/fixtures';
-import { MockActiveRow } from '@tests/MockActiveRow';
+import { MockActiveContent } from '@tests/MockActiveContent';
 import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
@@ -11,9 +11,9 @@ describe('<ActiveDetailsBox>', () => {
     it('does not render box if not active', () => {
         render(
             <MockRedux>
-                <MockActiveRow>
+                <MockActiveContent>
                     <ActiveDetailsBox />
-                </MockActiveRow>
+                </MockActiveContent>
             </MockRedux>
         );
 
@@ -23,9 +23,9 @@ describe('<ActiveDetailsBox>', () => {
     it('renders box if active', () => {
         render(
             <MockRedux state={{ groups: getGroupsFixture() }}>
-                <MockActiveRow state={{ editing: true, group: 'Uogienės', name: 'Avietės' }}>
+                <MockActiveContent state={{ editing: true, group: 'Uogienės', name: 'Avietės' }}>
                     <ActiveDetailsBox />
-                </MockActiveRow>
+                </MockActiveContent>
             </MockRedux>
         );
 

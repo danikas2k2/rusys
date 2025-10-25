@@ -7,6 +7,7 @@ import React, {
     type RefAttributes,
 } from 'react';
 
+import { Button as Action, ActionIcon } from '@mantine/core';
 import cs from 'classnames';
 
 import {
@@ -146,4 +147,5 @@ export function IconButton({
 }
 
 export const isButtonElement = (element: ReactNode): element is ReactElement<ButtonProps> =>
-    isValidElement(element) && (element.type === Button || element.type === IconButton);
+    isValidElement(element) &&
+    (element.type === Button || element.type === IconButton || element.type === Action || element.type === ActionIcon);

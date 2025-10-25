@@ -1,11 +1,7 @@
-import DarkModeIcon from '@assets/dark-mode.svg';
-import LightModeIcon from '@assets/light-mode.svg';
-import AutoModeIcon from '@assets/routine.svg';
-
 import React, { type ComponentType } from 'react';
 
-import { Button, ButtonGroup } from '@ui/Button';
-import { useColorSchemeState } from '@ui/hooks/useColorSchemeState';
+import { Center, SegmentedControl, useMantineColorScheme, type MantineColorScheme } from '@mantine/core';
+import { IconMoon, IconSun, IconSunMoon } from '@tabler/icons-react';
 
 interface ColorSchemeToggleProps {
     auto?: boolean;
@@ -20,46 +16,51 @@ interface ColorSchemeToggleProps {
 export function ColorSchemeToggle({
     auto = true,
     lightModeLabel = 'Light mode',
-    lightModeIcon: LightIcon = LightModeIcon,
+    lightModeIcon: LightIcon = IconSun,
     darkModeLabel = 'Dark mode',
-    darkModeIcon: DarkIcon = DarkModeIcon,
+    darkModeIcon: DarkIcon = IconMoon,
     autoModeLabel = 'System preferred mode',
-    autoModeIcon: AutoIcon = AutoModeIcon,
+    autoModeIcon: AutoIcon = IconSunMoon,
 }: ColorSchemeToggleProps) {
-    const [scheme, setScheme] = useColorSchemeState();
+    const { colorScheme, setColorScheme } = useMantineColorScheme();
     return (
-        <nav>
-            <ButtonGroup>
-                <Button
-                    color={scheme === 'light' ? 'blue' : 'gray'}
-                    variant={scheme === 'light' ? 'solid' : 'outlined'}
-                    aria-label={lightModeLabel}
-                    aria-pressed={scheme === 'light'}
-                    onClick={() => setScheme('light')}
-                >
-                    <LightIcon />
-                </Button>
-                {auto && (
-                    <Button
-                        color={scheme === 'auto' ? 'blue' : 'gray'}
-                        variant={scheme === 'auto' ? 'solid' : 'outlined'}
-                        aria-label={autoModeLabel}
-                        aria-pressed={scheme === 'auto'}
-                        onClick={() => setScheme('auto')}
-                    >
-                        <AutoIcon />
-                    </Button>
-                )}
-                <Button
-                    color={scheme === 'dark' ? 'blue' : 'gray'}
-                    variant={scheme === 'dark' ? 'solid' : 'outlined'}
-                    aria-label={darkModeLabel}
-                    aria-pressed={scheme === 'dark'}
-                    onClick={() => setScheme('dark')}
-                >
-                    <DarkIcon />
-                </Button>
-            </ButtonGroup>
-        </nav>
+        <Center>
+            <SegmentedControl
+                // fullWidth
+                color="blue"
+                value={colorScheme}
+                onChange={(scheme) => setColorScheme(scheme as MantineColorScheme)}
+                data={[
+                    {
+                        value: 'light',
+                        label: (
+                            <Center>
+                                <LightIcon aria-label={lightModeLabel} />
+                            </Center>
+                        ),
+                    },
+                    ...(auto
+                        ? [
+                              {
+                                  value: 'auto',
+                                  label: (
+                                      <Center>
+                                          <AutoIcon aria-label={autoModeLabel} />
+                                      </Center>
+                                  ),
+                              },
+                          ]
+                        : []),
+                    {
+                        value: 'dark',
+                        label: (
+                            <Center>
+                                <DarkIcon aria-label={darkModeLabel} />
+                            </Center>
+                        ),
+                    },
+                ]}
+            />
+        </Center>
     );
 }

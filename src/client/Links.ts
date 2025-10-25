@@ -3,5 +3,4 @@ export const enum Links {
     GROUPS = '/groups',
     VARIANTS = '/variants',
     SUMMARY = '/summary',
-    ABOUT = '/about',
 }

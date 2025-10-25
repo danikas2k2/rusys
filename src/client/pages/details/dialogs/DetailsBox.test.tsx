@@ -141,7 +141,7 @@ describe('<DetailsBox>', () => {
             expect(addDetails).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox', { name: 'Title' })).toHaveFocus();
-            expect(screen.getByRole('alert')).toHaveTextContent('This name already exists');
+            expect(screen.getByRole('alert')).toHaveTextContent('Name already exists');
         });
     });
 
@@ -209,7 +209,7 @@ describe('<DetailsBox>', () => {
             expect(renameDetails).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox', { name: 'Title' })).toHaveFocus();
-            expect(screen.getByRole('alert')).toHaveTextContent('This name already exists');
+            expect(screen.getByRole('alert')).toHaveTextContent('Name already exists');
         });
 
         it('closes without updating when name was not changed', async () => {
@@ -298,7 +298,7 @@ describe('<DetailsBox>', () => {
             expect(moveDetails).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox', { name: 'Title' })).toHaveFocus();
-            expect(screen.getByRole('alert')).toHaveTextContent('This name already exists');
+            expect(screen.getByRole('alert')).toHaveTextContent('Name already exists');
         });
 
         it('closes without updating when group was not changed', async () => {

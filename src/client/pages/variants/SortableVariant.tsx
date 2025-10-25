@@ -2,17 +2,15 @@ import React, { useCallback, useRef } from 'react';
 
 import cs from 'classnames';
 
+import { useActiveContent, type ActiveContent } from '~/client/common/ActiveContentContext';
 import { ActiveDragHandle } from '~/client/common/ActiveDragHandle';
-import { useActiveRow, type ActiveRow } from '~/client/common/ActiveRowContext';
 import { useErrorWrapper } from '~/client/common/hooks/useErrorWrapper';
-import { SlideControls } from '~/client/common/SlideControls';
+import { SwipePanel } from '~/client/common/SwipePanel';
 import { useDeleteVariant } from '~/client/state/variants/useDeleteVariant';
 import { Cell } from '~/client/table/Cell';
 import { SortableRow } from '~/client/table/SortableRow';
 import { type Variant } from '~/types/data';
 import cx from './SortableVariant.pcss';
-
-export interface ActiveVariant extends ActiveRow, Pick<Variant, 'group' | 'variant'> {}
 
 interface SortableVariantProps {
     className?: string;
@@ -32,15 +30,15 @@ export function SortableVariant({
     onDrag,
 }: SortableVariantProps) {
     const ref = useRef<HTMLDivElement>(null);
-    const [active, setActiveVariant] = useActiveRow<ActiveVariant>();
-    const isActive = active?.group === group && active?.variant === variant;
+    const [active, setActive] = useActiveContent<Pick<Variant, 'group' | 'variant'>>();
+    const isActive = active?.data?.group === group && active?.data?.variant === variant;
 
     const handleDragStart = useCallback(() => {
         if (!isActive) {
-            setActiveVariant({ group, variant, ref });
+            setActive({ id: `${variant}@${group}`, data: { group, variant }, ref });
         }
         onDragStart?.(variant);
-    }, [group, isActive, onDragStart, setActiveVariant, variant]);
+    }, [group, isActive, onDragStart, setActive, variant]);
 
     const handleDrag = useCallback(() => onDrag?.(ref.current!), [onDrag]);
 
@@ -56,7 +54,7 @@ export function SortableVariant({
             onDrag={handleDrag}
             onDragEnd={onDragStop}
             handle={<ActiveDragHandle />}
-            controls={isActive ? <SlideControls onRemove={handleRemove} /> : undefined}
+            controls={isActive ? <SwipePanel onRemove={handleRemove} /> : undefined}
         >
             <Cell key="name" className={cx('Name')}>
                 {variant}
