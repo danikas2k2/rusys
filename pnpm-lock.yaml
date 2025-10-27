@@ -182,8 +182,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       '@types/webpack-hot-middleware':
-        specifier: ^2.25.11
-        version: 2.25.11(esbuild@0.25.11)(webpack-cli@6.0.1)
+        specifier: ^2.25.12
+        version: 2.25.12(esbuild@0.25.11)(webpack-cli@6.0.1)
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.46.2
         version: 8.46.2(@typescript-eslint/parser@8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
@@ -2251,8 +2251,8 @@ packages:
   '@types/webidl-conversions@7.0.3':
     resolution: {integrity: sha512-CiJJvcRtIgzadHCYXw7dqEnMNRjhGZlYK05Mj9OyktqV8uVT8fD2BFOB7S1uwBE3Kj2Z+4UyPmFw/Ixgw/LAlA==}
 
-  '@types/webpack-hot-middleware@2.25.11':
-    resolution: {integrity: sha512-jNj2XFWGDGAv/xt1BQT7Yk6Wb94/l4gu2H4BVnEGoVKxuxR3lgvlYGxFdj4kcQJm3JgiQLF6R+LBv5CUvOpyXQ==}
+  '@types/webpack-hot-middleware@2.25.12':
+    resolution: {integrity: sha512-3CHRpHNHrdXcXqIyL51UmnoqhxNIZSMpJT4Y2EezZa9DCst7+a03Y1iWUtwYb0oYiZJJkCwhGnW2bwgmaEwsAg==}
 
   '@types/whatwg-url@11.0.5':
     resolution: {integrity: sha512-coYR071JRaHa+xoEvvYqvnIHaVqaYrLPbsufM9BF63HkwI5Lgmy2QR8Q5K/lYDYo5AK82wOvSOS0UsLTpTG7uQ==}
@@ -9204,7 +9204,7 @@ snapshots:
 
   '@types/webidl-conversions@7.0.3': {}
 
-  '@types/webpack-hot-middleware@2.25.11(esbuild@0.25.11)(webpack-cli@6.0.1)':
+  '@types/webpack-hot-middleware@2.25.12(esbuild@0.25.11)(webpack-cli@6.0.1)':
     dependencies:
       '@types/connect': 3.4.38
       tapable: 2.3.0
