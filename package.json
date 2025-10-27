@@ -78,7 +78,7 @@
     },
     "devDependencies": {
         "@babel/preset-react": "^7.27.1",
-        "@babel/preset-typescript": "^7.27.1",
+        "@babel/preset-typescript": "^7.28.5",
         "@catppuccin/palette": "^1.7.1",
         "@css-modules-kit/stylelint-plugin": "^0.4.0",
         "@ecomfe/class-names-loader": "^2.0.0",
