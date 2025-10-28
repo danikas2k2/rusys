@@ -5,6 +5,7 @@ import React, {
     useCallback,
     useEffect,
     useId,
+    useMemo,
     useRef,
     useState,
     type ChangeEvent,
@@ -123,30 +124,35 @@ export function Select<T = string, E extends HTMLElement = HTMLElement>({
                 onChange?.(e, value, content, i);
             }
         },
-        [currentLabel, currentValue, filter, multiple, onChange]
+        [currentLabel, currentValue, filter, multiple, onChange, dropdownRef]
     );
 
-    const filteredOptions = options
-        ?.filter((o) => !filter || matchParts(o.props.label ?? o.props.children?.toString(), filter))
-        .map((o, key) =>
-            cloneElement(o, {
-                ...o.props,
-                key,
-                selected: currentValue === o.props.value,
-                onClick: o.props.disabled
-                    ? undefined
-                    : (e: MouseEvent<HTMLElement>) => {
-                          onClick?.(e as MouseEvent<HTMLInputElement>);
-                          handleOption(
-                              e as unknown as ChangeEvent<E>,
-                              o.props.value,
-                              o.props.label,
-                              o.props.children,
-                              key
-                          );
-                      },
-            })
-        );
+    const filteredOptions = useMemo(
+        () =>
+            options
+                ?.filter((o) => !filter || matchParts(o.props.label ?? o.props.children?.toString(), filter))
+                // eslint-disable-next-line react-hooks/refs
+                .map((o, key) =>
+                    cloneElement(o, {
+                        ...o.props,
+                        key,
+                        selected: currentValue === o.props.value,
+                        onClick: o.props.disabled
+                            ? undefined
+                            : (e: MouseEvent<HTMLElement>) => {
+                                  onClick?.(e as MouseEvent<HTMLInputElement>);
+                                  handleOption(
+                                      e as unknown as ChangeEvent<E>,
+                                      o.props.value,
+                                      o.props.label,
+                                      o.props.children,
+                                      key
+                                  );
+                              },
+                    })
+                ),
+        [options, filter, currentValue, onClick, handleOption]
+    );
     const filteredOut = !filteredOptions?.length;
 
     useEffect(() => {

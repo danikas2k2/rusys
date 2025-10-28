@@ -2,8 +2,8 @@ import CancelIcon from '@assets/cancel.svg';
 
 import React, {
     useCallback,
-    useEffect,
     useId,
+    useMemo,
     useState,
     type FormEvent,
     type InputHTMLAttributes,
@@ -130,22 +130,22 @@ export function Input({
         [controlled, onClear, ref]
     );
 
-    const hasValue = !!(value || defaultValue);
-    const [clear, setClear] = useState<boolean>(clearable && hasValue);
-    useEffect(() => {
-        if (clearable) {
-            setClear(!!(value || defaultValue));
-        }
-    }, [clearable, value, defaultValue]);
+    // For controlled inputs, derive clear button visibility from value
+    // For uncontrolled inputs, track it in state
+    const [uncontrolledShowClear, setUncontrolledShowClear] = useState<boolean>(clearable && !!defaultValue);
+    const showClear = useMemo(() => {
+        if (!clearable) return false;
+        return controlled ? !!value : uncontrolledShowClear;
+    }, [clearable, controlled, value, uncontrolledShowClear]);
 
     const handleInput = useCallback(
         (e: FormEvent<HTMLInputElement>) => {
-            if (clearable) {
-                setClear(!!e.currentTarget.value);
+            if (clearable && !controlled) {
+                setUncontrolledShowClear(!!e.currentTarget.value);
             }
             onInput?.(e);
         },
-        [clearable, onInput]
+        [clearable, controlled, onInput]
     );
 
     const id = useId();
@@ -169,7 +169,7 @@ export function Input({
                 onInput={handleInput}
                 {...props}
             />
-            {clear && (
+            {showClear && (
                 <IconButton
                     className={cx('clear')}
                     variant="plain"
