@@ -1,4 +1,4 @@
-import { type RuleSetConditionAbsolute } from 'webpack';
+import type { RuleSetConditionAbsolute } from 'webpack';
 
 export function getExcludeList(): RuleSetConditionAbsolute[] {
     return [

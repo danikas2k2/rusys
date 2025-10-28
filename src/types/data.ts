@@ -8,12 +8,12 @@ export interface VariantAmount {
 
 export interface YearAmounts {
     year: number;
-    amounts: ReadonlyArray<VariantAmount>;
+    amounts: readonly VariantAmount[];
 }
 
 export interface Update {
     time: number;
-    years: ReadonlyArray<YearAmounts>;
+    years: readonly YearAmounts[];
 }
 
 export interface RemovingYearAmounts extends YearAmounts {
@@ -23,15 +23,22 @@ export interface RemovingYearAmounts extends YearAmounts {
 export interface Details {
     group: string;
     name: string;
-    years?: ReadonlyArray<RemovingYearAmounts>;
+    years?: readonly RemovingYearAmounts[];
     missing?: boolean;
-    updates?: ReadonlyArray<Update>;
+    updates?: readonly Update[];
+}
+
+export interface DetailsAmounts {
+    group: string;
+    name: string;
+    year: number;
+    amounts?: readonly VariantAmount[];
 }
 
 export interface Summary {
     group: string;
     name: string;
-    years?: ReadonlyArray<YearAmounts>;
+    years?: readonly YearAmounts[];
 }
 
 export interface Group {
@@ -49,3 +56,5 @@ export interface Variant {
 }
 
 export type UpdateVariant = Partial<Pick<Variant, 'order' | 'suffix'>>;
+
+export type WithId<T> = T & { id: string };

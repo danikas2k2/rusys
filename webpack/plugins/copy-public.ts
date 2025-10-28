@@ -1,6 +1,6 @@
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 
-import { type WebpackPlugin } from '../types';
+import type { WebpackPlugin } from '../types';
 
 export function getCopyPublicPlugin(): WebpackPlugin {
     return new CopyWebpackPlugin({

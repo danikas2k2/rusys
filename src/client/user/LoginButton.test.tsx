@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { MockRedux } from '@tests/MockRedux';
+import user from '@testing-library/user-event';
+import { MockThemeRedux } from '@tests/MockThemeRedux';
 
 import React from 'react';
 
@@ -32,9 +32,9 @@ describe('<LoginButton>', () => {
 
     it('renders Google login button', () => {
         render(
-            <MockRedux>
+            <MockThemeRedux>
                 <LoginButton />
-            </MockRedux>
+            </MockThemeRedux>
         );
 
         expect(screen.getByText('Login with Google')).toBeInTheDocument();
@@ -42,9 +42,9 @@ describe('<LoginButton>', () => {
 
     it('renders children when provided', () => {
         render(
-            <MockRedux>
+            <MockThemeRedux>
                 <LoginButton>Test Child</LoginButton>
-            </MockRedux>
+            </MockThemeRedux>
         );
 
         expect(screen.getByText('Test Child')).toBeInTheDocument();
@@ -52,9 +52,9 @@ describe('<LoginButton>', () => {
 
     it('calls Google login when button is clicked', async () => {
         render(
-            <MockRedux>
+            <MockThemeRedux>
                 <LoginButton />
-            </MockRedux>
+            </MockThemeRedux>
         );
 
         expect(useGoogleLogin).toHaveBeenCalledWith({
@@ -63,16 +63,16 @@ describe('<LoginButton>', () => {
         });
         expect(login).not.toHaveBeenCalled();
 
-        await userEvent.click(screen.getByText('Login with Google'));
+        await user.click(screen.getByText('Login with Google'));
 
         expect(login).toHaveBeenCalledWith();
     });
 
     it('calls Google one tap login on render', async () => {
         render(
-            <MockRedux>
+            <MockThemeRedux>
                 <LoginButton />
-            </MockRedux>
+            </MockThemeRedux>
         );
 
         expect(useGoogleOneTapLogin).toHaveBeenCalledWith({
@@ -85,9 +85,9 @@ describe('<LoginButton>', () => {
         jest.mocked(useGoogleOneTapLogin).mockImplementationOnce(({ onError: handleError }) => handleError?.());
 
         render(
-            <MockRedux>
+            <MockThemeRedux>
                 <LoginButton />
-            </MockRedux>
+            </MockThemeRedux>
         );
 
         expect(onError).toHaveBeenCalledWith();
@@ -101,9 +101,9 @@ describe('<LoginButton>', () => {
         );
 
         render(
-            <MockRedux>
+            <MockThemeRedux>
                 <LoginButton />
-            </MockRedux>
+            </MockThemeRedux>
         );
 
         expect(onSuccess).toHaveBeenCalledWith(credentialResponse);

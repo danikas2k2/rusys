@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { type Db } from 'mongodb';
+import type { Db } from 'mongodb';
 
 import {
     deleteDetailsGroup,
@@ -19,8 +19,8 @@ import {
     renameVariantsGroup,
 } from '~/server/data/variants';
 import { db, withTransaction } from '~/server/db';
-import { type ApiExport } from '~/types/api';
-import { type Details, type Group, type UpdateVariant, type Variant } from '~/types/data';
+import type { ApiExport } from '~/types/api';
+import type { Details, Group, UpdateVariant, Variant } from '~/types/data';
 
 export const moveDetailsOccurrences = (
     group: string,
@@ -106,19 +106,16 @@ const copyCollection = async (src: Db, dst: Db, collectionName: string): Promise
     return (await srcCollection.countDocuments()) === (await dst.collection(collectionName).countDocuments());
 };
 
-const moveEverything = async (src: Db, dst: Db): Promise<boolean> => {
-    return (
-        (await copyCollection(src, dst, 'details')) &&
-        (await copyCollection(src, dst, 'variants')) &&
-        (await copyCollection(src, dst, 'groups')) &&
-        (await src.dropDatabase())
-    );
-};
+const moveEverything = async (src: Db, dst: Db): Promise<boolean> =>
+    (await copyCollection(src, dst, 'details')) &&
+    (await copyCollection(src, dst, 'variants')) &&
+    (await copyCollection(src, dst, 'groups')) &&
+    (await src.dropDatabase());
 
 export async function importEverything(
-    details: ReadonlyArray<Details>,
-    variants: ReadonlyArray<Variant>,
-    groups: ReadonlyArray<Group>
+    details: readonly Details[],
+    variants: readonly Variant[],
+    groups: readonly Group[]
 ): Promise<boolean> {
     const current = await db();
     const name = current.databaseName;

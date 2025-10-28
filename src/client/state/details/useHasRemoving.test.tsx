@@ -36,6 +36,7 @@ describe('useHasRemoving', () => {
 
     it('return false for mismatched years', () => {
         jest.mocked(useYears).mockReturnValueOnce([18, 19]);
+
         const { result } = renderHook(() => useHasRemoving('Daržovės', 'Kopūstai'), {
             wrapper: ({ children }) => <MockRedux state={{ details }}>{children}</MockRedux>,
         });

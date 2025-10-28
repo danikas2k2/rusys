@@ -1,6 +1,6 @@
 import path from 'path';
 
-import { type Configuration } from 'webpack';
+import type { Configuration } from 'webpack';
 
 import 'webpack-dev-server';
 

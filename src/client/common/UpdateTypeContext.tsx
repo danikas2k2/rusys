@@ -1,19 +1,15 @@
-import React, { createContext, use, useState, type PropsWithChildren } from 'react';
+import React, { createContext, use, useState } from 'react';
 
 import { noop } from 'lodash';
 
-export enum UpdateTypes {
-    Consumed = 'consumed',
-    Updated = 'updated',
-    Recycled = 'recycled',
-}
+export type UpdateTypes = 'consumed' | 'updated' | 'recycled';
 
-export const UpdateTypeContext = createContext<[UpdateTypes, (v: UpdateTypes) => void]>([UpdateTypes.Consumed, noop]);
+export const UpdateTypeContext = createContext<[UpdateTypes, (v: UpdateTypes) => void]>(['consumed', noop]);
 
-export function UpdateTypeContextWrapper({
-    initialState = UpdateTypes.Consumed,
+export function UpdateTypeWrapper({
+    initialState = 'consumed',
     children,
-}: PropsWithChildren<{ initialState?: UpdateTypes }>) {
+}: React.PropsWithChildren<{ initialState?: UpdateTypes }>) {
     return <UpdateTypeContext value={useState(initialState)}>{children}</UpdateTypeContext>;
 }
 

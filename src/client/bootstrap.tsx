@@ -8,6 +8,7 @@ import { App } from '~/client/App';
 import { getStore } from '~/client/state/store';
 
 import '@mantine/core/styles.css';
+import '@mantine/dropzone/styles.css';
 import '@ui/theme.pcss';
 import './bootstrap.pcss';
 
@@ -23,6 +24,7 @@ export function bootstrap(): void {
             <Provider store={getStore()}>
                 <MantineProvider
                     theme={getTheme()}
+                    defaultColorScheme="auto"
                     /*
                     classNamesPrefix = 'mantine',
                     cssVariablesResolver,
@@ -36,7 +38,6 @@ export function bootstrap(): void {
 
                     // TODO: use Mantine color scheme manager instead of custom
                     colorSchemeManager = localStorageColorSchemeManager(),
-                    defaultColorScheme = 'light',
                     forceColorScheme,
 
                     // TODO: check what for this env used

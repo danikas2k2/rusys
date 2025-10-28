@@ -4,7 +4,7 @@ import { mockResponse } from '@tests/mockResponse';
 
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { setMissing } from '~/server/data/details';
-import { type ApiSetMissing } from '~/types/api';
+import type { ApiSetMissing } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/data/details');

@@ -1,13 +1,15 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { MockRedux } from '@tests/MockRedux';
+import user from '@testing-library/user-event';
+import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
 import { useQuickFilterContext } from '~/client/filters/QuickFilterContext';
 import { ToolbarFilter } from '~/client/toolbar/ToolbarFilter';
 
-jest.mock('~/client/filters/QuickFilterContext');
+jest.mock('~/client/filters/QuickFilterContext', () => ({
+    useQuickFilterContext: jest.fn(),
+}));
 
 describe('<ToolbarFilter>', () => {
     const setFilter = jest.fn();
@@ -18,9 +20,9 @@ describe('<ToolbarFilter>', () => {
 
     it('renders input field with placeholder', () => {
         render(
-            <MockRedux>
+            <MockApp>
                 <ToolbarFilter />
-            </MockRedux>
+            </MockApp>
         );
 
         expect(screen.getByPlaceholderText('type to filter')).toBeInTheDocument();
@@ -28,12 +30,12 @@ describe('<ToolbarFilter>', () => {
 
     it('updates filter value when input field is changed', async () => {
         render(
-            <MockRedux>
+            <MockApp>
                 <ToolbarFilter />
-            </MockRedux>
+            </MockApp>
         );
 
-        await userEvent.type(screen.getByPlaceholderText('type to filter'), 'x');
+        await user.type(screen.getByPlaceholderText('type to filter'), 'x');
 
         expect(setFilter).toHaveBeenCalledWith('x');
     });
@@ -42,12 +44,12 @@ describe('<ToolbarFilter>', () => {
         jest.mocked(useQuickFilterContext).mockReturnValue(['x', setFilter]);
 
         render(
-            <MockRedux>
+            <MockApp>
                 <ToolbarFilter />
-            </MockRedux>
+            </MockApp>
         );
 
-        await userEvent.click(screen.getByRole('button', { name: 'Clear' }));
+        await user.click(screen.getByRole('button', { name: 'Clear' }));
 
         expect(setFilter).toHaveBeenCalledWith('');
     });

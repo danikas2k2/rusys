@@ -1,6 +1,6 @@
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
-import { type ApiClientId, type ApiRequest, type ApiResponse } from '~/types/api';
+import type { ApiClientId, ApiRequest, ApiResponse } from '~/types/api';
 
 export const DEV_CLIENT_ID = 'dev_mode';
 

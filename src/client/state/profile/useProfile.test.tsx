@@ -6,7 +6,7 @@ import React from 'react';
 
 import { DEV_MODE_PROFILE } from '~/client/state/profile/dev';
 import { profile as reducer } from '~/client/state/profile/reducer';
-import { type Profile } from '~/client/state/profile/types';
+import type { Profile } from '~/client/state/profile/types';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useSetProfile } from '~/client/state/profile/useSetProfile';
 import { isDevMode } from '~/common/utils/env';
@@ -57,6 +57,7 @@ describe('useProfile', () => {
 
     it('return empty profile from localStorage if not defined', () => {
         getItem.mockReturnValueOnce(null);
+
         const { result } = renderHook(() => useProfile(), {
             wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
         });
@@ -68,6 +69,7 @@ describe('useProfile', () => {
 
     it('return empty profile from localStorage if invalid', () => {
         getItem.mockReturnValueOnce('null');
+
         const { result } = renderHook(() => useProfile(), {
             wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
         });
@@ -79,6 +81,7 @@ describe('useProfile', () => {
 
     it('return profile from localStorage and store it to redux', () => {
         getItem.mockReturnValueOnce(JSON.stringify(value));
+
         const { result } = renderHook(() => useProfile(), {
             wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
         });
@@ -90,6 +93,7 @@ describe('useProfile', () => {
 
     it('return current profile if dev mode enabled but has profile', () => {
         jest.mocked(isDevMode).mockReturnValue(true);
+
         const { result } = renderHook(() => useProfile(), {
             wrapper: ({ children }) => (
                 <MockRedux state={{ profile: value }} reducers={{ profile: reducer }}>
@@ -104,6 +108,7 @@ describe('useProfile', () => {
     it('return profile from localStorage if dev mode enabled', () => {
         jest.mocked(isDevMode).mockReturnValueOnce(true);
         getItem.mockReturnValueOnce(JSON.stringify(value));
+
         const { result } = renderHook(() => useProfile(), {
             wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
         });
@@ -115,6 +120,7 @@ describe('useProfile', () => {
 
     it('return dev profile if dev mode enabled and has no profile neither in state nor in localStorage', () => {
         jest.mocked(isDevMode).mockReturnValueOnce(true);
+
         const { result } = renderHook(() => useProfile(), {
             wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
         });

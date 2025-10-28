@@ -1,4 +1,4 @@
-import React, { type JSX, type PropsWithChildren } from 'react';
+import React from 'react';
 import { Provider } from 'react-redux';
 
 import { configureStore } from '@reduxjs/toolkit';
@@ -26,10 +26,10 @@ export function MockRedux<S, A extends Action<never>>({
     state,
     reducers,
     children,
-}: PropsWithChildren<{
+}: React.PropsWithChildren<{
     state?: S;
     reducers?: ReducersMapObject<S, A>;
-}>): JSX.Element {
+}>): React.ReactElement {
     const stateReducers = addMissingReducers(state, reducers);
     const reducer = isEmpty(stateReducers) ? getPassThrough() : combineReducers(stateReducers);
     const store = configureStore({

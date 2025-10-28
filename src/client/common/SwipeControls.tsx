@@ -1,69 +1,50 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { Button } from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 import { useActiveContent, type ActiveContentData } from '~/client/common/ActiveContentContext';
-import { ButtonWithConfirmation } from '~/client/common/ButtonWithConfirmation';
 import { Label } from '~/client/common/Label';
 import { SwipePanel } from '~/client/common/SwipePanel';
 
 export interface SlideControlsProps<D = ActiveContentData> {
-    onEdit?: (data: D, event: React.MouseEvent<HTMLButtonElement>) => void;
-    onDelete?: (data: D, event: React.MouseEvent<HTMLButtonElement>) => void;
+    onEdit?: (data: D, event: React.MouseEvent<HTMLButtonElement>) => void | Promise<void>;
+    onDelete?: (data: D, event: React.MouseEvent<HTMLButtonElement>) => void | Promise<void>;
 }
 
-export function SwipeControls<D = object>({ onEdit, onDelete }: SlideControlsProps<D>): React.JSX.Element {
+export function SwipeControls<D = object>({ onEdit, onDelete }: SlideControlsProps<D>): React.ReactElement {
     const [active, setActive] = useActiveContent<D>();
 
-    const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
-        if (active) {
-            // Pin the row to prevent it from closing during edit dialog
-            setActive({ ...active, pinned: true, editing: true });
-            const data = active.data;
+    const handleEdit = useCallback(
+        async (e: React.MouseEvent<HTMLButtonElement>) => {
+            setActive({ ...active, action: 'update' });
+            const data = active?.data;
             if (data) {
-                onEdit?.(data, e);
+                await onEdit?.(data, e);
             }
-        }
-    };
+        },
+        [active, onEdit, setActive]
+    );
 
-    const handleDeleteOpen = () => {
-        if (active) {
-            // Pin the row when confirmation dialog opens
-            setActive({ ...active, pinned: true });
-        }
-    };
-
-    const handleDeleteClose = () => {
-        if (active) {
-            // Unpin and close when dialog closes
-            setActive(undefined);
-        }
-    };
-
-    const handleDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
-        const data = active?.data;
-        setActive(undefined);
-        if (data) {
-            onDelete?.(data, e);
-        }
-    };
+    const handleDelete = useCallback(
+        async (e: React.MouseEvent<HTMLButtonElement>) => {
+            setActive({ ...active, action: 'remove' });
+            const data = active?.data;
+            if (data) {
+                await onDelete?.(data, e);
+            }
+        },
+        [active, onDelete, setActive]
+    );
 
     return (
         <SwipePanel>
             <Button variant="filled" color="blue" size="sm" leftSection={<IconEdit size={18} />} onClick={handleEdit}>
                 <Label>Edit</Label>
             </Button>
-            <ButtonWithConfirmation
-                dialogHeader={<Label>Sure to remove?</Label>}
-                onClick={handleDelete}
-                onOpen={handleDeleteOpen}
-                onClose={handleDeleteClose}
-            >
-                <Button variant="filled" color="red" size="sm" leftSection={<IconTrash size={18} />}>
-                    <Label>Remove</Label>
-                </Button>
-            </ButtonWithConfirmation>
+            <Button variant="filled" color="red" size="sm" leftSection={<IconTrash size={18} />} onClick={handleDelete}>
+                <Label>Remove</Label>
+            </Button>
         </SwipePanel>
     );
 }

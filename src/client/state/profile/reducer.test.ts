@@ -2,7 +2,7 @@ import { mockLocalStorage } from '@tests/mockLocalStorage';
 
 import { ProfileActionType, type ProfileAction } from '~/client/state/profile/actions';
 import { profile as reducer } from '~/client/state/profile/reducer';
-import { type Profile } from '~/client/state/profile/types';
+import type { Profile } from '~/client/state/profile/types';
 
 describe('profile', () => {
     afterEach(() => jest.clearAllMocks());

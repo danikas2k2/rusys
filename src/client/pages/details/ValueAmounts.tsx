@@ -2,13 +2,13 @@ import React from 'react';
 
 import { ValueSuffix } from '~/client/common/ValueSuffix';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
-import { type VariantAmount } from '~/types/data';
+import type { VariantAmount } from '~/types/data';
 import cx from './ValueAmounts.pcss';
 
 export interface ValueAmountsProps {
     className?: string;
     group: string;
-    amounts?: ReadonlyArray<VariantAmount>;
+    amounts?: readonly VariantAmount[];
 }
 
 export function ValueAmounts({ className, group, amounts }: ValueAmountsProps) {

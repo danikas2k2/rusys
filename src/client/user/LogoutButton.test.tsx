@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { MockRedux } from '@tests/MockRedux';
+import user from '@testing-library/user-event';
+import { MockThemeRedux } from '@tests/MockThemeRedux';
 
 import React from 'react';
 
@@ -20,17 +20,15 @@ jest.mock('~/client/state/profile/useResetProfile');
 describe('<LogoutButton>', () => {
     const resetProfile = jest.fn();
 
-    beforeAll(() => {
-        jest.mocked(useResetProfile).mockReturnValue(resetProfile);
-    });
+    beforeAll(() => jest.mocked(useResetProfile).mockReturnValue(resetProfile));
 
     afterEach(() => jest.clearAllMocks());
 
     it('renders ProfileAvatar when no children are provided', () => {
         render(
-            <MockRedux>
+            <MockThemeRedux>
                 <LogoutButton />
-            </MockRedux>
+            </MockThemeRedux>
         );
 
         expect(screen.getByText('ProfileAvatar')).toBeInTheDocument();
@@ -38,9 +36,9 @@ describe('<LogoutButton>', () => {
 
     it('renders children when provided', () => {
         render(
-            <MockRedux>
+            <MockThemeRedux>
                 <LogoutButton>Test Child</LogoutButton>
-            </MockRedux>
+            </MockThemeRedux>
         );
 
         expect(screen.getByText('Test Child')).toBeInTheDocument();
@@ -48,25 +46,26 @@ describe('<LogoutButton>', () => {
 
     it('opens ConfirmationDialog when button is clicked', async () => {
         render(
-            <MockRedux>
+            <MockThemeRedux>
                 <LogoutButton />
-            </MockRedux>
+            </MockThemeRedux>
         );
 
-        await userEvent.click(screen.getByRole('button'));
+        await user.click(screen.getByRole('button'));
 
         expect(screen.getByRole('alertdialog')).toBeInTheDocument();
     });
 
     it('calls googleLogout and dispatches resetProfileAction when confirm is clicked', async () => {
         render(
-            <MockRedux>
+            <MockThemeRedux>
                 <LogoutButton />
-            </MockRedux>
+            </MockThemeRedux>
         );
 
-        await userEvent.click(screen.getByRole('button', { name: 'ProfileAvatar' }));
-        await userEvent.click(screen.getByRole('button', { name: 'Logout' }));
+        await user.click(screen.getByRole('button', { name: 'ProfileAvatar' }));
+
+        await user.click(await screen.findByRole('button', { name: 'Logout' }));
 
         expect(googleLogout).toHaveBeenCalledWith();
         expect(resetProfile).toHaveBeenCalledWith();

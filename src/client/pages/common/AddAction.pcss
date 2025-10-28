@@ -1,0 +1,17 @@
+:global(.mantine-ActionIcon-root).AddAction {
+    position: fixed;
+    inset-block-end: .5rem;
+    inset-inline-end: .5rem;
+    z-index: 100;
+    box-shadow: var(--shadow-medium);
+    //transition: opacity 0.1s ease-out 0.2s;
+    transition: opacity 0.1s ease-out;
+    opacity: 1;
+    pointer-events: auto;
+
+    &[data-hidden="true"] {
+        opacity: 0;
+        pointer-events: none;
+        transition-delay: 0s;
+    }
+}

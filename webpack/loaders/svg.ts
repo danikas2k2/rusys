@@ -1,4 +1,4 @@
-import { type WebpackModuleLoader } from '../types';
+import type { WebpackModuleLoader } from '../types';
 
 export function getSvgLoader(): WebpackModuleLoader {
     return {

@@ -7,8 +7,8 @@ import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
 import { handleUpdateDetails } from '~/server/api/handleUpdateDetails';
 import { getDetailsWithYears } from '~/server/api/response';
 import { updateDetails } from '~/server/data/details';
-import { type ApiDetailsWithYears, type ApiUpdateDetails } from '~/types/api';
-import { type VariantAmount } from '~/types/data';
+import type { ApiDetailsWithYears, ApiUpdateDetails } from '~/types/api';
+import type { VariantAmount } from '~/types/data';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');

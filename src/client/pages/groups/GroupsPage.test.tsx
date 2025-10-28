@@ -1,40 +1,36 @@
 import { render, screen } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
-import { MockRoute } from '@tests/MockRoute';
+import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
-import { GroupsPage } from './GroupsPage';
+import { GroupsPage } from '~/client/pages/groups/GroupsPage';
+
+jest.mock('~/client/pages/common/Page');
+jest.mock('~/client/common/SwipeControls', () => ({
+    SwipeControls: jest.fn(() => <div>SwipeControls</div>),
+}));
+jest.mock('~/client/common/SwipeControlsContext', () => ({
+    SwipeControlsWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+jest.mock('~/client/filters/QuickFilterContext', () => ({
+    QuickFilterWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
 
 jest.mock('~/client/pages/groups/GroupsTable', () => ({
-    GroupsTable: () => <div>GroupsTable</div>,
+    GroupsTable: jest.fn(() => <div>GroupsTable</div>),
 }));
-jest.mock('~/client/toolbar/ToolbarFilter', () => ({
-    ToolbarFilter: () => <div>ToolbarFilter</div>,
+jest.mock('~/client/pages/groups/ActiveGroupBox', () => ({
+    ActiveGroupBox: () => null,
 }));
 
 describe('<GroupsPage>', () => {
-    it('renders group table', async () => {
+    it('renders into the document', () => {
         render(
-            <MockRedux>
-                <MockRoute>
-                    <GroupsPage />
-                </MockRoute>
-            </MockRedux>
+            <MockApp>
+                <GroupsPage />
+            </MockApp>
         );
 
         expect(screen.getByText('GroupsTable')).toBeInTheDocument();
-    });
-
-    it('renders toolbar filter', async () => {
-        render(
-            <MockRedux>
-                <MockRoute>
-                    <GroupsPage />
-                </MockRoute>
-            </MockRedux>
-        );
-
-        expect(screen.getByText('ToolbarFilter')).toBeInTheDocument();
     });
 });

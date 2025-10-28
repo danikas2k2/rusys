@@ -4,7 +4,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { type WithVariantsState } from '~/client/state/variants/types';
+import type { WithVariantsState } from '~/client/state/variants/types';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 
 describe('useAllVariants', () => {

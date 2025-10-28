@@ -2,7 +2,7 @@ import { debugRequest } from '~/server/api/debug';
 import { getDetailsWithVariants } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { copyVariant } from '~/server/data/variants';
-import { type ApiCopyVariant, type ApiDetailsWithVariants, type ApiRequest, type ApiResponse } from '~/types/api';
+import type { ApiCopyVariant, ApiDetailsWithVariants, ApiRequest, ApiResponse } from '~/types/api';
 
 export async function handleCopyVariant(
     req: ApiRequest<ApiCopyVariant>,

@@ -1,5 +1,5 @@
-import { type Request } from 'express';
-import { type UploadedFile } from 'express-fileupload';
+import type { Request } from 'express';
+import type { UploadedFile } from 'express-fileupload';
 import { isEmpty } from 'lodash';
 
 import { formatFileSize } from '~/common/utils/format';

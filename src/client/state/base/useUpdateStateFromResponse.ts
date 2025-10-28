@@ -1,15 +1,15 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { type ActionCreatorsMapObject } from 'redux';
+import type { ActionCreatorsMapObject } from 'redux';
 
 import { setDetailsAction } from '~/client/state/details/actions';
 import { setGroupsAction } from '~/client/state/groups/actions';
 import { setSummaryAction } from '~/client/state/summary/actions';
 import { setVariantsAction } from '~/client/state/variants/actions';
 import { setYearsAction } from '~/client/state/years/actions';
-import { type ApiResult } from '~/types/api';
-import { type Details, type Summary } from '~/types/data';
+import type { ApiResult } from '~/types/api';
+import type { Details, Summary } from '~/types/data';
 
 export type RefreshResult = ApiResult<{
     years?: number[];

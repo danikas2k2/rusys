@@ -1,25 +1,22 @@
 import { act, render, screen } from '@testing-library/react';
-import UserEvent from '@testing-library/user-event';
-import { MockRedux } from '@tests/MockRedux';
+import userEvent from '@testing-library/user-event';
+import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
-import { ValueBox } from '~/client/pages/details/dialogs/ValueBox';
+import { Table } from '@mantine/core';
+
+import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { ValueCell, type ValueCellProps } from '~/client/pages/details/ValueCell';
 import { useSetDetailsRemoving } from '~/client/state/details/useSetDetailsRemoving';
-import { useUpdateDetails } from '~/client/state/details/useUpdateDetails';
-import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
 
-jest.mock('~/client/pages/details/dialogs/ValueBox', () => ({
-    ValueBox: jest.fn().mockReturnValue(null),
-}));
 jest.mock('~/client/state/details/useSetDetailsRemoving', () => ({
     useSetDetailsRemoving: jest.fn(),
 }));
-jest.mock('~/client/state/details/useUpdateDetails', () => ({
-    useUpdateDetails: jest.fn(),
+jest.mock('~/client/common/ActiveContentContext', () => ({
+    ...jest.requireActual('~/client/common/ActiveContentContext'),
+    useActiveContent: jest.fn(),
 }));
-jest.mock('~/client/state/profile/useProfile');
 
 describe('<ValueCell>', () => {
     const group = 'Daržovės';
@@ -29,14 +26,14 @@ describe('<ValueCell>', () => {
         { group, variant: 'd', order: 1, suffix: 'd' },
         { group, variant: 'm', order: 2, suffix: 'm' },
     ];
-    const userEvent = UserEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const setRemoving = jest.fn();
-    const updateDetails = jest.fn();
+    const setActive = jest.fn();
 
     beforeAll(() => {
         jest.mocked(useSetDetailsRemoving).mockReturnValue(setRemoving);
-        jest.mocked(useUpdateDetails).mockReturnValue(updateDetails);
+        jest.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
     });
 
     beforeEach(() => jest.useFakeTimers());
@@ -62,9 +59,15 @@ describe('<ValueCell>', () => {
 
         it('renders cell into the document', () => {
             render(
-                <MockRedux state={{ variants }}>
-                    <ValueCell {...props} />
-                </MockRedux>
+                <MockApp state={{ variants }}>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
             );
 
             expect(screen.getByRole('cell', { name: '23d' })).toBeInTheDocument();
@@ -72,89 +75,51 @@ describe('<ValueCell>', () => {
 
         it('handles long press', async () => {
             render(
-                <MockRedux>
-                    <ValueCell {...props} />
-                </MockRedux>
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
             );
 
-            await userEvent.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
+            await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
             act(() => jest.advanceTimersByTime(500));
 
-            expect(ValueBox).not.toHaveBeenCalled();
+            expect(setActive).not.toHaveBeenCalled();
             expect(setRemoving).toHaveBeenCalledWith(props.group, props.name, props.year, true);
         });
 
-        it('handles short press when not editing', async () => {
+        it('handles short press', async () => {
             render(
-                <MockRedux>
-                    <ValueCell {...props} />
-                </MockRedux>
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
             );
 
-            await userEvent.click(screen.getByRole('cell'));
+            await user.click(screen.getByRole('cell'));
             act(() => jest.advanceTimersByTime(100));
 
-            expect(ValueBox).toHaveBeenCalledWith(expect.objectContaining(props), undefined);
+            expect(setActive).toHaveBeenCalledWith({
+                action: 'values',
+                data: {
+                    group: props.group,
+                    name: props.name,
+                    year: props.year,
+                    amounts: props.amounts,
+                    span: props.span,
+                },
+            });
             expect(setRemoving).not.toHaveBeenCalled();
-        });
-
-        it('calls onClose with changed value', async () => {
-            jest.mocked(ValueBox).mockImplementation(({ onClose }) => (
-                <button
-                    onClick={() =>
-                        onClose?.([
-                            { variant: 'p', amount: 2 },
-                            { variant: 'd', amount: 1 },
-                            { variant: 'm', amount: -1 },
-                            { variant: 'x', amount: 0 },
-                        ])
-                    }
-                >
-                    ValueBox
-                </button>
-            ));
-
-            render(
-                <MockRedux>
-                    <ValueCell {...props} />
-                </MockRedux>
-            );
-
-            await userEvent.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
-            await userEvent.click(screen.getByRole('button', { name: 'ValueBox' }));
-
-            expect(screen.queryByRole('button', { name: 'ValueBox' })).not.toBeInTheDocument();
-            expect(updateDetails).toHaveBeenCalledWith(
-                group,
-                name,
-                22,
-                [
-                    { variant: 'p', amount: 2 },
-                    { variant: 'd', amount: 1 },
-                    { variant: 'm', amount: -1 },
-                ],
-                DEV_MODE_EMAIL
-            );
-        });
-
-        it('calls onClose with unchanged value', async () => {
-            jest.mocked(ValueBox).mockImplementation(({ onClose }) => (
-                <button onClick={() => onClose?.()}>ValueBox</button>
-            ));
-
-            render(
-                <MockRedux>
-                    <ValueCell {...props} />
-                </MockRedux>
-            );
-
-            await userEvent.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
-            await userEvent.click(screen.getByRole('button', { name: 'ValueBox' }));
-
-            expect(screen.queryByRole('button', { name: 'ValueBox' })).not.toBeInTheDocument();
-            expect(updateDetails).not.toHaveBeenCalled();
         });
     });
 
@@ -163,9 +128,15 @@ describe('<ValueCell>', () => {
 
         it('renders cell into the document', () => {
             render(
-                <MockRedux>
-                    <ValueCell {...props} />
-                </MockRedux>
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
             );
 
             expect(screen.getByRole('cell', { name: '.' })).toBeInTheDocument();
@@ -173,89 +144,51 @@ describe('<ValueCell>', () => {
 
         it('does not handle long press for empty cell', async () => {
             render(
-                <MockRedux>
-                    <ValueCell {...props} />
-                </MockRedux>
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
             );
 
-            await userEvent.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
+            await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
             act(() => jest.advanceTimersByTime(500));
 
-            expect(ValueBox).not.toHaveBeenCalled();
+            expect(setActive).not.toHaveBeenCalled();
             expect(setRemoving).not.toHaveBeenCalled();
         });
 
-        it('handles short press when not editing', async () => {
+        it('handles short press', async () => {
             render(
-                <MockRedux>
-                    <ValueCell {...props} />
-                </MockRedux>
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
             );
 
-            await userEvent.click(screen.getByRole('cell'));
+            await user.click(screen.getByRole('cell'));
             act(() => jest.advanceTimersByTime(100));
 
-            expect(ValueBox).toHaveBeenCalledWith(expect.objectContaining(props), undefined);
+            expect(setActive).toHaveBeenCalledWith({
+                action: 'values',
+                data: {
+                    group: props.group,
+                    name: props.name,
+                    year: props.year,
+                    amounts: props.amounts,
+                    span: props.span,
+                },
+            });
             expect(setRemoving).not.toHaveBeenCalled();
-        });
-
-        it('calls onClose with changed value', async () => {
-            jest.mocked(ValueBox).mockImplementation(({ onClose }) => (
-                <button
-                    onClick={() =>
-                        onClose?.([
-                            { variant: 'p', amount: 2 },
-                            { variant: 'd', amount: 1 },
-                            { variant: 'm', amount: -1 },
-                            { variant: 'x', amount: 0 },
-                        ])
-                    }
-                >
-                    ValueBox
-                </button>
-            ));
-
-            render(
-                <MockRedux>
-                    <ValueCell {...props} />
-                </MockRedux>
-            );
-
-            await userEvent.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
-            await userEvent.click(screen.getByRole('button', { name: 'ValueBox' }));
-
-            expect(screen.queryByRole('button', { name: 'ValueBox' })).not.toBeInTheDocument();
-            expect(updateDetails).toHaveBeenCalledWith(
-                group,
-                name,
-                22,
-                [
-                    { variant: 'p', amount: 2 },
-                    { variant: 'd', amount: 1 },
-                    { variant: 'm', amount: -1 },
-                ],
-                DEV_MODE_EMAIL
-            );
-        });
-
-        it('calls onClose with unchanged value', async () => {
-            jest.mocked(ValueBox).mockImplementation(({ onClose }) => (
-                <button onClick={() => onClose?.()}>ValueBox</button>
-            ));
-
-            render(
-                <MockRedux>
-                    <ValueCell {...props} />
-                </MockRedux>
-            );
-
-            await userEvent.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
-            await userEvent.click(screen.getByRole('button', { name: 'ValueBox' }));
-
-            expect(screen.queryByRole('button', { name: 'ValueBox' })).not.toBeInTheDocument();
-            expect(updateDetails).not.toHaveBeenCalled();
         });
     });
 });

@@ -1,17 +1,17 @@
-import React, { type JSX, type PropsWithChildren } from 'react';
+import React from 'react';
 
 import { ActiveContentContext, type ActiveContent } from '~/client/common/ActiveContentContext';
 
 export function MockActiveContent<P extends ActiveContent>({
-    state,
-    setState = jest.fn(),
+    active,
+    setActive = jest.fn(),
     children,
-}: PropsWithChildren<{
-    state?: P;
-    setState?: (newState?: P) => void;
-}>): JSX.Element {
+}: React.PropsWithChildren<{
+    active?: P;
+    setActive?: (newState?: P) => void;
+}>): React.ReactElement {
     return (
-        <ActiveContentContext value={[state, setState as (newState?: ActiveContent) => void]}>
+        <ActiveContentContext value={[active, setActive as (newState?: ActiveContent) => void]}>
             {children}
         </ActiveContentContext>
     );

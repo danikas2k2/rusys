@@ -1,13 +1,9 @@
 import { render, renderHook, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import user from '@testing-library/user-event';
 
 import React, { use } from 'react';
 
-import {
-    MissingOnlyContext,
-    MissingOnlyContextWrapper,
-    useMissingOnly,
-} from '~/client/pages/details/MissingOnlyContext';
+import { MissingOnlyContext, MissingOnlyWrapper, useMissingOnly } from '~/client/pages/details/MissingOnlyContext';
 
 describe('<MissingOnlyContext>', () => {
     afterEach(() => {});
@@ -46,9 +42,9 @@ describe('<MissingOnlyContextWrapper>', () => {
 
     it('uses context with default value', () => {
         render(
-            <MissingOnlyContextWrapper>
+            <MissingOnlyWrapper>
                 <Test />
-            </MissingOnlyContextWrapper>
+            </MissingOnlyWrapper>
         );
 
         expect(screen.getByRole('button')).toHaveTextContent('Everything');
@@ -56,11 +52,11 @@ describe('<MissingOnlyContextWrapper>', () => {
 
     it('changes context', async () => {
         render(
-            <MissingOnlyContextWrapper>
+            <MissingOnlyWrapper>
                 <Test />
-            </MissingOnlyContextWrapper>
+            </MissingOnlyWrapper>
         );
-        await userEvent.click(screen.getByRole('button'));
+        await user.click(screen.getByRole('button'));
 
         expect(screen.getByRole('button')).toHaveTextContent('MissingOnly');
     });

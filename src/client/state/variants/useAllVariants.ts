@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 
 import { isEqual } from 'lodash';
 
-import { type WithVariantsState } from '~/client/state/variants/types';
+import type { WithVariantsState } from '~/client/state/variants/types';
 
 export function useAllVariants(group: string): string[] {
     return useSelector(

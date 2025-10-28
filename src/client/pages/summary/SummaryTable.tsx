@@ -1,46 +1,47 @@
 import React from 'react';
 
-import { useSortedList } from '~/client/common/hooks/useSortedList';
-import { LoadingContent } from '~/client/common/LoadingContent';
+import { Table } from '@mantine/core';
+
+import { LoadableContent } from '~/client/common/LoadableContent';
 import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
 import { useDetailsFilters } from '~/client/filters/hooks/useDetailsFilters';
 import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
 import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
+import { useSortedList } from '~/client/hooks/useSortedList';
 import { useUniqueGroups } from '~/client/hooks/useUniqueGroups';
 import { useRecycledSummary } from '~/client/pages/summary/hooks/useRecycledSummary';
 import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasData';
 import { useSummaryYears } from '~/client/pages/summary/hooks/useSummaryYears';
-import { SummaryGroups } from '~/client/pages/summary/SummaryGroups';
+import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
 import { useGetSummary } from '~/client/state/summary/useGetSummary';
-import { Cell } from '~/client/table/Cell';
-import { Row } from '~/client/table/Row';
-import { Table } from '~/client/table/Table';
-import cx from './SummaryTable.pcss';
 
 export function SummaryTable() {
     const visibleSummary = useSortedList(useFilteredList(useRecycledSummary(), useDetailsFilters()));
     const uniqueGroups = useUniqueGroups(visibleSummary);
-    const group = useGroupFilter();
-    const visibleGroups = group ? [group] : uniqueGroups;
+    const groupFilter = useGroupFilter();
+    const visibleGroups = groupFilter ? [groupFilter] : uniqueGroups;
+    const summaryYears = useSummaryYears();
+    const headingWidth = 300 / (summaryYears.length + 3);
+
     return (
-        <LoadingContent loader={useGetSummary()} hasData={useSummaryHasData()}>
-            <Table
-                className={cx('Table')}
-                header={
-                    <Row className={cx('Row', 'HeadRow')}>
-                        <Cell role="columnheader" className={cx('controls')}>
+        <LoadableContent loader={useGetSummary()} hasData={useSummaryHasData()}>
+            <Table layout="fixed">
+                <Table.Thead>
+                    <Table.Tr h="3rem">
+                        <Table.Th w={`${headingWidth}%`} py={0}>
                             <UpdateTypeToggle updated={false} />
-                        </Cell>
-                        {useSummaryYears().map((year) => (
-                            <Cell key={year} role="columnheader" className={cx('year')}>
+                        </Table.Th>
+                        {summaryYears.map((year) => (
+                            <Table.Th key={year}>
                                 <sup>{year}</sup>/<sub>{year + 1}</sub>
-                            </Cell>
+                            </Table.Th>
                         ))}
-                    </Row>
-                }
-            >
-                <SummaryGroups groups={visibleGroups} summary={visibleSummary} />
+                    </Table.Tr>
+                </Table.Thead>
+                {visibleGroups.map((group) => (
+                    <SummaryGroup key={group} group={group} summary={visibleSummary.filter((v) => v.group === group)} />
+                ))}
             </Table>
-        </LoadingContent>
+        </LoadableContent>
     );
 }

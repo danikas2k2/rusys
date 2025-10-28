@@ -1,6 +1,6 @@
 import path from 'path';
 
-import { type Configuration } from 'webpack';
+import type { Configuration } from 'webpack';
 
 import { getExternals } from './webpack/externals';
 import { getOptimization } from './webpack/optimization';

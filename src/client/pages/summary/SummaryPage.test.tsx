@@ -1,4 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import { MockRoute } from '@tests/MockRoute';
+import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
@@ -13,7 +15,13 @@ jest.mock('~/client/toolbar/Toolbar', () => ({
 
 describe('<SummaryPage>', () => {
     it('renders into the document', () => {
-        render(<SummaryPage />);
+        render(
+            <MockTheme>
+                <MockRoute>
+                    <SummaryPage />
+                </MockRoute>
+            </MockTheme>
+        );
 
         expect(screen.getByText('SummaryTable')).toBeInTheDocument();
         expect(screen.getByText('Toolbar')).toBeInTheDocument();

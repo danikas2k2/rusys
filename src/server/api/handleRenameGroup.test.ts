@@ -6,7 +6,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { getDetailsWithGroups } from '~/server/api/response';
 import { renameGroupOccurrences } from '~/server/data/common';
-import { type ApiDetailsWithYears, type ApiRenameGroup } from '~/types/api';
+import type { ApiDetailsWithYears, ApiRenameGroup } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');

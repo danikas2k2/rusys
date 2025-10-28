@@ -1,5 +1,4 @@
 @import "@ui/theme.pcss";
-@import "@ui/svg.pcss";
 
 :root {
     --toolbar-height: 48px;
@@ -8,24 +7,37 @@
 html {
     position: absolute;
     inset: 0;
-    color: var(--color-text);
-    background: var(--color-base);
     user-select: none;
 }
 
 html,
 body {
+    color: var(--color-text);
+    background: var(--color-base);
     max-width: 100%;
     overflow-x: hidden;
 }
 
 body {
-    margin: 0;
     font-family: var(--font-family-body), sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    /* noinspection CssOverwrittenProperties */
+    margin: 0;
+
+    /* noinspection CssOverwrittenProperties,CssInvalidFunction */
+    margin: constant(safe-area-inset-top) constant(safe-area-inset-right) constant(safe-area-inset-bottom) constant(safe-area-inset-left);
+
+    /* noinspection CssOverwrittenProperties */
+    margin: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 code {
     font-family: var(--font-family-code), monospace;
 }
+
+//table tr[data-with-row-border] {
+//    border-bottom: 0;
+//    border-top: calc(0.0625rem * var(--mantine-scale)) solid var(--table-border-color);
+//}

@@ -1,24 +1,26 @@
-import React, { createContext, use, useState, type JSX, type PropsWithChildren, type RefObject } from 'react';
+import React, { createContext, use, useState } from 'react';
 
 import { noop } from 'lodash';
 
 export type ActiveContentData = object;
 
-export interface ActiveContent<D = ActiveContentData> {
-    id: string;
-    ref?: RefObject<HTMLDivElement | null>;
-    pinned?: boolean;
-    editing?: boolean;
+export type ActiveContentAction = 'update' | 'remove' | 'values' | 'export' | 'import';
+
+export interface ActiveContent<D = ActiveContentData, A = ActiveContentAction> {
+    id?: string;
+    ref?: React.RefObject<HTMLDivElement | null>;
     offset?: number;
+    pinned?: boolean;
+    action?: A;
     data?: D;
 }
 
-export const ActiveContentContext = createContext<[ActiveContent | undefined, (v: ActiveContent | undefined) => void]>([
+export const ActiveContentContext = createContext<[ActiveContent | undefined, (v?: ActiveContent) => void]>([
     undefined,
     noop,
 ]);
 
-export function ActiveContentWrapper({ children }: PropsWithChildren): JSX.Element {
+export function ActiveContentWrapper({ children }: React.PropsWithChildren): React.ReactElement {
     return (
         <ActiveContentContext value={useState<ActiveContent | undefined>(undefined)}>{children}</ActiveContentContext>
     );
@@ -26,5 +28,5 @@ export function ActiveContentWrapper({ children }: PropsWithChildren): JSX.Eleme
 
 export const useActiveContent = <D = ActiveContentData, T extends ActiveContent<D> = ActiveContent<D>>(): [
     T | undefined,
-    (v: T | undefined) => void,
-] => use(ActiveContentContext) as [T | undefined, (v: T | undefined) => void];
+    (v?: T) => void,
+] => use(ActiveContentContext) as [T | undefined, (v?: T) => void];

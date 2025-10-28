@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, type PropsWithChildren } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { ActionIcon } from '@mantine/core';
 import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
@@ -9,7 +9,7 @@ import { useLoginError } from '~/client/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
 import cx from './LoginButton.pcss';
 
-export function LoginButton({ children }: PropsWithChildren) {
+export function LoginButton({ children }: React.PropsWithChildren) {
     const onError = useLoginError();
     const onSuccess = useLoginSuccess(onError);
 

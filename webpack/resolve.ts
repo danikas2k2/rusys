@@ -1,5 +1,5 @@
 import { getAlias } from './alias';
-import { type WebpackResolve } from './types';
+import type { WebpackResolve } from './types';
 
 export function getResolve(): WebpackResolve {
     return {

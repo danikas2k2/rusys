@@ -1,5 +1,5 @@
-import { type Variant } from '~/types/data';
+import type { Variant } from '~/types/data';
 
 export interface WithVariantsState {
-    variants?: ReadonlyArray<Variant>;
+    variants?: readonly Variant[];
 }

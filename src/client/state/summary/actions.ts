@@ -1,4 +1,4 @@
-import { type Summary } from '~/types/data';
+import type { Summary } from '~/types/data';
 
 export const enum SummaryActionType {
     SET = 'summary.set',

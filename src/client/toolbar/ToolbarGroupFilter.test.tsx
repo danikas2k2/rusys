@@ -1,27 +1,38 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { MockRedux } from '@tests/MockRedux';
+import user from '@testing-library/user-event';
+import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
 import { useGroupFilterContext } from '~/client/filters/GroupFilterContext';
+import { useGroups } from '~/client/state/groups/useGroups';
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
 
-jest.mock('~/client/state/groups/useGroups');
-jest.mock('~/client/filters/GroupFilterContext');
+jest.mock('~/client/state/groups/useGroups', () => ({
+    useGroups: jest.fn(),
+}));
+jest.mock('~/client/filters/GroupFilterContext', () => ({
+    useGroupFilterContext: jest.fn(),
+}));
 
 describe('<ToolbarGroupFilter>', () => {
     const setGroup = jest.fn();
 
-    beforeEach(() => jest.mocked(useGroupFilterContext).mockReturnValue(['', setGroup]));
+    beforeEach(() => {
+        jest.mocked(useGroupFilterContext).mockReturnValue(['', setGroup]);
+        jest.mocked(useGroups).mockReturnValue([
+            { group: 'Uogienės', order: 0 },
+            { group: 'Daržovės', order: 1 },
+        ]);
+    });
 
     afterEach(() => jest.clearAllMocks());
 
     it('renders select with placeholder', () => {
         render(
-            <MockRedux>
+            <MockApp>
                 <ToolbarGroupFilter />
-            </MockRedux>
+            </MockApp>
         );
 
         expect(screen.getByPlaceholderText('All groups')).toBeInTheDocument();
@@ -29,13 +40,13 @@ describe('<ToolbarGroupFilter>', () => {
 
     it('updates group value when some group selected', async () => {
         render(
-            <MockRedux>
+            <MockApp>
                 <ToolbarGroupFilter />
-            </MockRedux>
+            </MockApp>
         );
 
-        await userEvent.click(screen.getByPlaceholderText('All groups'));
-        await userEvent.click(screen.getByText('Uogienės'));
+        await user.click(screen.getByPlaceholderText('All groups'));
+        await user.click(screen.getByText('Uogienės'));
 
         expect(setGroup).toHaveBeenCalledWith('Uogienės');
     });
@@ -44,13 +55,17 @@ describe('<ToolbarGroupFilter>', () => {
         jest.mocked(useGroupFilterContext).mockReturnValue(['Daržovės', setGroup]);
 
         render(
-            <MockRedux>
+            <MockApp>
                 <ToolbarGroupFilter />
-            </MockRedux>
+            </MockApp>
         );
 
-        await userEvent.click(screen.getByPlaceholderText('Daržovės'));
-        await userEvent.click(screen.getByText('All groups'));
+        const select = screen.getByPlaceholderText('All groups');
+        await user.click(select);
+
+        // Find and click the clear button (X icon)
+        const clearButton = screen.getByRole('button', { name: /clear|close/i });
+        await user.click(clearButton);
 
         expect(setGroup).toHaveBeenCalledWith('');
     });

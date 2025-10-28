@@ -1,4 +1,4 @@
-import { type Configuration, type RuleSetUseItem } from 'webpack';
+import type { Configuration, RuleSetUseItem } from 'webpack';
 
 export type WebpackModuleLoader = RuleSetUseItem;
 export type WebpackAliasMap = NonNullable<Configuration['resolve']>['alias'];

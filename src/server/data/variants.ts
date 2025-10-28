@@ -1,10 +1,10 @@
-import { type ClientSession } from 'mongodb';
+import type { ClientSession } from 'mongodb';
 
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
-import { type UpdateVariant, type Variant } from '~/types/data';
+import type { UpdateVariant, Variant } from '~/types/data';
 
-export async function getVariants(): Promise<ReadonlyArray<Variant>> {
+export async function getVariants(): Promise<readonly Variant[]> {
     const matchGroup = { $eq: ['$group', '$$group'] };
     const combineUpdatesYears = {
         input: { $ifNull: ['$updates.years', []] },
@@ -131,7 +131,7 @@ export async function copyVariant(
 export async function copyVariants(
     group: string,
     newGroup: string,
-    variants: ReadonlyArray<string>,
+    variants: readonly string[],
     session?: ClientSession
 ): Promise<boolean> {
     if (!group || !newGroup || group === newGroup || !variants.length) {

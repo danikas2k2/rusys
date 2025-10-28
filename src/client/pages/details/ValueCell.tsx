@@ -1,22 +1,17 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { useLongPress } from '@ui/hooks/useLongPress';
+import { Center, Loader, Table } from '@mantine/core';
 
-import { UpdateTypeContextWrapper } from '~/client/common/UpdateTypeContext';
-import { ValueBox } from '~/client/pages/details/dialogs/ValueBox';
+import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { useActiveSwipe } from '~/client/hooks/useActiveSwipe';
+import { useLongPress } from '~/client/hooks/useLongPress';
+import { useDetailsUpdating } from '~/client/pages/details/UpdatingDetailsContext';
 import { ValueAmounts } from '~/client/pages/details/ValueAmounts';
 import { useSetDetailsRemoving } from '~/client/state/details/useSetDetailsRemoving';
-import { useUpdateDetails } from '~/client/state/details/useUpdateDetails';
-import { useProfile } from '~/client/state/profile/useProfile';
-import { Cell } from '~/client/table/Cell';
-import { type VariantAmount } from '~/types/data';
+import type { DetailsAmounts } from '~/types/data';
 import cx from './ValueCell.pcss';
 
-export interface ValueCellProps {
-    group: string;
-    name: string;
-    year: number;
-    amounts?: ReadonlyArray<VariantAmount>;
+export interface ValueCellProps extends DetailsAmounts {
     preferred?: boolean;
     removing?: boolean;
     last?: boolean;
@@ -33,46 +28,64 @@ export function ValueCell({
     last = false,
     span,
 }: ValueCellProps) {
-    const profile = useProfile();
-    const updateDetails = useUpdateDetails();
+    const [, setActive] = useActiveContent<DetailsAmounts>();
     const setRemoving = useSetDetailsRemoving();
+    const updating = useDetailsUpdating({ group, name, year: span ? 0 : year });
+    const swipeActive = useActiveSwipe();
 
-    const [editing, setEditing] = useState(false);
-    const handleOpen = useCallback(() => setEditing(true), []);
-    const handleClose = useCallback(
-        (changed?: ReadonlyArray<VariantAmount>): void => {
-            setEditing(false);
-            const clean = changed?.filter(({ amount }) => !!amount) ?? [];
-            if (clean.length) {
-                void updateDetails(group, name, span ? 0 : year, clean, profile.email);
-            }
-        },
-        [updateDetails, group, name, year, span, profile.email]
-    );
+    const [loaderVisible, setLoaderVisible] = useState(false);
 
-    const handleShortPress = editing ? undefined : handleOpen;
+    useEffect(() => {
+        if (updating) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setLoaderVisible(true);
+        }
+    }, [updating]);
+
+    const handleTransitionEnd = useCallback(() => {
+        if (!updating) {
+            setLoaderVisible(false);
+        }
+    }, [updating]);
+
+    const handleShortPress = useCallback(() => {
+        setActive({ action: 'values', data: { group, name, year: span ? 0 : year, amounts } });
+    }, [setActive, group, name, span, year, amounts]);
 
     // TODO add setRemoving to edit dialog
     const handleLongPress = useCallback((): void => {
         void setRemoving(group, name, year, !removing);
         navigator?.vibrate?.(200);
     }, [setRemoving, group, name, year, removing]);
-    const longPress = useLongPress<HTMLDivElement>(handleLongPress, handleShortPress);
+
+    const longPress = useLongPress<HTMLTableCellElement>(handleLongPress, handleShortPress);
     const empty = !amounts?.length;
     return (
-        <>
-            <Cell
-                className={cx('ValueCell', { empty, last, preferred, removing, span: !!span })}
-                style={span ? { gridColumn: `span ${span}` } : undefined}
-                {...(empty ? { onClick: handleShortPress, onContextMenu: longPress.onContextMenu } : { ...longPress })}
-            >
-                {empty ? '.' : <ValueAmounts group={group} amounts={amounts} />}
-            </Cell>
-            {editing && (
-                <UpdateTypeContextWrapper>
-                    <ValueBox group={group} name={name} year={year} amounts={amounts} onClose={handleClose} />
-                </UpdateTypeContextWrapper>
+        <Table.Td
+            className={cx('ValueCell')}
+            data-empty={empty}
+            data-last={last}
+            data-preferred={preferred}
+            data-updating={updating}
+            data-removing={removing}
+            data-full={!!span}
+            colSpan={span}
+            p={0}
+            {...(updating || swipeActive
+                ? {}
+                : empty
+                  ? { onClick: handleShortPress, onContextMenu: longPress.onContextMenu }
+                  : { ...longPress })}
+        >
+            <Center className={cx('data')}>{empty ? '.' : <ValueAmounts group={group} amounts={amounts} />}</Center>
+            {loaderVisible && (
+                <Loader
+                    className={cx('loader')}
+                    data-visible={updating}
+                    size="sm"
+                    onTransitionEnd={handleTransitionEnd}
+                />
             )}
-        </>
+        </Table.Td>
     );
 }

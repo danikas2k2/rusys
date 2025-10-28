@@ -1,5 +1,5 @@
-import { type Group } from '~/types/data';
+import type { Group } from '~/types/data';
 
 export interface WithGroupsState {
-    groups?: ReadonlyArray<Group>;
+    groups?: readonly Group[];
 }

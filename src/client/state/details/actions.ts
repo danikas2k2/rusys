@@ -1,4 +1,4 @@
-import { type Details } from '~/types/data';
+import type { Details } from '~/types/data';
 
 export const enum DetailsActionType {
     SET = 'details.set',
@@ -9,7 +9,7 @@ export const enum DetailsActionType {
 export type DetailsAction =
     | {
           type: DetailsActionType.SET;
-          details: ReadonlyArray<Details>;
+          details: readonly Details[];
       }
     | {
           type: DetailsActionType.SET_MISSING;
@@ -25,7 +25,7 @@ export type DetailsAction =
           removing: boolean;
       };
 
-export const setDetailsAction = (details: ReadonlyArray<Details>): Readonly<DetailsAction> => ({
+export const setDetailsAction = (details: readonly Details[]): Readonly<DetailsAction> => ({
     type: DetailsActionType.SET,
     details,
 });

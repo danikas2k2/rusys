@@ -1,6 +1,6 @@
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
-import { type WebpackPlugin } from '../types';
+import type { WebpackPlugin } from '../types';
 
 interface IndexHtmlPluginOptions {
     name?: string;

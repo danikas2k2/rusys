@@ -1,10 +1,17 @@
-import React, { useCallback, type JSX } from 'react';
+import React, { useCallback } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
-import { VariantBox } from '~/client/pages/variants/dialogs/VariantBox';
+import { VariantBox } from '~/client/pages/variants/VariantBox';
+import type { Variant } from '~/types/data';
 
-export function ActiveVariantBox(): JSX.Element | null {
-    const [active, setActive] = useActiveContent();
-    const handleClose = useCallback(() => setActive(undefined), [setActive]);
-    return active?.editing ? <VariantBox {...active.data} onClose={handleClose} /> : null;
+export function ActiveVariantBox() {
+    const [active, setActive] = useActiveContent<Variant>();
+
+    const opened = active?.action === 'update';
+
+    const handleClose = useCallback(() => setActive({ data: active?.data }), [active?.data, setActive]);
+
+    const handleAfterClose = useCallback(() => setActive(), [setActive]);
+
+    return <VariantBox opened={opened} {...active?.data} onClose={handleClose} onAfterClose={handleAfterClose} />;
 }

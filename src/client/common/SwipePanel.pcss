@@ -1,16 +1,25 @@
 .SwipePanel {
-    background-color: var(--mantine-color-white);
+    backdrop-filter: blur(2px);
+    background-color: color-mix(in srgb, var(--mantine-color-body) 20%, transparent 80%);
     position: fixed;
     left: 100vw;
-    padding-inline-end: 0.5rem;
+    padding-inline: 1rem 0.5rem;
     transition: transform 0.2s ease-out;
     display: flex;
     justify-content: flex-end;
     align-items: center;
     gap: 0.5rem;
-    z-index: 100;
+    z-index: 300;
+    border-radius: var(--radius-large) 0 0 var(--radius-large);
+    pointer-events: none;
 
-    &.closing {
+    /* Allow pointer events only on the panel itself */
+    > * {
+        pointer-events: auto;
+        border-radius: var(--radius-large);
+    }
+
+    &[data-closing="true"] {
         pointer-events: none;
     }
 }

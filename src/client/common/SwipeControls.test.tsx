@@ -1,12 +1,15 @@
-import { render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { MockActiveContent } from '@tests/MockActiveContent';
+import { render, screen } from '@testing-library/react';
+import user from '@testing-library/user-event';
+import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
-import { SwipePanel } from '~/client/common/SwipePanel';
+import { SwipeControls } from '~/client/common/SwipeControls';
 
 jest.mock('~/client/state/groups/useDeleteGroup');
+jest.mock('~/client/common/SwipePanel', () => ({
+    SwipePanel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
 
 describe('<SwipeControls>', () => {
     const setActiveContent = jest.fn();
@@ -17,9 +20,9 @@ describe('<SwipeControls>', () => {
 
     it('renders control buttons', () => {
         render(
-            <MockActiveContent>
-                <SwipePanel />
-            </MockActiveContent>
+            <MockThemeActive>
+                <SwipeControls />
+            </MockThemeActive>
         );
 
         expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
@@ -28,58 +31,106 @@ describe('<SwipeControls>', () => {
 
     it('sets the active row to be pinned and editable, and calls onEdit when Edit button is clicked', async () => {
         render(
-            <MockActiveContent setState={setActiveContent}>
-                <SwipePanel onEdit={onEdit} onRemove={onDelete} />
-            </MockActiveContent>
+            <MockThemeActive active={{ data: {} }} setActive={setActiveContent}>
+                <SwipeControls onEdit={onEdit} onDelete={onDelete} />
+            </MockThemeActive>
         );
-        await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
-        expect(onEdit).toHaveBeenCalledWith(expect.event('click'));
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
+
+        expect(onEdit).toHaveBeenCalledWith({}, expect.event('click'));
         expect(onDelete).not.toHaveBeenCalled();
-        expect(setActiveContent).toHaveBeenCalledWith({ editing: true, pinned: true });
+        expect(setActiveContent).toHaveBeenCalledWith(expect.objectContaining({ action: 'update' }));
     });
 
     it('set the active row to be pinned when Remove button is clicked (confirmation dialog opens)', async () => {
         render(
-            <MockActiveContent state={{}} setState={setActiveContent}>
-                <SwipePanel onEdit={onEdit} onRemove={onDelete} />
-            </MockActiveContent>
+            <MockThemeActive active={{ data: {} }} setActive={setActiveContent}>
+                <SwipeControls onEdit={onEdit} onDelete={onDelete} />
+            </MockThemeActive>
         );
-        await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
 
-        expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        expect(onDelete).toHaveBeenCalledWith({}, expect.event('click'));
         expect(onEdit).not.toHaveBeenCalled();
-        expect(onDelete).not.toHaveBeenCalled();
-        expect(setActiveContent).toHaveBeenCalledWith({ pinned: true });
+        expect(setActiveContent).toHaveBeenCalledWith(expect.objectContaining({ action: 'remove' }));
     });
 
     it('set the active row to be unpinned when remove action is cancelled', async () => {
         render(
-            <MockActiveContent state={{}} setState={setActiveContent}>
-                <SwipePanel onEdit={onEdit} onRemove={onDelete} />
-            </MockActiveContent>
+            <MockThemeActive active={{ data: {} }} setActive={setActiveContent}>
+                <SwipeControls onEdit={onEdit} onDelete={onDelete} />
+            </MockThemeActive>
         );
-        await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
-        await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }));
 
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        expect(onDelete).toHaveBeenCalledWith({}, expect.event('click'));
         expect(onEdit).not.toHaveBeenCalled();
-        expect(onDelete).not.toHaveBeenCalled();
-        expect(setActiveContent).toHaveBeenCalledWith({ pinned: true });
-        expect(setActiveContent).toHaveBeenLastCalledWith({ pinned: false });
     });
 
     it('calls onUnpin and onRemove when Remove is confirmed', async () => {
         render(
-            <MockActiveContent state={{}} setState={setActiveContent}>
-                <SwipePanel onEdit={onEdit} onRemove={onDelete} />
-            </MockActiveContent>
+            <MockThemeActive active={{ data: {} }} setActive={setActiveContent}>
+                <SwipeControls onEdit={onEdit} onDelete={onDelete} />
+            </MockThemeActive>
         );
-        await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
-        await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Remove' }));
+
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
 
         expect(onEdit).not.toHaveBeenCalled();
-        expect(onDelete).toHaveBeenCalledWith(expect.event('click'));
-        expect(setActiveContent).toHaveBeenCalledWith({ pinned: true });
-        expect(setActiveContent).toHaveBeenLastCalledWith(undefined);
+        expect(onDelete).toHaveBeenCalledWith({}, expect.event('click'));
+        expect(setActiveContent).toHaveBeenCalledWith(expect.objectContaining({ action: 'remove' }));
+    });
+
+    it('does not call onEdit when Edit button is clicked without data', async () => {
+        render(
+            <MockThemeActive setActive={setActiveContent}>
+                <SwipeControls onEdit={onEdit} onDelete={onDelete} />
+            </MockThemeActive>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
+
+        expect(onEdit).not.toHaveBeenCalled();
+        expect(setActiveContent).toHaveBeenCalledWith(expect.objectContaining({ action: 'update' }));
+    });
+
+    it('does not call onDelete when Remove button is clicked without data', async () => {
+        render(
+            <MockThemeActive setActive={setActiveContent}>
+                <SwipeControls onEdit={onEdit} onDelete={onDelete} />
+            </MockThemeActive>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        expect(onDelete).not.toHaveBeenCalled();
+        expect(setActiveContent).toHaveBeenCalledWith(expect.objectContaining({ action: 'remove' }));
+    });
+
+    it('handles Edit button click without onEdit callback', async () => {
+        render(
+            <MockThemeActive active={{ data: {} }} setActive={setActiveContent}>
+                <SwipeControls />
+            </MockThemeActive>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
+
+        expect(setActiveContent).toHaveBeenCalledWith(expect.objectContaining({ action: 'update' }));
+    });
+
+    it('handles Remove button click without onDelete callback', async () => {
+        render(
+            <MockThemeActive active={{ data: {} }} setActive={setActiveContent}>
+                <SwipeControls />
+            </MockThemeActive>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        expect(setActiveContent).toHaveBeenCalledWith(expect.objectContaining({ action: 'remove' }));
     });
 });

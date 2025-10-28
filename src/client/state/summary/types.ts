@@ -1,5 +1,5 @@
-import { type Summary } from '~/types/data';
+import type { Summary } from '~/types/data';
 
 export interface WithSummaryState {
-    summary?: ReadonlyArray<Summary>;
+    summary?: readonly Summary[];
 }

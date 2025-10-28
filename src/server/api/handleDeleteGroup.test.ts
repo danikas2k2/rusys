@@ -6,7 +6,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
 import { getDetailsWithGroups } from '~/server/api/response';
 import { deleteGroupOccurrences } from '~/server/data/common';
-import { type ApiDetailsWithYears, type ApiRequestGroup } from '~/types/api';
+import type { ApiDetailsWithYears, ApiRequestGroup } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');

@@ -14,6 +14,7 @@ jest.mock('~/client/pages/summary/SummaryPage', () => ({
 describe('appRouter component', () => {
     it('renders SummaryPage at route /summary', () => {
         window.history.pushState({}, '', '#/summary');
+
         render(<AppRouter />);
 
         expect(screen.getByText('SummaryPage')).toBeInTheDocument();
@@ -21,6 +22,7 @@ describe('appRouter component', () => {
 
     it('renders DetailsPage at route /details', () => {
         window.history.pushState({}, '', '#/details');
+
         render(<AppRouter />);
 
         expect(screen.getByText('DetailsPage')).toBeInTheDocument();
@@ -28,6 +30,7 @@ describe('appRouter component', () => {
 
     it('renders DetailsPage at unknown route', () => {
         window.history.pushState({}, '', '#/unknown');
+
         render(<AppRouter />);
 
         expect(screen.getByText('DetailsPage')).toBeInTheDocument();

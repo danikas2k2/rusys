@@ -1,6 +1,6 @@
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
-import { type WebpackPlugin } from '../types';
+import type { WebpackPlugin } from '../types';
 
 export function getCssExtractPlugin(isDevMode: boolean): WebpackPlugin {
     return new MiniCssExtractPlugin({

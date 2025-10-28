@@ -1,20 +1,31 @@
 import React from 'react';
 
-import { Page } from '~/client/common/Page';
-import { GroupFilterContextWrapper } from '~/client/filters/GroupFilterContext';
-import { QuickFilterContextWrapper } from '~/client/filters/QuickFilterContext';
-import { VariantBox } from '~/client/pages/variants/dialogs/VariantBox';
+import { SwipeControls } from '~/client/common/SwipeControls';
+import { SwipeControlsWrapper } from '~/client/common/SwipeControlsContext';
+import { GroupFilterWrapper } from '~/client/filters/GroupFilterContext';
+import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
+import { Page } from '~/client/pages/common/Page';
+import { ActiveVariantBox } from '~/client/pages/variants/ActiveVariantBox';
 import { VariantsTable } from '~/client/pages/variants/VariantsTable';
+import { useDeleteVariant } from '~/client/state/variants/useDeleteVariant';
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
+import type { Variant } from '~/types/data';
 
 export function VariantsPage() {
+    const deleteVariant = useDeleteVariant();
+    const handleDelete = ({ group, variant }: Variant) => deleteVariant(group, variant);
+
     return (
-        <GroupFilterContextWrapper>
-            <QuickFilterContextWrapper>
-                <Page toolbar={<ToolbarGroupFilter />} addBox={<VariantBox />}>
-                    <VariantsTable />
+        <GroupFilterWrapper>
+            <QuickFilterWrapper>
+                <Page withAdd toolbar={<ToolbarGroupFilter />} onDelete={handleDelete}>
+                    <SwipeControlsWrapper>
+                        <VariantsTable />
+                        <SwipeControls />
+                    </SwipeControlsWrapper>
+                    <ActiveVariantBox />
                 </Page>
-            </QuickFilterContextWrapper>
-        </GroupFilterContextWrapper>
+            </QuickFilterWrapper>
+        </GroupFilterWrapper>
     );
 }

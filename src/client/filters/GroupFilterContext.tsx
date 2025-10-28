@@ -1,13 +1,13 @@
-import React, { createContext, use, useState, type PropsWithChildren } from 'react';
+import React, { createContext, use, useState } from 'react';
 
 import { noop } from 'lodash';
 
 export const GroupFilterContext = createContext<[string, (v: string) => void]>(['', noop]);
 
-export function GroupFilterContextWrapper({
+export function GroupFilterWrapper({
     initialState = '',
     children,
-}: PropsWithChildren<{ initialState?: string }>) {
+}: React.PropsWithChildren<{ initialState?: string }>) {
     return <GroupFilterContext value={useState(initialState)}>{children}</GroupFilterContext>;
 }
 

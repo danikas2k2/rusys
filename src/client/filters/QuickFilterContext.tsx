@@ -1,13 +1,13 @@
-import React, { createContext, use, useState, type PropsWithChildren } from 'react';
+import React, { createContext, use, useState } from 'react';
 
 import { noop } from 'lodash';
 
 export const QuickFilterContext = createContext<[string, (v: string) => void]>(['', noop]);
 
-export function QuickFilterContextWrapper({
+export function QuickFilterWrapper({
     initialState = '',
     children,
-}: PropsWithChildren<{ initialState?: string }>) {
+}: React.PropsWithChildren<{ initialState?: string }>) {
     return <QuickFilterContext value={useState(initialState)}>{children}</QuickFilterContext>;
 }
 

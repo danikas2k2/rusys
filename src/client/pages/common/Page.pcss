@@ -1,0 +1,36 @@
+.Page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+
+    .header, .footer {
+        border: none;
+        position: static;
+        flex-shrink: 0;
+    }
+
+    .main {
+        flex: 1;
+        min-height: 0;
+        padding: 0;
+
+        > div {
+            position: sticky;
+        }
+
+        &[data-no-scroll] {
+            :global([data-scrollarea-viewport]) {
+                overflow: hidden !important;
+                touch-action: none !important;
+                overscroll-behavior: none !important;
+            }
+        }
+    }
+
+    .footer {
+        padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-xs);
+        font-size: var(--font-size-small);
+        box-shadow: 0 -2px 8px -2px var(--shadow-color), 0 -4px 16px -4px var(--shadow-color);
+    }
+}

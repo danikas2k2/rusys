@@ -1,39 +1,65 @@
 .ValueCell {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    padding: 2px 6px;
-    margin: -2px 6px;
-    border-radius: var(--radius-xlarge);
-    transition:
-        color 0.2s ease-in-out,
-        background-color 0.2s ease-in-out;
+    position: relative;
 
-    &.last {
-        color: var(--color-red);
+    --value-cell-color: inherit;
+    --value-cell-background: inherit;
+    --value-cell-font-weight: inherit;
+
+    .data {
+        color: var(--value-cell-color);
+        background: var(--value-cell-background);
+        font-weight: var(--value-cell-font-weight);
+        padding: 2px 8px;
+        margin: 4px 6px;
+        border-radius: var(--radius-xlarge);
+        transition-duration: 200ms;
+        transition-timing-function: ease-in-out;
+        transition-property: color, background-color, filter;
     }
 
-    &.empty {
-        color: var(--color-surface2);
+    &[data-last="true"] {
+        --value-cell-color: var(--color-red);
     }
 
-    &.preferred {
-        font-weight: var(--font-weight-medium);
-        color: var(--color-strong);
-        background-color: var(--color-mantle);
-        outline: 1px dotted var(--color-text);
+    &[data-empty="true"] {
+        --value-cell-color: var(--color-surface2);
     }
 
-    &.removing {
-        font-weight: var(--font-weight-bold);
-        color: var(--color-base);
-        background-color: var(--color-red);
+    &[data-preferred="true"] {
+        --value-cell-color: var(--color-strong);
+        --value-cell-background: var(--color-mantle);
+        --value-cell-font-weight: var(--font-weight-medium);
+
+        .data {
+            outline: 1px dotted var(--color-overlay0);
+        }
     }
 
-    &.span {
+    &[data-removing="true"] {
+        --value-cell-color: var(--color-base);
+        --value-cell-background: var(--color-red);
+        --value-cell-font-weight: var(--font-weight-bold);
+    }
+
+    &[data-updating="true"] .data {
+        filter: blur(2px);
+    }
+
+    &[data-full="true"] .data {
         justify-content: start;
-        width: 100%;
-        padding-inline-start: 2rem;
+        padding-inline-start: 1rem;
+    }
+
+    .loader {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.1s ease-in-out;
+
+        &[data-visible="true"] {
+            opacity: 0.75;
+        }
     }
 }

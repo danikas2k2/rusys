@@ -1,8 +1,8 @@
-import { type Request, type Response } from 'express';
-import { type FileArray } from 'express-fileupload';
-import { type ParamsDictionary } from 'express-serve-static-core';
+import type { Request, Response } from 'express';
+import type { FileArray } from 'express-fileupload';
+import type { ParamsDictionary } from 'express-serve-static-core';
 
-import { type Details, type Group, type Summary, type Variant, type VariantAmount } from '~/types/data';
+import type { Details, Group, Summary, Variant, VariantAmount } from '~/types/data';
 
 export type ApiRequest<R = unknown> = Request<ParamsDictionary, unknown, R>;
 export type ApiResult<R = unknown> = { ok: true } | ({ ok: true } & R) | { ok?: false; error?: string };
@@ -60,11 +60,11 @@ export interface ApiClientId {
 }
 
 export interface ApiDetails {
-    details: ReadonlyArray<Details>;
+    details: readonly Details[];
 }
 
 export interface ApiYears {
-    years: ReadonlyArray<number>;
+    years: readonly number[];
 }
 
 export interface ApiRequestDetails {
@@ -92,17 +92,17 @@ export interface ApiSetRemoving extends ApiRequestDetails {
 
 export interface ApiUpdateDetails extends ApiRequestDetails {
     year: number;
-    amounts?: ReadonlyArray<VariantAmount>;
+    amounts?: readonly VariantAmount[];
     user?: string;
 }
 
 export interface ApiSummary {
-    years: ReadonlyArray<number>;
-    summary: ReadonlyArray<Summary>;
+    years: readonly number[];
+    summary: readonly Summary[];
 }
 
 export interface ApiGroups {
-    groups: ReadonlyArray<Group>;
+    groups: readonly Group[];
 }
 
 export interface ApiRequestGroup {
@@ -122,7 +122,7 @@ export interface ApiReorderGroups {
 }
 
 export interface ApiVariants {
-    variants: ReadonlyArray<Variant>;
+    variants: readonly Variant[];
 }
 
 export interface ApiRequestVariant {

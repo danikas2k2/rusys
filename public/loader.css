@@ -1,53 +1,67 @@
-.Loader {
-    --loader-color: #054da7;
-    --loader-size: 48px;
-    --loader-border-width: 4px;
-    --loader-speed: 1.5s;
+:root {
+    --color-text: #4c4f69;
+    --color-base: #eff1f5;
+    --color-blue: #1e66f5;
+}
 
-    display: block;
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-text: #cdd6f4;
+        --color-base: #1e1e2e;
+        --color-blue: #89b4fa;
+    }
+}
+
+html,
+body {
+    color: var(--color-text);
+    background: var(--color-base);
+}
+
+.Loader {
+    --loader-color: var(--color-blue);
+    --loader-size: 2.75rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     position: fixed;
     width: var(--loader-size);
     height: var(--loader-size);
     inset: 0;
     margin: auto;
+    gap: calc(var(--loader-size) / 5);
 }
 
-.Loader div {
-    --loader-inner-size: calc(var(--loader-size) - var(--loader-border-width) * 2);
-
-    box-sizing: border-box;
+.Loader span {
     display: block;
-    position: absolute;
-    width: var(--loader-inner-size);
-    height: var(--loader-inner-size);
-    margin: var(--loader-border-width);
-    border: calc(var(--loader-border-width) * 0.25) solid var(--loader-color);
-    border-color: var(--loader-color) transparent transparent transparent;
-    border-radius: 50%;
-    animation: loader var(--loader-speed) cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    width: 20%;
+    height: 100%;
+    background: var(--loader-color);
+    border-radius: 0.125rem;
+    animation: loader-bars 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+    flex: 1;
 }
 
-.Loader div:nth-child(1) {
-    border-width: calc(var(--loader-border-width) * 0.5);
-    animation-delay: calc(var(--loader-speed) * -0.125);
+.Loader span:nth-child(1) {
+    animation-delay: -240ms;
 }
 
-.Loader div:nth-child(2) {
-    border-width: calc(var(--loader-border-width) * 0.75);
-    animation-delay: calc(var(--loader-speed) * -0.25);
+.Loader span:nth-child(2) {
+    animation-delay: -120ms;
 }
 
-.Loader div:nth-child(3) {
-    border-width: calc(var(--loader-border-width));
-    animation-delay: calc(var(--loader-speed) * -0.375);
+.Loader span:nth-child(3) {
+    animation-delay: 0s;
 }
 
-@keyframes loader {
-    from {
-        transform: rotate(0deg);
+@keyframes loader-bars {
+    0% {
+        transform: scale(0.6);
+        opacity: 0;
     }
-
-    to {
-        transform: rotate(360deg);
+    50%,
+    100% {
+        transform: scale(1);
     }
 }

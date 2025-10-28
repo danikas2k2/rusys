@@ -1,7 +1,7 @@
 import { getVariantsFixture } from '@tests/fixtures';
 
 import { setVariantsAction, VariantsActionType } from '~/client/state/variants/actions';
-import { type Variant } from '~/types/data';
+import type { Variant } from '~/types/data';
 
 describe('setVariantsAction', () => {
     it('returns valid action', () => {

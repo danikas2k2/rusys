@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 
 import { isEqual } from 'lodash';
 
-import { type WithVariantsState } from '~/client/state/variants/types';
+import type { WithVariantsState } from '~/client/state/variants/types';
 import { compareNames } from '~/client/utils/compareNames';
 
 export function useVariantComparator(): (group: string) => (a: string, b: string) => number {

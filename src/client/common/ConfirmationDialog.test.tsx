@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import user from '@testing-library/user-event';
+import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
@@ -14,43 +15,68 @@ describe('<ConfirmationDialog>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('does not render if not open', () => {
-        render(<ConfirmationDialog opened={false} onConfirm={onConfirm} onClose={onClose} />);
+        render(
+            <MockTheme>
+                <ConfirmationDialog opened={false} onConfirm={onConfirm} onClose={onClose} />
+            </MockTheme>
+        );
 
-        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Confirm' })).not.toBeInTheDocument();
     });
 
     it('renders to the document', () => {
-        render(<ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />);
+        render(
+            <MockTheme>
+                <ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />
+            </MockTheme>
+        );
 
         expect(screen.getByRole('alertdialog')).toBeInTheDocument();
     });
 
     it('renders with provided className', () => {
-        render(<ConfirmationDialog opened className="test-class" onConfirm={onConfirm} onClose={onClose} />);
+        render(
+            <MockTheme>
+                <ConfirmationDialog opened className="test-class" onConfirm={onConfirm} onClose={onClose} />
+            </MockTheme>
+        );
 
         expect(screen.getByRole('alertdialog')).toHaveClass('test-class');
     });
 
     it('calls onConfirm when confirm button is clicked', async () => {
-        render(<ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />);
+        render(
+            <MockTheme>
+                <ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />
+            </MockTheme>
+        );
         const target = screen.getByRole('button', { name: 'Confirm' });
-        await userEvent.click(target);
+        await user.click(target);
 
         expect(onConfirm).toHaveBeenCalledWith(expect.event('click', { target }));
     });
 
     it('calls onClose when close button is clicked', async () => {
-        render(<ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />);
-        const target = screen.getByRole('button', { name: 'Close' });
-        await userEvent.click(target);
+        render(
+            <MockTheme>
+                <ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />
+            </MockTheme>
+        );
 
-        expect(onClose).toHaveBeenCalledWith(expect.event('click', { target }));
+        await user.click(screen.getByRole('button', { name: 'Close' }));
+
+        expect(onClose).toHaveBeenCalledWith();
     });
 
     it('calls onClose when cancel button is clicked', async () => {
-        render(<ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />);
+        render(
+            <MockTheme>
+                <ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />
+            </MockTheme>
+        );
         const target = screen.getByRole('button', { name: 'Cancel' });
-        await userEvent.click(target);
+        await user.click(target);
 
         expect(onClose).toHaveBeenCalledWith(expect.event('click', { target }));
     });

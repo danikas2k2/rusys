@@ -6,7 +6,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleReorderGroups } from '~/server/api/handleReorderGroups';
 import { getGroupsResponse } from '~/server/api/response';
 import { reorderGroups } from '~/server/data/groups';
-import { type ApiGroups, type ApiReorderGroups } from '~/types/api';
+import type { ApiGroups, ApiReorderGroups } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');

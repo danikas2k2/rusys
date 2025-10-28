@@ -1,10 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 
-import React, { useState, type PropsWithChildren } from 'react';
+import React, { useState } from 'react';
 
 import { ActiveContentContext, useActiveContent, type ActiveContent } from '~/client/common/ActiveContentContext';
 
-function Test({ activeValue, children }: PropsWithChildren<{ activeValue?: ActiveContent }>) {
+function Test({ activeValue, children }: React.PropsWithChildren<{ activeValue?: ActiveContent }>) {
     const [active, setActive] = useState<ActiveContent | undefined>(activeValue);
     return <ActiveContentContext value={[active, setActive]}>{children}</ActiveContentContext>;
 }
@@ -17,7 +17,7 @@ describe('<ActiveContentContext>', () => {
     });
 
     it('returns defined active variant if contexts is initialized', () => {
-        const activeValue = { id: 'test', data: { group: 'Uogienės', variant: 'p' } };
+        const activeValue = { data: { group: 'Uogienės', variant: 'p' } };
         const { result } = renderHook(() => useActiveContent(), {
             wrapper: ({ children }) => <Test activeValue={activeValue}>{children}</Test>,
         });
@@ -29,7 +29,7 @@ describe('<ActiveContentContext>', () => {
         const { result } = renderHook(() => useActiveContent(), {
             wrapper: ({ children }) => <Test>{children}</Test>,
         });
-        const activeValue = { id: 'test', data: { group: 'Daržovės', variant: 'd' } };
+        const activeValue = { data: { group: 'Daržovės', variant: 'd' } };
         act(() => {
             result.current[1](activeValue);
         });
@@ -38,7 +38,7 @@ describe('<ActiveContentContext>', () => {
     });
 
     it('returns defined active variant with ref and pinned flag', () => {
-        const activeValue = { id: 'test', group: 'Uogienės', variant: 'x', ref: { current: null }, pinned: true };
+        const activeValue = { group: 'Uogienės', variant: 'x', ref: { current: null }, pinned: true };
         const { result } = renderHook(() => useActiveContent(), {
             wrapper: ({ children }) => <Test activeValue={activeValue}>{children}</Test>,
         });

@@ -1,46 +1,23 @@
 import React from 'react';
 
 import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
-import { ValueRow } from '~/client/pages/details/ValueRow';
-import { useGroups } from '~/client/state/groups/useGroups';
-import { Cell } from '~/client/table/Cell';
-import { Row } from '~/client/table/Row';
-import { type Details } from '~/types/data';
-import cx from './DetailsGroups.pcss';
+import { DetailsGroup } from '~/client/pages/details/DetailsGroup';
+import type { Details } from '~/types/data';
 
 interface DetailsGroupsProps {
-    groups: ReadonlyArray<string>;
-    details: ReadonlyArray<Details>;
+    groups: readonly string[];
+    details: readonly Details[];
 }
 
 export function DetailsGroups({ groups, details }: DetailsGroupsProps) {
     const group = useGroupFilter();
-    const allGroups = useGroups();
+
     return (
         <>
             {groups.map((g) => {
                 const groupDetails = details.filter((v) => v.group === g);
                 return groupDetails.length || (group && g === group) ? (
-                    <div key={g} role="rowgroup">
-                        <Row className={cx('Row', 'GroupRow')}>
-                            <Cell role="rowheader" className={cx('GroupHeading')}>
-                                {g}
-                            </Cell>
-                        </Row>
-                        <div className={cx('GroupedRows')}>
-                            {groupDetails.map((d) => (
-                                <ValueRow
-                                    key={`${d.group}:${d.name}`}
-                                    className={cx('Row')}
-                                    group={g}
-                                    name={d.name}
-                                    years={d.years}
-                                    annual={allGroups?.find((v) => v.group === g)?.annual ?? true}
-                                    missing={d.missing}
-                                />
-                            ))}
-                        </div>
-                    </div>
+                    <DetailsGroup key={g} group={g} details={groupDetails} />
                 ) : null;
             })}
         </>

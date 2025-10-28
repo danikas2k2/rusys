@@ -1,13 +1,17 @@
 import React, { useCallback } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
-import { GroupBox } from '~/client/pages/groups/dialogs/GroupBox';
-import { type Group } from '~/types/data';
+import { GroupBox } from '~/client/pages/groups/GroupBox';
+import type { Group } from '~/types/data';
 
-export function ActiveGroupBox(): React.JSX.Element | null {
-    const [active, setActive] = useActiveContent<Pick<Group, 'group'>>();
+export function ActiveGroupBox() {
+    const [active, setActive] = useActiveContent<Group>();
 
-    const handleClose = useCallback(() => setActive(undefined), [setActive]);
+    const opened = active?.action === 'update';
 
-    return active?.editing ? <GroupBox {...active.data} onClose={handleClose} /> : null;
+    const handleClose = useCallback(() => setActive({ data: active?.data }), [active?.data, setActive]);
+
+    const handleAfterClose = useCallback(() => setActive(), [setActive]);
+
+    return <GroupBox opened={opened} {...active?.data} onClose={handleClose} onAfterClose={handleAfterClose} />;
 }

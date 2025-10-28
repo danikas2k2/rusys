@@ -1,4 +1,4 @@
-import { type RuleSetRule } from 'webpack';
+import type { RuleSetRule } from 'webpack';
 
 import { getClassNamesLoader } from '../loaders/class-names';
 import { getCssLoader } from '../loaders/css';

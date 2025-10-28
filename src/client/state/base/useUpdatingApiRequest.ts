@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { type ActionCreatorsMapObject } from 'redux';
+import type { ActionCreatorsMapObject } from 'redux';
 
 import { useUpdateStateFromResponse } from '~/client/state/base/useUpdateStateFromResponse';
 import { useApiRequest, type RequestMethod } from '~/client/state/common/useApiRequest';

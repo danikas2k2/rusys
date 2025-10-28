@@ -3,7 +3,7 @@ import postcssImport from 'postcss-import';
 import postcssSimpleVars from 'postcss-simple-vars';
 
 import { getAlias } from '../alias';
-import { type WebpackModuleLoader } from '../types';
+import type { WebpackModuleLoader } from '../types';
 
 export function getPostCssLoader(_isDevMode?: boolean): WebpackModuleLoader {
     const alias = getAlias() as Record<string, string>;

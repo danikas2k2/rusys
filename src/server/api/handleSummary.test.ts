@@ -5,8 +5,8 @@ import { mockResponse } from '@tests/mockResponse';
 
 import { handleSummary } from '~/server/api/handleSummary';
 import { getFullSummary } from '~/server/data/updates';
-import { type ApiSummary } from '~/types/api';
-import { type Summary } from '~/types/data';
+import type { ApiSummary } from '~/types/api';
+import type { Summary } from '~/types/data';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/data/updates');

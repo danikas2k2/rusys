@@ -1,6 +1,6 @@
 import { GoogleActionType, type GoogleAction } from '~/client/state/google/actions';
 import { google as reducer } from '~/client/state/google/reducer';
-import { type Google } from '~/client/state/google/types';
+import type { Google } from '~/client/state/google/types';
 
 describe('google', () => {
     afterEach(() => jest.clearAllMocks());

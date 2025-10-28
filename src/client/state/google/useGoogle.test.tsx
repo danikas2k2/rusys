@@ -3,7 +3,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { type Google } from '~/client/state/google/types';
+import type { Google } from '~/client/state/google/types';
 import { useGoogle } from '~/client/state/google/useGoogle';
 
 describe('useGoogle', () => {

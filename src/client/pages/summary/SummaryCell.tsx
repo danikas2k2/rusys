@@ -1,16 +1,17 @@
 import React from 'react';
 
+import { Table } from '@mantine/core';
+
 import { ValueSuffix } from '~/client/common/ValueSuffix';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
-import { Cell } from '~/client/table/Cell';
-import { type VariantAmount } from '~/types/data';
+import type { VariantAmount } from '~/types/data';
 import cx from './SummaryCell.pcss';
 
-export function SummaryCell({ group, amounts }: { group: string; amounts?: ReadonlyArray<VariantAmount> }) {
+export function SummaryCell({ group, amounts }: { group: string; amounts?: readonly VariantAmount[] }) {
     const compareVariants = useGroupVariantComparator(group);
     const empty = !amounts?.length;
     return (
-        <Cell className={cx('Cell', { empty })}>
+        <Table.Td className={cx('data')} data-empty={empty}>
             {empty
                 ? '.'
                 : [...amounts]
@@ -21,6 +22,6 @@ export function SummaryCell({ group, amounts }: { group: string; amounts?: Reado
                               <ValueSuffix group={group} variant={v.variant} />
                           </span>
                       ))}
-        </Cell>
+        </Table.Td>
     );
 }

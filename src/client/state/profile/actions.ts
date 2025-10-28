@@ -1,4 +1,4 @@
-import { type Profile } from '~/client/state/profile/types';
+import type { Profile } from '~/client/state/profile/types';
 
 export const enum ProfileActionType {
     SET = 'profile.set',
