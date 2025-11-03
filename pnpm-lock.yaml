@@ -296,8 +296,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(moment@2.30.1)(webpack@5.102.1)
       mongodb-memory-server:
-        specifier: ^10.2.3
-        version: 10.2.3
+        specifier: ^10.3.0
+        version: 10.3.0
       mongodb-memory-server-core:
         specifier: ^10.2.3
         version: 10.2.3
@@ -5195,8 +5195,12 @@ packages:
     resolution: {integrity: sha512-a6OMGO2xJDvxCxNpRpxmy4roMGXQQRIB/2uZyoCWRdDQBIr4o6KMhRzWV5PTrKPk+BavQ+W46j4S1Dj4PpUGXQ==}
     engines: {node: '>=16.20.1'}
 
-  mongodb-memory-server@10.2.3:
-    resolution: {integrity: sha512-/ZNXX2IwmEXErt3HGgJCxYqmfS3thDG5W3cdoMBsC55U/PPzGoAFcdUruvP88uOETLZBBpLbNaWdk2LlinyRlg==}
+  mongodb-memory-server-core@10.3.0:
+    resolution: {integrity: sha512-tp+ZfTBAPqHXjROhAFg6HcVVzXaEhh/iHcbY7QPOIiLwr94OkBFAw4pixyGSfP5wI2SZeEA13lXyRmBAhugWgA==}
+    engines: {node: '>=16.20.1'}
+
+  mongodb-memory-server@10.3.0:
+    resolution: {integrity: sha512-dRNr2uEhMgjEe6kgqS+ITBKBbl2cz0DNBjNZ12BGUckvEOAHbhd3R7q/lFPSZrZ6AMKa2EOUJdAmFF1WlqSbsA==}
     engines: {node: '>=16.20.1'}
 
   mongodb@6.20.0:
@@ -12910,9 +12914,35 @@ snapshots:
       - socks
       - supports-color
 
-  mongodb-memory-server@10.2.3:
+  mongodb-memory-server-core@10.3.0:
     dependencies:
-      mongodb-memory-server-core: 10.2.3
+      async-mutex: 0.5.0
+      camelcase: 6.3.0
+      debug: 4.4.3
+      find-cache-dir: 3.3.2
+      follow-redirects: 1.15.11(debug@4.4.3)
+      https-proxy-agent: 7.0.6
+      mongodb: 6.20.0
+      new-find-package-json: 2.0.0
+      semver: 7.7.3
+      tar-stream: 3.1.7
+      tslib: 2.8.1
+      yauzl: 3.2.0
+    transitivePeerDependencies:
+      - '@aws-sdk/credential-providers'
+      - '@mongodb-js/zstd'
+      - bare-abort-controller
+      - gcp-metadata
+      - kerberos
+      - mongodb-client-encryption
+      - react-native-b4a
+      - snappy
+      - socks
+      - supports-color
+
+  mongodb-memory-server@10.3.0:
+    dependencies:
+      mongodb-memory-server-core: 10.3.0
       tslib: 2.8.1
     transitivePeerDependencies:
       - '@aws-sdk/credential-providers'
