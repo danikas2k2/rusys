@@ -13,6 +13,7 @@ interface SwipeableTableRowProps<D = ActiveContentData> {
     style?: React.CSSProperties;
     ref: (element: HTMLTableRowElement | null) => void;
     'data-group'?: string;
+    avoidSwipeSelectors?: string;
 }
 
 const SWIPE_THRESHOLD_PERCENT = 0.2;
@@ -27,6 +28,7 @@ export function SwipeableTableRow<D = ActiveContentData>({
     style,
     ref,
     'data-group': dataGroup,
+    avoidSwipeSelectors = '[data-drag-handle]',
     children,
 }: React.PropsWithChildren<SwipeableTableRowProps<D>>): React.ReactElement {
     const [active, setActive] = useActiveContent<D>();
@@ -40,12 +42,8 @@ export function SwipeableTableRow<D = ActiveContentData>({
     const [initialX, setInitialX] = useState(0);
     const [offsetX, setOffsetX] = useState(0);
     const [offsetY, setOffsetY] = useState(0);
-    // Track which event type started the drag to avoid duplicate handling
-    const eventTypeRef = useRef<'mouse' | 'touch' | 'pointer' | null>(null);
     // Throttle state updates to prevent jitter
     const lastUpdateTimeRef = useRef<number>(0);
-    // Track pointer ID from pointerdown to validate pointerup
-    const pointerIdRef = useRef<number | null>(null);
     // Track initial and last clientX/clientY to calculate deltaX even if sliding never started
     const initialClientXRef = useRef<number | null>(null);
     const lastClientXRef = useRef<number | null>(null);
@@ -93,8 +91,12 @@ export function SwipeableTableRow<D = ActiveContentData>({
         }
     }, [visible, x, controlsWidth, setActive, id, data]);
 
-    const handleDragStart = useCallback(
-        (clientX: number, clientY: number, left = 0) => {
+    const handlePointerDown = useCallback(
+        (e: PointerEvent) => {
+            if (!e.isPrimary || (e.target as HTMLElement).closest(avoidSwipeSelectors)) return;
+
+            const { clientX, clientY } = e;
+            const left = (e.currentTarget as HTMLTableRowElement)?.getBoundingClientRect()?.left;
             if (!dragging) {
                 const initialXValue = x ?? 0;
                 const offsetXValue = clientX - left - (x ?? 0);
@@ -107,11 +109,14 @@ export function SwipeableTableRow<D = ActiveContentData>({
                 lastClientYRef.current = clientY;
             }
         },
-        [dragging, x]
+        [avoidSwipeSelectors, dragging, x]
     );
 
-    const handleDrag = useCallback(
-        (clientX: number, clientY: number, e: Event) => {
+    const handlePointerMove = useCallback(
+        (e: PointerEvent) => {
+            if (!e.isPrimary) return;
+
+            const { clientX, clientY } = e;
             if (dragging) {
                 // Use sliding state directly, not local variable, to ensure we always have the latest value
                 const dy: number | undefined = clientY - offsetY;
@@ -124,7 +129,7 @@ export function SwipeableTableRow<D = ActiveContentData>({
                 const ay = Math.abs(dy);
                 if (!moving) {
                     if (ax < POINTER_MOVE_THRESHOLD || ax <= ay) {
-                        return false;
+                        return;
                     }
 
                     setSliding(true);
@@ -150,14 +155,18 @@ export function SwipeableTableRow<D = ActiveContentData>({
                     // This prevents unnecessary processing when at limits or during small movements
                     if (x === dx) {
                         // Still update lastClientX/lastClientY for handleDragEnd, but skip setX
-                        return true;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
                     }
 
                     // Only update if dx change is significant enough to prevent jitter
                     const dxChange = Math.abs(dx - (x ?? 0));
                     if (dxChange < MIN_DX_CHANGE && x !== undefined) {
                         // Change is too small, skip update but still return true to prevent event propagation
-                        return true;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
                     }
 
                     // Throttle updates to prevent excessive state changes
@@ -165,30 +174,39 @@ export function SwipeableTableRow<D = ActiveContentData>({
                     const timeSinceLastUpdate = now - lastUpdateTimeRef.current;
                     if (timeSinceLastUpdate < UPDATE_THROTTLE_MS && x !== undefined) {
                         // Too soon since last update, skip but still return true
-                        return true;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
                     }
 
                     lastUpdateTimeRef.current = now;
                     setX(dx);
-                    return true;
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
             }
-            return false;
         },
         [dragging, sliding, offsetY, offsetX, moving, setActive, id, data, controlsWidth, x]
     );
 
-    const handleDragEnd = useCallback(
-        (endClientX?: number, _endClientY?: number) => {
+    const handlePointerUp = useCallback(
+        (e: PointerEvent) => {
+            if (!e.isPrimary) return;
+
+            // pointerup event may not have clientX/clientY if pointer left the element
+            // Use lastClientXRef as fallback if clientX are invalid
+            const clientX = e.clientX || (lastClientXRef.current ?? undefined);
+
+            // Only end drag if we're actually dragging (don't end if swipe never started)
             if (dragging) {
                 // Calculate deltaX from initial to end position (not from x - initialX, as x is intermediate)
                 // Always use clientX coordinates to get the actual swipe distance
                 let deltaX: number;
-                if (endClientX !== undefined && endClientX !== 0 && initialClientXRef.current !== null) {
-                    // Use endClientX if it's valid (not 0, which indicates invalid event)
-                    deltaX = endClientX - initialClientXRef.current;
+                if (clientX !== undefined && clientX !== 0 && initialClientXRef.current !== null) {
+                    // Use clientX if it's valid (not 0, which indicates invalid event)
+                    deltaX = clientX - initialClientXRef.current;
                 } else if (lastClientXRef.current !== null && initialClientXRef.current !== null) {
-                    // Fallback to lastClientX if endClientX not provided or invalid (0)
+                    // Fallback to lastClientX if clientX not provided or invalid (0)
                     deltaX = lastClientXRef.current - initialClientXRef.current;
                 } else if (sliding && x != null) {
                     // Last resort: use x - initialX if we don't have clientX coordinates
@@ -240,8 +258,6 @@ export function SwipeableTableRow<D = ActiveContentData>({
                 setDragging(false);
                 setSliding(false);
                 setMoving(false);
-                eventTypeRef.current = null;
-                pointerIdRef.current = null;
                 initialClientXRef.current = null;
                 lastClientXRef.current = null;
                 lastClientYRef.current = null;
@@ -251,225 +267,13 @@ export function SwipeableTableRow<D = ActiveContentData>({
         [dragging, sliding, x, initialX, controlsWidth, setActive, id, data]
     );
 
-    const handleMouseDown = useCallback(
-        (e: MouseEvent) => {
-            // Don't interfere with drag handle
-            if ((e.target as HTMLElement).closest('[data-drag-handle]')) {
-                return;
-            }
-
-            // Ignore if touch or pointer event already started
-            if (eventTypeRef.current && eventTypeRef.current !== 'mouse') {
-                return;
-            }
-
-            eventTypeRef.current = 'mouse';
-            const { clientX, clientY } = e;
-            const left = (e.currentTarget as HTMLTableRowElement)?.getBoundingClientRect()?.left;
-            handleDragStart(clientX, clientY, left);
-        },
-        [handleDragStart]
-    );
-
-    const handleTouchStart = useCallback(
-        (e: TouchEvent) => {
-            // Don't interfere with drag handle
-            if ((e.target as HTMLElement).closest('[data-drag-handle]')) {
-                return;
-            }
-
-            // Ignore if mouse or pointer event already started
-            if (eventTypeRef.current && eventTypeRef.current !== 'touch') {
-                return;
-            }
-
-            const touch = e.touches[0] || e.changedTouches[0];
-            if (!touch) {
-                return;
-            }
-
-            eventTypeRef.current = 'touch';
-            const { clientX, clientY } = touch;
-            const left = (e.currentTarget as HTMLTableRowElement)?.getBoundingClientRect()?.left;
-            handleDragStart(clientX, clientY, left);
-        },
-        [handleDragStart]
-    );
-
-    const handleMouseMove = useCallback(
-        (e: MouseEvent) => {
-            // Only handle if mouse event started the drag
-            if (eventTypeRef.current !== 'mouse') {
-                return;
-            }
-
-            const { clientX, clientY } = e;
-            const handled = handleDrag(clientX, clientY, e);
-            if (handled) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        },
-        [handleDrag]
-    );
-
-    const handleTouchMove = useCallback(
-        (e: TouchEvent) => {
-            // Only handle if touch event started the drag
-            if (eventTypeRef.current !== 'touch') {
-                return;
-            }
-
-            const touch = e.touches[0] || e.changedTouches[0];
-            if (!touch) {
-                return;
-            }
-
-            const { clientX, clientY } = touch;
-            const handled = handleDrag(clientX, clientY, e);
-            if (handled) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        },
-        [handleDrag]
-    );
-
-    const handleMouseUp = useCallback(
-        (e: MouseEvent) => {
-            // Only handle if mouse event started the drag
-            if (eventTypeRef.current !== 'mouse') {
-                return;
-            }
-
-            const { clientX, clientY } = e;
-            // Only end drag if we're actually dragging (don't end if swipe never started)
-            if (dragging) {
-                handleDragEnd(clientX, clientY);
-                // eventTypeRef will be reset in handleDragEnd
-            } else {
-                // If drag never started, reset eventTypeRef here
-                eventTypeRef.current = null;
-            }
-        },
-        [handleDragEnd, dragging]
-    );
-
-    const handleTouchEnd = useCallback(
-        (e: TouchEvent) => {
-            // Only handle if touch event started the drag
-            if (eventTypeRef.current !== 'touch') {
-                return;
-            }
-
-            const touch = e.changedTouches[0] || e.touches[0];
-            if (!touch) {
-                return;
-            }
-
-            const { clientX, clientY } = touch;
-            // Only end drag if we're actually dragging (don't end if swipe never started)
-            if (dragging) {
-                handleDragEnd(clientX, clientY);
-                // eventTypeRef will be reset in handleDragEnd
-            } else {
-                // If drag never started, reset eventTypeRef here
-                eventTypeRef.current = null;
-            }
-        },
-        [handleDragEnd, dragging]
-    );
-
-    const handlePointerDown = useCallback(
-        (e: PointerEvent) => {
-            // Don't interfere with drag handle
-            if ((e.target as HTMLElement).closest('[data-drag-handle]')) {
-                return;
-            }
-
-            // Ignore if touch or mouse event already started
-            if (eventTypeRef.current && eventTypeRef.current !== 'pointer') {
-                return;
-            }
-
-            eventTypeRef.current = 'pointer';
-            pointerIdRef.current = e.pointerId;
-            const { clientX, clientY } = e;
-            const left = (e.currentTarget as HTMLTableRowElement)?.getBoundingClientRect()?.left;
-            handleDragStart(clientX, clientY, left);
-        },
-        [handleDragStart]
-    );
-
-    const handlePointerMove = useCallback(
-        (e: PointerEvent) => {
-            // Only handle if pointer event started the drag
-            if (eventTypeRef.current !== 'pointer') {
-                return;
-            }
-
-            // Validate that this pointermove matches the pointerdown that started the drag
-            if (pointerIdRef.current !== null && e.pointerId !== pointerIdRef.current) {
-                return;
-            }
-
-            const { clientX, clientY } = e;
-            const handled = handleDrag(clientX, clientY, e);
-            if (handled) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        },
-        [handleDrag]
-    );
-
-    const handlePointerUp = useCallback(
-        (e: PointerEvent) => {
-            // Only handle if pointer event started the drag
-            if (eventTypeRef.current !== 'pointer') {
-                return;
-            }
-
-            // Validate that this pointerup matches the pointerdown that started the drag
-            if (pointerIdRef.current !== null && e.pointerId !== pointerIdRef.current) {
-                return;
-            }
-
-            // pointerup event may not have clientX/clientY if pointer left the element
-            // Use lastClientXRef as fallback if clientX/clientY are invalid
-            const clientX =
-                e.clientX !== undefined && e.clientX !== 0 ? e.clientX : (lastClientXRef.current ?? undefined);
-            const clientY =
-                e.clientY !== undefined && e.clientY !== 0 ? e.clientY : (lastClientYRef.current ?? undefined);
-
-            // Only end drag if we're actually dragging (don't end if swipe never started)
-            if (dragging) {
-                handleDragEnd(clientX, clientY);
-                // eventTypeRef will be reset in handleDragEnd
-            } else {
-                // If drag never started, reset eventTypeRef here
-                eventTypeRef.current = null;
-            }
-        },
-        [handleDragEnd, dragging]
-    );
-
     // Update touch-action based on panel state
     useEffect(() => {
-        const el = activeRef.current;
-        if (!el) return;
-
-        const table = el.closest('table');
+        const table = activeRef.current?.closest('table');
         if (!table) return;
 
         // Set touch-action based on panel state (none when open, pan-y when closed)
-        if (visible && x !== undefined && x !== 0) {
-            // Panel is open - block scrolling
-            table.style.touchAction = 'none';
-        } else {
-            // Panel is closed - allow vertical scrolling
-            table.style.touchAction = 'pan-y';
-        }
+        table.style.touchAction = visible && x ? 'none' : 'pan-y';
 
         return () => {
             table.style.touchAction = '';
@@ -480,60 +284,20 @@ export function SwipeableTableRow<D = ActiveContentData>({
         const el = activeRef.current;
         if (!el) return;
 
-        const handleMouseLeave = () => {
-            // Only handle if mouse event started the drag
-            if (eventTypeRef.current === 'mouse') {
-                // mouseleave doesn't have clientX/clientY, so use lastClientXRef as fallback
-                const endClientX = lastClientXRef.current ?? undefined;
-                const endClientY = lastClientYRef.current ?? undefined;
-                if (dragging) {
-                    handleDragEnd(endClientX, endClientY);
-                }
-            }
-        };
-
-        el.addEventListener('mousedown', handleMouseDown, { passive: false });
-        el.addEventListener('mousemove', handleMouseMove, { passive: false });
-        el.addEventListener('mouseup', handleMouseUp, { passive: false });
-        el.addEventListener('mouseleave', handleMouseLeave, { passive: false });
-        el.addEventListener('touchstart', handleTouchStart, { passive: false });
-        el.addEventListener('touchmove', handleTouchMove, { passive: false });
-        el.addEventListener('touchend', handleTouchEnd, { passive: false });
-        el.addEventListener('touchcancel', handleTouchEnd, { passive: false });
         el.addEventListener('pointerdown', handlePointerDown, { passive: false });
         el.addEventListener('pointermove', handlePointerMove, { passive: false });
         el.addEventListener('pointerup', handlePointerUp, { passive: false });
         el.addEventListener('pointercancel', handlePointerUp, { passive: false });
+        el.addEventListener('pointerleave', handlePointerUp, { passive: false });
 
         return () => {
-            el.removeEventListener('mousedown', handleMouseDown);
-            el.removeEventListener('mousemove', handleMouseMove);
-            el.removeEventListener('mouseup', handleMouseUp);
-            el.removeEventListener('mouseleave', handleMouseLeave);
-            el.removeEventListener('touchstart', handleTouchStart);
-            el.removeEventListener('touchmove', handleTouchMove);
-            el.removeEventListener('touchend', handleTouchEnd);
-            el.removeEventListener('touchcancel', handleTouchEnd);
             el.removeEventListener('pointerdown', handlePointerDown);
             el.removeEventListener('pointermove', handlePointerMove);
             el.removeEventListener('pointerup', handlePointerUp);
             el.removeEventListener('pointercancel', handlePointerUp);
+            el.removeEventListener('pointerleave', handlePointerUp);
         };
-    }, [
-        handleMouseDown,
-        handleMouseMove,
-        handleMouseUp,
-        handleTouchStart,
-        handleTouchMove,
-        handleTouchEnd,
-        handlePointerDown,
-        handlePointerMove,
-        handlePointerUp,
-        handleDragEnd,
-        id,
-        dragging,
-        sliding,
-    ]);
+    }, [handlePointerDown, handlePointerMove, handlePointerUp, id, dragging, sliding]);
 
     // Combine refs
     const combinedRef = useCallback(
