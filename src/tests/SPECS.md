@@ -34,32 +34,32 @@
 
     ```tsx
     // ❌ BLOGAI - nenaudoti data-testid
-    <div data-testid="user-name">John</div>
+    <div data-testid="user-name">John</div>;
     expect(screen.getByTestId('user-name')).toBeInTheDocument();
-    
+
     // ✅ GERAI - naudoti semantic queries
-    <div role="heading">John</div>
+    <div role="heading">John</div>;
     expect(screen.getByRole('heading', { name: 'John' })).toBeInTheDocument();
-    
+
     // ✅ GERAI - naudoti text content
-    <p>User: John</p>
+    <p>User: John</p>;
     expect(screen.getByText('User: John')).toBeInTheDocument();
     ```
 
 - **Kodėl ne `data-testid`?**
-  - Test-id nėra semantiniai - nieko nesako apie elemento prasmę
-  - Test-id neatspindi tikro user experience
-  - Test-id sukuria tarpinę priklausomybę tarp testo ir implementacijos
-  - Semantic queries (role, label, text) testuoja accessibility ir UX
-  - Jei reikia test-id, tai reiškia, kad trūksta proper accessibility
+    - Test-id nėra semantiniai - nieko nesako apie elemento prasmę
+    - Test-id neatspindi tikro user experience
+    - Test-id sukuria tarpinę priklausomybę tarp testo ir implementacijos
+    - Semantic queries (role, label, text) testuoja accessibility ir UX
+    - Jei reikia test-id, tai reiškia, kad trūksta proper accessibility
 
 - **Alternatyvos vietoj test-id:**
-  - `getByRole()` - button, heading, link, textbox, etc.
-  - `getByLabelText()` - form inputs
-  - `getByText()` - visible text content
-  - `getByPlaceholderText()` - input placeholder
-  - `getByAltText()` - images
-  - `getByTitle()` - title attribute
+    - `getByRole()` - button, heading, link, textbox, etc.
+    - `getByLabelText()` - form inputs
+    - `getByText()` - visible text content
+    - `getByPlaceholderText()` - input placeholder
+    - `getByAltText()` - images
+    - `getByTitle()` - title attribute
 
 - **Pavyzdžiai:**
 
@@ -67,23 +67,23 @@
     // ❌ BLOGAI
     <button data-testid="submit-button">Submit</button>
     screen.getByTestId('submit-button')
-    
+
     // ✅ GERAI
     <button type="submit">Submit</button>
     screen.getByRole('button', { name: 'Submit' })
-    
+
     // ❌ BLOGAI
     <div data-testid="error-message">Error occurred</div>
     screen.getByTestId('error-message')
-    
+
     // ✅ GERAI
     <div role="alert">Error occurred</div>
     screen.getByRole('alert')
-    
+
     // ❌ BLOGAI
     <input data-testid="email-input" />
     screen.getByTestId('email-input')
-    
+
     // ✅ GERAI
     <input aria-label="Email" />
     screen.getByRole('textbox', { name: 'Email' })
@@ -98,57 +98,57 @@
     ```tsx
     // ❌ BLOGAI - naudoja fireEvent
     fireEvent.click(screen.getByRole('button'));
-    
+
     // ✅ GERAI - naudoja user-event
     await user.click(screen.getByRole('button'));
     ```
 
 - **Kodėl `user-event`?**
-  - Simuliuoja tikrą user behavior (pvz., click triggerina focus, hover, ir kitus events)
-  - Geriau atspindi realias user interakcijas
-  - Asinchroninis - geriau testuoja async behavior
+    - Simuliuoja tikrą user behavior (pvz., click triggerina focus, hover, ir kitus events)
+    - Geriau atspindi realias user interakcijas
+    - Asinchroninis - geriau testuoja async behavior
 
 - **Pointer Events ir Gestures**
-  - **Naudoti `user.pointer()`** mouse/touch/pointer events testuose:
-    
-    ```tsx
-    // ✅ GERAI - pointer API mouse gesture
-    await user.pointer([
-        { keys: '[MouseLeft>]', target: row, coords: { x: 100, y: 50 } },  // mouse down
-        { coords: { x: 150, y: 50 } },                                       // mouse move
-        { keys: '[/MouseLeft]' },                                            // mouse up
-    ]);
-    
-    // ✅ GERAI - touch gesture
-    await user.pointer([
-        { keys: '[TouchA>]', target: row, coords: { x: 100, y: 50 } },
-        { coords: { x: 50, y: 50 } },
-        { keys: '[/TouchA]' },
-    ]);
-    ```
+    - **Naudoti `user.pointer()`** mouse/touch/pointer events testuose:
 
-  - **`user.pointer()` privalumai:**
-    - Simuliuoja tikrą pointer behavior (focus, hover, ir t.t.)
-    - Palaiko mouse, touch, pen įrenginius
-    - Automatiškai triggerina susijusius events tinkama tvarka
-    - Geriau testuoja cross-device compatibility
+        ```tsx
+        // ✅ GERAI - pointer API mouse gesture
+        await user.pointer([
+            { keys: '[MouseLeft>]', target: row, coords: { x: 100, y: 50 } }, // mouse down
+            { coords: { x: 150, y: 50 } }, // mouse move
+            { keys: '[/MouseLeft]' }, // mouse up
+        ]);
 
-  - **Pointer keys:**
-    - `[MouseLeft>]` / `[/MouseLeft]` - kairysis pelės mygtukas (down/up)
-    - `[MouseRight>]` / `[/MouseRight]` - dešinysis pelės mygtukas
-    - `[MouseMiddle>]` / `[/MouseMiddle]` - vidurinis pelės mygtukas
-    - `[TouchA>]` / `[/TouchA]` - touch taškas A (multi-touch support)
-    - `[TouchB>]` / `[/TouchB]` - touch taškas B (multi-touch gestures)
+        // ✅ GERAI - touch gesture
+        await user.pointer([
+            { keys: '[TouchA>]', target: row, coords: { x: 100, y: 50 } },
+            { coords: { x: 50, y: 50 } },
+            { keys: '[/TouchA]' },
+        ]);
+        ```
+
+    - **`user.pointer()` privalumai:**
+        - Simuliuoja tikrą pointer behavior (focus, hover, ir t.t.)
+        - Palaiko mouse, touch, pen įrenginius
+        - Automatiškai triggerina susijusius events tinkama tvarka
+        - Geriau testuoja cross-device compatibility
+
+    - **Pointer keys:**
+        - `[MouseLeft>]` / `[/MouseLeft]` - kairysis pelės mygtukas (down/up)
+        - `[MouseRight>]` / `[/MouseRight]` - dešinysis pelės mygtukas
+        - `[MouseMiddle>]` / `[/MouseMiddle]` - vidurinis pelės mygtukas
+        - `[TouchA>]` / `[/TouchA]` - touch taškas A (multi-touch support)
+        - `[TouchB>]` / `[/TouchB]` - touch taškas B (multi-touch gestures)
 
 - **Kada naudoti `fireEvent`?**
-  - Tik **labai retais atvejais**, kai `user-event` nepalaiko reikalingo funkcionalumo:
-    - Custom events (`fireEvent(element, new CustomEvent(...))`)
-    - Specifiniai low-level events, kurių `user.pointer()` negali simuliuoti
+    - Tik **labai retais atvejais**, kai `user-event` nepalaiko reikalingo funkcionalumo:
+        - Custom events (`fireEvent(element, new CustomEvent(...))`)
+        - Specifiniai low-level events, kurių `user.pointer()` negali simuliuoti
 
-    ```tsx
-    // ✅ GERAI - custom event (user-event nepalaiko)
-    fireEvent(element, new CustomEvent('customEvent', { detail: data }));
-    ```
+        ```tsx
+        // ✅ GERAI - custom event (user-event nepalaiko)
+        fireEvent(element, new CustomEvent('customEvent', { detail: data }));
+        ```
 
 ### 5.2. `user-event` setup
 
@@ -156,28 +156,28 @@
 
     ```tsx
     import user from '@testing-library/user-event';
-    
+
     // Naudojimas testuose
     it('handles click', async () => {
         render(<Component />);
-        
+
         await user.click(screen.getByRole('button'));
-        
+
         expect(onClick).toHaveBeenCalled();
     });
     ```
 
 - **Pagrindinės `user-event` funkcijos:**
-  - `user.click()` - mygtuko paspaudimas
-  - `user.dblClick()` - dvigubas paspaudimas
-  - `user.type()` - tekstas input laukelyje
-  - `user.clear()` - input lauko išvalymas
-  - `user.selectOptions()` - select elemento pasirinkimas
-  - `user.hover()` - hover over element
-  - `user.unhover()` - hover išėjimas
-  - `user.tab()` - Tab klavišo paspaudimas
-  - `user.keyboard()` - klaviatūros įvestis
-  - `user.pointer()` - pointer/mouse/touch gestures
+    - `user.click()` - mygtuko paspaudimas
+    - `user.dblClick()` - dvigubas paspaudimas
+    - `user.type()` - tekstas input laukelyje
+    - `user.clear()` - input lauko išvalymas
+    - `user.selectOptions()` - select elemento pasirinkimas
+    - `user.hover()` - hover over element
+    - `user.unhover()` - hover išėjimas
+    - `user.tab()` - Tab klavišo paspaudimas
+    - `user.keyboard()` - klaviatūros įvestis
+    - `user.pointer()` - pointer/mouse/touch gestures
 
 ### 3.3. Pavyzdžiai
 
@@ -186,28 +186,34 @@
 it('calls onClick when button is clicked', async () => {
     const onClick = jest.fn();
     render(<button onClick={onClick}>Click</button>);
-    
+
     await user.click(screen.getByRole('button'));
-    
+
     expect(onClick).toHaveBeenCalledTimes(1);
 });
 
 // ✅ GERAI - type event
 it('updates input value', async () => {
     render(<input />);
-    
+
     await user.type(screen.getByRole('textbox'), 'Hello');
-    
+
     expect(screen.getByRole('textbox')).toHaveValue('Hello');
 });
 
 // ✅ GERAI - keyboard navigation
 it('navigates with Tab', async () => {
-    render(<form><input /><input /><button /></form>);
-    
+    render(
+        <form>
+            <input />
+            <input />
+            <button />
+        </form>
+    );
+
     await user.tab();
     expect(screen.getAllByRole('textbox')[0]).toHaveFocus();
-    
+
     await user.tab();
     expect(screen.getAllByRole('textbox')[1]).toHaveFocus();
 });
@@ -216,13 +222,13 @@ it('navigates with Tab', async () => {
 it('handles swipe gesture', async () => {
     const { container } = render(<SwipeableRow />);
     const row = container.querySelector('tr')!;
-    
+
     await user.pointer([
         { keys: '[TouchA>]', target: row, coords: { x: 100, y: 50 } },
         { coords: { x: 50, y: 50 } },
         { keys: '[/TouchA]' },
     ]);
-    
+
     expect(onSwipe).toHaveBeenCalled();
 });
 
@@ -231,14 +237,14 @@ it('handles drag gesture', async () => {
     const onDrag = jest.fn();
     const { container } = render(<DraggableItem onDrag={onDrag} />);
     const item = container.querySelector('.draggable')!;
-    
+
     await user.pointer([
         { keys: '[MouseLeft>]', target: item, coords: { x: 0, y: 0 } },
         { coords: { x: 100, y: 0 } },
         { coords: { x: 200, y: 0 } },
         { keys: '[/MouseLeft]' },
     ]);
-    
+
     expect(onDrag).toHaveBeenCalled();
 });
 ```
@@ -435,21 +441,29 @@ it('handles drag gesture', async () => {
     // ❌ BLOGAI - useRealTimers kiekvieno testo gale nereikalingas
     describe('with fake timers', () => {
         beforeEach(() => jest.useFakeTimers());
-        
+
         afterEach(() => jest.useRealTimers());
 
-        it('test 1', () => { /* ... */ });
-        it('test 2', () => { /* ... */ });
+        it('test 1', () => {
+            /* ... */
+        });
+        it('test 2', () => {
+            /* ... */
+        });
     });
 
     // ✅ GERAI - useRealTimers tik vieną kartą po visų testų
     describe('with fake timers', () => {
         beforeEach(() => jest.useFakeTimers());
-        
+
         afterAll(() => jest.useRealTimers());
 
-        it('test 1', () => { /* ... */ });
-        it('test 2', () => { /* ... */ });
+        it('test 1', () => {
+            /* ... */
+        });
+        it('test 2', () => {
+            /* ... */
+        });
     });
     ```
 
@@ -593,39 +607,37 @@ it('handles drag gesture', async () => {
     ```
 
 - **Kodėl `toStrictEqual`?**
-  - Tiksliau palygina struktūras (tikrina tipus, undefined vs missing properties)
-  - Aiškiau matyti visą struktūrą vienu metu
-  - Lengviau palaikyti - vienas expect vietoj daugelio
-  - Geriau atspindi tikrąją duomenų struktūrą
+    - Tiksliau palygina struktūras (tikrina tipus, undefined vs missing properties)
+    - Aiškiau matyti visą struktūrą vienu metu
+    - Lengviau palaikyti - vienas expect vietoj daugelio
+    - Geriau atspindi tikrąją duomenų struktūrą
 
 - **Kada naudoti `expect.string*`, `expect.object*`, `expect.array*`?**
-  - Kai reikia patikrinti tik dalį struktūros arba kai tikslus formatas nėra svarbus:
+    - Kai reikia patikrinti tik dalį struktūros arba kai tikslus formatas nėra svarbus:
 
-    ```tsx
-    // ✅ GERAI - tik dalis struktūros svarbi
-    expect(result.current).toStrictEqual([
-        {
-            group: 'Group1',
-            name: expect.stringContaining('Item'),
-            years: expect.arrayContaining([
-                expect.objectContaining({
-                    year: 2023,
-                    amounts: expect.arrayContaining([
-                        expect.objectContaining({ recycled: true }),
-                    ]),
-                }),
-            ]),
-        },
-    ]);
+        ```tsx
+        // ✅ GERAI - tik dalis struktūros svarbi
+        expect(result.current).toStrictEqual([
+            {
+                group: 'Group1',
+                name: expect.stringContaining('Item'),
+                years: expect.arrayContaining([
+                    expect.objectContaining({
+                        year: 2023,
+                        amounts: expect.arrayContaining([expect.objectContaining({ recycled: true })]),
+                    }),
+                ]),
+            },
+        ]);
 
-    // ✅ GERAI - tik tam tikri laukai svarbūs
-    expect(result.current).toStrictEqual([
-        expect.objectContaining({
-            group: 'Group1',
-            years: expect.any(Array),
-        }),
-    ]);
-    ```
+        // ✅ GERAI - tik tam tikri laukai svarbūs
+        expect(result.current).toStrictEqual([
+            expect.objectContaining({
+                group: 'Group1',
+                years: expect.any(Array),
+            }),
+        ]);
+        ```
 
 - **Pavyzdžiai:**
 
@@ -650,9 +662,7 @@ it('handles drag gesture', async () => {
     expect(response).toStrictEqual(
         expect.objectContaining({
             status: 200,
-            data: expect.arrayContaining([
-                expect.objectContaining({ id: 1 }),
-            ]),
+            data: expect.arrayContaining([expect.objectContaining({ id: 1 })]),
         })
     );
     ```
@@ -698,9 +708,7 @@ expect(badge).toHaveTextContent('+1');
 expect(badge).toHaveAttribute('data-state', 'positive');
 
 // ✅ GERAI - grandininis patikrinimas
-expect(screen.getByRole('status'))
-    .toHaveTextContent('+1')
-    .toHaveAttribute('data-state', 'positive');
+expect(screen.getByRole('status')).toHaveTextContent('+1').toHaveAttribute('data-state', 'positive');
 ```
 
 ```tsx
@@ -716,8 +724,7 @@ Leidžia pridėti custom error pranešimus prie assertions:
 // Naudojimas su papildomu pranešimu
 expect(value, 'Value should be positive').toBeGreaterThan(0);
 
-expect(cells, 'Year cells should have correct values')
-    .toHaveListWithTextContent(['', '.', '.', '2']);
+expect(cells, 'Year cells should have correct values').toHaveListWithTextContent(['', '.', '.', '2']);
 ```
 
 ### 9.3. jest-extended
@@ -750,7 +757,7 @@ expect(arr).toBeArray();
 expect(arr).toBeArrayOfSize(5);
 expect(arr).toIncludeAllMembers([1, 2, 3]);
 expect(arr).toIncludeAnyMembers([1, 5]);
-expect(arr).toSatisfyAll(x => x > 0);
+expect(arr).toSatisfyAll((x) => x > 0);
 ```
 
 #### Object matchers
