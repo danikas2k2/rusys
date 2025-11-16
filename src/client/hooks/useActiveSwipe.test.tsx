@@ -1,10 +1,10 @@
 import { renderHook } from '@testing-library/react';
+import { MockActiveContent } from '@tests/MockActiveContent';
 
 import React from 'react';
 
 import { type ActiveContent } from '~/client/common/ActiveContentContext';
 import { useActiveSwipe } from '~/client/hooks/useActiveSwipe';
-import { MockActiveContent } from '@tests/MockActiveContent';
 
 describe('useActiveSwipe', () => {
     it('returns false when active is undefined', () => {
@@ -69,4 +69,3 @@ describe('useActiveSwipe', () => {
         expect(result.current).toBe(true);
     });
 });
-

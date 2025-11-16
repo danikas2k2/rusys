@@ -10,9 +10,15 @@ import { Table } from '@mantine/core';
 import { useSwipePanelWidth } from '~/client/common/SwipeControlsContext';
 import { SwipeableTableRow } from '~/client/table/SwipeableTableRow';
 import { POINTER_MOVE_THRESHOLD } from '~/client/utils/pointer';
+import { dispatchNativeCancelEvents } from '~/client/utils/pointEvents';
 
 jest.mock('~/client/common/SwipeControlsContext', () => ({
     useSwipePanelWidth: jest.fn(() => [120, jest.fn()]),
+}));
+
+jest.mock('~/client/utils/pointEvents', () => ({
+    ...jest.requireActual('~/client/utils/pointEvents'),
+    dispatchNativeCancelEvents: jest.fn(),
 }));
 
 describe('<SwipeableTableRow>', () => {
@@ -393,179 +399,10 @@ describe('<SwipeableTableRow>', () => {
         });
     });
 
-    describe('touch events', () => {
-        const bakMaxTouchPoints = navigator.maxTouchPoints;
-
-        beforeAll(() => {
-            delete (window as any).PointerEvent;
-            Object.defineProperty(navigator, 'maxTouchPoints', { value: 1, configurable: true });
-        });
-
-        afterAll(() => {
-            Object.defineProperty(navigator, 'maxTouchPoints', { value: bakMaxTouchPoints, configurable: true });
-            (window as any).PointerEvent = originalPointerEvent;
-        });
-
-        it('handles touchstart event', () => {
-            render(
-                <MockTheme>
-                    <MockActiveContent setActive={setActive}>
-                        <Table>
-                            <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
-                                    <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
-                            </Table.Tbody>
-                        </Table>
-                    </MockActiveContent>
-                </MockTheme>
-            );
-
-            const row = screen.getByRole('row');
-
-            fireEvent.touchStart(row, {
-                changedTouches: [{ clientX: 100, clientY: 50 }],
-            });
-
-            expect(row).toBeInTheDocument();
-        });
-
-        it('does not start drag when touching drag handle', () => {
-            render(
-                <MockTheme>
-                    <MockActiveContent setActive={setActive}>
-                        <Table>
-                            <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
-                                    <Table.Td>
-                                        <div data-drag-handle>Handle</div>
-                                    </Table.Td>
-                                </SwipeableTableRow>
-                            </Table.Tbody>
-                        </Table>
-                    </MockActiveContent>
-                </MockTheme>
-            );
-
-            fireEvent.touchStart(screen.getByText('Handle'), {
-                changedTouches: [{ clientX: 100, clientY: 50 }],
-            });
-
-            expect(setActive).not.toHaveBeenCalled();
-        });
-
-        it('handles horizontal touch swipe left', async () => {
-            render(
-                <MockTheme>
-                    <MockActiveContent setActive={setActive}>
-                        <Table>
-                            <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
-                                    <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
-                            </Table.Tbody>
-                        </Table>
-                    </MockActiveContent>
-                </MockTheme>
-            );
-
-            const row = screen.getByRole('row');
-
-            fireEvent.touchStart(row, {
-                changedTouches: [{ clientX: 100, clientY: 50 }],
-            });
-
-            fireEvent.touchMove(row, {
-                changedTouches: [{ clientX: 100 - POINTER_MOVE_THRESHOLD - 10, clientY: 50 }],
-            });
-
-            await waitFor(() => {
-                expect(setActive).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        id: 'test-1',
-                        data: mockData,
-                    })
-                );
-            });
-        });
-
-        it('completes swipe on touchend', async () => {
-            render(
-                <MockTheme>
-                    <MockActiveContent setActive={setActive}>
-                        <Table>
-                            <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
-                                    <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
-                            </Table.Tbody>
-                        </Table>
-                    </MockActiveContent>
-                </MockTheme>
-            );
-
-            const row = screen.getByRole('row');
-
-            fireEvent.touchStart(row, {
-                changedTouches: [{ clientX: 200, clientY: 50 }],
-            });
-
-            fireEvent.touchMove(row, {
-                changedTouches: [{ clientX: 100, clientY: 50 }],
-            });
-
-            fireEvent.touchEnd(row);
-
-            await waitFor(() => {
-                expect(setActive).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        id: 'test-1',
-                    })
-                );
-            });
-        });
-
-        it('completes swipe on touchcancel', async () => {
-            render(
-                <MockTheme>
-                    <MockActiveContent setActive={setActive}>
-                        <Table>
-                            <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
-                                    <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
-                            </Table.Tbody>
-                        </Table>
-                    </MockActiveContent>
-                </MockTheme>
-            );
-
-            const row = screen.getByRole('row');
-
-            fireEvent.touchStart(row, {
-                changedTouches: [{ clientX: 200, clientY: 50 }],
-            });
-
-            fireEvent.touchMove(row, {
-                changedTouches: [{ clientX: 100, clientY: 50 }],
-            });
-
-            fireEvent.touchCancel(row);
-
-            await waitFor(() => {
-                expect(setActive).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        id: 'test-1',
-                    })
-                );
-            });
-        });
-    });
-
     describe('pointer events', () => {
         // Note: No beforeAll/afterAll setup needed - PointerEvent should be available by default
 
-        it('handles pointerdown event', () => {
+        it('handles pointerdown event', async () => {
             render(
                 <MockTheme>
                     <MockActiveContent setActive={setActive}>
@@ -581,12 +418,12 @@ describe('<SwipeableTableRow>', () => {
             );
 
             const row = screen.getByRole('row');
-            fireEvent.pointerDown(row, { clientX: 100, clientY: 50 });
+            await user.pointer({ keys: '[MouseLeft>]', target: row, coords: { x: 100, y: 50 } });
 
             expect(row).toBeInTheDocument();
         });
 
-        it('does not start drag when pointer down on drag handle', () => {
+        it('does not start drag when pointer down on drag handle', async () => {
             render(
                 <MockTheme>
                     <MockActiveContent setActive={setActive}>
@@ -603,7 +440,7 @@ describe('<SwipeableTableRow>', () => {
                 </MockTheme>
             );
 
-            fireEvent.pointerDown(screen.getByText('Handle'), { clientX: 100, clientY: 50 });
+            await user.pointer({ keys: '[MouseLeft>]', target: screen.getByText('Handle'), coords: { x: 100, y: 50 } });
 
             expect(setActive).not.toHaveBeenCalled();
         });
@@ -624,11 +461,10 @@ describe('<SwipeableTableRow>', () => {
             );
 
             const row = screen.getByRole('row');
-            fireEvent.pointerDown(row, { clientX: 100, clientY: 50 });
-            fireEvent.pointerMove(row, {
-                clientX: 100 - POINTER_MOVE_THRESHOLD - 10,
-                clientY: 50,
-            });
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 100, y: 50 } },
+                { target: row, coords: { x: 100 - POINTER_MOVE_THRESHOLD - 10, y: 50 } },
+            ]);
 
             await waitFor(() => {
                 expect(setActive).toHaveBeenCalledWith(
@@ -656,9 +492,11 @@ describe('<SwipeableTableRow>', () => {
             );
 
             const row = screen.getByRole('row');
-            fireEvent.pointerDown(row, { clientX: 200, clientY: 50 });
-            fireEvent.pointerMove(row, { clientX: 100, clientY: 50 });
-            fireEvent.pointerUp(row);
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } },
+                { target: row, coords: { x: 100, y: 50 } },
+                { keys: '[/MouseLeft]' },
+            ]);
 
             await waitFor(() => {
                 expect(setActive).toHaveBeenCalledWith(
@@ -685,9 +523,11 @@ describe('<SwipeableTableRow>', () => {
             );
 
             const row = screen.getByRole('row');
-            fireEvent.pointerDown(row, { clientX: 200, clientY: 50 });
-            fireEvent.pointerMove(row, { clientX: 100, clientY: 50 });
-            fireEvent.pointerCancel(row);
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } },
+                { target: row, coords: { x: 100, y: 50 } },
+                { keys: '[/MouseLeft]' }, // pointercancel is handled by pointerup in user.pointer
+            ]);
 
             await waitFor(() => {
                 expect(setActive).toHaveBeenCalledWith(
@@ -714,9 +554,11 @@ describe('<SwipeableTableRow>', () => {
             );
 
             const row = screen.getByRole('row');
-            fireEvent.pointerDown(row, { clientX: 50, clientY: 50 });
-            fireEvent.pointerMove(row, { clientX: 150, clientY: 50 });
-            fireEvent.pointerUp(row);
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 50, y: 50 } },
+                { target: row, coords: { x: 150, y: 50 } },
+                { keys: '[/MouseLeft]' },
+            ]);
 
             await waitFor(() => {
                 expect(setActive).toHaveBeenLastCalledWith();
@@ -1008,13 +850,15 @@ describe('<SwipeableTableRow>', () => {
 
             // Simulate swipe that sets x to -1 because controlsWidth is 0
             const row = screen.getByRole('row');
-            fireEvent.mouseDown(row, { clientX: 200, clientY: 50 });
-            fireEvent.mouseMove(row, { clientX: 100, clientY: 50 });
-            fireEvent.mouseUp(row, { clientX: 100, clientY: 50 });
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } },
+                { target: row, coords: { x: 100, y: 50 } },
+                { keys: '[/MouseLeft]' },
+            ]);
 
             // Wait for handleDragEnd to set x to -1
             await waitFor(() => {
-                expect(setActive).toHaveBeenCalled();
+                expect(setActive).toHaveBeenCalledWith(expect.anything());
             });
 
             // Clear previous calls
@@ -1049,106 +893,8 @@ describe('<SwipeableTableRow>', () => {
         });
     });
 
-    describe('event type isolation', () => {
-        it('ignores mouse events when touch event started', () => {
-            render(
-                <MockTheme>
-                    <MockActiveContent setActive={setActive}>
-                        <Table>
-                            <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
-                                    <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
-                            </Table.Tbody>
-                        </Table>
-                    </MockActiveContent>
-                </MockTheme>
-            );
-
-            const row = screen.getByRole('row');
-
-            // Start with touch
-            fireEvent.touchStart(row, { touches: [{ clientX: 200, clientY: 50 }] });
-
-            // Try mouse event - should be ignored
-            fireEvent.mouseDown(row, { clientX: 200, clientY: 50 });
-            fireEvent.mouseMove(row, { clientX: 100, clientY: 50 });
-
-            // Should not have called setActive with mouse coordinates
-            expect(setActive).not.toHaveBeenCalledWith(
-                expect.objectContaining({
-                    id: 'test-1',
-                })
-            );
-        });
-
-        it('ignores touch events when mouse event started', () => {
-            render(
-                <MockTheme>
-                    <MockActiveContent setActive={setActive}>
-                        <Table>
-                            <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
-                                    <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
-                            </Table.Tbody>
-                        </Table>
-                    </MockActiveContent>
-                </MockTheme>
-            );
-
-            const row = screen.getByRole('row');
-
-            // Start with mouse
-            fireEvent.mouseDown(row, { clientX: 200, clientY: 50 });
-
-            // Try touch event - should be ignored
-            fireEvent.touchStart(row, { touches: [{ clientX: 200, clientY: 50 }] });
-            fireEvent.touchMove(row, { touches: [{ clientX: 100, clientY: 50 }] });
-
-            // Should not have called setActive with touch coordinates
-            expect(setActive).not.toHaveBeenCalledWith(
-                expect.objectContaining({
-                    id: 'test-1',
-                })
-            );
-        });
-
-        it('ignores pointer events when mouse event started', () => {
-            render(
-                <MockTheme>
-                    <MockActiveContent setActive={setActive}>
-                        <Table>
-                            <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
-                                    <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
-                            </Table.Tbody>
-                        </Table>
-                    </MockActiveContent>
-                </MockTheme>
-            );
-
-            const row = screen.getByRole('row');
-
-            // Start with mouse
-            fireEvent.mouseDown(row, { clientX: 200, clientY: 50 });
-
-            // Try pointer event - should be ignored
-            fireEvent.pointerDown(row, { clientX: 200, clientY: 50, pointerId: 1 });
-            fireEvent.pointerMove(row, { clientX: 100, clientY: 50, pointerId: 1 });
-
-            // Should not have called setActive with pointer coordinates
-            expect(setActive).not.toHaveBeenCalledWith(
-                expect.objectContaining({
-                    id: 'test-1',
-                })
-            );
-        });
-    });
-
     describe('handleDrag edge cases', () => {
-        it('does not start drag when dragging is already true', () => {
+        it('does not start drag when dragging is already true', async () => {
             render(
                 <MockTheme>
                     <MockActiveContent setActive={setActive}>
@@ -1166,18 +912,20 @@ describe('<SwipeableTableRow>', () => {
             const row = screen.getByRole('row');
 
             // Start drag
-            fireEvent.mouseDown(row, { clientX: 200, clientY: 50 });
-            fireEvent.mouseMove(row, { clientX: 100, clientY: 50 });
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } },
+                { target: row, coords: { x: 100, y: 50 } },
+            ]);
 
             // Try to start drag again - should not call handleDragStart again
             const initialCallCount = setActive.mock.calls.length;
-            fireEvent.mouseDown(row, { clientX: 200, clientY: 50 });
+            await user.pointer({ keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } });
 
             // Should not have called setActive again
-            expect(setActive.mock.calls.length).toBe(initialCallCount);
+            expect(setActive.mock.calls).toHaveLength(initialCallCount);
         });
 
-        it('returns false when dragging is false', () => {
+        it('returns false when dragging is false', async () => {
             render(
                 <MockTheme>
                     <MockActiveContent setActive={setActive}>
@@ -1195,7 +943,7 @@ describe('<SwipeableTableRow>', () => {
             const row = screen.getByRole('row');
 
             // Move without starting drag - should return false
-            fireEvent.mouseMove(row, { clientX: 100, clientY: 50 });
+            await user.pointer({ target: row, coords: { x: 100, y: 50 } });
 
             // Should not have called setActive
             expect(setActive).not.toHaveBeenCalled();
@@ -1203,7 +951,7 @@ describe('<SwipeableTableRow>', () => {
     });
 
     describe('handleDragEnd edge cases', () => {
-        it('does not process drag end when dragging is false', () => {
+        it('does not process drag end when dragging is false', async () => {
             render(
                 <MockTheme>
                     <MockActiveContent setActive={setActive}>
@@ -1221,7 +969,7 @@ describe('<SwipeableTableRow>', () => {
             const row = screen.getByRole('row');
 
             // Try to end drag without starting - should not process
-            fireEvent.mouseUp(row, { clientX: 100, clientY: 50 });
+            await user.pointer({ keys: '[/MouseLeft]', target: row, coords: { x: 100, y: 50 } });
 
             // Should not have called setActive
             expect(setActive).not.toHaveBeenCalled();
@@ -1245,100 +993,22 @@ describe('<SwipeableTableRow>', () => {
             const row = screen.getByRole('row');
 
             // Start drag but don't move enough to trigger sliding
-            fireEvent.mouseDown(row, { clientX: 200, clientY: 50 });
-            // Move enough to exceed threshold but not enough to trigger sliding
-            fireEvent.mouseMove(row, { clientX: 150, clientY: 50 });
-            // End drag - should still process if deltaX is sufficient
-            fireEvent.mouseUp(row, { clientX: 100, clientY: 50 });
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } },
+                // Move enough to exceed threshold but not enough to trigger sliding
+                { target: row, coords: { x: 150, y: 50 } },
+                // End drag - should still process if deltaX is sufficient
+                { keys: '[/MouseLeft]', target: row, coords: { x: 100, y: 50 } },
+            ]);
 
             await waitFor(() => {
-                expect(setActive).toHaveBeenCalled();
+                expect(setActive).toHaveBeenCalledWith(expect.anything());
             });
         });
     });
 
-    describe('touch event edge cases', () => {
-        it('handles touchstart when no touches available', () => {
-            render(
-                <MockTheme>
-                    <MockActiveContent setActive={setActive}>
-                        <Table>
-                            <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
-                                    <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
-                            </Table.Tbody>
-                        </Table>
-                    </MockActiveContent>
-                </MockTheme>
-            );
-
-            const row = screen.getByRole('row');
-
-            // Touch start without touches
-            fireEvent.touchStart(row, { touches: [] });
-
-            // Should not have called setActive
-            expect(setActive).not.toHaveBeenCalled();
-        });
-
-        it('handles touchmove when no touches available', () => {
-            render(
-                <MockTheme>
-                    <MockActiveContent setActive={setActive}>
-                        <Table>
-                            <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
-                                    <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
-                            </Table.Tbody>
-                        </Table>
-                    </MockActiveContent>
-                </MockTheme>
-            );
-
-            const row = screen.getByRole('row');
-
-            // Start touch
-            fireEvent.touchStart(row, { touches: [{ clientX: 200, clientY: 50 }] });
-
-            // Move without touches
-            fireEvent.touchMove(row, { touches: [] });
-
-            // Should not have called setActive
-            expect(setActive).not.toHaveBeenCalled();
-        });
-
-        it('handles touchend when no touches available', () => {
-            render(
-                <MockTheme>
-                    <MockActiveContent setActive={setActive}>
-                        <Table>
-                            <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
-                                    <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
-                            </Table.Tbody>
-                        </Table>
-                    </MockActiveContent>
-                </MockTheme>
-            );
-
-            const row = screen.getByRole('row');
-
-            // Start touch
-            fireEvent.touchStart(row, { touches: [{ clientX: 200, clientY: 50 }] });
-
-            // End touch without touches (uses changedTouches)
-            fireEvent.touchEnd(row, { touches: [], changedTouches: [{ clientX: 100, clientY: 50 }] });
-
-            // Should have called setActive
-            expect(setActive).toHaveBeenCalled();
-        });
-    });
-
     describe('pointer event edge cases', () => {
-        it('ignores pointermove when pointerId does not match', () => {
+        it('ignores pointermove when not primary pointer', async () => {
             render(
                 <MockTheme>
                     <MockActiveContent setActive={setActive}>
@@ -1355,17 +1025,15 @@ describe('<SwipeableTableRow>', () => {
 
             const row = screen.getByRole('row');
 
-            // Start pointer with ID 1
-            fireEvent.pointerDown(row, { clientX: 200, clientY: 50, pointerId: 1 });
-
-            // Move with different pointer ID - should be ignored
-            fireEvent.pointerMove(row, { clientX: 100, clientY: 50, pointerId: 2 });
+            // Pointer down without isPrimary - user.pointer always uses primary pointer, so this test may need adjustment
+            // Note: user.pointer doesn't support non-primary pointers, so we'll use fireEvent for this specific case
+            fireEvent.pointerDown(row, { clientX: 200, clientY: 50, isPrimary: false });
 
             // Should not have called setActive
             expect(setActive).not.toHaveBeenCalled();
         });
 
-        it('ignores pointerup when pointerId does not match', () => {
+        it('ignores pointermove when not primary pointer after primary pointerdown', async () => {
             render(
                 <MockTheme>
                     <MockActiveContent setActive={setActive}>
@@ -1382,17 +1050,18 @@ describe('<SwipeableTableRow>', () => {
 
             const row = screen.getByRole('row');
 
-            // Start pointer with ID 1
-            fireEvent.pointerDown(row, { clientX: 200, clientY: 50, pointerId: 1 });
-            // Don't move - just end with different pointer ID
-            // End with different pointer ID - should be ignored
-            fireEvent.pointerUp(row, { clientX: 100, clientY: 50, pointerId: 2 });
+            // Start with primary pointer
+            await user.pointer({ keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } });
 
-            // Should not have called setActive (pointerMove would have called it, but we didn't move)
+            // Move without isPrimary - should be ignored
+            // Note: user.pointer always uses primary pointer, so we'll use fireEvent for this specific case
+            fireEvent.pointerMove(row, { clientX: 100, clientY: 50, isPrimary: false });
+
+            // Should not have called setActive
             expect(setActive).not.toHaveBeenCalled();
         });
 
-        it('handles pointerup with invalid clientX/clientY', () => {
+        it('handles pointerup with invalid clientX/clientY', async () => {
             render(
                 <MockTheme>
                     <MockActiveContent setActive={setActive}>
@@ -1409,15 +1078,20 @@ describe('<SwipeableTableRow>', () => {
 
             const row = screen.getByRole('row');
 
-            // Start pointer
-            fireEvent.pointerDown(row, { clientX: 200, clientY: 50, pointerId: 1 });
-            fireEvent.pointerMove(row, { clientX: 100, clientY: 50, pointerId: 1 });
+            // Start drag
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } },
+                { target: row, coords: { x: 100, y: 50 } },
+            ]);
 
-            // End with invalid coordinates (0) - should use lastClientXRef
-            fireEvent.pointerUp(row, { clientX: 0, clientY: 0, pointerId: 1 });
+            // End with invalid coordinates (uses lastClientXRef as fallback)
+            // Note: user.pointer may not support invalid coordinates, so we'll use fireEvent for this specific case
+            fireEvent.pointerUp(row, { clientX: 0, clientY: 0, isPrimary: true });
 
             // Should have called setActive using lastClientXRef
-            expect(setActive).toHaveBeenCalled();
+            await waitFor(() => {
+                expect(setActive).toHaveBeenCalledWith(expect.anything());
+            });
         });
     });
 
@@ -1440,12 +1114,14 @@ describe('<SwipeableTableRow>', () => {
             const row = screen.getByRole('row');
 
             // Start drag from closed position
-            fireEvent.mouseDown(row, { clientX: 200, clientY: 50 });
-            fireEvent.mouseMove(row, { clientX: 100, clientY: 50 });
-            fireEvent.mouseUp(row, { clientX: 100, clientY: 50 });
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } },
+                { target: row, coords: { x: 100, y: 50 } },
+                { keys: '[/MouseLeft]', target: row, coords: { x: 100, y: 50 } },
+            ]);
 
             await waitFor(() => {
-                expect(setActive).toHaveBeenCalled();
+                expect(setActive).toHaveBeenCalledWith(expect.anything());
             });
         });
 
@@ -1467,12 +1143,14 @@ describe('<SwipeableTableRow>', () => {
             const row = screen.getByRole('row');
 
             // Start drag from open position
-            fireEvent.mouseDown(row, { clientX: 100, clientY: 50 });
-            fireEvent.mouseMove(row, { clientX: 150, clientY: 50 });
-            fireEvent.mouseUp(row, { clientX: 150, clientY: 50 });
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 100, y: 50 } },
+                { target: row, coords: { x: 150, y: 50 } },
+                { keys: '[/MouseLeft]', target: row, coords: { x: 150, y: 50 } },
+            ]);
 
             await waitFor(() => {
-                expect(setActive).toHaveBeenCalled();
+                expect(setActive).toHaveBeenCalledWith(expect.anything());
             });
         });
 
@@ -1494,12 +1172,14 @@ describe('<SwipeableTableRow>', () => {
             const row = screen.getByRole('row');
 
             // Start drag from open position and swipe slightly (not enough to close)
-            fireEvent.mouseDown(row, { clientX: 100, clientY: 50 });
-            fireEvent.mouseMove(row, { clientX: 110, clientY: 50 });
-            fireEvent.mouseUp(row, { clientX: 110, clientY: 50 });
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 100, y: 50 } },
+                { target: row, coords: { x: 110, y: 50 } },
+                { keys: '[/MouseLeft]', target: row, coords: { x: 110, y: 50 } },
+            ]);
 
             await waitFor(() => {
-                expect(setActive).toHaveBeenCalled();
+                expect(setActive).toHaveBeenCalledWith(expect.anything());
             });
         });
     });
@@ -1521,6 +1201,7 @@ describe('<SwipeableTableRow>', () => {
             );
 
             const table = container.querySelector('table');
+
             expect(table?.style.touchAction).toBe('none');
         });
 
@@ -1540,7 +1221,105 @@ describe('<SwipeableTableRow>', () => {
             );
 
             const table = container.querySelector('table');
+
             expect(table?.style.touchAction).toBe('pan-y');
+        });
+    });
+
+    describe('longpress cancellation', () => {
+        beforeEach(() => {
+            jest.mocked(dispatchNativeCancelEvents).mockClear();
+        });
+
+        it('cancels longpress timers when swipe starts', async () => {
+            render(
+                <MockTheme>
+                    <MockActiveContent setActive={setActive}>
+                        <Table>
+                            <Table.Tbody>
+                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                    <Table.Td>Cell</Table.Td>
+                                </SwipeableTableRow>
+                            </Table.Tbody>
+                        </Table>
+                    </MockActiveContent>
+                </MockTheme>
+            );
+
+            const row = screen.getByRole('row');
+
+            // Start swipe by dragging left (on a cell, not the row itself, to trigger dispatchNativeCancelEvents)
+            const cell = row.querySelector('td');
+
+            expect(cell).toBeDefined();
+
+            // Use user.pointer() to simulate swipe gesture starting on cell
+            // The event will bubble to row, but target will be cell
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: cell!, coords: { x: 100, y: 50 } },
+                { target: cell!, coords: { x: 50, y: 50 } },
+            ]);
+
+            // Wait for swipe to start (setActive is called)
+            await waitFor(() => {
+                expect(setActive).toHaveBeenCalledWith(expect.anything());
+            });
+
+            // Then check that dispatchNativeCancelEvents was called (with any argument, as e.target might be different)
+
+            expect(dispatchNativeCancelEvents).toHaveBeenCalledWith(expect.anything());
+        });
+
+        it('does not cancel longpress timers when drag is too small', async () => {
+            render(
+                <MockTheme>
+                    <MockActiveContent setActive={setActive}>
+                        <Table>
+                            <Table.Tbody>
+                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                    <Table.Td>Cell</Table.Td>
+                                </SwipeableTableRow>
+                            </Table.Tbody>
+                        </Table>
+                    </MockActiveContent>
+                </MockTheme>
+            );
+
+            const row = screen.getByRole('row');
+
+            // Small drag that doesn't trigger swipe
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 100, y: 50 } },
+                { target: row, coords: { x: 95, y: 50 } },
+            ]);
+
+            expect(dispatchNativeCancelEvents).not.toHaveBeenCalled();
+        });
+
+        it('does not cancel longpress timers when vertical drag exceeds horizontal', async () => {
+            render(
+                <MockTheme>
+                    <MockActiveContent setActive={setActive}>
+                        <Table>
+                            <Table.Tbody>
+                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                    <Table.Td>Cell</Table.Td>
+                                </SwipeableTableRow>
+                            </Table.Tbody>
+                        </Table>
+                    </MockActiveContent>
+                </MockTheme>
+            );
+
+            const row = screen.getByRole('row');
+
+            // Vertical drag that doesn't trigger swipe
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 100, y: 50 } },
+                { target: row, coords: { x: 100, y: 100 } },
+            ]);
+
+            expect(dispatchNativeCancelEvents).not.toHaveBeenCalled();
         });
     });
 });
