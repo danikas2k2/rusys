@@ -38,4 +38,18 @@ describe('useTranslations', () => {
 
         expect(result.current('Hello', 'de')).toBe('Hello');
     });
+
+    it('returns requested label when locale is undefined', () => {
+        jest.mocked(useLocale).mockReturnValue(undefined as any);
+        const { result } = renderHook(() => useLabels());
+
+        expect(result.current('Hello')).toBe('Hello');
+    });
+
+    it('returns requested label when overrideLocale is undefined and locale is undefined', () => {
+        jest.mocked(useLocale).mockReturnValue(undefined as any);
+        const { result } = renderHook(() => useLabels());
+
+        expect(result.current('Hello', undefined)).toBe('Hello');
+    });
 });

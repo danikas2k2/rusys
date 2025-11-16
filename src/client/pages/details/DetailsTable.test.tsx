@@ -13,6 +13,7 @@ import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader'
 import { DetailsGroups } from '~/client/pages/details/DetailsGroups';
 import { DetailsTable } from '~/client/pages/details/DetailsTable';
 import { useDetailsHasData } from '~/client/pages/details/hooks/useDetailsHasData';
+import { useMissingDetails } from '~/client/pages/details/hooks/useMissingDetails';
 import { useMissingOnly } from '~/client/pages/details/MissingOnlyContext';
 
 jest.mock('~/client/state/years/useYears');
@@ -30,10 +31,13 @@ jest.mock('~/client/hooks/useLockingLoader', () => ({
     useLockingLoader: jest.fn(),
 }));
 jest.mock('~/client/filters/QuickFilterContext', () => ({
-    useQuickFilterContext: jest.fn().mockReturnValue(['', jest.fn()]),
+    useQuickFilterContext: jest.fn(),
 }));
 jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
     useGroupFilter: jest.fn(),
+}));
+jest.mock('~/client/pages/details/hooks/useMissingDetails', () => ({
+    useMissingDetails: jest.fn().mockReturnValue([]),
 }));
 jest.mock('~/client/pages/details/MissingOnlyCheckbox', () => ({
     MissingOnlyCheckbox: jest.fn(({ onClick }: { onClick: () => void }) => <input type="checkbox" onClick={onClick} />),
@@ -276,12 +280,17 @@ describe('<DetailsTable>', () => {
 
     describe('missing-only', () => {
         const setMissingOnly = jest.fn();
+        const mockSetFilter = jest.fn();
 
-        beforeEach(() => jest.mocked(useMissingOnly).mockReturnValueOnce([true, setMissingOnly]));
+        beforeEach(() => {
+            jest.mocked(useMissingOnly).mockReturnValueOnce([true, setMissingOnly]);
+            jest.mocked(useQuickFilterContext).mockReturnValue(['', mockSetFilter]);
+        });
 
         afterEach(() => jest.clearAllMocks());
 
         it('renders missing only rows if missing state is set', () => {
+            jest.mocked(useMissingDetails).mockReturnValueOnce(details.slice(1, 2));
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -313,8 +322,10 @@ describe('<DetailsTable>', () => {
         });
 
         it('calls clearFilter on missing-only checkbox being clicked when all missing rows are filtered out', async () => {
-            jest.mocked(useQuickFilterContext).mockReturnValue(['z', setFilter]);
-            jest.mocked(useFilteredList).mockReturnValue([]);
+            const testSetFilter = jest.fn();
+            jest.mocked(useQuickFilterContext).mockReturnValueOnce(['z', testSetFilter]);
+            jest.mocked(useFilteredList).mockReturnValueOnce([]);
+            jest.mocked(useMissingDetails).mockReturnValueOnce([]);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -327,7 +338,58 @@ describe('<DetailsTable>', () => {
 
             await user.click(screen.getByRole('checkbox'));
 
-            expect(setFilter).toHaveBeenCalledWith('');
+            expect(testSetFilter).toHaveBeenCalledWith('');
+        });
+
+        it('does not call clearFilter when missingOnly is false', async () => {
+            const testSetFilter = jest.fn();
+            jest.mocked(useMissingOnly).mockReturnValueOnce([false, setMissingOnly]);
+            jest.mocked(useQuickFilterContext).mockReturnValueOnce(['z', testSetFilter]);
+            jest.mocked(useFilteredList).mockReturnValueOnce([]);
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <DetailsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('checkbox'));
+
+            expect(testSetFilter).not.toHaveBeenCalled();
+        });
+
+        it('does not call clearFilter when filter is empty', async () => {
+            const testSetFilter = jest.fn();
+            jest.mocked(useQuickFilterContext).mockReturnValueOnce(['', testSetFilter]);
+            jest.mocked(useFilteredList).mockReturnValueOnce([]);
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <DetailsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('checkbox'));
+
+            expect(testSetFilter).not.toHaveBeenCalled();
+        });
+
+        it('does not call clearFilter when hasMissingDetails is true', async () => {
+            const testSetFilter = jest.fn();
+            jest.mocked(useQuickFilterContext).mockReturnValueOnce(['z', testSetFilter]);
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <DetailsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('checkbox'));
+
+            expect(testSetFilter).not.toHaveBeenCalled();
         });
     });
 });

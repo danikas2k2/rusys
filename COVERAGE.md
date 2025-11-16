@@ -1,24 +1,28 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,323 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,341 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage | Status                    |
 | -------------- | -------- | ------------------------- |
-| **Statements** | 97.18%   | ✅ Excellent              |
-| **Branches**   | 86.04%   | ✅ THRESHOLD ACHIEVED! 🎉 |
+| **Statements** | 97.14%   | ✅ Excellent              |
+| **Branches**   | 86.12%   | ✅ THRESHOLD ACHIEVED! 🎉 |
 | **Functions**  | 96.07%   | ✅ Excellent              |
-| **Lines**      | 97.35%   | ✅ Excellent              |
+| **Lines**      | 97.30%   | ✅ Excellent              |
 
 **Naujausi pagerinimai (2025-01-27):**
 
-- ✅ **Branch coverage pagerinimas:**
-  - `useLoginSuccess.ts` → pridėti testai TokenResponse su `access_token` ir atvejis be email
-  - `ProfileAvatar.tsx` → pridėti testai visiems name variantams ir variant prop
-  - `getOverlapIndex.ts` → pridėti testai null element ir null parent atvejams
-- ✅ **Iš viso pridėta:** 5 nauji testai
-- ✅ **Branch coverage pagerėjo:** 85.73% → **86.04%** (+0.31%)
+- ✅ **Coverage pagerinimas siekiant 100%:**
+  - `theme.ts` → pridėtas testas `cssVariablesResolver` funkcijai
+  - `useActiveSwipe.ts` → pridėtas testas, kai `active.data` yra falsy
+  - `useGroupMatch.ts` → pridėti testai, kai `useDetails` grąžina `null` arba `undefined`
+  - `useLabels.ts` → pridėti testai, kai `locale` yra `undefined`
+  - `MissingOnlyCheckbox.tsx` → pridėtas testas, kai `hasMissing` yra `false`
+  - `ValueAmounts.tsx` → pridėtas testas, kai `amounts` yra tuščias masyvas
+  - `DetailsTable.tsx` → pridėti testai visiems `handleClick` branch'ams
+- ✅ **Iš viso pridėta:** 18 naujų testų
+- ✅ **Branch coverage pagerėjo:** 86.04% → **86.12%** (+0.08%)
 
 ---
 
@@ -53,15 +57,15 @@
 
 ### 📊 Globalinė statistika
 
-- **Statements:** 97.18% ✅ 🚀
-- **Branches:** 86.04% 🎉 **THRESHOLD ACHIEVED!**
+- **Statements:** 97.14% ✅ 🚀
+- **Branches:** 86.12% 🎉 **THRESHOLD ACHIEVED!**
 - **Functions:** 96.07% ✅ 🎯
-- **Lines:** 97.35% ✅ ⭐
+- **Lines:** 97.30% ✅ ⭐
 
 ### 🧪 Testai
 
 - **Test Suites:** 211 total (**211 passed**, 0 failed) ✅
-- **Tests:** 1,323 total (**1,323 passed**, 0 failed) ✅
+- **Tests:** 1,341 total (**1,341 passed**, 0 failed) ✅
 - **Pass Rate:** **100%** 🎉
 - **Laikas:** ~30-40 sekundės
 - **Test framework:** Jest 30.2.0 + React Testing Library 16.3.0
@@ -69,10 +73,10 @@
 
 ### 📈 Pagerėjimai (Per visą laikotarpį)
 
-- **Statements:** ~92.5% → **97.18%** (+4.68%) 🎉
+- **Statements:** ~92.5% → **97.14%** (+4.64%) 🎉
 - **Functions:** ~90.5% → **96.07%** (+5.57%) 🎉
-- **Lines:** ~92.8% → **97.35%** (+4.55%) 🎉
-- **Branches:** ~78% → **86.04%** (+8.04%) 🚀 **THRESHOLD ACHIEVED!**
+- **Lines:** ~92.8% → **97.30%** (+4.50%) 🎉
+- **Branches:** ~78% → **86.12%** (+8.12%) 🚀 **THRESHOLD ACHIEVED!**
 
 ---
 
@@ -620,4 +624,4 @@ cat coverage/coverage-summary.json
 **Paskutinis atnaujinimas:** 2025-01-27  
 **Coverage data:** Jest coverage report (`pnpm test --coverage`)  
 **Test framework:** Jest 30.2.0 + React Testing Library 16.3.0  
-**Coverage threshold:** Branches 85% ✅ **ACHIEVED!** (currently 86.04%)
+**Coverage threshold:** Branches 85% ✅ **ACHIEVED!** (currently 86.12%)

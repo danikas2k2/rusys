@@ -61,4 +61,12 @@ describe('theme', () => {
             })
         );
     });
+
+    it('cssVariablesResolver returns function that can be called', () => {
+        expect(getTheme().cssVariablesResolver()).toStrictEqual(
+            expect.objectContaining({
+                variables: expect.arrayContaining([]),
+            })
+        );
+    });
 });

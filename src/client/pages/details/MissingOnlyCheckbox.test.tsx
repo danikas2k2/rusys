@@ -105,4 +105,17 @@ describe('<MissingOnlyCheckbox>', () => {
 
         expect(onClick).toHaveBeenCalledWith();
     });
+
+    it('does not change missing only state when hasMissing is false', async () => {
+        jest.mocked(useHasMissing).mockReturnValue(false);
+        render(
+            <MockTheme>
+                <MissingOnlyCheckbox />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('checkbox'));
+
+        expect(setMissingOnly).not.toHaveBeenCalled();
+    });
 });

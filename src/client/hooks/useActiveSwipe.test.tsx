@@ -68,4 +68,13 @@ describe('useActiveSwipe', () => {
 
         expect(result.current).toBe(true);
     });
+
+    it('returns false when active.data is falsy', () => {
+        const active: ActiveContent = { id: 'test-1', data: null as any, offset: -100 };
+        const { result } = renderHook(() => useActiveSwipe(), {
+            wrapper: ({ children }) => <MockActiveContent active={active}>{children}</MockActiveContent>,
+        });
+
+        expect(result.current).toBe(false);
+    });
 });

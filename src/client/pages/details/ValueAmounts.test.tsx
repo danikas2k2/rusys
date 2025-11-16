@@ -47,6 +47,12 @@ describe('<ValueAmounts>', () => {
             );
     });
 
+    it('renders empty when amounts is empty array', () => {
+        const { container } = render(<ValueAmounts group={group} amounts={[]} />);
+
+        expect(container).toBeEmptyDOMElement();
+    });
+
     it('renders empty when amounts is undefined', () => {
         const { container } = render(<ValueAmounts group={group} />);
 
