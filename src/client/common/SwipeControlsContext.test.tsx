@@ -1,52 +1,48 @@
-import { renderHook } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import user from '@testing-library/user-event';
+import { MockTheme } from '@tests/MockTheme';
 
-import React, { act, use } from 'react';
+import React from 'react';
 
-import { SwipeControlsContext, SwipeControlsWrapper, useSwipePanelWidth } from '~/client/common/SwipeControlsContext';
+import { SwipeControlsWrapper, useSwipePanelWidth } from './SwipeControlsContext';
 
-describe('<SwipeControlsContext>', () => {
-    it('uses context with default value', () => {
-        const { result } = renderHook(() => use(SwipeControlsContext));
+function TestComponent() {
+    const [width, setWidth] = useSwipePanelWidth();
 
-        expect(result.current).toStrictEqual([0, expect.any(Function)]);
-    });
-});
-
-describe('useSwipePanelWidth', () => {
-    it('returns default width', () => {
-        const { result } = renderHook(() => useSwipePanelWidth());
-
-        expect(result.current).toStrictEqual([0, expect.any(Function)]);
-    });
-
-    it('returns custom width from context', () => {
-        const setWidth = jest.fn();
-
-        const { result } = renderHook(() => useSwipePanelWidth(), {
-            wrapper: ({ children }) => <SwipeControlsContext value={[100, setWidth]}>{children}</SwipeControlsContext>,
-        });
-
-        expect(result.current).toStrictEqual([100, setWidth]);
-    });
-});
+    return (
+        <div>
+            <span aria-label="width">{width}</span>
+            <button onClick={() => setWidth(100)}>Set Width</button>
+        </div>
+    );
+}
 
 describe('<SwipeControlsWrapper>', () => {
-    it('provides state to children', () => {
-        const { result } = renderHook(() => useSwipePanelWidth(), {
-            wrapper: SwipeControlsWrapper,
-        });
+    it('provides initial width value of 0', () => {
+        render(
+            <MockTheme>
+                <SwipeControlsWrapper>
+                    <TestComponent />
+                </SwipeControlsWrapper>
+            </MockTheme>
+        );
 
-        expect(result.current[0]).toBe(0);
-        expect(result.current[1]).toBeInstanceOf(Function);
+        expect(screen.getByRole('generic', { name: 'width' })).toHaveTextContent('0');
     });
 
-    it('updates width state', () => {
-        const { result } = renderHook(() => useSwipePanelWidth(), {
-            wrapper: SwipeControlsWrapper,
-        });
+    it('allows updating width value', async () => {
+        render(
+            <MockTheme>
+                <SwipeControlsWrapper>
+                    <TestComponent />
+                </SwipeControlsWrapper>
+            </MockTheme>
+        );
 
-        act(() => result.current[1](250));
+        expect(screen.getByRole('generic', { name: 'width' })).toHaveTextContent('0');
 
-        expect(result.current[0]).toBe(250);
+        await user.click(screen.getByRole('button', { name: 'Set Width' }));
+
+        expect(screen.getByRole('generic', { name: 'width' })).toHaveTextContent('100');
     });
 });
