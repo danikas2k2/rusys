@@ -1,29 +1,24 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-11-16 | **Testuota:** 1,289 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,323 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage | Status                    |
 | -------------- | -------- | ------------------------- |
-| **Statements** | 97.57%   | ✅ Excellent              |
-| **Branches**   | 87.71%   | ✅ THRESHOLD ACHIEVED! 🎉 |
-| **Functions**  | 96.74%   | ✅ Excellent              |
-| **Lines**      | 97.73%   | ✅ Excellent              |
+| **Statements** | 97.18%   | ✅ Excellent              |
+| **Branches**   | 86.04%   | ✅ THRESHOLD ACHIEVED! 🎉 |
+| **Functions**  | 96.07%   | ✅ Excellent              |
+| **Lines**      | 97.35%   | ✅ Excellent              |
 
-**Naujausi pagerinimai (2025-11-16):**
+**Naujausi pagerinimai (2025-01-27):**
 
-- ✅ **Nauji testai sukurti failams be testų:**
-  - `pointEvents.ts` → **100%** coverage (9 testai)
-  - `AppVersion.tsx` → **100%** coverage (1 testas)
-  - `Links.ts` → **100%** coverage (1 testas)
-  - `DragHandle.tsx` → **100%** coverage (3 testai)
-  - `GroupTitle.tsx` → **100%** coverage (3 testai)
-  - `SortableContent.tsx` → **100%** coverage (2 testai)
-  - `DraggableContent.tsx` → **100%** coverage (3 testai)
-- ✅ **Iš viso pridėta:** 22 nauji testai
-- ✅ **SwipeableTableRow.test.tsx** - Perdaryta naudoti `user.pointer()` vietoj `fireEvent.pointer*`
-- ✅ **useLongPress.test.tsx** - Atnaujinta naudoti `dispatchNativeCancelEvents` vietoj `cancelAllLongPressTimers`
+- ✅ **Branch coverage pagerinimas:**
+  - `useLoginSuccess.ts` → pridėti testai TokenResponse su `access_token` ir atvejis be email
+  - `ProfileAvatar.tsx` → pridėti testai visiems name variantams ir variant prop
+  - `getOverlapIndex.ts` → pridėti testai null element ir null parent atvejams
+- ✅ **Iš viso pridėta:** 5 nauji testai
+- ✅ **Branch coverage pagerėjo:** 85.73% → **86.04%** (+0.31%)
 
 ---
 
@@ -58,15 +53,15 @@
 
 ### 📊 Globalinė statistika
 
-- **Statements:** 97.57% ✅ 🚀
-- **Branches:** 87.71% 🎉 **THRESHOLD ACHIEVED!**
-- **Functions:** 96.74% ✅ 🎯
-- **Lines:** 97.73% ✅ ⭐
+- **Statements:** 97.18% ✅ 🚀
+- **Branches:** 86.04% 🎉 **THRESHOLD ACHIEVED!**
+- **Functions:** 96.07% ✅ 🎯
+- **Lines:** 97.35% ✅ ⭐
 
 ### 🧪 Testai
 
-- **Test Suites:** 200 total (**200 passed**, 0 failed) ✅
-- **Tests:** 1,289 total (**1,289 passed**, 0 failed) ✅
+- **Test Suites:** 211 total (**211 passed**, 0 failed) ✅
+- **Tests:** 1,323 total (**1,323 passed**, 0 failed) ✅
 - **Pass Rate:** **100%** 🎉
 - **Laikas:** ~30-40 sekundės
 - **Test framework:** Jest 30.2.0 + React Testing Library 16.3.0
@@ -74,10 +69,10 @@
 
 ### 📈 Pagerėjimai (Per visą laikotarpį)
 
-- **Statements:** ~92.5% → **97.57%** (+5.07%) 🎉
-- **Functions:** ~90.5% → **96.74%** (+6.24%) 🎉
-- **Lines:** ~92.8% → **97.73%** (+4.93%) 🎉
-- **Branches:** ~78% → **87.71%** (+9.71%) 🚀 **THRESHOLD ACHIEVED!**
+- **Statements:** ~92.5% → **97.18%** (+4.68%) 🎉
+- **Functions:** ~90.5% → **96.07%** (+5.57%) 🎉
+- **Lines:** ~92.8% → **97.35%** (+4.55%) 🎉
+- **Branches:** ~78% → **86.04%** (+8.04%) 🚀 **THRESHOLD ACHIEVED!**
 
 ---
 
@@ -622,7 +617,7 @@ cat coverage/coverage-summary.json
 
 ---
 
-**Paskutinis atnaujinimas:** 2025-11-16  
+**Paskutinis atnaujinimas:** 2025-01-27  
 **Coverage data:** Jest coverage report (`pnpm test --coverage`)  
 **Test framework:** Jest 30.2.0 + React Testing Library 16.3.0  
-**Coverage threshold:** Branches 85% ✅ **ACHIEVED!** (currently 87.71%)
+**Coverage threshold:** Branches 85% ✅ **ACHIEVED!** (currently 86.04%)

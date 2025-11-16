@@ -103,4 +103,42 @@ describe('<ProfileAvatar>', () => {
 
         expect(screen.getByRole('figure')).toHaveAttribute('data-robot', 'true');
     });
+
+    it('renders robot icon with custom variant when profile has dev flag', () => {
+        jest.mocked(useProfile).mockReturnValueOnce({ name: 'Dev User', dev: true });
+
+        render(
+            <MockTheme>
+                <ProfileAvatar variant="filled" />
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('figure')).toHaveAttribute('data-robot', 'true');
+    });
+
+    it('renders initials when only given_name exists', () => {
+        jest.mocked(useProfile).mockReturnValueOnce({ given_name: 'Test' });
+
+        render(
+            <MockTheme>
+                <ProfileAvatar />
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('figure')).toHaveAttribute('data-picture', 'false');
+        expect(screen.getByText('T')).toBeInTheDocument();
+    });
+
+    it('renders initials when only family_name exists', () => {
+        jest.mocked(useProfile).mockReturnValueOnce({ family_name: 'User' });
+
+        render(
+            <MockTheme>
+                <ProfileAvatar />
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('figure')).toHaveAttribute('data-picture', 'false');
+        expect(screen.getByText('U')).toBeInTheDocument();
+    });
 });
