@@ -359,7 +359,7 @@ it('handles drag gesture', async () => {
 
 ## 4. Struktūra ir Organizavimas
 
-### 8.1. Test grupavimas
+### 4.1. Test grupavimas
 
 - Naudoti `describe()` blokus susijusiems testams grupuoti:
 
@@ -375,7 +375,34 @@ it('handles drag gesture', async () => {
     });
     ```
 
-### 5.2. Test pavadinimai
+### 4.2. React komponentų `describe` antrastės
+
+- **Testuojant React komponentes, `describe` antrastė turi būti rašoma kaip elementas su `<>` simboliais:**
+
+    ```tsx
+    // ✅ GERAI - React komponentas
+    describe('<ComponentName>', () => {
+        it('renders correctly', () => {
+            // ...
+        });
+    });
+
+    // ✅ GERAI - Hook arba utility funkcija
+    describe('useCustomHook', () => {
+        it('returns correct value', () => {
+            // ...
+        });
+    });
+
+    // ✅ GERAI - Utility funkcija
+    describe('formatDate', () => {
+        it('formats date correctly', () => {
+            // ...
+        });
+    });
+    ```
+
+### 4.3. Test pavadinimai
 
 - Naudoti aiškius, aprašomuosius pavadinimus
 - Pradėti veiksmu arba būsena
@@ -530,7 +557,107 @@ it('handles drag gesture', async () => {
     };
     ```
 
-## 7. Custom Jest Matchers
+## 7. Struktūrų Palyginimas
+
+### 7.1. Struktūroms palyginti naudoti `toStrictEqual`
+
+- **VISADA naudoti `toStrictEqual`** palyginant objektus, masyvus ar kitas struktūras:
+
+    ```tsx
+    // ❌ BLOGAI - daug atskirų expect'ų
+    expect(result.current).toHaveLength(1);
+    expect(result.current[0].group).toBe('Group1');
+    expect(result.current[0].years).toHaveLength(2);
+    expect(result.current[0].years![0].amounts).toHaveLength(1);
+    expect(result.current[0].years![0].amounts[0].recycled).toBe(true);
+    expect(result.current[0].years![1].amounts).toHaveLength(1);
+    expect(result.current[0].years![1].amounts[0].recycled).toBe(true);
+
+    // ✅ GERAI - vienas toStrictEqual
+    expect(result.current).toStrictEqual([
+        {
+            group: 'Group1',
+            name: 'Item1',
+            years: [
+                {
+                    year: 2023,
+                    amounts: [{ variant: 'v1', amount: 1, recycled: true }],
+                },
+                {
+                    year: 2022,
+                    amounts: [{ variant: 'v1', amount: 3, recycled: true }],
+                },
+            ],
+        },
+    ]);
+    ```
+
+- **Kodėl `toStrictEqual`?**
+  - Tiksliau palygina struktūras (tikrina tipus, undefined vs missing properties)
+  - Aiškiau matyti visą struktūrą vienu metu
+  - Lengviau palaikyti - vienas expect vietoj daugelio
+  - Geriau atspindi tikrąją duomenų struktūrą
+
+- **Kada naudoti `expect.string*`, `expect.object*`, `expect.array*`?**
+  - Kai reikia patikrinti tik dalį struktūros arba kai tikslus formatas nėra svarbus:
+
+    ```tsx
+    // ✅ GERAI - tik dalis struktūros svarbi
+    expect(result.current).toStrictEqual([
+        {
+            group: 'Group1',
+            name: expect.stringContaining('Item'),
+            years: expect.arrayContaining([
+                expect.objectContaining({
+                    year: 2023,
+                    amounts: expect.arrayContaining([
+                        expect.objectContaining({ recycled: true }),
+                    ]),
+                }),
+            ]),
+        },
+    ]);
+
+    // ✅ GERAI - tik tam tikri laukai svarbūs
+    expect(result.current).toStrictEqual([
+        expect.objectContaining({
+            group: 'Group1',
+            years: expect.any(Array),
+        }),
+    ]);
+    ```
+
+- **Pavyzdžiai:**
+
+    ```tsx
+    // ✅ GERAI - pilnas objektas
+    expect(user).toStrictEqual({
+        id: 1,
+        name: 'John',
+        email: 'john@example.com',
+    });
+
+    // ✅ GERAI - masyvas objektų
+    expect(items).toStrictEqual([
+        { id: 1, name: 'Item 1' },
+        { id: 2, name: 'Item 2' },
+    ]);
+
+    // ✅ GERAI - tuščias masyvas
+    expect(result.current).toStrictEqual([]);
+
+    // ✅ GERAI - dalinis palyginimas su expect.objectContaining
+    expect(response).toStrictEqual(
+        expect.objectContaining({
+            status: 200,
+            data: expect.arrayContaining([
+                expect.objectContaining({ id: 1 }),
+            ]),
+        })
+    );
+    ```
+
+## 8. Custom Jest Matchers
 
 Projektas turi papildomus custom Jest matchers (`jest/expect.ts`):
 
@@ -560,7 +687,7 @@ Projektas turi papildomus custom Jest matchers (`jest/expect.ts`):
 
 Projektas naudoja papildomus Jest pluginus, kurie suteikia daugiau galimybių testavimui.
 
-### 8.1. jest-chain
+### 9.1. jest-chain
 
 Leidžia grandinėti (`chain`) kelis matchers į vieną eilutę:
 
@@ -581,7 +708,7 @@ expect(screen.getByRole('status'))
 expect(screen.getByRole('status')).toHaveTextContent('+1').toHaveAttribute('data-state', 'positive');
 ```
 
-### 8.2. jest-expect-message
+### 9.2. jest-expect-message
 
 Leidžia pridėti custom error pranešimus prie assertions:
 
@@ -593,7 +720,7 @@ expect(cells, 'Year cells should have correct values')
     .toHaveListWithTextContent(['', '.', '.', '2']);
 ```
 
-### 8.3. jest-extended
+### 9.3. jest-extended
 
 Suteikia daug papildomų matchers:
 
@@ -652,7 +779,7 @@ expect(date).toBeAfter(otherDate);
 
 Pilną sąrašą rasite: [jest-extended documentation](https://jest-extended.jestcommunity.dev/docs/matchers/)
 
-## 9. Papildomi Principai
+## 10. Papildomi Principai
 
 - Testavimo biblioteka: `@testing-library/react`
 - User interakcijos: `@testing-library/user-event`
