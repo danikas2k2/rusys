@@ -5,7 +5,7 @@ import React from 'react';
 
 import { DraggableContent } from './DraggableContent';
 
-describe('DraggableContent', () => {
+describe('<DraggableContent>', () => {
     it('renders children', () => {
         const { container } = render(
             <MockTheme>
@@ -52,4 +52,3 @@ describe('DraggableContent', () => {
         expect(onDragEnd).toBeDefined();
     });
 });
-

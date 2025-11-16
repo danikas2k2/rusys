@@ -5,7 +5,7 @@ import React from 'react';
 
 import { SortableContent } from './SortableContent';
 
-describe('SortableContent', () => {
+describe('<SortableContent>', () => {
     it('renders children', () => {
         const { container } = render(
             <MockTheme>
@@ -34,4 +34,3 @@ describe('SortableContent', () => {
         expect(container).toBeInTheDocument();
     });
 });
-

@@ -8,11 +8,10 @@ jest.mock('package.json', () => ({
     version: '1.0.0',
 }));
 
-describe('AppVersion', () => {
+describe('<AppVersion>', () => {
     it('renders version from package.json', () => {
         render(<AppVersion />);
 
         expect(screen.getByText('v1.0.0')).toBeInTheDocument();
     });
 });
-

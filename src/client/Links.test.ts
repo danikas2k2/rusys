@@ -1,6 +1,6 @@
 import { Links } from './Links';
 
-describe('Links', () => {
+describe('links', () => {
     it('defines all route links', () => {
         expect(Links.DETAILS).toBe('/');
         expect(Links.GROUPS).toBe('/groups');
@@ -8,4 +8,3 @@ describe('Links', () => {
         expect(Links.SUMMARY).toBe('/summary');
     });
 });
-

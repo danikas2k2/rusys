@@ -11,7 +11,7 @@ jest.mock('~/client/hooks/useLabel', () => ({
     useLabel: jest.fn((key: string) => key),
 }));
 
-describe('DragHandle', () => {
+describe('<DragHandle>', () => {
     it('renders drag handle with correct attributes', () => {
         render(
             <MockTheme>
@@ -70,4 +70,3 @@ describe('DragHandle', () => {
         expect(ref.current).toHaveAttribute('data-drag-handle');
     });
 });
-

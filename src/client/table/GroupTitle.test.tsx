@@ -7,7 +7,7 @@ import { Table } from '@mantine/core';
 
 import { GroupTitle } from './GroupTitle';
 
-describe('GroupTitle', () => {
+describe('<GroupTitle>', () => {
     it('renders group title with children', () => {
         render(
             <MockTheme>
@@ -51,4 +51,3 @@ describe('GroupTitle', () => {
         expect(th).toHaveStyle({ fontSize: '20px' });
     });
 });
-

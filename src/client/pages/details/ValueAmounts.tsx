@@ -13,9 +13,9 @@ export interface ValueAmountsProps {
 
 export function ValueAmounts({ className, group, amounts }: ValueAmountsProps) {
     const compareVariants = useGroupVariantComparator(group);
-    return (
+    return amounts?.length ? (
         <div className={cx('ValueAmounts', className)}>
-            {[...(amounts ?? [])]
+            {[...amounts]
                 .sort((a, b) => compareVariants(a.variant, b.variant))
                 .map((v) => (
                     <span className={cx('value')} key={v.variant}>
@@ -24,5 +24,5 @@ export function ValueAmounts({ className, group, amounts }: ValueAmountsProps) {
                     </span>
                 ))}
         </div>
-    );
+    ) : null;
 }

@@ -46,4 +46,10 @@ describe('<ValueAmounts>', () => {
                 undefined
             );
     });
+
+    it('renders empty when amounts is undefined', () => {
+        const { container } = render(<ValueAmounts group={group} />);
+
+        expect(container).toBeEmptyDOMElement();
+    });
 });

@@ -1,8 +1,4 @@
-import { fireEvent, render } from '@testing-library/react';
-
-import React from 'react';
-
-import { dispatchNativeCancelEvents, inBounds, type PointerEvents } from './pointEvents';
+import { dispatchNativeCancelEvents, inBounds } from './pointEvents';
 
 describe('pointEvents', () => {
     describe('dispatchNativeCancelEvents', () => {
@@ -21,9 +17,7 @@ describe('pointEvents', () => {
         });
 
         it('handles null element gracefully', () => {
-            expect(() => {
-                dispatchNativeCancelEvents(null);
-            }).not.toThrow();
+            expect(() => dispatchNativeCancelEvents(null)).not.toThrow();
         });
 
         it('dispatches events with bubbles: true', () => {
@@ -41,139 +35,71 @@ describe('pointEvents', () => {
     });
 
     describe('inBounds', () => {
+        const createEvent = (element: HTMLElement, clientX: number, clientY: number): PointerEvent => {
+            const event = new PointerEvent('pointerdown', { clientX, clientY });
+            Object.defineProperty(event, 'currentTarget', { value: element, writable: false });
+            return event;
+        };
+
+        const div = document.createElement('div');
+        div.style.width = '100px';
+        div.style.height = '100px';
+        div.style.position = 'absolute';
+
+        beforeEach(() => {
+            div.style.left = '0';
+            div.style.top = '0';
+            document.body.appendChild(div);
+        });
+
+        afterEach(() => document.body.removeChild(div));
+
         it('returns true when point is within bounds', () => {
-            const TestComponent = () => {
-                const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-                    expect(inBounds(e)).toBe(true);
-                };
+            const rect = div.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const event = createEvent(div, centerX, centerY);
 
-                return (
-                    <div
-                        style={{ width: '100px', height: '100px', position: 'absolute', left: 0, top: 0 }}
-                        onPointerDown={handlePointerDown}
-                    >
-                        Test
-                    </div>
-                );
-            };
-
-            const { container } = render(<TestComponent />);
-            const div = container.querySelector('div')!;
-
-            fireEvent.pointerDown(div, { clientX: 50, clientY: 50 });
+            expect(inBounds(event)).toBe(true);
         });
 
         it('returns false when point is outside bounds', () => {
-            const TestComponent = () => {
-                const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-                    expect(inBounds(e)).toBe(false);
-                };
+            const rect = div.getBoundingClientRect();
+            const event = createEvent(div, rect.right + 50, rect.bottom + 50);
 
-                return (
-                    <div
-                        style={{ width: '100px', height: '100px', position: 'absolute', left: 0, top: 0 }}
-                        onPointerDown={handlePointerDown}
-                    >
-                        Test
-                    </div>
-                );
-            };
-
-            const { container } = render(<TestComponent />);
-            const div = container.querySelector('div')!;
-
-            fireEvent.pointerDown(div, { clientX: 150, clientY: 150 });
+            expect(inBounds(event)).toBe(false);
         });
 
         it('returns true when point is on the left edge', () => {
-            const TestComponent = () => {
-                const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-                    expect(inBounds(e)).toBe(true);
-                };
-
-                return (
-                    <div
-                        style={{ width: '100px', height: '100px', position: 'absolute', left: 0, top: 0 }}
-                        onPointerDown={handlePointerDown}
-                    >
-                        Test
-                    </div>
-                );
-            };
-
-            const { container } = render(<TestComponent />);
-            const div = container.querySelector('div')!;
             const rect = div.getBoundingClientRect();
+            const event = createEvent(div, rect.left, rect.top);
 
-            fireEvent.pointerDown(div, { clientX: rect.left, clientY: rect.top });
+            expect(inBounds(event)).toBe(true);
         });
 
         it('returns true when point is on the right edge', () => {
-            const TestComponent = () => {
-                const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-                    expect(inBounds(e)).toBe(true);
-                };
-
-                return (
-                    <div
-                        style={{ width: '100px', height: '100px', position: 'absolute', left: 0, top: 0 }}
-                        onPointerDown={handlePointerDown}
-                    >
-                        Test
-                    </div>
-                );
-            };
-
-            const { container } = render(<TestComponent />);
-            const div = container.querySelector('div')!;
             const rect = div.getBoundingClientRect();
+            const event = createEvent(div, rect.right, rect.bottom);
 
-            fireEvent.pointerDown(div, { clientX: rect.right, clientY: rect.bottom });
+            expect(inBounds(event)).toBe(true);
         });
 
         it('returns false when point is to the left of bounds', () => {
-            const TestComponent = () => {
-                const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-                    expect(inBounds(e)).toBe(false);
-                };
+            div.style.left = '100px';
 
-                return (
-                    <div
-                        style={{ width: '100px', height: '100px', position: 'absolute', left: 100, top: 0 }}
-                        onPointerDown={handlePointerDown}
-                    >
-                        Test
-                    </div>
-                );
-            };
+            const rect = div.getBoundingClientRect();
+            const event = createEvent(div, rect.left - 50, rect.top + 50);
 
-            const { container } = render(<TestComponent />);
-            const div = container.querySelector('div')!;
-
-            fireEvent.pointerDown(div, { clientX: 50, clientY: 50 });
+            expect(inBounds(event)).toBe(false);
         });
 
         it('returns false when point is above bounds', () => {
-            const TestComponent = () => {
-                const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-                    expect(inBounds(e)).toBe(false);
-                };
+            div.style.top = '100px';
 
-                return (
-                    <div
-                        style={{ width: '100px', height: '100px', position: 'absolute', left: 0, top: 100 }}
-                        onPointerDown={handlePointerDown}
-                    >
-                        Test
-                    </div>
-                );
-            };
+            const rect = div.getBoundingClientRect();
+            const event = createEvent(div, rect.left + 50, rect.top - 50);
 
-            const { container } = render(<TestComponent />);
-            const div = container.querySelector('div')!;
-
-            fireEvent.pointerDown(div, { clientX: 50, clientY: 50 });
+            expect(inBounds(event)).toBe(false);
         });
     });
 });
-
