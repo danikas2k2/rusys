@@ -512,6 +512,115 @@ it('handles drag gesture', async () => {
     });
     ```
 
+### 5.3. Mock funkcijų kvietimų tikrinimas
+
+- **Naudoti `toHaveBeenCalledWith()`** tikrinti mock funkcijų kvietimus:
+
+    ```tsx
+    // ✅ GERAI - tikrinimas su toHaveBeenCalledWith
+    expect(ImportBox).toHaveBeenCalledWith(
+        expect.objectContaining({
+            opened: true,
+            onClose: expect.any(Function),
+        }),
+        undefined
+    );
+    ```
+
+- **React komponentai perduoda antrą argumentą** (`undefined`), todėl reikia jį įtraukti į tikrinimą:
+
+    ```tsx
+    // ❌ BLOGAI - nepakanka tikrinti tik pirmą argumentą
+    expect(Component).toHaveBeenCalledWith(
+        expect.objectContaining({ prop: 'value' })
+    );
+
+    // ✅ GERAI - įtraukti antrą argumentą (React context)
+    expect(Component).toHaveBeenCalledWith(
+        expect.objectContaining({ prop: 'value' }),
+        undefined
+    );
+    ```
+
+- **Gauti callback funkcijas iš mock'intų komponentų** naudojant `mockImplementation`:
+
+    ```tsx
+    // ✅ GERAI - naudoti mockImplementation, kad gauti callback funkciją
+    it('calls callback when event occurs', () => {
+        let mockCallback: (() => void) | null = null;
+        jest.mocked(Component).mockImplementation(({ onClose }) => {
+            mockCallback = onClose;
+            return <div>Component</div>;
+        });
+
+        const onClose = jest.fn();
+
+        render(<Wrapper onClose={onClose} />);
+
+        mockCallback!();
+
+        expect(onClose).toHaveBeenCalledWith();
+    });
+    ```
+
+- **Alternatyva - naudoti `mock.calls`** tik retais atvejais, kai `mockImplementation` netinka:
+
+    ```tsx
+    // ⚠️ NAUDOTI TIK JEI MOCK_IMPLEMENTATION NETINKA
+    const lastCall = jest.mocked(Component).mock.calls[jest.mocked(Component).mock.calls.length - 1]!;
+    const onClose = lastCall[0].onClose;
+
+    onClose();
+
+    expect(onCloseHandler).toHaveBeenCalledWith();
+    ```
+
+- **Pavyzdžiai:**
+
+    ```tsx
+    // ✅ GERAI - tikrinimas su toHaveBeenCalledWith
+    jest.mock('~/client/dialogs/ImportBox', () => ({
+        ImportBox: jest.fn(() => <div>ImportBox</div>),
+    }));
+
+    it('renders ImportBox with correct props', () => {
+        render(
+            <MockThemeActive active={{ action: 'import' }}>
+                <ActiveImportBox />
+            </MockThemeActive>
+        );
+
+        expect(ImportBox).toHaveBeenCalledWith(
+            expect.objectContaining({
+                opened: true,
+                onClose: expect.any(Function),
+            }),
+            undefined
+        );
+    });
+
+    // ✅ GERAI - callback funkcijos gavimas
+    it('calls setActive when onClose is called', () => {
+        let mockClose: (() => void) | null = null;
+        jest.mocked(ImportBox).mockImplementation(({ onClose }) => {
+            mockClose = onClose;
+            return <div>ImportBox</div>;
+        });
+
+        const mockSetActive = jest.fn();
+
+        render(
+            <MockThemeActive active={{ action: 'import' }} setActive={mockSetActive}>
+                <ActiveImportBox />
+            </MockThemeActive>
+        );
+
+        mockClose!();
+
+        expect(mockSetActive).toHaveBeenCalledWith();
+    });
+    ```
+
 ### 5.2. State ir Fixtures
 
 - Naudoti fixture funkcijas duomenims paruošti
