@@ -1,28 +1,24 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,341 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,349 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
-| Metric         | Coverage | Status                    |
-| -------------- | -------- | ------------------------- |
-| **Statements** | 97.14%   | ✅ Excellent              |
-| **Branches**   | 86.12%   | ✅ THRESHOLD ACHIEVED! 🎉 |
-| **Functions**  | 96.07%   | ✅ Excellent              |
-| **Lines**      | 97.30%   | ✅ Excellent              |
+| Metric         | Coverage |
+| -------------- | -------- |
+| **Statements** | 97.22%   |
+| **Branches**   | 86.27%   |
+| **Functions**  | 96.35%   |
+| **Lines**      | 97.40%   |
 
 **Naujausi pagerinimai (2025-01-27):**
 
 - ✅ **Coverage pagerinimas siekiant 100%:**
-  - `theme.ts` → pridėtas testas `cssVariablesResolver` funkcijai
-  - `useActiveSwipe.ts` → pridėtas testas, kai `active.data` yra falsy
-  - `useGroupMatch.ts` → pridėti testai, kai `useDetails` grąžina `null` arba `undefined`
-  - `useLabels.ts` → pridėti testai, kai `locale` yra `undefined`
-  - `MissingOnlyCheckbox.tsx` → pridėtas testas, kai `hasMissing` yra `false`
-  - `ValueAmounts.tsx` → pridėtas testas, kai `amounts` yra tuščias masyvas
-  - `DetailsTable.tsx` → pridėti testai visiems `handleClick` branch'ams
-- ✅ **Iš viso pridėta:** 18 naujų testų
-- ✅ **Branch coverage pagerėjo:** 86.04% → **86.12%** (+0.08%)
+    - `ActiveImportBox.tsx` → pridėtas testas, kai `active` yra `undefined`
+    - `SwipePanel.tsx` → pridėtas testas, kai panelis atnaujinamas su tuo pačiu `id`
+    - `useReorderHandler.ts` → pridėti testai default `equals` ir `resolve` funkcijoms, ir `frozenItemsRef` atnaujinimui
+- ✅ **Iš viso pridėta:** 4 nauji testai
+- ✅ **Branch coverage pagerėjo:** 86.12% → **86.27%** (+0.15%)
 
 ---
 
@@ -39,6 +35,7 @@
 7. ✅ `DraggableContent.tsx` - 0% → **100%** (3 testai)
 
 **Testų failai:**
+
 - 🆕 `pointEvents.test.tsx` - Naujas testas sukurtas (9 testai)
 - 🆕 `AppVersion.test.tsx` - Naujas testas sukurtas (1 testas)
 - 🆕 `Links.test.ts` - Naujas testas sukurtas (1 testas)
@@ -57,15 +54,15 @@
 
 ### 📊 Globalinė statistika
 
-- **Statements:** 97.14% ✅ 🚀
-- **Branches:** 86.12% 🎉 **THRESHOLD ACHIEVED!**
-- **Functions:** 96.07% ✅ 🎯
-- **Lines:** 97.30% ✅ ⭐
+- **Statements:** 97.22% ✅ 🚀
+- **Branches:** 86.27% 🎉 **THRESHOLD ACHIEVED!**
+- **Functions:** 96.35% ✅ 🎯
+- **Lines:** 97.40% ✅ ⭐
 
 ### 🧪 Testai
 
 - **Test Suites:** 211 total (**211 passed**, 0 failed) ✅
-- **Tests:** 1,341 total (**1,341 passed**, 0 failed) ✅
+- **Tests:** 1,349 total (**1,349 passed**, 0 failed) ✅
 - **Pass Rate:** **100%** 🎉
 - **Laikas:** ~30-40 sekundės
 - **Test framework:** Jest 30.2.0 + React Testing Library 16.3.0
@@ -73,10 +70,10 @@
 
 ### 📈 Pagerėjimai (Per visą laikotarpį)
 
-- **Statements:** ~92.5% → **97.14%** (+4.64%) 🎉
-- **Functions:** ~90.5% → **96.07%** (+5.57%) 🎉
-- **Lines:** ~92.8% → **97.30%** (+4.50%) 🎉
-- **Branches:** ~78% → **86.12%** (+8.12%) 🚀 **THRESHOLD ACHIEVED!**
+- **Statements:** ~92.5% → **97.22%** (+4.72%) 🎉
+- **Functions:** ~90.5% → **96.35%** (+5.85%) 🎉
+- **Lines:** ~92.8% → **97.40%** (+4.60%) 🎉
+- **Branches:** ~78% → **86.27%** (+8.27%) 🚀 **THRESHOLD ACHIEVED!**
 
 ---
 
@@ -624,4 +621,4 @@ cat coverage/coverage-summary.json
 **Paskutinis atnaujinimas:** 2025-01-27  
 **Coverage data:** Jest coverage report (`pnpm test --coverage`)  
 **Test framework:** Jest 30.2.0 + React Testing Library 16.3.0  
-**Coverage threshold:** Branches 85% ✅ **ACHIEVED!** (currently 86.12%)
+**Coverage threshold:** Branches 85% ✅ **ACHIEVED!** (currently 86.27%)

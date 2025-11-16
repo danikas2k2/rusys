@@ -177,12 +177,18 @@ describe('useReorderHandler', () => {
         const onReorder = jest.fn();
         const resolveForId1 = jest.fn(() => items.find((item) => item.id === 1)!);
         const resolveForId2 = jest.fn(() => ({ id: 999, name: 'Not Found' }) as Item);
-        const resolve = jest.fn((id: UniqueIdentifier) => {
-            if (id === 1) {
-                return resolveForId1();
-            }
-            return resolveForId2();
-        });
+        const resolveForId = (id: UniqueIdentifier) => {
+            const idNum = id as number;
+            const resolverMap: Record<number, () => Item> = {
+                1: resolveForId1,
+                2: resolveForId2,
+            };
+            const resolver = resolverMap[idNum];
+            // eslint-disable-next-line jest/no-conditional-in-test
+            const finalResolver = resolver !== undefined ? resolver : resolveForId2;
+            return finalResolver();
+        };
+        const resolve = jest.fn(resolveForId);
         const { result } = renderHook(() =>
             useReorderHandler({
                 items,
@@ -196,8 +202,8 @@ describe('useReorderHandler', () => {
 
         expect(resolve).toHaveBeenCalledWith(1);
         expect(resolve).toHaveBeenCalledWith(2);
-        expect(resolveForId1).toHaveBeenCalled();
-        expect(resolveForId2).toHaveBeenCalled();
+        expect(resolveForId1).toHaveBeenCalledWith();
+        expect(resolveForId2).toHaveBeenCalledWith();
         expect(onReorder).not.toHaveBeenCalled();
     });
 
@@ -243,5 +249,79 @@ describe('useReorderHandler', () => {
 
         expect(customResolve).toHaveBeenCalledWith(expect.anything());
         expect(onReorder).toHaveBeenCalledWith(expect.any(Array), expect.any(Object));
+    });
+
+    it('uses default equals function when not provided', async () => {
+        const items = ['a', 'b', 'c'];
+        const onReorder = jest.fn().mockResolvedValue(undefined);
+        const { result } = renderHook(() =>
+            useReorderHandler({
+                items,
+                onReorder,
+                equals: undefined as any,
+                resolve: (id: UniqueIdentifier) => items.find((item) => item === id)!,
+            })
+        );
+
+        await act(async () => await result.current.onDragEnd(createMockEvent('a' as any, 'b' as any)));
+
+        expect(onReorder).toHaveBeenCalledWith(['b', 'a', 'c'], 'a');
+    });
+
+    it('uses default resolve function when not provided', async () => {
+        const items: Item[] = [
+            { id: 1, name: 'Item 1' },
+            { id: 2, name: 'Item 2' },
+        ];
+        const onReorder = jest.fn().mockResolvedValue(undefined);
+        let equalsCallIndex = 0;
+        const equalsReturnValues = [true, false, true, false];
+        const equalsFn = (_a: Item, _b: Item) => {
+            const index = equalsCallIndex;
+            equalsCallIndex++;
+            const hasValue = index < equalsReturnValues.length;
+            // eslint-disable-next-line jest/no-conditional-in-test
+            return hasValue ? equalsReturnValues[index] : false;
+        };
+        const { result } = renderHook(() =>
+            useReorderHandler({
+                items,
+                onReorder,
+                equals: equalsFn,
+                resolve: undefined as any,
+            })
+        );
+
+        await act(async () => await result.current.onDragEnd(createMockEvent(1, 2)));
+
+        expect(onReorder).toHaveBeenCalledWith(expect.any(Array), {});
+    });
+
+    it('updates frozenItemsRef when not reordering', () => {
+        const initialItems: Item[] = [
+            { id: 1, name: 'Item 1' },
+            { id: 2, name: 'Item 2' },
+        ];
+        const newItems: Item[] = [
+            { id: 1, name: 'Item 1' },
+            { id: 2, name: 'Item 2' },
+            { id: 3, name: 'Item 3' },
+        ];
+        const { result, rerender } = renderHook(
+            ({ items: hookItems }) =>
+                useReorderHandler({
+                    items: hookItems,
+                    onReorder: jest.fn(),
+                    equals: (a: Item, b: Item) => a.id === b.id,
+                    resolve: (id: UniqueIdentifier) => hookItems.find((item) => item.id === id)!,
+                }),
+            { initialProps: { items: initialItems } }
+        );
+
+        expect(result.current.items).toStrictEqual(initialItems);
+
+        rerender({ items: newItems });
+
+        expect(result.current.items).toStrictEqual(newItems);
     });
 });

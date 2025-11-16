@@ -146,4 +146,16 @@ describe('<SwipePanel>', () => {
 
         expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
     });
+
+    it('updates existing panel when same id is active', async () => {
+        const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
+
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -50 }} />)
+        );
+
+        expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-50px)' });
+    });
 });

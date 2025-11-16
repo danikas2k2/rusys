@@ -47,6 +47,23 @@ describe('<ActiveImportBox>', () => {
         );
     });
 
+    it('does not render ImportBox when active is undefined', () => {
+        render(
+            <MockThemeActive>
+                <ActiveImportBox />
+            </MockThemeActive>
+        );
+
+        expect(screen.getByText('ImportBox')).toBeInTheDocument();
+        expect(ImportBox).toHaveBeenCalledWith(
+            expect.objectContaining({
+                opened: false,
+                onClose: expect.any(Function),
+            }),
+            undefined
+        );
+    });
+
     it('calls setActive when onClose is called', () => {
         let mockClose: (() => void) | null = null;
         jest.mocked(ImportBox).mockImplementation(({ onClose }) => {
