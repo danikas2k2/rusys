@@ -1,15 +1,15 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,395 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,404 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
-| **Statements** | 98.22%   |
-| **Branches**   | 90.05%   |
+| **Statements** | 98.23%   |
+| **Branches**   | 90.15%   |
 | **Functions**  | 97.61%   |
-| **Lines**      | 98.42%   |
+| **Lines**      | 98.43%   |
 
 ---
 
@@ -26,7 +26,7 @@
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
 1. **`ImportBox.tsx`** - 83.33% branch coverage
-2. **`SwipePanel.tsx`** - 75.8% branch coverage
+2. **`SwipePanel.tsx`** - 82.25% branch coverage
 3. **`useReorderHandler.ts`** - 78.57% branch coverage
 4. **`DetailsBox.tsx`** - 78.02% branch coverage
 5. **`useLabels.ts`** - 77.77% branch coverage

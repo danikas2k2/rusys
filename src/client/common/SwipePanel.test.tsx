@@ -171,8 +171,79 @@ describe('<SwipePanel>', () => {
 
         rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
 
-        await waitFor(() => {
-            expect(mockSetControlsWidth).toHaveBeenCalledWith(150);
+        await waitFor(() => expect(mockSetControlsWidth).toHaveBeenCalledWith(150));
+    });
+
+    it('does not update panel when panel is closing with same id', async () => {
+        const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
+
+        rerender(<TestWrapper active={undefined} />);
+
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -50 }} />)
+        );
+
+        expect(screen.queryAllByRole('group').length).toBeGreaterThan(0);
+    });
+
+    it('removes closing panel with same id when creating new panel', async () => {
+        const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+
+        rerender(<TestWrapper active={undefined} />);
+
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -50 }} />)
+        );
+
+        await act(async () => jest.advanceTimersByTime(250));
+
+        await waitFor(() =>
+            expect(
+                screen.queryAllByRole('group').filter((p) => p.getAttribute('data-closing') !== 'true')
+            ).toHaveLength(1)
+        );
+    });
+
+    it('does not set controls width when width is 0', async () => {
+        render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        const panel = await screen.findByRole('group');
+
+        Object.defineProperty(panel, 'offsetWidth', {
+            configurable: true,
+            value: 0,
         });
+
+        const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        await waitFor(() => expect(mockSetControlsWidth).not.toHaveBeenCalledWith(0));
+    });
+
+    it('closes panels when active has action', async () => {
+        const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+
+        rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'update' }} />);
+
+        await act(async () => jest.advanceTimersByTime(250));
+
+        await waitFor(() => expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument());
+    });
+
+    it('does not close panels when prevActive is undefined', async () => {
+        const { rerender } = render(<TestWrapper />);
+
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+
+        rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
     });
 });
