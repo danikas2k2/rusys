@@ -17,12 +17,11 @@
 
 ### P0 - Aukštas (Branch Coverage < 70%)
 
-1. **`VariantsTable.tsx`** - 0% branch coverage, 45.45% function coverage
-2. **`ValueBox.tsx`** - 75.67% branch coverage
-3. **`ValueCell.tsx`** - 84.61% branch coverage
-4. **`ValueInput.tsx`** - 81.48% branch coverage
-5. **`ConfirmationDialog.tsx`** - 82.35% branch coverage
-6. **`ActiveRemoveConfirmation.tsx`** - 78.57% branch coverage
+1. **`ValueBox.tsx`** - 75.67% branch coverage
+2. **`ValueCell.tsx`** - 84.61% branch coverage
+3. **`ValueInput.tsx`** - 81.48% branch coverage
+4. **`ConfirmationDialog.tsx`** - 82.35% branch coverage
+5. **`ActiveRemoveConfirmation.tsx`** - 78.57% branch coverage
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
@@ -38,10 +37,9 @@
 ### P2 - Žemas Function Coverage
 
 1. **`GroupsTable.tsx`** - 44.44% function coverage
-2. **`VariantsTable.tsx`** - 45.45% function coverage
-3. **`DetailsPage.tsx`** - 66.66% function coverage
-4. **`GroupsPage.tsx`** - 66.66% function coverage
-5. **`UpdatingDetailsContext.tsx`** - 87.5% function coverage
+2. **`DetailsPage.tsx`** - 66.66% function coverage
+3. **`GroupsPage.tsx`** - 66.66% function coverage
+4. **`UpdatingDetailsContext.tsx`** - 87.5% function coverage
 
 ---
 
