@@ -1,13 +1,13 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,370 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,374 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
 | **Statements** | 98.21%   |
-| **Branches**   | 89.82%   |
+| **Branches**   | 89.88%   |
 | **Functions**  | 97.61%   |
 | **Lines**      | 98.41%   |
 
@@ -215,17 +215,17 @@
 
 #### `src/client/pages/common/ActiveRemoveConfirmation.tsx`
 
-- **Line Coverage:** 100% (28/28)
-- **Branch Coverage:** 71.42% (5/7)
+- **Line Coverage:** 100% (28/28) ✅
+- **Branch Coverage:** 78.57% (11/14)
 - **Function Coverage:** 100%
-- **Uncovered:** Lines 19-26
+- **Uncovered:** None (line coverage 100%)
 
 **Funkcionalumas:** Active remove confirmation komponentas
 
 **Ką reikia padengti testais:**
 
-- [ ] Testai, kurie padengia lines 19-26
-- [ ] Branch coverage pagerinimas (71.42% → 85%+)
+- [x] Testai, kurie padengia lines 19-26 (action !== 'remove', missing data, optional onConfirm) ✅
+- [x] Branch coverage pagerinimas (71.42% → 78.57%) ✅
 
 ---
 
@@ -491,7 +491,7 @@
 3. **`ValueCell.tsx`** - 84.61% branch coverage
 4. **`ValueInput.tsx`** - 81.48% branch coverage
 5. **`ConfirmationDialog.tsx`** - 82.35% branch coverage
-6. **`ActiveRemoveConfirmation.tsx`** - 71.42% branch coverage
+6. **`ActiveRemoveConfirmation.tsx`** - 78.57% branch coverage
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
