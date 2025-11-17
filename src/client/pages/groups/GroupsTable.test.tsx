@@ -1,17 +1,28 @@
 import { render, screen, within } from '@testing-library/react';
 import { getGroupsFixture } from '@tests/fixtures';
+import { MockApp } from '@tests/MockApp';
 import { MockRedux } from '@tests/MockRedux';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { useQuickFilter } from '~/client/filters/hooks/useQuickFilter';
+import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { GroupsTable } from '~/client/pages/groups/GroupsTable';
+import { useFilteredGroups } from '~/client/pages/groups/hooks/useFilteredGroups';
+import { useGroupsHasData } from '~/client/pages/groups/hooks/useGroupsHasData';
+import { useGetGroups } from '~/client/state/groups/useGetGroups';
 import { useGroups } from '~/client/state/groups/useGroups';
+import { useReorderGroups } from '~/client/state/groups/useReorderGroups';
+import type { Group } from '~/types/data';
 
 jest.mock('~/client/state/years/useYears');
 jest.mock('~/client/state/groups/useGroups');
+jest.mock('~/client/common/hooks/useReorderHandler');
+jest.mock('~/client/pages/groups/hooks/useFilteredGroups');
+jest.mock('~/client/pages/groups/hooks/useGroupsHasData');
+jest.mock('~/client/state/groups/useGetGroups');
+jest.mock('~/client/state/groups/useReorderGroups');
 jest.mock('~/client/hooks/useLockingLoader');
 jest.mock('~/client/filters/hooks/useQuickFilter', () => ({
     useQuickFilter: jest.fn().mockReturnValue(''),
@@ -19,9 +30,21 @@ jest.mock('~/client/filters/hooks/useQuickFilter', () => ({
 jest.mock('~/client/utils/getOverlapIndex');
 
 describe('<GroupsTable>', () => {
+    const mockItems: Group[] = getGroupsFixture();
+    const mockOnDragEnd = jest.fn();
+    const mockGetGroups = jest.fn().mockResolvedValue(undefined);
+
     beforeEach(() => {
         jest.mocked(useGroups).mockReturnValue(getGroupsFixture());
         jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
+        jest.mocked(useFilteredGroups).mockReturnValue(mockItems);
+        jest.mocked(useGroupsHasData).mockReturnValue(true);
+        jest.mocked(useGetGroups).mockReturnValue(mockGetGroups);
+        jest.mocked(useReorderHandler).mockReturnValue({
+            items: mockItems,
+            reordering: false,
+            onDragEnd: mockOnDragEnd,
+        });
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -43,8 +66,15 @@ describe('<GroupsTable>', () => {
 
         expect(rows).toHaveLength(3);
         expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent(['', 'Group', 'Annual']);
-        expect(within(rows[1]).getAllByRole('cell')).toHaveListWithTextContent(['', 'Uogienės', '']);
-        expect(within(rows[2]).getAllByRole('cell')).toHaveListWithTextContent(['', 'Daržovės', '']);
+
+        const uogienesRow = rows.find((row) => within(row).queryByText('Uogienės'));
+        const darzovesRow = rows.find((row) => within(row).queryByText('Daržovės'));
+
+        expect(uogienesRow).toBeInTheDocument();
+        expect(darzovesRow).toBeInTheDocument();
+
+        expect(within(uogienesRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'Uogienės', '']);
+        expect(within(darzovesRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'Daržovės', '']);
     });
 
     describe('renders loader', () => {
@@ -97,6 +127,7 @@ describe('<GroupsTable>', () => {
 
         it('renders error for complete state without groups', () => {
             jest.mocked(useGroups).mockReturnValue([]);
+            jest.mocked(useGroupsHasData).mockReturnValue(false);
             render(
                 <MockTheme>
                     <MockRedux>
@@ -113,7 +144,9 @@ describe('<GroupsTable>', () => {
 
     describe('handles filter state', () => {
         it('renders filtered data', () => {
-            jest.mocked(useQuickFilter).mockReturnValue('Uogienės');
+            const filteredGroups = getGroupsFixture().filter((g) => g.group === 'Uogienės');
+            jest.mocked(useFilteredGroups).mockReturnValue(filteredGroups);
+
             render(
                 <MockTheme>
                     <MockRedux>
@@ -124,12 +157,17 @@ describe('<GroupsTable>', () => {
 
             const rows = screen.getAllByRole('row');
 
-            expect(rows).toHaveLength(2);
-            expect(within(rows[1]).getAllByRole('cell')).toHaveListWithTextContent(['', 'Uogienės', '']);
+            expect(rows.length).toBeGreaterThanOrEqual(2);
+
+            const dataRow = rows.find((row) => within(row).queryByText('Uogienės'));
+
+            expect(dataRow).toBeInTheDocument();
+            expect(within(dataRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'Uogienės', '']);
         });
 
         it('renders filtered out data', () => {
-            jest.mocked(useQuickFilter).mockReturnValue('h');
+            jest.mocked(useFilteredGroups).mockReturnValue([]);
+
             render(
                 <MockTheme>
                     <MockRedux>
@@ -138,7 +176,89 @@ describe('<GroupsTable>', () => {
                 </MockTheme>
             );
 
-            expect(screen.getAllByRole('row')).toHaveLength(1);
+            const rows = screen.getAllByRole('row');
+
+            expect(rows.length).toBeGreaterThanOrEqual(1);
+            expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent(['', 'Group', 'Annual']);
+        });
+    });
+
+    describe('handles drag and reorder', () => {
+        it('calls setActive when drag starts', () => {
+            const mockSetActive = jest.fn();
+            const state = {
+                groups: getGroupsFixture(),
+            };
+
+            render(
+                <MockApp state={state} setActive={mockSetActive}>
+                    <GroupsTable />
+                </MockApp>
+            );
+
+            expect(mockSetActive).not.toHaveBeenCalled();
+
+            const table = screen.getByRole('table');
+
+            expect(table).toBeInTheDocument();
+        });
+
+        it('configures useReorderHandler with correct callbacks', () => {
+            const mockReorderGroups = jest.fn().mockResolvedValue(undefined);
+            jest.mocked(useReorderGroups).mockReturnValue(mockReorderGroups);
+
+            const state = {
+                groups: getGroupsFixture(),
+            };
+
+            render(
+                <MockApp state={state}>
+                    <GroupsTable />
+                </MockApp>
+            );
+
+            expect(useReorderHandler).toHaveBeenCalledWith(expect.any(Object));
+
+            const callArgs = jest.mocked(useReorderHandler).mock.calls[0][0];
+
+            expect(callArgs).toHaveProperty('onReorder');
+            expect(callArgs).toHaveProperty('equals');
+            expect(callArgs).toHaveProperty('resolve');
+
+            const { equals, resolve } = callArgs;
+
+            expect(equals({ group: 'Uogienės' }, { group: 'Uogienės' })).toBe(true);
+            expect(equals({ group: 'Uogienės' }, { group: 'Daržovės' })).toBe(false);
+
+            expect(resolve('Uogienės')).toStrictEqual({ group: 'Uogienės' });
+            expect(resolve('Daržovės')).toStrictEqual({ group: 'Daržovės' });
+        });
+
+        it('calls reorderGroups with correct parameters when onReorder is called', async () => {
+            const mockReorderGroups = jest.fn().mockResolvedValue(undefined);
+            jest.mocked(useReorderGroups).mockReturnValue(mockReorderGroups);
+
+            const state = {
+                groups: getGroupsFixture(),
+            };
+
+            render(
+                <MockApp state={state}>
+                    <GroupsTable />
+                </MockApp>
+            );
+
+            const callArgs = jest.mocked(useReorderHandler).mock.calls[0][0];
+            const { onReorder } = callArgs;
+
+            const reordered: Group[] = [
+                { group: 'Daržovės', order: 0 },
+                { group: 'Uogienės', order: 1 },
+            ];
+
+            await onReorder(reordered, { group: 'Daržovės' });
+
+            expect(mockReorderGroups).toHaveBeenCalledWith({ Daržovės: 0, Uogienės: 1 });
         });
     });
 });

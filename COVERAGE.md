@@ -36,10 +36,9 @@
 
 ### P2 - Žemas Function Coverage
 
-1. **`GroupsTable.tsx`** - 44.44% function coverage
-2. **`DetailsPage.tsx`** - 66.66% function coverage
-3. **`GroupsPage.tsx`** - 66.66% function coverage
-4. **`UpdatingDetailsContext.tsx`** - 87.5% function coverage
+1. **`DetailsPage.tsx`** - 66.66% function coverage
+2. **`GroupsPage.tsx`** - 66.66% function coverage
+3. **`UpdatingDetailsContext.tsx`** - 87.5% function coverage
 
 ---
 
