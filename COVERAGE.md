@@ -1,15 +1,15 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,404 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,415 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
-| **Statements** | 98.23%   |
-| **Branches**   | 90.15%   |
+| **Statements** | 98.24%   |
+| **Branches**   | 90.25%   |
 | **Functions**  | 97.61%   |
-| **Lines**      | 98.43%   |
+| **Lines**      | 98.44%   |
 
 ---
 
@@ -29,7 +29,7 @@
 2. **`SwipePanel.tsx`** - 82.25% branch coverage
 3. **`useReorderHandler.ts`** - 78.57% branch coverage
 4. **`DetailsBox.tsx`** - 78.02% branch coverage
-5. **`useLabels.ts`** - 77.77% branch coverage
+5. **`useLabels.ts`** - 88.88% branch coverage
 6. **`useLongPress.ts`** - 84.21% branch coverage
 7. **`ActiveContentOutsideClick.tsx`** - 84.61% branch coverage
 8. **`GroupBox.tsx`** - 81.63% branch coverage

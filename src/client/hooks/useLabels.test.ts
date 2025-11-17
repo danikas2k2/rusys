@@ -8,6 +8,9 @@ jest.mock('~/client/translations.json', () => ({
     Hello: {
         fr: 'Bonjour',
     },
+    Partial: {
+        fr: 'Partiel',
+    },
 }));
 
 describe('useTranslations', () => {
@@ -51,5 +54,47 @@ describe('useTranslations', () => {
         const { result } = renderHook(() => useLabels());
 
         expect(result.current('Hello', undefined)).toBe('Hello');
+    });
+
+    it('returns requested label when translations[label] is undefined', () => {
+        jest.mocked(useLocale).mockReturnValue('fr');
+        const { result } = renderHook(() => useLabels());
+
+        expect(result.current('NonExistent', 'fr')).toBe('NonExistent');
+    });
+
+    it('uses overrideLocale when provided', () => {
+        jest.mocked(useLocale).mockReturnValue('en');
+        const { result } = renderHook(() => useLabels());
+
+        expect(result.current('Hello', 'fr')).toBe('Bonjour');
+    });
+
+    it('uses locale when overrideLocale is not provided', () => {
+        jest.mocked(useLocale).mockReturnValue('fr');
+        const { result } = renderHook(() => useLabels());
+
+        expect(result.current('Hello')).toBe('Bonjour');
+    });
+
+    it('uses empty string when both overrideLocale and locale are falsy', () => {
+        jest.mocked(useLocale).mockReturnValue(undefined as any);
+        const { result } = renderHook(() => useLabels());
+
+        expect(result.current('Hello', '')).toBe('Hello');
+    });
+
+    it('returns label when translations[label] exists but translations[label][locale] is undefined', () => {
+        jest.mocked(useLocale).mockReturnValue('en');
+        const { result } = renderHook(() => useLabels());
+
+        expect(result.current('Partial')).toBe('Partial');
+    });
+
+    it('returns label when translations[label] exists but translations[label][overrideLocale] is undefined', () => {
+        jest.mocked(useLocale).mockReturnValue('fr');
+        const { result } = renderHook(() => useLabels());
+
+        expect(result.current('Partial', 'en')).toBe('Partial');
     });
 });
