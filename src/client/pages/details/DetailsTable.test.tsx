@@ -323,6 +323,7 @@ describe('<DetailsTable>', () => {
 
         it('calls clearFilter on missing-only checkbox being clicked when all missing rows are filtered out', async () => {
             const testSetFilter = jest.fn();
+            jest.mocked(useMissingOnly).mockReturnValueOnce([true, setMissingOnly]);
             jest.mocked(useQuickFilterContext).mockReturnValueOnce(['z', testSetFilter]);
             jest.mocked(useFilteredList).mockReturnValueOnce([]);
             jest.mocked(useMissingDetails).mockReturnValueOnce([]);
