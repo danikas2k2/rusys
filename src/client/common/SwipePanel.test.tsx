@@ -5,13 +5,15 @@ import React, { useRef } from 'react';
 
 import { SwipePanel } from '~/client/common/SwipePanel';
 
+const mockSetControlsWidth = jest.fn();
+
 jest.mock('~/client/common/SwipeControlsContext', () => ({
-    useSwipePanelWidth: jest.fn(() => [120, jest.fn()]),
+    useSwipePanelWidth: jest.fn(() => [120, mockSetControlsWidth]),
 }));
 
 // Mock Portal to render children directly
 jest.mock('@mantine/core', () => ({
-    Portal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    Portal: ({ children }: React.PropsWithChildren) => <>{children}</>,
 }));
 
 describe('<SwipePanel>', () => {
@@ -157,5 +159,20 @@ describe('<SwipePanel>', () => {
         );
 
         expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-50px)' });
+    });
+
+    it('measures controls width when panel is rendered', async () => {
+        const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        Object.defineProperty(await screen.findByRole('group'), 'offsetWidth', {
+            configurable: true,
+            value: 150,
+        });
+
+        rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        await waitFor(() => {
+            expect(mockSetControlsWidth).toHaveBeenCalledWith(150);
+        });
     });
 });

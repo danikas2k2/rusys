@@ -6,73 +6,10 @@
 
 | Metric         | Coverage |
 | -------------- | -------- |
-| **Statements** | 97.22%   |
-| **Branches**   | 86.27%   |
-| **Functions**  | 96.35%   |
-| **Lines**      | 97.40%   |
-
-**Naujausi pagerinimai (2025-01-27):**
-
-- ✅ **Coverage pagerinimas siekiant 100%:**
-    - `theme.ts` → pagerintas testas `cssVariablesResolver` funkcijai (padengia line 27)
-    - `MissingOnlyCheckbox.tsx` → pridėtas testas, kai checkbox disabled ir `onClick` nekviečiamas (padengia line 13)
-    - `ValueAmounts.tsx` → pridėtas testas, kuris patvirtina, kad `useGroupVariantComparator` kviečiamas (padengia line 18)
-- ✅ **Iš viso pridėta:** 3 nauji testai
-
----
-
-## 🎉 Progress Summary
-
-**Seanso metu padaryta:** 7 failų testai sukurti + testų refactoring!
-
-1. ✅ `pointEvents.ts` - 0% → **100%** (9 testai)
-2. ✅ `AppVersion.tsx` - 0% → **100%** (1 testas)
-3. ✅ `Links.ts` - 0% → **100%** (1 testas)
-4. ✅ `DragHandle.tsx` - 0% → **100%** (3 testai)
-5. ✅ `GroupTitle.tsx` - 0% → **100%** (3 testai)
-6. ✅ `SortableContent.tsx` - 0% → **100%** (2 testai)
-7. ✅ `DraggableContent.tsx` - 0% → **100%** (3 testai)
-
-**Testų failai:**
-
-- 🆕 `pointEvents.test.tsx` - Naujas testas sukurtas (9 testai)
-- 🆕 `AppVersion.test.tsx` - Naujas testas sukurtas (1 testas)
-- 🆕 `Links.test.ts` - Naujas testas sukurtas (1 testas)
-- 🆕 `DragHandle.test.tsx` - Naujas testas sukurtas (3 testai)
-- 🆕 `GroupTitle.test.tsx` - Naujas testas sukurtas (3 testai)
-- 🆕 `SortableContent.test.tsx` - Naujas testas sukurtas (2 testai)
-- 🆕 `DraggableContent.test.tsx` - Naujas testas sukurtas (3 testai)
-- ✨ `SwipeableTableRow.test.tsx` - Perdaryta naudoti `user.pointer()` (45 testai)
-- ✨ `useLongPress.test.tsx` - Atnaujinta naudoti `dispatchNativeCancelEvents`
-
----
-
-## Bendras Coverage
-
-**Naujausias patikrinimas: 2025-11-16**
-
-### 📊 Globalinė statistika
-
-- **Statements:** 97.22% ✅ 🚀
-- **Branches:** 86.27% 🎉 **THRESHOLD ACHIEVED!**
-- **Functions:** 96.35% ✅ 🎯
-- **Lines:** 97.40% ✅ ⭐
-
-### 🧪 Testai
-
-- **Test Suites:** 211 total (**211 passed**, 0 failed) ✅
-- **Tests:** 1,349 total (**1,349 passed**, 0 failed) ✅
-- **Pass Rate:** **100%** 🎉
-- **Laikas:** ~30-40 sekundės
-- **Test framework:** Jest 30.2.0 + React Testing Library 16.3.0
-- **Coverage threshold:** Branches 85% ✅ **ACHIEVED!**
-
-### 📈 Pagerėjimai (Per visą laikotarpį)
-
-- **Statements:** ~92.5% → **97.22%** (+4.72%) 🎉
-- **Functions:** ~90.5% → **96.35%** (+5.85%) 🎉
-- **Lines:** ~92.8% → **97.40%** (+4.60%) 🎉
-- **Branches:** ~78% → **86.27%** (+8.27%) 🚀 **THRESHOLD ACHIEVED!**
+| **Statements** | 97.38%   |
+| **Branches**   | 86.58%   |
+| **Functions**  | 96.49%   |
+| **Lines**      | 97.58%   |
 
 ---
 
@@ -112,32 +49,34 @@
 
 #### `src/client/common/ConfirmationDialog.tsx`
 
-- **Line Coverage:** 91.3% (21/23)
+- **Line Coverage:** 100% (23/23) ✅
 - **Branch Coverage:** 70.58% (12/17)
 - **Function Coverage:** 80% (4/5)
-- **Uncovered:** Lines 68, 75
+- **Uncovered:** None
 
 **Funkcionalumas:** Confirmation dialog komponentas
 
 **Ką reikia padengti testais:**
 
-- [ ] Testai, kurie padengia lines 68, 75
+- [x] Testas, kuris padengia line 68 (loading state after 300ms delay) ✅
+- [x] Testas, kuris padengia line 75 (error message rodymas) ✅
 - [ ] Branch coverage pagerinimas (70.58% → 85%+)
 
 ---
 
 #### `src/client/common/SwipePanel.tsx`
 
-- **Line Coverage:** 95.55% (43/45)
+- **Line Coverage:** 97.77% (44/45)
 - **Branch Coverage:** 75.8% (25/33)
 - **Function Coverage:** 95.23% (20/21)
-- **Uncovered:** Lines 28, 71
+- **Uncovered:** Line 71
 
 **Funkcionalumas:** Swipe panel komponentas
 
 **Ką reikia padengti testais:**
 
-- [ ] Testai, kurie padengia lines 28, 71
+- [x] Testas, kuris padengia line 28 (controls width measurement) ✅
+- [ ] Testas, kuris padengia line 71 (existing panel update)
 - [ ] Branch coverage pagerinimas (75.8% → 85%+)
 
 ---
@@ -596,28 +535,5 @@ cat coverage/coverage-summary.json
 
 ---
 
-## 📋 Testų failai sukurti šiame seanse (2025-11-16)
-
-1. 🆕 `src/client/utils/pointEvents.test.tsx` - Naujas testas (9 testai) - **100% coverage!**
-2. 🆕 `src/client/AppVersion.test.tsx` - Naujas testas (1 testas) - **100% coverage!**
-3. 🆕 `src/client/Links.test.ts` - Naujas testas (1 testas) - **100% coverage!**
-4. 🆕 `src/client/table/DragHandle.test.tsx` - Naujas testas (3 testai) - **100% coverage!**
-5. 🆕 `src/client/table/GroupTitle.test.tsx` - Naujas testas (3 testai) - **100% coverage!**
-6. 🆕 `src/client/common/SortableContent.test.tsx` - Naujas testas (2 testai) - **100% coverage!**
-7. 🆕 `src/client/common/DraggableContent.test.tsx` - Naujas testas (3 testai) - **100% coverage!**
-
-**Viso pridėta naujų testų šiame seanse:** 22 testai (visi praėjo! ✅)
-
----
-
-## 📋 Testų failai atnaujinti šiame seanse (2025-11-16)
-
-- ✨ `src/client/table/SwipeableTableRow.test.tsx` - Perdaryta naudoti `user.pointer()` vietoj `fireEvent.pointer*` (45 testai)
-- ✨ `src/client/hooks/useLongPress.test.tsx` - Atnaujinta naudoti `dispatchNativeCancelEvents` vietoj `cancelAllLongPressTimers`
-
----
-
-**Paskutinis atnaujinimas:** 2025-01-27  
 **Coverage data:** Jest coverage report (`pnpm test --coverage`)  
-**Test framework:** Jest 30.2.0 + React Testing Library 16.3.0  
-**Coverage threshold:** Branches 85% ✅ **ACHIEVED!** (currently 86.27%)
+**Test framework:** Jest 30.2.0 + React Testing Library 16.3.0
