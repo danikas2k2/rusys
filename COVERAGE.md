@@ -101,17 +101,18 @@
 
 #### `src/client/dialogs/ActiveImportBox.tsx`
 
-- **Line Coverage:** 100% (8/8)
-- **Branch Coverage:** 50% (1/2)
-- **Function Coverage:** 66.66% (2/3)
-- **Uncovered:** Line 9
+- **Line Coverage:** 100% (8/8) ✅
+- **Branch Coverage:** 100% (2/2) ✅
+- **Function Coverage:** 100% (3/3) ✅
+- **Uncovered:** None (line coverage 100%)
 
 **Funkcionalumas:** Active import box komponentas
 
 **Ką reikia padengti testais:**
 
-- [ ] Testas, kuris padengia line 9
-- [ ] Branch coverage pagerinimas (50% → 85%+)
+- [x] Testai, kurie padengia visus branch'us (action === 'import', action !== 'import', active undefined) ✅
+- [x] Branch coverage pagerinimas (50% → 100%) ✅
+- [x] Function coverage pagerinimas (66.66% → 100%) ✅
 
 ---
 
@@ -498,7 +499,7 @@
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
 1. **`ImportBox.tsx`** - 83.33% branch coverage
-2. **`ActiveImportBox.tsx`** - 50% branch coverage
+2. **`ActiveImportBox.tsx`** - 100% branch coverage ✅
 3. **`SwipePanel.tsx`** - 75.8% branch coverage
 4. **`useReorderHandler.ts`** - 78.57% branch coverage
 5. **`DetailsBox.tsx`** - 78.02% branch coverage
