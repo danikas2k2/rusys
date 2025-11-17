@@ -444,4 +444,147 @@ describe('<ValueBox>', () => {
         expect(ValueInput).toHaveBeenCalledTimes(1);
         expect(ValueInput).toHaveBeenCalledWith(expect.objectContaining({ variant: allVariants[0] }), undefined);
     });
+
+    it('does not render modal when opened is false', () => {
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} opened={false} />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('handles undefined amounts', () => {
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={undefined} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        expect(ValueInput).toHaveBeenCalledTimes(1);
+        expect(ValueInput).toHaveBeenCalledWith(expect.objectContaining({ variant: allVariants[0] }), undefined);
+    });
+
+    it('does not call onClose when onClose is not provided', async () => {
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        await user.click(screen.getByLabelText('Close'));
+
+        expect(onClose).not.toHaveBeenCalled();
+    });
+
+    it('does not call onAfterClose when onAfterClose is not provided', async () => {
+        const { rerender } = render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        await screen.findByRole('dialog');
+
+        await user.click(screen.getByLabelText('Close'));
+
+        rerender(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} opened={false} />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    });
+
+    it('adds new variant change when currentChanges is undefined', async () => {
+        const onCloseHandler = jest.fn();
+
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} onClose={onCloseHandler} amounts={amounts} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        await user.click(screen.getByLabelText('Recycled'));
+
+        const input = screen.getByLabelText('p');
+        await user.clear(input);
+        await user.type(input, '2', selection);
+
+        await user.click(screen.getByText('Update'));
+
+        expect(onCloseHandler).toHaveBeenCalledWith([{ variant: 'p', amount: 1, recycled: true }]);
+    });
+
+    it('handles focus when ref is null', async () => {
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        await screen.findByRole('dialog');
+
+        await user.click(screen.getByRole('button', { name: 'Expand' }));
+
+        expect(screen.queryByRole('button', { name: 'Expand' })).not.toBeInTheDocument();
+    });
+
+    it('renders year when year is provided', () => {
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} year={2024} amounts={amounts} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        expect(screen.getByText(/Uogienės, 2024/)).toBeInTheDocument();
+    });
+
+    it('handles when allVariants is empty', () => {
+        const emptyVariantsState: WithVariantsState = { variants: [] };
+
+        render(
+            <MockApp state={emptyVariantsState}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={[]} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('handles when focused is undefined', async () => {
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        await screen.findByRole('dialog');
+
+        await user.click(screen.getByRole('button', { name: 'Expand' }));
+
+        expect(screen.queryByRole('button', { name: 'Expand' })).not.toBeInTheDocument();
+    });
 });
