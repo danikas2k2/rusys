@@ -322,4 +322,60 @@ describe('<DetailsBox>', () => {
             expect(onClose).toHaveBeenCalledWith('Uogienės', 'Avietės');
         });
     });
+
+    describe('validation errors', () => {
+        it('displays error when group is empty', async () => {
+            const addDetails = jest.fn();
+            jest.mocked(useAddDetails).mockReturnValue(addDetails);
+
+            render(
+                <MockThemeRedux state={state}>
+                    <DetailsBox opened onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Test');
+            await user.clear(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(addDetails).not.toHaveBeenCalled();
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('textbox', { name: 'Group' })).toHaveFocus();
+        });
+
+        it('displays error when group contains colon', async () => {
+            const addDetails = jest.fn();
+            jest.mocked(useAddDetails).mockReturnValue(addDetails);
+
+            render(
+                <MockThemeRedux state={state}>
+                    <DetailsBox opened onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            await user.type(screen.getByRole('textbox', { name: 'Group' }), 'Test:Group');
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Test');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(addDetails).not.toHaveBeenCalled();
+            expect(onClose).not.toHaveBeenCalled();
+        });
+
+        it('displays error when name contains colon', async () => {
+            const addDetails = jest.fn();
+            jest.mocked(useAddDetails).mockReturnValue(addDetails);
+
+            render(
+                <MockThemeRedux state={state}>
+                    <DetailsBox opened group="Uogienės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Test:Name');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(addDetails).not.toHaveBeenCalled();
+            expect(onClose).not.toHaveBeenCalled();
+        });
+    });
 });
