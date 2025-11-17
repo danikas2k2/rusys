@@ -184,4 +184,51 @@ describe('<ImportBox>', () => {
 
         expect(screen.getByRole('alert')).toHaveTextContent('Failed to import file');
     });
+
+    it('handles empty files array in handleDrop', async () => {
+        render(
+            <MockPage state={state}>
+                <ImportBox opened onClose={onClose} />
+            </MockPage>
+        );
+
+        const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
+
+        await user.upload(fileInput, []);
+
+        expect(screen.getByRole('button', { name: 'Import' })).toBeDisabled();
+    });
+
+    it('shows file size warning when file exceeds max size', async () => {
+        const largeFile = new File(['x'.repeat(11 * 1024 * 1024)], 'large.json', { type: 'application/json' });
+        Object.defineProperty(largeFile, 'length', { value: 11 * 1024 * 1024, writable: false, configurable: true });
+
+        render(
+            <MockPage state={state}>
+                <ImportBox opened onClose={onClose} />
+            </MockPage>
+        );
+
+        const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
+
+        await user.upload(fileInput, largeFile);
+
+        expect(screen.getByText(/File should not exceed/)).toBeInTheDocument();
+    });
+
+    it('clears state when dialog closes', () => {
+        const { rerender } = render(
+            <MockPage state={state}>
+                <ImportBox opened onClose={onClose} />
+            </MockPage>
+        );
+
+        rerender(
+            <MockPage state={state}>
+                <ImportBox opened={false} onClose={onClose} />
+            </MockPage>
+        );
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
 });

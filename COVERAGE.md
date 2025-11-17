@@ -1,6 +1,6 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,380 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,384 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
@@ -120,13 +120,14 @@
 - **Line Coverage:** 95.23% (40/42)
 - **Branch Coverage:** 83.33% (15/18)
 - **Function Coverage:** 100% (6/6) ✅
-- **Uncovered:** Lines 40-41
+- **Uncovered:** Lines 40-41 (defensive code)
 
 **Funkcionalumas:** Import box komponentas
 
 **Ką reikia padengti testais:**
 
 - [x] Testas, kuris padengia line 35 (handleReject) ✅
+- [x] Testai, kurie padengia empty files array, file size warning, state cleanup ✅
 - [x] Testas, kuris padengia line 60 (import failure) ✅
 - [ ] Testai, kurie padengia lines 40-41 (defensive code - button disabled prevents this path)
 - [x] Branch coverage pagerinimas (61.11% → 83.33%) ✅
@@ -496,7 +497,7 @@
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
-1. **`ImportBox.tsx`** - 61.11% branch coverage
+1. **`ImportBox.tsx`** - 83.33% branch coverage
 2. **`ActiveImportBox.tsx`** - 50% branch coverage
 3. **`SwipePanel.tsx`** - 75.8% branch coverage
 4. **`useReorderHandler.ts`** - 78.57% branch coverage
