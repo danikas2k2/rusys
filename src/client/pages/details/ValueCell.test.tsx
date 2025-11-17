@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
@@ -7,6 +7,7 @@ import React from 'react';
 import { Table } from '@mantine/core';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { useDetailsUpdating } from '~/client/pages/details/UpdatingDetailsContext';
 import { ValueCell, type ValueCellProps } from '~/client/pages/details/ValueCell';
 import { useSetDetailsRemoving } from '~/client/state/details/useSetDetailsRemoving';
 
@@ -16,6 +17,9 @@ jest.mock('~/client/state/details/useSetDetailsRemoving', () => ({
 jest.mock('~/client/common/ActiveContentContext', () => ({
     ...jest.requireActual('~/client/common/ActiveContentContext'),
     useActiveContent: jest.fn(),
+}));
+jest.mock('~/client/pages/details/UpdatingDetailsContext', () => ({
+    useDetailsUpdating: jest.fn(),
 }));
 
 describe('<ValueCell>', () => {
@@ -34,6 +38,7 @@ describe('<ValueCell>', () => {
     beforeAll(() => {
         jest.mocked(useSetDetailsRemoving).mockReturnValue(setRemoving);
         jest.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
+        jest.mocked(useDetailsUpdating).mockReturnValue(false);
     });
 
     beforeEach(() => jest.useFakeTimers());
@@ -189,6 +194,74 @@ describe('<ValueCell>', () => {
                 },
             });
             expect(setRemoving).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('loader visibility', () => {
+        const props: ValueCellProps = {
+            ...defaultProps,
+            amounts: [{ variant: 'p', amount: 1 }],
+        };
+
+        it('shows loader when updating is true', () => {
+            jest.mocked(useDetailsUpdating).mockReturnValue(true);
+
+            render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            const loader = screen.getByRole('progressbar');
+
+            expect(loader).toBeInTheDocument();
+            expect(loader).toHaveAttribute('data-visible', 'true');
+        });
+
+        it('hides loader when updating becomes false and transition ends', () => {
+            jest.mocked(useDetailsUpdating).mockReturnValue(true);
+
+            const { rerender } = render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            expect(screen.getByRole('progressbar')).toBeInTheDocument();
+
+            jest.mocked(useDetailsUpdating).mockReturnValue(false);
+
+            rerender(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            const loader = screen.getByRole('progressbar');
+
+            act(() => {
+                fireEvent.transitionEnd(loader);
+            });
+
+            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
         });
     });
 });
