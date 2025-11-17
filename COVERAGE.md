@@ -1,15 +1,15 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,356 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,357 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
-| **Statements** | 98.05%   |
-| **Branches**   | 89.50%   |
-| **Functions**  | 97.50%   |
-| **Lines**      | 98.22%   |
+| **Statements** | 98.12%   |
+| **Branches**   | 89.70%   |
+| **Functions**  | 97.58%   |
+| **Lines**      | 98.29%   |
 
 ---
 
@@ -340,17 +340,17 @@
 
 #### `src/client/pages/details/ValueBox.tsx`
 
-- **Line Coverage:** 93.75% (30/32)
-- **Branch Coverage:** 64.86% (24/37)
-- **Function Coverage:** 91.66% (11/12)
-- **Uncovered:** Lines 70-73
+- **Line Coverage:** 100% (32/32) ✅
+- **Branch Coverage:** 72.97% (27/37)
+- **Function Coverage:** 95.83% (11/12)
+- **Uncovered:** None (line coverage 100%)
 
 **Funkcionalumas:** Value box komponentas
 
 **Ką reikia padengti testais:**
 
-- [ ] Testai, kurie padengia lines 70-73
-- [ ] Branch coverage pagerinimas (64.86% → 85%+)
+- [x] Testai, kurie padengia lines 70-73 (handleExitTransitionEnd) ✅
+- [ ] Branch coverage pagerinimas (72.97% → 85%+)
 
 ---
 

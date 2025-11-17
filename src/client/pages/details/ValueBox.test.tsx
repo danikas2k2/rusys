@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { getVariantsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
@@ -338,6 +338,34 @@ describe('<ValueBox>', () => {
             await user.type(increaseButtons[0], '{ArrowDown}');
 
             expect(screen.getByLabelText('p')).toHaveValue('0');
+        });
+    });
+
+    it('calls onAfterClose when dialog exit transition ends', async () => {
+        const onAfterClose = jest.fn();
+
+        const { rerender } = render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} opened onAfterClose={onAfterClose} />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        await screen.findByRole('dialog');
+
+        await user.click(screen.getByLabelText('Close'));
+
+        rerender(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} opened={false} onAfterClose={onAfterClose} />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        await waitFor(() => {
+            expect(onAfterClose).toHaveBeenCalledWith();
         });
     });
 });
