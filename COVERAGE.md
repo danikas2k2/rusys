@@ -34,10 +34,6 @@
 7. **`ActiveContentOutsideClick.tsx`** - 84.61% branch coverage
 8. **`GroupBox.tsx`** - 81.63% branch coverage
 
-### P2 - Žemas Function Coverage
-
-1. **`UpdatingDetailsContext.tsx`** - 87.5% function coverage
-
 ---
 
 ## Kaip paleisti testus

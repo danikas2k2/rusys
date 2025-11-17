@@ -11,11 +11,35 @@ import {
     useUpdatingDetails,
 } from '~/client/pages/details/UpdatingDetailsContext';
 
+describe('getKey', () => {
+    it('generates key from details', () => {
+        const details = { group: 'Uogienės', name: 'Avietės', year: 2024 };
+
+        expect(getKey(details)).toBe('Uogienės:Avietės:2024');
+    });
+
+    it('generates unique keys for different details', () => {
+        const first = { group: 'Uogienės', name: 'Avietės', year: 2024 };
+        const second = { group: 'Daržovės', name: 'Agurkai', year: 2025 };
+
+        expect(getKey(first)).toBe('Uogienės:Avietės:2024');
+        expect(getKey(second)).toBe('Daržovės:Agurkai:2025');
+        expect(getKey(first)).not.toBe(getKey(second));
+    });
+});
+
 describe('<UpdatingDetailsContext>', () => {
     it('uses context with default value', () => {
         const { result } = renderHook(() => use(UpdatingDetailsContext));
 
         expect(result.current).toStrictEqual([{}, expect.any(Function)]);
+    });
+
+    it('calls default function from context', () => {
+        const { result } = renderHook(() => use(UpdatingDetailsContext));
+        const [, setUpdating] = result.current;
+
+        expect(() => setUpdating({ group: 'Uogienės', name: 'Avietės', year: 2024 }, true)).not.toThrow();
     });
 });
 
