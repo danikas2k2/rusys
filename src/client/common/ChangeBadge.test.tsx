@@ -76,8 +76,26 @@ describe('<ChangeBadge>', () => {
         expect(screen.getByRole('status')).toHaveAttribute('data-position', 'right');
     });
 
-    it('does not display status when change is false', async () => {
+    it('does not display status when change is false', () => {
         render(
+            <MockTheme>
+                <ChangeBadge change={false} />
+            </MockTheme>
+        );
+
+        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    });
+
+    it('calculates state when change is false', () => {
+        const { rerender } = render(
+            <MockTheme>
+                <ChangeBadge change={1} />
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('status')).toBeInTheDocument();
+
+        rerender(
             <MockTheme>
                 <ChangeBadge change={false} />
             </MockTheme>

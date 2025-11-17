@@ -1,15 +1,15 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,348 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,350 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
-| **Statements** | 97.38%   |
-| **Branches**   | 86.58%   |
-| **Functions**  | 96.49%   |
-| **Lines**      | 97.58%   |
+| **Statements** | 97.92%   |
+| **Branches**   | 88.90%   |
+| **Functions**  | 97.28%   |
+| **Lines**      | 98.09%   |
 
 ---
 
@@ -34,16 +34,16 @@
 
 #### `src/client/common/ChangeBadge.tsx`
 
-- **Line Coverage:** 87.5% (7/8)
+- **Line Coverage:** 100% (8/8) ✅
 - **Branch Coverage:** 87.5% (7/8)
 - **Function Coverage:** 100%
-- **Uncovered:** Lines 17, 27, 37
+- **Uncovered:** None
 
 **Funkcionalumas:** Change badge komponentas
 
 **Ką reikia padengti testais:**
 
-- [ ] Testai, kurie padengia lines 17, 27, 37
+- [x] Testai, kurie padengia lines 17, 27, 37 ✅
 
 ---
 
@@ -83,16 +83,17 @@
 
 #### `src/client/common/hooks/useReorderHandler.ts`
 
-- **Line Coverage:** 89.28% (25/28)
+- **Line Coverage:** 96.42% (27/28)
 - **Branch Coverage:** 78.57% (11/14)
 - **Function Coverage:** 75% (3/4)
-- **Uncovered:** Lines 9-10, 46
+- **Uncovered:** Line 46
 
 **Funkcionalumas:** Reorder handler hook
 
 **Ką reikia padengti testais:**
 
-- [ ] Testai, kurie padengia lines 9-10, 46
+- [x] Testai, kurie padengia lines 9-10 (default parametrai) ✅
+- [ ] Testas, kuris padengia line 46 (early return kai oldIndex === -1 || newIndex === -1)
 - [ ] Branch coverage pagerinimas (78.57% → 85%+)
 
 ---
@@ -227,17 +228,17 @@
 
 #### `src/client/pages/common/Page.tsx`
 
-- **Line Coverage:** 100% (40/40)
-- **Branch Coverage:** 50% (1/2)
+- **Line Coverage:** 100% (40/40) ✅
+- **Branch Coverage:** 100% (2/2) ✅
 - **Function Coverage:** 100%
-- **Uncovered:** Lines 38-40
+- **Uncovered:** None
 
 **Funkcionalumas:** Page layout komponentas
 
 **Ką reikia padengti testais:**
 
-- [ ] Testai, kurie padengia lines 38-40
-- [ ] Branch coverage pagerinimas (50% → 85%+)
+- [x] Testai, kurie padengia lines 38-40 ✅
+- [x] Branch coverage pagerinimas (50% → 100%) ✅
 
 ---
 
