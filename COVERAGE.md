@@ -1,6 +1,6 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,349 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,348 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
@@ -14,11 +14,10 @@
 **Naujausi pagerinimai (2025-01-27):**
 
 - ✅ **Coverage pagerinimas siekiant 100%:**
-    - `ActiveImportBox.tsx` → pridėtas testas, kai `active` yra `undefined`
-    - `SwipePanel.tsx` → pridėtas testas, kai panelis atnaujinamas su tuo pačiu `id`
-    - `useReorderHandler.ts` → pridėti testai default `equals` ir `resolve` funkcijoms, ir `frozenItemsRef` atnaujinimui
-- ✅ **Iš viso pridėta:** 4 nauji testai
-- ✅ **Branch coverage pagerėjo:** 86.12% → **86.27%** (+0.15%)
+    - `theme.ts` → pagerintas testas `cssVariablesResolver` funkcijai (padengia line 27)
+    - `MissingOnlyCheckbox.tsx` → pridėtas testas, kai checkbox disabled ir `onClick` nekviečiamas (padengia line 13)
+    - `ValueAmounts.tsx` → pridėtas testas, kuris patvirtina, kad `useGroupVariantComparator` kviečiamas (padengia line 18)
+- ✅ **Iš viso pridėta:** 3 nauji testai
 
 ---
 

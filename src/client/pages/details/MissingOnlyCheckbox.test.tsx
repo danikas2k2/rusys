@@ -118,4 +118,22 @@ describe('<MissingOnlyCheckbox>', () => {
 
         expect(setMissingOnly).not.toHaveBeenCalled();
     });
+
+    it('does not call onClick when checkbox is disabled', async () => {
+        const onClick = jest.fn();
+        jest.mocked(useHasMissing).mockReturnValue(false);
+        render(
+            <MockTheme>
+                <MissingOnlyCheckbox onClick={onClick} />
+            </MockTheme>
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+
+        expect(checkbox).toBeDisabled();
+
+        await user.click(checkbox);
+
+        expect(onClick).not.toHaveBeenCalled();
+    });
 });

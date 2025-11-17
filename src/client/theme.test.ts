@@ -63,9 +63,20 @@ describe('theme', () => {
     });
 
     it('cssVariablesResolver returns function that can be called', () => {
-        expect(getTheme().cssVariablesResolver()).toStrictEqual(
+        const theme = getTheme();
+
+        expect(typeof theme.cssVariablesResolver).toBe('function');
+
+        const result = theme.cssVariablesResolver();
+
+        expect(result).toStrictEqual(
             expect.objectContaining({
-                variables: expect.arrayContaining([]),
+                variables: expect.objectContaining({
+                    '--mantine-color-white': 'var(--color-base)',
+                    '--mantine-color-black': 'var(--color-text)',
+                }),
+                light: expect.any(Object),
+                dark: expect.any(Object),
             })
         );
     });

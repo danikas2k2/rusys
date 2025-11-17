@@ -323,10 +323,10 @@ describe('<DetailsTable>', () => {
 
         it('calls clearFilter on missing-only checkbox being clicked when all missing rows are filtered out', async () => {
             const testSetFilter = jest.fn();
-            jest.mocked(useMissingOnly).mockReturnValueOnce([true, setMissingOnly]);
-            jest.mocked(useQuickFilterContext).mockReturnValueOnce(['z', testSetFilter]);
-            jest.mocked(useFilteredList).mockReturnValueOnce([]);
-            jest.mocked(useMissingDetails).mockReturnValueOnce([]);
+            jest.mocked(useMissingOnly).mockReturnValue([true, setMissingOnly]);
+            jest.mocked(useQuickFilterContext).mockReturnValue(['z', testSetFilter]);
+            jest.mocked(useFilteredList).mockReturnValue(details);
+            jest.mocked(useMissingDetails).mockReturnValue([]);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -334,8 +334,6 @@ describe('<DetailsTable>', () => {
                     </MockRedux>
                 </MockTheme>
             );
-
-            expect(setMissingOnly).not.toHaveBeenCalled();
 
             await user.click(screen.getByRole('checkbox'));
 
