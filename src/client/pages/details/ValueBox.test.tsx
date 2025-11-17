@@ -368,4 +368,80 @@ describe('<ValueBox>', () => {
             expect(onAfterClose).toHaveBeenCalledWith();
         });
     });
+
+    it('renders without year when year is 0', () => {
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} year={0} amounts={amounts} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        expect(screen.getByText(/Uogienės/)).toBeInTheDocument();
+        expect(screen.queryByText(/, 0/)).not.toBeInTheDocument();
+    });
+
+    it('does not update when newValue would be negative', async () => {
+        const onCloseHandler = jest.fn();
+
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} onClose={onCloseHandler} amounts={[{ variant: 'p', amount: 1 }]} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        const input = screen.getByLabelText('p');
+
+        await user.type(input, '0', selection);
+
+        expect(input).toHaveValue('0');
+
+        const decreaseButton = screen.getByRole('button', { name: 'Decrease' });
+
+        await user.click(decreaseButton);
+
+        expect(input).toHaveValue('0');
+    });
+
+    it('updates existing variant change when variant already exists in currentChanges', async () => {
+        const onCloseHandler = jest.fn();
+
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} onClose={onCloseHandler} amounts={amounts} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        await user.type(screen.getByLabelText('p'), '2', selection);
+
+        expect(screen.getByLabelText('p')).toHaveValue('2');
+
+        await user.type(screen.getByLabelText('p'), '3', selection);
+
+        expect(screen.getByLabelText('p')).toHaveValue('3');
+
+        await user.click(screen.getByText('Update'));
+
+        expect(onCloseHandler).toHaveBeenCalledWith([{ variant: 'p', amount: 2, recycled: false }]);
+    });
+
+    it('uses allVariants when amountVariants is empty', () => {
+        const emptyState: WithVariantsState = { variants };
+
+        render(
+            <MockApp state={emptyState}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={[]} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        expect(ValueInput).toHaveBeenCalledTimes(1);
+        expect(ValueInput).toHaveBeenCalledWith(expect.objectContaining({ variant: allVariants[0] }), undefined);
+    });
 });

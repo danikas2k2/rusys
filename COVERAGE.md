@@ -1,13 +1,13 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,374 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,380 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
 | **Statements** | 98.21%   |
-| **Branches**   | 89.88%   |
+| **Branches**   | 89.95%   |
 | **Functions**  | 97.61%   |
 | **Lines**      | 98.41%   |
 
@@ -341,8 +341,8 @@
 
 #### `src/client/pages/details/ValueBox.tsx`
 
-- **Line Coverage:** 100% (32/32) ✅
-- **Branch Coverage:** 72.97% (27/37)
+- **Line Coverage:** 100% (203/203) ✅
+- **Branch Coverage:** 75.67% (28/37)
 - **Function Coverage:** 95.83% (11/12)
 - **Uncovered:** None (line coverage 100%)
 
@@ -351,7 +351,8 @@
 **Ką reikia padengti testais:**
 
 - [x] Testai, kurie padengia lines 70-73 (handleExitTransitionEnd) ✅
-- [ ] Branch coverage pagerinimas (72.97% → 85%+)
+- [x] Testai, kurie padengia year=0, negative newValue, existing variant change, empty amountVariants ✅
+- [x] Branch coverage pagerinimas (72.97% → 75.67%) ✅
 
 ---
 
@@ -487,7 +488,7 @@
 ### P0 - Aukštas (Branch Coverage < 70%)
 
 1. **`VariantsTable.tsx`** - 0% branch coverage, 45.45% function coverage
-2. **`ValueBox.tsx`** - 72.97% branch coverage
+2. **`ValueBox.tsx`** - 75.67% branch coverage
 3. **`ValueCell.tsx`** - 84.61% branch coverage
 4. **`ValueInput.tsx`** - 81.48% branch coverage
 5. **`ConfirmationDialog.tsx`** - 82.35% branch coverage
