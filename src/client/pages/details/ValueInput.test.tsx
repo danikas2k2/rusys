@@ -226,4 +226,102 @@ describe('<ValueInput>', () => {
             expect(ChangeBadge).toHaveBeenCalledWith({ change: 0 }, undefined);
         });
     });
+
+    describe('focus and blur handlers', () => {
+        it('calls onFocus when input is focused', async () => {
+            const onFocus = jest.fn();
+
+            render(
+                <MockTheme>
+                    <ValueInput variant="p" onFocus={onFocus} />
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('textbox'));
+
+            expect(onFocus).toHaveBeenCalledWith('p');
+        });
+
+        it('calls onBlur when input loses focus', async () => {
+            const onBlur = jest.fn();
+
+            render(
+                <MockTheme>
+                    <ValueInput variant="p" onBlur={onBlur} />
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('textbox'));
+            await user.tab();
+
+            expect(onBlur).toHaveBeenCalledWith('p');
+        });
+    });
+
+    describe('handleChange edge cases', () => {
+        it('handles empty string value', async () => {
+            render(
+                <MockTheme>
+                    <ValueInput variant="p" amount={2} onChange={onChange} />
+                </MockTheme>
+            );
+
+            await user.clear(screen.getByRole('textbox'));
+
+            expect(onChange).toHaveBeenCalledWith('p', -2);
+        });
+    });
+
+    describe('optional callbacks', () => {
+        it('does not call onChange when onChange is not provided', async () => {
+            render(
+                <MockTheme>
+                    <ValueInput variant="p" amount={2} />
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Increase' }));
+
+            expect(onChange).not.toHaveBeenCalled();
+        });
+
+        it('does not call onClose when onClose is not provided', async () => {
+            render(
+                <MockTheme>
+                    <ValueInput variant="p" amount={2} onChange={onChange} />
+                </MockTheme>
+            );
+
+            await user.type(screen.getByRole('textbox'), '{Enter}');
+
+            expect(onClose).not.toHaveBeenCalled();
+        });
+
+        it('does not call onFocus when onFocus is not provided', async () => {
+            render(
+                <MockTheme>
+                    <ValueInput variant="p" amount={2} />
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('textbox'));
+
+            expect(screen.getByRole('textbox')).toHaveFocus();
+        });
+
+        it('does not call onBlur when onBlur is not provided', async () => {
+            render(
+                <MockTheme>
+                    <ValueInput variant="p" amount={2} />
+                </MockTheme>
+            );
+
+            const input = screen.getByRole('textbox');
+
+            await user.click(input);
+            await user.tab();
+
+            expect(input).not.toHaveFocus();
+        });
+    });
 });
