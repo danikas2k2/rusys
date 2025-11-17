@@ -3,7 +3,9 @@ import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
+import { Page } from '~/client/pages/common/Page';
 import { GroupsPage } from '~/client/pages/groups/GroupsPage';
+import { useDeleteGroup } from '~/client/state/groups/useDeleteGroup';
 
 jest.mock('~/client/pages/common/Page');
 jest.mock('~/client/common/SwipeControls', () => ({
@@ -22,8 +24,15 @@ jest.mock('~/client/pages/groups/GroupsTable', () => ({
 jest.mock('~/client/pages/groups/ActiveGroupBox', () => ({
     ActiveGroupBox: () => null,
 }));
+jest.mock('~/client/state/groups/useDeleteGroup');
 
 describe('<GroupsPage>', () => {
+    const mockDeleteGroup = jest.fn().mockResolvedValue(undefined);
+
+    beforeEach(() => jest.mocked(useDeleteGroup).mockReturnValue(mockDeleteGroup));
+
+    afterEach(() => jest.clearAllMocks());
+
     it('renders into the document', () => {
         render(
             <MockApp>
@@ -32,5 +41,30 @@ describe('<GroupsPage>', () => {
         );
 
         expect(screen.getByText('GroupsTable')).toBeInTheDocument();
+    });
+
+    it('calls deleteGroup when handleDelete is called', async () => {
+        let mockDelete: jest.Mocked<React.ComponentProps<typeof Page>['onDelete']>;
+        jest.mocked(Page).mockImplementation(({ onDelete }) => {
+            mockDelete = onDelete;
+            return <div>Page</div>;
+        });
+
+        render(
+            <MockApp>
+                <GroupsPage />
+            </MockApp>
+        );
+
+        expect(Page).toHaveBeenCalledWith(
+            expect.objectContaining({
+                onDelete: expect.any(Function),
+            }),
+            undefined
+        );
+
+        await mockDelete?.({ group: 'Uogienės', order: 0 });
+
+        expect(mockDeleteGroup).toHaveBeenCalledWith('Uogienės');
     });
 });
