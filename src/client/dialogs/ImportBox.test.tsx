@@ -16,9 +16,11 @@ jest.mock('~/client/hooks/useImportHandler');
 jest.mock('@mantine/dropzone', () => {
     const DropzoneComponent = ({
         onDrop,
+        onReject,
         children,
     }: {
         onDrop: (files: File[]) => void;
+        onReject?: () => void;
         children: React.ReactNode;
     }) => {
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,9 +28,15 @@ jest.mock('@mantine/dropzone', () => {
                 onDrop(Array.from(e.target.files));
             }
         };
+        const handleReject = () => {
+            onReject?.();
+        };
         return (
             <div>
                 <input type="file" placeholder="Please choose a file" onChange={handleChange} />
+                <button type="button" onClick={handleReject} aria-label="Reject file">
+                    Reject
+                </button>
                 {children}
             </div>
         );
@@ -113,5 +121,67 @@ describe('<ImportBox>', () => {
             expect(onClose).toHaveBeenCalledWith();
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
+    });
+
+    it('shows error when file is rejected', async () => {
+        render(
+            <MockPage state={state}>
+                <ImportBox opened onClose={onClose} />
+            </MockPage>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Reject file' }));
+
+        expect(screen.getByRole('alert')).toHaveTextContent('Choose a valid JSON file');
+    });
+
+    it('disables import button when no file is selected', () => {
+        render(
+            <MockPage state={state}>
+                <ImportBox opened onClose={onClose} />
+            </MockPage>
+        );
+
+        const importButton = screen.getByRole('button', { name: 'Import' });
+
+        expect(importButton).toBeDisabled();
+    });
+
+    it('shows error when import fails', async () => {
+        const importData = jest.fn().mockResolvedValue({ ok: false, error: 'Import failed' });
+        jest.mocked(useImportHandler).mockReturnValue(importData);
+
+        render(
+            <MockPage state={state}>
+                <ImportBox opened onClose={onClose} />
+            </MockPage>
+        );
+
+        const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
+        const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+
+        await user.upload(fileInput, file);
+        await user.click(screen.getByRole('button', { name: 'Import' }));
+
+        expect(screen.getByRole('alert')).toHaveTextContent('Import failed');
+    });
+
+    it('shows default error message when import fails without error', async () => {
+        const importData = jest.fn().mockResolvedValue({ ok: false });
+        jest.mocked(useImportHandler).mockReturnValue(importData);
+
+        render(
+            <MockPage state={state}>
+                <ImportBox opened onClose={onClose} />
+            </MockPage>
+        );
+
+        const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
+        const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+
+        await user.upload(fileInput, file);
+        await user.click(screen.getByRole('button', { name: 'Import' }));
+
+        expect(screen.getByRole('alert')).toHaveTextContent('Failed to import file');
     });
 });

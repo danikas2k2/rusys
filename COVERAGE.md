@@ -1,15 +1,15 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,350 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,356 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
-| **Statements** | 97.92%   |
-| **Branches**   | 88.90%   |
-| **Functions**  | 97.28%   |
-| **Lines**      | 98.09%   |
+| **Statements** | 98.05%   |
+| **Branches**   | 89.50%   |
+| **Functions**  | 97.50%   |
+| **Lines**      | 98.22%   |
 
 ---
 
@@ -116,17 +116,19 @@
 
 #### `src/client/dialogs/ImportBox.tsx`
 
-- **Line Coverage:** 90.47% (38/42)
-- **Branch Coverage:** 61.11% (11/18)
-- **Function Coverage:** 83.33% (5/6)
-- **Uncovered:** Lines 35, 40-41, 60
+- **Line Coverage:** 95.23% (40/42)
+- **Branch Coverage:** 83.33% (15/18)
+- **Function Coverage:** 100% (6/6) ✅
+- **Uncovered:** Lines 40-41
 
 **Funkcionalumas:** Import box komponentas
 
 **Ką reikia padengti testais:**
 
-- [ ] Testai, kurie padengia lines 35, 40-41, 60
-- [ ] Branch coverage pagerinimas (61.11% → 85%+)
+- [x] Testas, kuris padengia line 35 (handleReject) ✅
+- [x] Testas, kuris padengia line 60 (import failure) ✅
+- [ ] Testai, kurie padengia lines 40-41 (defensive code - button disabled prevents this path)
+- [x] Branch coverage pagerinimas (61.11% → 83.33%) ✅
 
 ---
 
