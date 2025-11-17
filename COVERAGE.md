@@ -1,13 +1,13 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,365 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,370 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
 | **Statements** | 98.21%   |
-| **Branches**   | 89.76%   |
+| **Branches**   | 89.82%   |
 | **Functions**  | 97.61%   |
 | **Lines**      | 98.41%   |
 
@@ -50,9 +50,9 @@
 #### `src/client/common/ConfirmationDialog.tsx`
 
 - **Line Coverage:** 100% (23/23) ✅
-- **Branch Coverage:** 70.58% (12/17)
-- **Function Coverage:** 80% (4/5)
-- **Uncovered:** None
+- **Branch Coverage:** 82.35% (14/17)
+- **Function Coverage:** 100% (5/5) ✅
+- **Uncovered:** None (line coverage 100%)
 
 **Funkcionalumas:** Confirmation dialog komponentas
 
@@ -60,7 +60,8 @@
 
 - [x] Testas, kuris padengia line 68 (loading state after 300ms delay) ✅
 - [x] Testas, kuris padengia line 75 (error message rodymas) ✅
-- [ ] Branch coverage pagerinimas (70.58% → 85%+)
+- [x] Branch coverage pagerinimas (70.58% → 82.35%) ✅
+- [x] Custom buttons ir actions testai ✅
 
 ---
 
@@ -489,7 +490,7 @@
 2. **`ValueBox.tsx`** - 72.97% branch coverage
 3. **`ValueCell.tsx`** - 84.61% branch coverage
 4. **`ValueInput.tsx`** - 81.48% branch coverage
-5. **`ConfirmationDialog.tsx`** - 70.58% branch coverage
+5. **`ConfirmationDialog.tsx`** - 82.35% branch coverage
 6. **`ActiveRemoveConfirmation.tsx`** - 71.42% branch coverage
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)

@@ -4,6 +4,8 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
+import { Button } from '@mantine/core';
+
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
 
 jest.mock('~/client/common/Label');
@@ -54,6 +56,7 @@ describe('<ConfirmationDialog>', () => {
                 <ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />
             </MockTheme>
         );
+
         const target = screen.getByRole('button', { name: 'Confirm' });
         await user.click(target);
 
@@ -78,6 +81,7 @@ describe('<ConfirmationDialog>', () => {
                 <ConfirmationDialog opened onConfirm={onConfirm} onClose={onClose} />
             </MockTheme>
         );
+
         const target = screen.getByRole('button', { name: 'Cancel' });
         await user.click(target);
 
@@ -100,9 +104,7 @@ describe('<ConfirmationDialog>', () => {
 
         expect(confirmButton).not.toBeDisabled();
 
-        await act(async () => {
-            jest.advanceTimersByTime(300);
-        });
+        await act(async () => jest.advanceTimersByTime(300));
 
         expect(confirmButton).toBeDisabled();
 
@@ -129,5 +131,85 @@ describe('<ConfirmationDialog>', () => {
 
         expect(screen.getByRole('alert')).toHaveTextContent(errorMessage);
         expect(onClose).not.toHaveBeenCalled();
+    });
+
+    it('renders custom cancel button when provided', () => {
+        const customCancelButton = <Button>Custom Cancel</Button>;
+
+        render(
+            <MockTheme>
+                <ConfirmationDialog opened cancelButton={customCancelButton} onConfirm={onConfirm} onClose={onClose} />
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('button', { name: 'Custom Cancel' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
+    });
+
+    it('renders custom confirm button when provided', () => {
+        const customConfirmButton = <Button>Custom Confirm</Button>;
+
+        render(
+            <MockTheme>
+                <ConfirmationDialog
+                    opened
+                    confirmButton={customConfirmButton}
+                    onConfirm={onConfirm}
+                    onClose={onClose}
+                />
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('button', { name: 'Custom Confirm' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Confirm' })).not.toBeInTheDocument();
+    });
+
+    it('renders custom actions when provided', () => {
+        const customActions = <div role="group">Custom Actions</div>;
+
+        render(
+            <MockTheme>
+                <ConfirmationDialog opened actions={customActions} onConfirm={onConfirm} onClose={onClose} />
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('group')).toHaveTextContent('Custom Actions');
+        expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Confirm' })).not.toBeInTheDocument();
+    });
+
+    it('calls onClose when custom cancel button is clicked', async () => {
+        const customCancelButton = <Button>Custom Cancel</Button>;
+
+        render(
+            <MockTheme>
+                <ConfirmationDialog opened cancelButton={customCancelButton} onConfirm={onConfirm} onClose={onClose} />
+            </MockTheme>
+        );
+
+        const target = screen.getByRole('button', { name: 'Custom Cancel' });
+        await user.click(target);
+
+        expect(onClose).toHaveBeenCalledWith(expect.event('click', { target }));
+    });
+
+    it('calls handleConfirm when custom confirm button is clicked', async () => {
+        const customConfirmButton = <Button>Custom Confirm</Button>;
+
+        render(
+            <MockTheme>
+                <ConfirmationDialog
+                    opened
+                    confirmButton={customConfirmButton}
+                    onConfirm={onConfirm}
+                    onClose={onClose}
+                />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Custom Confirm' }));
+
+        expect(onConfirm).toHaveBeenCalledWith(expect.any(Object));
+        expect(onClose).toHaveBeenCalledWith();
     });
 });
