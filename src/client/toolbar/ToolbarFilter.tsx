@@ -7,7 +7,7 @@ import { useLabel } from '~/client/hooks/useLabel';
 import { ClearFilterIcon } from '~/client/toolbar/ClearFilterIcon';
 
 export function ToolbarFilter() {
-    const [filter = '', setFilter] = useQuickFilterContext();
+    const [filter, setFilter] = useQuickFilterContext();
     const handleInput = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
         (e) => setFilter(e.currentTarget.value),
         [setFilter]

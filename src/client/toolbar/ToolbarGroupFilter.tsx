@@ -9,8 +9,8 @@ import { useGroups } from '~/client/state/groups/useGroups';
 import { ClearFilterIcon } from '~/client/toolbar/ClearFilterIcon';
 
 export function ToolbarGroupFilter() {
-    const groups = useGroups()?.map((v) => v.group) ?? [];
-    const [group = '', setGroup] = useGroupFilterContext();
+    const groups = useGroups().map((v) => v.group);
+    const [group, setGroup] = useGroupFilterContext();
 
     const groupOptions = groups.map((g) => ({ value: g, label: g }));
 
@@ -20,7 +20,7 @@ export function ToolbarGroupFilter() {
         <Select
             placeholder={useLabel('All groups')}
             value={group || null}
-            onChange={(value) => setGroup(value ?? '')}
+            onChange={(value) => setGroup(value || '')}
             data={groupOptions}
             style={{ width: '100%' }}
             allowDeselect

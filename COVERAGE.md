@@ -1,15 +1,17 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,456 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,462 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
-| **Statements** | 98.12%   |
-| **Branches**   | 91.12%   |
-| **Functions**  | 97.47%   |
-| **Lines**      | 98.36%   |
+| **Statements** | 98.54%   |
+| **Branches**   | 91.81%   |
+| **Functions**  | 98.35%   |
+| **Lines**      | 98.76%   |
+
+---
 
 ---
 

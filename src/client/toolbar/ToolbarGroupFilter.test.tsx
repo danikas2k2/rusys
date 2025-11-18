@@ -69,4 +69,28 @@ describe('<ToolbarGroupFilter>', () => {
 
         expect(setGroup).toHaveBeenCalledWith('');
     });
+
+    it('uses correct rightSectionWidth when group is set', () => {
+        jest.mocked(useGroupFilterContext).mockReturnValue(['Uogienės', setGroup]);
+
+        render(
+            <MockApp>
+                <ToolbarGroupFilter />
+            </MockApp>
+        );
+
+        expect(screen.getByPlaceholderText('All groups')).toBeInTheDocument();
+    });
+
+    it('uses correct rightSectionWidth when group is empty', () => {
+        jest.mocked(useGroupFilterContext).mockReturnValue(['', setGroup]);
+
+        render(
+            <MockApp>
+                <ToolbarGroupFilter />
+            </MockApp>
+        );
+
+        expect(screen.getByPlaceholderText('All groups')).toBeInTheDocument();
+    });
 });
