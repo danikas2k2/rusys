@@ -270,6 +270,36 @@ describe('<ValueInput>', () => {
 
             expect(onChange).toHaveBeenCalledWith('p', -2);
         });
+
+        it('handles number value directly', async () => {
+            render(
+                <MockTheme>
+                    <ValueInput variant="p" amount={2} onChange={onChange} />
+                </MockTheme>
+            );
+
+            await user.type(screen.getByRole('textbox'), '5', {
+                initialSelectionStart: 0,
+                initialSelectionEnd: 1,
+            });
+
+            expect(onChange).toHaveBeenCalledWith('p', 3);
+        });
+
+        it('handles invalid string value by converting to 0', async () => {
+            render(
+                <MockTheme>
+                    <ValueInput variant="p" amount={2} onChange={onChange} />
+                </MockTheme>
+            );
+
+            await user.type(screen.getByRole('textbox'), 'invalid', {
+                initialSelectionStart: 0,
+                initialSelectionEnd: 1,
+            });
+
+            expect(onChange).toHaveBeenCalledWith('p', -2);
+        });
     });
 
     describe('optional callbacks', () => {

@@ -103,6 +103,29 @@ describe('<ValueCell>', () => {
             expect(setRemoving).toHaveBeenCalledWith(props.group, props.name, props.year, true);
         });
 
+        it('handles long press when removing is true', async () => {
+            render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} removing />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            const cell = screen.getByRole('cell');
+            fireEvent.pointerDown(cell);
+            act(() => jest.advanceTimersByTime(500));
+            fireEvent.pointerUp(cell);
+            act(() => jest.advanceTimersByTime(100));
+
+            expect(setActive).not.toHaveBeenCalled();
+            expect(setRemoving).toHaveBeenCalledWith(props.group, props.name, props.year, false);
+        });
+
         it('handles short press', async () => {
             render(
                 <MockApp>
@@ -355,11 +378,11 @@ describe('<ValueCell>', () => {
             amounts: [{ variant: 'p', amount: 1 }],
         };
 
-        const originalNavigator = global.navigator;
+        const originalNavigator = globalThis.navigator;
         const mockVibrate = jest.fn();
 
         afterEach(() =>
-            Object.defineProperty(global, 'navigator', {
+            Object.defineProperty(globalThis, 'navigator', {
                 value: originalNavigator,
                 writable: true,
                 configurable: true,
@@ -367,7 +390,7 @@ describe('<ValueCell>', () => {
         );
 
         it('calls navigator.vibrate when available and long press is triggered', async () => {
-            Object.defineProperty(global, 'navigator', {
+            Object.defineProperty(globalThis, 'navigator', {
                 value: { vibrate: mockVibrate },
                 writable: true,
                 configurable: true,
@@ -392,7 +415,7 @@ describe('<ValueCell>', () => {
         });
 
         it('does not call vibrate when navigator is undefined', async () => {
-            Object.defineProperty(global, 'navigator', {
+            Object.defineProperty(globalThis, 'navigator', {
                 value: undefined,
                 writable: true,
                 configurable: true,
@@ -417,7 +440,7 @@ describe('<ValueCell>', () => {
         });
 
         it('does not call vibrate when navigator.vibrate is undefined', async () => {
-            Object.defineProperty(global, 'navigator', {
+            Object.defineProperty(globalThis, 'navigator', {
                 value: {},
                 writable: true,
                 configurable: true,

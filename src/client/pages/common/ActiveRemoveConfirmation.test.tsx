@@ -90,6 +90,16 @@ describe('<ActiveRemoveConfirmation>', () => {
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
+    it('does not render modal when action is not remove but data exists', () => {
+        render(
+            <MockApp active={{ action: 'values', data: { data: 'Test' } }}>
+                <ActiveRemoveConfirmation />
+            </MockApp>
+        );
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
     it('does not render modal when data is missing', () => {
         render(
             <MockApp active={{ action: 'remove' }}>
@@ -127,13 +137,10 @@ describe('<ActiveRemoveConfirmation>', () => {
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
-    it('calls handleClose when handleConfirm is called without data', async () => {
-        const mockSetActive = jest.fn();
-        const mockOnConfirm = jest.fn();
-
+    it('does not render modal when data is undefined', () => {
         render(
-            <MockApp active={{ action: 'remove', data: undefined }} setActive={mockSetActive}>
-                <ActiveRemoveConfirmation onConfirm={mockOnConfirm} />
+            <MockApp active={{ action: 'remove', data: undefined }}>
+                <ActiveRemoveConfirmation />
             </MockApp>
         );
 
