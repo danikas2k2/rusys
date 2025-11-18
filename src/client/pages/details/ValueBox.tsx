@@ -106,7 +106,7 @@ export function ValueBox({ opened = false, group, name, year, amounts, onClose, 
             const newValue = oldValue + change + oppositeValue;
             if (newValue >= 0) {
                 setChangingAmounts(
-                    currentChanges?.some((v) => v.variant === variant)
+                    currentChanges.some((v) => v.variant === variant)
                         ? currentChanges.map((v) => (v.variant !== variant ? v : { ...v, amount: change }))
                         : [...(currentChanges ?? []), { variant, amount: change }]
                 );

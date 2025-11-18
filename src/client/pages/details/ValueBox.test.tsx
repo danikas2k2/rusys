@@ -352,7 +352,7 @@ describe('<ValueBox>', () => {
             </MockApp>
         );
 
-        await screen.findByRole('dialog');
+        const dialog = await screen.findByRole('dialog');
 
         await user.click(screen.getByLabelText('Close'));
 
@@ -363,6 +363,8 @@ describe('<ValueBox>', () => {
                 </UpdateTypeWrapper>
             </MockApp>
         );
+
+        act(() => fireEvent.transitionEnd(dialog));
 
         await waitFor(() => {
             expect(onAfterClose).toHaveBeenCalledWith();
@@ -457,6 +459,18 @@ describe('<ValueBox>', () => {
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
+    it('uses default opened value when not provided', () => {
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
     it('handles undefined amounts', () => {
         render(
             <MockApp state={state}>
@@ -484,6 +498,20 @@ describe('<ValueBox>', () => {
         expect(onClose).not.toHaveBeenCalled();
     });
 
+    it('does not call onClose when Update is clicked and onClose is not provided', async () => {
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        await user.click(screen.getByText('Update'));
+
+        expect(onClose).not.toHaveBeenCalled();
+    });
+
     it('does not call onAfterClose when onAfterClose is not provided', async () => {
         const { rerender } = render(
             <MockApp state={state}>
@@ -493,7 +521,7 @@ describe('<ValueBox>', () => {
             </MockApp>
         );
 
-        await screen.findByRole('dialog');
+        const dialog = await screen.findByRole('dialog');
 
         await user.click(screen.getByLabelText('Close'));
 
@@ -504,6 +532,8 @@ describe('<ValueBox>', () => {
                 </UpdateTypeWrapper>
             </MockApp>
         );
+
+        act(() => fireEvent.transitionEnd(dialog));
 
         await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     });
@@ -624,5 +654,29 @@ describe('<ValueBox>', () => {
         act(() => fireEvent.transitionEnd(dialog));
 
         expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('handles handleFocus when ref is null during expand', async () => {
+        jest.mocked(ValueInput).mockImplementation(({ ref, variant }) => {
+            // eslint-disable-next-line jest/no-conditional-in-test
+            if (ref && typeof ref === 'function') {
+                ref(null);
+            }
+            return <input aria-label={variant} />;
+        });
+
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        await screen.findByRole('dialog');
+
+        await user.click(screen.getByRole('button', { name: 'Expand' }));
+
+        expect(screen.queryByRole('button', { name: 'Expand' })).not.toBeInTheDocument();
     });
 });
