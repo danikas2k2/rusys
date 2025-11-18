@@ -62,8 +62,9 @@ export function ValueCell({
         navigator?.vibrate?.(LONG_PRESS_VIBRATE_DURATION);
     }, [setRemoving, group, name, year, removing]);
 
-    const longPress = useLongPress<HTMLTableCellElement>(handleLongPress, handleShortPress);
     const empty = !amounts?.length;
+    const longPress = useLongPress<HTMLTableCellElement>(empty ? undefined : handleLongPress, handleShortPress);
+    const eventHandlers = updating || swipeActive ? {} : longPress;
     return (
         <Table.Td
             className={cx('ValueCell')}
@@ -75,11 +76,7 @@ export function ValueCell({
             data-full={!!span}
             colSpan={span}
             p={0}
-            {...(updating || swipeActive
-                ? {}
-                : empty
-                  ? { onClick: handleShortPress, onContextMenu: longPress.onContextMenu }
-                  : { ...longPress })}
+            {...eventHandlers}
         >
             <Center className={cx('data')}>{empty ? '.' : <ValueAmounts group={group} amounts={amounts} />}</Center>
             {loaderVisible && (
