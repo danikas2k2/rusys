@@ -1,6 +1,6 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,443 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,456 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
@@ -17,12 +17,8 @@
 
 ### P0 - Aukštas (Branch Coverage < 70%)
 
-1. **`useFilteredVariants.ts`** - 0% branch coverage
-2. **`useVisibleGroups.ts`** - 0% branch coverage
-3. **`useGroup.ts`** - 50% branch coverage
-4. **`useRecycledSummary.ts`** - 50% branch coverage
-5. **`ToolbarFilter.tsx`** - 66.67% branch coverage
-6. **`ToolbarGroupFilter.tsx`** - 69.23% branch coverage
+1. **`ToolbarGroupFilter.tsx`** - 69.23% branch coverage
+2. **`ToolbarFilter.tsx`** - 66.67% branch coverage
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 

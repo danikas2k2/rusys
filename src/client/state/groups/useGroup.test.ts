@@ -35,4 +35,13 @@ describe('useGroup', () => {
 
         expect(result.current).toBeUndefined();
     });
+
+    it('returns undefined when groups state is undefined', () => {
+        const undefinedState: WithGroupsState = {};
+        const { result } = renderHook(() => useGroup('Uogienės'), {
+            wrapper: ({ children }) => React.createElement(MockApp, { state: undefinedState }, children),
+        });
+
+        expect(result.current).toBeUndefined();
+    });
 });
