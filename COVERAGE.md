@@ -1,13 +1,13 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,436 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,438 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
 | **Statements** | 98.26%   |
-| **Branches**   | 90.65%   |
+| **Branches**   | 90.75%   |
 | **Functions**  | 97.61%   |
 | **Lines**      | 98.46%   |
 
@@ -17,7 +17,7 @@
 
 ### P0 - Aukštas (Branch Coverage < 70%)
 
-1. **`ValueBox.tsx`** - 81.08% branch coverage
+1. **`ValueBox.tsx`** - 85.13% branch coverage
 2. **`ValueCell.tsx`** - 84.61% branch coverage
 3. **`ValueInput.tsx`** - 81.48% branch coverage
 4. **`ConfirmationDialog.tsx`** - 82.35% branch coverage

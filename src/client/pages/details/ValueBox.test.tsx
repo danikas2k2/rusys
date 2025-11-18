@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { getVariantsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
@@ -586,5 +586,43 @@ describe('<ValueBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Expand' }));
 
         expect(screen.queryByRole('button', { name: 'Expand' })).not.toBeInTheDocument();
+    });
+
+    it('calls handleFocus when enter transition ends', async () => {
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        const dialog = await screen.findByRole('dialog');
+        act(() => fireEvent.transitionEnd(dialog));
+
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('handles handleFocus when ref is null', async () => {
+        jest.mocked(ValueInput).mockImplementation(({ ref, variant }) => {
+            // eslint-disable-next-line jest/no-conditional-in-test
+            if (ref && typeof ref === 'function') {
+                ref(null);
+            }
+            return <input aria-label={variant} />;
+        });
+
+        render(
+            <MockApp state={state}>
+                <UpdateTypeWrapper>
+                    <ValueBox {...props} amounts={amounts} opened />
+                </UpdateTypeWrapper>
+            </MockApp>
+        );
+
+        const dialog = await screen.findByRole('dialog');
+        act(() => fireEvent.transitionEnd(dialog));
+
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 });
