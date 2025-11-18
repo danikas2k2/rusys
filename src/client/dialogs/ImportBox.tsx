@@ -36,11 +36,6 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
     }, []);
 
     const handleSubmit = useCallback(async () => {
-        if (!file) {
-            setError('Choose file');
-            return;
-        }
-
         setLoading(true);
         setError(undefined);
 

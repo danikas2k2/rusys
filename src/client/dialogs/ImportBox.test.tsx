@@ -4,6 +4,7 @@ import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockPage } from '@tests/MockPage';
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ImportBox } from '~/client/dialogs/ImportBox';
 import { useImportHandler } from '~/client/hooks/useImportHandler';
@@ -13,6 +14,10 @@ jest.mock('~/client/hooks/useLabel', () => ({
     useLabel: jest.fn((key: string) => key),
 }));
 jest.mock('~/client/hooks/useImportHandler');
+jest.mock('react-router-dom', () => ({
+    ...jest.requireActual('react-router-dom'),
+    useNavigate: jest.fn(),
+}));
 jest.mock('@mantine/dropzone', () => {
     const DropzoneComponent = ({
         onDrop,
@@ -56,8 +61,12 @@ describe('<ImportBox>', () => {
     };
 
     const onClose = jest.fn();
+    const navigate = jest.fn();
 
-    beforeEach(() => jest.mocked(useImportHandler).mockReturnValue(jest.fn().mockResolvedValue({ ok: true })));
+    beforeEach(() => {
+        jest.mocked(useImportHandler).mockReturnValue(jest.fn().mockResolvedValue({ ok: true }));
+        jest.mocked(useNavigate).mockReturnValue(navigate);
+    });
 
     afterEach(() => jest.clearAllMocks());
 
@@ -119,6 +128,7 @@ describe('<ImportBox>', () => {
             expect(importData).toHaveBeenCalledWith(expect.any(FormData));
             expect(importData.mock.calls[0][0].get('import')).toStrictEqual(file);
             expect(onClose).toHaveBeenCalledWith();
+            expect(navigate).toHaveBeenCalledWith(0);
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
     });
@@ -212,6 +222,16 @@ describe('<ImportBox>', () => {
         const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
 
         await user.upload(fileInput, largeFile);
+
+        expect(screen.getByText(/File should not exceed/)).toBeInTheDocument();
+    });
+
+    it('shows file size warning when no file is selected', () => {
+        render(
+            <MockPage state={state}>
+                <ImportBox opened onClose={onClose} />
+            </MockPage>
+        );
 
         expect(screen.getByText(/File should not exceed/)).toBeInTheDocument();
     });
