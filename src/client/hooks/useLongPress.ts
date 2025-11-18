@@ -1,16 +1,26 @@
 import type React from 'react';
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 import { POINTER_LONG_PRESS_DELAY, POINTER_MOVE_THRESHOLD, POINTER_SHORT_PRESS_DELAY } from '~/client/utils/pointer';
-import { inBounds, type PointerEvents } from '~/client/utils/pointEvents';
+import { inBounds } from '~/client/utils/pointEvents';
 
-export interface LongPressEvents<T = HTMLElement> extends PointerEvents<T> {
-    onClick: React.MouseEventHandler<T>;
-    onContextMenu: React.MouseEventHandler<T>;
-}
+export type LongPressEvents<T = HTMLElement> =
+    | {
+          onPointerDown?: React.PointerEventHandler<T>;
+          onPointerMove?: React.PointerEventHandler<T>;
+          onPointerUp?: React.PointerEventHandler<T>;
+          onPointerLeave?: React.PointerEventHandler<T>;
+          onPointerOut?: React.PointerEventHandler<T>;
+          onPointerCancel?: React.PointerEventHandler<T>;
+          onContextMenu: React.MouseEventHandler<T>;
+      }
+    | {
+          onClick: React.MouseEventHandler<T>;
+          onContextMenu: React.MouseEventHandler<T>;
+      };
 
 export function useLongPress<T = HTMLElement>(
-    onLongPress: React.PointerEventHandler<T>,
+    onLongPress?: React.PointerEventHandler<T>,
     onShortPress?: React.PointerEventHandler<T>,
     duration = POINTER_LONG_PRESS_DELAY,
     shortDelay = POINTER_SHORT_PRESS_DELAY
@@ -21,7 +31,13 @@ export function useLongPress<T = HTMLElement>(
     const xRef = useRef(0);
     const yRef = useRef(0);
 
-    const onStart = useCallback(
+    const handleCancel = useCallback(() => {
+        clearTimeout(timerRef.current);
+        shortPressRef.current = false;
+        longPressRef.current = false;
+    }, []);
+
+    const handleDown = useCallback(
         (e: React.PointerEvent<T>) => {
             longPressRef.current = false;
             shortPressRef.current = false;
@@ -31,14 +47,14 @@ export function useLongPress<T = HTMLElement>(
             timerRef.current = setTimeout(() => {
                 if (!shortPressRef.current && !longPressRef.current) {
                     longPressRef.current = true;
-                    onLongPress(e);
+                    onLongPress?.(e);
                 }
             }, duration);
         },
         [duration, onLongPress]
     );
 
-    const onEnd = useCallback(
+    const handleUp = useCallback(
         (e: React.PointerEvent<T>) => {
             if (!longPressRef.current && onShortPress && inBounds(e)) {
                 clearTimeout(timerRef.current);
@@ -47,17 +63,21 @@ export function useLongPress<T = HTMLElement>(
                     if (shortDelay) {
                         setTimeout(() => {
                             onShortPress(e);
+                            handleCancel();
                         }, shortDelay);
                     } else {
                         onShortPress(e);
+                        handleCancel();
                     }
                 }
+            } else {
+                handleCancel();
             }
         },
-        [onShortPress, shortDelay]
+        [handleCancel, onShortPress, shortDelay]
     );
 
-    const onMove = useCallback((e: React.PointerEvent<T>) => {
+    const handleMove = useCallback((e: React.PointerEvent<T>) => {
         const x = Math.abs(xRef.current - e.clientX);
         const y = Math.abs(yRef.current - e.clientY);
         if (x > POINTER_MOVE_THRESHOLD || y > POINTER_MOVE_THRESHOLD) {
@@ -65,34 +85,34 @@ export function useLongPress<T = HTMLElement>(
         }
     }, []);
 
-    const onCancel = useCallback(() => {
-        clearTimeout(timerRef.current);
-        shortPressRef.current = true;
-        longPressRef.current = false;
-    }, []);
-
-    const onClick = useCallback(
+    const handleClick = useCallback(
         (e: React.PointerEvent<T>) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onEnd(e);
+            onShortPress?.(e);
         },
-        [onEnd]
+        [onShortPress]
     );
 
-    const onContextMenu = useCallback((e: React.MouseEvent<T>) => {
+    const handleContextMenu = useCallback((e: React.MouseEvent<T>) => {
         e.preventDefault();
         e.stopPropagation();
     }, []);
 
-    return {
-        onPointerDown: onStart,
-        onPointerMove: onMove,
-        onPointerUp: onEnd,
-        onPointerCancel: onCancel,
-        onPointerLeave: onCancel,
-        onPointerOut: onCancel,
-        onClick,
-        onContextMenu,
-    };
+    return useMemo(
+        () =>
+            onLongPress
+                ? {
+                      onPointerDown: handleDown,
+                      onPointerMove: handleMove,
+                      onPointerUp: handleUp,
+                      onPointerCancel: handleCancel,
+                      onPointerLeave: handleCancel,
+                      onPointerOut: handleCancel,
+                      onContextMenu: handleContextMenu,
+                  }
+                : {
+                      onClick: handleClick,
+                      onContextMenu: handleContextMenu,
+                  },
+        [handleCancel, handleClick, handleContextMenu, handleDown, handleMove, handleUp, onLongPress]
+    );
 }
