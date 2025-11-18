@@ -93,4 +93,19 @@ describe('<ToolbarGroupFilter>', () => {
 
         expect(screen.getByPlaceholderText('All groups')).toBeInTheDocument();
     });
+
+    it('handles null value in onChange by converting to empty string', async () => {
+        jest.mocked(useGroupFilterContext).mockReturnValue(['Uogienės', setGroup]);
+
+        render(
+            <MockApp>
+                <ToolbarGroupFilter />
+            </MockApp>
+        );
+
+        await user.click(screen.getByPlaceholderText('All groups'));
+        await user.click(screen.getByText('Uogienės'));
+
+        expect(setGroup).toHaveBeenCalledWith('');
+    });
 });

@@ -7,11 +7,9 @@
 | Metric         | Coverage |
 | -------------- | -------- |
 | **Statements** | 98.54%   |
-| **Branches**   | 91.81%   |
+| **Branches**   | 91.96%   |
 | **Functions**  | 98.35%   |
 | **Lines**      | 98.76%   |
-
----
 
 ---
 
@@ -19,8 +17,7 @@
 
 ### P0 - Aukštas (Branch Coverage < 70%)
 
-1. **`ToolbarGroupFilter.tsx`** - 69.23% branch coverage
-2. **`ToolbarFilter.tsx`** - 66.67% branch coverage
+*Nėra failų su coverage < 70%*
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
@@ -48,8 +45,8 @@
 4. **`ActiveGroupBox.tsx`** - 87.5% branch coverage
 5. **`ActiveDetailsBox.tsx`** - 87.5% branch coverage
 6. **`ActiveRemoveConfirmation.tsx`** - 87.5% branch coverage
-7. **`amounts.ts`** - 88.89% branch coverage
-8. **`useLabels.ts`** - 88.89% branch coverage
+7. **`amounts.ts`** - 88.88% branch coverage
+8. **`useLabels.ts`** - 88.88% branch coverage
 9. **`ActiveValueBox.tsx`** - 90.9% branch coverage
 10. **`ValueBox.tsx`** - 91.42% branch coverage
 
