@@ -126,4 +126,53 @@ describe('<ActiveRemoveConfirmation>', () => {
 
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
+
+    it('calls handleClose when handleConfirm is called without data', async () => {
+        const mockSetActive = jest.fn();
+        const mockOnConfirm = jest.fn();
+
+        render(
+            <MockApp active={{ action: 'remove', data: undefined }} setActive={mockSetActive}>
+                <ActiveRemoveConfirmation onConfirm={mockOnConfirm} />
+            </MockApp>
+        );
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('handles async onConfirm', async () => {
+        const mockSetActive = jest.fn();
+        const mockOnConfirm = jest.fn().mockResolvedValue(undefined);
+
+        render(
+            <MockApp active={{ action: 'remove', data: { data: 'Test' } }} setActive={mockSetActive}>
+                <ActiveRemoveConfirmation onConfirm={mockOnConfirm} />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        expect(mockOnConfirm).toHaveBeenCalledWith({ data: 'Test' });
+        expect(mockSetActive).toHaveBeenCalledWith();
+    });
+
+    it('does not render modal when active is undefined', () => {
+        render(
+            <MockApp active={undefined}>
+                <ActiveRemoveConfirmation />
+            </MockApp>
+        );
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('does not render modal when active.action is undefined', () => {
+        render(
+            <MockApp active={{ data: { data: 'Test' } }}>
+                <ActiveRemoveConfirmation />
+            </MockApp>
+        );
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
 });
