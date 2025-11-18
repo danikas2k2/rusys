@@ -25,13 +25,12 @@
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
-1. **`ImportBox.tsx`** - 88.88% branch coverage
-2. **`SwipePanel.tsx`** - 82.25% branch coverage
-3. **`DetailsBox.tsx`** - 82.41% branch coverage
-4. **`useLabels.ts`** - 88.88% branch coverage
-5. **`useLongPress.ts`** - 84.21% branch coverage
-6. **`ActiveContentOutsideClick.tsx`** - 84.61% branch coverage
-7. **`GroupBox.tsx`** - 81.63% branch coverage
+1. **`SwipePanel.tsx`** - 82.25% branch coverage
+2. **`DetailsBox.tsx`** - 82.41% branch coverage
+3. **`useLabels.ts`** - 88.88% branch coverage
+4. **`useLongPress.ts`** - 84.21% branch coverage
+5. **`ActiveContentOutsideClick.tsx`** - 84.61% branch coverage
+6. **`GroupBox.tsx`** - 81.63% branch coverage
 
 ---
 
