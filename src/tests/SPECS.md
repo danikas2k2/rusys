@@ -552,6 +552,37 @@ it('handles drag gesture', async () => {
     });
     ```
 
+- **NIEKADA netestuoti neįmanomų scenarijų arba castinti tipus per aplinkui:**
+
+    ```tsx
+    // ❌ BLOGAI - castinimas per aplinkui, kai tipas neleidžia undefined
+    jest.mocked(useQuickFilterContext).mockReturnValue([undefined as unknown as string, setFilter]);
+
+    // ❌ BLOGAI - testuojamas scenarijus, kuris neįmanomas pagal tipus
+    it('uses default empty string when filter is undefined', () => {
+        jest.mocked(useQuickFilterContext).mockReturnValue([undefined as unknown as string, setFilter]);
+        // ...
+    });
+
+    // ✅ GERAI - naudoti tuščią string, jei reikia testuoti default value
+    it('uses empty string when filter is empty', () => {
+        jest.mocked(useQuickFilterContext).mockReturnValue(['', setFilter]);
+        // ...
+    });
+
+    // ✅ GERAI - jei tipas leidžia undefined, testuoti be cast'inimo
+    it('handles undefined value', () => {
+        jest.mocked(useGroups).mockReturnValue(undefined);
+        // ...
+    });
+    ```
+
+    - **Kodėl ne castinti tipus?**
+        - Cast'inimas slepia tikrąją tipų struktūrą
+        - Testai turėtų atspindėti tikrąjį kodą ir jo tipus
+        - Jei tipas neleidžia `undefined`, tai reiškia, kad toks scenarijus neįmanomas
+        - Testuoti reikia tik įmanomus scenarijus pagal tipus
+
 ### 5.3. Mock funkcijų kvietimų tikrinimas
 
 - **Naudoti `toHaveBeenCalledWith()`** tikrinti mock funkcijų kvietimus:
