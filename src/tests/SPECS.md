@@ -512,6 +512,46 @@ it('handles drag gesture', async () => {
     });
     ```
 
+- **Naudoti `beforeEach()` vietoje `beforeAll()`** kai mock reikšmė yra keičiama testuose:
+
+    ```tsx
+    // ❌ BLOGAI - mock reikšmė nustatyta beforeAll, bet keičiama testuose
+    describe('<Component>', () => {
+        const setActive = jest.fn();
+
+        beforeAll(() => {
+            jest.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
+        });
+
+        it('test 1', () => {
+            jest.mocked(useActiveContent).mockReturnValue([{ data: {} }, setActive]);
+            // testas keičia mock reikšmę
+        });
+
+        it('test 2', () => {
+            // testas naudoja blogą mock reikšmę iš test 1
+        });
+    });
+
+    // ✅ GERAI - mock reikšmė nustatyta beforeEach, reset'inama tarp testų
+    describe('<Component>', () => {
+        const setActive = jest.fn();
+
+        beforeEach(() => {
+            jest.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
+        });
+
+        it('test 1', () => {
+            jest.mocked(useActiveContent).mockReturnValue([{ data: {} }, setActive]);
+            // testas keičia mock reikšmę
+        });
+
+        it('test 2', () => {
+            // testas naudoja teisingą default mock reikšmę
+        });
+    });
+    ```
+
 ### 5.3. Mock funkcijų kvietimų tikrinimas
 
 - **Naudoti `toHaveBeenCalledWith()`** tikrinti mock funkcijų kvietimus:

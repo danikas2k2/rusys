@@ -34,19 +34,19 @@ describe('<ValueCell>', () => {
         { group, variant: 'd', order: 1, suffix: 'd' },
         { group, variant: 'm', order: 2, suffix: 'm' },
     ];
+
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const setRemoving = jest.fn();
     const setActive = jest.fn();
 
-    beforeAll(() => {
+    beforeEach(() => {
         jest.mocked(useSetDetailsRemoving).mockReturnValue(setRemoving);
         jest.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
-        jest.mocked(useDetailsUpdating).mockReturnValue(false);
         jest.mocked(useActiveSwipe).mockReturnValue(false);
+        jest.mocked(useDetailsUpdating).mockReturnValue(false);
+        jest.useFakeTimers();
     });
-
-    beforeEach(() => jest.useFakeTimers());
 
     afterEach(() => {
         jest.runOnlyPendingTimers();
