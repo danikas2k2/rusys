@@ -1,13 +1,13 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,462 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,464 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
 | **Statements** | 98.54%   |
-| **Branches**   | 91.96%   |
+| **Branches**   | 92.01%   |
 | **Functions**  | 98.35%   |
 | **Lines**      | 98.76%   |
 
@@ -21,21 +21,20 @@
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
-1. **`useSetDetailsMissing.ts`** - 75% branch coverage
-2. **`MissingOnlyCheckbox.tsx`** - 75% branch coverage
-3. **`useActiveSwipe.ts`** - 75% branch coverage
-4. **`VariantBox.tsx`** - 77.41% branch coverage
-5. **`useLoginSuccess.ts`** - 80% branch coverage
-6. **`useSetDetailsRemoving.ts`** - 80% branch coverage
-7. **`useLongPress.ts`** - 80% branch coverage
-8. **`ValueInput.tsx`** - 81.48% branch coverage
-9. **`GroupBox.tsx`** - 81.63% branch coverage
-10. **`SwipePanel.tsx`** - 82.25% branch coverage
-11. **`ConfirmationDialog.tsx`** - 82.35% branch coverage
-12. **`DetailsBox.tsx`** - 82.41% branch coverage
-13. **`useIsAnnual.ts`** - 83.33% branch coverage
-14. **`SwipeableTableRow.tsx`** - 84.02% branch coverage
-15. **`ActiveContentOutsideClick.tsx`** - 84.61% branch coverage
+1. **`MissingOnlyCheckbox.tsx`** - 75% branch coverage
+2. **`useActiveSwipe.ts`** - 75% branch coverage
+3. **`VariantBox.tsx`** - 77.41% branch coverage
+4. **`useLoginSuccess.ts`** - 80% branch coverage
+5. **`useSetDetailsRemoving.ts`** - 80% branch coverage
+6. **`useLongPress.ts`** - 80% branch coverage
+7. **`ValueInput.tsx`** - 81.48% branch coverage
+8. **`GroupBox.tsx`** - 81.63% branch coverage
+9. **`SwipePanel.tsx`** - 82.25% branch coverage
+10. **`ConfirmationDialog.tsx`** - 82.35% branch coverage
+11. **`DetailsBox.tsx`** - 82.41% branch coverage
+12. **`useIsAnnual.ts`** - 83.33% branch coverage
+13. **`SwipeableTableRow.tsx`** - 84.02% branch coverage
+14. **`ActiveContentOutsideClick.tsx`** - 84.61% branch coverage
 
 ### P2 - Žemas (Branch Coverage 85-95%)
 

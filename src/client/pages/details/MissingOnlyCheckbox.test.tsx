@@ -106,6 +106,18 @@ describe('<MissingOnlyCheckbox>', () => {
         expect(onClick).toHaveBeenCalledWith();
     });
 
+    it('does not call onClick when onClick is undefined', async () => {
+        render(
+            <MockTheme>
+                <MissingOnlyCheckbox />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('checkbox'));
+
+        expect(setMissingOnly).toHaveBeenCalledWith(true);
+    });
+
     it('does not change missing only state when hasMissing is false', async () => {
         jest.mocked(useHasMissing).mockReturnValue(false);
         render(
