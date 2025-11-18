@@ -17,20 +17,24 @@
 
 ### P0 - Aukštas (Branch Coverage < 70%)
 
-1. **`ValueCell.tsx`** - 84.61% branch coverage
-2. **`ValueInput.tsx`** - 81.48% branch coverage
-3. **`ConfirmationDialog.tsx`** - 82.35% branch coverage
-4. **`ActiveRemoveConfirmation.tsx`** - 78.57% branch coverage
+*Nėra failų su coverage < 70%*
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
+1. **`ActiveRemoveConfirmation.tsx`** - 87.5% branch coverage (uncovered: 19)
+2. **`ValueCell.tsx`** - 87.5% branch coverage (uncovered: 62-66)
+3. **`ValueInput.tsx`** - 81.48% branch coverage
+4. **`ConfirmationDialog.tsx`** - 82.35% branch coverage
+5. **`SwipePanel.tsx`** - 82.25% branch coverage
+6. **`DetailsBox.tsx`** - 82.41% branch coverage
+7. **`useLongPress.ts`** - 84.21% branch coverage
+8. **`ActiveContentOutsideClick.tsx`** - 84.61% branch coverage
+9. **`GroupBox.tsx`** - 81.63% branch coverage
+
+### P2 - Žemas (Branch Coverage 85-95%)
+
 1. **`ValueBox.tsx`** - 91.42% branch coverage
-2. **`SwipePanel.tsx`** - 82.25% branch coverage
-3. **`DetailsBox.tsx`** - 82.41% branch coverage
-4. **`useLabels.ts`** - 88.88% branch coverage
-5. **`useLongPress.ts`** - 84.21% branch coverage
-6. **`ActiveContentOutsideClick.tsx`** - 84.61% branch coverage
-7. **`GroupBox.tsx`** - 81.63% branch coverage
+2. **`useLabels.ts`** - 88.88% branch coverage
 
 ---
 

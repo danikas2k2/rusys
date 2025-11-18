@@ -32,7 +32,8 @@ export function ValueCell({
 }: ValueCellProps) {
     const [, setActive] = useActiveContent<DetailsAmounts>();
     const setRemoving = useSetDetailsRemoving();
-    const updating = useDetailsUpdating({ group, name, year: span ? 0 : year });
+    const updatingYear = span ? 0 : year;
+    const updating = useDetailsUpdating({ group, name, year: updatingYear });
     const swipeActive = useActiveSwipe();
 
     const [loaderVisible, setLoaderVisible] = useState(false);
@@ -50,9 +51,10 @@ export function ValueCell({
         }
     }, [updating]);
 
-    const handleShortPress = useCallback(() => {
-        setActive({ action: 'values', data: { group, name, year: span ? 0 : year, amounts } });
-    }, [setActive, group, name, span, year, amounts]);
+    const handleShortPress = useCallback(
+        () => setActive({ action: 'values', data: { group, name, year: updatingYear, amounts } }),
+        [setActive, group, name, updatingYear, amounts]
+    );
 
     // TODO add setRemoving to edit dialog
     const handleLongPress = useCallback((): void => {

@@ -7,6 +7,7 @@ import React from 'react';
 import { Table } from '@mantine/core';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { useActiveSwipe } from '~/client/hooks/useActiveSwipe';
 import { useDetailsUpdating } from '~/client/pages/details/UpdatingDetailsContext';
 import { ValueCell, type ValueCellProps } from '~/client/pages/details/ValueCell';
 import { useSetDetailsRemoving } from '~/client/state/details/useSetDetailsRemoving';
@@ -20,6 +21,9 @@ jest.mock('~/client/common/ActiveContentContext', () => ({
 }));
 jest.mock('~/client/pages/details/UpdatingDetailsContext', () => ({
     useDetailsUpdating: jest.fn(),
+}));
+jest.mock('~/client/hooks/useActiveSwipe', () => ({
+    useActiveSwipe: jest.fn(),
 }));
 
 describe('<ValueCell>', () => {
@@ -39,6 +43,7 @@ describe('<ValueCell>', () => {
         jest.mocked(useSetDetailsRemoving).mockReturnValue(setRemoving);
         jest.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
         jest.mocked(useDetailsUpdating).mockReturnValue(false);
+        jest.mocked(useActiveSwipe).mockReturnValue(false);
     });
 
     beforeEach(() => jest.useFakeTimers());
@@ -116,13 +121,7 @@ describe('<ValueCell>', () => {
 
             expect(setActive).toHaveBeenCalledWith({
                 action: 'values',
-                data: {
-                    group: props.group,
-                    name: props.name,
-                    year: props.year,
-                    amounts: props.amounts,
-                    span: props.span,
-                },
+                data: props,
             });
             expect(setRemoving).not.toHaveBeenCalled();
         });
@@ -185,13 +184,7 @@ describe('<ValueCell>', () => {
 
             expect(setActive).toHaveBeenCalledWith({
                 action: 'values',
-                data: {
-                    group: props.group,
-                    name: props.name,
-                    year: props.year,
-                    amounts: props.amounts,
-                    span: props.span,
-                },
+                data: props,
             });
             expect(setRemoving).not.toHaveBeenCalled();
         });
@@ -218,10 +211,7 @@ describe('<ValueCell>', () => {
                 </MockApp>
             );
 
-            const loader = screen.getByRole('progressbar');
-
-            expect(loader).toBeInTheDocument();
-            expect(loader).toHaveAttribute('data-visible', 'true');
+            expect(screen.getByRole('progressbar')).toHaveAttribute('data-visible', 'true');
         });
 
         it('hides loader when updating becomes false and transition ends', () => {
@@ -255,13 +245,200 @@ describe('<ValueCell>', () => {
                 </MockApp>
             );
 
-            const loader = screen.getByRole('progressbar');
-
-            act(() => {
-                fireEvent.transitionEnd(loader);
-            });
+            act(() => fireEvent.transitionEnd(screen.getByRole('progressbar')));
 
             expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        });
+
+        it('does not hide loader when updating is true and transition ends', () => {
+            jest.mocked(useDetailsUpdating).mockReturnValue(true);
+
+            render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            act(() => fireEvent.transitionEnd(screen.getByRole('progressbar')));
+
+            expect(screen.getByRole('progressbar')).toBeInTheDocument();
+        });
+    });
+
+    describe('span prop', () => {
+        const props: ValueCellProps = {
+            ...defaultProps,
+            amounts: [{ variant: 'p', amount: 1 }],
+            span: 3,
+        };
+
+        it('uses span to set year to 0 when span is provided', () => {
+            render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            expect(screen.getByRole('cell')).toBeInTheDocument();
+        });
+
+        it('sets year to 0 in active state when span is provided and cell is clicked', async () => {
+            render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            await user.click(screen.getByRole('cell'));
+            act(() => jest.advanceTimersByTime(100));
+
+            expect(setActive).toHaveBeenCalledWith({
+                action: 'values',
+                data: {
+                    ...props,
+                    year: 0,
+                    span: undefined,
+                },
+            });
+        });
+    });
+
+    describe('swipeActive', () => {
+        const props: ValueCellProps = {
+            ...defaultProps,
+            amounts: [{ variant: 'p', amount: 1 }],
+        };
+
+        it('disables interactions when swipeActive is true', async () => {
+            jest.mocked(useActiveSwipe).mockReturnValue(true);
+
+            render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            await user.click(screen.getByRole('cell'));
+            act(() => jest.advanceTimersByTime(100));
+
+            expect(setActive).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('navigator.vibrate', () => {
+        const props: ValueCellProps = {
+            ...defaultProps,
+            amounts: [{ variant: 'p', amount: 1 }],
+        };
+
+        const originalNavigator = global.navigator;
+        const mockVibrate = jest.fn();
+
+        afterEach(() =>
+            Object.defineProperty(global, 'navigator', {
+                value: originalNavigator,
+                writable: true,
+                configurable: true,
+            })
+        );
+
+        it('calls navigator.vibrate when available and long press is triggered', async () => {
+            Object.defineProperty(global, 'navigator', {
+                value: { vibrate: mockVibrate },
+                writable: true,
+                configurable: true,
+            });
+
+            render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
+            act(() => jest.advanceTimersByTime(500));
+
+            expect(mockVibrate).toHaveBeenCalledWith(500);
+        });
+
+        it('does not call vibrate when navigator is undefined', async () => {
+            Object.defineProperty(global, 'navigator', {
+                value: undefined,
+                writable: true,
+                configurable: true,
+            });
+
+            render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
+            act(() => jest.advanceTimersByTime(500));
+
+            expect(mockVibrate).not.toHaveBeenCalled();
+        });
+
+        it('does not call vibrate when navigator.vibrate is undefined', async () => {
+            Object.defineProperty(global, 'navigator', {
+                value: {},
+                writable: true,
+                configurable: true,
+            });
+
+            render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ValueCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
+            act(() => jest.advanceTimersByTime(500));
+
+            expect(mockVibrate).not.toHaveBeenCalled();
         });
     });
 });
