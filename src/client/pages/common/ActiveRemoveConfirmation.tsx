@@ -21,12 +21,9 @@ export function ActiveRemoveConfirmation<D = ActiveContentData>({
     const handleClose = useCallback(() => setActive(), [setActive]);
 
     const handleConfirm = useCallback(async () => {
-        const data = active?.data;
-        if (data) {
-            await onConfirm?.(data);
-        }
+        await onConfirm?.(active!.data!); // handleConfirm is only callable when active?.data is defined
         handleClose();
-    }, [active?.data, handleClose, onConfirm]);
+    }, [active, handleClose, onConfirm]);
 
     return (
         <ConfirmationDialog

@@ -18,6 +18,8 @@ export interface ValueCellProps extends DetailsAmounts {
     span?: number;
 }
 
+const LONG_PRESS_VIBRATE_DURATION = 500;
+
 export function ValueCell({
     group,
     name,
@@ -55,7 +57,7 @@ export function ValueCell({
     // TODO add setRemoving to edit dialog
     const handleLongPress = useCallback((): void => {
         void setRemoving(group, name, year, !removing);
-        navigator?.vibrate?.(200);
+        navigator?.vibrate?.(LONG_PRESS_VIBRATE_DURATION);
     }, [setRemoving, group, name, year, removing]);
 
     const longPress = useLongPress<HTMLTableCellElement>(handleLongPress, handleShortPress);
