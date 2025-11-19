@@ -21,19 +21,16 @@ describe('useLongPress', () => {
 
     function ButtonWithLongPress({
         onClick,
-        clickDelay,
         onLongPress,
-        longPressDelay,
+        delay,
         children,
     }: React.PropsWithChildren<{
         onClick?: React.PointerEventHandler;
-        clickDelay?: number;
         onLongPress?: React.PointerEventHandler;
-        longPressDelay?: number;
+        delay?: number;
     }>): React.ReactElement {
-        const events = useLongPress<HTMLDivElement>({ onClick, clickDelay, onLongPress, longPressDelay });
         return (
-            <div role="button" {...events}>
+            <div role="button" {...useLongPress({ onClick, onLongPress, delay })}>
                 {children}
             </div>
         );
@@ -66,20 +63,6 @@ describe('useLongPress', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
             await user.pointer({ target: screen.getByRole('button'), keys: '[TouchA]' });
-
-            expect(onLongPress).not.toHaveBeenCalled();
-            expect(onClick).toHaveBeenCalledWith(expect.event('pointerup'));
-        });
-
-        it('triggers onClick after short delay if clickDelay is set', async () => {
-            render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} clickDelay={100} />);
-
-            await user.pointer({ target: screen.getByRole('button'), keys: '[TouchA]' });
-
-            expect(onLongPress).not.toHaveBeenCalled();
-            expect(onClick).not.toHaveBeenCalled();
-
-            jest.advanceTimersByTime(100);
 
             expect(onLongPress).not.toHaveBeenCalled();
             expect(onClick).toHaveBeenCalledWith(expect.event('pointerup'));
