@@ -129,6 +129,22 @@ describe('<GroupBox>', () => {
             expect(screen.getByRole('textbox')).toHaveFocus();
             expect(screen.getByRole('alert')).toHaveTextContent('Group already exists');
         });
+
+        it('displays error without closing dialog when name contains colon', async () => {
+            jest.mocked(useUpdateGroup).mockReturnValue(addGroup);
+            render(
+                <MockApp state={state}>
+                    <GroupBox opened onClose={onClose} />
+                </MockApp>
+            );
+            await user.type(screen.getByRole('textbox'), 'Group:Name');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(addGroup).not.toHaveBeenCalled();
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('textbox')).toHaveFocus();
+            expect(screen.getByRole('alert')).toHaveTextContent('Cannot contain ":" character');
+        });
     });
 
     describe('calls rename details handle when updating an existing entry', () => {
@@ -196,6 +212,23 @@ describe('<GroupBox>', () => {
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox')).toHaveFocus();
             expect(screen.getByRole('alert')).toHaveTextContent('Group already exists');
+        });
+
+        it('displays error without closing dialog when name contains colon', async () => {
+            jest.mocked(useRenameGroup).mockReturnValue(renameGroup);
+            render(
+                <MockApp state={state}>
+                    <GroupBox opened group="Daržovės" onClose={onClose} />
+                </MockApp>
+            );
+            await user.clear(screen.getByRole('textbox'));
+            await user.type(screen.getByRole('textbox'), 'Group:Name');
+            await user.click(screen.getByRole('button', { name: 'Update' }));
+
+            expect(renameGroup).not.toHaveBeenCalled();
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('textbox')).toHaveFocus();
+            expect(screen.getByRole('alert')).toHaveTextContent('Cannot contain ":" character');
         });
 
         it('closes without updating when name was not changed', async () => {

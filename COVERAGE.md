@@ -1,6 +1,6 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,490 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,497 testai | **Pass rate:** 99.67%
 
 ## 📊 Quick Summary
 
@@ -17,20 +17,15 @@
 
 ### P0 - Aukštas (Branch Coverage < 70%)
 
-*Nėra failų su coverage < 70%*
+_Nėra failų su coverage < 70%_
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
-1. **`useLongPress.ts`** - 84% branch coverage
-2. **`ValueInput.tsx`** - 81.48% branch coverage
-3. **`VariantBox.tsx`** - 81.72% branch coverage
-4. **`GroupBox.tsx`** - 81.63% branch coverage
-5. **`SwipePanel.tsx`** - 82.25% branch coverage
-6. **`ConfirmationDialog.tsx`** - 82.35% branch coverage
-7. **`DetailsBox.tsx`** - 82.41% branch coverage
-8. **`useIsAnnual.ts`** - 83.33% branch coverage
-9. **`SwipeableTableRow.tsx`** - 84.02% branch coverage
-10. **`ActiveContentOutsideClick.tsx`** - 84.61% branch coverage
+1. **`VariantBox.tsx`** - 81.72% branch coverage
+2. **`SwipePanel.tsx`** - 82.25% branch coverage
+3. **`DetailsBox.tsx`** - 82.41% branch coverage
+4. **`GroupBox.tsx`** - 83.67% branch coverage
+5. **`SwipeableTableRow.tsx`** - ~82-84% branch coverage
 
 ### P2 - Žemas (Branch Coverage 85-95%)
 
@@ -44,6 +39,18 @@
 8. **`useLabels.ts`** - 88.88% branch coverage
 9. **`ActiveValueBox.tsx`** - 90.9% branch coverage
 10. **`ValueBox.tsx`** - 91.42% branch coverage
+
+---
+
+## ✅ Pabaigti (100% Coverage)
+
+- **`ValueCell.tsx`** - 100% coverage (buvo 33.33%)
+
+---
+
+## ⚠️ Sunku arba Neįmanoma Testuoti
+
+- **`GroupBox.tsx` linija 104** - Loading state su 300ms delay. Reikalauja fake timers, kurie trikdo kitus testus. Galima testuoti, bet reikia atskiros testų grupės su fake timers setup/teardown.
 
 ---
 
