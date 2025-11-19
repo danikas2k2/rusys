@@ -37,4 +37,25 @@ describe('useSetDetailsRemoving', () => {
             removing: false,
         });
     });
+
+    it('does not call request when group is empty', async () => {
+        const { result } = renderHook(() => useSetDetailsRemoving(), { wrapper: MockRedux });
+        await result.current('', 'Avietės', 21, true);
+
+        expect(request).not.toHaveBeenCalled();
+    });
+
+    it('does not call request when name is empty', async () => {
+        const { result } = renderHook(() => useSetDetailsRemoving(), { wrapper: MockRedux });
+        await result.current('Uogienės', '', 21, true);
+
+        expect(request).not.toHaveBeenCalled();
+    });
+
+    it('does not call request when year is 0', async () => {
+        const { result } = renderHook(() => useSetDetailsRemoving(), { wrapper: MockRedux });
+        await result.current('Uogienės', 'Avietės', 0, true);
+
+        expect(request).not.toHaveBeenCalled();
+    });
 });
