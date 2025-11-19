@@ -255,4 +255,37 @@ describe('<VariantBox>', () => {
             expect(onClose).toHaveBeenCalledWith('Daržovės', 'd');
         });
     });
+
+    describe('validation', () => {
+        it('displays error when group is empty', async () => {
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('textbox', { name: 'Group' })).toHaveFocus();
+            expect(screen.getByRole('alert')).toHaveTextContent('Group is required');
+        });
+
+        it('displays error when variant contains colon', async () => {
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('option', { name: 'Daržovės' }));
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test:variant');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('alert')).toHaveTextContent('Cannot contain ":" character');
+        });
+    });
 });
