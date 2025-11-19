@@ -10,11 +10,9 @@ export function MissingOnlyCheckbox({ onClick }: { onClick?: () => void }) {
     const [missingOnly, setMissingOnly] = useMissingOnly();
 
     const handleChange = useCallback(() => {
-        if (hasMissing) {
-            setMissingOnly(!missingOnly);
-        }
+        setMissingOnly(!missingOnly);
         onClick?.();
-    }, [hasMissing, missingOnly, onClick, setMissingOnly]);
+    }, [missingOnly, onClick, setMissingOnly]);
 
     return <Checkbox variant="outline" disabled={!hasMissing} checked={!missingOnly} onChange={handleChange} />;
 }

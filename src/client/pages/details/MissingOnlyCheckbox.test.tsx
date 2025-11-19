@@ -106,7 +106,7 @@ describe('<MissingOnlyCheckbox>', () => {
         expect(onClick).toHaveBeenCalledWith();
     });
 
-    it('does not call onClick when onClick is undefined', async () => {
+    it('toggles checkbox only when onClick not passed', async () => {
         render(
             <MockTheme>
                 <MissingOnlyCheckbox />
