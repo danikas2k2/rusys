@@ -89,7 +89,7 @@ describe('<VariantBox>', () => {
             );
 
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(screen.getByRole('option', { name: 'Daržovės' }));
+            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.type(screen.getByRole('textbox', { name: 'Suffix' }), '4½');
             await user.click(screen.getByRole('button', { name: 'Add' }));
@@ -109,7 +109,7 @@ describe('<VariantBox>', () => {
             );
 
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(screen.getByRole('option', { name: 'Daržovės' }));
+            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -128,7 +128,7 @@ describe('<VariantBox>', () => {
             );
 
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(screen.getByRole('option', { name: 'Daržovės' }));
+            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(updateVariant).not.toHaveBeenCalled();
@@ -146,7 +146,7 @@ describe('<VariantBox>', () => {
             );
 
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(screen.getByRole('option', { name: 'Daržovės' }));
+            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'd');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -280,7 +280,7 @@ describe('<VariantBox>', () => {
             );
 
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(screen.getByRole('option', { name: 'Daržovės' }));
+            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test:variant');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
