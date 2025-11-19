@@ -51,7 +51,7 @@ export function ValueCell({
         }
     }, [updating]);
 
-    const handleShortPress = useCallback(
+    const handleClick = useCallback(
         () => setActive({ action: 'values', data: { group, name, year: updatingYear, amounts } }),
         [setActive, group, name, updatingYear, amounts]
     );
@@ -63,7 +63,10 @@ export function ValueCell({
     }, [setRemoving, group, name, year, removing]);
 
     const empty = !amounts?.length;
-    const longPress = useLongPress<HTMLTableCellElement>(empty ? undefined : handleLongPress, handleShortPress);
+    const longPress = useLongPress<HTMLTableCellElement>({
+        onClick: handleClick,
+        onLongPress: empty ? undefined : handleLongPress,
+    });
     const eventHandlers = updating || swipeActive ? {} : longPress;
     return (
         <Table.Td

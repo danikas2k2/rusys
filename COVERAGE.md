@@ -1,6 +1,6 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,470 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,490 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
@@ -21,7 +21,7 @@
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
-1. **`useLongPress.ts`** - 80% branch coverage
+1. **`useLongPress.ts`** - 84% branch coverage
 2. **`ValueInput.tsx`** - 81.48% branch coverage
 3. **`VariantBox.tsx`** - 81.72% branch coverage
 4. **`GroupBox.tsx`** - 81.63% branch coverage
