@@ -207,6 +207,25 @@ describe('useLongPress', () => {
 
             expect(onClick).toHaveBeenCalledTimes(1);
         });
+
+        it('does not call onLongPress when shortPressRef is true during timeout', async () => {
+            render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
+
+            const button = screen.getByRole('button');
+            // Start pointer down
+            await user.pointer({ target: button, keys: '[TouchA>]' });
+
+            // Release pointer quickly to trigger onClick and set shortPressRef to true
+            await user.pointer({ target: button, keys: '[/TouchA]' });
+
+            expect(onClick).toHaveBeenCalledTimes(1);
+
+            // Advance timers to trigger the long press timeout
+            jest.advanceTimersByTime(500);
+
+            // onLongPress should not be called because shortPressRef was true when timeout executed
+            expect(onLongPress).not.toHaveBeenCalled();
+        });
     });
 
     describe('handleMove edge cases', () => {
@@ -223,6 +242,36 @@ describe('useLongPress', () => {
             jest.advanceTimersByTime(500);
 
             expect(onLongPress).toHaveBeenCalledWith(expect.any(Object));
+        });
+
+        it('clears timeout when move exceeds threshold', async () => {
+            render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
+
+            await user.pointer([
+                // pointerdown
+                { target: screen.getByRole('button'), keys: '[TouchA>]' },
+                // pointermove beyond threshold (x > 10)
+                { pointerName: 'TouchA', coords: { x: 15, y: 0 } },
+            ]);
+
+            jest.advanceTimersByTime(500);
+
+            expect(onLongPress).not.toHaveBeenCalled();
+        });
+
+        it('clears timeout when move exceeds threshold in y direction', async () => {
+            render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
+
+            await user.pointer([
+                // pointerdown
+                { target: screen.getByRole('button'), keys: '[TouchA>]' },
+                // pointermove beyond threshold (y > 10)
+                { pointerName: 'TouchA', coords: { x: 0, y: 15 } },
+            ]);
+
+            jest.advanceTimersByTime(500);
+
+            expect(onLongPress).not.toHaveBeenCalled();
         });
     });
 
