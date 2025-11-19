@@ -164,8 +164,8 @@ describe('useLongPress', () => {
         });
     });
 
-    describe('handleUp edge cases', () => {
-        it('calls handleCancel when longPressRef is true', async () => {
+    describe('click and long press interaction', () => {
+        it('does not trigger onClick when long press was already triggered', async () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
             const button = screen.getByRole('button');
@@ -179,7 +179,7 @@ describe('useLongPress', () => {
             expect(onClick).not.toHaveBeenCalled();
         });
 
-        it('calls handleCancel when onClick is not defined', async () => {
+        it('does not trigger onLongPress when only onLongPress is provided', async () => {
             render(<ButtonWithLongPress onLongPress={onLongPress} />);
 
             const button = screen.getByRole('button');
@@ -188,7 +188,7 @@ describe('useLongPress', () => {
             expect(onLongPress).not.toHaveBeenCalled();
         });
 
-        it('calls handleCancel when inBounds returns false', async () => {
+        it('does not trigger onClick when pointer is outside bounds', async () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
             await user.pointer({
@@ -200,7 +200,7 @@ describe('useLongPress', () => {
             expect(onClick).not.toHaveBeenCalled();
         });
 
-        it('does not call onClick when shortPressRef is already true during same interaction', async () => {
+        it('does not trigger onClick multiple times during same interaction', async () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
             await user.pointer({ target: screen.getByRole('button'), keys: '[TouchA]' });
@@ -208,14 +208,14 @@ describe('useLongPress', () => {
             expect(onClick).toHaveBeenCalledTimes(1);
         });
 
-        it('does not call onLongPress when shortPressRef is true during timeout', async () => {
+        it('does not trigger onLongPress when click was already triggered', async () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
             const button = screen.getByRole('button');
             // Start pointer down
             await user.pointer({ target: button, keys: '[TouchA>]' });
 
-            // Release pointer quickly to trigger onClick and set shortPressRef to true
+            // Release pointer quickly to trigger onClick
             await user.pointer({ target: button, keys: '[/TouchA]' });
 
             expect(onClick).toHaveBeenCalledTimes(1);
@@ -223,13 +223,13 @@ describe('useLongPress', () => {
             // Advance timers to trigger the long press timeout
             jest.advanceTimersByTime(500);
 
-            // onLongPress should not be called because shortPressRef was true when timeout executed
+            // onLongPress should not be called because click was already triggered
             expect(onLongPress).not.toHaveBeenCalled();
         });
     });
 
-    describe('handleMove edge cases', () => {
-        it('does not clear timeout when move is within threshold', async () => {
+    describe('pointer movement handling', () => {
+        it('does not cancel long press when move is within threshold', async () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
             await user.pointer([
@@ -244,7 +244,7 @@ describe('useLongPress', () => {
             expect(onLongPress).toHaveBeenCalledWith(expect.any(Object));
         });
 
-        it('clears timeout when move exceeds threshold', async () => {
+        it('cancels long press when move exceeds threshold', async () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
             await user.pointer([
@@ -259,7 +259,7 @@ describe('useLongPress', () => {
             expect(onLongPress).not.toHaveBeenCalled();
         });
 
-        it('clears timeout when move exceeds threshold in y direction', async () => {
+        it('cancels long press when move exceeds threshold in y direction', async () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
             await user.pointer([
@@ -275,8 +275,8 @@ describe('useLongPress', () => {
         });
     });
 
-    describe('handleClick', () => {
-        it('calls onClick when onClick is triggered', async () => {
+    describe('click handler when onLongPress is not defined', () => {
+        it('triggers onClick when clicked', async () => {
             render(<ButtonWithLongPress onClick={onClick} />);
 
             await user.click(screen.getByRole('button'));
@@ -284,7 +284,7 @@ describe('useLongPress', () => {
             expect(onClick).toHaveBeenCalledWith(expect.any(Object));
         });
 
-        it('does not call onClick when onClick is not defined', async () => {
+        it('does not trigger onClick when onClick is not defined', async () => {
             render(<ButtonWithLongPress />);
 
             await user.click(screen.getByRole('button'));
@@ -293,7 +293,7 @@ describe('useLongPress', () => {
         });
     });
 
-    describe('handleContextMenu', () => {
+    describe('context menu handling', () => {
         it('prevents default and stops propagation', async () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
@@ -308,8 +308,8 @@ describe('useLongPress', () => {
         });
     });
 
-    describe('return value when onLongPress is not defined', () => {
-        it('returns onClick and onContextMenu when onLongPress is not defined', () => {
+    describe('event handlers when onLongPress is not defined', () => {
+        it('provides onClick and onContextMenu handlers', () => {
             render(<ButtonWithLongPress onClick={onClick} />);
 
             const button = screen.getByRole('button');
