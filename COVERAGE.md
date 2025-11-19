@@ -1,6 +1,6 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,464 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,467 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
@@ -21,18 +21,17 @@
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
-1. **`useLoginSuccess.ts`** - 80% branch coverage
-2. **`useSetDetailsRemoving.ts`** - 80% branch coverage
-3. **`useLongPress.ts`** - 80% branch coverage
-4. **`ValueInput.tsx`** - 81.48% branch coverage
-5. **`VariantBox.tsx`** - 81.72% branch coverage
-6. **`GroupBox.tsx`** - 81.63% branch coverage
-7. **`SwipePanel.tsx`** - 82.25% branch coverage
-8. **`ConfirmationDialog.tsx`** - 82.35% branch coverage
-9. **`DetailsBox.tsx`** - 82.41% branch coverage
-10. **`useIsAnnual.ts`** - 83.33% branch coverage
-11. **`SwipeableTableRow.tsx`** - 84.02% branch coverage
-12. **`ActiveContentOutsideClick.tsx`** - 84.61% branch coverage
+1. **`useSetDetailsRemoving.ts`** - 80% branch coverage
+2. **`useLongPress.ts`** - 80% branch coverage
+3. **`ValueInput.tsx`** - 81.48% branch coverage
+4. **`VariantBox.tsx`** - 81.72% branch coverage
+5. **`GroupBox.tsx`** - 81.63% branch coverage
+6. **`SwipePanel.tsx`** - 82.25% branch coverage
+7. **`ConfirmationDialog.tsx`** - 82.35% branch coverage
+8. **`DetailsBox.tsx`** - 82.41% branch coverage
+9. **`useIsAnnual.ts`** - 83.33% branch coverage
+10. **`SwipeableTableRow.tsx`** - 84.02% branch coverage
+11. **`ActiveContentOutsideClick.tsx`** - 84.61% branch coverage
 
 ### P2 - Žemas (Branch Coverage 85-95%)
 

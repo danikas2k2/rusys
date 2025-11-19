@@ -14,7 +14,7 @@ export function useLoginSuccess(
     const setProfile = useSetProfile();
     return useCallback(
         async (response: CredentialResponse | TokenResponse) => {
-            const data = (response as CredentialResponse)?.credential ?? (response as TokenResponse)?.access_token;
+            const data = (response as CredentialResponse).credential ?? (response as TokenResponse).access_token;
             if (data) {
                 const profile = jwtDecode<Profile>(data);
                 const { email } = profile;
@@ -24,7 +24,6 @@ export function useLoginSuccess(
                     return true;
                 }
             }
-
             onError();
             return false;
         },

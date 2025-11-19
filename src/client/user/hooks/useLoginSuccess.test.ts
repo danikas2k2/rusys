@@ -68,4 +68,40 @@ describe('useLoginSuccess', () => {
         expect(emailCheck).not.toHaveBeenCalled();
         expect(onError).toHaveBeenCalledWith();
     });
+
+    it('calls onError when decoded profile from access_token does not contain email', async () => {
+        jest.mocked(jwtDecode).mockReturnValue({ name: 'Test User' });
+
+        const onError = jest.fn();
+        const { result } = renderHook(() => useLoginSuccess(onError));
+        await act(() => result.current({ access_token: 'test-token' } as any));
+
+        expect(setProfile).not.toHaveBeenCalled();
+        expect(emailCheck).not.toHaveBeenCalled();
+        expect(onError).toHaveBeenCalledWith();
+    });
+
+    it('uses access_token when credential is undefined', async () => {
+        jest.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
+
+        const onError = jest.fn();
+        const { result } = renderHook(() => useLoginSuccess(onError));
+        await act(() => result.current({ credential: undefined, access_token: 'test-token' } as any));
+
+        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com' });
+        expect(emailCheck).toHaveBeenCalledWith('test.email@email.com');
+        expect(onError).not.toHaveBeenCalled();
+    });
+
+    it('uses access_token when credential is null', async () => {
+        jest.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
+
+        const onError = jest.fn();
+        const { result } = renderHook(() => useLoginSuccess(onError));
+        await act(() => result.current({ credential: null, access_token: 'test-token' } as any));
+
+        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com' });
+        expect(emailCheck).toHaveBeenCalledWith('test.email@email.com');
+        expect(onError).not.toHaveBeenCalled();
+    });
 });
