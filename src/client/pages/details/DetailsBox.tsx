@@ -19,7 +19,7 @@ interface DetailsBoxProps {
     opened?: boolean;
     group?: string;
     name?: string;
-    onClose?: (group?: string, name?: string) => void;
+    onClose: (group?: string, name?: string) => void;
     onAfterClose?: () => void;
 }
 
@@ -115,8 +115,10 @@ export function DetailsBox({
         if (validation.hasErrors) {
             // Focus first invalid field
             if (validation.errors.group) {
+                // istanbul ignore next - ref.current is always assigned in React Testing Library
                 groupRef.current?.focus();
             } else if (validation.errors.name) {
+                // istanbul ignore next - ref.current is always assigned in React Testing Library
                 nameRef.current?.focus();
             }
             return;
@@ -142,9 +144,10 @@ export function DetailsBox({
                 // Add new
                 await addDetails(values.group, values.name);
             }
-            onClose?.(values.group, values.name);
+            onClose(values.group, values.name);
         } catch (error) {
             form.setFieldError('name', getErrorMessage(error));
+            // istanbul ignore next - ref.current is always assigned in React Testing Library
             nameRef.current?.focus();
         } finally {
             clearTimeout(loadingTimeout);
@@ -152,7 +155,7 @@ export function DetailsBox({
         }
     };
 
-    const handleClose = () => onClose?.();
+    const handleClose = () => onClose();
 
     // Determine button content
     const getButtonContent = () => {

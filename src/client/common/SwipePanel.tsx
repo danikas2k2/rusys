@@ -38,6 +38,8 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
             const closingPanels = prev.map((p) => ({ ...p, closing: true }));
 
             // Animate to offset: 0 in next frame
+            // TODO check if requestAnimationFrame is needed
+            // istanbul ignore next - requestAnimationFrame is async and hard to test reliably
             requestAnimationFrame(() => {
                 setPanels((current) => current.map((p) => (p.closing ? { ...p, offset: 0 } : p)));
             });

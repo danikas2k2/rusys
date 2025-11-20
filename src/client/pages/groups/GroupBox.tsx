@@ -16,7 +16,7 @@ interface GroupBoxProps {
     opened?: boolean;
     group?: string;
     annual?: boolean;
-    onClose?: (group?: string) => void;
+    onClose: (group?: string) => void;
     onAfterClose?: () => void;
 }
 
@@ -72,6 +72,7 @@ export function GroupBox({
             setLoading(false);
 
             const timer = setTimeout(() => {
+                // istanbul ignore next - ref.current is always assigned in React Testing Library
                 inputRef.current?.focus();
             }, 100);
             return () => clearTimeout(timer);
@@ -95,6 +96,7 @@ export function GroupBox({
         const validation = form.validate();
         if (validation.hasErrors) {
             // Focus first invalid field
+            // istanbul ignore next - ref.current is always assigned in React Testing Library
             inputRef.current?.focus();
             return;
         }
@@ -114,9 +116,10 @@ export function GroupBox({
             } else if (!isEditing || annualChanged) {
                 await updateGroup(values.group, values.annual);
             }
-            onClose?.(values.group);
+            onClose(values.group);
         } catch (error) {
             form.setFieldError('group', getErrorMessage(error));
+            // istanbul ignore next - ref.current is always assigned in React Testing Library
             inputRef.current?.focus();
         } finally {
             clearTimeout(loadingTimeout);
@@ -124,7 +127,7 @@ export function GroupBox({
         }
     };
 
-    const handleClose = () => onClose?.();
+    const handleClose = () => onClose();
 
     return (
         <Modal

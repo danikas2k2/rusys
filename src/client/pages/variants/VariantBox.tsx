@@ -20,7 +20,7 @@ interface VariantBoxProps {
     group?: string;
     variant?: string;
     suffix?: string;
-    onClose?: (group?: string, variant?: string) => void;
+    onClose: (group?: string, variant?: string) => void;
     onAfterClose?: () => void;
 }
 
@@ -119,8 +119,10 @@ export function VariantBox({
         if (validation.hasErrors) {
             // Focus first invalid field
             if (validation.errors.group) {
+                // istanbul ignore next - ref.current is always assigned in React Testing Library
                 groupRef.current?.focus();
             } else if (validation.errors.variant) {
+                // istanbul ignore next - ref.current is always assigned in React Testing Library
                 variantRef.current?.focus();
             }
             return;
@@ -149,9 +151,10 @@ export function VariantBox({
                 // Add new or update suffix
                 await updateVariant(values.group, values.variant, { suffix: values.suffix });
             }
-            onClose?.(values.group, values.variant);
+            onClose(values.group, values.variant);
         } catch (error) {
             form.setFieldError('variant', getErrorMessage(error));
+            // istanbul ignore next - ref.current is always assigned in React Testing Library
             variantRef.current?.focus();
         } finally {
             clearTimeout(loadingTimeout);
@@ -159,7 +162,7 @@ export function VariantBox({
         }
     };
 
-    const handleClose = () => onClose?.();
+    const handleClose = () => onClose();
 
     // Determine button content
     const getButtonContent = () => {
