@@ -6,10 +6,12 @@ import { MockApp } from '@tests/MockApp';
 import React from 'react';
 
 import { VariantBox } from '~/client/pages/variants/VariantBox';
+import { useCopyVariant } from '~/client/state/variants/useCopyVariant';
 import { useRenameVariant } from '~/client/state/variants/useRenameVariant';
 import { useUpdateVariant } from '~/client/state/variants/useUpdateVariant';
 
 jest.mock('~/client/common/Label');
+jest.mock('~/client/state/variants/useCopyVariant');
 jest.mock('~/client/state/variants/useRenameVariant');
 jest.mock('~/client/state/variants/useUpdateVariant');
 jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
@@ -247,6 +249,74 @@ describe('<VariantBox>', () => {
             expect(renameVariant).not.toHaveBeenCalled();
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
             expect(onClose).toHaveBeenCalledWith('Daržovės', 'd');
+        });
+    });
+
+    describe('calls copy variant handler when changing group', () => {
+        const copyVariant = jest.fn();
+
+        beforeEach(() => {
+            copyVariant.mockResolvedValue(undefined);
+            jest.mocked(useCopyVariant).mockReturnValue(copyVariant);
+        });
+
+        it('closes dialog without error when successfully copied', async () => {
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened group="Daržovės" variant="d" onClose={onClose} />
+                </MockApp>
+            );
+
+            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
+            await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
+            await user.click(screen.getByRole('button', { name: 'Duplicate' }));
+
+            expect(copyVariant).toHaveBeenCalledWith('Daržovės', 'd', 'Uogienės', 'NewVariant', { suffix: '' });
+            expect(onClose).toHaveBeenCalledWith('Uogienės', 'NewVariant');
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
+
+        it('displays error without closing dialog when copy fails', async () => {
+            copyVariant.mockRejectedValueOnce('Failed to copy');
+
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened group="Daržovės" variant="d" onClose={onClose} />
+                </MockApp>
+            );
+
+            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
+            await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
+            await user.click(screen.getByRole('button', { name: 'Duplicate' }));
+
+            expect(copyVariant).toHaveBeenCalledWith('Daržovės', 'd', 'Uogienės', 'NewVariant', { suffix: '' });
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('alert')).toHaveTextContent('Failed to copy');
+        });
+
+        it('calls copyVariant with suffix when suffix is provided', async () => {
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened group="Daržovės" variant="d" suffix="test" onClose={onClose} />
+                </MockApp>
+            );
+
+            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
+            await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
+            await user.clear(screen.getByRole('textbox', { name: 'Suffix' }));
+            await user.type(screen.getByRole('textbox', { name: 'Suffix' }), 'new-suffix');
+            await user.click(screen.getByRole('button', { name: 'Duplicate' }));
+
+            expect(copyVariant).toHaveBeenCalledWith('Daržovės', 'd', 'Uogienės', 'NewVariant', {
+                suffix: 'new-suffix',
+            });
+            expect(onClose).toHaveBeenCalledWith('Uogienės', 'NewVariant');
         });
     });
 

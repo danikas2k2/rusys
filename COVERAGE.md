@@ -1,15 +1,15 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-20 | **Testuota:** 1,500 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-20 | **Testuota:** 1,500+ testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
-| **Statements** | 99.10%   |
-| **Branches**   | 93.48%   |
+| **Statements** | 99.13%   |
+| **Branches**   | 93.54%   |
 | **Functions**  | 98.58%   |
-| **Lines**      | 99.34%   |
+| **Lines**      | 99.38%   |
 
 ---
 
@@ -21,13 +21,13 @@ _Nėra failų su coverage < 70%_
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
-- **`DetailsBox.tsx`** - 83.14% branch coverage (linija: 130 - loading timeout su 300ms delay)
-- **`VariantBox.tsx`** - 83.51% branch coverage (linijos: 134, 145 - loading timeout, copyVariant)
+- **`DetailsBox.tsx`** - 83.14% branch coverage (linija: 127 - loading timeout su 300ms delay)
+- **`VariantBox.tsx`** - 84.61% branch coverage (linijos: 131, 145 - loading timeout)
 - **`GroupBox.tsx`** - 83.67% branch coverage (linija: 104 - loading timeout su 300ms delay)
 
 ### P2 - Žemas (Branch Coverage 85-95%)
 
-- **`SwipePanel.tsx`** - 88.88% branch coverage (200ms animacijos delay)
+- **`SwipePanel.tsx`** - 88.88% branch coverage (linijos: 35, 63, 69 - edge cases padengti)
 
 ---
 
