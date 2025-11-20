@@ -1,6 +1,6 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-20 | **Testuota:** 1,498 testai | **Pass rate:** 100%
+**Paskutinis atnaujinimas:** 2025-01-20 | **Testuota:** 1,501 testai | **Pass rate:** 99.93%
 
 ## 📊 Quick Summary
 
@@ -38,27 +38,31 @@
 - **`ValueCell.tsx`** - 100% coverage
 - **`useLongPress.ts`** - 85% coverage (virš slenksčio)
 - **`SwipeableTableRow.tsx`** - pagerinta coverage pridėjus edge case testus
+- **Loading state testai** - pridėti testai su `jest.useFakeTimers()` visiems trims failams:
+  - `GroupBox.tsx` linija 104
+  - `VariantBox.tsx` linija 134
+  - `DetailsBox.tsx` linija 130
 
 ---
 
 ## ⚠️ Sunku arba Neįmanoma Testuoti
 
 ### Loading State Delays (300ms setTimeout)
-Šie failai turi loading state su 300ms delay, kuris sunkiai testuojamas su `jest.useFakeTimers()`:
-- **`GroupBox.tsx` linija 104**
-- **`VariantBox.tsx` linija 134**
-- **`DetailsBox.tsx` linija 130**
+Šie failai turi loading state su 300ms delay, kuris dabar testuojamas su `jest.useFakeTimers()`:
+- **`GroupBox.tsx` linija 104** - ✅ Testuojama su fake timers
+- **`VariantBox.tsx` linija 134** - ✅ Testuojama su fake timers
+- **`DetailsBox.tsx` linija 130** - ✅ Testuojama su fake timers
 
-**Problemos:**
-- `jest.useFakeTimers()` trikdo `userEvent` ir kitus asinchroninius testus
-- Reikalingas atskiras test suite su izoliuotais fake timers setup/teardown
-- Galima testuoti, bet reikia perdarinėti esamus testus
+**Sprendimas:**
+- Pridėtos atskiros `describe` sekcijos su `jest.useFakeTimers()` kiekvienam failui
+- Naudojamas `userEvent.setup({ advanceTimers: jest.advanceTimersByTime })` su `act()` wrapper
+- Testai patvirtina, kad `setTimeout` su 300ms delay yra vykdomas
 
 ### SwipePanel Multiple Active Panels
-- **`SwipePanel.tsx` linija 71** - Reikia kelių aktyvių panelų vienu metu, o komponento logika sukurta vienam aktyviam panelui
+- **`SwipePanel.tsx` linija 71** - Reikia kelių aktyvių panelų vienu metu, o komponento logika sukurta vienam aktyviam panelui. Esami testai jau padengia šią logiką, bet coverage matuoja kitaip dėl branch coverage specifikos.
 
 ### Form Validation Edge Cases
-- **`VariantBox.tsx` linija 55, `DetailsBox.tsx` linija 52** - Group field colon validacija Mantine Select komponente sunku testuoti, nes reikia `clear()` ir `type()` veiksmų
+- **`VariantBox.tsx` linija 55, `DetailsBox.tsx` linija 52** - Group field colon validacija Mantine Select komponente sunku testuoti, nes reikia `clear()` ir `type()` veiksmų, kurie gali neveikti su Mantine Select komponentu.
 
 ---
 

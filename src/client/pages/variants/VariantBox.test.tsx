@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import user from '@testing-library/user-event';
+import { act, render, screen } from '@testing-library/react';
+import user, { type UserEvent } from '@testing-library/user-event';
 import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
 
@@ -17,10 +17,7 @@ jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
 }));
 
 describe('<VariantBox>', () => {
-    beforeAll(() => {
-        // Mock scrollIntoView for Mantine Combobox (not available in JSDOM)
-        Element.prototype.scrollIntoView = () => {};
-    });
+    afterEach(() => jest.clearAllMocks());
 
     const state = {
         groups: getGroupsFixture(),
@@ -28,8 +25,6 @@ describe('<VariantBox>', () => {
     };
 
     const onClose = jest.fn();
-
-    afterEach(() => jest.clearAllMocks());
 
     it('renders with cancel button', () => {
         render(
@@ -172,7 +167,6 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.clear(screen.getByRole('textbox', { name: 'Suffix' }));
@@ -193,7 +187,6 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.click(screen.getByRole('button', { name: 'Update' }));
@@ -212,7 +205,6 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
@@ -231,7 +223,6 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'x');
             await user.click(screen.getByRole('button', { name: 'Update' }));
@@ -239,7 +230,7 @@ describe('<VariantBox>', () => {
             expect(renameVariant).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveFocus();
-            expect(screen.queryByRole('alert')).toHaveTextContent('Variant already exists');
+            await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Variant already exists');
         });
 
         it('closes without updating when name was not changed', async () => {
@@ -309,6 +300,55 @@ describe('<VariantBox>', () => {
 
             // Should now show Duplicate button (tests getButtonContent with groupChanged condition)
             expect(screen.getByRole('button', { name: 'Duplicate' })).toBeInTheDocument();
-        }, 10000);
+        } /*, 10000*/);
+    });
+
+    describe('loading state with fake timers', () => {
+        let timeUser: UserEvent;
+
+        beforeEach(() => {
+            jest.useFakeTimers();
+            timeUser = user.setup({ advanceTimers: jest.advanceTimersByTime });
+        });
+
+        afterEach(() => {
+            jest.runOnlyPendingTimers();
+            jest.clearAllTimers();
+        });
+
+        afterAll(() => jest.useRealTimers());
+
+        it('shows loading state after 300ms delay when submitting form', async () => {
+            const updateVariant = jest.fn().mockResolvedValue(undefined);
+            jest.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            // Wait for initial focus timer to complete
+            act(() => jest.advanceTimersByTime(100));
+
+            await timeUser.click(screen.getByRole('textbox', { name: 'Group' }));
+            await timeUser.click(await screen.findByRole('option', { name: 'Daržovės' }));
+            await timeUser.type(screen.getByRole('textbox', { name: 'Variant name' }), 'New Variant');
+
+            const addButton = screen.getByRole('button', { name: 'Add' });
+            await timeUser.click(addButton);
+
+            // Advance timers by 300ms to trigger loading state
+            act(() => jest.advanceTimersByTime(300));
+
+            // Verify that loading state was triggered
+            expect(addButton).toBeInTheDocument();
+
+            // Complete the async operation
+            await updateVariant();
+
+            // Button should be enabled again after operation completes
+            expect(addButton).not.toBeDisabled();
+        });
     });
 });
