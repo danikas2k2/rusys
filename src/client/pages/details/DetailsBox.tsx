@@ -48,9 +48,6 @@ export function DetailsBox({
                 if (!value?.trim()) {
                     return _('Group is required');
                 }
-                if (value.includes(':')) {
-                    return _('Cannot contain ":" character');
-                }
                 return null;
             },
             name: (value, values) => {

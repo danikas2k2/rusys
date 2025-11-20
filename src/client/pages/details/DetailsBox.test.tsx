@@ -343,28 +343,6 @@ describe('<DetailsBox>', () => {
             expect(screen.getByRole('textbox', { name: 'Group' })).toHaveFocus();
         });
 
-        it('displays error when group contains colon', async () => {
-            const addDetails = jest.fn();
-            jest.mocked(useAddDetails).mockReturnValue(addDetails);
-
-            render(
-                <MockThemeRedux state={state}>
-                    <DetailsBox opened onClose={onClose} />
-                </MockThemeRedux>
-            );
-
-            // Mantine Select doesn't allow typing colon directly, so we need to select a group first
-            // then try to modify it. But since Select is controlled, colon validation is hard to test.
-            // This test verifies that colon validation exists in the code.
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
-            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Test');
-            await user.click(screen.getByRole('button', { name: 'Add' }));
-
-            // This test passes because we're using a valid group name
-            expect(addDetails).toHaveBeenCalledWith('Daržovės', 'Test');
-        });
-
         it('displays error when name contains colon', async () => {
             const addDetails = jest.fn();
             jest.mocked(useAddDetails).mockReturnValue(addDetails);
