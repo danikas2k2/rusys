@@ -409,5 +409,35 @@ describe('<DetailsBox>', () => {
             // Button should be enabled again after operation completes
             expect(addButton).not.toBeDisabled();
         });
+
+        it('clears timeout when operation completes before 300ms', async () => {
+            const addDetails = jest.fn().mockResolvedValue(undefined);
+            jest.mocked(useAddDetails).mockReturnValue(addDetails);
+
+            render(
+                <MockThemeRedux state={state}>
+                    <DetailsBox opened onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            await timeUser.click(screen.getByRole('textbox', { name: 'Group' }));
+            await timeUser.click(await screen.findByRole('option', { name: 'Daržovės' }));
+            await timeUser.type(screen.getByRole('textbox', { name: 'Title' }), 'Fast Entry');
+
+            const addButton = screen.getByRole('button', { name: 'Add' });
+            await timeUser.click(addButton);
+
+            // Complete the async operation immediately (before 300ms)
+            await addDetails();
+
+            // Advance timers by less than 300ms - timeout should be cleared
+            act(() => {
+                jest.advanceTimersByTime(200);
+            });
+
+            // Button should be enabled and timeout cleared
+            expect(addButton).not.toBeDisabled();
+            expect(onClose).toHaveBeenCalledWith('Daržovės', 'Fast Entry');
+        });
     });
 });

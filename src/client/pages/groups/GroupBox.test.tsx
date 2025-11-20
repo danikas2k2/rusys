@@ -311,5 +311,35 @@ describe('<GroupBox>', () => {
             // Button should be enabled again after operation completes
             expect(addButton).toBeInTheDocument();
         });
+
+        it('clears timeout when operation completes before 300ms', async () => {
+            const updateGroup = jest.fn().mockResolvedValue(undefined);
+            jest.mocked(useUpdateGroup).mockReturnValue(updateGroup);
+
+            render(
+                <MockApp state={state}>
+                    <GroupBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            // Wait for initial focus timer to complete
+            act(() => jest.advanceTimersByTime(100));
+
+            await timeUser.type(screen.getByRole('textbox', { name: 'Group name' }), 'Fast Group');
+            const addButton = screen.getByRole('button', { name: 'Add' });
+            await timeUser.click(addButton);
+
+            // Complete the async operation immediately (before 300ms)
+            await updateGroup();
+
+            // Advance timers by less than 300ms - timeout should be cleared
+            act(() => {
+                jest.advanceTimersByTime(200);
+            });
+
+            // Button should be enabled and timeout cleared
+            expect(addButton).toBeInTheDocument();
+            expect(onClose).toHaveBeenCalledWith('Fast Group');
+        });
     });
 });

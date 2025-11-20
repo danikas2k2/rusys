@@ -21,13 +21,13 @@ _Nėra failų su coverage < 70%_
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
-- **`DetailsBox.tsx`** - 83.14% branch coverage (linija: 127 - loading timeout su 300ms delay)
-- **`VariantBox.tsx`** - 84.61% branch coverage (linijos: 131, 145 - loading timeout)
-- **`GroupBox.tsx`** - 83.67% branch coverage (linija: 104 - loading timeout su 300ms delay)
+- **`DetailsBox.tsx`** - 83.14% branch coverage
+- **`VariantBox.tsx`** - 84.61% branch coverage
+- **`GroupBox.tsx`** - 83.67% branch coverage
 
 ### P2 - Žemas (Branch Coverage 85-95%)
 
-- **`SwipePanel.tsx`** - 88.88% branch coverage (linijos: 35, 63, 69 - edge cases padengti)
+- **`SwipePanel.tsx`** - 88.88% branch coverage
 
 ---
 

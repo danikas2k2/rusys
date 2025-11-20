@@ -420,5 +420,38 @@ describe('<VariantBox>', () => {
             // Button should be enabled again after operation completes
             expect(addButton).not.toBeDisabled();
         });
+
+        it('clears timeout when operation completes before 300ms', async () => {
+            const updateVariant = jest.fn().mockResolvedValue(undefined);
+            jest.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            // Wait for initial focus timer to complete
+            act(() => jest.advanceTimersByTime(100));
+
+            await timeUser.click(screen.getByRole('textbox', { name: 'Group' }));
+            await timeUser.click(await screen.findByRole('option', { name: 'Daržovės' }));
+            await timeUser.type(screen.getByRole('textbox', { name: 'Variant name' }), 'Fast Variant');
+
+            const addButton = screen.getByRole('button', { name: 'Add' });
+            await timeUser.click(addButton);
+
+            // Complete the async operation immediately (before 300ms)
+            await updateVariant();
+
+            // Advance timers by less than 300ms - timeout should be cleared
+            act(() => {
+                jest.advanceTimersByTime(200);
+            });
+
+            // Button should be enabled and timeout cleared
+            expect(addButton).not.toBeDisabled();
+            expect(onClose).toHaveBeenCalledWith('Daržovės', 'Fast Variant');
+        });
     });
 });
