@@ -6,10 +6,10 @@
 
 | Metric         | Coverage |
 | -------------- | -------- |
-| **Statements** | 99.13%   |
-| **Branches**   | 93.87%   |
+| **Statements** | 99.16%   |
+| **Branches**   | 94.00%   |
 | **Functions**  | 98.58%   |
-| **Lines**      | 99.38%   |
+| **Lines**      | 99.42%   |
 
 ---
 
