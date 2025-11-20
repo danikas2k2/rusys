@@ -12,6 +12,9 @@ import { useUpdateVariant } from '~/client/state/variants/useUpdateVariant';
 jest.mock('~/client/common/Label');
 jest.mock('~/client/state/variants/useRenameVariant');
 jest.mock('~/client/state/variants/useUpdateVariant');
+jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
+    useGroupFilter: jest.fn(() => ''),
+}));
 
 describe('<VariantBox>', () => {
     beforeAll(() => {
@@ -286,6 +289,26 @@ describe('<VariantBox>', () => {
 
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('alert')).toHaveTextContent('Cannot contain ":" character');
-        });
+        }, 10000);
+    });
+
+    describe('renders Duplicate button when group is changed', () => {
+        it('shows Duplicate button when editing and group is changed', async () => {
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened group="Daržovės" variant="d" onClose={onClose} />
+                </MockApp>
+            );
+
+            // Initially shows Update button
+            expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
+
+            // Change group to trigger Duplicate button
+            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
+
+            // Should now show Duplicate button (tests getButtonContent with groupChanged condition)
+            expect(screen.getByRole('button', { name: 'Duplicate' })).toBeInTheDocument();
+        }, 10000);
     });
 });

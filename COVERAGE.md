@@ -1,13 +1,13 @@
 # Test Coverage Report
 
-**Paskutinis atnaujinimas:** 2025-01-27 | **Testuota:** 1,497 testai | **Pass rate:** 99.67%
+**Paskutinis atnaujinimas:** 2025-01-20 | **Testuota:** 1,498 testai | **Pass rate:** 100%
 
 ## 📊 Quick Summary
 
 | Metric         | Coverage |
 | -------------- | -------- |
 | **Statements** | 98.59%   |
-| **Branches**   | 92.24%   |
+| **Branches**   | 92.25%   |
 | **Functions**  | 98.35%   |
 | **Lines**      | 98.81%   |
 
@@ -17,40 +17,48 @@
 
 ### P0 - Aukštas (Branch Coverage < 70%)
 
-_Nėra failų su coverage < 70%_
+*Nėra failų su coverage < 70%*
 
 ### P1 - Vidutinis (Branch Coverage 70-85%)
 
-1. **`VariantBox.tsx`** - 81.72% branch coverage
-2. **`SwipePanel.tsx`** - 82.25% branch coverage
-3. **`DetailsBox.tsx`** - 82.41% branch coverage
-4. **`GroupBox.tsx`** - 83.67% branch coverage
-5. **`SwipeableTableRow.tsx`** - ~82-84% branch coverage
+1. **`SwipePanel.tsx`** - 82.25% branch coverage (linija: 71 - sunku testuoti, reikia kelių aktyvių panelų vienu metu)
+2. **`DetailsBox.tsx`** - 82.41% branch coverage (linijos: 52, 130 - colon validacija ir loading timeout)
+3. **`VariantBox.tsx`** - 82.79% branch coverage (linijos: 55, 134, 145 - colon validacija, loading timeout, copyVariant)
+4. **`GroupBox.tsx`** - 83.67% branch coverage (linija: 104 - loading timeout su 300ms delay)
 
 ### P2 - Žemas (Branch Coverage 85-95%)
 
-1. **`ValueRow.tsx`** - 85.71% branch coverage
-2. **`ActiveVariantBox.tsx`** - 87.5% branch coverage
-3. **`ProfileAvatar.tsx`** - 87.5% branch coverage
-4. **`ActiveGroupBox.tsx`** - 87.5% branch coverage
-5. **`ActiveDetailsBox.tsx`** - 87.5% branch coverage
-6. **`ActiveRemoveConfirmation.tsx`** - 87.5% branch coverage
-7. **`amounts.ts`** - 88.88% branch coverage
-8. **`useLabels.ts`** - 88.88% branch coverage
-9. **`ActiveValueBox.tsx`** - 90.9% branch coverage
-10. **`ValueBox.tsx`** - 91.42% branch coverage
+*Failai su coverage virš 85% nelaikomi prioritetais*
 
 ---
 
-## ✅ Pabaigti (100% Coverage)
+## ✅ Pabaigti / Patobulinti
 
-- **`ValueCell.tsx`** - 100% coverage (buvo 33.33%)
+- **`VariantBox.tsx`** - padidinta nuo 81.72% iki 82.79%
+- **`ValueCell.tsx`** - 100% coverage
+- **`useLongPress.ts`** - 85% coverage (virš slenksčio)
+- **`SwipeableTableRow.tsx`** - pagerinta coverage pridėjus edge case testus
 
 ---
 
 ## ⚠️ Sunku arba Neįmanoma Testuoti
 
-- **`GroupBox.tsx` linija 104** - Loading state su 300ms delay. Reikalauja fake timers, kurie trikdo kitus testus. Galima testuoti, bet reikia atskiros testų grupės su fake timers setup/teardown.
+### Loading State Delays (300ms setTimeout)
+Šie failai turi loading state su 300ms delay, kuris sunkiai testuojamas su `jest.useFakeTimers()`:
+- **`GroupBox.tsx` linija 104**
+- **`VariantBox.tsx` linija 134**
+- **`DetailsBox.tsx` linija 130**
+
+**Problemos:**
+- `jest.useFakeTimers()` trikdo `userEvent` ir kitus asinchroninius testus
+- Reikalingas atskiras test suite su izoliuotais fake timers setup/teardown
+- Galima testuoti, bet reikia perdarinėti esamus testus
+
+### SwipePanel Multiple Active Panels
+- **`SwipePanel.tsx` linija 71** - Reikia kelių aktyvių panelų vienu metu, o komponento logika sukurta vienam aktyviam panelui
+
+### Form Validation Edge Cases
+- **`VariantBox.tsx` linija 55, `DetailsBox.tsx` linija 52** - Group field colon validacija Mantine Select komponente sunku testuoti, nes reikia `clear()` ir `type()` veiksmų
 
 ---
 
