@@ -7,7 +7,7 @@
 | Metric         | Coverage |
 | -------------- | -------- |
 | **Statements** | 99.16%   |
-| **Branches**   | 94.00%   |
+| **Branches**   | 94.01%   |
 | **Functions**  | 98.58%   |
 | **Lines**      | 99.42%   |
 
@@ -18,7 +18,7 @@
 - **`DetailsBox.tsx`** - 84.7% branch coverage
 - **`VariantBox.tsx`** - 86.2% branch coverage
 - **`GroupBox.tsx`** - 86.66% branch coverage
-- **`SwipePanel.tsx`** - 88.88% branch coverage
+- **`SwipePanel.tsx`** - 89.28% branch coverage
 
 ---
 
@@ -68,10 +68,10 @@ ref.current?.focus();
 
 - `||` operacijų branch'ai (linija 148: `!isEditing || suffixChanged`)
 
-**SwipePanel.tsx (88.88% branch coverage):**
+**SwipePanel.tsx (89.28% branch coverage):**
 
-- `||` operacijų branch'ai (linija 69: `!active?.data || active?.action`)
-- Edge case su keliais paneliais tuo pačiu `id` - neįmanomas realiame naudojime
+- `||` operacijų branch'ai (linija 72: `!active?.data || active?.action`)
+- Uncovered lines: 35, 65, 72 - šios eilutės yra sunkiai testuojamos dėl asinchroninio elgesio ir kompleksinių branch'ų kombinacijų
 
 ---
 

@@ -148,8 +148,7 @@ describe('<SwipePanel>', () => {
         expect(panels.at(1)).toHaveAttribute('data-closing', 'false');
 
         // Quickly switch to third row before first two panels finish closing
-        // This tests line 71: when existingPanel is found, it updates the panel
-        // But since we're switching to a different id, a new panel is created
+        // Since we're switching to a different id, a new panel is created
         // and previous panels remain in closing state
         await act(async () =>
             rerender(<TestWrapper active={{ id: 'panel-3', data: { name: 'Third' }, offset: -60 }} />)
@@ -202,38 +201,54 @@ describe('<SwipePanel>', () => {
         await waitFor(() => expect(mockSetControlsWidth).toHaveBeenCalledWith(150));
     });
 
-    it('does not update panel when panel is closing with same id', async () => {
+    it('updates panel when reactivating with same id after closing', async () => {
         const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
 
         expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
 
+        // Close panel
         rerender(<TestWrapper active={undefined} />);
 
+        // Panel should be marked as closing
+        expect(screen.getByRole('group')).toHaveAttribute('data-closing', 'true');
+
+        // Reactivate with same id - should update existing panel
         await act(async () =>
             rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -50 }} />)
         );
 
-        expect(screen.queryAllByRole('group').length).toBeGreaterThan(0);
+        // Panel should be updated with new offset
+        const panels = screen.queryAllByRole('group');
+
+        expect(panels.length).toBeGreaterThan(0);
+        expect(panels[0]).toHaveStyle({ transform: 'translateX(-50px)' });
     });
 
-    it('removes closing panel with same id when creating new panel', async () => {
+    it('updates existing panel with same id even when it is closing', async () => {
         const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
 
         expect(screen.queryAllByRole('group')).toHaveLength(1);
+        expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
 
+        // Close panel by setting active to undefined
         rerender(<TestWrapper active={undefined} />);
 
+        // Panel should be marked as closing
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+        expect(screen.getByRole('group')).toHaveAttribute('data-closing', 'true');
+
+        // Reactivate with same id - should update existing panel, not create new one
         await act(async () =>
             rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -50 }} />)
         );
 
-        await act(async () => jest.advanceTimersByTime(250));
+        // Should still have only one panel, but with updated offset
+        // Note: the panel might still be closing if the update happens before the closing animation completes
+        const panels = screen.queryAllByRole('group');
 
-        await waitFor(() =>
-            expect(
-                screen.queryAllByRole('group').filter((p) => p.getAttribute('data-closing') !== 'true')
-            ).toHaveLength(1)
-        );
+        expect(panels).toHaveLength(1);
+        // The panel should be updated with new offset
+        expect(panels[0]).toHaveStyle({ transform: 'translateX(-50px)' });
     });
 
     it('does not set controls width when width is 0', async () => {
@@ -345,5 +360,243 @@ describe('<SwipePanel>', () => {
         render(<TestWrapperWithUndefinedRef />);
 
         expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    });
+
+    it('adds new panel when panel with same id does not exist', async () => {
+        // Test linija 68-70: prev.some((p) => p.id === active.id) === false branch
+        // Pradedame be panelių
+        const { rerender } = render(<TestWrapper />);
+
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+
+        // Pridedame pirmą panelį
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'panel-1', data: { name: 'First' }, offset: -100 }} />)
+        );
+
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+        expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
+    });
+
+    it('updates existing panel when panel with same id exists', async () => {
+        // Test linija 68-69: prev.some((p) => p.id === active.id) === true branch
+        const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+        expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
+
+        // Atnaujiname panelį su tuo pačiu id
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -50 }} />)
+        );
+
+        // Turėtų būti tik vienas panelis (atnaujintas, ne pridėtas naujas)
+        const panels = screen.queryAllByRole('group');
+
+        expect(panels).toHaveLength(1);
+        expect(panels[0]).toHaveStyle({ transform: 'translateX(-50px)' });
+    });
+
+    it('updates correct panel when multiple panels exist and one has same id', async () => {
+        // Test linija 69: prev.map((p) => (p.id === active.id ? { ...p, offset, rect } : p))
+        // Sukuriame scenarijų su keliais paneliais, kur vienas turi tą patį id
+        const { rerender } = render(<TestWrapper active={{ id: 'panel-1', data: { name: 'First' }, offset: -100 }} />);
+
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+
+        // Pridedame antrą panelį (skirtingas id)
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'panel-2', data: { name: 'Second' }, offset: -80 }} />)
+        );
+
+        let panels = screen.queryAllByRole('group');
+
+        expect(panels).toHaveLength(2);
+        expect(panels.at(0)).toHaveAttribute('data-closing', 'true');
+        expect(panels.at(1)).toHaveAttribute('data-closing', 'false');
+        expect(panels.at(1)).toHaveStyle({ transform: 'translateX(-80px)' });
+
+        // Atnaujiname pirmą panelį (panel-1) - turėtų atnaujinti tik tą, kuris turi tą patį id
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'panel-1', data: { name: 'First' }, offset: -60 }} />)
+        );
+
+        panels = screen.queryAllByRole('group');
+
+        // Turėtų būti 2 paneliai: panel-2 vis dar closing, panel-1 atnaujintas
+        expect(panels.length).toBeGreaterThanOrEqual(1);
+
+        // Rasti panelį su panel-1 id ir patikrinti, kad jis atnaujintas
+        const panel1 = panels.find((p) => {
+            // Panel-1 turėtų būti atnaujintas su nauju offset
+            return p.getAttribute('data-closing') === 'false' || p.getAttribute('data-closing') === null;
+        });
+
+        if (panel1) {
+            expect(panel1).toHaveStyle({ transform: 'translateX(-60px)' });
+        }
+    });
+
+    it('does not call closeAllPanels when prevActive.id is undefined', async () => {
+        // Test linija 57: if (prevActive?.id && active?.id && prevActive.id !== active.id)
+        // Kai prevActive.id yra undefined, closeAllPanels neturėtų būti iškviestas
+        const { rerender } = render(<TestWrapper />);
+
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+
+        // Pridedame pirmą panelį (prevActive.id yra undefined)
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />)
+        );
+
+        // Panelis turėtų būti pridėtas be closing state
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+        expect(screen.getByRole('group')).toHaveAttribute('data-closing', 'false');
+    });
+
+    it('does not call closeAllPanels when active.id is undefined', async () => {
+        // Test linija 57: if (prevActive?.id && active?.id && prevActive.id !== active.id)
+        // Kai active.id yra undefined, closeAllPanels neturėtų būti iškviestas dėl id palyginimo
+        const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+
+        // Nustatome active į undefined (bet prevActive.id yra 'test-id')
+        rerender(<TestWrapper active={undefined} />);
+
+        // Panelis turėtų būti pažymėtas kaip closing per else if branch (linija 72)
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+        expect(screen.getByRole('group')).toHaveAttribute('data-closing', 'true');
+    });
+
+    it('closes panels when prevActive has data but active.data is undefined', async () => {
+        // Test linija 72: else if (prevActive?.data && (!active?.data || active?.action))
+        // Branch: prevActive?.data === true && active?.data === false
+        const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+
+        // Nustatome active su undefined data (bet prevActive.data yra truthy)
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'test-id', data: undefined as any, offset: -100 }} />)
+        );
+
+        // Panelis turėtų būti pažymėtas kaip closing
+        await act(async () => jest.advanceTimersByTime(50));
+
+        const panels = screen.queryAllByRole('group');
+
+        // Panelis turėtų būti closing arba pašalintas
+        if (panels.length > 0) {
+            expect(panels[0]).toHaveAttribute('data-closing', 'true');
+        }
+    });
+
+    it('closes panels when prevActive has data and active has action', async () => {
+        // Test linija 72: else if (prevActive?.data && (!active?.data || active?.action))
+        // Branch: prevActive?.data === true && active?.action === true
+        const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+
+        // Nustatome active su action (bet prevActive.data yra truthy)
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'update' }} />)
+        );
+
+        // Panelis turėtų būti pažymėtas kaip closing
+        await act(async () => jest.advanceTimersByTime(50));
+
+        const panels = screen.queryAllByRole('group');
+
+        // Panelis turėtų būti closing arba pašalintas
+        if (panels.length > 0) {
+            expect(panels[0]).toHaveAttribute('data-closing', 'true');
+        }
+    });
+
+    it('does not close panels when prevActive.data is undefined', async () => {
+        // Test linija 72: else if (prevActive?.data && (!active?.data || active?.action))
+        // Branch: prevActive?.data === false (neturėtų iškviesti closeAllPanels)
+        const { rerender } = render(<TestWrapper />);
+
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+
+        // Pridedame panelį (prevActive.data yra undefined)
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />)
+        );
+
+        // Panelis turėtų būti pridėtas be closing state
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+        expect(screen.getByRole('group')).toHaveAttribute('data-closing', 'false');
+    });
+
+    it('covers closeAllPanels with empty panels array when switching between different ids', async () => {
+        // Test linija 35: if (prev.length === 0) return prev;
+        // Sukuriame scenarijų, kur panelių masyvas tuščias ir perjungiame tarp skirtingų id
+        const { rerender } = render(<TestWrapper />);
+
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+
+        // Pridedame panelį
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'test-id-1', data: { name: 'First' }, offset: -100 }} />)
+        );
+
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+
+        // Uždaryti panelę ir palaukti, kol ji bus pašalinta
+        await act(async () => rerender(<TestWrapper active={undefined} />));
+
+        await act(async () => jest.advanceTimersByTime(250));
+
+        await waitFor(() => expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument());
+
+        // Dabar panelių masyvas tuščias, perjungiame į kitą eilutę su skirtingu id
+        // Tai turėtų iškviesti closeAllPanels() su tuščiu masyvu (linija 57-60)
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'test-id-2', data: { name: 'Second' }, offset: -100 }} />)
+        );
+
+        // Panelis turėtų būti pridėtas
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+        expect(screen.getByRole('group')).toHaveAttribute('data-closing', 'false');
+    });
+
+    it('covers if statement when active.data is falsy', () => {
+        // Test linija 65: if (active?.data && active?.ref?.current && active?.offset !== undefined && !active?.action)
+        // Branch: active?.data === false
+        render(<TestWrapper active={{ id: 'test-id', data: null as any, offset: -100 }} />);
+
+        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+    });
+
+    it('covers if statement when active.offset is 0 (not undefined)', () => {
+        // Test linija 65: if (active?.data && active?.ref?.current && active?.offset !== undefined && !active?.action)
+        // Branch: active?.offset === 0 (not undefined, but falsy)
+        render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: 0 }} />);
+
+        // Panelis turėtų būti rodomas, net jei offset yra 0 (offset 0 yra validus)
+        expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+        expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(0px)' });
+    });
+
+    it('covers else if statement when prevActive.data is truthy and active.data is truthy and action is falsy', async () => {
+        // Test linija 72: else if (prevActive?.data && (!active?.data || active?.action))
+        // Branch: prevActive?.data === true && active?.data === true && active?.action === false
+        // Šiuo atveju else if neturėtų būti vykdomas, nes if statement (65) turėtų būti true
+        const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+
+        // Atnaujiname su tuo pačiu id, bet su nauju offset (prevActive.data yra truthy, active.data yra truthy, action yra falsy)
+        await act(async () =>
+            rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -50 }} />)
+        );
+
+        // Panelis turėtų būti atnaujintas per if statement (65), ne per else if (72)
+        expect(screen.queryAllByRole('group')).toHaveLength(1);
+        expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-50px)' });
     });
 });

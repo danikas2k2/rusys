@@ -53,8 +53,8 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
         const prevActive = prevActiveRef.current;
         prevActiveRef.current = active;
 
-        // If switching to a different row (group changed), close previous panels immediately
-        if (prevActive?.data && active?.data && prevActive.data !== active.data) {
+        // If switching to a different row (different id), close previous panels immediately
+        if (prevActive?.id && active?.id && prevActive.id !== active.id) {
             // This is intentional - we're reacting to active changes
             // eslint-disable-next-line
             closeAllPanels();
@@ -64,10 +64,11 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
         // Only render panels when not performing an action
         if (active?.data && active?.ref?.current && active?.offset !== undefined && !active?.action) {
             const rect = active.ref.current.getBoundingClientRect();
-            setPanels((prev) => [
-                ...prev.filter((p) => p.closing && p.id !== active.id),
-                { id: active.id, rect, offset, closing: false },
-            ]);
+            setPanels((prev) =>
+                prev.some((p) => p.id === active.id)
+                    ? prev.map((p) => (p.id === active.id ? { ...p, offset, rect } : p))
+                    : [...prev, { id: active.id, rect, offset, closing: false }]
+            );
         } else if (prevActive?.data && (!active?.data || active?.action)) {
             // Close all panels when active becomes undefined or when an action is active
             closeAllPanels();
