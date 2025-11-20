@@ -62,26 +62,10 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
         // Only render panels when not performing an action
         if (active?.data && active?.ref?.current && active?.offset !== undefined && !active?.action) {
             const rect = active.ref.current.getBoundingClientRect();
-
-            setPanels((prev) => {
-                const existingPanel = prev.find((p) => p.id === active.id && !p.closing);
-
-                // Update existing panel or create new one
-                if (existingPanel) {
-                    return prev.map((p) => (p.id === active.id && !p.closing ? { ...p, offset, rect } : p));
-                }
-
-                // Remove any old closing panels with the same id to avoid duplicate keys
-                return [
-                    ...prev.filter((p) => p.closing && p.id !== active.id),
-                    {
-                        id: active.id,
-                        rect,
-                        offset,
-                        closing: false,
-                    },
-                ];
-            });
+            setPanels((prev) => [
+                ...prev.filter((p) => p.closing && p.id !== active.id),
+                { id: active.id, rect, offset, closing: false },
+            ]);
         } else if (prevActive?.data && (!active?.data || active?.action)) {
             // Close all panels when active becomes undefined or when an action is active
             closeAllPanels();
