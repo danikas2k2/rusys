@@ -56,6 +56,7 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
 
         const offset = active?.offset ?? 0;
         // Only render panels when not performing an action
+        // TODO this code block is hard to test and should be refactored for better testability
         if (active?.data && active?.ref?.current && active?.offset !== undefined && !active?.action) {
             const rect = active.ref.current.getBoundingClientRect();
             setPanels((prev) =>
