@@ -559,37 +559,76 @@ describe('<SwipePanel>', () => {
             {
                 name: 'active.data is falsy (null)',
                 active: { id: 'test-id', data: null as any, offset: -100 },
-                shouldRender: false,
             },
             {
                 name: 'active.data is falsy (undefined)',
                 active: { id: 'test-id', data: undefined as any, offset: -100 },
-                shouldRender: false,
             },
             {
                 name: 'active.data is falsy (false)',
                 active: { id: 'test-id', data: false as any, offset: -100 },
-                shouldRender: false,
             },
             {
                 name: 'active.offset is undefined',
                 active: { id: 'test-id', data: { name: 'Test' } },
-                shouldRender: false,
             },
             {
                 name: 'active.action is truthy (update)',
                 active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'update' },
-                shouldRender: false,
             },
             {
                 name: 'active.action is truthy (remove)',
                 active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'remove' },
-                shouldRender: false,
             },
         ])('does not render panel when $name', ({ active }) => {
             render(<TestWrapper active={active} />);
 
             expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        });
+
+        it.each([
+            {
+                name: 'with negative offset',
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
+                expectedTransform: 'translateX(-100px)',
+            },
+            {
+                name: 'with zero offset',
+                active: { id: 'test-id', data: { name: 'Test' }, offset: 0 },
+                expectedTransform: 'translateX(0px)',
+            },
+            {
+                name: 'with positive offset',
+                active: { id: 'test-id', data: { name: 'Test' }, offset: 50 },
+                expectedTransform: 'translateX(50px)',
+            },
+            {
+                name: 'with action undefined',
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: undefined },
+                expectedTransform: 'translateX(-100px)',
+            },
+            {
+                name: 'with action null',
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: null as any },
+                expectedTransform: 'translateX(-100px)',
+            },
+            {
+                name: 'with action false',
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: false as any },
+                expectedTransform: 'translateX(-100px)',
+            },
+        ])('renders panel when $name', ({ active, expectedTransform }) => {
+            render(<TestWrapper active={active} />);
+
+            const button = screen.getByRole('button', { name: 'Delete' });
+
+            expect(button).toBeInTheDocument();
+
+            const panel = screen.getByRole('group');
+
+            expect(panel).toBeInTheDocument();
+            expect(panel).toHaveStyle({ transform: expectedTransform });
+            expect(panel).toHaveAttribute('data-closing', 'false');
         });
 
         it('does not render panel when active.ref.current is null', () => {
