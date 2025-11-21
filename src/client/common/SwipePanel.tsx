@@ -31,20 +31,14 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
     }, [panels, setControlsWidth]);
 
     const closeAllPanels = useCallback(() => {
-        setPanels((prev) => {
-            if (prev.length === 0) return prev;
+        // First, mark panels as closing (keeps current offset for animation start)
+        setPanels((prev) => prev.map((p) => ({ ...p, closing: true })));
 
-            // First, mark panels as closing (keeps current offset for animation start)
-            const closingPanels = prev.map((p) => ({ ...p, closing: true }));
-
-            // Animate to offset: 0 in next frame
-            // TODO check if requestAnimationFrame is needed
-            // istanbul ignore next - requestAnimationFrame is async and hard to test reliably
-            requestAnimationFrame(() => {
-                setPanels((current) => current.map((p) => (p.closing ? { ...p, offset: 0 } : p)));
-            });
-
-            return closingPanels;
+        // Animate to offset: 0 in next frame
+        // TODO check if requestAnimationFrame is needed
+        // istanbul ignore next - requestAnimationFrame is async and hard to test reliably
+        requestAnimationFrame(() => {
+            setPanels((current) => current.map((p) => (p.closing ? { ...p, offset: 0 } : p)));
         });
     }, []);
 

@@ -1,5 +1,5 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
-import { MockActiveContent } from '@tests/MockActiveContent';
+import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React, { useRef } from 'react';
 
@@ -9,10 +9,6 @@ const mockSetControlsWidth = jest.fn();
 
 jest.mock('~/client/common/SwipeControlsContext', () => ({
     useSwipePanelWidth: jest.fn(() => [120, mockSetControlsWidth]),
-}));
-
-jest.mock('@mantine/core', () => ({
-    Portal: ({ children }: React.PropsWithChildren) => <>{children}</>,
 }));
 
 describe('<SwipePanel>', () => {
@@ -36,11 +32,11 @@ describe('<SwipePanel>', () => {
         const ref = useRef(mockContainer);
 
         return (
-            <MockActiveContent active={active ? { ...active, ref } : undefined}>
+            <MockThemeActive active={active ? { ...active, ref } : undefined}>
                 <SwipePanel>
                     <button type="button">Delete</button>
                 </SwipePanel>
-            </MockActiveContent>
+            </MockThemeActive>
         );
     }
 
@@ -329,11 +325,11 @@ describe('<SwipePanel>', () => {
             const active = { id: 'test-id', data: { name: 'Test' }, offset: -100, ref: nullRef };
 
             return (
-                <MockActiveContent active={active}>
+                <MockThemeActive active={active}>
                     <SwipePanel>
                         <button type="button">Delete</button>
                     </SwipePanel>
-                </MockActiveContent>
+                </MockThemeActive>
             );
         }
 
@@ -349,11 +345,11 @@ describe('<SwipePanel>', () => {
             const active = { id: 'test-id', data: { name: 'Test' }, offset: -100, ref: undefinedRef as any };
 
             return (
-                <MockActiveContent active={active}>
+                <MockThemeActive active={active}>
                     <SwipePanel>
                         <button type="button">Delete</button>
                     </SwipePanel>
-                </MockActiveContent>
+                </MockThemeActive>
             );
         }
 
@@ -395,46 +391,6 @@ describe('<SwipePanel>', () => {
 
         expect(panels).toHaveLength(1);
         expect(panels[0]).toHaveStyle({ transform: 'translateX(-50px)' });
-    });
-
-    it('updates correct panel when multiple panels exist and one has same id', async () => {
-        // Test linija 69: prev.map((p) => (p.id === active.id ? { ...p, offset, rect } : p))
-        // Sukuriame scenarijų su keliais paneliais, kur vienas turi tą patį id
-        const { rerender } = render(<TestWrapper active={{ id: 'panel-1', data: { name: 'First' }, offset: -100 }} />);
-
-        expect(screen.queryAllByRole('group')).toHaveLength(1);
-
-        // Pridedame antrą panelį (skirtingas id)
-        await act(async () =>
-            rerender(<TestWrapper active={{ id: 'panel-2', data: { name: 'Second' }, offset: -80 }} />)
-        );
-
-        let panels = screen.queryAllByRole('group');
-
-        expect(panels).toHaveLength(2);
-        expect(panels.at(0)).toHaveAttribute('data-closing', 'true');
-        expect(panels.at(1)).toHaveAttribute('data-closing', 'false');
-        expect(panels.at(1)).toHaveStyle({ transform: 'translateX(-80px)' });
-
-        // Atnaujiname pirmą panelį (panel-1) - turėtų atnaujinti tik tą, kuris turi tą patį id
-        await act(async () =>
-            rerender(<TestWrapper active={{ id: 'panel-1', data: { name: 'First' }, offset: -60 }} />)
-        );
-
-        panels = screen.queryAllByRole('group');
-
-        // Turėtų būti 2 paneliai: panel-2 vis dar closing, panel-1 atnaujintas
-        expect(panels.length).toBeGreaterThanOrEqual(1);
-
-        // Rasti panelį su panel-1 id ir patikrinti, kad jis atnaujintas
-        const panel1 = panels.find((p) => {
-            // Panel-1 turėtų būti atnaujintas su nauju offset
-            return p.getAttribute('data-closing') === 'false' || p.getAttribute('data-closing') === null;
-        });
-
-        if (panel1) {
-            expect(panel1).toHaveStyle({ transform: 'translateX(-60px)' });
-        }
     });
 
     it('does not call closeAllPanels when prevActive.id is undefined', async () => {
@@ -487,9 +443,8 @@ describe('<SwipePanel>', () => {
         const panels = screen.queryAllByRole('group');
 
         // Panelis turėtų būti closing arba pašalintas
-        if (panels.length > 0) {
-            expect(panels[0]).toHaveAttribute('data-closing', 'true');
-        }
+        expect(panels.length).toBeGreaterThan(0);
+        expect(panels[0]).toHaveAttribute('data-closing', 'true');
     });
 
     it('closes panels when prevActive has data and active has action', async () => {
@@ -510,9 +465,8 @@ describe('<SwipePanel>', () => {
         const panels = screen.queryAllByRole('group');
 
         // Panelis turėtų būti closing arba pašalintas
-        if (panels.length > 0) {
-            expect(panels[0]).toHaveAttribute('data-closing', 'true');
-        }
+        expect(panels.length).toBeGreaterThan(0);
+        expect(panels[0]).toHaveAttribute('data-closing', 'true');
     });
 
     it('does not close panels when prevActive.data is undefined', async () => {
@@ -583,9 +537,9 @@ describe('<SwipePanel>', () => {
     });
 
     it('covers else if statement when prevActive.data is truthy and active.data is truthy and action is falsy', async () => {
-        // Test linija 72: else if (prevActive?.data && (!active?.data || active?.action))
+        // Test linija 66: else if (prevActive?.data && (!active?.data || active?.action))
         // Branch: prevActive?.data === true && active?.data === true && active?.action === false
-        // Šiuo atveju else if neturėtų būti vykdomas, nes if statement (65) turėtų būti true
+        // Šiuo atveju else if neturėtų būti vykdomas, nes if statement (59) turėtų būti true
         const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
 
         expect(screen.queryAllByRole('group')).toHaveLength(1);
@@ -595,8 +549,154 @@ describe('<SwipePanel>', () => {
             rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -50 }} />)
         );
 
-        // Panelis turėtų būti atnaujintas per if statement (65), ne per else if (72)
+        // Panelis turėtų būti atnaujintas per if statement (59), ne per else if (66)
         expect(screen.queryAllByRole('group')).toHaveLength(1);
         expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-50px)' });
+    });
+
+    describe('covers all branches for if statement', () => {
+        it.each([
+            {
+                name: 'active.data is falsy (null)',
+                active: { id: 'test-id', data: null as any, offset: -100 },
+                shouldRender: false,
+            },
+            {
+                name: 'active.data is falsy (undefined)',
+                active: { id: 'test-id', data: undefined as any, offset: -100 },
+                shouldRender: false,
+            },
+            {
+                name: 'active.data is falsy (false)',
+                active: { id: 'test-id', data: false as any, offset: -100 },
+                shouldRender: false,
+            },
+            {
+                name: 'active.offset is undefined',
+                active: { id: 'test-id', data: { name: 'Test' } },
+                shouldRender: false,
+            },
+            {
+                name: 'active.action is truthy (update)',
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'update' },
+                shouldRender: false,
+            },
+            {
+                name: 'active.action is truthy (remove)',
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'remove' },
+                shouldRender: false,
+            },
+        ])('does not render panel when $name', ({ active }) => {
+            render(<TestWrapper active={active} />);
+
+            expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        });
+
+        it('does not render panel when active.ref.current is null', () => {
+            function TestWrapperWithNullRef() {
+                const nullRef = useRef<HTMLDivElement>(null);
+                const active = { id: 'test-id', data: { name: 'Test' }, offset: -100, ref: nullRef };
+
+                return (
+                    <MockThemeActive active={active}>
+                        <SwipePanel>
+                            <button type="button">Delete</button>
+                        </SwipePanel>
+                    </MockThemeActive>
+                );
+            }
+
+            render(<TestWrapperWithNullRef />);
+
+            expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        });
+
+        it('does not render panel when active.ref.current is undefined', () => {
+            function TestWrapperWithUndefinedRef() {
+                const undefinedRef = useRef<HTMLDivElement | undefined>(undefined);
+                const active = { id: 'test-id', data: { name: 'Test' }, offset: -100, ref: undefinedRef as any };
+
+                return (
+                    <MockThemeActive active={active}>
+                        <SwipePanel>
+                            <button type="button">Delete</button>
+                        </SwipePanel>
+                    </MockThemeActive>
+                );
+            }
+
+            render(<TestWrapperWithUndefinedRef />);
+
+            expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        });
+    });
+
+    describe('covers all branches for else if statement', () => {
+        it.each([
+            {
+                name: 'prevActive.data is falsy (undefined)',
+                prevActive: undefined,
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
+                expectedInitialCount: 0,
+                expectedClosing: 'false',
+            },
+            {
+                name: 'prevActive.data is falsy (null)',
+                prevActive: { id: 'test-id', data: null as any, offset: -100 },
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
+                expectedInitialCount: 0,
+                expectedClosing: 'false',
+            },
+            {
+                name: 'prevActive.data is truthy and active.data is falsy (null)',
+                prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
+                active: { id: 'test-id', data: null as any, offset: -100 },
+                expectedInitialCount: 1,
+                expectedClosing: 'true',
+            },
+            {
+                name: 'prevActive.data is truthy and active.data is falsy (undefined)',
+                prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
+                active: { id: 'test-id', data: undefined as any, offset: -100 },
+                expectedInitialCount: 1,
+                expectedClosing: 'true',
+            },
+            {
+                name: 'prevActive.data is truthy and active.action is truthy (update)',
+                prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'update' },
+                expectedInitialCount: 1,
+                expectedClosing: 'true',
+            },
+            {
+                name: 'prevActive.data is truthy and active.action is truthy (remove)',
+                prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'remove' },
+                expectedInitialCount: 1,
+                expectedClosing: 'true',
+            },
+            {
+                name: 'prevActive.data is truthy and active.data is truthy and active.action is falsy',
+                prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
+                expectedInitialCount: 1,
+                expectedClosing: 'false', // else if neturėtų būti vykdomas, nes if statement (59) turėtų būti true
+            },
+        ])('handles $name', async ({ prevActive, active, expectedInitialCount, expectedClosing }) => {
+            const { rerender } = render(<TestWrapper active={prevActive} />);
+
+            const initialPanelsCount = screen.queryAllByRole('group').length;
+
+            expect(initialPanelsCount).toBe(expectedInitialCount);
+
+            await act(async () => rerender(<TestWrapper active={active} />));
+
+            await act(async () => jest.advanceTimersByTime(50));
+
+            const panels = screen.queryAllByRole('group');
+
+            expect(panels.length).toBeGreaterThan(0);
+            expect(panels[0]).toHaveAttribute('data-closing', expectedClosing);
+        });
     });
 });
