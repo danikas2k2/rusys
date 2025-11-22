@@ -767,7 +767,9 @@ describe('<SwipePanel>', () => {
 
     describe('transitionEnd handler', () => {
         it('does not remove panel when transitionEnd propertyName is not transform', async () => {
-            const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+            const { rerender } = render(
+                <TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />
+            );
 
             expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
 
