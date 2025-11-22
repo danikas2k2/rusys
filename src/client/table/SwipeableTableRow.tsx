@@ -195,19 +195,23 @@ export function SwipeableTableRow<D = ActiveContentData>({
 
             // pointerup event may not have clientX/clientY if pointer left the element
             // Use lastClientXRef as fallback if clientX are invalid
-            const clientX = e.clientX || (lastClientXRef.current ?? undefined);
+            // Note: e.clientX can be 0 (invalid), undefined (missing), or a valid number
+            const rawClientX = e.clientX;
+            // Use rawClientX if it's valid (not undefined, not 0), otherwise use lastClientXRef as fallback
+            const clientX = rawClientX !== undefined && rawClientX !== 0 ? rawClientX : undefined;
 
             // Only end drag if we're actually dragging (don't end if swipe never started)
             if (dragging) {
                 // Calculate deltaX from initial to end position (not from x - initialX, as x is intermediate)
                 // Always use clientX coordinates to get the actual swipe distance
+                // Note: initialClientXRef.current is always set in pointerDown, so we don't need to check for null
                 let deltaX: number;
-                if (clientX !== undefined && clientX !== 0 && initialClientXRef.current !== null) {
+                if (clientX !== undefined && clientX !== 0) {
                     // Use clientX if it's valid (not 0, which indicates invalid event)
-                    deltaX = clientX - initialClientXRef.current;
-                } else if (lastClientXRef.current !== null && initialClientXRef.current !== null) {
+                    deltaX = clientX - initialClientXRef.current!;
+                } else if (lastClientXRef.current !== null) {
                     // Fallback to lastClientX if clientX not provided or invalid (0)
-                    deltaX = lastClientXRef.current - initialClientXRef.current;
+                    deltaX = lastClientXRef.current - initialClientXRef.current!;
                 } else if (sliding && x != null) {
                     // Last resort: use x - initialX if we don't have clientX coordinates
                     deltaX = x - initialX;
