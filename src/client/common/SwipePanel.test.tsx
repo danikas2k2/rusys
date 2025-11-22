@@ -764,4 +764,69 @@ describe('<SwipePanel>', () => {
             expect(panels[0]).toHaveAttribute('data-closing', 'true');
         });
     });
+
+    describe('transitionEnd handler', () => {
+        it('does not remove panel when transitionEnd propertyName is not transform', async () => {
+            const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+            expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+
+            rerender(<TestWrapper active={undefined} />);
+
+            const panel = screen.getByRole('group');
+
+            expect(panel).toHaveAttribute('data-closing', 'true');
+
+            // Fire transitionEnd with different propertyName
+            await act(async () => {
+                fireEvent.transitionEnd(panel, { propertyName: 'opacity' });
+            });
+
+            // Panel should still be there because propertyName was not 'transform'
+            expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+
+            // Now fire with correct propertyName
+            await act(async () => {
+                fireEvent.transitionEnd(panel, { propertyName: 'transform' });
+            });
+
+            await waitFor(() => expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument());
+        });
+    });
+
+    describe('getBoundingClientRect edge cases', () => {
+        it('does not render panel when getBoundingClientRect returns null', () => {
+            const mockContainerWithNullRect = document.createElement('div');
+
+            jest.spyOn(mockContainerWithNullRect, 'getBoundingClientRect').mockReturnValue(null as any);
+
+            function TestWrapperWithNullRect() {
+                const ref = useRef(mockContainerWithNullRect);
+
+                return (
+                    <MockThemeActive active={{ id: 'test-id', data: { name: 'Test' }, offset: -100, ref }}>
+                        <SwipePanel>
+                            <button type="button">Delete</button>
+                        </SwipePanel>
+                    </MockThemeActive>
+                );
+            }
+
+            render(<TestWrapperWithNullRect />);
+
+            expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        });
+
+        it('does not render panel when active.ref is undefined', () => {
+            render(
+                <MockThemeActive active={{ id: 'test-id', data: { name: 'Test' }, offset: -100, ref: undefined }}>
+                    <SwipePanel>
+                        <button type="button">Delete</button>
+                    </SwipePanel>
+                </MockThemeActive>
+            );
+
+            expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        });
+    });
 });
