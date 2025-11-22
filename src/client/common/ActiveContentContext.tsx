@@ -10,9 +10,14 @@ export interface ActiveContent<D = ActiveContentData, A = ActiveContentAction> {
     id?: string;
     ref?: React.RefObject<HTMLDivElement | null>;
     offset?: number;
-    pinned?: boolean;
-    action?: A;
+    action?: A; // skirtas dialogams ar kitoms interaktyvioms operacijoms
     data?: D;
+
+    // swipe aktyvus, kai data && offset > 0 && !action
+    // swipe rodomas, kai data && ref && offset && !action
+    // swipe table row visible kai id && !action
+    // visi paneliai uzdaromi, kai prev.data && (!data || action)
+    // outside click aktyvus kai data && offset && !action
 }
 
 export const ActiveContentContext = createContext<[ActiveContent | undefined, (v?: ActiveContent) => void]>([

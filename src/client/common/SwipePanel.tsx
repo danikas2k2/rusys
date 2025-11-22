@@ -22,54 +22,38 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
 
     // Measure controls width from the first rendered panel
     useEffect(() => {
-        if (controlsRef.current) {
-            const width = controlsRef.current.offsetWidth;
-            if (width > 0) {
-                setControlsWidth(width);
-            }
+        const width = controlsRef.current?.offsetWidth;
+        if (width) {
+            setControlsWidth(width);
         }
     }, [panels, setControlsWidth]);
 
     const closeAllPanels = useCallback(() => {
-        // First, mark panels as closing (keeps current offset for animation start)
-        setPanels((prev) => prev.map((p) => ({ ...p, closing: true })));
-
-        // Animate to offset: 0 in next frame
-        // TODO check if requestAnimationFrame is needed
-        // istanbul ignore next - requestAnimationFrame is async and hard to test reliably
-        requestAnimationFrame(() => {
-            setPanels((current) => current.map((p) => (p.closing ? { ...p, offset: 0 } : p)));
-        });
+        setPanels((prev) => prev.map((p) => ({ ...p, closing: true, offset: 0 })));
     }, []);
 
-    // Update panels when active changes
     useEffect(() => {
         const prevActive = prevActiveRef.current;
         prevActiveRef.current = active;
 
-        // If switching to a different row (different id), close previous panels immediately
-        if (prevActive?.id && active?.id && prevActive.id !== active.id) {
+        if (prevActive?.id && (!active || active.action || prevActive.id !== active.id)) {
             // This is intentional - we're reacting to active changes
-            // eslint-disable-next-line
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             closeAllPanels();
         }
 
-        // TODO this code block is hard to test and should be refactored for better testability
-        // Only render panels when not performing an action
-        if (active?.offset !== undefined && !active?.action) {
+        if (!active?.action && active?.offset !== undefined) {
             const rect = active.ref?.current?.getBoundingClientRect();
             if (!rect) {
                 return;
             }
 
-            setPanels((prev) =>
-                prev.some((p) => p.id === active.id)
-                    ? prev.map((p) => (p.id === active.id ? { ...p, offset: active.offset!, rect } : p))
-                    : [...prev, { id: active.id, rect, offset: active.offset!, closing: false }]
-            );
-        } else if (prevActive?.data && (!active?.data || active?.action)) {
-            // Close all panels when active becomes undefined or when an action is active
-            closeAllPanels();
+            const offset = active.offset!;
+            setPanels((prev) => {
+                const panel = { id: active.id, rect, offset };
+                const found = prev.findIndex((p) => p.id === active.id);
+                return found < 0 ? [...prev, panel] : [...prev.slice(0, found), panel, ...prev.slice(found + 1)];
+            });
         }
     }, [active, closeAllPanels]);
 
@@ -79,7 +63,6 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
             const timer = setTimeout(() => {
                 setPanels((prev) => prev.filter((p) => !p.closing));
             }, 200); // Match CSS transition duration
-
             return () => clearTimeout(timer);
         }
     }, [panels]);
@@ -93,7 +76,7 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
                     className={cx('SwipePanel')}
                     role="group"
                     data-swipe-controls
-                    data-closing={panel.closing}
+                    data-closing={!!panel.closing}
                     style={{
                         top: panel.rect.top + 1,
                         height: panel.rect.height - 2,
