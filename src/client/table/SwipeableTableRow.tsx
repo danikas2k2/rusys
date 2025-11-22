@@ -122,6 +122,8 @@ export function SwipeableTableRow<D = ActiveContentData>({
                 const dy: number | undefined = clientY - offsetY;
                 let dx: number | undefined = clientX - offsetX;
                 // Update last clientX/clientY for handleDragEnd
+                // Note: We update lastClientXRef before early returns to ensure it's always set when dragging
+                // This ensures that if sliding is true, lastClientXRef is always set, making the 216-220 branch unreachable
                 lastClientXRef.current = clientX;
                 lastClientYRef.current = clientY;
 
@@ -209,14 +211,11 @@ export function SwipeableTableRow<D = ActiveContentData>({
                 if (clientX !== undefined && clientX !== 0) {
                     // Use clientX if it's valid (not 0, which indicates invalid event)
                     deltaX = clientX - initialClientXRef.current!;
-                } else if (lastClientXRef.current !== null) {
-                    // Fallback to lastClientX if clientX not provided or invalid (0)
-                    deltaX = lastClientXRef.current - initialClientXRef.current!;
-                } else if (sliding && x != null) {
-                    // Last resort: use x - initialX if we don't have clientX coordinates
-                    deltaX = x - initialX;
                 } else {
-                    deltaX = 0;
+                    // Fallback to lastClientX if clientX not provided or invalid (0)
+                    // Note: lastClientXRef is always set in pointerDown (line 108) and updated in pointerMove (line 127),
+                    // so it's never null when dragging is true. We use non-null assertion for TypeScript.
+                    deltaX = lastClientXRef.current! - initialClientXRef.current!;
                 }
 
                 const openPosition = controlsWidth > 0 ? -Math.round(controlsWidth) : 0;
