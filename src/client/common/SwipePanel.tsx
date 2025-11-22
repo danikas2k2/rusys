@@ -57,15 +57,14 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
         }
     }, [active, closeAllPanels]);
 
-    // Remove closed panels after animation
-    useEffect(() => {
-        if (panels.some((p) => p.closing)) {
-            const timer = setTimeout(() => {
-                setPanels((prev) => prev.filter((p) => !p.closing));
-            }, 200); // Match CSS transition duration
-            return () => clearTimeout(timer);
-        }
-    }, [panels]);
+    const handleTransitionEnd = useCallback(
+        (panelId: string | undefined) => (e: React.TransitionEvent) => {
+            if (e.propertyName === 'transform') {
+                setPanels((prev) => prev.filter((p) => p.id !== panelId));
+            }
+        },
+        []
+    );
 
     return (
         <Portal>
@@ -75,13 +74,18 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
                     ref={index === 0 ? controlsRef : undefined}
                     className={cx('SwipePanel')}
                     role="group"
-                    data-swipe-controls
-                    data-closing={!!panel.closing}
                     style={{
                         top: panel.rect.top + 1,
                         height: panel.rect.height - 2,
                         transform: `translateX(${panel.offset}px)`,
                     }}
+                    data-swipe-controls
+                    {...(panel.closing
+                        ? {
+                              ['data-closing']: true,
+                              onTransitionEnd: handleTransitionEnd(panel.id),
+                          }
+                        : {})}
                 >
                     {children}
                 </div>

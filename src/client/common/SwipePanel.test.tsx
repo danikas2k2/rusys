@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React, { useRef } from 'react';
@@ -98,9 +98,14 @@ describe('<SwipePanel>', () => {
 
         rerender(<TestWrapper active={undefined} />);
 
-        expect(screen.queryByRole('button', { name: 'Delete' })).toBeInTheDocument();
+        const panel = screen.getByRole('group');
 
-        await act(async () => jest.advanceTimersByTime(250));
+        expect(panel).toBeInTheDocument();
+        expect(panel).toHaveAttribute('data-closing', 'true');
+
+        await act(async () => {
+            fireEvent.transitionEnd(panel, { propertyName: 'transform' });
+        });
 
         await waitFor(() => expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument());
     });
@@ -123,8 +128,8 @@ describe('<SwipePanel>', () => {
         const panels = screen.queryAllByRole('group');
 
         expect(panels).toHaveLength(2);
-        expect(panels.at(0)).toHaveAttribute('data-closing', 'true');
-        expect(panels.at(1)).toHaveAttribute('data-closing', 'false');
+        expect(panels[0]).toHaveAttribute('data-closing', 'true');
+        expect(panels[1]).not.toHaveAttribute('data-closing');
     });
 
     it('can have multiple panels visible when switching quickly between rows', async () => {
@@ -140,8 +145,8 @@ describe('<SwipePanel>', () => {
         let panels = screen.queryAllByRole('group');
 
         expect(panels).toHaveLength(2);
-        expect(panels.at(0)).toHaveAttribute('data-closing', 'true');
-        expect(panels.at(1)).toHaveAttribute('data-closing', 'false');
+        expect(panels[0]).toHaveAttribute('data-closing', 'true');
+        expect(panels[1]).not.toHaveAttribute('data-closing');
 
         // Quickly switch to third row before first two panels finish closing
         // Since we're switching to a different id, a new panel is created
@@ -161,7 +166,7 @@ describe('<SwipePanel>', () => {
         expect(closingPanels.length).toBeGreaterThanOrEqual(1);
 
         // At least one should be active (the current one)
-        const activePanels = panels.filter((p) => p.dataset.closing === 'false');
+        const activePanels = panels.filter((p) => !p.hasAttribute('data-closing'));
 
         expect(activePanels.length).toBeGreaterThanOrEqual(1);
     });
@@ -271,7 +276,13 @@ describe('<SwipePanel>', () => {
 
         rerender(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'update' }} />);
 
-        await act(async () => jest.advanceTimersByTime(250));
+        const panel = screen.getByRole('group');
+
+        expect(panel).toHaveAttribute('data-closing', 'true');
+
+        await act(async () => {
+            fireEvent.transitionEnd(panel, { propertyName: 'transform' });
+        });
 
         await waitFor(() => expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument());
     });
@@ -305,7 +316,11 @@ describe('<SwipePanel>', () => {
         // Uždaryti panelę
         await act(async () => rerender(<TestWrapper active={undefined} />));
 
-        await act(async () => jest.advanceTimersByTime(250));
+        const closingPanel = screen.getByRole('group');
+
+        await act(async () => {
+            fireEvent.transitionEnd(closingPanel, { propertyName: 'transform' });
+        });
 
         await waitFor(() => expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument());
 
@@ -407,7 +422,7 @@ describe('<SwipePanel>', () => {
 
         // Panelis turėtų būti pridėtas be closing state
         expect(screen.queryAllByRole('group')).toHaveLength(1);
-        expect(screen.getByRole('group')).toHaveAttribute('data-closing', 'false');
+        expect(screen.getByRole('group')).not.toHaveAttribute('data-closing');
     });
 
     it('does not call closeAllPanels when active.id is undefined', async () => {
@@ -443,7 +458,7 @@ describe('<SwipePanel>', () => {
         const panels = screen.queryAllByRole('group');
 
         expect(panels.length).toBeGreaterThan(0);
-        expect(panels[0]).toHaveAttribute('data-closing', 'false');
+        expect(panels[0]).not.toHaveAttribute('data-closing');
     });
 
     it('closes panels when prevActive has data and active has action', async () => {
@@ -482,7 +497,7 @@ describe('<SwipePanel>', () => {
 
         // Panelis turėtų būti pridėtas be closing state
         expect(screen.queryAllByRole('group')).toHaveLength(1);
-        expect(screen.getByRole('group')).toHaveAttribute('data-closing', 'false');
+        expect(screen.getByRole('group')).not.toHaveAttribute('data-closing');
     });
 
     it('covers closeAllPanels with empty panels array when switching between different ids', async () => {
@@ -502,7 +517,13 @@ describe('<SwipePanel>', () => {
         // Uždaryti panelę ir palaukti, kol ji bus pašalinta
         await act(async () => rerender(<TestWrapper active={undefined} />));
 
-        await act(async () => jest.advanceTimersByTime(250));
+        const closingPanel = screen.getByRole('group');
+
+        expect(closingPanel).toHaveAttribute('data-closing', 'true');
+
+        await act(async () => {
+            fireEvent.transitionEnd(closingPanel, { propertyName: 'transform' });
+        });
 
         await waitFor(() => expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument());
 
@@ -514,7 +535,7 @@ describe('<SwipePanel>', () => {
 
         // Panelis turėtų būti pridėtas
         expect(screen.queryAllByRole('group')).toHaveLength(1);
-        expect(screen.getByRole('group')).toHaveAttribute('data-closing', 'false');
+        expect(screen.getByRole('group')).not.toHaveAttribute('data-closing');
     });
 
     it('renders panel when active.data is falsy but offset is defined', () => {
@@ -617,15 +638,12 @@ describe('<SwipePanel>', () => {
         ])('renders panel when $name', ({ active, expectedTransform }) => {
             render(<TestWrapper active={active} />);
 
-            const button = screen.getByRole('button', { name: 'Delete' });
+            expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
 
-            expect(button).toBeInTheDocument();
-
-            const panel = screen.getByRole('group');
-
-            expect(panel).toBeInTheDocument();
-            expect(panel).toHaveStyle({ transform: expectedTransform });
-            expect(panel).toHaveAttribute('data-closing', 'false');
+            expect(screen.getByRole('group'))
+                .toBeInTheDocument()
+                .toHaveStyle({ transform: expectedTransform })
+                .not.toHaveAttribute('data-closing');
         });
 
         it('does not render panel when active.ref.current is null', () => {
@@ -674,51 +692,32 @@ describe('<SwipePanel>', () => {
                 prevActive: undefined,
                 active: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
                 expectedInitialCount: 0,
-                expectedClosing: 'false',
             },
             {
                 name: 'prevActive.data is falsy (null)',
                 prevActive: { id: 'test-id', data: null as any, offset: -100 },
                 active: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
                 expectedInitialCount: 1, // Panelis rodomas, nes offset yra apibrėžtas
-                expectedClosing: 'false',
             },
             {
                 name: 'prevActive.data is truthy and active.data is falsy (null)',
                 prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
                 active: { id: 'test-id', data: null as any, offset: -100 },
                 expectedInitialCount: 1,
-                expectedClosing: 'false', // Panelis rodomas, nes offset yra apibrėžtas ir action nėra
             },
             {
                 name: 'prevActive.data is truthy and active.data is falsy (undefined)',
                 prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
                 active: { id: 'test-id', data: undefined as any, offset: -100 },
                 expectedInitialCount: 1,
-                expectedClosing: 'false', // Panelis rodomas, nes offset yra apibrėžtas ir action nėra
-            },
-            {
-                name: 'prevActive.data is truthy and active.action is truthy (update)',
-                prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
-                active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'update' },
-                expectedInitialCount: 1,
-                expectedClosing: 'true',
-            },
-            {
-                name: 'prevActive.data is truthy and active.action is truthy (remove)',
-                prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
-                active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'remove' },
-                expectedInitialCount: 1,
-                expectedClosing: 'true',
             },
             {
                 name: 'prevActive.data is truthy and active.data is truthy and active.action is falsy',
                 prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
                 active: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
                 expectedInitialCount: 1,
-                expectedClosing: 'false', // else if neturėtų būti vykdomas, nes if statement (59) turėtų būti true
             },
-        ])('handles $name', async ({ prevActive, active, expectedInitialCount, expectedClosing }) => {
+        ])('keeps panel open when $name', async ({ prevActive, active, expectedInitialCount }) => {
             const { rerender } = render(<TestWrapper active={prevActive} />);
 
             const initialPanelsCount = screen.queryAllByRole('group').length;
@@ -732,7 +731,37 @@ describe('<SwipePanel>', () => {
             const panels = screen.queryAllByRole('group');
 
             expect(panels.length).toBeGreaterThan(0);
-            expect(panels[0]).toHaveAttribute('data-closing', expectedClosing);
+            expect(panels[0]).not.toHaveAttribute('data-closing');
+        });
+
+        it.each([
+            {
+                name: 'prevActive.data is truthy and active.action is truthy (update)',
+                prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'update' },
+                expectedInitialCount: 1,
+            },
+            {
+                name: 'prevActive.data is truthy and active.action is truthy (remove)',
+                prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
+                active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'remove' },
+                expectedInitialCount: 1,
+            },
+        ])('closes panel when $name', async ({ prevActive, active, expectedInitialCount }) => {
+            const { rerender } = render(<TestWrapper active={prevActive} />);
+
+            const initialPanelsCount = screen.queryAllByRole('group').length;
+
+            expect(initialPanelsCount).toBe(expectedInitialCount);
+
+            await act(async () => rerender(<TestWrapper active={active} />));
+
+            await act(async () => jest.advanceTimersByTime(50));
+
+            const panels = screen.queryAllByRole('group');
+
+            expect(panels.length).toBeGreaterThan(0);
+            expect(panels[0]).toHaveAttribute('data-closing', 'true');
         });
     });
 });
