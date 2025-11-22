@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Center, Loader, Table } from '@mantine/core';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
-import { useActiveSwipe } from '~/client/hooks/useActiveSwipe';
+import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';
 import { useLongPress } from '~/client/hooks/useLongPress';
 import { useDetailsUpdating } from '~/client/pages/details/UpdatingDetailsContext';
 import { ValueAmounts } from '~/client/pages/details/ValueAmounts';
@@ -34,7 +34,7 @@ export function ValueCell({
     const setRemoving = useSetDetailsRemoving();
     const updatingYear = span ? 0 : year;
     const updating = useDetailsUpdating({ group, name, year: updatingYear });
-    const swipeActive = useActiveSwipe();
+    const swipeActive = useSwipeVisible();
 
     const [loaderVisible, setLoaderVisible] = useState(false);
 

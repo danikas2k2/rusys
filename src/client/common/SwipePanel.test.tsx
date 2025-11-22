@@ -425,26 +425,25 @@ describe('<SwipePanel>', () => {
         expect(screen.getByRole('group')).toHaveAttribute('data-closing', 'true');
     });
 
-    it('closes panels when prevActive has data but active.data is undefined', async () => {
-        // Test linija 72: else if (prevActive?.data && (!active?.data || active?.action))
-        // Branch: prevActive?.data === true && active?.data === false
+    it('keeps panel open when prevActive has data but active.data is undefined but offset is defined', async () => {
+        // Test linija 59: if (active?.offset !== undefined && !active?.action)
+        // Panelis turėtų būti rodomas, jei offset yra apibrėžtas ir action nėra, net jei data nėra
         const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
 
         expect(screen.queryAllByRole('group')).toHaveLength(1);
 
-        // Nustatome active su undefined data (bet prevActive.data yra truthy)
+        // Nustatome active su undefined data, bet offset yra apibrėžtas
         await act(async () =>
             rerender(<TestWrapper active={{ id: 'test-id', data: undefined as any, offset: -100 }} />)
         );
 
-        // Panelis turėtų būti pažymėtas kaip closing
+        // Panelis turėtų likti atidarytas, nes offset yra apibrėžtas ir action nėra
         await act(async () => jest.advanceTimersByTime(50));
 
         const panels = screen.queryAllByRole('group');
 
-        // Panelis turėtų būti closing arba pašalintas
         expect(panels.length).toBeGreaterThan(0);
-        expect(panels[0]).toHaveAttribute('data-closing', 'true');
+        expect(panels[0]).toHaveAttribute('data-closing', 'false');
     });
 
     it('closes panels when prevActive has data and active has action', async () => {
@@ -518,16 +517,16 @@ describe('<SwipePanel>', () => {
         expect(screen.getByRole('group')).toHaveAttribute('data-closing', 'false');
     });
 
-    it('covers if statement when active.data is falsy', () => {
-        // Test linija 65: if (active?.data && active?.ref?.current && active?.offset !== undefined && !active?.action)
-        // Branch: active?.data === false
+    it('renders panel when active.data is falsy but offset is defined', () => {
+        // Test linija 59: if (active?.offset !== undefined && !active?.action)
+        // Panelis turėtų būti rodomas, net jei data yra falsy, jei offset yra apibrėžtas ir action nėra
         render(<TestWrapper active={{ id: 'test-id', data: null as any, offset: -100 }} />);
 
-        expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
     });
 
-    it('covers if statement when active.offset is 0 (not undefined)', () => {
-        // Test linija 65: if (active?.data && active?.ref?.current && active?.offset !== undefined && !active?.action)
+    it('renders panel when active.offset is 0 (not undefined)', () => {
+        // Test linija 59: if (active?.offset !== undefined && !active?.action)
         // Branch: active?.offset === 0 (not undefined, but falsy)
         render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: 0 }} />);
 
@@ -556,18 +555,6 @@ describe('<SwipePanel>', () => {
 
     describe('covers all branches for if statement', () => {
         it.each([
-            {
-                name: 'active.data is falsy (null)',
-                active: { id: 'test-id', data: null as any, offset: -100 },
-            },
-            {
-                name: 'active.data is falsy (undefined)',
-                active: { id: 'test-id', data: undefined as any, offset: -100 },
-            },
-            {
-                name: 'active.data is falsy (false)',
-                active: { id: 'test-id', data: false as any, offset: -100 },
-            },
             {
                 name: 'active.offset is undefined',
                 active: { id: 'test-id', data: { name: 'Test' } },
@@ -601,6 +588,16 @@ describe('<SwipePanel>', () => {
                 name: 'with positive offset',
                 active: { id: 'test-id', data: { name: 'Test' }, offset: 50 },
                 expectedTransform: 'translateX(50px)',
+            },
+            {
+                name: 'with data null',
+                active: { id: 'test-id', data: null as any, offset: -100 },
+                expectedTransform: 'translateX(-100px)',
+            },
+            {
+                name: 'with data undefined',
+                active: { id: 'test-id', data: undefined as any, offset: -100 },
+                expectedTransform: 'translateX(-100px)',
             },
             {
                 name: 'with action undefined',
@@ -683,7 +680,7 @@ describe('<SwipePanel>', () => {
                 name: 'prevActive.data is falsy (null)',
                 prevActive: { id: 'test-id', data: null as any, offset: -100 },
                 active: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
-                expectedInitialCount: 0,
+                expectedInitialCount: 1, // Panelis rodomas, nes offset yra apibrėžtas
                 expectedClosing: 'false',
             },
             {
@@ -691,14 +688,14 @@ describe('<SwipePanel>', () => {
                 prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
                 active: { id: 'test-id', data: null as any, offset: -100 },
                 expectedInitialCount: 1,
-                expectedClosing: 'true',
+                expectedClosing: 'false', // Panelis rodomas, nes offset yra apibrėžtas ir action nėra
             },
             {
                 name: 'prevActive.data is truthy and active.data is falsy (undefined)',
                 prevActive: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
                 active: { id: 'test-id', data: undefined as any, offset: -100 },
                 expectedInitialCount: 1,
-                expectedClosing: 'true',
+                expectedClosing: 'false', // Panelis rodomas, nes offset yra apibrėžtas ir action nėra
             },
             {
                 name: 'prevActive.data is truthy and active.action is truthy (update)',

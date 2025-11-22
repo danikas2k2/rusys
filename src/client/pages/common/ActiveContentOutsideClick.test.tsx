@@ -71,22 +71,22 @@ describe('<ActiveContentOutsideClick>', () => {
         expect(setActive).not.toHaveBeenCalled();
     });
 
-    it('does not attach click listener when active.data is undefined', async () => {
+    it('attaches click listener when active.offset is defined even if data is undefined', async () => {
         render(
             <MockActiveContent active={{ offset: 42 }} setActive={setActive}>
                 <ActiveContentOutsideClick />
             </MockActiveContent>
         );
 
-        // Click should not trigger setActive because listener is not attached
+        // Click should trigger setActive because listener is attached (useSwipeVisible checks only offset and action)
         await user.click(document.body);
 
-        expect(setActive).not.toHaveBeenCalled();
+        expect(setActive).toHaveBeenCalledWith();
     });
 
     it('does not attach click listener when active.offset is undefined', async () => {
         render(
-            <MockActiveContent active={{ data: {} }} setActive={setActive}>
+            <MockActiveContent active={{}} setActive={setActive}>
                 <ActiveContentOutsideClick />
             </MockActiveContent>
         );

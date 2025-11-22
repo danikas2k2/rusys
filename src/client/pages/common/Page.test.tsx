@@ -26,8 +26,8 @@ jest.mock('~/client/pages/common/ActiveRemoveConfirmation', () => ({
     ),
 }));
 
-jest.mock('~/client/hooks/useActiveSwipe', () => ({
-    useActiveSwipe: jest.fn(() => false),
+jest.mock('~/client/common/hooks/useSwipeVisible', () => ({
+    useSwipeVisible: jest.fn(() => false),
 }));
 
 describe('<Page>', () => {

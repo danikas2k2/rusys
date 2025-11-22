@@ -7,7 +7,7 @@ import React from 'react';
 import { Table } from '@mantine/core';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
-import { useActiveSwipe } from '~/client/hooks/useActiveSwipe';
+import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';
 import { useDetailsUpdating } from '~/client/pages/details/UpdatingDetailsContext';
 import { ValueCell, type ValueCellProps } from '~/client/pages/details/ValueCell';
 import { useSetDetailsRemoving } from '~/client/state/details/useSetDetailsRemoving';
@@ -22,8 +22,8 @@ jest.mock('~/client/common/ActiveContentContext', () => ({
 jest.mock('~/client/pages/details/UpdatingDetailsContext', () => ({
     useDetailsUpdating: jest.fn(),
 }));
-jest.mock('~/client/hooks/useActiveSwipe', () => ({
-    useActiveSwipe: jest.fn(),
+jest.mock('~/client/common/hooks/useSwipeVisible', () => ({
+    useSwipeVisible: jest.fn(),
 }));
 
 describe('<ValueCell>', () => {
@@ -43,7 +43,7 @@ describe('<ValueCell>', () => {
     beforeEach(() => {
         jest.mocked(useSetDetailsRemoving).mockReturnValue(setRemoving);
         jest.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
-        jest.mocked(useActiveSwipe).mockReturnValue(false);
+        jest.mocked(useSwipeVisible).mockReturnValue(false);
         jest.mocked(useDetailsUpdating).mockReturnValue(false);
         jest.useFakeTimers();
     });
@@ -420,7 +420,7 @@ describe('<ValueCell>', () => {
         };
 
         it('disables interactions when swipeActive is true', async () => {
-            jest.mocked(useActiveSwipe).mockReturnValue(true);
+            jest.mocked(useSwipeVisible).mockReturnValue(true);
 
             render(
                 <MockApp>

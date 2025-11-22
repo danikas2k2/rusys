@@ -1,9 +1,10 @@
 import { useCallback, useEffect } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';
 
 export function ActiveContentOutsideClick() {
-    const [active, setActive] = useActiveContent();
+    const [, setActive] = useActiveContent();
 
     const handleClick = useCallback(
         (e: MouseEvent) => {
@@ -23,7 +24,7 @@ export function ActiveContentOutsideClick() {
         [setActive]
     );
 
-    const visible = !active?.action && active?.data !== undefined && active?.offset !== undefined;
+    const visible = useSwipeVisible();
 
     useEffect(() => {
         if (visible) {

@@ -4,9 +4,9 @@ import { AppShell, ScrollArea } from '@mantine/core';
 
 import { AppVersion } from '~/client/AppVersion';
 import { type ActiveContentData } from '~/client/common/ActiveContentContext';
+import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';
 import { ActiveExportBox } from '~/client/dialogs/ActiveExportBox';
 import { ActiveImportBox } from '~/client/dialogs/ActiveImportBox';
-import { useActiveSwipe } from '~/client/hooks/useActiveSwipe';
 import { ActiveContentOutsideClick } from '~/client/pages/common/ActiveContentOutsideClick';
 import { ActiveRemoveConfirmation } from '~/client/pages/common/ActiveRemoveConfirmation';
 import { AddAction } from '~/client/pages/common/AddAction';
@@ -30,15 +30,15 @@ export function Page<D = ActiveContentData>({
             <AppShell.Header className={cx('header')}>
                 <Toolbar>{toolbar}</Toolbar>
             </AppShell.Header>
-            <AppShell.Main className={cx('main')} data-no-scroll={useActiveSwipe()} component={ScrollArea}>
+            <AppShell.Main className={cx('main')} data-no-scroll={useSwipeVisible()} component={ScrollArea}>
                 {children}
             </AppShell.Main>
             <AppShell.Footer className={cx('footer')}>
                 <AppVersion />
                 {withAdd && <AddAction onClick={onAdd} />}
             </AppShell.Footer>
-            {onDelete && <ActiveRemoveConfirmation onConfirm={onDelete} />}
             <ActiveContentOutsideClick />
+            {onDelete && <ActiveRemoveConfirmation onConfirm={onDelete} />}
             <ActiveExportBox />
             <ActiveImportBox />
         </AppShell>
