@@ -82,7 +82,6 @@ describe('<SortableRow>', () => {
             expect.objectContaining({
                 id: 'test-row',
                 disabled: undefined,
-                animateLayoutChanges: undefined,
             })
         );
     });
@@ -103,27 +102,6 @@ describe('<SortableRow>', () => {
         expect(useSortable).toHaveBeenCalledWith(
             expect.objectContaining({
                 disabled: true,
-            })
-        );
-    });
-
-    it('disables animateLayoutChanges when prop is false', () => {
-        render(
-            <MockTheme>
-                <Table>
-                    <Table.Tbody>
-                        <SortableRow id="test-row" data={mockData} animateLayoutChanges={false}>
-                            <Table.Td>Content</Table.Td>
-                        </SortableRow>
-                    </Table.Tbody>
-                </Table>
-            </MockTheme>
-        );
-
-        expect(useSortable).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: 'test-row',
-                animateLayoutChanges: expect.any(Function),
             })
         );
     });

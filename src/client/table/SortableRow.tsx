@@ -13,7 +13,6 @@ interface SortableRowProps<D = ActiveContentData> {
     disabled?: boolean;
     handle?: React.ReactElement<React.ComponentPropsWithRef<typeof DragHandle>>;
     'data-group'?: string;
-    animateLayoutChanges?: boolean;
 }
 
 export function SortableRow<D = ActiveContentData>({
@@ -22,13 +21,11 @@ export function SortableRow<D = ActiveContentData>({
     disabled,
     handle = <DragHandle />,
     'data-group': dataGroup,
-    animateLayoutChanges = true,
     children,
 }: React.PropsWithChildren<SortableRowProps<D>>): React.ReactElement {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging, setActivatorNodeRef } = useSortable({
         id,
         disabled,
-        animateLayoutChanges: animateLayoutChanges ? undefined : () => false,
     });
 
     return (
