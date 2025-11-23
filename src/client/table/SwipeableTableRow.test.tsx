@@ -29,7 +29,7 @@ describe('<SwipeableTableRow>', () => {
     // Capture original PointerEvent before any tests modify it
     const originalPointerEvent = (window as any).PointerEvent;
 
-    beforeEach(() => jest.clearAllMocks());
+    afterEach(() => jest.clearAllMocks());
 
     describe('rendering', () => {
         it('renders table row with children', () => {

@@ -25,7 +25,7 @@ describe('<DetailsBox>', () => {
 
     const onClose = jest.fn();
 
-    afterEach(() => jest.resetAllMocks());
+    afterEach(() => jest.clearAllMocks());
 
     it('renders with cancel button', () => {
         render(
@@ -76,6 +76,7 @@ describe('<DetailsBox>', () => {
                 <DetailsBox opened onClose={onClose} />
             </MockThemeRedux>
         );
+
         await user.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onClose).toHaveBeenCalledWith();
