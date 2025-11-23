@@ -96,7 +96,7 @@ export function SwipeableTableRow<D = ActiveContentData>({
             if (!e.isPrimary || (e.target as HTMLElement).closest(avoidSwipeSelectors)) return;
 
             const { clientX, clientY } = e;
-            const left = (e.currentTarget as HTMLTableRowElement)?.getBoundingClientRect()?.left;
+            const left = (e.currentTarget as HTMLTableRowElement)?.getBoundingClientRect().left;
             if (!dragging) {
                 const initialXValue = x ?? 0;
                 const offsetXValue = clientX - left - (x ?? 0);
