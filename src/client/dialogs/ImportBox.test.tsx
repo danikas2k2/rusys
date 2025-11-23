@@ -114,7 +114,7 @@ describe('<ImportBox>', () => {
         expect(onClose).toHaveBeenCalledWith();
     });
 
-    describe('calls import details handler when importing a file', () => {
+    describe('calls import handler when importing a file', () => {
         it('closes dialog without error when successfully imported', async () => {
             const importData = jest.fn().mockResolvedValue({ ok: true });
             jest.mocked(useImportHandler).mockReturnValue(importData);

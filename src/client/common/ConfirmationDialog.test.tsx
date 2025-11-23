@@ -193,7 +193,7 @@ describe('<ConfirmationDialog>', () => {
         expect(onClose).toHaveBeenCalledWith(expect.event('click', { target }));
     });
 
-    it('calls handleConfirm when custom confirm button is clicked', async () => {
+    it('calls onConfirm when custom confirm button is clicked', async () => {
         const customConfirmButton = <Button>Custom Confirm</Button>;
 
         render(

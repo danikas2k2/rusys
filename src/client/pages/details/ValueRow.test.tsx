@@ -212,7 +212,7 @@ describe('<ValueRow>', () => {
             expect(screen.getByRole('checkbox')).toBeEnabled().not.toBeChecked();
         });
 
-        it('calls setMissing with false when clicking on unchecked checkbox', async () => {
+        it('calls setMissing with false when clicking on missing checkbox', async () => {
             render(
                 <MockApp state={state}>
                     <Table>
@@ -228,7 +228,7 @@ describe('<ValueRow>', () => {
             expect(setRemoving).not.toHaveBeenCalled();
         });
 
-        it('calls setMissing with true when clicking on checkbox', async () => {
+        it('calls setMissing with true when clicking on available checkbox', async () => {
             render(
                 <MockApp state={state}>
                     <Table>

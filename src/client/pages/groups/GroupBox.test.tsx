@@ -68,7 +68,7 @@ describe('<GroupBox>', () => {
         expect(onClose).toHaveBeenCalledWith();
     });
 
-    describe('calls add details handler when adding a new entry', () => {
+    describe('calls update group handler when adding a new entry', () => {
         const addGroup = jest.fn();
 
         it('closes dialog without error when successfully added', async () => {
@@ -156,7 +156,7 @@ describe('<GroupBox>', () => {
         });
     });
 
-    describe('calls rename details handle when updating an existing entry', () => {
+    describe('calls rename group handler when updating an existing entry', () => {
         const renameGroup = jest.fn();
 
         it('closes dialog without error when successfully renamed', async () => {

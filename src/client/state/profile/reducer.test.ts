@@ -17,19 +17,19 @@ describe('profile', () => {
     describe('default', () => {
         const unknownAction = { type: 'unknown' as ProfileActionType } as ProfileAction;
 
-        it('leave set unchanged', () => {
+        it('leaves set unchanged', () => {
             expect(reducer(profile, unknownAction)).toStrictEqual(profile);
             expect(setItem).not.toHaveBeenCalled();
             expect(removeItem).not.toHaveBeenCalled();
         });
 
-        it('leave empty set unchanged', () => {
+        it('leaves empty set unchanged', () => {
             expect(reducer({}, unknownAction)).toStrictEqual({});
             expect(setItem).not.toHaveBeenCalled();
             expect(removeItem).not.toHaveBeenCalled();
         });
 
-        it('return default state for undefined', () => {
+        it('returns default state for undefined', () => {
             expect(reducer(undefined, unknownAction)).toStrictEqual({});
             expect(setItem).not.toHaveBeenCalled();
             expect(removeItem).not.toHaveBeenCalled();
@@ -37,7 +37,7 @@ describe('profile', () => {
     });
 
     describe('set', () => {
-        it('update empty state', () => {
+        it('updates empty state', () => {
             expect(
                 reducer(
                     {},
@@ -52,7 +52,7 @@ describe('profile', () => {
             expect(removeItem).not.toHaveBeenCalled();
         });
 
-        it('update empty state with empty set', () => {
+        it('updates empty state with empty set', () => {
             expect(
                 reducer(
                     {},
@@ -71,7 +71,7 @@ describe('profile', () => {
             email: 'another.one@email.com',
         };
 
-        it('update filled state', () => {
+        it('updates filled state', () => {
             expect(
                 reducer(profile, {
                     type: ProfileActionType.SET,
@@ -82,7 +82,7 @@ describe('profile', () => {
             expect(removeItem).not.toHaveBeenCalled();
         });
 
-        it('update undefined state', () => {
+        it('updates undefined state', () => {
             expect(
                 reducer(undefined, {
                     type: ProfileActionType.SET,
@@ -95,7 +95,7 @@ describe('profile', () => {
     });
 
     describe('reset', () => {
-        it('update empty state', () => {
+        it('updates empty state', () => {
             expect(
                 reducer(
                     {},
@@ -108,7 +108,7 @@ describe('profile', () => {
             expect(removeItem).toHaveBeenCalledWith('profile');
         });
 
-        it('update filled state', () => {
+        it('updates filled state', () => {
             expect(
                 reducer(profile, {
                     type: ProfileActionType.RESET,
@@ -118,7 +118,7 @@ describe('profile', () => {
             expect(removeItem).toHaveBeenCalledWith('profile');
         });
 
-        it('update undefined state', () => {
+        it('updates undefined state', () => {
             expect(
                 reducer(undefined, {
                     type: ProfileActionType.RESET,
@@ -130,7 +130,7 @@ describe('profile', () => {
     });
 
     describe('setAllowed', () => {
-        it('update empty state', () => {
+        it('updates empty state', () => {
             expect(
                 reducer(
                     {},
@@ -144,7 +144,7 @@ describe('profile', () => {
             expect(removeItem).not.toHaveBeenCalled();
         });
 
-        it('update filled state', () => {
+        it('updates filled state', () => {
             expect(
                 reducer(profile, {
                     type: ProfileActionType.SET_ALLOWED,

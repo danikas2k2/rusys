@@ -76,7 +76,7 @@ describe('<VariantBox>', () => {
         expect(onClose).toHaveBeenCalledWith();
     });
 
-    describe('calls update details handler when adding a new entry', () => {
+    describe('calls update variant handler when adding a new entry', () => {
         const updateVariant = jest.fn();
 
         it('closes dialog without error when successfully added', async () => {
@@ -157,7 +157,7 @@ describe('<VariantBox>', () => {
         });
     });
 
-    describe('calls rename details handle when updating an existing entry', () => {
+    describe('calls rename variant handler when updating an existing entry', () => {
         const renameVariant = jest.fn();
 
         it('closes dialog without error when successfully renamed', async () => {

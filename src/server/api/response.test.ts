@@ -37,7 +37,7 @@ describe('details', () => {
     afterEach(async () => jest.clearAllMocks());
 
     describe('getDetailsWithYears', () => {
-        it('handlers details', async () =>
+        it('handles details', async () =>
             await expect(getDetailsWithYears()).resolves.toStrictEqual({
                 years,
                 details,

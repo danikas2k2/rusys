@@ -249,8 +249,8 @@ describe('<DetailsBox>', () => {
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
 
-        it('displays error without closing dialog when rename fails', async () => {
-            jest.mocked(useMoveDetails).mockReturnValue(moveDetails.mockRejectedValueOnce('Failed to rename'));
+        it('displays error without closing dialog when move fails', async () => {
+            jest.mocked(useMoveDetails).mockReturnValue(moveDetails.mockRejectedValueOnce('Failed to move'));
             render(
                 <MockThemeRedux state={state}>
                     <DetailsBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -265,7 +265,7 @@ describe('<DetailsBox>', () => {
 
             expect(moveDetails).toHaveBeenCalledWith('Uogienės', 'Avietės', 'Daržovės', 'Avietės');
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('alert')).toHaveTextContent('Failed to rename');
+            expect(screen.getByRole('alert')).toHaveTextContent('Failed to move');
         });
 
         it('displays error without closing dialog when empty name field left', async () => {

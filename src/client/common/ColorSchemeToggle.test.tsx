@@ -84,7 +84,7 @@ describe('<ColorSchemeToggle>', () => {
         await waitFor(() => expect(setColorScheme).toHaveBeenCalledWith('dark'));
     });
 
-    it('changes to light scheme when dark button is clicked', async () => {
+    it('changes to light scheme when light button is clicked', async () => {
         jest.mocked(useMantineColorScheme).mockReturnValue({
             colorScheme: 'dark',
             setColorScheme,
