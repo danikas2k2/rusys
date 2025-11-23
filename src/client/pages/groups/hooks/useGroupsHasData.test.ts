@@ -41,4 +41,3 @@ describe('useGroupsHasData', () => {
         expect(result.current).toBeFalse();
     });
 });
-
