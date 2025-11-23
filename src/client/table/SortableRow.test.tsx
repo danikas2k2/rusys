@@ -205,10 +205,9 @@ describe('<SortableRow>', () => {
             </MockTheme>
         );
 
-        const handle = screen.getByRole('button', { name: /drag/i });
-
-        expect(handle).toBeInTheDocument();
-        expect(handle).toHaveStyle({ cursor: 'grab' });
+        expect(screen.getByRole('button', { name: /drag/i }))
+            .toBeInTheDocument()
+            .toHaveStyle({ cursor: 'grab' });
     });
 
     it('clones custom handle with sortable props', () => {

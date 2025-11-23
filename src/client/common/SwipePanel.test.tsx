@@ -98,14 +98,9 @@ describe('<SwipePanel>', () => {
 
         rerender(<TestWrapper active={undefined} />);
 
-        const panel = screen.getByRole('group');
+        expect(screen.getByRole('group')).toBeInTheDocument().toHaveAttribute('data-closing', 'true');
 
-        expect(panel).toBeInTheDocument();
-        expect(panel).toHaveAttribute('data-closing', 'true');
-
-        await act(async () => {
-            fireEvent.transitionEnd(panel, { propertyName: 'transform' });
-        });
+        await act(async () => fireEvent.transitionEnd(screen.getByRole('group'), { propertyName: 'transform' }));
 
         await waitFor(() => expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument());
     });

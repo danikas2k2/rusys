@@ -178,10 +178,8 @@ describe('<ValueRow>', () => {
                     </Table>
                 </MockApp>
             );
-            const checkbox = screen.getByRole('checkbox');
 
-            expect(checkbox).toBeEnabled();
-            expect(checkbox).toBeChecked();
+            expect(screen.getByRole('checkbox')).toBeEnabled().toBeChecked();
         });
 
         it('calls setMissing with true when clicking on available row checkbox', async () => {
@@ -210,10 +208,8 @@ describe('<ValueRow>', () => {
                     </Table>
                 </MockApp>
             );
-            const checkbox = screen.getByRole('checkbox');
 
-            expect(checkbox).toBeEnabled();
-            expect(checkbox).not.toBeChecked();
+            expect(screen.getByRole('checkbox')).toBeEnabled().not.toBeChecked();
         });
 
         it('calls setMissing with false when clicking on unchecked checkbox', async () => {
@@ -367,10 +363,8 @@ describe('<ValueRow>', () => {
                     </Table>
                 </MockApp>
             );
-            const checkbox = screen.getByRole('checkbox');
 
-            expect(checkbox).toBeDisabled();
-            expect(checkbox).toBePartiallyChecked();
+            expect(screen.getByRole('checkbox')).toBeDisabled().toBePartiallyChecked();
         });
 
         it('does not call addMissing when clicking on available row checkbox', async () => {
@@ -399,10 +393,8 @@ describe('<ValueRow>', () => {
                     </Table>
                 </MockApp>
             );
-            const checkbox = screen.getByRole('checkbox');
 
-            expect(checkbox).toBeDisabled();
-            expect(checkbox).toBePartiallyChecked();
+            expect(screen.getByRole('checkbox')).toBeDisabled().toBePartiallyChecked();
         });
 
         it('does not call setRemoving when clicking on missing row checkbox', async () => {

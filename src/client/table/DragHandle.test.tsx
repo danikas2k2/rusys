@@ -25,10 +25,7 @@ describe('<DragHandle>', () => {
             </MockTheme>
         );
 
-        const button = screen.getByRole('button', { name: 'Drag' });
-
-        expect(button).toBeInTheDocument();
-        expect(button).toHaveAttribute('data-drag-handle');
+        expect(screen.getByRole('button', { name: 'Drag' })).toHaveAttribute('data-drag-handle');
     });
 
     it('applies custom style', () => {
@@ -66,7 +63,6 @@ describe('<DragHandle>', () => {
             </MockTheme>
         );
 
-        expect(ref.current).toBeInstanceOf(HTMLDivElement);
-        expect(ref.current).toHaveAttribute('data-drag-handle');
+        expect(ref.current).toBeInstanceOf(HTMLDivElement).toHaveAttribute('data-drag-handle');
     });
 });

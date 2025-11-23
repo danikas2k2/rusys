@@ -31,8 +31,9 @@ describe('<GroupTitle>', () => {
 
         const th = screen.getByText('Test Group').closest('th');
 
-        expect(th).toBeInTheDocument();
-        expect(th?.style.background).toContain('var(--color-primary)');
+        expect(th)
+            .toBeInTheDocument()
+            .toHaveAttribute('style', expect.stringMatching(/background: .*? var\(--color-primary\)/));
     });
 
     it('applies custom style', () => {
