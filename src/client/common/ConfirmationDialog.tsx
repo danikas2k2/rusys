@@ -105,7 +105,7 @@ export function ConfirmationDialog({
                 </Alert>
             )}
             {actions || (
-                <Group justify="center" mt="md">
+                <Group justify="right" mt="md">
                     {cancelButton ? (
                         cloneElement(cancelButton, {
                             ...cancelButtonProps,

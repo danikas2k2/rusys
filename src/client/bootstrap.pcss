@@ -2,6 +2,36 @@
 
 :root {
     --toolbar-height: 48px;
+
+    &[data-mantine-color-scheme='light'],
+    &[data-mantine-color-scheme='dark'] {
+        // Base colors
+        --mantine-color-white: var(--color-base);
+        --mantine-color-black: var(--color-text);
+        --mantine-color-body: var(--color-base);
+        --mantine-color-text: var(--color-text);
+
+        // Semantic colors
+        --mantine-color-dimmed: var(--color-subtext0);
+        --mantine-color-bright: var(--color-text);
+        --mantine-color-placeholder: var(--color-subtext0);
+        --mantine-color-anchor: var(--color-blue);
+        --mantine-color-error: var(--color-red);
+
+        // Default variant colors
+        --mantine-color-default: var(--color-surface0);
+        --mantine-color-default-hover: var(--color-surface1);
+        --mantine-color-default-border: var(--color-overlay0);
+        --mantine-color-default-color: var(--color-text);
+
+        // Disabled variant colors
+        --mantine-color-disabled: var(--color-surface0);
+        --mantine-color-disabled-color: var(--color-overlay0);
+
+
+        // Contrast
+        --mantine-primary-color-contrast: var(--color-base);
+    }
 }
 
 html {
@@ -37,7 +67,26 @@ code {
     font-family: var(--font-family-code), monospace;
 }
 
-//table tr[data-with-row-border] {
-//    border-bottom: 0;
-//    border-top: calc(0.0625rem * var(--mantine-scale)) solid var(--table-border-color);
-//}
+:global(.mantine-Dropzone-root) {
+    &:where([data-idle]) {
+        color: var(--color-text);
+        background-color: var(--color-surface0);
+        border-color: var(--color-surface2);
+    }
+
+    &:where([data-accept]) {
+        --mantine-color-dimmed: color-mix(in srgb, var(--color-green) 30%, var(--color-subtext0) 70%);
+
+        color: var(--color-green);
+        background-color: color-mix(in srgb, var(--color-green) 10%, var(--color-surface0) 90%);
+        border-color: color-mix(in srgb, var(--color-green) 20%, var(--color-surface2) 80%);
+    }
+
+    &:where([data-reject]) {
+        --mantine-color-dimmed: color-mix(in srgb, var(--color-red) 30%, var(--color-subtext0) 70%);
+
+        color: var(--color-red);
+        background-color: color-mix(in srgb, var(--color-red) 10%, var(--color-surface0) 90%);
+        border-color: color-mix(in srgb, var(--color-red) 20%, var(--color-surface2) 80%);
+    }
+}

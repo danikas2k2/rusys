@@ -39,7 +39,7 @@ export function LogoutButton({ children }: React.PropsWithChildren): React.React
                 onConfirm={handleConfirm}
                 onClose={close}
             >
-                <Group wrap="nowrap" m="3rem" mt="1.5rem">
+                <Group wrap="nowrap" m="1.5rem" mb="3rem">
                     <ProfileAvatar size="5rem" />
                     <div>
                         <Title order={1} fz="xl" fw={500}>

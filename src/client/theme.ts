@@ -24,33 +24,11 @@ function createColorTuple(colorName: string): MantineColorsTuple {
 export function getTheme() {
     return createTheme({
         // Override Mantine system colors with Catppuccin palette
-        cssVariablesResolver: () => ({
-            variables: {
-                // Base colors
-                '--mantine-color-white': 'var(--color-base)',
-                '--mantine-color-black': 'var(--color-text)',
-                '--mantine-color-body': 'var(--color-base)',
-                '--mantine-color-text': 'var(--color-text)',
-
-                // Semantic colors
-                '--mantine-color-dimmed': 'var(--color-subtext0)',
-                '--mantine-color-bright': 'var(--color-text)',
-                '--mantine-color-placeholder': 'var(--color-subtext0)',
-                '--mantine-color-anchor': 'var(--color-blue)',
-                '--mantine-color-error': 'var(--color-red)',
-
-                // Default variant colors
-                '--mantine-color-default': 'var(--color-surface0)',
-                '--mantine-color-default-hover': 'var(--color-surface1)',
-                '--mantine-color-default-border': 'var(--color-overlay0)',
-                '--mantine-color-default-color': 'var(--color-text)',
-
-                // Contrast
-                '--mantine-primary-color-contrast': 'var(--color-base)',
-            },
+        /*cssVariablesResolver: () => ({
+            variables: {},
             light: {},
             dark: {},
-        }),
+        }),*/
 
         colors: {
             // Primary colors

@@ -27,12 +27,10 @@ export function bootstrap(): void {
                     defaultColorScheme="auto"
                     /*
                     classNamesPrefix = 'mantine',
-                    cssVariablesResolver,
                     cssVariablesSelector = ':root',
                     deduplicateCssVariables = true,
                     getStyleNonce,
                     stylesTransform,
-                    withCssVariables = true,
                     withGlobalClasses = true,
                     withStaticClasses = true,
 
