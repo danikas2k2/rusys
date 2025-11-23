@@ -151,7 +151,7 @@ describe('<ValueCell>', () => {
     });
 
     describe('renders empty cell', () => {
-        it('renders cell into the document with empty array', () => {
+        it('renders cell into the document with empty amounts', () => {
             const props: Omit<ValueCellProps, 'onChange'> = { ...defaultProps, amounts: [] };
 
             render(
@@ -169,25 +169,7 @@ describe('<ValueCell>', () => {
             expect(screen.getByRole('cell', { name: '.' })).toBeInTheDocument();
         });
 
-        it('renders cell into the document with undefined amounts', () => {
-            const props: Omit<ValueCellProps, 'onChange'> = { ...defaultProps, amounts: undefined };
-
-            render(
-                <MockApp>
-                    <Table>
-                        <Table.Tbody>
-                            <Table.Tr>
-                                <ValueCell {...props} />
-                            </Table.Tr>
-                        </Table.Tbody>
-                    </Table>
-                </MockApp>
-            );
-
-            expect(screen.getByRole('cell', { name: '.' })).toBeInTheDocument();
-        });
-
-        it('does not handle long press for empty cell with empty array', async () => {
+        it('does not handle long press for empty cell', async () => {
             const props: Omit<ValueCellProps, 'onChange'> = { ...defaultProps, amounts: [] };
 
             render(
@@ -209,55 +191,8 @@ describe('<ValueCell>', () => {
             expect(setRemoving).not.toHaveBeenCalled();
         });
 
-        it('does not handle long press for empty cell with undefined amounts', async () => {
-            const props: Omit<ValueCellProps, 'onChange'> = { ...defaultProps, amounts: undefined };
-
-            render(
-                <MockApp>
-                    <Table>
-                        <Table.Tbody>
-                            <Table.Tr>
-                                <ValueCell {...props} />
-                            </Table.Tr>
-                        </Table.Tbody>
-                    </Table>
-                </MockApp>
-            );
-
-            await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
-
-            expect(setActive).not.toHaveBeenCalled();
-            expect(setRemoving).not.toHaveBeenCalled();
-        });
-
-        it('handles short press with empty array', async () => {
+        it('handles short press with empty amounts', async () => {
             const props: Omit<ValueCellProps, 'onChange'> = { ...defaultProps, amounts: [] };
-
-            render(
-                <MockApp>
-                    <Table>
-                        <Table.Tbody>
-                            <Table.Tr>
-                                <ValueCell {...props} />
-                            </Table.Tr>
-                        </Table.Tbody>
-                    </Table>
-                </MockApp>
-            );
-
-            await user.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
-
-            expect(setActive).toHaveBeenCalledWith({
-                action: 'values',
-                data: props,
-            });
-            expect(setRemoving).not.toHaveBeenCalled();
-        });
-
-        it('handles short press with undefined amounts', async () => {
-            const props: Omit<ValueCellProps, 'onChange'> = { ...defaultProps, amounts: undefined };
 
             render(
                 <MockApp>

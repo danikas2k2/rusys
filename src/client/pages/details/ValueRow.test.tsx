@@ -182,7 +182,7 @@ describe('<ValueRow>', () => {
             expect(screen.getByRole('checkbox')).toBeEnabled().toBeChecked();
         });
 
-        it('calls setMissing with true when clicking on available row checkbox', async () => {
+        it('calls setMissing with true when clicking on available checkbox', async () => {
             render(
                 <MockApp state={state}>
                     <Table>
@@ -210,38 +210,6 @@ describe('<ValueRow>', () => {
             );
 
             expect(screen.getByRole('checkbox')).toBeEnabled().not.toBeChecked();
-        });
-
-        it('calls setMissing with false when clicking on missing checkbox', async () => {
-            render(
-                <MockApp state={state}>
-                    <Table>
-                        <Table.Tbody>
-                            <ValueRow {...props} missing />
-                        </Table.Tbody>
-                    </Table>
-                </MockApp>
-            );
-            await user.click(screen.getByRole('checkbox'));
-
-            expect(setMissing).toHaveBeenCalledWith(group, name, false);
-            expect(setRemoving).not.toHaveBeenCalled();
-        });
-
-        it('calls setMissing with true when clicking on available checkbox', async () => {
-            render(
-                <MockApp state={state}>
-                    <Table>
-                        <Table.Tbody>
-                            <ValueRow {...props} />
-                        </Table.Tbody>
-                    </Table>
-                </MockApp>
-            );
-            await user.click(screen.getByRole('checkbox'));
-
-            expect(setMissing).toHaveBeenCalledWith(group, name, true);
-            expect(setRemoving).not.toHaveBeenCalled();
         });
 
         it('calls setMissing with false when clicking on missing checkbox', async () => {

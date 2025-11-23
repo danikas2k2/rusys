@@ -359,6 +359,7 @@ describe('<DetailsBox>', () => {
 
             expect(addDetails).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('alert')).toHaveTextContent('Cannot contain ":" character');
         });
     });
 
