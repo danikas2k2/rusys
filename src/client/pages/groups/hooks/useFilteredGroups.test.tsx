@@ -33,9 +33,7 @@ describe('useFilteredGroups', () => {
 
     it('filters groups by quick filter', () => {
         const { result } = renderHook(() => useFilteredGroups(), {
-            wrapper: ({ children }) => (
-                <QuickFilterWrapper initialState="Banana">{children}</QuickFilterWrapper>
-            ),
+            wrapper: ({ children }) => <QuickFilterWrapper initialState="Banana">{children}</QuickFilterWrapper>,
         });
 
         expect(result.current).toStrictEqual([{ group: 'Banana', order: 1 }]);
@@ -43,9 +41,7 @@ describe('useFilteredGroups', () => {
 
     it('filters groups by partial match', () => {
         const { result } = renderHook(() => useFilteredGroups(), {
-            wrapper: ({ children }) => (
-                <QuickFilterWrapper initialState="a">{children}</QuickFilterWrapper>
-            ),
+            wrapper: ({ children }) => <QuickFilterWrapper initialState="a">{children}</QuickFilterWrapper>,
         });
 
         // "a" should match "Apple", "Banana", and "Cherry" (all contain "a")
@@ -56,9 +52,7 @@ describe('useFilteredGroups', () => {
 
     it('filters groups case-insensitively', () => {
         const { result } = renderHook(() => useFilteredGroups(), {
-            wrapper: ({ children }) => (
-                <QuickFilterWrapper initialState="banana">{children}</QuickFilterWrapper>
-            ),
+            wrapper: ({ children }) => <QuickFilterWrapper initialState="banana">{children}</QuickFilterWrapper>,
         });
 
         expect(result.current).toStrictEqual([{ group: 'Banana', order: 1 }]);
@@ -92,9 +86,7 @@ describe('useFilteredGroups', () => {
         ]);
 
         const { result } = renderHook(() => useFilteredGroups(), {
-            wrapper: ({ children }) => (
-                <QuickFilterWrapper initialState="a">{children}</QuickFilterWrapper>
-            ),
+            wrapper: ({ children }) => <QuickFilterWrapper initialState="a">{children}</QuickFilterWrapper>,
         });
 
         expect(result.current).toStrictEqual([
@@ -126,9 +118,7 @@ describe('useFilteredGroups', () => {
 
         // Test with filter "Cherry" which should match only Cherry
         const { result: result2 } = renderHook(() => useFilteredGroups(), {
-            wrapper: ({ children }) => (
-                <QuickFilterWrapper initialState="Cherry">{children}</QuickFilterWrapper>
-            ),
+            wrapper: ({ children }) => <QuickFilterWrapper initialState="Cherry">{children}</QuickFilterWrapper>,
         });
 
         expect(result2.current).toHaveLength(1);
@@ -141,6 +131,7 @@ describe('useFilteredGroups', () => {
         });
 
         const firstResult = result.current;
+
         expect(firstResult).toHaveLength(3);
 
         jest.mocked(useGroups).mockReturnValue([{ group: 'NewGroup', order: 1 }]);
@@ -152,4 +143,3 @@ describe('useFilteredGroups', () => {
         expect(result.current[0]).toStrictEqual({ group: 'NewGroup', order: 1 });
     });
 });
-

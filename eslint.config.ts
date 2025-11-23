@@ -27,6 +27,14 @@ export default [
     {
         files: ['**/*.test.{ts,tsx}', '**/__mocks__/*.{ts,tsx}'],
         ...jest.configs['flat/all'],
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    project: './tsconfig.json',
+                    alwaysTryTypes: true,
+                },
+            },
+        },
         rules: {
             ...jest.configs['flat/all'].rules,
             'jest/no-hooks': 'off',
@@ -36,6 +44,9 @@ export default [
             'jest/max-expects': ['error', { max: 9 }],
             'jest/prefer-ending-with-an-expect': ['error', { assertFunctionNames: ['waitFor'] }],
             'jest/require-hook': ['error', { allowedFunctionCalls: ['mockEnv', 'mockWindow'] }],
+            // Disable valid-mock-module-path as it doesn't support TypeScript path aliases
+            // eslint-import-resolver-typescript already handles path resolution
+            'jest/valid-mock-module-path': 'off',
         },
     },
     {

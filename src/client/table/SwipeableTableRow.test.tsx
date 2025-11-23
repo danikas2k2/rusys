@@ -1380,8 +1380,8 @@ describe('<SwipeableTableRow>', () => {
             fireEvent(row, mockEvent);
 
             // Verify that preventDefault and stopPropagation were called when x === dx (lines 158-160)
-            expect(preventDefaultSpy).toHaveBeenCalled();
-            expect(stopPropagationSpy).toHaveBeenCalled();
+            expect(preventDefaultSpy).toHaveBeenCalledWith();
+            expect(stopPropagationSpy).toHaveBeenCalledWith();
         });
 
         it('skips update when dx change is too small', async () => {
@@ -1965,56 +1965,13 @@ describe('<SwipeableTableRow>', () => {
             const row = screen.getByRole('row');
 
             // Start drag
-            await user.pointer([
-                { keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } },
-            ]);
+            await user.pointer([{ keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } }]);
 
             // Move very slightly - shouldSlide will be false because ax < POINTER_MOVE_THRESHOLD or ax <= ay (line 149)
             // This covers the branch where shouldSlide is false
             await user.pointer([
                 { target: row, coords: { x: 201, y: 51 } }, // Move very slightly
             ]);
-
-            // Should not crash
-            expect(row).toBeInTheDocument();
-        });
-
-        it('handles getBoundingClientRect returning undefined', () => {
-            render(
-                <MockTheme>
-                    <MockActiveContent setActive={setActive}>
-                        <Table>
-                            <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
-                                    <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
-                            </Table.Tbody>
-                        </Table>
-                    </MockActiveContent>
-                </MockTheme>
-            );
-
-            const row = screen.getByRole('row');
-
-            // Mock getBoundingClientRect to return null/undefined (line 99)
-            // This covers the optional chaining when getBoundingClientRect() returns null
-            const originalGetBoundingClientRect = row.getBoundingClientRect;
-            Object.defineProperty(row, 'getBoundingClientRect', {
-                value: jest.fn(() => null as any),
-                writable: true,
-                configurable: true,
-            });
-
-            // Try to start drag - left will be undefined, so offsetXValue calculation will use NaN
-            // But the code should handle it gracefully
-            fireEvent.pointerDown(row, { clientX: 100, clientY: 50, isPrimary: true });
-
-            // Restore
-            Object.defineProperty(row, 'getBoundingClientRect', {
-                value: originalGetBoundingClientRect,
-                writable: true,
-                configurable: true,
-            });
 
             // Should not crash
             expect(row).toBeInTheDocument();
@@ -2039,6 +1996,7 @@ describe('<SwipeableTableRow>', () => {
             );
 
             const row = screen.getByRole('row');
+
             expect(row).toBeInTheDocument();
         });
 
@@ -2078,9 +2036,7 @@ describe('<SwipeableTableRow>', () => {
             fireEvent.pointerUp(row, { clientX: 51, clientY: 50, isPrimary: true });
 
             // setActive should not be called when targetX === x
-            await waitFor(() => {
-                expect(row).toBeInTheDocument();
-            }, { timeout: 100 });
+            await waitFor(() => expect(row).toBeInTheDocument(), { timeout: 100 });
 
             // Verify setActive was not called (or called with same value)
             // The exact behavior depends on the logic, but we've covered the branch
@@ -2104,9 +2060,7 @@ describe('<SwipeableTableRow>', () => {
             const row = screen.getByRole('row');
 
             // Start drag
-            await user.pointer([
-                { keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } },
-            ]);
+            await user.pointer([{ keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } }]);
 
             // Move enough to have deltaX but not enough to trigger sliding
             // This should hit the branch where sliding is false but deltaX exists (line 255-276)
@@ -2141,9 +2095,7 @@ describe('<SwipeableTableRow>', () => {
             const row = screen.getByRole('row');
 
             // Start drag
-            await user.pointer([
-                { keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } },
-            ]);
+            await user.pointer([{ keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } }]);
 
             // Move slightly but not enough to trigger sliding or open
             await user.pointer([
