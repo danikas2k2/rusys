@@ -169,7 +169,6 @@ export function ValueBox({ opened = false, group, name, year, amounts, onClose, 
                 {!expanded && (
                     <Flex justify="center">
                         <Button
-                            size="md"
                             variant="subtle"
                             color="text"
                             leftSection={<IconChevronDown size={18} />}
@@ -183,16 +182,10 @@ export function ValueBox({ opened = false, group, name, year, amounts, onClose, 
 
             <div className={cx('footer')}>
                 <Group justify="center">
-                    <Button
-                        size="md"
-                        variant="outline"
-                        color="gray"
-                        leftSection={<IconX size={18} />}
-                        onClick={handleClose}
-                    >
+                    <Button variant="outline" color="gray" leftSection={<IconX size={18} />} onClick={handleClose}>
                         <Label>Cancel</Label>
                     </Button>
-                    <Button size="md" onClick={handleUpdate} leftSection={<IconCheck size={18} />}>
+                    <Button onClick={handleUpdate} leftSection={<IconCheck size={18} />}>
                         <Label>Update</Label>
                     </Button>
                 </Group>

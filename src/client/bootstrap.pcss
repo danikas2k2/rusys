@@ -33,6 +33,14 @@
         --mantine-primary-color-contrast: var(--color-base);
     }
 
+    // Font sizes
+
+    --mantine-font-size-xs: var(--font-size-small);
+    --mantine-font-size-sm: var(--font-size-base);
+    --mantine-font-size-md: var(--font-size-medium);
+    --mantine-font-size-lg: var(--font-size-large);
+    --mantine-font-size-xl: var(--font-size-xlarge);
+
     //
     // Safe area insets
     //
@@ -108,6 +116,35 @@ body {
 
 code {
     font-family: var(--font-family-code), monospace;
+}
+
+// Prevent iOS zoom on input focus
+input,
+textarea,
+select,
+:global(.mantine-Input-input),
+:global(.mantine-Select-input),
+:global(.mantine-NumberInput-input),
+:global(.mantine-TextInput-input),
+:global(.mantine-PasswordInput-input),
+:global(.mantine-Textarea-input),
+:global(.mantine-Autocomplete-input),
+:global(.mantine-MultiSelect-input) {
+    font-size: 16px !important;
+}
+
+:global(.mantine-Select-dropdown) {
+    color: var(--color-text);
+    //background-color: var(--color-mantle);
+    background-color: var(--color-surface0);
+    border-color: var(--color-surface2);
+}
+
+// Unified overlay styles for Modal and Drawer
+:global(.mantine-Modal-overlay),
+:global(.mantine-Drawer-overlay) {
+    opacity: 0.2;
+    backdrop-filter: blur(2px);
 }
 
 :global(.mantine-Dropzone-root) {
