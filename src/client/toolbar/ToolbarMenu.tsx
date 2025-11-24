@@ -41,15 +41,15 @@ export function ToolbarMenu() {
                 <Flex direction="column" className={cx('menu')}>
                     <Box>
                         <NavLink
-                            label={<Label>Details</Label>}
+                            label={<Label>Products</Label>}
                             leftSection={
                                 <ToolbarMenuIcon>
                                     <IconList />
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
-                            to={Links.DETAILS}
-                            active={!!useMatch(Links.DETAILS)}
+                            to={Links.PRODUCTS}
+                            active={!!useMatch(Links.PRODUCTS)}
                             onClick={close}
                         />
                         <NavLink

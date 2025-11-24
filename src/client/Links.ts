@@ -1,5 +1,5 @@
 export const enum Links {
-    DETAILS = '/',
+    PRODUCTS = '/',
     GROUPS = '/groups',
     VARIANTS = '/variants',
     SUMMARY = '/summary',

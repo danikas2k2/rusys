@@ -31,7 +31,7 @@ describe('<ToolbarMenu>', () => {
     it('renders menu collapsed by default', () => {
         render(
             <MockThemeRedux>
-                <MockRoute initialEntries={[Links.DETAILS]}>
+                <MockRoute initialEntries={[Links.PRODUCTS]}>
                     <ToolbarMenu />
                 </MockRoute>
             </MockThemeRedux>
@@ -44,7 +44,7 @@ describe('<ToolbarMenu>', () => {
     it('expands menu by click', async () => {
         render(
             <MockThemeRedux>
-                <MockRoute initialEntries={[Links.DETAILS]}>
+                <MockRoute initialEntries={[Links.PRODUCTS]}>
                     <ToolbarMenu />
                 </MockRoute>
             </MockThemeRedux>
@@ -58,7 +58,7 @@ describe('<ToolbarMenu>', () => {
     it('collapses menu by second click', async () => {
         render(
             <MockThemeRedux>
-                <MockRoute initialEntries={[Links.DETAILS]}>
+                <MockRoute initialEntries={[Links.PRODUCTS]}>
                     <ToolbarMenu />
                 </MockRoute>
             </MockThemeRedux>
@@ -73,7 +73,7 @@ describe('<ToolbarMenu>', () => {
     it('renders required menu items', async () => {
         render(
             <MockThemeRedux>
-                <MockRoute initialEntries={[Links.DETAILS]}>
+                <MockRoute initialEntries={[Links.PRODUCTS]}>
                     <MockActiveContent>
                         <ToolbarMenu />
                     </MockActiveContent>
@@ -86,7 +86,7 @@ describe('<ToolbarMenu>', () => {
         const menu = within(screen.getByRole('menu'));
 
         expect(menu.getAllByRole('link')).toHaveLength(5);
-        expect(menu.getByRole('link', { name: 'Details' })).toBeInTheDocument();
+        expect(menu.getByRole('link', { name: 'Products' })).toBeInTheDocument();
         expect(menu.getByRole('link', { name: 'Summary' })).toBeInTheDocument();
         expect(menu.getByRole('link', { name: 'Groups' })).toBeInTheDocument();
         expect(menu.getByRole('link', { name: 'Variants' })).toBeInTheDocument();
@@ -98,7 +98,7 @@ describe('<ToolbarMenu>', () => {
     it('renders utilities menu items', async () => {
         render(
             <MockThemeRedux>
-                <MockRoute initialEntries={[Links.DETAILS]}>
+                <MockRoute initialEntries={[Links.PRODUCTS]}>
                     <MockActiveContent>
                         <ToolbarMenu />
                     </MockActiveContent>
@@ -121,7 +121,7 @@ describe('<ToolbarMenu>', () => {
 
     it.each`
         link              | item
-        ${Links.DETAILS}  | ${'Details'}
+        ${Links.PRODUCTS} | ${'Products'}
         ${Links.SUMMARY}  | ${'Summary'}
         ${Links.GROUPS}   | ${'Groups'}
         ${Links.VARIANTS} | ${'Variants'}

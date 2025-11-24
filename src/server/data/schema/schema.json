@@ -1,7 +1,7 @@
 {
     "type": "object",
     "properties": {
-        "details": {
+        "products": {
             "type": "array",
             "items": {
                 "type": "object",
@@ -188,6 +188,6 @@
             }
         }
     },
-    "required": ["details", "groups", "variants"],
+    "required": ["products", "groups", "variants"],
     "additionalProperties": false
 }

@@ -1,10 +1,10 @@
 import { renderHook } from '@testing-library/react';
-import { getDetailsFixture, getSummaryFixture, getYearsFixture } from '@tests/fixtures';
+import { getProductsFixture, getSummaryFixture, getYearsFixture } from '@tests/fixtures';
 
 import { useDispatch } from 'react-redux';
 
 import { useUpdateStateFromResponse, type RefreshResult } from '~/client/state/base/useUpdateStateFromResponse';
-import { DetailsActionType } from '~/client/state/details/actions';
+import { ProductsActionType } from '~/client/state/products/actions';
 import { SummaryActionType } from '~/client/state/summary/actions';
 import { YearsActionType } from '~/client/state/years/actions';
 
@@ -72,31 +72,31 @@ describe('useUpdateStateFromResponse', () => {
         expect(dispatch).toHaveBeenCalledWith({ type: YearsActionType.SET, years });
     });
 
-    const details = getDetailsFixture();
+    const products = getProductsFixture();
 
-    it('dispatch details update action if response has details', () => {
+    it('dispatch products update action if response has products', () => {
         const { result } = renderHook(() => useUpdateStateFromResponse());
-        result.current({ ok: true, details });
+        result.current({ ok: true, products });
 
         expect(dispatch).toHaveBeenCalledTimes(1);
-        expect(dispatch).toHaveBeenCalledWith({ type: DetailsActionType.SET, details });
+        expect(dispatch).toHaveBeenCalledWith({ type: ProductsActionType.SET, products });
     });
 
     const summary = getSummaryFixture();
 
     it('dispatch several update actions if response has several fields', () => {
         const { result } = renderHook(() => useUpdateStateFromResponse());
-        result.current({ ok: true, years, details, summary });
+        result.current({ ok: true, years, products, summary });
 
         expect(dispatch).toHaveBeenCalledTimes(3);
         expect(dispatch).toHaveBeenCalledWith({ type: YearsActionType.SET, years });
-        expect(dispatch).toHaveBeenCalledWith({ type: DetailsActionType.SET, details });
+        expect(dispatch).toHaveBeenCalledWith({ type: ProductsActionType.SET, products });
         expect(dispatch).toHaveBeenCalledWith({ type: SummaryActionType.SET, summary });
     });
 
     it('do nothing if response has data fields but no ok status', () => {
         const { result } = renderHook(() => useUpdateStateFromResponse());
-        result.current({ years, details, summary } as any);
+        result.current({ years, products, summary } as any);
 
         expect(dispatch).not.toHaveBeenCalled();
     });

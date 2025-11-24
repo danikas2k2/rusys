@@ -5,11 +5,11 @@ import { handleCopyVariant } from '~/server/api/handleCopyVariant';
 import { handleDelete } from '~/server/api/handleDelete';
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
-import { handleDetails } from '~/server/api/handleDetails';
 import { handleExport } from '~/server/api/handleExport';
 import { handleGroups } from '~/server/api/handleGroups';
 import { handleImport } from '~/server/api/handleImport';
 import { handleMove } from '~/server/api/handleMove';
+import { handleProducts } from '~/server/api/handleProducts';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
@@ -18,8 +18,8 @@ import { handleReorderVariants } from '~/server/api/handleReorderVariants';
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { handleSummary } from '~/server/api/handleSummary';
-import { handleUpdateDetails } from '~/server/api/handleUpdateDetails';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
+import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { handleVariants } from '~/server/api/handleVariants';
 import { ApiUrl, type ApiRequest, type ApiResponse } from '~/types/api';
@@ -30,14 +30,14 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.ClientId]: handleClientId,
     [ApiUrl.CheckUser]: handleCheckUser,
     [ApiUrl.Summary]: handleSummary,
-    [ApiUrl.Details]: handleDetails,
-    [ApiUrl.DetailsAdd]: handleAdd,
-    [ApiUrl.DetailsUpdate]: handleUpdateDetails,
-    [ApiUrl.DetailsSetRemoving]: handleSetRemoving,
-    [ApiUrl.DetailsSetMissing]: handleSetMissing,
-    [ApiUrl.DetailsRename]: handleRename,
-    [ApiUrl.DetailsMove]: handleMove,
-    [ApiUrl.DetailsDelete]: handleDelete,
+    [ApiUrl.Products]: handleProducts,
+    [ApiUrl.ProductsAdd]: handleAdd,
+    [ApiUrl.ProductsUpdate]: handleUpdateProduct,
+    [ApiUrl.ProductsSetRemoving]: handleSetRemoving,
+    [ApiUrl.ProductsSetMissing]: handleSetMissing,
+    [ApiUrl.ProductsRename]: handleRename,
+    [ApiUrl.ProductsMove]: handleMove,
+    [ApiUrl.ProductsDelete]: handleDelete,
     [ApiUrl.Groups]: handleGroups,
     [ApiUrl.GroupsUpdate]: handleUpdateGroup,
     [ApiUrl.GroupsReorder]: handleReorderGroups,

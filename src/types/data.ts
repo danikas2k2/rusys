@@ -20,7 +20,7 @@ export interface RemovingYearAmounts extends YearAmounts {
     removing?: boolean;
 }
 
-export interface Details {
+export interface Product {
     group: string;
     name: string;
     years?: readonly RemovingYearAmounts[];
@@ -28,7 +28,7 @@ export interface Details {
     updates?: readonly Update[];
 }
 
-export interface DetailsAmounts {
+export interface ProductAmounts {
     group: string;
     name: string;
     year: number;

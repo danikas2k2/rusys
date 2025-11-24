@@ -1,5 +1,10 @@
 /** @jest-environment node */
-import { getAggregatedVariantsFixture, getDetailsFixture, getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
+import {
+    getAggregatedVariantsFixture,
+    getGroupsFixture,
+    getProductsFixture,
+    getVariantsFixture,
+} from '@tests/fixtures';
 
 import { $all } from '~/server/data/tests/utils';
 import {
@@ -27,14 +32,14 @@ describe('variants', () => {
     beforeEach(async () => {
         const options = { forceServerObjectId: true };
         const d = await db();
-        await d.collection('details').insertMany(getDetailsFixture(), options);
+        await d.collection('products').insertMany(getProductsFixture(), options);
         await d.collection('variants').insertMany(variants, options);
         await d.collection('groups').insertMany(groups, options);
     });
 
     afterEach(async () => {
         const d = await db();
-        await d.collection('details').deleteMany();
+        await d.collection('products').deleteMany();
         await d.collection('variants').deleteMany();
         await d.collection('groups').deleteMany();
         jest.clearAllMocks();

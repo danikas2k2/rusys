@@ -1,25 +1,25 @@
-import { getDetails } from '~/server/data/details';
 import { getGroups } from '~/server/data/groups';
+import { getProducts } from '~/server/data/products';
 import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
 import type {
-    ApiDetailsWithGroups,
-    ApiDetailsWithVariants,
-    ApiDetailsWithYears,
     ApiGroups,
+    ApiProductsWithGroups,
+    ApiProductsWithVariants,
+    ApiProductsWithYears,
     ApiVariants,
     ApiVariantsWithGroups,
 } from '~/types/api';
-import type { Details } from '~/types/data';
+import type { Product } from '~/types/data';
 
-export async function getDetailsWithYears(): Promise<ApiDetailsWithYears> {
+export async function getProductsWithYears(): Promise<ApiProductsWithYears> {
     const years = getYears();
-    const details = await getDetails();
+    const products = await getProducts();
     return {
-        details,
-        years: details
+        products,
+        years: products
             .reduce(
-                (acc: number[], d: Details) => {
+                (acc: number[], d: Product) => {
                     if (d.years) {
                         for (const dy of d.years) {
                             if (dy.year && !acc.includes(dy.year)) {
@@ -39,13 +39,13 @@ export const getGroupsResponse = async (): Promise<ApiGroups> => ({ groups: awai
 
 export const getVariantsResponse = async (): Promise<ApiVariants> => ({ variants: await getVariants() });
 
-export const getDetailsWithVariants = async (): Promise<ApiDetailsWithVariants> => ({
-    ...(await getDetailsWithYears()),
+export const getProductsWithVariants = async (): Promise<ApiProductsWithVariants> => ({
+    ...(await getProductsWithYears()),
     ...(await getVariantsResponse()),
 });
 
-export const getDetailsWithGroups = async (): Promise<ApiDetailsWithGroups> => ({
-    ...(await getDetailsWithVariants()),
+export const getProductsWithGroups = async (): Promise<ApiProductsWithGroups> => ({
+    ...(await getProductsWithVariants()),
     ...(await getGroupsResponse()),
 });
 

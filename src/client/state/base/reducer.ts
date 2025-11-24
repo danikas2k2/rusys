@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
 
-import { details } from '~/client/state/details/reducer';
 import { google } from '~/client/state/google/reducer';
 import { groups } from '~/client/state/groups/reducer';
+import { products } from '~/client/state/products/reducer';
 import { profile } from '~/client/state/profile/reducer';
 import { summary } from '~/client/state/summary/reducer';
 import { variants } from '~/client/state/variants/reducer';
@@ -14,6 +14,6 @@ export const reducer = combineReducers({
     years,
     groups,
     variants,
-    details,
+    products,
     summary,
 });

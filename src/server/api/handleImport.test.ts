@@ -1,14 +1,14 @@
 /** @jest-environment node */
-import { getDetailsFixture, getGroupsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
+import { getGroupsFixture, getProductsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 import { mockUploadedFile } from '@tests/mockUploadedFile';
 
 import { handleImport } from '~/server/api/handleImport';
-import { getDetailsWithGroups } from '~/server/api/response';
+import { getProductsWithGroups } from '~/server/api/response';
 import { importEverything } from '~/server/data/common';
 import { getValidator } from '~/server/data/schema/getValidator';
-import type { ApiDetailsWithGroups, ApiWithFiles } from '~/types/api';
+import type { ApiProductsWithGroups, ApiWithFiles } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');
@@ -24,7 +24,7 @@ describe('handleImport', () => {
 
     it('returns error when no files are provided', async () => {
         const request = mockRequest();
-        const response = mockResponse<ApiDetailsWithGroups>();
+        const response = mockResponse<ApiProductsWithGroups>();
 
         await handleImport(request, response);
 
@@ -36,7 +36,7 @@ describe('handleImport', () => {
 
     it('returns error when empty list of files are provided', async () => {
         const request = mockRequest<ApiWithFiles>({ files: { import: [] } });
-        const response = mockResponse<ApiDetailsWithGroups>();
+        const response = mockResponse<ApiProductsWithGroups>();
 
         await handleImport(request, response);
 
@@ -50,7 +50,7 @@ describe('handleImport', () => {
         const request = mockRequest<ApiWithFiles>({
             files: { import: [mockUploadedFile('file1.json', '{}'), mockUploadedFile('file2.json', '{}')] },
         });
-        const response = mockResponse<ApiDetailsWithGroups>();
+        const response = mockResponse<ApiProductsWithGroups>();
 
         await handleImport(request, response);
 
@@ -64,7 +64,7 @@ describe('handleImport', () => {
         const request = mockRequest<ApiWithFiles>({
             files: { import: [mockUploadedFile('invalid.json', 'invalid json')] },
         });
-        const response = mockResponse<ApiDetailsWithGroups>();
+        const response = mockResponse<ApiProductsWithGroups>();
 
         await handleImport(request, response);
 
@@ -78,7 +78,7 @@ describe('handleImport', () => {
         const request = mockRequest<ApiWithFiles>({
             files: { import: mockUploadedFile('invalid.json', 'invalid json') },
         });
-        const response = mockResponse<ApiDetailsWithGroups>();
+        const response = mockResponse<ApiProductsWithGroups>();
 
         await handleImport(request, response);
 
@@ -94,7 +94,7 @@ describe('handleImport', () => {
         const request = mockRequest<ApiWithFiles>({
             files: { import: mockUploadedFile('invalid.json', '{"invalid":"content"}') },
         });
-        const response = mockResponse<ApiDetailsWithGroups>();
+        const response = mockResponse<ApiProductsWithGroups>();
 
         await handleImport(request, response);
 
@@ -106,25 +106,25 @@ describe('handleImport', () => {
 
     it('imports data successfully when file content is valid', async () => {
         const years = getYearsFixture();
-        const details = getDetailsFixture();
+        const products = getProductsFixture();
         const variants = getVariantsFixture();
         const groups = getGroupsFixture();
         const results = {
             years,
-            details,
+            products,
             variants,
             groups,
         };
 
         jest.mocked(importEverything).mockResolvedValueOnce(true);
-        jest.mocked(getDetailsWithGroups).mockResolvedValueOnce(results);
+        jest.mocked(getProductsWithGroups).mockResolvedValueOnce(results);
 
         const request = mockRequest({
             files: {
-                import: mockUploadedFile('valid.json', JSON.stringify({ details, variants, groups })),
+                import: mockUploadedFile('valid.json', JSON.stringify({ products, variants, groups })),
             },
         });
-        const response = mockResponse<ApiDetailsWithGroups>();
+        const response = mockResponse<ApiProductsWithGroups>();
 
         await handleImport(request, response);
 

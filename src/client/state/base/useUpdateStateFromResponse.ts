@@ -3,17 +3,17 @@ import { useDispatch } from 'react-redux';
 
 import type { ActionCreatorsMapObject } from 'redux';
 
-import { setDetailsAction } from '~/client/state/details/actions';
 import { setGroupsAction } from '~/client/state/groups/actions';
+import { setProductsAction } from '~/client/state/products/actions';
 import { setSummaryAction } from '~/client/state/summary/actions';
 import { setVariantsAction } from '~/client/state/variants/actions';
 import { setYearsAction } from '~/client/state/years/actions';
 import type { ApiResult } from '~/types/api';
-import type { Details, Summary } from '~/types/data';
+import type { Product, Summary } from '~/types/data';
 
 export type RefreshResult = ApiResult<{
     years?: number[];
-    details?: Details[];
+    products?: Product[];
     summary?: Summary[];
 }>;
 
@@ -21,7 +21,7 @@ const UPDATE_ACTIONS: ActionCreatorsMapObject = {
     years: setYearsAction,
     groups: setGroupsAction,
     variants: setVariantsAction,
-    details: setDetailsAction,
+    products: setProductsAction,
     summary: setSummaryAction,
 };
 

@@ -3,11 +3,11 @@ import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
-import { setRemoving } from '~/server/data/details';
+import { setRemoving } from '~/server/data/products';
 import type { ApiSetRemoving } from '~/types/api';
 
 jest.mock('~/server/api/debug');
-jest.mock('~/server/data/details');
+jest.mock('~/server/data/products');
 
 describe('handleSetRemoving', () => {
     const request = mockRequest<ApiSetRemoving>({ group: 'Uogienės', name: 'Braškės', year: 21, removing: true });

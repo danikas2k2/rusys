@@ -3,11 +3,11 @@ import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
 import { handleSetMissing } from '~/server/api/handleSetMissing';
-import { setMissing } from '~/server/data/details';
+import { setMissing } from '~/server/data/products';
 import type { ApiSetMissing } from '~/types/api';
 
 jest.mock('~/server/api/debug');
-jest.mock('~/server/data/details');
+jest.mock('~/server/data/products');
 
 describe('handleSetMissing', () => {
     const request = mockRequest<ApiSetMissing>({ group: 'Uogienės', name: 'Braškės', missing: true });

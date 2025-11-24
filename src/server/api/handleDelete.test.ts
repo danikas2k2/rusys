@@ -1,55 +1,55 @@
 /** @jest-environment node */
-import { getDetailsFixture, getYearsFixture } from '@tests/fixtures';
+import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
 import { handleDelete } from '~/server/api/handleDelete';
-import { getDetailsWithYears } from '~/server/api/response';
-import { deleteDetails } from '~/server/data/details';
-import type { ApiDetailsWithYears, ApiRequestDetails } from '~/types/api';
+import { getProductsWithYears } from '~/server/api/response';
+import { deleteProduct } from '~/server/data/products';
+import type { ApiProductsWithYears, ApiRequestProduct } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');
-jest.mock('~/server/data/details');
+jest.mock('~/server/data/products');
 
 describe('handleDelete', () => {
-    const request = mockRequest<ApiRequestDetails>({ group: 'Uogienės', name: 'Braškės' });
-    const response = mockResponse<ApiDetailsWithYears>();
+    const request = mockRequest<ApiRequestProduct>({ group: 'Uogienės', name: 'Braškės' });
+    const response = mockResponse<ApiProductsWithYears>();
     const years = getYearsFixture();
-    const details = getDetailsFixture();
+    const products = getProductsFixture();
 
     afterEach(() => jest.clearAllMocks());
 
-    it('removes details and returns updated details with years', async () => {
-        jest.mocked(deleteDetails).mockResolvedValueOnce(true);
-        jest.mocked(getDetailsWithYears).mockResolvedValueOnce({ years, details });
+    it('removes product and returns updated products with years', async () => {
+        jest.mocked(deleteProduct).mockResolvedValueOnce(true);
+        jest.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
 
         await handleDelete(request, response);
 
-        expect(deleteDetails).toHaveBeenCalledWith('Uogienės', 'Braškės');
-        expect(getDetailsWithYears).toHaveBeenCalledWith();
+        expect(deleteProduct).toHaveBeenCalledWith('Uogienės', 'Braškės');
+        expect(getProductsWithYears).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: true, years, details });
+        expect(response.json).toHaveBeenCalledWith({ ok: true, years, products });
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(deleteDetails).mockResolvedValueOnce(false);
+        jest.mocked(deleteProduct).mockResolvedValueOnce(false);
 
         await handleDelete(request, response);
 
-        expect(deleteDetails).toHaveBeenCalledWith('Uogienės', 'Braškės');
-        expect(getDetailsWithYears).not.toHaveBeenCalled();
+        expect(deleteProduct).toHaveBeenCalledWith('Uogienės', 'Braškės');
+        expect(getProductsWithYears).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(deleteDetails).mockRejectedValueOnce('Failed to delete');
+        jest.mocked(deleteProduct).mockRejectedValueOnce('Failed to delete');
 
         await handleDelete(request, response);
 
-        expect(deleteDetails).toHaveBeenCalledWith('Uogienės', 'Braškės');
-        expect(getDetailsWithYears).not.toHaveBeenCalled();
+        expect(deleteProduct).toHaveBeenCalledWith('Uogienės', 'Braškės');
+        expect(getProductsWithYears).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to delete' });
     });

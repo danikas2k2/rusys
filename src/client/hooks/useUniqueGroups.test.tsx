@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { getDetailsFixture, getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
+import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
@@ -17,8 +17,8 @@ describe('useUniqueGroups', () => {
         expect(result.current).toStrictEqual(['Uogienės', 'Daržovės']);
     });
 
-    it('returns unique groups from details', () => {
-        const { result } = renderHook(() => useUniqueGroups(getDetailsFixture()), {
+    it('returns unique groups from products', () => {
+        const { result } = renderHook(() => useUniqueGroups(getProductsFixture()), {
             wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
         });
 
