@@ -39,13 +39,11 @@ export function getPostCssLoader(_isDevMode?: boolean): WebpackModuleLoader {
                             return id;
                         },
                     }),
-                    'postcss-strip-inline-comments',
                     postcssDiscardComments({
                         removeAll: true,
                     }),
                     'postcss-nested',
                     'postcss-preset-env',
-                    'postcss-logical-properties',
                     'autoprefixer',
                     // For old IE browsers
                     // 'postcss-opacity',
