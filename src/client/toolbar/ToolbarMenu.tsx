@@ -18,6 +18,7 @@ import { Links } from '~/client/Links';
 import { ExportMenuItem } from '~/client/toolbar/items/ExportMenuItem';
 import { ImportMenuItem } from '~/client/toolbar/items/ImportMenuItem';
 import { ToolbarMenuIcon } from '~/client/toolbar/ToolbarMenuIcon';
+import cx from './ToolbarMenu.pcss';
 
 export function ToolbarMenu() {
     const [opened, { toggle, close }] = useDisclosure();
@@ -27,16 +28,7 @@ export function ToolbarMenu() {
     return (
         <>
             <Portal>
-                <Box
-                    style={{
-                        position: 'absolute',
-                        top: 10,
-                        left: 6,
-                        zIndex: 300,
-                    }}
-                >
-                    {burger}
-                </Box>
+                <Box className={cx('burger')}>{burger}</Box>
             </Portal>
             <Drawer
                 role="menu"
@@ -44,10 +36,9 @@ export function ToolbarMenu() {
                 onClose={close}
                 position="left"
                 withCloseButton={false}
-                overlayProps={{ opacity: 0.2, blur: 2 }}
-                styles={{ body: { padding: 0 }, content: { padding: 0, flexBasis: 'min(300px,60vw)' } }}
+                className={cx('drawer')}
             >
-                <Flex direction="column" h="100vh" style={{ padding: '4rem 0 0' }}>
+                <Flex direction="column" className={cx('menu')}>
                     <Box>
                         <NavLink
                             label={<Label>Details</Label>}

@@ -20,6 +20,8 @@ export default {
                             inset: ['/(constant|env)\\(safe-area-inset-(top|bottom|left|right)\\)/'],
                             margin: ['/(constant|env)\\(safe-area-inset-(top|bottom|left|right)\\)/'],
                             padding: ['/(constant|env)\\(safe-area-inset-(top|bottom|left|right)\\)/'],
+                            'padding-block': ['/(constant|env)\\(safe-area-inset-(top|bottom)\\)/'],
+                            'padding-inline': ['/(constant|env)\\(safe-area-inset-(left|right)\\)/'],
                         },
                     },
                 ],

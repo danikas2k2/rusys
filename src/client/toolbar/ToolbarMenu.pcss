@@ -1,0 +1,53 @@
+.burger {
+    position: absolute;
+    top: 10px;
+    left: 6px;
+    z-index: 300;
+}
+
+.drawer {
+    :global(.mantine-Drawer-body) {
+        /* noinspection CssOverwrittenProperties */
+        padding: 0;
+
+        /* noinspection CssOverwrittenProperties,CssInvalidFunction */
+        padding: 0 constant(safe-area-inset-right) constant(safe-area-inset-bottom) constant(safe-area-inset-left);
+
+        /* noinspection CssOverwrittenProperties */
+        padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    :global(.mantine-Drawer-content) {
+        padding: 0;
+        flex-basis: min(300px, 60vw);
+
+        /* noinspection CssOverwrittenProperties */
+        height: 100vh;
+
+        /* noinspection CssOverwrittenProperties */
+        height: 100dvh;
+        max-height: 100dvh;
+    }
+
+    :global(.mantine-Drawer-overlay) {
+        opacity: 0.2;
+        backdrop-filter: blur(2px);
+    }
+}
+
+.menu {
+    /* noinspection CssOverwrittenProperties */
+    height: 100vh;
+
+    /* noinspection CssOverwrittenProperties */
+    height: 100dvh;
+
+    /* noinspection CssOverwrittenProperties */
+    padding: 4rem 0 0;
+
+    /* noinspection CssOverwrittenProperties,CssInvalidFunction */
+    padding: calc(4rem + constant(safe-area-inset-top)) constant(safe-area-inset-right) constant(safe-area-inset-bottom) constant(safe-area-inset-left);
+
+    /* noinspection CssOverwrittenProperties */
+    padding: calc(4rem + env(safe-area-inset-top)) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
