@@ -24,12 +24,6 @@ function createColorTuple(colorName: string): MantineColorsTuple {
 export function getTheme() {
     return createTheme({
         // Override Mantine system colors with Catppuccin palette
-        /*cssVariablesResolver: () => ({
-            variables: {},
-            light: {},
-            dark: {},
-        }),*/
-
         colors: {
             // Primary colors
             blue: createColorTuple('blue'),
