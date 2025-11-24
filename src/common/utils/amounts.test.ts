@@ -2,7 +2,7 @@ import { getChangedAmount, getVariantAmount } from '~/common/utils/amounts';
 
 jest.mock('~/client/state/groups/useGetGroups');
 jest.mock('~/client/state/variants/useGetVariants');
-jest.mock('~/client/state/details/useGetDetails');
+jest.mock('~/client/state/products/useGetProducts');
 
 describe('amounts', () => {
     beforeEach(() => {});

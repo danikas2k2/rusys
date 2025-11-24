@@ -11,7 +11,7 @@ export const getSummary = async (years: number[] = getYears()): Promise<readonly
     await (
         await db()
     )
-        .collection('details')
+        .collection('products')
         .aggregate<Summary>([
             { $unwind: '$updates' },
             {

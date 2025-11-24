@@ -1,5 +1,5 @@
 /** @jest-environment node */
-import { getDetailsFixture, getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
+import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 
 import { getGroups } from '~/server/data/groups';
 import { getFullSummary, getSummary } from '~/server/data/updates';
@@ -16,14 +16,14 @@ jest.mock('~/server/data/variants');
 describe('updates', () => {
     beforeEach(async () => {
         const d = await db();
-        await d.collection('details').insertMany(getDetailsFixture());
+        await d.collection('products').insertMany(getProductsFixture());
         await d.collection('groups').insertMany(getGroupsFixture());
         await d.collection('variants').insertMany(getVariantsFixture());
     });
 
     afterEach(async () => {
         const d = await db();
-        await d.collection('details').deleteMany({});
+        await d.collection('products').deleteMany({});
         await d.collection('groups').deleteMany({});
         await d.collection('variants').deleteMany({});
         jest.clearAllMocks();

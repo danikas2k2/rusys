@@ -4,8 +4,8 @@ import React from 'react';
 
 import { AppRouter } from '~/client/AppRouter';
 
-jest.mock('~/client/pages/details/DetailsPage', () => ({
-    DetailsPage: () => <div>DetailsPage</div>,
+jest.mock('~/client/pages/products/ProductsPage', () => ({
+    ProductsPage: () => <div>ProductsPage</div>,
 }));
 jest.mock('~/client/pages/summary/SummaryPage', () => ({
     SummaryPage: () => <div>SummaryPage</div>,
@@ -20,19 +20,19 @@ describe('appRouter component', () => {
         expect(screen.getByText('SummaryPage')).toBeInTheDocument();
     });
 
-    it('renders DetailsPage at route /details', () => {
-        window.history.pushState({}, '', '#/details');
+    it('renders ProductsPage at route /products', () => {
+        window.history.pushState({}, '', '#/products');
 
         render(<AppRouter />);
 
-        expect(screen.getByText('DetailsPage')).toBeInTheDocument();
+        expect(screen.getByText('ProductsPage')).toBeInTheDocument();
     });
 
-    it('renders DetailsPage at unknown route', () => {
+    it('renders ProductsPage at unknown route', () => {
         window.history.pushState({}, '', '#/unknown');
 
         render(<AppRouter />);
 
-        expect(screen.getByText('DetailsPage')).toBeInTheDocument();
+        expect(screen.getByText('ProductsPage')).toBeInTheDocument();
     });
 });

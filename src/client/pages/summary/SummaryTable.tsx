@@ -4,9 +4,9 @@ import { Table } from '@mantine/core';
 
 import { LoadableContent } from '~/client/common/LoadableContent';
 import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
-import { useDetailsFilters } from '~/client/filters/hooks/useDetailsFilters';
 import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
 import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
+import { useProductFilters } from '~/client/filters/hooks/useProductFilters';
 import { useSortedList } from '~/client/hooks/useSortedList';
 import { useUniqueGroups } from '~/client/hooks/useUniqueGroups';
 import { useRecycledSummary } from '~/client/pages/summary/hooks/useRecycledSummary';
@@ -16,7 +16,7 @@ import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
 import { useGetSummary } from '~/client/state/summary/useGetSummary';
 
 export function SummaryTable() {
-    const visibleSummary = useSortedList(useFilteredList(useRecycledSummary(), useDetailsFilters()));
+    const visibleSummary = useSortedList(useFilteredList(useRecycledSummary(), useProductFilters()));
     const uniqueGroups = useUniqueGroups(visibleSummary);
     const groupFilter = useGroupFilter();
     const visibleGroups = groupFilter ? [groupFilter] : uniqueGroups;

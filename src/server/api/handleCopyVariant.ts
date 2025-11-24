@@ -1,12 +1,12 @@
 import { debugRequest } from '~/server/api/debug';
-import { getDetailsWithVariants } from '~/server/api/response';
+import { getProductsWithVariants } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { copyVariant } from '~/server/data/variants';
-import type { ApiCopyVariant, ApiDetailsWithVariants, ApiRequest, ApiResponse } from '~/types/api';
+import type { ApiCopyVariant, ApiProductsWithVariants, ApiRequest, ApiResponse } from '~/types/api';
 
 export async function handleCopyVariant(
     req: ApiRequest<ApiCopyVariant>,
-    res: ApiResponse<ApiDetailsWithVariants>
+    res: ApiResponse<ApiProductsWithVariants>
 ): Promise<void> {
     debugRequest(req);
     headerNoCache(res);
@@ -14,7 +14,7 @@ export async function handleCopyVariant(
     res.json(
         await run(
             () => copyVariant(group, variant, newGroup, newVariant, update),
-            () => getDetailsWithVariants()
+            () => getProductsWithVariants()
         )
     );
 }

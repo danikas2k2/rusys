@@ -9,7 +9,7 @@ import type { ApiGroups } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');
-jest.mock('~/server/data/details');
+jest.mock('~/server/data/products');
 jest.mock('~/server/data/groups');
 
 describe('handleGroups', () => {

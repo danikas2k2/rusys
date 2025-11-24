@@ -7,7 +7,7 @@ import { MongoClient, type ClientSession, type Db } from 'mongodb';
  */
 export async function createMissingIndexes(database: Db): Promise<void> {
     await Promise.all([
-        database.collection('details').createIndexes([
+        database.collection('products').createIndexes([
             { key: { group: 1 }, name: 'group', background: true },
             { key: { name: 1 }, name: 'name', background: true },
             { key: { group: 1, name: 1 }, name: 'group_name', unique: true, background: true },

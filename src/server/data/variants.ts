@@ -23,7 +23,7 @@ export async function getVariants(): Promise<readonly Variant[]> {
         .aggregate([
             {
                 $lookup: {
-                    from: 'details',
+                    from: 'products',
                     let: { group: '$group', variant: '$variant' },
                     pipeline: [{ $match: { $expr: { $and: [matchGroup, matchVariant] } } }],
                     as: 'used',

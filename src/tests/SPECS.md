@@ -487,27 +487,27 @@ it('handles drag gesture', async () => {
 
     ```tsx
     // ❌ BLOGAI
-    (useUpdateDetails as jest.Mock).mockReturnValue(updateAmounts);
+    (useUpdateProduct as jest.Mock).mockReturnValue(updateAmounts);
 
     // ✅ GERAI
-    jest.mocked(useUpdateDetails).mockReturnValue(updateAmounts);
+    jest.mocked(useUpdateProduct).mockReturnValue(updateAmounts);
     ```
 
     ```tsx
     // Pilnas pavyzdys
-    jest.mock('~/client/state/details/useUpdateDetails');
+    jest.mock('~/client/state/products/useUpdateProduct');
 
     describe('<Component>', () => {
-        const updateDetails = jest.fn();
+        const updateProduct = jest.fn();
 
-        beforeAll(() => jest.mocked(useUpdateDetails).mockReturnValue(updateDetails));
+        beforeAll(() => jest.mocked(useUpdateProduct).mockReturnValue(updateProduct));
 
         it('calls update on submit', async () => {
             render(<Component />);
 
             await user.click(screen.getByRole('button'));
 
-            expect(updateDetails).toHaveBeenCalledWith({ name: 'test' });
+            expect(updateProduct).toHaveBeenCalledWith({ name: 'test' });
         });
     });
     ```
@@ -602,15 +602,10 @@ it('handles drag gesture', async () => {
 
     ```tsx
     // ❌ BLOGAI - nepakanka tikrinti tik pirmą argumentą
-    expect(Component).toHaveBeenCalledWith(
-        expect.objectContaining({ prop: 'value' })
-    );
+    expect(Component).toHaveBeenCalledWith(expect.objectContaining({ prop: 'value' }));
 
     // ✅ GERAI - įtraukti antrą argumentą (React context)
-    expect(Component).toHaveBeenCalledWith(
-        expect.objectContaining({ prop: 'value' }),
-        undefined
-    );
+    expect(Component).toHaveBeenCalledWith(expect.objectContaining({ prop: 'value' }), undefined);
     ```
 
 - **Gauti callback funkcijas iš mock'intų komponentų** naudojant `mockImplementation`:

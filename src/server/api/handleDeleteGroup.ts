@@ -1,5 +1,5 @@
 import { debugRequest } from '~/server/api/debug';
-import { getDetailsWithGroups } from '~/server/api/response';
+import { getProductsWithGroups } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { deleteGroupOccurrences } from '~/server/data/common';
 import type { ApiGroups, ApiRequest, ApiRequestGroup, ApiResponse } from '~/types/api';
@@ -11,7 +11,7 @@ export async function handleDeleteGroup(req: ApiRequest<ApiRequestGroup>, res: A
     res.json(
         await run(
             () => deleteGroupOccurrences(group),
-            () => getDetailsWithGroups()
+            () => getProductsWithGroups()
         )
     );
 }

@@ -1,8 +1,8 @@
-import { getDetailsFixture, getProfileFixture } from '@tests/fixtures';
+import { getProductsFixture, getProfileFixture } from '@tests/fixtures';
 
 import { reducer } from '~/client/state/base/reducer';
-import { setDetailsAction } from '~/client/state/details/actions';
 import { setClientIdAction } from '~/client/state/google/actions';
+import { setProductsAction } from '~/client/state/products/actions';
 import { setProfileAction } from '~/client/state/profile/actions';
 import { setSummaryAction } from '~/client/state/summary/actions';
 import { setYearsAction } from '~/client/state/years/actions';
@@ -14,14 +14,14 @@ describe('base', () => {
         );
     });
 
-    const details = getDetailsFixture();
+    const products = getProductsFixture();
 
-    it('update details state', () => {
-        expect(reducer({}, setDetailsAction(details))).toStrictEqual(expect.objectContaining({ details }));
+    it('update products state', () => {
+        expect(reducer({}, setProductsAction(products))).toStrictEqual(expect.objectContaining({ products }));
     });
 
     it('update summary state', () => {
-        expect(reducer({}, setSummaryAction(details))).toStrictEqual(expect.objectContaining({ summary: details }));
+        expect(reducer({}, setSummaryAction(products))).toStrictEqual(expect.objectContaining({ summary: products }));
     });
 
     it('update google state', () => {

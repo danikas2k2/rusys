@@ -13,17 +13,17 @@ import { handleClientId } from '~/server/api/handleClientId';
 import { handleDelete } from '~/server/api/handleDelete';
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
-import { handleDetails } from '~/server/api/handleDetails';
 import { handleGroups } from '~/server/api/handleGroups';
 import { handleMove } from '~/server/api/handleMove';
+import { handleProducts } from '~/server/api/handleProducts';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { handleSummary } from '~/server/api/handleSummary';
-import { handleUpdateDetails } from '~/server/api/handleUpdateDetails';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
+import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { handleVariants } from '~/server/api/handleVariants';
 import { setup, startHttpServer, startHttpsServer } from '~/server/app';
@@ -38,10 +38,10 @@ jest.mock('~/server/api/handleCheckUser', () => ({ handleCheckUser: jest.fn() })
 // Summary
 jest.mock('~/server/api/handleSummary', () => ({ handleSummary: jest.fn() }));
 
-// Details
+// Products
 jest.mock('~/server/api/handleAdd', () => ({ handleAdd: jest.fn() }));
-jest.mock('~/server/api/handleDetails', () => ({ handleDetails: jest.fn() }));
-jest.mock('~/server/api/handleUpdateDetails', () => ({ handleUpdateDetails: jest.fn() }));
+jest.mock('~/server/api/handleProducts', () => ({ handleProducts: jest.fn() }));
+jest.mock('~/server/api/handleUpdateProduct', () => ({ handleUpdateProduct: jest.fn() }));
 jest.mock('~/server/api/handleSetRemoving', () => ({ handleSetRemoving: jest.fn() }));
 jest.mock('~/server/api/handleSetMissing', () => ({ handleSetMissing: jest.fn() }));
 jest.mock('~/server/api/handleRename', () => ({ handleRename: jest.fn() }));
@@ -68,26 +68,26 @@ describe('app', () => {
         const handler = async (_req: Request, res: Response): Promise<void> => void res.json({ ok: true });
 
         describe.each`
-            url                          | handle
-            ${ApiUrl.ClientId}           | ${handleClientId}
-            ${ApiUrl.CheckUser}          | ${handleCheckUser}
-            ${ApiUrl.Summary}            | ${handleSummary}
-            ${ApiUrl.Details}            | ${handleDetails}
-            ${ApiUrl.DetailsUpdate}      | ${handleUpdateDetails}
-            ${ApiUrl.DetailsAdd}         | ${handleAdd}
-            ${ApiUrl.DetailsSetRemoving} | ${handleSetRemoving}
-            ${ApiUrl.DetailsSetMissing}  | ${handleSetMissing}
-            ${ApiUrl.DetailsRename}      | ${handleRename}
-            ${ApiUrl.DetailsMove}        | ${handleMove}
-            ${ApiUrl.DetailsDelete}      | ${handleDelete}
-            ${ApiUrl.Groups}             | ${handleGroups}
-            ${ApiUrl.GroupsUpdate}       | ${handleUpdateGroup}
-            ${ApiUrl.GroupsRename}       | ${handleRenameGroup}
-            ${ApiUrl.GroupsDelete}       | ${handleDeleteGroup}
-            ${ApiUrl.Variants}           | ${handleVariants}
-            ${ApiUrl.VariantsUpdate}     | ${handleUpdateVariant}
-            ${ApiUrl.VariantsRename}     | ${handleRenameVariant}
-            ${ApiUrl.VariantsDelete}     | ${handleDeleteVariant}
+            url                           | handle
+            ${ApiUrl.ClientId}            | ${handleClientId}
+            ${ApiUrl.CheckUser}           | ${handleCheckUser}
+            ${ApiUrl.Summary}             | ${handleSummary}
+            ${ApiUrl.Products}            | ${handleProducts}
+            ${ApiUrl.ProductsUpdate}      | ${handleUpdateProduct}
+            ${ApiUrl.ProductsAdd}         | ${handleAdd}
+            ${ApiUrl.ProductsSetRemoving} | ${handleSetRemoving}
+            ${ApiUrl.ProductsSetMissing}  | ${handleSetMissing}
+            ${ApiUrl.ProductsRename}      | ${handleRename}
+            ${ApiUrl.ProductsMove}        | ${handleMove}
+            ${ApiUrl.ProductsDelete}      | ${handleDelete}
+            ${ApiUrl.Groups}              | ${handleGroups}
+            ${ApiUrl.GroupsUpdate}        | ${handleUpdateGroup}
+            ${ApiUrl.GroupsRename}        | ${handleRenameGroup}
+            ${ApiUrl.GroupsDelete}        | ${handleDeleteGroup}
+            ${ApiUrl.Variants}            | ${handleVariants}
+            ${ApiUrl.VariantsUpdate}      | ${handleUpdateVariant}
+            ${ApiUrl.VariantsRename}      | ${handleRenameVariant}
+            ${ApiUrl.VariantsDelete}      | ${handleDeleteVariant}
         `('request $url', ({ url, handle }) => {
             beforeEach(() => jest.mocked(handle).mockImplementation(handler));
 

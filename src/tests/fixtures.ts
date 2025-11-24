@@ -1,5 +1,5 @@
 import type { Profile } from '~/client/state/profile/types';
-import type { Details, Group, Summary, Variant } from '~/types/data';
+import type { Group, Product, Summary, Variant } from '~/types/data';
 
 export const getGroupsFixture = (): Group[] => [
     { group: 'Daržovės', order: 2 },
@@ -32,7 +32,7 @@ export const getAggregatedVariantsFixture = (): Variant[] => {
         .sort((a, b) => a.group.localeCompare(b.group) || a.order - b.order);
 };
 
-export const getDetailsFixture = (): Details[] => [
+export const getProductsFixture = (): Product[] => [
     {
         group: 'Uogienės',
         name: 'Avietės',

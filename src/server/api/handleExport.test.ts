@@ -1,5 +1,5 @@
 /** @jest-environment node */
-import { getDetailsFixture, getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
+import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
@@ -13,20 +13,20 @@ jest.mock('~/server/data/common');
 describe('handleExport', () => {
     const request = mockRequest();
     const response = mockResponse<ApiExport>();
-    const details = getDetailsFixture();
+    const products = getProductsFixture();
     const variants = getVariantsFixture();
     const groups = getGroupsFixture();
 
     afterEach(() => jest.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(exportEverything).mockResolvedValueOnce({ details, variants, groups });
+        jest.mocked(exportEverything).mockResolvedValueOnce({ products, variants, groups });
 
         await handleExport(request, response);
 
         expect(exportEverything).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: true, details, variants, groups });
+        expect(response.json).toHaveBeenCalledWith({ ok: true, products, variants, groups });
     });
 
     it('returns error response on error', async () => {

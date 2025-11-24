@@ -8,6 +8,6 @@ interface ValueSuffixProps {
 }
 
 export function ValueSuffix({ group, variant }: ValueSuffixProps) {
-    const details = useVariant(group, variant);
-    return <sub>{details ? details.suffix : variant}</sub>;
+    const value = useVariant(group, variant);
+    return <sub>{value ? value.suffix : variant}</sub>;
 }

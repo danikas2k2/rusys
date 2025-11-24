@@ -1,6 +1,6 @@
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
-import { setRemoving } from '~/server/data/details';
+import { setRemoving } from '~/server/data/products';
 import type { ApiRequest, ApiResponse, ApiSetRemoving } from '~/types/api';
 
 export async function handleSetRemoving(req: ApiRequest<ApiSetRemoving>, res: ApiResponse): Promise<void> {

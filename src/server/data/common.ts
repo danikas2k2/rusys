@@ -1,15 +1,15 @@
 import moment from 'moment';
 import type { Db } from 'mongodb';
 
-import {
-    deleteDetailsGroup,
-    deleteDetailsVariant,
-    getDetailsVariants,
-    moveDetails,
-    renameDetailsGroup,
-    renameDetailsVariant,
-} from '~/server/data/details';
 import { deleteGroup, renameGroup } from '~/server/data/groups';
+import {
+    deleteProductsGroup,
+    deleteProductsVariant,
+    getProductVariants,
+    moveProduct,
+    renameProductsGroup,
+    renameProductsVariant,
+} from '~/server/data/products';
 import { hasEffect } from '~/server/data/utils';
 import {
     copyVariants,
@@ -20,19 +20,19 @@ import {
 } from '~/server/data/variants';
 import { db, withTransaction } from '~/server/db';
 import type { ApiExport } from '~/types/api';
-import type { Details, Group, UpdateVariant, Variant } from '~/types/data';
+import type { Group, Product, UpdateVariant, Variant } from '~/types/data';
 
-export const moveDetailsOccurrences = (
+export const moveProductOccurrences = (
     group: string,
     name: string,
     newGroup: string,
     newName?: string
 ): Promise<boolean> =>
     withTransaction(async (session) => {
-        if (!(await moveDetails(group, name, newGroup, newName, session))) {
+        if (!(await moveProduct(group, name, newGroup, newName, session))) {
             return false;
         }
-        const variants = await getDetailsVariants(newGroup, newName ?? name, session);
+        const variants = await getProductVariants(newGroup, newName ?? name, session);
         if (variants?.length) {
             await copyVariants(group, newGroup, variants, session);
         }
@@ -47,7 +47,7 @@ export const renameVariantOccurrences = (
 ): Promise<boolean> =>
     withTransaction(async (session) => {
         if (await renameVariant(group, variant, newVariant, update, session)) {
-            await renameDetailsVariant(group, variant, newVariant, session);
+            await renameProductsVariant(group, variant, newVariant, session);
             return true;
         }
         return false;
@@ -56,7 +56,7 @@ export const renameVariantOccurrences = (
 export const deleteVariantOccurrences = (group: string, variant: string): Promise<boolean> =>
     withTransaction(async (session) => {
         if (await deleteVariant(group, variant, session)) {
-            await deleteDetailsVariant(group, variant, session);
+            await deleteProductsVariant(group, variant, session);
             return true;
         }
         return false;
@@ -66,7 +66,7 @@ export const renameGroupOccurrences = (group: string, newGroup: string, annual: 
     withTransaction(async (session) => {
         if (await renameGroup(group, newGroup, annual, session)) {
             await renameVariantsGroup(group, newGroup, session);
-            await renameDetailsGroup(group, newGroup, session);
+            await renameProductsGroup(group, newGroup, session);
             return true;
         }
         return false;
@@ -76,7 +76,7 @@ export const deleteGroupOccurrences = (group: string): Promise<boolean> =>
     withTransaction(async (session) => {
         if (await deleteGroup(group, session)) {
             await deleteVariantsGroup(group, session);
-            await deleteDetailsGroup(group, session);
+            await deleteProductsGroup(group, session);
             return true;
         }
         return false;
@@ -85,8 +85,8 @@ export const deleteGroupOccurrences = (group: string): Promise<boolean> =>
 export async function exportEverything(): Promise<ApiExport> {
     const d = await db();
     return {
-        details: await d
-            .collection('details')
+        products: await d
+            .collection('products')
             .find({}, { projection: { _id: 0 } })
             .toArray(),
         variants: await d
@@ -107,13 +107,13 @@ const copyCollection = async (src: Db, dst: Db, collectionName: string): Promise
 };
 
 const moveEverything = async (src: Db, dst: Db): Promise<boolean> =>
-    (await copyCollection(src, dst, 'details')) &&
+    (await copyCollection(src, dst, 'products')) &&
     (await copyCollection(src, dst, 'variants')) &&
     (await copyCollection(src, dst, 'groups')) &&
     (await src.dropDatabase());
 
 export async function importEverything(
-    details: readonly Details[],
+    products: readonly Product[],
     variants: readonly Variant[],
     groups: readonly Group[]
 ): Promise<boolean> {
@@ -127,7 +127,7 @@ export async function importEverything(
     // Insert combined data into temporary database
     const options = { forceServerObjectId: true };
     if (
-        !(await temporary.collection('details').insertMany(details, options).then(hasEffect)) ||
+        !(await temporary.collection('products').insertMany(products, options).then(hasEffect)) ||
         !(await temporary.collection('variants').insertMany(variants, options).then(hasEffect)) ||
         !(await temporary.collection('groups').insertMany(groups, options).then(hasEffect))
     ) {

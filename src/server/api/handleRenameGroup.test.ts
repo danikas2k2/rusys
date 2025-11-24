@@ -1,24 +1,24 @@
 /** @jest-environment node */
-import { getDetailsFixture, getGroupsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
+import { getGroupsFixture, getProductsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
-import { getDetailsWithGroups } from '~/server/api/response';
+import { getProductsWithGroups } from '~/server/api/response';
 import { renameGroupOccurrences } from '~/server/data/common';
-import type { ApiDetailsWithYears, ApiRenameGroup } from '~/types/api';
+import type { ApiProductsWithYears, ApiRenameGroup } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');
 jest.mock('~/server/data/common');
-jest.mock('~/server/data/details');
+jest.mock('~/server/data/products');
 jest.mock('~/server/data/groups');
 
 describe('handleRenameGroup', () => {
     const request = mockRequest<ApiRenameGroup>({ group: 'Uogienės', newGroup: 'Daržovės' });
-    const response = mockResponse<ApiDetailsWithYears>();
+    const response = mockResponse<ApiProductsWithYears>();
     const years = getYearsFixture();
-    const details = getDetailsFixture();
+    const products = getProductsFixture();
     const variants = getVariantsFixture();
     const groups = getGroupsFixture();
 
@@ -26,14 +26,14 @@ describe('handleRenameGroup', () => {
 
     it('returns filled response on success', async () => {
         jest.mocked(renameGroupOccurrences).mockResolvedValueOnce(true);
-        jest.mocked(getDetailsWithGroups).mockResolvedValueOnce({ years, details, variants, groups });
+        jest.mocked(getProductsWithGroups).mockResolvedValueOnce({ years, products, variants, groups });
 
         await handleRenameGroup(request, response);
 
         expect(renameGroupOccurrences).toHaveBeenCalledWith('Uogienės', 'Daržovės', undefined);
-        expect(getDetailsWithGroups).toHaveBeenCalledWith();
+        expect(getProductsWithGroups).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
-        expect(response.json).toHaveBeenCalledWith({ ok: true, years, details, variants, groups });
+        expect(response.json).toHaveBeenCalledWith({ ok: true, years, products, variants, groups });
     });
 
     it('returns empty response on failure', async () => {
@@ -42,7 +42,7 @@ describe('handleRenameGroup', () => {
         await handleRenameGroup(request, response);
 
         expect(renameGroupOccurrences).toHaveBeenCalledWith('Uogienės', 'Daržovės', undefined);
-        expect(getDetailsWithGroups).not.toHaveBeenCalled();
+        expect(getProductsWithGroups).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
@@ -53,7 +53,7 @@ describe('handleRenameGroup', () => {
         await handleRenameGroup(request, response);
 
         expect(renameGroupOccurrences).toHaveBeenCalledWith('Uogienės', 'Daržovės', undefined);
-        expect(getDetailsWithGroups).not.toHaveBeenCalled();
+        expect(getProductsWithGroups).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to rename group' });
     });
