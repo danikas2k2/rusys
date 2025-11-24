@@ -4,7 +4,7 @@ services:
   rusys-db1:
     container_name: rusys-db1
     hostname: rusys-db1
-    image: mongo
+    image: mongo:7
     expose:
       - 27017
     volumes:
@@ -17,7 +17,7 @@ services:
   rusys-db2:
     container_name: rusys-db2
     hostname: rusys-db2
-    image: mongo
+    image: mongo:7
     expose:
       - 27017
     volumes:
@@ -30,7 +30,7 @@ services:
   rusys-db3:
     container_name: rusys-db3
     hostname: rusys-db3
-    image: mongo
+    image: mongo:7
     expose:
       - 27017
     volumes:
