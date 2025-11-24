@@ -1,5 +1,5 @@
-import { type Details } from '~/types/data';
+import type { Details } from '~/types/data';
 
 export interface WithDetailsState {
-    details?: ReadonlyArray<Details>;
+    details?: readonly Details[];
 }

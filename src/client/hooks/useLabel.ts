@@ -1,6 +1,6 @@
-import { useTranslations } from '~/client/hooks/useTranslations';
+import { useLabels } from '~/client/hooks/useLabels';
 
 export function useLabel(label: string, locale?: string): string {
-    const translations = useTranslations();
-    return translations(label, locale) ?? label;
+    const _ = useLabels();
+    return _(label, locale) ?? label;
 }

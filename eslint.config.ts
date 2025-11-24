@@ -27,6 +27,14 @@ export default [
     {
         files: ['**/*.test.{ts,tsx}', '**/__mocks__/*.{ts,tsx}'],
         ...jest.configs['flat/all'],
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    project: './tsconfig.json',
+                    alwaysTryTypes: true,
+                },
+            },
+        },
         rules: {
             ...jest.configs['flat/all'].rules,
             'jest/no-hooks': 'off',
@@ -36,6 +44,9 @@ export default [
             'jest/max-expects': ['error', { max: 9 }],
             'jest/prefer-ending-with-an-expect': ['error', { assertFunctionNames: ['waitFor'] }],
             'jest/require-hook': ['error', { allowedFunctionCalls: ['mockEnv', 'mockWindow'] }],
+            // Disable valid-mock-module-path as it doesn't support TypeScript path aliases
+            // eslint-import-resolver-typescript already handles path resolution
+            'jest/valid-mock-module-path': 'off',
         },
     },
     {
@@ -114,9 +125,56 @@ export default [
                     null: 'ignore',
                 },
             ],
+
             'prettier/prettier': 'error',
             'react-hooks/exhaustive-deps': 'error',
             'react/prop-types': 0,
+
+            // TODO use eslint-config-mantine
+            // Mantine recommended rules
+            'array-callback-return': 'error',
+            'no-self-compare': 'error',
+            'no-template-curly-in-string': 'error',
+            'default-case-last': 'error',
+            'dot-notation': 'error',
+            'no-alert': 'error',
+            'no-else-return': 'error',
+            'no-eval': 'warn',
+            'no-lonely-if': 'error',
+            'no-multi-assign': 'error',
+            'no-multi-str': 'error',
+            'no-param-reassign': 'error',
+            'no-return-assign': 'error',
+            'no-script-url': 'error',
+            'no-sequences': 'error',
+            'no-throw-literal': 'error',
+            'no-unneeded-ternary': 'error',
+            'no-useless-call': 'error',
+            'no-useless-constructor': 'error',
+            'no-useless-return': 'error',
+            'operator-assignment': ['error', 'always'],
+            'prefer-exponentiation-operator': 'error',
+            'prefer-object-has-own': 'error',
+            'prefer-promise-reject-errors': 'error',
+            'prefer-object-spread': 'error',
+            'prefer-template': 'error',
+            yoda: 'error',
+            radix: 'error',
+            '@typescript-eslint/consistent-generic-constructors': 'error',
+            '@typescript-eslint/method-signature-style': ['error', 'property'],
+            // 'react/button-has-type': 'error',
+            'react/jsx-boolean-value': 'error',
+            'react/jsx-curly-brace-presence': ['error', 'never'],
+            'react/jsx-fragments': ['error', 'syntax'],
+            'react/jsx-no-comment-textnodes': 'error',
+            'react/jsx-no-duplicate-props': 'error',
+            'react/jsx-no-target-blank': 'error',
+            'react/no-children-prop': 'error',
+            'react/no-deprecated': 'error',
+            'react/no-find-dom-node': 'error',
+            'react/no-string-refs': 'error',
+            'react/self-closing-comp': 'error',
+            'react/void-dom-elements-no-children': 'error',
             '@typescript-eslint/consistent-type-imports': [
                 'error',
                 {
@@ -134,6 +192,10 @@ export default [
             'no-redeclare': 'off',
             '@typescript-eslint/no-redeclare': 'error',
             'block-scoped-var': 'error',
+
+            // my custom overrides
+            'arrow-body-style': ['error', 'as-needed'],
+            'prefer-arrow-callback': ['error', { allowNamedFunctions: false }],
         },
         settings: {
             'import/resolver': {
@@ -151,6 +213,10 @@ export default [
             'import/no-named-as-default': 'off',
             'no-console': 'off',
             'jest/valid-title': ['error', { disallowedWords: ['should'] }],
+
+            // my custom overrides
+            'arrow-body-style': ['error', 'as-needed'],
+            'prefer-arrow-callback': ['error', { allowNamedFunctions: false }],
         },
     },
     {

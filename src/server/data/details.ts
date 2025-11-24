@@ -5,7 +5,7 @@ import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
 import type { Details, VariantAmount } from '~/types/data';
 
-export async function getDetails(years: ReadonlyArray<number> = []): Promise<Details[]> {
+export async function getDetails(years: readonly number[] = []): Promise<Details[]> {
     const col = (await db()).collection('details');
     const filter: Filter<Details> = years.length
         ? {
@@ -25,7 +25,7 @@ export async function getDetailsVariants(
     group: string,
     name: string,
     session?: ClientSession
-): Promise<ReadonlyArray<string> | undefined> {
+): Promise<readonly string[] | undefined> {
     if (!group || !name) {
         return undefined;
     }
@@ -71,7 +71,7 @@ export async function updateDetails(
     group: string,
     name: string,
     year: number,
-    changes: ReadonlyArray<VariantAmount> = [],
+    changes: readonly VariantAmount[] = [],
     user?: string
 ): Promise<boolean> {
     if (!group || !name || !changes.length) {

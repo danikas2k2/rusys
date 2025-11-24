@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 
 import { isEqual } from 'lodash';
 
+import type { WithGroupsState } from '~/client/state/groups/types';
 import { compareNames } from '~/client/utils/compareNames';
-import { type WithGroupsState } from './types';
 
 export function useGroupComparator(): (a: string, b: string) => number {
     const groupOrders = useSelector(

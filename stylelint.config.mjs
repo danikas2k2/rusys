@@ -24,6 +24,7 @@ export default {
                     },
                 ],
                 'function-no-unknown': [true, { ignoreFunctions: ['constant', 'env', 'light-dark'] }],
+                'selector-pseudo-class-no-unknown': [true, { ignorePseudoClasses: ['global', 'local'] }],
             },
         },
         {

@@ -1,5 +1,5 @@
 import { ProfileActionType, type ProfileAction } from '~/client/state/profile/actions';
-import { type Profile } from '~/client/state/profile/types';
+import type { Profile } from '~/client/state/profile/types';
 
 export function profile(state: Readonly<Profile> = {}, action: ProfileAction): Readonly<Profile> {
     switch (action.type) {

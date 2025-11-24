@@ -6,7 +6,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { getDetailsWithVariants } from '~/server/api/response';
 import { deleteVariantOccurrences } from '~/server/data/common';
-import { type ApiDetailsWithYears, type ApiRequestVariant } from '~/types/api';
+import type { ApiDetailsWithYears, ApiRequestVariant } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');

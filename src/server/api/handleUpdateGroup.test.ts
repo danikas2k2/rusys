@@ -4,7 +4,7 @@ import { mockResponse } from '@tests/mockResponse';
 
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { updateGroup } from '~/server/data/groups';
-import { type Group } from '~/types/data';
+import type { Group } from '~/types/data';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/data/groups');

@@ -2,7 +2,7 @@ import { debugRequest } from '~/server/api/debug';
 import { getDetailsWithYears } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { renameDetails } from '~/server/data/details';
-import { type ApiDetailsWithYears, type ApiRenameDetails, type ApiRequest, type ApiResponse } from '~/types/api';
+import type { ApiDetailsWithYears, ApiRenameDetails, ApiRequest, ApiResponse } from '~/types/api';
 
 export async function handleRename(
     req: ApiRequest<ApiRenameDetails>,

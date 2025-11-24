@@ -1,39 +1,33 @@
 import React from 'react';
 
+import { Loader } from '@mantine/core';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
-import { useDocumentColorScheme } from '@ui/hooks/useDocumentColorScheme';
-import { Loader } from '@ui/Loader';
-
 import { AppContent } from '~/client/AppContent';
+import { Error } from '~/client/common/Error';
 import { Label } from '~/client/common/Label';
 import { LocaleContext } from '~/client/common/LocaleContext';
-import { Error } from '~/client/Error';
 import { useClientId } from '~/client/state/google/useClientId';
 import { isDevMode } from '~/common/utils/env';
-import cx from './App.pcss';
 
 export function App() {
-    useDocumentColorScheme();
     const clientId = useClientId();
     const dev = isDevMode();
     return (
         <LocaleContext value={process.env.LOCALE}>
-            <div className={cx('App', { center: !dev && !clientId })}>
-                {dev ? (
+            {dev ? (
+                <AppContent />
+            ) : clientId ? (
+                <GoogleOAuthProvider clientId={clientId}>
                     <AppContent />
-                ) : clientId ? (
-                    <GoogleOAuthProvider clientId={clientId}>
-                        <AppContent />
-                    </GoogleOAuthProvider>
-                ) : (
-                    (clientId == null && <Loader />) || (
-                        <Error>
-                            <Label>Invalid Client ID</Label>
-                        </Error>
-                    )
-                )}
-            </div>
+                </GoogleOAuthProvider>
+            ) : (
+                (clientId == null && <Loader size="lg" type="bars" />) || (
+                    <Error>
+                        <Label>Invalid Client ID</Label>
+                    </Error>
+                )
+            )}
         </LocaleContext>
     );
 }

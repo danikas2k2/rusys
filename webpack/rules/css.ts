@@ -1,4 +1,4 @@
-import { type RuleSetRule } from 'webpack';
+import type { RuleSetRule } from 'webpack';
 
 import { getClassNamesLoader } from '../loaders/class-names';
 import { getCssLoader } from '../loaders/css';
@@ -10,7 +10,6 @@ import { getIncludeList } from '../paths/include';
 export function getCssRule(isDevMode: boolean): RuleSetRule {
     return {
         test: /\.p?css$/,
-        include: getIncludeList(),
         exclude: getExcludeList(),
         use: [
             getClassNamesLoader(isDevMode),

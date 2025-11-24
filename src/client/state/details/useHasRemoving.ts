@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 
-import { type WithDetailsState } from '~/client/state/details/types';
+import type { WithDetailsState } from '~/client/state/details/types';
 import { useYears } from '~/client/state/years/useYears';
 
 export function useHasRemoving(group: string, name: string): boolean {

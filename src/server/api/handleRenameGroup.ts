@@ -2,7 +2,7 @@ import { debugRequest } from '~/server/api/debug';
 import { getDetailsWithGroups } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { renameGroupOccurrences } from '~/server/data/common';
-import { type ApiDetailsWithYears, type ApiRenameGroup, type ApiRequest, type ApiResponse } from '~/types/api';
+import type { ApiDetailsWithYears, ApiRenameGroup, ApiRequest, ApiResponse } from '~/types/api';
 
 export async function handleRenameGroup(
     req: ApiRequest<ApiRenameGroup>,

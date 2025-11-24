@@ -1,3 +1,0 @@
-export const POINTER_MOVE_THRESHOLD = 10;
-export const POINTER_LONG_PRESS_DELAY = 400;
-export const POINTER_SHORT_PRESS_DELAY = 100;

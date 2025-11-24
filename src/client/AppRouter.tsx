@@ -2,7 +2,6 @@ import React from 'react';
 import { HashRouter, Route, Routes } from 'react-router-dom';
 
 import { Links } from '~/client/Links';
-import { AboutPage } from '~/client/pages/AboutPage';
 import { DetailsPage } from '~/client/pages/details/DetailsPage';
 import { GroupsPage } from '~/client/pages/groups/GroupsPage';
 import { SummaryPage } from '~/client/pages/summary/SummaryPage';
@@ -12,7 +11,6 @@ export function AppRouter() {
     return (
         <HashRouter>
             <Routes>
-                <Route path={Links.ABOUT} element={<AboutPage />} />
                 <Route path={Links.SUMMARY} element={<SummaryPage />} />
                 <Route path={Links.GROUPS} element={<GroupsPage />} />
                 <Route path={Links.VARIANTS} element={<VariantsPage />} />

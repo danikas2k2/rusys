@@ -1,7 +1,7 @@
 import GeneratePackageJsonPlugin from 'generate-package-json-webpack-plugin';
 
 import Package from '../../package.json';
-import { type WebpackPlugin } from '../types';
+import type { WebpackPlugin } from '../types';
 
 export function getPackageJsonPlugin(): WebpackPlugin {
     return new GeneratePackageJsonPlugin({

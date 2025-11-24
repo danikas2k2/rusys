@@ -1,5 +1,10 @@
-import { type RuleSetConditionAbsolute } from 'webpack';
+import type { RuleSetConditionAbsolute } from 'webpack';
 
 export function getExcludeList(): RuleSetConditionAbsolute[] {
-    return [/node_modules/];
+    return [
+        (modulePath: string) => {
+            // Exclude node_modules except @mantine packages
+            return /node_modules/.test(modulePath) && !/@mantine/.test(modulePath);
+        },
+    ];
 }

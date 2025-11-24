@@ -1,52 +1,67 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
-import { ActiveRowWrapper } from '~/client/common/ActiveRowContext';
-import { ActiveRowOutsideClick } from '~/client/common/ActiveRowOutsideClick';
+import type { UniqueIdentifier } from '@dnd-kit/core';
+import { Table, Title } from '@mantine/core';
+
+import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { DraggableContent } from '~/client/common/DraggableContent';
+import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { Label } from '~/client/common/Label';
-import { LoadingContent } from '~/client/common/LoadingContent';
-import { useQuickFilter } from '~/client/filters/hooks/useQuickFilter';
-import { ActiveGroupBox } from '~/client/pages/groups/ActiveGroupBox';
+import { LoadableContent } from '~/client/common/LoadableContent';
+import { SortableContent } from '~/client/common/SortableContent';
+import { GroupsRow } from '~/client/pages/groups/GroupsRow';
+import { useFilteredGroups } from '~/client/pages/groups/hooks/useFilteredGroups';
 import { useGroupsHasData } from '~/client/pages/groups/hooks/useGroupsHasData';
-import { SortableGroups } from '~/client/pages/groups/SortableGroups';
 import { useGetGroups } from '~/client/state/groups/useGetGroups';
-import { useGroups } from '~/client/state/groups/useGroups';
-import { Cell } from '~/client/table/Cell';
-import { Row } from '~/client/table/Row';
-import { Table } from '~/client/table/Table';
-import { matchParts } from '~/client/utils/matchParts';
-import cx from './GroupsTable.pcss';
+import { useReorderGroups } from '~/client/state/groups/useReorderGroups';
+import { mapOrder } from '~/client/utils/mapOrder';
+import type { Group } from '~/types/data';
 
 export function GroupsTable() {
-    const groups = useGroups();
-    const filter = useQuickFilter();
-    const visibleGroups = useMemo(
-        () => groups.filter((v) => matchParts(v.group, filter)).sort((a, b) => a.order - b.order),
-        [filter, groups]
-    );
+    const [, setActive] = useActiveContent();
+    const handleDragStart = () => setActive();
+
+    const reorderGroups = useReorderGroups();
+    const {
+        items,
+        reordering,
+        onDragEnd: handleDragEnd,
+    } = useReorderHandler<Group, Pick<Group, 'group'>>({
+        items: useFilteredGroups(),
+
+        onReorder: (reordered) => reorderGroups(mapOrder(reordered, ({ group }) => group)),
+
+        equals: (a, b) => a.group === b.group,
+
+        resolve: (id: UniqueIdentifier) => ({ group: `${id}` }),
+    });
 
     return (
-        <LoadingContent loader={useGetGroups()} hasData={useGroupsHasData()}>
-            <Table
-                className={cx('Table')}
-                header={
-                    // TODO check if HeadRow is needed
-                    <Row className={cx('Row', 'HeadRow')}>
-                        <Cell />
-                        <Cell key="name" role="columnheader" className={cx('Name')}>
-                            <Label>Group</Label>
-                        </Cell>
-                        <Cell key="annual" role="columnheader" className={cx('Annual')}>
-                            <Label>Annual</Label>
-                        </Cell>
-                    </Row>
-                }
-            >
-                <ActiveRowWrapper>
-                    <ActiveRowOutsideClick />
-                    <SortableGroups className={cx('Row')} groups={visibleGroups} />
-                    <ActiveGroupBox />
-                </ActiveRowWrapper>
-            </Table>
-        </LoadingContent>
+        <LoadableContent loader={useGetGroups()} hasData={useGroupsHasData()}>
+            <DraggableContent onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+                <Table>
+                    <Table.Thead>
+                        <Table.Tr h="3rem">
+                            <Table.Th />
+                            <Table.Th>
+                                <Title order={6}>
+                                    <Label>Group</Label>
+                                </Title>
+                            </Table.Th>
+                            <Table.Th ta="center">
+                                <Label>Annual</Label>
+                            </Table.Th>
+                        </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                        <SortableContent items={items.map(({ group }) => group)}>
+                            {items.map((group) => (
+                                <GroupsRow key={group.group} group={group} reordering={reordering} />
+                            ))}
+                        </SortableContent>
+                    </Table.Tbody>
+                </Table>
+            </DraggableContent>
+        </LoadableContent>
     );
 }

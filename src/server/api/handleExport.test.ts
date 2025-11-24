@@ -5,7 +5,7 @@ import { mockResponse } from '@tests/mockResponse';
 
 import { handleExport } from '~/server/api/handleExport';
 import { exportEverything } from '~/server/data/common';
-import { type ApiExport } from '~/types/api';
+import type { ApiExport } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/data/common');

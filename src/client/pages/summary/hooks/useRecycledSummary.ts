@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 
-import { UpdateTypes, useUpdateType } from '~/client/common/UpdateTypeContext';
+import { useUpdateType } from '~/client/common/UpdateTypeContext';
 import { useSummary } from '~/client/state/summary/useSummary';
-import { type Summary } from '~/types/data';
+import type { Summary } from '~/types/data';
 
-export function useRecycledSummary(): ReadonlyArray<Summary> {
+export function useRecycledSummary(): readonly Summary[] {
     const [updateType] = useUpdateType();
-    const recycled = updateType === UpdateTypes.Recycled;
+    const recycled = updateType === 'recycled';
     const summary = useSummary();
     return useMemo(
         () =>

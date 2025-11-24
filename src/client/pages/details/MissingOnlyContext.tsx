@@ -1,13 +1,13 @@
-import React, { createContext, use, useState, type PropsWithChildren } from 'react';
+import React, { createContext, use, useState } from 'react';
 
 import { noop } from 'lodash';
 
 export const MissingOnlyContext = createContext<[boolean, (v: boolean) => void]>([false, noop]);
 
-export function MissingOnlyContextWrapper({
+export function MissingOnlyWrapper({
     initialState = false,
     children,
-}: PropsWithChildren<{
+}: React.PropsWithChildren<{
     initialState?: boolean;
 }>) {
     return <MissingOnlyContext value={useState(initialState)}>{children}</MissingOnlyContext>;

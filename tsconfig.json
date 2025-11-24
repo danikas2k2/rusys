@@ -6,7 +6,6 @@
         "baseUrl": ".",
         "paths": {
             "package.json": ["./package.json"],
-            "@assets/*": ["src/client/assets/*"],
             "@tests/*": ["src/tests/*"],
             "@ui/*": ["src/ui/*"],
             "~/*": ["src/*"]

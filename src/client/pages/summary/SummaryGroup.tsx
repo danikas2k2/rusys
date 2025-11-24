@@ -1,32 +1,34 @@
 import React from 'react';
 
-import { UpdateTypes, useUpdateType } from '~/client/common/UpdateTypeContext';
+import { Table } from '@mantine/core';
+
+import { useUpdateType } from '~/client/common/UpdateTypeContext';
+import { useSummaryYears } from '~/client/pages/summary/hooks/useSummaryYears';
 import { SummaryRow } from '~/client/pages/summary/SummaryRow';
-import { Cell } from '~/client/table/Cell';
-import { Row } from '~/client/table/Row';
-import { type Summary } from '~/types/data';
-import cx from './SummaryGroup.pcss';
+import { GroupTitle } from '~/client/table/GroupTitle';
+import type { Summary } from '~/types/data';
 
 interface SummaryGroupProps {
     group: string;
-    summary: ReadonlyArray<Summary>;
+    summary: readonly Summary[];
 }
 
 export function SummaryGroup({ group, summary }: SummaryGroupProps) {
     const [updateType] = useUpdateType();
-    const recycled = updateType === UpdateTypes.Recycled;
+    const recycled = updateType === 'recycled';
+    const summaryYears = useSummaryYears();
     return (
-        <div role="rowgroup">
-            <Row className={cx('Row', 'GroupRow', { recycled })}>
-                <Cell role="rowheader" className={cx('GroupHeading')}>
-                    {group}
-                </Cell>
-            </Row>
-            <div className={cx('GroupedRows')}>
-                {summary.map(({ name, years }) => (
-                    <SummaryRow key={name} group={group} name={name} amounts={years} />
-                ))}
-            </div>
-        </div>
+        <>
+            <GroupTitle colSpan={summaryYears.length + 1} bg={recycled ? 'red' : 'green'}>
+                {group}
+            </GroupTitle>
+            {!!summary.length && (
+                <Table.Tbody>
+                    {summary.map(({ name, years }) => (
+                        <SummaryRow key={name} group={group} name={name} amounts={years} />
+                    ))}
+                </Table.Tbody>
+            )}
+        </>
     );
 }

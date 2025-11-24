@@ -1,27 +1,18 @@
-.HeadRow,
-.GroupRow {
-    font-weight: var(--font-weight-semi-bold);
+.Table {
+    /* Let SwipeableTableRow handle touch events for swipe */
 }
 
-.Row {
-    > :nth-child(2) {
-        grid-column: span 3;
-    }
+:global(.mantine-Table-tbody) :global(.mantine-Table-tr) :global(.mantine-Table-td) {
+    /* Allow swipe events to pass through to SwipeableTableRow */
+    pointer-events: auto;
+}
+
+:global(.mantine-Table-tbody) :global(.mantine-Table-tr) :global(.mantine-Table-td) > * {
+    /* Child elements (like Checkbox) should still be interactive */
+    pointer-events: auto;
 }
 
 .HeadRow {
+    font-weight: var(--font-weight-semi-bold);
     padding-inline: 0.25rem 0.5rem;
-}
-
-.GroupRow {
-    padding: 0.75rem 1rem 0.25rem;
-    background-color: var(--color-base);
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
-
-.GroupHeading {
-    width: 100%;
-    font-size: var(--font-size-xxlarge);
 }

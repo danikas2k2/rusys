@@ -32,6 +32,7 @@ describe('<AppContent>', () => {
 
     it('renders LogoutButton when has profile info but user is not allowed', () => {
         jest.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: false });
+
         render(<AppContent />);
 
         expect(screen.getByText('LogoutButton')).toBeInTheDocument();
@@ -40,6 +41,7 @@ describe('<AppContent>', () => {
     it('renders AppRouter when has profile and user is.allowed', () => {
         jest.mocked(isDevMode).mockReturnValue(false);
         jest.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: true });
+
         render(<AppContent />);
 
         expect(screen.getByText('AppRouter')).toBeInTheDocument();
@@ -47,6 +49,7 @@ describe('<AppContent>', () => {
 
     it('renders AppRouter when in dev mode event without profile', () => {
         jest.mocked(isDevMode).mockReturnValue(true);
+
         render(<AppContent />);
 
         expect(screen.getByText('AppRouter')).toBeInTheDocument();

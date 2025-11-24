@@ -1,96 +1,133 @@
-import CancelIcon from '@assets/cancel.svg';
-import CloseIcon from '@assets/close.svg';
-import DoneIcon from '@assets/done.svg';
+import React, { cloneElement, useCallback, useEffect, useState } from 'react';
 
-import React, { cloneElement, type MouseEvent, type ReactElement, type ReactNode } from 'react';
-
-import { Button, IconButton, type ButtonProps } from '@ui/Button';
-import { Dialog } from '@ui/Dialog';
+import { Alert, Button, Group, Modal, type ButtonProps, type ModalProps } from '@mantine/core';
+import { IconAlertCircle, IconCheck, IconX } from '@tabler/icons-react';
 
 import { Label } from '~/client/common/Label';
-import cx from './ConfirmationDialog.pcss';
+import { getErrorMessage } from '~/client/utils/errors';
 
-export interface ConfirmationDialogProps {
-    header?: ReactElement;
-    footer?: ReactElement;
-    confirmButton?: ReactElement<ButtonProps>;
-    cancelButton?: ReactElement<ButtonProps>;
-    // TODO add `trigger: ReactNode | ({ open, onOpen, onClose }) => ReactNode` prop, then remove `open` prop
-    open?: boolean;
-    onConfirm?: (e: MouseEvent<HTMLButtonElement>) => void;
-    onClose?: () => void;
+export type ButtonElementProps = ButtonProps &
+    React.AriaAttributes &
+    Omit<React.DOMAttributes<HTMLButtonElement>, 'onClick'> & {
+        onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void | Promise<void>;
+    };
+export type ButtonElement = React.ReactElement<ButtonElementProps>;
+
+export interface ConfirmationDialogProps extends ModalProps {
+    actions?: React.ReactElement;
+    confirmButton?: ButtonElement;
+    cancelButton?: ButtonElement;
+    onConfirm?: (e: React.MouseEvent<HTMLButtonElement>) => void | Promise<void>;
     closeLabel?: string;
-    className?: string;
-    children?: ReactNode;
 }
 
 export const confirmButtonProps: ButtonProps = {
     variant: 'solid',
     color: 'blue',
-    startDecorator: <DoneIcon />,
+    leftSection: <IconCheck size={18} />,
     children: <Label>Confirm</Label>,
 };
 
 export const cancelButtonProps: ButtonProps = {
-    variant: 'outlined',
-    startDecorator: <CancelIcon />,
+    variant: 'outline',
+    color: 'gray',
+    leftSection: <IconX size={18} />,
     children: <Label>Cancel</Label>,
 };
 
 export function ConfirmationDialog({
-    header = <Label>Are you sure?</Label>,
-    footer,
+    title = <Label>Are you sure?</Label>,
+    actions,
     confirmButton,
     cancelButton,
-    open,
+    opened = false,
     onConfirm,
     onClose,
     closeLabel = 'Close',
-    className,
     children,
+    closeButtonProps,
+    ...props
 }: ConfirmationDialogProps) {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    // Clear error when dialog closes
+    useEffect(() => {
+        if (!opened) {
+            setError(null);
+        }
+    }, [opened]);
+
+    const handleConfirm = useCallback(
+        async (e: React.MouseEvent<HTMLButtonElement>) => {
+            // Clear previous error
+            setError(null);
+
+            // Delay loading state to avoid showing it for fast operations
+            const loadingTimeout = setTimeout(() => {
+                setLoading(true);
+            }, 300);
+
+            try {
+                await onConfirm?.(e);
+                onClose?.();
+            } catch (err) {
+                setError(getErrorMessage(err));
+            } finally {
+                clearTimeout(loadingTimeout);
+                setLoading(false);
+            }
+        },
+        [onConfirm, onClose]
+    );
+
     return (
-        <Dialog
+        <Modal
             role="alertdialog"
-            className={cx('ConfirmationDialog', className)}
-            open={open}
-            closeOnOutsideClick
-            closeOnEscape
+            size="auto"
+            closeOnEscape={!loading}
+            closeOnClickOutside={!loading}
+            centered
+            opened={opened}
             onClose={onClose}
+            closeButtonProps={{
+                'aria-label': closeLabel,
+                disabled: loading,
+                ...closeButtonProps,
+            }}
+            title={title}
+            {...props}
         >
-            <header>
-                <div className={cx('title')}>{header}</div>
-                <div className={cx('close')}>
-                    <IconButton aria-label={closeLabel} onClick={onClose}>
-                        <CloseIcon />
-                    </IconButton>
-                </div>
-            </header>
-            <main>{children}</main>
-            <footer>
-                {footer || (
-                    <>
-                        {cancelButton ? (
-                            cloneElement(cancelButton, {
-                                ...cancelButtonProps,
-                                ...cancelButton.props,
-                                onClick: onClose,
-                            })
-                        ) : (
-                            <Button {...cancelButtonProps} onClick={onClose} />
-                        )}
-                        {confirmButton ? (
-                            cloneElement(confirmButton, {
-                                ...confirmButtonProps,
-                                ...confirmButton.props,
-                                onClick: onConfirm,
-                            })
-                        ) : (
-                            <Button {...confirmButtonProps} onClick={onConfirm} />
-                        )}
-                    </>
-                )}
-            </footer>
-        </Dialog>
+            {children}
+            {error && (
+                <Alert variant="light" color="red" icon={<IconAlertCircle size={18} />} mt="md">
+                    {error}
+                </Alert>
+            )}
+            {actions || (
+                <Group justify="right" mt="md">
+                    {cancelButton ? (
+                        cloneElement(cancelButton, {
+                            ...cancelButtonProps,
+                            ...cancelButton.props,
+                            onClick: onClose,
+                            disabled: loading,
+                        })
+                    ) : (
+                        <Button {...cancelButtonProps} onClick={onClose} disabled={loading} />
+                    )}
+                    {confirmButton ? (
+                        cloneElement(confirmButton, {
+                            ...confirmButtonProps,
+                            ...confirmButton.props,
+                            onClick: handleConfirm,
+                            loading,
+                        })
+                    ) : (
+                        <Button {...confirmButtonProps} onClick={handleConfirm} loading={loading} />
+                    )}
+                </Group>
+            )}
+        </Modal>
     );
 }

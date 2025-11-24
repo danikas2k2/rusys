@@ -6,7 +6,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleCopyVariant } from '~/server/api/handleCopyVariant';
 import { getDetailsWithVariants } from '~/server/api/response';
 import { copyVariant } from '~/server/data/variants';
-import { type ApiCopyVariant, type ApiDetailsWithVariants } from '~/types/api';
+import type { ApiCopyVariant, ApiDetailsWithVariants } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');

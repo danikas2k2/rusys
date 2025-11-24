@@ -4,6 +4,7 @@ import React from 'react';
 
 import { ValueSuffix } from '~/client/common/ValueSuffix';
 import { ValueAmounts } from '~/client/pages/details/ValueAmounts';
+import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 
 jest.mock('~/client/state/variants/useGroupVariantComparator', () => ({
     useGroupVariantComparator: jest.fn().mockReturnValue(() => 0),
@@ -45,5 +46,26 @@ describe('<ValueAmounts>', () => {
                 }),
                 undefined
             );
+    });
+
+    it('renders empty when amounts is empty array', () => {
+        const { container } = render(<ValueAmounts group={group} amounts={[]} />);
+
+        expect(container).toBeEmptyDOMElement();
+    });
+
+    it('renders empty when amounts is undefined', () => {
+        const { container } = render(<ValueAmounts group={group} />);
+
+        expect(container).toBeEmptyDOMElement();
+    });
+
+    it('sorts amounts by variant using comparator', () => {
+        const mockComparator = jest.fn(() => 0);
+        jest.mocked(useGroupVariantComparator).mockReturnValue(mockComparator);
+
+        render(<ValueAmounts group={group} amounts={amounts} />);
+
+        expect(mockComparator).toHaveBeenCalledWith(expect.any(String), expect.any(String));
     });
 });

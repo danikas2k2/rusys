@@ -1,6 +1,6 @@
 import { EsbuildPlugin } from 'esbuild-loader';
 
-import { type WebpackOptimization } from './types';
+import type { WebpackOptimization } from './types';
 
 export function getOptimization(isDevMode: boolean): WebpackOptimization {
     const esbuild = new EsbuildPlugin({

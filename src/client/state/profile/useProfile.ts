@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { isEqual } from 'lodash';
 
 import { DEV_MODE_PROFILE } from '~/client/state/profile/dev';
-import { type Profile, type WithProfileState } from '~/client/state/profile/types';
+import type { Profile, WithProfileState } from '~/client/state/profile/types';
 import { useSetProfile } from '~/client/state/profile/useSetProfile';
 import { isDevMode } from '~/common/utils/env';
 

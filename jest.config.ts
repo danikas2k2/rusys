@@ -5,7 +5,6 @@ const base: Config = {
     moduleNameMapper: {
         '\\.p?css$': '<rootDir>/jest/__mocks__/styleMock.js',
         '^package.json$': '<rootDir>/package.json',
-        '^@assets/(.*)$': '<rootDir>/src/client/assets/$1',
         '^@tests/(.*)$': '<rootDir>/src/tests/$1',
         '^@ui/(.*)$': '<rootDir>/src/ui/$1',
         '^~/(.*)$': '<rootDir>/src/$1',

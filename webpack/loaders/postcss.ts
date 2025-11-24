@@ -1,8 +1,9 @@
 import postcssDiscardComments from 'postcss-discard-comments';
 import postcssImport from 'postcss-import';
+import postcssSimpleVars from 'postcss-simple-vars';
 
 import { getAlias } from '../alias';
-import { type WebpackModuleLoader } from '../types';
+import type { WebpackModuleLoader } from '../types';
 
 export function getPostCssLoader(_isDevMode?: boolean): WebpackModuleLoader {
     const alias = getAlias() as Record<string, string>;
@@ -13,6 +14,16 @@ export function getPostCssLoader(_isDevMode?: boolean): WebpackModuleLoader {
             postcssOptions: {
                 syntax: 'postcss-less',
                 plugins: [
+                    'postcss-preset-mantine',
+                    postcssSimpleVars({
+                        variables: {
+                            'mantine-breakpoint-xs': '36em',
+                            'mantine-breakpoint-sm': '48em',
+                            'mantine-breakpoint-md': '62em',
+                            'mantine-breakpoint-lg': '75em',
+                            'mantine-breakpoint-xl': '88em',
+                        },
+                    }),
                     postcssImport({
                         skipDuplicates: true,
                         resolve(id, basedir) {

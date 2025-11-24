@@ -1,28 +1,16 @@
-.HeadRow,
-.GroupRow {
-    font-weight: var(--font-weight-semi-bold);
-}
-
-.Row {
-    grid-template-columns: 40px 1fr 2fr;
-    background-color: var(--color-base);
-    padding: 0.5rem 0;
-}
-
-.GroupRow {
-    padding: 1rem 1rem 0.25rem;
-    background-color: var(--color-base);
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
-
-.GroupHeading {
-    width: 100%;
-    font-size: var(--font-size-large);
-}
-
-.Name {
-    justify-self: stretch;
-    font-weight: var(--font-weight-semi-bold);
+.VariantsTable {
+    .heading {
+        font-size: var(--font-size-xlarge);
+        font-weight: var(--font-weight-semi-bold);
+        padding: 1.25rem 0.75rem 0.75rem;
+        position: sticky;
+        inset-block-start: 2.5rem;
+        z-index: 1;
+        background: var(--mantine-color-body)
+            linear-gradient(
+                135deg,
+                color(from var(--mantine-color-default-hover) srgb r g b / 0%) 30%,
+                var(--mantine-color-default-hover) 100%
+            );
+    }
 }

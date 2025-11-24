@@ -1,4 +1,4 @@
-import { type RuleSetRule } from 'webpack';
+import type { RuleSetRule } from 'webpack';
 
 import { getSvgLoader } from '../loaders/svg';
 import { getExcludeList } from '../paths/exclude';

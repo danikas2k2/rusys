@@ -4,7 +4,7 @@ import {
     setAllowedAction,
     setProfileAction,
 } from '~/client/state/profile/actions';
-import { type Profile } from '~/client/state/profile/types';
+import type { Profile } from '~/client/state/profile/types';
 
 describe('setProfileAction', () => {
     it('returns valid action', () => {

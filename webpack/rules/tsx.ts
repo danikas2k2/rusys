@@ -1,4 +1,4 @@
-import { type RuleSetRule } from 'webpack';
+import type { RuleSetRule } from 'webpack';
 
 import { getExcludeList } from '../paths/exclude';
 import { getIncludeList } from '../paths/include';

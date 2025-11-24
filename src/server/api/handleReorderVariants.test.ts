@@ -6,7 +6,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleReorderVariants } from '~/server/api/handleReorderVariants';
 import { getVariantsResponse } from '~/server/api/response';
 import { reorderVariants } from '~/server/data/variants';
-import { type ApiReorderVariants, type ApiVariants } from '~/types/api';
+import type { ApiReorderVariants, ApiVariants } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');

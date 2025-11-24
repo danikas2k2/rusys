@@ -18,12 +18,16 @@ export function useApiRequest(): <R, D = object | string>(url: string, data?: D,
     return useCallback(async <R, D = object | string>(url: string, data?: D, method?: RequestMethod): Promise<R> => {
         if (typeof data === 'string') {
             if (typeof method === 'string') {
+                // eslint-disable-next-line no-param-reassign
                 data = { data } as D;
             } else {
+                // eslint-disable-next-line no-param-reassign
                 method = data as RequestMethod;
+                // eslint-disable-next-line no-param-reassign
                 data = undefined;
             }
         }
+
         const response = await axios({
             url,
             method: method ?? 'POST',
@@ -35,6 +39,7 @@ export function useApiRequest(): <R, D = object | string>(url: string, data?: D,
                   }
                 : {}),
         });
+
         return response.data;
     }, []);
 }

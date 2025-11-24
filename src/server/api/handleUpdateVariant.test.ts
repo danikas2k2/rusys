@@ -4,7 +4,7 @@ import { mockResponse } from '@tests/mockResponse';
 
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { updateVariant } from '~/server/data/variants';
-import { type Variant } from '~/types/data';
+import type { Variant } from '~/types/data';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/data/variants');

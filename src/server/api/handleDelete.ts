@@ -2,7 +2,7 @@ import { debugRequest } from '~/server/api/debug';
 import { getDetailsWithYears } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { deleteDetails } from '~/server/data/details';
-import { type ApiDetailsWithYears, type ApiRequest, type ApiRequestDetails, type ApiResponse } from '~/types/api';
+import type { ApiDetailsWithYears, ApiRequest, ApiRequestDetails, ApiResponse } from '~/types/api';
 
 export async function handleDelete(
     req: ApiRequest<ApiRequestDetails>,

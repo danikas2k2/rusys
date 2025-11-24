@@ -40,4 +40,18 @@ describe('useGroupMatch', () => {
 
         expect(result.current).toBeFalse();
     });
+
+    it('returns false when useDetails returns null', () => {
+        jest.mocked(useDetails).mockReturnValueOnce(null as any);
+        const { result } = renderHook(() => useGroupMatch('Group'));
+
+        expect(result.current).toBe(false);
+    });
+
+    it('returns false when useDetails returns undefined', () => {
+        jest.mocked(useDetails).mockReturnValueOnce(undefined as any);
+        const { result } = renderHook(() => useGroupMatch('Group'));
+
+        expect(result.current).toBe(false);
+    });
 });

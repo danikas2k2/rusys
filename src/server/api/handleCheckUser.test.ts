@@ -3,7 +3,7 @@ import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
 import { handleCheckUser } from '~/server/api/handleCheckUser';
-import { type ApiUserAllowed, type ApiUserEmail } from '~/types/api';
+import type { ApiUserAllowed, ApiUserEmail } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 

@@ -1,3 +1,3 @@
 export interface WithYearsState {
-    years?: ReadonlyArray<number>;
+    years?: readonly number[];
 }

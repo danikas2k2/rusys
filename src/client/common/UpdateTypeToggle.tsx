@@ -1,77 +1,91 @@
-import DeleteIcon from '@assets/delete.svg';
-import EditSquareIcon from '@assets/edit-square.svg';
-import RestaurantIcon from '@assets/restaurant.svg';
+import React, { useMemo } from 'react';
 
-import React from 'react';
-
-import { Button } from '@ui/Button';
+import { SegmentedControl, ThemeIcon, type MantineColor } from '@mantine/core';
+import { IconEdit, IconToolsKitchen2, IconTrash } from '@tabler/icons-react';
 
 import { ChangeBadge } from '~/client/common/ChangeBadge';
-import { UpdateTypes, useUpdateType } from '~/client/common/UpdateTypeContext';
-import { useLabel } from '~/client/hooks/useLabel';
-import { ButtonToggle } from '~/client/ui/ButtonToggle';
+import { useUpdateType, type UpdateTypes } from '~/client/common/UpdateTypeContext';
 import { getChangedAmount } from '~/common/utils/amounts';
-import { type VariantAmount } from '~/types/data';
+import type { VariantAmount } from '~/types/data';
+import { useLabels } from '../hooks/useLabels';
+import cx from './UpdateTypeToggle.pcss';
 
 interface UpdateTypeToggleProps {
-    changes?: Partial<Record<UpdateTypes, ReadonlyArray<VariantAmount>>>;
-    updated?: boolean;
+    readonly changes?: Readonly<Partial<Record<UpdateTypes, readonly VariantAmount[]>>>;
+    readonly updated?: boolean;
 }
 
-export function UpdateTypeToggle({ changes, updated = true }: UpdateTypeToggleProps) {
-    const consumedLabel = useLabel('Consumed');
-    const consumedAmount = changes && getChangedAmount(changes[UpdateTypes.Consumed]);
+const UPDATE_TYPE_COLORS: Record<UpdateTypes, MantineColor> = {
+    consumed: 'green',
+    updated: 'blue',
+    recycled: 'red',
+};
 
-    const updatedLabel = useLabel('Updated');
-    const updatedAmount = changes && getChangedAmount(changes[UpdateTypes.Updated]);
+export function UpdateTypeToggle(props: Readonly<UpdateTypeToggleProps>) {
+    const { changes, updated = true } = props;
+    const _ = useLabels();
 
-    const recycledLabel = useLabel('Recycled');
-    const recycledAmount = changes && getChangedAmount(changes[UpdateTypes.Recycled]);
+    const [updateType, setUpdateType] = useUpdateType();
 
-    const [value, setValue] = useUpdateType();
+    const data = useMemo(() => {
+        const consumedAmount = changes && getChangedAmount(changes.consumed);
+        const updatedAmount = changes && getChangedAmount(changes.updated);
+        const recycledAmount = changes && getChangedAmount(changes.recycled);
+
+        return [
+            {
+                value: 'consumed',
+                label: (
+                    <>
+                        <ThemeIcon color="text" variant={updateType === 'consumed' ? 'filled' : 'subtle'}>
+                            <IconToolsKitchen2 aria-label={_('Consumed')} />
+                        </ThemeIcon>
+                        {consumedAmount && <ChangeBadge position="left" change={consumedAmount} />}
+                    </>
+                ),
+            },
+            ...(updated
+                ? [
+                      {
+                          value: 'updated',
+                          label: (
+                              <>
+                                  <ThemeIcon color="text" variant={updateType === 'updated' ? 'filled' : 'subtle'}>
+                                      <IconEdit aria-label={_('Updated')} />
+                                  </ThemeIcon>
+                                  {updatedAmount && <ChangeBadge position="top" change={updatedAmount} />}
+                              </>
+                          ),
+                      },
+                  ]
+                : []),
+            {
+                value: 'recycled',
+                label: (
+                    <>
+                        <ThemeIcon color="text" variant={updateType === 'recycled' ? 'filled' : 'subtle'}>
+                            <IconTrash aria-label={_('Recycled')} />
+                        </ThemeIcon>
+                        {recycledAmount && <ChangeBadge position="right" change={recycledAmount} />}
+                    </>
+                ),
+            },
+        ];
+    }, [changes, _, updated, updateType]);
+
+    const handleChange = (newValue: string) => {
+        const newType = newValue as UpdateTypes;
+
+        setUpdateType(newType);
+    };
+
     return (
-        <ButtonToggle {...{ value, setValue }}>
-            <Button
-                key={UpdateTypes.Consumed}
-                value={UpdateTypes.Consumed}
-                color="green"
-                startDecorator={consumedAmount && <ChangeBadge position="left" change={consumedAmount} />}
-                startDecoratorSpacing="none"
-                aria-label={consumedLabel}
-                aria-checked={UpdateTypes.Consumed === value}
-            >
-                <div>
-                    <RestaurantIcon />
-                </div>
-            </Button>
-            {updated ? (
-                <Button
-                    key={UpdateTypes.Updated}
-                    value={UpdateTypes.Updated}
-                    color="blue"
-                    endDecorator={updatedAmount && <ChangeBadge position="top" change={updatedAmount} />}
-                    endDecoratorSpacing="none"
-                    aria-label={updatedLabel}
-                    aria-checked={UpdateTypes.Updated === value}
-                >
-                    <div>
-                        <EditSquareIcon />
-                    </div>
-                </Button>
-            ) : null}
-            <Button
-                key={UpdateTypes.Recycled}
-                value={UpdateTypes.Recycled}
-                color="red"
-                endDecorator={recycledAmount && <ChangeBadge position="right" change={recycledAmount} />}
-                endDecoratorSpacing="none"
-                aria-label={recycledLabel}
-                aria-checked={UpdateTypes.Recycled === value}
-            >
-                <div>
-                    <DeleteIcon />
-                </div>
-            </Button>
-        </ButtonToggle>
+        <SegmentedControl
+            className={cx('UpdateTypeToggle')}
+            color={UPDATE_TYPE_COLORS[updateType]}
+            data={data}
+            value={updateType}
+            onChange={handleChange}
+        />
     );
 }

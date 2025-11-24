@@ -18,8 +18,6 @@ module.exports = {
                     '^@testing-library/',
                     '^@tests/',
                     '',
-                    '^@assets/',
-                    '',
                     '^react$',
                     '^react-',
                     '',

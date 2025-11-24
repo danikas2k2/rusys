@@ -3,7 +3,7 @@ import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
 import { DEV_CLIENT_ID, handleClientId } from '~/server/api/handleClientId';
-import { type ApiClientId } from '~/types/api';
+import type { ApiClientId } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 

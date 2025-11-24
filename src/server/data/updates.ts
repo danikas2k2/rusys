@@ -2,12 +2,12 @@ import { getGroups } from '~/server/data/groups';
 import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
-import { type Group, type Summary, type Variant } from '~/types/data';
+import type { Group, Summary, Variant } from '~/types/data';
 
 const MAX_YEARS = 3;
 const START_MONTH = 9; // September
 
-export const getSummary = async (years: number[] = getYears()): Promise<ReadonlyArray<Summary>> =>
+export const getSummary = async (years: number[] = getYears()): Promise<readonly Summary[]> =>
     await (
         await db()
     )
@@ -156,10 +156,10 @@ export const getSummary = async (years: number[] = getYears()): Promise<Readonly
 
 export const getFullSummary = async (): Promise<
     Readonly<{
-        years: ReadonlyArray<number>;
-        groups: ReadonlyArray<Group>;
-        variants: ReadonlyArray<Variant>;
-        summary: ReadonlyArray<Summary>;
+        years: readonly number[];
+        groups: readonly Group[];
+        variants: readonly Variant[];
+        summary: readonly Summary[];
     }>
 > => {
     const years = getYears(MAX_YEARS);

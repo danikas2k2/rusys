@@ -1,22 +1,14 @@
 .name {
-    justify-self: stretch;
-    font-weight: var(--font-weight-semi-bold);
-
-    &.unavailable {
+    &[data-available="false"] {
         color: var(--color-subtext0);
         font-weight: var(--font-weight-light);
     }
 
-    &:not(.unavailable).removing {
+    &[data-available="true"][data-removing="true"] {
         color: var(--color-red);
         font-weight: var(--font-weight-bold);
         letter-spacing: -0.25px;
         text-decoration: underline dashed 1px;
         text-underline-position: under;
     }
-}
-
-.total {
-    font-size: var(--font-size-small);
-    justify-content: flex-end;
 }

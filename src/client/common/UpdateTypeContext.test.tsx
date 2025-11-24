@@ -1,20 +1,15 @@
 import { render, renderHook, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import user from '@testing-library/user-event';
 
 import React, { use } from 'react';
 
-import {
-    UpdateTypeContext,
-    UpdateTypeContextWrapper,
-    UpdateTypes,
-    useUpdateType,
-} from '~/client/common/UpdateTypeContext';
+import { UpdateTypeContext, UpdateTypeWrapper, useUpdateType } from '~/client/common/UpdateTypeContext';
 
 describe('<UpdateTypeContext>', () => {
     it('uses context with default value', () => {
         const { result } = renderHook(() => use(UpdateTypeContext));
 
-        expect(result.current).toStrictEqual([UpdateTypes.Consumed, expect.any(Function)]);
+        expect(result.current).toStrictEqual(['consumed', expect.any(Function)]);
     });
 });
 
@@ -22,43 +17,43 @@ describe('useUpdateType', () => {
     it('returns consumed update variant', () => {
         const { result } = renderHook(() => useUpdateType());
 
-        expect(result.current).toStrictEqual([UpdateTypes.Consumed, expect.any(Function)]);
+        expect(result.current).toStrictEqual(['consumed', expect.any(Function)]);
     });
 
     it('returns recycled update variant', () => {
         const setRecycled = jest.fn();
         const { result } = renderHook(() => useUpdateType(), {
             wrapper: ({ children }) => (
-                <UpdateTypeContext value={[UpdateTypes.Recycled, setRecycled]}>{children}</UpdateTypeContext>
+                <UpdateTypeContext value={['recycled', setRecycled]}>{children}</UpdateTypeContext>
             ),
         });
 
-        expect(result.current).toStrictEqual([UpdateTypes.Recycled, setRecycled]);
+        expect(result.current).toStrictEqual(['recycled', setRecycled]);
     });
 
     it('returns update-only variant', () => {
         const setRecycled = jest.fn();
         const { result } = renderHook(() => useUpdateType(), {
             wrapper: ({ children }) => (
-                <UpdateTypeContext value={[UpdateTypes.Updated, setRecycled]}>{children}</UpdateTypeContext>
+                <UpdateTypeContext value={['updated', setRecycled]}>{children}</UpdateTypeContext>
             ),
         });
 
-        expect(result.current).toStrictEqual([UpdateTypes.Updated, setRecycled]);
+        expect(result.current).toStrictEqual(['updated', setRecycled]);
     });
 });
 
 describe('<UpdateTypeContextWrapper>', () => {
     function Test() {
         const [updateVariant, setUpdateVariant] = useUpdateType();
-        return <button onClick={() => setUpdateVariant(UpdateTypes.Recycled)}>{updateVariant}</button>;
+        return <button onClick={() => setUpdateVariant('recycled')}>{updateVariant}</button>;
     }
 
     it('uses context with default value', () => {
         render(
-            <UpdateTypeContextWrapper>
+            <UpdateTypeWrapper>
                 <Test />
-            </UpdateTypeContextWrapper>
+            </UpdateTypeWrapper>
         );
 
         expect(screen.getByRole('button')).toHaveTextContent('consumed');
@@ -66,11 +61,11 @@ describe('<UpdateTypeContextWrapper>', () => {
 
     it('changes context', async () => {
         render(
-            <UpdateTypeContextWrapper>
+            <UpdateTypeWrapper>
                 <Test />
-            </UpdateTypeContextWrapper>
+            </UpdateTypeWrapper>
         );
-        await userEvent.click(screen.getByRole('button'));
+        await user.click(screen.getByRole('button'));
 
         expect(screen.getByRole('button')).toHaveTextContent('recycled');
     });

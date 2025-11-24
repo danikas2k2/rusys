@@ -2,8 +2,8 @@ import { useSelector } from 'react-redux';
 
 import { isEqual } from 'lodash';
 
-import { type WithSummaryState } from '~/client/state/summary/types';
-import { type Summary } from '~/types/data';
+import type { WithSummaryState } from '~/client/state/summary/types';
+import type { Summary } from '~/types/data';
 
-export const useSummary = (): ReadonlyArray<Summary> =>
+export const useSummary = (): readonly Summary[] =>
     useSelector((state: WithSummaryState) => state.summary ?? [], isEqual);

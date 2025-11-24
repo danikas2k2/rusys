@@ -1,115 +1,153 @@
-import { render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
+import user from '@testing-library/user-event';
+import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
-import { UpdateTypeContextWrapper, UpdateTypes } from '~/client/common/UpdateTypeContext';
+import { UpdateTypeWrapper } from '~/client/common/UpdateTypeContext';
 import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
 
 describe('<UpdateTypeToggle>', () => {
     it('renders control buttons', () => {
         render(
-            <UpdateTypeContextWrapper>
-                <UpdateTypeToggle />
-            </UpdateTypeContextWrapper>
+            <MockApp>
+                <UpdateTypeWrapper>
+                    <UpdateTypeToggle />
+                </UpdateTypeWrapper>
+            </MockApp>
         );
 
-        expect(screen.getByLabelText('Consumed')).toBeInTheDocument();
-        expect(screen.getByLabelText('Updated')).toBeInTheDocument();
-        expect(screen.getByLabelText('Recycled')).toBeInTheDocument();
+        expect(screen.getByRole('radio', { name: 'Consumed' })).toBeInTheDocument();
+        expect(screen.getByRole('radio', { name: 'Updated' })).toBeInTheDocument();
+        expect(screen.getByRole('radio', { name: 'Recycled' })).toBeInTheDocument();
     });
 
     it('renders control buttons without Updated', () => {
         render(
-            <UpdateTypeContextWrapper>
-                <UpdateTypeToggle updated={false} />
-            </UpdateTypeContextWrapper>
+            <MockApp>
+                <UpdateTypeWrapper>
+                    <UpdateTypeToggle updated={false} />
+                </UpdateTypeWrapper>
+            </MockApp>
         );
 
-        expect(screen.getByLabelText('Consumed')).toBeInTheDocument();
-        expect(screen.getByLabelText('Recycled')).toBeInTheDocument();
-        expect(screen.queryByLabelText('Updated')).not.toBeInTheDocument();
+        expect(screen.getByRole('radio', { name: 'Consumed' })).toBeInTheDocument();
+        expect(screen.getByRole('radio', { name: 'Recycled' })).toBeInTheDocument();
+        expect(screen.queryByRole('radio', { name: 'Updated' })).not.toBeInTheDocument();
     });
 
     it('renders Consumed button to be checked by default', () => {
         render(
-            <UpdateTypeContextWrapper>
-                <UpdateTypeToggle />
-            </UpdateTypeContextWrapper>
+            <MockApp>
+                <UpdateTypeWrapper>
+                    <UpdateTypeToggle />
+                </UpdateTypeWrapper>
+            </MockApp>
         );
 
-        expect(screen.getByLabelText('Consumed')).toBeChecked();
-        expect(screen.getByLabelText('Updated')).not.toBeChecked();
-        expect(screen.getByLabelText('Recycled')).not.toBeChecked();
+        const consumedRadio = screen.getByRole('radio', { name: 'Consumed' });
+        const updatedRadio = screen.getByRole('radio', { name: 'Updated' });
+        const recycledRadio = screen.getByRole('radio', { name: 'Recycled' });
+
+        expect(consumedRadio).toBeChecked();
+        expect(updatedRadio).not.toBeChecked();
+        expect(recycledRadio).not.toBeChecked();
     });
 
     it('toggles to Updated state by click', async () => {
         render(
-            <UpdateTypeContextWrapper>
-                <UpdateTypeToggle />
-            </UpdateTypeContextWrapper>
+            <MockApp>
+                <UpdateTypeWrapper>
+                    <UpdateTypeToggle />
+                </UpdateTypeWrapper>
+            </MockApp>
         );
-        await userEvent.click(screen.getByLabelText('Updated'));
+        await user.click(screen.getByRole('radio', { name: 'Updated' }));
 
-        expect(screen.getByLabelText('Updated')).toBeChecked();
-        expect(screen.getByLabelText('Consumed')).not.toBeChecked();
-        expect(screen.getByLabelText('Recycled')).not.toBeChecked();
+        const consumedRadio = screen.getByRole('radio', { name: 'Consumed' });
+        const updatedRadio = screen.getByRole('radio', { name: 'Updated' });
+        const recycledRadio = screen.getByRole('radio', { name: 'Recycled' });
+
+        expect(updatedRadio).toBeChecked();
+        expect(consumedRadio).not.toBeChecked();
+        expect(recycledRadio).not.toBeChecked();
     });
 
     it('toggles to Recycled state by click', async () => {
         render(
-            <UpdateTypeContextWrapper>
-                <UpdateTypeToggle />
-            </UpdateTypeContextWrapper>
+            <MockApp>
+                <UpdateTypeWrapper>
+                    <UpdateTypeToggle />
+                </UpdateTypeWrapper>
+            </MockApp>
         );
-        await userEvent.click(screen.getByLabelText('Recycled'));
+        await user.click(screen.getByRole('radio', { name: 'Recycled' }));
 
-        expect(screen.getByLabelText('Recycled')).toBeChecked();
-        expect(screen.getByLabelText('Updated')).not.toBeChecked();
-        expect(screen.getByLabelText('Consumed')).not.toBeChecked();
+        const consumedRadio = screen.getByRole('radio', { name: 'Consumed' });
+        const updatedRadio = screen.getByRole('radio', { name: 'Updated' });
+        const recycledRadio = screen.getByRole('radio', { name: 'Recycled' });
+
+        expect(recycledRadio).toBeChecked();
+        expect(updatedRadio).not.toBeChecked();
+        expect(consumedRadio).not.toBeChecked();
     });
 
     it('toggles to Consumed state by click', async () => {
         render(
-            <UpdateTypeContextWrapper>
-                <UpdateTypeToggle />
-            </UpdateTypeContextWrapper>
+            <MockApp>
+                <UpdateTypeWrapper>
+                    <UpdateTypeToggle />
+                </UpdateTypeWrapper>
+            </MockApp>
         );
-        await userEvent.click(screen.getByLabelText('Recycled'));
-        await userEvent.click(screen.getByLabelText('Consumed'));
+        await user.click(screen.getByRole('radio', { name: 'Recycled' }));
+        await user.click(screen.getByRole('radio', { name: 'Consumed' }));
 
-        expect(screen.getByLabelText('Consumed')).toBeChecked();
-        expect(screen.getByLabelText('Updated')).not.toBeChecked();
-        expect(screen.getByLabelText('Recycled')).not.toBeChecked();
+        const consumedRadio = screen.getByRole('radio', { name: 'Consumed' });
+        const updatedRadio = screen.getByRole('radio', { name: 'Updated' });
+        const recycledRadio = screen.getByRole('radio', { name: 'Recycled' });
+
+        expect(consumedRadio).toBeChecked();
+        expect(updatedRadio).not.toBeChecked();
+        expect(recycledRadio).not.toBeChecked();
     });
 
     it('renders Consumed with amount', async () => {
         render(
-            <UpdateTypeContextWrapper>
-                <UpdateTypeToggle changes={{ [UpdateTypes.Consumed]: [{ variant: 'p', amount: 3 }] }} />
-            </UpdateTypeContextWrapper>
+            <MockApp>
+                <UpdateTypeWrapper>
+                    <UpdateTypeToggle changes={{ consumed: [{ variant: 'p', amount: 3 }] }} />
+                </UpdateTypeWrapper>
+            </MockApp>
         );
 
-        expect(within(screen.getByLabelText('Consumed')).getByText('3')).toBeInTheDocument();
+        expect(screen.getByText('+3')).toBeInTheDocument();
+        expect(screen.getByLabelText('Consumed')).toBeInTheDocument();
     });
 
     it('renders Updated with amount', async () => {
         render(
-            <UpdateTypeContextWrapper>
-                <UpdateTypeToggle changes={{ [UpdateTypes.Updated]: [{ variant: 'p', amount: 5 }] }} />
-            </UpdateTypeContextWrapper>
+            <MockApp>
+                <UpdateTypeWrapper>
+                    <UpdateTypeToggle changes={{ updated: [{ variant: 'p', amount: 5 }] }} />
+                </UpdateTypeWrapper>
+            </MockApp>
         );
 
-        expect(within(screen.getByLabelText('Updated')).getByText('5')).toBeInTheDocument();
+        expect(screen.getByText('+5')).toBeInTheDocument();
+        expect(screen.getByLabelText('Updated')).toBeInTheDocument();
     });
 
     it('renders Recycled with amount', async () => {
         render(
-            <UpdateTypeContextWrapper>
-                <UpdateTypeToggle changes={{ [UpdateTypes.Recycled]: [{ variant: 'p', amount: 7 }] }} />
-            </UpdateTypeContextWrapper>
+            <MockApp>
+                <UpdateTypeWrapper>
+                    <UpdateTypeToggle changes={{ recycled: [{ variant: 'p', amount: 7 }] }} />
+                </UpdateTypeWrapper>
+            </MockApp>
         );
 
-        expect(within(screen.getByLabelText('Recycled')).getByText('7')).toBeInTheDocument();
+        expect(screen.getByText('+7')).toBeInTheDocument();
+        expect(screen.getByLabelText('Recycled')).toBeInTheDocument();
     });
 });

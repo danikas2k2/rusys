@@ -12,6 +12,7 @@ describe('useApiRequest', () => {
     it('sends /test api request using GET method by default, then call update with response data', async () => {
         const response = { ok: true, data: [42] };
         jest.mocked(axios).mockResolvedValueOnce({ data: response });
+
         const { result } = renderHook(() => useApiRequest());
 
         await expect(result.current('/test')).resolves.toStrictEqual(response);

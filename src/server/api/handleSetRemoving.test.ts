@@ -4,7 +4,7 @@ import { mockResponse } from '@tests/mockResponse';
 
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { setRemoving } from '~/server/data/details';
-import { type ApiSetRemoving } from '~/types/api';
+import type { ApiSetRemoving } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/data/details');

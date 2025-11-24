@@ -6,7 +6,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
 import { getDetailsWithVariants } from '~/server/api/response';
 import { renameVariantOccurrences } from '~/server/data/common';
-import { type ApiDetailsWithYears, type ApiRenameVariant } from '~/types/api';
+import type { ApiDetailsWithYears, ApiRenameVariant } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');

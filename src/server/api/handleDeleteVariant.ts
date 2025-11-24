@@ -2,7 +2,7 @@ import { debugRequest } from '~/server/api/debug';
 import { getDetailsWithVariants } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { deleteVariantOccurrences } from '~/server/data/common';
-import { type ApiRequest, type ApiRequestVariant, type ApiResponse, type ApiVariants } from '~/types/api';
+import type { ApiRequest, ApiRequestVariant, ApiResponse, ApiVariants } from '~/types/api';
 
 export async function handleDeleteVariant(
     req: ApiRequest<ApiRequestVariant>,

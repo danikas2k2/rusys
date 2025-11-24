@@ -1,4 +1,4 @@
-import { type WebpackPerformance } from './types';
+import type { WebpackPerformance } from './types';
 
 export function getPerformance(isDevMode = false): WebpackPerformance {
     return {

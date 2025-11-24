@@ -1,8 +1,8 @@
-import { type ClientSession } from 'mongodb';
+import type { ClientSession } from 'mongodb';
 
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
-import { type Group } from '~/types/data';
+import type { Group } from '~/types/data';
 
 // Daržovės: 0.5l, 0.75l, 0.25l, 0.01l, x
 // Uogienės: 0.5l, 0.75l, 0.25l, 0.01l, x
@@ -16,7 +16,7 @@ import { type Group } from '~/types/data';
 // Šaldytuve: vnt.
 // Priemonės (skalbimo, valymo): ...
 
-export const getGroups = async (): Promise<ReadonlyArray<Group>> =>
+export const getGroups = async (): Promise<readonly Group[]> =>
     (await db())
         .collection('groups')
         .find({}, { projection: { _id: 0 }, sort: { order: 1, group: 1 } })

@@ -5,7 +5,7 @@ import { MockRedux } from '@tests/MockRedux';
 import React from 'react';
 
 import { useDetails } from '~/client/state/details/useDetails';
-import { type Details } from '~/types/data';
+import type { Details } from '~/types/data';
 
 describe('useDetails', () => {
     it('return empty list for empty state', () => {

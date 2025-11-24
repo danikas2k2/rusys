@@ -15,6 +15,7 @@ describe('useFilteredList', () => {
 
     it('returns unfiltered summary if no filters set', () => {
         jest.mocked(useQuickFilter).mockReturnValueOnce('');
+
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useDetailsFilters()));
 
         expect(result.current).toStrictEqual([
@@ -27,6 +28,7 @@ describe('useFilteredList', () => {
 
     it('returns filtered summary', () => {
         jest.mocked(useQuickFilter).mockReturnValueOnce('r');
+
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useDetailsFilters()));
 
         expect(result.current).toStrictEqual([
@@ -37,6 +39,7 @@ describe('useFilteredList', () => {
 
     it('renders filtered group data', () => {
         jest.mocked(useQuickFilter).mockReturnValueOnce('ūs');
+
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useDetailsFilters()));
 
         expect(result.current).toStrictEqual([expect.objectContaining({ group: 'Daržovės', name: 'Kopūstai' })]);
@@ -44,6 +47,7 @@ describe('useFilteredList', () => {
 
     it('renders selected group data', () => {
         jest.mocked(useGroupFilter).mockReturnValueOnce('Uogienės').mockReturnValueOnce('Uogienės');
+
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useDetailsFilters()));
 
         expect(result.current).toStrictEqual([
@@ -54,6 +58,7 @@ describe('useFilteredList', () => {
 
     it('renders filtered out data', () => {
         jest.mocked(useQuickFilter).mockReturnValueOnce('z');
+
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useDetailsFilters()));
 
         expect(result.current).toStrictEqual([]);

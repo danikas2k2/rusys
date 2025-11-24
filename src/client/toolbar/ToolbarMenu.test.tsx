@@ -1,206 +1,147 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { MockRedux } from '@tests/MockRedux';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import user from '@testing-library/user-event';
+import { MockActiveContent } from '@tests/MockActiveContent';
 import { MockRoute } from '@tests/MockRoute';
+import { MockThemeRedux } from '@tests/MockThemeRedux';
 
 import React from 'react';
 
 import { Links } from '~/client/Links';
 import { ToolbarMenu } from '~/client/toolbar/ToolbarMenu';
 
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useNavigate: jest.fn(),
+jest.mock('~/client/hooks/useLabel', () => ({
+    useLabel: jest.fn((key: string) => key),
 }));
-jest.mock('~/client/pages/details/dialogs/DetailsBox', () => ({
-    DetailsBox: ({ onClose }: { onClose: () => void }) => <button onClick={onClose}>DetailsBox</button>,
+jest.mock('~/client/toolbar/items/ExportMenuItem', () => ({
+    ExportMenuItem: jest.fn(() => (
+        <div>
+            <a href="#export">Export</a>
+        </div>
+    )),
 }));
-jest.mock('~/client/pages/groups/dialogs/GroupBox', () => ({
-    GroupBox: ({ onClose }: { onClose: () => void }) => <button onClick={onClose}>GroupBox</button>,
-}));
-jest.mock('~/client/pages/variants/dialogs/VariantBox', () => ({
-    VariantBox: ({ onClose }: { onClose: () => void }) => <button onClick={onClose}>VariantBox</button>,
+jest.mock('~/client/toolbar/items/ImportMenuItem', () => ({
+    ImportMenuItem: jest.fn(() => (
+        <div>
+            <a href="#import">Import</a>
+        </div>
+    )),
 }));
 
 describe('<ToolbarMenu>', () => {
-    describe('details page', () => {
-        it('renders details menu collapsed by default', async () => {
-            render(
-                <MockRedux>
-                    <MockRoute initialEntries={[Links.DETAILS]}>
-                        <ToolbarMenu />
-                    </MockRoute>
-                </MockRedux>
-            );
+    it('renders menu collapsed by default', () => {
+        render(
+            <MockThemeRedux>
+                <MockRoute initialEntries={[Links.DETAILS]}>
+                    <ToolbarMenu />
+                </MockRoute>
+            </MockThemeRedux>
+        );
 
-            expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
-        });
-
-        it('renders details menu items', async () => {
-            render(
-                <MockRedux>
-                    <MockRoute initialEntries={[Links.DETAILS]}>
-                        <ToolbarMenu addBox={<div>DetailsBox</div>} />
-                    </MockRoute>
-                </MockRedux>
-            );
-
-            await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
-
-            expect(screen.getByRole('menuitem', { name: 'Add' })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'List' }))
-                .toBeInTheDocument()
-                .toHaveClass('current');
-            expect(screen.getByRole('menuitem', { name: 'Statistics' })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'Groups' })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'Variants' })).toBeInTheDocument();
-        });
-
-        it('renders DetailsBox on click', async () => {
-            render(
-                <MockRedux>
-                    <MockRoute initialEntries={[Links.DETAILS]}>
-                        <ToolbarMenu addBox={<div>DetailsBox</div>} />
-                    </MockRoute>
-                </MockRedux>
-            );
-
-            await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
-            await userEvent.click(screen.getByRole('menuitem', { name: 'Add' }));
-
-            expect(screen.getByText('DetailsBox')).toBeInTheDocument();
-        });
+        expect(screen.getByRole('button', { name: 'Menu' })).toBeInTheDocument();
+        expect(screen.getByRole('menu')).toBeEmptyDOMElement();
     });
 
-    describe('groups page', () => {
-        it('renders groups menu collapsed by default', async () => {
-            render(
-                <MockRedux>
-                    <MockRoute initialEntries={[Links.GROUPS]}>
-                        <ToolbarMenu />
-                    </MockRoute>
-                </MockRedux>
-            );
+    it('expands menu by click', async () => {
+        render(
+            <MockThemeRedux>
+                <MockRoute initialEntries={[Links.DETAILS]}>
+                    <ToolbarMenu />
+                </MockRoute>
+            </MockThemeRedux>
+        );
 
-            expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
-        });
+        await user.click(screen.getByRole('button', { name: 'Menu' }));
 
-        it('renders groups menu items', async () => {
-            render(
-                <MockRedux>
-                    <MockRoute initialEntries={[Links.GROUPS]}>
-                        <ToolbarMenu addBox={<div>GroupBox</div>} />
-                    </MockRoute>
-                </MockRedux>
-            );
-
-            await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
-
-            expect(screen.getByRole('menuitem', { name: 'Add' })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'List' })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'Statistics' })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'Groups' }))
-                .toBeInTheDocument()
-                .toHaveClass('current');
-            expect(screen.getByRole('menuitem', { name: 'Variants' })).toBeInTheDocument();
-        });
-
-        it('renders GroupBox on click', async () => {
-            render(
-                <MockRedux>
-                    <MockRoute initialEntries={[Links.GROUPS]}>
-                        <ToolbarMenu addBox={<div>GroupBox</div>} />
-                    </MockRoute>
-                </MockRedux>
-            );
-
-            await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
-            await userEvent.click(screen.getByRole('menuitem', { name: 'Add' }));
-
-            expect(screen.getByText('GroupBox')).toBeInTheDocument();
-        });
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    describe('variants page', () => {
-        it('renders variants menu collapsed by default', async () => {
-            render(
-                <MockRedux>
-                    <MockRoute initialEntries={[Links.VARIANTS]}>
-                        <ToolbarMenu />
-                    </MockRoute>
-                </MockRedux>
-            );
+    it('collapses menu by second click', async () => {
+        render(
+            <MockThemeRedux>
+                <MockRoute initialEntries={[Links.DETAILS]}>
+                    <ToolbarMenu />
+                </MockRoute>
+            </MockThemeRedux>
+        );
 
-            expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
-        });
+        await user.click(screen.getByRole('button', { name: 'Menu' }));
+        await user.click(screen.getByRole('button', { name: 'Menu' }));
 
-        it('renders variants menu items', async () => {
-            render(
-                <MockRedux>
-                    <MockRoute initialEntries={[Links.VARIANTS]}>
-                        <ToolbarMenu addBox={<div>VariantBox</div>} />
-                    </MockRoute>
-                </MockRedux>
-            );
-
-            await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
-
-            expect(screen.getByRole('menuitem', { name: 'Add' })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'List' })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'Statistics' })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'Groups' })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'Variants' }))
-                .toBeInTheDocument()
-                .toHaveClass('current');
-        });
-
-        it('renders VariantBox on click', async () => {
-            render(
-                <MockRedux>
-                    <MockRoute initialEntries={[Links.VARIANTS]}>
-                        <ToolbarMenu addBox={<div>VariantBox</div>} />
-                    </MockRoute>
-                </MockRedux>
-            );
-
-            await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
-            await userEvent.click(screen.getByRole('menuitem', { name: 'Add' }));
-
-            expect(screen.getByText('VariantBox')).toBeInTheDocument();
-        });
+        expect(screen.getByRole('menu')).toBeEmptyDOMElement();
     });
 
-    describe('summary page', () => {
-        it('renders details menu collapsed by default', async () => {
-            render(
-                <MockRedux>
-                    <MockRoute initialEntries={[Links.SUMMARY]}>
+    it('renders required menu items', async () => {
+        render(
+            <MockThemeRedux>
+                <MockRoute initialEntries={[Links.DETAILS]}>
+                    <MockActiveContent>
                         <ToolbarMenu />
-                    </MockRoute>
-                </MockRedux>
-            );
+                    </MockActiveContent>
+                </MockRoute>
+            </MockThemeRedux>
+        );
 
-            expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
-        });
+        await user.click(screen.getByRole('button', { name: 'Menu' }));
 
-        it('renders details menu items', async () => {
-            render(
-                <MockRedux>
-                    <MockRoute initialEntries={[Links.SUMMARY]}>
+        const menu = within(screen.getByRole('menu'));
+
+        expect(menu.getAllByRole('link')).toHaveLength(5);
+        expect(menu.getByRole('link', { name: 'Details' })).toBeInTheDocument();
+        expect(menu.getByRole('link', { name: 'Summary' })).toBeInTheDocument();
+        expect(menu.getByRole('link', { name: 'Groups' })).toBeInTheDocument();
+        expect(menu.getByRole('link', { name: 'Variants' })).toBeInTheDocument();
+        expect(menu.getByRole('link', { name: 'Utilities' })).toBeInTheDocument();
+
+        expect(menu.getByRole('radiogroup')).toBeInTheDocument();
+    });
+
+    it('renders utilities menu items', async () => {
+        render(
+            <MockThemeRedux>
+                <MockRoute initialEntries={[Links.DETAILS]}>
+                    <MockActiveContent>
                         <ToolbarMenu />
-                    </MockRoute>
-                </MockRedux>
-            );
+                    </MockActiveContent>
+                </MockRoute>
+            </MockThemeRedux>
+        );
 
-            await userEvent.click(screen.getByRole('button', { name: 'Menu' }));
+        await user.click(screen.getByRole('button', { name: 'Menu' }));
 
-            expect(screen.queryByRole('menuitem', { name: 'Add' })).not.toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'List' })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'Statistics' }))
-                .toBeInTheDocument()
-                .toHaveClass('current');
-            expect(screen.getByRole('menuitem', { name: 'Groups' })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: 'Variants' })).toBeInTheDocument();
-        });
+        const utilities = screen.getByRole('link', { name: 'Utilities' });
+        await user.click(utilities);
+
+        expect(utilities).toHaveAttribute('data-expanded', 'true');
+
+        await waitFor(() => expect(within(screen.getByRole('menu')).findAllByRole('link')).resolves.toHaveLength(7));
+
+        expect(screen.getByRole('link', { name: 'Export' })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Import' })).toBeInTheDocument();
+    });
+
+    it.each`
+        link              | item
+        ${Links.DETAILS}  | ${'Details'}
+        ${Links.SUMMARY}  | ${'Summary'}
+        ${Links.GROUPS}   | ${'Groups'}
+        ${Links.VARIANTS} | ${'Variants'}
+    `('renders $item menu item being active', async ({ link, item }) => {
+        render(
+            <MockThemeRedux>
+                <MockRoute initialEntries={[link]}>
+                    <MockActiveContent>
+                        <ToolbarMenu />
+                    </MockActiveContent>
+                </MockRoute>
+            </MockThemeRedux>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Menu' }));
+
+        const menu = within(screen.getByRole('menu'));
+        const links = menu.getAllByRole('link');
+        const active = links.filter((l) => l.matches('[data-active]'));
+
+        expect(active).toHaveLength(1).toHaveListWithTextContent([item]);
     });
 });

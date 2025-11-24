@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { getDetailsFixture } from '@tests/fixtures';
-import { MockRedux } from '@tests/MockRedux';
+import { MockThemeRedux } from '@tests/MockThemeRedux';
 
 import React from 'react';
+
+import { Table } from '@mantine/core';
 
 import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
 import { DetailsGroups } from '~/client/pages/details/DetailsGroups';
@@ -14,21 +16,40 @@ jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
 jest.mock('~/client/pages/details/ValueRow', () => ({
     ValueRow: jest.fn().mockReturnValue(null),
 }));
+jest.mock('~/client/table/GroupTitle', () => ({
+    GroupTitle: jest.fn(({ children }) => (
+        <tbody>
+            <tr>
+                <th role="rowheader">{children}</th>
+            </tr>
+        </tbody>
+    )),
+}));
 
 describe('<DetailsGroups>', () => {
     const groups = ['Uogienės', 'Daržovės'];
     const details = getDetailsFixture();
+    const state = {
+        years: [23, 22, 21],
+        groups: [
+            { group: 'Uogienės', order: 1, annual: true },
+            { group: 'Daržovės', order: 2, annual: true },
+        ],
+    };
 
     afterEach(() => jest.clearAllMocks());
 
     it('renders details groups with groups and details', () => {
         render(
-            <MockRedux>
-                <DetailsGroups groups={groups} details={details} />
-            </MockRedux>
+            <MockThemeRedux state={state}>
+                <Table>
+                    <DetailsGroups groups={groups} details={details} />
+                </Table>
+            </MockThemeRedux>
         );
 
-        expect(screen.getAllByRole('rowgroup')).toHaveLength(2);
+        // Each group renders 2 tbody: one for GroupTitle, one for details
+        expect(screen.getAllByRole('rowgroup')).toHaveLength(4);
         expect(screen.getAllByRole('rowheader')).toHaveListWithTextContent(groups);
 
         expect(ValueRow)
@@ -76,12 +97,14 @@ describe('<DetailsGroups>', () => {
         const [group] = groups;
         jest.mocked(useGroupFilter).mockReturnValue(group);
         render(
-            <MockRedux>
-                <DetailsGroups groups={[group]} details={details} />
-            </MockRedux>
+            <MockThemeRedux state={state}>
+                <Table>
+                    <DetailsGroups groups={[group]} details={details} />
+                </Table>
+            </MockThemeRedux>
         );
 
-        expect(screen.getByRole('rowgroup')).toBeInTheDocument();
+        expect(screen.getAllByRole('rowgroup')).toHaveLength(2);
         expect(screen.getByRole('rowheader')).toHaveTextContent(group);
 
         expect(ValueRow)
@@ -111,9 +134,11 @@ describe('<DetailsGroups>', () => {
 
     it('renders missing group without details', () => {
         render(
-            <MockRedux>
-                <DetailsGroups groups={[missing]} details={details} />
-            </MockRedux>
+            <MockThemeRedux state={state}>
+                <Table>
+                    <DetailsGroups groups={[missing]} details={details} />
+                </Table>
+            </MockThemeRedux>
         );
 
         expect(screen.queryByRole('rowgroup')).not.toBeInTheDocument();
@@ -124,12 +149,14 @@ describe('<DetailsGroups>', () => {
     it('renders missing filtered group without details', () => {
         jest.mocked(useGroupFilter).mockReturnValue(missing);
         render(
-            <MockRedux>
-                <DetailsGroups groups={[missing]} details={details} />
-            </MockRedux>
+            <MockThemeRedux state={state}>
+                <Table>
+                    <DetailsGroups groups={[missing]} details={details} />
+                </Table>
+            </MockThemeRedux>
         );
 
-        expect(screen.getByRole('rowgroup')).toBeInTheDocument();
+        expect(screen.getAllByRole('rowgroup')).toHaveLength(2);
         expect(screen.getByRole('rowheader')).toHaveTextContent(missing);
         expect(ValueRow).not.toHaveBeenCalled();
     });

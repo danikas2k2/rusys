@@ -1,4 +1,4 @@
-import { type UploadedFile } from 'express-fileupload';
+import type { UploadedFile } from 'express-fileupload';
 
 export function mockUploadedFile(file: Partial<UploadedFile>): UploadedFile;
 export function mockUploadedFile(name: string, more?: Partial<UploadedFile>): UploadedFile;

@@ -1,40 +1,70 @@
 import { render, screen } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
-import { MockRoute } from '@tests/MockRoute';
+import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
-import { GroupsPage } from './GroupsPage';
+import { Page } from '~/client/pages/common/Page';
+import { GroupsPage } from '~/client/pages/groups/GroupsPage';
+import { useDeleteGroup } from '~/client/state/groups/useDeleteGroup';
+
+jest.mock('~/client/pages/common/Page');
+jest.mock('~/client/common/SwipeControls', () => ({
+    SwipeControls: jest.fn(() => <div>SwipeControls</div>),
+}));
+jest.mock('~/client/common/SwipeControlsContext', () => ({
+    SwipeControlsWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+jest.mock('~/client/filters/QuickFilterContext', () => ({
+    QuickFilterWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
 
 jest.mock('~/client/pages/groups/GroupsTable', () => ({
-    GroupsTable: () => <div>GroupsTable</div>,
+    GroupsTable: jest.fn(() => <div>GroupsTable</div>),
 }));
-jest.mock('~/client/toolbar/ToolbarFilter', () => ({
-    ToolbarFilter: () => <div>ToolbarFilter</div>,
+jest.mock('~/client/pages/groups/ActiveGroupBox', () => ({
+    ActiveGroupBox: () => null,
 }));
+jest.mock('~/client/state/groups/useDeleteGroup');
 
 describe('<GroupsPage>', () => {
-    it('renders group table', async () => {
+    const mockDeleteGroup = jest.fn().mockResolvedValue(undefined);
+
+    beforeEach(() => jest.mocked(useDeleteGroup).mockReturnValue(mockDeleteGroup));
+
+    afterEach(() => jest.clearAllMocks());
+
+    it('renders into the document', () => {
         render(
-            <MockRedux>
-                <MockRoute>
-                    <GroupsPage />
-                </MockRoute>
-            </MockRedux>
+            <MockApp>
+                <GroupsPage />
+            </MockApp>
         );
 
         expect(screen.getByText('GroupsTable')).toBeInTheDocument();
     });
 
-    it('renders toolbar filter', async () => {
+    it('calls deleteGroup when handleDelete is called', async () => {
+        let mockDelete: jest.Mocked<React.ComponentProps<typeof Page>['onDelete']>;
+        jest.mocked(Page).mockImplementation(({ onDelete }) => {
+            mockDelete = onDelete;
+            return <div>Page</div>;
+        });
+
         render(
-            <MockRedux>
-                <MockRoute>
-                    <GroupsPage />
-                </MockRoute>
-            </MockRedux>
+            <MockApp>
+                <GroupsPage />
+            </MockApp>
         );
 
-        expect(screen.getByText('ToolbarFilter')).toBeInTheDocument();
+        expect(Page).toHaveBeenCalledWith(
+            expect.objectContaining({
+                onDelete: expect.any(Function),
+            }),
+            undefined
+        );
+
+        await mockDelete?.({ group: 'Uogienės', order: 0 });
+
+        expect(mockDeleteGroup).toHaveBeenCalledWith('Uogienės');
     });
 });

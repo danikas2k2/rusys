@@ -3,7 +3,7 @@ import fs from 'fs';
 import https from 'https';
 
 import express, { type Request, type Response } from 'express';
-import { type Express } from 'express-serve-static-core';
+import type { Express } from 'express-serve-static-core';
 import request from 'supertest';
 
 import { debug } from '~/server/api/debug';

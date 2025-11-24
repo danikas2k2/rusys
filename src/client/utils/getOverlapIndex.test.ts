@@ -44,4 +44,17 @@ describe('getOverlapIndex', () => {
 
         expect(getOverlapIndex(element)).toBe(-1);
     });
+
+    it('returns -1 when element is null', () => {
+        expect(getOverlapIndex(null)).toBe(-1);
+    });
+
+    it('returns -1 when element offsetParent is null', () => {
+        const elementWithoutParent = {
+            getBoundingClientRect: () => ({ top: 11, height: 10 }),
+            offsetParent: null,
+        } as unknown as HTMLElement;
+
+        expect(getOverlapIndex(elementWithoutParent)).toBe(-1);
+    });
 });

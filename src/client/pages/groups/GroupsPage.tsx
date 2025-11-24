@@ -1,16 +1,27 @@
 import React from 'react';
 
-import { Page } from '~/client/common/Page';
-import { QuickFilterContextWrapper } from '~/client/filters/QuickFilterContext';
-import { GroupBox } from '~/client/pages/groups/dialogs/GroupBox';
+import { SwipeControls } from '~/client/common/SwipeControls';
+import { SwipeControlsWrapper } from '~/client/common/SwipeControlsContext';
+import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
+import { Page } from '~/client/pages/common/Page';
+import { ActiveGroupBox } from '~/client/pages/groups/ActiveGroupBox';
 import { GroupsTable } from '~/client/pages/groups/GroupsTable';
+import { useDeleteGroup } from '~/client/state/groups/useDeleteGroup';
+import type { Group } from '~/types/data';
 
 export function GroupsPage() {
+    const deleteGroup = useDeleteGroup();
+    const handleDelete = ({ group }: Group) => deleteGroup(group);
+
     return (
-        <QuickFilterContextWrapper>
-            <Page addBox={<GroupBox />}>
-                <GroupsTable />
+        <QuickFilterWrapper>
+            <Page withAdd onDelete={handleDelete}>
+                <SwipeControlsWrapper>
+                    <GroupsTable />
+                    <SwipeControls />
+                </SwipeControlsWrapper>
+                <ActiveGroupBox />
             </Page>
-        </QuickFilterContextWrapper>
+        </QuickFilterWrapper>
     );
 }

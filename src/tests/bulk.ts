@@ -13,7 +13,7 @@ const $set = <T>(res: T, s: unknown): T =>
 
 type Paths = _.PropertyPath | _.PropertyPath[];
 type UnsetOperation = { $unset: Paths };
-// noinspection CommaExpressionJS
+// eslint-disable-next-line no-sequences
 const $unset = <T>(res: T, s: unknown): T => $paths(s).reduce((r, p) => (_.unset(r, p), r), res);
 
 type PushOperation = { $push: PathObject };

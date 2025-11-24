@@ -6,7 +6,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleAdd } from '~/server/api/handleAdd';
 import { getDetailsWithYears } from '~/server/api/response';
 import { addDetails } from '~/server/data/details';
-import { type ApiDetailsWithYears, type ApiRequestDetails } from '~/types/api';
+import type { ApiDetailsWithYears, ApiRequestDetails } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');

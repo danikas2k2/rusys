@@ -8,7 +8,7 @@ import { handleImport } from '~/server/api/handleImport';
 import { getDetailsWithGroups } from '~/server/api/response';
 import { importEverything } from '~/server/data/common';
 import { getValidator } from '~/server/data/schema/getValidator';
-import { type ApiDetailsWithGroups, type ApiWithFiles } from '~/types/api';
+import type { ApiDetailsWithGroups, ApiWithFiles } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');
@@ -18,9 +18,7 @@ jest.mock('~/server/data/schema/getValidator', () => ({
 }));
 
 describe('handleImport', () => {
-    beforeEach(() => {
-        jest.spyOn(console, 'error').mockImplementation(() => {});
-    });
+    beforeEach(() => jest.spyOn(console, 'error').mockImplementation(() => {}));
 
     afterEach(() => jest.clearAllMocks());
 

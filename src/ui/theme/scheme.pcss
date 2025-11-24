@@ -1,13 +1,15 @@
 :root {
-    &[data-color-scheme="light"] {
+    &[data-color-scheme="light"],
+    &[data-mantine-color-scheme="light"] {
         --color-scheme: light;
     }
 
-    &[data-color-scheme="dark"] {
+    &[data-color-scheme="dark"],
+    &[data-mantine-color-scheme="dark"] {
         --color-scheme: dark;
     }
 
-    &:not([data-color-scheme]) {
+    &:not([data-color-scheme], [data-mantine-color-scheme]) {
         @media (prefers-color-scheme: light) {
             --color-scheme: light;
         }

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { type FilterPredicate } from '~/client/filters/types';
+import type { FilterPredicate } from '~/client/filters/types';
 
 export function useFilteredList<T>(list: readonly T[], predicates: Record<string, FilterPredicate>): typeof list {
     return useMemo(

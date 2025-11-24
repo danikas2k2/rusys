@@ -10,9 +10,7 @@ jest.mock('~/client/hooks/useLabel', () => ({
 }));
 
 describe('<Label>', () => {
-    beforeAll(() => {
-        jest.mocked(useLabel).mockReturnValue('Test Label');
-    });
+    beforeAll(() => jest.mocked(useLabel).mockReturnValue('Test Label'));
 
     it('renders with given children', () => {
         render(<Label>Test Label</Label>);

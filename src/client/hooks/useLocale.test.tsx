@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
-import React, { type PropsWithChildren } from 'react';
+import React from 'react';
 
 import { DEFAULT_LOCALE, LocaleContext } from '~/client/common/LocaleContext';
 import { useLocale } from '~/client/hooks/useLocale';
@@ -14,7 +14,7 @@ describe('useLocale', () => {
 
     it('return filled state', () => {
         const { result } = renderHook(() => useLocale(), {
-            wrapper: ({ children }: PropsWithChildren) => <LocaleContext value="de-DE">{children}</LocaleContext>,
+            wrapper: ({ children }: React.PropsWithChildren) => <LocaleContext value="de-DE">{children}</LocaleContext>,
         });
 
         expect(result.current).toBe('de-DE');
