@@ -7,14 +7,8 @@
 
 .drawer {
     :global(.mantine-Drawer-body) {
-        /* noinspection CssOverwrittenProperties */
-        padding: 0;
-
-        /* noinspection CssOverwrittenProperties,CssInvalidFunction */
-        padding: 0 constant(safe-area-inset-right) constant(safe-area-inset-bottom) constant(safe-area-inset-left);
-
-        /* noinspection CssOverwrittenProperties */
-        padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        padding-inline: var(--safe-inline);
+        padding-block: 0 var(--safe-block-end);
     }
 
     :global(.mantine-Drawer-content) {
@@ -36,19 +30,12 @@
 }
 
 .menu {
+    padding-inline: var(--safe-inline);
+    padding-block: calc(4rem + var(--safe-block-start)) var(--safe-block-end);
+
     /* noinspection CssOverwrittenProperties */
     height: 100vh;
 
     /* noinspection CssOverwrittenProperties */
     height: 100dvh;
-
-    /* noinspection CssOverwrittenProperties */
-    padding: 4rem 0 0;
-
-    /* noinspection CssOverwrittenProperties,CssInvalidFunction */
-    padding: calc(4rem + constant(safe-area-inset-top)) constant(safe-area-inset-right) constant(safe-area-inset-bottom) constant(safe-area-inset-left);
-
-    /* noinspection CssOverwrittenProperties */
-    padding: calc(4rem + env(safe-area-inset-top)) env(safe-area-inset-right) env(safe-area-inset-bottom)
-        env(safe-area-inset-left);
 }

@@ -1,20 +1,15 @@
 .Page {
     display: flex;
     flex-direction: column;
-    padding: 0;
     box-sizing: border-box;
+    padding-block: var(--safe-block);
+    padding-inline: 0;
 
     /* noinspection CssOverwrittenProperties */
     height: 100vh;
 
     /* noinspection CssOverwrittenProperties */
     height: 100dvh;
-
-    /* noinspection CssOverwrittenProperties,CssInvalidFunction */
-    padding-block: constant(safe-area-inset-top) constant(safe-area-inset-bottom);
-
-    /* noinspection CssOverwrittenProperties */
-    padding-block: env(safe-area-inset-top) env(safe-area-inset-bottom);
 
     .header,
     .footer {
@@ -24,11 +19,7 @@
     }
 
     .header {
-        /* noinspection CssOverwrittenProperties,CssInvalidFunction */
-        padding-inline: constant(safe-area-inset-left) constant(safe-area-inset-right);
-
-        /* noinspection CssOverwrittenProperties */
-        padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+        padding-inline: var(--safe-inline);
     }
 
     .main {
@@ -50,16 +41,12 @@
     }
 
     .footer {
-        padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-xs);
         font-size: var(--font-size-small);
         box-shadow:
             0 -2px 8px -2px var(--shadow-color),
             0 -4px 16px -4px var(--shadow-color);
-
-        /* noinspection CssOverwrittenProperties,CssInvalidFunction */
-        padding-inline: calc(var(--mantine-spacing-xs) + constant(safe-area-inset-left)) calc(var(--mantine-spacing-xs) + constant(safe-area-inset-right));
-
-        /* noinspection CssOverwrittenProperties */
-        padding-inline: calc(var(--mantine-spacing-xs) + env(safe-area-inset-left)) calc(var(--mantine-spacing-xs) + env(safe-area-inset-right));
+        padding-inline: calc(var(--mantine-spacing-xs) + var(--safe-inline-start)) calc(var(--mantine-spacing-xs) + var(--safe-inline-end));
+        padding-block: calc(var(--mantine-spacing-xs) / 2) calc(var(--mantine-spacing-xs) / 2 + var(--safe-block-end));
+        margin-block-end: calc(-(var(--safe-block-end)));
     }
 }

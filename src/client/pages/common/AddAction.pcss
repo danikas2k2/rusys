@@ -1,7 +1,7 @@
 :global(.mantine-ActionIcon-root).AddAction {
     position: fixed;
-    inset-block-end: 0.5rem;
-    inset-inline-end: 0.5rem;
+    inset-block-end: calc(0.5rem + var(--safe-block-end));
+    inset-inline-end: calc(0.5rem + var(--safe-inline-end));
     z-index: 100;
     box-shadow: var(--shadow-medium);
     transition: opacity 0.1s ease-out;
