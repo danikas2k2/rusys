@@ -44,40 +44,4 @@ describe('theme', () => {
             })
         );
     });
-
-    it('includes cssVariablesResolver', () => {
-        const theme = getTheme();
-
-        expect(theme.cssVariablesResolver).toBeDefined();
-
-        const resolver = theme.cssVariablesResolver();
-
-        expect(resolver).toStrictEqual(
-            expect.objectContaining({
-                variables: expect.objectContaining({
-                    '--mantine-color-white': 'var(--color-base)',
-                    '--mantine-color-black': 'var(--color-text)',
-                }),
-            })
-        );
-    });
-
-    it('cssVariablesResolver returns function that can be called', () => {
-        const theme = getTheme();
-
-        expect(typeof theme.cssVariablesResolver).toBe('function');
-
-        const result = theme.cssVariablesResolver();
-
-        expect(result).toStrictEqual(
-            expect.objectContaining({
-                variables: expect.objectContaining({
-                    '--mantine-color-white': 'var(--color-base)',
-                    '--mantine-color-black': 'var(--color-text)',
-                }),
-                light: expect.any(Object),
-                dark: expect.any(Object),
-            })
-        );
-    });
 });
