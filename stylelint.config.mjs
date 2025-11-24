@@ -13,19 +13,9 @@ export default {
             customSyntax: 'postcss-less',
             rules: {
                 'at-rule-prelude-no-invalid': [true, { ignoreAtRules: ['import'] }],
-                'declaration-property-value-no-unknown': [
-                    true,
-                    {
-                        ignoreProperties: {
-                            inset: ['/(constant|env)\\(safe-area-inset-(top|bottom|left|right)\\)/'],
-                            margin: ['/(constant|env)\\(safe-area-inset-(top|bottom|left|right)\\)/'],
-                            padding: ['/(constant|env)\\(safe-area-inset-(top|bottom|left|right)\\)/'],
-                            'padding-block': ['/(constant|env)\\(safe-area-inset-(top|bottom)\\)/'],
-                            'padding-inline': ['/(constant|env)\\(safe-area-inset-(left|right)\\)/'],
-                        },
-                    },
-                ],
-                'function-no-unknown': [true, { ignoreFunctions: ['constant', 'env', 'light-dark'] }],
+                'declaration-block-no-duplicate-custom-properties': null,
+                'declaration-property-value-no-unknown': true,
+                'function-no-unknown': [true, { ignoreFunctions: ['constant', 'light-dark'] }],
                 'selector-pseudo-class-no-unknown': [true, { ignorePseudoClasses: ['global', 'local'] }],
             },
         },
