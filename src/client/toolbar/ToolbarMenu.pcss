@@ -6,31 +6,21 @@
 }
 
 .drawer {
-    :global(.mantine-Drawer-body) {
-        padding-inline: var(--safe-inline);
+    .mantine-Drawer-body {
+        padding-inline: var(--safe-inline-start) var(--safe-inline-end);
         padding-block: 0 var(--safe-block-end);
     }
 
-    :global(.mantine-Drawer-content) {
+    .mantine-Drawer-content {
         padding: 0;
         flex-basis: min(300px, 60vw);
-
-        /* noinspection CssOverwrittenProperties */
-        height: 100vh;
-
-        /* noinspection CssOverwrittenProperties */
         height: 100dvh;
         max-height: 100dvh;
     }
 }
 
 .menu {
-    padding-inline: var(--safe-inline);
+    padding-inline: var(--safe-inline-start) var(--safe-inline-end);
     padding-block: calc(4rem + var(--safe-block-start)) var(--safe-block-end);
-
-    /* noinspection CssOverwrittenProperties */
-    height: 100vh;
-
-    /* noinspection CssOverwrittenProperties */
     height: 100dvh;
 }

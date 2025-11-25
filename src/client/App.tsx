@@ -12,22 +12,19 @@ import { isDevMode } from '~/common/utils/env';
 
 export function App() {
     const clientId = useClientId();
-    const dev = isDevMode();
     return (
         <LocaleContext value={process.env.LOCALE}>
-            {dev ? (
-                <AppContent />
-            ) : clientId ? (
-                <GoogleOAuthProvider clientId={clientId}>
+            <GoogleOAuthProvider clientId={clientId}>
+                {clientId || isDevMode() ? (
                     <AppContent />
-                </GoogleOAuthProvider>
-            ) : (
-                (clientId == null && <Loader size="lg" type="bars" />) || (
-                    <Error>
-                        <Label>Invalid Client ID</Label>
-                    </Error>
-                )
-            )}
+                ) : (
+                    (!clientId && <Loader size="lg" type="bars" />) || (
+                        <Error>
+                            <Label>Invalid Client ID</Label>
+                        </Error>
+                    )
+                )}
+            </GoogleOAuthProvider>
         </LocaleContext>
     );
 }

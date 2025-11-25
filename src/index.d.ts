@@ -5,6 +5,22 @@ declare module '*.svg' {
     export default ReactComponent;
 }
 
-declare module '*.css';
+declare module '*.css' {
+    const classes: { readonly [key: string]: string };
+    export default classes;
+}
 
-declare module '*.pcss';
+declare module '*.pcss' {
+    const classes: { readonly [key: string]: string };
+    export default classes;
+}
+
+declare module '*.module.pcss' {
+    const classes: { readonly [key: string]: string };
+    export default classes;
+}
+
+declare module '*.pcss?module' {
+    const classes: { readonly [key: string]: string };
+    export default classes;
+}

@@ -1,23 +1,21 @@
 :root {
-    &[data-color-scheme="light"],
     &[data-mantine-color-scheme="light"] {
-        --color-scheme: light;
+        --mantine-color-scheme: light;
     }
 
-    &[data-color-scheme="dark"],
     &[data-mantine-color-scheme="dark"] {
-        --color-scheme: dark;
+        --mantine-color-scheme: dark;
     }
 
-    &:not([data-color-scheme], [data-mantine-color-scheme]) {
+    &:not([data-mantine-color-scheme]) {
         @media (prefers-color-scheme: light) {
-            --color-scheme: light;
+            --mantine-color-scheme: light;
         }
 
         @media (prefers-color-scheme: dark) {
-            --color-scheme: dark;
+            --mantine-color-scheme: dark;
         }
     }
 
-    color-scheme: var(--color-scheme, auto);
+    color-scheme: var(--mantine-color-scheme, auto);
 }

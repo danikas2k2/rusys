@@ -5,7 +5,8 @@ import { Table, Title } from '@mantine/core';
 import { Label } from '~/client/common/Label';
 import { SortableRow } from '~/client/table/SortableRow';
 import type { Variant, WithId } from '~/types/data';
-import cx from './VariantsRow.pcss';
+
+import './VariantsRow.pcss';
 
 interface VariantsRowProps {
     variant: WithId<Variant>;
@@ -15,8 +16,8 @@ interface VariantsRowProps {
 export function VariantsRow({ variant, reordering }: VariantsRowProps): React.ReactElement {
     return (
         <SortableRow id={variant.id} data={variant} data-group={variant.group} disabled={reordering}>
-            <Table.Td className={cx('name')}>
-                <Title order={6} className={cx({ unused: !variant.used })}>
+            <Table.Td>
+                <Title order={6} data-unused={!variant.used}>
                     <Label>{variant.variant}</Label>
                 </Title>
             </Table.Td>

@@ -11,7 +11,8 @@ import { ActiveContentOutsideClick } from '~/client/pages/common/ActiveContentOu
 import { ActiveRemoveConfirmation } from '~/client/pages/common/ActiveRemoveConfirmation';
 import { AddAction } from '~/client/pages/common/AddAction';
 import { Toolbar } from '~/client/toolbar/Toolbar';
-import cx from './Page.pcss';
+
+import './Page.pcss';
 
 export function Page<D = ActiveContentData>({
     withAdd,
@@ -26,14 +27,14 @@ export function Page<D = ActiveContentData>({
     onDelete?: (data: D) => void | Promise<void>;
 }>): React.ReactElement {
     return (
-        <AppShell className={cx('Page')}>
-            <AppShell.Header className={cx('header')}>
+        <AppShell>
+            <AppShell.Header>
                 <Toolbar>{toolbar}</Toolbar>
             </AppShell.Header>
-            <AppShell.Main className={cx('main')} data-no-scroll={useSwipeVisible()} component={ScrollArea}>
+            <AppShell.Main data-no-scroll={useSwipeVisible()} component={ScrollArea}>
                 {children}
             </AppShell.Main>
-            <AppShell.Footer className={cx('footer')}>
+            <AppShell.Footer>
                 <AppVersion />
                 {withAdd && <AddAction onClick={onAdd} />}
             </AppShell.Footer>

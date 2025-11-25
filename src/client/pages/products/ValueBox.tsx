@@ -12,7 +12,8 @@ import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { getVariantAmount } from '~/common/utils/amounts';
 import type { ProductAmounts, VariantAmount } from '~/types/data';
-import cx from './ValueBox.pcss';
+
+import './ValueBox.pcss';
 
 export interface ValueBoxProps extends ProductAmounts {
     opened?: boolean;
@@ -117,7 +118,7 @@ export function ValueBox({ opened = false, group, name, year, amounts, onClose, 
 
     return (
         <Modal
-            className={cx('ValueBox')}
+            className="value-box"
             fullScreen={expanded}
             size="auto"
             opened={opened}
@@ -126,7 +127,6 @@ export function ValueBox({ opened = false, group, name, year, amounts, onClose, 
             closeButtonProps={{ 'aria-label': _('Close') }}
             onEnterTransitionEnd={handleEnterTransitionEnd}
             onExitTransitionEnd={handleExitTransitionEnd}
-            styles={expanded ? { content: { width: '100vw' } } : undefined}
             title={
                 <Stack gap={2}>
                     <Title order={4} fz="h2">
@@ -142,9 +142,9 @@ export function ValueBox({ opened = false, group, name, year, amounts, onClose, 
                 </Stack>
             }
         >
-            <div className={cx('content')} data-expanded={expanded}>
+            <div className="content" data-expanded={expanded}>
                 <div
-                    className={cx('article')}
+                    className="article"
                     data-variant={currentVariant}
                     role="presentation"
                     onClick={stopPropagation}
@@ -180,7 +180,7 @@ export function ValueBox({ opened = false, group, name, year, amounts, onClose, 
                 )}
             </div>
 
-            <div className={cx('footer')}>
+            <div className="footer">
                 <Group justify="center">
                     <Button variant="outline" color="gray" leftSection={<IconX size={18} />} onClick={handleClose}>
                         <Label>Cancel</Label>

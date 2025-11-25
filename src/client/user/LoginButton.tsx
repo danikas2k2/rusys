@@ -1,15 +1,16 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { ActionIcon } from '@mantine/core';
+import { Button, Center } from '@mantine/core';
 import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import { IconBrandGoogleFilled } from '@tabler/icons-react';
 
 import { Label } from '~/client/common/Label';
 import { useLoginError } from '~/client/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
-import cx from './LoginButton.pcss';
 
-export function LoginButton({ children }: React.PropsWithChildren) {
+import './LoginButton.pcss';
+
+export function LoginButton() {
     const onError = useLoginError();
     const onSuccess = useLoginSuccess(onError);
 
@@ -27,15 +28,9 @@ export function LoginButton({ children }: React.PropsWithChildren) {
     const handleClick = useCallback(() => login(), [login]);
 
     return (
-        <ActionIcon color="gray" variant="outlined" onClick={handleClick}>
-            <div className={cx('LoginButton')}>
-                {children || (
-                    <>
-                        <IconBrandGoogleFilled />
-                        <Label>Login with Google</Label>
-                    </>
-                )}
-            </div>
-        </ActionIcon>
+        <Button size="lg" color="blue" variant="outline" onClick={handleClick} data-action="login">
+            <IconBrandGoogleFilled />
+            <Label>Login with Google</Label>
+        </Button>
     );
 }

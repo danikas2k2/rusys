@@ -9,7 +9,8 @@ import { useProductUpdating } from '~/client/pages/products/UpdatingProductsCont
 import { ValueAmounts } from '~/client/pages/products/ValueAmounts';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 import type { ProductAmounts } from '~/types/data';
-import cx from './ValueCell.pcss';
+
+import './ValueCell.pcss';
 
 export interface ValueCellProps extends ProductAmounts {
     preferred?: boolean;
@@ -70,7 +71,7 @@ export function ValueCell({
     const eventHandlers = updating || swipeActive ? {} : longPress;
     return (
         <Table.Td
-            className={cx('ValueCell')}
+            data-cell
             data-empty={empty}
             data-last={last}
             data-preferred={preferred}
@@ -78,18 +79,10 @@ export function ValueCell({
             data-removing={removing}
             data-full={!!span}
             colSpan={span}
-            p={0}
             {...eventHandlers}
         >
-            <Center className={cx('data')}>{empty ? '.' : <ValueAmounts group={group} amounts={amounts} />}</Center>
-            {loaderVisible && (
-                <Loader
-                    className={cx('loader')}
-                    data-visible={updating}
-                    size="sm"
-                    onTransitionEnd={handleTransitionEnd}
-                />
-            )}
+            <Center>{empty ? '.' : <ValueAmounts group={group} amounts={amounts} />}</Center>
+            {loaderVisible && <Loader data-visible={updating} size="sm" onTransitionEnd={handleTransitionEnd} />}
         </Table.Td>
     );
 }

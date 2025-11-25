@@ -8,7 +8,8 @@ import { useUpdateType, type UpdateTypes } from '~/client/common/UpdateTypeConte
 import { getChangedAmount } from '~/common/utils/amounts';
 import type { VariantAmount } from '~/types/data';
 import { useLabels } from '../hooks/useLabels';
-import cx from './UpdateTypeToggle.pcss';
+
+import './UpdateTypeToggle.pcss';
 
 interface UpdateTypeToggleProps {
     readonly changes?: Readonly<Partial<Record<UpdateTypes, readonly VariantAmount[]>>>;
@@ -81,7 +82,7 @@ export function UpdateTypeToggle(props: Readonly<UpdateTypeToggleProps>) {
 
     return (
         <SegmentedControl
-            className={cx('UpdateTypeToggle')}
+            data-toggle="update-type"
             color={UPDATE_TYPE_COLORS[updateType]}
             data={data}
             value={updateType}

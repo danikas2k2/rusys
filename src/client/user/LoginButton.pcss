@@ -1,14 +1,10 @@
-.LoginButton {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
+.mantine-Button-root[data-action="login"] {
+    position: fixed;
+    margin: auto;
+    inset: var(--safe-block-start) var(--safe-inline-end) var(--safe-block-end) var(--safe-inline-start);
+    width: min-content;
 
-    > * {
-        display: inline-block;
-    }
-
-    > * + * {
-        margin-inline-start: 4px;
+    svg {
+        margin-inline-end: 8px;
     }
 }

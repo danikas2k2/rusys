@@ -27,6 +27,7 @@ export function setupHelmet(app: Express): Express {
         })
     );
     app.use(cors());
+    const isDev = process.env.NODE_ENV === 'development';
     app.use(
         helmet({
             contentSecurityPolicy: {
@@ -35,9 +36,20 @@ export function setupHelmet(app: Express): Express {
                     imgSrc: ["'self'", 'data:', 'https://lh3.googleusercontent.com'],
                     styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
                     fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-                    connectSrc: ["'self'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
+                    connectSrc: [
+                        "'self'",
+                        'https://fonts.googleapis.com',
+                        'https://fonts.gstatic.com',
+                        // Allow Vite HMR WebSocket in dev (Vite runs on port 5173)
+                        ...(isDev ? ['ws://localhost:5173', 'ws://127.0.0.1:5173', 'http://localhost:5173'] : []),
+                    ],
                     scriptSrc: ["'self'", 'https://accounts.google.com'],
-                    scriptSrcElem: ["'self'", 'https://accounts.google.com'],
+                    scriptSrcElem: [
+                        "'self'",
+                        'https://accounts.google.com',
+                        // Allow inline scripts in dev (Vite needs this)
+                        ...(isDev ? ["'unsafe-inline'"] : []),
+                    ],
                     objectSrc: ["'none'"],
                     upgradeInsecureRequests: [],
                 },
@@ -49,7 +61,10 @@ export function setupHelmet(app: Express): Express {
 }
 
 export function setupHandlers(app: Express): Express {
-    app.use(express.static('public'));
+    // In production, serve static files from dist/public (where Vite builds)
+    // In dev, Vite runs as separate server, so we only serve public assets
+    const staticPath = process.env.NODE_ENV === 'production' ? 'dist/public' : 'public';
+    app.use(express.static(staticPath));
 
     for (const [url, handler] of Object.entries(ApiUrlHandlers)) {
         app.post(url, handler);

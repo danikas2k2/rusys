@@ -1,11 +1,11 @@
-.ValueInput {
+.mantine-Flex-root.value-input {
     position: relative;
     padding: 0.25rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
 
-    .label {
+    .mantine-Title-root {
         flex: 1 1 auto;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -17,24 +17,26 @@
         small {
             padding-inline-start: 0.2rem;
             font-size: var(--font-size-xsmall);
-            font-weight: var(--font-weight-medium);
+            font-weight: var(--font-weight-normal);
         }
     }
 
-    .input {
+    .mantine-Group-root {
         position: relative;
+        text-align: center;
     }
 
-    .value {
+    .mantine-NumberInput-root {
         flex: 0 0 auto;
         width: 12rem;
     }
 
-    input {
+    .mantine-NumberInput-input {
         text-align: center;
+        width: 12rem;
     }
 
-    :global(.mantine-NumberInput-section) {
+    .mantine-NumberInput-section {
         width: 2rem;
     }
 }

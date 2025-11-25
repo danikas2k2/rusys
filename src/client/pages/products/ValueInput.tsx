@@ -1,13 +1,14 @@
 import React, { useCallback } from 'react';
 
-import { ActionIcon, Flex, Group, NumberInput } from '@mantine/core';
+import { ActionIcon, Flex, Group, NumberInput, Title } from '@mantine/core';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 
 import { ChangeBadge } from '~/client/common/ChangeBadge';
 import { ValueVariant } from '~/client/common/ValueVariant';
 import { useForwardedRef } from '~/client/hooks/useForwardedRef';
 import { useLabels } from '~/client/hooks/useLabels';
-import cx from './ValueInput.pcss';
+
+import './ValueInput.pcss';
 
 interface ValueInputProps extends React.RefAttributes<HTMLInputElement> {
     variant: string;
@@ -86,61 +87,52 @@ export function ValueInput({
     const _ = useLabels();
 
     return (
-        <Flex className={cx('ValueInput')} align="center" justify="space-between" gap="md">
-            <div className={cx('label')}>
+        <Flex className="value-input" align="center" justify="space-between" gap="md">
+            <Title order={3} fz="xl">
                 <ValueVariant variant={variant} />
-            </div>
+            </Title>
             <Group gap="xs" align="center">
-                <div className={cx('input')}>
-                    <NumberInput
-                        ref={ref}
-                        value={current}
-                        onChange={handleChange}
-                        onKeyDown={onKeyDown}
-                        onFocus={onInputFocus}
-                        onBlur={onInputBlur}
-                        aria-label={variant}
-                        aria-current={focused}
-                        className={cx('value')}
-                        allowNegative={false}
-                        allowDecimal={false}
-                        size="md"
-                        hideControls
-                        styles={{
-                            input: {
-                                textAlign: 'center',
-                                width: '12rem',
-                            },
-                        }}
-                        leftSection={
-                            <ActionIcon
-                                size="md"
-                                color="text"
-                                variant="subtle"
-                                onClick={onDecreaseClick}
-                                onKeyDown={onKeyDown}
-                                aria-label={_('Decrease')}
-                                aria-controls={variant}
-                            >
-                                <IconMinus size={18} />
-                            </ActionIcon>
-                        }
-                        rightSection={
-                            <ActionIcon
-                                size="md"
-                                color="text"
-                                variant="subtle"
-                                onClick={onIncreaseClick}
-                                onKeyDown={onKeyDown}
-                                aria-label={_('Increase')}
-                                aria-controls={variant}
-                            >
-                                <IconPlus size={18} />
-                            </ActionIcon>
-                        }
-                    />
-                    <ChangeBadge change={change} />
-                </div>
+                <NumberInput
+                    ref={ref}
+                    value={current}
+                    onChange={handleChange}
+                    onKeyDown={onKeyDown}
+                    onFocus={onInputFocus}
+                    onBlur={onInputBlur}
+                    aria-label={variant}
+                    aria-current={focused}
+                    allowNegative={false}
+                    allowDecimal={false}
+                    size="md"
+                    hideControls
+                    leftSection={
+                        <ActionIcon
+                            size="md"
+                            color="text"
+                            variant="subtle"
+                            onClick={onDecreaseClick}
+                            onKeyDown={onKeyDown}
+                            aria-label={_('Decrease')}
+                            aria-controls={variant}
+                        >
+                            <IconMinus size={18} />
+                        </ActionIcon>
+                    }
+                    rightSection={
+                        <ActionIcon
+                            size="md"
+                            color="text"
+                            variant="subtle"
+                            onClick={onIncreaseClick}
+                            onKeyDown={onKeyDown}
+                            aria-label={_('Increase')}
+                            aria-controls={variant}
+                        >
+                            <IconPlus size={18} />
+                        </ActionIcon>
+                    }
+                />
+                <ChangeBadge change={change} />
             </Group>
         </Flex>
     );

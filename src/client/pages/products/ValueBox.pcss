@@ -1,33 +1,35 @@
-.ValueBox {
-    :global(.mantine-Modal-root) {
-        max-height: 100vh;
-    }
+.mantine-Modal-root.value-box {
+    max-height: 100vh;
 
-    :global(.mantine-Modal-inner) {
+    .mantine-Modal-inner {
         max-height: 100vh;
         display: flex;
         flex-direction: column;
     }
 
-    :global(.mantine-Modal-content) {
+    .mantine-Modal-content {
         max-height: 100vh;
         display: flex;
         flex-direction: column;
         overflow: hidden;
+
+        &[data-full-screen="true"] {
+            width: 100vw;
+        }
     }
 
-    :global(.mantine-Modal-header) {
+    .mantine-Modal-header {
         align-items: flex-start; /* Align elements to top */
         flex-shrink: 0;
     }
 
-    :global(.mantine-Modal-title) {
+    .mantine-Modal-title {
         flex: 1;
         text-align: center;
         padding-left: 2.5rem; /* Compensate for close button width */
     }
 
-    :global(.mantine-Modal-body) {
+    .mantine-Modal-body {
         display: flex;
         flex-direction: column;
         flex: 1;
@@ -35,10 +37,10 @@
         overflow: hidden;
     }
 
-    :global(.mantine-SegmentedControl-innerLabel) {
+    .mantine-SegmentedControl-innerLabel {
         display: block;
 
-        :global(.mantine-Badge-root) {
+        .mantine-Badge-root {
             margin-block-start: -0.75rem;
             margin-inline-end: -0.25rem;
         }

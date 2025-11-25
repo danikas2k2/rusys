@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Portal } from '@mantine/core';
+import { Group, Portal } from '@mantine/core';
 
 import { useActiveContent, type ActiveContent } from '~/client/common/ActiveContentContext';
 import { useSwipePanelWidth } from '~/client/common/SwipeControlsContext';
-import cx from './SwipePanel.pcss';
+
+import './SwipePanel.pcss';
 
 interface SwipePanelState {
     id?: string;
@@ -69,10 +70,9 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
     return (
         <Portal>
             {panels.map((panel, index) => (
-                <div
+                <Group
                     key={panel.id}
                     ref={index === 0 ? controlsRef : undefined}
-                    className={cx('SwipePanel')}
                     role="group"
                     style={{
                         top: panel.rect.top + 1,
@@ -88,7 +88,7 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
                         : {})}
                 >
                     {children}
-                </div>
+                </Group>
             ))}
         </Portal>
     );
