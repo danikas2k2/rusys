@@ -1,7 +1,7 @@
 import express from 'express';
-import { createServer as createViteServer } from 'vite';
+import { createServer } from 'vite';
 
-import { setupHandlers, setupHelmet, startHttpServer, startHttpsServer } from '~/server/app';
+import { setupHandlers, setupHelmet, setupStatic, startServers } from '~/server/app';
 
 (async () => {
     const app = setupHelmet(express());
@@ -11,7 +11,7 @@ import { setupHandlers, setupHelmet, startHttpServer, startHttpsServer } from '~
     setupHandlers(app);
 
     // Create Vite server in middleware mode for Express integration
-    const vite = await createViteServer({
+    const vite = await createServer({
         server: {
             middlewareMode: true,
             hmr: {
@@ -26,24 +26,9 @@ import { setupHandlers, setupHelmet, startHttpServer, startHttpsServer } from '~
     // Vite middleware automatically handles index.html transformation with React Refresh
     app.use(vite.middlewares);
 
-    const {
-        PORT = 3000,
-        HOST = 'localhost',
-        HTTPS_PORT = 4000,
-        HTTPS_HOST = HOST,
-        HTTPS_KEY,
-        HTTPS_CERT,
-    } = process.env;
+    // Register static file serving AFTER Vite middleware
+    setupStatic(app);
 
-    startHttpServer(app, {
-        port: +PORT,
-        host: HOST,
-    });
-
-    startHttpsServer(app, {
-        port: +HTTPS_PORT,
-        host: HTTPS_HOST,
-        keyFile: HTTPS_KEY,
-        certFile: HTTPS_CERT,
-    });
+    // Start both HTTP and HTTPS servers
+    startServers(app);
 })();

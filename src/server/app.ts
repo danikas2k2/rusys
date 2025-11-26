@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import https from 'node:https';
-import path from 'node:path';
 
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -15,6 +14,7 @@ import { ApiUrlHandlers } from '~/server/handlers';
 export function setup(app = express()): Express {
     setupHelmet(app);
     setupHandlers(app);
+    setupStatic(app);
     return app;
 }
 
@@ -72,20 +72,12 @@ export function setupHandlers(app: Express): Express {
         app.post(url, handler);
     }
 
-    // Serve static files
-    app.use(express.static(staticPath));
+    return app;
+}
 
-    // SPA fallback: serve index.html for all GET requests that don't match static files or API routes
-    if (!isDevMode()) {
-        app.use((req, res) => {
-            // Only handle GET requests
-            if (req.method === 'GET') {
-                res.sendFile(path.join(staticPath, 'index.html'));
-            } else {
-                res.status(404).send('Not found');
-            }
-        });
-    }
+export function setupStatic(app: Express): Express {
+    // Serve static files
+    app.use(express.static('public'));
 
     return app;
 }
@@ -118,5 +110,30 @@ export function startHttpsServer(
                 debug(`HTTPS server listening on https://${host}:${port}`);
             });
     }
+    return app;
+}
+
+export function startServers(app: Express): Express {
+    const {
+        PORT = 3000,
+        HOST = 'localhost',
+        HTTPS_PORT = 4000,
+        HTTPS_HOST = HOST,
+        HTTPS_KEY,
+        HTTPS_CERT,
+    } = process.env;
+
+    startHttpServer(app, {
+        port: +PORT,
+        host: HOST,
+    });
+
+    startHttpsServer(app, {
+        port: +HTTPS_PORT,
+        host: HTTPS_HOST,
+        keyFile: HTTPS_KEY,
+        certFile: HTTPS_CERT,
+    });
+
     return app;
 }
