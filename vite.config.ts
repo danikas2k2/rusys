@@ -5,6 +5,8 @@ import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
+import { generatePackageJson } from './vite/plugins/generate-package-json';
+
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
     return {
@@ -18,12 +20,11 @@ export default defineConfig(({ mode }) => {
             react({
                 jsxRuntime: 'automatic',
                 jsxImportSource: 'react',
-                // Force production JSX runtime in production builds
-                development,
             }),
             svgr({
                 svgrOptions: {},
             }),
+            generatePackageJson(),
         ],
         define: {
             'process.env.LOCALE': JSON.stringify('lt-LT'),

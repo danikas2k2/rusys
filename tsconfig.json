@@ -23,6 +23,7 @@
         "types": [
             "node",
             "express",
+            "vite/client",
             "jest",
             "@testing-library/jest-dom",
             "jest-extended",
