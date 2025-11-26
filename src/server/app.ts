@@ -1,5 +1,6 @@
-import fs from 'fs';
-import https from 'https';
+import fs from 'node:fs';
+import https from 'node:https';
+import path from 'node:path';
 
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -79,7 +80,7 @@ export function setupHandlers(app: Express): Express {
         app.use((req, res) => {
             // Only handle GET requests
             if (req.method === 'GET') {
-                res.sendFile('index.html', { root: staticPath });
+                res.sendFile(path.join(staticPath, 'index.html'));
             } else {
                 res.status(404).send('Not found');
             }

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { Button, Center } from '@mantine/core';
+import { Button } from '@mantine/core';
 import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import { IconBrandGoogleFilled } from '@tabler/icons-react';
 
