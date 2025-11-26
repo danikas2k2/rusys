@@ -7,6 +7,7 @@ import express, { type Express } from 'express';
 import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 
+import { isDevMode } from '~/common/utils/env';
 import { debug } from '~/server/api/debug';
 import { ApiUrlHandlers } from '~/server/handlers';
 
@@ -27,7 +28,6 @@ export function setupHelmet(app: Express): Express {
         })
     );
     app.use(cors());
-    const isDev = process.env.NODE_ENV === 'development';
     app.use(
         helmet({
             contentSecurityPolicy: {
@@ -41,14 +41,17 @@ export function setupHelmet(app: Express): Express {
                         'https://fonts.googleapis.com',
                         'https://fonts.gstatic.com',
                         // Allow Vite HMR WebSocket in dev (Vite runs on port 5173)
-                        ...(isDev ? ['ws://localhost:5173', 'ws://127.0.0.1:5173', 'http://localhost:5173'] : []),
+                        ...(isDevMode() ? ['ws://localhost:5173', 'ws://127.0.0.1:5173', 'http://localhost:5173'] : []),
                     ],
                     scriptSrc: ["'self'", 'https://accounts.google.com'],
                     scriptSrcElem: [
                         "'self'",
                         'https://accounts.google.com',
                         // Allow inline scripts in dev (Vite needs this)
-                        ...(isDev ? ["'unsafe-inline'"] : []),
+                        // In production, allow inline script for color scheme detection
+                        ...(isDevMode()
+                            ? ["'unsafe-inline'"]
+                            : ["'sha256-h4JJ0OX2ltWY5N6XW6FZ08KKolxndLCwhB+x5/+geeg='"]),
                     ],
                     objectSrc: ["'none'"],
                     upgradeInsecureRequests: [],
@@ -61,13 +64,26 @@ export function setupHelmet(app: Express): Express {
 }
 
 export function setupHandlers(app: Express): Express {
-    // In production, serve static files from dist/public (where Vite builds)
-    // In dev, Vite runs as separate server, so we only serve public assets
-    const staticPath = process.env.NODE_ENV === 'production' ? 'dist/public' : 'public';
-    app.use(express.static(staticPath));
+    const staticPath = 'public';
 
+    // Register API routes first
     for (const [url, handler] of Object.entries(ApiUrlHandlers)) {
         app.post(url, handler);
+    }
+
+    // Serve static files
+    app.use(express.static(staticPath));
+
+    // SPA fallback: serve index.html for all GET requests that don't match static files or API routes
+    if (!isDevMode()) {
+        app.use((req, res) => {
+            // Only handle GET requests
+            if (req.method === 'GET') {
+                res.sendFile('index.html', { root: staticPath });
+            } else {
+                res.status(404).send('Not found');
+            }
+        });
     }
 
     return app;

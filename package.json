@@ -19,8 +19,9 @@
     },
     "scripts": {
         "start": "cd dist && esr server.js",
+        "start:local": "NODE_ENV=development DB=mongodb://rusiodb1:30201,rusiodb2:30202,rusiodb3:30203/rusys?replicaSet=rusiors HTTPS_KEY=../certs/key.pem HTTPS_CERT=../certs/cert.pem pnpm start",
         "build": "npm-run-all --parallel build:server build:client",
-        "build:client": "vite build && pnpm build:client:cleanup",
+        "build:client": "NODE_ENV=production vite build && pnpm build:client:cleanup",
         "build:client:cleanup": "rm -rf dist/**/*.LICENSE.txt && if [ -f dist/public/package.json ]; then mv dist/public/package.json dist/; fi",
         "build:server": "esbuild src/server/index.ts --bundle --minify --platform=node --target=node24 --external:express --external:cors --external:body-parser --external:moment --external:mongodb --outfile=dist/server.js",
         "build:safe": "pnpm check && pnpm build",

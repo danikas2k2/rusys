@@ -6,7 +6,7 @@ import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
 export default defineConfig(({ mode }) => {
-    const isDev = mode === 'development';
+    const development = mode === 'development';
     return {
         root: process.cwd(),
         publicDir: 'public',
@@ -17,6 +17,9 @@ export default defineConfig(({ mode }) => {
             }),
             react({
                 jsxRuntime: 'automatic',
+                jsxImportSource: 'react',
+                // Force production JSX runtime in production builds
+                development,
             }),
             svgr({
                 svgrOptions: {},
@@ -24,7 +27,7 @@ export default defineConfig(({ mode }) => {
         ],
         define: {
             'process.env.LOCALE': JSON.stringify('lt-LT'),
-            'process.env.DEBUG': JSON.stringify(isDev),
+            'process.env.DEBUG': JSON.stringify(development),
             'process.env.NODE_ENV': JSON.stringify(mode),
         },
         resolve: {
@@ -43,6 +46,7 @@ export default defineConfig(({ mode }) => {
             outDir: 'dist/public',
             emptyOutDir: false, // Don't clear dist since server.js is there
             sourcemap: true,
+            minify: 'esbuild',
             rollupOptions: {
                 input: path.resolve(__dirname, 'public/index.html'),
                 output: {
