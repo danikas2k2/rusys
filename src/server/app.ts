@@ -65,8 +65,6 @@ export function setupHelmet(app: Express): Express {
 }
 
 export function setupHandlers(app: Express): Express {
-    const staticPath = 'public';
-
     // Register API routes first
     for (const [url, handler] of Object.entries(ApiUrlHandlers)) {
         app.post(url, handler);

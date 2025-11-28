@@ -1,8 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { mockEnv } from '@tests/mockEnv';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
+
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import { App } from '~/client/App';
 import { useClientId } from '~/client/state/google/useClientId';
@@ -45,8 +47,18 @@ describe('<App>', () => {
         expect(screen.getByText('AppContent')).toBeInTheDocument();
     });
 
-    it('renders Error when clientId is invalid', () => {
-        jest.mocked(useClientId).mockReturnValueOnce('');
+    it('renders Error when Google OAuth script fails to load', () => {
+        jest.mocked(useClientId).mockReturnValueOnce('validId');
+
+        const mockGoogleOAuthProvider = jest.mocked(GoogleOAuthProvider);
+        let onScriptLoadError: (() => void) | undefined;
+
+        mockGoogleOAuthProvider.mockImplementation(
+            ({ children, onScriptLoadError: onError }: React.PropsWithChildren<{ onScriptLoadError?: () => void }>) => {
+                onScriptLoadError = onError;
+                return <div>{children}</div>;
+            }
+        );
 
         render(
             <MockTheme>
@@ -54,7 +66,14 @@ describe('<App>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByRole('alert')).toHaveTextContent('Invalid Client ID');
+        // Simulate script load error
+        expect(onScriptLoadError).toBeDefined();
+
+        act(() => {
+            onScriptLoadError?.();
+        });
+
+        expect(screen.getByRole('alert')).toHaveTextContent('Failed to load Google OAuth script');
     });
 
     it('renders AppContent when clientId is valid', () => {
