@@ -7,7 +7,7 @@ import React from 'react';
 import type { ActiveContent } from '~/client/common/ActiveContentContext';
 import { ActiveVariantBox } from '~/client/pages/variants/ActiveVariantBox';
 
-jest.mock('~/client/pages/variants/VariantBox', () => ({
+vi.mock('~/client/pages/variants/VariantBox', async () => ({
     VariantBox: ({ opened, onClose, onAfterClose, ...props }: any) => {
         if (!opened) return null;
         return (
@@ -23,9 +23,9 @@ jest.mock('~/client/pages/variants/VariantBox', () => ({
 
 describe('<ActiveVariantBox>', () => {
     const active: ActiveContent = { action: 'update', data: { group: 'Uogienės', variant: 'p' } };
-    const setActive = jest.fn();
+    const setActive = vi.fn();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('does not render box if not active', () => {
         render(

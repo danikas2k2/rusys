@@ -6,7 +6,7 @@ import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useFilteredGroups } from './useFilteredGroups';
 
-jest.mock('~/client/state/groups/useGroups');
+vi.mock('~/client/state/groups/useGroups');
 
 describe('useFilteredGroups', () => {
     const mockGroups = [
@@ -15,9 +15,9 @@ describe('useFilteredGroups', () => {
         { group: 'Cherry', order: 2 },
     ];
 
-    beforeEach(() => jest.mocked(useGroups).mockReturnValue(mockGroups));
+    beforeEach(() => vi.mocked(useGroups).mockReturnValue(mockGroups));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns all groups sorted by order when no filter is set', () => {
         const { result } = renderHook(() => useFilteredGroups(), {
@@ -69,7 +69,7 @@ describe('useFilteredGroups', () => {
     });
 
     it('returns empty array when groups is empty', () => {
-        jest.mocked(useGroups).mockReturnValue([]);
+        vi.mocked(useGroups).mockReturnValue([]);
 
         const { result } = renderHook(() => useFilteredGroups(), {
             wrapper: ({ children }) => <QuickFilterWrapper>{children}</QuickFilterWrapper>,
@@ -79,7 +79,7 @@ describe('useFilteredGroups', () => {
     });
 
     it('sorts groups by order after filtering', () => {
-        jest.mocked(useGroups).mockReturnValue([
+        vi.mocked(useGroups).mockReturnValue([
             { group: 'Zebra', order: 3 },
             { group: 'Apple', order: 1 },
             { group: 'Banana', order: 2 },
@@ -134,7 +134,7 @@ describe('useFilteredGroups', () => {
 
         expect(firstResult).toHaveLength(3);
 
-        jest.mocked(useGroups).mockReturnValue([{ group: 'NewGroup', order: 1 }]);
+        vi.mocked(useGroups).mockReturnValue([{ group: 'NewGroup', order: 1 }]);
 
         rerender();
 

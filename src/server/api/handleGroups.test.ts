@@ -7,20 +7,20 @@ import { handleGroups } from '~/server/api/handleGroups';
 import { getGroupsResponse } from '~/server/api/response';
 import type { ApiGroups } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/products');
-jest.mock('~/server/data/groups');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/api/response');
+vi.mock('~/server/data/products');
+vi.mock('~/server/data/groups');
 
 describe('handleGroups', () => {
     const request = mockRequest();
     const response = mockResponse<ApiGroups>();
     const groups = getGroupsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(getGroupsResponse).mockResolvedValueOnce({ groups });
+        vi.mocked(getGroupsResponse).mockResolvedValueOnce({ groups });
 
         await handleGroups(request, response);
 
@@ -38,7 +38,7 @@ describe('handleGroups', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(getGroupsResponse).mockRejectedValueOnce('Failed to get groups');
+        vi.mocked(getGroupsResponse).mockRejectedValueOnce('Failed to get groups');
 
         await handleGroups(request, response);
 

@@ -6,11 +6,11 @@ import { ValueSuffix } from '~/client/common/ValueSuffix';
 import { ValueAmounts } from '~/client/pages/products/ValueAmounts';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 
-jest.mock('~/client/state/variants/useGroupVariantComparator', () => ({
-    useGroupVariantComparator: jest.fn().mockReturnValue(() => 0),
+vi.mock('~/client/state/variants/useGroupVariantComparator', async () => ({
+    useGroupVariantComparator: vi.fn().mockReturnValue(() => 0),
 }));
-jest.mock('~/client/common/ValueSuffix', () => ({
-    ValueSuffix: jest.fn().mockReturnValue(null),
+vi.mock('~/client/common/ValueSuffix', async () => ({
+    ValueSuffix: vi.fn().mockReturnValue(null),
 }));
 
 describe('<ValueAmounts>', () => {
@@ -20,7 +20,7 @@ describe('<ValueAmounts>', () => {
         { variant: 'd', amount: 1 },
     ];
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders with group and amounts', () => {
         render(<ValueAmounts group={group} amounts={amounts} />);
@@ -61,8 +61,8 @@ describe('<ValueAmounts>', () => {
     });
 
     it('sorts amounts by variant using comparator', () => {
-        const mockComparator = jest.fn(() => 0);
-        jest.mocked(useGroupVariantComparator).mockReturnValue(mockComparator);
+        const mockComparator = vi.fn(() => 0);
+        vi.mocked(useGroupVariantComparator).mockReturnValue(mockComparator);
 
         render(<ValueAmounts group={group} amounts={amounts} />);
 

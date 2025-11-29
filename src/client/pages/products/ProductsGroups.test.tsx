@@ -10,14 +10,14 @@ import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
 import { ProductsGroups } from '~/client/pages/products/ProductsGroups';
 import { ValueRow } from '~/client/pages/products/ValueRow';
 
-jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
-    useGroupFilter: jest.fn().mockReturnValue(''),
+vi.mock('~/client/filters/hooks/useGroupFilter', async () => ({
+    useGroupFilter: vi.fn().mockReturnValue(''),
 }));
-jest.mock('~/client/pages/products/ValueRow', () => ({
-    ValueRow: jest.fn().mockReturnValue(null),
+vi.mock('~/client/pages/products/ValueRow', async () => ({
+    ValueRow: vi.fn().mockReturnValue(null),
 }));
-jest.mock('~/client/table/GroupTitle', () => ({
-    GroupTitle: jest.fn(({ children }) => (
+vi.mock('~/client/table/GroupTitle', async () => ({
+    GroupTitle: vi.fn(({ children }: React.PropsWithChildren) => (
         <tbody>
             <tr>
                 <th role="rowheader">{children}</th>
@@ -37,7 +37,7 @@ describe('<ProductsGroups>', () => {
         ],
     };
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders products groups with groups and products', () => {
         render(
@@ -95,7 +95,7 @@ describe('<ProductsGroups>', () => {
 
     it('renders filtered groups with products', () => {
         const [group] = groups;
-        jest.mocked(useGroupFilter).mockReturnValue(group);
+        vi.mocked(useGroupFilter).mockReturnValue(group);
         render(
             <MockThemeRedux state={state}>
                 <Table>
@@ -147,7 +147,7 @@ describe('<ProductsGroups>', () => {
     });
 
     it('renders missing filtered group without products', () => {
-        jest.mocked(useGroupFilter).mockReturnValue(missing);
+        vi.mocked(useGroupFilter).mockReturnValue(missing);
         render(
             <MockThemeRedux state={state}>
                 <Table>

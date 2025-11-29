@@ -4,7 +4,7 @@ import { ActiveContentContext, type ActiveContent } from '~/client/common/Active
 
 export function MockActiveContent<P extends ActiveContent>({
     active,
-    setActive = jest.fn(),
+    setActive = vi.fn(),
     children,
 }: React.PropsWithChildren<{
     active?: P;

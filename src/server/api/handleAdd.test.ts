@@ -8,9 +8,9 @@ import { getProductsWithYears } from '~/server/api/response';
 import { addProduct } from '~/server/data/products';
 import type { ApiProductsWithYears, ApiRequestProduct } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/products');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/api/response');
+vi.mock('~/server/data/products');
 
 describe('handleAdd', () => {
     const request = mockRequest<ApiRequestProduct>({ group: 'Uogienės', name: 'Braškės' });
@@ -18,11 +18,11 @@ describe('handleAdd', () => {
     const years = getYearsFixture();
     const products = getProductsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('adds product and returns updated products with years', async () => {
-        jest.mocked(addProduct).mockResolvedValueOnce(true);
-        jest.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
+        vi.mocked(addProduct).mockResolvedValueOnce(true);
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
 
         await handleAdd(request, response);
 
@@ -33,7 +33,7 @@ describe('handleAdd', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(addProduct).mockResolvedValueOnce(false);
+        vi.mocked(addProduct).mockResolvedValueOnce(false);
 
         await handleAdd(request, response);
 
@@ -44,7 +44,7 @@ describe('handleAdd', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(addProduct).mockRejectedValueOnce('Failed to add');
+        vi.mocked(addProduct).mockRejectedValueOnce('Failed to add');
 
         await handleAdd(request, response);
 

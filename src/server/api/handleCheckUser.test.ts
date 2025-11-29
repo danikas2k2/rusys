@@ -5,7 +5,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleCheckUser } from '~/server/api/handleCheckUser';
 import type { ApiUserAllowed, ApiUserEmail } from '~/types/api';
 
-jest.mock('~/server/api/debug');
+vi.mock('~/server/api/debug');
 
 describe('handleCheckUser', () => {
     const response = mockResponse<ApiUserAllowed>();
@@ -17,7 +17,7 @@ describe('handleCheckUser', () => {
         process.env.NODE_ENV = 'production';
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns allowed user when email is in GOOGLE_ALLOWED_USERS', async () => {
         process.env.GOOGLE_ALLOWED_USERS = 'test@example.com';

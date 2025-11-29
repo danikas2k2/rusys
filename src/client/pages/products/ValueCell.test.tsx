@@ -12,18 +12,18 @@ import { useProductUpdating } from '~/client/pages/products/UpdatingProductsCont
 import { ValueCell, type ValueCellProps } from '~/client/pages/products/ValueCell';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 
-jest.mock('~/client/state/products/useSetProductRemoving', () => ({
-    useSetProductRemoving: jest.fn(),
+vi.mock('~/client/state/products/useSetProductRemoving', async () => ({
+    useSetProductRemoving: vi.fn(),
 }));
-jest.mock('~/client/common/ActiveContentContext', () => ({
-    ...jest.requireActual('~/client/common/ActiveContentContext'),
-    useActiveContent: jest.fn(),
+vi.mock('~/client/common/ActiveContentContext', async () => ({
+    ...(await vi.importActual('~/client/common/ActiveContentContext')),
+    useActiveContent: vi.fn(),
 }));
-jest.mock('~/client/pages/products/UpdatingProductsContext', () => ({
-    useProductUpdating: jest.fn(),
+vi.mock('~/client/pages/products/UpdatingProductsContext', async () => ({
+    useProductUpdating: vi.fn(),
 }));
-jest.mock('~/client/common/hooks/useSwipeVisible', () => ({
-    useSwipeVisible: jest.fn(),
+vi.mock('~/client/common/hooks/useSwipeVisible', async () => ({
+    useSwipeVisible: vi.fn(),
 }));
 
 describe('<ValueCell>', () => {
@@ -35,26 +35,26 @@ describe('<ValueCell>', () => {
         { group, variant: 'm', order: 2, suffix: 'm' },
     ];
 
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 
-    const setRemoving = jest.fn();
-    const setActive = jest.fn();
+    const setRemoving = vi.fn();
+    const setActive = vi.fn();
 
     beforeEach(() => {
-        jest.mocked(useSetProductRemoving).mockReturnValue(setRemoving);
-        jest.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
-        jest.mocked(useSwipeVisible).mockReturnValue(false);
-        jest.mocked(useProductUpdating).mockReturnValue(false);
-        jest.useFakeTimers();
+        vi.mocked(useSetProductRemoving).mockReturnValue(setRemoving);
+        vi.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
+        vi.mocked(useSwipeVisible).mockReturnValue(false);
+        vi.mocked(useProductUpdating).mockReturnValue(false);
+        vi.useFakeTimers();
     });
 
     afterEach(() => {
-        jest.runOnlyPendingTimers();
-        jest.clearAllTimers();
-        jest.clearAllMocks();
+        vi.runOnlyPendingTimers();
+        vi.clearAllTimers();
+        vi.clearAllMocks();
     });
 
-    afterAll(() => jest.useRealTimers());
+    afterAll(() => vi.useRealTimers());
 
     const defaultProps: ValueCellProps = { group, name, year: 22 };
 
@@ -97,7 +97,7 @@ describe('<ValueCell>', () => {
             );
 
             await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
+            act(() => vi.advanceTimersByTime(500));
 
             expect(setActive).not.toHaveBeenCalled();
             expect(setRemoving).toHaveBeenCalledWith(props.group, props.name, props.year, true);
@@ -118,9 +118,9 @@ describe('<ValueCell>', () => {
 
             const cell = screen.getByRole('cell');
             fireEvent.pointerDown(cell);
-            act(() => jest.advanceTimersByTime(500));
+            act(() => vi.advanceTimersByTime(500));
             fireEvent.pointerUp(cell);
-            act(() => jest.advanceTimersByTime(100));
+            act(() => vi.advanceTimersByTime(100));
 
             expect(setActive).not.toHaveBeenCalled();
             expect(setRemoving).toHaveBeenCalledWith(props.group, props.name, props.year, false);
@@ -140,7 +140,7 @@ describe('<ValueCell>', () => {
             );
 
             await user.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
+            act(() => vi.advanceTimersByTime(100));
 
             expect(setActive).toHaveBeenCalledWith({
                 action: 'values',
@@ -185,7 +185,7 @@ describe('<ValueCell>', () => {
             );
 
             await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
+            act(() => vi.advanceTimersByTime(500));
 
             expect(setActive).not.toHaveBeenCalled();
             expect(setRemoving).not.toHaveBeenCalled();
@@ -207,7 +207,7 @@ describe('<ValueCell>', () => {
             );
 
             await user.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
+            act(() => vi.advanceTimersByTime(100));
 
             expect(setActive).toHaveBeenCalledWith({
                 action: 'values',
@@ -224,7 +224,7 @@ describe('<ValueCell>', () => {
         };
 
         it('shows loader when updating is true', () => {
-            jest.mocked(useProductUpdating).mockReturnValue(true);
+            vi.mocked(useProductUpdating).mockReturnValue(true);
 
             render(
                 <MockApp>
@@ -242,7 +242,7 @@ describe('<ValueCell>', () => {
         });
 
         it('hides loader when updating becomes false and transition ends', () => {
-            jest.mocked(useProductUpdating).mockReturnValue(true);
+            vi.mocked(useProductUpdating).mockReturnValue(true);
 
             const { rerender } = render(
                 <MockApp>
@@ -258,7 +258,7 @@ describe('<ValueCell>', () => {
 
             expect(screen.getByRole('progressbar')).toBeInTheDocument();
 
-            jest.mocked(useProductUpdating).mockReturnValue(false);
+            vi.mocked(useProductUpdating).mockReturnValue(false);
 
             rerender(
                 <MockApp>
@@ -278,7 +278,7 @@ describe('<ValueCell>', () => {
         });
 
         it('does not hide loader when updating is true and transition ends', () => {
-            jest.mocked(useProductUpdating).mockReturnValue(true);
+            vi.mocked(useProductUpdating).mockReturnValue(true);
 
             render(
                 <MockApp>
@@ -335,7 +335,7 @@ describe('<ValueCell>', () => {
             );
 
             await user.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
+            act(() => vi.advanceTimersByTime(100));
 
             expect(setActive).toHaveBeenCalledWith({
                 action: 'values',
@@ -355,7 +355,7 @@ describe('<ValueCell>', () => {
         };
 
         it('disables interactions when swipeActive is true', async () => {
-            jest.mocked(useSwipeVisible).mockReturnValue(true);
+            vi.mocked(useSwipeVisible).mockReturnValue(true);
 
             render(
                 <MockApp>
@@ -370,7 +370,7 @@ describe('<ValueCell>', () => {
             );
 
             await user.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
+            act(() => vi.advanceTimersByTime(100));
 
             expect(setActive).not.toHaveBeenCalled();
         });
@@ -383,7 +383,7 @@ describe('<ValueCell>', () => {
         };
 
         it('disables interactions when updating is true', async () => {
-            jest.mocked(useProductUpdating).mockReturnValue(true);
+            vi.mocked(useProductUpdating).mockReturnValue(true);
 
             render(
                 <MockApp>
@@ -398,13 +398,13 @@ describe('<ValueCell>', () => {
             );
 
             await user.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
+            act(() => vi.advanceTimersByTime(100));
 
             expect(setActive).not.toHaveBeenCalled();
         });
 
         it('disables long press when updating is true', async () => {
-            jest.mocked(useProductUpdating).mockReturnValue(true);
+            vi.mocked(useProductUpdating).mockReturnValue(true);
 
             render(
                 <MockApp>
@@ -419,7 +419,7 @@ describe('<ValueCell>', () => {
             );
 
             await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
+            act(() => vi.advanceTimersByTime(500));
 
             expect(setRemoving).not.toHaveBeenCalled();
             expect(setActive).not.toHaveBeenCalled();
@@ -433,7 +433,7 @@ describe('<ValueCell>', () => {
         };
 
         const originalNavigator = globalThis.navigator;
-        const mockVibrate = jest.fn();
+        const mockVibrate = vi.fn();
 
         afterEach(() =>
             Object.defineProperty(globalThis, 'navigator', {
@@ -463,7 +463,7 @@ describe('<ValueCell>', () => {
             );
 
             await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
+            act(() => vi.advanceTimersByTime(500));
 
             expect(mockVibrate).toHaveBeenCalledWith(500);
         });
@@ -488,7 +488,7 @@ describe('<ValueCell>', () => {
             );
 
             await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
+            act(() => vi.advanceTimersByTime(500));
 
             expect(mockVibrate).not.toHaveBeenCalled();
         });
@@ -513,7 +513,7 @@ describe('<ValueCell>', () => {
             );
 
             await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
+            act(() => vi.advanceTimersByTime(500));
 
             expect(mockVibrate).not.toHaveBeenCalled();
         });

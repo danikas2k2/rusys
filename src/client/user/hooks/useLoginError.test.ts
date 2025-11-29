@@ -3,12 +3,12 @@ import { renderHook } from '@testing-library/react';
 import { useResetProfile } from '~/client/state/profile/useResetProfile';
 import { useLoginError } from '~/client/user/hooks/useLoginError';
 
-jest.mock('~/client/state/profile/useResetProfile');
+vi.mock('~/client/state/profile/useResetProfile');
 
 describe('useLoginError', () => {
     it('calls resetProfile when invoked', () => {
-        const resetProfile = jest.fn();
-        jest.mocked(useResetProfile).mockReturnValue(resetProfile);
+        const resetProfile = vi.fn();
+        vi.mocked(useResetProfile).mockReturnValue(resetProfile);
 
         const { result } = renderHook(() => useLoginError());
         result.current();

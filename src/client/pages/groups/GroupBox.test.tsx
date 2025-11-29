@@ -9,18 +9,18 @@ import { GroupBox } from '~/client/pages/groups/GroupBox';
 import { useRenameGroup } from '~/client/state/groups/useRenameGroup';
 import { useUpdateGroup } from '~/client/state/groups/useUpdateGroup';
 
-jest.mock('~/client/common/Label');
-jest.mock('~/client/state/groups/useRenameGroup');
-jest.mock('~/client/state/groups/useUpdateGroup');
+vi.mock('~/client/common/Label');
+vi.mock('~/client/state/groups/useRenameGroup');
+vi.mock('~/client/state/groups/useUpdateGroup');
 
 describe('<GroupBox>', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     const state = {
         groups: getGroupsFixture(),
     };
 
-    const onClose = jest.fn();
+    const onClose = vi.fn();
 
     it('renders with cancel button', () => {
         render(
@@ -69,10 +69,10 @@ describe('<GroupBox>', () => {
     });
 
     describe('calls update group handler when adding a new entry', () => {
-        const addGroup = jest.fn();
+        const addGroup = vi.fn();
 
         it('closes dialog without error when successfully added', async () => {
-            jest.mocked(useUpdateGroup).mockReturnValue(addGroup.mockResolvedValue(true));
+            vi.mocked(useUpdateGroup).mockReturnValue(addGroup.mockResolvedValue(true));
 
             render(
                 <MockApp state={state}>
@@ -89,7 +89,7 @@ describe('<GroupBox>', () => {
         });
 
         it('displays error without closing dialog when adding fails', async () => {
-            jest.mocked(useUpdateGroup).mockReturnValue(addGroup.mockRejectedValueOnce('Failed to add'));
+            vi.mocked(useUpdateGroup).mockReturnValue(addGroup.mockRejectedValueOnce('Failed to add'));
             render(
                 <MockApp state={state}>
                     <GroupBox opened onClose={onClose} />
@@ -104,7 +104,7 @@ describe('<GroupBox>', () => {
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
-            jest.mocked(useUpdateGroup).mockReturnValue(addGroup);
+            vi.mocked(useUpdateGroup).mockReturnValue(addGroup);
 
             render(
                 <MockApp state={state}>
@@ -120,7 +120,7 @@ describe('<GroupBox>', () => {
         });
 
         it('displays error without closing dialog when name already exists', async () => {
-            jest.mocked(useUpdateGroup).mockReturnValue(addGroup);
+            vi.mocked(useUpdateGroup).mockReturnValue(addGroup);
 
             render(
                 <MockApp state={state}>
@@ -138,7 +138,7 @@ describe('<GroupBox>', () => {
         });
 
         it('displays error without closing dialog when name contains colon', async () => {
-            jest.mocked(useUpdateGroup).mockReturnValue(addGroup);
+            vi.mocked(useUpdateGroup).mockReturnValue(addGroup);
 
             render(
                 <MockApp state={state}>
@@ -157,10 +157,10 @@ describe('<GroupBox>', () => {
     });
 
     describe('calls rename group handler when updating an existing entry', () => {
-        const renameGroup = jest.fn();
+        const renameGroup = vi.fn();
 
         it('closes dialog without error when successfully renamed', async () => {
-            jest.mocked(useRenameGroup).mockReturnValue(renameGroup.mockResolvedValueOnce(true));
+            vi.mocked(useRenameGroup).mockReturnValue(renameGroup.mockResolvedValueOnce(true));
 
             render(
                 <MockApp state={state}>
@@ -178,7 +178,7 @@ describe('<GroupBox>', () => {
         });
 
         it('displays error without closing dialog when rename fails', async () => {
-            jest.mocked(useRenameGroup).mockReturnValue(renameGroup.mockRejectedValueOnce('Failed to rename'));
+            vi.mocked(useRenameGroup).mockReturnValue(renameGroup.mockRejectedValueOnce('Failed to rename'));
 
             render(
                 <MockApp state={state}>
@@ -196,7 +196,7 @@ describe('<GroupBox>', () => {
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
-            jest.mocked(useRenameGroup).mockReturnValue(renameGroup);
+            vi.mocked(useRenameGroup).mockReturnValue(renameGroup);
 
             render(
                 <MockApp state={state}>
@@ -213,7 +213,7 @@ describe('<GroupBox>', () => {
         });
 
         it('displays error without closing dialog when name already exists', async () => {
-            jest.mocked(useRenameGroup).mockReturnValue(renameGroup);
+            vi.mocked(useRenameGroup).mockReturnValue(renameGroup);
 
             render(
                 <MockApp state={state}>
@@ -232,7 +232,7 @@ describe('<GroupBox>', () => {
         });
 
         it('displays error without closing dialog when name contains colon', async () => {
-            jest.mocked(useRenameGroup).mockReturnValue(renameGroup);
+            vi.mocked(useRenameGroup).mockReturnValue(renameGroup);
 
             render(
                 <MockApp state={state}>
@@ -251,7 +251,7 @@ describe('<GroupBox>', () => {
         });
 
         it('closes without updating when name was not changed', async () => {
-            jest.mocked(useRenameGroup).mockReturnValue(renameGroup);
+            vi.mocked(useRenameGroup).mockReturnValue(renameGroup);
 
             render(
                 <MockApp state={state}>
@@ -271,20 +271,20 @@ describe('<GroupBox>', () => {
         let timeUser: UserEvent;
 
         beforeEach(() => {
-            jest.useFakeTimers();
-            timeUser = user.setup({ advanceTimers: jest.advanceTimersByTime });
+            vi.useFakeTimers();
+            timeUser = user.setup({ advanceTimers: vi.advanceTimersByTime });
         });
 
         afterEach(() => {
-            jest.runOnlyPendingTimers();
-            jest.clearAllTimers();
+            vi.runOnlyPendingTimers();
+            vi.clearAllTimers();
         });
 
-        afterAll(() => jest.useRealTimers());
+        afterAll(() => vi.useRealTimers());
 
         it('shows loading state after 300ms delay when submitting form', async () => {
-            const updateGroup = jest.fn().mockResolvedValue(undefined);
-            jest.mocked(useUpdateGroup).mockReturnValue(updateGroup);
+            const updateGroup = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useUpdateGroup).mockReturnValue(updateGroup);
 
             render(
                 <MockApp state={state}>
@@ -293,14 +293,14 @@ describe('<GroupBox>', () => {
             );
 
             // Wait for initial focus timer to complete
-            act(() => jest.advanceTimersByTime(100));
+            act(() => vi.advanceTimersByTime(100));
 
             await timeUser.type(screen.getByRole('textbox', { name: 'Group name' }), 'New Group');
             await timeUser.click(screen.getByRole('button', { name: 'Add' }));
             const addButton = screen.getByRole('button', { name: 'Add' });
 
             // Advance timers by 300ms to trigger loading state
-            act(() => jest.advanceTimersByTime(300));
+            act(() => vi.advanceTimersByTime(300));
 
             // Verify that loading state was triggered
             expect(addButton).toBeInTheDocument();
@@ -313,8 +313,8 @@ describe('<GroupBox>', () => {
         });
 
         it('clears timeout when operation completes before 300ms', async () => {
-            const updateGroup = jest.fn().mockResolvedValue(undefined);
-            jest.mocked(useUpdateGroup).mockReturnValue(updateGroup);
+            const updateGroup = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useUpdateGroup).mockReturnValue(updateGroup);
 
             render(
                 <MockApp state={state}>
@@ -323,7 +323,7 @@ describe('<GroupBox>', () => {
             );
 
             // Wait for initial focus timer to complete
-            act(() => jest.advanceTimersByTime(100));
+            act(() => vi.advanceTimersByTime(100));
 
             await timeUser.type(screen.getByRole('textbox', { name: 'Group name' }), 'Fast Group');
             const addButton = screen.getByRole('button', { name: 'Add' });
@@ -334,7 +334,7 @@ describe('<GroupBox>', () => {
 
             // Advance timers by less than 300ms - timeout should be cleared
             act(() => {
-                jest.advanceTimersByTime(200);
+                vi.advanceTimersByTime(200);
             });
 
             // Button should be enabled and timeout cleared

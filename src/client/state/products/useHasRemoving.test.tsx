@@ -7,7 +7,7 @@ import React from 'react';
 import { useHasRemoving } from '~/client/state/products/useHasRemoving';
 import { useYears } from '~/client/state/years/useYears';
 
-jest.mock('~/client/state/years/useYears');
+vi.mock('~/client/state/years/useYears');
 
 describe('useHasRemoving', () => {
     it('return false for empty state', () => {
@@ -35,7 +35,7 @@ describe('useHasRemoving', () => {
     });
 
     it('return false for mismatched years', () => {
-        jest.mocked(useYears).mockReturnValueOnce([18, 19]);
+        vi.mocked(useYears).mockReturnValueOnce([18, 19]);
 
         const { result } = renderHook(() => useHasRemoving('Daržovės', 'Kopūstai'), {
             wrapper: ({ children }) => <MockRedux state={{ products }}>{children}</MockRedux>,

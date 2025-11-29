@@ -18,7 +18,7 @@ describe('<AddAction>', () => {
     });
 
     it('calls setActive with update action on click', async () => {
-        const setActive = jest.fn();
+        const setActive = vi.fn();
 
         render(
             <MockThemeActive setActive={setActive}>
@@ -32,7 +32,7 @@ describe('<AddAction>', () => {
     });
 
     it('calls onClick callback when provided', async () => {
-        const onClick = jest.fn();
+        const onClick = vi.fn();
 
         render(
             <MockThemeActive>

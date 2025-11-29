@@ -7,31 +7,31 @@ import { Page } from '~/client/pages/common/Page';
 import { GroupsPage } from '~/client/pages/groups/GroupsPage';
 import { useDeleteGroup } from '~/client/state/groups/useDeleteGroup';
 
-jest.mock('~/client/pages/common/Page');
-jest.mock('~/client/common/SwipeControls', () => ({
-    SwipeControls: jest.fn(() => <div>SwipeControls</div>),
+vi.mock('~/client/pages/common/Page');
+vi.mock('~/client/common/SwipeControls', async () => ({
+    SwipeControls: vi.fn(() => <div>SwipeControls</div>),
 }));
-jest.mock('~/client/common/SwipeControlsContext', () => ({
+vi.mock('~/client/common/SwipeControlsContext', async () => ({
     SwipeControlsWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-jest.mock('~/client/filters/QuickFilterContext', () => ({
+vi.mock('~/client/filters/QuickFilterContext', async () => ({
     QuickFilterWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-jest.mock('~/client/pages/groups/GroupsTable', () => ({
-    GroupsTable: jest.fn(() => <div>GroupsTable</div>),
+vi.mock('~/client/pages/groups/GroupsTable', async () => ({
+    GroupsTable: vi.fn(() => <div>GroupsTable</div>),
 }));
-jest.mock('~/client/pages/groups/ActiveGroupBox', () => ({
+vi.mock('~/client/pages/groups/ActiveGroupBox', async () => ({
     ActiveGroupBox: () => null,
 }));
-jest.mock('~/client/state/groups/useDeleteGroup');
+vi.mock('~/client/state/groups/useDeleteGroup');
 
 describe('<GroupsPage>', () => {
-    const mockDeleteGroup = jest.fn().mockResolvedValue(undefined);
+    const mockDeleteGroup = vi.fn().mockResolvedValue(undefined);
 
-    beforeEach(() => jest.mocked(useDeleteGroup).mockReturnValue(mockDeleteGroup));
+    beforeEach(() => vi.mocked(useDeleteGroup).mockReturnValue(mockDeleteGroup));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders into the document', () => {
         render(
@@ -44,8 +44,8 @@ describe('<GroupsPage>', () => {
     });
 
     it('calls deleteGroup when handleDelete is called', async () => {
-        let mockDelete: jest.Mocked<React.ComponentProps<typeof Page>['onDelete']>;
-        jest.mocked(Page).mockImplementation(({ onDelete }) => {
+        let mockDelete: React.ComponentProps<typeof Page>['onDelete'];
+        vi.mocked(Page).mockImplementation(({ onDelete }: { onDelete?: (data: unknown) => void }) => {
             mockDelete = onDelete;
             return <div>Page</div>;
         });

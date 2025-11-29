@@ -1,1 +1,1 @@
-export const ActiveContentOutsideClick = jest.fn(() => null);
+export const ActiveContentOutsideClick = vi.fn(() => null);

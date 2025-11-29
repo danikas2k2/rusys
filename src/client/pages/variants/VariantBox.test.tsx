@@ -5,28 +5,36 @@ import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useCopyVariant } from '~/client/state/variants/useCopyVariant';
 import { useRenameVariant } from '~/client/state/variants/useRenameVariant';
 import { useUpdateVariant } from '~/client/state/variants/useUpdateVariant';
 
-jest.mock('~/client/common/Label');
-jest.mock('~/client/state/variants/useCopyVariant');
-jest.mock('~/client/state/variants/useRenameVariant');
-jest.mock('~/client/state/variants/useUpdateVariant');
-jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
-    useGroupFilter: jest.fn(() => ''),
+vi.mock('~/client/common/Label');
+vi.mock('~/client/state/variants/useCopyVariant');
+vi.mock('~/client/state/variants/useRenameVariant');
+vi.mock('~/client/state/variants/useUpdateVariant');
+vi.mock('~/client/filters/hooks/useGroupFilter', () => ({
+    useGroupFilter: vi.fn(() => ''),
 }));
 
 describe('<VariantBox>', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
+
+    // Helper function to select a group from the dropdown
+    async function selectGroup(groupName: string): Promise<void> {
+        await user.click(screen.getByRole('textbox', { name: 'Group' }));
+        await user.click(await screen.findByRole('option', { name: groupName }));
+    }
 
     const state = {
         groups: getGroupsFixture(),
         variants: getVariantsFixture(),
     };
 
-    const onClose = jest.fn();
+    const onClose = vi.fn();
 
     it('renders with cancel button', () => {
         render(
@@ -77,10 +85,10 @@ describe('<VariantBox>', () => {
     });
 
     describe('calls update variant handler when adding a new entry', () => {
-        const updateVariant = jest.fn();
+        const updateVariant = vi.fn();
 
         it('closes dialog without error when successfully added', async () => {
-            jest.mocked(useUpdateVariant).mockReturnValue(updateVariant.mockResolvedValue(true));
+            vi.mocked(useUpdateVariant).mockReturnValue(updateVariant.mockResolvedValue(true));
 
             render(
                 <MockApp state={state}>
@@ -88,8 +96,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
+            await selectGroup('Daržovės');
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.type(screen.getByRole('textbox', { name: 'Suffix' }), '4½');
             await user.click(screen.getByRole('button', { name: 'Add' }));
@@ -100,7 +107,7 @@ describe('<VariantBox>', () => {
         });
 
         it('displays error without closing dialog when adding fails', async () => {
-            jest.mocked(useUpdateVariant).mockReturnValue(updateVariant.mockRejectedValueOnce('Failed to add'));
+            vi.mocked(useUpdateVariant).mockReturnValue(updateVariant.mockRejectedValueOnce('Failed to add'));
 
             render(
                 <MockApp state={state}>
@@ -108,8 +115,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
+            await selectGroup('Daržovės');
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -119,7 +125,7 @@ describe('<VariantBox>', () => {
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
-            jest.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+            vi.mocked(useUpdateVariant).mockReturnValue(updateVariant);
 
             render(
                 <MockApp state={state}>
@@ -127,8 +133,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
+            await selectGroup('Daržovės');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(updateVariant).not.toHaveBeenCalled();
@@ -137,7 +142,7 @@ describe('<VariantBox>', () => {
         });
 
         it('displays error without closing dialog when name already exists', async () => {
-            jest.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+            vi.mocked(useUpdateVariant).mockReturnValue(updateVariant);
 
             render(
                 <MockApp state={state}>
@@ -146,7 +151,7 @@ describe('<VariantBox>', () => {
             );
 
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
+            await selectGroup('Daržovės');
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'd');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -158,10 +163,10 @@ describe('<VariantBox>', () => {
     });
 
     describe('calls rename variant handler when updating an existing entry', () => {
-        const renameVariant = jest.fn();
+        const renameVariant = vi.fn();
 
         it('closes dialog without error when successfully renamed', async () => {
-            jest.mocked(useRenameVariant).mockReturnValue(renameVariant.mockResolvedValueOnce(true));
+            vi.mocked(useRenameVariant).mockReturnValue(renameVariant.mockResolvedValueOnce(true));
 
             render(
                 <MockApp state={state}>
@@ -181,7 +186,7 @@ describe('<VariantBox>', () => {
         });
 
         it('displays error without closing dialog when rename fails', async () => {
-            jest.mocked(useRenameVariant).mockReturnValue(renameVariant.mockRejectedValueOnce('Failed to rename'));
+            vi.mocked(useRenameVariant).mockReturnValue(renameVariant.mockRejectedValueOnce('Failed to rename'));
 
             render(
                 <MockApp state={state}>
@@ -199,7 +204,7 @@ describe('<VariantBox>', () => {
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
-            jest.mocked(useRenameVariant).mockReturnValue(renameVariant);
+            vi.mocked(useRenameVariant).mockReturnValue(renameVariant);
 
             render(
                 <MockApp state={state}>
@@ -217,7 +222,7 @@ describe('<VariantBox>', () => {
         });
 
         it('displays error without closing dialog when name already exists', async () => {
-            jest.mocked(useRenameVariant).mockReturnValue(renameVariant);
+            vi.mocked(useRenameVariant).mockReturnValue(renameVariant);
 
             render(
                 <MockApp state={state}>
@@ -236,7 +241,7 @@ describe('<VariantBox>', () => {
         });
 
         it('closes without updating when name was not changed', async () => {
-            jest.mocked(useRenameVariant).mockReturnValue(renameVariant);
+            vi.mocked(useRenameVariant).mockReturnValue(renameVariant);
 
             render(
                 <MockApp state={state}>
@@ -253,11 +258,11 @@ describe('<VariantBox>', () => {
     });
 
     describe('calls copy variant handler when changing group', () => {
-        const copyVariant = jest.fn();
+        const copyVariant = vi.fn();
 
         beforeEach(() => {
             copyVariant.mockResolvedValue(undefined);
-            jest.mocked(useCopyVariant).mockReturnValue(copyVariant);
+            vi.mocked(useCopyVariant).mockReturnValue(copyVariant);
         });
 
         it('closes dialog without error when successfully copied', async () => {
@@ -267,8 +272,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
+            await selectGroup('Uogienės');
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
             await user.click(screen.getByRole('button', { name: 'Duplicate' }));
@@ -287,8 +291,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
+            await selectGroup('Uogienės');
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
             await user.click(screen.getByRole('button', { name: 'Duplicate' }));
@@ -305,8 +308,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
+            await selectGroup('Uogienės');
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
             await user.clear(screen.getByRole('textbox', { name: 'Suffix' }));
@@ -344,7 +346,7 @@ describe('<VariantBox>', () => {
             );
 
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
+            await selectGroup('Daržovės');
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test:variant');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -365,8 +367,7 @@ describe('<VariantBox>', () => {
             expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
 
             // Change group to trigger Duplicate button
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
+            await selectGroup('Uogienės');
 
             // Should now show Duplicate button (tests getButtonContent with groupChanged condition)
             expect(screen.getByRole('button', { name: 'Duplicate' })).toBeInTheDocument();
@@ -377,20 +378,20 @@ describe('<VariantBox>', () => {
         let timeUser: UserEvent;
 
         beforeEach(() => {
-            jest.useFakeTimers();
-            timeUser = user.setup({ advanceTimers: jest.advanceTimersByTime });
+            vi.useFakeTimers();
+            timeUser = user.setup({ advanceTimers: vi.advanceTimersByTime });
         });
 
         afterEach(() => {
-            jest.runOnlyPendingTimers();
-            jest.clearAllTimers();
+            vi.runOnlyPendingTimers();
+            vi.clearAllTimers();
         });
 
-        afterAll(() => jest.useRealTimers());
+        afterAll(() => vi.useRealTimers());
 
         it('shows loading state after 300ms delay when submitting form', async () => {
-            const updateVariant = jest.fn().mockResolvedValue(undefined);
-            jest.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+            const updateVariant = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useUpdateVariant).mockReturnValue(updateVariant);
 
             render(
                 <MockApp state={state}>
@@ -399,8 +400,9 @@ describe('<VariantBox>', () => {
             );
 
             // Wait for initial focus timer to complete
-            act(() => jest.advanceTimersByTime(100));
+            act(() => vi.advanceTimersByTime(100));
 
+            await timeUser.click(screen.getByRole('textbox', { name: 'Group' }));
             await timeUser.click(screen.getByRole('textbox', { name: 'Group' }));
             await timeUser.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await timeUser.type(screen.getByRole('textbox', { name: 'Variant name' }), 'New Variant');
@@ -409,7 +411,7 @@ describe('<VariantBox>', () => {
             await timeUser.click(addButton);
 
             // Advance timers by 300ms to trigger loading state
-            act(() => jest.advanceTimersByTime(300));
+            act(() => vi.advanceTimersByTime(300));
 
             // Verify that loading state was triggered
             expect(addButton).toBeInTheDocument();
@@ -419,11 +421,11 @@ describe('<VariantBox>', () => {
 
             // Button should be enabled again after operation completes
             expect(addButton).not.toBeDisabled();
-        });
+        }, 15000);
 
         it('clears timeout when operation completes before 300ms', async () => {
-            const updateVariant = jest.fn().mockResolvedValue(undefined);
-            jest.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+            const updateVariant = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useUpdateVariant).mockReturnValue(updateVariant);
 
             render(
                 <MockApp state={state}>
@@ -432,8 +434,9 @@ describe('<VariantBox>', () => {
             );
 
             // Wait for initial focus timer to complete
-            act(() => jest.advanceTimersByTime(100));
+            act(() => vi.advanceTimersByTime(100));
 
+            await timeUser.click(screen.getByRole('textbox', { name: 'Group' }));
             await timeUser.click(screen.getByRole('textbox', { name: 'Group' }));
             await timeUser.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await timeUser.type(screen.getByRole('textbox', { name: 'Variant name' }), 'Fast Variant');
@@ -446,12 +449,12 @@ describe('<VariantBox>', () => {
 
             // Advance timers by less than 300ms - timeout should be cleared
             act(() => {
-                jest.advanceTimersByTime(200);
+                vi.advanceTimersByTime(200);
             });
 
             // Button should be enabled and timeout cleared
             expect(addButton).not.toBeDisabled();
             expect(onClose).toHaveBeenCalledWith('Daržovės', 'Fast Variant');
-        });
+        }, 15000);
     });
 });

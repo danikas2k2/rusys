@@ -7,13 +7,13 @@ import { DEV_MODE_SUB } from '~/client/state/profile/dev';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { ProfileAvatar } from '~/client/user/ProfileAvatar';
 
-jest.mock('~/client/state/profile/useProfile');
+vi.mock('~/client/state/profile/useProfile');
 
 describe('<ProfileAvatar>', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders nothing when profile does not exist', () => {
-        jest.mocked(useProfile).mockReturnValueOnce({});
+        vi.mocked(useProfile).mockReturnValueOnce({});
 
         const { container } = render(
             <MockTheme>
@@ -25,7 +25,7 @@ describe('<ProfileAvatar>', () => {
     });
 
     it('renders image when profile picture exists', () => {
-        jest.mocked(useProfile).mockReturnValueOnce({ picture: 'test.jpg', name: 'Test User' });
+        vi.mocked(useProfile).mockReturnValueOnce({ picture: 'test.jpg', name: 'Test User' });
 
         render(
             <MockTheme>
@@ -40,7 +40,7 @@ describe('<ProfileAvatar>', () => {
     });
 
     it('renders initials when profile picture does not exist', () => {
-        jest.mocked(useProfile).mockReturnValueOnce({ name: 'Test User' });
+        vi.mocked(useProfile).mockReturnValueOnce({ name: 'Test User' });
 
         render(
             <MockTheme>
@@ -55,7 +55,7 @@ describe('<ProfileAvatar>', () => {
     });
 
     it('renders initials when profile picture does not exist and name has multiple words', () => {
-        jest.mocked(useProfile).mockReturnValueOnce({ name: 'Test User Name' });
+        vi.mocked(useProfile).mockReturnValueOnce({ name: 'Test User Name' });
 
         render(
             <MockTheme>
@@ -68,7 +68,7 @@ describe('<ProfileAvatar>', () => {
     });
 
     it('renders initials when profile picture and name does not exist but given_name and family_name does', () => {
-        jest.mocked(useProfile).mockReturnValueOnce({ given_name: 'Test', family_name: 'User' });
+        vi.mocked(useProfile).mockReturnValueOnce({ given_name: 'Test', family_name: 'User' });
 
         render(
             <MockTheme>
@@ -81,7 +81,7 @@ describe('<ProfileAvatar>', () => {
     });
 
     it('renders robot icon when profile has dev flag', () => {
-        jest.mocked(useProfile).mockReturnValueOnce({ name: 'Dev User', dev: true });
+        vi.mocked(useProfile).mockReturnValueOnce({ name: 'Dev User', dev: true });
 
         render(
             <MockTheme>
@@ -93,7 +93,7 @@ describe('<ProfileAvatar>', () => {
     });
 
     it('renders robot icon when profile sub matches DEV_MODE_SUB', () => {
-        jest.mocked(useProfile).mockReturnValueOnce({ name: 'Dev User', sub: DEV_MODE_SUB });
+        vi.mocked(useProfile).mockReturnValueOnce({ name: 'Dev User', sub: DEV_MODE_SUB });
 
         render(
             <MockTheme>
@@ -105,7 +105,7 @@ describe('<ProfileAvatar>', () => {
     });
 
     it('renders robot icon with custom variant when profile has dev flag', () => {
-        jest.mocked(useProfile).mockReturnValueOnce({ name: 'Dev User', dev: true });
+        vi.mocked(useProfile).mockReturnValueOnce({ name: 'Dev User', dev: true });
 
         render(
             <MockTheme>
@@ -117,7 +117,7 @@ describe('<ProfileAvatar>', () => {
     });
 
     it('renders initials when only given_name exists', () => {
-        jest.mocked(useProfile).mockReturnValueOnce({ given_name: 'Test' });
+        vi.mocked(useProfile).mockReturnValueOnce({ given_name: 'Test' });
 
         render(
             <MockTheme>
@@ -130,7 +130,7 @@ describe('<ProfileAvatar>', () => {
     });
 
     it('renders initials when only family_name exists', () => {
-        jest.mocked(useProfile).mockReturnValueOnce({ family_name: 'User' });
+        vi.mocked(useProfile).mockReturnValueOnce({ family_name: 'User' });
 
         render(
             <MockTheme>

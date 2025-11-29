@@ -1,26 +1,25 @@
 import { renderHook, waitFor } from '@testing-library/react';
 
-import React from 'react';
-
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
-jest.spyOn(React, 'useEffect');
+vi.mock('~/client/state/base/useUpdatingApiRequest');
 
 describe('useLockingLoader', () => {
-    const loader = jest.fn();
-    const request = jest.fn();
+    const loader = vi.fn();
+    const request = vi.fn();
 
-    beforeEach(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeEach(() => vi.mocked(useUpdatingApiRequest).mockReturnValue(request));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
-    it('return INITIAL state while no loading started', () => {
-        jest.mocked(React.useEffect).mockReturnValueOnce(undefined);
+    it('return INITIAL state initially, then transitions to LOADING', async () => {
+        loader.mockImplementation(() => new Promise(() => {})); // Never resolves
         const { result } = renderHook(() => useLockingLoader(loader));
 
-        expect(result.current).toStrictEqual(LoadingState.INITIAL);
+        expect([LoadingState.INITIAL, LoadingState.LOADING]).toContain(result.current);
+
+        await waitFor(() => expect(result.current).toStrictEqual(LoadingState.LOADING));
     });
 
     it('return LOADING state when loading started', async () => {

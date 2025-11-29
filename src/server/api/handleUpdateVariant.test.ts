@@ -6,17 +6,17 @@ import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { updateVariant } from '~/server/data/variants';
 import type { Variant } from '~/types/data';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/data/variants');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/data/variants');
 
 describe('handleUpdateVariant', () => {
     const request = mockRequest<Variant>({ group: 'Uogienės', variant: 'd', order: 3 });
     const response = mockResponse();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(updateVariant).mockResolvedValueOnce(true);
+        vi.mocked(updateVariant).mockResolvedValueOnce(true);
 
         await handleUpdateVariant(request, response);
 
@@ -26,7 +26,7 @@ describe('handleUpdateVariant', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(updateVariant).mockResolvedValueOnce(false);
+        vi.mocked(updateVariant).mockResolvedValueOnce(false);
 
         await handleUpdateVariant(request, response);
 
@@ -36,7 +36,7 @@ describe('handleUpdateVariant', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(updateVariant).mockRejectedValueOnce('Failed to update variant');
+        vi.mocked(updateVariant).mockRejectedValueOnce('Failed to update variant');
 
         await handleUpdateVariant(request, response);
 

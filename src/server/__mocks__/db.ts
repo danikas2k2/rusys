@@ -1,10 +1,13 @@
 import { MongoClient } from 'mongodb';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
+import { afterAll, beforeAll, vi } from 'vitest';
+
+// Import actual implementation
+import type * as DbModule from '~/server/db';
 
 let $server: MongoMemoryReplSet | undefined;
 let $client: MongoClient | undefined;
 
-// eslint-disable-next-line jest/require-top-level-describe
 beforeAll(async () => {
     if (!$server) {
         $server = await MongoMemoryReplSet.create({ replSet: { count: 1, storageEngine: 'wiredTiger' } });
@@ -14,7 +17,6 @@ beforeAll(async () => {
     }
 });
 
-// eslint-disable-next-line jest/require-top-level-describe
 afterAll(async () => {
     if ($client) {
         await $client.close();
@@ -26,13 +28,22 @@ afterAll(async () => {
     }
 });
 
-// noinspection JSUnusedGlobalSymbols
-export const getClient = jest.fn<Promise<MongoClient>, any, any>(() => Promise.resolve($client!));
+let actualDb: typeof DbModule.db;
+let actualWithTransaction: typeof DbModule.withTransaction;
 
-const { db: actualDb, withTransaction: actualWithTransaction } = jest.requireActual('~/server/db');
+(async () => {
+    const actualModule = await vi.importActual<typeof DbModule>('~/server/db');
+    actualDb = actualModule.db;
+    actualWithTransaction = actualModule.withTransaction;
+})();
 
 // noinspection JSUnusedGlobalSymbols
-export const db = jest.fn((name, client) => actualDb(name, client ?? $client!));
+export const getClient = vi.fn<() => Promise<MongoClient>>(() => Promise.resolve($client!));
 
 // noinspection JSUnusedGlobalSymbols
-export const withTransaction = jest.fn((fn, client) => actualWithTransaction(fn, client ?? $client!));
+export const db = vi.fn((name: string | undefined, client?: MongoClient) => actualDb(name, client ?? $client!));
+
+// noinspection JSUnusedGlobalSymbols
+export const withTransaction = vi.fn((fn: (session: unknown) => Promise<boolean>, client?: MongoClient) =>
+    actualWithTransaction(fn, client ?? $client!)
+);

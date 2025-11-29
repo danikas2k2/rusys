@@ -5,14 +5,14 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { useUpdateGroup } from '~/client/state/groups/useUpdateGroup';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
+vi.mock('~/client/state/base/useUpdatingApiRequest');
 
 describe('useUpdateGroup', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeAll(() => vi.mocked(useUpdatingApiRequest).mockReturnValue(request));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls update action', async () => {
         const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });

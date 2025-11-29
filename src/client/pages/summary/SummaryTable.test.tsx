@@ -11,25 +11,25 @@ import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasDat
 import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
 import { SummaryTable } from '~/client/pages/summary/SummaryTable';
 
-jest.mock('~/client/state/years/useYears');
-jest.mock('~/client/filters/hooks/useFilteredList', () => ({
-    useFilteredList: jest.fn(),
+vi.mock('~/client/state/years/useYears');
+vi.mock('~/client/filters/hooks/useFilteredList', async () => ({
+    useFilteredList: vi.fn(),
 }));
-jest.mock('~/client/pages/summary/hooks/useSummaryHasData', () => ({
-    useSummaryHasData: jest.fn().mockReturnValue(true),
+vi.mock('~/client/pages/summary/hooks/useSummaryHasData', async () => ({
+    useSummaryHasData: vi.fn().mockReturnValue(true),
 }));
-jest.mock('~/client/hooks/useLockingLoader', () => ({
-    ...jest.requireActual('~/client/hooks/useLockingLoader'),
-    useLockingLoader: jest.fn(),
+vi.mock('~/client/hooks/useLockingLoader', async () => ({
+    ...(await vi.importActual('~/client/hooks/useLockingLoader')),
+    useLockingLoader: vi.fn(),
 }));
-jest.mock('~/client/filters/hooks/useQuickFilter', () => ({
-    useQuickFilter: jest.fn().mockReturnValue(''),
+vi.mock('~/client/filters/hooks/useQuickFilter', async () => ({
+    useQuickFilter: vi.fn().mockReturnValue(''),
 }));
-jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
-    useGroupFilter: jest.fn(),
+vi.mock('~/client/filters/hooks/useGroupFilter', async () => ({
+    useGroupFilter: vi.fn(),
 }));
-jest.mock('~/client/pages/summary/SummaryGroup', () => ({
-    SummaryGroup: jest.fn().mockReturnValue(null),
+vi.mock('~/client/pages/summary/SummaryGroup', async () => ({
+    SummaryGroup: vi.fn().mockReturnValue(null),
 }));
 
 describe('<SummaryTable>', () => {
@@ -42,12 +42,12 @@ describe('<SummaryTable>', () => {
     };
 
     beforeAll(() => {
-        jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
-        jest.mocked(useFilteredList).mockReturnValue(summary);
-        jest.mocked(useGroupFilter).mockReturnValue('');
+        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
+        vi.mocked(useFilteredList).mockReturnValue(summary);
+        vi.mocked(useGroupFilter).mockReturnValue('');
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     describe('table', () => {
         it('renders table for complete state with data', () => {
@@ -67,7 +67,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('renders table for complete state with data filtered-out', () => {
-            jest.mocked(useFilteredList).mockReturnValueOnce([]);
+            vi.mocked(useFilteredList).mockReturnValueOnce([]);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -79,7 +79,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('renders table with group selected', () => {
-            jest.mocked(useGroupFilter).mockReturnValue('Uogienės');
+            vi.mocked(useGroupFilter).mockReturnValue('Uogienės');
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -91,7 +91,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('does not render table for initial state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -102,7 +102,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('does not render table for loading state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -113,7 +113,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('does not render table for complete state without data', () => {
-            jest.mocked(useSummaryHasData).mockReturnValueOnce(false);
+            vi.mocked(useSummaryHasData).mockReturnValueOnce(false);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -136,7 +136,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('renders loader for initial state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -147,7 +147,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('renders loader for loading state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -158,7 +158,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('does not render loader for failed state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.FAILED);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.FAILED);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -181,7 +181,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('renders error for complete state without data', () => {
-            jest.mocked(useSummaryHasData).mockReturnValueOnce(false);
+            vi.mocked(useSummaryHasData).mockReturnValueOnce(false);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -192,7 +192,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('does not render error for initial state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -203,7 +203,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('does not render error for loading state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -214,7 +214,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('renders error for failed state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.FAILED);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.FAILED);
             render(
                 <MockApp state={state}>
                     <SummaryTable />

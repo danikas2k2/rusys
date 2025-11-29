@@ -8,10 +8,10 @@ import { getProductsWithYears } from '~/server/api/response';
 import { moveProductOccurrences } from '~/server/data/common';
 import type { ApiMoveProduct, ApiProductsWithYears } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/common');
-jest.mock('~/server/data/products');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/api/response');
+vi.mock('~/server/data/common');
+vi.mock('~/server/data/products');
 
 describe('handleMove', () => {
     const request = mockRequest<ApiMoveProduct>({ group: 'Uogienės', name: 'Braškės', newGroup: 'Daržovės' });
@@ -19,11 +19,11 @@ describe('handleMove', () => {
     const years = getYearsFixture();
     const products = getProductsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(moveProductOccurrences).mockResolvedValueOnce(true);
-        jest.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
+        vi.mocked(moveProductOccurrences).mockResolvedValueOnce(true);
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
 
         await handleMove(request, response);
 
@@ -34,7 +34,7 @@ describe('handleMove', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(moveProductOccurrences).mockResolvedValueOnce(false);
+        vi.mocked(moveProductOccurrences).mockResolvedValueOnce(false);
 
         await handleMove(request, response);
 
@@ -45,7 +45,7 @@ describe('handleMove', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(moveProductOccurrences).mockRejectedValueOnce('Failed to move');
+        vi.mocked(moveProductOccurrences).mockRejectedValueOnce('Failed to move');
 
         await handleMove(request, response);
 

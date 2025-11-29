@@ -32,41 +32,39 @@ import {
 } from '~/server/data/variants';
 import { db } from '~/server/db';
 
-jest.setTimeout(30_000);
+vi.mock('~/server/db');
 
-jest.mock('~/server/db');
-
-jest.mock('~/server/data/products', () => {
-    const actual = jest.requireActual('~/server/data/products');
+vi.mock('~/server/data/products', async () => {
+    const actual = await vi.importActual<typeof import('~/server/data/products')>('~/server/data/products');
     return {
         ...actual,
-        moveProduct: jest.fn(actual.moveProduct),
-        getProductVariants: jest.fn(actual.getProductVariants),
-        deleteProductsGroup: jest.fn(actual.deleteProductsGroup),
-        deleteProductsVariant: jest.fn(actual.deleteProductsVariant),
-        renameProductsGroup: jest.fn(actual.renameProductsGroup),
-        renameProductsVariant: jest.fn(actual.renameProductsVariant),
+        moveProduct: vi.fn(actual.moveProduct),
+        getProductVariants: vi.fn(actual.getProductVariants),
+        deleteProductsGroup: vi.fn(actual.deleteProductsGroup),
+        deleteProductsVariant: vi.fn(actual.deleteProductsVariant),
+        renameProductsGroup: vi.fn(actual.renameProductsGroup),
+        renameProductsVariant: vi.fn(actual.renameProductsVariant),
     };
 });
 
-jest.mock('~/server/data/groups', () => {
-    const actual = jest.requireActual('~/server/data/groups');
+vi.mock('~/server/data/groups', async () => {
+    const actual = await vi.importActual<typeof import('~/server/data/groups')>('~/server/data/groups');
     return {
         ...actual,
-        deleteGroup: jest.fn(actual.deleteGroup),
-        renameGroup: jest.fn(actual.renameGroup),
+        deleteGroup: vi.fn(actual.deleteGroup),
+        renameGroup: vi.fn(actual.renameGroup),
     };
 });
 
-jest.mock('~/server/data/variants', () => {
-    const actual = jest.requireActual('~/server/data/variants');
+vi.mock('~/server/data/variants', async () => {
+    const actual = await vi.importActual<typeof import('~/server/data/variants')>('~/server/data/variants');
     return {
         ...actual,
-        copyVariants: jest.fn(actual.copyVariants),
-        deleteVariant: jest.fn(actual.deleteVariant),
-        deleteVariantsGroup: jest.fn(actual.deleteVariantsGroup),
-        renameVariant: jest.fn(actual.renameVariant),
-        renameVariantsGroup: jest.fn(actual.renameVariantsGroup),
+        copyVariants: vi.fn(actual.copyVariants),
+        deleteVariant: vi.fn(actual.deleteVariant),
+        deleteVariantsGroup: vi.fn(actual.deleteVariantsGroup),
+        renameVariant: vi.fn(actual.renameVariant),
+        renameVariantsGroup: vi.fn(actual.renameVariantsGroup),
     };
 });
 
@@ -88,7 +86,7 @@ describe('common', () => {
         await d.collection('products').deleteMany({});
         await d.collection('variants').deleteMany({});
         await d.collection('groups').deleteMany({});
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     const session = expect.any(ClientSession);
@@ -132,24 +130,27 @@ describe('common', () => {
             title           | value
             ${'empty list'} | ${[]}
             ${'undefined'}  | ${undefined}
-        `('returns true but does not copy variants if getProductVariants returns $title', async ({ value }) => {
-            jest.mocked(getProductVariants).mockResolvedValueOnce(value);
+        `(
+            'returns true but does not copy variants if getProductVariants returns $title',
+            async ({ value }: { value: unknown }) => {
+                vi.mocked(getProductVariants).mockResolvedValueOnce(value);
 
-            await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBeTrue();
-            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
-            expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkai', session);
-            expect(copyVariants).not.toHaveBeenCalledWith();
-            await expect($all('groups')).resolves.toStrictEqual(groups);
-            await expect($all('variants')).resolves.toStrictEqual(variants);
-            await expect($all('products')).resolves.toStrictEqual([
-                ...products.slice(0, 2),
-                { ...products[2], group: 'Šaldyti', name: 'Agurkai' },
-                ...products.slice(3),
-            ]);
-        });
+                await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBeTrue();
+                expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
+                expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkai', session);
+                expect(copyVariants).not.toHaveBeenCalledWith();
+                await expect($all('groups')).resolves.toStrictEqual(groups);
+                await expect($all('variants')).resolves.toStrictEqual(variants);
+                await expect($all('products')).resolves.toStrictEqual([
+                    ...products.slice(0, 2),
+                    { ...products[2], group: 'Šaldyti', name: 'Agurkai' },
+                    ...products.slice(3),
+                ]);
+            }
+        );
 
         it('returns false if moveProduct returns false', async () => {
-            jest.mocked(moveProduct).mockResolvedValueOnce(false);
+            vi.mocked(moveProduct).mockResolvedValueOnce(false);
 
             await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBeFalse();
             expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
@@ -161,7 +162,7 @@ describe('common', () => {
         });
 
         it('rejects if moveProduct fails', async () => {
-            jest.mocked(moveProduct).mockRejectedValueOnce('Failed to move products');
+            vi.mocked(moveProduct).mockRejectedValueOnce('Failed to move products');
 
             await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).rejects.toBe(
                 'Failed to move products'
@@ -175,7 +176,7 @@ describe('common', () => {
         });
 
         it('rejects if copyVariants fails', async () => {
-            jest.mocked(copyVariants).mockRejectedValueOnce('Failed to rename variants group');
+            vi.mocked(copyVariants).mockRejectedValueOnce('Failed to rename variants group');
 
             await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).rejects.toBe(
                 'Failed to rename variants group'
@@ -210,7 +211,7 @@ describe('common', () => {
         });
 
         it('returns false if renameGroup returns false', async () => {
-            jest.mocked(renameGroup).mockResolvedValueOnce(false);
+            vi.mocked(renameGroup).mockResolvedValueOnce(false);
 
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).resolves.toBeFalse();
             expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, session);
@@ -222,7 +223,7 @@ describe('common', () => {
         });
 
         it('rejects if renameGroup fails', async () => {
-            jest.mocked(renameGroup).mockRejectedValueOnce('Failed to rename group');
+            vi.mocked(renameGroup).mockRejectedValueOnce('Failed to rename group');
 
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).rejects.toBe('Failed to rename group');
             expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, session);
@@ -234,7 +235,7 @@ describe('common', () => {
         });
 
         it('rejects if renameVariantsGroup fails', async () => {
-            jest.mocked(renameVariantsGroup).mockRejectedValueOnce('Failed to rename variants group');
+            vi.mocked(renameVariantsGroup).mockRejectedValueOnce('Failed to rename variants group');
 
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).rejects.toBe('Failed to rename variants group');
             expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, session);
@@ -246,7 +247,7 @@ describe('common', () => {
         });
 
         it('rejects if renameProductsGroup fails', async () => {
-            jest.mocked(renameProductsGroup).mockRejectedValueOnce('Failed to rename products group');
+            vi.mocked(renameProductsGroup).mockRejectedValueOnce('Failed to rename products group');
 
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).rejects.toBe('Failed to rename products group');
             expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, session);
@@ -270,7 +271,7 @@ describe('common', () => {
         });
 
         it('returns false if deleteGroup returns false', async () => {
-            jest.mocked(deleteGroup).mockResolvedValueOnce(false);
+            vi.mocked(deleteGroup).mockResolvedValueOnce(false);
 
             await expect(deleteGroupOccurrences('Daržovės')).resolves.toBeFalse();
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
@@ -282,7 +283,7 @@ describe('common', () => {
         });
 
         it('rejects if deleteGroup fails', async () => {
-            jest.mocked(deleteGroup).mockRejectedValueOnce('Failed to delete group');
+            vi.mocked(deleteGroup).mockRejectedValueOnce('Failed to delete group');
 
             await expect(deleteGroupOccurrences('Daržovės')).rejects.toBe('Failed to delete group');
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
@@ -294,7 +295,7 @@ describe('common', () => {
         });
 
         it('rejects if deleteVariantsGroup fails', async () => {
-            jest.mocked(deleteVariantsGroup).mockRejectedValueOnce('Failed to delete variants group');
+            vi.mocked(deleteVariantsGroup).mockRejectedValueOnce('Failed to delete variants group');
 
             await expect(deleteGroupOccurrences('Daržovės')).rejects.toBe('Failed to delete variants group');
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
@@ -306,7 +307,7 @@ describe('common', () => {
         });
 
         it('rejects if deleteProductsGroup fails', async () => {
-            jest.mocked(deleteProductsGroup).mockRejectedValueOnce('Failed to delete products group');
+            vi.mocked(deleteProductsGroup).mockRejectedValueOnce('Failed to delete products group');
 
             await expect(deleteGroupOccurrences('Daržovės')).rejects.toBe('Failed to delete products group');
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
@@ -354,7 +355,7 @@ describe('common', () => {
         });
 
         it('returns false if renameVariant returns false', async () => {
-            jest.mocked(renameVariant).mockResolvedValueOnce(false);
+            vi.mocked(renameVariant).mockResolvedValueOnce(false);
 
             await expect(renameVariantOccurrences('Daržovės', 'd', 'b')).resolves.toBeFalse();
             expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', undefined, session);
@@ -364,7 +365,7 @@ describe('common', () => {
         });
 
         it('rejects if renameVariant fails', async () => {
-            jest.mocked(renameVariant).mockRejectedValueOnce('Failed to rename variant');
+            vi.mocked(renameVariant).mockRejectedValueOnce('Failed to rename variant');
 
             await expect(renameVariantOccurrences('Daržovės', 'd', 'b')).rejects.toBe('Failed to rename variant');
             expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', undefined, session);
@@ -374,7 +375,7 @@ describe('common', () => {
         });
 
         it('rejects if renameProductsVariant rejects', async () => {
-            jest.mocked(renameProductsVariant).mockRejectedValueOnce('Failed to rename products variant');
+            vi.mocked(renameProductsVariant).mockRejectedValueOnce('Failed to rename products variant');
 
             await expect(renameVariantOccurrences('Daržovės', 'd', 'b')).rejects.toBe(
                 'Failed to rename products variant'
@@ -403,7 +404,7 @@ describe('common', () => {
         });
 
         it('returns false if deleteVariant returns false', async () => {
-            jest.mocked(deleteVariant).mockResolvedValueOnce(false);
+            vi.mocked(deleteVariant).mockResolvedValueOnce(false);
 
             await expect(deleteVariantOccurrences('Daržovės', 'd')).resolves.toBeFalse();
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'd', session);
@@ -413,7 +414,7 @@ describe('common', () => {
         });
 
         it('rejects if deleteVariant fails', async () => {
-            jest.mocked(deleteVariant).mockRejectedValueOnce('Failed to delete variant');
+            vi.mocked(deleteVariant).mockRejectedValueOnce('Failed to delete variant');
 
             await expect(deleteVariantOccurrences('Daržovės', 'd')).rejects.toBe('Failed to delete variant');
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'd', session);
@@ -423,7 +424,7 @@ describe('common', () => {
         });
 
         it('rejects if deleteProductsVariant fails', async () => {
-            jest.mocked(deleteProductsVariant).mockRejectedValueOnce('Failed to delete products variant');
+            vi.mocked(deleteProductsVariant).mockRejectedValueOnce('Failed to delete products variant');
 
             await expect(deleteVariantOccurrences('Daržovės', 'p')).rejects.toBe('Failed to delete products variant');
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
@@ -458,12 +459,12 @@ describe('common', () => {
 
     describe('importEverything', () => {
         beforeEach(() =>
-            jest
-                .useFakeTimers({ doNotFake: ['nextTick'] }) // do not fake nextTick behavior for mongo in memory
+            vi
+                .useFakeTimers({ toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval', 'Date'] }) // do not fake nextTick behavior for mongo in memory
                 .setSystemTime(moment('2025-05-05T12:11:10.123Z').valueOf())
         );
 
-        afterAll(() => jest.useRealTimers());
+        afterAll(() => vi.useRealTimers());
 
         it('inserts data into the database and returns true', async () => {
             await expect(importEverything(products, variants, groups)).resolves.toBeTrue();
@@ -473,13 +474,13 @@ describe('common', () => {
         });
 
         it('rejects if inserting fails', async () => {
-            jest.spyOn(Collection.prototype, 'insertMany').mockRejectedValueOnce('Failed to insert many');
+            vi.spyOn(Collection.prototype, 'insertMany').mockRejectedValueOnce('Failed to insert many');
 
             await expect(importEverything(products, variants, groups)).rejects.toBe('Failed to insert many');
         });
 
         it('rejects if inserting does nothing', async () => {
-            jest.spyOn(Collection.prototype, 'insertMany').mockResolvedValueOnce({
+            vi.spyOn(Collection.prototype, 'insertMany').mockResolvedValueOnce({
                 acknowledged: true,
                 insertedCount: 0,
                 insertedIds: [],
@@ -491,13 +492,13 @@ describe('common', () => {
         });
 
         it('rejects if copying fails', async () => {
-            jest.spyOn(AggregationCursor.prototype, 'toArray').mockRejectedValueOnce('Failed to aggregate');
+            vi.spyOn(AggregationCursor.prototype, 'toArray').mockRejectedValueOnce('Failed to aggregate');
 
             await expect(importEverything(products, variants, groups)).rejects.toBe('Failed to aggregate');
         });
 
         it('rejects if copying does nothing', async () => {
-            jest.spyOn(Collection.prototype, 'countDocuments').mockResolvedValueOnce(0);
+            vi.spyOn(Collection.prototype, 'countDocuments').mockResolvedValueOnce(0);
 
             await expect(importEverything(products, variants, groups)).rejects.toThrow(
                 'Failed to move original data to backup database'
@@ -505,13 +506,13 @@ describe('common', () => {
         });
 
         it('rejects if drop database fails', async () => {
-            jest.spyOn(Db.prototype, 'dropDatabase').mockRejectedValueOnce('Failed to drop database');
+            vi.spyOn(Db.prototype, 'dropDatabase').mockRejectedValueOnce('Failed to drop database');
 
             await expect(importEverything(products, variants, groups)).rejects.toBe('Failed to drop database');
         });
 
         it('rejects if drop database does nothing', async () => {
-            jest.spyOn(Db.prototype, 'dropDatabase').mockResolvedValueOnce(false);
+            vi.spyOn(Db.prototype, 'dropDatabase').mockResolvedValueOnce(false);
 
             await expect(importEverything(products, variants, groups)).rejects.toThrow(
                 'Failed to move original data to backup database'
@@ -519,7 +520,7 @@ describe('common', () => {
         });
 
         it('rejects if second drop database does nothing', async () => {
-            jest.spyOn(Db.prototype, 'dropDatabase').mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+            vi.spyOn(Db.prototype, 'dropDatabase').mockResolvedValueOnce(true).mockResolvedValueOnce(false);
 
             await expect(importEverything(products, variants, groups)).rejects.toThrow(
                 'Failed to move data from temporary database to original database'

@@ -15,43 +15,43 @@ import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
 import type { WithVariantsState } from '~/client/state/variants/types';
 import { useYears } from '~/client/state/years/useYears';
 
-jest.mock('~/client/state/products/useUpdateProduct', () => ({
-    useUpdateProduct: jest.fn(),
+vi.mock('~/client/state/products/useUpdateProduct', async () => ({
+    useUpdateProduct: vi.fn(),
 }));
-jest.mock('~/client/state/products/useSetProductMissing', () => ({
-    useSetProductMissing: jest.fn(),
+vi.mock('~/client/state/products/useSetProductMissing', async () => ({
+    useSetProductMissing: vi.fn(),
 }));
-jest.mock('~/client/state/products/useSetProductRemoving', () => ({
-    useSetProductRemoving: jest.fn(),
+vi.mock('~/client/state/products/useSetProductRemoving', async () => ({
+    useSetProductRemoving: vi.fn(),
 }));
-jest.mock('~/client/state/products/useHasRemoving', () => ({
-    useHasRemoving: jest.fn(),
+vi.mock('~/client/state/products/useHasRemoving', async () => ({
+    useHasRemoving: vi.fn(),
 }));
-jest.mock('~/client/state/years/useYears');
-jest.mock('~/client/state/profile/useProfile');
+vi.mock('~/client/state/years/useYears');
+vi.mock('~/client/state/profile/useProfile');
 
 describe('<ValueRow>', () => {
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 
-    const updateAmounts = jest.fn();
-    const setMissing = jest.fn();
-    const setRemoving = jest.fn();
+    const updateAmounts = vi.fn();
+    const setMissing = vi.fn();
+    const setRemoving = vi.fn();
 
     beforeAll(() => {
-        jest.mocked(useUpdateProduct).mockReturnValue(updateAmounts);
-        jest.mocked(useSetProductMissing).mockReturnValue(setMissing);
-        jest.mocked(useSetProductRemoving).mockReturnValue(setRemoving);
+        vi.mocked(useUpdateProduct).mockReturnValue(updateAmounts);
+        vi.mocked(useSetProductMissing).mockReturnValue(setMissing);
+        vi.mocked(useSetProductRemoving).mockReturnValue(setRemoving);
     });
 
-    beforeEach(() => jest.useFakeTimers());
+    beforeEach(() => vi.useFakeTimers());
 
     afterEach(() => {
-        jest.runOnlyPendingTimers();
-        jest.clearAllTimers();
-        jest.clearAllMocks();
+        vi.runOnlyPendingTimers();
+        vi.clearAllTimers();
+        vi.clearAllMocks();
     });
 
-    afterAll(() => jest.useRealTimers());
+    afterAll(() => vi.useRealTimers());
 
     const variants = getVariantsFixture();
     const state: WithVariantsState = { variants };
@@ -152,7 +152,7 @@ describe('<ValueRow>', () => {
         });
 
         it('renders with removing state when hasRemoving is true', () => {
-            jest.mocked(useHasRemoving).mockReturnValue(true);
+            vi.mocked(useHasRemoving).mockReturnValue(true);
             render(
                 <MockApp state={state}>
                     <Table>
@@ -306,7 +306,7 @@ describe('<ValueRow>', () => {
         });
 
         it('renders name heading without data-removing attribute even when has removing', () => {
-            jest.mocked(useHasRemoving).mockReturnValue(true);
+            vi.mocked(useHasRemoving).mockReturnValue(true);
             render(
                 <MockApp state={state}>
                     <Table>
@@ -466,15 +466,15 @@ describe('<ValueRow>', () => {
     describe('isPreferred logic', () => {
         beforeAll(() => {
             // Mock useYears to use fixture years plus current year
-            jest.mocked(useYears).mockReturnValue([23, 22, 21, 20]);
+            vi.mocked(useYears).mockReturnValue([23, 22, 21, 20]);
         });
 
         beforeEach(() => {
             // Mock current date to be in year 23 (2023)
-            jest.useFakeTimers({ now: new Date('2023-06-15') });
+            vi.useFakeTimers({ now: new Date('2023-06-15') });
         });
 
-        afterAll(() => jest.useRealTimers());
+        afterAll(() => vi.useRealTimers());
 
         it('marks prevYear (22) as preferred when it has amounts', () => {
             const propsWithPrevYear: ValueRowProps = {

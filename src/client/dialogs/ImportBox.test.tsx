@@ -9,16 +9,16 @@ import { useNavigate } from 'react-router-dom';
 import { ImportBox } from '~/client/dialogs/ImportBox';
 import { useImportHandler } from '~/client/hooks/useImportHandler';
 
-jest.mock('~/client/common/Label');
-jest.mock('~/client/hooks/useLabel', () => ({
-    useLabel: jest.fn((key: string) => key),
+vi.mock('~/client/common/Label');
+vi.mock('~/client/hooks/useLabel', async () => ({
+    useLabel: vi.fn((key: string) => key),
 }));
-jest.mock('~/client/hooks/useImportHandler');
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useNavigate: jest.fn(),
+vi.mock('~/client/hooks/useImportHandler');
+vi.mock('react-router-dom', async () => ({
+    ...(await vi.importActual('react-router-dom')),
+    useNavigate: vi.fn(),
 }));
-jest.mock('@mantine/dropzone', () => {
+vi.mock('@mantine/dropzone', () => {
     const DropzoneComponent = ({
         onDrop,
         onReject,
@@ -60,15 +60,15 @@ describe('<ImportBox>', () => {
         variants: getVariantsFixture(),
     };
 
-    const onClose = jest.fn();
-    const navigate = jest.fn();
+    const onClose = vi.fn();
+    const navigate = vi.fn();
 
     beforeEach(() => {
-        jest.mocked(useImportHandler).mockReturnValue(jest.fn().mockResolvedValue({ ok: true }));
-        jest.mocked(useNavigate).mockReturnValue(navigate);
+        vi.mocked(useImportHandler).mockReturnValue(vi.fn().mockResolvedValue({ ok: true }));
+        vi.mocked(useNavigate).mockReturnValue(navigate);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders with cancel button', () => {
         render(
@@ -116,8 +116,8 @@ describe('<ImportBox>', () => {
 
     describe('calls import handler when importing a file', () => {
         it('closes dialog without error when successfully imported', async () => {
-            const importData = jest.fn().mockResolvedValue({ ok: true });
-            jest.mocked(useImportHandler).mockReturnValue(importData);
+            const importData = vi.fn().mockResolvedValue({ ok: true });
+            vi.mocked(useImportHandler).mockReturnValue(importData);
 
             render(
                 <MockPage state={state}>
@@ -168,8 +168,8 @@ describe('<ImportBox>', () => {
     });
 
     it('shows error when import fails', async () => {
-        const importData = jest.fn().mockResolvedValue({ ok: false, error: 'Import failed' });
-        jest.mocked(useImportHandler).mockReturnValue(importData);
+        const importData = vi.fn().mockResolvedValue({ ok: false, error: 'Import failed' });
+        vi.mocked(useImportHandler).mockReturnValue(importData);
 
         render(
             <MockPage state={state}>
@@ -187,8 +187,8 @@ describe('<ImportBox>', () => {
     });
 
     it('shows default error message when import fails without error', async () => {
-        const importData = jest.fn().mockResolvedValue({ ok: false });
-        jest.mocked(useImportHandler).mockReturnValue(importData);
+        const importData = vi.fn().mockResolvedValue({ ok: false });
+        vi.mocked(useImportHandler).mockReturnValue(importData);
 
         render(
             <MockPage state={state}>

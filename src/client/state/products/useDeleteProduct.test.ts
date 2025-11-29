@@ -1,18 +1,20 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
+vi.mock('~/client/state/base/useUpdatingApiRequest');
 
 describe('useRemoveProduct', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeAll(() => vi.mocked(useUpdatingApiRequest).mockReturnValue(request));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls remove action', async () => {
         const { result } = renderHook(() => useDeleteProduct(), { wrapper: MockRedux });

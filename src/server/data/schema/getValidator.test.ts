@@ -1,13 +1,15 @@
 import { getValidator } from '~/server/data/schema/getValidator';
 
-jest.mock('~/server/data/schema/schema.json', () => ({
-    type: 'object',
-    properties: {
-        name: { type: 'string' },
-        age: { type: 'number' },
-        date: { type: 'string', format: 'date-time' },
+vi.mock('~/server/data/schema/schema.json', async () => ({
+    default: {
+        type: 'object',
+        properties: {
+            name: { type: 'string' },
+            age: { type: 'number' },
+            date: { type: 'string', format: 'date-time' },
+        },
+        required: ['name', 'age', 'date'],
     },
-    required: ['name', 'age', 'date'],
 }));
 
 describe('getValidator', () => {

@@ -8,19 +8,19 @@ import { ActiveValueBox } from '~/client/pages/products/ActiveValueBox';
 import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
 import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
 
-jest.mock('~/client/pages/products/UpdatingProductsContext', () => ({
-    useUpdatingProducts: jest.fn(() => [{}, jest.fn()]),
+vi.mock('~/client/pages/products/UpdatingProductsContext', async () => ({
+    useUpdatingProducts: vi.fn(() => [{}, vi.fn()]),
 }));
 
-jest.mock('~/client/state/products/useUpdateProduct', () => ({
-    useUpdateProduct: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
+vi.mock('~/client/state/products/useUpdateProduct', async () => ({
+    useUpdateProduct: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
-jest.mock('~/client/state/profile/useProfile', () => ({
-    useProfile: jest.fn(() => ({ email: 'test@example.com' })),
+vi.mock('~/client/state/profile/useProfile', async () => ({
+    useProfile: vi.fn(() => ({ email: 'test@example.com' })),
 }));
 
-jest.mock('~/client/pages/products/ValueBox', () => ({
+vi.mock('~/client/pages/products/ValueBox', async () => ({
     ValueBox: ({ opened, onClose, onAfterClose }: any) =>
         opened ? (
             <div role="dialog" aria-label="Value box">
@@ -38,15 +38,15 @@ jest.mock('~/client/pages/products/ValueBox', () => ({
 }));
 
 describe('<ActiveValueBox>', () => {
-    const mockSetActive = jest.fn();
-    const mockSetUpdating = jest.fn();
-    const mockUpdateProduct = jest.fn().mockResolvedValue(undefined);
+    const mockSetActive = vi.fn();
+    const mockSetUpdating = vi.fn();
+    const mockUpdateProduct = vi.fn().mockResolvedValue(undefined);
     const data = { group: 'Test', name: 'Item', year: 2024 };
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(useUpdatingProducts).mockReturnValue([{}, mockSetUpdating]);
-        jest.mocked(useUpdateProduct).mockReturnValue(mockUpdateProduct);
+        vi.clearAllMocks();
+        vi.mocked(useUpdatingProducts).mockReturnValue([{}, mockSetUpdating]);
+        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdateProduct);
     });
 
     it('renders closed when no active content', () => {

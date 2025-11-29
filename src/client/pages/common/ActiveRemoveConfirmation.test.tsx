@@ -7,7 +7,7 @@ import React from 'react';
 import { ActiveRemoveConfirmation } from '~/client/pages/common/ActiveRemoveConfirmation';
 
 describe('<ActiveRemoveConfirmation>', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders nothing when not in deleting mode', () => {
         render(
@@ -33,7 +33,7 @@ describe('<ActiveRemoveConfirmation>', () => {
     });
 
     it('calls setActive() when cancel button is clicked', async () => {
-        const mockSetActive = jest.fn();
+        const mockSetActive = vi.fn();
 
         render(
             <MockApp active={{ action: 'remove', data: { data: 'Test' } }} setActive={mockSetActive}>
@@ -47,8 +47,8 @@ describe('<ActiveRemoveConfirmation>', () => {
     });
 
     it('calls onConfirm with data and setActive() when remove button is clicked', async () => {
-        const mockSetActive = jest.fn();
-        const mockOnConfirm = jest.fn();
+        const mockSetActive = vi.fn();
+        const mockOnConfirm = vi.fn();
 
         render(
             <MockApp active={{ action: 'remove', data: { data: 'Test' } }} setActive={mockSetActive}>
@@ -63,7 +63,7 @@ describe('<ActiveRemoveConfirmation>', () => {
     });
 
     it('closes modal on backdrop click', async () => {
-        const mockSetActive = jest.fn();
+        const mockSetActive = vi.fn();
 
         render(
             <MockApp active={{ action: 'remove', data: { data: 'Test' } }} setActive={mockSetActive}>
@@ -111,7 +111,7 @@ describe('<ActiveRemoveConfirmation>', () => {
     });
 
     it('calls setActive when remove button is clicked without onConfirm', async () => {
-        const mockSetActive = jest.fn();
+        const mockSetActive = vi.fn();
 
         render(
             <MockApp active={{ action: 'remove', data: { data: 'Test' } }} setActive={mockSetActive}>
@@ -125,8 +125,8 @@ describe('<ActiveRemoveConfirmation>', () => {
     });
 
     it('calls setActive when remove button is clicked with onConfirm but no data', async () => {
-        const mockSetActive = jest.fn();
-        const mockOnConfirm = jest.fn();
+        const mockSetActive = vi.fn();
+        const mockOnConfirm = vi.fn();
 
         render(
             <MockApp active={{ action: 'remove' }} setActive={mockSetActive}>
@@ -148,8 +148,8 @@ describe('<ActiveRemoveConfirmation>', () => {
     });
 
     it('handles async onConfirm', async () => {
-        const mockSetActive = jest.fn();
-        const mockOnConfirm = jest.fn().mockResolvedValue(undefined);
+        const mockSetActive = vi.fn();
+        const mockOnConfirm = vi.fn().mockResolvedValue(undefined);
 
         render(
             <MockApp active={{ action: 'remove', data: { data: 'Test' } }} setActive={mockSetActive}>

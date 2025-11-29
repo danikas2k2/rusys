@@ -20,7 +20,7 @@ describe('useQuickFilterContext', () => {
     });
 
     it('returns custom filter from context', () => {
-        const setFilter = jest.fn();
+        const setFilter = vi.fn();
 
         const { result } = renderHook(() => useQuickFilterContext(), {
             wrapper: ({ children }) => <QuickFilterContext value={['test', setFilter]}>{children}</QuickFilterContext>,

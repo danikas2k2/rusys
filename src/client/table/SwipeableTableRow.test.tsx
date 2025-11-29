@@ -12,24 +12,24 @@ import { SwipeableTableRow } from '~/client/table/SwipeableTableRow';
 import { POINTER_MOVE_THRESHOLD } from '~/client/utils/pointer';
 import { dispatchNativeCancelEvents } from '~/client/utils/pointEvents';
 
-jest.mock('~/client/common/SwipeControlsContext', () => ({
-    useSwipePanelWidth: jest.fn(() => [120, jest.fn()]),
+vi.mock('~/client/common/SwipeControlsContext', async () => ({
+    useSwipePanelWidth: vi.fn(() => [120, vi.fn()]),
 }));
 
-jest.mock('~/client/utils/pointEvents', () => ({
-    ...jest.requireActual('~/client/utils/pointEvents'),
-    dispatchNativeCancelEvents: jest.fn(),
+vi.mock('~/client/utils/pointEvents', async () => ({
+    ...(await vi.importActual('~/client/utils/pointEvents')),
+    dispatchNativeCancelEvents: vi.fn(),
 }));
 
 describe('<SwipeableTableRow>', () => {
-    const mockRef = jest.fn();
-    const setActive = jest.fn();
+    const mockRef = vi.fn();
+    const setActive = vi.fn();
     const mockData = { id: 'test-1', name: 'Test Item' };
 
     // Capture original PointerEvent before any tests modify it
     const originalPointerEvent = (window as any).PointerEvent;
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     describe('rendering', () => {
         it('renders table row with children', () => {
@@ -392,7 +392,7 @@ describe('<SwipeableTableRow>', () => {
             await waitFor(() => {
                 // Should close (call setActive with no args)
                 const calls = setActive.mock.calls;
-                const hasCloseCall = calls.some((call) => call.length === 0);
+                const hasCloseCall = calls.some((call: unknown[]) => call.length === 0);
 
                 expect(hasCloseCall).toBe(true);
             });
@@ -716,9 +716,9 @@ describe('<SwipeableTableRow>', () => {
         });
 
         it('handles zero controls width', async () => {
-            const mockedUseSwipePanelWidth = jest.mocked(useSwipePanelWidth);
+            const mockedUseSwipePanelWidth = vi.mocked(useSwipePanelWidth);
 
-            mockedUseSwipePanelWidth.mockReturnValue([0, jest.fn()]);
+            mockedUseSwipePanelWidth.mockReturnValue([0, vi.fn()]);
 
             render(
                 <MockTheme>
@@ -831,8 +831,8 @@ describe('<SwipeableTableRow>', () => {
 
     describe('controlsWidth update', () => {
         it('updates x from -1 to OPEN_POSITION when controlsWidth becomes available', async () => {
-            const mockedUseSwipePanelWidth = jest.mocked(useSwipePanelWidth);
-            mockedUseSwipePanelWidth.mockReturnValue([0, jest.fn()]);
+            const mockedUseSwipePanelWidth = vi.mocked(useSwipePanelWidth);
+            mockedUseSwipePanelWidth.mockReturnValue([0, vi.fn()]);
 
             const { rerender } = render(
                 <MockTheme>
@@ -865,7 +865,7 @@ describe('<SwipeableTableRow>', () => {
             setActive.mockClear();
 
             // Now set controlsWidth to 120 and make row visible
-            mockedUseSwipePanelWidth.mockReturnValue([120, jest.fn()]);
+            mockedUseSwipePanelWidth.mockReturnValue([120, vi.fn()]);
 
             rerender(
                 <MockTheme>
@@ -1228,7 +1228,7 @@ describe('<SwipeableTableRow>', () => {
 
     describe('longpress cancellation', () => {
         beforeEach(() => {
-            jest.mocked(dispatchNativeCancelEvents).mockClear();
+            vi.mocked(dispatchNativeCancelEvents).mockClear();
         });
 
         it('cancels longpress timers when swipe starts', async () => {
@@ -1350,7 +1350,7 @@ describe('<SwipeableTableRow>', () => {
             });
 
             // Clear previous calls to track new ones
-            jest.clearAllMocks();
+            vi.clearAllMocks();
 
             // Now move to position where dx equals current x (-60)
             // After pointerDown at x=200: offsetX = 200 - left - (-60) = 200 - left + 60
@@ -1374,8 +1374,8 @@ describe('<SwipeableTableRow>', () => {
             });
 
             // Manually call preventDefault and stopPropagation to verify they're called
-            const preventDefaultSpy = jest.spyOn(mockEvent, 'preventDefault');
-            const stopPropagationSpy = jest.spyOn(mockEvent, 'stopPropagation');
+            const preventDefaultSpy = vi.spyOn(mockEvent, 'preventDefault');
+            const stopPropagationSpy = vi.spyOn(mockEvent, 'stopPropagation');
 
             fireEvent(row, mockEvent);
 
@@ -1614,7 +1614,7 @@ describe('<SwipeableTableRow>', () => {
             });
 
             // Clear previous calls
-            jest.clearAllMocks();
+            vi.clearAllMocks();
 
             // Simulate a scenario where lastClientXRef is cleared (e.g., after a previous pointerUp)
             // We need to manually clear the refs to test the branch where lastClientXRef is null
@@ -1735,7 +1735,7 @@ describe('<SwipeableTableRow>', () => {
             });
 
             // Clear previous calls
-            jest.clearAllMocks();
+            vi.clearAllMocks();
 
             // End drag with invalid clientX (0)
             // rawClientX = 0, so clientX = undefined (line 201)
@@ -2029,7 +2029,7 @@ describe('<SwipeableTableRow>', () => {
             });
 
             // Clear previous calls
-            jest.clearAllMocks();
+            vi.clearAllMocks();
 
             // End drag with very small movement - targetX should equal x (line 244)
             // This covers the branch where targetX === x, so setActive is not called
@@ -2139,7 +2139,7 @@ describe('<SwipeableTableRow>', () => {
             });
 
             // Clear previous calls
-            jest.clearAllMocks();
+            vi.clearAllMocks();
 
             // End drag - should hit targetX = 0 branch (line 231)
             fireEvent.pointerUp(row, { clientX: 250, clientY: 50, isPrimary: true });

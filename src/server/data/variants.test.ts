@@ -20,10 +20,8 @@ import {
 } from '~/server/data/variants';
 import { db } from '~/server/db';
 
-jest.setTimeout(30_000);
-
-jest.mock('~/server/db');
-jest.mock('~/server/data/years');
+vi.mock('~/server/db');
+vi.mock('~/server/data/years');
 
 describe('variants', () => {
     const groups = getGroupsFixture();
@@ -42,7 +40,7 @@ describe('variants', () => {
         await d.collection('products').deleteMany();
         await d.collection('variants').deleteMany();
         await d.collection('groups').deleteMany();
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe('getVariants', () => {
@@ -83,10 +81,21 @@ describe('variants', () => {
             ${'nothing changes'} | ${'Uogienės'} | ${'m'}  | ${{ order: 2, suffix: 'M.' }}
             ${'empty group'}     | ${''}         | ${'p'}  | ${{ order: 0, suffix: 'AA' }}
             ${'empty variant'}   | ${'Uogienės'} | ${''}   | ${{ order: 0, suffix: 'AA' }}
-        `('does not update variant when $title', async ({ group, variant, update }) => {
-            await expect(updateVariant(group, variant, update)).resolves.toBeFalse();
-            await expect($all('variants')).resolves.toStrictEqual(variants);
-        });
+        `(
+            'does not update variant when $title',
+            async ({
+                group,
+                variant,
+                update,
+            }: {
+                group: string;
+                variant: string;
+                update: { order?: number; suffix?: string };
+            }) => {
+                await expect(updateVariant(group, variant, update)).resolves.toBeFalse();
+                await expect($all('variants')).resolves.toStrictEqual(variants);
+            }
+        );
 
         it.each`
             title                        | group         | variant | update                        | expected
@@ -94,13 +103,26 @@ describe('variants', () => {
             ${'incremented order'}       | ${'Uogienės'} | ${'z'}  | ${{ suffix: 'M.' }}           | ${{ order: 5 }}
             ${'new group'}               | ${'Šaldyti'}  | ${'m'}  | ${{ order: 3, suffix: 'M.' }} | ${{}}
             ${'new group without order'} | ${'Šaldyti'}  | ${'m'}  | ${{ suffix: 'M.' }}           | ${{ order: 0 }}
-        `('adds new variant with $title', async ({ group, variant, update, expected }) => {
-            await expect(updateVariant(group, variant, update)).resolves.toBeTrue();
-            await expect($all('variants')).resolves.toStrictEqual([
-                ...variants,
-                { group, variant, ...update, ...expected },
-            ]);
-        });
+        `(
+            'adds new variant with $title',
+            async ({
+                group,
+                variant,
+                update,
+                expected,
+            }: {
+                group: string;
+                variant: string;
+                update: { order?: number; suffix?: string };
+                expected: { order?: number };
+            }) => {
+                await expect(updateVariant(group, variant, update)).resolves.toBeTrue();
+                await expect($all('variants')).resolves.toStrictEqual([
+                    ...variants,
+                    { group, variant, ...update, ...expected },
+                ]);
+            }
+        );
     });
 
     describe('renameVariant', () => {
@@ -148,10 +170,13 @@ describe('variants', () => {
             ${'from empty variant'}         | ${'Daržovės'} | ${''}    | ${'1/2'}
             ${'from missing variant'}       | ${'Daržovės'} | ${'1/4'} | ${'m'}
             ${'to empty variant'}           | ${'Daržovės'} | ${'p'}   | ${''}
-        `('does not rename $title', async ({ group, variant, newVariant }) => {
-            await expect(renameVariant(group, variant, newVariant)).resolves.toBeFalse();
-            await expect($all('variants')).resolves.toStrictEqual(variants);
-        });
+        `(
+            'does not rename $title',
+            async ({ group, variant, newVariant }: { group: string; variant: string; newVariant: string }) => {
+                await expect(renameVariant(group, variant, newVariant)).resolves.toBeFalse();
+                await expect($all('variants')).resolves.toStrictEqual(variants);
+            }
+        );
     });
 
     describe('renameVariantsGroup', () => {
@@ -177,7 +202,7 @@ describe('variants', () => {
             ${'from empty group'}         | ${''}         | ${'Daržovės'}
             ${'from missing group'}       | ${'Šaldyti'}  | ${'Uogienės'}
             ${'to empty group'}           | ${'Daržovės'} | ${''}
-        `('does not rename $title', async ({ group, newGroup }) => {
+        `('does not rename $title', async ({ group, newGroup }: { group: string; newGroup: string }) => {
             await expect(renameVariantsGroup(group, newGroup)).resolves.toBeFalse();
             await expect($all('variants')).resolves.toStrictEqual(variants);
         });
@@ -252,10 +277,13 @@ describe('variants', () => {
             ${'if empty'}                          | ${'Daržovės'} | ${'Uogienės'} | ${''}
             ${'if missing'}                        | ${'Daržovės'} | ${'Uogienės'} | ${'z'}
             ${'if already exists in target group'} | ${'Daržovės'} | ${'Uogienės'} | ${'p'}
-        `('does not copy variant $title', async ({ group, newGroup, variant }) => {
-            await expect(copyVariant(group, variant, newGroup)).resolves.toBeFalse();
-            await expect($all('variants')).resolves.toStrictEqual(variants);
-        });
+        `(
+            'does not copy variant $title',
+            async ({ group, newGroup, variant }: { group: string; newGroup: string; variant: string }) => {
+                await expect(copyVariant(group, variant, newGroup)).resolves.toBeFalse();
+                await expect($all('variants')).resolves.toStrictEqual(variants);
+            }
+        );
     });
 
     describe('copyVariants', () => {
@@ -288,10 +316,13 @@ describe('variants', () => {
             ${'if empty value'}                    | ${'Daržovės'} | ${'Uogienės'} | ${['']}
             ${'if missing'}                        | ${'Daržovės'} | ${'Uogienės'} | ${['w', 'z']}
             ${'if already exists in target group'} | ${'Daržovės'} | ${'Uogienės'} | ${['p', 'd']}
-        `('does not copy variants $title', async ({ group, newGroup, variantList }) => {
-            await expect(copyVariants(group, newGroup, variantList)).resolves.toBeFalse();
-            await expect($all('variants')).resolves.toStrictEqual(variants);
-        });
+        `(
+            'does not copy variants $title',
+            async ({ group, newGroup, variantList }: { group: string; newGroup: string; variantList: string[] }) => {
+                await expect(copyVariants(group, newGroup, variantList)).resolves.toBeFalse();
+                await expect($all('variants')).resolves.toStrictEqual(variants);
+            }
+        );
     });
 
     describe('deleteVariant', () => {
@@ -311,7 +342,7 @@ describe('variants', () => {
             ${'group not found'}   | ${'Šaldyti'}  | ${'p'}
             ${'empty variant'}     | ${'Daržovės'} | ${''}
             ${'empty group'}       | ${''}         | ${'p'}
-        `('does not delete when $title', async ({ group, variant }) => {
+        `('does not delete when $title', async ({ group, variant }: { group: string; variant: string }) => {
             await expect(deleteVariant(group, variant)).resolves.toBeFalse();
             await expect($all('variants')).resolves.toStrictEqual(variants);
         });
@@ -332,7 +363,7 @@ describe('variants', () => {
             title                | group
             ${'group not found'} | ${'Šaldyti'}
             ${'empty group'}     | ${''}
-        `('does not delete when $title', async ({ group }) => {
+        `('does not delete when $title', async ({ group }: { group: string }) => {
             await expect(deleteVariantsGroup(group)).resolves.toBeFalse();
             await expect($all('variants')).resolves.toStrictEqual(variants);
         });
@@ -361,9 +392,12 @@ describe('variants', () => {
             ${'empty group'}        | ${''}         | ${{ p: 0, d: 1 }}
             ${'empty update'}       | ${'Uogienės'} | ${{}}
             ${'undefined update'}   | ${'Uogienės'} | ${undefined}
-        `('does not reorder when $title', async ({ group, update }) => {
-            await expect(reorderVariants(group, update)).resolves.toBeFalse();
-            await expect($all('variants')).resolves.toStrictEqual(variants);
-        });
+        `(
+            'does not reorder when $title',
+            async ({ group, update }: { group: string; update?: Record<string, number> }) => {
+                await expect(reorderVariants(group, update)).resolves.toBeFalse();
+                await expect($all('variants')).resolves.toStrictEqual(variants);
+            }
+        );
     });
 });

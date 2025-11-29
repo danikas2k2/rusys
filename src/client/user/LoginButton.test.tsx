@@ -5,30 +5,31 @@ import { MockThemeRedux } from '@tests/MockThemeRedux';
 import React from 'react';
 
 import { useGoogleLogin, useGoogleOneTapLogin, type CredentialResponse } from '@react-oauth/google';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useLoginError } from '~/client/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
 import { LoginButton } from '~/client/user/LoginButton';
 
-jest.mock('@react-oauth/google', () => ({
-    useGoogleLogin: jest.fn(),
-    useGoogleOneTapLogin: jest.fn(),
+vi.mock('@react-oauth/google', async () => ({
+    useGoogleLogin: vi.fn(),
+    useGoogleOneTapLogin: vi.fn(),
 }));
-jest.mock('~/client/user/hooks/useLoginError');
-jest.mock('~/client/user/hooks/useLoginSuccess');
+vi.mock('~/client/user/hooks/useLoginError');
+vi.mock('~/client/user/hooks/useLoginSuccess');
 
 describe('<LoginButton>', () => {
-    const login = jest.fn();
-    const onError = jest.fn();
-    const onSuccess = jest.fn();
+    const login = vi.fn();
+    const onError = vi.fn();
+    const onSuccess = vi.fn();
 
     beforeEach(() => {
-        jest.mocked(useGoogleLogin).mockReturnValue(login);
-        jest.mocked(useLoginError).mockReturnValue(onError);
-        jest.mocked(useLoginSuccess).mockReturnValue(onSuccess);
+        vi.mocked(useGoogleLogin).mockReturnValue(login);
+        vi.mocked(useLoginError).mockReturnValue(onError);
+        vi.mocked(useLoginSuccess).mockReturnValue(onSuccess);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders Google login button', () => {
         render(
@@ -72,7 +73,9 @@ describe('<LoginButton>', () => {
     });
 
     it('calls error actions if login fails', async () => {
-        jest.mocked(useGoogleOneTapLogin).mockImplementationOnce(({ onError: handleError }) => handleError?.());
+        vi.mocked(useGoogleOneTapLogin).mockImplementationOnce(({ onError: handleError }: { onError?: () => void }) =>
+            handleError?.()
+        );
 
         render(
             <MockThemeRedux>
@@ -86,8 +89,9 @@ describe('<LoginButton>', () => {
 
     it('calls success actions if login passes', async () => {
         const credentialResponse: CredentialResponse = { credential: 'test-credential' };
-        jest.mocked(useGoogleOneTapLogin).mockImplementationOnce(({ onSuccess: handleSuccess }) =>
-            handleSuccess(credentialResponse)
+        vi.mocked(useGoogleOneTapLogin).mockImplementationOnce(
+            ({ onSuccess: handleSuccess }: { onSuccess?: (response: CredentialResponse) => void }) =>
+                handleSuccess?.(credentialResponse)
         );
 
         render(

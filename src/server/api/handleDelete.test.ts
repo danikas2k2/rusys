@@ -8,9 +8,9 @@ import { getProductsWithYears } from '~/server/api/response';
 import { deleteProduct } from '~/server/data/products';
 import type { ApiProductsWithYears, ApiRequestProduct } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/products');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/api/response');
+vi.mock('~/server/data/products');
 
 describe('handleDelete', () => {
     const request = mockRequest<ApiRequestProduct>({ group: 'Uogienės', name: 'Braškės' });
@@ -18,11 +18,11 @@ describe('handleDelete', () => {
     const years = getYearsFixture();
     const products = getProductsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('removes product and returns updated products with years', async () => {
-        jest.mocked(deleteProduct).mockResolvedValueOnce(true);
-        jest.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
+        vi.mocked(deleteProduct).mockResolvedValueOnce(true);
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
 
         await handleDelete(request, response);
 
@@ -33,7 +33,7 @@ describe('handleDelete', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(deleteProduct).mockResolvedValueOnce(false);
+        vi.mocked(deleteProduct).mockResolvedValueOnce(false);
 
         await handleDelete(request, response);
 
@@ -44,7 +44,7 @@ describe('handleDelete', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(deleteProduct).mockRejectedValueOnce('Failed to delete');
+        vi.mocked(deleteProduct).mockRejectedValueOnce('Failed to delete');
 
         await handleDelete(request, response);
 

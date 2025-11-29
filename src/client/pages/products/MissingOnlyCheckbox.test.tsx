@@ -8,22 +8,22 @@ import { MissingOnlyCheckbox } from '~/client/pages/products/MissingOnlyCheckbox
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
 import { useHasMissing } from '~/client/state/products/useHasMissing';
 
-jest.mock('~/client/pages/products/MissingOnlyContext', () => ({
-    useMissingOnly: jest.fn(),
+vi.mock('~/client/pages/products/MissingOnlyContext', async () => ({
+    useMissingOnly: vi.fn(),
 }));
-jest.mock('~/client/state/products/useHasMissing', () => ({
-    useHasMissing: jest.fn(),
+vi.mock('~/client/state/products/useHasMissing', async () => ({
+    useHasMissing: vi.fn(),
 }));
 
 describe('<MissingOnlyCheckbox>', () => {
-    const setMissingOnly = jest.fn();
+    const setMissingOnly = vi.fn();
 
     beforeEach(() => {
-        jest.mocked(useMissingOnly).mockReturnValue([false, setMissingOnly]);
-        jest.mocked(useHasMissing).mockReturnValue(true);
+        vi.mocked(useMissingOnly).mockReturnValue([false, setMissingOnly]);
+        vi.mocked(useHasMissing).mockReturnValue(true);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders enabled checkbox if has missing items', () => {
         render(
@@ -36,7 +36,7 @@ describe('<MissingOnlyCheckbox>', () => {
     });
 
     it('renders disabled checkbox if has no missing items', () => {
-        jest.mocked(useHasMissing).mockReturnValue(false);
+        vi.mocked(useHasMissing).mockReturnValue(false);
         render(
             <MockTheme>
                 <MissingOnlyCheckbox />
@@ -57,7 +57,7 @@ describe('<MissingOnlyCheckbox>', () => {
     });
 
     it('renders unchecked checkbox when showing missing only', () => {
-        jest.mocked(useMissingOnly).mockReturnValueOnce([true, jest.fn()]);
+        vi.mocked(useMissingOnly).mockReturnValueOnce([true, vi.fn()]);
 
         render(
             <MockTheme>
@@ -81,7 +81,7 @@ describe('<MissingOnlyCheckbox>', () => {
     });
 
     it('changes missing only state if missing only items selected', async () => {
-        jest.mocked(useMissingOnly).mockReturnValueOnce([true, setMissingOnly]);
+        vi.mocked(useMissingOnly).mockReturnValueOnce([true, setMissingOnly]);
         render(
             <MockTheme>
                 <MissingOnlyCheckbox />
@@ -94,7 +94,7 @@ describe('<MissingOnlyCheckbox>', () => {
     });
 
     it('calls onClick on checkbox click', async () => {
-        const onClick = jest.fn();
+        const onClick = vi.fn();
         render(
             <MockTheme>
                 <MissingOnlyCheckbox onClick={onClick} />
@@ -119,7 +119,7 @@ describe('<MissingOnlyCheckbox>', () => {
     });
 
     it('does not change missing only state when hasMissing is false', async () => {
-        jest.mocked(useHasMissing).mockReturnValue(false);
+        vi.mocked(useHasMissing).mockReturnValue(false);
         render(
             <MockTheme>
                 <MissingOnlyCheckbox />
@@ -132,8 +132,8 @@ describe('<MissingOnlyCheckbox>', () => {
     });
 
     it('does not call onClick when checkbox is disabled', async () => {
-        const onClick = jest.fn();
-        jest.mocked(useHasMissing).mockReturnValue(false);
+        const onClick = vi.fn();
+        vi.mocked(useHasMissing).mockReturnValue(false);
         render(
             <MockTheme>
                 <MissingOnlyCheckbox onClick={onClick} />

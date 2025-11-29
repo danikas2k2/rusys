@@ -6,11 +6,11 @@ import { GroupFilterWrapper } from '~/client/filters/GroupFilterContext';
 import { useProductFilters } from '~/client/filters/hooks/useProductFilters';
 import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
 
-jest.mock('~/client/filters/hooks/useGroupFilterPredicate', () => ({
-    useGroupFilterPredicate: jest.fn(() => (v: string) => v === 'test-group'),
+vi.mock('~/client/filters/hooks/useGroupFilterPredicate', async () => ({
+    useGroupFilterPredicate: vi.fn(() => (v: string) => v === 'test-group'),
 }));
-jest.mock('~/client/filters/hooks/useQuickFilterPredicate', () => ({
-    useQuickFilterPredicate: jest.fn(() => (v: string) => v.includes('test')),
+vi.mock('~/client/filters/hooks/useQuickFilterPredicate', async () => ({
+    useQuickFilterPredicate: vi.fn(() => (v: string) => v.includes('test')),
 }));
 
 describe('useProductFilters', () => {

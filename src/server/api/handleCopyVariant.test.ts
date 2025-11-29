@@ -8,9 +8,9 @@ import { getProductsWithVariants } from '~/server/api/response';
 import { copyVariant } from '~/server/data/variants';
 import type { ApiCopyVariant, ApiProductsWithVariants } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/variants');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/api/response');
+vi.mock('~/server/data/variants');
 
 describe('handleCopyVariant', () => {
     const request = mockRequest<ApiCopyVariant>({ group: 'Uogienės', variant: 'Trilitris', newGroup: 'Daržovės' });
@@ -20,11 +20,11 @@ describe('handleCopyVariant', () => {
     const variants = getVariantsFixture();
 
     beforeEach(() => {
-        jest.mocked(copyVariant).mockResolvedValue(true);
-        jest.mocked(getProductsWithVariants).mockResolvedValue({ years, products, variants });
+        vi.mocked(copyVariant).mockResolvedValue(true);
+        vi.mocked(getProductsWithVariants).mockResolvedValue({ years, products, variants });
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('copies variant to different group and returns updated products with years and variants', async () => {
         await handleCopyVariant(request, response);
@@ -74,7 +74,7 @@ describe('handleCopyVariant', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(copyVariant).mockResolvedValueOnce(false);
+        vi.mocked(copyVariant).mockResolvedValueOnce(false);
 
         await handleCopyVariant(request, response);
 
@@ -85,7 +85,7 @@ describe('handleCopyVariant', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(copyVariant).mockRejectedValueOnce('Failed to add');
+        vi.mocked(copyVariant).mockRejectedValueOnce('Failed to add');
 
         await handleCopyVariant(request, response);
 

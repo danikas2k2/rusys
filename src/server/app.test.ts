@@ -29,39 +29,39 @@ import { handleVariants } from '~/server/api/handleVariants';
 import { setup, startHttpServer, startHttpsServer } from '~/server/app';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/server/api/debug');
+vi.mock('~/server/api/debug');
 
 // Client/User
-jest.mock('~/server/api/handleClientId', () => ({ handleClientId: jest.fn() }));
-jest.mock('~/server/api/handleCheckUser', () => ({ handleCheckUser: jest.fn() }));
+vi.mock('~/server/api/handleClientId', () => ({ handleClientId: vi.fn() }));
+vi.mock('~/server/api/handleCheckUser', () => ({ handleCheckUser: vi.fn() }));
 
 // Summary
-jest.mock('~/server/api/handleSummary', () => ({ handleSummary: jest.fn() }));
+vi.mock('~/server/api/handleSummary', () => ({ handleSummary: vi.fn() }));
 
 // Products
-jest.mock('~/server/api/handleAdd', () => ({ handleAdd: jest.fn() }));
-jest.mock('~/server/api/handleProducts', () => ({ handleProducts: jest.fn() }));
-jest.mock('~/server/api/handleUpdateProduct', () => ({ handleUpdateProduct: jest.fn() }));
-jest.mock('~/server/api/handleSetRemoving', () => ({ handleSetRemoving: jest.fn() }));
-jest.mock('~/server/api/handleSetMissing', () => ({ handleSetMissing: jest.fn() }));
-jest.mock('~/server/api/handleRename', () => ({ handleRename: jest.fn() }));
-jest.mock('~/server/api/handleMove', () => ({ handleMove: jest.fn() }));
-jest.mock('~/server/api/handleDelete', () => ({ handleDelete: jest.fn() }));
+vi.mock('~/server/api/handleAdd', () => ({ handleAdd: vi.fn() }));
+vi.mock('~/server/api/handleProducts', () => ({ handleProducts: vi.fn() }));
+vi.mock('~/server/api/handleUpdateProduct', () => ({ handleUpdateProduct: vi.fn() }));
+vi.mock('~/server/api/handleSetRemoving', () => ({ handleSetRemoving: vi.fn() }));
+vi.mock('~/server/api/handleSetMissing', () => ({ handleSetMissing: vi.fn() }));
+vi.mock('~/server/api/handleRename', () => ({ handleRename: vi.fn() }));
+vi.mock('~/server/api/handleMove', () => ({ handleMove: vi.fn() }));
+vi.mock('~/server/api/handleDelete', () => ({ handleDelete: vi.fn() }));
 
 // Groups
-jest.mock('~/server/api/handleGroups', () => ({ handleGroups: jest.fn() }));
-jest.mock('~/server/api/handleUpdateGroup', () => ({ handleUpdateGroup: jest.fn() }));
-jest.mock('~/server/api/handleRenameGroup', () => ({ handleRenameGroup: jest.fn() }));
-jest.mock('~/server/api/handleDeleteGroup', () => ({ handleDeleteGroup: jest.fn() }));
+vi.mock('~/server/api/handleGroups', () => ({ handleGroups: vi.fn() }));
+vi.mock('~/server/api/handleUpdateGroup', () => ({ handleUpdateGroup: vi.fn() }));
+vi.mock('~/server/api/handleRenameGroup', () => ({ handleRenameGroup: vi.fn() }));
+vi.mock('~/server/api/handleDeleteGroup', () => ({ handleDeleteGroup: vi.fn() }));
 
 // Variants
-jest.mock('~/server/api/handleVariants', () => ({ handleVariants: jest.fn() }));
-jest.mock('~/server/api/handleUpdateVariant', () => ({ handleUpdateVariant: jest.fn() }));
-jest.mock('~/server/api/handleRenameVariant', () => ({ handleRenameVariant: jest.fn() }));
-jest.mock('~/server/api/handleDeleteVariant', () => ({ handleDeleteVariant: jest.fn() }));
+vi.mock('~/server/api/handleVariants', () => ({ handleVariants: vi.fn() }));
+vi.mock('~/server/api/handleUpdateVariant', () => ({ handleUpdateVariant: vi.fn() }));
+vi.mock('~/server/api/handleRenameVariant', () => ({ handleRenameVariant: vi.fn() }));
+vi.mock('~/server/api/handleDeleteVariant', () => ({ handleDeleteVariant: vi.fn() }));
 
 describe('app', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     describe('handle requests', () => {
         const app = setup(express());
@@ -88,24 +88,28 @@ describe('app', () => {
             ${ApiUrl.VariantsUpdate}      | ${handleUpdateVariant}
             ${ApiUrl.VariantsRename}      | ${handleRenameVariant}
             ${ApiUrl.VariantsDelete}      | ${handleDeleteVariant}
-        `('request $url', ({ url, handle }) => {
-            beforeEach(() => jest.mocked(handle).mockImplementation(handler));
+        `(
+            'request $url',
+            ({ url, handle }: { url: string; handle: (req: Request, res: Response) => Promise<void> }) => {
+                beforeEach(() => {
+                    vi.mocked(handle).mockImplementation(handler);
+                });
 
-            it('responds to POST', async () => {
-                const response = await request(app).post(url);
+                it('responds to POST', async () => {
+                    const response = await request(app).post(url);
 
-                expect(response.status).toBe(200);
-                // eslint-disable-next-line jest/prefer-called-with
-                expect(handle).toHaveBeenCalled();
-            });
+                    expect(response.status).toBe(200);
+                    expect(handle).toHaveBeenCalled();
+                });
 
-            it('does not respond to GET', async () => {
-                const response = await request(app).get(url);
+                it('does not respond to GET', async () => {
+                    const response = await request(app).get(url);
 
-                expect(response.status).toBe(404);
-                expect(handle).not.toHaveBeenCalled();
-            });
-        });
+                    expect(response.status).toBe(404);
+                    expect(handle).not.toHaveBeenCalled();
+                });
+            }
+        );
 
         describe('request /*', () => {
             it('does not respond to GET', async () => {
@@ -130,12 +134,12 @@ describe('app', () => {
         });
 
         it('setup app with auto-created express server', async () => {
-            expect(setup()).toBeFunction();
+            expect(typeof setup()).toBe('function');
         });
     });
 
     describe('startHttpServer', () => {
-        const app = { listen: jest.fn((host, port, cb) => cb()) } as unknown as Express;
+        const app = { listen: vi.fn((host: unknown, port: unknown, cb: () => void) => cb()) } as unknown as Express;
 
         it('starts the HTTP server with default options', () => {
             expect(startHttpServer(app, {})).toBe(app);
@@ -152,18 +156,18 @@ describe('app', () => {
 
     describe('startHttpsServer', () => {
         const app = {} as unknown as Express;
-        const listen = jest.fn((host, port, cb) => cb());
+        const listen = vi.fn((host: unknown, port: unknown, cb: () => void) => cb());
         const keys = { keyFile: 'key.pem', certFile: 'cert.pem' };
 
-        let readFileSync: jest.SpyInstance;
-        let createServer: jest.SpyInstance;
+        let readFileSync: ReturnType<typeof vi.spyOn>;
+        let createServer: ReturnType<typeof vi.spyOn>;
 
         beforeEach(() => {
-            readFileSync = jest.spyOn(fs, 'readFileSync').mockReturnValue('mocked-content');
-            createServer = jest.spyOn(https, 'createServer').mockReturnValue({ listen } as unknown as https.Server);
+            readFileSync = vi.spyOn(fs, 'readFileSync').mockReturnValue('mocked-content');
+            createServer = vi.spyOn(https, 'createServer').mockReturnValue({ listen } as unknown as https.Server);
         });
 
-        afterAll(() => jest.restoreAllMocks());
+        afterAll(() => vi.restoreAllMocks());
 
         it('starts the HTTPS server with valid key and cert files, and default port/server options', () => {
             expect(startHttpsServer(app, keys)).toBe(app);

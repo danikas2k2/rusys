@@ -8,11 +8,11 @@ import { getProductsWithGroups } from '~/server/api/response';
 import { renameGroupOccurrences } from '~/server/data/common';
 import type { ApiProductsWithYears, ApiRenameGroup } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/common');
-jest.mock('~/server/data/products');
-jest.mock('~/server/data/groups');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/api/response');
+vi.mock('~/server/data/common');
+vi.mock('~/server/data/products');
+vi.mock('~/server/data/groups');
 
 describe('handleRenameGroup', () => {
     const request = mockRequest<ApiRenameGroup>({ group: 'Uogienės', newGroup: 'Daržovės' });
@@ -22,11 +22,11 @@ describe('handleRenameGroup', () => {
     const variants = getVariantsFixture();
     const groups = getGroupsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(renameGroupOccurrences).mockResolvedValueOnce(true);
-        jest.mocked(getProductsWithGroups).mockResolvedValueOnce({ years, products, variants, groups });
+        vi.mocked(renameGroupOccurrences).mockResolvedValueOnce(true);
+        vi.mocked(getProductsWithGroups).mockResolvedValueOnce({ years, products, variants, groups });
 
         await handleRenameGroup(request, response);
 
@@ -37,7 +37,7 @@ describe('handleRenameGroup', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(renameGroupOccurrences).mockResolvedValueOnce(false);
+        vi.mocked(renameGroupOccurrences).mockResolvedValueOnce(false);
 
         await handleRenameGroup(request, response);
 
@@ -48,7 +48,7 @@ describe('handleRenameGroup', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(renameGroupOccurrences).mockRejectedValueOnce('Failed to rename group');
+        vi.mocked(renameGroupOccurrences).mockRejectedValueOnce('Failed to rename group');
 
         await handleRenameGroup(request, response);
 

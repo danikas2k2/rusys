@@ -3,12 +3,12 @@ import { renderHook } from '@testing-library/react';
 import { useGroupMatch } from '~/client/hooks/useGroupMatch';
 import { useProducts } from '~/client/state/products/useProducts';
 
-jest.mock('~/client/state/products/useProducts', () => ({
-    useProducts: jest.fn().mockReturnValue({ Group: {}, Other: {} }),
+vi.mock('~/client/state/products/useProducts', async () => ({
+    useProducts: vi.fn().mockReturnValue({ Group: {}, Other: {} }),
 }));
 
 describe('useGroupMatch', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns true when group matches', () => {
         const { result } = renderHook(() => useGroupMatch('Group'));
@@ -35,21 +35,21 @@ describe('useGroupMatch', () => {
     });
 
     it('returns false when there are no products', () => {
-        jest.mocked(useProducts).mockReturnValueOnce([]);
+        vi.mocked(useProducts).mockReturnValueOnce([]);
         const { result } = renderHook(() => useGroupMatch('Group'));
 
         expect(result.current).toBeFalse();
     });
 
     it('returns false when useProducts returns null', () => {
-        jest.mocked(useProducts).mockReturnValueOnce(null as any);
+        vi.mocked(useProducts).mockReturnValueOnce(null as any);
         const { result } = renderHook(() => useGroupMatch('Group'));
 
         expect(result.current).toBe(false);
     });
 
     it('returns false when useProducts returns undefined', () => {
-        jest.mocked(useProducts).mockReturnValueOnce(undefined as any);
+        vi.mocked(useProducts).mockReturnValueOnce(undefined as any);
         const { result } = renderHook(() => useGroupMatch('Group'));
 
         expect(result.current).toBe(false);

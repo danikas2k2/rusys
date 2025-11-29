@@ -7,10 +7,10 @@ import { handleVariants } from '~/server/api/handleVariants';
 import { getVariantsWithGroups } from '~/server/api/response';
 import type { ApiVariants } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/products');
-jest.mock('~/server/data/variants');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/api/response');
+vi.mock('~/server/data/products');
+vi.mock('~/server/data/variants');
 
 describe('handleVariants', () => {
     const request = mockRequest();
@@ -18,10 +18,10 @@ describe('handleVariants', () => {
     const variants = getVariantsFixture();
     const groups = getGroupsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(getVariantsWithGroups).mockResolvedValueOnce({ groups, variants });
+        vi.mocked(getVariantsWithGroups).mockResolvedValueOnce({ groups, variants });
 
         await handleVariants(request, response);
 
@@ -39,7 +39,7 @@ describe('handleVariants', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(getVariantsWithGroups).mockRejectedValueOnce('Failed to get variants');
+        vi.mocked(getVariantsWithGroups).mockRejectedValueOnce('Failed to get variants');
 
         await handleVariants(request, response);
 

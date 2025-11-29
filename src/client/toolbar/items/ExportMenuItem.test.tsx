@@ -7,12 +7,12 @@ import React from 'react';
 
 import { ExportMenuItem } from '~/client/toolbar/items/ExportMenuItem';
 
-jest.mock('~/client/common/Label');
+vi.mock('~/client/common/Label');
 
 describe('<ExportMenuItem>', () => {
-    const setActive = jest.fn();
+    const setActive = vi.fn();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders export label', () => {
         render(
@@ -41,7 +41,7 @@ describe('<ExportMenuItem>', () => {
     });
 
     it('calls onClick callback when provided', async () => {
-        const onClick = jest.fn();
+        const onClick = vi.fn();
 
         render(
             <MockTheme>
@@ -58,7 +58,7 @@ describe('<ExportMenuItem>', () => {
     });
 
     it('calls both onClick and setActive when onClick is provided', async () => {
-        const onClick = jest.fn();
+        const onClick = vi.fn();
 
         render(
             <MockTheme>

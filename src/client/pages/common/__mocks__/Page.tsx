@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Page = jest.fn(
+export const Page = vi.fn(
     ({ children, toolbar, onAdd }: React.PropsWithChildren<{ toolbar?: React.ReactNode; onAdd?: () => void }>) => (
         <div>
             <div>Page</div>

@@ -7,31 +7,31 @@ import React from 'react';
 import { VariantsPage } from './VariantsPage';
 
 // Mock all the complex context wrappers to avoid issues
-jest.mock('~/client/filters/GroupFilterContext', () => ({
+vi.mock('~/client/filters/GroupFilterContext', async () => ({
     GroupFilterWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-jest.mock('~/client/filters/QuickFilterContext', () => ({
+vi.mock('~/client/filters/QuickFilterContext', async () => ({
     QuickFilterWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-jest.mock('~/client/common/SwipeControlsContext');
+vi.mock('~/client/common/SwipeControlsContext');
 
 // Mock the components
-jest.mock('~/client/pages/variants/VariantsTable', () => ({
+vi.mock('~/client/pages/variants/VariantsTable', async () => ({
     VariantsTable: () => <div>VariantsTable</div>,
 }));
-jest.mock('~/client/pages/variants/ActiveVariantBox', () => ({
+vi.mock('~/client/pages/variants/ActiveVariantBox', async () => ({
     ActiveVariantBox: () => <div>ActiveVariantBox</div>,
 }));
-jest.mock('~/client/toolbar/ToolbarGroupFilter', () => ({
+vi.mock('~/client/toolbar/ToolbarGroupFilter', async () => ({
     ToolbarGroupFilter: () => <div>ToolbarGroupFilter</div>,
 }));
-jest.mock('~/client/common/SwipeControls', () => ({
+vi.mock('~/client/common/SwipeControls', async () => ({
     SwipeControls: () => <div>SwipeControls</div>,
 }));
-jest.mock('~/client/pages/common/ActiveContentOutsideClick', () => ({
+vi.mock('~/client/pages/common/ActiveContentOutsideClick', async () => ({
     ActiveContentOutsideClick: () => null,
 }));
-jest.mock('~/client/pages/common/Page');
+vi.mock('~/client/pages/common/Page');
 
 describe('<VariantsPage>', () => {
     it('renders variant table', () => {

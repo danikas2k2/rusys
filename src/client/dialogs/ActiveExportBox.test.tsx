@@ -7,8 +7,8 @@ import React from 'react';
 import { ActiveExportBox } from '~/client/dialogs/ActiveExportBox';
 import { useExportHandler } from '~/client/hooks/useExportHandler';
 
-jest.mock('~/client/hooks/useExportHandler');
-jest.mock('~/client/common/ConfirmationDialog', () => ({
+vi.mock('~/client/hooks/useExportHandler');
+vi.mock('~/client/common/ConfirmationDialog', async () => ({
     ConfirmationDialog: ({ opened, onClose, onConfirm, title, children }: any) =>
         opened ? (
             <div role="dialog" aria-label="Confirmation">
@@ -21,11 +21,11 @@ jest.mock('~/client/common/ConfirmationDialog', () => ({
 }));
 
 describe('<ActiveExportBox>', () => {
-    const mockExportHandler = jest.fn();
+    const mockExportHandler = vi.fn();
 
-    beforeEach(() => jest.mocked(useExportHandler).mockReturnValue(mockExportHandler));
+    beforeEach(() => vi.mocked(useExportHandler).mockReturnValue(mockExportHandler));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders closed when action is not export', () => {
         render(
@@ -50,7 +50,7 @@ describe('<ActiveExportBox>', () => {
     });
 
     it('calls setActive on cancel', async () => {
-        const mockSetActive = jest.fn();
+        const mockSetActive = vi.fn();
 
         render(
             <MockThemeActive active={{ action: 'export' }} setActive={mockSetActive}>

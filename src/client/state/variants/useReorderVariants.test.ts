@@ -5,14 +5,14 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
+vi.mock('~/client/state/base/useUpdatingApiRequest');
 
 describe('useReorderVariants', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeAll(() => vi.mocked(useUpdatingApiRequest).mockReturnValue(request));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     const variants = { p: 3, d: 2 };
 

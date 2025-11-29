@@ -6,17 +6,17 @@ import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { setRemoving } from '~/server/data/products';
 import type { ApiSetRemoving } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/data/products');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/data/products');
 
 describe('handleSetRemoving', () => {
     const request = mockRequest<ApiSetRemoving>({ group: 'Uogienės', name: 'Braškės', year: 21, removing: true });
     const response = mockResponse();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(setRemoving).mockResolvedValueOnce(true);
+        vi.mocked(setRemoving).mockResolvedValueOnce(true);
 
         await handleSetRemoving(request, response);
 
@@ -26,7 +26,7 @@ describe('handleSetRemoving', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(setRemoving).mockResolvedValueOnce(false);
+        vi.mocked(setRemoving).mockResolvedValueOnce(false);
 
         await handleSetRemoving(request, response);
 
@@ -36,7 +36,7 @@ describe('handleSetRemoving', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(setRemoving).mockRejectedValueOnce('Failed to set removing');
+        vi.mocked(setRemoving).mockRejectedValueOnce('Failed to set removing');
 
         await handleSetRemoving(request, response);
 

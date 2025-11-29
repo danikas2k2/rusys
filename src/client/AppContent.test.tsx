@@ -2,26 +2,28 @@ import { render, screen } from '@testing-library/react';
 
 import React from 'react';
 
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+
 import { AppContent } from '~/client/AppContent';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { isDevMode } from '~/common/utils/env';
 
-jest.mock('~/common/utils/env');
-jest.mock('~/client/state/profile/useProfile');
-jest.mock('~/client/AppRouter', () => ({
+vi.mock('~/common/utils/env');
+vi.mock('~/client/state/profile/useProfile');
+vi.mock('~/client/AppRouter', () => ({
     AppRouter: () => <div>AppRouter</div>,
 }));
-jest.mock('~/client/user/LoginButton', () => ({
+vi.mock('~/client/user/LoginButton', () => ({
     LoginButton: () => <div>LoginButton</div>,
 }));
-jest.mock('~/client/user/LogoutButton', () => ({
+vi.mock('~/client/user/LogoutButton', () => ({
     LogoutButton: () => <div>LogoutButton</div>,
 }));
 
 describe('<AppContent>', () => {
     beforeAll(() => {
-        jest.mocked(isDevMode).mockReturnValue(false);
-        jest.mocked(useProfile).mockReturnValue({ sub: undefined });
+        vi.mocked(isDevMode).mockReturnValue(false);
+        vi.mocked(useProfile).mockReturnValue({ sub: undefined });
     });
 
     it('renders LoginButton when not has no profile info', () => {
@@ -31,7 +33,7 @@ describe('<AppContent>', () => {
     });
 
     it('renders LogoutButton when has profile info but user is not allowed', () => {
-        jest.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: false });
+        vi.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: false });
 
         render(<AppContent />);
 
@@ -39,8 +41,8 @@ describe('<AppContent>', () => {
     });
 
     it('renders AppRouter when has profile and user is.allowed', () => {
-        jest.mocked(isDevMode).mockReturnValue(false);
-        jest.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: true });
+        vi.mocked(isDevMode).mockReturnValue(false);
+        vi.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: true });
 
         render(<AppContent />);
 
@@ -48,7 +50,7 @@ describe('<AppContent>', () => {
     });
 
     it('renders AppRouter when in dev mode event without profile', () => {
-        jest.mocked(isDevMode).mockReturnValue(true);
+        vi.mocked(isDevMode).mockReturnValue(true);
 
         render(<AppContent />);
 

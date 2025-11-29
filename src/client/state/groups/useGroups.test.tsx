@@ -8,15 +8,19 @@ import { isEqual } from 'lodash';
 
 import { useGroups } from '~/client/state/groups/useGroups';
 
-jest.mock('lodash', () => ({
-    ...jest.requireActual('lodash'),
-    isEqual: jest.fn(() => true),
-}));
+vi.mock('lodash', async () => {
+    const actual = await vi.importActual<typeof import('lodash')>('lodash');
+    return {
+        ...actual,
+        isEmpty: actual.isEmpty,
+        isEqual: vi.fn(() => true),
+    };
+});
 
 describe('useGroups', () => {
     const groups = getGroupsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns groups from state', () => {
         const { result } = renderHook(() => useGroups(), {

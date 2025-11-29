@@ -8,11 +8,11 @@ import { getProductsWithGroups } from '~/server/api/response';
 import { deleteGroupOccurrences } from '~/server/data/common';
 import type { ApiProductsWithYears, ApiRequestGroup } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/common');
-jest.mock('~/server/data/products');
-jest.mock('~/server/data/groups');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/api/response');
+vi.mock('~/server/data/common');
+vi.mock('~/server/data/products');
+vi.mock('~/server/data/groups');
 
 describe('handleDeleteGroup', () => {
     const request = mockRequest<ApiRequestGroup>({ group: 'Uogienės' });
@@ -22,11 +22,11 @@ describe('handleDeleteGroup', () => {
     const variants = getVariantsFixture();
     const groups = getGroupsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(deleteGroupOccurrences).mockResolvedValueOnce(true);
-        jest.mocked(getProductsWithGroups).mockResolvedValueOnce({ years, products, variants, groups });
+        vi.mocked(deleteGroupOccurrences).mockResolvedValueOnce(true);
+        vi.mocked(getProductsWithGroups).mockResolvedValueOnce({ years, products, variants, groups });
 
         await handleDeleteGroup(request, response);
 
@@ -37,7 +37,7 @@ describe('handleDeleteGroup', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(deleteGroupOccurrences).mockResolvedValueOnce(false);
+        vi.mocked(deleteGroupOccurrences).mockResolvedValueOnce(false);
 
         await handleDeleteGroup(request, response);
 
@@ -48,7 +48,7 @@ describe('handleDeleteGroup', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(deleteGroupOccurrences).mockRejectedValueOnce('Failed to delete group');
+        vi.mocked(deleteGroupOccurrences).mockRejectedValueOnce('Failed to delete group');
 
         await handleDeleteGroup(request, response);
 

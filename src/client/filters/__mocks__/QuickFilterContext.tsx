@@ -1,3 +1,3 @@
 import React from 'react';
 
-export const QuickFilterContextWrapper = jest.fn(({ children }: React.PropsWithChildren) => <>{children}</>);
+export const QuickFilterContextWrapper = vi.fn(({ children }: React.PropsWithChildren) => <>{children}</>);

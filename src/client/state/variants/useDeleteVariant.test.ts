@@ -5,14 +5,14 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { useDeleteVariant } from '~/client/state/variants/useDeleteVariant';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
+vi.mock('~/client/state/base/useUpdatingApiRequest');
 
 describe('useDeleteVariant', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeAll(() => vi.mocked(useUpdatingApiRequest).mockReturnValue(request));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls delete action', async () => {
         const { result } = renderHook(() => useDeleteVariant(), { wrapper: MockRedux });

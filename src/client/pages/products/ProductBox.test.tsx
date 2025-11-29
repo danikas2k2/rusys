@@ -10,11 +10,11 @@ import { useAddProduct } from '~/client/state/products/useAddProduct';
 import { useMoveProduct } from '~/client/state/products/useMoveProduct';
 import { useRenameProduct } from '~/client/state/products/useRenameProduct';
 
-jest.mock('~/client/state/products/useAddProduct');
-jest.mock('~/client/state/products/useDeleteProduct');
-jest.mock('~/client/state/products/useMoveProduct');
-jest.mock('~/client/state/products/useRenameProduct');
-jest.mock('~/client/common/Label');
+vi.mock('~/client/state/products/useAddProduct');
+vi.mock('~/client/state/products/useDeleteProduct');
+vi.mock('~/client/state/products/useMoveProduct');
+vi.mock('~/client/state/products/useRenameProduct');
+vi.mock('~/client/common/Label');
 
 describe('<ProductBox>', () => {
     const state = {
@@ -23,9 +23,9 @@ describe('<ProductBox>', () => {
         products: getProductsFixture(),
     };
 
-    const onClose = jest.fn();
+    const onClose = vi.fn();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders with cancel button', () => {
         render(
@@ -83,10 +83,10 @@ describe('<ProductBox>', () => {
     });
 
     describe('calls add product handler when adding a new entry', () => {
-        const addProduct = jest.fn();
+        const addProduct = vi.fn();
 
         it('closes dialog without error when successfully added', async () => {
-            jest.mocked(useAddProduct).mockReturnValue(addProduct.mockResolvedValue(true));
+            vi.mocked(useAddProduct).mockReturnValue(addProduct.mockResolvedValue(true));
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
@@ -101,7 +101,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when adding fails', async () => {
-            jest.mocked(useAddProduct).mockReturnValue(addProduct.mockRejectedValueOnce('Failed to add'));
+            vi.mocked(useAddProduct).mockReturnValue(addProduct.mockRejectedValueOnce('Failed to add'));
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
@@ -116,7 +116,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
-            jest.mocked(useAddProduct).mockReturnValue(addProduct);
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
@@ -130,7 +130,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when name already exists', async () => {
-            jest.mocked(useAddProduct).mockReturnValue(addProduct);
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
@@ -147,10 +147,10 @@ describe('<ProductBox>', () => {
     });
 
     describe('calls rename product handle when updating an existing entry', () => {
-        const renameProduct = jest.fn();
+        const renameProduct = vi.fn();
 
         it('closes dialog without error when successfully renamed', async () => {
-            jest.mocked(useRenameProduct).mockReturnValue(renameProduct.mockResolvedValueOnce(true));
+            vi.mocked(useRenameProduct).mockReturnValue(renameProduct.mockResolvedValueOnce(true));
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -166,7 +166,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when rename fails', async () => {
-            jest.mocked(useRenameProduct).mockReturnValue(renameProduct.mockRejectedValueOnce('Failed to rename'));
+            vi.mocked(useRenameProduct).mockReturnValue(renameProduct.mockRejectedValueOnce('Failed to rename'));
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -182,7 +182,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
-            jest.mocked(useRenameProduct).mockReturnValue(renameProduct);
+            vi.mocked(useRenameProduct).mockReturnValue(renameProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -197,7 +197,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when name already exists', async () => {
-            jest.mocked(useRenameProduct).mockReturnValue(renameProduct);
+            vi.mocked(useRenameProduct).mockReturnValue(renameProduct);
             render(
                 <MockThemeRedux state={{ products: getProductsFixture() }}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -214,7 +214,7 @@ describe('<ProductBox>', () => {
         });
 
         it('closes without updating when name was not changed', async () => {
-            jest.mocked(useRenameProduct).mockReturnValue(renameProduct);
+            vi.mocked(useRenameProduct).mockReturnValue(renameProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -228,10 +228,10 @@ describe('<ProductBox>', () => {
     });
 
     describe('calls move product handle when changing entry group', () => {
-        const moveProduct = jest.fn();
+        const moveProduct = vi.fn();
 
         it('closes dialog without error when successfully moved', async () => {
-            jest.mocked(useMoveProduct).mockReturnValue(moveProduct.mockResolvedValueOnce(true));
+            vi.mocked(useMoveProduct).mockReturnValue(moveProduct.mockResolvedValueOnce(true));
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -250,7 +250,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when move fails', async () => {
-            jest.mocked(useMoveProduct).mockReturnValue(moveProduct.mockRejectedValueOnce('Failed to move'));
+            vi.mocked(useMoveProduct).mockReturnValue(moveProduct.mockRejectedValueOnce('Failed to move'));
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -269,7 +269,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
-            jest.mocked(useMoveProduct).mockReturnValue(moveProduct);
+            vi.mocked(useMoveProduct).mockReturnValue(moveProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -289,7 +289,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when name already exists', async () => {
-            jest.mocked(useMoveProduct).mockReturnValue(moveProduct);
+            vi.mocked(useMoveProduct).mockReturnValue(moveProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -311,7 +311,7 @@ describe('<ProductBox>', () => {
         });
 
         it('closes without updating when group was not changed', async () => {
-            jest.mocked(useMoveProduct).mockReturnValue(moveProduct);
+            vi.mocked(useMoveProduct).mockReturnValue(moveProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -326,8 +326,8 @@ describe('<ProductBox>', () => {
 
     describe('validation errors', () => {
         it('displays error when group is empty', async () => {
-            const addProduct = jest.fn();
-            jest.mocked(useAddProduct).mockReturnValue(addProduct);
+            const addProduct = vi.fn();
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
                 <MockThemeRedux state={state}>
@@ -345,8 +345,8 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error when name contains colon', async () => {
-            const addProduct = jest.fn();
-            jest.mocked(useAddProduct).mockReturnValue(addProduct);
+            const addProduct = vi.fn();
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
                 <MockThemeRedux state={state}>
@@ -367,20 +367,20 @@ describe('<ProductBox>', () => {
         let timeUser: UserEvent;
 
         beforeEach(() => {
-            jest.useFakeTimers();
-            timeUser = user.setup({ advanceTimers: jest.advanceTimersByTime });
+            vi.useFakeTimers();
+            timeUser = user.setup({ advanceTimers: vi.advanceTimersByTime });
         });
 
         afterEach(() => {
-            jest.runOnlyPendingTimers();
-            jest.clearAllTimers();
+            vi.runOnlyPendingTimers();
+            vi.clearAllTimers();
         });
 
-        afterAll(() => jest.useRealTimers());
+        afterAll(() => vi.useRealTimers());
 
         it('shows loading state after 300ms delay when submitting form', async () => {
-            const addProduct = jest.fn().mockResolvedValue(undefined);
-            jest.mocked(useAddProduct).mockReturnValue(addProduct);
+            const addProduct = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
                 <MockThemeRedux state={state}>
@@ -398,7 +398,7 @@ describe('<ProductBox>', () => {
             // Advance timers by 300ms to trigger loading state (line 130)
             // This tests that setTimeout with 300ms delay is executed
             act(() => {
-                jest.advanceTimersByTime(300);
+                vi.advanceTimersByTime(300);
             });
 
             // Verify that loading state was triggered (line 130: setLoading(true))
@@ -413,8 +413,8 @@ describe('<ProductBox>', () => {
         });
 
         it('clears timeout when operation completes before 300ms', async () => {
-            const addProduct = jest.fn().mockResolvedValue(undefined);
-            jest.mocked(useAddProduct).mockReturnValue(addProduct);
+            const addProduct = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
                 <MockThemeRedux state={state}>
@@ -434,7 +434,7 @@ describe('<ProductBox>', () => {
 
             // Advance timers by less than 300ms - timeout should be cleared
             act(() => {
-                jest.advanceTimersByTime(200);
+                vi.advanceTimersByTime(200);
             });
 
             // Button should be enabled and timeout cleared

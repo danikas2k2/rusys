@@ -3,20 +3,22 @@ import { renderHook } from '@testing-library/react';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useLabels } from '~/client/hooks/useLabels';
 
-jest.mock('~/client/hooks/useLabels');
+vi.mock('~/client/hooks/useLabels');
 
 describe('useLabel', () => {
-    const translations = jest.fn();
+    const translations = vi.fn();
 
     beforeAll(() =>
-        jest
+        vi
             .mocked(useLabels)
             .mockReturnValue(
-                translations.mockImplementation((label, locale) => (locale === 'fr' ? 'Label Traduit' : label))
+                translations.mockImplementation((label: string, locale?: string) =>
+                    locale === 'fr' ? 'Label Traduit' : label
+                )
             )
     );
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns translated label when translations exist', () => {
         translations.mockReturnValueOnce('Translated Label');

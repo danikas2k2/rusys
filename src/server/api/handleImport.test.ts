@@ -10,17 +10,17 @@ import { importEverything } from '~/server/data/common';
 import { getValidator } from '~/server/data/schema/getValidator';
 import type { ApiProductsWithGroups, ApiWithFiles } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/common');
-jest.mock('~/server/data/schema/getValidator', () => ({
-    getValidator: jest.fn(() => jest.fn(() => true)),
+vi.mock('~/server/api/debug');
+vi.mock('~/server/api/response');
+vi.mock('~/server/data/common');
+vi.mock('~/server/data/schema/getValidator', async () => ({
+    getValidator: vi.fn(() => vi.fn(() => true)),
 }));
 
 describe('handleImport', () => {
-    beforeEach(() => jest.spyOn(console, 'error').mockImplementation(() => {}));
+    beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns error when no files are provided', async () => {
         const request = mockRequest();
@@ -89,7 +89,7 @@ describe('handleImport', () => {
     });
 
     it('returns error when file content is invalid', async () => {
-        jest.mocked(getValidator).mockReturnValueOnce(jest.fn(() => false) as any);
+        vi.mocked(getValidator).mockReturnValueOnce(vi.fn(() => false) as any);
 
         const request = mockRequest<ApiWithFiles>({
             files: { import: mockUploadedFile('invalid.json', '{"invalid":"content"}') },
@@ -116,8 +116,8 @@ describe('handleImport', () => {
             groups,
         };
 
-        jest.mocked(importEverything).mockResolvedValueOnce(true);
-        jest.mocked(getProductsWithGroups).mockResolvedValueOnce(results);
+        vi.mocked(importEverything).mockResolvedValueOnce(true);
+        vi.mocked(getProductsWithGroups).mockResolvedValueOnce(results);
 
         const request = mockRequest({
             files: {

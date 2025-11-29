@@ -6,17 +6,17 @@ import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { setMissing } from '~/server/data/products';
 import type { ApiSetMissing } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/data/products');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/data/products');
 
 describe('handleSetMissing', () => {
     const request = mockRequest<ApiSetMissing>({ group: 'Uogienės', name: 'Braškės', missing: true });
     const response = mockResponse();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(setMissing).mockResolvedValueOnce(true);
+        vi.mocked(setMissing).mockResolvedValueOnce(true);
 
         await handleSetMissing(request, response);
 
@@ -26,7 +26,7 @@ describe('handleSetMissing', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(setMissing).mockResolvedValueOnce(false);
+        vi.mocked(setMissing).mockResolvedValueOnce(false);
 
         await handleSetMissing(request, response);
 
@@ -36,7 +36,7 @@ describe('handleSetMissing', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(setMissing).mockRejectedValueOnce('Failed to set missing');
+        vi.mocked(setMissing).mockRejectedValueOnce('Failed to set missing');
 
         await handleSetMissing(request, response);
 

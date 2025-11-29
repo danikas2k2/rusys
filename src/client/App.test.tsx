@@ -4,25 +4,32 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from '~/client/App';
 import { useClientId } from '~/client/state/google/useClientId';
 import { isDevMode } from '~/common/utils/env';
 
-jest.mock('@react-oauth/google', () => ({
-    GoogleOAuthProvider: jest.fn(({ children }) => <div>{children}</div>),
+let mockOnScriptLoadError: (() => void) | undefined;
+
+vi.mock('@react-oauth/google', async () => ({
+    GoogleOAuthProvider: vi.fn(
+        ({ children, onScriptLoadError }: React.PropsWithChildren<{ onScriptLoadError?: () => void }>) => {
+            mockOnScriptLoadError = onScriptLoadError;
+            return <div>{children}</div>;
+        }
+    ),
 }));
-jest.mock('~/client/AppContent', () => ({
+vi.mock('~/client/AppContent', async () => ({
     AppContent: () => <div>AppContent</div>,
 }));
-jest.mock('~/common/utils/env');
-jest.mock('~/client/state/google/useClientId');
+vi.mock('~/common/utils/env');
+vi.mock('~/client/state/google/useClientId');
 
 describe('<App>', () => {
     mockEnv();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders Loader when clientId is null', () => {
         render(
@@ -36,7 +43,7 @@ describe('<App>', () => {
     });
 
     it('renders AppContent when dev mode is on even if clientId is null', () => {
-        jest.mocked(isDevMode).mockReturnValueOnce(true);
+        vi.mocked(isDevMode).mockReturnValueOnce(true);
 
         render(
             <MockTheme>
@@ -48,17 +55,7 @@ describe('<App>', () => {
     });
 
     it('renders Error when Google OAuth script fails to load', () => {
-        jest.mocked(useClientId).mockReturnValueOnce('validId');
-
-        const mockGoogleOAuthProvider = jest.mocked(GoogleOAuthProvider);
-        let onScriptLoadError: (() => void) | undefined;
-
-        mockGoogleOAuthProvider.mockImplementation(
-            ({ children, onScriptLoadError: onError }: React.PropsWithChildren<{ onScriptLoadError?: () => void }>) => {
-                onScriptLoadError = onError;
-                return <div>{children}</div>;
-            }
-        );
+        vi.mocked(useClientId).mockReturnValueOnce('validId');
 
         render(
             <MockTheme>
@@ -66,18 +63,13 @@ describe('<App>', () => {
             </MockTheme>
         );
 
-        // Simulate script load error
-        expect(onScriptLoadError).toBeDefined();
-
-        act(() => {
-            onScriptLoadError?.();
-        });
+        act(() => mockOnScriptLoadError?.());
 
         expect(screen.getByRole('alert')).toHaveTextContent('Failed to load Google OAuth script');
     });
 
     it('renders AppContent when clientId is valid', () => {
-        jest.mocked(useClientId).mockReturnValueOnce('validId');
+        vi.mocked(useClientId).mockReturnValueOnce('validId');
 
         render(
             <MockTheme>

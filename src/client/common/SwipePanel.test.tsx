@@ -1,32 +1,33 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
-import React, { useRef } from 'react';
+import React, { act, useRef } from 'react';
 
+import type { ActiveContent } from '~/client/common/ActiveContentContext';
 import { SwipePanel } from '~/client/common/SwipePanel';
 
-const mockSetControlsWidth = jest.fn();
+const mockSetControlsWidth = vi.fn();
 
-jest.mock('~/client/common/SwipeControlsContext', () => ({
-    useSwipePanelWidth: jest.fn(() => [120, mockSetControlsWidth]),
+vi.mock('~/client/common/SwipeControlsContext', async () => ({
+    useSwipePanelWidth: vi.fn(() => [120, mockSetControlsWidth]),
 }));
 
 describe('<SwipePanel>', () => {
     const mockContainer = document.createElement('div');
 
     beforeEach(() => {
-        jest.useFakeTimers();
-        jest.spyOn(mockContainer, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 100, 200, 50));
+        vi.useFakeTimers();
+        vi.spyOn(mockContainer, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 100, 200, 50));
         document.body.appendChild(mockContainer);
     });
 
     afterEach(() => {
-        act(() => jest.runOnlyPendingTimers());
-        jest.clearAllMocks();
+        act(() => vi.runOnlyPendingTimers());
+        vi.clearAllMocks();
         document.body.removeChild(mockContainer);
     });
 
-    afterAll(() => jest.useRealTimers());
+    afterAll(() => vi.useRealTimers());
 
     function TestWrapper({ active }: { active?: any }) {
         const ref = useRef(mockContainer);
@@ -448,7 +449,7 @@ describe('<SwipePanel>', () => {
         );
 
         // Panelis turėtų likti atidarytas, nes offset yra apibrėžtas ir action nėra
-        await act(async () => jest.advanceTimersByTime(50));
+        await act(async () => vi.advanceTimersByTime(50));
 
         const panels = screen.queryAllByRole('group');
 
@@ -469,7 +470,7 @@ describe('<SwipePanel>', () => {
         );
 
         // Panelis turėtų būti pažymėtas kaip closing
-        await act(async () => jest.advanceTimersByTime(50));
+        await act(async () => vi.advanceTimersByTime(50));
 
         const panels = screen.queryAllByRole('group');
 
@@ -583,7 +584,7 @@ describe('<SwipePanel>', () => {
                 name: 'active.action is truthy (remove)',
                 active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'remove' },
             },
-        ])('does not render panel when $name', ({ active }) => {
+        ])('does not render panel when $name', ({ active }: { active: ActiveContent }) => {
             render(<TestWrapper active={active} />);
 
             expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
@@ -630,16 +631,19 @@ describe('<SwipePanel>', () => {
                 active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: false as any },
                 expectedTransform: 'translateX(-100px)',
             },
-        ])('renders panel when $name', ({ active, expectedTransform }) => {
-            render(<TestWrapper active={active} />);
+        ])(
+            'renders panel when $name',
+            ({ active, expectedTransform }: { active: ActiveContent; expectedTransform: string }) => {
+                render(<TestWrapper active={active} />);
 
-            expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+                expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
 
-            expect(screen.getByRole('group'))
-                .toBeInTheDocument()
-                .toHaveStyle({ transform: expectedTransform })
-                .not.toHaveAttribute('data-closing');
-        });
+                expect(screen.getByRole('group'))
+                    .toBeInTheDocument()
+                    .toHaveStyle({ transform: expectedTransform })
+                    .not.toHaveAttribute('data-closing');
+            }
+        );
 
         it('does not render panel when active.ref.current is null', () => {
             function TestWrapperWithNullRef() {
@@ -712,22 +716,33 @@ describe('<SwipePanel>', () => {
                 active: { id: 'test-id', data: { name: 'Test' }, offset: -100 },
                 expectedInitialCount: 1,
             },
-        ])('keeps panel open when $name', async ({ prevActive, active, expectedInitialCount }) => {
-            const { rerender } = render(<TestWrapper active={prevActive} />);
+        ])(
+            'keeps panel open when $name',
+            async ({
+                prevActive,
+                active,
+                expectedInitialCount,
+            }: {
+                prevActive?: ActiveContent;
+                active?: ActiveContent;
+                expectedInitialCount: number;
+            }) => {
+                const { rerender } = render(<TestWrapper active={prevActive} />);
 
-            const initialPanelsCount = screen.queryAllByRole('group').length;
+                const initialPanelsCount = screen.queryAllByRole('group').length;
 
-            expect(initialPanelsCount).toBe(expectedInitialCount);
+                expect(initialPanelsCount).toBe(expectedInitialCount);
 
-            await act(async () => rerender(<TestWrapper active={active} />));
+                await act(async () => rerender(<TestWrapper active={active} />));
 
-            await act(async () => jest.advanceTimersByTime(50));
+                await act(async () => vi.advanceTimersByTime(50));
 
-            const panels = screen.queryAllByRole('group');
+                const panels = screen.queryAllByRole('group');
 
-            expect(panels.length).toBeGreaterThan(0);
-            expect(panels[0]).not.toHaveAttribute('data-closing');
-        });
+                expect(panels.length).toBeGreaterThan(0);
+                expect(panels[0]).not.toHaveAttribute('data-closing');
+            }
+        );
 
         it.each([
             {
@@ -742,22 +757,33 @@ describe('<SwipePanel>', () => {
                 active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: 'remove' },
                 expectedInitialCount: 1,
             },
-        ])('closes panel when $name', async ({ prevActive, active, expectedInitialCount }) => {
-            const { rerender } = render(<TestWrapper active={prevActive} />);
+        ])(
+            'closes panel when $name',
+            async ({
+                prevActive,
+                active,
+                expectedInitialCount,
+            }: {
+                prevActive?: ActiveContent;
+                active?: ActiveContent;
+                expectedInitialCount: number;
+            }) => {
+                const { rerender } = render(<TestWrapper active={prevActive} />);
 
-            const initialPanelsCount = screen.queryAllByRole('group').length;
+                const initialPanelsCount = screen.queryAllByRole('group').length;
 
-            expect(initialPanelsCount).toBe(expectedInitialCount);
+                expect(initialPanelsCount).toBe(expectedInitialCount);
 
-            await act(async () => rerender(<TestWrapper active={active} />));
+                await act(async () => rerender(<TestWrapper active={active} />));
 
-            await act(async () => jest.advanceTimersByTime(50));
+                await act(async () => vi.advanceTimersByTime(50));
 
-            const panels = screen.queryAllByRole('group');
+                const panels = screen.queryAllByRole('group');
 
-            expect(panels.length).toBeGreaterThan(0);
-            expect(panels[0]).toHaveAttribute('data-closing', 'true');
-        });
+                expect(panels.length).toBeGreaterThan(0);
+                expect(panels[0]).toHaveAttribute('data-closing', 'true');
+            }
+        );
     });
 
     describe('transitionEnd handler', () => {
@@ -795,7 +821,7 @@ describe('<SwipePanel>', () => {
         it('does not render panel when getBoundingClientRect returns null', () => {
             const mockContainerWithNullRect = document.createElement('div');
 
-            jest.spyOn(mockContainerWithNullRect, 'getBoundingClientRect').mockReturnValue(null as any);
+            vi.spyOn(mockContainerWithNullRect, 'getBoundingClientRect').mockReturnValue(null as any);
 
             function TestWrapperWithNullRect() {
                 const ref = useRef(mockContainerWithNullRect);

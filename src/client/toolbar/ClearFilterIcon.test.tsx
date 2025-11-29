@@ -6,13 +6,13 @@ import React from 'react';
 
 import { ClearFilterIcon } from './ClearFilterIcon';
 
-jest.mock('~/client/hooks/useLabel', () => ({
-    useLabel: jest.fn((key: string) => key),
+vi.mock('~/client/hooks/useLabel', async () => ({
+    useLabel: vi.fn((key: string) => key),
 }));
 
 describe('<ClearFilterIcon>', () => {
     it('renders clear filter icon', () => {
-        const onClick = jest.fn();
+        const onClick = vi.fn();
 
         render(
             <MockTheme>
@@ -24,7 +24,7 @@ describe('<ClearFilterIcon>', () => {
     });
 
     it('calls onClick when clicked', async () => {
-        const onClick = jest.fn();
+        const onClick = vi.fn();
 
         render(
             <MockTheme>
@@ -38,10 +38,10 @@ describe('<ClearFilterIcon>', () => {
     });
 
     it('stops propagation and prevents default on click', async () => {
-        const onClick = jest.fn();
-        const parentOnClick = jest.fn();
-        const stopPropagation = jest.fn();
-        const preventDefault = jest.fn();
+        const onClick = vi.fn();
+        const parentOnClick = vi.fn();
+        const stopPropagation = vi.fn();
+        const preventDefault = vi.fn();
 
         render(
             <MockTheme>

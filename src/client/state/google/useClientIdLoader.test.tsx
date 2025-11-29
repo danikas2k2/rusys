@@ -1,7 +1,7 @@
-import { act, renderHook } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import React from 'react';
+import React, { act } from 'react';
 import { useDispatch } from 'react-redux';
 
 import type { Reducer } from 'redux';
@@ -11,27 +11,27 @@ import { google as reducer } from '~/client/state/google/reducer';
 import { useClientIdLoader } from '~/client/state/google/useClientIdLoader';
 import { useGoogle } from '~/client/state/google/useGoogle';
 
-jest.mock('react-redux', () => ({
-    ...jest.requireActual('react-redux'),
-    useDispatch: jest.fn(),
+vi.mock('react-redux', async () => ({
+    ...(await vi.importActual('react-redux')),
+    useDispatch: vi.fn(),
 }));
 
-jest.mock('~/client/state/google/useGoogle');
-jest.mock('~/client/state/base/useUpdatingApiRequest');
+vi.mock('~/client/state/google/useGoogle');
+vi.mock('~/client/state/base/useUpdatingApiRequest');
 
 describe('useClientIdLoader', () => {
-    const dispatch = jest.fn();
-    const request = jest.fn();
+    const dispatch = vi.fn();
+    const request = vi.fn();
 
     beforeAll(() => {
-        jest.mocked(useDispatch).mockReturnValue(dispatch);
-        jest.mocked(useUpdatingApiRequest).mockReturnValue(request);
+        vi.mocked(useDispatch).mockReturnValue(dispatch);
+        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('dispatches loading action and makes request when clientId is null and not loading', async () => {
-        jest.mocked(useGoogle).mockReturnValue({ clientId: undefined, loading: false });
+        vi.mocked(useGoogle).mockReturnValue({ clientId: undefined, loading: false });
         request.mockResolvedValue({ ok: true });
 
         const { result } = renderHook(() => useClientIdLoader(), {
@@ -45,7 +45,7 @@ describe('useClientIdLoader', () => {
     });
 
     it('does not dispatch loading action or make request when clientId is not null', async () => {
-        jest.mocked(useGoogle).mockReturnValue({ clientId: '123', loading: false });
+        vi.mocked(useGoogle).mockReturnValue({ clientId: '123', loading: false });
         request.mockResolvedValue({});
 
         const { result } = renderHook(() => useClientIdLoader(), {
@@ -58,7 +58,7 @@ describe('useClientIdLoader', () => {
     });
 
     it('does not dispatch loading action or make request when loading is true', async () => {
-        jest.mocked(useGoogle).mockReturnValue({ clientId: undefined, loading: true });
+        vi.mocked(useGoogle).mockReturnValue({ clientId: undefined, loading: true });
         request.mockResolvedValue({});
 
         const { result } = renderHook(() => useClientIdLoader(), {

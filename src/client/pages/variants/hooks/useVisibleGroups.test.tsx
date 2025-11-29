@@ -6,7 +6,7 @@ import { GroupFilterWrapper } from '~/client/filters/GroupFilterContext';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useVisibleGroups } from './useVisibleGroups';
 
-jest.mock('~/client/state/groups/useGroups');
+vi.mock('~/client/state/groups/useGroups');
 
 describe('useVisibleGroups', () => {
     const mockGroups = [
@@ -15,9 +15,9 @@ describe('useVisibleGroups', () => {
         { group: 'Group3', order: 3 },
     ];
 
-    beforeEach(() => jest.mocked(useGroups).mockReturnValue(mockGroups));
+    beforeEach(() => vi.mocked(useGroups).mockReturnValue(mockGroups));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns all groups when no group filter is set', () => {
         const { result } = renderHook(() => useVisibleGroups(), {
@@ -36,7 +36,7 @@ describe('useVisibleGroups', () => {
     });
 
     it('returns empty array when groups is empty and no filter is set', () => {
-        jest.mocked(useGroups).mockReturnValue([]);
+        vi.mocked(useGroups).mockReturnValue([]);
 
         const { result } = renderHook(() => useVisibleGroups(), {
             wrapper: ({ children }) => <GroupFilterWrapper>{children}</GroupFilterWrapper>,
@@ -46,7 +46,7 @@ describe('useVisibleGroups', () => {
     });
 
     it('returns single group array when group filter is set even if groups is empty', () => {
-        jest.mocked(useGroups).mockReturnValue([]);
+        vi.mocked(useGroups).mockReturnValue([]);
 
         const { result } = renderHook(() => useVisibleGroups(), {
             wrapper: ({ children }) => <GroupFilterWrapper initialState="Group1">{children}</GroupFilterWrapper>,

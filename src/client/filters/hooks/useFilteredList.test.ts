@@ -6,15 +6,15 @@ import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
 import { useProductFilters } from '~/client/filters/hooks/useProductFilters';
 import { useQuickFilter } from '~/client/filters/hooks/useQuickFilter';
 
-jest.mock('~/client/filters/hooks/useGroupFilter');
-jest.mock('~/client/filters/hooks/useQuickFilter');
-jest.mock('~/client/state/summary/useSummary');
+vi.mock('~/client/filters/hooks/useGroupFilter');
+vi.mock('~/client/filters/hooks/useQuickFilter');
+vi.mock('~/client/state/summary/useSummary');
 
 describe('useFilteredList', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns unfiltered summary if no filters set', () => {
-        jest.mocked(useQuickFilter).mockReturnValueOnce('');
+        vi.mocked(useQuickFilter).mockReturnValueOnce('');
 
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useProductFilters()));
 
@@ -27,7 +27,7 @@ describe('useFilteredList', () => {
     });
 
     it('returns filtered summary', () => {
-        jest.mocked(useQuickFilter).mockReturnValueOnce('r');
+        vi.mocked(useQuickFilter).mockReturnValueOnce('r');
 
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useProductFilters()));
 
@@ -38,7 +38,7 @@ describe('useFilteredList', () => {
     });
 
     it('renders filtered group data', () => {
-        jest.mocked(useQuickFilter).mockReturnValueOnce('ūs');
+        vi.mocked(useQuickFilter).mockReturnValueOnce('ūs');
 
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useProductFilters()));
 
@@ -46,7 +46,7 @@ describe('useFilteredList', () => {
     });
 
     it('renders selected group data', () => {
-        jest.mocked(useGroupFilter).mockReturnValueOnce('Uogienės').mockReturnValueOnce('Uogienės');
+        vi.mocked(useGroupFilter).mockReturnValueOnce('Uogienės').mockReturnValueOnce('Uogienės');
 
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useProductFilters()));
 
@@ -57,7 +57,7 @@ describe('useFilteredList', () => {
     });
 
     it('renders filtered out data', () => {
-        jest.mocked(useQuickFilter).mockReturnValueOnce('z');
+        vi.mocked(useQuickFilter).mockReturnValueOnce('z');
 
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useProductFilters()));
 

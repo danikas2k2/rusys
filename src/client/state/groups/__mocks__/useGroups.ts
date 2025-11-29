@@ -1,3 +1,3 @@
 import { getGroupsFixture } from '@tests/fixtures';
 
-export const useGroups = jest.fn().mockReturnValue(getGroupsFixture());
+export const useGroups = vi.fn().mockReturnValue(getGroupsFixture());

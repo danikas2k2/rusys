@@ -10,11 +10,11 @@ import { updateProduct } from '~/server/data/products';
 import type { ApiProductsWithYears, ApiUpdateProduct } from '~/types/api';
 import type { VariantAmount } from '~/types/data';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/products');
-jest.mock('~/server/data/years');
-jest.mock('~/server/data/years');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/api/response');
+vi.mock('~/server/data/products');
+vi.mock('~/server/data/years');
+vi.mock('~/server/data/years');
 
 describe('handleUpdateProduct', () => {
     const user = DEV_MODE_EMAIL;
@@ -33,11 +33,11 @@ describe('handleUpdateProduct', () => {
     const years = getYearsFixture();
     const products = getProductsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(updateProduct).mockResolvedValueOnce(true);
-        jest.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
+        vi.mocked(updateProduct).mockResolvedValueOnce(true);
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
 
         await handleUpdateProduct(request, response);
 
@@ -48,7 +48,7 @@ describe('handleUpdateProduct', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(updateProduct).mockResolvedValueOnce(false);
+        vi.mocked(updateProduct).mockResolvedValueOnce(false);
 
         await handleUpdateProduct(request, response);
 
@@ -59,7 +59,7 @@ describe('handleUpdateProduct', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(updateProduct).mockRejectedValueOnce('Failed to update product');
+        vi.mocked(updateProduct).mockRejectedValueOnce('Failed to update product');
 
         await handleUpdateProduct(request, response);
 

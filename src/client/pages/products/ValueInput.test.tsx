@@ -7,18 +7,18 @@ import React from 'react';
 import { ChangeBadge } from '~/client/common/ChangeBadge';
 import { ValueInput } from '~/client/pages/products/ValueInput';
 
-jest.mock('~/client/state/products/useAddProduct');
-jest.mock('~/client/state/products/useDeleteProduct');
-jest.mock('~/client/state/products/useRenameProduct');
-jest.mock('~/client/common/ChangeBadge', () => ({
-    ChangeBadge: jest.fn().mockReturnValue(null),
+vi.mock('~/client/state/products/useAddProduct');
+vi.mock('~/client/state/products/useDeleteProduct');
+vi.mock('~/client/state/products/useRenameProduct');
+vi.mock('~/client/common/ChangeBadge', async () => ({
+    ChangeBadge: vi.fn().mockReturnValue(null),
 }));
 
 describe('<ValueInput>', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
-    const onClose = jest.fn();
-    const onChange = jest.fn();
+    const onClose = vi.fn();
+    const onChange = vi.fn();
 
     describe('calls onClose when Enter key is pressed', () => {
         it('on the input', async () => {
@@ -229,7 +229,7 @@ describe('<ValueInput>', () => {
 
     describe('focus and blur handlers', () => {
         it('calls onFocus when input is focused', async () => {
-            const onFocus = jest.fn();
+            const onFocus = vi.fn();
 
             render(
                 <MockTheme>
@@ -243,7 +243,7 @@ describe('<ValueInput>', () => {
         });
 
         it('calls onBlur when input loses focus', async () => {
-            const onBlur = jest.fn();
+            const onBlur = vi.fn();
 
             render(
                 <MockTheme>

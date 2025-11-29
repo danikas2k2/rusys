@@ -21,7 +21,7 @@ describe('<DraggableContent>', () => {
     });
 
     it('calls onDragStart when drag starts', () => {
-        const onDragStart = jest.fn();
+        const onDragStart = vi.fn();
 
         render(
             <MockTheme>
@@ -37,7 +37,7 @@ describe('<DraggableContent>', () => {
     });
 
     it('calls onDragEnd when drag ends', () => {
-        const onDragEnd = jest.fn();
+        const onDragEnd = vi.fn();
 
         render(
             <MockTheme>

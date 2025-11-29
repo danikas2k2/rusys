@@ -1,6 +1,6 @@
-import { act, renderHook } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 
-import React, { useState } from 'react';
+import React, { act, useState } from 'react';
 
 import { ActiveContentContext, useActiveContent, type ActiveContent } from '~/client/common/ActiveContentContext';
 

@@ -8,15 +8,15 @@ import { Table } from '@mantine/core';
 import { useSummaryYears } from '~/client/pages/summary/hooks/useSummaryYears';
 import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
 
-jest.mock('~/client/pages/summary/hooks/useSummaryYears');
-jest.mock('~/client/pages/summary/SummaryRow', () => ({
+vi.mock('~/client/pages/summary/hooks/useSummaryYears');
+vi.mock('~/client/pages/summary/SummaryRow', async () => ({
     SummaryRow: ({ name }: { name: string }) => (
         <tr>
             <td>{name}</td>
         </tr>
     ),
 }));
-jest.mock('~/client/table/GroupTitle', () => ({
+vi.mock('~/client/table/GroupTitle', async () => ({
     GroupTitle: ({ children, bg }: { children: string; bg: string }) => (
         <tbody>
             <tr>
@@ -27,9 +27,9 @@ jest.mock('~/client/table/GroupTitle', () => ({
 }));
 
 describe('<SummaryGroup>', () => {
-    beforeAll(() => jest.mocked(useSummaryYears).mockReturnValue([23, 22, 21]));
+    beforeAll(() => vi.mocked(useSummaryYears).mockReturnValue([23, 22, 21]));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders rows', () => {
         render(

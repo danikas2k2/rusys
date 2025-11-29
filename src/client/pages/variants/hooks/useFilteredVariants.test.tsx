@@ -7,7 +7,7 @@ import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
 import { useVariants } from '~/client/state/variants/useVariants';
 import { useFilteredVariants } from './useFilteredVariants';
 
-jest.mock('~/client/state/variants/useVariants');
+vi.mock('~/client/state/variants/useVariants');
 
 describe('useFilteredVariants', () => {
     const mockVariants = [
@@ -17,9 +17,9 @@ describe('useFilteredVariants', () => {
         { variant: 'n', group: 'Group2', order: 2 },
     ];
 
-    beforeEach(() => jest.mocked(useVariants).mockReturnValue(mockVariants));
+    beforeEach(() => vi.mocked(useVariants).mockReturnValue(mockVariants));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns all variants when no filters are set', () => {
         const { result } = renderHook(() => useFilteredVariants(), {
@@ -91,7 +91,7 @@ describe('useFilteredVariants', () => {
     });
 
     it('sorts variants by order', () => {
-        jest.mocked(useVariants).mockReturnValue([
+        vi.mocked(useVariants).mockReturnValue([
             { variant: 'z', group: 'Group1', order: 3 },
             { variant: 'a', group: 'Group1', order: 1 },
             { variant: 'b', group: 'Group1', order: 2 },

@@ -8,7 +8,7 @@ import React from 'react';
 
 import { ActiveProductBox } from '~/client/pages/products/ActiveProductBox';
 
-jest.mock('~/client/pages/products/ProductBox', () => ({
+vi.mock('~/client/pages/products/ProductBox', async () => ({
     ProductBox: ({ opened, onClose, onAfterClose, ...props }: any) => {
         if (!opened) return null;
         return (
@@ -23,10 +23,10 @@ jest.mock('~/client/pages/products/ProductBox', () => ({
 }));
 
 describe('<ActiveProductBox>', () => {
-    const active = { action: 'update', data: { group: 'Uogienės', name: 'Avietės' } };
-    const setActive = jest.fn();
+    const active = { action: 'update' as const, data: { group: 'Uogienės', name: 'Avietės' } };
+    const setActive = vi.fn();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('does not render box if not active', () => {
         render(

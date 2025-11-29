@@ -5,14 +5,14 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { useRenameGroup } from '~/client/state/groups/useRenameGroup';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
+vi.mock('~/client/state/base/useUpdatingApiRequest');
 
 describe('useRenameGroup', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeAll(() => vi.mocked(useUpdatingApiRequest).mockReturnValue(request));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls rename action', async () => {
         const { result } = renderHook(() => useRenameGroup(), { wrapper: MockRedux });
@@ -29,7 +29,7 @@ describe('useRenameGroup', () => {
         ${'same group'}      | ${'Uogienės'} | ${'Uogienės'}
         ${'empty group'}     | ${''}         | ${'Šaldytos'}
         ${'empty new group'} | ${'Uogienės'} | ${''}
-    `('does not call rename action with $title', async ({ group, newGroup }) => {
+    `('does not call rename action with $title', async ({ group, newGroup }: { group: string; newGroup: string }) => {
         const { result } = renderHook(() => useRenameGroup(), { wrapper: MockRedux });
         await result.current(group, newGroup);
 

@@ -7,8 +7,8 @@ import { Table } from '@mantine/core';
 
 import { DragHandle } from './DragHandle';
 
-jest.mock('~/client/hooks/useLabel', () => ({
-    useLabel: jest.fn((key: string) => key),
+vi.mock('~/client/hooks/useLabel', async () => ({
+    useLabel: vi.fn((key: string) => key),
 }));
 
 describe('<DragHandle>', () => {

@@ -1,9 +1,9 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { getVariantsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
 
-import React from 'react';
+import React, { act } from 'react';
 
 import { UpdateTypeWrapper } from '~/client/common/UpdateTypeContext';
 import { ValueBox, type ValueBoxProps } from '~/client/pages/products/ValueBox';
@@ -12,12 +12,17 @@ import type { WithVariantsState } from '~/client/state/variants/types';
 import { getVariantAmount } from '~/common/utils/amounts';
 import type { VariantAmount } from '~/types/data';
 
-jest.mock('~/client/pages/products/ValueInput', () => ({
-    ValueInput: jest.fn(jest.requireActual('~/client/pages/products/ValueInput').ValueInput),
-}));
+vi.mock('~/client/pages/products/ValueInput', async () => {
+    const actual = await vi.importActual<typeof import('~/client/pages/products/ValueInput')>(
+        '~/client/pages/products/ValueInput'
+    );
+    return {
+        ValueInput: vi.fn(actual.ValueInput),
+    };
+});
 
 describe('<ValueBox>', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     const group = 'Uogienės';
     const props: ValueBoxProps = {
@@ -65,7 +70,6 @@ describe('<ValueBox>', () => {
         expect(screen.getByRole('button', { name: /Expand/ })).toBeInTheDocument();
     });
 
-    // eslint-disable-next-line jest/prefer-ending-with-an-expect
     it('renders inputs', async () => {
         render(
             <MockApp state={state}>
@@ -87,7 +91,7 @@ describe('<ValueBox>', () => {
         }
     });
 
-    const onClose = jest.fn();
+    const onClose = vi.fn();
 
     it('calls onClose when dialog is closed', async () => {
         render(
@@ -202,7 +206,6 @@ describe('<ValueBox>', () => {
         ]);
     });
 
-    // eslint-disable-next-line jest/prefer-ending-with-an-expect
     it('renders all variants when expand pressed', async () => {
         render(
             <MockApp state={state}>
@@ -212,7 +215,7 @@ describe('<ValueBox>', () => {
             </MockApp>
         );
 
-        jest.mocked(ValueInput).mockClear();
+        vi.mocked(ValueInput).mockClear();
 
         // expect(screen.getByRole('dialog')).not.toHaveClass('fullscreen');
 
@@ -342,7 +345,7 @@ describe('<ValueBox>', () => {
     });
 
     it('calls onAfterClose when dialog exit transition ends', async () => {
-        const onAfterClose = jest.fn();
+        const onAfterClose = vi.fn();
 
         const { rerender } = render(
             <MockApp state={state}>
@@ -385,7 +388,7 @@ describe('<ValueBox>', () => {
     });
 
     it('does not update when newValue would be negative', async () => {
-        const onCloseHandler = jest.fn();
+        const onCloseHandler = vi.fn();
 
         render(
             <MockApp state={state}>
@@ -409,7 +412,7 @@ describe('<ValueBox>', () => {
     });
 
     it('updates existing variant change when variant already exists in currentChanges', async () => {
-        const onCloseHandler = jest.fn();
+        const onCloseHandler = vi.fn();
 
         render(
             <MockApp state={state}>
@@ -539,7 +542,7 @@ describe('<ValueBox>', () => {
     });
 
     it('adds new variant change when currentChanges is undefined', async () => {
-        const onCloseHandler = jest.fn();
+        const onCloseHandler = vi.fn();
 
         render(
             <MockApp state={state}>
@@ -634,13 +637,14 @@ describe('<ValueBox>', () => {
     });
 
     it('handles handleFocus when ref is null', async () => {
-        jest.mocked(ValueInput).mockImplementation(({ ref, variant }) => {
-            // eslint-disable-next-line jest/no-conditional-in-test
-            if (ref && typeof ref === 'function') {
-                ref(null);
+        vi.mocked(ValueInput).mockImplementation(
+            ({ ref, variant }: { ref?: React.Ref<HTMLInputElement>; variant?: string }) => {
+                if (ref && typeof ref === 'function') {
+                    ref(null);
+                }
+                return <input aria-label={variant ?? ''} />;
             }
-            return <input aria-label={variant} />;
-        });
+        );
 
         render(
             <MockApp state={state}>
@@ -657,13 +661,14 @@ describe('<ValueBox>', () => {
     });
 
     it('handles handleFocus when ref is null during expand', async () => {
-        jest.mocked(ValueInput).mockImplementation(({ ref, variant }) => {
-            // eslint-disable-next-line jest/no-conditional-in-test
-            if (ref && typeof ref === 'function') {
-                ref(null);
+        vi.mocked(ValueInput).mockImplementation(
+            ({ ref, variant }: { ref?: React.Ref<HTMLInputElement>; variant?: string }) => {
+                if (ref && typeof ref === 'function') {
+                    ref(null);
+                }
+                return <input aria-label={variant ?? ''} />;
             }
-            return <input aria-label={variant} />;
-        });
+        );
 
         render(
             <MockApp state={state}>

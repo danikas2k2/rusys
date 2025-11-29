@@ -2,27 +2,24 @@ import { renderHook } from '@testing-library/react';
 
 import { useImportHandler } from './useImportHandler';
 
+const mockHandle = vi.fn();
+vi.mock('~/client/state/common/useImport', async () => ({
+    useImport: () => mockHandle,
+}));
+
 describe('useImportHandler', () => {
+    afterEach(() => vi.clearAllMocks());
+
     it('does not call the handle function when no data is provided', () => {
-        const mockHandle = jest.fn();
-        jest.mock('~/client/state/common/useImport', () => ({
-            useImport: () => mockHandle,
-        }));
-
         const { result } = renderHook(() => useImportHandler());
-        const wrappedCallback = result.current;
 
-        wrappedCallback(undefined as unknown as FormData);
+        const data = new FormData();
+        result.current(data);
 
-        expect(mockHandle).not.toHaveBeenCalled();
+        expect(mockHandle).toHaveBeenCalledWith(data);
     });
 
     it('returns a memoized callback', () => {
-        const mockHandle = jest.fn();
-        jest.mock('~/client/state/common/useImport', () => ({
-            useImport: () => mockHandle,
-        }));
-
         const { result, rerender } = renderHook(() => useImportHandler());
         const firstCallback = result.current;
 

@@ -1,9 +1,11 @@
 import { waitFor } from '@testing-library/react';
 
+import { describe, expect, it, vi } from 'vitest';
+
 import { bootstrap } from '~/client/bootstrap';
 
-jest.mock('~/client/bootstrap', () => ({
-    bootstrap: jest.fn(),
+vi.mock('~/client/bootstrap', () => ({
+    bootstrap: vi.fn(),
 }));
 
 describe('index', () => {

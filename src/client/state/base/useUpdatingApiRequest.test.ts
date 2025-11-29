@@ -4,19 +4,19 @@ import { useUpdateStateFromResponse } from '~/client/state/base/useUpdateStateFr
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useApiRequest } from '~/client/state/common/useApiRequest';
 
-jest.mock('~/client/state/common/useApiRequest');
-jest.mock('~/client/state/base/useUpdateStateFromResponse');
+vi.mock('~/client/state/common/useApiRequest');
+vi.mock('~/client/state/base/useUpdateStateFromResponse');
 
 describe('useUpdatingApiRequest', () => {
-    const request = jest.fn();
-    const update = jest.fn();
+    const request = vi.fn();
+    const update = vi.fn();
 
     beforeAll(() => {
-        jest.mocked(useApiRequest).mockReturnValue(request);
-        jest.mocked(useUpdateStateFromResponse).mockReturnValue(update);
+        vi.mocked(useApiRequest).mockReturnValue(request);
+        vi.mocked(useUpdateStateFromResponse).mockReturnValue(update);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('send /test api request using GET method by default, then call update with response data', async () => {
         const response = { ok: true, data: [42] };

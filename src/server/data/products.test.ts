@@ -22,12 +22,10 @@ import {
 import { $all } from '~/server/data/tests/utils';
 import { db } from '~/server/db';
 
-jest.setTimeout(30_000);
-
-jest.mock('~/server/db');
-jest.mock('~/server/data/years');
-jest.mock('~/server/data/groups');
-jest.mock('~/server/data/variants');
+vi.mock('~/server/db');
+vi.mock('~/server/data/years');
+vi.mock('~/server/data/groups');
+vi.mock('~/server/data/variants');
 
 describe('products', () => {
     const products = getProductsFixture();
@@ -104,7 +102,7 @@ describe('products', () => {
             ${'invalid name'}  | ${'Uogienės'} | ${'Bruknės'}
             ${'empty group'}   | ${''}         | ${'Braškės'}
             ${'empty name'}    | ${'Uogienės'} | ${''}
-        `('returns no variants for $title', async ({ group, name }) => {
+        `('returns no variants for $title', async ({ group, name }: { group: string; name: string }) => {
             await expect(getProductVariants(group, name)).resolves.toBeUndefined();
         });
     });
@@ -123,7 +121,7 @@ describe('products', () => {
             title            | group         | name
             ${'empty group'} | ${''}         | ${'Braškės'}
             ${'empty name'}  | ${'Uogienės'} | ${''}
-        `('does not add products for $title', async ({ group, name }) => {
+        `('does not add products for $title', async ({ group, name }: { group: string; name: string }) => {
             await expect(addProduct(group, name)).resolves.toBeFalse();
             await expect($all('products')).resolves.toStrictEqual(products);
         });
@@ -232,10 +230,23 @@ describe('products', () => {
             ${'empty name'}        | ${'Daržovės'} | ${''}        | ${22} | ${[change]}
             ${'empty changes'}     | ${'Uogienės'} | ${'Avietės'} | ${22} | ${[]}
             ${'undefined changes'} | ${'Uogienės'} | ${'Avietės'} | ${22} | ${undefined}
-        `('does not update products for $title', async ({ group, name, year, changes }) => {
-            await expect(updateProduct(group, name, year, changes)).resolves.toBeFalse();
-            await expect($all('products')).resolves.toStrictEqual(products);
-        });
+        `(
+            'does not update products for $title',
+            async ({
+                group,
+                name,
+                year,
+                changes,
+            }: {
+                group: string;
+                name: string;
+                year: number;
+                changes: readonly { variant: string; amount: number; recycled?: boolean }[] | undefined;
+            }) => {
+                await expect(updateProduct(group, name, year, changes)).resolves.toBeFalse();
+                await expect($all('products')).resolves.toStrictEqual(products);
+            }
+        );
 
         it('removes missing flag when missing and negative update received', async () => {
             await updateProduct('Uogienės', 'Braškės', 22, [{ variant: 'p', amount: -1, recycled: false }], user);
@@ -374,10 +385,13 @@ describe('products', () => {
             ${'empty group'}       | ${''}         | ${'Krapai'}  | ${'Krabai'}
             ${'empty name'}        | ${'Šaldyti'}  | ${''}        | ${'Krabai'}
             ${'empty new name'}    | ${'Šaldyti'}  | ${'Krapai'}  | ${''}
-        `('does not rename products for $title', async ({ group, name, newName }) => {
-            await expect(renameProduct(group, name, newName)).resolves.toBeFalse();
-            await expect($all('products')).resolves.toStrictEqual(products);
-        });
+        `(
+            'does not rename products for $title',
+            async ({ group, name, newName }: { group: string; name: string; newName: string }) => {
+                await expect(renameProduct(group, name, newName)).resolves.toBeFalse();
+                await expect($all('products')).resolves.toStrictEqual(products);
+            }
+        );
     });
 
     describe('renameProductVariant', () => {
@@ -495,10 +509,13 @@ describe('products', () => {
             ${'empty group'}       | ${''}         | ${'p'}   | ${'b'}
             ${'empty variant'}     | ${'Daržovės'} | ${''}    | ${'b'}
             ${'empty new variant'} | ${'Daržovės'} | ${'p'}   | ${''}
-        `('does not rename variant for $title', async ({ group, variant, newVariant }) => {
-            await expect(renameProductsVariant(group, variant, newVariant)).resolves.toBeFalse();
-            await expect($all('products')).resolves.toStrictEqual(products);
-        });
+        `(
+            'does not rename variant for $title',
+            async ({ group, variant, newVariant }: { group: string; variant: string; newVariant: string }) => {
+                await expect(renameProductsVariant(group, variant, newVariant)).resolves.toBeFalse();
+                await expect($all('products')).resolves.toStrictEqual(products);
+            }
+        );
     });
 
     describe('renameProductGroup', () => {
@@ -522,7 +539,7 @@ describe('products', () => {
             ${'same groups'}   | ${'Daržovės'} | ${'Daržovės'}
             ${'empty group'}   | ${''}         | ${'Daržovės'}
             ${'empty variant'} | ${'Daržovės'} | ${''}
-        `('does not rename group for $title', async ({ group, newGroup }) => {
+        `('does not rename group for $title', async ({ group, newGroup }: { group: string; newGroup: string }) => {
             await expect(renameProductsGroup(group, newGroup)).resolves.toBeFalse();
             await expect($all('products')).resolves.toStrictEqual(products);
         });
@@ -560,10 +577,13 @@ describe('products', () => {
             ${'empty group'}            | ${''}         | ${'Agurkai'} | ${'Daržovės'}
             ${'empty name'}             | ${'Daržovės'} | ${''}        | ${'Šaldyti'}
             ${'empty new group'}        | ${'Daržovės'} | ${'Agurkai'} | ${''}
-        `('does not move products for $title', async ({ group, name, newGroup }) => {
-            await expect(moveProduct(group, name, newGroup)).resolves.toBeFalse();
-            await expect($all('products')).resolves.toStrictEqual(products);
-        });
+        `(
+            'does not move products for $title',
+            async ({ group, name, newGroup }: { group: string; name: string; newGroup: string }) => {
+                await expect(moveProduct(group, name, newGroup)).resolves.toBeFalse();
+                await expect($all('products')).resolves.toStrictEqual(products);
+            }
+        );
     });
 
     describe('deleteProduct', () => {
@@ -583,7 +603,7 @@ describe('products', () => {
             ${'invalid name'}  | ${'Daržovės'} | ${'Braškės'}
             ${'empty group'}   | ${''}         | ${'Agurkai'}
             ${'empty name'}    | ${'Daržovės'} | ${''}
-        `('does not delete products for $title', async ({ group, name }) => {
+        `('does not delete products for $title', async ({ group, name }: { group: string; name: string }) => {
             await expect(deleteProduct(group, name)).resolves.toBeFalse();
             await expect($all('products')).resolves.toStrictEqual(products);
         });
@@ -636,7 +656,7 @@ describe('products', () => {
             ${'invalid variant'} | ${'Daržovės'} | ${'0.5'}
             ${'empty group'}     | ${''}         | ${'Agurkai'}
             ${'empty variant'}   | ${'Daržovės'} | ${''}
-        `('does not delete variant for $title', async ({ group, variant }) => {
+        `('does not delete variant for $title', async ({ group, variant }: { group: string; variant: string }) => {
             await expect(deleteProductsVariant(group, variant)).resolves.toBeFalse();
             await expect($all('products')).resolves.toStrictEqual(products);
         });
@@ -657,7 +677,7 @@ describe('products', () => {
             title              | group
             ${'invalid group'} | ${'Šaldyti'}
             ${'empty group'}   | ${''}
-        `('does not delete variant for $title', async ({ group }) => {
+        `('does not delete variant for $title', async ({ group }: { group: string }) => {
             await expect(deleteProductsGroup(group)).resolves.toBeFalse();
             await expect($all('products')).resolves.toStrictEqual(products);
         });
@@ -693,10 +713,23 @@ describe('products', () => {
             ${'empty group'}          | ${''}         | ${'Krapai'}   | ${22} | ${true}
             ${'empty name'}           | ${'Uogienės'} | ${''}         | ${22} | ${true}
             ${'empty year'}           | ${'Uogienės'} | ${'Avietės'}  | ${0}  | ${true}
-        `('does not change removing for $title', async ({ group, name, year, removing }) => {
-            await expect(setRemoving(group, name, year, removing)).resolves.toBeFalse();
-            await expect($all('products')).resolves.toStrictEqual(products);
-        });
+        `(
+            'does not change removing for $title',
+            async ({
+                group,
+                name,
+                year,
+                removing,
+            }: {
+                group: string;
+                name: string;
+                year: number;
+                removing: boolean | undefined;
+            }) => {
+                await expect(setRemoving(group, name, year, removing ?? false)).resolves.toBeFalse();
+                await expect($all('products')).resolves.toStrictEqual(products);
+            }
+        );
     });
 
     describe('setMissing', () => {
@@ -718,9 +751,12 @@ describe('products', () => {
             ${'invalid name'}        | ${'Uogienės'} | ${'Citrinos'} | ${true}
             ${'empty group'}         | ${''}         | ${'Krapai'}   | ${true}
             ${'empty name'}          | ${'Uogienės'} | ${''}         | ${true}
-        `('does not change invalid for $title', async ({ group, name, missing }) => {
-            await expect(setMissing(group, name, missing)).resolves.toBeFalse();
-            await expect($all('products')).resolves.toStrictEqual(products);
-        });
+        `(
+            'does not change invalid for $title',
+            async ({ group, name, missing }: { group: string; name: string; missing: boolean | undefined }) => {
+                await expect(setMissing(group, name, missing ?? false)).resolves.toBeFalse();
+                await expect($all('products')).resolves.toStrictEqual(products);
+            }
+        );
     });
 });

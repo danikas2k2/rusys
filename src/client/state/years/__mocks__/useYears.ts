@@ -1,3 +1,3 @@
 import { getYearsFixture } from '@tests/fixtures';
 
-export const useYears = jest.fn().mockReturnValue(getYearsFixture());
+export const useYears = vi.fn().mockReturnValue(getYearsFixture());

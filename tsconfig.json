@@ -1,6 +1,6 @@
 {
     "extends": "@tsconfig/node24",
-    "include": ["src/**/*", "jest/*.ts"],
+    "include": ["src/**/*", "vitest/*.ts"],
     "exclude": ["node_modules", "**/*.spec.ts"],
     "compilerOptions": {
         "baseUrl": ".",
@@ -24,12 +24,8 @@
             "node",
             "express",
             "vite/client",
-            "jest",
-            "@testing-library/jest-dom",
-            "jest-extended",
-            "jest-to-match-shape-of",
-            "jest-expect-message",
-            "jest-chain"
+            "vitest/globals",
+            "@testing-library/jest-dom/vitest"
         ],
         "strict": true,
         "esModuleInterop": true,

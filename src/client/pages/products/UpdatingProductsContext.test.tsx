@@ -51,7 +51,7 @@ describe('useUpdatingProducts', () => {
     });
 
     it('returns custom updating products context', () => {
-        const setUpdating = jest.fn();
+        const setUpdating = vi.fn();
         const state = { 'Uogienės:Avietės:2024': true };
         const { result } = renderHook(() => useUpdatingProducts(), {
             wrapper: ({ children }) => (
@@ -76,7 +76,7 @@ describe('useProductUpdating', () => {
         const state = { 'Uogienės:Avietės:2024': true };
         const { result } = renderHook(() => useProductUpdating(product), {
             wrapper: ({ children }) => (
-                <UpdatingProductsContext value={[state, jest.fn()]}>{children}</UpdatingProductsContext>
+                <UpdatingProductsContext value={[state, vi.fn()]}>{children}</UpdatingProductsContext>
             ),
         });
 

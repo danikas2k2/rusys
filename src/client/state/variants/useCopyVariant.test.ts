@@ -5,14 +5,14 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { useCopyVariant } from '~/client/state/variants/useCopyVariant';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
+vi.mock('~/client/state/base/useUpdatingApiRequest');
 
 describe('useCopyVariant', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeAll(() => vi.mocked(useUpdatingApiRequest).mockReturnValue(request));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it.each`
         title                           | group         | variant | newGroup      | newVariant
@@ -20,17 +20,30 @@ describe('useCopyVariant', () => {
         ${'new group and new variant'}  | ${'Uogienės'} | ${'p'}  | ${'Daržovės'} | ${'1/2'}
         ${'new group and same variant'} | ${'Uogienės'} | ${'p'}  | ${'Daržovės'} | ${'p'}
         ${'same group and new variant'} | ${'Uogienės'} | ${'p'}  | ${'Daržovės'} | ${'p'}
-    `('calls copy action for $title', async ({ group, variant, newGroup, newVariant }) => {
-        const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
-        await result.current(group, variant, newGroup, newVariant);
-
-        expect(request).toHaveBeenCalledWith(ApiUrl.VariantsCopy, {
+    `(
+        'calls copy action for $title',
+        async ({
             group,
             variant,
             newGroup,
             newVariant,
-        });
-    });
+        }: {
+            group: string;
+            variant: string;
+            newGroup: string;
+            newVariant: string;
+        }) => {
+            const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
+            await result.current(group, variant, newGroup, newVariant);
+
+            expect(request).toHaveBeenCalledWith(ApiUrl.VariantsCopy, {
+                group,
+                variant,
+                newGroup,
+                newVariant,
+            });
+        }
+    );
 
     it('calls copy action with more fields', async () => {
         const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
@@ -53,10 +66,23 @@ describe('useCopyVariant', () => {
         ${'empty group'}            | ${''}         | ${'p'}  | ${'Daržovės'} | ${'p'}
         ${'empty variant'}          | ${'Uogienės'} | ${''}   | ${'Daržovės'} | ${'1/2'}
         ${'empty new group'}        | ${'Uogienės'} | ${'p'}  | ${''}         | ${'1/2'}
-    `('does not call copy action for $title', async ({ group, variant, newGroup, newVariant }) => {
-        const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
-        await result.current(group, variant, newGroup, newVariant);
+    `(
+        'does not call copy action for $title',
+        async ({
+            group,
+            variant,
+            newGroup,
+            newVariant,
+        }: {
+            group: string;
+            variant: string;
+            newGroup: string;
+            newVariant: string;
+        }) => {
+            const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
+            await result.current(group, variant, newGroup, newVariant);
 
-        expect(request).not.toHaveBeenCalled();
-    });
+            expect(request).not.toHaveBeenCalled();
+        }
+    );
 });

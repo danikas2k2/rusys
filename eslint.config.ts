@@ -3,7 +3,6 @@ import parser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
 import functional from 'eslint-plugin-functional';
 import imp from 'eslint-plugin-import';
-import jest from 'eslint-plugin-jest';
 import a11y from 'eslint-plugin-jsx-a11y';
 import prettier from 'eslint-plugin-prettier';
 import react from 'eslint-plugin-react';
@@ -26,7 +25,6 @@ export default [
     a11y.flatConfigs.recommended,
     {
         files: ['**/*.test.{ts,tsx}', '**/__mocks__/*.{ts,tsx}'],
-        ...jest.configs['flat/all'],
         settings: {
             'import/resolver': {
                 typescript: {
@@ -34,19 +32,6 @@ export default [
                     alwaysTryTypes: true,
                 },
             },
-        },
-        rules: {
-            ...jest.configs['flat/all'].rules,
-            'jest/no-hooks': 'off',
-            'jest/no-untyped-mock-factory': 'off',
-            'jest/prefer-expect-assertions': 'off',
-            'jest/prefer-importing-jest-globals': 'off',
-            'jest/max-expects': ['error', { max: 9 }],
-            'jest/prefer-ending-with-an-expect': ['error', { assertFunctionNames: ['waitFor'] }],
-            'jest/require-hook': ['error', { allowedFunctionCalls: ['mockEnv', 'mockWindow'] }],
-            // Disable valid-mock-module-path as it doesn't support TypeScript path aliases
-            // eslint-import-resolver-typescript already handles path resolution
-            'jest/valid-mock-module-path': 'off',
         },
     },
     {
@@ -209,10 +194,10 @@ export default [
         files: ['**/*.test.{ts,tsx}', '**/__mocks__/*.{ts,tsx}'],
         rules: {
             '@typescript-eslint/no-explicit-any': 'off',
+            '@typescript-eslint/consistent-type-imports': 'off', // Allow typeof import() in test files for dynamic imports
             'react/display-name': 'off',
             'import/no-named-as-default': 'off',
             'no-console': 'off',
-            'jest/valid-title': ['error', { disallowedWords: ['should'] }],
 
             // my custom overrides
             'arrow-body-style': ['error', 'as-needed'],

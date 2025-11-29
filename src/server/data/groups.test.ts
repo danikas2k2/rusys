@@ -4,9 +4,7 @@ import { getGroupsFixture } from '@tests/fixtures';
 import { deleteGroup, getGroups, renameGroup, reorderGroups, updateGroup } from '~/server/data/groups';
 import { db } from '~/server/db';
 
-jest.setTimeout(30_000);
-
-jest.mock('~/server/db');
+vi.mock('~/server/db');
 
 describe('groups', () => {
     const groups = getGroupsFixture().sort((a, b) => a.order - b.order);
@@ -17,7 +15,7 @@ describe('groups', () => {
 
     afterEach(async () => {
         await (await db()).collection('groups').deleteMany({});
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe('getGroups', () => {

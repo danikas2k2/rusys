@@ -1,4 +1,6 @@
-import { act, renderHook } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
+
+import { act } from 'react';
 
 import { jwtDecode } from 'jwt-decode';
 
@@ -6,25 +8,25 @@ import { useEmailCheck } from '~/client/state/profile/useEmailCheck';
 import { useSetProfile } from '~/client/state/profile/useSetProfile';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';
 
-jest.mock('~/client/state/profile/useEmailCheck');
-jest.mock('~/client/state/profile/useSetProfile');
-jest.mock('jwt-decode');
+vi.mock('~/client/state/profile/useEmailCheck');
+vi.mock('~/client/state/profile/useSetProfile');
+vi.mock('jwt-decode');
 
 describe('useLoginSuccess', () => {
-    const setProfile = jest.fn();
-    const emailCheck = jest.fn().mockResolvedValue(true);
+    const setProfile = vi.fn();
+    const emailCheck = vi.fn().mockResolvedValue(true);
 
     beforeAll(() => {
-        jest.mocked(useSetProfile).mockReturnValue(setProfile);
-        jest.mocked(useEmailCheck).mockReturnValue(emailCheck);
+        vi.mocked(useSetProfile).mockReturnValue(setProfile);
+        vi.mocked(useEmailCheck).mockReturnValue(emailCheck);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('sets profile and checks email when response contains valid data', async () => {
-        jest.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
+        vi.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
 
-        const onError = jest.fn();
+        const onError = vi.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
         await act(() => result.current({ credential: 'test' }));
 
@@ -34,9 +36,9 @@ describe('useLoginSuccess', () => {
     });
 
     it('calls onError when response does not contain valid data', async () => {
-        jest.mocked(jwtDecode).mockReturnValue({});
+        vi.mocked(jwtDecode).mockReturnValue({});
 
-        const onError = jest.fn();
+        const onError = vi.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
         await act(() => result.current({}));
 
@@ -46,9 +48,9 @@ describe('useLoginSuccess', () => {
     });
 
     it('sets profile and checks email when response contains TokenResponse with access_token', async () => {
-        jest.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
+        vi.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
 
-        const onError = jest.fn();
+        const onError = vi.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
         await act(() => result.current({ access_token: 'test-token' } as any));
 
@@ -58,9 +60,9 @@ describe('useLoginSuccess', () => {
     });
 
     it('calls onError when decoded profile does not contain email', async () => {
-        jest.mocked(jwtDecode).mockReturnValue({ name: 'Test User' });
+        vi.mocked(jwtDecode).mockReturnValue({ name: 'Test User' });
 
-        const onError = jest.fn();
+        const onError = vi.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
         await act(() => result.current({ credential: 'test' }));
 
@@ -70,9 +72,9 @@ describe('useLoginSuccess', () => {
     });
 
     it('calls onError when decoded profile from access_token does not contain email', async () => {
-        jest.mocked(jwtDecode).mockReturnValue({ name: 'Test User' });
+        vi.mocked(jwtDecode).mockReturnValue({ name: 'Test User' });
 
-        const onError = jest.fn();
+        const onError = vi.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
         await act(() => result.current({ access_token: 'test-token' } as any));
 
@@ -82,9 +84,9 @@ describe('useLoginSuccess', () => {
     });
 
     it('uses access_token when credential is undefined', async () => {
-        jest.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
+        vi.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
 
-        const onError = jest.fn();
+        const onError = vi.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
         await act(() => result.current({ credential: undefined, access_token: 'test-token' } as any));
 
@@ -94,9 +96,9 @@ describe('useLoginSuccess', () => {
     });
 
     it('uses access_token when credential is null', async () => {
-        jest.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
+        vi.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
 
-        const onError = jest.fn();
+        const onError = vi.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
         await act(() => result.current({ credential: null, access_token: 'test-token' } as any));
 

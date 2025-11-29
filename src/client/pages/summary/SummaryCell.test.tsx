@@ -8,20 +8,20 @@ import { Table } from '@mantine/core';
 import { SummaryCell } from '~/client/pages/summary/SummaryCell';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 
-jest.mock('~/client/state/variants/useGroupVariantComparator', () => ({
-    useGroupVariantComparator: jest.fn(),
+vi.mock('~/client/state/variants/useGroupVariantComparator', async () => ({
+    useGroupVariantComparator: vi.fn(),
 }));
 
-jest.mock('~/client/common/ValueSuffix', () => ({
+vi.mock('~/client/common/ValueSuffix', async () => ({
     ValueSuffix: () => null,
 }));
 
 describe('<SummaryCell>', () => {
-    const mockCompareVariants = jest.fn((a: string, b: string) => a.localeCompare(b));
+    const mockCompareVariants = vi.fn((a: string, b: string) => a.localeCompare(b));
 
-    beforeAll(() => jest.mocked(useGroupVariantComparator).mockReturnValue(mockCompareVariants));
+    beforeAll(() => vi.mocked(useGroupVariantComparator).mockReturnValue(mockCompareVariants));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders empty cell when no amounts provided', () => {
         render(

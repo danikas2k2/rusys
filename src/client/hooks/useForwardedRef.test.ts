@@ -4,7 +4,7 @@ import { useForwardedRef } from '~/client/hooks/useForwardedRef';
 
 describe('useForwardedRef', () => {
     it('calls ref function with current ref when ref is a function', () => {
-        const ref = jest.fn();
+        const ref = vi.fn();
         const { result } = renderHook(() => useForwardedRef(ref));
 
         expect(ref).toHaveBeenCalledWith(result.current.current);

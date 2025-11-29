@@ -8,8 +8,8 @@ import { getFullSummary } from '~/server/data/updates';
 import type { ApiSummary } from '~/types/api';
 import type { Summary } from '~/types/data';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/data/updates');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/data/updates');
 
 describe('handleSummary', () => {
     const request = mockRequest();
@@ -23,10 +23,10 @@ describe('handleSummary', () => {
     const groups = getGroupsFixture();
     const variants = getVariantsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(getFullSummary).mockResolvedValueOnce({ years, groups, variants, summary });
+        vi.mocked(getFullSummary).mockResolvedValueOnce({ years, groups, variants, summary });
 
         await handleSummary(request, response);
 
@@ -36,7 +36,7 @@ describe('handleSummary', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(getFullSummary).mockRejectedValueOnce('Failed to get summary');
+        vi.mocked(getFullSummary).mockRejectedValueOnce('Failed to get summary');
 
         await handleSummary(request, response);
 

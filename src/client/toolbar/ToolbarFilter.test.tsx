@@ -7,16 +7,16 @@ import React from 'react';
 import { useQuickFilterContext } from '~/client/filters/QuickFilterContext';
 import { ToolbarFilter } from '~/client/toolbar/ToolbarFilter';
 
-jest.mock('~/client/filters/QuickFilterContext', () => ({
-    useQuickFilterContext: jest.fn(),
+vi.mock('~/client/filters/QuickFilterContext', async () => ({
+    useQuickFilterContext: vi.fn(),
 }));
 
 describe('<ToolbarFilter>', () => {
-    const setFilter = jest.fn();
+    const setFilter = vi.fn();
 
-    beforeEach(() => jest.mocked(useQuickFilterContext).mockReturnValue(['', setFilter]));
+    beforeEach(() => vi.mocked(useQuickFilterContext).mockReturnValue(['', setFilter]));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders input field with placeholder', () => {
         render(
@@ -41,7 +41,7 @@ describe('<ToolbarFilter>', () => {
     });
 
     it('clears filter value when clear button is clicked', async () => {
-        jest.mocked(useQuickFilterContext).mockReturnValue(['x', setFilter]);
+        vi.mocked(useQuickFilterContext).mockReturnValue(['x', setFilter]);
 
         render(
             <MockApp>

@@ -5,12 +5,12 @@ import React from 'react';
 import { Label } from '~/client/common/Label';
 import { useLabel } from '~/client/hooks/useLabel';
 
-jest.mock('~/client/hooks/useLabel', () => ({
-    useLabel: jest.fn(),
+vi.mock('~/client/hooks/useLabel', async () => ({
+    useLabel: vi.fn(),
 }));
 
 describe('<Label>', () => {
-    beforeAll(() => jest.mocked(useLabel).mockReturnValue('Test Label'));
+    beforeAll(() => vi.mocked(useLabel).mockReturnValue('Test Label'));
 
     it('renders with given children', () => {
         render(<Label>Test Label</Label>);

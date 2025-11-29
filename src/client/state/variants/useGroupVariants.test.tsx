@@ -8,15 +8,19 @@ import { isEqual } from 'lodash';
 
 import { useGroupVariants } from '~/client/state/variants/useGroupVariants';
 
-jest.mock('lodash', () => ({
-    ...jest.requireActual('lodash'),
-    isEqual: jest.fn(() => true),
-}));
+vi.mock('lodash', async () => {
+    const actual = await vi.importActual<typeof import('lodash')>('lodash');
+    return {
+        ...actual,
+        isEmpty: actual.isEmpty,
+        isEqual: vi.fn(() => true),
+    };
+});
 
 describe('useGroupVariants', () => {
     const variants = getVariantsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns variants from state for group', () => {
         const { result } = renderHook(() => useGroupVariants('Uogienės'), {

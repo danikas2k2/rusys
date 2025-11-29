@@ -8,10 +8,10 @@ import { getProductsWithVariants } from '~/server/api/response';
 import { renameVariantOccurrences } from '~/server/data/common';
 import type { ApiProductsWithYears, ApiRenameVariant } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/common');
-jest.mock('~/server/data/variants');
+vi.mock('~/server/api/debug');
+vi.mock('~/server/api/response');
+vi.mock('~/server/data/common');
+vi.mock('~/server/data/variants');
 
 describe('handleRenameVariant', () => {
     const request = mockRequest<ApiRenameVariant>({
@@ -26,7 +26,7 @@ describe('handleRenameVariant', () => {
     const products = getProductsFixture();
     const variants = getVariantsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     const update = {
         order: 7,
@@ -34,8 +34,8 @@ describe('handleRenameVariant', () => {
     };
 
     it('returns filled response on success', async () => {
-        jest.mocked(renameVariantOccurrences).mockResolvedValueOnce(true);
-        jest.mocked(getProductsWithVariants).mockResolvedValueOnce({ years, products, variants });
+        vi.mocked(renameVariantOccurrences).mockResolvedValueOnce(true);
+        vi.mocked(getProductsWithVariants).mockResolvedValueOnce({ years, products, variants });
 
         await handleRenameVariant(request, response);
 
@@ -46,7 +46,7 @@ describe('handleRenameVariant', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(renameVariantOccurrences).mockResolvedValueOnce(false);
+        vi.mocked(renameVariantOccurrences).mockResolvedValueOnce(false);
 
         await handleRenameVariant(request, response);
 
@@ -57,7 +57,7 @@ describe('handleRenameVariant', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(renameVariantOccurrences).mockRejectedValueOnce('Failed to rename variant');
+        vi.mocked(renameVariantOccurrences).mockRejectedValueOnce('Failed to rename variant');
 
         await handleRenameVariant(request, response);
 

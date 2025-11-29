@@ -1,3 +1,3 @@
 import { getSummaryFixture } from '@tests/fixtures';
 
-export const useSummary = jest.fn().mockReturnValue(getSummaryFixture());
+export const useSummary = vi.fn().mockReturnValue(getSummaryFixture());

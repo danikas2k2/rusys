@@ -6,17 +6,17 @@ import React from 'react';
 
 import { SwipeControls } from '~/client/common/SwipeControls';
 
-jest.mock('~/client/state/groups/useDeleteGroup');
-jest.mock('~/client/common/SwipePanel', () => ({
+vi.mock('~/client/state/groups/useDeleteGroup');
+vi.mock('~/client/common/SwipePanel', async () => ({
     SwipePanel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 describe('<SwipeControls>', () => {
-    const setActiveContent = jest.fn();
-    const onEdit = jest.fn();
-    const onDelete = jest.fn();
+    const setActiveContent = vi.fn();
+    const onEdit = vi.fn();
+    const onDelete = vi.fn();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders control buttons', () => {
         render(

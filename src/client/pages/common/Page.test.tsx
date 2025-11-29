@@ -6,28 +6,28 @@ import React from 'react';
 
 import { Page } from '~/client/pages/common/Page';
 
-jest.mock('~/client/toolbar/Toolbar', () => ({
-    Toolbar: jest.fn(({ children }) => <div role="toolbar">{children}</div>),
+vi.mock('~/client/toolbar/Toolbar', async () => ({
+    Toolbar: vi.fn(({ children }: React.PropsWithChildren) => <div role="toolbar">{children}</div>),
 }));
 
-jest.mock('~/client/pages/common/AddAction', () => ({
-    AddAction: jest.fn(({ onClick }: { onClick?: React.MouseEventHandler }) => (
+vi.mock('~/client/pages/common/AddAction', async () => ({
+    AddAction: vi.fn(({ onClick }: { onClick?: React.MouseEventHandler }) => (
         <button onClick={onClick} aria-label="Add">
             Add
         </button>
     )),
 }));
 
-jest.mock('~/client/pages/common/ActiveRemoveConfirmation', () => ({
-    ActiveRemoveConfirmation: jest.fn(
+vi.mock('~/client/pages/common/ActiveRemoveConfirmation', async () => ({
+    ActiveRemoveConfirmation: vi.fn(
         ({ onConfirm: _onConfirm }: { onConfirm?: (data: unknown) => void | Promise<void> }) => (
             <div role="dialog">Remove</div>
         )
     ),
 }));
 
-jest.mock('~/client/common/hooks/useSwipeVisible', () => ({
-    useSwipeVisible: jest.fn(() => false),
+vi.mock('~/client/common/hooks/useSwipeVisible', async () => ({
+    useSwipeVisible: vi.fn(() => false),
 }));
 
 describe('<Page>', () => {
@@ -70,7 +70,7 @@ describe('<Page>', () => {
     });
 
     it('renders ActiveRemoveConfirmation when onDelete is provided', () => {
-        const onDelete = jest.fn();
+        const onDelete = vi.fn();
 
         render(
             <MockTheme>

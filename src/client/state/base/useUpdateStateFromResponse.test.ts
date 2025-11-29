@@ -8,17 +8,17 @@ import { ProductsActionType } from '~/client/state/products/actions';
 import { SummaryActionType } from '~/client/state/summary/actions';
 import { YearsActionType } from '~/client/state/years/actions';
 
-jest.mock('react-redux', () => ({
-    ...jest.requireActual('react-redux'),
-    useDispatch: jest.fn(),
+vi.mock('react-redux', async () => ({
+    ...(await vi.importActual('react-redux')),
+    useDispatch: vi.fn(),
 }));
 
 describe('useUpdateStateFromResponse', () => {
-    const dispatch = jest.fn();
+    const dispatch = vi.fn();
 
-    beforeEach(() => jest.mocked(useDispatch).mockReturnValue(dispatch));
+    beforeEach(() => vi.mocked(useDispatch).mockReturnValue(dispatch));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('do nothing for undefined response', async () => {
         const { result } = renderHook(() => useUpdateStateFromResponse());

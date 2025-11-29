@@ -1,22 +1,23 @@
-import { act, renderHook } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
+import { act } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { setProfileAction } from '~/client/state/profile/actions';
 import { useSetProfile } from '~/client/state/profile/useSetProfile';
 
-jest.mock('react-redux', () => ({
-    ...jest.requireActual('react-redux'),
-    useDispatch: jest.fn(),
+vi.mock('react-redux', async () => ({
+    ...(await vi.importActual('react-redux')),
+    useDispatch: vi.fn(),
 }));
 
 describe('useSetProfile', () => {
-    const dispatch = jest.fn();
+    const dispatch = vi.fn();
 
-    beforeAll(() => jest.mocked(useDispatch).mockReturnValue(dispatch));
+    beforeAll(() => vi.mocked(useDispatch).mockReturnValue(dispatch));
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('dispatches setProfileAction with provided profile', () => {
         const { result } = renderHook(() => useSetProfile(), { wrapper: MockRedux });

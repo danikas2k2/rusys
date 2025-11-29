@@ -5,7 +5,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { DEV_CLIENT_ID, handleClientId } from '~/server/api/handleClientId';
 import type { ApiClientId } from '~/types/api';
 
-jest.mock('~/server/api/debug');
+vi.mock('~/server/api/debug');
 
 describe('handleClientId', () => {
     const request = mockRequest();
@@ -14,7 +14,7 @@ describe('handleClientId', () => {
     mockEnv();
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         delete process.env.GOOGLE_CLIENT_ID;
     });
 

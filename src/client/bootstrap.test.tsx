@@ -7,24 +7,24 @@ import { App } from '~/client/App';
 import { bootstrap } from '~/client/bootstrap';
 import { getStore } from '~/client/state/store';
 
-jest.mock('react-redux', () => ({
-    Provider: jest.fn(({ children }) => <div>{children}</div>),
+vi.mock('react-redux', async () => ({
+    Provider: vi.fn(({ children }: React.PropsWithChildren) => <div>{children}</div>),
 }));
-jest.mock('~/client/state/store', () => ({
-    getStore: jest.fn(),
+vi.mock('~/client/state/store', async () => ({
+    getStore: vi.fn(),
 }));
-jest.mock('~/client/App', () => ({
+vi.mock('~/client/App', async () => ({
     App: () => <div>App</div>,
 }));
 
 describe('bootstrap', () => {
     beforeEach(() => {
         document.body.innerHTML = '<div id="root"></div>';
-        jest.spyOn(console, 'error').mockImplementation();
+        vi.spyOn(console, 'error').mockImplementation();
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         document.body.innerHTML = '';
     });
 

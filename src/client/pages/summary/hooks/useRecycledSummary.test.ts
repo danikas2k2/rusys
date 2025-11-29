@@ -4,12 +4,12 @@ import { useUpdateType } from '~/client/common/UpdateTypeContext';
 import { useRecycledSummary } from '~/client/pages/summary/hooks/useRecycledSummary';
 import { useSummary } from '~/client/state/summary/useSummary';
 
-jest.mock('~/client/state/summary/useSummary');
-jest.mock('~/client/common/UpdateTypeContext');
+vi.mock('~/client/state/summary/useSummary');
+vi.mock('~/client/common/UpdateTypeContext');
 
 describe('useRecycledSummary', () => {
     beforeEach(() =>
-        jest.mocked(useSummary).mockReturnValue([
+        vi.mocked(useSummary).mockReturnValue([
             {
                 group: 'Group1',
                 name: 'Item1',
@@ -40,10 +40,10 @@ describe('useRecycledSummary', () => {
         ])
     );
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('filters amounts by recycled flag when updateType is recycled', () => {
-        jest.mocked(useUpdateType).mockReturnValue(['recycled', jest.fn()]);
+        vi.mocked(useUpdateType).mockReturnValue(['recycled', vi.fn()]);
 
         const { result } = renderHook(() => useRecycledSummary());
 
@@ -66,7 +66,7 @@ describe('useRecycledSummary', () => {
     });
 
     it('filters amounts by non-recycled flag when updateType is consumed', () => {
-        jest.mocked(useUpdateType).mockReturnValue(['consumed', jest.fn()]);
+        vi.mocked(useUpdateType).mockReturnValue(['consumed', vi.fn()]);
 
         const { result } = renderHook(() => useRecycledSummary());
 
@@ -95,7 +95,7 @@ describe('useRecycledSummary', () => {
     });
 
     it('filters out years with no matching amounts', () => {
-        jest.mocked(useSummary).mockReturnValue([
+        vi.mocked(useSummary).mockReturnValue([
             {
                 group: 'Group1',
                 name: 'Item1',
@@ -111,7 +111,7 @@ describe('useRecycledSummary', () => {
                 ],
             },
         ]);
-        jest.mocked(useUpdateType).mockReturnValue(['recycled', jest.fn()]);
+        vi.mocked(useUpdateType).mockReturnValue(['recycled', vi.fn()]);
 
         const { result } = renderHook(() => useRecycledSummary());
 
@@ -130,7 +130,7 @@ describe('useRecycledSummary', () => {
     });
 
     it('filters out variants with no matching years', () => {
-        jest.mocked(useSummary).mockReturnValue([
+        vi.mocked(useSummary).mockReturnValue([
             {
                 group: 'Group1',
                 name: 'Item1',
@@ -142,7 +142,7 @@ describe('useRecycledSummary', () => {
                 ],
             },
         ]);
-        jest.mocked(useUpdateType).mockReturnValue(['recycled', jest.fn()]);
+        vi.mocked(useUpdateType).mockReturnValue(['recycled', vi.fn()]);
 
         const { result } = renderHook(() => useRecycledSummary());
 
@@ -150,14 +150,14 @@ describe('useRecycledSummary', () => {
     });
 
     it('handles undefined years', () => {
-        jest.mocked(useSummary).mockReturnValue([
+        vi.mocked(useSummary).mockReturnValue([
             {
                 group: 'Group1',
                 name: 'Item1',
                 years: undefined,
             },
         ]);
-        jest.mocked(useUpdateType).mockReturnValue(['recycled', jest.fn()]);
+        vi.mocked(useUpdateType).mockReturnValue(['recycled', vi.fn()]);
 
         const { result } = renderHook(() => useRecycledSummary());
 
@@ -165,7 +165,7 @@ describe('useRecycledSummary', () => {
     });
 
     it('handles item with undefined years in mixed array', () => {
-        jest.mocked(useSummary).mockReturnValue([
+        vi.mocked(useSummary).mockReturnValue([
             {
                 group: 'Group1',
                 name: 'Item1',
@@ -182,7 +182,7 @@ describe('useRecycledSummary', () => {
                 years: undefined,
             },
         ]);
-        jest.mocked(useUpdateType).mockReturnValue(['recycled', jest.fn()]);
+        vi.mocked(useUpdateType).mockReturnValue(['recycled', vi.fn()]);
 
         const { result } = renderHook(() => useRecycledSummary());
 

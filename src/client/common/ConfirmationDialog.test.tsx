@@ -1,22 +1,23 @@
-import { act, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
+import { sleep } from '@tests/utils';
 
-import React from 'react';
+import React, { act } from 'react';
 
 import { Button } from '@mantine/core';
 
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
 
-jest.mock('~/client/common/Label');
+vi.mock('~/client/common/Label');
 
 describe('<ConfirmationDialog>', () => {
-    const onConfirm = jest.fn();
-    const onClose = jest.fn();
+    const onConfirm = vi.fn();
+    const onClose = vi.fn();
 
     afterEach(() => {
-        jest.clearAllMocks();
-        jest.useRealTimers();
+        vi.clearAllMocks();
+        vi.useRealTimers();
     });
 
     it('does not render if not open', () => {
@@ -89,9 +90,8 @@ describe('<ConfirmationDialog>', () => {
     });
 
     it('shows loading state after 300ms delay', async () => {
-        jest.useFakeTimers();
-        const userWithTimers = user.setup({ advanceTimers: jest.advanceTimersByTime });
-        const slowConfirm = jest.fn(() => new Promise<void>((resolve) => setTimeout(() => resolve(), 500)));
+        vi.useFakeTimers();
+        const slowConfirm = vi.fn(() => sleep(500));
 
         render(
             <MockTheme>
@@ -100,26 +100,23 @@ describe('<ConfirmationDialog>', () => {
         );
 
         const confirmButton = screen.getByRole('button', { name: 'Confirm' });
-        await userWithTimers.click(confirmButton);
+        fireEvent.click(confirmButton);
 
         expect(confirmButton).not.toBeDisabled();
 
-        await act(async () => jest.advanceTimersByTime(300));
+        await act(() => vi.advanceTimersByTime(300));
 
         expect(confirmButton).toBeDisabled();
 
-        await act(async () => {
-            jest.advanceTimersByTime(200);
-            await jest.runAllTimersAsync();
-        });
+        await act(() => vi.advanceTimersByTime(200));
 
         expect(confirmButton).not.toBeDisabled();
-        expect(slowConfirm).toHaveBeenCalledWith(expect.any(Object));
+        expect(slowConfirm).toHaveBeenCalledWith(expect.event('click'));
     });
 
     it('displays error message when onConfirm throws', async () => {
         const errorMessage = 'Test error message';
-        const failingConfirm = jest.fn().mockRejectedValue(new Error(errorMessage));
+        const failingConfirm = vi.fn().mockRejectedValue(new Error(errorMessage));
 
         render(
             <MockTheme>

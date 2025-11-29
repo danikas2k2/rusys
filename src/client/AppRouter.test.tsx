@@ -2,12 +2,14 @@ import { render, screen } from '@testing-library/react';
 
 import React from 'react';
 
+import { describe, expect, it, vi } from 'vitest';
+
 import { AppRouter } from '~/client/AppRouter';
 
-jest.mock('~/client/pages/products/ProductsPage', () => ({
+vi.mock('~/client/pages/products/ProductsPage', () => ({
     ProductsPage: () => <div>ProductsPage</div>,
 }));
-jest.mock('~/client/pages/summary/SummaryPage', () => ({
+vi.mock('~/client/pages/summary/SummaryPage', () => ({
     SummaryPage: () => <div>SummaryPage</div>,
 }));
 
