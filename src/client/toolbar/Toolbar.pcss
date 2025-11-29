@@ -8,22 +8,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-
-    .title {
-        font-size: var(--font-size-medium);
-        font-weight: var(--font-weight-medium);
-    }
-
-    .filter {
-        display: flex;
-        align-items: center;
-        justify-content: center;
         gap: 0.25rem;
+    }
 
-        > * + *,
-        > *:has(+ *) {
-            flex: 0 1 50%;
-        }
+    > * + *,
+    > *:has(+ *) {
+        flex: 0 1 50%;
     }
 }

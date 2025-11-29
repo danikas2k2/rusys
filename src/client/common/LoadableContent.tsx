@@ -1,11 +1,12 @@
 import React from 'react';
 
-import { Loader } from '@mantine/core';
+import { Flex, Loader } from '@mantine/core';
 
 import { Error } from '~/client/common/Error';
 import { Label } from '~/client/common/Label';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
-import cx from './LoadableContent.pcss';
+
+import './LoadableContent.pcss';
 
 interface LoadableContentProps {
     loader: () => Promise<unknown>;
@@ -14,31 +15,32 @@ interface LoadableContentProps {
 
 export function LoadableContent({ loader, hasData, children }: React.PropsWithChildren<LoadableContentProps>) {
     const loading = useLockingLoader(loader);
+
     if (loading === LoadingState.INITIAL || loading === LoadingState.LOADING) {
         return (
-            <div className={cx('Loader')}>
+            <Flex data-loading>
                 <Loader size="lg" type="bars" />
-            </div>
+            </Flex>
         );
     }
 
     if (loading === LoadingState.FAILED) {
         return (
-            <div className={cx('Content')}>
+            <Flex data-loading={false} data-error>
                 <Error>
                     <Label>Failed to load data</Label>
                 </Error>
-            </div>
+            </Flex>
         );
     }
 
     if (!hasData) {
         return (
-            <div className={cx('Content')}>
+            <Flex data-loading={false} data-error>
                 <Error>
                     <Label>No data</Label>
                 </Error>
-            </div>
+            </Flex>
         );
     }
 

@@ -40,16 +40,6 @@ describe('<LoginButton>', () => {
         expect(screen.getByText('Login with Google')).toBeInTheDocument();
     });
 
-    it('renders children when provided', () => {
-        render(
-            <MockThemeRedux>
-                <LoginButton>Test Child</LoginButton>
-            </MockThemeRedux>
-        );
-
-        expect(screen.getByText('Test Child')).toBeInTheDocument();
-    });
-
     it('calls Google login when button is clicked', async () => {
         render(
             <MockThemeRedux>

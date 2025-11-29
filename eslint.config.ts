@@ -220,7 +220,7 @@ export default [
         },
     },
     {
-        files: ['*.config.{js,ts}', 'webpack/**/*.ts'],
+        files: ['*.config.{js,ts}'],
         languageOptions: {
             parser,
             parserOptions: {

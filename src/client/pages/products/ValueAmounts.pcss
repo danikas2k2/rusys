@@ -1,10 +1,9 @@
-.ValueAmounts {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
+.mantine-Table-td[data-cell="true"] {
+    --value-cell-color: inherit;
+    --value-sub-color: var(--color-subtext1);
+    --value-comma-color: var(--color-subtext0);
 
-    .value {
+    [data-value="true"] {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
@@ -13,11 +12,16 @@
         &:has(+ *) {
             &::after {
                 content: ",";
+                font-size: var(--font-size-small);
+                font-weight: var(--font-weight-normal);
+                color: var(--value-comma-color);
             }
         }
 
         sub {
             font-size: var(--font-size-xsmall);
+            font-weight: var(--font-weight-normal);
+            color: var(--value-sub-color);
         }
     }
 }

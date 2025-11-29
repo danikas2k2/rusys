@@ -4,7 +4,8 @@ import { ActionIcon } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
-import cx from './AddAction.pcss';
+
+import './AddAction.pcss';
 
 export function AddAction({ onClick }: { onClick?: React.MouseEventHandler }) {
     const [active, setActive] = useActiveContent();
@@ -26,8 +27,8 @@ export function AddAction({ onClick }: { onClick?: React.MouseEventHandler }) {
             color="green"
             variant="filled"
             onClick={handleClick}
-            className={cx('AddAction')}
             data-hidden={hidden}
+            data-action="add"
         >
             <IconPlus size={24} />
         </ActionIcon>

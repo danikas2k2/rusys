@@ -11,7 +11,8 @@ import { useYears } from '~/client/state/years/useYears';
 import { SwipeableTableRow } from '~/client/table/SwipeableTableRow';
 import { getCombinedAmounts } from '~/common/utils/amounts';
 import type { RemovingYearAmounts, VariantAmount } from '~/types/data';
-import cx from './ValueRow.pcss';
+
+import './ValueRow.pcss';
 
 export interface ValueRowProps {
     group: string;
@@ -56,12 +57,7 @@ export function ValueRow({ group, name, years, annual = true, missing }: ValueRo
                     indeterminate={!available}
                     onChange={handleClick}
                     label={
-                        <Title
-                            order={6}
-                            className={cx('name')}
-                            data-available={available}
-                            data-removing={available && hasRemoving}
-                        >
+                        <Title order={6} data-available={available} data-removing={available && hasRemoving}>
                             {name}
                         </Title>
                     }

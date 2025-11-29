@@ -18,17 +18,18 @@ import { Links } from '~/client/Links';
 import { ExportMenuItem } from '~/client/toolbar/items/ExportMenuItem';
 import { ImportMenuItem } from '~/client/toolbar/items/ImportMenuItem';
 import { ToolbarMenuIcon } from '~/client/toolbar/ToolbarMenuIcon';
-import cx from './ToolbarMenu.pcss';
+
+import './ToolbarMenu.pcss';
 
 export function ToolbarMenu() {
     const [opened, { toggle, close }] = useDisclosure();
 
-    const burger = <Burger size="sm" opened={opened} onClick={toggle} aria-label={useLabel('Menu')} />;
-
     return (
         <>
             <Portal>
-                <Box className={cx('burger')}>{burger}</Box>
+                <Box className="burger">
+                    <Burger size="sm" opened={opened} onClick={toggle} aria-label={useLabel('Menu')} />
+                </Box>
             </Portal>
             <Drawer
                 role="menu"
@@ -36,9 +37,9 @@ export function ToolbarMenu() {
                 onClose={close}
                 position="left"
                 withCloseButton={false}
-                className={cx('drawer')}
+                className="drawer"
             >
-                <Flex direction="column" className={cx('menu')}>
+                <Flex direction="column" className="menu">
                     <Box>
                         <NavLink
                             label={<Label>Products</Label>}

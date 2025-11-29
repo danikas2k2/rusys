@@ -1,13 +1,12 @@
-.Content {
+.mantine-Flex-root[data-loading] {
     position: absolute;
-    inset: 0;
+    inset: var(--safe-block-start) var(--safe-inline-end) var(--safe-block-end) var(--safe-inline-start);
     margin-block-start: 25vh;
-}
 
-.Loader {
-    position: fixed;
-    inset: 0;
-    margin: auto;
-    width: fit-content;
-    height: fit-content;
+    &[data-loading="true"] {
+        position: fixed;
+        margin: auto;
+        width: fit-content;
+        height: fit-content;
+    }
 }

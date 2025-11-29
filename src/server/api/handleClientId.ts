@@ -2,7 +2,7 @@ import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
 import type { ApiClientId, ApiRequest, ApiResponse } from '~/types/api';
 
-export const DEV_CLIENT_ID = 'dev_mode';
+export const DEV_CLIENT_ID = 'dev-mode';
 
 export async function handleClientId(req: ApiRequest, res: ApiResponse<ApiClientId>): Promise<void> {
     debugRequest(req);

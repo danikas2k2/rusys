@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Loader } from '@mantine/core';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -12,22 +12,20 @@ import { isDevMode } from '~/common/utils/env';
 
 export function App() {
     const clientId = useClientId();
-    const dev = isDevMode();
+    const [error, setError] = useState(false);
     return (
         <LocaleContext value={process.env.LOCALE}>
-            {dev ? (
-                <AppContent />
-            ) : clientId ? (
-                <GoogleOAuthProvider clientId={clientId}>
-                    <AppContent />
-                </GoogleOAuthProvider>
-            ) : (
-                (clientId == null && <Loader size="lg" type="bars" />) || (
+            <GoogleOAuthProvider clientId={clientId} onScriptLoadError={() => setError(true)}>
+                {error ? (
                     <Error>
-                        <Label>Invalid Client ID</Label>
+                        <Label>Failed to load Google OAuth script</Label>
                     </Error>
-                )
-            )}
+                ) : clientId || isDevMode() ? (
+                    <AppContent />
+                ) : (
+                    <Loader size="lg" type="bars" />
+                )}
+            </GoogleOAuthProvider>
         </LocaleContext>
     );
 }

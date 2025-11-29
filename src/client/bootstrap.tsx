@@ -6,12 +6,6 @@ import { MantineProvider } from '@mantine/core';
 
 import { App } from '~/client/App';
 import { getStore } from '~/client/state/store';
-
-import '@mantine/core/styles.css';
-import '@mantine/dropzone/styles.css';
-import '@ui/theme.pcss';
-import './bootstrap.pcss';
-
 import { getTheme } from '~/client/theme';
 
 export function bootstrap(): void {

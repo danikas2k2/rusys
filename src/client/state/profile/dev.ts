@@ -1,6 +1,6 @@
 import type { Profile } from '~/client/state/profile/types';
 
-export const DEV_MODE_SUB = 'DEV_MODE';
+export const DEV_MODE_SUB = 'dev-mode';
 
 export const DEV_MODE_EMAIL = 'dev@mo.de';
 

@@ -1,28 +1,23 @@
-.Page {
+.mantine-AppShell-root {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    padding-block: var(--safe-block);
+    padding-block: var(--safe-block-start) var(--safe-block-end);
     padding-inline: 0;
-
-    /* noinspection CssOverwrittenProperties */
-    height: 100vh;
-
-    /* noinspection CssOverwrittenProperties */
     height: 100dvh;
 
-    .header,
-    .footer {
+    .mantine-AppShell-header,
+    .mantine-AppShell-footer {
         border: none;
         position: static;
         flex-shrink: 0;
     }
 
-    .header {
-        padding-inline: var(--safe-inline);
+    .mantine-AppShell-header {
+        padding-inline: var(--safe-inline-start) var(--safe-inline-end);
     }
 
-    .main {
+    .mantine-AppShell-main {
         flex: 1;
         min-height: 0;
         padding: 0;
@@ -32,7 +27,7 @@
         }
 
         &[data-no-scroll] {
-            :global([data-scrollarea-viewport]) {
+            [data-scrollarea-viewport] {
                 overflow: hidden !important;
                 touch-action: none !important;
                 overscroll-behavior: none !important;
@@ -40,11 +35,10 @@
         }
     }
 
-    .footer {
+    .mantine-AppShell-footer {
         font-size: var(--font-size-small);
-        box-shadow:
-            0 -2px 8px -2px var(--shadow-color),
-            0 -4px 16px -4px var(--shadow-color);
+        box-shadow: 0 -2px 8px -2px var(--shadow-color),
+        0 -4px 16px -4px var(--shadow-color);
         padding-inline: calc(var(--mantine-spacing-xs) + var(--safe-inline-start)) calc(var(--mantine-spacing-xs) + var(--safe-inline-end));
         padding-block: calc(var(--mantine-spacing-xs) / 2) calc(var(--mantine-spacing-xs) / 2 + var(--safe-block-end));
         margin-block-end: calc(-(var(--safe-block-end)));

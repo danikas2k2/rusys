@@ -8,9 +8,8 @@ import { LogoutButton } from '~/client/user/LogoutButton';
 import { isDevMode } from '~/common/utils/env';
 
 export function AppContent() {
-    const dev = isDevMode();
     const profile = useProfile();
-    if (!dev) {
+    if (!isDevMode()) {
         if (!profile.sub) {
             return <LoginButton />;
         }

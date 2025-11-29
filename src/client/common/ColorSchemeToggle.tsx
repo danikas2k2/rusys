@@ -68,7 +68,7 @@ export function ColorSchemeToggle({ auto = true }: ColorSchemeToggleProps) {
     return (
         <Center>
             <SegmentedControl
-                key="color-scheme-toggle"
+                data-toggle="color-scheme"
                 color="blue"
                 value={animatedValue}
                 onChange={handleChange}

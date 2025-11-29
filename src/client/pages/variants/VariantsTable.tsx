@@ -16,7 +16,6 @@ import { useGetVariants } from '~/client/state/variants/useGetVariants';
 import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
 import { mapOrder } from '~/client/utils/mapOrder';
 import type { Variant, WithId } from '~/types/data';
-import cx from './VariantsTable.pcss';
 
 export function VariantsTable() {
     const [, setActive] = useActiveContent();
@@ -50,7 +49,7 @@ export function VariantsTable() {
     return (
         <LoadableContent loader={useGetVariants()} hasData={useVariantsHasData()}>
             <DraggableContent onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                <Table className={cx('VariantsTable')}>
+                <Table>
                     <Table.Thead>
                         <Table.Tr h="3rem">
                             <Table.Th />

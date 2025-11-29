@@ -1,21 +1,12 @@
-.ValueCell {
+.mantine-Table-td[data-cell="true"] {
+    white-space: normal;
+    overflow-wrap: break-word;
     position: relative;
+    padding: 0;
 
     --value-cell-color: inherit;
     --value-cell-background: inherit;
     --value-cell-font-weight: inherit;
-
-    .data {
-        color: var(--value-cell-color);
-        background: var(--value-cell-background);
-        font-weight: var(--value-cell-font-weight);
-        padding: 2px 8px;
-        margin: 4px 6px;
-        border-radius: var(--radius-xlarge);
-        transition-duration: 200ms;
-        transition-timing-function: ease-in-out;
-        transition-property: color, background-color, filter;
-    }
 
     &[data-last="true"] {
         --value-cell-color: var(--color-red);
@@ -41,6 +32,13 @@
         --value-cell-font-weight: var(--font-weight-bold);
     }
 
+    &[data-last="true"],
+    &[data-preferred="true"],
+    &[data-removing="true"] {
+        --value-sub-color: color-mix(in srgb, var(--value-cell-color) 80%, transparent 20%);
+        --value-comma-color: color-mix(in srgb, var(--value-cell-color) 60%, transparent 40%);
+    }
+
     &[data-updating="true"] .data {
         filter: blur(2px);
     }
@@ -50,7 +48,23 @@
         padding-inline-start: 1rem;
     }
 
-    .loader {
+    .mantine-Center-root {
+        color: var(--value-cell-color);
+        background: var(--value-cell-background);
+        font-weight: var(--value-cell-font-weight);
+        padding: 2px 8px;
+        margin: 4px 6px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-xlarge);
+        transition-duration: 200ms;
+        transition-timing-function: ease-in-out;
+        transition-property: color, background-color, filter;
+    }
+
+    .mantine-Loader-root {
         position: absolute;
         inset: 0;
         margin: auto;

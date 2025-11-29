@@ -32,7 +32,7 @@ describe('useClientId', () => {
 
         const { result } = renderHook(() => useClientId());
 
-        expect(result.current).toBeUndefined();
+        expect(result.current).toBeEmpty();
         expect(loadClientId).toHaveBeenCalledWith();
     });
 });
