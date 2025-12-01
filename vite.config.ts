@@ -61,25 +61,26 @@ export default defineConfig(({ mode }) => {
                 },
             },
         },
-        server: development
-            ? {
-                  // Run Vite as standalone dev server in development
-                  port: 5173,
-                  host: 'localhost',
-                  hmr: {
-                      port: 5173,
-                  },
-                  // Proxy API requests to Express server
-                  proxy: {
-                      // Proxy all API endpoints to Express server
-                      // Matches: /products, /products/*, /groups, /groups/*, /variants, /variants/*, /export, /import, /clientId, /checkUser, /summary
-                      '^/(products|groups|variants|export|import|clientId|checkUser|summary)': {
-                          target: 'http://localhost:3000',
-                          changeOrigin: true,
+        server: {
+            // Run Vite standalone server
+            port: 5173,
+            host: 'localhost',
+            ...(development
+                ? {
+                      hmr: {
+                          port: 5173,
                       },
-                  },
-              }
-            : undefined,
+                  }
+                : {}),
+            // Proxy API requests to Express server
+            proxy: {
+                // Proxy all API endpoints to Express server
+                '^/(products|groups|variants|export|import|clientId|checkUser|summary)': {
+                    target: 'http://localhost:3000',
+                    changeOrigin: true,
+                },
+            },
+        },
         optimizeDeps: {
             include: ['react', 'react-dom', 'react-router', 'react-router-dom'],
         },
