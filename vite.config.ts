@@ -62,16 +62,12 @@ export default defineConfig(({ mode }) => {
             },
         },
         server: {
-            // Run Vite standalone server
+            // Run Vite standalone server (dev mode only)
             port: 5173,
             host: 'localhost',
-            ...(development
-                ? {
-                      hmr: {
-                          port: 5173,
-                      },
-                  }
-                : {}),
+            hmr: {
+                port: 5173,
+            },
             // Proxy API requests to Express server
             proxy: {
                 // Proxy all API endpoints to Express server
