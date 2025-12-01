@@ -1,34 +1,17 @@
 import express from 'express';
-import { createServer } from 'vite';
 
 import { setupHandlers, setupHelmet, setupStatic, startServers } from '~/server/app';
 
-(async () => {
-    const app = setupHelmet(express());
+// Express server for API only
+// Vite dev server runs separately on port 5173 with proxy to this server
+const app = setupHelmet(express());
 
-    // Register API handlers BEFORE Vite middleware
-    // This ensures API routes are handled before Vite tries to serve them
-    setupHandlers(app);
+// Register API handlers
+setupHandlers(app);
 
-    // Create Vite server in middleware mode for Express integration
-    const vite = await createServer({
-        server: {
-            middlewareMode: true,
-            hmr: {
-                port: 24678,
-            },
-        },
-        appType: 'spa',
-    });
+// Register static file serving (for production builds)
+setupStatic(app);
 
-    // Use Vite middleware to handle client requests
-    // This should be AFTER API handlers so API routes work correctly
-    // Vite middleware automatically handles index.html transformation with React Refresh
-    app.use(vite.middlewares);
-
-    // Register static file serving AFTER Vite middleware
-    setupStatic(app);
-
-    // Start both HTTP and HTTPS servers
-    startServers(app);
-})();
+// Start both HTTP and HTTPS servers
+// Vite dev server will proxy API requests to this server
+startServers(app);

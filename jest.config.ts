@@ -39,7 +39,6 @@ const config: Config = {
             setupFilesAfterEnv: ['@testing-library/jest-dom', ...base.setupFilesAfterEnv!],
             testMatch: ['<rootDir>/src/(client|ui)/**/*.test.{ts,tsx}'],
         },
-
         {
             ...base,
             displayName: 'server',

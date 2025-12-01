@@ -42,7 +42,7 @@ export function setupHelmet(app: Express): Express {
                         'https://fonts.googleapis.com',
                         'https://fonts.gstatic.com',
                         // Allow Vite HMR WebSocket in dev (Vite runs on port 5173)
-                        ...(isDevMode() ? ['ws://localhost:5173', 'ws://127.0.0.1:5173', 'http://localhost:5173'] : []),
+                        ...(isDevMode() ? ['ws://localhost:5173', 'ws://127.0.0.1:5173'] : []),
                     ],
                     scriptSrc: ["'self'", 'https://accounts.google.com'],
                     scriptSrcElem: [
