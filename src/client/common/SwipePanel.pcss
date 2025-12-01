@@ -1,11 +1,11 @@
 .mantine-Group-root[data-swipe-controls="true"] {
-    backdrop-filter: blur(2px);
     background-color: color-mix(in srgb, var(--mantine-color-body) 20%, transparent 80%);
     position: fixed;
     left: 100vw;
-    padding-inline: 1rem 0.5rem;
+    padding-inline: 0 0.5rem;
     transition: transform 0.2s ease-out;
     display: flex;
+    flex-wrap: nowrap;
     justify-content: flex-end;
     align-items: center;
     gap: 0.5rem;
@@ -21,5 +21,9 @@
 
     &[data-closing="true"] {
         pointer-events: none;
+    }
+
+    .mantine-Button-root {
+        box-shadow: var(--shadow-large);
     }
 }
