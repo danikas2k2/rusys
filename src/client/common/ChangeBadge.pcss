@@ -2,6 +2,8 @@
     position: absolute;
 
     &.mantine-Badge-root {
+        --badge-height: 1.5rem;
+
         box-shadow: var(--shadow-small);
         padding-block: 0.25em;
     }
@@ -18,7 +20,7 @@
     }
 
     &[data-position^="top"] {
-        inset-block-start: -0.75rem;
+        inset-block-start: calc(var(--badge-height) / -2);
         margin: auto;
     }
 

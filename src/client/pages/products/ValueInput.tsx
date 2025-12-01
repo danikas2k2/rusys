@@ -103,7 +103,7 @@ export function ValueInput({
                     aria-current={focused}
                     allowNegative={false}
                     allowDecimal={false}
-                    size="md"
+                    size="lg"
                     hideControls
                     leftSection={
                         <ActionIcon
