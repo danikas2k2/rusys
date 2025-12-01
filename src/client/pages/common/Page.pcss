@@ -13,14 +13,15 @@
         flex-shrink: 0;
     }
 
-    .mantine-AppShell-header {
+    .mantine-AppShell-header,
+    .mantine-AppShell-footer,
+    .mantine-AppShell-main {
         padding-inline: var(--safe-inline-start) var(--safe-inline-end);
     }
 
     .mantine-AppShell-main {
         flex: 1;
         min-height: 0;
-        padding: 0;
 
         > div {
             position: sticky;
@@ -37,10 +38,9 @@
 
     .mantine-AppShell-footer {
         font-size: var(--font-size-small);
-        box-shadow: 0 -2px 8px -2px var(--shadow-color),
-        0 -4px 16px -4px var(--shadow-color);
+        box-shadow: 0 -2px 8px -2px var(--color-shadow), 0 -4px 16px -4px var(--color-shadow);
         padding-inline: calc(var(--mantine-spacing-xs) + var(--safe-inline-start)) calc(var(--mantine-spacing-xs) + var(--safe-inline-end));
         padding-block: calc(var(--mantine-spacing-xs) / 2) calc(var(--mantine-spacing-xs) / 2 + var(--safe-block-end));
-        margin-block-end: calc(-(var(--safe-block-end)));
+        margin-block-end: calc(-1 * var(--safe-block-end));
     }
 }

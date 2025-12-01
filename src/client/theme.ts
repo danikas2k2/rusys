@@ -137,7 +137,6 @@ export function getTheme() {
             },
             NavLink: {
                 styles: {
-                    root: {},
                     label: {
                         color: 'var(--color-text)',
                         fontSize: 'var(--font-size-base)',

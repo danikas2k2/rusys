@@ -108,7 +108,6 @@ body {
     font-family: var(--font-family-body), sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    margin: var(--safe-block-start) var(--safe-inline-end) var(--safe-block-end) var(--safe-inline-start);
 }
 
 code {
@@ -132,8 +131,9 @@ select,
 
 .mantine-Select-dropdown {
     color: var(--color-text);
-    background-color: var(--color-surface0);
-    border-color: var(--color-surface2);
+    background-color: var(--color-base);
+    border-color: var(--color-surface0);
+    box-shadow: var(--shadow-medium);
 }
 
 .mantine-SegmentedControl-root {

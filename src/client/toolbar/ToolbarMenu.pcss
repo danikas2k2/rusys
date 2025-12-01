@@ -1,13 +1,13 @@
 .burger {
     position: absolute;
-    top: 10px;
-    left: 6px;
+    top: calc(var(--safe-block-start) + 6px);
+    left: calc(var(--safe-inline-start) + 6px);
     z-index: 300;
 }
 
 .drawer {
     .mantine-Drawer-body {
-        padding-inline: var(--safe-inline-start) var(--safe-inline-end);
+        padding-inline: var(--safe-inline-start) 0.5rem;
         padding-block: 0 var(--safe-block-end);
     }
 
@@ -20,7 +20,7 @@
 }
 
 .menu {
-    padding-inline: var(--safe-inline-start) var(--safe-inline-end);
+    padding-inline: 0;
     padding-block: calc(4rem + var(--safe-block-start)) var(--safe-block-end);
     height: 100dvh;
 }
