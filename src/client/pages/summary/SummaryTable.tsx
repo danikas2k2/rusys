@@ -27,7 +27,7 @@ export function SummaryTable() {
         <LoadableContent loader={useGetSummary()} hasData={useSummaryHasData()}>
             <Table layout="fixed">
                 <Table.Thead>
-                    <Table.Tr h="3rem">
+                    <Table.Tr h="3rem" bd={0}>
                         <Table.Th w={`${headingWidth}%`} py={0}>
                             <UpdateTypeToggle updated={false} />
                         </Table.Th>
@@ -36,6 +36,9 @@ export function SummaryTable() {
                                 <sup>{year}</sup>/<sub>{year + 1}</sub>
                             </Table.Th>
                         ))}
+                    </Table.Tr>
+                    <Table.Tr data-shadow>
+                        <Table.Th colSpan={summaryYears.length + 1} data-shadow />
                     </Table.Tr>
                 </Table.Thead>
                 {visibleGroups.map((group) => (

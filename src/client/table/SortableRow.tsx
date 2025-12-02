@@ -37,12 +37,13 @@ export function SortableRow<D = ActiveContentData>({
                 transform: CSS.Transform.toString(transform),
                 transition,
                 backgroundColor: isDragging ? 'var(--color-base)' : undefined,
-                boxShadow: isDragging ? 'var(--shadow-small)' : undefined,
+                // boxShadow removed - using ::after pseudo-element in table.pcss for iOS Safari compatibility
                 position: 'relative',
                 zIndex: isDragging ? 1 : undefined,
             }}
             ref={setNodeRef}
             data-group={dataGroup}
+            data-dragging={isDragging ? 'true' : undefined}
         >
             {cloneElement(handle, {
                 ref: setActivatorNodeRef,

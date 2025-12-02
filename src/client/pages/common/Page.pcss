@@ -1,4 +1,4 @@
-.mantine-AppShell-root {
+.ui-AppShell-root {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -6,20 +6,20 @@
     padding-inline: 0;
     height: 100dvh;
 
-    .mantine-AppShell-header,
-    .mantine-AppShell-footer {
+    .ui-AppShell-header,
+    .ui-AppShell-footer {
         border: none;
         position: static;
         flex-shrink: 0;
     }
 
-    .mantine-AppShell-header,
-    .mantine-AppShell-footer,
-    .mantine-AppShell-main {
+    .ui-AppShell-header,
+    .ui-AppShell-footer,
+    .ui-AppShell-main {
         padding-inline: var(--safe-inline-start) var(--safe-inline-end);
     }
 
-    .mantine-AppShell-main {
+    .ui-AppShell-main {
         flex: 1;
         min-height: 0;
 
@@ -36,9 +36,9 @@
         }
     }
 
-    .mantine-AppShell-footer {
+    .ui-AppShell-footer {
         font-size: var(--font-size-small);
-        box-shadow: 0 -2px 8px -2px var(--color-shadow), 0 -4px 16px -4px var(--color-shadow);
+        box-shadow: 0 -2px 4px -2px var(--color-shadow), 0 -4px 8px -2px var(--color-shadow);
         padding-inline: calc(var(--mantine-spacing-xs) + var(--safe-inline-start)) calc(var(--mantine-spacing-xs) + var(--safe-inline-end));
         padding-block: calc(var(--mantine-spacing-xs) / 2) calc(var(--mantine-spacing-xs) / 2 + var(--safe-block-end));
         margin-block-end: calc(-1 * var(--safe-block-end));

@@ -1,6 +1,7 @@
 @import "@mantine/core/styles.css";
 @import "@mantine/dropzone/styles.css";
 @import "@ui/theme.pcss";
+//@import "./table/table.pcss";
 
 :root {
     --toolbar-height: 48px;
@@ -42,6 +43,21 @@
     --mantine-font-size-md: var(--font-size-medium);
     --mantine-font-size-lg: var(--font-size-large);
     --mantine-font-size-xl: var(--font-size-xlarge);
+
+    // Heading font settings
+
+    --mantine-h1-font-size: var(--font-size-base);
+    --mantine-h1-font-weight: var(--font-weight-bold);
+    --mantine-h2-font-size: var(--font-size-base);
+    --mantine-h2-font-weight: var(--font-weight-bold);
+    --mantine-h3-font-size: var(--font-size-base);
+    --mantine-h3-font-weight: var(--font-weight-bold);
+    --mantine-h4-font-size: var(--font-size-base);
+    --mantine-h4-font-weight: var(--font-weight-semi-bold);
+    --mantine-h5-font-size: var(--font-size-base);
+    --mantine-h5-font-weight: var(--font-weight-semi-bold);
+    --mantine-h6-font-size: var(--font-size-base);
+    --mantine-h6-font-weight: var(--font-weight-semi-bold);
 
     //
     // Safe area insets
@@ -118,41 +134,67 @@ code {
 input,
 textarea,
 select,
-.mantine-Input-input,
-.mantine-Select-input,
-.mantine-NumberInput-input,
-.mantine-TextInput-input,
-.mantine-PasswordInput-input,
-.mantine-Textarea-input,
-.mantine-Autocomplete-input,
-.mantine-MultiSelect-input {
-    font-size: 16px !important;
+.ui-Input-input,
+.ui-Select-input,
+.ui-NumberInput-input,
+.ui-TextInput-input,
+.ui-PasswordInput-input,
+.ui-Textarea-input,
+.ui-Autocomplete-input,
+.ui-MultiSelect-input,
+.ui-NavLink-label {
+    font-size: var(--font-size-base);
 }
 
-.mantine-Select-dropdown {
+.ui-Burger-root,
+.ui-NavLink-label,
+.ui-Select-dropdown {
     color: var(--color-text);
+}
+
+.ui-Avatar-placeholder,
+.ui-AppShell-header,
+.ui-AppShell-footer,
+.ui-Drawer-content,
+.ui-Drawer-header,
+.ui-Drawer-body,
+.ui-Input-input,
+.ui-Checkbox-input,
+.ui-Select-input,
+.ui-Select-dropdown,
+.ui-Modal-content,
+.ui-Modal-header,
+.ui-Modal-body {
     background-color: var(--color-base);
+}
+
+.ui-Select-dropdown {
     border-color: var(--color-surface0);
     box-shadow: var(--shadow-medium);
 }
 
-.mantine-SegmentedControl-root {
+.ui-SegmentedControl-root {
     background-color: var(--color-surface0);
     border-color: var(--color-surface2);
 
-    .mantine-SegmentedControl-label:not([data-active="true"]) {
-        color: var(--color-text);
+    .ui-SegmentedControl-label:not([data-active="true"]) {
+        //color: var(--color-text);
+        color: inherit;
     }
 }
 
-// Unified overlay styles for Modal and Drawer
-.mantine-Modal-overlay,
-.mantine-Drawer-overlay {
+.ui-Modal-overlay,
+.ui-Drawer-overlay {
     opacity: 0.2;
     backdrop-filter: blur(2px);
 }
 
-.mantine-Dropzone-root {
+.ui-Modal-title {
+    font-size: var(--font-size-large);
+    font-weight: var(--font-weight-semi-bold);
+}
+
+.ui-Dropzone-root {
     &:where([data-idle]) {
         color: var(--color-text);
         background-color: var(--color-surface0);
@@ -173,5 +215,33 @@ select,
         color: var(--color-red);
         background-color: color-mix(in srgb, var(--color-red) 10%, var(--color-surface0) 90%);
         border-color: color-mix(in srgb, var(--color-red) 20%, var(--color-surface2) 80%);
+    }
+}
+
+.ui-Table-table {
+    --table-border-color: var(--color-mantle);
+
+    font-size: var(--font-size-base);
+    margin-block-end: 12px;
+}
+
+.ui-Table-thead {
+    position: sticky;
+    inset-block-start: 0;
+    background-color: var(--color-base);
+}
+
+.ui-Table-th {
+    font-weight: var(--font-weight-normal);
+}
+
+.ui-Table-tr[data-dragging='true'] {
+    position: relative;
+    z-index: 1;
+    background-color: var(--color-base);
+
+    &, .ui-Table-th, .ui-Table-td {
+        box-shadow: var(--shadow-small);
+        background-color: var(--color-base);
     }
 }

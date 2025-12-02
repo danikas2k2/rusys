@@ -21,6 +21,10 @@ function createColorTuple(colorName: string): MantineColorsTuple {
     ];
 }
 
+const TRANSITION = 'fade-down';
+const TRANSITION_DURATION = 200;
+const TRANSITION_TIMING_FUNCTION = 'ease-out';
+
 export function getTheme() {
     return createTheme({
         // Override Mantine system colors with Catppuccin palette
@@ -63,17 +67,6 @@ export function getTheme() {
 
         defaultRadius: 'md',
 
-        headings: {
-            sizes: {
-                h1: { fontWeight: 'var(--font-weight-bold)' },
-                h2: { fontWeight: 'var(--font-weight-bold)' },
-                h3: { fontWeight: 'var(--font-weight-bold)' },
-                h4: { fontWeight: 'var(--font-weight-semi-bold)' },
-                h5: { fontWeight: 'var(--font-weight-semi-bold)' },
-                h6: { fontWeight: 'var(--font-weight-semi-bold)' },
-            },
-        },
-
         components: {
             Alert: {
                 defaultProps: {
@@ -85,127 +78,20 @@ export function getTheme() {
                     role: 'progressbar',
                 },
             },
-            Avatar: {
-                styles: {
-                    placeholder: {
-                        backgroundColor: 'var(--color-base)',
-                    },
-                },
-            },
-            AppShell: {
-                styles: {
-                    header: {
-                        backgroundColor: 'var(--color-base)',
-                    },
-                    footer: {
-                        backgroundColor: 'var(--color-base)',
-                    },
-                },
-            },
-            Input: {
-                styles: {
-                    input: {
-                        backgroundColor: 'var(--color-base)',
-                    },
-                },
-            },
             InputError: {
                 defaultProps: {
                     role: 'alert',
                 },
             },
-            Select: {
-                styles: {
-                    input: {
-                        backgroundColor: 'var(--color-base)',
-                    },
-                },
-            },
-            Burger: {
-                styles: {
-                    root: {
-                        '--burger-color': 'var(--color-text)',
-                    },
-                },
-            },
-            Checkbox: {
-                styles: {
-                    input: {
-                        backgroundColor: 'var(--color-base)',
-                    },
-                },
-            },
-            NavLink: {
-                styles: {
-                    label: {
-                        color: 'var(--color-text)',
-                        fontSize: 'var(--font-size-base)',
-                    },
-                },
-            },
-            Title: {
-                styles: {
-                    root: {
-                        fontSize: 'var(--font-size-base)',
-                    },
-                },
-            },
             Modal: {
                 defaultProps: {
-                    transitionProps: {
-                        transition: 'fade-down',
-                        duration: 200,
-                        timingFunction: 'ease-out',
-                    },
                     overlayProps: {
                         role: 'complementary',
                     },
-                },
-                styles: {
-                    content: {
-                        backgroundColor: 'var(--color-base)',
-                    },
-                    header: {
-                        backgroundColor: 'var(--color-base)',
-                    },
-                    body: {
-                        backgroundColor: 'var(--color-base)',
-                    },
-                    title: {
-                        fontSize: 'var(--font-size-large)',
-                        fontWeight: 'var(--font-weight-semi-bold)',
-                    },
-                },
-            },
-            Drawer: {
-                styles: {
-                    content: {
-                        backgroundColor: 'var(--color-base)',
-                    },
-                    header: {
-                        backgroundColor: 'var(--color-base)',
-                    },
-                    body: {
-                        backgroundColor: 'var(--color-base)',
-                    },
-                },
-            },
-            Table: {
-                styles: {
-                    table: {
-                        fontSize: 'var(--font-size-base)',
-                        '--table-border-color': 'var(--color-mantle)',
-                        marginBlockEnd: '12px',
-                    },
-                    th: {
-                        fontWeight: 'var(--font-weight-normal)',
-                    },
-                    thead: {
-                        position: 'sticky',
-                        insetBlockStart: 0,
-                        zIndex: 2,
-                        backgroundColor: 'var(--color-base)',
-                        boxShadow: 'var(--shadow-xsmall)',
+                    transitionProps: {
+                        transition: TRANSITION,
+                        duration: TRANSITION_DURATION,
+                        timingFunction: TRANSITION_TIMING_FUNCTION,
                     },
                 },
             },

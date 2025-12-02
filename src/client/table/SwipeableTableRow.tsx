@@ -13,6 +13,7 @@ interface SwipeableTableRowProps<D = ActiveContentData> {
     style?: React.CSSProperties;
     ref: (element: HTMLTableRowElement | null) => void;
     'data-group'?: string;
+    'data-dragging'?: string;
     avoidSwipeSelectors?: string;
 }
 
@@ -28,6 +29,7 @@ export function SwipeableTableRow<D = ActiveContentData>({
     style,
     ref,
     'data-group': dataGroup,
+    'data-dragging': dataDragging,
     avoidSwipeSelectors = '[data-drag-handle]',
     children,
 }: React.PropsWithChildren<SwipeableTableRowProps<D>>): React.ReactElement {
@@ -312,7 +314,7 @@ export function SwipeableTableRow<D = ActiveContentData>({
     );
 
     return (
-        <Table.Tr ref={combinedRef} data-group={dataGroup} style={style}>
+        <Table.Tr ref={combinedRef} data-group={dataGroup} data-dragging={dataDragging} style={style}>
             {children}
         </Table.Tr>
     );

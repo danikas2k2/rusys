@@ -19,21 +19,13 @@ export function bootstrap(): void {
                 <MantineProvider
                     theme={getTheme()}
                     defaultColorScheme="auto"
+                    classNamesPrefix="ui"
                     /*
-                    classNamesPrefix = 'mantine',
                     cssVariablesSelector = ':root',
+                    withCssVariables = true,
                     deduplicateCssVariables = true,
-                    getStyleNonce,
-                    stylesTransform,
                     withGlobalClasses = true,
                     withStaticClasses = true,
-
-                    // TODO: use Mantine color scheme manager instead of custom
-                    colorSchemeManager = localStorageColorSchemeManager(),
-                    forceColorScheme,
-
-                    // TODO: check what for this env used
-                    env,
                     getRootElement = () => document.documentElement,
                   */
                 >
