@@ -1,7 +1,6 @@
 @import "@mantine/core/styles.css";
 @import "@mantine/dropzone/styles.css";
 @import "@ui/theme.pcss";
-//@import "./table/table.pcss";
 
 :root {
     --toolbar-height: 48px;
@@ -146,7 +145,10 @@ select,
     font-size: var(--font-size-base);
 }
 
-.ui-Burger-root,
+.ui-Burger-root {
+    --burger-color: var(--color-text);
+}
+
 .ui-NavLink-label,
 .ui-Select-dropdown {
     color: var(--color-text);
