@@ -6,6 +6,7 @@ settings:
 
 overrides:
   braces: ^3.0.3
+  csstype: ^3.2.3
   glob: ^13.0.0
   jsdom: ^27.2.0
   micromatch: ^4.0.8
@@ -214,6 +215,9 @@ importers:
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
+      csstype:
+        specifier: ^3.2.3
+        version: 3.2.3
       esbuild:
         specifier: ^0.27.0
         version: 0.27.0
