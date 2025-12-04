@@ -4,15 +4,13 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 import type { ActiveContentData } from '~/client/common/ActiveContentContext';
+import type { DraggableRowProps } from '~/client/table/DraggableRow';
 import { DragHandle } from '~/client/table/DragHandle';
-import { SwipeableTableRow } from '~/client/table/SwipeableTableRow';
+import { SwipeableRow } from '~/client/table/SwipeableRow';
 
-interface SortableRowProps<D = ActiveContentData> {
-    id: string;
-    data: Readonly<D>;
+interface SortableRowProps<D = ActiveContentData, T = HTMLTableRowElement> extends DraggableRowProps<D, T> {
     disabled?: boolean;
     handle?: React.ReactElement<React.ComponentPropsWithRef<typeof DragHandle>>;
-    'data-group'?: string;
 }
 
 export function SortableRow<D = ActiveContentData>({
@@ -20,30 +18,28 @@ export function SortableRow<D = ActiveContentData>({
     data,
     disabled,
     handle = <DragHandle />,
-    'data-group': dataGroup,
     children,
-}: React.PropsWithChildren<SortableRowProps<D>>): React.ReactElement {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging, setActivatorNodeRef } = useSortable({
-        id,
-        disabled,
-    });
+    ...props
+}: SortableRowProps<D>): React.ReactElement {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging, isSorting, setActivatorNodeRef } =
+        useSortable({
+            id,
+            disabled,
+        });
 
     return (
-        <SwipeableTableRow<D>
+        <SwipeableRow<D>
             id={id}
             data={data}
             style={{
-                // TODO move styles to css file using class names
                 transform: CSS.Transform.toString(transform),
                 transition,
-                backgroundColor: isDragging ? 'var(--color-base)' : undefined,
-                // boxShadow removed - using ::after pseudo-element in table.pcss for iOS Safari compatibility
-                position: 'relative',
-                zIndex: isDragging ? 1 : undefined,
+                ...(isDragging && { opacity: 0 }),
             }}
             ref={setNodeRef}
-            data-group={dataGroup}
-            data-dragging={isDragging ? 'true' : undefined}
+            {...props}
+            data-dragging={isDragging}
+            data-sorting={isSorting}
         >
             {cloneElement(handle, {
                 ref: setActivatorNodeRef,
@@ -52,6 +48,6 @@ export function SortableRow<D = ActiveContentData>({
                 ...(disabled ? {} : { style: { cursor: 'grab' } }),
             })}
             {children}
-        </SwipeableTableRow>
+        </SwipeableRow>
     );
 }

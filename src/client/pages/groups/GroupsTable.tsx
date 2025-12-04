@@ -14,6 +14,7 @@ import { useFilteredGroups } from '~/client/pages/groups/hooks/useFilteredGroups
 import { useGroupsHasData } from '~/client/pages/groups/hooks/useGroupsHasData';
 import { useGetGroups } from '~/client/state/groups/useGetGroups';
 import { useReorderGroups } from '~/client/state/groups/useReorderGroups';
+import { DragOverlayTable } from '~/client/table/DragOverlayTable';
 import { mapOrder } from '~/client/utils/mapOrder';
 import type { Group } from '~/types/data';
 
@@ -36,9 +37,22 @@ export function GroupsTable() {
         resolve: (id: UniqueIdentifier) => ({ group: `${id}` }),
     });
 
+    const renderDragOverlay = (activeId: UniqueIdentifier, columns: number[]) => {
+        const group = items.find((g) => g.group === activeId);
+        return group ? (
+            <DragOverlayTable columns={columns}>
+                <GroupsRow group={group} reordering={reordering} />
+            </DragOverlayTable>
+        ) : null;
+    };
+
     return (
         <LoadableContent loader={useGetGroups()} hasData={useGroupsHasData()}>
-            <DraggableContent onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            <DraggableContent
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                renderDragOverlay={renderDragOverlay}
+            >
                 <Table>
                     <Table.Thead>
                         <Table.Tr h="3rem">

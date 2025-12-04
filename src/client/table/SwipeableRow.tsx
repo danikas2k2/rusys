@@ -4,16 +4,12 @@ import { Table } from '@mantine/core';
 
 import { useActiveContent, type ActiveContentData } from '~/client/common/ActiveContentContext';
 import { useSwipePanelWidth } from '~/client/common/SwipeControlsContext';
+import { type DraggableRowProps } from '~/client/table/DraggableRow';
 import { POINTER_MOVE_THRESHOLD } from '~/client/utils/pointer';
 import { dispatchNativeCancelEvents } from '~/client/utils/pointEvents';
 
-interface SwipeableTableRowProps<D = ActiveContentData> {
-    id: string;
-    data: Readonly<D>;
-    style?: React.CSSProperties;
-    ref: (element: HTMLTableRowElement | null) => void;
-    'data-group'?: string;
-    'data-dragging'?: string;
+interface SwipeableTableRowProps<D = ActiveContentData, T = HTMLTableRowElement> extends DraggableRowProps<D, T> {
+    ref: React.RefCallback<T>;
     avoidSwipeSelectors?: string;
 }
 
@@ -23,16 +19,13 @@ const MIN_DX_CHANGE = 1;
 // Throttle state updates to max 60fps (16ms between updates)
 const UPDATE_THROTTLE_MS = 16;
 
-export function SwipeableTableRow<D = ActiveContentData>({
+export function SwipeableRow<D = ActiveContentData>({
     id,
     data,
-    style,
     ref,
-    'data-group': dataGroup,
-    'data-dragging': dataDragging,
     avoidSwipeSelectors = '[data-drag-handle]',
-    children,
-}: React.PropsWithChildren<SwipeableTableRowProps<D>>): React.ReactElement {
+    ...props
+}: SwipeableTableRowProps<D>): React.ReactElement {
     const [active, setActive] = useActiveContent<D>();
     const activeRef = useRef<HTMLTableRowElement>(null);
     const [controlsWidth] = useSwipePanelWidth();
@@ -313,9 +306,5 @@ export function SwipeableTableRow<D = ActiveContentData>({
         [ref]
     );
 
-    return (
-        <Table.Tr ref={combinedRef} data-group={dataGroup} data-dragging={dataDragging} style={style}>
-            {children}
-        </Table.Tr>
-    );
+    return <Table.Tr ref={combinedRef} data-id={id} {...props} />;
 }

@@ -8,7 +8,7 @@ import { ValueCell } from '~/client/pages/products/ValueCell';
 import { useHasRemoving } from '~/client/state/products/useHasRemoving';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
 import { useYears } from '~/client/state/years/useYears';
-import { SwipeableTableRow } from '~/client/table/SwipeableTableRow';
+import { SwipeableRow } from '~/client/table/SwipeableRow';
 import { getCombinedAmounts } from '~/common/utils/amounts';
 import type { RemovingYearAmounts, VariantAmount } from '~/types/data';
 
@@ -44,11 +44,11 @@ export function ValueRow({ group, name, years, annual = true, missing }: ValueRo
     }, [available, setMissing, group, name, missing]);
 
     const rowRef = useCallback(() => {
-        // No-op ref callback - SwipeableTableRow handles ref internally
+        // No-op ref callback - SwipeableRow handles ref internally
     }, []);
 
     return (
-        <SwipeableTableRow ref={rowRef} id={`${group}:${name}`} data={{ group, name }} data-group={group}>
+        <SwipeableRow ref={rowRef} id={`${group}:${name}`} data={{ group, name }} data-group={group}>
             <Table.Td>
                 <Checkbox
                     variant="outline"
@@ -88,7 +88,7 @@ export function ValueRow({ group, name, years, annual = true, missing }: ValueRo
                     span={allYears.length}
                 />
             )}
-        </SwipeableTableRow>
+        </SwipeableRow>
     );
 
     function isPreferred(year: number, amounts?: readonly VariantAmount[]): boolean {

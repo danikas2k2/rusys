@@ -225,6 +225,13 @@ select,
 
     font-size: var(--font-size-base);
     margin-block-end: 12px;
+
+    &[data-drag-overlay='true'] {
+        table-layout: fixed;
+        width: 100%;
+        background-color: var(--color-base);
+        box-shadow: var(--shadow-medium);
+    }
 }
 
 .ui-Table-thead {

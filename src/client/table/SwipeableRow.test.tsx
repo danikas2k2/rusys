@@ -8,7 +8,7 @@ import React from 'react';
 import { Table } from '@mantine/core';
 
 import { useSwipePanelWidth } from '~/client/common/SwipeControlsContext';
-import { SwipeableTableRow } from '~/client/table/SwipeableTableRow';
+import { SwipeableRow } from '~/client/table/SwipeableRow';
 import { POINTER_MOVE_THRESHOLD } from '~/client/utils/pointer';
 import { dispatchNativeCancelEvents } from '~/client/utils/pointEvents';
 
@@ -21,7 +21,7 @@ jest.mock('~/client/utils/pointEvents', () => ({
     dispatchNativeCancelEvents: jest.fn(),
 }));
 
-describe('<SwipeableTableRow>', () => {
+describe('<SwipeableRow>', () => {
     const mockRef = jest.fn();
     const setActive = jest.fn();
     const mockData = { id: 'test-1', name: 'Test Item' };
@@ -38,10 +38,10 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell 1</Table.Td>
                                     <Table.Td>Cell 2</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -58,9 +58,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef} data-group="group-1">
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef} data-group="group-1">
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -78,9 +78,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef} style={customStyle}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef} style={customStyle}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -96,9 +96,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -122,9 +122,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -145,11 +145,11 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>
                                         <div data-drag-handle>Handle</div>
                                     </Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -168,9 +168,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -199,9 +199,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -226,9 +226,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -254,9 +254,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -285,9 +285,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -312,9 +312,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -342,9 +342,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -374,9 +374,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -120 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -408,9 +408,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -429,11 +429,11 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>
                                         <div data-drag-handle>Handle</div>
                                     </Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -451,9 +451,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -482,9 +482,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -513,9 +513,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -544,9 +544,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -120 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -573,9 +573,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -602,9 +602,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -60 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -620,9 +620,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={undefined} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -639,9 +639,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'other-row', data: mockData }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -659,9 +659,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -692,9 +692,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -725,9 +725,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -757,9 +757,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={activeContent} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -785,9 +785,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -120 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -811,9 +811,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -839,9 +839,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -872,9 +872,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -1 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -900,9 +900,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -931,9 +931,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -957,9 +957,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -981,9 +981,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1014,9 +1014,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1039,9 +1039,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1067,9 +1067,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1102,9 +1102,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1131,9 +1131,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -120 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1160,9 +1160,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -120 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1191,9 +1191,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -120 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1211,9 +1211,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1237,9 +1237,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1276,9 +1276,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1302,9 +1302,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1330,9 +1330,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -60 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1390,9 +1390,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -60 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1417,9 +1417,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -60 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1450,9 +1450,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1484,9 +1484,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1522,9 +1522,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1560,9 +1560,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1591,9 +1591,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -60 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1712,9 +1712,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -60 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1755,9 +1755,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1787,9 +1787,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1829,9 +1829,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1865,9 +1865,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1902,9 +1902,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1926,9 +1926,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1953,9 +1953,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -1986,9 +1986,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -2006,9 +2006,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -60 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -2048,9 +2048,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -2083,9 +2083,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -2116,9 +2116,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -2156,9 +2156,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>
@@ -2172,9 +2172,9 @@ describe('<SwipeableTableRow>', () => {
                     <MockActiveContent active={{ id: 'test-1', data: mockData, offset: -60 }} setActive={setActive}>
                         <Table>
                             <Table.Tbody>
-                                <SwipeableTableRow id="test-1" data={mockData} ref={mockRef}>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
                                     <Table.Td>Cell</Table.Td>
-                                </SwipeableTableRow>
+                                </SwipeableRow>
                             </Table.Tbody>
                         </Table>
                     </MockActiveContent>

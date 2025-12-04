@@ -12,9 +12,9 @@ jest.mock('@dnd-kit/sortable', () => ({
     useSortable: jest.fn(),
 }));
 
-jest.mock('~/client/table/SwipeableTableRow', () => ({
-    SwipeableTableRow: ({ children, style, ref, 'data-group': dataGroup }: any) => (
-        <tr ref={ref} data-group={dataGroup} data-style={JSON.stringify(style)}>
+jest.mock('~/client/table/SwipeableRow', () => ({
+    SwipeableRow: ({ children, style, ref, 'data-group': dataGroup, 'data-id': dataId, ...props }: any) => (
+        <tr ref={ref} data-group={dataGroup} data-id={dataId} data-style={JSON.stringify(style)} {...props}>
             {children}
         </tr>
     ),
@@ -151,9 +151,8 @@ describe('<SortableRow>', () => {
 
         const style = getStyle(container);
 
-        expect(style.backgroundColor).toBe('var(--color-base)');
-        expect(style.boxShadow).toBe('var(--shadow-small)');
-        expect(style.zIndex).toBe(1);
+        // When dragging, opacity should be 0 (row is hidden, DragOverlay shows it)
+        expect(style.opacity).toBe(0);
     });
 
     it('does not apply dragging styles when isDragging is false', () => {

@@ -12,8 +12,10 @@ import { useFilteredVariants } from '~/client/pages/variants/hooks/useFilteredVa
 import { useVariantsHasData } from '~/client/pages/variants/hooks/useVariantsHasData';
 import { useVisibleGroups } from '~/client/pages/variants/hooks/useVisibleGroups';
 import { VariantsGroup } from '~/client/pages/variants/VariantsGroup';
+import { VariantsRow } from '~/client/pages/variants/VariantsRow';
 import { useGetVariants } from '~/client/state/variants/useGetVariants';
 import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
+import { DragOverlayTable } from '~/client/table/DragOverlayTable';
 import { mapOrder } from '~/client/utils/mapOrder';
 import type { Variant, WithId } from '~/types/data';
 
@@ -46,9 +48,22 @@ export function VariantsTable() {
         },
     });
 
+    const renderDragOverlay = (activeId: UniqueIdentifier, columns: number[]) => {
+        const variant = items.find((v) => `${v.group}:${v.variant}` === activeId);
+        return variant ? (
+            <DragOverlayTable columns={columns}>
+                <VariantsRow variant={{ ...variant, id: `${activeId}` }} reordering={reordering} />
+            </DragOverlayTable>
+        ) : null;
+    };
+
     return (
         <LoadableContent loader={useGetVariants()} hasData={useVariantsHasData()}>
-            <DraggableContent onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            <DraggableContent
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                renderDragOverlay={renderDragOverlay}
+            >
                 <Table>
                     <Table.Thead>
                         <Table.Tr h="3rem">
