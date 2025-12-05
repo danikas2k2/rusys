@@ -24,6 +24,7 @@ export function generatePackageJson(): Plugin {
                 version: Package.version,
                 author: Package.author,
                 license: Package.license,
+                type: 'module',
                 main: 'server.js',
                 engines: {
                     node: (Package.engines as { node?: string })?.node || '>= 18',
@@ -37,6 +38,8 @@ export function generatePackageJson(): Plugin {
                     'body-parser',
                     'cors',
                     'express',
+                    'express-fileupload',
+                    'helmet',
                     'jwt-decode',
                     'lodash',
                     'moment',

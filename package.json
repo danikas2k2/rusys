@@ -18,11 +18,11 @@
         "yarn": "please-use-pnpm"
     },
     "scripts": {
-        "start": "cd dist && esr server.js",
+        "start": "cd dist && node server.js",
         "start:local": "NODE_ENV=production GOOGLE_CLIENT_ID=dev-mode DB=mongodb://rusiodb1:30201,rusiodb2:30202,rusiodb3:30203/rusys?replicaSet=rusiors HTTPS_KEY=../certs/key.pem HTTPS_CERT=../certs/cert.pem pnpm start",
         "build": "npm-run-all --parallel build:server build:client",
         "build:client": "NODE_ENV=production vite build",
-        "build:server": "esbuild src/server/index.ts --bundle --minify --platform=node --target=node24 --external:express --external:cors --external:body-parser --external:moment --external:mongodb --outfile=dist/server.js",
+        "build:server": "vite build --config vite.server.config.ts",
         "build:safe": "pnpm check && pnpm build",
         "dev": "NODE_ENV=development DB=mongodb://rusiodb1:30201,rusiodb2:30202,rusiodb3:30203/rusys?replicaSet=rusiors HTTPS_KEY=certs/key.pem HTTPS_CERT=certs/cert.pem npm-run-all --parallel dev:server dev:client",
         "dev:server": "esr src/server/dev.ts --platform=node --target=node24 --external:express --external:cors --external:body-parser --external:moment --external:mongodb",
