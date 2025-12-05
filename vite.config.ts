@@ -6,9 +6,11 @@ import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
 import { generatePackageJson } from './vite/plugins/generate-package-json';
+import { buildServer } from './vite/plugins/build-server';
 
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
+    const isProduction = mode === 'production';
     return {
         root: process.cwd(),
         publicDir: 'public',
@@ -25,6 +27,8 @@ export default defineConfig(({ mode }) => {
                 svgrOptions: {},
             }),
             generatePackageJson(),
+            // Build server after client build in production
+            ...(isProduction ? [buildServer()] : []),
         ],
         define: {
             'process.env.LOCALE': JSON.stringify('lt-LT'),
