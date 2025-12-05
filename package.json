@@ -165,6 +165,7 @@
         "rehype-prism-plus": "^2.0.1",
         "remark-gfm": "^4.0.1",
         "remark-rehype": "^11.1.2",
+        "rollup": "^4.53.3",
         "stylelint": "^16.26.1",
         "stylelint-config-recommended": "^17.0.0",
         "stylelint-config-standard": "^39.0.1",

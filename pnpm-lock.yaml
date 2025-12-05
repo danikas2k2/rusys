@@ -6,7 +6,6 @@ settings:
 
 overrides:
   braces: ^3.0.3
-  csstype: ^3.2.3
   glob: ^13.0.0
   jsdom: ^27.2.0
   micromatch: ^4.0.8
@@ -353,6 +352,9 @@ importers:
       remark-rehype:
         specifier: ^11.1.2
         version: 11.1.2
+      rollup:
+        specifier: ^4.53.3
+        version: 4.53.3
       stylelint:
         specifier: ^16.26.1
         version: 16.26.1(typescript@5.9.3)
