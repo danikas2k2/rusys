@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  rusiodb1:
+    image: mongo
+    container_name: rusiodb1
+    ports:
+      - "30201:30201"
+    volumes:
+      - rusiodb1_data:/data/db
+    restart: unless-stopped
+    networks:
+      - rusiodb
+    command: [ "mongod", "--replSet", "rusiors", "--wiredTigerCacheSizeGB", "1", "--port", "30201" ]
+    mem_limit: 1g
+
+  rusiodb2:
+    image: mongo
+    container_name: rusiodb2
+    ports:
+      - "30202:30202"
+    volumes:
+      - rusiodb2_data:/data/db
+    restart: unless-stopped
+    networks:
+      - rusiodb
+    command: [ "mongod", "--replSet", "rusiors", "--wiredTigerCacheSizeGB", "1", "--port", "30202" ]
+    mem_limit: 1g
+
+  rusiodb3:
+    image: mongo
+    container_name: rusiodb3
+    ports:
+      - "30203:30203"
+    volumes:
+      - rusiodb3_data:/data/db
+    restart: unless-stopped
+    networks:
+      - rusiodb
+    command: [ "mongod", "--replSet", "rusiors", "--wiredTigerCacheSizeGB", "1", "--port", "30203" ]
+    mem_limit: 1g
+
+networks:
+  rusiodb:
+    driver: bridge
+
+volumes:
+  rusiodb1_data:
+    external: true
+    name: "092bed2cdfdea493109d1084fbc9749da9469fc66415934280a9ee7b64347f9e"
+
+  rusiodb2_data:
+    external: true
+    name: "8b90569140a4822d2c85e16de46acf1d829bfeb6fb039a0e61d97614ff2fabe5"
+
+  rusiodb3_data:
+    external: true
+    name: "548dcc6c4e520fcfa9c5f486fbcfb253be8c6610c1e21bdb0a260acc6b82d9ec"
