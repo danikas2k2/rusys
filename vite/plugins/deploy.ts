@@ -12,10 +12,10 @@ interface DeployConfig {
 
 export function deploy(config?: DeployConfig): Plugin {
     const {
-        serverUser = process.env.DEPLOY_USER || 'danikas2k2',
-        serverHost = process.env.DEPLOY_HOST || 'rusys.andriaus.com',
-        serverPort = process.env.DEPLOY_PORT || '2202',
-        remotePath = process.env.DEPLOY_PATH || '/volume1/docker/rusys-app',
+        serverUser = process.env.DEPLOY_USER,
+        serverHost = process.env.DEPLOY_HOST,
+        serverPort = process.env.DEPLOY_PORT ?? '22',
+        remotePath = process.env.DEPLOY_PATH,
     } = config || {};
 
     return {
