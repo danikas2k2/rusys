@@ -7,6 +7,7 @@ import svgr from 'vite-plugin-svgr';
 
 import { generatePackageJson } from './vite/plugins/generate-package-json';
 import { buildServer } from './vite/plugins/build-server';
+import { deploy } from './vite/plugins/deploy';
 
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
@@ -28,6 +29,7 @@ export default defineConfig(({ mode }) => {
             }),
             generatePackageJson(),
             ...(isProduction ? [buildServer()] : []),
+            ...(isProduction && process.env.DEPLOY ? [deploy()] : []),
         ],
         define: {
             'process.env.LOCALE': JSON.stringify('lt-LT'),
