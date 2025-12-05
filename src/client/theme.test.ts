@@ -22,12 +22,28 @@ describe('theme', () => {
 
         expect(theme.colors).toStrictEqual(
             expect.objectContaining({
+                // Primary colors
                 blue: colors,
                 red: colors,
                 green: colors,
                 yellow: colors,
+                grape: colors,
+                violet: colors,
+                indigo: colors,
+                cyan: colors,
+                lime: colors,
+                orange: colors,
+                // Catppuccin colors
                 mauve: colors,
                 pink: colors,
+                teal: colors,
+                sky: colors,
+                sapphire: colors,
+                lavender: colors,
+                peach: colors,
+                maroon: colors,
+                rosewater: colors,
+                flamingo: colors,
             })
         );
     });
@@ -39,8 +55,8 @@ describe('theme', () => {
             expect.objectContaining({
                 Alert: expect.any(Object),
                 Loader: expect.any(Object),
+                InputError: expect.any(Object),
                 Modal: expect.any(Object),
-                Table: expect.any(Object),
             })
         );
     });

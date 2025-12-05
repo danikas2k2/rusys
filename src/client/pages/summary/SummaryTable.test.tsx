@@ -59,9 +59,9 @@ describe('<SummaryTable>', () => {
 
             expect(screen.getByRole('table')).toBeInTheDocument();
 
-            const row = within(screen.getByRole('row'));
+            const [row] = screen.getAllByRole('row');
 
-            expect(row.getAllByRole('columnheader')).toHaveListWithTextContent(['', '23/24', '22/23', '21/22']);
+            expect(within(row).getAllByRole('columnheader')).toHaveListWithTextContent(['', '23/24', '22/23', '21/22']);
 
             expect(SummaryGroup).toHaveBeenCalledTimes(2);
         });
