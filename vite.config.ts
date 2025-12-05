@@ -27,7 +27,6 @@ export default defineConfig(({ mode }) => {
                 svgrOptions: {},
             }),
             generatePackageJson(),
-            // Build server after client build in production
             ...(isProduction ? [buildServer()] : []),
         ],
         define: {
