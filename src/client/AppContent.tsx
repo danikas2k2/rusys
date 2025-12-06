@@ -2,6 +2,7 @@ import React from 'react';
 
 import { AppRouter } from '~/client/AppRouter';
 import { ActiveContentWrapper } from '~/client/common/ActiveContentContext';
+import { ErrorDialog } from '~/client/common/ErrorDialog';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { LoginButton } from '~/client/user/LoginButton';
 import { LogoutButton } from '~/client/user/LogoutButton';
@@ -20,6 +21,7 @@ export function AppContent() {
     return (
         <ActiveContentWrapper>
             <AppRouter />
+            <ErrorDialog />
         </ActiveContentWrapper>
     );
 }

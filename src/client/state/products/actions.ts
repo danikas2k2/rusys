@@ -3,7 +3,9 @@ import type { Product } from '~/types/data';
 export const enum ProductsActionType {
     SET = 'products.set',
     SET_MISSING = 'products.set.missing',
+    ROLLBACK_MISSING = 'products.rollback.missing',
     SET_REMOVING = 'products.set.removing',
+    ROLLBACK_REMOVING = 'products.rollback.removing',
 }
 
 export type ProductsAction =
@@ -18,11 +20,22 @@ export type ProductsAction =
           missing: boolean;
       }
     | {
+          type: ProductsActionType.ROLLBACK_MISSING;
+          group: string;
+          name: string;
+      }
+    | {
           type: ProductsActionType.SET_REMOVING;
           group: string;
           name: string;
           year: number;
           removing: boolean;
+      }
+    | {
+          type: ProductsActionType.ROLLBACK_REMOVING;
+          group: string;
+          name: string;
+          year: number;
       };
 
 export const setProductsAction = (products: readonly Product[]): Readonly<ProductsAction> => ({
@@ -37,6 +50,12 @@ export const setProductsMissingAction = (group: string, name: string, missing: b
     missing,
 });
 
+export const rollbackProductsMissingAction = (group: string, name: string): Readonly<ProductsAction> => ({
+    type: ProductsActionType.ROLLBACK_MISSING,
+    group,
+    name,
+});
+
 export const setProductsRemovingAction = (
     group: string,
     name: string,
@@ -48,4 +67,15 @@ export const setProductsRemovingAction = (
     name,
     year,
     removing,
+});
+
+export const rollbackProductsRemovingAction = (
+    group: string,
+    name: string,
+    year: number
+): Readonly<ProductsAction> => ({
+    type: ProductsActionType.ROLLBACK_REMOVING,
+    group,
+    name,
+    year,
 });

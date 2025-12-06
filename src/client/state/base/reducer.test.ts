@@ -1,6 +1,7 @@
 import { getProductsFixture, getProfileFixture } from '@tests/fixtures';
 
 import { reducer } from '~/client/state/base/reducer';
+import { setErrorAction } from '~/client/state/error/actions';
 import { setClientIdAction } from '~/client/state/google/actions';
 import { setProductsAction } from '~/client/state/products/actions';
 import { setProfileAction } from '~/client/state/profile/actions';
@@ -34,5 +35,11 @@ describe('base', () => {
 
     it('update profile state', () => {
         expect(reducer({}, setProfileAction(profile))).toStrictEqual(expect.objectContaining({ profile }));
+    });
+
+    it('update error state', () => {
+        expect(reducer({}, setErrorAction('Test error'))).toStrictEqual(
+            expect.objectContaining({ error: { error: 'Test error' } })
+        );
     });
 });
