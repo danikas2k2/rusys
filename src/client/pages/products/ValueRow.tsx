@@ -6,6 +6,7 @@ import moment from 'moment';
 
 import { ValueCell } from '~/client/pages/products/ValueCell';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
+import { useYears } from '~/client/state/years/useYears';
 import { SwipeableRow } from '~/client/table/SwipeableRow';
 import { getCombinedAmounts } from '~/common/utils/amounts';
 import type { RemovingYearAmounts, VariantAmount } from '~/types/data';
@@ -18,16 +19,16 @@ export interface ValueRowProps {
     years?: readonly RemovingYearAmounts[];
     annual?: boolean;
     missing?: boolean;
-    allYears: readonly number[];
     onStart?: (name: string) => void;
     onStop?: () => void;
     onPin?: (hide?: boolean) => void;
     onUnpin?: (hide?: boolean) => void;
 }
 
-function ValueRowComponent({ group, name, years, annual = true, missing, allYears }: ValueRowProps) {
+function ValueRowComponent({ group, name, years, annual = true, missing }: ValueRowProps) {
     const available = !isEmpty(years);
 
+    const allYears = useYears();
     const lastYear = allYears[allYears.length - 1];
     const thisYear = +moment().format('YY');
     const prevYear = thisYear - 1;

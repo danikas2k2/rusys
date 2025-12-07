@@ -85,7 +85,6 @@ describe('<ProductsTable>', () => {
             expect(ProductsGroups).toHaveBeenCalledWith(
                 {
                     groups: ['Uogienės', 'Daržovės'],
-                    products,
                 },
                 undefined
             );
@@ -102,7 +101,7 @@ describe('<ProductsTable>', () => {
             );
 
             expect(screen.getByRole('table')).toBeInTheDocument();
-            expect(ProductsGroups).toHaveBeenCalledWith({ groups: [], products: [] }, undefined);
+            expect(ProductsGroups).toHaveBeenCalledWith({ groups: [] }, undefined);
         });
 
         it('renders table with group selected', () => {
@@ -117,7 +116,7 @@ describe('<ProductsTable>', () => {
 
             expect(screen.getByRole('table')).toBeInTheDocument();
             expect(ProductsGroups).toHaveBeenCalledWith(
-                { groups: ['Uogienės'], products: expect.any(Array) },
+                { groups: ['Uogienės'] },
                 undefined
             );
         });
@@ -305,7 +304,6 @@ describe('<ProductsTable>', () => {
             expect(ProductsGroups).toHaveBeenCalledWith(
                 {
                     groups: ['Uogienės'],
-                    products: products.slice(1, 2),
                 },
                 undefined
             );

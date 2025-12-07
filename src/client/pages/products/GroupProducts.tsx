@@ -1,21 +1,21 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { Table } from '@mantine/core';
 
 import { ValueRow } from '~/client/pages/products/ValueRow';
+import { useVisibleProductsByGroup } from '~/client/pages/products/VisibleProductsContext';
 import { useIsAnnual } from '~/client/state/groups/useIsAnnual';
 import { useYears } from '~/client/state/years/useYears';
 import { GroupTitle } from '~/client/table/GroupTitle';
-import type { Product } from '~/types/data';
 
 interface GroupProductsProps {
     group: string;
-    products: readonly Product[];
 }
 
-function GroupProductsComponent({ group, products }: GroupProductsProps) {
+export function GroupProducts({ group }: GroupProductsProps) {
     const years = useYears();
     const annual = useIsAnnual(group);
+    const products = useVisibleProductsByGroup(group);
 
     return (
         <>
@@ -31,17 +31,9 @@ function GroupProductsComponent({ group, products }: GroupProductsProps) {
                         years={d.years}
                         annual={annual}
                         missing={d.missing}
-                        allYears={years}
                     />
                 ))}
             </Table.Tbody>
         </>
     );
 }
-
-const areGroupProductsEqual = (prev: GroupProductsProps, next: GroupProductsProps): boolean =>
-    prev.group === next.group &&
-    prev.products.length === next.products.length &&
-    prev.products.every((product, index) => product === next.products[index]);
-
-export const GroupProducts = memo(GroupProductsComponent, areGroupProductsEqual);

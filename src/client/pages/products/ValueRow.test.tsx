@@ -12,6 +12,7 @@ import { useSetProductMissing } from '~/client/state/products/useSetProductMissi
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
 import type { WithVariantsState } from '~/client/state/variants/types';
+import { useYears } from '~/client/state/years/useYears';
 
 jest.mock('~/client/state/products/useUpdateProduct', () => ({
     useUpdateProduct: jest.fn(),
@@ -23,6 +24,7 @@ jest.mock('~/client/state/products/useSetProductRemoving', () => ({
     useSetProductRemoving: jest.fn(),
 }));
 jest.mock('~/client/state/profile/useProfile');
+jest.mock('~/client/state/years/useYears');
 
 describe('<ValueRow>', () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -51,10 +53,14 @@ describe('<ValueRow>', () => {
     const state: WithVariantsState = { variants };
     const products = getProductsFixture();
     const allYears = getYearsFixture();
-    const props: ValueRowProps = { ...products[0], allYears };
+    const props: ValueRowProps = products[0];
     const { group, name } = props;
 
     describe('with value', () => {
+        beforeEach(() => {
+            jest.mocked(useYears).mockReturnValue(allYears);
+        });
+
         it('renders into the document', () => {
             render(
                 <MockApp state={state}>
@@ -227,6 +233,10 @@ describe('<ValueRow>', () => {
     });
 
     describe('without value', () => {
+        beforeEach(() => {
+            jest.mocked(useYears).mockReturnValue(allYears);
+        });
+
         it('renders into the document', () => {
             render(
                 <MockApp state={state}>
@@ -396,6 +406,10 @@ describe('<ValueRow>', () => {
     });
 
     describe('annual mode', () => {
+        beforeEach(() => {
+            jest.mocked(useYears).mockReturnValue(allYears);
+        });
+
         it('renders separate cells for each year when annual is true', () => {
             render(
                 <MockApp state={state}>
@@ -450,6 +464,7 @@ describe('<ValueRow>', () => {
         beforeEach(() => {
             // Mock current date to be in year 23 (2023)
             jest.useFakeTimers({ now: new Date('2023-06-15') });
+            jest.mocked(useYears).mockReturnValue(extendedYears);
         });
 
         afterAll(() => jest.useRealTimers());
@@ -459,7 +474,6 @@ describe('<ValueRow>', () => {
                 group: 'Uogienės',
                 name: 'Aviečių',
                 years: [{ year: 22, amounts: [{ variant: 'p', amount: 5 }] }],
-                allYears: extendedYears,
             };
 
             render(
@@ -485,7 +499,6 @@ describe('<ValueRow>', () => {
                     { year: 23, amounts: [{ variant: 'p', amount: 3 }] },
                     { year: 22, amounts: [{ variant: 'p', amount: 5 }] },
                 ],
-                allYears: extendedYears,
             };
 
             render(
@@ -513,7 +526,6 @@ describe('<ValueRow>', () => {
                     { year: 23, amounts: [{ variant: 'p', amount: 3 }] },
                     { year: 22, amounts: [{ variant: 'p', amount: 5 }], removing: true },
                 ],
-                allYears: extendedYears,
             };
 
             render(
@@ -536,7 +548,6 @@ describe('<ValueRow>', () => {
                 group: 'Uogienės',
                 name: 'Aviečių',
                 years: [{ year: 20, amounts: [{ variant: 'p', amount: 5 }] }],
-                allYears: extendedYears,
             };
 
             render(
@@ -562,7 +573,6 @@ describe('<ValueRow>', () => {
                     { year: 21, amounts: [{ variant: 'p', amount: 4 }] },
                     { year: 20, amounts: [{ variant: 'p', amount: 5 }] },
                 ],
-                allYears: extendedYears,
             };
 
             render(
@@ -590,7 +600,6 @@ describe('<ValueRow>', () => {
                     { year: 21, amounts: [{ variant: 'p', amount: 4 }], removing: true },
                     { year: 20, amounts: [{ variant: 'p', amount: 5 }] },
                 ],
-                allYears: extendedYears,
             };
 
             render(
@@ -613,7 +622,6 @@ describe('<ValueRow>', () => {
                 group: 'Uogienės',
                 name: 'Aviečių',
                 years: [{ year: 23, amounts: [{ variant: 'p', amount: 3 }] }],
-                allYears: extendedYears,
             };
 
             render(
@@ -636,7 +644,6 @@ describe('<ValueRow>', () => {
                 group: 'Uogienės',
                 name: 'Aviečių',
                 years: undefined,
-                allYears: extendedYears,
             };
 
             render(
