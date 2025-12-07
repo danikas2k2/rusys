@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { Table } from '@mantine/core';
 
@@ -13,7 +13,7 @@ interface GroupProductsProps {
     products: readonly Product[];
 }
 
-export function GroupProducts({ group, products }: GroupProductsProps) {
+function GroupProductsComponent({ group, products }: GroupProductsProps) {
     const years = useYears();
     const annual = useIsAnnual(group);
 
@@ -31,9 +31,17 @@ export function GroupProducts({ group, products }: GroupProductsProps) {
                         years={d.years}
                         annual={annual}
                         missing={d.missing}
+                        allYears={years}
                     />
                 ))}
             </Table.Tbody>
         </>
     );
 }
+
+const areGroupProductsEqual = (prev: GroupProductsProps, next: GroupProductsProps): boolean =>
+    prev.group === next.group &&
+    prev.products.length === next.products.length &&
+    prev.products.every((product, index) => product === next.products[index]);
+
+export const GroupProducts = memo(GroupProductsComponent, areGroupProductsEqual);

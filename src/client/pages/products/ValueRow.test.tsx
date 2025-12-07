@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getProductsFixture, getVariantsFixture } from '@tests/fixtures';
+import { getProductsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
@@ -8,12 +8,10 @@ import React from 'react';
 import { Table } from '@mantine/core';
 
 import { ValueRow, type ValueRowProps } from '~/client/pages/products/ValueRow';
-import { useHasRemoving } from '~/client/state/products/useHasRemoving';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
 import type { WithVariantsState } from '~/client/state/variants/types';
-import { useYears } from '~/client/state/years/useYears';
 
 jest.mock('~/client/state/products/useUpdateProduct', () => ({
     useUpdateProduct: jest.fn(),
@@ -24,10 +22,6 @@ jest.mock('~/client/state/products/useSetProductMissing', () => ({
 jest.mock('~/client/state/products/useSetProductRemoving', () => ({
     useSetProductRemoving: jest.fn(),
 }));
-jest.mock('~/client/state/products/useHasRemoving', () => ({
-    useHasRemoving: jest.fn(),
-}));
-jest.mock('~/client/state/years/useYears');
 jest.mock('~/client/state/profile/useProfile');
 
 describe('<ValueRow>', () => {
@@ -56,7 +50,8 @@ describe('<ValueRow>', () => {
     const variants = getVariantsFixture();
     const state: WithVariantsState = { variants };
     const products = getProductsFixture();
-    const props: ValueRowProps = products[3];
+    const allYears = getYearsFixture();
+    const props: ValueRowProps = { ...products[0], allYears };
     const { group, name } = props;
 
     describe('with value', () => {
@@ -87,8 +82,8 @@ describe('<ValueRow>', () => {
             const cells = screen.getAllByRole('cell');
 
             // First cell is checkbox/name, then year cells: 23, 22, 21
-            // props (products[3]) has year 21 with amount 2
-            expect(cells).toHaveListWithTextContent(['Kopūstai', '.', '.', '2']);
+            // props (products[0]) has year 21 with amount 2
+            expect(cells).toHaveListWithTextContent(['Avietės', '.', '.', '2']);
         });
 
         it('renders cells without values', () => {
@@ -148,24 +143,26 @@ describe('<ValueRow>', () => {
             );
             const heading = screen.getByRole('heading', { name });
 
-            expect(heading).not.toHaveAttribute('data-removing');
+            expect(heading).toHaveAttribute('data-removing', 'false');
         });
 
-        it('renders with removing state when hasRemoving is true', () => {
-            jest.mocked(useHasRemoving).mockReturnValue(true);
+        it('renders with removing state when any year is marked as removing', () => {
+            const removingProps: ValueRowProps = {
+                ...props,
+                years: [{ year: allYears[2], amounts: [{ variant: 'p', amount: 2 }], removing: true }],
+            };
             render(
                 <MockApp state={state}>
                     <Table>
                         <Table.Tbody>
-                            <ValueRow {...props} />
+                            <ValueRow {...removingProps} />
                         </Table.Tbody>
                     </Table>
                 </MockApp>
             );
             const heading = screen.getByRole('heading', { name });
 
-            // Heading should be in the document when hasRemoving is true
-            expect(heading).toBeInTheDocument();
+            expect(heading).toHaveAttribute('data-removing', 'true');
         });
 
         it('renders available row checkbox', async () => {
@@ -291,22 +288,6 @@ describe('<ValueRow>', () => {
         });
 
         it('renders name heading without data-removing attribute', () => {
-            render(
-                <MockApp state={state}>
-                    <Table>
-                        <Table.Tbody>
-                            <ValueRow {...props} years={[]} />
-                        </Table.Tbody>
-                    </Table>
-                </MockApp>
-            );
-            const heading = screen.getByRole('heading', { name });
-
-            expect(heading).toHaveAttribute('data-removing', 'false');
-        });
-
-        it('renders name heading without data-removing attribute even when has removing', () => {
-            jest.mocked(useHasRemoving).mockReturnValue(true);
             render(
                 <MockApp state={state}>
                     <Table>
@@ -464,10 +445,7 @@ describe('<ValueRow>', () => {
     });
 
     describe('isPreferred logic', () => {
-        beforeAll(() => {
-            // Mock useYears to use fixture years plus current year
-            jest.mocked(useYears).mockReturnValue([23, 22, 21, 20]);
-        });
+        const extendedYears = [23, 22, 21, 20];
 
         beforeEach(() => {
             // Mock current date to be in year 23 (2023)
@@ -481,6 +459,7 @@ describe('<ValueRow>', () => {
                 group: 'Uogienės',
                 name: 'Aviečių',
                 years: [{ year: 22, amounts: [{ variant: 'p', amount: 5 }] }],
+                allYears: extendedYears,
             };
 
             render(
@@ -506,6 +485,7 @@ describe('<ValueRow>', () => {
                     { year: 23, amounts: [{ variant: 'p', amount: 3 }] },
                     { year: 22, amounts: [{ variant: 'p', amount: 5 }] },
                 ],
+                allYears: extendedYears,
             };
 
             render(
@@ -533,6 +513,7 @@ describe('<ValueRow>', () => {
                     { year: 23, amounts: [{ variant: 'p', amount: 3 }] },
                     { year: 22, amounts: [{ variant: 'p', amount: 5 }], removing: true },
                 ],
+                allYears: extendedYears,
             };
 
             render(
@@ -555,6 +536,7 @@ describe('<ValueRow>', () => {
                 group: 'Uogienės',
                 name: 'Aviečių',
                 years: [{ year: 20, amounts: [{ variant: 'p', amount: 5 }] }],
+                allYears: extendedYears,
             };
 
             render(
@@ -580,6 +562,7 @@ describe('<ValueRow>', () => {
                     { year: 21, amounts: [{ variant: 'p', amount: 4 }] },
                     { year: 20, amounts: [{ variant: 'p', amount: 5 }] },
                 ],
+                allYears: extendedYears,
             };
 
             render(
@@ -607,6 +590,7 @@ describe('<ValueRow>', () => {
                     { year: 21, amounts: [{ variant: 'p', amount: 4 }], removing: true },
                     { year: 20, amounts: [{ variant: 'p', amount: 5 }] },
                 ],
+                allYears: extendedYears,
             };
 
             render(
@@ -629,6 +613,7 @@ describe('<ValueRow>', () => {
                 group: 'Uogienės',
                 name: 'Aviečių',
                 years: [{ year: 23, amounts: [{ variant: 'p', amount: 3 }] }],
+                allYears: extendedYears,
             };
 
             render(
@@ -651,6 +636,7 @@ describe('<ValueRow>', () => {
                 group: 'Uogienės',
                 name: 'Aviečių',
                 years: undefined,
+                allYears: extendedYears,
             };
 
             render(

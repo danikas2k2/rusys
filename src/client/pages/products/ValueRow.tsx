@@ -1,13 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import { Checkbox, Table, Title } from '@mantine/core';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 
 import { ValueCell } from '~/client/pages/products/ValueCell';
-import { useHasRemoving } from '~/client/state/products/useHasRemoving';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
-import { useYears } from '~/client/state/years/useYears';
 import { SwipeableRow } from '~/client/table/SwipeableRow';
 import { getCombinedAmounts } from '~/common/utils/amounts';
 import type { RemovingYearAmounts, VariantAmount } from '~/types/data';
@@ -20,21 +18,24 @@ export interface ValueRowProps {
     years?: readonly RemovingYearAmounts[];
     annual?: boolean;
     missing?: boolean;
+    allYears: readonly number[];
     onStart?: (name: string) => void;
     onStop?: () => void;
     onPin?: (hide?: boolean) => void;
     onUnpin?: (hide?: boolean) => void;
 }
 
-export function ValueRow({ group, name, years, annual = true, missing }: ValueRowProps) {
+function ValueRowComponent({ group, name, years, annual = true, missing, allYears }: ValueRowProps) {
     const available = !isEmpty(years);
 
-    const allYears = useYears();
     const lastYear = allYears[allYears.length - 1];
     const thisYear = +moment().format('YY');
     const prevYear = thisYear - 1;
 
-    const hasRemoving = useHasRemoving(group, name);
+    const hasRemoving = useMemo(
+        () => years?.some((y) => y.removing && allYears.includes(y.year)) ?? false,
+        [allYears, years]
+    );
 
     const setMissing = useSetProductMissing();
     const handleClick = useCallback(async (): Promise<void> => {
@@ -104,3 +105,5 @@ export function ValueRow({ group, name, years, annual = true, missing }: ValueRo
         return !years?.some((v) => v.year > year && !!v.amounts?.length && !v.removing);
     }
 }
+
+export const ValueRow = memo(ValueRowComponent);
