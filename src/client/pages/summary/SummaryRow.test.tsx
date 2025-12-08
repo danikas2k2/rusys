@@ -51,6 +51,20 @@ describe('<SummaryRow>', () => {
         expect(cells).toHaveLength(4);
     });
 
+    it('marks row hidden when hidden flag is true', () => {
+        render(
+            <MockApp state={state}>
+                <Table>
+                    <Table.Tbody>
+                        <SummaryRow group="Uogienės" name="Aviečių" hidden />
+                    </Table.Tbody>
+                </Table>
+            </MockApp>
+        );
+
+        expect(screen.getByRole('row', { hidden: true })).toHaveAttribute('data-hidden', 'true');
+    });
+
     it('renders amounts for matching years', () => {
         const amounts = [
             { year: 23, amounts: [{ variant: 'p', amount: 5 }] },

@@ -10,17 +10,20 @@ export function SummaryRow({
     group,
     name,
     amounts,
+    hidden = false,
 }: {
     group: string;
     name: string;
     amounts?: readonly YearAmounts[];
+    hidden?: boolean;
 }) {
+    const years = useSummaryYears();
     return (
-        <Table.Tr>
+        <Table.Tr data-hidden={hidden}>
             <Table.Td ps="1rem">
                 <Title order={6}>{name}</Title>
             </Table.Td>
-            {useSummaryYears().map((year) => (
+            {years.map((year) => (
                 <SummaryCell key={year} group={group} amounts={amounts?.find((y) => y.year === year)?.amounts} />
             ))}
         </Table.Tr>

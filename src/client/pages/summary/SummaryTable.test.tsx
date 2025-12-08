@@ -4,31 +4,30 @@ import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
-import { noop } from 'lodash';
-
-import { useGroupFilter } from '~/client/filters/GroupFilterContext';
-import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
+import { useGroupFilterPredicate } from '~/client/filters/hooks/useGroupFilterPredicate';
+import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasData';
+import { useRecycledSummary } from '~/client/pages/summary/hooks/useRecycledSummary';
 import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
 import { SummaryTable } from '~/client/pages/summary/SummaryTable';
 
 jest.mock('~/client/state/years/useYears');
-jest.mock('~/client/filters/hooks/useFilteredList', () => ({
-    useFilteredList: jest.fn(),
+jest.mock('~/client/filters/hooks/useGroupFilterPredicate', () => ({
+    useGroupFilterPredicate: jest.fn(),
+}));
+jest.mock('~/client/filters/hooks/useQuickFilterPredicate', () => ({
+    useQuickFilterPredicate: jest.fn(),
 }));
 jest.mock('~/client/pages/summary/hooks/useSummaryHasData', () => ({
     useSummaryHasData: jest.fn().mockReturnValue(true),
 }));
+jest.mock('~/client/pages/summary/hooks/useRecycledSummary', () => ({
+    useRecycledSummary: jest.fn(),
+}));
 jest.mock('~/client/hooks/useLockingLoader', () => ({
     ...jest.requireActual('~/client/hooks/useLockingLoader'),
     useLockingLoader: jest.fn(),
-}));
-jest.mock('~/client/filters/hooks/useQuickFilter', () => ({
-    useQuickFilter: jest.fn().mockReturnValue(''),
-}));
-jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
-    useGroupFilter: jest.fn(),
 }));
 jest.mock('~/client/pages/summary/SummaryGroup', () => ({
     SummaryGroup: jest.fn().mockReturnValue(null),
@@ -45,8 +44,9 @@ describe('<SummaryTable>', () => {
 
     beforeAll(() => {
         jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
-        jest.mocked(useFilteredList).mockReturnValue(summary);
-        jest.mocked(useGroupFilter).mockReturnValue(['', noop]);
+        jest.mocked(useRecycledSummary).mockReturnValue(summary);
+        jest.mocked(useGroupFilterPredicate).mockReturnValue(() => true);
+        jest.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -69,7 +69,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('renders table for complete state with data filtered-out', () => {
-            jest.mocked(useFilteredList).mockReturnValueOnce([]);
+            jest.mocked(useRecycledSummary).mockReturnValueOnce([]);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -81,7 +81,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('renders table with group selected', () => {
-            jest.mocked(useGroupFilter).mockReturnValue(['Uogienės', noop]);
+            jest.mocked(useGroupFilterPredicate).mockReturnValueOnce((g: string) => g === 'Uogienės');
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -89,7 +89,7 @@ describe('<SummaryTable>', () => {
             );
 
             expect(screen.getByRole('table')).toBeInTheDocument();
-            expect(SummaryGroup).toHaveBeenCalledTimes(1);
+            expect(SummaryGroup).toHaveBeenCalledTimes(2);
         });
 
         it('does not render table for initial state', () => {
