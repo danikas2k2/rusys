@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Center, Loader, Table } from '@mantine/core';
 
@@ -20,7 +20,7 @@ export interface ValueCellProps {
     span?: number;
 }
 
-function ValueCellContent({ product, year = 0, last = false, span }: ValueCellProps) {
+export function ValueCell({ product, year = 0, last = false, span }: ValueCellProps) {
     const { group, name, years } = product;
     const { amounts, removing = false } = useMemo(
         (): RemovingYearAmounts =>
@@ -99,5 +99,3 @@ function ValueCellContent({ product, year = 0, last = false, span }: ValueCellPr
         </Table.Td>
     );
 }
-
-export const ValueCell = memo(ValueCellContent);

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { ValueCell } from '~/client/pages/products/ValueCell';
 import { useYears } from '~/client/state/years/useYears';
@@ -9,7 +9,7 @@ interface ValueRowCellsProps {
     annual?: boolean;
 }
 
-function ValueRowCellsContent({ product, annual = false }: ValueRowCellsProps) {
+export function ValueRowCells({ product, annual = false }: ValueRowCellsProps) {
     const allYears = useYears();
     const lastYear = allYears.at(-1);
 
@@ -23,5 +23,3 @@ function ValueRowCellsContent({ product, annual = false }: ValueRowCellsProps) {
         </>
     );
 }
-
-export const ValueRowCells = memo(ValueRowCellsContent);

@@ -5,9 +5,9 @@ import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
-import { generatePackageJson } from './vite/plugins/generate-package-json';
 import { buildServer } from './vite/plugins/build-server';
 import { deploy } from './vite/plugins/deploy';
+import { generatePackageJson } from './vite/plugins/generate-package-json';
 
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
@@ -23,6 +23,9 @@ export default defineConfig(({ mode }) => {
             react({
                 jsxRuntime: 'automatic',
                 jsxImportSource: 'react',
+                babel: {
+                    plugins: [['babel-plugin-react-compiler', {}]],
+                },
             }),
             svgr({
                 svgrOptions: {},

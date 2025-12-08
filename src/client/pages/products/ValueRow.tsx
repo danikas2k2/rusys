@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { useGroupFilterPredicate } from '~/client/filters/hooks/useGroupFilterPredicate';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
@@ -15,7 +15,7 @@ export interface ValueRowProps {
     hidden?: boolean;
 }
 
-function ValueRowComponent({ product, annual = true, hidden = false }: ValueRowProps) {
+export function ValueRow({ product, annual = true, hidden = false }: ValueRowProps) {
     const namePredicate = useQuickFilterPredicate();
     const groupPredicate = useGroupFilterPredicate();
 
@@ -31,5 +31,3 @@ function ValueRowComponent({ product, annual = true, hidden = false }: ValueRowP
         </SwipeableRow>
     );
 }
-
-export const ValueRow = memo(ValueRowComponent);

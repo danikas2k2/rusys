@@ -128,6 +128,7 @@ export default [
 
             'prettier/prettier': 'error',
             'react-hooks/exhaustive-deps': 'error',
+            'react-hooks/react-compiler': 'error',
             'react/prop-types': 0,
 
             // TODO use eslint-config-mantine

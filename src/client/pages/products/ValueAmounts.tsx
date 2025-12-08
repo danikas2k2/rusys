@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { ValueSuffix } from '~/client/common/ValueSuffix';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
@@ -11,7 +11,7 @@ export interface ValueAmountsProps {
     amounts?: readonly VariantAmount[];
 }
 
-function ValueAmountsContent({ group, amounts }: ValueAmountsProps) {
+export function ValueAmounts({ group, amounts }: ValueAmountsProps) {
     const compareVariants = useGroupVariantComparator(group);
     return amounts?.length ? (
         <>
@@ -26,5 +26,3 @@ function ValueAmountsContent({ group, amounts }: ValueAmountsProps) {
         </>
     ) : null;
 }
-
-export const ValueAmounts = memo(ValueAmountsContent);

@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { Table } from '@mantine/core';
 
@@ -15,7 +15,7 @@ interface GroupProductsProps {
     products: readonly Product[];
 }
 
-function GroupProductsComponent({ group, products }: GroupProductsProps) {
+export function GroupProducts({ group, products }: GroupProductsProps) {
     const years = useYears();
     const groupProducts = useMemo(() => products.filter((p) => p.group === group.group), [group.group, products]);
 
@@ -48,5 +48,3 @@ function GroupProductsComponent({ group, products }: GroupProductsProps) {
         </>
     );
 }
-
-export const GroupProducts = memo(GroupProductsComponent);
