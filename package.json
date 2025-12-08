@@ -117,7 +117,7 @@
         "@types/superagent": "^8.1.9",
         "@types/supertest": "^6.0.3",
         "@typescript-eslint/eslint-plugin": "^8.48.0",
-        "@typescript-eslint/parser": "^8.48.0",
+        "@typescript-eslint/parser": "^8.48.1",
         "@vitejs/plugin-react": "^5.1.1",
         "autoprefixer": "^10.4.22",
         "classnames": "^2.5.1",
