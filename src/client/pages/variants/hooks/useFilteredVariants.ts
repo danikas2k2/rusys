@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 
-import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
-import { useQuickFilter } from '~/client/filters/hooks/useQuickFilter';
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { useVariants } from '~/client/state/variants/useVariants';
 import { matchParts } from '~/client/utils/matchParts';
 
 export function useFilteredVariants() {
     const variants = useVariants();
-    const group = useGroupFilter();
-    const filter = useQuickFilter();
+    const [group] = useGroupFilter();
+    const [filter] = useQuickFilter();
     return useMemo(
         () =>
             variants

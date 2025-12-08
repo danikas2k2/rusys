@@ -2,7 +2,15 @@ import React, { createContext, useContext, useMemo } from 'react';
 
 import type { Product } from '~/types/data';
 
-const VisibleProductsContext = createContext<readonly Product[]>([]);
+interface VisibleProductsValue {
+    products: readonly Product[];
+    byGroup: Map<string, readonly Product[]>;
+}
+
+const VisibleProductsContext = createContext<VisibleProductsValue>({
+    products: [],
+    byGroup: new Map(),
+});
 
 export function VisibleProductsProvider({
     products,
@@ -10,12 +18,22 @@ export function VisibleProductsProvider({
 }: React.PropsWithChildren<{
     products: readonly Product[];
 }>) {
-    return <VisibleProductsContext.Provider value={products}>{children}</VisibleProductsContext.Provider>;
+    const value = useMemo<VisibleProductsValue>(() => {
+        const byGroup = products.reduce((map, product) => {
+            const list = map.get(product.group);
+            map.set(product.group, list ? [...list, product] : [product]);
+            return map;
+        }, new Map<string, readonly Product[]>());
+
+        return { products, byGroup };
+    }, [products]);
+
+    return <VisibleProductsContext.Provider value={value}>{children}</VisibleProductsContext.Provider>;
 }
 
-export const useVisibleProducts = (): readonly Product[] => useContext(VisibleProductsContext);
+export const useVisibleProducts = (): readonly Product[] => useContext(VisibleProductsContext).products;
 
 export function useVisibleProductsByGroup(group: string): readonly Product[] {
-    const products = useVisibleProducts();
-    return useMemo(() => products.filter((product) => product.group === group), [group, products]);
+    const { byGroup } = useContext(VisibleProductsContext);
+    return useMemo(() => byGroup.get(group) ?? [], [byGroup, group]);
 }

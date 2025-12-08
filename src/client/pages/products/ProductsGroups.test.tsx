@@ -5,11 +5,12 @@ import { MockThemeRedux } from '@tests/MockThemeRedux';
 import React from 'react';
 
 import { Table } from '@mantine/core';
+import { noop } from 'lodash';
 
-import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { ProductsGroups } from '~/client/pages/products/ProductsGroups';
-import { VisibleProductsProvider } from '~/client/pages/products/VisibleProductsContext';
 import { ValueRow } from '~/client/pages/products/ValueRow';
+import { VisibleProductsProvider } from '~/client/pages/products/VisibleProductsContext';
 
 jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
     useGroupFilter: jest.fn().mockReturnValue(''),
@@ -98,7 +99,7 @@ describe('<ProductsGroups>', () => {
 
     it('renders filtered groups with products', () => {
         const [group] = groups;
-        jest.mocked(useGroupFilter).mockReturnValue(group);
+        jest.mocked(useGroupFilter).mockReturnValue([group, noop]);
         render(
             <MockThemeRedux state={state}>
                 <VisibleProductsProvider products={products}>
@@ -154,7 +155,7 @@ describe('<ProductsGroups>', () => {
     });
 
     it('renders missing filtered group without products', () => {
-        jest.mocked(useGroupFilter).mockReturnValue(missing);
+        jest.mocked(useGroupFilter).mockReturnValue([missing, noop]);
         render(
             <MockThemeRedux state={state}>
                 <VisibleProductsProvider products={products}>

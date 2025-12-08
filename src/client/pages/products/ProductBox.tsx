@@ -5,7 +5,7 @@ import { useForm } from '@mantine/form';
 import { IconArrowRight, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 
 import { Label } from '~/client/common/Label';
-import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useAddProduct } from '~/client/state/products/useAddProduct';
@@ -30,7 +30,7 @@ export function ProductBox({
     onClose,
     onAfterClose,
 }: Readonly<ProductBoxProps>) {
-    const filterGroup = useGroupFilter();
+    const [filterGroup] = useGroupFilter();
     const isEditing = !!initialGroup && !!initialName;
     const isMoving = isEditing && filterGroup && filterGroup !== initialGroup;
 

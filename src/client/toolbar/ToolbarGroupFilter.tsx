@@ -3,14 +3,14 @@ import React, { useCallback } from 'react';
 import { Select } from '@mantine/core';
 import { IconSelector } from '@tabler/icons-react';
 
-import { useGroupFilterContext } from '~/client/filters/GroupFilterContext';
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { ClearFilterIcon } from '~/client/toolbar/ClearFilterIcon';
 
 export function ToolbarGroupFilter() {
     const groups = useGroups().map((v) => v.group);
-    const [group, setGroup] = useGroupFilterContext();
+    const [group, setGroup] = useGroupFilter();
 
     const groupOptions = groups.map((g) => ({ value: g, label: g }));
 

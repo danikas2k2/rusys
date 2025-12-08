@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
 import { Table } from '@mantine/core';
 
 import { LoadableContent } from '~/client/common/LoadableContent';
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
-import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
 import { useProductFilters } from '~/client/filters/hooks/useProductFilters';
-import { useQuickFilterContext } from '~/client/filters/QuickFilterContext';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { useSortedList } from '~/client/hooks/useSortedList';
 import { useUniqueGroups } from '~/client/hooks/useUniqueGroups';
 import { useMissingProducts } from '~/client/pages/products/hooks/useMissingProducts';
@@ -33,7 +33,7 @@ export function ProductsTable() {
         }
     }, [hasFilteredProducts, hasMissingProducts, missingOnly, setMissingOnly]);
 
-    const [filter, setFilter] = useQuickFilterContext();
+    const [filter, setFilter] = useQuickFilter();
     const handleClick = useCallback(() => {
         if (missingOnly && filter && !hasMissingProducts) {
             setFilter('');
@@ -42,8 +42,8 @@ export function ProductsTable() {
 
     const visibleProducts = useSortedList(missingOnly ? missingProducts : filteredProducts);
     const uniqueGroups = useUniqueGroups(visibleProducts);
-    const group = useGroupFilter();
-    const visibleGroups = group ? [group] : uniqueGroups;
+    const [group] = useGroupFilter();
+    const visibleGroups = useMemo(() => (group ? [group] : uniqueGroups), [group, uniqueGroups]);
     const years = useYears();
     const headingWidth = 300 / (years.length + 3);
 

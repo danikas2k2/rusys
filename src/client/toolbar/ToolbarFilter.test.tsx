@@ -4,7 +4,7 @@ import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
-import { useQuickFilterContext } from '~/client/filters/QuickFilterContext';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { ToolbarFilter } from '~/client/toolbar/ToolbarFilter';
 
 jest.mock('~/client/filters/QuickFilterContext', () => ({
@@ -14,7 +14,7 @@ jest.mock('~/client/filters/QuickFilterContext', () => ({
 describe('<ToolbarFilter>', () => {
     const setFilter = jest.fn();
 
-    beforeEach(() => jest.mocked(useQuickFilterContext).mockReturnValue(['', setFilter]));
+    beforeEach(() => jest.mocked(useQuickFilter).mockReturnValue(['', setFilter]));
 
     afterEach(() => jest.clearAllMocks());
 
@@ -41,7 +41,7 @@ describe('<ToolbarFilter>', () => {
     });
 
     it('clears filter value when clear button is clicked', async () => {
-        jest.mocked(useQuickFilterContext).mockReturnValue(['x', setFilter]);
+        jest.mocked(useQuickFilter).mockReturnValue(['x', setFilter]);
 
         render(
             <MockApp>

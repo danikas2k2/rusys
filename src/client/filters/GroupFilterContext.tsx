@@ -11,6 +11,6 @@ export function GroupFilterWrapper({
     return <GroupFilterContext value={useState(initialState)}>{children}</GroupFilterContext>;
 }
 
-export function useGroupFilterContext() {
+export function useGroupFilter() {
     return use(GroupFilterContext);
 }

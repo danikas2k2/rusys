@@ -29,8 +29,8 @@ function ValueRowComponent({ group, name, years, annual = true, missing }: Value
     const available = !isEmpty(years);
 
     const allYears = useYears();
-    const lastYear = allYears[allYears.length - 1];
-    const thisYear = +moment().format('YY');
+    const lastYear = allYears.at(-1);
+    const thisYear = new Date().getFullYear();
     const prevYear = thisYear - 1;
 
     const hasRemoving = useMemo(
@@ -45,12 +45,8 @@ function ValueRowComponent({ group, name, years, annual = true, missing }: Value
         }
     }, [available, setMissing, group, name, missing]);
 
-    const rowRef = useCallback(() => {
-        // No-op ref callback - SwipeableRow handles ref internally
-    }, []);
-
     return (
-        <SwipeableRow ref={rowRef} id={`${group}:${name}`} data={{ group, name }} data-group={group}>
+        <SwipeableRow ref={() => {}} id={`${group}:${name}`} data={{ group, name }} data-group={group}>
             <Table.Td>
                 <Checkbox
                     variant="outline"

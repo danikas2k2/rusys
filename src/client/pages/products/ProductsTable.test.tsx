@@ -6,9 +6,11 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
+import { noop } from 'lodash';
+
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
-import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
-import { useQuickFilterContext } from '~/client/filters/QuickFilterContext';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useMissingProducts } from '~/client/pages/products/hooks/useMissingProducts';
 import { useProductsHasData } from '~/client/pages/products/hooks/useProductsHasData';
@@ -59,8 +61,8 @@ describe('<ProductsTable>', () => {
 
     beforeEach(() => {
         jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
-        jest.mocked(useQuickFilterContext).mockReturnValue(['', setFilter]);
-        jest.mocked(useGroupFilter).mockReturnValue('');
+        jest.mocked(useQuickFilter).mockReturnValue(['', setFilter]);
+        jest.mocked(useGroupFilter).mockReturnValue(['', noop]);
         jest.mocked(useFilteredList).mockReturnValue(products);
     });
 
@@ -105,7 +107,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('renders table with group selected', () => {
-            jest.mocked(useGroupFilter).mockReturnValue('Uogienės');
+            jest.mocked(useGroupFilter).mockReturnValue(['Uogienės', noop]);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -115,10 +117,7 @@ describe('<ProductsTable>', () => {
             );
 
             expect(screen.getByRole('table')).toBeInTheDocument();
-            expect(ProductsGroups).toHaveBeenCalledWith(
-                { groups: ['Uogienės'] },
-                undefined
-            );
+            expect(ProductsGroups).toHaveBeenCalledWith({ groups: ['Uogienės'] }, undefined);
         });
 
         it('does not render table for initial state', () => {
@@ -286,7 +285,7 @@ describe('<ProductsTable>', () => {
 
         beforeEach(() => {
             jest.mocked(useMissingOnly).mockReturnValueOnce([true, setMissingOnly]);
-            jest.mocked(useQuickFilterContext).mockReturnValue(['', mockSetFilter]);
+            jest.mocked(useQuickFilter).mockReturnValue(['', mockSetFilter]);
         });
 
         afterEach(() => jest.clearAllMocks());
@@ -325,7 +324,7 @@ describe('<ProductsTable>', () => {
         it('calls clearFilter on missing-only checkbox being clicked when all missing rows are filtered out', async () => {
             const testSetFilter = jest.fn();
             jest.mocked(useMissingOnly).mockReturnValue([true, setMissingOnly]);
-            jest.mocked(useQuickFilterContext).mockReturnValue(['z', testSetFilter]);
+            jest.mocked(useQuickFilter).mockReturnValue(['z', testSetFilter]);
             jest.mocked(useFilteredList).mockReturnValue(products);
             jest.mocked(useMissingProducts).mockReturnValue([]);
             render(
@@ -344,7 +343,7 @@ describe('<ProductsTable>', () => {
         it('does not call clearFilter when missingOnly is false', async () => {
             const testSetFilter = jest.fn();
             jest.mocked(useMissingOnly).mockReturnValueOnce([false, setMissingOnly]);
-            jest.mocked(useQuickFilterContext).mockReturnValueOnce(['z', testSetFilter]);
+            jest.mocked(useQuickFilter).mockReturnValueOnce(['z', testSetFilter]);
             jest.mocked(useFilteredList).mockReturnValueOnce([]);
             render(
                 <MockTheme>
@@ -361,7 +360,7 @@ describe('<ProductsTable>', () => {
 
         it('does not call clearFilter when filter is empty', async () => {
             const testSetFilter = jest.fn();
-            jest.mocked(useQuickFilterContext).mockReturnValueOnce(['', testSetFilter]);
+            jest.mocked(useQuickFilter).mockReturnValueOnce(['', testSetFilter]);
             jest.mocked(useFilteredList).mockReturnValueOnce([]);
             render(
                 <MockTheme>
@@ -378,7 +377,7 @@ describe('<ProductsTable>', () => {
 
         it('does not call clearFilter when hasMissingProduct is true', async () => {
             const testSetFilter = jest.fn();
-            jest.mocked(useQuickFilterContext).mockReturnValueOnce(['z', testSetFilter]);
+            jest.mocked(useQuickFilter).mockReturnValueOnce(['z', testSetFilter]);
             render(
                 <MockTheme>
                     <MockRedux state={state}>

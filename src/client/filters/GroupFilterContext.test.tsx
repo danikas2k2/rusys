@@ -4,10 +4,10 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { GroupFilterWrapper, useGroupFilterContext } from './GroupFilterContext';
+import { GroupFilterWrapper, useGroupFilter } from './GroupFilterContext';
 
 function TestComponent() {
-    const [filter, setFilter] = useGroupFilterContext();
+    const [filter, setFilter] = useGroupFilter();
 
     return (
         <div>

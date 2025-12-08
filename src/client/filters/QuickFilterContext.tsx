@@ -11,6 +11,6 @@ export function QuickFilterWrapper({
     return <QuickFilterContext value={useState(initialState)}>{children}</QuickFilterContext>;
 }
 
-export function useQuickFilterContext() {
+export function useQuickFilter() {
     return use(QuickFilterContext);
 }

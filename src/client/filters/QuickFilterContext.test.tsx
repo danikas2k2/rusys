@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 
 import React, { act, use } from 'react';
 
-import { QuickFilterContext, QuickFilterWrapper, useQuickFilterContext } from '~/client/filters/QuickFilterContext';
+import { QuickFilterContext, QuickFilterWrapper, useQuickFilter } from '~/client/filters/QuickFilterContext';
 
 describe('<QuickFilterContext>', () => {
     it('uses context with default value', () => {
@@ -14,7 +14,7 @@ describe('<QuickFilterContext>', () => {
 
 describe('useQuickFilterContext', () => {
     it('returns default filter', () => {
-        const { result } = renderHook(() => useQuickFilterContext());
+        const { result } = renderHook(() => useQuickFilter());
 
         expect(result.current).toStrictEqual(['', expect.any(Function)]);
     });
@@ -22,7 +22,7 @@ describe('useQuickFilterContext', () => {
     it('returns custom filter from context', () => {
         const setFilter = jest.fn();
 
-        const { result } = renderHook(() => useQuickFilterContext(), {
+        const { result } = renderHook(() => useQuickFilter(), {
             wrapper: ({ children }) => <QuickFilterContext value={['test', setFilter]}>{children}</QuickFilterContext>,
         });
 
@@ -32,7 +32,7 @@ describe('useQuickFilterContext', () => {
 
 describe('<QuickFilterWrapper>', () => {
     it('provides state to children with default initial state', () => {
-        const { result } = renderHook(() => useQuickFilterContext(), {
+        const { result } = renderHook(() => useQuickFilter(), {
             wrapper: QuickFilterWrapper,
         });
 
@@ -40,7 +40,7 @@ describe('<QuickFilterWrapper>', () => {
     });
 
     it('provides state to children with custom initial state', () => {
-        const { result } = renderHook(() => useQuickFilterContext(), {
+        const { result } = renderHook(() => useQuickFilter(), {
             wrapper: ({ children }) => <QuickFilterWrapper initialState="initial">{children}</QuickFilterWrapper>,
         });
 
@@ -48,7 +48,7 @@ describe('<QuickFilterWrapper>', () => {
     });
 
     it('updates filter state', () => {
-        const { result } = renderHook(() => useQuickFilterContext(), {
+        const { result } = renderHook(() => useQuickFilter(), {
             wrapper: QuickFilterWrapper,
         });
 

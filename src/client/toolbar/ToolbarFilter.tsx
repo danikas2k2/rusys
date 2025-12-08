@@ -2,12 +2,12 @@ import React, { useCallback } from 'react';
 
 import { TextInput } from '@mantine/core';
 
-import { useQuickFilterContext } from '~/client/filters/QuickFilterContext';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { useLabel } from '~/client/hooks/useLabel';
 import { ClearFilterIcon } from '~/client/toolbar/ClearFilterIcon';
 
 export function ToolbarFilter() {
-    const [filter, setFilter] = useQuickFilterContext();
+    const [filter, setFilter] = useQuickFilter();
     const handleInput = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
         (e) => setFilter(e.currentTarget.value),
         [setFilter]

@@ -462,7 +462,6 @@ describe('<ValueRow>', () => {
         const extendedYears = [23, 22, 21, 20];
 
         beforeEach(() => {
-            // Mock current date to be in year 23 (2023)
             jest.useFakeTimers({ now: new Date('2023-06-15') });
             jest.mocked(useYears).mockReturnValue(extendedYears);
         });

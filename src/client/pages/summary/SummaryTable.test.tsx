@@ -4,8 +4,10 @@ import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
+import { noop } from 'lodash';
+
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
-import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasData';
 import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
@@ -44,7 +46,7 @@ describe('<SummaryTable>', () => {
     beforeAll(() => {
         jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
         jest.mocked(useFilteredList).mockReturnValue(summary);
-        jest.mocked(useGroupFilter).mockReturnValue('');
+        jest.mocked(useGroupFilter).mockReturnValue(['', noop]);
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -79,7 +81,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('renders table with group selected', () => {
-            jest.mocked(useGroupFilter).mockReturnValue('Uogienės');
+            jest.mocked(useGroupFilter).mockReturnValue(['Uogienės', noop]);
             render(
                 <MockApp state={state}>
                     <SummaryTable />

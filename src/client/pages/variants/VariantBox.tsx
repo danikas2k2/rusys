@@ -5,7 +5,7 @@ import { useForm } from '@mantine/form';
 import { IconCheck, IconCopy, IconPlus, IconX } from '@tabler/icons-react';
 
 import { Label } from '~/client/common/Label';
-import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useCopyVariant } from '~/client/state/variants/useCopyVariant';
@@ -32,7 +32,7 @@ export function VariantBox({
     onClose,
     onAfterClose,
 }: Readonly<VariantBoxProps>) {
-    const filterGroup = useGroupFilter();
+    const [filterGroup] = useGroupFilter();
     const isEditing = !!initialGroup && !!initialVariant;
     const isCopying = isEditing && filterGroup && filterGroup !== initialGroup;
 

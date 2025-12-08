@@ -1,10 +1,12 @@
 import { renderHook } from '@testing-library/react';
 import { getSummaryFixture } from '@tests/fixtures';
 
+import { noop } from 'lodash';
+
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
-import { useGroupFilter } from '~/client/filters/hooks/useGroupFilter';
 import { useProductFilters } from '~/client/filters/hooks/useProductFilters';
-import { useQuickFilter } from '~/client/filters/hooks/useQuickFilter';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 
 jest.mock('~/client/filters/hooks/useGroupFilter');
 jest.mock('~/client/filters/hooks/useQuickFilter');
@@ -14,7 +16,7 @@ describe('useFilteredList', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('returns unfiltered summary if no filters set', () => {
-        jest.mocked(useQuickFilter).mockReturnValueOnce('');
+        jest.mocked(useQuickFilter).mockReturnValueOnce(['', noop]);
 
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useProductFilters()));
 
@@ -27,7 +29,7 @@ describe('useFilteredList', () => {
     });
 
     it('returns filtered summary', () => {
-        jest.mocked(useQuickFilter).mockReturnValueOnce('r');
+        jest.mocked(useQuickFilter).mockReturnValueOnce(['r', noop]);
 
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useProductFilters()));
 
@@ -38,7 +40,7 @@ describe('useFilteredList', () => {
     });
 
     it('renders filtered group data', () => {
-        jest.mocked(useQuickFilter).mockReturnValueOnce('ūs');
+        jest.mocked(useQuickFilter).mockReturnValueOnce(['ūs', noop]);
 
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useProductFilters()));
 
@@ -46,7 +48,7 @@ describe('useFilteredList', () => {
     });
 
     it('renders selected group data', () => {
-        jest.mocked(useGroupFilter).mockReturnValueOnce('Uogienės').mockReturnValueOnce('Uogienės');
+        jest.mocked(useGroupFilter).mockReturnValueOnce(['Uogienės', noop]).mockReturnValueOnce(['Uogienės', noop]);
 
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useProductFilters()));
 
@@ -57,7 +59,7 @@ describe('useFilteredList', () => {
     });
 
     it('renders filtered out data', () => {
-        jest.mocked(useQuickFilter).mockReturnValueOnce('z');
+        jest.mocked(useQuickFilter).mockReturnValueOnce(['z', noop]);
 
         const { result } = renderHook(() => useFilteredList(getSummaryFixture(), useProductFilters()));
 
