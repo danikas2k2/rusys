@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { Flex, Loader } from '@mantine/core';
-
-import { Error } from '~/client/common/Error';
 import { Label } from '~/client/common/Label';
+import { ScreenError } from '~/client/common/ScreenError';
+import { ScreenLoader } from '~/client/common/ScreenLoader';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 
 import './LoadableContent.pcss';
@@ -17,30 +16,22 @@ export function LoadableContent({ loader, hasData, children }: React.PropsWithCh
     const loading = useLockingLoader(loader);
 
     if (loading === LoadingState.INITIAL || loading === LoadingState.LOADING) {
-        return (
-            <Flex data-loading>
-                <Loader size="lg" type="bars" />
-            </Flex>
-        );
+        return <ScreenLoader />;
     }
 
     if (loading === LoadingState.FAILED) {
         return (
-            <Flex data-loading={false} data-error>
-                <Error>
-                    <Label>Failed to load data</Label>
-                </Error>
-            </Flex>
+            <ScreenError>
+                <Label>Failed to load data</Label>
+            </ScreenError>
         );
     }
 
     if (!hasData) {
         return (
-            <Flex data-loading={false} data-error>
-                <Error>
-                    <Label>No data</Label>
-                </Error>
-            </Flex>
+            <ScreenError>
+                <Label>No data</Label>
+            </ScreenError>
         );
     }
 
