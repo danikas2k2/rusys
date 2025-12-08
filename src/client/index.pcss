@@ -271,9 +271,29 @@ select,
 .ui-Table-thead,
 .ui-Table-tbody,
 .ui-Table-tr {
+    --transition-duration: 100ms;
+    --transition-timing-function: linear;
+
+    transition:
+            height var(--transition-duration) var(--transition-timing-function),
+            padding var(--transition-duration) var(--transition-timing-function),
+            margin var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function) calc(var(--transition-duration) / 2),
+            visibility 0s var(--transition-timing-function);
+
     &[data-hidden="true"] {
-        // TODO add show/hide transition here
-        display: none;
+        visibility: collapse;
+        opacity: 0;
+        height: 0;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        transition:
+                height var(--transition-duration) var(--transition-timing-function),
+                padding var(--transition-duration) var(--transition-timing-function),
+                margin var(--transition-duration) var(--transition-timing-function),
+                opacity var(--transition-duration) var(--transition-timing-function),
+                visibility 0s var(--transition-timing-function) var(--transition-duration);
     }
 }
 
