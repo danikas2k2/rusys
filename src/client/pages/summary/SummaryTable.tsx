@@ -3,6 +3,7 @@ import React from 'react';
 import { Table } from '@mantine/core';
 
 import { LoadableContent } from '~/client/common/LoadableContent';
+import { useUpdateType } from '~/client/common/UpdateTypeContext';
 import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
@@ -22,10 +23,11 @@ export function SummaryTable() {
     const visibleGroups = groupFilter ? [groupFilter] : uniqueGroups;
     const summaryYears = useSummaryYears();
     const headingWidth = 300 / (summaryYears.length + 3);
+    const [updateType] = useUpdateType();
 
     return (
         <LoadableContent loader={useGetSummary()} hasData={useSummaryHasData()}>
-            <Table layout="fixed">
+            <Table layout="fixed" data-table="summary" data-recycled={updateType === 'recycled'}>
                 <Table.Thead>
                     <Table.Tr h="3rem" bd={0}>
                         <Table.Th w={`${headingWidth}%`} py={0}>

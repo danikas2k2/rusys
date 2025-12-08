@@ -14,14 +14,11 @@ interface SummaryGroupProps {
 }
 
 export function SummaryGroup({ group, summary }: SummaryGroupProps) {
-    const [updateType] = useUpdateType();
-    const recycled = updateType === 'recycled';
     const summaryYears = useSummaryYears();
+
     return (
         <>
-            <GroupTitle colSpan={summaryYears.length + 1} bg={recycled ? 'red' : 'green'}>
-                {group}
-            </GroupTitle>
+            <GroupTitle colSpan={summaryYears.length + 1}>{group}</GroupTitle>
             {!!summary.length && (
                 <Table.Tbody>
                     {summary.map(({ name, years }) => (

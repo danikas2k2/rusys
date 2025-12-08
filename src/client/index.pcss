@@ -232,6 +232,34 @@ select,
         background-color: var(--color-base);
         box-shadow: var(--shadow-medium);
     }
+
+    --color-group-title: var(--color-overlay2);
+
+    &[data-table="product"] {
+        --color-group-title: var(--color-blue);
+    }
+
+    &[data-table="summary"] {
+        --color-group-title: var(--color-green);
+
+        &[data-recycled='true'] {
+            --color-group-title: var(--color-red);
+        }
+    }
+}
+
+.ui-Table-th {
+    font-weight: var(--font-weight-normal);
+
+    &[data-group-title='true'] {
+        font-size: var(--font-size-xlarge);
+        font-weight: var(--font-weight-semi-bold);
+        padding: 1.25rem 0.75rem 0.75rem;
+        position: sticky;
+        inset-block-start: 2.25rem;
+        z-index: 1;
+        background: var(--color-base) linear-gradient(135deg, color(from var(--color-group-title) srgb r g b / 0%) 30%, color(from var(--color-group-title) srgb r g b / 50%));
+    }
 }
 
 .ui-Table-thead {
@@ -240,8 +268,13 @@ select,
     background-color: var(--color-base);
 }
 
-.ui-Table-th {
-    font-weight: var(--font-weight-normal);
+.ui-Table-thead,
+.ui-Table-tbody,
+.ui-Table-tr {
+    &[data-hidden="true"] {
+        // TODO add show/hide transition here
+        display: none;
+    }
 }
 
 .ui-Table-tr[data-dragging='true'] {

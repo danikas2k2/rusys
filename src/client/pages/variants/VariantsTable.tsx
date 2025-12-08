@@ -64,7 +64,7 @@ export function VariantsTable() {
                 onDragEnd={handleDragEnd}
                 renderDragOverlay={renderDragOverlay}
             >
-                <Table>
+                <Table data-table="variants">
                     <Table.Thead>
                         <Table.Tr h="3rem">
                             <Table.Th />

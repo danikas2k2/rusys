@@ -9,7 +9,7 @@ import { POINTER_MOVE_THRESHOLD } from '~/client/utils/pointer';
 import { dispatchNativeCancelEvents } from '~/client/utils/pointEvents';
 
 interface SwipeableTableRowProps<D = ActiveContentData, T = HTMLTableRowElement> extends DraggableRowProps<D, T> {
-    ref: React.RefCallback<T>;
+    ref?: React.RefCallback<T>;
     avoidSwipeSelectors?: string;
 }
 
@@ -301,7 +301,7 @@ export function SwipeableRow<D = ActiveContentData>({
     const combinedRef = useCallback(
         (node: HTMLTableRowElement | null) => {
             activeRef.current = node;
-            ref(node);
+            ref?.(node);
         },
         [ref]
     );

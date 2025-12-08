@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { ValueSuffix } from '~/client/common/ValueSuffix';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
@@ -7,12 +7,11 @@ import type { VariantAmount } from '~/types/data';
 import './ValueAmounts.pcss';
 
 export interface ValueAmountsProps {
-    className?: string;
     group: string;
     amounts?: readonly VariantAmount[];
 }
 
-export function ValueAmounts({ group, amounts }: ValueAmountsProps) {
+function ValueAmountsContent({ group, amounts }: ValueAmountsProps) {
     const compareVariants = useGroupVariantComparator(group);
     return amounts?.length ? (
         <>
@@ -27,3 +26,5 @@ export function ValueAmounts({ group, amounts }: ValueAmountsProps) {
         </>
     ) : null;
 }
+
+export const ValueAmounts = memo(ValueAmountsContent);

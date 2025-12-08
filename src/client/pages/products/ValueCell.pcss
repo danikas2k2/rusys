@@ -21,7 +21,7 @@
         --value-cell-background: var(--color-mantle);
         --value-cell-font-weight: var(--font-weight-medium);
 
-        .data {
+        > div {
             outline: 1px dotted var(--color-overlay0);
         }
     }
@@ -39,13 +39,13 @@
         --value-comma-color: color-mix(in srgb, var(--value-cell-color) 60%, transparent 40%);
     }
 
-    &[data-updating="true"] .data {
+    &[data-updating="true"] > div {
         filter: blur(2px);
     }
 
-    &[data-full="true"] .data {
+    &[data-full="true"] > div {
         justify-content: start;
-        padding-inline-start: 1rem;
+        padding-inline-start: .5rem;
     }
 
     .ui-Center-root {

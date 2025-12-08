@@ -16,9 +16,7 @@ interface VariantsGroupProps {
 export function VariantsGroup({ reordering, group, variants }: VariantsGroupProps): React.ReactElement {
     return (
         <>
-            <GroupTitle colSpan={3} bg="overlay2">
-                {group}
-            </GroupTitle>
+            <GroupTitle colSpan={3}>{group}</GroupTitle>
             <Table.Tbody>
                 <SortableContent items={variants.map(({ id }) => id)}>
                     {variants.map((variant) => (

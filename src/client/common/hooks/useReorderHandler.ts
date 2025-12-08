@@ -9,12 +9,12 @@ export function useReorderHandler<T, P = Partial<T>>({
     equals = (a, b) => a === b,
     resolve = (_id) => ({}) as P,
 }: {
-    items: T[];
+    items: readonly T[];
     onReorder: (items: T[], active: P) => Promise<void>;
     equals: (a: P, b: P) => boolean;
     resolve: (id: UniqueIdentifier) => P;
 }): {
-    items: T[];
+    items: readonly T[];
     reordering: boolean;
     onDragEnd: (e: DragEndEvent) => Promise<void>;
 } {

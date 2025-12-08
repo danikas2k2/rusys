@@ -53,7 +53,7 @@ export function GroupsTable() {
                 onDragEnd={handleDragEnd}
                 renderDragOverlay={renderDragOverlay}
             >
-                <Table>
+                <Table data-table="groups">
                     <Table.Thead>
                         <Table.Tr h="3rem">
                             <Table.Th />

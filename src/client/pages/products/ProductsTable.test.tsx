@@ -6,17 +6,16 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { noop } from 'lodash';
-
-import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
-import { useMissingProducts } from '~/client/pages/products/hooks/useMissingProducts';
 import { useProductsHasData } from '~/client/pages/products/hooks/useProductsHasData';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
-import { ProductsGroups } from '~/client/pages/products/ProductsGroups';
 import { ProductsTable } from '~/client/pages/products/ProductsTable';
+import { GroupProducts } from '~/client/pages/products/GroupProducts';
+import { useGroups } from '~/client/state/groups/useGroups';
+import { useProducts } from '~/client/state/products/useProducts';
+import { useYears } from '~/client/state/years/useYears';
 
 jest.mock('~/client/state/years/useYears');
 jest.mock('~/client/filters/hooks/useFilteredList', () => ({
@@ -33,19 +32,19 @@ jest.mock('~/client/hooks/useLockingLoader', () => ({
     useLockingLoader: jest.fn(),
 }));
 jest.mock('~/client/filters/QuickFilterContext', () => ({
-    useQuickFilterContext: jest.fn(),
-}));
-jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
-    useGroupFilter: jest.fn(),
-}));
-jest.mock('~/client/pages/products/hooks/useMissingProducts', () => ({
-    useMissingProducts: jest.fn().mockReturnValue([]),
+    useQuickFilter: jest.fn(),
 }));
 jest.mock('~/client/pages/products/MissingOnlyCheckbox', () => ({
     MissingOnlyCheckbox: jest.fn(({ onClick }: { onClick: () => void }) => <input type="checkbox" onClick={onClick} />),
 }));
-jest.mock('~/client/pages/products/ProductsGroups', () => ({
-    ProductsGroups: jest.fn().mockReturnValue(null),
+jest.mock('~/client/pages/products/GroupProducts', () => ({
+    GroupProducts: jest.fn().mockReturnValue(null),
+}));
+jest.mock('~/client/state/groups/useGroups', () => ({
+    useGroups: jest.fn(),
+}));
+jest.mock('~/client/state/products/useProducts', () => ({
+    useProducts: jest.fn(),
 }));
 
 describe('<ProductsTable>', () => {
@@ -57,13 +56,13 @@ describe('<ProductsTable>', () => {
         products,
     };
 
-    const setFilter = jest.fn();
-
     beforeEach(() => {
         jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
-        jest.mocked(useQuickFilter).mockReturnValue(['', setFilter]);
-        jest.mocked(useGroupFilter).mockReturnValue(['', noop]);
+        jest.mocked(useQuickFilter).mockReturnValue(['', jest.fn()]);
+        jest.mocked(useGroups).mockReturnValue(state.groups);
+        jest.mocked(useProducts).mockReturnValue(products);
         jest.mocked(useFilteredList).mockReturnValue(products);
+        jest.mocked(useYears).mockReturnValue(state.years);
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -84,10 +83,9 @@ describe('<ProductsTable>', () => {
 
             expect(row.getAllByRole('columnheader')).toHaveListWithTextContent(['', '23', '22', '21']);
 
-            expect(ProductsGroups).toHaveBeenCalledWith(
-                {
-                    groups: ['Uogienės', 'Daržovės'],
-                },
+            expect(GroupProducts).toHaveBeenCalledTimes(state.groups.length);
+            expect(GroupProducts).toHaveBeenCalledWith(
+                { group: state.groups[0], products },
                 undefined
             );
         });
@@ -103,11 +101,10 @@ describe('<ProductsTable>', () => {
             );
 
             expect(screen.getByRole('table')).toBeInTheDocument();
-            expect(ProductsGroups).toHaveBeenCalledWith({ groups: [] }, undefined);
+            expect(GroupProducts).toHaveBeenCalledTimes(state.groups.length);
         });
 
         it('renders table with group selected', () => {
-            jest.mocked(useGroupFilter).mockReturnValue(['Uogienės', noop]);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -117,7 +114,7 @@ describe('<ProductsTable>', () => {
             );
 
             expect(screen.getByRole('table')).toBeInTheDocument();
-            expect(ProductsGroups).toHaveBeenCalledWith({ groups: ['Uogienės'] }, undefined);
+            expect(GroupProducts).toHaveBeenCalledWith({ group: state.groups[0], products }, undefined);
         });
 
         it('does not render table for initial state', () => {
@@ -284,14 +281,15 @@ describe('<ProductsTable>', () => {
         const mockSetFilter = jest.fn();
 
         beforeEach(() => {
-            jest.mocked(useMissingOnly).mockReturnValueOnce([true, setMissingOnly]);
+            jest.mocked(useMissingOnly).mockReturnValue([true, setMissingOnly]);
             jest.mocked(useQuickFilter).mockReturnValue(['', mockSetFilter]);
         });
 
         afterEach(() => jest.clearAllMocks());
 
         it('renders missing only rows if missing state is set', () => {
-            jest.mocked(useMissingProducts).mockReturnValueOnce(products.slice(1, 2));
+            const missingProducts = products.slice(1, 2).map((p) => ({ ...p, missing: true }));
+            jest.mocked(useFilteredList).mockReturnValueOnce(missingProducts);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -300,12 +298,7 @@ describe('<ProductsTable>', () => {
                 </MockTheme>
             );
 
-            expect(ProductsGroups).toHaveBeenCalledWith(
-                {
-                    groups: ['Uogienės'],
-                },
-                undefined
-            );
+            expect(GroupProducts).toHaveBeenCalled();
         });
 
         it('clears missing-only state if all missing rows are filtered out', () => {
@@ -325,8 +318,7 @@ describe('<ProductsTable>', () => {
             const testSetFilter = jest.fn();
             jest.mocked(useMissingOnly).mockReturnValue([true, setMissingOnly]);
             jest.mocked(useQuickFilter).mockReturnValue(['z', testSetFilter]);
-            jest.mocked(useFilteredList).mockReturnValue(products);
-            jest.mocked(useMissingProducts).mockReturnValue([]);
+            jest.mocked(useFilteredList).mockReturnValue(products.map((p) => ({ ...p, missing: false })));
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -377,7 +369,9 @@ describe('<ProductsTable>', () => {
 
         it('does not call clearFilter when hasMissingProduct is true', async () => {
             const testSetFilter = jest.fn();
-            jest.mocked(useQuickFilter).mockReturnValueOnce(['z', testSetFilter]);
+            jest.mocked(useMissingOnly).mockReturnValue([true, setMissingOnly]);
+            jest.mocked(useQuickFilter).mockReturnValue(['z', testSetFilter]);
+            jest.mocked(useFilteredList).mockReturnValue(products.map((p, i) => ({ ...p, missing: i === 0 })));
             render(
                 <MockTheme>
                     <MockRedux state={state}>

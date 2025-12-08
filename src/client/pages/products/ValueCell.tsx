@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Center, Loader, Table } from '@mantine/core';
 
@@ -8,31 +8,46 @@ import { useLongPress } from '~/client/hooks/useLongPress';
 import { useProductUpdating } from '~/client/pages/products/UpdatingProductsContext';
 import { ValueAmounts } from '~/client/pages/products/ValueAmounts';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
-import type { ProductAmounts } from '~/types/data';
+import { getCombinedAmounts } from '~/common/utils/amounts';
+import type { Product, ProductAmounts, RemovingYearAmounts } from '~/types/data';
 
 import './ValueCell.pcss';
 
-export interface ValueCellProps extends ProductAmounts {
-    preferred?: boolean;
-    removing?: boolean;
+export interface ValueCellProps {
+    product: Product;
+    year?: number;
     last?: boolean;
     span?: number;
 }
 
-export function ValueCell({
-    group,
-    name,
-    year,
-    amounts,
-    preferred,
-    removing = false,
-    last = false,
-    span,
-}: ValueCellProps) {
+function ValueCellContent({ product, year = 0, last = false, span }: ValueCellProps) {
+    const { group, name, years } = product;
+    const { amounts, removing = false } = useMemo(
+        (): RemovingYearAmounts =>
+            (year
+                ? years?.find((y) => y.year === year)
+                : ({ amounts: getCombinedAmounts(years) } as RemovingYearAmounts)) ?? ({} as RemovingYearAmounts),
+        [year, years]
+    );
+
+    const thisYear = new Date().getFullYear();
+    const prevYear = thisYear - 1;
+    const preferred = useMemo(() => {
+        if (!year || removing || !amounts?.length) {
+            return false;
+        }
+        if (year === thisYear) {
+            return !years?.some((v) => v.year === prevYear && !!v.amounts?.length && !v.removing);
+        }
+        if (year === prevYear) {
+            return true;
+        }
+        return !years?.some((v) => v.year > year && !!v.amounts?.length && !v.removing);
+    }, [amounts?.length, prevYear, removing, thisYear, year, years]);
+
     const [, setActive] = useActiveContent<ProductAmounts>();
     const setRemoving = useSetProductRemoving();
-    const updatingYear = span ? 0 : year;
-    const updating = useProductUpdating({ group, name, year: updatingYear });
+    const updating = useProductUpdating({ group, name, year });
     const swipeActive = useSwipeVisible();
 
     const [loaderVisible, setLoaderVisible] = useState(false);
@@ -51,8 +66,8 @@ export function ValueCell({
     }, [updating]);
 
     const handleClick = useCallback(
-        () => setActive({ action: 'values', data: { group, name, year: updatingYear, amounts } }),
-        [setActive, group, name, updatingYear, amounts]
+        () => setActive({ action: 'values', data: { group, name, year, amounts } }),
+        [setActive, group, name, year, amounts]
     );
 
     // TODO add setRemoving to edit dialog
@@ -84,3 +99,5 @@ export function ValueCell({
         </Table.Td>
     );
 }
+
+export const ValueCell = memo(ValueCellContent);

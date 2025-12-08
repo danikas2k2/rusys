@@ -1,31 +1,29 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import { Table } from '@mantine/core';
 
 import { LoadableContent } from '~/client/common/LoadableContent';
-import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
 import { useProductFilters } from '~/client/filters/hooks/useProductFilters';
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
-import { useSortedList } from '~/client/hooks/useSortedList';
-import { useUniqueGroups } from '~/client/hooks/useUniqueGroups';
-import { useMissingProducts } from '~/client/pages/products/hooks/useMissingProducts';
+import { GroupProducts } from '~/client/pages/products/GroupProducts';
 import { useProductsHasData } from '~/client/pages/products/hooks/useProductsHasData';
 import { MissingOnlyCheckbox } from '~/client/pages/products/MissingOnlyCheckbox';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
-import { ProductsGroups } from '~/client/pages/products/ProductsGroups';
-import { VisibleProductsProvider } from '~/client/pages/products/VisibleProductsContext';
+import { useGroups } from '~/client/state/groups/useGroups';
 import { useGetProducts } from '~/client/state/products/useGetProducts';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useYears } from '~/client/state/years/useYears';
 
 export function ProductsTable() {
-    const filteredProducts = useFilteredList(useProducts(), useProductFilters());
+    const products = useProducts();
+    const groups = useGroups();
+
+    const filteredProducts = useFilteredList(products, useProductFilters());
     const hasFilteredProducts = !!filteredProducts.length;
 
     const [missingOnly, setMissingOnly] = useMissingOnly();
-    const missingProducts = useMissingProducts(filteredProducts);
-    const hasMissingProducts = !!missingProducts.length;
+    const hasMissingProducts = filteredProducts.some((v) => v.missing);
 
     useEffect(() => {
         if (missingOnly && !hasMissingProducts && hasFilteredProducts) {
@@ -40,32 +38,28 @@ export function ProductsTable() {
         }
     }, [filter, hasMissingProducts, missingOnly, setFilter]);
 
-    const visibleProducts = useSortedList(missingOnly ? missingProducts : filteredProducts);
-    const uniqueGroups = useUniqueGroups(visibleProducts);
-    const [group] = useGroupFilter();
-    const visibleGroups = useMemo(() => (group ? [group] : uniqueGroups), [group, uniqueGroups]);
     const years = useYears();
     const headingWidth = 300 / (years.length + 3);
 
     return (
         <LoadableContent loader={useGetProducts()} hasData={useProductsHasData()}>
-            <VisibleProductsProvider products={visibleProducts}>
-                <Table layout="fixed">
-                    <Table.Thead>
-                        <Table.Tr h="3rem">
-                            <Table.Th w={`${headingWidth}%`}>
-                                <MissingOnlyCheckbox onClick={handleClick} />
+            <Table layout="fixed" data-table="products">
+                <Table.Thead>
+                    <Table.Tr h="3rem">
+                        <Table.Th w={`${headingWidth}%`}>
+                            <MissingOnlyCheckbox onClick={handleClick} />
+                        </Table.Th>
+                        {years.map((year) => (
+                            <Table.Th key={year} ta="center">
+                                {year}
                             </Table.Th>
-                            {years.map((year) => (
-                                <Table.Th key={year} ta="center">
-                                    {year}
-                                </Table.Th>
-                            ))}
-                        </Table.Tr>
-                    </Table.Thead>
-                    <ProductsGroups groups={visibleGroups} />
-                </Table>
-            </VisibleProductsProvider>
+                        ))}
+                    </Table.Tr>
+                </Table.Thead>
+                {groups.map((g) => (
+                    <GroupProducts key={g.group} group={g} products={products} />
+                ))}
+            </Table>
         </LoadableContent>
     );
 }
