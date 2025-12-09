@@ -78,7 +78,9 @@ describe('<SummaryTable>', () => {
 
             expect(screen.getByRole('table')).toBeInTheDocument();
             // SummaryGroup is still rendered for all groups, even with empty summary
-            expect(SummaryGroup).toHaveBeenCalled();
+            expect(SummaryGroup)
+                .toHaveBeenNthCalledWith(1, expect.objectContaining({ group: 'Uogienės', summary: [] }), undefined)
+                .toHaveBeenNthCalledWith(2, expect.objectContaining({ group: 'Daržovės', summary: [] }), undefined);
         });
 
         it('renders table with group selected', () => {

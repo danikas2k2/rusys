@@ -1,7 +1,5 @@
 import { renderHook } from '@testing-library/react';
 
-import React from 'react';
-
 import { useVariants } from '~/client/state/variants/useVariants';
 import { useSortedVariants } from './useSortedVariants';
 

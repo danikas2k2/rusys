@@ -1,5 +1,4 @@
 import { render, screen, within } from '@testing-library/react';
-import user from '@testing-library/user-event';
 import { getGroupsFixture, getProductsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
 import { MockTheme } from '@tests/MockTheme';

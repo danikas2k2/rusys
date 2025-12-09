@@ -4,10 +4,10 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
+import { useHasFilteredMissing } from '~/client/pages/products/hooks/useHasFilteredMissing';
 import { MissingOnlyCheckbox } from '~/client/pages/products/MissingOnlyCheckbox';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
-import { useHasFilteredMissing } from '~/client/pages/products/hooks/useHasFilteredMissing';
-import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { useHasMissing } from '~/client/state/products/useHasMissing';
 
 jest.mock('~/client/pages/products/MissingOnlyContext', () => ({

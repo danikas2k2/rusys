@@ -4,14 +4,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { isEqual } from 'lodash';
-
 import { useGroups } from '~/client/state/groups/useGroups';
-
-jest.mock('lodash', () => ({
-    ...jest.requireActual('lodash'),
-    isEqual: jest.fn(() => true),
-}));
 
 describe('useGroups', () => {
     const groups = getGroupsFixture();
@@ -31,5 +24,4 @@ describe('useGroups', () => {
 
         expect(result.current).toStrictEqual([]);
     });
-
 });
