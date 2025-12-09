@@ -57,18 +57,21 @@ export function GroupBox({
             },
         },
     });
+    const formRef = useRef(form);
+    formRef.current = form;
 
     const [loading, setLoading] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+
     // Reset form and focus input when modal opens
     useEffect(() => {
         if (opened) {
-            form.setValues({
+            formRef.current.setValues({
                 group: initialGroup,
                 annual: initialAnnual,
             });
-            form.resetTouched();
-            form.resetDirty();
+            formRef.current.resetTouched();
+            formRef.current.resetDirty();
             setLoading(false);
 
             const timer = setTimeout(() => {
@@ -77,16 +80,15 @@ export function GroupBox({
             }, 100);
             return () => clearTimeout(timer);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [opened, initialGroup, initialAnnual]);
 
     // Revalidate when group name changes to show duplicate errors in real-time
+    const groupValue = form.values.group;
     useEffect(() => {
-        if (form.isTouched('group')) {
-            form.validateField('group');
+        if (formRef.current.isTouched('group')) {
+            formRef.current.validateField('group');
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [form.values.group]);
+    }, [groupValue]);
 
     const updateGroup = useUpdateGroup();
     const renameGroup = useRenameGroup();

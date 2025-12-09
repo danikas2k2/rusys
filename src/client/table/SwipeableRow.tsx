@@ -49,6 +49,7 @@ export function SwipeableRow<D = ActiveContentData>({
     // Initialize x from active.offset when row becomes visible
     useEffect(() => {
         if (visible && active?.offset !== undefined && x === undefined) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync state from active.offset
             setX(active.offset);
             setInitialX(active.offset);
         }
@@ -64,12 +65,12 @@ export function SwipeableRow<D = ActiveContentData>({
                 cancelAnimationFrame(rafId);
             };
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [x, visible, setActive, id]);
+    }, [x, visible, setActive, id, data]);
 
     // Reset offset when row becomes inactive
     useEffect(() => {
         if (!visible && x !== undefined && x !== 0) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to reset state when row becomes inactive
             setX(undefined);
             setInitialX(0);
         } else if (!visible && x === undefined) {
@@ -78,9 +79,11 @@ export function SwipeableRow<D = ActiveContentData>({
     }, [visible, x, id]);
 
     // Update x when controlsWidth is measured (if x was set to -1 because controlsWidth was 0)
+    // Note: setState in effect is necessary here to sync state when controlsWidth becomes available
     useEffect(() => {
         if (visible && x === -1 && controlsWidth > 0) {
             const OPEN_POSITION = -Math.round(controlsWidth);
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync state when controlsWidth becomes available
             setX(OPEN_POSITION);
             setActive({ id, data, ref: activeRef, offset: OPEN_POSITION });
         }

@@ -75,6 +75,8 @@ export function VariantBox({
             },
         },
     });
+    const formRef = useRef(form);
+    formRef.current = form;
 
     const [loading, setLoading] = useState(false);
     const groupRef = useRef<HTMLInputElement>(null);
@@ -83,13 +85,13 @@ export function VariantBox({
     // Reset form and focus input when modal opens
     useEffect(() => {
         if (opened) {
-            form.setValues({
+            formRef.current.setValues({
                 group: initialGroup || filterGroup || '',
                 variant: initialVariant,
                 suffix: initialSuffix,
             });
-            form.resetTouched();
-            form.resetDirty();
+            formRef.current.resetTouched();
+            formRef.current.resetDirty();
             setLoading(false);
 
             const timer = setTimeout(() => {
@@ -97,16 +99,16 @@ export function VariantBox({
             }, 100);
             return () => clearTimeout(timer);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [opened, initialGroup, initialVariant, initialSuffix]);
+    }, [opened, initialGroup, initialVariant, initialSuffix, filterGroup]);
 
     // Revalidate when group or variant changes to show duplicate errors in real-time
+    const groupValue = form.values.group;
+    const variantValue = form.values.variant;
     useEffect(() => {
-        if (form.isTouched('variant') || form.isTouched('group')) {
-            form.validateField('variant');
+        if (formRef.current.isTouched('variant') || formRef.current.isTouched('group')) {
+            formRef.current.validateField('variant');
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [form.values.group, form.values.variant]);
+    }, [groupValue, variantValue]);
 
     const updateVariant = useUpdateVariant();
     const renameVariant = useRenameVariant();

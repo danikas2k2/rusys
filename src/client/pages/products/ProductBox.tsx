@@ -72,6 +72,8 @@ export function ProductBox({
             },
         },
     });
+    const formRef = useRef(form);
+    formRef.current = form;
 
     const [loading, setLoading] = useState(false);
     const groupRef = useRef<HTMLInputElement>(null);
@@ -80,12 +82,12 @@ export function ProductBox({
     // Reset form and focus input when modal opens
     useEffect(() => {
         if (opened) {
-            form.setValues({
+            formRef.current.setValues({
                 group: initialGroup || filterGroup || '',
                 name: initialName,
             });
-            form.resetTouched();
-            form.resetDirty();
+            formRef.current.resetTouched();
+            formRef.current.resetDirty();
             setLoading(false);
 
             const timer = setTimeout(() => {
@@ -93,16 +95,16 @@ export function ProductBox({
             }, 100);
             return () => clearTimeout(timer);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [opened, initialGroup, initialName]);
+    }, [opened, initialGroup, initialName, filterGroup]);
 
     // Revalidate when group or name changes to show duplicate errors in real-time
+    const groupValue = form.values.group;
+    const nameValue = form.values.name;
     useEffect(() => {
-        if (form.isTouched('name') || form.isTouched('group')) {
-            form.validateField('name');
+        if (formRef.current.isTouched('name') || formRef.current.isTouched('group')) {
+            formRef.current.validateField('name');
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [form.values.group, form.values.name]);
+    }, [groupValue, nameValue]);
 
     const addProduct = useAddProduct();
     const moveProduct = useMoveProduct();
