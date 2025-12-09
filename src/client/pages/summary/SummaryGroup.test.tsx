@@ -72,7 +72,7 @@ describe('<SummaryGroup>', () => {
             </MockThemeUpdate>
         );
 
-        expect(screen.getAllByRole('rowgroup')).toHaveListWithTextContent(['Uogienės']);
+        expect(screen.getAllByRole('rowgroup')).toHaveLength(2).toHaveListWithTextContent(['Uogienės', '']);
     });
 
     it('marks group and rows as hidden when filters hide them', () => {
@@ -89,6 +89,6 @@ describe('<SummaryGroup>', () => {
         );
 
         expect(screen.getAllByRole('rowgroup')[0]).toHaveAttribute('data-hidden', 'true');
-        expect(screen.getByText('Braškės').closest('tr')).toHaveAttribute('data-hidden', 'true');
+        expect(screen.getAllByRole('row')[1]).toHaveTextContent('Braškės').toHaveAttribute('data-hidden', 'true');
     });
 });

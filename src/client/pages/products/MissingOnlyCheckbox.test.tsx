@@ -6,10 +6,18 @@ import React from 'react';
 
 import { MissingOnlyCheckbox } from '~/client/pages/products/MissingOnlyCheckbox';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
+import { useHasFilteredMissing } from '~/client/pages/products/hooks/useHasFilteredMissing';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { useHasMissing } from '~/client/state/products/useHasMissing';
 
 jest.mock('~/client/pages/products/MissingOnlyContext', () => ({
     useMissingOnly: jest.fn(),
+}));
+jest.mock('~/client/pages/products/hooks/useHasFilteredMissing', () => ({
+    useHasFilteredMissing: jest.fn(),
+}));
+jest.mock('~/client/filters/QuickFilterContext', () => ({
+    useQuickFilter: jest.fn(),
 }));
 jest.mock('~/client/state/products/useHasMissing', () => ({
     useHasMissing: jest.fn(),
@@ -17,10 +25,13 @@ jest.mock('~/client/state/products/useHasMissing', () => ({
 
 describe('<MissingOnlyCheckbox>', () => {
     const setMissingOnly = jest.fn();
+    const setFilter = jest.fn();
 
     beforeEach(() => {
         jest.mocked(useMissingOnly).mockReturnValue([false, setMissingOnly]);
         jest.mocked(useHasMissing).mockReturnValue(true);
+        jest.mocked(useHasFilteredMissing).mockReturnValue(false);
+        jest.mocked(useQuickFilter).mockReturnValue(['', setFilter]);
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -68,7 +79,7 @@ describe('<MissingOnlyCheckbox>', () => {
         expect(screen.getByRole('checkbox')).not.toBeChecked();
     });
 
-    it('changes missing only state if missing only items are not selected', async () => {
+    it('toggles to missing only and clears filter when missing exist and not filtered', async () => {
         render(
             <MockTheme>
                 <MissingOnlyCheckbox />
@@ -78,9 +89,10 @@ describe('<MissingOnlyCheckbox>', () => {
         await user.click(screen.getByRole('checkbox'));
 
         expect(setMissingOnly).toHaveBeenCalledWith(true);
+        expect(setFilter).toHaveBeenCalledWith('');
     });
 
-    it('changes missing only state if missing only items selected', async () => {
+    it('toggles to all items when currently missing only', async () => {
         jest.mocked(useMissingOnly).mockReturnValueOnce([true, setMissingOnly]);
         render(
             <MockTheme>
@@ -89,6 +101,34 @@ describe('<MissingOnlyCheckbox>', () => {
         );
 
         await user.click(screen.getByRole('checkbox'));
+
+        expect(setMissingOnly).toHaveBeenCalledWith(false);
+        expect(setFilter).not.toHaveBeenCalled();
+    });
+
+    it('does not clear filter when filtered missing exist', async () => {
+        jest.mocked(useHasFilteredMissing).mockReturnValue(true);
+        render(
+            <MockTheme>
+                <MissingOnlyCheckbox />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('checkbox'));
+
+        expect(setMissingOnly).toHaveBeenCalledWith(true);
+        expect(setFilter).not.toHaveBeenCalled();
+    });
+
+    it('resets missingOnly to false when filtered missing disappear', () => {
+        jest.mocked(useMissingOnly).mockReturnValue([true, setMissingOnly]);
+        jest.mocked(useHasFilteredMissing).mockReturnValue(false);
+
+        render(
+            <MockTheme>
+                <MissingOnlyCheckbox />
+            </MockTheme>
+        );
 
         expect(setMissingOnly).toHaveBeenCalledWith(false);
     });

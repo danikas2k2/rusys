@@ -8,7 +8,7 @@ import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { ToolbarFilter } from '~/client/toolbar/ToolbarFilter';
 
 jest.mock('~/client/filters/QuickFilterContext', () => ({
-    useQuickFilterContext: jest.fn(),
+    useQuickFilter: jest.fn(),
 }));
 
 describe('<ToolbarFilter>', () => {

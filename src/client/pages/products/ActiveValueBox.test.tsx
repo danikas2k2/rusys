@@ -21,7 +21,7 @@ jest.mock('~/client/state/profile/useProfile', () => ({
 }));
 
 jest.mock('~/client/pages/products/AmountBox', () => ({
-    ValueBox: ({ opened, onClose, onAfterClose }: any) =>
+    AmountBox: ({ opened, onClose, onAfterClose }: any) =>
         opened ? (
             <div role="dialog" aria-label="Value box">
                 <button type="button" onClick={() => onClose([{ variant: 'test', amount: 5 }])}>

@@ -68,18 +68,18 @@ describe('<VariantsTable>', () => {
         expect(screen.getByRole('table')).toBeInTheDocument();
 
         const rowData = {
-            Daržovės: [
-                ['', 'd', ''],
-                ['', 'p', ''],
-                ['', 'm', ''],
-                ['', '1', ''],
-                ['', 'x', 'B.'],
-            ],
             Uogienės: [
                 ['', 'p', ''],
                 ['', 'd', 'D.'],
                 ['', 'm', 'M.'],
                 ['', 'e', 'E.'],
+                ['', 'x', 'B.'],
+            ],
+            Daržovės: [
+                ['', 'd', ''],
+                ['', 'p', ''],
+                ['', 'm', ''],
+                ['', '1', ''],
                 ['', 'x', 'B.'],
             ],
         };

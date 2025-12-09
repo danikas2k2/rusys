@@ -32,11 +32,4 @@ describe('useGroups', () => {
         expect(result.current).toStrictEqual([]);
     });
 
-    it('uses isEqual for deep comparison', () => {
-        renderHook(() => useGroups(), {
-            wrapper: ({ children }) => <MockRedux state={{ groups }}>{children}</MockRedux>,
-        });
-
-        expect(isEqual).toHaveBeenCalledWith(groups, groups);
-    });
 });

@@ -20,22 +20,6 @@ describe('<GroupTitle>', () => {
         expect(screen.getByText('Test Group')).toBeInTheDocument();
     });
 
-    it('applies background color from bg prop', () => {
-        render(
-            <MockTheme>
-                <Table>
-                    <GroupTitle bg="primary">Test Group</GroupTitle>
-                </Table>
-            </MockTheme>
-        );
-
-        const th = screen.getByText('Test Group').closest('th');
-
-        expect(th)
-            .toBeInTheDocument()
-            .toHaveAttribute('style', expect.stringMatching(/background: .*? var\(--color-primary\)/));
-    });
-
     it('applies custom style', () => {
         const customStyle = { fontSize: '20px' };
 

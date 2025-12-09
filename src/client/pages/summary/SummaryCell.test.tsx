@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import { MockTableRow } from '@tests/MockTableRow';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -13,7 +14,7 @@ jest.mock('~/client/state/variants/useGroupVariantComparator', () => ({
 }));
 
 jest.mock('~/client/common/AmountSuffix', () => ({
-    ValueSuffix: () => null,
+    AmountSuffix: () => null,
 }));
 
 describe('<SummaryCell>', () => {
@@ -78,29 +79,21 @@ describe('<SummaryCell>', () => {
         });
 
         render(
-            <MockTheme>
-                <Table>
-                    <Table.Tbody>
-                        <Table.Tr>
-                            <SummaryCell
-                                group="Uogienės"
-                                amounts={[
-                                    { variant: 'm', amount: 15 },
-                                    { variant: 'p', amount: 5 },
-                                    { variant: 'd', amount: 10 },
-                                ]}
-                            />
-                        </Table.Tr>
-                    </Table.Tbody>
-                </Table>
-            </MockTheme>
+            <MockTableRow>
+                <SummaryCell
+                    group="Uogienės"
+                    amounts={[
+                        { variant: 'm', amount: 15 },
+                        { variant: 'p', amount: 5 },
+                        { variant: 'd', amount: 10 },
+                    ]}
+                />
+            </MockTableRow>
         );
 
-        const cell = screen.getByRole('cell');
-        const values = Array.from(cell.querySelectorAll('span')).map((span) => span.textContent);
-
-        expect(cell).toHaveAttribute('data-empty', 'false');
-        expect(values).toStrictEqual(['5', '10', '15']);
+        expect(screen.getByRole('cell'))
+            .toHaveAttribute('data-empty', 'false')
+            .toHaveTextContent('5' + '10' + '15');
         expect(mockCompareVariants).toHaveBeenCalledWith(expect.any(String), expect.any(String));
     });
 
@@ -112,15 +105,9 @@ describe('<SummaryCell>', () => {
         const originalAmounts = [...amounts];
 
         render(
-            <MockTheme>
-                <Table>
-                    <Table.Tbody>
-                        <Table.Tr>
-                            <SummaryCell group="Uogienės" amounts={amounts} />
-                        </Table.Tr>
-                    </Table.Tbody>
-                </Table>
-            </MockTheme>
+            <MockTableRow>
+                <SummaryCell group="Uogienės" amounts={amounts} />
+            </MockTableRow>
         );
 
         expect(amounts).toStrictEqual(originalAmounts);

@@ -28,7 +28,48 @@
     });
     ```
 
-### 1.2. NIEKADA nenaudoti `data-testid`
+### 1.2. Query metodų pasirinkimas
+
+- **VISADA naudoti `screen.get*` / `screen.query*` / `screen.find*`** vietoj `container.querySelector` / `document.querySelector`:
+
+    ```tsx
+    // ❌ BLOGAI - naudoja querySelector
+    const { container } = render(<Component />);
+    expect(container.querySelectorAll('td')).toHaveLength(3);
+
+    // ✅ GERAI - naudoja screen queries
+    render(<Component />);
+    expect(screen.getAllByRole('cell')).toHaveLength(3);
+    ```
+
+- **Kodėl `screen.*` vietoj `querySelector`?**
+    - `screen` queries yra semantiniai ir accessibility-aware
+    - `screen` queries testuoja tikrą user experience
+    - `querySelector` yra low-level DOM API, kuris neatsispindi accessibility
+    - `screen` queries automatiškai naudoja accessibility tree
+    - Jei reikia `querySelector`, tai reiškia, kad trūksta proper accessibility arba semantic HTML
+
+- **Pavyzdžiai:**
+
+    ```tsx
+    // ❌ BLOGAI
+    const { container } = render(<Table><Table.Tbody><Table.Tr><td>Cell</td></Table.Tr></Table.Tbody></Table>);
+    expect(container.querySelectorAll('td')).toHaveLength(1);
+
+    // ✅ GERAI
+    render(<Table><Table.Tbody><Table.Tr><td>Cell</td></Table.Tr></Table.Tbody></Table>);
+    expect(screen.getAllByRole('cell')).toHaveLength(1);
+
+    // ❌ BLOGAI
+    const { container } = render(<Component />);
+    const button = container.querySelector('button');
+
+    // ✅ GERAI
+    render(<Component />);
+    const button = screen.getByRole('button');
+    ```
+
+### 1.3. NIEKADA nenaudoti `data-testid`
 
 - **GRIEŽTAI DRAUDŽIAMA** naudoti `data-testid` atributus testuose:
 
@@ -417,6 +458,74 @@ it('handles drag gesture', async () => {
     - ✅ `calls onClose when dialog is closed`
     - ✅ `does not accept any other symbols, but digits`
 
+### 4.4. NIEKADA nekurti papildomų render funkcijų
+
+- **GRIEŽTAI DRAUDŽIAMA** kurti papildomas helper funkcijas, kurios wrap'ina `render()`:
+
+    ```tsx
+    // ❌ BLOGAI - papildoma render funkcija
+    describe('<Component>', () => {
+        const renderComponent = (props = {}) =>
+            render(
+                <MockApp>
+                    <Component {...props} />
+                </MockApp>
+            );
+
+        it('renders correctly', () => {
+            renderComponent({ name: 'Test' });
+            // ...
+        });
+    });
+
+    // ✅ GERAI - tiesiogiai render() kiekviename teste
+    describe('<Component>', () => {
+        it('renders correctly', () => {
+            render(
+                <MockApp>
+                    <Component name="Test" />
+                </MockApp>
+            );
+            // ...
+        });
+    });
+    ```
+
+- **Kodėl ne helper funkcijos?**
+    - Helper funkcijos slepia tikrąjį render'inimo procesą
+    - Sunku suprasti, kas tikrai vyksta teste
+    - Helper funkcijos gali turėti netikėtus side effects
+    - Kiekvienas testas turėtų būti aiškus ir savarankiškas
+    - Jei wrapper'is kartojasi, geriau sukurti Mock komponentą (pvz., `MockTableRow`)
+
+- **Kada leistina?**
+    - Tik jei wrapper'is yra labai sudėtingas ir kartojasi daugelyje testų, tada geriau sukurti atskirą Mock komponentą:
+
+        ```tsx
+        // ✅ GERAI - Mock komponentas, jei wrapper'is sudėtingas ir kartojasi
+        // src/tests/MockTableRow.tsx
+        export function MockTableRow({ children }: { children: React.ReactNode }) {
+            return (
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>{children}</Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+        }
+
+        // Teste
+        it('renders correctly', () => {
+            render(
+                <MockTableRow>
+                    <Component />
+                </MockTableRow>
+            );
+        });
+        ```
+
 ## 5. Mocking ir Setup
 
 ### 5.1. Lifecycle Hooks ir Cleanup
@@ -629,10 +738,57 @@ it('handles drag gesture', async () => {
     });
     ```
 
-- **Alternatyva - naudoti `mock.calls`** tik retais atvejais, kai `mockImplementation` netinka:
+- **NIEKADA nenaudoti `mock.calls` tiesiogiai** - visada naudoti Jest matchers:
 
     ```tsx
-    // ⚠️ NAUDOTI TIK JEI MOCK_IMPLEMENTATION NETINKA
+    // ❌ BLOGAI - naudoja mock.calls tiesiogiai
+    expect(jest.mocked(ProductCell).mock.calls.at(-1)?.[0]).toStrictEqual(
+        expect.objectContaining({ last: true, year: years.at(-1) })
+    );
+
+    // ✅ GERAI - naudoja toHaveBeenLastCalledWith
+    expect(ProductCell).toHaveBeenLastCalledWith(
+        expect.objectContaining({ last: true, year: years.at(-1) }),
+        undefined
+    );
+    ```
+
+- **Naudoti `toHaveBeenNthCalledWith()`** tikrinti konkretų kvietimą pagal indeksą:
+
+    ```tsx
+    // ✅ GERAI - tikrinti konkretų kvietimą
+    expect(Component).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ prop: 'first' }),
+        undefined
+    );
+    expect(Component).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ prop: 'second' }),
+        undefined
+    );
+    ```
+
+- **Naudoti `toHaveBeenLastCalledWith()`** tikrinti paskutinį kvietimą:
+
+    ```tsx
+    // ✅ GERAI - tikrinti paskutinį kvietimą
+    expect(Component).toHaveBeenLastCalledWith(
+        expect.objectContaining({ last: true }),
+        undefined
+    );
+    ```
+
+- **Kodėl ne `mock.calls`?**
+    - `mock.calls` yra low-level API, kuris nėra semantinis
+    - Jest matchers (`toHaveBeenNthCalledWith`, `toHaveBeenLastCalledWith`) yra aiškesni ir lengviau skaitomi
+    - Jest matchers automatiškai formatuoja error pranešimus geriau
+    - `mock.calls` reikalauja manual tipo cast'inimo ir null checking
+
+- **Alternatyva - naudoti `mock.calls`** tik labai retais atvejais, kai `mockImplementation` arba Jest matchers netinka:
+
+    ```tsx
+    // ⚠️ NAUDOTI TIK JEI MOCK_IMPLEMENTATION ARBA JEST MATCHERS NETINKA
     const lastCall = jest.mocked(Component).mock.calls[jest.mocked(Component).mock.calls.length - 1]!;
     const onClose = lastCall[0].onClose;
 

@@ -35,10 +35,10 @@ jest.mock('~/client/filters/QuickFilterContext', () => ({
     useQuickFilter: jest.fn(),
 }));
 jest.mock('~/client/pages/products/MissingOnlyCheckbox', () => ({
-    MissingOnlyCheckbox: jest.fn(({ onClick }: { onClick: () => void }) => <input type="checkbox" onClick={onClick} />),
+    MissingOnlyCheckbox: jest.fn(() => <input type="checkbox" />),
 }));
 jest.mock('~/client/pages/products/ProductsGroup', () => ({
-    GroupProducts: jest.fn().mockReturnValue(null),
+    ProductsGroup: jest.fn().mockReturnValue(null),
 }));
 jest.mock('~/client/state/groups/useGroups', () => ({
     useGroups: jest.fn(),
@@ -284,9 +284,7 @@ describe('<ProductsTable>', () => {
 
         afterEach(() => jest.clearAllMocks());
 
-        it('renders missing only rows if missing state is set', () => {
-            const missingProducts = products.slice(1, 2).map((p) => ({ ...p, missing: true }));
-            jest.mocked(useFilteredList).mockReturnValueOnce(missingProducts);
+        it('renders checkbox in header', () => {
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -295,91 +293,7 @@ describe('<ProductsTable>', () => {
                 </MockTheme>
             );
 
-            expect(ProductsGroup).toHaveBeenCalledWith();
-        });
-
-        it('clears missing-only state if all missing rows are filtered out', () => {
-            jest.mocked(useFilteredList).mockReturnValueOnce(products.slice(2));
-            render(
-                <MockTheme>
-                    <MockRedux state={state}>
-                        <ProductsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            expect(setMissingOnly).toHaveBeenCalledWith(false);
-        });
-
-        it('calls clearFilter on missing-only checkbox being clicked when all missing rows are filtered out', async () => {
-            const testSetFilter = jest.fn();
-            jest.mocked(useMissingOnly).mockReturnValue([true, setMissingOnly]);
-            jest.mocked(useQuickFilter).mockReturnValue(['z', testSetFilter]);
-            jest.mocked(useFilteredList).mockReturnValue(products.map((p) => ({ ...p, missing: false })));
-            render(
-                <MockTheme>
-                    <MockRedux state={state}>
-                        <ProductsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            await user.click(screen.getByRole('checkbox'));
-
-            expect(testSetFilter).toHaveBeenCalledWith('');
-        });
-
-        it('does not call clearFilter when missingOnly is false', async () => {
-            const testSetFilter = jest.fn();
-            jest.mocked(useMissingOnly).mockReturnValueOnce([false, setMissingOnly]);
-            jest.mocked(useQuickFilter).mockReturnValueOnce(['z', testSetFilter]);
-            jest.mocked(useFilteredList).mockReturnValueOnce([]);
-            render(
-                <MockTheme>
-                    <MockRedux state={state}>
-                        <ProductsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            await user.click(screen.getByRole('checkbox'));
-
-            expect(testSetFilter).not.toHaveBeenCalled();
-        });
-
-        it('does not call clearFilter when filter is empty', async () => {
-            const testSetFilter = jest.fn();
-            jest.mocked(useQuickFilter).mockReturnValueOnce(['', testSetFilter]);
-            jest.mocked(useFilteredList).mockReturnValueOnce([]);
-            render(
-                <MockTheme>
-                    <MockRedux state={state}>
-                        <ProductsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            await user.click(screen.getByRole('checkbox'));
-
-            expect(testSetFilter).not.toHaveBeenCalled();
-        });
-
-        it('does not call clearFilter when hasMissingProduct is true', async () => {
-            const testSetFilter = jest.fn();
-            jest.mocked(useMissingOnly).mockReturnValue([true, setMissingOnly]);
-            jest.mocked(useQuickFilter).mockReturnValue(['z', testSetFilter]);
-            jest.mocked(useFilteredList).mockReturnValue(products.map((p, i) => ({ ...p, missing: i === 0 })));
-            render(
-                <MockTheme>
-                    <MockRedux state={state}>
-                        <ProductsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            await user.click(screen.getByRole('checkbox'));
-
-            expect(testSetFilter).not.toHaveBeenCalled();
+            expect(screen.getByRole('checkbox')).toBeInTheDocument();
         });
     });
 });

@@ -13,7 +13,7 @@ import { getVariantAmount } from '~/common/utils/amounts';
 import type { VariantAmount } from '~/types/data';
 
 jest.mock('~/client/pages/products/AmountInput', () => ({
-    ValueInput: jest.fn(jest.requireActual('~/client/pages/products/AmountInput').ValueInput),
+    AmountInput: jest.fn(jest.requireActual('~/client/pages/products/AmountInput').AmountInput),
 }));
 
 describe('<AmountBox>', () => {

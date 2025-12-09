@@ -8,8 +8,12 @@ import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
 import { useProductFilters } from '~/client/filters/hooks/useProductFilters';
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 
-jest.mock('~/client/filters/hooks/useGroupFilter');
-jest.mock('~/client/filters/hooks/useQuickFilter');
+jest.mock('~/client/filters/GroupFilterContext', () => ({
+    useGroupFilter: jest.fn(() => ['', jest.fn()]),
+}));
+jest.mock('~/client/filters/QuickFilterContext', () => ({
+    useQuickFilter: jest.fn(() => ['', jest.fn()]),
+}));
 jest.mock('~/client/state/summary/useSummary');
 
 describe('useFilteredList', () => {

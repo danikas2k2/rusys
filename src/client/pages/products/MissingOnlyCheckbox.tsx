@@ -1,18 +1,31 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import { Checkbox } from '@mantine/core';
 
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
+import { useHasFilteredMissing } from '~/client/pages/products/hooks/useHasFilteredMissing';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
 import { useHasMissing } from '~/client/state/products/useHasMissing';
 
 export function MissingOnlyCheckbox({ onClick }: { onClick?: () => void }) {
     const hasMissing = useHasMissing();
-    const [missingOnly, setMissingOnly] = useMissingOnly();
+    const hasFilteredMissing = useHasFilteredMissing();
 
+    const [missingOnly, setMissingOnly] = useMissingOnly();
+    useEffect(() => {
+        if (missingOnly && !hasFilteredMissing) {
+            setMissingOnly(false);
+        }
+    }, [hasFilteredMissing, missingOnly, setMissingOnly]);
+
+    const [, setFilter] = useQuickFilter();
     const handleChange = useCallback(() => {
         setMissingOnly(!missingOnly);
+        if (!missingOnly && hasMissing && !hasFilteredMissing) {
+            setFilter('');
+        }
         onClick?.();
-    }, [missingOnly, onClick, setMissingOnly]);
+    }, [hasFilteredMissing, hasMissing, missingOnly, onClick, setFilter, setMissingOnly]);
 
     return <Checkbox variant="outline" disabled={!hasMissing} checked={!missingOnly} onChange={handleChange} />;
 }

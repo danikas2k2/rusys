@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
@@ -17,6 +18,9 @@ jest.mock('~/client/user/LoginButton', () => ({
 jest.mock('~/client/user/LogoutButton', () => ({
     LogoutButton: () => <div>LogoutButton</div>,
 }));
+jest.mock('~/client/common/ErrorDialog', () => ({
+    ErrorDialog: () => null,
+}));
 
 describe('<AppContent>', () => {
     beforeAll(() => {
@@ -25,7 +29,11 @@ describe('<AppContent>', () => {
     });
 
     it('renders LoginButton when not has no profile info', () => {
-        render(<AppContent />);
+        render(
+            <MockRedux>
+                <AppContent />
+            </MockRedux>
+        );
 
         expect(screen.getByText('LoginButton')).toBeInTheDocument();
     });
@@ -33,7 +41,11 @@ describe('<AppContent>', () => {
     it('renders LogoutButton when has profile info but user is not allowed', () => {
         jest.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: false });
 
-        render(<AppContent />);
+        render(
+            <MockRedux>
+                <AppContent />
+            </MockRedux>
+        );
 
         expect(screen.getByText('LogoutButton')).toBeInTheDocument();
     });
@@ -42,7 +54,11 @@ describe('<AppContent>', () => {
         jest.mocked(isDevMode).mockReturnValue(false);
         jest.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: true });
 
-        render(<AppContent />);
+        render(
+            <MockRedux>
+                <AppContent />
+            </MockRedux>
+        );
 
         expect(screen.getByText('AppRouter')).toBeInTheDocument();
     });
@@ -50,7 +66,11 @@ describe('<AppContent>', () => {
     it('renders AppRouter when in dev mode event without profile', () => {
         jest.mocked(isDevMode).mockReturnValue(true);
 
-        render(<AppContent />);
+        render(
+            <MockRedux>
+                <AppContent />
+            </MockRedux>
+        );
 
         expect(screen.getByText('AppRouter')).toBeInTheDocument();
     });

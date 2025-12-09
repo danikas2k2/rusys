@@ -10,7 +10,7 @@ jest.mock('~/client/state/variants/useGroupVariantComparator', () => ({
     useGroupVariantComparator: jest.fn().mockReturnValue(() => 0),
 }));
 jest.mock('~/client/common/AmountSuffix', () => ({
-    ValueSuffix: jest.fn().mockReturnValue(null),
+    AmountSuffix: jest.fn().mockReturnValue(null),
 }));
 
 describe('<ProductAmounts>', () => {
