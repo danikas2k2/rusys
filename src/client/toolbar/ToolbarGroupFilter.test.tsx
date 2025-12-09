@@ -12,7 +12,7 @@ jest.mock('~/client/state/groups/useGroups', () => ({
     useGroups: jest.fn(),
 }));
 jest.mock('~/client/filters/GroupFilterContext', () => ({
-    useGroupFilterContext: jest.fn(),
+    useGroupFilter: jest.fn(),
 }));
 
 describe('<ToolbarGroupFilter>', () => {

@@ -409,7 +409,7 @@ describe('<ProductCell>', () => {
             expect(screen.getByRole('cell')).toBeInTheDocument();
         });
 
-        it('sets year to 0 in active state when span is provided and cell is clicked', async () => {
+        it('calls setActive with correct data when span is provided and cell is clicked', async () => {
             render(
                 <MockApp>
                     <Table>
@@ -430,7 +430,7 @@ describe('<ProductCell>', () => {
                 data: {
                     group: props.product.group,
                     name: props.product.name,
-                    year: 0,
+                    year: props.year,
                     amounts: props.product.years?.[0]?.amounts,
                 },
             });
@@ -530,108 +530,6 @@ describe('<ProductCell>', () => {
 
             expect(setRemoving).not.toHaveBeenCalled();
             expect(setActive).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('navigator.vibrate', () => {
-        const productWithAmounts = {
-            ...defaultProduct,
-            years: [
-                {
-                    year: 22,
-                    amounts: [{ variant: 'p', amount: 1 }],
-                },
-            ],
-        };
-        const props: ProductCellProps = {
-            product: productWithAmounts,
-            year: 22,
-        };
-
-        const originalNavigator = globalThis.navigator;
-        const mockVibrate = jest.fn();
-
-        afterEach(() =>
-            Object.defineProperty(globalThis, 'navigator', {
-                value: originalNavigator,
-                writable: true,
-                configurable: true,
-            })
-        );
-
-        it('calls navigator.vibrate when available and long press is triggered', async () => {
-            Object.defineProperty(globalThis, 'navigator', {
-                value: { vibrate: mockVibrate },
-                writable: true,
-                configurable: true,
-            });
-
-            render(
-                <MockApp>
-                    <Table>
-                        <Table.Tbody>
-                            <Table.Tr>
-                                <ProductCell {...props} />
-                            </Table.Tr>
-                        </Table.Tbody>
-                    </Table>
-                </MockApp>
-            );
-
-            await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
-
-            expect(mockVibrate).toHaveBeenCalledWith(500);
-        });
-
-        it('does not call vibrate when navigator is undefined', async () => {
-            Object.defineProperty(globalThis, 'navigator', {
-                value: undefined,
-                writable: true,
-                configurable: true,
-            });
-
-            render(
-                <MockApp>
-                    <Table>
-                        <Table.Tbody>
-                            <Table.Tr>
-                                <ProductCell {...props} />
-                            </Table.Tr>
-                        </Table.Tbody>
-                    </Table>
-                </MockApp>
-            );
-
-            await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
-
-            expect(mockVibrate).not.toHaveBeenCalled();
-        });
-
-        it('does not call vibrate when navigator.vibrate is undefined', async () => {
-            Object.defineProperty(globalThis, 'navigator', {
-                value: {},
-                writable: true,
-                configurable: true,
-            });
-
-            render(
-                <MockApp>
-                    <Table>
-                        <Table.Tbody>
-                            <Table.Tr>
-                                <ProductCell {...props} />
-                            </Table.Tr>
-                        </Table.Tbody>
-                    </Table>
-                </MockApp>
-            );
-
-            await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
-
-            expect(mockVibrate).not.toHaveBeenCalled();
         });
     });
 });

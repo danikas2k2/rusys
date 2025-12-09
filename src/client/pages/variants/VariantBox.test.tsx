@@ -5,6 +5,7 @@ import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useCopyVariant } from '~/client/state/variants/useCopyVariant';
 import { useRenameVariant } from '~/client/state/variants/useRenameVariant';
@@ -14,11 +15,13 @@ jest.mock('~/client/common/Label');
 jest.mock('~/client/state/variants/useCopyVariant');
 jest.mock('~/client/state/variants/useRenameVariant');
 jest.mock('~/client/state/variants/useUpdateVariant');
-jest.mock('~/client/filters/hooks/useGroupFilter', () => ({
-    useGroupFilter: jest.fn(() => ''),
+jest.mock('~/client/filters/GroupFilterContext', () => ({
+    useGroupFilter: jest.fn(),
 }));
 
 describe('<VariantBox>', () => {
+    beforeEach(() => jest.mocked(useGroupFilter).mockReturnValue(['', jest.fn()]));
+
     afterEach(() => jest.clearAllMocks());
 
     const state = {
@@ -49,6 +52,30 @@ describe('<VariantBox>', () => {
         expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveValue('');
         expect(screen.getByRole('textbox', { name: 'Group' })).toHaveValue('');
         expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
+    });
+
+    it('uses filterGroup when no initial group is provided', () => {
+        jest.mocked(useGroupFilter).mockReturnValue(['Daržovės', jest.fn()]);
+
+        render(
+            <MockApp state={state}>
+                <VariantBox opened onClose={onClose} />
+            </MockApp>
+        );
+
+        expect(screen.getByRole('textbox', { name: 'Group' })).toHaveValue('Daržovės');
+    });
+
+    it('shows Duplicate button when editing and filterGroup differs from initialGroup', () => {
+        jest.mocked(useGroupFilter).mockReturnValue(['Uogienės', jest.fn()]);
+
+        render(
+            <MockApp state={state}>
+                <VariantBox opened group="Daržovės" variant="d" onClose={onClose} />
+            </MockApp>
+        );
+
+        expect(screen.getByRole('button', { name: 'Duplicate' })).toBeInTheDocument();
     });
 
     it('renders with initial values', () => {
