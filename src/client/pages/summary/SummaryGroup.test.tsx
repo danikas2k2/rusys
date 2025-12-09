@@ -5,10 +5,14 @@ import React from 'react';
 
 import { Table } from '@mantine/core';
 
+import { useGroupFilterPredicate } from '~/client/filters/hooks/useGroupFilterPredicate';
+import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { useSummaryYears } from '~/client/pages/summary/hooks/useSummaryYears';
 import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
 
 jest.mock('~/client/pages/summary/hooks/useSummaryYears');
+jest.mock('~/client/filters/hooks/useGroupFilterPredicate');
+jest.mock('~/client/filters/hooks/useQuickFilterPredicate');
 jest.mock('~/client/pages/summary/SummaryRow', () => ({
     SummaryRow: ({ name, hidden }: { name: string; hidden?: boolean }) => (
         <tr data-hidden={hidden}>
@@ -27,7 +31,11 @@ jest.mock('~/client/table/GroupTitle', () => ({
 }));
 
 describe('<SummaryGroup>', () => {
-    beforeAll(() => jest.mocked(useSummaryYears).mockReturnValue([23, 22, 21]));
+    beforeAll(() => {
+        jest.mocked(useSummaryYears).mockReturnValue([23, 22, 21]);
+        jest.mocked(useGroupFilterPredicate).mockReturnValue(() => true);
+        jest.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
+    });
 
     afterEach(() => jest.clearAllMocks());
 
@@ -35,11 +43,7 @@ describe('<SummaryGroup>', () => {
         render(
             <MockThemeUpdate update="recycled">
                 <Table>
-                    <SummaryGroup
-                        group="Uogienės"
-                        summary={[{ group: 'Uogienės', name: 'Braškės', years: [] }]}
-                        visibleIds={new Set(['Uogienės:Braškės'])}
-                    />
+                    <SummaryGroup group="Uogienės" summary={[{ group: 'Uogienės', name: 'Braškės', years: [] }]} />
                 </Table>
             </MockThemeUpdate>
         );
@@ -51,11 +55,7 @@ describe('<SummaryGroup>', () => {
         render(
             <MockThemeUpdate update="consumed">
                 <Table>
-                    <SummaryGroup
-                        group="Daržovės"
-                        summary={[{ group: 'Daržovės', name: 'Burokai', years: [] }]}
-                        visibleIds={new Set(['Daržovės:Burokai'])}
-                    />
+                    <SummaryGroup group="Daržovės" summary={[{ group: 'Daržovės', name: 'Burokai', years: [] }]} />
                 </Table>
             </MockThemeUpdate>
         );
@@ -67,7 +67,7 @@ describe('<SummaryGroup>', () => {
         render(
             <MockThemeUpdate update="recycled">
                 <Table>
-                    <SummaryGroup group="Uogienės" summary={[]} visibleIds={new Set()} />
+                    <SummaryGroup group="Uogienės" summary={[]} />
                 </Table>
             </MockThemeUpdate>
         );
@@ -75,16 +75,15 @@ describe('<SummaryGroup>', () => {
         expect(screen.getAllByRole('rowgroup')).toHaveListWithTextContent(['Uogienės']);
     });
 
-    it('marks group and rows as hidden when no visible ids', () => {
+    it('marks group and rows as hidden when filters hide them', () => {
+        // Mock filters to hide the group/name
+        jest.mocked(useGroupFilterPredicate).mockReturnValue(() => false);
+        jest.mocked(useQuickFilterPredicate).mockReturnValue(() => false);
+
         render(
             <MockThemeUpdate update="recycled">
                 <Table>
-                    <SummaryGroup
-                        group="Uogienės"
-                        hidden
-                        summary={[{ group: 'Uogienės', name: 'Braškės', years: [] }]}
-                        visibleIds={new Set()}
-                    />
+                    <SummaryGroup group="Uogienės" summary={[{ group: 'Uogienės', name: 'Braškės', years: [] }]} />
                 </Table>
             </MockThemeUpdate>
         );

@@ -2,12 +2,12 @@ import React from 'react';
 
 import { useVariant } from '~/client/state/variants/useVariant';
 
-interface ValueSuffixProps {
+interface AmountSuffixProps {
     group: string;
     variant: string;
 }
 
-export function ValueSuffix({ group, variant }: ValueSuffixProps) {
+export function AmountSuffix({ group, variant }: AmountSuffixProps) {
     const value = useVariant(group, variant);
     return <sub>{value ? value.suffix : variant}</sub>;
 }

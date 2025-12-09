@@ -6,21 +6,21 @@ import { MockApp } from '@tests/MockApp';
 import React from 'react';
 
 import { UpdateTypeWrapper } from '~/client/common/UpdateTypeContext';
-import { ValueBox, type ValueBoxProps } from '~/client/pages/products/ValueBox';
-import { ValueInput } from '~/client/pages/products/ValueInput';
+import { AmountBox, type AmountBoxProps } from '~/client/pages/products/AmountBox';
+import { AmountInput } from '~/client/pages/products/AmountInput';
 import type { WithVariantsState } from '~/client/state/variants/types';
 import { getVariantAmount } from '~/common/utils/amounts';
 import type { VariantAmount } from '~/types/data';
 
-jest.mock('~/client/pages/products/ValueInput', () => ({
-    ValueInput: jest.fn(jest.requireActual('~/client/pages/products/ValueInput').ValueInput),
+jest.mock('~/client/pages/products/AmountInput', () => ({
+    ValueInput: jest.fn(jest.requireActual('~/client/pages/products/AmountInput').ValueInput),
 }));
 
-describe('<ValueBox>', () => {
+describe('<AmountBox>', () => {
     afterEach(() => jest.clearAllMocks());
 
     const group = 'Uogienės';
-    const props: ValueBoxProps = {
+    const props: AmountBoxProps = {
         group,
         name: 'Braškės',
         year: 23,
@@ -40,7 +40,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -54,7 +54,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -70,17 +70,17 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
 
         await screen.findByRole('dialog');
 
-        expect(ValueInput).toHaveBeenCalledTimes(amounts.length);
+        expect(AmountInput).toHaveBeenCalledTimes(amounts.length);
 
         for (const { variant, amount } of amounts) {
-            expect(ValueInput).toHaveBeenCalledWith(
+            expect(AmountInput).toHaveBeenCalledWith(
                 expect.objectContaining({ variant, amount, focused: variant === amounts[0].variant }),
                 undefined
             );
@@ -93,7 +93,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} onClose={onClose} amounts={amounts} opened />
+                    <AmountBox {...props} onClose={onClose} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -107,7 +107,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} onClose={onClose} amounts={amounts} opened />
+                    <AmountBox {...props} onClose={onClose} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -121,7 +121,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} onClose={onClose} amounts={amounts} opened />
+                    <AmountBox {...props} onClose={onClose} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -140,7 +140,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} onClose={onClose} amounts={amounts} opened />
+                    <AmountBox {...props} onClose={onClose} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -162,7 +162,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} onClose={onClose} amounts={amounts} opened />
+                    <AmountBox {...props} onClose={onClose} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -185,7 +185,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} onClose={onClose} amounts={amounts} opened />
+                    <AmountBox {...props} onClose={onClose} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -207,12 +207,12 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
 
-        jest.mocked(ValueInput).mockClear();
+        jest.mocked(AmountInput).mockClear();
 
         // expect(screen.getByRole('dialog')).not.toHaveClass('fullscreen');
 
@@ -222,10 +222,10 @@ describe('<ValueBox>', () => {
         expect(expand).not.toBeInTheDocument();
         expect(screen.getByRole('dialog')).toHaveAttribute('data-full-screen', 'true');
 
-        expect(ValueInput).toHaveBeenCalledTimes(allVariants.length);
+        expect(AmountInput).toHaveBeenCalledTimes(allVariants.length);
 
         for (const variant of allVariants) {
-            expect(ValueInput).toHaveBeenCalledWith(
+            expect(AmountInput).toHaveBeenCalledWith(
                 expect.objectContaining({
                     variant,
                     amount: getVariantAmount(amounts, variant),
@@ -240,7 +240,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -268,7 +268,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -285,7 +285,7 @@ describe('<ValueBox>', () => {
     it('expand by default if value contains all available variants', async () => {
         render(
             <MockApp state={state}>
-                <ValueBox {...props} amounts={allVariants.map((variant) => ({ variant, amount: 1 }))} opened />
+                <AmountBox {...props} amounts={allVariants.map((variant) => ({ variant, amount: 1 }))} opened />
             </MockApp>
         );
 
@@ -298,7 +298,7 @@ describe('<ValueBox>', () => {
             render(
                 <MockApp state={state}>
                     <UpdateTypeWrapper>
-                        <ValueBox {...props} amounts={amounts} opened />
+                        <AmountBox {...props} amounts={amounts} opened />
                     </UpdateTypeWrapper>
                 </MockApp>
             );
@@ -320,7 +320,7 @@ describe('<ValueBox>', () => {
             render(
                 <MockApp state={state}>
                     <UpdateTypeWrapper>
-                        <ValueBox {...props} amounts={amounts} opened />
+                        <AmountBox {...props} amounts={amounts} opened />
                     </UpdateTypeWrapper>
                 </MockApp>
             );
@@ -347,7 +347,7 @@ describe('<ValueBox>', () => {
         const { rerender } = render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened onAfterClose={onAfterClose} />
+                    <AmountBox {...props} amounts={amounts} opened onAfterClose={onAfterClose} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -359,7 +359,7 @@ describe('<ValueBox>', () => {
         rerender(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened={false} onAfterClose={onAfterClose} />
+                    <AmountBox {...props} amounts={amounts} opened={false} onAfterClose={onAfterClose} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -375,7 +375,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} year={0} amounts={amounts} opened />
+                    <AmountBox {...props} year={0} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -390,7 +390,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} onClose={onCloseHandler} amounts={[{ variant: 'p', amount: 1 }]} opened />
+                    <AmountBox {...props} onClose={onCloseHandler} amounts={[{ variant: 'p', amount: 1 }]} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -414,7 +414,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} onClose={onCloseHandler} amounts={amounts} opened />
+                    <AmountBox {...props} onClose={onCloseHandler} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -438,20 +438,20 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={emptyState}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={[]} opened />
+                    <AmountBox {...props} amounts={[]} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
 
-        expect(ValueInput).toHaveBeenCalledTimes(1);
-        expect(ValueInput).toHaveBeenCalledWith(expect.objectContaining({ variant: allVariants[0] }), undefined);
+        expect(AmountInput).toHaveBeenCalledTimes(1);
+        expect(AmountInput).toHaveBeenCalledWith(expect.objectContaining({ variant: allVariants[0] }), undefined);
     });
 
     it('does not render modal when opened is false', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened={false} />
+                    <AmountBox {...props} amounts={amounts} opened={false} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -463,7 +463,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} />
+                    <AmountBox {...props} amounts={amounts} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -475,20 +475,20 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={undefined} opened />
+                    <AmountBox {...props} amounts={undefined} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
 
-        expect(ValueInput).toHaveBeenCalledTimes(1);
-        expect(ValueInput).toHaveBeenCalledWith(expect.objectContaining({ variant: allVariants[0] }), undefined);
+        expect(AmountInput).toHaveBeenCalledTimes(1);
+        expect(AmountInput).toHaveBeenCalledWith(expect.objectContaining({ variant: allVariants[0] }), undefined);
     });
 
     it('does not call onClose when onClose is not provided', async () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -502,7 +502,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -516,7 +516,7 @@ describe('<ValueBox>', () => {
         const { rerender } = render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -528,7 +528,7 @@ describe('<ValueBox>', () => {
         rerender(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened={false} />
+                    <AmountBox {...props} amounts={amounts} opened={false} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -544,7 +544,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} onClose={onCloseHandler} amounts={amounts} opened />
+                    <AmountBox {...props} onClose={onCloseHandler} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -564,7 +564,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -580,7 +580,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} year={2024} amounts={amounts} opened />
+                    <AmountBox {...props} year={2024} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -594,7 +594,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={emptyVariantsState}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={[]} opened />
+                    <AmountBox {...props} amounts={[]} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -606,7 +606,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -622,7 +622,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -634,7 +634,7 @@ describe('<ValueBox>', () => {
     });
 
     it('handles handleFocus when ref is null', async () => {
-        jest.mocked(ValueInput).mockImplementation(({ ref, variant }) => {
+        jest.mocked(AmountInput).mockImplementation(({ ref, variant }) => {
             // eslint-disable-next-line jest/no-conditional-in-test
             if (ref && typeof ref === 'function') {
                 ref(null);
@@ -645,7 +645,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -657,7 +657,7 @@ describe('<ValueBox>', () => {
     });
 
     it('handles handleFocus when ref is null during expand', async () => {
-        jest.mocked(ValueInput).mockImplementation(({ ref, variant }) => {
+        jest.mocked(AmountInput).mockImplementation(({ ref, variant }) => {
             // eslint-disable-next-line jest/no-conditional-in-test
             if (ref && typeof ref === 'function') {
                 ref(null);
@@ -668,7 +668,7 @@ describe('<ValueBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ValueBox {...props} amounts={amounts} opened />
+                    <AmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );

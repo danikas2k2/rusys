@@ -2,17 +2,17 @@ import { render, screen } from '@testing-library/react';
 
 import React from 'react';
 
-import { ValueVariant } from '~/client/common/ValueVariant';
+import { AmountVariant } from '~/client/common/AmountVariant';
 
-describe('<ValueVariant>', () => {
+describe('<AmountVariant>', () => {
     it('renders variant as is by default', () => {
-        render(<ValueVariant variant="d" />);
+        render(<AmountVariant variant="d" />);
 
         expect(screen.getByText('d')).toBeInTheDocument();
     });
 
     it('renders full variant parts', () => {
-        render(<ValueVariant variant="500 ml" />);
+        render(<AmountVariant variant="500 ml" />);
 
         expect(screen.getByText('500')).toBeInTheDocument();
         expect(screen.getByText('ml')).toBeInTheDocument();

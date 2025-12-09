@@ -8,28 +8,31 @@ import { DraggableContent } from '~/client/common/DraggableContent';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { Label } from '~/client/common/Label';
 import { LoadableContent } from '~/client/common/LoadableContent';
-import { useFilteredVariants } from '~/client/pages/variants/hooks/useFilteredVariants';
+import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
+import { useSortedVariants } from '~/client/pages/variants/hooks/useSortedVariants';
 import { useVariantsHasData } from '~/client/pages/variants/hooks/useVariantsHasData';
-import { useVisibleGroups } from '~/client/pages/variants/hooks/useVisibleGroups';
 import { VariantsGroup } from '~/client/pages/variants/VariantsGroup';
 import { VariantsRow } from '~/client/pages/variants/VariantsRow';
 import { useGetVariants } from '~/client/state/variants/useGetVariants';
 import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
 import { DragOverlayTable } from '~/client/table/DragOverlayTable';
+import { getId, parseId } from '~/client/utils/id';
 import { mapOrder } from '~/client/utils/mapOrder';
-import type { Variant, WithId } from '~/types/data';
+import type { Variant } from '~/types/data';
 
 export function VariantsTable() {
+    const groups = useSortedGroups();
+
     const [, setActive] = useActiveContent();
     const handleDragStart = () => setActive();
 
     const reorderVariants = useReorderVariants();
     const {
-        items,
+        items: variants,
         reordering,
         onDragEnd: handleDragEnd,
     } = useReorderHandler<Variant, Pick<Variant, 'group' | 'variant'>>({
-        items: useFilteredVariants(),
+        items: useSortedVariants(),
 
         onReorder: (reordered, { group }) =>
             reorderVariants(
@@ -43,16 +46,16 @@ export function VariantsTable() {
         equals: (a, b) => a.group === b.group && a.variant === b.variant,
 
         resolve: (id: UniqueIdentifier) => {
-            const [group, variant] = `${id}`.split(':', 2);
+            const [group, variant] = parseId(id, 2);
             return { group, variant };
         },
     });
 
     const renderDragOverlay = (activeId: UniqueIdentifier, columns: number[]) => {
-        const variant = items.find((v) => `${v.group}:${v.variant}` === activeId);
+        const variant = variants.find((v) => getId(v.group, v.variant) === activeId);
         return variant ? (
             <DragOverlayTable columns={columns}>
-                <VariantsRow variant={{ ...variant, id: `${activeId}` }} reordering={reordering} />
+                <VariantsRow variant={variant} reordering={reordering} />
             </DragOverlayTable>
         ) : null;
     };
@@ -64,34 +67,22 @@ export function VariantsTable() {
                 onDragEnd={handleDragEnd}
                 renderDragOverlay={renderDragOverlay}
             >
-                <Table data-table="variants">
+                <Table layout="fixed" data-table="variants">
                     <Table.Thead>
                         <Table.Tr h="3rem">
-                            <Table.Th />
+                            <Table.Th w="10%" />
                             <Table.Th>
                                 <Title order={6}>
                                     <Label>Variant</Label>
                                 </Title>
                             </Table.Th>
-                            <Table.Th ta="center">
+                            <Table.Th w="40%" ta="center">
                                 <Label>Suffix</Label>
                             </Table.Th>
                         </Table.Tr>
                     </Table.Thead>
-                    {useVisibleGroups().map((group) => (
-                        <VariantsGroup
-                            key={group}
-                            reordering={reordering}
-                            group={group}
-                            variants={items
-                                .filter((variant) => variant.group === group)
-                                .map(
-                                    (variant): WithId<Variant> => ({
-                                        ...variant,
-                                        id: `${variant.group}:${variant.variant}`,
-                                    })
-                                )}
-                        />
+                    {groups.map(({ group }) => (
+                        <VariantsGroup key={group} group={group} variants={variants} reordering={reordering} />
                     ))}
                 </Table>
             </DraggableContent>

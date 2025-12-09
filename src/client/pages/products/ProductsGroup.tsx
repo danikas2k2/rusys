@@ -1,34 +1,30 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import { Table } from '@mantine/core';
 
 import { useGroupFilterPredicate } from '~/client/filters/hooks/useGroupFilterPredicate';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
-import { ValueRow } from '~/client/pages/products/ValueRow';
+import { ProductRow } from '~/client/pages/products/ProductRow';
 import { useYears } from '~/client/state/years/useYears';
 import { GroupTitle } from '~/client/table/GroupTitle';
+import { getId } from '~/client/utils/id';
 import type { Group, Product } from '~/types/data';
 
-interface GroupProductsProps {
+interface ProductsGroupProps {
     group: Group;
     products: readonly Product[];
 }
 
-export function GroupProducts({ group, products }: GroupProductsProps) {
+export function ProductsGroup({ group, products }: ProductsGroupProps) {
     const years = useYears();
-    const groupProducts = useMemo(() => products.filter((p) => p.group === group.group), [group.group, products]);
-
-    const namePredicate = useQuickFilterPredicate();
-    const groupPredicate = useGroupFilterPredicate();
+    const groupFilter = useGroupFilterPredicate();
+    const quickFilter = useQuickFilterPredicate();
     const [missingOnly] = useMissingOnly();
 
-    const hidden = useMemo(
-        () =>
-            !groupPredicate(group.group) ||
-            groupProducts.every((p) => !namePredicate(p.name) || (missingOnly && !p.missing)),
-        [group.group, groupPredicate, groupProducts, missingOnly, namePredicate]
-    );
+    const groupProducts = products.filter((p) => p.group === group.group);
+    const hidden =
+        !groupFilter(group.group) || !groupProducts.some((p) => (!missingOnly || p.missing) && quickFilter(p.name));
 
     return (
         <>
@@ -37,11 +33,11 @@ export function GroupProducts({ group, products }: GroupProductsProps) {
             </GroupTitle>
             <Table.Tbody data-hidden={hidden}>
                 {groupProducts.map((p) => (
-                    <ValueRow
-                        key={`${p.group}:${p.name}`}
+                    <ProductRow
+                        key={getId(p.group, p.name)}
                         product={p}
                         annual={group.annual}
-                        hidden={hidden || (missingOnly && !p.missing)}
+                        hidden={hidden || (missingOnly && !p.missing) || !quickFilter(p.name)}
                     />
                 ))}
             </Table.Tbody>

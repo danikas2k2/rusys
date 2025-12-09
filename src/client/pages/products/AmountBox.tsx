@@ -7,15 +7,15 @@ import { Label } from '~/client/common/Label';
 import { useUpdateType, type UpdateTypes } from '~/client/common/UpdateTypeContext';
 import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
 import { useLabels } from '~/client/hooks/useLabels';
-import { ValueInput } from '~/client/pages/products/ValueInput';
+import { AmountInput } from '~/client/pages/products/AmountInput';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { getVariantAmount } from '~/common/utils/amounts';
 import type { ProductAmounts, VariantAmount } from '~/types/data';
 
-import './ValueBox.pcss';
+import './AmountBox.pcss';
 
-export interface ValueBoxProps extends ProductAmounts {
+export interface AmountBoxProps extends ProductAmounts {
     opened?: boolean;
     onClose?: (changes?: readonly VariantAmount[]) => void;
     onAfterClose?: () => void;
@@ -30,7 +30,7 @@ const NO_AMOUNTS: UpdatingAmounts = {
 };
 
 // TODO refactor: extract single element with input element and all handlers to avoid multiple re-renders
-export function ValueBox({ opened = false, group, name, year, amounts, onClose, onAfterClose }: ValueBoxProps) {
+export function AmountBox({ opened = false, group, name, year, amounts, onClose, onAfterClose }: AmountBoxProps) {
     const _ = useLabels();
     const allVariants = useAllVariants(group);
     const amountVariants = useMemo<string[]>(() => amounts?.map((v) => v.variant) ?? [], [amounts]);
@@ -151,7 +151,7 @@ export function ValueBox({ opened = false, group, name, year, amounts, onClose, 
                     onDoubleClick={stopPropagation}
                 >
                     {editingVariants.map((variant) => (
-                        <ValueInput
+                        <AmountInput
                             key={variant}
                             ref={(ref) => {
                                 refs.current[variant] = ref;

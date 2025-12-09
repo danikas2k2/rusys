@@ -1,10 +1,10 @@
-import React from 'react';
-
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useDispatch } from 'react-redux';
 import { MockRedux } from '@tests/MockRedux';
 import { MockTheme } from '@tests/MockTheme';
+
+import React from 'react';
+import { useDispatch } from 'react-redux';
 
 import { ErrorDialog } from '~/client/common/ErrorDialog';
 import { clearErrorAction } from '~/client/state/error/actions';
@@ -68,4 +68,3 @@ describe('<ErrorDialog>', () => {
         expect(dispatch).toHaveBeenCalledWith(clearErrorAction());
     });
 });
-

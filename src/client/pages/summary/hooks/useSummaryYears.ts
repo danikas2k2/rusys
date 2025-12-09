@@ -1,5 +1,3 @@
 import { useYears } from '~/client/state/years/useYears';
 
-export function useSummaryYears() {
-    return useYears(3);
-}
+export const useSummaryYears = () => useYears(3);

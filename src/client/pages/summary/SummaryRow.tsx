@@ -6,17 +6,14 @@ import { useSummaryYears } from '~/client/pages/summary/hooks/useSummaryYears';
 import { SummaryCell } from '~/client/pages/summary/SummaryCell';
 import type { YearAmounts } from '~/types/data';
 
-export function SummaryRow({
-    group,
-    name,
-    amounts,
-    hidden = false,
-}: {
+interface SummaryRowProps {
     group: string;
     name: string;
     amounts?: readonly YearAmounts[];
     hidden?: boolean;
-}) {
+}
+
+export function SummaryRow({ group, name, amounts, hidden = false }: SummaryRowProps) {
     const years = useSummaryYears();
     return (
         <Table.Tr data-hidden={hidden}>

@@ -7,8 +7,8 @@ import { MockTheme } from '@tests/MockTheme';
 import React from 'react';
 
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
-import { useFilteredVariants } from '~/client/pages/variants/hooks/useFilteredVariants';
 import { useVariantsHasData } from '~/client/pages/variants/hooks/useVariantsHasData';
 import { useVisibleGroups } from '~/client/pages/variants/hooks/useVisibleGroups';
 import { VariantsTable } from '~/client/pages/variants/VariantsTable';
@@ -24,13 +24,12 @@ jest.mock('~/client/state/variants/useVariants');
 jest.mock('~/client/state/variants/useGroupVariants');
 jest.mock('~/client/state/variants/useReorderVariants');
 jest.mock('~/client/common/hooks/useReorderHandler');
-jest.mock('~/client/pages/variants/hooks/useFilteredVariants');
 jest.mock('~/client/pages/variants/hooks/useVisibleGroups');
 jest.mock('~/client/pages/variants/hooks/useVariantsHasData');
 jest.mock('~/client/state/variants/useGetVariants');
 jest.mock('~/client/hooks/useLockingLoader');
-jest.mock('~/client/filters/hooks/useQuickFilter', () => ({
-    useQuickFilter: jest.fn().mockReturnValue(''),
+jest.mock('~/client/filters/QuickFilterContext', () => ({
+    useQuickFilter: jest.fn().mockReturnValue(['', jest.fn()]),
 }));
 jest.mock('~/client/utils/getOverlapIndex');
 
@@ -43,7 +42,6 @@ describe('<VariantsTable>', () => {
         jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
         jest.mocked(useVariants).mockReturnValue(getVariantsFixture());
         jest.mocked(useGroups).mockReturnValue(getGroupsFixture());
-        jest.mocked(useFilteredVariants).mockReturnValue(mockItems);
         jest.mocked(useVisibleGroups).mockReturnValue(['Daržovės', 'Uogienės']);
         jest.mocked(useVariantsHasData).mockReturnValue(true);
         jest.mocked(useGetVariants).mockReturnValue(mockGetVariants);
@@ -185,8 +183,7 @@ describe('<VariantsTable>', () => {
 
     describe('handles filter state', () => {
         it('renders filtered data', () => {
-            const filteredVariants = getVariantsFixture().filter((v) => v.variant === 'e');
-            jest.mocked(useFilteredVariants).mockReturnValue(filteredVariants);
+            jest.mocked(useQuickFilter).mockReturnValue(['e', jest.fn()]);
             jest.mocked(useVisibleGroups).mockReturnValue(['Uogienės']);
 
             render(
@@ -199,20 +196,18 @@ describe('<VariantsTable>', () => {
 
             const rows = screen.getAllByRole('row');
 
-            expect(rows.length).toBeGreaterThanOrEqual(3);
-
             const headerRow = rows.find((row) => within(row).queryByText('Uogienės'));
-            const dataRow = rows.find((row) => within(row).queryByText('e'));
+            const eRow = rows.find((row) => within(row).queryByText('e'));
+            const dRow = rows.find((row) => within(row).queryByText('d'));
 
             expect(headerRow).toBeInTheDocument();
-            expect(dataRow).toBeInTheDocument();
-
-            expect(within(dataRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'e', 'E.']);
+            expect(eRow).toBeInTheDocument();
+            expect(dRow).toHaveAttribute('data-hidden', 'true');
         });
 
         it('renders filtered out data', () => {
-            jest.mocked(useFilteredVariants).mockReturnValue([]);
-            jest.mocked(useVisibleGroups).mockReturnValue([]);
+            jest.mocked(useQuickFilter).mockReturnValue(['zzz', jest.fn()]);
+            jest.mocked(useVisibleGroups).mockReturnValue(['Uogienės']);
 
             render(
                 <MockTheme>
@@ -224,8 +219,11 @@ describe('<VariantsTable>', () => {
 
             const rows = screen.getAllByRole('row');
 
-            expect(rows.length).toBeGreaterThanOrEqual(1);
-            expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent(['', 'Variant', 'Suffix']);
+            expect(rows.length).toBeGreaterThanOrEqual(2);
+
+            const header = rows[0];
+
+            expect(within(header).getAllByRole('columnheader')).toHaveListWithTextContent(['', 'Variant', 'Suffix']);
         });
     });
 

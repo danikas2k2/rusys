@@ -5,7 +5,7 @@ import { MockTheme } from '@tests/MockTheme';
 import React from 'react';
 
 import { ChangeBadge } from '~/client/common/ChangeBadge';
-import { ValueInput } from '~/client/pages/products/ValueInput';
+import { AmountInput } from '~/client/pages/products/AmountInput';
 
 jest.mock('~/client/state/products/useAddProduct');
 jest.mock('~/client/state/products/useDeleteProduct');
@@ -14,7 +14,7 @@ jest.mock('~/client/common/ChangeBadge', () => ({
     ChangeBadge: jest.fn().mockReturnValue(null),
 }));
 
-describe('<ValueInput>', () => {
+describe('<AmountInput>', () => {
     afterEach(() => jest.clearAllMocks());
 
     const onClose = jest.fn();
@@ -24,7 +24,7 @@ describe('<ValueInput>', () => {
         it('on the input', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="" amount={2} onClose={onClose} onChange={onChange} />
+                    <AmountInput variant="" amount={2} onClose={onClose} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -36,7 +36,7 @@ describe('<ValueInput>', () => {
         it('on the increase button', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="" amount={2} onClose={onClose} onChange={onChange} />
+                    <AmountInput variant="" amount={2} onClose={onClose} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -48,7 +48,7 @@ describe('<ValueInput>', () => {
         it('on the decrease button', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="" amount={2} onClose={onClose} onChange={onChange} />
+                    <AmountInput variant="" amount={2} onClose={onClose} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -62,7 +62,7 @@ describe('<ValueInput>', () => {
         it('pressing arrow up on the input element', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                    <AmountInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -75,7 +75,7 @@ describe('<ValueInput>', () => {
         it('clicking the increase button', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                    <AmountInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -88,7 +88,7 @@ describe('<ValueInput>', () => {
         it('pressing arrow up on the increase button', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                    <AmountInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -101,7 +101,7 @@ describe('<ValueInput>', () => {
         it('pressing arrow up on the decrease button', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                    <AmountInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -116,7 +116,7 @@ describe('<ValueInput>', () => {
         it('pressing arrow down on the input element', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                    <AmountInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -129,7 +129,7 @@ describe('<ValueInput>', () => {
         it('clicking the decrease button', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                    <AmountInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -142,7 +142,7 @@ describe('<ValueInput>', () => {
         it('pressing arrow down on the decrease button', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                    <AmountInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -155,7 +155,7 @@ describe('<ValueInput>', () => {
         it('pressing arrow down on the increase button', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
+                    <AmountInput variant="p" amount={2} onClose={onClose} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -169,7 +169,7 @@ describe('<ValueInput>', () => {
     it('calls onChange when input amount is changed', async () => {
         render(
             <MockTheme>
-                <ValueInput variant="p" onClose={onClose} onChange={onChange} />
+                <AmountInput variant="p" onClose={onClose} onChange={onChange} />
             </MockTheme>
         );
 
@@ -182,7 +182,7 @@ describe('<ValueInput>', () => {
     it('does not call onChange when input amount is not a number', async () => {
         render(
             <MockTheme>
-                <ValueInput variant="" onClose={onClose} onChange={onChange} />
+                <AmountInput variant="" onClose={onClose} onChange={onChange} />
             </MockTheme>
         );
 
@@ -196,7 +196,7 @@ describe('<ValueInput>', () => {
         it('renders with positive change', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="" amount={2} change={1} />
+                    <AmountInput variant="" amount={2} change={1} />
                 </MockTheme>
             );
 
@@ -207,7 +207,7 @@ describe('<ValueInput>', () => {
         it('renders with negative change', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="" amount={2} change={-1} />
+                    <AmountInput variant="" amount={2} change={-1} />
                 </MockTheme>
             );
 
@@ -218,7 +218,7 @@ describe('<ValueInput>', () => {
         it('renders with zero change', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="" amount={2} change={0} />
+                    <AmountInput variant="" amount={2} change={0} />
                 </MockTheme>
             );
 
@@ -233,7 +233,7 @@ describe('<ValueInput>', () => {
 
             render(
                 <MockTheme>
-                    <ValueInput variant="p" onFocus={onFocus} />
+                    <AmountInput variant="p" onFocus={onFocus} />
                 </MockTheme>
             );
 
@@ -247,7 +247,7 @@ describe('<ValueInput>', () => {
 
             render(
                 <MockTheme>
-                    <ValueInput variant="p" onBlur={onBlur} />
+                    <AmountInput variant="p" onBlur={onBlur} />
                 </MockTheme>
             );
 
@@ -262,7 +262,7 @@ describe('<ValueInput>', () => {
         it('handles empty string value', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} onChange={onChange} />
+                    <AmountInput variant="p" amount={2} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -274,7 +274,7 @@ describe('<ValueInput>', () => {
         it('handles number value directly', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} onChange={onChange} />
+                    <AmountInput variant="p" amount={2} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -289,7 +289,7 @@ describe('<ValueInput>', () => {
         it('handles invalid string value by converting to 0', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} onChange={onChange} />
+                    <AmountInput variant="p" amount={2} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -306,7 +306,7 @@ describe('<ValueInput>', () => {
         it('does not call onChange when onChange is not provided', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} />
+                    <AmountInput variant="p" amount={2} />
                 </MockTheme>
             );
 
@@ -318,7 +318,7 @@ describe('<ValueInput>', () => {
         it('does not call onClose when onClose is not provided', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} onChange={onChange} />
+                    <AmountInput variant="p" amount={2} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -330,7 +330,7 @@ describe('<ValueInput>', () => {
         it('does not call onFocus when onFocus is not provided', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} />
+                    <AmountInput variant="p" amount={2} />
                 </MockTheme>
             );
 
@@ -342,7 +342,7 @@ describe('<ValueInput>', () => {
         it('does not call onBlur when onBlur is not provided', async () => {
             render(
                 <MockTheme>
-                    <ValueInput variant="p" amount={2} />
+                    <AmountInput variant="p" amount={2} />
                 </MockTheme>
             );
 

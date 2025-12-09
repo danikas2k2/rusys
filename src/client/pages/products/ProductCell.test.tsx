@@ -8,8 +8,8 @@ import { Table } from '@mantine/core';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';
+import { ProductCell, type ProductCellProps } from '~/client/pages/products/ProductCell';
 import { useProductUpdating } from '~/client/pages/products/UpdatingProductsContext';
-import { ValueCell, type ValueCellProps } from '~/client/pages/products/ValueCell';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 
 jest.mock('~/client/state/products/useSetProductRemoving', () => ({
@@ -26,7 +26,7 @@ jest.mock('~/client/common/hooks/useSwipeVisible', () => ({
     useSwipeVisible: jest.fn(),
 }));
 
-describe('<ValueCell>', () => {
+describe('<ProductCell>', () => {
     const group = 'Daržovės';
     const name = 'Kopūstai';
     const variants = [
@@ -56,15 +56,25 @@ describe('<ValueCell>', () => {
 
     afterAll(() => jest.useRealTimers());
 
-    const defaultProps: ValueCellProps = { group, name, year: 22 };
+    const defaultProduct = {
+        group,
+        name,
+        years: [
+            {
+                year: 22,
+                amounts: [
+                    { variant: 'p', amount: 2 },
+                    { variant: 'd', amount: 3 },
+                ],
+            },
+        ],
+    };
+
+    const defaultProps: ProductCellProps = { product: defaultProduct, year: 22 };
 
     describe('renders filled cell', () => {
-        const props: ValueCellProps = {
+        const props: ProductCellProps = {
             ...defaultProps,
-            amounts: [
-                { variant: 'p', amount: 2 },
-                { variant: 'd', amount: 3 },
-            ],
         };
 
         it('renders cell into the document', () => {
@@ -73,7 +83,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -89,7 +99,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -100,16 +110,34 @@ describe('<ValueCell>', () => {
             act(() => jest.advanceTimersByTime(500));
 
             expect(setActive).not.toHaveBeenCalled();
-            expect(setRemoving).toHaveBeenCalledWith(props.group, props.name, props.year, true);
+            expect(setRemoving).toHaveBeenCalledWith(props.product.group, props.product.name, props.year, true);
         });
 
         it('handles long press when removing is true', async () => {
+            const productWithRemoving = {
+                ...defaultProduct,
+                years: [
+                    {
+                        year: 22,
+                        amounts: [
+                            { variant: 'p', amount: 2 },
+                            { variant: 'd', amount: 3 },
+                        ],
+                        removing: true,
+                    },
+                ],
+            };
+            const propsWithRemoving: ProductCellProps = {
+                product: productWithRemoving,
+                year: 22,
+            };
+
             render(
                 <MockApp>
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} removing />
+                                <ProductCell {...propsWithRemoving} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -123,7 +151,12 @@ describe('<ValueCell>', () => {
             act(() => jest.advanceTimersByTime(100));
 
             expect(setActive).not.toHaveBeenCalled();
-            expect(setRemoving).toHaveBeenCalledWith(props.group, props.name, props.year, false);
+            expect(setRemoving).toHaveBeenCalledWith(
+                propsWithRemoving.product.group,
+                propsWithRemoving.product.name,
+                propsWithRemoving.year,
+                false
+            );
         });
 
         it('handles short press', async () => {
@@ -132,7 +165,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -144,7 +177,12 @@ describe('<ValueCell>', () => {
 
             expect(setActive).toHaveBeenCalledWith({
                 action: 'values',
-                data: props,
+                data: {
+                    group: props.product.group,
+                    name: props.product.name,
+                    year: props.year,
+                    amounts: props.product.years?.[0]?.amounts,
+                },
             });
             expect(setRemoving).not.toHaveBeenCalled();
         });
@@ -152,14 +190,23 @@ describe('<ValueCell>', () => {
 
     describe('renders empty cell', () => {
         it('renders cell into the document with empty amounts', () => {
-            const props: Omit<ValueCellProps, 'onChange'> = { ...defaultProps, amounts: [] };
+            const emptyProduct = {
+                ...defaultProduct,
+                years: [
+                    {
+                        year: 22,
+                        amounts: [],
+                    },
+                ],
+            };
+            const props: ProductCellProps = { product: emptyProduct, year: 22 };
 
             render(
                 <MockApp>
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -170,14 +217,23 @@ describe('<ValueCell>', () => {
         });
 
         it('does not handle long press for empty cell', async () => {
-            const props: Omit<ValueCellProps, 'onChange'> = { ...defaultProps, amounts: [] };
+            const emptyProduct = {
+                ...defaultProduct,
+                years: [
+                    {
+                        year: 22,
+                        amounts: [],
+                    },
+                ],
+            };
+            const props: ProductCellProps = { product: emptyProduct, year: 22 };
 
             render(
                 <MockApp>
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -192,14 +248,23 @@ describe('<ValueCell>', () => {
         });
 
         it('handles short press with empty amounts', async () => {
-            const props: Omit<ValueCellProps, 'onChange'> = { ...defaultProps, amounts: [] };
+            const emptyProduct = {
+                ...defaultProduct,
+                years: [
+                    {
+                        year: 22,
+                        amounts: [],
+                    },
+                ],
+            };
+            const props: ProductCellProps = { product: emptyProduct, year: 22 };
 
             render(
                 <MockApp>
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -211,16 +276,30 @@ describe('<ValueCell>', () => {
 
             expect(setActive).toHaveBeenCalledWith({
                 action: 'values',
-                data: props,
+                data: {
+                    group: props.product.group,
+                    name: props.product.name,
+                    year: props.year,
+                    amounts: props.product.years?.[0]?.amounts,
+                },
             });
             expect(setRemoving).not.toHaveBeenCalled();
         });
     });
 
     describe('loader visibility', () => {
-        const props: ValueCellProps = {
-            ...defaultProps,
-            amounts: [{ variant: 'p', amount: 1 }],
+        const productWithAmounts = {
+            ...defaultProduct,
+            years: [
+                {
+                    year: 22,
+                    amounts: [{ variant: 'p', amount: 1 }],
+                },
+            ],
+        };
+        const props: ProductCellProps = {
+            product: productWithAmounts,
+            year: 22,
         };
 
         it('shows loader when updating is true', () => {
@@ -231,7 +310,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -249,7 +328,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -265,7 +344,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -285,7 +364,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -299,9 +378,18 @@ describe('<ValueCell>', () => {
     });
 
     describe('span prop', () => {
-        const props: ValueCellProps = {
-            ...defaultProps,
-            amounts: [{ variant: 'p', amount: 1 }],
+        const productWithAmounts = {
+            ...defaultProduct,
+            years: [
+                {
+                    year: 22,
+                    amounts: [{ variant: 'p', amount: 1 }],
+                },
+            ],
+        };
+        const props: ProductCellProps = {
+            product: productWithAmounts,
+            year: 22,
             span: 3,
         };
 
@@ -311,7 +399,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -327,7 +415,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -340,18 +428,28 @@ describe('<ValueCell>', () => {
             expect(setActive).toHaveBeenCalledWith({
                 action: 'values',
                 data: {
-                    ...props,
+                    group: props.product.group,
+                    name: props.product.name,
                     year: 0,
-                    span: undefined,
+                    amounts: props.product.years?.[0]?.amounts,
                 },
             });
         });
     });
 
     describe('swipeActive', () => {
-        const props: ValueCellProps = {
-            ...defaultProps,
-            amounts: [{ variant: 'p', amount: 1 }],
+        const productWithAmounts = {
+            ...defaultProduct,
+            years: [
+                {
+                    year: 22,
+                    amounts: [{ variant: 'p', amount: 1 }],
+                },
+            ],
+        };
+        const props: ProductCellProps = {
+            product: productWithAmounts,
+            year: 22,
         };
 
         it('disables interactions when swipeActive is true', async () => {
@@ -362,7 +460,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -377,9 +475,18 @@ describe('<ValueCell>', () => {
     });
 
     describe('updating', () => {
-        const props: ValueCellProps = {
-            ...defaultProps,
-            amounts: [{ variant: 'p', amount: 1 }],
+        const productWithAmounts = {
+            ...defaultProduct,
+            years: [
+                {
+                    year: 22,
+                    amounts: [{ variant: 'p', amount: 1 }],
+                },
+            ],
+        };
+        const props: ProductCellProps = {
+            product: productWithAmounts,
+            year: 22,
         };
 
         it('disables interactions when updating is true', async () => {
@@ -390,7 +497,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -411,7 +518,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -427,9 +534,18 @@ describe('<ValueCell>', () => {
     });
 
     describe('navigator.vibrate', () => {
-        const props: ValueCellProps = {
-            ...defaultProps,
-            amounts: [{ variant: 'p', amount: 1 }],
+        const productWithAmounts = {
+            ...defaultProduct,
+            years: [
+                {
+                    year: 22,
+                    amounts: [{ variant: 'p', amount: 1 }],
+                },
+            ],
+        };
+        const props: ProductCellProps = {
+            product: productWithAmounts,
+            year: 22,
         };
 
         const originalNavigator = globalThis.navigator;
@@ -455,7 +571,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -480,7 +596,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>
@@ -505,7 +621,7 @@ describe('<ValueCell>', () => {
                     <Table>
                         <Table.Tbody>
                             <Table.Tr>
-                                <ValueCell {...props} />
+                                <ProductCell {...props} />
                             </Table.Tr>
                         </Table.Tbody>
                     </Table>

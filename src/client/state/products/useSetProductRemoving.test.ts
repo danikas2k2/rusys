@@ -1,8 +1,7 @@
 import { renderHook } from '@testing-library/react';
-import { useDispatch } from 'react-redux';
 import { MockRedux } from '@tests/MockRedux';
 
-import React from 'react';
+import { useDispatch } from 'react-redux';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { setErrorAction } from '~/client/state/error/actions';

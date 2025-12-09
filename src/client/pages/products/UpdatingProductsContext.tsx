@@ -1,14 +1,13 @@
 import React, { createContext, use, useCallback, useState } from 'react';
 
+import { getId } from '~/client/utils/id';
 import type { ProductAmounts } from '~/types/data';
 
 type UpdatingProductsState = Record<string, boolean>;
 
 type UpdatingProduct = Pick<ProductAmounts, 'group' | 'name' | 'year'>;
 
-export function getKey({ group, name, year }: UpdatingProduct): string {
-    return `${group}:${name}:${year}`;
-}
+export const getKey = ({ group, name, year }: UpdatingProduct): string => getId(group, name, year);
 
 type SetUpdating = (data: UpdatingProduct, updating: boolean) => void;
 

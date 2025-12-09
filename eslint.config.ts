@@ -7,6 +7,7 @@ import jest from 'eslint-plugin-jest';
 import a11y from 'eslint-plugin-jsx-a11y';
 import prettier from 'eslint-plugin-prettier';
 import react from 'eslint-plugin-react';
+import reactCompiler from 'eslint-plugin-react-compiler';
 import reactHooks from 'eslint-plugin-react-hooks';
 
 export default [
@@ -72,6 +73,7 @@ export default [
             import: imp,
             '@typescript-eslint': ts,
             ts,
+            'react-compiler': reactCompiler,
         },
         rules: {
             ...ts.configs['eslint-recommended'].rules,
@@ -128,7 +130,7 @@ export default [
 
             'prettier/prettier': 'error',
             'react-hooks/exhaustive-deps': 'error',
-            'react-hooks/react-compiler': 'error',
+            'react-compiler/react-compiler': 'error',
             'react/prop-types': 0,
 
             // TODO use eslint-config-mantine

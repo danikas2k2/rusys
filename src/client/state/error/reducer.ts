@@ -4,7 +4,10 @@ export interface ErrorState {
     error: string | null;
 }
 
-export function error(state: Readonly<ErrorState> = { error: null }, action: Readonly<ErrorAction>): Readonly<ErrorState> {
+export function error(
+    state: Readonly<ErrorState> = { error: null },
+    action: Readonly<ErrorAction>
+): Readonly<ErrorState> {
     switch (action.type) {
         case ErrorActionType.SET:
             return { error: action.error };
@@ -14,4 +17,3 @@ export function error(state: Readonly<ErrorState> = { error: null }, action: Rea
             return state;
     }
 }
-

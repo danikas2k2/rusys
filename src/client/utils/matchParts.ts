@@ -5,6 +5,6 @@ export const matchParts = (name: string | undefined, filter: string | undefined)
     (!!name &&
         translit(filter)
             .toLowerCase()
-            .split(/\P{L}+/u)
+            .split(/\p{Z}+/u)
             .filter((w) => w)
             .every((w) => translit(name).match(new RegExp(w, 'i'))));

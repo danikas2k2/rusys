@@ -6,8 +6,8 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { GroupsTable } from '~/client/pages/groups/GroupsTable';
 import { useGroupsHasData } from '~/client/pages/groups/hooks/useGroupsHasData';

@@ -3,14 +3,14 @@ import React, { useCallback } from 'react';
 import { ActionIcon, Flex, Group, NumberInput, Title } from '@mantine/core';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 
+import { AmountVariant } from '~/client/common/AmountVariant';
 import { ChangeBadge } from '~/client/common/ChangeBadge';
-import { ValueVariant } from '~/client/common/ValueVariant';
 import { useForwardedRef } from '~/client/hooks/useForwardedRef';
 import { useLabels } from '~/client/hooks/useLabels';
 
-import './ValueInput.pcss';
+import './AmountInput.pcss';
 
-interface ValueInputProps extends React.RefAttributes<HTMLInputElement> {
+interface AmountInputProps extends React.RefAttributes<HTMLInputElement> {
     variant: string;
     amount?: number;
     change?: number;
@@ -22,7 +22,7 @@ interface ValueInputProps extends React.RefAttributes<HTMLInputElement> {
 }
 
 // TODO select input value on first focus
-export function ValueInput({
+export function AmountInput({
     ref: forwardedRef,
     variant,
     amount = 0,
@@ -32,7 +32,7 @@ export function ValueInput({
     focused,
     onFocus,
     onBlur,
-}: ValueInputProps) {
+}: AmountInputProps) {
     const ref = useForwardedRef(forwardedRef);
 
     const decrease = useCallback(() => onChange?.(variant, change - 1), [onChange, variant, change]);
@@ -89,7 +89,7 @@ export function ValueInput({
     return (
         <Flex className="value-input" align="center" justify="space-between" gap="md">
             <Title order={3} fz="xl">
-                <ValueVariant variant={variant} />
+                <AmountVariant variant={variant} />
             </Title>
             <Group gap="xs" align="center">
                 <NumberInput

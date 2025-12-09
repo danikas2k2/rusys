@@ -7,7 +7,7 @@ import React from 'react';
 
 import { Table } from '@mantine/core';
 
-import { ValueRowTitle } from '~/client/pages/products/ValueRowTitle';
+import { ProductTitle } from '~/client/pages/products/ProductTitle';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
 import { useYears } from '~/client/state/years/useYears';
 
@@ -17,7 +17,7 @@ jest.mock('~/client/state/products/useSetProductMissing', () => ({
 jest.mock('~/client/state/profile/useProfile');
 jest.mock('~/client/state/years/useYears');
 
-describe('<ValueRowTitle>', () => {
+describe('<ProductTitle>', () => {
     const user = userEvent.setup();
     const products = getProductsFixture();
     const years = getYearsFixture();
@@ -39,7 +39,7 @@ describe('<ValueRowTitle>', () => {
                 <Table>
                     <Table.Tbody>
                         <Table.Tr>
-                            <ValueRowTitle product={product} />
+                            <ProductTitle product={product} />
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>
@@ -63,9 +63,7 @@ describe('<ValueRowTitle>', () => {
     it('disables checkbox and sets indeterminate for unavailable product', () => {
         renderTitle({ ...products[0], years: [] });
 
-        const checkbox = screen.getByRole('checkbox');
-        expect(checkbox).toBeDisabled();
-        expect(checkbox).toBePartiallyChecked();
+        expect(screen.getByRole('checkbox')).toBeDisabled().toBePartiallyChecked();
         expect(screen.getByRole('heading', { level: 6 })).toHaveAttribute('data-available', 'false');
     });
 
@@ -94,4 +92,3 @@ describe('<ValueRowTitle>', () => {
         expect(setMissing).not.toHaveBeenCalled();
     });
 });
-

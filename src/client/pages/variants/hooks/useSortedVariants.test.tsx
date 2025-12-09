@@ -5,11 +5,11 @@ import React from 'react';
 import { GroupFilterWrapper } from '~/client/filters/GroupFilterContext';
 import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
 import { useVariants } from '~/client/state/variants/useVariants';
-import { useFilteredVariants } from './useFilteredVariants';
+import { useSortedVariants } from './useSortedVariants';
 
 jest.mock('~/client/state/variants/useVariants');
 
-describe('useFilteredVariants', () => {
+describe('useSortedVariants', () => {
     const mockVariants = [
         { variant: 'p', group: 'Group1', order: 2 },
         { variant: 'd', group: 'Group1', order: 1 },
@@ -22,7 +22,7 @@ describe('useFilteredVariants', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('returns all variants when no filters are set', () => {
-        const { result } = renderHook(() => useFilteredVariants(), {
+        const { result } = renderHook(() => useSortedVariants(), {
             wrapper: ({ children }) => (
                 <GroupFilterWrapper>
                     <QuickFilterWrapper>{children}</QuickFilterWrapper>
@@ -39,7 +39,7 @@ describe('useFilteredVariants', () => {
     });
 
     it('filters by quick filter', () => {
-        const { result } = renderHook(() => useFilteredVariants(), {
+        const { result } = renderHook(() => useSortedVariants(), {
             wrapper: ({ children }) => (
                 <GroupFilterWrapper>
                     <QuickFilterWrapper initialState="p">{children}</QuickFilterWrapper>
@@ -51,7 +51,7 @@ describe('useFilteredVariants', () => {
     });
 
     it('filters by group filter', () => {
-        const { result } = renderHook(() => useFilteredVariants(), {
+        const { result } = renderHook(() => useSortedVariants(), {
             wrapper: ({ children }) => (
                 <GroupFilterWrapper initialState="Group1">
                     <QuickFilterWrapper>{children}</QuickFilterWrapper>
@@ -66,7 +66,7 @@ describe('useFilteredVariants', () => {
     });
 
     it('filters by both quick filter and group filter', () => {
-        const { result } = renderHook(() => useFilteredVariants(), {
+        const { result } = renderHook(() => useSortedVariants(), {
             wrapper: ({ children }) => (
                 <GroupFilterWrapper initialState="Group1">
                     <QuickFilterWrapper initialState="p">{children}</QuickFilterWrapper>
@@ -79,7 +79,7 @@ describe('useFilteredVariants', () => {
     });
 
     it('returns empty array when no variants match filters', () => {
-        const { result } = renderHook(() => useFilteredVariants(), {
+        const { result } = renderHook(() => useSortedVariants(), {
             wrapper: ({ children }) => (
                 <GroupFilterWrapper initialState="Group3">
                     <QuickFilterWrapper>{children}</QuickFilterWrapper>
@@ -97,7 +97,7 @@ describe('useFilteredVariants', () => {
             { variant: 'b', group: 'Group1', order: 2 },
         ]);
 
-        const { result } = renderHook(() => useFilteredVariants(), {
+        const { result } = renderHook(() => useSortedVariants(), {
             wrapper: ({ children }) => (
                 <GroupFilterWrapper>
                     <QuickFilterWrapper>{children}</QuickFilterWrapper>

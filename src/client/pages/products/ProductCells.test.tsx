@@ -6,23 +6,23 @@ import React from 'react';
 
 import { Table } from '@mantine/core';
 
-import { ValueRowCells } from '~/client/pages/products/ValueRowCells';
-import { ValueCell } from '~/client/pages/products/ValueCell';
+import { ProductCell } from '~/client/pages/products/ProductCell';
+import { ProductCells } from '~/client/pages/products/ProductCells';
 import { useYears } from '~/client/state/years/useYears';
 
-jest.mock('~/client/pages/products/ValueCell', () => ({
+jest.mock('~/client/pages/products/ProductCell', () => ({
     ValueCell: jest.fn(() => <td data-testid="value-cell" />),
 }));
 jest.mock('~/client/state/years/useYears');
 
-describe('<ValueRowCells>', () => {
+describe('<ProductCells>', () => {
     const products = getProductsFixture();
     const product = products[0];
     const years = getYearsFixture();
 
     beforeEach(() => {
         jest.mocked(useYears).mockReturnValue(years);
-        jest.mocked(ValueCell).mockClear();
+        jest.mocked(ProductCell).mockClear();
     });
 
     const renderCells = (annual = true) =>
@@ -31,29 +31,28 @@ describe('<ValueRowCells>', () => {
                 <Table>
                     <Table.Tbody>
                         <Table.Tr>
-                            <ValueRowCells product={product} annual={annual} />
+                            <ProductCells product={product} annual={annual} />
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>
             </MockApp>
         );
 
-    it('renders one ValueCell per year when annual is true', () => {
+    it('renders one ProductCell per year when annual is true', () => {
         renderCells(true);
 
-        expect(ValueCell).toHaveBeenCalledTimes(years.length);
+        expect(ProductCell).toHaveBeenCalledTimes(years.length);
         expect(screen.getAllByTestId('value-cell')).toHaveLength(years.length);
-        expect(jest.mocked(ValueCell).mock.calls.at(-1)?.[0]).toEqual(
+        expect(jest.mocked(ProductCell).mock.calls.at(-1)?.[0]).toStrictEqual(
             expect.objectContaining({ last: true, year: years.at(-1) })
         );
     });
 
-    it('renders single ValueCell with span when annual is false', () => {
+    it('renders single ProductCell with span when annual is false', () => {
         renderCells(false);
 
-        expect(ValueCell).toHaveBeenCalledTimes(1);
-        expect(ValueCell).toHaveBeenCalledWith(expect.objectContaining({ span: years.length }), undefined);
+        expect(ProductCell).toHaveBeenCalledTimes(1);
+        expect(ProductCell).toHaveBeenCalledWith(expect.objectContaining({ span: years.length }), undefined);
         expect(screen.getAllByTestId('value-cell')).toHaveLength(1);
     });
 });
-

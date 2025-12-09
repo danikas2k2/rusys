@@ -2,18 +2,18 @@ import { render, screen } from '@testing-library/react';
 
 import React from 'react';
 
-import { ValueSuffix } from '~/client/common/ValueSuffix';
-import { ValueAmounts } from '~/client/pages/products/ValueAmounts';
+import { AmountSuffix } from '~/client/common/AmountSuffix';
+import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 
 jest.mock('~/client/state/variants/useGroupVariantComparator', () => ({
     useGroupVariantComparator: jest.fn().mockReturnValue(() => 0),
 }));
-jest.mock('~/client/common/ValueSuffix', () => ({
+jest.mock('~/client/common/AmountSuffix', () => ({
     ValueSuffix: jest.fn().mockReturnValue(null),
 }));
 
-describe('<ValueAmounts>', () => {
+describe('<ProductAmounts>', () => {
     const group = 'Daržovės';
     const amounts = [
         { variant: 'p', amount: 2 },
@@ -23,12 +23,12 @@ describe('<ValueAmounts>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('renders with group and amounts', () => {
-        render(<ValueAmounts group={group} amounts={amounts} />);
+        render(<ProductAmounts group={group} amounts={amounts} />);
 
         expect(screen.getByText('2')).toBeInTheDocument();
         expect(screen.getByText('1')).toBeInTheDocument();
 
-        expect(ValueSuffix)
+        expect(AmountSuffix)
             .toHaveBeenCalledTimes(2)
             .toHaveBeenNthCalledWith(
                 1,
@@ -49,13 +49,13 @@ describe('<ValueAmounts>', () => {
     });
 
     it('renders empty when amounts is empty array', () => {
-        const { container } = render(<ValueAmounts group={group} amounts={[]} />);
+        const { container } = render(<ProductAmounts group={group} amounts={[]} />);
 
         expect(container).toBeEmptyDOMElement();
     });
 
     it('renders empty when amounts is undefined', () => {
-        const { container } = render(<ValueAmounts group={group} />);
+        const { container } = render(<ProductAmounts group={group} />);
 
         expect(container).toBeEmptyDOMElement();
     });
@@ -64,7 +64,7 @@ describe('<ValueAmounts>', () => {
         const mockComparator = jest.fn(() => 0);
         jest.mocked(useGroupVariantComparator).mockReturnValue(mockComparator);
 
-        render(<ValueAmounts group={group} amounts={amounts} />);
+        render(<ProductAmounts group={group} amounts={amounts} />);
 
         expect(mockComparator).toHaveBeenCalledWith(expect.any(String), expect.any(String));
     });

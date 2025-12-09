@@ -4,15 +4,15 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { ValueSuffix } from '~/client/common/ValueSuffix';
+import { AmountSuffix } from '~/client/common/AmountSuffix';
 
-describe('<ValueSuffix>', () => {
+describe('<AmountSuffix>', () => {
     const state = { variants: getVariantsFixture() };
 
     it('renders suffix by default', () => {
         render(
             <MockRedux state={state}>
-                <ValueSuffix group="Uogienės" variant="d" />
+                <AmountSuffix group="Uogienės" variant="d" />
             </MockRedux>
         );
 
@@ -22,7 +22,7 @@ describe('<ValueSuffix>', () => {
     it('renders variant as is when not found', () => {
         render(
             <MockRedux state={state}>
-                <ValueSuffix group="Uogienės" variant="unknown" />
+                <AmountSuffix group="Uogienės" variant="unknown" />
             </MockRedux>
         );
 

@@ -6,18 +6,18 @@ import { LoadableContent } from '~/client/common/LoadableContent';
 import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
 import { useProductFilters } from '~/client/filters/hooks/useProductFilters';
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
-import { GroupProducts } from '~/client/pages/products/GroupProducts';
+import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
 import { useProductsHasData } from '~/client/pages/products/hooks/useProductsHasData';
 import { MissingOnlyCheckbox } from '~/client/pages/products/MissingOnlyCheckbox';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
-import { useGroups } from '~/client/state/groups/useGroups';
+import { ProductsGroup } from '~/client/pages/products/ProductsGroup';
 import { useGetProducts } from '~/client/state/products/useGetProducts';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useYears } from '~/client/state/years/useYears';
 
 export function ProductsTable() {
     const products = useProducts();
-    const groups = useGroups();
+    const groups = useSortedGroups();
 
     const filteredProducts = useFilteredList(products, useProductFilters());
     const hasFilteredProducts = !!filteredProducts.length;
@@ -57,7 +57,7 @@ export function ProductsTable() {
                     </Table.Tr>
                 </Table.Thead>
                 {groups.map((g) => (
-                    <GroupProducts key={g.group} group={g} products={products} />
+                    <ProductsGroup key={g.group} group={g} products={products} />
                 ))}
             </Table>
         </LoadableContent>

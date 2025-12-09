@@ -1,6 +1,5 @@
+import { bulk } from '@tests/bulk';
 import { getProductsFixture } from '@tests/fixtures';
-
-import { cloneDeep, set } from 'lodash';
 
 import { ProductsActionType, type ProductsAction } from '~/client/state/products/actions';
 import { products as reducer } from '~/client/state/products/reducer';
@@ -85,51 +84,72 @@ describe('products', () => {
         });
 
         it('updates filled state', () => {
-            const result = reducer(products, {
-                type: ProductsActionType.SET_REMOVING,
-                group: 'Uogienės',
-                name: 'Braškės',
-                year: 22,
-                removing: true,
-            });
-            expect(result[1].years?.[0]).toStrictEqual(
-                expect.objectContaining({
+            expect(
+                reducer(products, {
+                    type: ProductsActionType.SET_REMOVING,
+                    group: 'Uogienės',
+                    name: 'Braškės',
+                    year: 22,
                     removing: true,
-                    prevRemoving: undefined,
+                })
+            ).toStrictEqual(
+                bulk(products, {
+                    $set: {
+                        '[1].years[0].removing': true,
+                        '[1].years[0].prevRemoving': undefined,
+                    },
                 })
             );
         });
 
         it('updates filled state with false', () => {
-            const stateWithRemoving = set(cloneDeep(products), '[3].years[0].removing', true);
-            const result = reducer(stateWithRemoving, {
-                type: ProductsActionType.SET_REMOVING,
-                group: 'Daržovės',
-                name: 'Kopūstai',
-                year: 21,
-                removing: false,
-            });
-            expect(result[3].years?.[0]).toStrictEqual(
-                expect.objectContaining({
-                    removing: undefined,
-                    prevRemoving: true,
+            expect(
+                reducer(
+                    bulk(products, {
+                        $set: {
+                            '[3].years[0].removing': true,
+                        },
+                    }),
+                    {
+                        type: ProductsActionType.SET_REMOVING,
+                        group: 'Daržovės',
+                        name: 'Kopūstai',
+                        year: 21,
+                        removing: false,
+                    }
+                )
+            ).toStrictEqual(
+                bulk(products, {
+                    $set: {
+                        '[3].years[0].removing': undefined,
+                        '[3].years[0].prevRemoving': true,
+                    },
                 })
             );
         });
 
         it('saves prevRemoving when updating removing', () => {
-            const stateWithRemoving = set(cloneDeep(products), '[1].years[0].removing', true);
-            const result = reducer(stateWithRemoving, {
-                type: ProductsActionType.SET_REMOVING,
-                group: 'Uogienės',
-                name: 'Braškės',
-                year: 22,
-                removing: false,
-            });
-            expect(result[1].years?.[0]).toStrictEqual(
-                expect.objectContaining({
-                    removing: undefined,
-                    prevRemoving: true,
+            expect(
+                reducer(
+                    bulk(products, {
+                        $set: {
+                            '[1].years[0].removing': true,
+                        },
+                    }),
+                    {
+                        type: ProductsActionType.SET_REMOVING,
+                        group: 'Uogienės',
+                        name: 'Braškės',
+                        year: 22,
+                        removing: false,
+                    }
+                )
+            ).toStrictEqual(
+                bulk(products, {
+                    $set: {
+                        '[1].years[0].removing': undefined,
+                        '[1].years[0].prevRemoving': true,
+                    },
                 })
             );
         });
@@ -196,81 +216,87 @@ describe('products', () => {
         });
 
         it('rolls back removing from prevRemoving', () => {
-            const stateWithPrevRemoving = set(cloneDeep(products), '[1].years[0].removing', false);
-            const stateWithPrevRemovingValue = set(stateWithPrevRemoving, '[1].years[0].prevRemoving', true);
-            const result = reducer(stateWithPrevRemovingValue, {
-                type: ProductsActionType.ROLLBACK_REMOVING,
-                group: 'Uogienės',
-                name: 'Braškės',
-                year: 22,
-            });
-            expect(result[1].years?.[0]).toStrictEqual(
-                expect.objectContaining({
-                    removing: true,
-                    prevRemoving: undefined,
+            expect(
+                reducer(
+                    bulk(products, {
+                        $set: {
+                            '[1].years[0].removing': false,
+                            '[1].years[0].prevRemoving': true,
+                        },
+                    }),
+                    {
+                        type: ProductsActionType.ROLLBACK_REMOVING,
+                        group: 'Uogienės',
+                        name: 'Braškės',
+                        year: 22,
+                    }
+                )
+            ).toStrictEqual(
+                bulk(products, {
+                    $set: {
+                        '[1].years[0].removing': true,
+                        '[1].years[0].prevRemoving': undefined,
+                    },
                 })
             );
         });
 
         it('rolls back removing to undefined when prevRemoving is undefined', () => {
-            const stateWithRemoving = set(cloneDeep(products), '[1].years[0].removing', true);
-            const result = reducer(stateWithRemoving, {
-                type: ProductsActionType.ROLLBACK_REMOVING,
-                group: 'Uogienės',
-                name: 'Braškės',
-                year: 22,
-            });
-            expect(result[1].years?.[0]).toStrictEqual(
-                expect.objectContaining({
-                    removing: undefined,
-                    prevRemoving: undefined,
+            expect(
+                reducer(
+                    bulk(products, {
+                        $set: {
+                            '[1].years[0].removing': true,
+                        },
+                    }),
+                    {
+                        type: ProductsActionType.ROLLBACK_REMOVING,
+                        group: 'Uogienės',
+                        name: 'Braškės',
+                        year: 22,
+                    }
+                )
+            ).toStrictEqual(
+                bulk(products, {
+                    $set: {
+                        '[1].years[0].removing': undefined,
+                        '[1].years[0].prevRemoving': undefined,
+                    },
                 })
             );
         });
 
         it('does not update filled state using missing year', () => {
-            const result = reducer(products, {
-                type: ProductsActionType.ROLLBACK_REMOVING,
-                group: 'Uogienės',
-                name: 'Avietės',
-                year: 23,
-            });
-            // Should not change any product since year doesn't match
-            expect(result.length).toBe(products.length);
-            result.forEach((product, index) => {
-                expect(product.group).toBe(products[index].group);
-                expect(product.name).toBe(products[index].name);
-            });
+            expect(
+                reducer(products, {
+                    type: ProductsActionType.ROLLBACK_REMOVING,
+                    group: 'Uogienės',
+                    name: 'Avietės',
+                    year: 23,
+                })
+            ).toStrictEqual(products);
         });
 
         it('does not update filled state using missing name', () => {
-            const result = reducer(products, {
-                type: ProductsActionType.ROLLBACK_REMOVING,
-                group: 'Uogienės',
-                name: 'Nonexistent',
-                year: 22,
-            });
-            // Should not change any product since name doesn't match
-            expect(result.length).toBe(products.length);
-            result.forEach((product, index) => {
-                expect(product.group).toBe(products[index].group);
-                expect(product.name).toBe(products[index].name);
-            });
+            expect(
+                reducer(products, {
+                    type: ProductsActionType.ROLLBACK_REMOVING,
+                    group: 'Uogienės',
+                    name: 'Nonexistent',
+                    year: 22,
+                })
+            ).toStrictEqual(products);
         });
 
         it('does not update filled state using missing group', () => {
-            const result = reducer(products, {
-                type: ProductsActionType.ROLLBACK_REMOVING,
-                group: 'Nonexistent',
-                name: 'Avietės',
-                year: 21,
-            });
-            // Should not change any product since group doesn't match
-            expect(result.length).toBe(products.length);
-            result.forEach((product, index) => {
-                expect(product.group).toBe(products[index].group);
-                expect(product.name).toBe(products[index].name);
-            });
+            expect(
+                reducer(products, {
+                    type: ProductsActionType.ROLLBACK_REMOVING,
+                    group: 'Nonexistent',
+                    name: 'Avietės',
+                    year: 21,
+                })
+            ).toStrictEqual(products);
         });
 
         it('does not update undefined state', () => {
@@ -298,52 +324,57 @@ describe('products', () => {
         });
 
         it('updates filled state', () => {
-            const result = reducer(products, {
-                type: ProductsActionType.SET_MISSING,
-                group: 'Uogienės',
-                name: 'Avietės',
-                missing: true,
-            });
-            expect(result[0]).toStrictEqual(
-                expect.objectContaining({
+            expect(
+                reducer(products, {
+                    type: ProductsActionType.SET_MISSING,
+                    group: 'Uogienės',
+                    name: 'Avietės',
                     missing: true,
-                    prevMissing: undefined,
+                })
+            ).toStrictEqual(
+                bulk(products, {
+                    $set: {
+                        '[0].missing': true,
+                        '[0].prevMissing': undefined,
+                    },
                 })
             );
         });
 
         it('updates filled state using false', () => {
-            const stateWithMissing = set(cloneDeep(products), '[2].missing', true);
-            const result = reducer(stateWithMissing, {
-                type: ProductsActionType.SET_MISSING,
-                group: 'Daržovės',
-                name: 'Agurkai',
-                missing: false,
-            });
-            expect(result[2]).toStrictEqual(
-                expect.objectContaining({
-                    missing: undefined,
-                    prevMissing: true,
+            expect(
+                reducer(
+                    bulk(products, {
+                        $set: {
+                            '[2].missing': true,
+                        },
+                    }),
+                    {
+                        type: ProductsActionType.SET_MISSING,
+                        group: 'Daržovės',
+                        name: 'Agurkai',
+                        missing: false,
+                    }
+                )
+            ).toStrictEqual(
+                bulk(products, {
+                    $set: {
+                        '[2].missing': undefined,
+                        '[2].prevMissing': true,
+                    },
                 })
             );
         });
 
         it('does not update filled state using missing name', () => {
-            const result = reducer(products, {
-                type: ProductsActionType.SET_MISSING,
-                group: 'Uogienės',
-                name: 'Nonexistent',
-                missing: true,
-            });
-            // Should not change any product since name doesn't match
-            // Check that no product was modified (all products should remain the same)
-            expect(result.length).toBe(products.length);
-            result.forEach((product, index) => {
-                expect(product.group).toBe(products[index].group);
-                expect(product.name).toBe(products[index].name);
-                // missing might be undefined in result but true in original, so check with toEqual
-                expect(product.missing).toEqual(products[index].missing);
-            });
+            expect(
+                reducer(products, {
+                    type: ProductsActionType.SET_MISSING,
+                    group: 'Uogienės',
+                    name: 'Nonexistent',
+                    missing: true,
+                })
+            ).toStrictEqual(products);
         });
 
         it('does not update filled state using missing group', () => {
@@ -369,17 +400,26 @@ describe('products', () => {
         });
 
         it('saves prevMissing when updating missing', () => {
-            const stateWithMissing = set(cloneDeep(products), '[0].missing', true);
-            const result = reducer(stateWithMissing, {
-                type: ProductsActionType.SET_MISSING,
-                group: 'Uogienės',
-                name: 'Avietės',
-                missing: false,
-            });
-            expect(result[0]).toStrictEqual(
-                expect.objectContaining({
-                    missing: undefined,
-                    prevMissing: true,
+            expect(
+                reducer(
+                    bulk(products, {
+                        $set: {
+                            '[0].missing': true,
+                        },
+                    }),
+                    {
+                        type: ProductsActionType.SET_MISSING,
+                        group: 'Uogienės',
+                        name: 'Avietės',
+                        missing: false,
+                    }
+                )
+            ).toStrictEqual(
+                bulk(products, {
+                    $set: {
+                        '[0].missing': undefined,
+                        '[0].prevMissing': true,
+                    },
                 })
             );
         });
@@ -397,51 +437,62 @@ describe('products', () => {
         });
 
         it('rolls back missing from prevMissing', () => {
-            const stateWithPrevMissing = set(cloneDeep(products), '[0].missing', false);
-            const stateWithPrevMissingValue = set(stateWithPrevMissing, '[0].prevMissing', true);
-            const result = reducer(stateWithPrevMissingValue, {
-                type: ProductsActionType.ROLLBACK_MISSING,
-                group: 'Uogienės',
-                name: 'Avietės',
-            });
-            expect(result[0]).toStrictEqual(
-                expect.objectContaining({
-                    missing: true,
-                    prevMissing: undefined,
+            expect(
+                reducer(
+                    bulk(products, {
+                        $set: {
+                            '[0].missing': false,
+                            '[0].prevMissing': true,
+                        },
+                    }),
+                    {
+                        type: ProductsActionType.ROLLBACK_MISSING,
+                        group: 'Uogienės',
+                        name: 'Avietės',
+                    }
+                )
+            ).toStrictEqual(
+                bulk(products, {
+                    $set: {
+                        '[0].missing': true,
+                        '[0].prevMissing': undefined,
+                    },
                 })
             );
         });
 
         it('rolls back missing to undefined when prevMissing is undefined', () => {
-            const stateWithMissing = set(cloneDeep(products), '[0].missing', true);
-            const result = reducer(stateWithMissing, {
-                type: ProductsActionType.ROLLBACK_MISSING,
-                group: 'Uogienės',
-                name: 'Avietės',
-            });
-            expect(result[0]).toStrictEqual(
-                expect.objectContaining({
-                    missing: undefined,
-                    prevMissing: undefined,
+            expect(
+                reducer(
+                    bulk(products, {
+                        $set: {
+                            '[0].missing': true,
+                        },
+                    }),
+                    {
+                        type: ProductsActionType.ROLLBACK_MISSING,
+                        group: 'Uogienės',
+                        name: 'Avietės',
+                    }
+                )
+            ).toStrictEqual(
+                bulk(products, {
+                    $set: {
+                        '[0].missing': undefined,
+                        '[0].prevMissing': undefined,
+                    },
                 })
             );
         });
 
         it('does not update filled state using missing name', () => {
-            const result = reducer(products, {
-                type: ProductsActionType.ROLLBACK_MISSING,
-                group: 'Uogienės',
-                name: 'Nonexistent',
-            });
-            // Should not change any product since name doesn't match
-            // Check that no product was modified (all products should remain the same)
-            expect(result.length).toBe(products.length);
-            result.forEach((product, index) => {
-                expect(product.group).toBe(products[index].group);
-                expect(product.name).toBe(products[index].name);
-                // missing might be undefined in result but true in original, so check with toEqual
-                expect(product.missing).toEqual(products[index].missing);
-            });
+            expect(
+                reducer(products, {
+                    type: ProductsActionType.ROLLBACK_MISSING,
+                    group: 'Uogienės',
+                    name: 'Nonexistent',
+                })
+            ).toStrictEqual(products);
         });
 
         it('does not update filled state using missing group', () => {

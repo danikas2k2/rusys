@@ -4,18 +4,24 @@ import { Table, Title } from '@mantine/core';
 
 import { Label } from '~/client/common/Label';
 import { SortableRow } from '~/client/table/SortableRow';
-import type { Variant, WithId } from '~/types/data';
-
-import './VariantsRow.pcss';
+import { getId } from '~/client/utils/id';
+import type { Variant } from '~/types/data';
 
 interface VariantsRowProps {
-    variant: WithId<Variant>;
+    variant: Readonly<Variant>;
     reordering: boolean;
+    hidden?: boolean;
 }
 
-export function VariantsRow({ variant, reordering }: VariantsRowProps): React.ReactElement {
+export function VariantsRow({ variant, reordering, hidden = false }: VariantsRowProps): React.ReactElement {
     return (
-        <SortableRow id={variant.id} data={variant} data-group={variant.group} disabled={reordering}>
+        <SortableRow
+            id={getId(variant.group, variant.variant)}
+            data={variant}
+            data-group={variant.group}
+            disabled={reordering || hidden}
+            data-hidden={hidden}
+        >
             <Table.Td>
                 <Title order={6} data-unused={!variant.used}>
                     <Label>{variant.variant}</Label>

@@ -7,8 +7,8 @@ import React from 'react';
 import { useGroupFilterPredicate } from '~/client/filters/hooks/useGroupFilterPredicate';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
-import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasData';
 import { useRecycledSummary } from '~/client/pages/summary/hooks/useRecycledSummary';
+import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasData';
 import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
 import { SummaryTable } from '~/client/pages/summary/SummaryTable';
 

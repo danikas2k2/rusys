@@ -1,10 +1,10 @@
 import React from 'react';
 
-interface ValueVariantProps {
+interface AmountVariantProps {
     variant: string;
 }
 
-export function ValueVariant({ variant }: ValueVariantProps) {
+export function AmountVariant({ variant }: AmountVariantProps) {
     const index = variant.trim().indexOf(' ');
     if (index < 0) {
         return <>{variant}</>;

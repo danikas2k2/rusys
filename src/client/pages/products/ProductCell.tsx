@@ -5,22 +5,22 @@ import { Center, Loader, Table } from '@mantine/core';
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';
 import { useLongPress } from '~/client/hooks/useLongPress';
+import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
 import { useProductUpdating } from '~/client/pages/products/UpdatingProductsContext';
-import { ValueAmounts } from '~/client/pages/products/ValueAmounts';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 import { getCombinedAmounts } from '~/common/utils/amounts';
-import type { Product, ProductAmounts, RemovingYearAmounts } from '~/types/data';
+import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts } from '~/types/data';
 
-import './ValueCell.pcss';
+import './ProductCell.pcss';
 
-export interface ValueCellProps {
+export interface ProductCellProps {
     product: Product;
     year?: number;
     last?: boolean;
     span?: number;
 }
 
-export function ValueCell({ product, year = 0, last = false, span }: ValueCellProps) {
+export function ProductCell({ product, year = 0, last = false, span }: ProductCellProps) {
     const { group, name, years } = product;
     const { amounts, removing = false } = useMemo(
         (): RemovingYearAmounts =>
@@ -45,7 +45,7 @@ export function ValueCell({ product, year = 0, last = false, span }: ValueCellPr
         return !years?.some((v) => v.year > year && !!v.amounts?.length && !v.removing);
     }, [amounts?.length, prevYear, removing, thisYear, year, years]);
 
-    const [, setActive] = useActiveContent<ProductAmounts>();
+    const [, setActive] = useActiveContent<ProductAmountsType>();
     const setRemoving = useSetProductRemoving();
     const updating = useProductUpdating({ group, name, year });
     const swipeActive = useSwipeVisible();
@@ -94,7 +94,7 @@ export function ValueCell({ product, year = 0, last = false, span }: ValueCellPr
             colSpan={span}
             {...eventHandlers}
         >
-            <Center>{empty ? '.' : <ValueAmounts group={group} amounts={amounts} />}</Center>
+            <Center>{empty ? '.' : <ProductAmounts group={group} amounts={amounts} />}</Center>
             {loaderVisible && <Loader data-visible={updating} size="sm" onTransitionEnd={handleTransitionEnd} />}
         </Table.Td>
     );

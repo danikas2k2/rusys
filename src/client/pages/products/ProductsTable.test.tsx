@@ -11,8 +11,8 @@ import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useProductsHasData } from '~/client/pages/products/hooks/useProductsHasData';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
+import { ProductsGroup } from '~/client/pages/products/ProductsGroup';
 import { ProductsTable } from '~/client/pages/products/ProductsTable';
-import { GroupProducts } from '~/client/pages/products/GroupProducts';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useYears } from '~/client/state/years/useYears';
@@ -37,7 +37,7 @@ jest.mock('~/client/filters/QuickFilterContext', () => ({
 jest.mock('~/client/pages/products/MissingOnlyCheckbox', () => ({
     MissingOnlyCheckbox: jest.fn(({ onClick }: { onClick: () => void }) => <input type="checkbox" onClick={onClick} />),
 }));
-jest.mock('~/client/pages/products/GroupProducts', () => ({
+jest.mock('~/client/pages/products/ProductsGroup', () => ({
     GroupProducts: jest.fn().mockReturnValue(null),
 }));
 jest.mock('~/client/state/groups/useGroups', () => ({
@@ -83,11 +83,8 @@ describe('<ProductsTable>', () => {
 
             expect(row.getAllByRole('columnheader')).toHaveListWithTextContent(['', '23', '22', '21']);
 
-            expect(GroupProducts).toHaveBeenCalledTimes(state.groups.length);
-            expect(GroupProducts).toHaveBeenCalledWith(
-                { group: state.groups[0], products },
-                undefined
-            );
+            expect(ProductsGroup).toHaveBeenCalledTimes(state.groups.length);
+            expect(ProductsGroup).toHaveBeenCalledWith({ group: state.groups[0], products }, undefined);
         });
 
         it('renders table for complete state with data filtered-out', () => {
@@ -101,7 +98,7 @@ describe('<ProductsTable>', () => {
             );
 
             expect(screen.getByRole('table')).toBeInTheDocument();
-            expect(GroupProducts).toHaveBeenCalledTimes(state.groups.length);
+            expect(ProductsGroup).toHaveBeenCalledTimes(state.groups.length);
         });
 
         it('renders table with group selected', () => {
@@ -114,7 +111,7 @@ describe('<ProductsTable>', () => {
             );
 
             expect(screen.getByRole('table')).toBeInTheDocument();
-            expect(GroupProducts).toHaveBeenCalledWith({ group: state.groups[0], products }, undefined);
+            expect(ProductsGroup).toHaveBeenCalledWith({ group: state.groups[0], products }, undefined);
         });
 
         it('does not render table for initial state', () => {
@@ -298,7 +295,7 @@ describe('<ProductsTable>', () => {
                 </MockTheme>
             );
 
-            expect(GroupProducts).toHaveBeenCalled();
+            expect(ProductsGroup).toHaveBeenCalledWith();
         });
 
         it('clears missing-only state if all missing rows are filtered out', () => {

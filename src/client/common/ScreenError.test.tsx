@@ -14,6 +14,7 @@ describe('<ScreenError>', () => {
         );
 
         const alert = screen.getByRole('alert');
+
         expect(alert).toHaveTextContent('Test failure');
         expect(alert.closest('[data-error]')).toBeInTheDocument();
     });

@@ -20,4 +20,3 @@ export const setErrorAction = (error: string): Readonly<ErrorAction> => ({
 export const clearErrorAction = (): Readonly<ErrorAction> => ({
     type: ErrorActionType.CLEAR,
 });
-

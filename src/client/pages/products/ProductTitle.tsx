@@ -7,11 +7,11 @@ import { useSetProductMissing } from '~/client/state/products/useSetProductMissi
 import { useYears } from '~/client/state/years/useYears';
 import type { Product } from '~/types/data';
 
-interface ValueRowTitleProps {
+interface ProductTitleProps {
     product: Product;
 }
 
-export function ValueRowTitle({ product }: ValueRowTitleProps): React.ReactElement {
+export function ProductTitle({ product }: ProductTitleProps): React.ReactElement {
     const available = !isEmpty(product.years);
 
     const allYears = useYears();

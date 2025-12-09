@@ -1,8 +1,5 @@
 import { renderHook } from '@testing-library/react';
 
-import React from 'react';
-
-import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useSortedGroups } from './useSortedGroups';
 

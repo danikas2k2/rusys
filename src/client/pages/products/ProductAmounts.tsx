@@ -1,17 +1,17 @@
 import React from 'react';
 
-import { ValueSuffix } from '~/client/common/ValueSuffix';
+import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import type { VariantAmount } from '~/types/data';
 
-import './ValueAmounts.pcss';
+import './ProductAmounts.pcss';
 
-export interface ValueAmountsProps {
+export interface ProductAmountsProps {
     group: string;
     amounts?: readonly VariantAmount[];
 }
 
-export function ValueAmounts({ group, amounts }: ValueAmountsProps) {
+export function ProductAmounts({ group, amounts }: ProductAmountsProps) {
     const compareVariants = useGroupVariantComparator(group);
     return amounts?.length ? (
         <>
@@ -20,7 +20,7 @@ export function ValueAmounts({ group, amounts }: ValueAmountsProps) {
                 .map((v) => (
                     <span key={v.variant} data-value>
                         {v.amount}
-                        <ValueSuffix group={group} variant={v.variant} />
+                        <AmountSuffix group={group} variant={v.variant} />
                     </span>
                 ))}
         </>

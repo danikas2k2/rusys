@@ -7,7 +7,7 @@ import React from 'react';
 
 import { Table } from '@mantine/core';
 
-import { ValueRow } from '~/client/pages/products/ValueRow';
+import { ProductRow } from '~/client/pages/products/ProductRow';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 import { useYears } from '~/client/state/years/useYears';
@@ -21,7 +21,7 @@ jest.mock('~/client/state/products/useSetProductRemoving', () => ({
 jest.mock('~/client/state/profile/useProfile');
 jest.mock('~/client/state/years/useYears');
 
-describe('<ValueRow>', () => {
+describe('<ProductRow>', () => {
     const user = userEvent.setup();
     const products = getProductsFixture();
     const product = products[0];
@@ -45,7 +45,7 @@ describe('<ValueRow>', () => {
             <MockApp>
                 <Table>
                     <Table.Tbody>
-                        <ValueRow product={product} />
+                        <ProductRow product={product} />
                     </Table.Tbody>
                 </Table>
             </MockApp>
@@ -61,7 +61,7 @@ describe('<ValueRow>', () => {
             <MockApp>
                 <Table>
                     <Table.Tbody>
-                        <ValueRow product={product} hidden />
+                        <ProductRow product={product} hidden />
                     </Table.Tbody>
                 </Table>
             </MockApp>
@@ -75,14 +75,14 @@ describe('<ValueRow>', () => {
             <MockApp>
                 <Table>
                     <Table.Tbody>
-                        <ValueRow product={{ ...product, missing: false }} />
+                        <ProductRow product={{ ...product, missing: false }} />
                     </Table.Tbody>
                 </Table>
             </MockApp>
         );
 
         await user.click(screen.getByRole('checkbox'));
+
         expect(setMissing).toHaveBeenCalledWith(product.group, product.name, true);
     });
 });
-

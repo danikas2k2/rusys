@@ -9,15 +9,15 @@ import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { Label } from '~/client/common/Label';
 import { LoadableContent } from '~/client/common/LoadableContent';
 import { SortableContent } from '~/client/common/SortableContent';
-import { useQuickFilter } from '~/client/filters/QuickFilterContext';
+import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { GroupsRow } from '~/client/pages/groups/GroupsRow';
 import { useGroupsHasData } from '~/client/pages/groups/hooks/useGroupsHasData';
 import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
 import { useGetGroups } from '~/client/state/groups/useGetGroups';
 import { useReorderGroups } from '~/client/state/groups/useReorderGroups';
 import { DragOverlayTable } from '~/client/table/DragOverlayTable';
+import { parseId } from '~/client/utils/id';
 import { mapOrder } from '~/client/utils/mapOrder';
-import { matchParts } from '~/client/utils/matchParts';
 import type { Group } from '~/types/data';
 
 export function GroupsTable() {
@@ -26,7 +26,7 @@ export function GroupsTable() {
 
     const reorderGroups = useReorderGroups();
     const {
-        items,
+        items: groups,
         reordering,
         onDragEnd: handleDragEnd,
     } = useReorderHandler<Group, Pick<Group, 'group'>>({
@@ -36,11 +36,11 @@ export function GroupsTable() {
 
         equals: (a, b) => a.group === b.group,
 
-        resolve: (id: UniqueIdentifier) => ({ group: `${id}` }),
+        resolve: (id: UniqueIdentifier) => ({ group: parseId(id, 1)[0] }),
     });
 
     const renderDragOverlay = (activeId: UniqueIdentifier, columns: number[]) => {
-        const group = items.find((g) => g.group === activeId);
+        const group = groups.find((g) => g.group === activeId);
         return group ? (
             <DragOverlayTable columns={columns}>
                 <GroupsRow group={group} reordering={reordering} />
@@ -48,7 +48,7 @@ export function GroupsTable() {
         ) : null;
     };
 
-    const [filter] = useQuickFilter();
+    const quickFilter = useQuickFilterPredicate();
 
     return (
         <LoadableContent loader={useGetGroups()} hasData={useGroupsHasData()}>
@@ -60,25 +60,25 @@ export function GroupsTable() {
                 <Table layout="fixed" data-table="groups">
                     <Table.Thead>
                         <Table.Tr h="3rem">
-                            <Table.Th w="2.25rem" />
+                            <Table.Th w="10%" />
                             <Table.Th>
                                 <Title order={6}>
                                     <Label>Group</Label>
                                 </Title>
                             </Table.Th>
-                            <Table.Th w="30%" ta="center">
+                            <Table.Th w="40%" ta="center">
                                 <Label>Annual</Label>
                             </Table.Th>
                         </Table.Tr>
                     </Table.Thead>
                     <Table.Tbody>
-                        <SortableContent items={items.map(({ group }) => group)}>
-                            {items.map((group) => (
+                        <SortableContent items={groups.map(({ group }) => group)}>
+                            {groups.map((group) => (
                                 <GroupsRow
                                     key={group.group}
                                     group={group}
                                     reordering={reordering}
-                                    hidden={!matchParts(group.group, filter)}
+                                    hidden={!quickFilter(group.group)}
                                 />
                             ))}
                         </SortableContent>

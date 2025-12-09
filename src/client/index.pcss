@@ -306,3 +306,26 @@ select,
         background-color: var(--color-base);
     }
 }
+
+.ui-Title-root{
+    &[data-available="false"] {
+        color: var(--color-subtext0);
+        font-weight: var(--font-weight-light);
+    }
+
+    &[data-available="true"][data-removing="true"] {
+        color: var(--color-red);
+        font-weight: var(--font-weight-bold);
+        letter-spacing: -0.25px;
+        text-decoration: underline dashed 1px;
+        text-underline-position: under;
+    }
+
+    &[data-unused="true"] {
+        font-weight: var(--font-weight-light);
+        color: var(--color-subtext0);
+        text-decoration: underline wavy 1px;
+        text-decoration-color: var(--color-red);
+        text-underline-position: under;
+    }
+}

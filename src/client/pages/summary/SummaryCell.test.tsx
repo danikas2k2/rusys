@@ -12,7 +12,7 @@ jest.mock('~/client/state/variants/useGroupVariantComparator', () => ({
     useGroupVariantComparator: jest.fn(),
 }));
 
-jest.mock('~/client/common/ValueSuffix', () => ({
+jest.mock('~/client/common/AmountSuffix', () => ({
     ValueSuffix: () => null,
 }));
 
