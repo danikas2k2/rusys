@@ -4,11 +4,7 @@ import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { matchParts } from '~/client/utils/matchParts';
 
-export function useFilteredGroups() {
+export function useSortedGroups() {
     const groups = useGroups();
-    const [filter] = useQuickFilter();
-    return useMemo(
-        () => groups.filter((v) => matchParts(v.group, filter)).sort((a, b) => a.order - b.order),
-        [filter, groups]
-    );
+    return useMemo(() => [...groups].sort((a, b) => a.order - b.order), [groups]);
 }

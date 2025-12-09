@@ -7,9 +7,15 @@ import { Label } from '~/client/common/Label';
 import { SortableRow } from '~/client/table/SortableRow';
 import type { Group } from '~/types/data';
 
-export function GroupsRow({ group, reordering }: { group: Group; reordering: boolean }): React.ReactElement {
+interface GroupsRowProps {
+    group: Group;
+    reordering: boolean;
+    hidden?: boolean;
+}
+
+export function GroupsRow({ group, reordering, hidden = false }: GroupsRowProps): React.ReactElement {
     return (
-        <SortableRow id={group.group} data={group} disabled={reordering}>
+        <SortableRow id={group.group} data={group} disabled={reordering || hidden} data-hidden={hidden}>
             <Table.Td>
                 <Title order={6}>
                     <Label>{group.group}</Label>

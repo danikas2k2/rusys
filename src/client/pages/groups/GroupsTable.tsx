@@ -9,13 +9,15 @@ import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { Label } from '~/client/common/Label';
 import { LoadableContent } from '~/client/common/LoadableContent';
 import { SortableContent } from '~/client/common/SortableContent';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { GroupsRow } from '~/client/pages/groups/GroupsRow';
-import { useFilteredGroups } from '~/client/pages/groups/hooks/useFilteredGroups';
 import { useGroupsHasData } from '~/client/pages/groups/hooks/useGroupsHasData';
+import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
 import { useGetGroups } from '~/client/state/groups/useGetGroups';
 import { useReorderGroups } from '~/client/state/groups/useReorderGroups';
 import { DragOverlayTable } from '~/client/table/DragOverlayTable';
 import { mapOrder } from '~/client/utils/mapOrder';
+import { matchParts } from '~/client/utils/matchParts';
 import type { Group } from '~/types/data';
 
 export function GroupsTable() {
@@ -28,7 +30,7 @@ export function GroupsTable() {
         reordering,
         onDragEnd: handleDragEnd,
     } = useReorderHandler<Group, Pick<Group, 'group'>>({
-        items: useFilteredGroups(),
+        items: useSortedGroups(),
 
         onReorder: (reordered) => reorderGroups(mapOrder(reordered, ({ group }) => group)),
 
@@ -46,6 +48,8 @@ export function GroupsTable() {
         ) : null;
     };
 
+    const [filter] = useQuickFilter();
+
     return (
         <LoadableContent loader={useGetGroups()} hasData={useGroupsHasData()}>
             <DraggableContent
@@ -53,16 +57,16 @@ export function GroupsTable() {
                 onDragEnd={handleDragEnd}
                 renderDragOverlay={renderDragOverlay}
             >
-                <Table data-table="groups">
+                <Table layout="fixed" data-table="groups">
                     <Table.Thead>
                         <Table.Tr h="3rem">
-                            <Table.Th />
+                            <Table.Th w="2.25rem" />
                             <Table.Th>
                                 <Title order={6}>
                                     <Label>Group</Label>
                                 </Title>
                             </Table.Th>
-                            <Table.Th ta="center">
+                            <Table.Th w="30%" ta="center">
                                 <Label>Annual</Label>
                             </Table.Th>
                         </Table.Tr>
@@ -70,7 +74,12 @@ export function GroupsTable() {
                     <Table.Tbody>
                         <SortableContent items={items.map(({ group }) => group)}>
                             {items.map((group) => (
-                                <GroupsRow key={group.group} group={group} reordering={reordering} />
+                                <GroupsRow
+                                    key={group.group}
+                                    group={group}
+                                    reordering={reordering}
+                                    hidden={!matchParts(group.group, filter)}
+                                />
                             ))}
                         </SortableContent>
                     </Table.Tbody>

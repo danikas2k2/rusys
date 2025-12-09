@@ -6,10 +6,10 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { GroupsTable } from '~/client/pages/groups/GroupsTable';
-import { useFilteredGroups } from '~/client/pages/groups/hooks/useFilteredGroups';
 import { useGroupsHasData } from '~/client/pages/groups/hooks/useGroupsHasData';
 import { useGetGroups } from '~/client/state/groups/useGetGroups';
 import { useGroups } from '~/client/state/groups/useGroups';
@@ -19,13 +19,12 @@ import type { Group } from '~/types/data';
 jest.mock('~/client/state/years/useYears');
 jest.mock('~/client/state/groups/useGroups');
 jest.mock('~/client/common/hooks/useReorderHandler');
-jest.mock('~/client/pages/groups/hooks/useFilteredGroups');
 jest.mock('~/client/pages/groups/hooks/useGroupsHasData');
 jest.mock('~/client/state/groups/useGetGroups');
 jest.mock('~/client/state/groups/useReorderGroups');
 jest.mock('~/client/hooks/useLockingLoader');
-jest.mock('~/client/filters/hooks/useQuickFilter', () => ({
-    useQuickFilter: jest.fn().mockReturnValue(''),
+jest.mock('~/client/filters/QuickFilterContext', () => ({
+    useQuickFilter: jest.fn().mockReturnValue(['', jest.fn()]),
 }));
 jest.mock('~/client/utils/getOverlapIndex');
 
@@ -37,7 +36,6 @@ describe('<GroupsTable>', () => {
     beforeEach(() => {
         jest.mocked(useGroups).mockReturnValue(getGroupsFixture());
         jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
-        jest.mocked(useFilteredGroups).mockReturnValue(mockItems);
         jest.mocked(useGroupsHasData).mockReturnValue(true);
         jest.mocked(useGetGroups).mockReturnValue(mockGetGroups);
         jest.mocked(useReorderHandler).mockReturnValue({
@@ -143,9 +141,8 @@ describe('<GroupsTable>', () => {
     });
 
     describe('handles filter state', () => {
-        it('renders filtered data', () => {
-            const filteredGroups = getGroupsFixture().filter((g) => g.group === 'Uogienės');
-            jest.mocked(useFilteredGroups).mockReturnValue(filteredGroups);
+        it('renders filtered data by quick filter', () => {
+            jest.mocked(useQuickFilter).mockReturnValue(['Uog', jest.fn()]);
 
             render(
                 <MockTheme>
@@ -156,30 +153,11 @@ describe('<GroupsTable>', () => {
             );
 
             const rows = screen.getAllByRole('row');
+            const uogienesRow = rows.find((row) => within(row).queryByText('Uogienės'));
+            const darzovesRow = rows.find((row) => within(row).queryByText('Daržovės'));
 
-            expect(rows.length).toBeGreaterThanOrEqual(2);
-
-            const dataRow = rows.find((row) => within(row).queryByText('Uogienės'));
-
-            expect(dataRow).toBeInTheDocument();
-            expect(within(dataRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'Uogienės', '']);
-        });
-
-        it('renders filtered out data', () => {
-            jest.mocked(useFilteredGroups).mockReturnValue([]);
-
-            render(
-                <MockTheme>
-                    <MockRedux>
-                        <GroupsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            const rows = screen.getAllByRole('row');
-
-            expect(rows.length).toBeGreaterThanOrEqual(1);
-            expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent(['', 'Group', 'Annual']);
+            expect(uogienesRow).toBeInTheDocument();
+            expect(darzovesRow).toHaveAttribute('data-hidden', 'true');
         });
     });
 
