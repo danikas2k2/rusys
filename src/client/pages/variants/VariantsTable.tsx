@@ -72,7 +72,7 @@ export function VariantsTable() {
                         <Table.Tr h="3rem">
                             <Table.Th w="10%" />
                             <Table.Th>
-                                <Title order={6}>
+                                <Title order={5}>
                                     <Label>Variant</Label>
                                 </Title>
                             </Table.Th>

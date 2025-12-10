@@ -208,6 +208,8 @@ export function VariantBox({
                         placeholder={_('Select group')}
                         data={groups}
                         withAsterisk
+                        withAlignedLabels
+                        checkIconPosition="left"
                         disabled={loading}
                         searchable
                         {...form.getInputProps('group')}

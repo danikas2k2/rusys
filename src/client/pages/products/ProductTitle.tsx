@@ -36,7 +36,7 @@ export function ProductTitle({ product }: ProductTitleProps): React.ReactElement
                 indeterminate={!available}
                 onChange={handleClick}
                 label={
-                    <Title order={6} data-available={available} data-removing={available && hasRemoving}>
+                    <Title order={5} data-available={available} data-removing={available && hasRemoving}>
                         {product.name}
                     </Title>
                 }

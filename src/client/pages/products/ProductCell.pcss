@@ -19,7 +19,7 @@
     &[data-preferred="true"] {
         --value-cell-color: var(--color-strong);
         --value-cell-background: var(--color-mantle);
-        --value-cell-font-weight: var(--font-weight-medium);
+        --value-cell-font-weight: var(--mantine-font-weight-md);
 
         > div {
             outline: 1px dotted var(--color-overlay0);
@@ -29,7 +29,7 @@
     &[data-removing="true"] {
         --value-cell-color: var(--color-base);
         --value-cell-background: var(--color-red);
-        --value-cell-font-weight: var(--font-weight-bold);
+        --value-cell-font-weight: var(--mantine-font-weight-xl);
     }
 
     &[data-last="true"],
@@ -58,7 +58,7 @@
         flex-wrap: wrap;
         align-items: center;
         justify-content: center;
-        border-radius: var(--radius-xxlarge);
+        border-radius: var(--mantine-radius-xl);
         transition-duration: 200ms;
         transition-timing-function: ease-in-out;
         transition-property: color, background-color, filter;

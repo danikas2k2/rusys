@@ -23,7 +23,7 @@ export function VariantsRow({ variant, reordering, hidden = false }: VariantsRow
             data-hidden={hidden}
         >
             <Table.Td>
-                <Title order={6} data-unused={!variant.used}>
+                <Title order={5} data-unused={!variant.used}>
                     <Label>{variant.variant}</Label>
                 </Title>
             </Table.Td>

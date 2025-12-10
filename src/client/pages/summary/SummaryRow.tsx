@@ -18,7 +18,7 @@ export function SummaryRow({ group, name, amounts, hidden = false }: SummaryRowP
     return (
         <Table.Tr data-hidden={hidden}>
             <Table.Td ps="1rem">
-                <Title order={6}>{name}</Title>
+                <Title order={5}>{name}</Title>
             </Table.Td>
             {years.map((year) => (
                 <SummaryCell key={year} group={group} amounts={amounts?.find((y) => y.year === year)?.amounts} />

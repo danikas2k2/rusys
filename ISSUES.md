@@ -1,2 +1,0 @@
-- braukant ant lenteles eilutes ne visada gerai issiskleidzia arba susiskleidzia valdymo mygtukai;
--

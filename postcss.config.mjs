@@ -62,6 +62,9 @@ export default {
         postcssPresetEnv({
             stage: 0,
             enableClientSidePolyfills: false,
+            features: {
+                'custom-properties': false,
+            },
         }),
         autoprefixer(),
     ],

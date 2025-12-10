@@ -9,8 +9,6 @@ describe('theme', () => {
                 primaryColor: 'blue',
                 white: 'var(--color-base)',
                 black: 'var(--color-text)',
-                fontFamily: 'var(--font-family-body)',
-                fontFamilyMonospace: 'var(--font-family-code)',
                 defaultRadius: 'md',
             })
         );

@@ -37,26 +37,28 @@
 
     // Font sizes
 
-    --mantine-font-size-xs: var(--font-size-small);
-    --mantine-font-size-sm: var(--font-size-base);
-    --mantine-font-size-md: var(--font-size-medium);
-    --mantine-font-size-lg: var(--font-size-large);
-    --mantine-font-size-xl: var(--font-size-xlarge);
+    //--mantine-font-size-xs: 0.875rem;
+    //--mantine-font-size-sm: 1rem;
+    //--mantine-font-size-md: 1.125rem;
+    //--mantine-font-size-lg: 1.25rem;
+    //--mantine-font-size-xl: 1.5rem;
+    //--mantine-base-font-size: var(--mantine-font-size-md);
+    --label-fz: var(--mantine-font-size-md);
 
     // Heading font settings
 
-    --mantine-h1-font-size: var(--font-size-base);
-    --mantine-h1-font-weight: var(--font-weight-bold);
-    --mantine-h2-font-size: var(--font-size-base);
-    --mantine-h2-font-weight: var(--font-weight-bold);
-    --mantine-h3-font-size: var(--font-size-base);
-    --mantine-h3-font-weight: var(--font-weight-bold);
-    --mantine-h4-font-size: var(--font-size-base);
-    --mantine-h4-font-weight: var(--font-weight-semi-bold);
-    --mantine-h5-font-size: var(--font-size-base);
-    --mantine-h5-font-weight: var(--font-weight-semi-bold);
-    --mantine-h6-font-size: var(--font-size-base);
-    --mantine-h6-font-weight: var(--font-weight-semi-bold);
+    //--mantine-h1-font-size: var(--font-size-base);
+    //--mantine-h1-font-weight: var(--mantine-font-weight-xl);
+    //--mantine-h2-font-size: var(--font-size-base);
+    //--mantine-h2-font-weight: var(--mantine-font-weight-xl);
+    //--mantine-h3-font-size: var(--font-size-base);
+    //--mantine-h3-font-weight: var(--mantine-font-weight-xl);
+    //--mantine-h4-font-size: var(--font-size-base);
+    //--mantine-h4-font-weight: var(--mantine-font-weight-lg);
+    //--mantine-h5-font-size: var(--font-size-base);
+    //--mantine-h5-font-weight: var(--mantine-font-weight-lg);
+    //--mantine-h6-font-size: var(--mantine-font-size-md);
+    //--mantine-h6-font-weight: var(--mantine-font-weight-lg);
 
     //
     // Safe area insets
@@ -120,13 +122,13 @@ body {
 }
 
 body {
-    font-family: var(--font-family-body), sans-serif;
+    font-family: var(--mantine-font-family), sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-    font-family: var(--font-family-code), monospace;
+    font-family: var(--mantine-font-family-monospace), monospace;
 }
 
 // Prevent iOS zoom on input focus
@@ -141,8 +143,11 @@ select,
 .ui-Textarea-input,
 .ui-Autocomplete-input,
 .ui-MultiSelect-input,
+.ui-Select-option,
+.ui-Button-label,
+.ui-InputWrapper-label,
 .ui-NavLink-label {
-    font-size: var(--font-size-base);
+    font-size: var(--mantine-font-size-md);
 }
 
 .ui-Burger-root {
@@ -172,7 +177,15 @@ select,
 
 .ui-Select-dropdown {
     border-color: var(--color-surface0);
-    box-shadow: var(--shadow-medium);
+    box-shadow: var(--mantine-shadow-md);
+}
+
+.ui-Input-input,
+.ui-Checkbox-input,
+.ui-Select-input {
+    &:disabled {
+        --mantine-color-disabled: var(--color-surface0);
+    }
 }
 
 .ui-SegmentedControl-root {
@@ -192,8 +205,8 @@ select,
 }
 
 .ui-Modal-title {
-    font-size: var(--font-size-large);
-    font-weight: var(--font-weight-semi-bold);
+    font-size: var(--mantine-font-size-lg);
+    font-weight: var(--mantine-font-weight-lg);
 }
 
 .ui-Dropzone-root {
@@ -220,17 +233,23 @@ select,
     }
 }
 
+@property --color-group-title {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #000;
+}
+
 .ui-Table-table {
     --table-border-color: var(--color-mantle);
 
-    font-size: var(--font-size-base);
+    font-size: var(--mantine-font-size-md);
     margin-block-end: 12px;
 
     &[data-drag-overlay='true'] {
         table-layout: fixed;
         width: 100%;
         background-color: var(--color-base);
-        box-shadow: var(--shadow-medium);
+        box-shadow: var(--mantine-shadow-md);
     }
 
     --color-group-title: var(--color-overlay2);
@@ -249,16 +268,25 @@ select,
 }
 
 .ui-Table-th {
-    font-weight: var(--font-weight-normal);
+    font-weight: var(--mantine-font-weight-sm);
 
     &[data-group-title='true'] {
-        font-size: var(--font-size-xlarge);
-        font-weight: var(--font-weight-semi-bold);
-        padding: 1.25rem 0.75rem 0.75rem;
+        font-size: var(--mantine-h2-font-size);
+        font-weight: var(--mantine-font-weight-lg);
+        padding: 1.5rem 0.75rem 0.5rem;
         position: sticky;
-        inset-block-start: 2.25rem;
+        inset-block-start: 2rem;
         z-index: 1;
-        background: var(--color-base) linear-gradient(135deg, color(from var(--color-group-title) srgb r g b / 0%) 30%, color(from var(--color-group-title) srgb r g b / 50%));
+        border-block-end: 1px solid var(--table-border-color);
+        //background-color: var(--color-base);
+
+        transition: --color-group-title 200ms ease-in-out;
+        background: var(--color-base)
+            linear-gradient(
+                150deg,
+                color(from var(--color-group-title) srgb r g b / 0%) 40%,
+                color(from var(--color-group-title) srgb r g b / 30%)
+            );
     }
 }
 
@@ -302,7 +330,7 @@ select,
     z-index: 1;
 
     &, .ui-Table-th, .ui-Table-td {
-        box-shadow: var(--shadow-small);
+        box-shadow: var(--mantine-shadow-sm);
         background-color: var(--color-base);
     }
 }
@@ -310,19 +338,19 @@ select,
 .ui-Title-root{
     &[data-available="false"] {
         color: var(--color-subtext0);
-        font-weight: var(--font-weight-light);
+        font-weight: var(--mantine-font-weight-xs);
     }
 
     &[data-available="true"][data-removing="true"] {
         color: var(--color-red);
-        font-weight: var(--font-weight-bold);
+        font-weight: var(--mantine-font-weight-xl);
         letter-spacing: -0.25px;
         text-decoration: underline dashed 1px;
         text-underline-position: under;
     }
 
     &[data-unused="true"] {
-        font-weight: var(--font-weight-light);
+        font-weight: var(--mantine-font-weight-xs);
         color: var(--color-subtext0);
         text-decoration: underline wavy 1px;
         text-decoration-color: var(--color-red);

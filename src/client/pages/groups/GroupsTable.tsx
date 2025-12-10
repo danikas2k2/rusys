@@ -62,7 +62,7 @@ export function GroupsTable() {
                         <Table.Tr h="3rem">
                             <Table.Th w="10%" />
                             <Table.Th>
-                                <Title order={6}>
+                                <Title order={5}>
                                     <Label>Group</Label>
                                 </Title>
                             </Table.Th>

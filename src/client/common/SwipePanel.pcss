@@ -10,13 +10,13 @@
     align-items: center;
     gap: 0.5rem;
     z-index: 300;
-    border-radius: var(--radius-large) 0 0 var(--radius-large);
+    border-radius: var(--mantine-radius-md) 0 0 var(--mantine-radius-md);
     pointer-events: none;
 
     /* Allow pointer events only on the panel itself */
     > * {
         pointer-events: auto;
-        border-radius: var(--radius-large);
+        border-radius: var(--mantine-radius-md);
     }
 
     &[data-closing="true"] {
@@ -24,6 +24,6 @@
     }
 
     .ui-Button-root {
-        box-shadow: var(--shadow-large);
+        box-shadow: var(--mantine-shadow-lg);
     }
 }

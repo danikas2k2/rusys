@@ -24,6 +24,8 @@ export function ToolbarGroupFilter() {
             data={groupOptions}
             style={{ width: '100%' }}
             allowDeselect
+            withAlignedLabels
+            checkIconPosition="left"
             rightSectionWidth={group ? 60 : 40}
             styles={{
                 input: {

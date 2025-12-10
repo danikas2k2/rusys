@@ -17,7 +17,7 @@ export function GroupsRow({ group, reordering, hidden = false }: GroupsRowProps)
     return (
         <SortableRow id={group.group} data={group} disabled={reordering || hidden} data-hidden={hidden}>
             <Table.Td>
-                <Title order={6}>
+                <Title order={5}>
                     <Label>{group.group}</Label>
                 </Title>
             </Table.Td>
