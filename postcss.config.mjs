@@ -46,13 +46,13 @@ export default {
             },
         }),
         postcssSimpleVars({
-            variables: {
+            /*variables: {
                 'mantine-breakpoint-xs': '36em',
                 'mantine-breakpoint-sm': '48em',
                 'mantine-breakpoint-md': '62em',
                 'mantine-breakpoint-lg': '75em',
                 'mantine-breakpoint-xl': '88em',
-            },
+            },*/
         }),
         postcssDiscardComments({
             removeAll: true,
@@ -61,11 +61,15 @@ export default {
         postcssPresetEnv({
             stage: 0,
             enableClientSidePolyfills: false,
+            // Disable autoprefixing inside preset-env so we don't get legacy flex prefixes
+            autoprefixer: false,
             features: {
                 clamp: false,
                 'custom-properties': false,
             },
         }),
-        autoprefixer(),
+        autoprefixer({
+            overrideBrowserslist: ['defaults', 'not IE 11', 'not op_mini all'],
+        }),
     ],
 };
