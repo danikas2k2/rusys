@@ -1,64 +1,10 @@
 @import "@mantine/core/styles.css";
 @import "@mantine/dropzone/styles.css";
-@import "@ui/theme.pcss";
+@import "./theme.pcss";
 
 :root {
     --toolbar-height: 48px;
-
-    &[data-mantine-color-scheme='light'],
-    &[data-mantine-color-scheme='dark'] {
-        // Base colors
-        --mantine-color-white: var(--color-base);
-        --mantine-color-black: var(--color-text);
-        --mantine-color-body: var(--color-base);
-        --mantine-color-text: var(--color-text);
-
-        // Semantic colors
-        --mantine-color-dimmed: var(--color-subtext0);
-        --mantine-color-bright: var(--color-text);
-        --mantine-color-placeholder: var(--color-subtext0);
-        --mantine-color-anchor: var(--color-blue);
-        --mantine-color-error: var(--color-red);
-
-        // Default variant colors
-        --mantine-color-default: var(--color-surface0);
-        --mantine-color-default-hover: var(--color-surface1);
-        --mantine-color-default-border: var(--color-overlay0);
-        --mantine-color-default-color: var(--color-text);
-
-        // Disabled variant colors
-        --mantine-color-disabled: var(--color-surface0);
-        --mantine-color-disabled-color: var(--color-overlay0);
-
-
-        // Contrast
-        --mantine-primary-color-contrast: var(--color-base);
-    }
-
-    // Font sizes
-
-    //--mantine-font-size-xs: 0.875rem;
-    //--mantine-font-size-sm: 1rem;
-    //--mantine-font-size-md: 1.125rem;
-    //--mantine-font-size-lg: 1.25rem;
-    //--mantine-font-size-xl: 1.5rem;
-    //--mantine-base-font-size: var(--mantine-font-size-md);
     --label-fz: var(--mantine-font-size-md);
-
-    // Heading font settings
-
-    //--mantine-h1-font-size: var(--font-size-base);
-    //--mantine-h1-font-weight: var(--mantine-font-weight-xl);
-    //--mantine-h2-font-size: var(--font-size-base);
-    //--mantine-h2-font-weight: var(--mantine-font-weight-xl);
-    //--mantine-h3-font-size: var(--font-size-base);
-    //--mantine-h3-font-weight: var(--mantine-font-weight-xl);
-    //--mantine-h4-font-size: var(--font-size-base);
-    //--mantine-h4-font-weight: var(--mantine-font-weight-lg);
-    //--mantine-h5-font-size: var(--font-size-base);
-    //--mantine-h5-font-weight: var(--mantine-font-weight-lg);
-    //--mantine-h6-font-size: var(--mantine-font-size-md);
-    //--mantine-h6-font-weight: var(--mantine-font-weight-lg);
 
     //
     // Safe area insets
@@ -115,8 +61,8 @@ html {
 
 html,
 body {
-    color: var(--color-text);
-    background: var(--color-base);
+    color: var(--mantine-color-text);
+    background: var(--mantine-color-body);
     max-width: 100%;
     overflow-x: hidden;
 }
@@ -151,12 +97,12 @@ select,
 }
 
 .ui-Burger-root {
-    --burger-color: var(--color-text);
+    --burger-color: var(--mantine-color-text);
 }
 
 .ui-NavLink-label,
 .ui-Select-dropdown {
-    color: var(--color-text);
+    color: var(--mantine-color-text);
 }
 
 .ui-Avatar-placeholder,
@@ -172,11 +118,11 @@ select,
 .ui-Modal-content,
 .ui-Modal-header,
 .ui-Modal-body {
-    background-color: var(--color-base);
+    background-color: var(--mantine-color-body);
 }
 
 .ui-Select-dropdown {
-    border-color: var(--color-surface0);
+    border-color: var(--mantine-color-dark-0);
     box-shadow: var(--mantine-shadow-md);
 }
 
@@ -184,16 +130,16 @@ select,
 .ui-Checkbox-input,
 .ui-Select-input {
     &:disabled {
-        --mantine-color-disabled: var(--color-surface0);
+        //--mantine-color-disabled: var(--mantine-color-surface0);
     }
 }
 
 .ui-SegmentedControl-root {
-    background-color: var(--color-surface0);
-    border-color: var(--color-surface2);
+    background-color: var(--mantine-color-gray-3);
+    border-color: var(--mantine-color-default-border);
 
     .ui-SegmentedControl-label:not([data-active="true"]) {
-        //color: var(--color-text);
+        //color: var(--mantine-color-text);
         color: inherit;
     }
 }
@@ -211,36 +157,36 @@ select,
 
 .ui-Dropzone-root {
     &:where([data-idle]) {
-        color: var(--color-text);
-        background-color: var(--color-surface0);
-        border-color: var(--color-surface2);
+        color: var(--mantine-color-text);
+        background-color: var(--mantine-color-gray-3);
+        border-color: var(--mantine-color-default-border);
     }
 
     &:where([data-accept]) {
-        --mantine-color-dimmed: color-mix(in srgb, var(--color-green) 30%, var(--color-subtext0) 70%);
+        --mantine-color-dimmed: color-mix(in srgb, var(--mantine-color-green-text) 30%, var(--mantine-color-subtext0) 70%);
 
-        color: var(--color-green);
-        background-color: color-mix(in srgb, var(--color-green) 10%, var(--color-surface0) 90%);
-        border-color: color-mix(in srgb, var(--color-green) 20%, var(--color-surface2) 80%);
+        color: var(--mantine-color-green-text);
+        background-color: color-mix(in srgb, var(--mantine-color-green-filled) 10%, var(--mantine-color-surface0) 90%);
+        border-color: color-mix(in srgb, var(--mantine-color-green-filled) 20%, var(--mantine-color-surface2) 80%);
     }
 
     &:where([data-reject]) {
-        --mantine-color-dimmed: color-mix(in srgb, var(--color-red) 30%, var(--color-subtext0) 70%);
+        --mantine-color-dimmed: color-mix(in srgb, var(--mantine-color-red-text) 30%, var(--mantine-color-subtext0) 70%);
 
-        color: var(--color-red);
-        background-color: color-mix(in srgb, var(--color-red) 10%, var(--color-surface0) 90%);
-        border-color: color-mix(in srgb, var(--color-red) 20%, var(--color-surface2) 80%);
+        color: var(--mantine-color-red-text);
+        background-color: color-mix(in srgb, var(--mantine-color-red-filled) 10%, var(--mantine-color-surface0) 90%);
+        border-color: color-mix(in srgb, var(--mantine-color-red-filled) 20%, var(--mantine-color-surface2) 80%);
     }
 }
 
-@property --color-group-title {
+@property --mantine-color-group-title {
     syntax: '<color>';
     inherits: true;
     initial-value: #000;
 }
 
 .ui-Table-table {
-    --table-border-color: var(--color-mantle);
+    --table-border-color: var(--mantine-color-gray-1);
 
     font-size: var(--mantine-font-size-md);
     margin-block-end: 12px;
@@ -248,21 +194,21 @@ select,
     &[data-drag-overlay='true'] {
         table-layout: fixed;
         width: 100%;
-        background-color: var(--color-base);
+        background-color: var(--mantine-color-body);
         box-shadow: var(--mantine-shadow-md);
     }
 
-    --color-group-title: var(--color-overlay2);
+    --mantine-color-group-title: var(--mantine-color-gray-filled);
 
     &[data-table="product"] {
-        --color-group-title: var(--color-blue);
+        --mantine-color-group-title: var(--mantine-color-blue-filled);
     }
 
     &[data-table="summary"] {
-        --color-group-title: var(--color-green);
+        --mantine-color-group-title: var(--mantine-color-green-filled);
 
         &[data-recycled='true'] {
-            --color-group-title: var(--color-red);
+            --mantine-color-group-title: var(--mantine-color-red-filled);
         }
     }
 }
@@ -278,14 +224,14 @@ select,
         inset-block-start: 2rem;
         z-index: 1;
         border-block-end: 1px solid var(--table-border-color);
-        //background-color: var(--color-base);
+        //background-color: var(--mantine-color-body);
 
-        transition: --color-group-title 200ms ease-in-out;
-        background: var(--color-base)
+        transition: --mantine-color-group-title 200ms ease-in-out;
+        background: var(--mantine-color-body)
             linear-gradient(
                 150deg,
-                color(from var(--color-group-title) srgb r g b / 0%) 40%,
-                color(from var(--color-group-title) srgb r g b / 30%)
+                color(from var(--mantine-color-group-title) srgb r g b / 0%) 40%,
+                color(from var(--mantine-color-group-title) srgb r g b / 30%)
             );
     }
 }
@@ -293,7 +239,7 @@ select,
 .ui-Table-thead {
     position: sticky;
     inset-block-start: 0;
-    background-color: var(--color-base);
+    background-color: var(--mantine-color-body);
 }
 
 .ui-Table-thead,
@@ -331,18 +277,18 @@ select,
 
     &, .ui-Table-th, .ui-Table-td {
         box-shadow: var(--mantine-shadow-sm);
-        background-color: var(--color-base);
+        background-color: var(--mantine-color-body);
     }
 }
 
 .ui-Title-root{
     &[data-available="false"] {
-        color: var(--color-subtext0);
+        color: var(--mantine-color-dark-text);
         font-weight: var(--mantine-font-weight-xs);
     }
 
     &[data-available="true"][data-removing="true"] {
-        color: var(--color-red);
+        color: var(--mantine-color-red-text);
         font-weight: var(--mantine-font-weight-xl);
         letter-spacing: -0.25px;
         text-decoration: underline dashed 1px;
@@ -351,9 +297,9 @@ select,
 
     &[data-unused="true"] {
         font-weight: var(--mantine-font-weight-xs);
-        color: var(--color-subtext0);
+        color: var(--mantine-color-dark-text);
         text-decoration: underline wavy 1px;
-        text-decoration-color: var(--color-red);
+        text-decoration-color: var(--mantine-color-red-text);
         text-underline-position: under;
     }
 }

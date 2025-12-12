@@ -23,8 +23,6 @@ module.exports = {
                     '',
                     '<THIRD_PARTY_MODULES>',
                     '',
-                    '^@ui/',
-                    '',
                     '^~/',
                     '^(?!.*[.]p?css$)[./].*$',
                     '[.]p?css$',

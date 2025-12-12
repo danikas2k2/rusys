@@ -58,22 +58,22 @@
     .footer {
         flex-shrink: 0;
         padding: var(--mantine-spacing-md);
-        background-color: var(--color-base);
+        background-color: var(--mantine-color-body);
     }
 
     .article {
-        --article-color: var(--color-overlay0);
+        --article-color: var(--mantine-color-gray-filled);
 
         &[data-variant="consumed"] {
-            --article-color: var(--color-green);
+            --article-color: var(--mantine-color-green-filled);
         }
 
         &[data-variant="updated"] {
-            --article-color: var(--color-blue);
+            --article-color: var(--mantine-color-blue-filled);
         }
 
         &[data-variant="recycled"] {
-            --article-color: var(--color-red);
+            --article-color: var(--mantine-color-red-filled);
         }
 
         min-height: 0;

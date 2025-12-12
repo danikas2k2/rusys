@@ -7,7 +7,6 @@
         "paths": {
             "package.json": ["./package.json"],
             "@tests/*": ["src/tests/*"],
-            "@ui/*": ["src/ui/*"],
             "~/*": ["src/*"]
         },
         "lib": ["ESNext", "DOM", "DOM.Iterable"],

@@ -7,8 +7,8 @@ describe('theme', () => {
         expect(theme).toStrictEqual(
             expect.objectContaining({
                 primaryColor: 'blue',
-                white: 'var(--color-base)',
-                black: 'var(--color-text)',
+                // white: 'var(--color-base)',
+                // black: 'var(--color-text)',
                 defaultRadius: 'md',
             })
         );

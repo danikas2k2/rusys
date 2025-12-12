@@ -9,26 +9,26 @@
     --value-cell-font-weight: inherit;
 
     &[data-last="true"] {
-        --value-cell-color: var(--color-red);
+        --value-cell-color: var(--mantine-color-red-text);
     }
 
     &[data-empty="true"] {
-        --value-cell-color: var(--color-surface2);
+        --value-cell-color: var(--mantine-color-gray-5);
     }
 
     &[data-preferred="true"] {
-        --value-cell-color: var(--color-strong);
-        --value-cell-background: var(--color-mantle);
+        --value-cell-color: var(--mantine-color-dark-9);
+        --value-cell-background: var(--mantine-color-gray-1);
         --value-cell-font-weight: var(--mantine-font-weight-md);
 
         > div {
-            outline: 1px dotted var(--color-overlay0);
+            outline: 1px dotted var(--mantine-color-gray-filled);
         }
     }
 
     &[data-removing="true"] {
-        --value-cell-color: var(--color-base);
-        --value-cell-background: var(--color-red);
+        --value-cell-color: var(--mantine-color-body);
+        --value-cell-background: var(--mantine-color-red-text);
         --value-cell-font-weight: var(--mantine-font-weight-xl);
     }
 

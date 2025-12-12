@@ -6,7 +6,6 @@ const base: Config = {
         '\\.p?css$': '<rootDir>/jest/__mocks__/styleMock.js',
         '^package.json$': '<rootDir>/package.json',
         '^@tests/(.*)$': '<rootDir>/src/tests/$1',
-        '^@ui/(.*)$': '<rootDir>/src/ui/$1',
         '^~/(.*)$': '<rootDir>/src/$1',
     },
     modulePathIgnorePatterns: ['<rootDir>/src/.*?\\.d\\.ts$', '<rootDir>/src/.*?/types\\.ts$'],

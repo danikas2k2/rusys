@@ -15,7 +15,6 @@ const require = createRequire(import.meta.url);
 const alias = {
     '~': path.resolve(__dirname, './src'),
     '@tests': path.resolve(__dirname, './src/tests'),
-    '@ui': path.resolve(__dirname, './src/ui'),
 };
 
 const expr = new RegExp(`^(${Object.keys(alias).join('|')})/`);
@@ -63,6 +62,7 @@ export default {
             stage: 0,
             enableClientSidePolyfills: false,
             features: {
+                clamp: false,
                 'custom-properties': false,
             },
         }),

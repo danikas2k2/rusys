@@ -54,7 +54,6 @@ export function buildServer(): Plugin {
                     alias: {
                         '~': path.resolve(process.cwd(), './src'),
                         '@tests': path.resolve(process.cwd(), './src/tests'),
-                        '@ui': path.resolve(process.cwd(), './src/ui'),
                     },
                     extensions: ['.jsx', '.js', '.tsx', '.ts'],
                 },

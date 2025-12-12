@@ -43,7 +43,6 @@ export default defineConfig(({ mode }) => {
             alias: {
                 '~': path.resolve(__dirname, './src'),
                 '@tests': path.resolve(__dirname, './src/tests'),
-                '@ui': path.resolve(__dirname, './src/ui'),
                 'package.json': path.resolve(__dirname, './package.json'),
             },
             extensions: ['.jsx', '.js', '.tsx', '.ts', '.pcss', '.css', '.svg'],
