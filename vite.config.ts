@@ -11,7 +11,7 @@ import { generatePackageJson } from './vite/plugins/generate-package-json';
 
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
-    const isProduction = mode === 'production';
+
     return {
         root: process.cwd(),
         publicDir: 'public',
@@ -24,15 +24,25 @@ export default defineConfig(({ mode }) => {
                 jsxRuntime: 'automatic',
                 jsxImportSource: 'react',
                 babel: {
-                    plugins: [['babel-plugin-react-compiler', {}]],
+                    plugins: [
+                        ['babel-plugin-react-compiler', { target: '19', development }],
+                        ...(development
+                            ? []
+                            : [
+                                  [
+                                      '@babel/plugin-transform-react-jsx',
+                                      { runtime: 'automatic', importSource: 'react', development },
+                                  ],
+                              ]),
+                    ],
                 },
             }),
             svgr({
                 svgrOptions: {},
             }),
             generatePackageJson(),
-            ...(isProduction ? [buildServer()] : []),
-            ...(isProduction && process.env.DEPLOY ? [deploy()] : []),
+            ...(development ? [] : [buildServer()]),
+            ...(development || !process.env.DEPLOY ? [] : [deploy()]),
         ],
         define: {
             'process.env.LOCALE': JSON.stringify('lt-LT'),
@@ -56,16 +66,12 @@ export default defineConfig(({ mode }) => {
             sourcemap: true,
             minify: 'esbuild',
             cssCodeSplit: true, // emit CSS as real style assets, not JS-injected
-            assetsDir: 'assets',
             rollupOptions: {
                 input: path.resolve(__dirname, 'public/index.html'),
                 output: {
-                    entryFileNames: 'assets/[name].js',
-                    chunkFileNames: 'assets/[name].js',
-                    assetFileNames: (assetInfo) =>
-                        assetInfo.name && assetInfo.name.endsWith('.css')
-                            ? 'assets/[name].[ext]'
-                            : 'assets/[name].[ext]',
+                    entryFileNames: '[name].js',
+                    chunkFileNames: '[name].js',
+                    assetFileNames: '[name].[ext]',
                     manualChunks: {
                         react: ['react', 'react-dom'],
                         router: ['react-router', 'react-router-dom'],
