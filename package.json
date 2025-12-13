@@ -118,6 +118,8 @@
         "@typescript-eslint/parser": "^8.49.0",
         "@vitejs/plugin-react": "^5.1.2",
         "autoprefixer": "^10.4.22",
+        "@csstools/postcss-relative-color-syntax": "^3.0.12",
+        "postcss-scss": "^4.0.9",
         "babel-plugin-react-compiler": "^1.0.0",
         "classnames": "^2.5.1",
         "csstype": "^3.2.3",

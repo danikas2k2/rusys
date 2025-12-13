@@ -10,47 +10,24 @@
     // Safe area insets
     //
 
-    // default
-
-    /* noinspection CssOverwrittenProperties */
     --safe-block-start: 0;
-
-    /* noinspection CssOverwrittenProperties */
     --safe-block-end: 0;
-
-    /* noinspection CssOverwrittenProperties */
     --safe-inline-start: 0;
-
-    /* noinspection CssOverwrittenProperties */
     --safe-inline-end: 0;
 
-    // constant function
+    @supports (top: constant(safe-area-inset-top)) {
+        --safe-block-start: constant(safe-area-inset-top);
+        --safe-block-end: constant(safe-area-inset-bottom);
+        --safe-inline-start: constant(safe-area-inset-left);
+        --safe-inline-end: constant(safe-area-inset-right);
+    }
 
-    /* noinspection CssOverwrittenProperties,CssInvalidFunction,Stylelint */
-    --safe-block-start: constant(safe-area-inset-top);
-
-    /* noinspection CssOverwrittenProperties,CssInvalidFunction,Stylelint */
-    --safe-block-end: constant(safe-area-inset-bottom);
-
-    /* noinspection CssOverwrittenProperties,CssInvalidFunction,Stylelint */
-    --safe-inline-start: constant(safe-area-inset-left);
-
-    /* noinspection CssOverwrittenProperties,CssInvalidFunction,Stylelint */
-    --safe-inline-end: constant(safe-area-inset-right);
-
-    // env function
-
-    /* noinspection CssOverwrittenProperties,Stylelint */
-    --safe-block-start: env(safe-area-inset-top);
-
-    /* noinspection CssOverwrittenProperties,Stylelint */
-    --safe-block-end: env(safe-area-inset-bottom);
-
-    /* noinspection CssOverwrittenProperties,Stylelint */
-    --safe-inline-start: env(safe-area-inset-left);
-
-    /* noinspection CssOverwrittenProperties,Stylelint */
-    --safe-inline-end: env(safe-area-inset-right);
+    @supports (top: env(safe-area-inset-top)) {
+        --safe-block-start: env(safe-area-inset-top);
+        --safe-block-end: env(safe-area-inset-bottom);
+        --safe-inline-start: env(safe-area-inset-left);
+        --safe-inline-end: env(safe-area-inset-right);
+    }
 }
 
 html {

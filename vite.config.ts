@@ -55,12 +55,17 @@ export default defineConfig(({ mode }) => {
             emptyOutDir: false, // Don't clear dist since server.js is there
             sourcemap: true,
             minify: 'esbuild',
+            cssCodeSplit: true, // emit CSS as real style assets, not JS-injected
+            assetsDir: 'assets',
             rollupOptions: {
                 input: path.resolve(__dirname, 'public/index.html'),
                 output: {
-                    entryFileNames: 'app.js',
-                    chunkFileNames: '[name].js',
-                    assetFileNames: '[name].[ext]',
+                    entryFileNames: 'assets/[name].js',
+                    chunkFileNames: 'assets/[name].js',
+                    assetFileNames: (assetInfo) =>
+                        assetInfo.name && assetInfo.name.endsWith('.css')
+                            ? 'assets/[name].[ext]'
+                            : 'assets/[name].[ext]',
                     manualChunks: {
                         react: ['react', 'react-dom'],
                         router: ['react-router', 'react-router-dom'],
