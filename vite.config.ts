@@ -75,6 +75,9 @@ export default defineConfig(({ mode }) => {
                     manualChunks: {
                         react: ['react', 'react-dom'],
                         router: ['react-router', 'react-router-dom'],
+                        mantine: ['@mantine/core', '@mantine/hooks', '@mantine/dropzone'],
+                        tabler: ['@tabler/icons-react'],
+                        'dnd-kit': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/modifiers'],
                     },
                 },
             },
@@ -96,7 +99,19 @@ export default defineConfig(({ mode }) => {
             },
         },
         optimizeDeps: {
-            include: ['react', 'react-dom', 'react-router', 'react-router-dom'],
+            include: [
+                'react',
+                'react-dom',
+                'react-router',
+                'react-router-dom',
+                '@mantine/core',
+                '@mantine/hooks',
+                '@mantine/dropzone',
+                '@tabler/icons-react',
+                '@dnd-kit/core',
+                '@dnd-kit/sortable',
+                '@dnd-kit/modifiers',
+            ],
         },
     };
 });
