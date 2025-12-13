@@ -1,6 +1,7 @@
 import path from 'node:path';
 
 import react from '@vitejs/plugin-react';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
@@ -55,6 +56,7 @@ export default defineConfig(({ mode }) => {
                 '@tests': path.resolve(__dirname, './src/tests'),
                 'package.json': path.resolve(__dirname, './package.json'),
             },
+            dedupe: ['react', 'react-dom'],
             extensions: ['.jsx', '.js', '.tsx', '.ts', '.pcss', '.css', '.svg'],
         },
         css: {
@@ -72,14 +74,60 @@ export default defineConfig(({ mode }) => {
                     entryFileNames: '[name].js',
                     chunkFileNames: '[name].js',
                     assetFileNames: '[name].[ext]',
-                    manualChunks: {
-                        react: ['react', 'react-dom'],
-                        router: ['react-router', 'react-router-dom'],
-                        mantine: ['@mantine/core', '@mantine/hooks', '@mantine/dropzone'],
-                        tabler: ['@tabler/icons-react'],
-                        'dnd-kit': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/modifiers'],
+                    manualChunks(id) {
+                        if (!id.includes('node_modules')) return undefined;
+
+                        if (
+                            id.includes('react/jsx-runtime') ||
+                            id.includes('react/jsx-dev-runtime') ||
+                            id.includes('react-compiler-runtime') ||
+                            id.includes('react-dom') ||
+                            id.includes('scheduler') ||
+                            id.includes('react-number-format') ||
+                            /[/\\]react[/\\]cjs[/\\]/.test(id)
+                        ) {
+                            return 'react';
+                        }
+
+                        if (id.includes('react-router')) return 'router';
+
+                        if (
+                            id.includes('@reduxjs/toolkit') ||
+                            id.includes('react-redux') ||
+                            /[/\\]redux[/\\]/.test(id) ||
+                            /[/\\]immer[/\\]/.test(id)
+                        ) {
+                            return 'redux';
+                        }
+
+                        if (id.includes('@mantine') || id.includes('@floating-ui')) {
+                            return 'mantine';
+                        }
+
+                        if (id.includes('@tabler/icons-react')) return 'tabler';
+                        if (id.includes('@dnd-kit')) return 'dnd-kit';
+                        if (id.includes('axios')) return 'axios';
+                        if (id.includes('lodash')) return 'lodash';
+                        if (id.includes('transliteration')) return 'translit';
+                        if (id.includes('react-dropzone') || id.includes('file-selector')) return 'dropzone';
+
+                        return undefined;
                     },
                 },
+                plugins: [
+                    visualizer({
+                        template: 'treemap',
+                        gzipSize: true,
+                        brotliSize: true,
+                        filename: 'dist/public/stats.html',
+                    }),
+                    visualizer({
+                        template: 'raw-data',
+                        gzipSize: true,
+                        brotliSize: true,
+                        filename: 'dist/public/stats.json',
+                    }),
+                ],
             },
         },
         server: {
@@ -102,8 +150,15 @@ export default defineConfig(({ mode }) => {
             include: [
                 'react',
                 'react-dom',
+                'react/jsx-runtime',
+                'react/jsx-dev-runtime',
                 'react-router',
                 'react-router-dom',
+                '@reduxjs/toolkit',
+                'react-redux',
+                'redux',
+                'immer',
+                'axios',
                 '@mantine/core',
                 '@mantine/hooks',
                 '@mantine/dropzone',
@@ -111,6 +166,7 @@ export default defineConfig(({ mode }) => {
                 '@dnd-kit/core',
                 '@dnd-kit/sortable',
                 '@dnd-kit/modifiers',
+                '@dnd-kit/utilities',
             ],
         },
     };
