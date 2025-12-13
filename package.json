@@ -19,7 +19,7 @@
     },
     "scripts": {
         "start": "cd dist && node server.js",
-        "start:local": "dotenv -e .env.production.local -- pnpm start",
+        "start:local": "dotenv -e .env.prod.local -- pnpm start",
         "build": "dotenv -e .env.build.local -- vite build",
         "build:safe": "pnpm check && pnpm build",
         "dev": "dotenv -e .env.local -- npm-run-all --parallel dev:server dev:client",
@@ -84,6 +84,7 @@
     },
     "devDependencies": {
         "@babel/preset-react": "^7.28.5",
+        "@babel/plugin-transform-react-jsx": "^7.27.1",
         "@babel/preset-typescript": "^7.28.5",
         "@catppuccin/palette": "^1.7.1",
         "@css-modules-kit/stylelint-plugin": "^0.4.0",

@@ -27,7 +27,7 @@ export function bootstrap(): void {
                     withGlobalClasses = true,
                     withStaticClasses = true,
                     getRootElement = () => document.documentElement,
-                  */
+                    */
                 >
                     <App />
                 </MantineProvider>

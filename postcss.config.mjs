@@ -85,7 +85,8 @@ export default {
                 // 'custom-properties': { preserve: false },
                 // 'color-mix': { preserve: false },
                 // 'color-functional-notation': { preserve: false },
-                'relative-color-syntax': false,
+                'light-dark-function': false,
+                // 'relative-color-syntax': false,
             },
         }),
         relativeColorSyntax({

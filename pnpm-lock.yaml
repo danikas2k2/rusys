@@ -106,6 +106,9 @@ importers:
         specifier: ^2.3.5
         version: 2.3.5
     devDependencies:
+      '@babel/plugin-transform-react-jsx':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.28.5)
       '@babel/preset-react':
         specifier: ^7.28.5
         version: 7.28.5(@babel/core@7.28.5)
