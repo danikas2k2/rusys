@@ -21,9 +21,16 @@ export function buildServer(): Plugin {
                         fileName: () => 'server.js',
                     },
                     outDir: 'dist',
-                    emptyOutDir: false, // Don't clear dist since public files are there
-                    sourcemap: true,
-                    minify: 'esbuild',
+                    sourcemap: false,
+                    minify: 'terser',
+                    terserOptions: {
+                        compress: true,
+                        mangle: true,
+                        format: {
+                            comments: false,
+                        },
+                    },
+                    treeshake: true,
                     target: 'node24',
                     rollupOptions: {
                         external: [

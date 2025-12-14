@@ -64,9 +64,18 @@ export default defineConfig(({ mode }) => {
         },
         build: {
             outDir: 'dist/public',
-            emptyOutDir: false, // Don't clear dist since server.js is there
-            sourcemap: true,
-            minify: 'esbuild',
+            emptyOutDir: true,
+            sourcemap: false,
+            // minify: 'esbuild',
+            minify: 'terser',
+            terserOptions: {
+                compress: true,
+                mangle: true,
+                format: {
+                    comments: false,
+                },
+            },
+            treeshake: true,
             cssCodeSplit: true, // emit CSS as real style assets, not JS-injected
             rollupOptions: {
                 input: path.resolve(__dirname, 'public/index.html'),
@@ -75,45 +84,104 @@ export default defineConfig(({ mode }) => {
                     chunkFileNames: '[name].js',
                     assetFileNames: '[name].[ext]',
                     manualChunks(id) {
-                        if (!id.includes('node_modules')) return undefined;
-                        if (id.includes('react-router')) return 'router';
+                        let pos = id.indexOf('node_modules/');
+                        if (pos < 0) {
+                            return undefined;
+                        }
 
+                        // cut to node_modules/
+                        let pkg = id.substring(pos + 'node_modules/'.length);
+
+                        // cut to .pnpm/
+                        pos = pkg.indexOf('.pnpm/');
+                        if (pos >= 0) {
+                            pkg = pkg.substring(pos + '.pnpm/'.length);
+                        }
+
+                        // cut versions after @
+                        pos = pkg.indexOf('@', 1);
+                        if (pos > 0) {
+                            pkg = pkg.substring(0, pos);
+                        }
+
+                        // replace plus with slash for scoped packages
+                        pkg = pkg.replaceAll('+', '/');
+
+                        // react and related
                         if (
-                            id.includes('react/jsx-runtime') ||
-                            id.includes('react/jsx-dev-runtime') ||
-                            id.includes('react-compiler-runtime') ||
-                            id.includes('react-dom') ||
-                            id.includes('scheduler') ||
-                            id.includes('react-number-format') ||
-                            /[/\\]react[/\\]cjs[/\\]/.test(id)
+                            pkg === 'react' ||
+                            pkg.startsWith('react/') ||
+                            pkg.startsWith('react-dom') ||
+                            pkg.startsWith('react-router') ||
+                            pkg === 'react-compiler-runtime' ||
+                            pkg === 'react-number-format' ||
+                            pkg === 'scheduler' ||
+                            pkg === 'cookie' ||
+                            pkg === 'set-cookie-parser' ||
+                            pkg.includes('redux') ||
+                            pkg === 'reselect' ||
+                            pkg === 'immer' ||
+                            pkg === 'use-sync-external-store'
                         ) {
                             return 'react';
                         }
 
+                        // mantine and related
                         if (
-                            id.includes('@reduxjs/toolkit') ||
-                            id.includes('react-redux') ||
-                            /[/\\]redux[/\\]/.test(id) ||
-                            /[/\\]immer[/\\]/.test(id)
+                            pkg.startsWith('@mantine/') ||
+                            pkg.startsWith('@tabler/') ||
+                            pkg.startsWith('@floating-ui/') ||
+                            pkg.startsWith('react-remove-scroll') ||
+                            pkg === 'react-textarea-autosize' ||
+                            pkg === 'react-style-singleton' ||
+                            pkg === 'react-dropzone' ||
+                            pkg === 'file-selector' ||
+                            pkg === 'detect-node-es' ||
+                            pkg === 'get-nonce' ||
+                            pkg === 'use-latest' ||
+                            pkg === 'use-sidecar' ||
+                            pkg === 'use-composed-ref' ||
+                            pkg === 'use-callback-ref' ||
+                            pkg === 'use-isomorphic-layout-effect' ||
+                            pkg === 'tabbable' ||
+                            pkg === 'clsx' ||
+                            pkg === 'klona' ||
+                            pkg === 'attr-accept'
                         ) {
-                            return 'redux';
-                        }
-
-                        if (id.includes('@mantine') || id.includes('@floating-ui')) {
                             return 'mantine';
                         }
 
-                        if (id.includes('react-dropzone') || id.includes('file-selector')) {
-                            return 'dropzone';
+                        // dnd-kit
+                        if (pkg.startsWith('@dnd-kit/')) {
+                            return 'dnd-kit';
                         }
 
-                        if (id.includes('@tabler/icons-react')) return 'tabler';
-                        if (id.includes('@dnd-kit')) return 'dnd-kit';
-                        if (id.includes('axios')) return 'axios';
-                        if (id.includes('lodash')) return 'lodash';
-                        if (id.includes('transliteration')) return 'translit';
+                        // axios
+                        if (pkg === 'axios') {
+                            return 'axios';
+                        }
 
-                        return undefined;
+                        // translit
+                        if (pkg === 'transliteration') {
+                            return 'translit';
+                        }
+
+                        // runtime
+                        if (
+                            pkg === 'lodash' ||
+                            pkg === 'tslib' ||
+                            pkg === 'prop-types' ||
+                            pkg === 'fast-deep-equal' ||
+                            pkg === 'jwt-decode' ||
+                            pkg.startsWith('@babel/') ||
+                            pkg.startsWith('@react-oauth/')
+                        ) {
+                            return 'runtime';
+                        }
+
+                        console.warn(`[VITE] unresolved package "${pkg}" from "${id}"\n`);
+
+                        return 'other';
                     },
                 },
                 plugins: [
