@@ -76,6 +76,7 @@ export default defineConfig(({ mode }) => {
                     assetFileNames: '[name].[ext]',
                     manualChunks(id) {
                         if (!id.includes('node_modules')) return undefined;
+                        if (id.includes('react-router')) return 'router';
 
                         if (
                             id.includes('react/jsx-runtime') ||
@@ -88,8 +89,6 @@ export default defineConfig(({ mode }) => {
                         ) {
                             return 'react';
                         }
-
-                        if (id.includes('react-router')) return 'router';
 
                         if (
                             id.includes('@reduxjs/toolkit') ||
@@ -104,12 +103,15 @@ export default defineConfig(({ mode }) => {
                             return 'mantine';
                         }
 
+                        if (id.includes('react-dropzone') || id.includes('file-selector')) {
+                            return 'dropzone';
+                        }
+
                         if (id.includes('@tabler/icons-react')) return 'tabler';
                         if (id.includes('@dnd-kit')) return 'dnd-kit';
                         if (id.includes('axios')) return 'axios';
                         if (id.includes('lodash')) return 'lodash';
                         if (id.includes('transliteration')) return 'translit';
-                        if (id.includes('react-dropzone') || id.includes('file-selector')) return 'dropzone';
 
                         return undefined;
                     },
