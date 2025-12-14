@@ -107,74 +107,68 @@ export default defineConfig(({ mode }) => {
                         // replace plus with slash for scoped packages
                         pkg = pkg.replaceAll('+', '/');
 
-                        // react and related
                         if (
                             pkg === 'react' ||
                             pkg.startsWith('react/') ||
                             pkg.startsWith('react-dom') ||
                             pkg.startsWith('react-router') ||
-                            pkg === 'react-compiler-runtime' ||
-                            pkg === 'react-number-format' ||
-                            pkg === 'scheduler' ||
+                            pkg.includes('redux') ||
                             pkg === 'cookie' ||
                             pkg === 'set-cookie-parser' ||
-                            pkg.includes('redux') ||
-                            pkg === 'reselect' ||
                             pkg === 'immer' ||
-                            pkg === 'use-sync-external-store'
+                            pkg === 'react-compiler-runtime' ||
+                            pkg === 'react-number-format' ||
+                            pkg === 'reselect' ||
+                            pkg === 'scheduler' ||
+                            pkg === 'use-sync-external-store' ||
+                            pkg.startsWith('@react-oauth/')
                         ) {
                             return 'react';
                         }
 
-                        // mantine and related
                         if (
                             pkg.startsWith('@mantine/') ||
                             pkg.startsWith('@tabler/') ||
-                            pkg.startsWith('@floating-ui/') ||
-                            pkg.startsWith('react-remove-scroll') ||
-                            pkg === 'react-textarea-autosize' ||
-                            pkg === 'react-style-singleton' ||
-                            pkg === 'react-dropzone' ||
-                            pkg === 'file-selector' ||
-                            pkg === 'detect-node-es' ||
-                            pkg === 'get-nonce' ||
-                            pkg === 'use-latest' ||
-                            pkg === 'use-sidecar' ||
-                            pkg === 'use-composed-ref' ||
-                            pkg === 'use-callback-ref' ||
-                            pkg === 'use-isomorphic-layout-effect' ||
-                            pkg === 'tabbable' ||
-                            pkg === 'clsx' ||
-                            pkg === 'klona' ||
-                            pkg === 'attr-accept'
+                            pkg.startsWith('@floating-ui/')
                         ) {
                             return 'mantine';
                         }
 
-                        // dnd-kit
                         if (pkg.startsWith('@dnd-kit/')) {
                             return 'dnd-kit';
                         }
 
-                        // axios
                         if (pkg === 'axios') {
                             return 'axios';
                         }
 
-                        // translit
                         if (pkg === 'transliteration') {
                             return 'translit';
                         }
 
-                        // runtime
                         if (
-                            pkg === 'lodash' ||
-                            pkg === 'tslib' ||
-                            pkg === 'prop-types' ||
-                            pkg === 'fast-deep-equal' ||
-                            pkg === 'jwt-decode' ||
                             pkg.startsWith('@babel/') ||
-                            pkg.startsWith('@react-oauth/')
+                            pkg.startsWith('react-remove-scroll') ||
+                            pkg === 'attr-accept' ||
+                            pkg === 'clsx' ||
+                            pkg === 'detect-node-es' ||
+                            pkg === 'fast-deep-equal' ||
+                            pkg === 'file-selector' ||
+                            pkg === 'get-nonce' ||
+                            pkg === 'jwt-decode' ||
+                            pkg === 'klona' ||
+                            pkg === 'lodash' ||
+                            pkg === 'prop-types' ||
+                            pkg === 'react-dropzone' ||
+                            pkg === 'react-style-singleton' ||
+                            pkg === 'react-textarea-autosize' ||
+                            pkg === 'tabbable' ||
+                            pkg === 'tslib' ||
+                            pkg === 'use-callback-ref' ||
+                            pkg === 'use-composed-ref' ||
+                            pkg === 'use-isomorphic-layout-effect' ||
+                            pkg === 'use-latest' ||
+                            pkg === 'use-sidecar'
                         ) {
                             return 'runtime';
                         }
