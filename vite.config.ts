@@ -1,7 +1,6 @@
 import path from 'node:path';
 
 import react from '@vitejs/plugin-react';
-import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
@@ -177,20 +176,6 @@ export default defineConfig(({ mode }) => {
                         return 'other';
                     },
                 },
-                plugins: [
-                    visualizer({
-                        template: 'treemap',
-                        gzipSize: true,
-                        brotliSize: true,
-                        filename: 'dist/public/stats.html',
-                    }),
-                    visualizer({
-                        template: 'raw-data',
-                        gzipSize: true,
-                        brotliSize: true,
-                        filename: 'dist/public/stats.json',
-                    }),
-                ],
             },
         },
         server: {
