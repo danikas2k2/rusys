@@ -1,6 +1,7 @@
 import path from 'node:path';
 
 import react from '@vitejs/plugin-react';
+import type { MinifyOptions } from 'terser';
 import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
@@ -72,7 +73,7 @@ export default defineConfig(({ mode }) => {
                 format: {
                     comments: false,
                 },
-            },
+            } satisfies MinifyOptions,
             treeshake: true,
             cssCodeSplit: true, // emit CSS as real style assets, not JS-injected
             rollupOptions: {
