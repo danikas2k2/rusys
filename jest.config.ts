@@ -19,9 +19,13 @@ const base: Config = {
     ],
     transform: {
         '\\.[jt]sx?$': [
-            'esbuild-jest',
+            'babel-jest',
             {
-                sourcemap: true,
+                presets: [
+                    ['@babel/preset-env', { targets: { node: 'current' }, modules: 'commonjs' }],
+                    ['@babel/preset-react', { runtime: 'automatic', importSource: 'react' }],
+                    '@babel/preset-typescript',
+                ],
             },
         ],
         '\\.svg': 'jest-transformer-svg',

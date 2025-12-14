@@ -51,7 +51,7 @@ describe('<ProductTitle>', () => {
         renderTitle(products[0]);
 
         expect(screen.getByRole('checkbox')).toBeEnabled().toBeChecked();
-        expect(screen.getByRole('heading', { level: 6 })).toHaveAttribute('data-available', 'true');
+        expect(screen.getByRole('heading', { level: 5 })).toHaveAttribute('data-available', 'true');
     });
 
     it('renders missing product checkbox as unchecked', () => {
@@ -64,7 +64,7 @@ describe('<ProductTitle>', () => {
         renderTitle({ ...products[0], years: [] });
 
         expect(screen.getByRole('checkbox')).toBeDisabled().toBePartiallyChecked();
-        expect(screen.getByRole('heading', { level: 6 })).toHaveAttribute('data-available', 'false');
+        expect(screen.getByRole('heading', { level: 5 })).toHaveAttribute('data-available', 'false');
     });
 
     it('marks removing state when any year is removing', () => {
@@ -73,7 +73,7 @@ describe('<ProductTitle>', () => {
             years: [{ year: years[0], removing: true, amounts: [{ variant: 'p', amount: 1 }] }],
         });
 
-        expect(screen.getByRole('heading', { level: 6 })).toHaveAttribute('data-removing', 'true');
+        expect(screen.getByRole('heading', { level: 5 })).toHaveAttribute('data-removing', 'true');
     });
 
     it('calls setMissing on toggle when available', async () => {
