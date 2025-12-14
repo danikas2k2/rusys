@@ -4,14 +4,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { isEqual } from 'lodash';
-
 import { useVariants } from '~/client/state/variants/useVariants';
-
-jest.mock('lodash', () => ({
-    ...jest.requireActual('lodash'),
-    isEqual: jest.fn(() => true),
-}));
 
 describe('useVariants', () => {
     const variants = getVariantsFixture();
@@ -30,13 +23,5 @@ describe('useVariants', () => {
         const { result } = renderHook(() => useVariants(), { wrapper: MockRedux });
 
         expect(result.current).toStrictEqual([]);
-    });
-
-    it('uses isEqual for deep comparison', () => {
-        renderHook(() => useVariants(), {
-            wrapper: ({ children }) => <MockRedux state={{ variants }}>{children}</MockRedux>,
-        });
-
-        expect(isEqual).toHaveBeenCalledWith(variants, variants);
     });
 });

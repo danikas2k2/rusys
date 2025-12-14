@@ -4,14 +4,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { isEqual } from 'lodash';
-
 import { useGroupVariants } from '~/client/state/variants/useGroupVariants';
-
-jest.mock('lodash', () => ({
-    ...jest.requireActual('lodash'),
-    isEqual: jest.fn(() => true),
-}));
 
 describe('useGroupVariants', () => {
     const variants = getVariantsFixture();
@@ -46,13 +39,5 @@ describe('useGroupVariants', () => {
         const { result } = renderHook(() => useGroupVariants('Uogienės'), { wrapper: MockRedux });
 
         expect(result.current).toStrictEqual([]);
-    });
-
-    it('uses isEqual for deep comparison', () => {
-        renderHook(() => useGroupVariants('Daržovės'), {
-            wrapper: ({ children }) => <MockRedux state={{ variants }}>{children}</MockRedux>,
-        });
-
-        expect(isEqual).toHaveBeenCalledWith(variants.slice(5), variants.slice(5));
     });
 });

@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 
-import { isEqual } from 'lodash';
+import equal from 'fast-deep-equal/es6/react';
 
 import { DEV_MODE_PROFILE } from '~/client/state/profile/dev';
 import type { Profile, WithProfileState } from '~/client/state/profile/types';
@@ -10,7 +10,7 @@ import { isDevMode } from '~/common/utils/env';
 export function useProfile(): Profile {
     const setProfile = useSetProfile();
     const dev = isDevMode();
-    let profile = useSelector((state: WithProfileState) => state.profile ?? {}, isEqual);
+    let profile = useSelector((state: WithProfileState) => state.profile ?? {}, equal);
     if (!profile.sub) {
         profile = JSON.parse(localStorage.getItem('profile') ?? '{}') ?? {};
         if (!profile.sub && dev) {

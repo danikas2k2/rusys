@@ -1,10 +1,9 @@
 import { useSelector } from 'react-redux';
 
-import { isEqual } from 'lodash';
+import equal from 'fast-deep-equal/es6/react';
 
 import type { WithGroupsState } from '~/client/state/groups/types';
 import type { Group } from '~/types/data';
 
-export function useGroup(group: string): Readonly<Group> | undefined {
-    return useSelector((state: WithGroupsState) => state.groups?.find((g) => g.group === group), isEqual);
-}
+export const useGroup = (group: string): Readonly<Group> | undefined =>
+    useSelector((state: WithGroupsState) => state.groups?.find((g) => g.group === group), equal);

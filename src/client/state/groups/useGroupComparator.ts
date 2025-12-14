@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
-import { isEqual } from 'lodash';
+import equal from 'fast-deep-equal/es6/react';
 
 import type { WithGroupsState } from '~/client/state/groups/types';
 import { compareNames } from '~/client/utils/compareNames';
@@ -10,7 +10,7 @@ export function useGroupComparator(): (a: string, b: string) => number {
     const groupOrders = useSelector(
         (state: WithGroupsState) =>
             state.groups?.reduce<Record<string, number>>((r, { group, order }) => ({ ...r, [group]: order }), {}) ?? {},
-        isEqual
+        equal
     );
     return useCallback(
         (a: string, b: string): number =>

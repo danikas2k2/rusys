@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
-import { isEqual } from 'lodash';
+import equal from 'fast-deep-equal/es6/react';
 
 import type { WithVariantsState } from '~/client/state/variants/types';
 import { compareNames } from '~/client/utils/compareNames';
@@ -13,7 +13,7 @@ export function useVariantComparator(): (group: string) => (a: string, b: string
                 (r, { group, variant, order }) => ({ ...r, [group]: { ...r[group], [variant]: order } }),
                 {}
             ) ?? {},
-        isEqual
+        equal
     );
     return useCallback(
         (group: string) =>
