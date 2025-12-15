@@ -5,12 +5,13 @@
         <title>Rūsys</title>
         <meta name="apple-mobile-web-app-title" content="Rūsys" />
         <meta name="description" content="Rūsio tūrinio apskaita" />
-        <link rel="manifest" href="/manifest.json" />
         <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-touch-fullscreen" content="yes" />
+        <meta name="color-scheme" content="light dark" />
+        <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/logo.svg" />
@@ -29,13 +30,78 @@
         <meta name="msapplication-TileColor" content="#1e1e2e" media="(prefers-color-scheme: dark)" />
         <meta name="theme-color" content="#eff1f5" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#1e1e2e" media="(prefers-color-scheme: dark)" />
-        <link rel="preconnect" href="//fonts.googleapis.com" />
-        <link rel="preconnect" href="//fonts.gstatic.com" crossorigin />
-        <link
-            rel="stylesheet"
-            href="//fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100;200;300;400;500;600;700;800;900&family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        />
-        <link rel="stylesheet" href="/loader.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <style>
+            :root {
+                --color-text: #4c4f69;
+                --color-base: #eff1f5;
+                --color-blue: #1e66f5;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --color-text: #cdd6f4;
+                    --color-base: #1e1e2e;
+                    --color-blue: #89b4fa;
+                }
+            }
+
+            html,
+            body {
+                color: var(--color-text);
+                background: var(--color-base);
+            }
+
+            .loader {
+                --loader-color: var(--color-blue);
+                --loader-size: 2.75rem;
+
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: fixed;
+                width: var(--loader-size);
+                height: var(--loader-size);
+                inset: 0;
+                margin: auto;
+                gap: calc(var(--loader-size) / 5);
+            }
+
+            .loader span {
+                display: block;
+                width: 20%;
+                height: 100%;
+                background: var(--loader-color);
+                border-radius: 0.125rem;
+                animation: loader-bars 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+                flex: 1;
+            }
+
+            .loader span:nth-child(1) {
+                animation-delay: -240ms;
+            }
+
+            .loader span:nth-child(2) {
+                animation-delay: -120ms;
+            }
+
+            .loader span:nth-child(3) {
+                animation-delay: 0s;
+            }
+
+            @keyframes loader-bars {
+                0% {
+                    transform: scale(0.6);
+                    opacity: 0;
+                }
+
+                50%,
+                100% {
+                    transform: scale(1);
+                }
+            }
+        </style>
         <script>
             (function () {
                 document.documentElement.setAttribute(
@@ -48,7 +114,7 @@
     <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
         <div id="root">
-            <div class="Loader">
+            <div class="loader">
                 <span></span>
                 <span></span>
                 <span></span>
