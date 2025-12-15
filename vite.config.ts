@@ -20,6 +20,13 @@ export default defineConfig(({ mode }) => {
             createHtmlPlugin({
                 template: 'public/index.html',
                 entry: '/src/client/index.tsx',
+                minify: !development && {
+                    collapseWhitespace: true,
+                    removeComments: true,
+                    keepClosingSlash: true,
+                    minifyCSS: true,
+                    minifyJS: true,
+                },
             }),
             react({
                 jsxRuntime: 'automatic',
