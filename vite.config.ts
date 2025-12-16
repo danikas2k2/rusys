@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import path from 'node:path';
 
 import react from '@vitejs/plugin-react';
@@ -11,12 +10,6 @@ import { buildServer } from './vite/plugins/build-server';
 import { deploy } from './vite/plugins/deploy';
 import { generatePackageJson } from './vite/plugins/generate-package-json';
 
-const styleEntries = [
-    { name: 'mantine', srcPath: '/src/client/mantine.pcss' },
-    { name: 'theme', srcPath: '/src/client/theme.pcss' },
-    { name: 'app', srcPath: '/src/client/index.pcss' },
-];
-
 export default defineConfig(({ mode, command }) => {
     const development = mode === 'development';
     const outDir = 'dist/public';
@@ -24,63 +17,6 @@ export default defineConfig(({ mode, command }) => {
     return {
         root: process.cwd(),
         publicDir: 'public',
-        plugins: [
-            {
-                name: 'inject-style-links',
-                transformIndexHtml(html) {
-                    return {
-                        html,
-                        tags: styleEntries.map(({ name, srcPath }) => ({
-                            tag: 'link',
-                            injectTo: 'head',
-                            attrs: {
-                                rel: 'stylesheet',
-                                href: command === 'serve' ? srcPath : `/assets/${name}.css`,
-                            },
-                        })),
-                    };
-                },
-            },
-            createHtmlPlugin({
-                pages: [
-                    {
-                        filename: 'index.html',
-                        template: 'public/index.html',
-                        entry: '/src/client/index.tsx',
-                    },
-                ],
-                minify: !development && {
-                    collapseWhitespace: true,
-                    removeComments: true,
-                    keepClosingSlash: true,
-                    minifyCSS: true,
-                    minifyJS: true,
-                },
-            }),
-            react({
-                jsxRuntime: 'automatic',
-                jsxImportSource: 'react',
-                babel: {
-                    plugins: [
-                        ['babel-plugin-react-compiler', { target: '19', development }],
-                        ...(development
-                            ? []
-                            : [
-                                  [
-                                      '@babel/plugin-transform-react-jsx',
-                                      { runtime: 'automatic', importSource: 'react', development },
-                                  ],
-                              ]),
-                    ],
-                },
-            }),
-            svgr({
-                svgrOptions: {},
-            }),
-            generatePackageJson(),
-            ...(development ? [] : [buildServer()]),
-            ...(development || !process.env.DEPLOY ? [] : [deploy()]),
-        ],
         define: {
             'process.env.LOCALE': JSON.stringify('lt-LT'),
             'process.env.DEBUG': JSON.stringify(development),
@@ -113,10 +49,7 @@ export default defineConfig(({ mode, command }) => {
             treeshake: true,
             cssCodeSplit: true, // emit CSS as real style assets, not JS-injected
             rollupOptions: {
-                input: Object.fromEntries([
-                    ['main', path.resolve(__dirname, 'public/index.html')],
-                    ...styleEntries.map(({ name, srcPath }) => [name, path.resolve(__dirname, `.${srcPath}`)]),
-                ]),
+                input: path.resolve(__dirname, 'public/index.html'),
                 output: {
                     entryFileNames: 'assets/[name].js',
                     chunkFileNames: 'assets/[name].js',
@@ -150,6 +83,7 @@ export default defineConfig(({ mode, command }) => {
                             pkg.startsWith('react/') ||
                             pkg.startsWith('react-dom') ||
                             pkg.startsWith('react-router') ||
+                            pkg === 'react-error-boundary' ||
                             pkg.includes('redux') ||
                             pkg === 'cookie' ||
                             pkg === 'set-cookie-parser' ||
@@ -219,43 +153,9 @@ export default defineConfig(({ mode, command }) => {
             },
         },
         plugins: [
-            {
-                name: 'inject-style-links',
-                transformIndexHtml(html) {
-                    return {
-                        html,
-                        tags: styleEntries.map(({ name, srcPath }) => ({
-                            tag: 'link',
-                            injectTo: 'head',
-                            attrs: {
-                                rel: 'stylesheet',
-                                href: command === 'serve' ? srcPath : `/assets/${name}.css`,
-                            },
-                        })),
-                    };
-                },
-            },
-            {
-                name: 'promote-built-html',
-                apply: 'build',
-                closeBundle() {
-                    const nested = path.resolve(outDir, 'public/index.html');
-                    const target = path.resolve(outDir, 'index.html');
-
-                    if (fs.existsSync(nested)) {
-                        fs.copyFileSync(nested, target);
-                        fs.rmSync(path.resolve(outDir, 'public'), { recursive: true, force: true });
-                    }
-                },
-            },
             createHtmlPlugin({
-                pages: [
-                    {
-                        filename: 'index.html',
-                        template: 'public/index.html',
-                        entry: '/src/client/index.tsx',
-                    },
-                ],
+                template: 'public/index.html',
+                entry: '/src/client/index.tsx',
                 minify: !development && {
                     collapseWhitespace: true,
                     removeComments: true,
@@ -264,6 +164,29 @@ export default defineConfig(({ mode, command }) => {
                     minifyJS: true,
                 },
             }),
+            react({
+                jsxRuntime: 'automatic',
+                jsxImportSource: 'react',
+                babel: {
+                    plugins: [
+                        ['babel-plugin-react-compiler', { target: '19', development }],
+                        ...(development
+                            ? []
+                            : [
+                                  [
+                                      '@babel/plugin-transform-react-jsx',
+                                      { runtime: 'automatic', importSource: 'react', development },
+                                  ],
+                              ]),
+                    ],
+                },
+            }),
+            svgr({
+                svgrOptions: {},
+            }),
+            generatePackageJson(),
+            ...(development ? [] : [buildServer()]),
+            ...(development || !process.env.DEPLOY ? [] : [deploy()]),
         ],
         server: {
             // Run Vite standalone server (dev mode only)
