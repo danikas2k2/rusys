@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 import react from '@vitejs/plugin-react';
@@ -10,16 +11,44 @@ import { buildServer } from './vite/plugins/build-server';
 import { deploy } from './vite/plugins/deploy';
 import { generatePackageJson } from './vite/plugins/generate-package-json';
 
-export default defineConfig(({ mode }) => {
+const styleEntries = [
+    { name: 'mantine', srcPath: '/src/client/mantine.pcss' },
+    { name: 'theme', srcPath: '/src/client/theme.pcss' },
+    { name: 'app', srcPath: '/src/client/index.pcss' },
+];
+
+export default defineConfig(({ mode, command }) => {
     const development = mode === 'development';
+    const outDir = 'dist/public';
 
     return {
         root: process.cwd(),
         publicDir: 'public',
         plugins: [
+            {
+                name: 'inject-style-links',
+                transformIndexHtml(html) {
+                    return {
+                        html,
+                        tags: styleEntries.map(({ name, srcPath }) => ({
+                            tag: 'link',
+                            injectTo: 'head',
+                            attrs: {
+                                rel: 'stylesheet',
+                                href: command === 'serve' ? srcPath : `/assets/${name}.css`,
+                            },
+                        })),
+                    };
+                },
+            },
             createHtmlPlugin({
-                template: 'public/index.html',
-                entry: '/src/client/index.tsx',
+                pages: [
+                    {
+                        filename: 'index.html',
+                        template: 'public/index.html',
+                        entry: '/src/client/index.tsx',
+                    },
+                ],
                 minify: !development && {
                     collapseWhitespace: true,
                     removeComments: true,
@@ -70,7 +99,7 @@ export default defineConfig(({ mode }) => {
             postcss: './postcss.config.mjs',
         },
         build: {
-            outDir: 'dist/public',
+            outDir,
             emptyOutDir: true,
             sourcemap: false,
             minify: 'terser',
@@ -84,7 +113,10 @@ export default defineConfig(({ mode }) => {
             treeshake: true,
             cssCodeSplit: true, // emit CSS as real style assets, not JS-injected
             rollupOptions: {
-                input: path.resolve(__dirname, 'public/index.html'),
+                input: Object.fromEntries([
+                    ['main', path.resolve(__dirname, 'public/index.html')],
+                    ...styleEntries.map(({ name, srcPath }) => [name, path.resolve(__dirname, `.${srcPath}`)]),
+                ]),
                 output: {
                     entryFileNames: 'assets/[name].js',
                     chunkFileNames: 'assets/[name].js',
@@ -186,6 +218,53 @@ export default defineConfig(({ mode }) => {
                 },
             },
         },
+        plugins: [
+            {
+                name: 'inject-style-links',
+                transformIndexHtml(html) {
+                    return {
+                        html,
+                        tags: styleEntries.map(({ name, srcPath }) => ({
+                            tag: 'link',
+                            injectTo: 'head',
+                            attrs: {
+                                rel: 'stylesheet',
+                                href: command === 'serve' ? srcPath : `/assets/${name}.css`,
+                            },
+                        })),
+                    };
+                },
+            },
+            {
+                name: 'promote-built-html',
+                apply: 'build',
+                closeBundle() {
+                    const nested = path.resolve(outDir, 'public/index.html');
+                    const target = path.resolve(outDir, 'index.html');
+
+                    if (fs.existsSync(nested)) {
+                        fs.copyFileSync(nested, target);
+                        fs.rmSync(path.resolve(outDir, 'public'), { recursive: true, force: true });
+                    }
+                },
+            },
+            createHtmlPlugin({
+                pages: [
+                    {
+                        filename: 'index.html',
+                        template: 'public/index.html',
+                        entry: '/src/client/index.tsx',
+                    },
+                ],
+                minify: !development && {
+                    collapseWhitespace: true,
+                    removeComments: true,
+                    keepClosingSlash: true,
+                    minifyCSS: true,
+                    minifyJS: true,
+                },
+            }),
+        ],
         server: {
             // Run Vite standalone server (dev mode only)
             port: 5173,
