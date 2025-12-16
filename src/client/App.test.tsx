@@ -1,6 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import { mockEnv } from '@tests/mockEnv';
 import { MockTheme } from '@tests/MockTheme';
+import { MockThemeRedux } from '@tests/MockThemeRedux';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import React from 'react';
@@ -25,9 +26,9 @@ describe('<App>', () => {
 
     it('renders Loader when clientId is null', () => {
         render(
-            <MockTheme>
+            <MockThemeRedux>
                 <App />
-            </MockTheme>
+            </MockThemeRedux>
         );
 
         expect(useGoogleClientId).toHaveBeenCalledWith();
@@ -38,9 +39,9 @@ describe('<App>', () => {
         jest.mocked(isDevMode).mockReturnValueOnce(true);
 
         render(
-            <MockTheme>
+            <MockThemeRedux>
                 <App />
-            </MockTheme>
+            </MockThemeRedux>
         );
 
         expect(screen.getByText('AppContent')).toBeInTheDocument();
@@ -60,9 +61,9 @@ describe('<App>', () => {
         );
 
         render(
-            <MockTheme>
+            <MockThemeRedux>
                 <App />
-            </MockTheme>
+            </MockThemeRedux>
         );
 
         // Simulate script load error
@@ -79,9 +80,9 @@ describe('<App>', () => {
         jest.mocked(useGoogleClientId).mockReturnValueOnce('validId');
 
         render(
-            <MockTheme>
+            <MockThemeRedux>
                 <App />
-            </MockTheme>
+            </MockThemeRedux>
         );
 
         expect(screen.getByText('AppContent')).toBeInTheDocument();
