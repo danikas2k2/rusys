@@ -1,9 +1,8 @@
 import { MockActiveContent } from '@tests/MockActiveContent';
 import { MockTheme } from '@tests/MockTheme';
 
-import React from 'react';
-
 import { type MantineThemeOverride } from '@mantine/core';
+import React from 'react';
 
 import type { ActiveContent } from '~/client/common/ActiveContentContext';
 

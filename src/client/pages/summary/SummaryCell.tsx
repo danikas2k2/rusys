@@ -1,6 +1,5 @@
-import React from 'react';
-
 import { Center, Table } from '@mantine/core';
+import React from 'react';
 
 import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
 import type { VariantAmount } from '~/types/data';

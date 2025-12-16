@@ -2,9 +2,8 @@ import { render, screen } from '@testing-library/react';
 import { MockTableRow } from '@tests/MockTableRow';
 import { MockTheme } from '@tests/MockTheme';
 
-import React from 'react';
-
 import { Table } from '@mantine/core';
+import React from 'react';
 
 import { SummaryCell } from '~/client/pages/summary/SummaryCell';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';

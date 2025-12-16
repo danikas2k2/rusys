@@ -2,9 +2,8 @@ import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockThemeRedux } from '@tests/MockThemeRedux';
 
-import React from 'react';
-
 import { googleLogout } from '@react-oauth/google';
+import React from 'react';
 
 import { useResetProfile } from '~/client/state/profile/useResetProfile';
 import { LogoutButton } from '~/client/user/LogoutButton';

@@ -2,9 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
-import React from 'react';
-
 import { useMantineColorScheme } from '@mantine/core';
+import React from 'react';
 
 import { ColorSchemeToggle } from '~/client/common/ColorSchemeToggle';
 

@@ -3,9 +3,8 @@ import user from '@testing-library/user-event';
 import { MockActiveContent } from '@tests/MockActiveContent';
 import { MockTheme } from '@tests/MockTheme';
 
-import React from 'react';
-
 import { Table } from '@mantine/core';
+import React from 'react';
 
 import { useSwipePanelWidth } from '~/client/common/SwipeControlsContext';
 import { SwipeableRow } from '~/client/table/SwipeableRow';
@@ -922,7 +921,7 @@ describe('<SwipeableRow>', () => {
             await user.pointer({ keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } });
 
             // Should not have called setActive again
-            expect(setActive.mock.calls).toHaveLength(initialCallCount);
+            expect(setActive).toHaveBeenCalledTimes(initialCallCount);
         });
 
         it('returns false when dragging is false', async () => {

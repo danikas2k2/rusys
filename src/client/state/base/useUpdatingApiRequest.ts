@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-
 import type { ActionCreatorsMapObject } from 'redux';
 
 import { useUpdateStateFromResponse } from '~/client/state/base/useUpdateStateFromResponse';

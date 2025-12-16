@@ -1,9 +1,8 @@
-import React, { useCallback } from 'react';
-
 import { ActionIcon, Button, Group, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { googleLogout } from '@react-oauth/google';
 import { IconLogout } from '@tabler/icons-react';
+import React, { useCallback } from 'react';
 
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
 import { Label } from '~/client/common/Label';

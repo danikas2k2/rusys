@@ -5,7 +5,7 @@ import React from 'react';
 import { ErrorBoundary } from '~/client/common/ErrorBoundary';
 import { MockTheme } from '~/tests/MockTheme';
 
-function Boom() {
+function Boom(): React.JSX.Element {
     throw new Error('Boom');
 }
 

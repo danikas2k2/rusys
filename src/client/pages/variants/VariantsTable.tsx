@@ -1,7 +1,6 @@
-import React from 'react';
-
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import { Table, Title } from '@mantine/core';
+import React from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { DraggableContent } from '~/client/common/DraggableContent';

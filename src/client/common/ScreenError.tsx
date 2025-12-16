@@ -1,6 +1,5 @@
-import React from 'react';
-
 import { Flex } from '@mantine/core';
+import React from 'react';
 
 import { Error } from '~/client/common/Error';
 

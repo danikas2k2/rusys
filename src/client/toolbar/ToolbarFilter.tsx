@@ -1,6 +1,5 @@
-import React, { useCallback } from 'react';
-
 import { TextInput } from '@mantine/core';
+import React, { useCallback } from 'react';
 
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { useLabel } from '~/client/hooks/useLabel';

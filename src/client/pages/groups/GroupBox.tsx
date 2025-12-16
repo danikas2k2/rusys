@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-
 import { Button, Checkbox, Group, Modal, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconCalendarClock, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { Label } from '~/client/common/Label';
 import { useLabels } from '~/client/hooks/useLabels';

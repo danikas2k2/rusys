@@ -3,9 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
 
-import React from 'react';
-
 import { Table } from '@mantine/core';
+import React from 'react';
 
 import { ProductTitle } from '~/client/pages/products/ProductTitle';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';

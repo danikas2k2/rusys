@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
-
 import { Center, SegmentedControl, useMantineColorScheme, type MantineColorScheme } from '@mantine/core';
 import { IconMoon, IconSun, IconSunMoon } from '@tabler/icons-react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { useLabels } from '~/client/hooks/useLabels';
 

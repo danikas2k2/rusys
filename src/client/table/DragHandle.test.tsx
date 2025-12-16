@@ -1,9 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
-import React from 'react';
-
 import { Table } from '@mantine/core';
+import React from 'react';
 
 import { DragHandle } from './DragHandle';
 

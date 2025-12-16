@@ -1,6 +1,5 @@
-import React from 'react';
-
 import { Badge, type MantineColor } from '@mantine/core';
+import React from 'react';
 
 import './ChangeBadge.pcss';
 

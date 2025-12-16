@@ -1,6 +1,5 @@
-import React from 'react';
-
 import { Table } from '@mantine/core';
+import React from 'react';
 
 import { LoadableContent } from '~/client/common/LoadableContent';
 import { useUpdateType } from '~/client/common/UpdateTypeContext';

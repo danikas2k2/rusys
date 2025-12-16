@@ -1,7 +1,6 @@
-import React, { useCallback } from 'react';
-
 import { Button } from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
+import React, { useCallback } from 'react';
 
 import { useActiveContent, type ActiveContentData } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';

@@ -1,7 +1,6 @@
-import { useCallback } from 'react';
-
 import type { CredentialResponse, TokenResponse } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
+import { useCallback } from 'react';
 
 import type { Profile } from '~/client/state/profile/types';
 import { useEmailCheck } from '~/client/state/profile/useEmailCheck';

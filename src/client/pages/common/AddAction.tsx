@@ -1,7 +1,6 @@
-import React, { useCallback } from 'react';
-
 import { ActionIcon } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
+import React, { useCallback } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 

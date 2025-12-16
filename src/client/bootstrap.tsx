@@ -1,8 +1,7 @@
+import { MantineProvider } from '@mantine/core';
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-
-import { MantineProvider } from '@mantine/core';
 
 import { App } from '~/client/App';
 import { ErrorBoundary } from '~/client/common/ErrorBoundary';

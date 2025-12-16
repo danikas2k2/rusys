@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { Center, Loader, Table } from '@mantine/core';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';

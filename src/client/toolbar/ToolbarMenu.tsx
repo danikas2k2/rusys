@@ -1,6 +1,3 @@
-import React from 'react';
-import { Link, useMatch } from 'react-router-dom';
-
 import { Box, Burger, Divider, Drawer, Flex, NavLink, Portal } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
@@ -10,6 +7,8 @@ import {
     IconList,
     IconTriangleSquareCircle,
 } from '@tabler/icons-react';
+import React from 'react';
+import { Link, useMatch } from 'react-router-dom';
 
 import { ColorSchemeToggle } from '~/client/common/ColorSchemeToggle';
 import { Label } from '~/client/common/Label';

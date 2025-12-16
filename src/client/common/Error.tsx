@@ -1,7 +1,6 @@
-import React from 'react';
-
 import { Alert, Center } from '@mantine/core';
 import { IconAlertOctagon } from '@tabler/icons-react';
+import React from 'react';
 
 import { Label } from '~/client/common/Label';
 

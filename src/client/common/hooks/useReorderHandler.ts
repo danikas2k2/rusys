@@ -1,7 +1,6 @@
+import type { DragEndEvent, UniqueIdentifier } from '@dnd-kit/core';
 import { useCallback, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-
-import type { DragEndEvent, UniqueIdentifier } from '@dnd-kit/core';
 
 export function useReorderHandler<T, P = Partial<T>>({
     items,

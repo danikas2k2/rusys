@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect } from 'react';
-
 import { Checkbox } from '@mantine/core';
+import React, { useCallback, useEffect } from 'react';
 
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { useHasFilteredMissing } from '~/client/pages/products/hooks/useHasFilteredMissing';

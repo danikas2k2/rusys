@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-
 import { Table } from '@mantine/core';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useActiveContent, type ActiveContentData } from '~/client/common/ActiveContentContext';
 import { useSwipePanelWidth } from '~/client/common/SwipeControlsContext';

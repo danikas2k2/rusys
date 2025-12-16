@@ -1,7 +1,6 @@
-import React, { useCallback, useMemo } from 'react';
-
 import { Checkbox, Table, Title } from '@mantine/core';
 import { isEmpty } from 'lodash';
+import React, { useCallback, useMemo } from 'react';
 
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
 import { useYears } from '~/client/state/years/useYears';

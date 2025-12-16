@@ -1,6 +1,5 @@
-import { useSelector } from 'react-redux';
-
 import equal from 'fast-deep-equal/es6/react';
+import { useSelector } from 'react-redux';
 
 import { DEV_MODE_PROFILE } from '~/client/state/profile/dev';
 import type { Profile, WithProfileState } from '~/client/state/profile/types';

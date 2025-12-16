@@ -1,7 +1,6 @@
-import React from 'react';
-
 import { Table, ThemeIcon } from '@mantine/core';
 import { IconEqual } from '@tabler/icons-react';
+import React from 'react';
 
 import { useLabel } from '~/client/hooks/useLabel';
 

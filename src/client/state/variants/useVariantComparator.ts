@@ -1,7 +1,6 @@
+import equal from 'fast-deep-equal/es6/react';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
-
-import equal from 'fast-deep-equal/es6/react';
 
 import type { WithVariantsState } from '~/client/state/variants/types';
 import { compareNames } from '~/client/utils/compareNames';

@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-
 import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconCheck, IconCopy, IconPlus, IconX } from '@tabler/icons-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { Label } from '~/client/common/Label';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';

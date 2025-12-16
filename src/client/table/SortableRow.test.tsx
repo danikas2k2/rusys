@@ -1,10 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
-import React from 'react';
-
 import { useSortable } from '@dnd-kit/sortable';
 import { Table } from '@mantine/core';
+import React from 'react';
 
 import { SortableRow } from '~/client/table/SortableRow';
 

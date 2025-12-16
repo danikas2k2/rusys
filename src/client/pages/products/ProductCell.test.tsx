@@ -2,9 +2,8 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
-import React from 'react';
-
 import { Table } from '@mantine/core';
+import React from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';

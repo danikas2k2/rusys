@@ -1,7 +1,6 @@
-import React, { cloneElement } from 'react';
-
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import React, { cloneElement } from 'react';
 
 import type { ActiveContentData } from '~/client/common/ActiveContentContext';
 import type { DraggableRowProps } from '~/client/table/DraggableRow';

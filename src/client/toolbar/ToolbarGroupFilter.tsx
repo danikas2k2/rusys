@@ -1,7 +1,6 @@
-import React, { useCallback } from 'react';
-
 import { Select } from '@mantine/core';
 import { IconSelector } from '@tabler/icons-react';
+import React, { useCallback } from 'react';
 
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabel } from '~/client/hooks/useLabel';

@@ -1,6 +1,5 @@
-import React from 'react';
-
 import { AppShell, ScrollArea } from '@mantine/core';
+import React from 'react';
 
 import { AppVersion } from '~/client/AppVersion';
 import { type ActiveContentData } from '~/client/common/ActiveContentContext';

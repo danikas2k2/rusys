@@ -2,9 +2,8 @@ import { act, render, screen } from '@testing-library/react';
 import { mockEnv } from '@tests/mockEnv';
 import { MockTheme } from '@tests/MockTheme';
 
-import React from 'react';
-
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import React from 'react';
 
 import { App } from '~/client/App';
 import { useGoogleClientId } from '~/client/state/google/useGoogleClientId';

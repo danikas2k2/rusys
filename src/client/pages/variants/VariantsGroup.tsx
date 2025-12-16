@@ -1,6 +1,5 @@
-import React from 'react';
-
 import { Table } from '@mantine/core';
+import React from 'react';
 
 import { SortableContent } from '~/client/common/SortableContent';
 import { useGroupFilterPredicate } from '~/client/filters/hooks/useGroupFilterPredicate';

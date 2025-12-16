@@ -1,8 +1,7 @@
-import React from 'react';
-import { Provider } from 'react-redux';
-
 import { configureStore } from '@reduxjs/toolkit';
 import { isEmpty } from 'lodash';
+import React from 'react';
+import { Provider } from 'react-redux';
 import { combineReducers, type Action, type Reducer, type ReducersMapObject } from 'redux';
 
 const getPassThrough =

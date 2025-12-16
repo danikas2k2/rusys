@@ -2,9 +2,8 @@ import { render, screen } from '@testing-library/react';
 import { getVariantsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
 
-import React from 'react';
-
 import { Table } from '@mantine/core';
+import React from 'react';
 
 import { useSummaryYears } from '~/client/pages/summary/hooks/useSummaryYears';
 import { SummaryRow } from '~/client/pages/summary/SummaryRow';

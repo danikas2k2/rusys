@@ -1,7 +1,6 @@
-import React from 'react';
-
 import { Avatar, type AvatarProps } from '@mantine/core';
 import { IconRobotFace } from '@tabler/icons-react';
+import React from 'react';
 
 import { DEV_MODE_SUB } from '~/client/state/profile/dev';
 import { useProfile } from '~/client/state/profile/useProfile';

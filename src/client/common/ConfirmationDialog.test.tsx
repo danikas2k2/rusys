@@ -2,9 +2,8 @@ import { act, render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
-import React from 'react';
-
 import { Button } from '@mantine/core';
+import React from 'react';
 
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
 

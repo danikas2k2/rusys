@@ -1,7 +1,6 @@
-import React from 'react';
-
 import { Table, Title } from '@mantine/core';
 import { IconCalendarClock } from '@tabler/icons-react';
+import React from 'react';
 
 import { Label } from '~/client/common/Label';
 import { SortableRow } from '~/client/table/SortableRow';

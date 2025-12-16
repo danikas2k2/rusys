@@ -1,6 +1,5 @@
-import React from 'react';
-
 import { Table, Title } from '@mantine/core';
+import React from 'react';
 
 import { Label } from '~/client/common/Label';
 import { SortableRow } from '~/client/table/SortableRow';

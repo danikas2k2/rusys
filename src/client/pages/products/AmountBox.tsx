@@ -1,7 +1,6 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-
 import { Button, Center, Flex, Group, Modal, Stack, Title } from '@mantine/core';
 import { IconCheck, IconChevronDown, IconX } from '@tabler/icons-react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import { Label } from '~/client/common/Label';
 import { useUpdateType, type UpdateTypes } from '~/client/common/UpdateTypeContext';

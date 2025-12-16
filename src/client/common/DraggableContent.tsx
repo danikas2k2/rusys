@@ -1,5 +1,3 @@
-import React, { useState } from 'react';
-
 import {
     closestCenter,
     DndContext,
@@ -14,6 +12,7 @@ import {
 } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import React, { useState } from 'react';
 
 export function DraggableContent({
     onDragStart,

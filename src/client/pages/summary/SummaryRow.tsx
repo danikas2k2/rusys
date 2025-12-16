@@ -1,6 +1,5 @@
-import React from 'react';
-
 import { Table, Title } from '@mantine/core';
+import React from 'react';
 
 import { useSummaryYears } from '~/client/pages/summary/hooks/useSummaryYears';
 import { SummaryCell } from '~/client/pages/summary/SummaryCell';

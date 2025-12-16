@@ -1,7 +1,6 @@
+import { Modal } from '@mantine/core';
 import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
-import { Modal } from '@mantine/core';
 
 import { Error } from '~/client/common/Error';
 import { Label } from '~/client/common/Label';

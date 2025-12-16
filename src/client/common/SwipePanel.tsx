@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-
 import { Group, Portal } from '@mantine/core';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useActiveContent, type ActiveContent } from '~/client/common/ActiveContentContext';
 import { useSwipePanelWidth } from '~/client/common/SwipeControlsContext';

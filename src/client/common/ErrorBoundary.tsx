@@ -1,7 +1,6 @@
+import { Button, Stack } from '@mantine/core';
 import React from 'react';
 import { ErrorBoundary as ReactErrorBoundary, type FallbackProps } from 'react-error-boundary';
-
-import { Button, Stack } from '@mantine/core';
 
 import { Label } from '~/client/common/Label';
 import { ScreenError } from '~/client/common/ScreenError';

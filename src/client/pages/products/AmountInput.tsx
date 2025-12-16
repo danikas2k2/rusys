@@ -1,7 +1,6 @@
-import React, { useCallback } from 'react';
-
 import { ActionIcon, Flex, Group, NumberInput, Title } from '@mantine/core';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
+import React, { useCallback } from 'react';
 
 import { AmountVariant } from '~/client/common/AmountVariant';
 import { ChangeBadge } from '~/client/common/ChangeBadge';

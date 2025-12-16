@@ -1,6 +1,5 @@
-import React, { createContext, use, useState } from 'react';
-
 import { noop } from 'lodash';
+import React, { createContext, use, useState } from 'react';
 
 export type UpdateTypes = 'consumed' | 'updated' | 'recycled';
 

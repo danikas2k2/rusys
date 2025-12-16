@@ -2,9 +2,8 @@ import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockThemeRedux } from '@tests/MockThemeRedux';
 
-import React from 'react';
-
 import { useGoogleLogin, useGoogleOneTapLogin, type CredentialResponse } from '@react-oauth/google';
+import React from 'react';
 
 import { useLoginError } from '~/client/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/client/user/hooks/useLoginSuccess';

@@ -3,7 +3,6 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 import { useDispatch } from 'react-redux';
-
 import type { Reducer } from 'redux';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';

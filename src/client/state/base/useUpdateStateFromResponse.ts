@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-
 import type { ActionCreatorsMapObject } from 'redux';
 
 import { setGroupsAction } from '~/client/state/groups/actions';
