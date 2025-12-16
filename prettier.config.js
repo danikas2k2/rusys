@@ -27,6 +27,7 @@ module.exports = {
                     '',
                     '^react$',
                     '^react-',
+                    '^redux',
                     '',
                     '<THIRD_PARTY_MODULES>',
                     '',
