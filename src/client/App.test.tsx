@@ -1,6 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
 import { mockEnv } from '@tests/mockEnv';
-import { MockTheme } from '@tests/MockTheme';
 import { MockThemeRedux } from '@tests/MockThemeRedux';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
