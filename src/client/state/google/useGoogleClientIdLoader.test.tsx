@@ -8,8 +8,8 @@ import type { Reducer } from 'redux';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { google as reducer } from '~/client/state/google/reducer';
-import { useClientIdLoader } from '~/client/state/google/useClientIdLoader';
 import { useGoogle } from '~/client/state/google/useGoogle';
+import { useGoogleClientIdLoader } from '~/client/state/google/useGoogleClientIdLoader';
 
 jest.mock('react-redux', () => ({
     ...jest.requireActual('react-redux'),
@@ -19,7 +19,7 @@ jest.mock('react-redux', () => ({
 jest.mock('~/client/state/google/useGoogle');
 jest.mock('~/client/state/base/useUpdatingApiRequest');
 
-describe('useClientIdLoader', () => {
+describe('useGoogleClientIdLoader', () => {
     const dispatch = jest.fn();
     const request = jest.fn();
 
@@ -34,7 +34,7 @@ describe('useClientIdLoader', () => {
         jest.mocked(useGoogle).mockReturnValue({ clientId: undefined, loading: false });
         request.mockResolvedValue({ ok: true });
 
-        const { result } = renderHook(() => useClientIdLoader(), {
+        const { result } = renderHook(() => useGoogleClientIdLoader(), {
             wrapper: ({ children }) => <MockRedux reducers={{ google: reducer as Reducer }}>{children}</MockRedux>,
         });
         await act(async () => await result.current());
@@ -48,7 +48,7 @@ describe('useClientIdLoader', () => {
         jest.mocked(useGoogle).mockReturnValue({ clientId: '123', loading: false });
         request.mockResolvedValue({});
 
-        const { result } = renderHook(() => useClientIdLoader(), {
+        const { result } = renderHook(() => useGoogleClientIdLoader(), {
             wrapper: ({ children }) => <MockRedux reducers={{ google: reducer as Reducer }}>{children}</MockRedux>,
         });
         await act(async () => await result.current());
@@ -61,7 +61,7 @@ describe('useClientIdLoader', () => {
         jest.mocked(useGoogle).mockReturnValue({ clientId: undefined, loading: true });
         request.mockResolvedValue({});
 
-        const { result } = renderHook(() => useClientIdLoader(), {
+        const { result } = renderHook(() => useGoogleClientIdLoader(), {
             wrapper: ({ children }) => <MockRedux reducers={{ google: reducer as Reducer }}>{children}</MockRedux>,
         });
         await act(async () => await result.current());

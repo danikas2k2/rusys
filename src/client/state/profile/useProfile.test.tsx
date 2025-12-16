@@ -9,9 +9,9 @@ import { profile as reducer } from '~/client/state/profile/reducer';
 import type { Profile } from '~/client/state/profile/types';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useSetProfile } from '~/client/state/profile/useSetProfile';
-import { isDevMode } from '~/common/utils/env';
+import { isDevMode } from '~/common/utils/dev';
 
-jest.mock('~/common/utils/env', () => ({
+jest.mock('~/common/utils/dev', () => ({
     isDevMode: jest.fn().mockReturnValue(false),
 }));
 jest.mock('~/client/state/profile/useSetProfile', () => ({

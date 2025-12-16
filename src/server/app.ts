@@ -7,7 +7,7 @@ import express, { type Express } from 'express';
 import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 
-import { isDevMode } from '~/common/utils/env';
+import { isDevMode } from '~/common/utils/dev';
 import { debug } from '~/server/api/debug';
 import { ApiUrlHandlers } from '~/server/handlers';
 
@@ -31,6 +31,9 @@ export function setupHelmet(app: Express): Express {
     app.use(cors());
     app.use(
         helmet({
+            // HSTS forces HTTPS and causes Safari to upgrade http://localhost:3000 to
+            // https://localhost:3000 where we do not serve TLS; keep it off.
+            hsts: false,
             contentSecurityPolicy: {
                 directives: {
                     defaultSrc: ["'self'"],
@@ -52,14 +55,23 @@ export function setupHelmet(app: Express): Express {
                         // In production, allow inline script for color scheme detection
                         ...(isDevMode()
                             ? ["'unsafe-inline'"]
-                            : ["'sha256-h4JJ0OX2ltWY5N6XW6FZ08KKolxndLCwhB+x5/+geeg='"]),
+                            : ["'sha256-xRKNH4JayJQcJDGldAWebkbAJG3ZWLgsYaEGIyxbzBI='"]),
                     ],
                     objectSrc: ["'none'"],
-                    upgradeInsecureRequests: [],
+                    // Do NOT auto-upgrade http→https; Safari would then try TLS on 3000 and fail.
+                    upgradeInsecureRequests: null,
                 },
             },
         })
     );
+
+    // Explicitly clear any previously stored HSTS policy for localhost/127.0.0.1 in browsers
+    // that may have cached it from earlier runs. Only effective over HTTPS, so this is mainly
+    // for the 4000 port; harmless elsewhere.
+    app.use((_, res, next) => {
+        res.setHeader('Strict-Transport-Security', 'max-age=0');
+        next();
+    });
 
     return app;
 }

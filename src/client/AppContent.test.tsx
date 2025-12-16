@@ -5,9 +5,9 @@ import React from 'react';
 
 import { AppContent } from '~/client/AppContent';
 import { useProfile } from '~/client/state/profile/useProfile';
-import { isDevMode } from '~/common/utils/env';
+import { isDevMode } from '~/common/utils/dev';
 
-jest.mock('~/common/utils/env');
+jest.mock('~/common/utils/dev');
 jest.mock('~/client/state/profile/useProfile');
 jest.mock('~/client/AppRouter', () => ({
     AppRouter: () => <div>AppRouter</div>,

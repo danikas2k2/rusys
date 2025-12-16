@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { MantineProvider } from '@mantine/core';
 
 import { App } from '~/client/App';
+import { LocaleContext } from '~/client/common/LocaleContext';
 import { getStore } from '~/client/state/store';
 import { getTheme } from '~/client/theme';
 
@@ -29,7 +30,9 @@ export function bootstrap(): void {
                     getRootElement = () => document.documentElement,
                     */
                 >
-                    <App />
+                    <LocaleContext value={process.env.LOCALE}>
+                        <App />
+                    </LocaleContext>
                 </MantineProvider>
             </Provider>
         );

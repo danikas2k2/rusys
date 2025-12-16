@@ -1,4 +1,4 @@
-import { isDevMode } from '~/common/utils/env';
+import { isDevMode } from '~/common/utils/dev';
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
 import type { ApiRequest, ApiResponse, ApiUserAllowed, ApiUserEmail } from '~/types/api';

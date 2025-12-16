@@ -1,4 +1,4 @@
-import { isDevMode } from '~/common/utils/env';
+import { isDevMode } from '~/common/utils/dev';
 
 describe('isDevMode', () => {
     it('return false if NODE_ENV is not set', async () => {

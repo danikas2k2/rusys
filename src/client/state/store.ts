@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import type { Action, Store } from 'redux';
 
 import { reducer } from '~/client/state/base/reducer';
-import { isDevMode } from '~/common/utils/env';
+import { isDevMode } from '~/common/utils/dev';
 
 export const getStore = (): Store =>
     configureStore<unknown, Action>({

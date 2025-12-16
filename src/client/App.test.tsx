@@ -7,8 +7,8 @@ import React from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import { App } from '~/client/App';
-import { useClientId } from '~/client/state/google/useClientId';
-import { isDevMode } from '~/common/utils/env';
+import { useGoogleClientId } from '~/client/state/google/useGoogleClientId';
+import { isDevMode } from '~/common/utils/dev';
 
 jest.mock('@react-oauth/google', () => ({
     GoogleOAuthProvider: jest.fn(({ children }) => <div>{children}</div>),
@@ -16,8 +16,8 @@ jest.mock('@react-oauth/google', () => ({
 jest.mock('~/client/AppContent', () => ({
     AppContent: () => <div>AppContent</div>,
 }));
-jest.mock('~/common/utils/env');
-jest.mock('~/client/state/google/useClientId');
+jest.mock('~/common/utils/dev');
+jest.mock('~/client/state/google/useGoogleClientId');
 
 describe('<App>', () => {
     mockEnv();
@@ -31,7 +31,7 @@ describe('<App>', () => {
             </MockTheme>
         );
 
-        expect(useClientId).toHaveBeenCalledWith();
+        expect(useGoogleClientId).toHaveBeenCalledWith();
         expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
 
@@ -48,7 +48,7 @@ describe('<App>', () => {
     });
 
     it('renders Error when Google OAuth script fails to load', () => {
-        jest.mocked(useClientId).mockReturnValueOnce('validId');
+        jest.mocked(useGoogleClientId).mockReturnValueOnce('validId');
 
         const mockGoogleOAuthProvider = jest.mocked(GoogleOAuthProvider);
         let onScriptLoadError: (() => void) | undefined;
@@ -77,7 +77,7 @@ describe('<App>', () => {
     });
 
     it('renders AppContent when clientId is valid', () => {
-        jest.mocked(useClientId).mockReturnValueOnce('validId');
+        jest.mocked(useGoogleClientId).mockReturnValueOnce('validId');
 
         render(
             <MockTheme>

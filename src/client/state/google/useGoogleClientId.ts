@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 
-import { useClientIdLoader } from '~/client/state/google/useClientIdLoader';
 import { useGoogle } from '~/client/state/google/useGoogle';
+import { useGoogleClientIdLoader } from '~/client/state/google/useGoogleClientIdLoader';
 
-export function useClientId(): string {
+export function useGoogleClientId(): string {
     const clientId = useGoogle().clientId ?? '';
-    const loadClientId = useClientIdLoader();
+    const loadClientId = useGoogleClientIdLoader();
     useEffect(() => {
         if (!clientId) {
             (async () => await loadClientId())();

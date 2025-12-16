@@ -3,14 +3,15 @@ import React from 'react';
 import { AppRouter } from '~/client/AppRouter';
 import { ActiveContentWrapper } from '~/client/common/ActiveContentContext';
 import { ErrorDialog } from '~/client/common/ErrorDialog';
+import { useUnderDevelopment } from '~/client/hooks/useUnderDevelopment';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { LoginButton } from '~/client/user/LoginButton';
 import { LogoutButton } from '~/client/user/LogoutButton';
-import { isDevMode } from '~/common/utils/env';
 
 export function AppContent() {
     const profile = useProfile();
-    if (!isDevMode()) {
+
+    if (!useUnderDevelopment()) {
         if (!profile.sub) {
             return <LoginButton />;
         }
@@ -18,6 +19,7 @@ export function AppContent() {
             return <LogoutButton />;
         }
     }
+
     return (
         <ActiveContentWrapper>
             <AppRouter />

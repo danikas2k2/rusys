@@ -48,7 +48,9 @@ describe('bootstrap', () => {
             expect(Provider).toHaveBeenCalledWith(
                 expect.objectContaining({
                     children: expect.element({
-                        children: expect.element(App),
+                        children: expect.element({
+                            children: expect.element(App),
+                        }),
                     }),
                 }),
                 undefined

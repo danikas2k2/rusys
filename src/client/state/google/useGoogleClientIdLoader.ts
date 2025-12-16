@@ -5,7 +5,7 @@ import { setClientIdAction, setLoadingAction } from '~/client/state/google/actio
 import { useGoogle } from '~/client/state/google/useGoogle';
 import { ApiUrl } from '~/types/api';
 
-export function useClientIdLoader(): () => Promise<void> {
+export function useGoogleClientIdLoader(): () => Promise<void> {
     const dispatch = useDispatch();
     const google = useGoogle();
     const request = useUpdatingApiRequest({ clientId: setClientIdAction });

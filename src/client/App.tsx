@@ -5,27 +5,34 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AppContent } from '~/client/AppContent';
 import { Error } from '~/client/common/Error';
 import { Label } from '~/client/common/Label';
-import { LocaleContext } from '~/client/common/LocaleContext';
 import { ScreenLoader } from '~/client/common/ScreenLoader';
-import { useClientId } from '~/client/state/google/useClientId';
-import { isDevMode } from '~/common/utils/env';
+import { useUnderDevelopment } from '~/client/hooks/useUnderDevelopment';
+import { useGoogleClientId } from '~/client/state/google/useGoogleClientId';
 
 export function App() {
-    const clientId = useClientId();
+    const isUnderDevelopment = useUnderDevelopment();
+    const clientId = useGoogleClientId();
     const [error, setError] = useState(false);
+
+    if (error) {
+        return (
+            <Error>
+                <Label>Failed to load Google OAuth script</Label>
+            </Error>
+        );
+    }
+
+    if (isUnderDevelopment) {
+        return <AppContent />;
+    }
+
+    if (!clientId) {
+        return <ScreenLoader />;
+    }
+
     return (
-        <LocaleContext value={process.env.LOCALE}>
-            <GoogleOAuthProvider clientId={clientId} onScriptLoadError={() => setError(true)}>
-                {error ? (
-                    <Error>
-                        <Label>Failed to load Google OAuth script</Label>
-                    </Error>
-                ) : clientId || isDevMode() ? (
-                    <AppContent />
-                ) : (
-                    <ScreenLoader />
-                )}
-            </GoogleOAuthProvider>
-        </LocaleContext>
+        <GoogleOAuthProvider clientId={clientId} onScriptLoadError={() => setError(true)}>
+            <AppContent />
+        </GoogleOAuthProvider>
     );
 }
