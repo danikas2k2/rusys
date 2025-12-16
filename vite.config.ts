@@ -10,7 +10,7 @@ import { buildServer } from './vite/plugins/build-server';
 import { deploy } from './vite/plugins/deploy';
 import { generatePackageJson } from './vite/plugins/generate-package-json';
 
-export default defineConfig(({ mode, command }) => {
+export default defineConfig(({ mode }) => {
     const development = mode === 'development';
     const outDir = 'dist/public';
 
