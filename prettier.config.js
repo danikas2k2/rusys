@@ -3,7 +3,14 @@ module.exports = {
     tabWidth: 4,
     printWidth: 120,
     trailingComma: 'es5',
+    embeddedLanguageFormatting: 'auto',
     overrides: [
+        {
+            files: ['index.html', 'manifest.json'],
+            options: {
+                tabWidth: 2,
+            },
+        },
         {
             files: ['*.html', '*.pcss', '*.css'],
             options: {

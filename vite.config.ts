@@ -86,9 +86,9 @@ export default defineConfig(({ mode }) => {
             rollupOptions: {
                 input: path.resolve(__dirname, 'public/index.html'),
                 output: {
-                    entryFileNames: '[name].js',
-                    chunkFileNames: '[name].js',
-                    assetFileNames: '[name].[ext]',
+                    entryFileNames: 'assets/[name].js',
+                    chunkFileNames: 'assets/[name].js',
+                    assetFileNames: 'assets/[name].[ext]',
                     manualChunks(id) {
                         let pos = id.indexOf('node_modules/');
                         if (pos < 0) {

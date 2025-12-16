@@ -1,56 +1,50 @@
 {
-    "name": "Rūsio tūrinys",
-    "short_name": "Rūsys",
-    "description": "Rūsio tūrinio apskaita",
-    "lang": "lt-LT",
-    "dir": "ltr",
-    "start_url": ".",
-    "display": "standalone",
-    "orientation": "portrait-primary",
-    "theme_color": "#1e1e2e",
-    "background_color": "#1e1e2e",
-    "icons": [
-        {
-            "src": "/favicon.ico",
-            "sizes": "64x64 32x32 24x24 16x16",
-            "type": "image/x-icon",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/logo-16.png",
-            "type": "image/png",
-            "sizes": "16x16",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/logo-24.png",
-            "type": "image/png",
-            "sizes": "24x24",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/logo-32.png",
-            "type": "image/png",
-            "sizes": "32x32",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/logo-64.png",
-            "type": "image/png",
-            "sizes": "64x64",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/logo-512.png",
-            "type": "image/png",
-            "sizes": "512x512",
-            "purpose": "any"
-        },
-        {
-            "src": "/logo.svg",
-            "purpose": "maskable any",
-            "type": "image/svg+xml",
-            "sizes": "any"
-        }
-    ]
+  "name": "Rūsio tūrinys",
+  "short_name": "Rūsys",
+  "description": "Rūsio tūrinio apskaita",
+  "lang": "lt-LT",
+  "dir": "ltr",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1e1e2e",
+  "background_color": "#1e1e2e",
+  "icons": [
+    {
+      "src": "assets/manifest-icon-192.maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/manifest-icon-192.maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/manifest-icon-512.maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/manifest-icon-512.maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/logo.svg",
+      "purpose": "maskable any",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ]
 }

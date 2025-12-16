@@ -20,6 +20,10 @@
     "scripts": {
         "start": "cd dist && node server.js",
         "start:local": "dotenv -e .env.prod.local -- pnpm start",
+        "assets": "pnpm assets:splash && pnpm assets:icons && pnpm assets:format",
+        "assets:splash": "pwa-asset-generator public/logo.svg public/assets --padding 'calc(50vh - 20vw) calc(50vw - 20vh)' --type png --opaque false --splash-only --index ./public/index.html --xhtml",
+        "assets:icons": "pwa-asset-generator public/logo.svg public/assets --padding '2%' --type png --opaque false --icon-only --favicon --mstile --manifest ./public/manifest.json --index ./public/index.html --xhtml",
+        "assets:format": "stylelint --fix ./public/index.html && prettier --write ./public/index.html ./public/manifest.json",
         "build": "dotenv -e .env.build.local -- vite build",
         "build:safe": "pnpm check && pnpm build",
         "dev": "dotenv -e .env.local -- npm-run-all --parallel dev:server dev:client",
@@ -32,16 +36,11 @@
         "lint:styles": "stylelint src/**/*.pcss",
         "test": "jest",
         "test:coverage": "jest --coverage",
-        "remote:upload": "rsync -avr --exclude \"tutorial.*\" --exclude \"data\" ./dist/* dan@vd:/var/www/rusys/",
-        "remote:restart": "ssh dan@vd \"pm2 restart rusys --update-env\"",
         "deploy": "pnpm check && dotenv -e .env.deploy.local -- vite build",
-        "preversion": "git pull",
         "version": "sed -i '' 's/APP_VERSION: \".*\"/APP_VERSION: \"'\"$npm_package_version\"'\"/' ./docker/compose.yaml && git add --all",
+        "preversion": "git pull",
         "postversion": "git push && git push --tags",
-        "update-deps": "syncpack update && pnpm install",
-        "splash": "pnpm splash:light && pnpm splash:dark",
-        "splash:light": "pwa-asset-generator ./public/assets/logo.svg ./public/assets/latte --splash-only --type png --opaque false --index ./public/index.html --xhtml && prettier ./public/index.html --write",
-        "splash:dark": "pwa-asset-generator ./public/assets/logo.svg ./public/assets/mocha --splash-only --dark-mode --type png --index ./public/index.html --xhtml"
+        "update-deps": "syncpack update && pnpm install"
     },
     "browserslist": {
         "production": [
