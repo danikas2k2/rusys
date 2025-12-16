@@ -5,13 +5,17 @@ import { ErrorBoundary as ReactErrorBoundary, type FallbackProps } from 'react-e
 import { Label } from '~/client/common/Label';
 import { ScreenError } from '~/client/common/ScreenError';
 
-type ErrorBoundaryProps = Readonly<React.PropsWithChildren<unknown>>;
-type ErrorBoundaryInfo = { componentStack?: string | null };
+export function reloadPage(): void {
+    globalThis.location.reload();
+}
 
-function ErrorFallback({ resetErrorBoundary }: FallbackProps) {
+type ErrorFallbackProps = FallbackProps & { onReload?: () => void };
+
+function ErrorFallback({ resetErrorBoundary, onReload }: ErrorFallbackProps) {
     const handleReload = () => {
+        const doReload = onReload ?? reloadPage;
         resetErrorBoundary();
-        globalThis.location.reload();
+        doReload();
     };
 
     return (
@@ -26,14 +30,19 @@ function ErrorFallback({ resetErrorBoundary }: FallbackProps) {
     );
 }
 
-export function ErrorBoundary({ children }: ErrorBoundaryProps): React.ReactElement {
+type ErrorBoundaryProps = Readonly<React.PropsWithChildren<{ onReload?: () => void }>>;
+type ErrorBoundaryInfo = { componentStack?: string | null };
+
+export function ErrorBoundary({ children, onReload }: ErrorBoundaryProps): React.ReactElement {
     const handleError = (error: Error, info: ErrorBoundaryInfo) => {
         // eslint-disable-next-line no-console
         console.error(`[ERR] ErrorBoundary caught error: ${error}`, info);
     };
 
+    const renderFallback = (props: FallbackProps) => <ErrorFallback {...props} onReload={onReload} />;
+
     return (
-        <ReactErrorBoundary onError={handleError} fallbackRender={ErrorFallback}>
+        <ReactErrorBoundary onError={handleError} fallbackRender={renderFallback}>
             {children}
         </ReactErrorBoundary>
     );

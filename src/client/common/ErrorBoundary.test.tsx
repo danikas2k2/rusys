@@ -43,18 +43,18 @@ describe('<ErrorBoundary>', () => {
     });
 
     it('reloads the page when the action is clicked', () => {
-        const reloadSpy = jest.spyOn(window.location, 'reload').mockImplementation();
+        const reloadSpy = jest.fn();
 
         render(
             <MockTheme>
-                <ErrorBoundary>
+                <ErrorBoundary onReload={reloadSpy}>
                     <Boom />
                 </ErrorBoundary>
             </MockTheme>
         );
 
-        fireEvent.click(screen.getByRole('button', { name: 'Relaod page' }));
+        fireEvent.click(screen.getByRole('button', { name: 'Reload page' }));
 
-        expect(reloadSpy).toHaveBeenCalledWith();
+        expect(reloadSpy).toHaveBeenCalledTimes(1);
     });
 });
