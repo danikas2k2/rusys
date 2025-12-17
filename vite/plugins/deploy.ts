@@ -18,12 +18,17 @@ export function deploy(config?: DeployConfig): Plugin {
         remotePath = process.env.DEPLOY_PATH,
     } = config || {};
 
+    let isProduction = false;
+
     return {
         name: 'deploy',
         enforce: 'post',
+        configResolved(resolvedConfig) {
+            isProduction = resolvedConfig.mode === 'production';
+        },
         async closeBundle() {
             // Only deploy in production mode
-            if (process.env.NODE_ENV !== 'production') {
+            if (!isProduction) {
                 return;
             }
 
