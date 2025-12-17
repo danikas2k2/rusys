@@ -6,8 +6,6 @@ import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
-import { deploy } from './vite/plugins/deploy';
-
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
 
@@ -177,10 +175,7 @@ export default defineConfig(({ mode }) => {
                     ],
                 },
             }),
-            svgr({
-                svgrOptions: {},
-            }),
-            ...(development || !process.env.DEPLOY ? [] : [deploy()]),
+            svgr({ svgrOptions: {} }),
         ],
         server: {
             // Run Vite standalone server (dev mode only)
@@ -224,5 +219,3 @@ export default defineConfig(({ mode }) => {
         },
     };
 });
-
-

@@ -18,26 +18,11 @@ export function deploy(config?: DeployConfig): Plugin {
         remotePath = process.env.DEPLOY_PATH,
     } = config || {};
 
-    let isProduction = false;
-
     return {
         name: 'deploy',
         enforce: 'post',
-        configResolved(resolvedConfig) {
-            isProduction = resolvedConfig.mode === 'production';
-        },
+        configResolved() {},
         async closeBundle() {
-            // Only deploy in production mode
-            if (!isProduction) {
-                return;
-            }
-
-            // Check if DEPLOY environment variable is set
-            if (!process.env.DEPLOY) {
-                console.log('⏭️  Skipping deployment (set DEPLOY=1 to deploy)');
-                return;
-            }
-
             console.log('🚀 Starting deployment...');
 
             try {
