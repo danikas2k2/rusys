@@ -6,7 +6,7 @@ module.exports = {
     embeddedLanguageFormatting: 'auto',
     overrides: [
         {
-            files: ['index.html', 'manifest.json'],
+            files: ['index.html', 'public/*.html', 'manifest.json'],
             options: {
                 tabWidth: 2,
             },

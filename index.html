@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Rūsys</title>
+    <meta name="description" content="Rūsio tūrinio apskaita" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Rūsys" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta name="theme-color" content="#eff1f5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1e1e2e" media="(prefers-color-scheme: dark)" />
+    <link rel="preconnect" href="//fonts.googleapis.com" />
+    <link rel="preconnect" href="//fonts.gstatic.com" crossorigin="" />
+    <link rel="stylesheet" href="/assets/loader.css" />
+    <script>
+      /* <![CDATA[ */
+      (function () {
+        document.documentElement.setAttribute(
+          "data-mantine-color-scheme",
+          window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+        );
+      })();
+      /* ]]> */
+    </script>
+    <template slot="splash" content="./public/splash.html"></template>
+    <link rel="icon" type="image/png" sizes="196x196" href="/assets/favicon-196.png" />
+    <meta name="msapplication-square70x70logo" content="/assets/mstile-icon-128.png" />
+    <meta name="msapplication-square150x150logo" content="/assets/mstile-icon-270.png" />
+    <meta name="msapplication-square310x310logo" content="/assets/mstile-icon-558.png" />
+    <meta name="msapplication-wide310x150logo" content="/assets/mstile-icon-558-270.png" />
+    <link rel="apple-touch-icon" href="/assets/apple-icon-180.png" />
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root">
+      <div class="loader">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+    <script type="module" src="/src/client/index.tsx"></script>
+  </body>
+</html>

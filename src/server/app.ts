@@ -52,12 +52,11 @@ export function setupHelmet(app: Express): Express {
                         'https://accounts.google.com',
                         ...(isDevMode() ? ['ws://localhost:5173', 'ws://127.0.0.1:5173'] : []),
                     ],
+                    frameSrc: ["'self'", 'https://accounts.google.com'],
                     scriptSrc: ["'self'", 'https://accounts.google.com'],
                     scriptSrcElem: [
                         "'self'",
                         'https://accounts.google.com',
-                        // Allow inline scripts in dev (Vite needs this)
-                        // In production, allow inline color-scheme script hashes (current public + minified build)
                         ...(isDevMode()
                             ? ["'unsafe-inline'"]
                             : [

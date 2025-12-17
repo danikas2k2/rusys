@@ -18,8 +18,8 @@ import { deploy } from './vite/plugins/deploy';
  */
 export default defineConfig(() => {
     return {
-        root: path.resolve(__dirname, 'public'),
-        publicDir: false,
+        root: path.resolve(__dirname),
+        publicDir: path.resolve(__dirname, 'public'),
         plugins: [deploy()],
         build: {
             // Do not touch the existing `dist/` output (we just want to run deploy hook).
@@ -28,7 +28,7 @@ export default defineConfig(() => {
             write: false,
             // Minimal input so Vite can run a build lifecycle and reach closeBundle().
             rollupOptions: {
-                input: path.resolve(__dirname, 'public/index.html'),
+                input: path.resolve(__dirname, 'index.html'),
             },
         },
     } satisfies UserConfigExport;

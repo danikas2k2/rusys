@@ -6,12 +6,14 @@ import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
+import { injectSplashLinksPlugin } from './vite/plugins/inject-splash-links';
+
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
 
     return {
-        root: path.resolve(__dirname, 'public'),
-        publicDir: false,
+        root: path.resolve(__dirname),
+        publicDir: path.resolve(__dirname, 'public'),
         define: {
             'process.env.LOCALE': JSON.stringify('lt-LT'),
             'process.env.DEBUG': JSON.stringify(development),
@@ -43,7 +45,7 @@ export default defineConfig(({ mode }) => {
             } satisfies MinifyOptions,
             cssCodeSplit: true, // emit CSS as real style assets, not JS-injected
             rollupOptions: {
-                input: path.resolve(__dirname, 'public/index.html'),
+                input: path.resolve(__dirname, 'index.html'),
                 output: {
                     entryFileNames: 'assets/[name].js',
                     chunkFileNames: 'assets/[name].js',
@@ -147,9 +149,12 @@ export default defineConfig(({ mode }) => {
             },
         },
         plugins: [
+            injectSplashLinksPlugin({ projectRoot: __dirname }),
+            // Production HTML minification (keeps index.html small in dist/)
             createHtmlPlugin({
+                // We don't use this plugin for entry injection (index.html already has the module script).
                 template: 'index.html',
-                entry: '../src/client/index.tsx',
+                entry: 'src/client/index.tsx',
                 minify: !development && {
                     collapseWhitespace: true,
                     removeComments: true,
