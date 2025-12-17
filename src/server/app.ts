@@ -52,10 +52,13 @@ export function setupHelmet(app: Express): Express {
                         "'self'",
                         'https://accounts.google.com',
                         // Allow inline scripts in dev (Vite needs this)
-                        // In production, allow inline script for color scheme detection
+                        // In production, allow inline color-scheme script hashes (current public + minified build)
                         ...(isDevMode()
                             ? ["'unsafe-inline'"]
-                            : ["'sha256-8khvpOmQ9+osr32bDMfIFiM6gRm0sD8HFU/PLShI8Ps='"]),
+                            : [
+                                  "'sha256-mbTwxdcXUg0s6mhly7FJi2jXODihmXHhrVN/FpIlCwM='",
+                                  "'sha256-xRKNH4JayJQcJDGldAWebkbAJG3ZWLgsYaEGIyxbzBI='",
+                              ]),
                     ],
                     objectSrc: ["'none'"],
                     // Do NOT auto-upgrade http→https; Safari would then try TLS on 3000 and fail.
