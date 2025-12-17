@@ -55,7 +55,7 @@ export function setupHelmet(app: Express): Express {
                         // In production, allow inline script for color scheme detection
                         ...(isDevMode()
                             ? ["'unsafe-inline'"]
-                            : ["'sha256-xRKNH4JayJQcJDGldAWebkbAJG3ZWLgsYaEGIyxbzBI='"]),
+                            : ["'sha256-8khvpOmQ9+osr32bDMfIFiM6gRm0sD8HFU/PLShI8Ps='"]),
                     ],
                     objectSrc: ["'none'"],
                     // Do NOT auto-upgrade http→https; Safari would then try TLS on 3000 and fail.
