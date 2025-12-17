@@ -49,7 +49,9 @@ export default defineConfig(({ mode }) => {
             treeshake: true,
             cssCodeSplit: true, // emit CSS as real style assets, not JS-injected
             rollupOptions: {
-                input: path.resolve(__dirname, 'public/index.html'),
+                input: {
+                    index: path.resolve(__dirname, 'public/index.html'),
+                },
                 output: {
                     entryFileNames: 'assets/[name].js',
                     chunkFileNames: 'assets/[name].js',
