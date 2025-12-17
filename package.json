@@ -20,10 +20,9 @@
     "scripts": {
         "start": "cd dist && node server.js",
         "start:local": "dotenv -e .env.prod.local -- pnpm start",
-        "assets": "pnpm assets:splash && pnpm assets:icons && pnpm assets:format",
+        "assets": "pnpm assets:splash && pnpm assets:icons",
         "assets:splash": "pwa-asset-generator public/assets/logo.svg public/assets --padding 'calc(50vh - 20vw) calc(50vw - 20vh)' --type png --opaque false --splash-only --path-override /assets --index ./public/splash.html --xhtml",
         "assets:icons": "pwa-asset-generator public/assets/logo.svg public/assets --padding '1%' --type png --opaque false --icon-only --favicon --mstile --manifest ./public/manifest.json --path-override /assets --index ./index.html --xhtml",
-        "assets:format": "prettier --write ./index.html ./public/splash.html ./public/manifest.json",
         "build": "pnpm build:client && pnpm build:server",
         "build:client": "vite build --config vite.client.config.ts --mode production",
         "build:server": "vite build --config vite.server.config.ts --mode production",

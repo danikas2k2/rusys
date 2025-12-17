@@ -1,12 +1,12 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 import react from '@vitejs/plugin-react';
+import { JSDOM } from 'jsdom';
 import type { MinifyOptions } from 'terser';
-import { defineConfig } from 'vite';
+import { defineConfig, HtmlTagDescriptor } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
-
-import { injectSplashLinksPlugin } from './vite/plugins/inject-splash-links';
 
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
@@ -149,12 +149,35 @@ export default defineConfig(({ mode }) => {
             },
         },
         plugins: [
-            injectSplashLinksPlugin({ projectRoot: __dirname }),
             // Production HTML minification (keeps index.html small in dist/)
             createHtmlPlugin({
                 // We don't use this plugin for entry injection (index.html already has the module script).
                 template: 'index.html',
                 entry: 'src/client/index.tsx',
+                inject: {
+                    tags: (() => {
+                        const splashPath = path.resolve(__dirname, 'public/splash.html');
+                        try {
+                            const dom = new JSDOM(fs.readFileSync(splashPath, 'utf8'));
+                            return [...dom.window.document.head.children].reduce(
+                                (tags: HtmlTagDescriptor[], el: Element) => {
+                                    tags.push({
+                                        injectTo: 'head',
+                                        tag: el.localName,
+                                        attrs: [...el.attributes].reduce((attrs: Record<string, any>, attr: Attr) => {
+                                            attrs[attr.name] = attr.value;
+                                            return attrs;
+                                        }, {}),
+                                    });
+                                    return tags;
+                                },
+                                []
+                            );
+                        } catch {
+                            return [];
+                        }
+                    })(),
+                },
                 minify: !development && {
                     collapseWhitespace: true,
                     removeComments: true,
