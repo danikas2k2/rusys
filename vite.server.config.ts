@@ -1,7 +1,7 @@
 import path from 'node:path';
 
 import type { MinifyOptions } from 'terser';
-import { defineConfig } from 'vite';
+import { defineConfig, type BuildEnvironmentOptions, type UserConfigExport } from 'vite';
 
 import { generatePackageJson } from './vite/plugins/generate-package-json';
 
@@ -27,8 +27,7 @@ export default defineConfig(() => {
                     comments: false,
                 },
             } satisfies MinifyOptions,
-            treeshake: true,
-            target: 'node24',
+            target: 'node24' as BuildEnvironmentOptions['target'],
             rollupOptions: {
                 external: [
                     'express',
@@ -61,7 +60,5 @@ export default defineConfig(() => {
             },
             extensions: ['.jsx', '.js', '.tsx', '.ts'],
         },
-    };
+    } satisfies UserConfigExport;
 });
-
-
