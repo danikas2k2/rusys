@@ -12,11 +12,10 @@ import { generatePackageJson } from './vite/plugins/generate-package-json';
 
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
-    const outDir = 'dist/public';
 
     return {
-        root: process.cwd(),
-        publicDir: 'public',
+        root: path.resolve(__dirname, 'public'),
+        publicDir: false,
         define: {
             'process.env.LOCALE': JSON.stringify('lt-LT'),
             'process.env.DEBUG': JSON.stringify(development),
@@ -35,7 +34,7 @@ export default defineConfig(({ mode }) => {
             postcss: './postcss.config.mjs',
         },
         build: {
-            outDir,
+            outDir: path.resolve(__dirname, 'dist/public'),
             emptyOutDir: true,
             sourcemap: false,
             minify: 'terser',
@@ -49,9 +48,7 @@ export default defineConfig(({ mode }) => {
             treeshake: true,
             cssCodeSplit: true, // emit CSS as real style assets, not JS-injected
             rollupOptions: {
-                input: {
-                    index: path.resolve(__dirname, 'public/index.html'),
-                },
+                input: path.resolve(__dirname, 'public/index.html'),
                 output: {
                     entryFileNames: 'assets/[name].js',
                     chunkFileNames: 'assets/[name].js',
@@ -156,8 +153,8 @@ export default defineConfig(({ mode }) => {
         },
         plugins: [
             createHtmlPlugin({
-                template: 'public/index.html',
-                entry: '/src/client/index.tsx',
+                template: 'index.html',
+                entry: '../src/client/index.tsx',
                 minify: !development && {
                     collapseWhitespace: true,
                     removeComments: true,
@@ -196,6 +193,9 @@ export default defineConfig(({ mode }) => {
             host: 'localhost',
             hmr: {
                 port: 5173,
+            },
+            fs: {
+                allow: [path.resolve(__dirname)],
             },
             // Proxy API requests to Express server
             proxy: {
