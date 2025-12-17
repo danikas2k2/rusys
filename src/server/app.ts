@@ -38,13 +38,18 @@ export function setupHelmet(app: Express): Express {
                 directives: {
                     defaultSrc: ["'self'"],
                     imgSrc: ["'self'", 'data:', 'https://lh3.googleusercontent.com'],
-                    styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+                    styleSrc: [
+                        "'self'",
+                        "'unsafe-inline'",
+                        'https://fonts.googleapis.com',
+                        'https://accounts.google.com',
+                    ],
                     fontSrc: ["'self'", 'https://fonts.gstatic.com'],
                     connectSrc: [
                         "'self'",
                         'https://fonts.googleapis.com',
                         'https://fonts.gstatic.com',
-                        // Allow Vite HMR WebSocket in dev (Vite runs on port 5173)
+                        'https://accounts.google.com',
                         ...(isDevMode() ? ['ws://localhost:5173', 'ws://127.0.0.1:5173'] : []),
                     ],
                     scriptSrc: ["'self'", 'https://accounts.google.com'],
