@@ -25,7 +25,6 @@
         "assets:icons": "pwa-asset-generator public/assets/logo.svg public/assets --padding '2%' --type png --opaque false --icon-only --favicon --mstile --manifest ./public/manifest.json --index ./public/index.html --xhtml",
         "assets:format": "stylelint --fix ./public/index.html && prettier --write ./public/index.html ./public/manifest.json",
         "build": "dotenv -e .env.build.local -- vite build",
-        "build:safe": "pnpm check && pnpm build",
         "dev": "dotenv -e .env.local -- npm-run-all --parallel dev:server dev:client",
         "dev:server": "ts-node --transpile-only --require tsconfig-paths/register src/server/dev.ts",
         "dev:client": "vite",
