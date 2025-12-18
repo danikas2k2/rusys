@@ -199,6 +199,11 @@ export default [
             // my custom overrides
             'arrow-body-style': ['error', 'as-needed'],
             'prefer-arrow-callback': ['error', { allowNamedFunctions: false }],
+
+            // Disallow one-liner control statements like `if (x) return;` / `if (x) continue;`
+            // and also disallow single-line blocks like `if (x) { return; }`.
+            curly: ['error', 'all'],
+            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
         },
         settings: {
             'import/resolver': {

@@ -6,6 +6,7 @@ import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
+import { cspInlineScriptsManifest } from './vite/plugins/csp-inline-scripts';
 import { injectTags, parseTemplate } from './vite/plugins/parse-template';
 
 export default defineConfig(({ mode }) => {
@@ -168,6 +169,12 @@ export default defineConfig(({ mode }) => {
                     minifyCSS: true,
                     minifyJS: true,
                 },
+            }),
+            // After the final index.html is emitted, compute CSP hashes for all injected inline scripts
+            // and write them into dist/public so the server can pick them up for Helmet CSP.
+            cspInlineScriptsManifest({
+                outDir: path.resolve(__dirname, 'dist/public'),
+                manifest: path.resolve(__dirname, 'src/server/csp-hashes.json'),
             }),
             react({
                 jsxRuntime: 'automatic',
