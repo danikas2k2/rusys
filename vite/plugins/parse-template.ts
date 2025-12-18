@@ -25,7 +25,6 @@ function getKey(tag: HtmlTagDescriptor): string {
     if (tag.children) {
         url.hash = createHash('sha256').update(`${tag.children}`, 'utf8').digest('hex');
     }
-    console.info(`[DEV]`, 'Generated tag key:', url.toString());
     return url.toString();
 }
 
@@ -48,7 +47,11 @@ export function parseTemplate(file: string): Map<string, HtmlTagDescriptor> {
 }
 
 export function injectTags(...tags: Map<string, HtmlTagDescriptor>[]): HtmlTagDescriptor[] {
-    const tagz = Array.from(new Map(...tags).values());
-    console.info(`[DEV]`, tags);
-    return tagz;
+    const merged = new Map<string, HtmlTagDescriptor>();
+    for (const map of tags) {
+        for (const [key, value] of map) {
+            merged.set(key, value);
+        }
+    }
+    return [...merged.values()];
 }
