@@ -8,16 +8,15 @@ import type { ActiveContent } from '~/client/common/ActiveContentContext';
 import { ActiveVariantBox } from '~/client/pages/variants/ActiveVariantBox';
 
 jest.mock('~/client/pages/variants/VariantBox', () => ({
-    VariantBox: ({ opened, onClose, onAfterClose, ...props }: any) => {
-        return opened ? (
+    VariantBox: ({ opened, onClose, onAfterClose, ...props }: any) =>
+        opened ? (
             <dialog open>
                 <button onClick={() => onClose?.()}>Close</button>
                 <button onClick={() => onAfterClose?.()}>After Close</button>
                 <div>{props.group}</div>
                 <div>{props.variant}</div>
             </dialog>
-        ) : null;
-    },
+        ) : null,
 }));
 
 describe('<ActiveVariantBox>', () => {

@@ -19,7 +19,7 @@ export default [
         ...react.configs.flat['recommended'],
         settings: {
             react: {
-                version: 'detect', // You can add this if you get a warning about the React version when you lint
+                version: 'detect',
             },
         },
     },
@@ -45,8 +45,6 @@ export default [
             'jest/max-expects': ['error', { max: 9 }],
             'jest/prefer-ending-with-an-expect': ['error', { assertFunctionNames: ['waitFor'] }],
             'jest/require-hook': ['error', { allowedFunctionCalls: ['mockEnv', 'mockWindow'] }],
-            // Disable valid-mock-module-path as it doesn't support TypeScript path aliases
-            // eslint-import-resolver-typescript already handles path resolution
             'jest/valid-mock-module-path': 'off',
         },
     },
@@ -119,6 +117,8 @@ export default [
             'no-useless-rename': 'error',
             'object-shorthand': 'error',
             'padded-blocks': ['error', 'never'],
+            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
+            curly: ['error', 'all'],
             semi: ['error', 'always'],
             eqeqeq: [
                 'error',
@@ -199,11 +199,6 @@ export default [
             // my custom overrides
             'arrow-body-style': ['error', 'as-needed'],
             'prefer-arrow-callback': ['error', { allowNamedFunctions: false }],
-
-            // Disallow one-liner control statements like `if (x) return;` / `if (x) continue;`
-            // and also disallow single-line blocks like `if (x) { return; }`.
-            curly: ['error', 'all'],
-            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
         },
         settings: {
             'import/resolver': {
@@ -228,7 +223,7 @@ export default [
         },
     },
     {
-        files: ['*.config.{js,ts}'],
+        files: ['*.config.{js,ts}', 'vite/**/*.{js,ts}'],
         languageOptions: {
             parser,
             parserOptions: {
@@ -241,6 +236,8 @@ export default [
             ts,
         },
         rules: {
+            curly: ['error', 'all'],
+            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
             'no-undef': 'off',
             'import/no-commonjs': 'off',
             'prettier/prettier': 'off',

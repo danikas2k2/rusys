@@ -17,10 +17,14 @@ function computeInlineScriptSha256FromHtml(html: string): string[] {
 
     const scripts = dom.window.document.querySelectorAll('script');
     for (const script of scripts) {
-        if (script.hasAttribute('src')) continue;
+        if (script.hasAttribute('src')) {
+            continue;
+        }
 
         const code = script.textContent ?? '';
-        if (code.trim().length === 0) continue;
+        if (code.trim().length === 0) {
+            continue;
+        }
 
         // Hash MUST be computed from exact script text (no trimming), CSP is byte-exact.
         const hash = `sha256-${sha256Base64(code)}`;
@@ -70,11 +74,9 @@ export function cspInlineScriptHashes(options: {
         transform(code, id) {
             // Vite sometimes appends query params; strip them for matching.
             const cleanId = id.split('?', 1)[0]!;
-            if (!cleanId.endsWith(options.output)) return null;
-
-            console.info(`[DEV]`, cleanId);
-            console.info(`[DEV]`, options.placeholder);
-            console.info(`[DEV]`, code);
+            if (!cleanId.endsWith(options.output)) {
+                return null;
+            }
 
             if (!code.match(options.placeholder)) {
                 this.error(`[csp] Placeholder "${options.placeholder}" not found in ${cleanId}`);
