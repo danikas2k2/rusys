@@ -3,17 +3,17 @@ import path from 'node:path';
 import type { MinifyOptions } from 'terser';
 import { defineConfig, type BuildEnvironmentOptions, type UserConfigExport } from 'vite';
 
+import { cspInlineScriptHashes } from './vite/plugins/csp-inline-scripts';
 import { generatePackageJson } from './vite/plugins/generate-package-json';
-import { injectCspInlineScriptHashes } from './vite/plugins/inject-csp-inline-scripts';
 
 export default defineConfig(() => {
     return {
         publicDir: false,
         plugins: [
-            injectCspInlineScriptHashes({
+            cspInlineScriptHashes({
                 input: path.resolve(__dirname, 'dist/public/index.html'),
                 output: path.resolve(__dirname, 'src/server/helmetOptions.ts'),
-                placeholder: /\["'unsafe-inline'"]; \/\/ Replace with actual hashes.*?$/,
+                placeholder: /\["'unsafe-inline'"]; \/\/ Replace with actual hashes.*?$/im,
             }),
             generatePackageJson(),
         ],
