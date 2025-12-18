@@ -6,6 +6,7 @@ export default {
     // HSTS forces HTTPS and causes Safari to upgrade http://localhost:3000 to
     // https://localhost:3000 where we do not serve TLS; keep it off.
     hsts: false,
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
