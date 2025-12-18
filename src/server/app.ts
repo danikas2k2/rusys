@@ -7,6 +7,7 @@ import express, { type Express } from 'express';
 import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 
+import { isDevMode } from '~/common/utils/dev';
 import { debug } from '~/server/api/debug';
 import { ApiUrlHandlers } from '~/server/handlers';
 import helmetOptions from '~/server/helmetOptions';
@@ -19,6 +20,29 @@ export function setup(app = express()): Express {
 }
 
 export function setupHelmet(app: Express): Express {
+    // If running behind a reverse proxy (typical in production), this enables correct HTTPS detection
+    // via X-Forwarded-* headers for redirects and other security logic.
+    app.set('trust proxy', true);
+
+    // Force HTTPS in production (works both when Node terminates TLS and when TLS is terminated upstream).
+    // Keep it off in dev to avoid Safari/localhost issues.
+    if (!isDevMode()) {
+        app.use((req, res, next) => {
+            const xfp = (req.headers['x-forwarded-proto'] ?? '').toString();
+            const isSecure = req.secure || xfp.split(',')[0]?.trim() === 'https';
+            if (isSecure) {
+                return next();
+            }
+
+            const host = req.headers.host;
+            if (!host) {
+                return next();
+            }
+
+            return res.redirect(308, `https://${host}${req.originalUrl}`);
+        });
+    }
+
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json({ inflate: true }));
     app.use(
@@ -31,13 +55,12 @@ export function setupHelmet(app: Express): Express {
     app.use(cors());
     app.use(helmet(helmetOptions));
 
-    // Explicitly clear any previously stored HSTS policy for localhost/127.0.0.1 in browsers
-    // that may have cached it from earlier runs. Only effective over HTTPS, so this is mainly
-    // for the 4000 port; harmless elsewhere.
-    app.use((_, res, next) => {
-        res.setHeader('Strict-Transport-Security', 'max-age=0');
-        next();
-    });
+    if (isDevMode()) {
+        app.use((_, res, next) => {
+            res.setHeader('Strict-Transport-Security', 'max-age=0');
+            next();
+        });
+    }
 
     return app;
 }

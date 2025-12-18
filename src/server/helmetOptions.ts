@@ -1,11 +1,17 @@
+import type { HelmetOptions } from 'helmet';
+
 import { isDevMode } from '~/common/utils/dev';
 
 const prodInlineScriptHashes: string[] = ["'unsafe-inline'"]; // Replace with actual hashes in production for better security
 
-export default {
-    // HSTS forces HTTPS and causes Safari to upgrade http://localhost:3000 to
-    // https://localhost:3000 where we do not serve TLS; keep it off.
-    hsts: false,
+const helmetOptions: Readonly<HelmetOptions> = {
+    hsts: isDevMode()
+        ? false
+        : {
+              maxAge: 180 * 86400, // 180 days
+              includeSubDomains: false,
+              preload: false,
+          },
     crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
     contentSecurityPolicy: {
         directives: {
@@ -30,8 +36,9 @@ export default {
                 ...(isDevMode() ? ["'unsafe-inline'"] : prodInlineScriptHashes),
             ],
             objectSrc: ["'none'"],
-            // Do NOT auto-upgrade http→https; Safari would then try TLS on 3000 and fail.
-            upgradeInsecureRequests: null,
+            upgradeInsecureRequests: isDevMode() ? null : [],
         },
     },
 };
+
+export default helmetOptions;
