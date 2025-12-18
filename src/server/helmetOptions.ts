@@ -17,6 +17,8 @@ export default {
                 'https://fonts.googleapis.com',
                 'https://fonts.gstatic.com',
                 'https://accounts.google.com',
+                'https://openidconnect.googleapis.com',
+                'https://www.googleapis.com',
                 ...(isDevMode() ? ['ws://localhost:5173', 'ws://127.0.0.1:5173'] : []),
             ],
             frameSrc: ["'self'", 'https://accounts.google.com'],

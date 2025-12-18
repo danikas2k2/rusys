@@ -15,11 +15,22 @@ describe('useLoginSuccess', () => {
     const emailCheck = jest.fn().mockResolvedValue(true);
 
     beforeAll(() => {
+        // Jest (node) environment may not provide fetch; define it so jest.spyOn can work.
+        if (!('fetch' in globalThis)) {
+            Object.defineProperty(globalThis, 'fetch', {
+                value: async () => ({ ok: true, json: async () => ({}) }),
+                writable: true,
+                configurable: true,
+            });
+        }
         jest.mocked(useSetProfile).mockReturnValue(setProfile);
         jest.mocked(useEmailCheck).mockReturnValue(emailCheck);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => {
+        jest.restoreAllMocks();
+        jest.clearAllMocks();
+    });
 
     it('sets profile and checks email when response contains valid data', async () => {
         jest.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
@@ -46,13 +57,17 @@ describe('useLoginSuccess', () => {
     });
 
     it('sets profile and checks email when response contains TokenResponse with access_token', async () => {
-        jest.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
+        // access_token is not a JWT; we fetch userinfo instead
+        jest.spyOn(globalThis, 'fetch').mockResolvedValue({
+            ok: true,
+            json: async () => ({ email: 'test.email@email.com', sub: '123' }),
+        } as any);
 
         const onError = jest.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
         await act(() => result.current({ access_token: 'test-token' } as any));
 
-        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com' });
+        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com', sub: '123' });
         expect(emailCheck).toHaveBeenCalledWith('test.email@email.com');
         expect(onError).not.toHaveBeenCalled();
     });
@@ -70,7 +85,10 @@ describe('useLoginSuccess', () => {
     });
 
     it('calls onError when decoded profile from access_token does not contain email', async () => {
-        jest.mocked(jwtDecode).mockReturnValue({ name: 'Test User' });
+        jest.spyOn(globalThis, 'fetch').mockResolvedValue({
+            ok: true,
+            json: async () => ({ name: 'Test User', sub: '123' }),
+        } as any);
 
         const onError = jest.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
@@ -82,25 +100,31 @@ describe('useLoginSuccess', () => {
     });
 
     it('uses access_token when credential is undefined', async () => {
-        jest.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
+        jest.spyOn(globalThis, 'fetch').mockResolvedValue({
+            ok: true,
+            json: async () => ({ email: 'test.email@email.com', sub: '123' }),
+        } as any);
 
         const onError = jest.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
         await act(() => result.current({ credential: undefined, access_token: 'test-token' } as any));
 
-        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com' });
+        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com', sub: '123' });
         expect(emailCheck).toHaveBeenCalledWith('test.email@email.com');
         expect(onError).not.toHaveBeenCalled();
     });
 
     it('uses access_token when credential is null', async () => {
-        jest.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
+        jest.spyOn(globalThis, 'fetch').mockResolvedValue({
+            ok: true,
+            json: async () => ({ email: 'test.email@email.com', sub: '123' }),
+        } as any);
 
         const onError = jest.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
         await act(() => result.current({ credential: null, access_token: 'test-token' } as any));
 
-        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com' });
+        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com', sub: '123' });
         expect(emailCheck).toHaveBeenCalledWith('test.email@email.com');
         expect(onError).not.toHaveBeenCalled();
     });
