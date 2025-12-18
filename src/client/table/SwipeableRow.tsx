@@ -90,7 +90,9 @@ export function SwipeableRow<D = ActiveContentData>({
 
     const handlePointerDown = useCallback(
         (e: PointerEvent) => {
-            if (!e.isPrimary || (e.target as HTMLElement).closest(avoidSwipeSelectors)) return;
+            if (!e.isPrimary || (e.target as HTMLElement).closest(avoidSwipeSelectors)) {
+                return;
+            }
 
             const { clientX, clientY } = e;
             const left = (e.currentTarget as HTMLTableRowElement)?.getBoundingClientRect().left;
@@ -111,7 +113,9 @@ export function SwipeableRow<D = ActiveContentData>({
 
     const handlePointerMove = useCallback(
         (e: PointerEvent) => {
-            if (!e.isPrimary) return;
+            if (!e.isPrimary) {
+                return;
+            }
 
             const { clientX, clientY } = e;
             if (dragging) {
@@ -190,7 +194,9 @@ export function SwipeableRow<D = ActiveContentData>({
 
     const handlePointerUp = useCallback(
         (e: PointerEvent) => {
-            if (!e.isPrimary) return;
+            if (!e.isPrimary) {
+                return;
+            }
 
             // pointerup event may not have clientX/clientY if pointer left the element
             // Use lastClientXRef as fallback if clientX are invalid
@@ -270,7 +276,9 @@ export function SwipeableRow<D = ActiveContentData>({
     // Update touch-action based on panel state
     useEffect(() => {
         const table = activeRef.current?.closest('table');
-        if (!table) return;
+        if (!table) {
+            return;
+        }
 
         // Set touch-action based on panel state (none when open, pan-y when closed)
         table.style.touchAction = visible && x ? 'none' : 'pan-y';
@@ -282,7 +290,9 @@ export function SwipeableRow<D = ActiveContentData>({
 
     useEffect(() => {
         const el = activeRef.current;
-        if (!el) return;
+        if (!el) {
+            return;
+        }
 
         el.addEventListener('pointerdown', handlePointerDown, { passive: false });
         el.addEventListener('pointermove', handlePointerMove, { passive: false });

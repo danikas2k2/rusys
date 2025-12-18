@@ -9,15 +9,14 @@ import { ActiveVariantBox } from '~/client/pages/variants/ActiveVariantBox';
 
 jest.mock('~/client/pages/variants/VariantBox', () => ({
     VariantBox: ({ opened, onClose, onAfterClose, ...props }: any) => {
-        if (!opened) return null;
-        return (
+        return opened ? (
             <dialog open>
                 <button onClick={() => onClose?.()}>Close</button>
                 <button onClick={() => onAfterClose?.()}>After Close</button>
                 <div>{props.group}</div>
                 <div>{props.variant}</div>
             </dialog>
-        );
+        ) : null;
     },
 }));
 

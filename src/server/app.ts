@@ -7,7 +7,6 @@ import express, { type Express } from 'express';
 import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 
-import { isDevMode } from '~/common/utils/dev';
 import { debug } from '~/server/api/debug';
 import { ApiUrlHandlers } from '~/server/handlers';
 import helmetOptions from '~/server/helmetOptions';

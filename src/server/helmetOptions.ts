@@ -1,5 +1,7 @@
 import { isDevMode } from '~/common/utils/dev';
 
+const prodInlineScriptHashes: string[] = ["'unsafe-inline'"]; // Replace with actual hashes in production for better security
+
 export default {
     // HSTS forces HTTPS and causes Safari to upgrade http://localhost:3000 to
     // https://localhost:3000 where we do not serve TLS; keep it off.
@@ -19,7 +21,11 @@ export default {
             ],
             frameSrc: ["'self'", 'https://accounts.google.com'],
             scriptSrc: ["'self'", 'https://accounts.google.com'],
-            scriptSrcElem: ["'self'", 'https://accounts.google.com'],
+            scriptSrcElem: [
+                "'self'",
+                'https://accounts.google.com',
+                ...(isDevMode() ? ["'unsafe-inline'"] : prodInlineScriptHashes),
+            ],
             objectSrc: ["'none'"],
             // Do NOT auto-upgrade http→https; Safari would then try TLS on 3000 and fail.
             upgradeInsecureRequests: null,
