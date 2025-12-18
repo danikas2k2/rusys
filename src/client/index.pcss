@@ -107,6 +107,15 @@ select,
     }
 }
 
+@media (hover: none) {
+    .ui-NavLink-root,
+    .ui-Select-option {
+        &:active {
+            background-color: var(--mantine-primary-color-light);
+        }
+    }
+}
+
 .ui-SegmentedControl-root {
     background-color: var(--mantine-color-gray-3);
     border-color: var(--mantine-color-default-border);
