@@ -1,4 +1,6 @@
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
+import path from 'node:path';
 
 import { JSDOM } from 'jsdom';
 import type { HtmlTagDescriptor } from 'vite';
@@ -20,6 +22,10 @@ function getKey(tag: HtmlTagDescriptor): string {
     for (const [key, value] of Object.entries(tag.attrs || {})) {
         url.searchParams.set(key, String(value));
     }
+    if (tag.children) {
+        url.hash = createHash('sha256').update(`${tag.children}`, 'utf8').digest('hex');
+    }
+    console.info(`[DEV]`, 'Generated tag key:', url.toString());
     return url.toString();
 }
 
@@ -34,10 +40,15 @@ function getTags(elements: HTMLCollection, injectTo: 'head' | 'body'): Map<strin
     return tags;
 }
 
-export function getTagMap(file: string): Map<string, HtmlTagDescriptor> {
+export function parseTemplate(file: string): Map<string, HtmlTagDescriptor> {
     const dom = new JSDOM(fs.readFileSync(file, 'utf8'));
-    return new Map<string, HtmlTagDescriptor>([
-        ...getTags(dom.window.document.head.children, 'head'),
-        ...getTags(dom.window.document.body.children, 'body'),
-    ]);
+    const head = getTags(dom.window.document.head.children, 'head');
+    const body = getTags(dom.window.document.body.children, 'body');
+    return new Map<string, HtmlTagDescriptor>([...head, ...body]);
+}
+
+export function injectTags(...tags: Map<string, HtmlTagDescriptor>[]): HtmlTagDescriptor[] {
+    const tagz = Array.from(new Map(...tags).values());
+    console.info(`[DEV]`, tags);
+    return tagz;
 }

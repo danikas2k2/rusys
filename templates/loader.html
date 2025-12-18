@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/assets/loader.css" />
+    <script>
+      /* <![CDATA[ */
+      (function () {
+        document.documentElement.setAttribute(
+          "data-mantine-color-scheme",
+          window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+        );
+      })();
+      /* ]]> */
+    </script>
+  </head>
+  <body>
+    <div id="root">
+      <div class="loader">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+  </body>
+</html>

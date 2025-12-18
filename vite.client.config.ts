@@ -6,7 +6,7 @@ import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
-import { getTagMap } from './vite/plugins/get-tag-map';
+import { injectTags, parseTemplate } from './vite/plugins/parse-template';
 
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
@@ -155,11 +155,10 @@ export default defineConfig(({ mode }) => {
                 template: 'index.html',
                 entry: 'src/client/index.tsx',
                 inject: {
-                    tags: Array.from(
-                        new Map([
-                            ...getTagMap(path.resolve(__dirname, 'public/icons.html')),
-                            ...getTagMap(path.resolve(__dirname, 'public/splash.html')),
-                        ]).values()
+                    tags: injectTags(
+                        parseTemplate(path.resolve(__dirname, 'templates/icons.html')),
+                        parseTemplate(path.resolve(__dirname, 'templates/splash.html')),
+                        parseTemplate(path.resolve(__dirname, 'templates/loader.html'))
                     ),
                 },
                 minify: !development && {
