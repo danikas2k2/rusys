@@ -10,6 +10,8 @@ import { handleGroups } from '~/server/api/handleGroups';
 import { handleImport } from '~/server/api/handleImport';
 import { handleMove } from '~/server/api/handleMove';
 import { handleProducts } from '~/server/api/handleProducts';
+import { handleDeleteProductsHistory } from '~/server/api/handleDeleteProductsHistory';
+import { handleProductsHistory } from '~/server/api/handleProductsHistory';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
@@ -20,6 +22,7 @@ import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { handleSummary } from '~/server/api/handleSummary';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
+import { handleUpdateProductsHistory } from '~/server/api/handleUpdateProductsHistory';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { handleVariants } from '~/server/api/handleVariants';
 import { ApiUrl, type ApiRequest, type ApiResponse } from '~/types/api';
@@ -33,6 +36,9 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.Products]: handleProducts,
     [ApiUrl.ProductsAdd]: handleAdd,
     [ApiUrl.ProductsUpdate]: handleUpdateProduct,
+    [ApiUrl.ProductsHistory]: handleProductsHistory,
+    [ApiUrl.ProductsHistoryUpdate]: handleUpdateProductsHistory,
+    [ApiUrl.ProductsHistoryDelete]: handleDeleteProductsHistory,
     [ApiUrl.ProductsSetRemoving]: handleSetRemoving,
     [ApiUrl.ProductsSetMissing]: handleSetMissing,
     [ApiUrl.ProductsRename]: handleRename,

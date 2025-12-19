@@ -13,7 +13,18 @@ export interface YearAmounts {
 
 export interface Update {
     time: number;
+    user?: string;
     years: readonly YearAmounts[];
+}
+
+export interface ProductUpdateHistoryItem {
+    id: string;
+    group: string;
+    name: string;
+    time: number;
+    user?: string;
+    year: number;
+    amounts: readonly VariantAmount[];
 }
 
 export interface RemovingYearAmounts extends YearAmounts {
