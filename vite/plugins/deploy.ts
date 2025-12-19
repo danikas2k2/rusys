@@ -33,7 +33,8 @@ export function deploy(config?: DeployConfig): Plugin {
                 // Upload dist files
                 console.log('📤 Uploading dist files...');
                 execSync(
-                    `rsync -avz -e "ssh -p ${serverPort}" --delete ${distPath}/ ${serverUser}@${serverHost}:${remotePath}/dist/`,
+                    // Use --checksum so unchanged files are not recopied even if build touched mtimes.
+                    `rsync -avz --checksum -e "ssh -p ${serverPort}" --delete ${distPath}/ ${serverUser}@${serverHost}:${remotePath}/dist/`,
                     { stdio: 'inherit' }
                 );
 
