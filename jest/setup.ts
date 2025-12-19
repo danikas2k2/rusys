@@ -2,6 +2,12 @@ import '@testing-library/jest-dom';
 
 import { TextDecoder as NodeTextDecoder, TextEncoder as NodeTextEncoder } from 'node:util';
 
+// Ensure test runs don't accidentally behave like production if CI sets NODE_ENV=production.
+// Jest only sets NODE_ENV to "test" if it wasn't already set.
+if (process.env.NODE_ENV === 'production') {
+    process.env.NODE_ENV = 'test';
+}
+
 // update JSDOM setup
 if (globalThis.HTMLElement) {
     const { getComputedStyle } = globalThis;
