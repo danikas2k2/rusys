@@ -1,6 +1,6 @@
-import { Alert, Avatar, Button, Group, Modal, Stack, Table, Text, Textarea, TextInput, Title } from '@mantine/core';
+import { Alert, Avatar, Button, Group, Modal, Stack, Table, Text, Textarea, TextInput, ThemeIcon } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconAlertCircle, IconRefresh, IconRobotFace, IconTrash } from '@tabler/icons-react';
+import { IconAlertCircle, IconRobotFace, IconToolsKitchen2, IconTrash } from '@tabler/icons-react';
 import md5 from 'blueimp-md5';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -31,8 +31,46 @@ function assertOk<R extends object>(result: ApiResult<R>): asserts result is { o
     }
 }
 
-function formatAmounts(amounts: readonly VariantAmount[]): string {
-    return amounts.map((a) => `${a.variant}:${a.amount}${a.recycled ? ' (recycled)' : ''}`).join(', ');
+function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }): React.ReactElement {
+    if (!amounts.length) {
+        return (
+            <Text size="sm" c="dimmed">
+                —
+            </Text>
+        );
+    }
+
+    const sorted = [...amounts].sort((a, b) => a.variant.localeCompare(b.variant));
+
+    return (
+        <Stack gap={4}>
+            {sorted.map((a) => {
+                const recycled = !!a.recycled;
+                const typeLabel = recycled ? 'Recycled' : 'Consumed';
+                const color = recycled ? 'red' : 'green';
+                const Icon = recycled ? IconTrash : IconToolsKitchen2;
+
+                return (
+                    <Group
+                        key={`${a.variant}-${a.amount}-${recycled ? 'r' : 'c'}`}
+                        justify="space-between"
+                        wrap="nowrap"
+                        gap="xs"
+                    >
+                        <Group wrap="nowrap" gap="xs">
+                            <ThemeIcon size="sm" variant="light" color={color} title={typeLabel} aria-label={typeLabel}>
+                                <Icon size={14} />
+                            </ThemeIcon>
+                            <Text size="sm">{a.variant}</Text>
+                        </Group>
+                        <Text size="sm" fw={500}>
+                            {a.amount > 0 ? `+${a.amount}` : a.amount < 0 ? `−${Math.abs(a.amount)}` : '0'}
+                        </Text>
+                    </Group>
+                );
+            })}
+        </Stack>
+    );
 }
 
 function formatTime(time: number): string {
@@ -406,10 +444,7 @@ function HistoryContent({ setReload }: { setReload?: React.Dispatch<React.SetSta
                             <Label>Time</Label>
                         </Table.Th>
                         <Table.Th>
-                            <Label>Group</Label>
-                        </Table.Th>
-                        <Table.Th>
-                            <Label>Product</Label>
+                            <Label>Name</Label>
                         </Table.Th>
                         <Table.Th>
                             <Label>Year</Label>
@@ -421,7 +456,7 @@ function HistoryContent({ setReload }: { setReload?: React.Dispatch<React.SetSta
                 </Table.Thead>
                 {sessions.map((s) => (
                     <React.Fragment key={`${s.startTime}-${s.endTime}`}>
-                        <GroupTitle colSpan={6}>
+                        <GroupTitle colSpan={5}>
                             <Group justify="space-between">
                                 <Label>{formatSessionStartTitle(s.startTime)}</Label>
                                 <Text size="sm" c="dimmed">
@@ -430,43 +465,82 @@ function HistoryContent({ setReload }: { setReload?: React.Dispatch<React.SetSta
                             </Group>
                         </GroupTitle>
                         <Table.Tbody>
-                            {s.items.map((h) => (
-                                <SwipeableRow
-                                    key={h.id}
-                                    id={h.id}
-                                    data={h}
-                                    data-group={h.group}
-                                    style={{ cursor: 'pointer' }}
-                                    onClick={() => {
-                                        // If this row is currently swiped open, clicking closes it (same UX as other tables)
-                                        if (active?.id === h.id && active?.offset && !active?.action) {
-                                            setActive();
-                                            return;
-                                        }
+                            {(() => {
+                                const userKey = (h: ProductUpdateHistoryItem) => (h.user ?? '').toLowerCase();
+                                const timeKey = (h: ProductUpdateHistoryItem) => Math.floor(h.time / 60000); // minute precision
+                                const nameGroupKey = (h: ProductUpdateHistoryItem) => `${h.name}\n${h.group}`;
+                                const yearKey = (h: ProductUpdateHistoryItem) => h.year;
 
-                                        // Otherwise, ensure any swipe panel closes, then open edit
-                                        setActive();
-                                        openEdit(h);
-                                    }}
-                                >
-                                    <Table.Td>
-                                        <EmailAvatar
-                                            email={h.user}
-                                            profile={h.user ? profilesByEmail[h.user.toLowerCase()] : undefined}
-                                            fallbackPicture={
-                                                h.user && me.email && h.user.toLowerCase() === me.email.toLowerCase()
-                                                    ? me.picture
-                                                    : undefined
-                                            }
-                                        />
-                                    </Table.Td>
-                                    <Table.Td>{formatTime(h.time)}</Table.Td>
-                                    <Table.Td>{h.group}</Table.Td>
-                                    <Table.Td>{h.name}</Table.Td>
-                                    <Table.Td>{h.year}</Table.Td>
-                                    <Table.Td>{formatAmounts(h.amounts ?? [])}</Table.Td>
-                                </SwipeableRow>
-                            ))}
+                                const showIfChanged = <T,>(
+                                    items: readonly ProductUpdateHistoryItem[],
+                                    idx: number,
+                                    k: (h: ProductUpdateHistoryItem) => T
+                                ) => {
+                                    if (idx === 0) return true;
+                                    return k(items[idx]!) !== k(items[idx - 1]!);
+                                };
+
+                                return s.items.map((h, idx) => {
+                                    const showUser = showIfChanged(s.items, idx, userKey);
+                                    const showTime = showIfChanged(s.items, idx, timeKey);
+                                    const showNameGroup = showIfChanged(s.items, idx, nameGroupKey);
+                                    const showYear = h.year !== 0 && showIfChanged(s.items, idx, yearKey);
+
+                                    return (
+                                        <SwipeableRow
+                                            key={h.id}
+                                            id={h.id}
+                                            data={h}
+                                            data-group={h.group}
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => {
+                                                // If this row is currently swiped open, clicking closes it (same UX as other tables)
+                                                if (active?.id === h.id && active?.offset && !active?.action) {
+                                                    setActive();
+                                                    return;
+                                                }
+
+                                                // Otherwise, ensure any swipe panel closes, then open edit
+                                                setActive();
+                                                openEdit(h);
+                                            }}
+                                        >
+                                            <Table.Td>
+                                                {showUser ? (
+                                                    <EmailAvatar
+                                                        email={h.user}
+                                                        profile={
+                                                            h.user ? profilesByEmail[h.user.toLowerCase()] : undefined
+                                                        }
+                                                        fallbackPicture={
+                                                            h.user &&
+                                                            me.email &&
+                                                            h.user.toLowerCase() === me.email.toLowerCase()
+                                                                ? me.picture
+                                                                : undefined
+                                                        }
+                                                    />
+                                                ) : null}
+                                            </Table.Td>
+                                            <Table.Td>{showTime ? formatTime(h.time) : ''}</Table.Td>
+                                            <Table.Td>
+                                                {showNameGroup ? (
+                                                    <>
+                                                        <Text size="sm">{h.name}</Text>
+                                                        <Text size="xs" c="dimmed">
+                                                            {h.group}
+                                                        </Text>
+                                                    </>
+                                                ) : null}
+                                            </Table.Td>
+                                            <Table.Td>{showYear ? h.year : ''}</Table.Td>
+                                            <Table.Td>
+                                                <AmountsCell amounts={h.amounts ?? []} />
+                                            </Table.Td>
+                                        </SwipeableRow>
+                                    );
+                                });
+                            })()}
                         </Table.Tbody>
                     </React.Fragment>
                 ))}

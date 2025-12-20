@@ -37,6 +37,14 @@ export async function getProductsHistory(year: number): Promise<{ history: reado
                 },
             },
             { $unwind: '$updates.years' },
+            // Drop meaningless history entries (no recorded amounts)
+            {
+                $match: {
+                    $expr: {
+                        $gt: [{ $size: { $ifNull: ['$updates.years.amounts', []] } }, 0],
+                    },
+                },
+            },
             {
                 $project: {
                     _id: 0,
