@@ -27,6 +27,13 @@ export interface ProductUpdateHistoryItem {
     amounts: readonly VariantAmount[];
 }
 
+export interface UserProfile {
+    email: string;
+    name?: string;
+    picture?: string;
+    updatedAt?: number;
+}
+
 export interface RemovingYearAmounts extends YearAmounts {
     removing?: boolean;
 }

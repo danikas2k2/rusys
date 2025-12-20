@@ -49,6 +49,7 @@ describe('<LoginButton>', () => {
         expect(useGoogleLogin).toHaveBeenCalledWith({
             onSuccess: expect.any(Function),
             onError: expect.any(Function),
+            scope: 'openid email profile',
         });
         expect(login).not.toHaveBeenCalled();
 
@@ -67,6 +68,7 @@ describe('<LoginButton>', () => {
         expect(useGoogleOneTapLogin).toHaveBeenCalledWith({
             onSuccess: expect.any(Function),
             onError: expect.any(Function),
+            scope: 'openid email profile',
         });
     });
 

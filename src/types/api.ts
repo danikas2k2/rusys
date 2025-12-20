@@ -16,6 +16,8 @@ export const enum ApiUrl {
     // Client/User
     ClientId = '/clientId',
     CheckUser = '/checkUser',
+    UserProfileUpsert = '/userProfile/upsert',
+    UserProfiles = '/userProfiles',
 
     // Summary
     Summary = '/summary',
@@ -60,6 +62,20 @@ export interface ApiUserAllowed {
 
 export interface ApiClientId {
     clientId: string;
+}
+
+export interface ApiUpsertUserProfile {
+    email: string;
+    name?: string;
+    picture?: string;
+}
+
+export interface ApiGetUserProfiles {
+    emails: readonly string[];
+}
+
+export interface ApiUserProfiles {
+    profiles: readonly import('./data').UserProfile[];
 }
 
 export interface ApiProducts {

@@ -16,7 +16,15 @@ const helmetOptions: Readonly<HelmetOptions> = {
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            imgSrc: ["'self'", 'data:', 'https://lh3.googleusercontent.com'],
+            imgSrc: [
+                "'self'",
+                'data:',
+                'https://lh3.googleusercontent.com',
+                'https://lh4.googleusercontent.com',
+                'https://*.googleusercontent.com',
+                'https://www.gravatar.com',
+                'https://secure.gravatar.com',
+            ],
             styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://accounts.google.com'],
             fontSrc: ["'self'", 'https://fonts.gstatic.com'],
             connectSrc: [

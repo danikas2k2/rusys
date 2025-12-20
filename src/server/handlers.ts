@@ -24,6 +24,8 @@ import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
 import { handleUpdateProductsHistory } from '~/server/api/handleUpdateProductsHistory';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
+import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
+import { handleUserProfiles } from '~/server/api/handleUserProfiles';
 import { handleVariants } from '~/server/api/handleVariants';
 import { ApiUrl, type ApiRequest, type ApiResponse } from '~/types/api';
 
@@ -32,6 +34,8 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.Import]: handleImport,
     [ApiUrl.ClientId]: handleClientId,
     [ApiUrl.CheckUser]: handleCheckUser,
+    [ApiUrl.UserProfileUpsert]: handleUpsertUserProfile,
+    [ApiUrl.UserProfiles]: handleUserProfiles,
     [ApiUrl.Summary]: handleSummary,
     [ApiUrl.Products]: handleProducts,
     [ApiUrl.ProductsAdd]: handleAdd,

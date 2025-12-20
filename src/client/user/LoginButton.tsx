@@ -17,6 +17,7 @@ export function LoginButton() {
         () => ({
             onSuccess,
             onError,
+            scope: 'openid email profile',
         }),
         [onError, onSuccess]
     );

@@ -53,6 +53,10 @@ export async function createMissingIndexes(database: Db): Promise<void> {
             { key: { group: 1 }, name: 'group', unique: true, background: true },
             { key: { order: 1 }, name: 'order', background: true },
         ]),
+        database.collection('user_profiles').createIndexes([
+            { key: { email: 1 }, name: 'email', unique: true, background: true },
+            { key: { updatedAt: -1 }, name: 'updatedAt', background: true },
+        ]),
     ]);
 }
 

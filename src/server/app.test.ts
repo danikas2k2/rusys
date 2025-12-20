@@ -28,6 +28,8 @@ import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
 import { handleUpdateProductsHistory } from '~/server/api/handleUpdateProductsHistory';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
+import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
+import { handleUserProfiles } from '~/server/api/handleUserProfiles';
 import { handleVariants } from '~/server/api/handleVariants';
 import { setup, startHttpServer, startHttpsServer } from '~/server/app';
 import { ApiUrl } from '~/types/api';
@@ -37,6 +39,8 @@ jest.mock('~/server/api/debug');
 // Client/User
 jest.mock('~/server/api/handleClientId', () => ({ handleClientId: jest.fn() }));
 jest.mock('~/server/api/handleCheckUser', () => ({ handleCheckUser: jest.fn() }));
+jest.mock('~/server/api/handleUpsertUserProfile', () => ({ handleUpsertUserProfile: jest.fn() }));
+jest.mock('~/server/api/handleUserProfiles', () => ({ handleUserProfiles: jest.fn() }));
 
 // Summary
 jest.mock('~/server/api/handleSummary', () => ({ handleSummary: jest.fn() }));
@@ -77,6 +81,8 @@ describe('app', () => {
             url                           | handle
             ${ApiUrl.ClientId}            | ${handleClientId}
             ${ApiUrl.CheckUser}           | ${handleCheckUser}
+            ${ApiUrl.UserProfileUpsert}   | ${handleUpsertUserProfile}
+            ${ApiUrl.UserProfiles}        | ${handleUserProfiles}
             ${ApiUrl.Summary}             | ${handleSummary}
             ${ApiUrl.Products}            | ${handleProducts}
             ${ApiUrl.ProductsUpdate}      | ${handleUpdateProduct}

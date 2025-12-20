@@ -1,25 +1,27 @@
 import { Alert, Avatar, Button, Group, Modal, Stack, Table, Text, Textarea, TextInput, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconAlertCircle, IconRefresh, IconRobotFace, IconTrash } from '@tabler/icons-react';
+import md5 from 'blueimp-md5';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';
-import { SwipePanel } from '~/client/common/SwipePanel';
 import { SwipeControlsWrapper } from '~/client/common/SwipeControlsContext';
+import { SwipePanel } from '~/client/common/SwipePanel';
 import { GroupFilterWrapper, useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { QuickFilterWrapper, useQuickFilter } from '~/client/filters/QuickFilterContext';
-import { YearFilterWrapper, useYearFilter } from '~/client/filters/YearFilterContext';
+import { useYearFilter, YearFilterWrapper } from '~/client/filters/YearFilterContext';
 import { Page } from '~/client/pages/common/Page';
 import { useApiRequest } from '~/client/state/common/useApiRequest';
 import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
+import { useProfile } from '~/client/state/profile/useProfile';
 import { GroupTitle } from '~/client/table/GroupTitle';
 import { SwipeableRow } from '~/client/table/SwipeableRow';
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
 import { ToolbarYearFilter } from '~/client/toolbar/ToolbarYearFilter';
 import { getErrorMessage } from '~/client/utils/errors';
 import { ApiUrl, type ApiResult } from '~/types/api';
-import type { ProductUpdateHistoryItem, VariantAmount } from '~/types/data';
+import type { ProductUpdateHistoryItem, UserProfile, VariantAmount } from '~/types/data';
 
 type HistoryResponse = ApiResult<{ history: readonly ProductUpdateHistoryItem[] }>;
 
@@ -30,43 +32,142 @@ function assertOk<R extends object>(result: ApiResult<R>): asserts result is { o
 }
 
 function formatAmounts(amounts: readonly VariantAmount[]): string {
-    return amounts
-        .map((a) => `${a.variant}:${a.amount}${a.recycled ? ' (recycled)' : ''}`)
-        .join(', ');
-}
-
-function dateKeyFromTime(time: number): string {
-    const d = new Date(time);
-    const y = d.getFullYear();
-    const m = `${d.getMonth() + 1}`.padStart(2, '0');
-    const day = `${d.getDate()}`.padStart(2, '0');
-    return `${y}-${m}-${day}`;
-}
-
-function formatDateKey(key: string): string {
-    const [y, m, d] = key.split('-').map((v) => parseInt(v, 10));
-    // Fallback if parsing fails
-    if (!y || !m || !d) {
-        return key;
-    }
-    return new Date(y, m - 1, d).toLocaleDateString();
+    return amounts.map((a) => `${a.variant}:${a.amount}${a.recycled ? ' (recycled)' : ''}`).join(', ');
 }
 
 function formatTime(time: number): string {
-    return new Date(time).toLocaleTimeString();
+    return new Date(time).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
-function EmailAvatar({ email }: { email?: string }): React.ReactElement | null {
-    if (!email) {
-        return null;
+const SESSION_GAP_MS = 15 * 60 * 1000;
+
+function startOfDay(d: Date): Date {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function isSameDay(a: Date, b: Date): boolean {
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+function startOfWeekMonday(d: Date): Date {
+    // JS: Sunday=0 ... Saturday=6; we want Monday as first day of week
+    const day = d.getDay();
+    const diff = (day + 6) % 7; // Monday->0, Sunday->6
+    const start = new Date(d.getFullYear(), d.getMonth(), d.getDate() - diff);
+    return start;
+}
+
+function capitalizeLt(s: string): string {
+    if (!s) return s;
+    return s[0]!.toUpperCase() + s.slice(1);
+}
+
+function roundDownToQuarterHour(time: number): number {
+    const d = new Date(time);
+    d.setSeconds(0, 0);
+    const m = d.getMinutes();
+    d.setMinutes(Math.floor(m / 15) * 15);
+    return d.getTime();
+}
+
+function formatSessionStartTitle(startTime: number): string {
+    const rounded = new Date(roundDownToQuarterHour(startTime));
+    const now = new Date();
+
+    const today = startOfDay(now);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const weekStart = startOfWeekMonday(now);
+    const nextWeekStart = new Date(weekStart);
+    nextWeekStart.setDate(nextWeekStart.getDate() + 7);
+
+    const timeStr = rounded.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+
+    if (isSameDay(rounded, today)) {
+        return timeStr; // today: omit date completely
+    }
+    if (isSameDay(rounded, yesterday)) {
+        return `Vakar ${timeStr}`;
+    }
+    if (rounded >= weekStart && rounded < nextWeekStart) {
+        const weekday = capitalizeLt(rounded.toLocaleDateString('lt-LT', { weekday: 'long' }));
+        return `${weekday} ${timeStr}`;
     }
 
-    if (email.toLowerCase() === DEV_MODE_EMAIL.toLowerCase()) {
-        return (
-            <Avatar color="cyan.9" variant="outline" radius="50%" size="sm" data-robot="true">
-                <IconRobotFace size="60%" />
-            </Avatar>
-        );
+    const monthDay = capitalizeLt(rounded.toLocaleDateString('lt-LT', { month: 'long', day: 'numeric' }));
+    return `${monthDay} ${timeStr}`;
+}
+
+type HistorySession = {
+    startTime: number;
+    endTime: number;
+    items: readonly ProductUpdateHistoryItem[];
+};
+
+function buildSessions(items: readonly ProductUpdateHistoryItem[], gapMs: number): readonly HistorySession[] {
+    if (!items.length) {
+        return [];
+    }
+
+    const sorted = [...items].sort((a, b) => a.time - b.time); // ascending
+    const sessions: ProductUpdateHistoryItem[][] = [];
+
+    let current: ProductUpdateHistoryItem[] = [];
+    let prevTime = 0;
+
+    for (const item of sorted) {
+        if (!current.length) {
+            current = [item];
+            prevTime = item.time;
+            continue;
+        }
+
+        const gap = item.time - prevTime;
+        if (gap <= gapMs) {
+            current.push(item);
+            prevTime = item.time;
+            continue;
+        }
+
+        sessions.push(current);
+        current = [item];
+        prevTime = item.time;
+    }
+
+    if (current.length) {
+        sessions.push(current);
+    }
+
+    return sessions
+        .map((s) => {
+            const startTime = s[0]!.time;
+            const endTime = s[s.length - 1]!.time;
+            // Render latest first inside the session (same UX as existing history table)
+            const displayItems = [...s].sort((a, b) => b.time - a.time);
+            return { startTime, endTime, items: displayItems } satisfies HistorySession;
+        })
+        .sort((a, b) => b.startTime - a.startTime); // newest sessions first
+}
+
+function gravatarUrl(email: string, size = 64): string {
+    const normalized = email.trim().toLowerCase();
+    const hash = md5(normalized);
+    // identicon ensures we always get a real image even if no gravatar is set
+    return `https://www.gravatar.com/avatar/${hash}?d=identicon&s=${size}`;
+}
+
+function EmailAvatar({
+    email,
+    profile,
+    fallbackPicture,
+}: {
+    email?: string;
+    profile?: UserProfile;
+    fallbackPicture?: string;
+}): React.ReactElement | null {
+    if (!email) {
+        return null;
     }
 
     const initials = email
@@ -76,6 +177,25 @@ function EmailAvatar({ email }: { email?: string }): React.ReactElement | null {
         .slice(0, 2)
         .map((p) => p[0]!.toUpperCase())
         .join('');
+
+    if (email.toLowerCase() === DEV_MODE_EMAIL.toLowerCase()) {
+        return (
+            <Avatar color="cyan.9" variant="outline" radius="50%" size="sm" data-robot="true">
+                <IconRobotFace size="60%" />
+            </Avatar>
+        );
+    }
+
+    const src = profile?.picture || fallbackPicture || gravatarUrl(email);
+
+    if (src) {
+        // If the image fails to load (CSP/network), Mantine will render children as fallback.
+        return (
+            <Avatar radius="50%" size="sm" src={src} alt={profile?.name ?? email} title={email} aria-label={email}>
+                {initials || email[0]!.toUpperCase()}
+            </Avatar>
+        );
+    }
 
     return (
         <Avatar radius="50%" size="sm" aria-label={email} title={email}>
@@ -103,20 +223,18 @@ function HistorySwipeControls(): React.ReactElement {
     );
 }
 
-function HistoryContent({
-    setReload,
-}: {
-    setReload?: React.Dispatch<React.SetStateAction<() => Promise<void>>>;
-}) {
+function HistoryContent({ setReload }: { setReload?: React.Dispatch<React.SetStateAction<() => Promise<void>>> }) {
     const request = useApiRequest();
     const [groupFilter] = useGroupFilter();
     const [quickFilter] = useQuickFilter();
     const [active, setActive] = useActiveContent<ProductUpdateHistoryItem>();
     const [year] = useYearFilter();
+    const me = useProfile();
 
     const [history, setHistory] = useState<readonly ProductUpdateHistoryItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [profilesByEmail, setProfilesByEmail] = useState<Record<string, UserProfile>>({});
 
     const [selected, setSelected] = useState<ProductUpdateHistoryItem | null>(null);
     const [editOpened, editModal] = useDisclosure(false);
@@ -141,9 +259,42 @@ function HistoryContent({
         }
     }, [request, year]);
 
+    const loadProfiles = useCallback(
+        async (emails: readonly string[]) => {
+            const unique = [...new Set(emails.map((e) => e.trim().toLowerCase()).filter(Boolean))];
+            if (!unique.length) {
+                setProfilesByEmail({});
+                return;
+            }
+
+            try {
+                const result = await request<ApiResult<{ profiles: readonly UserProfile[] }>>(ApiUrl.UserProfiles, {
+                    emails: unique,
+                });
+                assertOk(result);
+                const next: Record<string, UserProfile> = {};
+                for (const p of result.profiles ?? []) {
+                    if (p.email) {
+                        next[p.email.toLowerCase()] = p;
+                    }
+                }
+                setProfilesByEmail(next);
+            } catch {
+                // If profiles endpoint is unavailable, just fall back to initials/robot
+                setProfilesByEmail({});
+            }
+        },
+        [request]
+    );
+
     useEffect(() => {
         void load();
     }, [load]);
+
+    useEffect(() => {
+        const emails = history.map((h) => h.user ?? '').filter(Boolean);
+        void loadProfiles(emails);
+    }, [history, loadProfiles]);
 
     useEffect(() => {
         setReload?.(() => load);
@@ -231,47 +382,21 @@ function HistoryContent({
         });
     }, [groupFilter, history, quickFilter]);
 
-    const groupedByDate = useMemo(() => {
-        const map = new Map<string, ProductUpdateHistoryItem[]>();
-        for (const h of filtered) {
-            const key = dateKeyFromTime(h.time);
-            if (!map.has(key)) {
-                map.set(key, []);
-            }
-            map.get(key)!.push(h);
-        }
-        return Array.from(map.entries()).map(([dateKey, items]) => ({ dateKey, items }));
-    }, [filtered]);
+    const sessions = useMemo(() => {
+        const allSessions = buildSessions(filtered, SESSION_GAP_MS);
+        // Filtering is evaluated by session start time (first entry in the session).
+        return allSessions.filter((s) => new Date(s.startTime).getFullYear() === year);
+    }, [filtered, year]);
 
     return (
         <>
-            <Group justify="space-between" mb="sm">
-                <Stack gap={0}>
-                    <Title order={3}>
-                        <Label>History</Label>
-                    </Title>
-                    <Text size="sm" c="dimmed">
-                        <Label>Showing latest</Label> {history.length} <Label>entries</Label>
-                    </Text>
-                </Stack>
-                <Button
-                    variant="light"
-                    leftSection={<IconRefresh size={18} />}
-                    onClick={load}
-                    loading={loading}
-                    disabled={loading}
-                >
-                    <Label>Reload</Label>
-                </Button>
-            </Group>
-
             {error && (
                 <Alert variant="light" color="red" icon={<IconAlertCircle size={18} />} mb="sm">
                     {error}
                 </Alert>
             )}
 
-            <Table striped highlightOnHover withTableBorder data-table="history">
+            <Table layout="fixed" data-table="history">
                 <Table.Thead>
                     <Table.Tr>
                         <Table.Th>
@@ -294,18 +419,18 @@ function HistoryContent({
                         </Table.Th>
                     </Table.Tr>
                 </Table.Thead>
-                {groupedByDate.map(({ dateKey, items }) => (
-                    <React.Fragment key={dateKey}>
+                {sessions.map((s) => (
+                    <React.Fragment key={`${s.startTime}-${s.endTime}`}>
                         <GroupTitle colSpan={6}>
                             <Group justify="space-between">
-                                <Label>{formatDateKey(dateKey)}</Label>
+                                <Label>{formatSessionStartTitle(s.startTime)}</Label>
                                 <Text size="sm" c="dimmed">
-                                    {items.length}
+                                    {s.items.length}
                                 </Text>
                             </Group>
                         </GroupTitle>
                         <Table.Tbody>
-                            {items.map((h) => (
+                            {s.items.map((h) => (
                                 <SwipeableRow
                                     key={h.id}
                                     id={h.id}
@@ -325,7 +450,15 @@ function HistoryContent({
                                     }}
                                 >
                                     <Table.Td>
-                                        <EmailAvatar email={h.user} />
+                                        <EmailAvatar
+                                            email={h.user}
+                                            profile={h.user ? profilesByEmail[h.user.toLowerCase()] : undefined}
+                                            fallbackPicture={
+                                                h.user && me.email && h.user.toLowerCase() === me.email.toLowerCase()
+                                                    ? me.picture
+                                                    : undefined
+                                            }
+                                        />
                                     </Table.Td>
                                     <Table.Td>{formatTime(h.time)}</Table.Td>
                                     <Table.Td>{h.group}</Table.Td>
@@ -348,7 +481,11 @@ function HistoryContent({
                 closeOnClickOutside={!loading}
             >
                 <Stack>
-                    <TextInput label={<Label>User</Label>} value={editUser} onChange={(e) => setEditUser(e.target.value)} />
+                    <TextInput
+                        label={<Label>User</Label>}
+                        value={editUser}
+                        onChange={(e) => setEditUser(e.target.value)}
+                    />
                     <Textarea
                         label={<Label>Amounts JSON</Label>}
                         value={editJson}
@@ -402,12 +539,8 @@ export function HistoryPage() {
                     <Page<ProductUpdateHistoryItem>
                         toolbar={
                             <>
-                                <div style={{ width: 200 }}>
-                                    <ToolbarGroupFilter />
-                                </div>
-                                <div style={{ width: 120 }}>
-                                    <ToolbarYearFilter />
-                                </div>
+                                <ToolbarGroupFilter />
+                                <ToolbarYearFilter />
                             </>
                         }
                         onDelete={handleDelete}
@@ -422,5 +555,3 @@ export function HistoryPage() {
         </GroupFilterWrapper>
     );
 }
-
-
