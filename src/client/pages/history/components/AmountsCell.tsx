@@ -37,7 +37,7 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
                             </ThemeIcon>
                             <Text size="sm">{a.variant}</Text>
                         </Group>
-                        <Text size="sm" fw={500}>
+                        <Text size="sm" fw={500} c={a.amount > 0 ? 'green' : a.amount < 0 ? 'red' : undefined}>
                             {a.amount > 0 ? `+${a.amount}` : a.amount < 0 ? `−${Math.abs(a.amount)}` : '0'}
                         </Text>
                     </Group>

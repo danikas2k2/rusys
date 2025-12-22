@@ -1,9 +1,28 @@
+import { isDevMode } from '~/common/utils/dev';
 import { cleanupRecycled, hasAmount } from '~/server/data/products';
 import { hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
 import type { ProductUpdateHistoryItem, VariantAmount } from '~/types/data';
 
-export async function getProductsHistory(year: number): Promise<{ history: readonly ProductUpdateHistoryItem[] }> {
+type ProductsHistoryDebug = {
+    year: number;
+    pipelineRows: number;
+    returnedRows: number;
+    emptyPipelineRows: number;
+    emptyReturnedRows: number;
+    emptySamples: Array<{
+        group: string;
+        name: string;
+        time: unknown;
+        user?: string;
+        year: number;
+        amounts: unknown;
+    }>;
+};
+
+export async function getProductsHistory(
+    year: number
+): Promise<{ history: readonly ProductUpdateHistoryItem[]; debug?: ProductsHistoryDebug }> {
     const database = await db();
     const data = await database
         .collection('products')
@@ -36,15 +55,55 @@ export async function getProductsHistory(year: number): Promise<{ history: reado
                     },
                 },
             },
-            { $unwind: '$updates.years' },
-            // Drop meaningless history entries (no recorded amounts)
+            // Normalize and filter out "empty changes" at the update level:
+            // - ensure years is an array
+            // - ensure amounts is an array
+            // - drop amounts without variant or with amount=0
+            // - drop year entries with no remaining amounts
+            // - drop updates that have no remaining year entries
             {
-                $match: {
-                    $expr: {
-                        $gt: [{ $size: { $ifNull: ['$updates.years.amounts', []] } }, 0],
+                $set: {
+                    'updates.years': {
+                        $filter: {
+                            input: {
+                                $map: {
+                                    input: { $cond: [{ $isArray: '$updates.years' }, '$updates.years', []] },
+                                    as: 'y',
+                                    in: {
+                                        $mergeObjects: [
+                                            '$$y',
+                                            {
+                                                amounts: {
+                                                    $filter: {
+                                                        input: {
+                                                            $cond: [{ $isArray: '$$y.amounts' }, '$$y.amounts', []],
+                                                        },
+                                                        as: 'a',
+                                                        cond: {
+                                                            $and: [
+                                                                { $ne: [{ $ifNull: ['$$a.variant', ''] }, ''] },
+                                                                { $ne: [{ $ifNull: ['$$a.amount', 0] }, 0] },
+                                                            ],
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                            },
+                            as: 'y',
+                            cond: { $gt: [{ $size: '$$y.amounts' }, 0] },
+                        },
                     },
                 },
             },
+            {
+                $match: {
+                    $expr: { $gt: [{ $size: '$updates.years' }, 0] },
+                },
+            },
+            { $unwind: '$updates.years' },
             {
                 $project: {
                     _id: 0,
@@ -53,23 +112,56 @@ export async function getProductsHistory(year: number): Promise<{ history: reado
                     // keep raw time value (whatever stored) for ID + client rendering
                     time: '$updates.time',
                     user: '$updates.user',
-                    year: '$updates.years.year',
+                    year: { $ifNull: ['$updates.years.year', 0] },
+                    // amounts already normalized/filtered above
                     amounts: '$updates.years.amounts',
+                },
+            },
+            // Safety: never emit entries with empty amounts
+            {
+                $match: {
+                    $expr: { $gt: [{ $size: { $ifNull: ['$amounts', []] } }, 0] },
                 },
             },
             { $sort: { time: -1, group: 1, name: 1, year: -1 } },
         ])
         .toArray();
 
-    const history: ProductUpdateHistoryItem[] = data.map((d) => ({
-        id: `${d.group}:${d.name}:${d.time}:${d.year}`,
-        group: d.group,
-        name: d.name,
-        time: d.time,
-        user: d.user,
-        year: d.year,
-        amounts: d.amounts ?? [],
-    }));
+    const history: ProductUpdateHistoryItem[] = data
+        // Final safety net in case Mongo data is malformed
+        .filter((d) => Array.isArray(d.amounts) && d.amounts.length > 0)
+        .map((d) => ({
+            id: `${d.group}:${d.name}:${d.time}:${d.year}`,
+            group: d.group,
+            name: d.name,
+            time: d.time,
+            user: d.user,
+            year: d.year,
+            amounts: d.amounts ?? [],
+        }));
+
+    if (isDevMode()) {
+        const emptyPipeline = data.filter((d) => !Array.isArray(d.amounts) || d.amounts.length === 0);
+        const emptyReturned = history.filter((h) => !Array.isArray(h.amounts) || h.amounts.length === 0);
+        return {
+            history,
+            debug: {
+                year,
+                pipelineRows: data.length,
+                returnedRows: history.length,
+                emptyPipelineRows: emptyPipeline.length,
+                emptyReturnedRows: emptyReturned.length,
+                emptySamples: emptyPipeline.slice(0, 10).map((d) => ({
+                    group: d.group,
+                    name: d.name,
+                    time: d.time as unknown,
+                    user: d.user,
+                    year: d.year,
+                    amounts: d.amounts as unknown,
+                })),
+            },
+        };
+    }
 
     return { history };
 }

@@ -13,44 +13,58 @@ export function buildSessions(items: readonly ProductUpdateHistoryItem[], gapMs 
         return [];
     }
 
-    const sorted = [...items].sort((a, b) => a.time - b.time); // ascending
-    const sessions: ProductUpdateHistoryItem[][] = [];
+    const byUser = new Map<string, ProductUpdateHistoryItem[]>();
+    for (const item of items) {
+        const key = (item.user ?? '').toLowerCase();
+        const arr = byUser.get(key);
+        if (arr) arr.push(item);
+        else byUser.set(key, [item]);
+    }
 
-    let current: ProductUpdateHistoryItem[] = [];
-    let prevTime = 0;
+    const allSessions: HistorySession[] = [];
 
-    for (const item of sorted) {
-        if (!current.length) {
+    for (const userItems of byUser.values()) {
+        const sorted = [...userItems].sort((a, b) => a.time - b.time); // ascending
+        let current: ProductUpdateHistoryItem[] = [];
+        let prevTime = 0;
+
+        for (const item of sorted) {
+            if (!current.length) {
+                current = [item];
+                prevTime = item.time;
+                continue;
+            }
+
+            const gap = item.time - prevTime;
+            if (gap <= gapMs) {
+                current.push(item);
+                prevTime = item.time;
+                continue;
+            }
+
+            const startTime = current[0]!.time;
+            const endTime = current[current.length - 1]!.time;
+            allSessions.push({
+                startTime,
+                endTime,
+                items: [...current].sort((a, b) => b.time - a.time),
+            });
             current = [item];
             prevTime = item.time;
-            continue;
         }
 
-        const gap = item.time - prevTime;
-        if (gap <= gapMs) {
-            current.push(item);
-            prevTime = item.time;
-            continue;
+        if (current.length) {
+            const startTime = current[0]!.time;
+            const endTime = current[current.length - 1]!.time;
+            allSessions.push({
+                startTime,
+                endTime,
+                items: [...current].sort((a, b) => b.time - a.time),
+            });
         }
-
-        sessions.push(current);
-        current = [item];
-        prevTime = item.time;
     }
 
-    if (current.length) {
-        sessions.push(current);
-    }
-
-    return sessions
-        .map((s) => {
-            const startTime = s[0]!.time;
-            const endTime = s[s.length - 1]!.time;
-            // Render latest first inside the session (same UX as existing history table)
-            const displayItems = [...s].sort((a, b) => b.time - a.time);
-            return { startTime, endTime, items: displayItems } satisfies HistorySession;
-        })
-        .sort((a, b) => b.startTime - a.startTime); // newest sessions first
+    return allSessions.sort((a, b) => b.startTime - a.startTime); // newest sessions first
 }
 
 
