@@ -1,8 +1,10 @@
+import type { Document } from 'mongodb';
+
 import { isDevMode } from '~/common/utils/dev';
-import { cleanupRecycled, hasAmount } from '~/server/data/products';
+import { cleanupRecycled } from '~/server/data/products';
 import { hasEffect } from '~/server/data/utils';
-import { db } from '~/server/db';
-import type { ProductUpdateHistoryItem, VariantAmount } from '~/types/data';
+import { db, withTransaction } from '~/server/db';
+import type { ProductUpdateHistoryItem, Update, VariantAmount, YearAmounts } from '~/types/data';
 
 type ProductsHistoryDebug = {
     year: number;
@@ -196,7 +198,7 @@ export async function updateProductsHistoryEntry(
     const updates = (amounts ?? [])
         .filter((a) => !!a?.variant)
         .map((a) => ({ variant: a.variant, amount: Number(a.amount), recycled: !!a.recycled }))
-        .filter(hasAmount)
+        .filter((a) => Number.isFinite(a.amount) && a.amount !== 0)
         .map(cleanupRecycled);
 
     if (!updates.length) {
@@ -251,4 +253,197 @@ export async function updateProductsHistoryEntry(
         .collection('products')
         .updateOne({ group, name, 'updates.time': time, 'updates.years.year': year }, pipeline)
         .then(hasEffect);
+}
+
+export async function moveProductsHistoryEntry(
+    group: string,
+    name: string,
+    time: number,
+    year: number,
+    newGroup: string,
+    newName: string,
+    newYear: number
+): Promise<boolean> {
+    if (!group || !name || !time || !year || !newGroup || !newName || !newYear) {
+        return false;
+    }
+
+    if (group === newGroup && name === newName && year === newYear) {
+        return true;
+    }
+
+    return withTransaction(async (session) => {
+        const database = await db();
+        const col = database.collection<Document>('products');
+
+        const src = await col.findOne({ group, name }, { projection: { updates: 1 }, session });
+        const rawUpdates = (src as unknown as { updates?: unknown })?.updates;
+        if (!Array.isArray(rawUpdates) || !rawUpdates.length) {
+            return false;
+        }
+        const updates = rawUpdates as unknown as readonly Update[];
+
+        const update = updates.find((u) => u.time === time);
+        const years: readonly YearAmounts[] = update?.years ?? [];
+        const y = years.find((yy) => yy.year === year);
+        const amounts: readonly VariantAmount[] = y?.amounts ?? [];
+        if (!amounts.length) {
+            return false;
+        }
+        const user = update?.user;
+
+        // 1) Remove from source (remove the year entry; remove update if no years left)
+        const removePipeline: Document[] = [
+            {
+                $set: {
+                    updates: {
+                        $filter: {
+                            input: {
+                                $map: {
+                                    input: { $cond: [{ $isArray: '$updates' }, '$updates', []] },
+                                    as: 'u',
+                                    in: {
+                                        $cond: [
+                                            { $eq: ['$$u.time', time] },
+                                            {
+                                                $mergeObjects: [
+                                                    '$$u',
+                                                    {
+                                                        years: {
+                                                            $filter: {
+                                                                input: {
+                                                                    $cond: [{ $isArray: '$$u.years' }, '$$u.years', []],
+                                                                },
+                                                                as: 'y',
+                                                                cond: { $ne: ['$$y.year', year] },
+                                                            },
+                                                        },
+                                                    },
+                                                ],
+                                            },
+                                            '$$u',
+                                        ],
+                                    },
+                                },
+                            },
+                            as: 'u',
+                            cond: { $gt: [{ $size: { $ifNull: ['$$u.years', []] } }, 0] },
+                        },
+                    },
+                },
+            },
+        ];
+
+        if (
+            !(await col.updateOne({ group, name, 'updates.time': time }, removePipeline, { session }).then(hasEffect))
+        ) {
+            return false;
+        }
+
+        // 2) Upsert into target product updates
+        const target = await col.findOne({ group: newGroup, name: newName }, { projection: { group: 1 }, session });
+        if (!target) {
+            return false;
+        }
+
+        const newUpdate: Update = { time, user, years: [{ year: newYear, amounts }] };
+
+        const upsertPipeline: Document[] = [
+            {
+                $set: {
+                    updates: {
+                        $let: {
+                            vars: { upd: { $cond: [{ $isArray: '$updates' }, '$updates', []] } },
+                            in: {
+                                $cond: [
+                                    {
+                                        $in: [
+                                            time,
+                                            {
+                                                $map: {
+                                                    input: '$$upd',
+                                                    as: 'u',
+                                                    in: '$$u.time',
+                                                },
+                                            },
+                                        ],
+                                    },
+                                    {
+                                        $map: {
+                                            input: '$$upd',
+                                            as: 'u',
+                                            in: {
+                                                $cond: [
+                                                    { $eq: ['$$u.time', time] },
+                                                    {
+                                                        $mergeObjects: [
+                                                            '$$u',
+                                                            user ? { user } : {},
+                                                            {
+                                                                years: {
+                                                                    $let: {
+                                                                        vars: {
+                                                                            yrs: {
+                                                                                $cond: [
+                                                                                    { $isArray: '$$u.years' },
+                                                                                    '$$u.years',
+                                                                                    [],
+                                                                                ],
+                                                                            },
+                                                                        },
+                                                                        in: {
+                                                                            $cond: [
+                                                                                { $in: [newYear, '$$yrs.year'] },
+                                                                                {
+                                                                                    $map: {
+                                                                                        input: '$$yrs',
+                                                                                        as: 'y',
+                                                                                        in: {
+                                                                                            $cond: [
+                                                                                                {
+                                                                                                    $eq: [
+                                                                                                        '$$y.year',
+                                                                                                        newYear,
+                                                                                                    ],
+                                                                                                },
+                                                                                                {
+                                                                                                    $mergeObjects: [
+                                                                                                        '$$y',
+                                                                                                        { amounts },
+                                                                                                    ],
+                                                                                                },
+                                                                                                '$$y',
+                                                                                            ],
+                                                                                        },
+                                                                                    },
+                                                                                },
+                                                                                {
+                                                                                    $concatArrays: [
+                                                                                        '$$yrs',
+                                                                                        [{ year: newYear, amounts }],
+                                                                                    ],
+                                                                                },
+                                                                            ],
+                                                                        },
+                                                                    },
+                                                                },
+                                                            },
+                                                        ],
+                                                    },
+                                                    '$$u',
+                                                ],
+                                            },
+                                        },
+                                    },
+                                    { $concatArrays: ['$$upd', [newUpdate]] },
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
+        ];
+
+        return col.updateOne({ group: newGroup, name: newName }, upsertPipeline, { session }).then(hasEffect);
+    });
 }

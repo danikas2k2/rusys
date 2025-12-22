@@ -18,6 +18,7 @@ interface AmountInputProps extends React.RefAttributes<HTMLInputElement> {
     focused?: boolean;
     onFocus?: (variant: string) => void;
     onBlur?: (variant: string) => void;
+    allowNegative?: boolean;
 }
 
 // TODO select input value on first focus
@@ -31,6 +32,7 @@ export function AmountInput({
     focused,
     onFocus,
     onBlur,
+    allowNegative = false,
 }: AmountInputProps) {
     const ref = useForwardedRef(forwardedRef);
 
@@ -100,7 +102,7 @@ export function AmountInput({
                     onBlur={onInputBlur}
                     aria-label={variant}
                     aria-current={focused}
-                    allowNegative={false}
+                    allowNegative={allowNegative}
                     allowDecimal={false}
                     size="lg"
                     hideControls

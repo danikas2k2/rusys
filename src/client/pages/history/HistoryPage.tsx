@@ -8,6 +8,7 @@ import { useYearFilter, YearFilterWrapper } from '~/client/filters/YearFilterCon
 import { Page } from '~/client/pages/common/Page';
 import { HistoryContent } from '~/client/pages/history/HistoryContent';
 import { HistorySwipeControls } from '~/client/pages/history/HistorySwipeControls';
+import { ActiveHistoryValueBox } from '~/client/pages/history/ActiveHistoryValueBox';
 import { useGetHistory } from '~/client/pages/history/hooks/useGetHistory';
 import { useDeleteHistoryEntry } from '~/client/pages/history/hooks/useDeleteHistoryEntry';
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
@@ -46,6 +47,7 @@ export function HistoryPage() {
                             <HistoryContent history={history} loading={loading} error={error} reload={reload} />
                             <HistorySwipeControls />
                         </SwipeControlsWrapper>
+                        <ActiveHistoryValueBox onUpdated={reload} />
                     </Page>
                 </YearFilterWrapper>
             </QuickFilterWrapper>

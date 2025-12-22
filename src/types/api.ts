@@ -29,6 +29,7 @@ export const enum ApiUrl {
     ProductsHistory = '/products/history',
     ProductsHistoryUpdate = '/products/history/update',
     ProductsHistoryDelete = '/products/history/delete',
+    ProductsHistoryMove = '/products/history/move',
     ProductsSetRemoving = '/products/removing',
     ProductsSetMissing = '/products/missing',
     ProductsRename = '/products/rename',
@@ -117,6 +118,16 @@ export interface ApiUpdateProduct extends ApiRequestProduct {
 
 export interface ApiGetProductsHistory {
     year: number;
+}
+
+export interface ApiMoveProductsHistoryEntry {
+    group: string;
+    name: string;
+    time: number;
+    year: number;
+    newGroup: string;
+    newName: string;
+    newYear: number;
 }
 
 export interface ApiDeleteProductsHistoryEntry extends ApiRequestProduct {

@@ -15,6 +15,7 @@ import { handleDeleteProductsHistory } from '~/server/api/handleDeleteProductsHi
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { handleGroups } from '~/server/api/handleGroups';
+import { handleMoveProductsHistory } from '~/server/api/handleMoveProductsHistory';
 import { handleMove } from '~/server/api/handleMove';
 import { handleProducts } from '~/server/api/handleProducts';
 import { handleProductsHistory } from '~/server/api/handleProductsHistory';
@@ -52,6 +53,7 @@ jest.mock('~/server/api/handleUpdateProduct', () => ({ handleUpdateProduct: jest
 jest.mock('~/server/api/handleProductsHistory', () => ({ handleProductsHistory: jest.fn() }));
 jest.mock('~/server/api/handleUpdateProductsHistory', () => ({ handleUpdateProductsHistory: jest.fn() }));
 jest.mock('~/server/api/handleDeleteProductsHistory', () => ({ handleDeleteProductsHistory: jest.fn() }));
+jest.mock('~/server/api/handleMoveProductsHistory', () => ({ handleMoveProductsHistory: jest.fn() }));
 jest.mock('~/server/api/handleSetRemoving', () => ({ handleSetRemoving: jest.fn() }));
 jest.mock('~/server/api/handleSetMissing', () => ({ handleSetMissing: jest.fn() }));
 jest.mock('~/server/api/handleRename', () => ({ handleRename: jest.fn() }));
@@ -90,6 +92,7 @@ describe('app', () => {
             ${ApiUrl.ProductsHistory}     | ${handleProductsHistory}
             ${ApiUrl.ProductsHistoryUpdate} | ${handleUpdateProductsHistory}
             ${ApiUrl.ProductsHistoryDelete} | ${handleDeleteProductsHistory}
+            ${ApiUrl.ProductsHistoryMove} | ${handleMoveProductsHistory}
             ${ApiUrl.ProductsSetRemoving} | ${handleSetRemoving}
             ${ApiUrl.ProductsSetMissing}  | ${handleSetMissing}
             ${ApiUrl.ProductsRename}      | ${handleRename}

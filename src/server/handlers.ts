@@ -11,6 +11,7 @@ import { handleImport } from '~/server/api/handleImport';
 import { handleMove } from '~/server/api/handleMove';
 import { handleProducts } from '~/server/api/handleProducts';
 import { handleDeleteProductsHistory } from '~/server/api/handleDeleteProductsHistory';
+import { handleMoveProductsHistory } from '~/server/api/handleMoveProductsHistory';
 import { handleProductsHistory } from '~/server/api/handleProductsHistory';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
@@ -43,6 +44,7 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.ProductsHistory]: handleProductsHistory,
     [ApiUrl.ProductsHistoryUpdate]: handleUpdateProductsHistory,
     [ApiUrl.ProductsHistoryDelete]: handleDeleteProductsHistory,
+    [ApiUrl.ProductsHistoryMove]: handleMoveProductsHistory,
     [ApiUrl.ProductsSetRemoving]: handleSetRemoving,
     [ApiUrl.ProductsSetMissing]: handleSetMissing,
     [ApiUrl.ProductsRename]: handleRename,
