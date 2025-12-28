@@ -1,13 +1,50 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
+import { type UniqueIdentifier } from '@dnd-kit/core';
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import React from 'react';
 
 import { DraggableContent } from './DraggableContent';
 
+let lastDndContextProps: Record<string, unknown> | null = null;
+
+jest.mock('@dnd-kit/core', () => {
+    const ReactActual = jest.requireActual('react');
+
+    return {
+        // runtime values only (types are erased)
+        closestCenter: 'closestCenter',
+        KeyboardCode: {
+            Down: 'ArrowDown',
+            Up: 'ArrowUp',
+            Left: 'ArrowLeft',
+            Right: 'ArrowRight',
+            Enter: 'Enter',
+            Space: 'Space',
+            Esc: 'Escape',
+        },
+        KeyboardSensor: 'KeyboardSensor',
+        PointerSensor: 'PointerSensor',
+        useSensor: (sensor: unknown, options: unknown) => ({ sensor, options }),
+        useSensors: (...sensors: unknown[]) => sensors,
+        DndContext: (props: any) => {
+            lastDndContextProps = props;
+            return ReactActual.createElement('div', { 'data-testid': 'dnd-context' }, props.children);
+        },
+        DragOverlay: (props: any) =>
+            ReactActual.createElement('div', { 'data-testid': 'drag-overlay' }, props.children),
+    };
+});
+
 describe('<DraggableContent>', () => {
+    afterEach(() => {
+        lastDndContextProps = null;
+    });
+
     it('renders children', () => {
-        const { container } = render(
+        render(
             <MockTheme>
                 <DraggableContent>
                     <div>Child 1</div>
@@ -16,76 +53,53 @@ describe('<DraggableContent>', () => {
             </MockTheme>
         );
 
-        expect(container.textContent).toContain('Child 1');
-        expect(container.textContent).toContain('Child 2');
+        expect(screen.getByText('Child 1')).toBeInTheDocument();
+        expect(screen.getByText('Child 2')).toBeInTheDocument();
     });
 
-    it('calls onDragStart when drag starts', () => {
+    it('wires DndContext configuration (collision detection, modifiers, sensors)', () => {
         const onDragStart = jest.fn();
-
-        render(
-            <MockTheme>
-                <DraggableContent onDragStart={onDragStart}>
-                    <div>Content</div>
-                </DraggableContent>
-            </MockTheme>
-        );
-
-        // Note: Actual drag testing would require more complex setup with @dnd-kit
-        // This test just verifies the component renders with the callback
-        expect(onDragStart).toBeDefined();
-    });
-
-    it('calls onDragEnd when drag ends', () => {
         const onDragEnd = jest.fn();
 
         render(
             <MockTheme>
-                <DraggableContent onDragEnd={onDragEnd}>
+                <DraggableContent onDragStart={onDragStart} onDragEnd={onDragEnd}>
                     <div>Content</div>
                 </DraggableContent>
             </MockTheme>
         );
 
-        // Note: Actual drag testing would require more complex setup with @dnd-kit
-        // This test just verifies the component renders with the callback
-        expect(onDragEnd).toBeDefined();
+        expect(lastDndContextProps).toStrictEqual(expect.any(Object));
+
+        expect(lastDndContextProps?.collisionDetection).toBe('closestCenter');
+
+        expect(lastDndContextProps?.modifiers).toStrictEqual([restrictToVerticalAxis, restrictToParentElement]);
+
+        // Sensors config comes from useSensor/useSensors (mocked above)
+        expect(lastDndContextProps?.sensors).toStrictEqual([
+            { sensor: 'PointerSensor', options: { activationConstraint: { distance: 8 } } },
+            { sensor: 'KeyboardSensor', options: { coordinateGetter: sortableKeyboardCoordinates } },
+        ]);
     });
 
-    it('renders DragOverlay when renderDragOverlay is provided and activeId is set', () => {
-        const renderDragOverlay = jest.fn((activeId) => <div>Overlay: {String(activeId)}</div>);
+    it('onDragStart: calls callback and shows DragOverlay with measured column widths', () => {
+        const renderDragOverlay = jest.fn((activeId: UniqueIdentifier, columnWidths: number[]) => (
+            <div>
+                Overlay: {activeId} / widths: {columnWidths.join(',')}
+            </div>
+        ));
+
+        const onDragStart = jest.fn();
+        const onDragEnd = jest.fn();
 
         render(
             <MockTheme>
-                <DraggableContent renderDragOverlay={renderDragOverlay}>
-                    <div data-id="item-1">Item 1</div>
-                </DraggableContent>
-            </MockTheme>
-        );
-
-        // Initially, no overlay should be rendered
-        expect(screen.queryByText(/Overlay:/)).not.toBeInTheDocument();
-
-        // Note: Testing actual drag would require complex @dnd-kit setup
-        // This test verifies the component structure supports renderDragOverlay
-        expect(renderDragOverlay).toBeDefined();
-    });
-
-    it('measures column widths from active element when drag starts', () => {
-        render(
-            <MockTheme>
-                <DraggableContent>
+                <DraggableContent onDragStart={onDragStart} onDragEnd={onDragEnd} renderDragOverlay={renderDragOverlay}>
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Header 1</th>
-                                <th>Header 2</th>
-                            </tr>
-                        </thead>
                         <tbody>
                             <tr data-id="item-1">
-                                <td style={{ width: '100px' }}>Cell 1</td>
-                                <td style={{ width: '200px' }}>Cell 2</td>
+                                <td>Cell 1</td>
+                                <td>Cell 2</td>
                             </tr>
                         </tbody>
                     </table>
@@ -93,10 +107,68 @@ describe('<DraggableContent>', () => {
             </MockTheme>
         );
 
-        // Note: Actual drag testing would require more complex setup
-        // This test verifies the structure is in place for column width measurement
-        const cells = screen.getAllByRole('cell');
+        expect(screen.queryByTestId('drag-overlay')).not.toBeInTheDocument();
+
+        const row = document.querySelector('[data-id="item-1"]');
+
+        expect(row).not.toBeNull();
+
+        const cells = row!.querySelectorAll('th, td');
 
         expect(cells).toHaveLength(2);
+
+        // JSDOM doesn't calculate layout; fake widths
+        (cells[0] as HTMLElement).getBoundingClientRect = jest.fn(() => ({ width: 100 })) as any;
+        (cells[1] as HTMLElement).getBoundingClientRect = jest.fn(() => ({ width: 200 })) as any;
+
+        act(() => (lastDndContextProps as any).onDragStart({ active: { id: 'item-1' } }));
+
+        expect(onDragStart).toHaveBeenCalledWith(expect.objectContaining({ active: { id: 'item-1' } }));
+
+        // overlay rendered + renderDragOverlay receives activeId + measured widths
+        expect(screen.getByTestId('drag-overlay')).toBeInTheDocument();
+
+        expect(renderDragOverlay).toHaveBeenCalledWith('item-1', [100, 200]);
+        expect(screen.getByText(/Overlay: item-1/)).toBeInTheDocument();
+        expect(screen.getByText(/widths: 100,200/)).toBeInTheDocument();
+        expect(onDragEnd).not.toHaveBeenCalled();
+    });
+
+    it('onDragEnd: calls callback and hides DragOverlay', () => {
+        const renderDragOverlay = jest.fn((activeId: UniqueIdentifier) => <div>Overlay: {activeId}</div>);
+
+        const onDragStart = jest.fn();
+        const onDragEnd = jest.fn();
+
+        render(
+            <MockTheme>
+                <DraggableContent onDragStart={onDragStart} onDragEnd={onDragEnd} renderDragOverlay={renderDragOverlay}>
+                    <div data-id="item-1">Item 1</div>
+                </DraggableContent>
+            </MockTheme>
+        );
+
+        act(() => (lastDndContextProps as any).onDragStart({ active: { id: 'item-1' } }));
+
+        expect(screen.getByTestId('drag-overlay')).toBeInTheDocument();
+
+        act(() => (lastDndContextProps as any).onDragEnd({ active: { id: 'item-1' } }));
+
+        expect(onDragEnd).toHaveBeenCalledWith(expect.objectContaining({ active: { id: 'item-1' } }));
+        expect(screen.queryByTestId('drag-overlay')).not.toBeInTheDocument();
+    });
+
+    it('does not render DragOverlay when renderDragOverlay is not provided', () => {
+        render(
+            <MockTheme>
+                <DraggableContent>
+                    <div data-id="item-1">Item 1</div>
+                </DraggableContent>
+            </MockTheme>
+        );
+
+        act(() => (lastDndContextProps as any).onDragStart({ active: { id: 'item-1' } }));
+
+        expect(screen.queryByTestId('drag-overlay')).not.toBeInTheDocument();
     });
 });

@@ -12,6 +12,12 @@ module.exports = {
             },
         },
         {
+            files: ['package.json'],
+            options: {
+                tabWidth: 4,
+            },
+        },
+        {
             files: ['*.html', '*.pcss', '*.css'],
             options: {
                 singleQuote: false,

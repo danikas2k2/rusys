@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
 import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Table } from '@mantine/core';
 import React from 'react';
 
@@ -13,7 +14,7 @@ jest.mock('@dnd-kit/sortable', () => ({
 
 jest.mock('~/client/table/SwipeableRow', () => ({
     SwipeableRow: ({ children, style, ref, 'data-group': dataGroup, 'data-id': dataId, ...props }: any) => (
-        <tr ref={ref} data-group={dataGroup} data-id={dataId} data-style={JSON.stringify(style)} {...props}>
+        <tr ref={ref} data-group={dataGroup} data-id={dataId} style={style} {...props}>
             {children}
         </tr>
     ),
@@ -34,12 +35,12 @@ describe('<SortableRow>', () => {
         setActivatorNodeRef: mockSetActivatorNodeRef,
     };
 
-    const getStyle = (container: HTMLElement) => {
-        const element = container.querySelector('[data-style]');
+    const getRow = (container: HTMLElement) => {
+        const row = container.querySelector('tbody tr');
 
-        expect(element).toBeInTheDocument();
+        expect(row).toBeInTheDocument();
 
-        return JSON.parse(element!.getAttribute('data-style')!);
+        return row as HTMLTableRowElement;
     };
 
     beforeEach(() => {
@@ -106,9 +107,10 @@ describe('<SortableRow>', () => {
     });
 
     it('applies transform and transition styles', () => {
+        const transform = { x: 10, y: 20, scaleX: 1, scaleY: 1 };
         jest.mocked(useSortable).mockReturnValue({
             ...defaultSortableReturn,
-            transform: { x: 10, y: 20, scaleX: 1, scaleY: 1 },
+            transform,
             transition: 'transform 200ms ease',
         } as any);
 
@@ -124,10 +126,12 @@ describe('<SortableRow>', () => {
             </MockTheme>
         );
 
-        const style = getStyle(container);
+        const row = getRow(container);
 
-        expect(style.transform).toBeDefined();
-        expect(style.transition).toBe('transform 200ms ease');
+        expect(row).toHaveStyle({
+            transform: CSS.Transform.toString(transform),
+            transition: 'transform 200ms ease',
+        });
     });
 
     it('applies dragging styles when isDragging is true', () => {
@@ -148,10 +152,10 @@ describe('<SortableRow>', () => {
             </MockTheme>
         );
 
-        const style = getStyle(container);
+        const row = getRow(container);
 
         // When dragging, opacity should be 0 (row is hidden, DragOverlay shows it)
-        expect(style.opacity).toBe(0);
+        expect(row).toHaveStyle({ opacity: '0' });
     });
 
     it('does not apply dragging styles when isDragging is false', () => {
@@ -167,11 +171,10 @@ describe('<SortableRow>', () => {
             </MockTheme>
         );
 
-        const style = getStyle(container);
+        const row = getRow(container);
 
-        expect(style.backgroundColor).toBeUndefined();
-        expect(style.boxShadow).toBeUndefined();
-        expect(style.zIndex).toBeUndefined();
+        // SortableRow only sets transform/transition (+ opacity when dragging)
+        expect(row).not.toHaveStyle({ opacity: 0 });
     });
 
     it('passes data-group attribute', () => {

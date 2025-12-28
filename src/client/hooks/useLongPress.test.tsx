@@ -298,9 +298,9 @@ describe('useLongPress', () => {
             const button = screen.getByRole('button');
 
             // Check that onClick handler exists by verifying it can be called
-            expect(button.onclick).toBeDefined();
-            // Check that onContextMenu handler exists
-            expect(button.oncontextmenu).toBeDefined();
+            expect(button.onclick).not.toBeNull();
+            // When onLongPress is not provided, we should not attach a context menu handler
+            expect(button.oncontextmenu).toBeNull();
         });
     });
 });

@@ -12,10 +12,11 @@ describe('useSummaryLoader', () => {
 
     afterEach(() => jest.clearAllMocks());
 
-    it('send /summary api request for data', () => {
+    it('send /summary api request for data', async () => {
         const { result } = renderHook(() => useGetSummary());
 
-        expect(result.current()).toBeUndefined();
+        await result.current();
+
         expect(request).toHaveBeenCalledWith('/summary');
     });
 });

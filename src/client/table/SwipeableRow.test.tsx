@@ -1250,7 +1250,7 @@ describe('<SwipeableRow>', () => {
             // Start swipe by dragging left (on a cell, not the row itself, to trigger dispatchNativeCancelEvents)
             const cell = row.querySelector('td');
 
-            expect(cell).toBeDefined();
+            expect(cell).not.toBeNull();
 
             // Use user.pointer() to simulate swipe gesture starting on cell
             // The event will bubble to row, but target will be cell
