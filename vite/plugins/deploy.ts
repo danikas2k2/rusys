@@ -52,7 +52,7 @@ export function deploy(config?: DeployConfig): Plugin {
                 // Build and restart containers
                 console.log('🐳 Building and restarting containers...');
                 execSync(
-                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && sudo docker-compose up -d --build"`,
+                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && docker compose up -d --build"`,
                     { stdio: 'inherit' }
                 );
 
