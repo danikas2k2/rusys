@@ -253,6 +253,16 @@ select,
     }
 }
 
+// iOS Safari does not reliably collapse table sections/rows with height:0 + visibility:collapse.
+// Use display:none as a fallback so filtered-out rows don't keep their layout height.
+@supports (-webkit-touch-callout: none) {
+    .ui-Table-thead[data-hidden='true'],
+    .ui-Table-tbody[data-hidden='true'],
+    .ui-Table-tr[data-hidden='true'] {
+        display: none !important;
+    }
+}
+
 .ui-Table-tr[data-dragging='true'] {
     position: relative;
     z-index: 1;
