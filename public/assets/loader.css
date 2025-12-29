@@ -16,6 +16,28 @@ html,
 body {
     color: var(--color-text);
     background: var(--color-base);
+    min-height: 100%;
+}
+
+@supports (-webkit-touch-callout: none) {
+    html,
+    body {
+        height: 100vh;
+    }
+
+    @supports (height: 100dvh) {
+        html,
+        body {
+            height: 100dvh;
+        }
+    }
+
+    @supports (height: 100lvh) {
+        html,
+        body {
+            height: 100lvh;
+        }
+    }
 }
 
 .loader {

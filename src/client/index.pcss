@@ -27,9 +27,8 @@
 }
 
 html {
-    position: absolute;
-    inset: 0;
     user-select: none;
+    height: 100%;
 }
 
 html,
@@ -44,6 +43,28 @@ body {
     font-family: var(--mantine-font-family), sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-height: 100%;
+}
+
+@supports (-webkit-touch-callout: none) {
+    html,
+    body {
+        height: 100vh;
+    }
+
+    @supports (height: 100dvh) {
+        html,
+        body {
+            height: 100dvh;
+        }
+    }
+
+    @supports (height: 100lvh) {
+        html,
+        body {
+            height: 100lvh;
+        }
+    }
 }
 
 code {
