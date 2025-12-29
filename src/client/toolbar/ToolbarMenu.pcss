@@ -16,6 +16,11 @@
         flex-basis: min(300px, 60vw);
         height: 100dvh;
         max-height: 100dvh;
+
+        @supports (height: 100lvh) {
+            height: 100lvh;
+            max-height: 100lvh;
+        }
     }
 }
 
@@ -23,4 +28,8 @@
     padding-inline: 0;
     padding-block: calc(4rem + var(--safe-block-start)) var(--safe-block-end);
     height: 100dvh;
+
+    @supports (height: 100lvh) {
+        height: 100lvh;
+    }
 }

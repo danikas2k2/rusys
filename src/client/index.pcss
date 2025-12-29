@@ -19,10 +19,10 @@
     }
 
     @supports (top: env(safe-area-inset-top)) {
-        --safe-block-start: env(safe-area-inset-top);
-        --safe-block-end: env(safe-area-inset-bottom);
-        --safe-inline-start: env(safe-area-inset-left);
-        --safe-inline-end: env(safe-area-inset-right);
+        --safe-block-start: env(safe-area-inset-top, 0px);
+        --safe-block-end: env(safe-area-inset-bottom, 0px);
+        --safe-inline-start: env(safe-area-inset-left, 0px);
+        --safe-inline-end: env(safe-area-inset-right, 0px);
     }
 }
 
