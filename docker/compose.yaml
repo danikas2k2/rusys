@@ -47,7 +47,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        APP_VERSION: "3.3.8"
+        APP_VERSION: "3.3.9"
     platform: linux/amd64
     restart: unless-stopped
     environment:
