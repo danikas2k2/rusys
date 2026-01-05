@@ -106,7 +106,7 @@ export function AmountInput({
                     hideControls
                     leftSection={
                         <ActionIcon
-                            size="md"
+                            size="input-md"
                             color="text"
                             variant="subtle"
                             onClick={onDecreaseClick}
@@ -119,7 +119,7 @@ export function AmountInput({
                     }
                     rightSection={
                         <ActionIcon
-                            size="md"
+                            size="input-md"
                             color="text"
                             variant="subtle"
                             onClick={onIncreaseClick}
