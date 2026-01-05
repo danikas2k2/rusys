@@ -1,5 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
-import user, { type UserEvent } from '@testing-library/user-event';
+import userEvent from '@testing-library/user-event';
 import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
 
@@ -20,9 +20,19 @@ jest.mock('~/client/filters/GroupFilterContext', () => ({
 }));
 
 describe('<VariantBox>', () => {
-    beforeEach(() => jest.mocked(useGroupFilter).mockReturnValue(['', jest.fn()]));
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    afterEach(() => jest.clearAllMocks());
+    beforeEach(() => {
+        jest.mocked(useGroupFilter).mockReturnValue(['', jest.fn()]);
+        jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+        jest.clearAllTimers();
+        jest.clearAllMocks();
+    });
+
+    afterAll(() => jest.useRealTimers());
 
     const state = {
         groups: getGroupsFixture(),
@@ -115,6 +125,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
+
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
@@ -135,6 +148,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
+
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
@@ -154,6 +170,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
+
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.click(screen.getByRole('button', { name: 'Add' }));
@@ -171,6 +190,9 @@ describe('<VariantBox>', () => {
                     <VariantBox opened onClose={onClose} />
                 </MockApp>
             );
+
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
 
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
@@ -196,6 +218,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
+
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.clear(screen.getByRole('textbox', { name: 'Suffix' }));
@@ -216,6 +241,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
+
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.click(screen.getByRole('button', { name: 'Update' }));
@@ -233,6 +261,9 @@ describe('<VariantBox>', () => {
                     <VariantBox opened group="Daržovės" variant="d" onClose={onClose} />
                 </MockApp>
             );
+
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
 
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.click(screen.getByRole('button', { name: 'Update' }));
@@ -252,6 +283,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
+
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'x');
             await user.click(screen.getByRole('button', { name: 'Update' }));
@@ -270,6 +304,9 @@ describe('<VariantBox>', () => {
                     <VariantBox opened group="Daržovės" variant="d" onClose={onClose} />
                 </MockApp>
             );
+
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
 
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
@@ -294,6 +331,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
+
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
@@ -314,6 +354,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
+
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
@@ -331,6 +374,9 @@ describe('<VariantBox>', () => {
                     <VariantBox opened group="Daržovės" variant="d" suffix="test" onClose={onClose} />
                 </MockApp>
             );
+
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
 
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
@@ -355,6 +401,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
+
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -370,6 +419,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
+
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test:variant');
@@ -377,7 +429,7 @@ describe('<VariantBox>', () => {
 
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('alert')).toHaveTextContent('Cannot contain ":" character');
-        }, 10000);
+        });
     });
 
     describe('renders Duplicate button when group is changed', () => {
@@ -388,6 +440,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
+            // Wait for initial focus timer to complete
+            await act(async () => jest.advanceTimersByTime(100));
+
             // Initially shows Update button
             expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
 
@@ -395,26 +450,14 @@ describe('<VariantBox>', () => {
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
 
+            await act(async () => jest.advanceTimersByTime(100));
+
             // Should now show Duplicate button (tests getButtonContent with groupChanged condition)
             expect(screen.getByRole('button', { name: 'Duplicate' })).toBeInTheDocument();
-        } /*, 10000*/);
+        });
     });
 
     describe('loading state with fake timers', () => {
-        let timeUser: UserEvent;
-
-        beforeEach(() => {
-            jest.useFakeTimers();
-            timeUser = user.setup({ advanceTimers: jest.advanceTimersByTime });
-        });
-
-        afterEach(() => {
-            jest.runOnlyPendingTimers();
-            jest.clearAllTimers();
-        });
-
-        afterAll(() => jest.useRealTimers());
-
         it('shows loading state after 300ms delay when submitting form', async () => {
             const updateVariant = jest.fn().mockResolvedValue(undefined);
             jest.mocked(useUpdateVariant).mockReturnValue(updateVariant);
@@ -426,17 +469,17 @@ describe('<VariantBox>', () => {
             );
 
             // Wait for initial focus timer to complete
-            act(() => jest.advanceTimersByTime(100));
+            await act(async () => jest.advanceTimersByTime(100));
 
-            await timeUser.click(screen.getByRole('textbox', { name: 'Group' }));
-            await timeUser.click(await screen.findByRole('option', { name: 'Daržovės' }));
-            await timeUser.type(screen.getByRole('textbox', { name: 'Variant name' }), 'New Variant');
+            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'New Variant');
 
             const addButton = screen.getByRole('button', { name: 'Add' });
-            await timeUser.click(addButton);
+            await user.click(addButton);
 
             // Advance timers by 300ms to trigger loading state
-            act(() => jest.advanceTimersByTime(300));
+            await act(async () => jest.advanceTimersByTime(300));
 
             // Verify that loading state was triggered
             expect(addButton).toBeInTheDocument();
@@ -459,22 +502,20 @@ describe('<VariantBox>', () => {
             );
 
             // Wait for initial focus timer to complete
-            act(() => jest.advanceTimersByTime(100));
+            await act(async () => jest.advanceTimersByTime(100));
 
-            await timeUser.click(screen.getByRole('textbox', { name: 'Group' }));
-            await timeUser.click(await screen.findByRole('option', { name: 'Daržovės' }));
-            await timeUser.type(screen.getByRole('textbox', { name: 'Variant name' }), 'Fast Variant');
+            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'Fast Variant');
 
             const addButton = screen.getByRole('button', { name: 'Add' });
-            await timeUser.click(addButton);
+            await user.click(addButton);
 
             // Complete the async operation immediately (before 300ms)
             await updateVariant();
 
             // Advance timers by less than 300ms - timeout should be cleared
-            act(() => {
-                jest.advanceTimersByTime(200);
-            });
+            await act(async () => jest.advanceTimersByTime(200));
 
             // Button should be enabled and timeout cleared
             expect(addButton).not.toBeDisabled();
