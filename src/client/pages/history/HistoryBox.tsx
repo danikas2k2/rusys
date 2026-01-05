@@ -14,7 +14,7 @@ import { useProducts } from '~/client/state/products/useProducts';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { getVariantAmount } from '~/common/utils/amounts';
-import type { ProductUpdateHistoryItem, UserProfile, VariantAmount } from '~/types/data';
+import type { History, UserProfile, VariantAmount } from '~/types/data';
 import { EmailAvatar } from './components/EmailAvatar';
 
 import './HistoryBox.pcss';
@@ -66,7 +66,7 @@ export function HistoryBox({
     onAfterClose,
 }: {
     opened: boolean;
-    item: ProductUpdateHistoryItem;
+    item: History;
     userProfile?: UserProfile;
     onClose: (next?: { group: string; name: string; year: number; amounts: readonly VariantAmount[] }) => void;
     onAfterClose?: () => void;
@@ -252,7 +252,12 @@ export function HistoryBox({
                 </div>
                 {!expanded && (
                     <Flex justify="center">
-                        <Button variant="subtle" color="text" leftSection={<IconChevronDown size={18} />} onClick={handleExpand}>
+                        <Button
+                            variant="subtle"
+                            color="text"
+                            leftSection={<IconChevronDown size={18} />}
+                            onClick={handleExpand}
+                        >
                             <Label>Expand</Label>
                         </Button>
                     </Flex>
@@ -272,5 +277,3 @@ export function HistoryBox({
         </Modal>
     );
 }
-
-

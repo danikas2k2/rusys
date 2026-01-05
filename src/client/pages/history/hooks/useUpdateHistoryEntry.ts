@@ -22,7 +22,7 @@ export function useUpdateHistoryEntry(): (args: {
 
     return useCallback(
         async ({ group, name, time, year, amounts, user }): Promise<void> => {
-            const result = await request<ApiResult>(ApiUrl.ProductsHistoryUpdate, {
+            const result = await request<ApiResult>(ApiUrl.HistoryUpdate, {
                 group,
                 name,
                 time,
@@ -35,5 +35,3 @@ export function useUpdateHistoryEntry(): (args: {
         [request]
     );
 }
-
-

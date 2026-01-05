@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import type { FileArray } from 'express-fileupload';
 import type { ParamsDictionary } from 'express-serve-static-core';
 
-import type { Group, Product, Summary, Variant, VariantAmount } from '~/types/data';
+import type { Group, Product, Summary, UserProfile, Variant, VariantAmount } from '~/types/data';
 
 export type ApiRequest<R = unknown> = Request<ParamsDictionary, unknown, R>;
 export type ApiResult<R = unknown> = { ok: true } | ({ ok: true } & R) | { ok?: false; error?: string };
@@ -26,10 +26,6 @@ export const enum ApiUrl {
     Products = '/products',
     ProductsAdd = '/products/add',
     ProductsUpdate = '/products/update',
-    ProductsHistory = '/products/history',
-    ProductsHistoryUpdate = '/products/history/update',
-    ProductsHistoryDelete = '/products/history/delete',
-    ProductsHistoryMove = '/products/history/move',
     ProductsSetRemoving = '/products/removing',
     ProductsSetMissing = '/products/missing',
     ProductsRename = '/products/rename',
@@ -50,6 +46,12 @@ export const enum ApiUrl {
     VariantsRename = '/variants/rename',
     VariantsCopy = '/variants/copy',
     VariantsDelete = '/variants/delete',
+
+    // History
+    History = '/history',
+    HistoryUpdate = '/history/update',
+    HistoryDelete = '/history/delete',
+    HistoryMove = '/history/move',
 }
 
 export interface ApiUserEmail {
@@ -76,7 +78,7 @@ export interface ApiGetUserProfiles {
 }
 
 export interface ApiUserProfiles {
-    profiles: readonly import('./data').UserProfile[];
+    profiles: readonly UserProfile[];
 }
 
 export interface ApiProducts {
@@ -105,19 +107,17 @@ export interface ApiSetMissing extends ApiRequestProduct {
     missing: boolean;
 }
 
-export interface ApiSetRemoving extends ApiRequestProduct {
+export interface ApiRequestYear {
     year: number;
+}
+
+export interface ApiSetRemoving extends ApiRequestProduct, ApiRequestYear {
     removing: boolean;
 }
 
-export interface ApiUpdateProduct extends ApiRequestProduct {
-    year: number;
+export interface ApiUpdateProduct extends ApiRequestProduct, ApiRequestYear {
     amounts?: readonly VariantAmount[];
     user?: string;
-}
-
-export interface ApiGetProductsHistory {
-    year: number;
 }
 
 export interface ApiMoveProductsHistoryEntry {
@@ -130,9 +130,8 @@ export interface ApiMoveProductsHistoryEntry {
     newYear: number;
 }
 
-export interface ApiDeleteProductsHistoryEntry extends ApiRequestProduct {
+export interface ApiDeleteProductsHistoryEntry extends ApiRequestProduct, ApiRequestYear {
     time: number;
-    year: number;
 }
 
 export interface ApiUpdateProductsHistoryEntry extends ApiDeleteProductsHistoryEntry {
@@ -206,3 +205,13 @@ export type ApiAllSummary = ApiSummary & ApiVariantsWithGroups;
 export type ApiExport = ApiProducts & ApiVariantsWithGroups;
 
 export type ApiWithFiles = { files?: FileArray };
+
+export interface ApiRequestHistory extends ApiRequestProduct {
+    time: number;
+    year?: number;
+    user?: string;
+}
+
+export interface ApiHistory {
+    history: readonly History[];
+}

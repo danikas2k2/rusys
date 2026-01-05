@@ -1,31 +1,34 @@
-import type { ProductUpdateHistoryItem } from '~/types/data';
+import type { History } from '~/types/data';
 
 export const SESSION_GAP_MS = 15 * 60 * 1000;
 
-export type HistorySession = {
+export interface HistorySession {
     startTime: number;
     endTime: number;
-    items: readonly ProductUpdateHistoryItem[];
-};
+    items: readonly History[];
+}
 
-export function buildSessions(items: readonly ProductUpdateHistoryItem[], gapMs = SESSION_GAP_MS): readonly HistorySession[] {
+export function useHistorySessions(items: readonly History[], gapMs = SESSION_GAP_MS): readonly HistorySession[] {
     if (!items.length) {
         return [];
     }
 
-    const byUser = new Map<string, ProductUpdateHistoryItem[]>();
+    const byUser = new Map<string, History[]>();
     for (const item of items) {
         const key = (item.user ?? '').toLowerCase();
         const arr = byUser.get(key);
-        if (arr) arr.push(item);
-        else byUser.set(key, [item]);
+        if (arr) {
+            arr.push(item);
+        } else {
+            byUser.set(key, [item]);
+        }
     }
 
     const allSessions: HistorySession[] = [];
 
     for (const userItems of byUser.values()) {
         const sorted = [...userItems].sort((a, b) => a.time - b.time); // ascending
-        let current: ProductUpdateHistoryItem[] = [];
+        let current: History[] = [];
         let prevTime = 0;
 
         for (const item of sorted) {
@@ -66,5 +69,3 @@ export function buildSessions(items: readonly ProductUpdateHistoryItem[], gapMs 
 
     return allSessions.sort((a, b) => b.startTime - a.startTime); // newest sessions first
 }
-
-

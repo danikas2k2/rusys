@@ -1,6 +1,6 @@
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
-import { deleteProductsHistoryEntry } from '~/server/data/productsHistory';
+import { deleteProductsHistoryEntry } from '~/server/data/history';
 import type { ApiDeleteProductsHistoryEntry, ApiRequest, ApiResponse } from '~/types/api';
 
 export async function handleDeleteProductsHistory(
@@ -12,5 +12,3 @@ export async function handleDeleteProductsHistory(
     const { group, name, time, year } = req.body;
     res.json(await run(() => deleteProductsHistoryEntry(group, name, time, year)));
 }
-
-

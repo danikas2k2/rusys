@@ -8,19 +8,29 @@ export const enum LoadingState {
 }
 
 export function useLockingLoader(loader: () => Promise<unknown>): LoadingState {
-    const [loading, setLoading] = useState<LoadingState>(LoadingState.INITIAL);
+    const [state, setState] = useState<LoadingState>(LoadingState.INITIAL);
+
     useEffect(() => {
+        let loading = true;
+
         (async () => {
-            if (loading === LoadingState.INITIAL) {
-                setLoading(LoadingState.LOADING);
-                try {
-                    await loader();
-                    setLoading(LoadingState.COMPLETE);
-                } catch (_e) {
-                    setLoading(LoadingState.FAILED);
+            setState(LoadingState.LOADING);
+            try {
+                await loader();
+                if (loading) {
+                    setState(LoadingState.COMPLETE);
+                }
+            } catch (_e) {
+                if (loading) {
+                    setState(LoadingState.FAILED);
                 }
             }
         })();
-    }, [loading, loader]);
-    return loading;
+
+        return () => {
+            loading = false;
+        };
+    }, [loader]);
+
+    return state;
 }

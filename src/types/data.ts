@@ -17,13 +17,13 @@ export interface Update {
     years: readonly YearAmounts[];
 }
 
-export interface ProductUpdateHistoryItem {
-    id: string;
+export interface History {
+    sessionId?: string;
+    time: number;
     group: string;
     name: string;
-    time: number;
+    year?: number;
     user?: string;
-    year: number;
     amounts: readonly VariantAmount[];
 }
 
@@ -74,5 +74,3 @@ export interface Variant {
 }
 
 export type UpdateVariant = Partial<Pick<Variant, 'order' | 'suffix'>>;
-
-export type WithId<T> = T & { id: string };

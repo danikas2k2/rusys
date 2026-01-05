@@ -1,6 +1,6 @@
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
-import { updateProductsHistoryEntry } from '~/server/data/productsHistory';
+import { updateProductsHistoryEntry } from '~/server/data/history';
 import type { ApiRequest, ApiResponse, ApiUpdateProductsHistoryEntry } from '~/types/api';
 
 export async function handleUpdateProductsHistory(
@@ -12,5 +12,3 @@ export async function handleUpdateProductsHistory(
     const { group, name, time, year, amounts, user } = req.body;
     res.json(await run(() => updateProductsHistoryEntry(group, name, time, year, amounts, user)));
 }
-
-

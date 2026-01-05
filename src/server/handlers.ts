@@ -4,15 +4,15 @@ import { handleClientId } from '~/server/api/handleClientId';
 import { handleCopyVariant } from '~/server/api/handleCopyVariant';
 import { handleDelete } from '~/server/api/handleDelete';
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
+import { handleDeleteProductsHistory } from '~/server/api/handleDeleteProductsHistory';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { handleExport } from '~/server/api/handleExport';
 import { handleGroups } from '~/server/api/handleGroups';
+import { handleHistory } from '~/server/api/handleHistory';
 import { handleImport } from '~/server/api/handleImport';
 import { handleMove } from '~/server/api/handleMove';
-import { handleProducts } from '~/server/api/handleProducts';
-import { handleDeleteProductsHistory } from '~/server/api/handleDeleteProductsHistory';
 import { handleMoveProductsHistory } from '~/server/api/handleMoveProductsHistory';
-import { handleProductsHistory } from '~/server/api/handleProductsHistory';
+import { handleProducts } from '~/server/api/handleProducts';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
@@ -41,10 +41,10 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.Products]: handleProducts,
     [ApiUrl.ProductsAdd]: handleAdd,
     [ApiUrl.ProductsUpdate]: handleUpdateProduct,
-    [ApiUrl.ProductsHistory]: handleProductsHistory,
-    [ApiUrl.ProductsHistoryUpdate]: handleUpdateProductsHistory,
-    [ApiUrl.ProductsHistoryDelete]: handleDeleteProductsHistory,
-    [ApiUrl.ProductsHistoryMove]: handleMoveProductsHistory,
+    [ApiUrl.History]: handleHistory,
+    [ApiUrl.HistoryUpdate]: handleUpdateProductsHistory,
+    [ApiUrl.HistoryDelete]: handleDeleteProductsHistory,
+    [ApiUrl.HistoryMove]: handleMoveProductsHistory,
     [ApiUrl.ProductsSetRemoving]: handleSetRemoving,
     [ApiUrl.ProductsSetMissing]: handleSetMissing,
     [ApiUrl.ProductsRename]: handleRename,

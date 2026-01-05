@@ -3,9 +3,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { useApiRequest } from '~/client/state/common/useApiRequest';
 import { getErrorMessage } from '~/client/utils/errors';
 import { ApiUrl, type ApiResult } from '~/types/api';
-import type { ProductUpdateHistoryItem } from '~/types/data';
+import type { History } from '~/types/data';
 
-type HistoryResponse = ApiResult<{ history: readonly ProductUpdateHistoryItem[] }>;
+type HistoryResponse = ApiResult<{ history: readonly History[] }>;
 
 function assertOk<R extends object>(result: ApiResult<R>): asserts result is { ok: true } & R {
     if (!result.ok) {
@@ -14,13 +14,13 @@ function assertOk<R extends object>(result: ApiResult<R>): asserts result is { o
 }
 
 export function useGetHistory(year: number): {
-    history: readonly ProductUpdateHistoryItem[];
+    history: readonly History[];
     loading: boolean;
     error: string | null;
     reload: () => Promise<void>;
 } {
     const request = useApiRequest();
-    const [history, setHistory] = useState<readonly ProductUpdateHistoryItem[]>([]);
+    const [history, setHistory] = useState<readonly History[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +28,7 @@ export function useGetHistory(year: number): {
         setLoading(true);
         setError(null);
         try {
-            const result = await request<HistoryResponse>(ApiUrl.ProductsHistory, { year });
+            const result = await request<HistoryResponse>(ApiUrl.History, { year });
             assertOk(result);
             setHistory(result.history);
         } catch (e) {
@@ -44,5 +44,3 @@ export function useGetHistory(year: number): {
 
     return { history, loading, error, reload };
 }
-
-

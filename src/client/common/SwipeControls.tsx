@@ -7,11 +7,18 @@ import { Label } from '~/client/common/Label';
 import { SwipePanel } from '~/client/common/SwipePanel';
 
 export interface SlideControlsProps<D = ActiveContentData> {
+    withEdit?: boolean;
     onEdit?: (data: D, event: React.MouseEvent<HTMLButtonElement>) => void | Promise<void>;
+    withDelete?: boolean;
     onDelete?: (data: D, event: React.MouseEvent<HTMLButtonElement>) => void | Promise<void>;
 }
 
-export function SwipeControls<D = object>({ onEdit, onDelete }: SlideControlsProps<D>): React.ReactElement {
+export function SwipeControls<D = object>({
+    withEdit = true,
+    onEdit,
+    withDelete = true,
+    onDelete,
+}: SlideControlsProps<D>): React.ReactElement {
     const [active, setActive] = useActiveContent<D>();
 
     const handleEdit = useCallback(
@@ -38,24 +45,28 @@ export function SwipeControls<D = object>({ onEdit, onDelete }: SlideControlsPro
 
     return (
         <SwipePanel>
-            <Button
-                variant="filled"
-                color="primary"
-                size="sm"
-                leftSection={<IconEdit size={18} />}
-                onClick={handleEdit}
-            >
-                <Label>Edit</Label>
-            </Button>
-            <Button
-                variant="filled"
-                color="negative"
-                size="sm"
-                leftSection={<IconTrash size={18} />}
-                onClick={handleDelete}
-            >
-                <Label>Remove</Label>
-            </Button>
+            {withEdit && (
+                <Button
+                    variant="filled"
+                    color="primary"
+                    size="sm"
+                    leftSection={<IconEdit size={18} />}
+                    onClick={handleEdit}
+                >
+                    <Label>Edit</Label>
+                </Button>
+            )}
+            {withDelete && (
+                <Button
+                    variant="filled"
+                    color="negative"
+                    size="sm"
+                    leftSection={<IconTrash size={18} />}
+                    onClick={handleDelete}
+                >
+                    <Label>Remove</Label>
+                </Button>
+            )}
         </SwipePanel>
     );
 }

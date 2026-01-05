@@ -201,10 +201,11 @@ export default defineConfig(({ mode }) => {
             // Proxy API requests to Express server
             proxy: {
                 // Proxy all API endpoints to Express server
-                '^/(products|groups|variants|export|import|clientId|checkUser|summary|userProfiles|userProfile)': {
-                    target: 'http://localhost:3000',
-                    changeOrigin: true,
-                },
+                '^/(products|groups|variants|export|import|clientId|checkUser|summary|history|userProfiles|userProfile)':
+                    {
+                        target: 'http://localhost:3000',
+                        changeOrigin: true,
+                    },
             },
         },
         optimizeDeps: {

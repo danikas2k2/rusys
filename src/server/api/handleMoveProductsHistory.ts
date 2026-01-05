@@ -1,6 +1,6 @@
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
-import { moveProductsHistoryEntry } from '~/server/data/productsHistory';
+import { moveProductsHistoryEntry } from '~/server/data/history';
 import type { ApiMoveProductsHistoryEntry, ApiRequest, ApiResponse } from '~/types/api';
 
 export async function handleMoveProductsHistory(
@@ -11,7 +11,8 @@ export async function handleMoveProductsHistory(
     headerNoCache(res);
     res.json(
         await run(async () => {
-            const { group, name, time, year, newGroup, newName, newYear } = req.body ?? ({} as ApiMoveProductsHistoryEntry);
+            const { group, name, time, year, newGroup, newName, newYear } =
+                req.body ?? ({} as ApiMoveProductsHistoryEntry);
             if (
                 !group ||
                 !name ||
@@ -35,5 +36,3 @@ export async function handleMoveProductsHistory(
         })
     );
 }
-
-

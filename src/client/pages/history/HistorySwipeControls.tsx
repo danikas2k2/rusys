@@ -5,10 +5,10 @@ import React, { useCallback } from 'react';
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';
 import { SwipePanel } from '~/client/common/SwipePanel';
-import type { ProductUpdateHistoryItem } from '~/types/data';
+import type { History } from '~/types/data';
 
 export function HistorySwipeControls(): React.ReactElement {
-    const [active, setActive] = useActiveContent<ProductUpdateHistoryItem>();
+    const [active, setActive] = useActiveContent<History>();
 
     const handleDelete = useCallback(() => {
         if (!active?.data) {
@@ -25,5 +25,3 @@ export function HistorySwipeControls(): React.ReactElement {
         </SwipePanel>
     );
 }
-
-

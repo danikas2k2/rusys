@@ -5,11 +5,15 @@ import { UpdateTypeWrapper } from '~/client/common/UpdateTypeContext';
 import { useHistoryUserProfiles } from '~/client/pages/history/hooks/useHistoryUserProfiles';
 import { useMoveHistoryEntry } from '~/client/pages/history/hooks/useMoveHistoryEntry';
 import { useUpdateHistoryEntry } from '~/client/pages/history/hooks/useUpdateHistoryEntry';
-import type { ProductUpdateHistoryItem, VariantAmount } from '~/types/data';
+import { useUpdatingHistory } from '~/client/pages/history/UpdatingHistoryContext';
+import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
+import type { History, VariantAmount } from '~/types/data';
 import { HistoryBox } from './HistoryBox';
 
-export function ActiveHistoryValueBox({ onUpdated }: { onUpdated: () => Promise<void> }): React.ReactElement {
-    const [active, setActive] = useActiveContent<ProductUpdateHistoryItem>();
+export function ActiveValueBox(): React.ReactElement | null {
+    const [active, setActive] = useActiveContent<History>();
+    const [, setUpdating] = useUpdatingHistory();
+
     const update = useUpdateHistoryEntry();
     const move = useMoveHistoryEntry();
 
@@ -20,11 +24,10 @@ export function ActiveHistoryValueBox({ onUpdated }: { onUpdated: () => Promise<
     const opened = active?.action === 'values' && !!active?.data;
 
     const handleClose = useCallback(
-        async (next?: { group: string; name: string; year: number; amounts: readonly VariantAmount[] }): Promise<void> => {
+        async (changed?: Readonly<Update>): Promise<void> => {
             const data = active?.data;
             if (data && next) {
-                const needsMove =
-                    next.group !== data.group || next.name !== data.name || next.year !== data.year;
+                const needsMove = next.group !== data.group || next.name !== data.name || next.year !== data.year;
 
                 if (needsMove) {
                     await move({
@@ -60,19 +63,17 @@ export function ActiveHistoryValueBox({ onUpdated }: { onUpdated: () => Promise<
 
     const handleAfterClose = useCallback(() => setActive(), [setActive]);
 
-    return (
+    const opened = active?.action === 'history' && !!active?.data;
+
+    return active?.data ? (
         <UpdateTypeWrapper>
-            {active?.data ? (
-                <HistoryBox
-                    opened={opened}
-                    item={active.data}
-                    userProfile={profile}
-                    onClose={handleClose}
-                    onAfterClose={handleAfterClose}
-                />
-            ) : null}
+            <HistoryBox
+                opened={opened}
+                {...active.data}
+                userProfile={profile}
+                onClose={handleClose}
+                onAfterClose={handleAfterClose}
+            />
         </UpdateTypeWrapper>
-    );
+    ) : null;
 }
-
-

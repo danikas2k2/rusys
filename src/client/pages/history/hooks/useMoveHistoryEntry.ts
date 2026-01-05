@@ -14,11 +14,9 @@ export function useMoveHistoryEntry(): (args: ApiMoveProductsHistoryEntry) => Pr
 
     return useCallback(
         async (args: ApiMoveProductsHistoryEntry): Promise<void> => {
-            const result = await request<ApiResult>(ApiUrl.ProductsHistoryMove, args);
+            const result = await request<ApiResult>(ApiUrl.HistoryMove, args);
             assertOk(result as ApiResult<object>);
         },
         [request]
     );
 }
-
-
