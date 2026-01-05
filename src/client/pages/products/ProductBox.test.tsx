@@ -1,5 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
-import user, { type UserEvent } from '@testing-library/user-event';
+import userEvent from '@testing-library/user-event';
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockThemeRedux } from '@tests/MockThemeRedux';
 
@@ -17,6 +17,19 @@ jest.mock('~/client/state/products/useRenameProduct');
 jest.mock('~/client/common/Label');
 
 describe('<ProductBox>', () => {
+    const user = userEvent.setup({
+        advanceTimers: (ms) => act(() => jest.advanceTimersByTimeAsync(ms)),
+    });
+
+    beforeEach(() => jest.useFakeTimers());
+
+    afterEach(async () => {
+        await act(() => jest.runAllTimersAsync());
+        jest.clearAllMocks();
+    });
+
+    afterAll(() => jest.useRealTimers());
+
     const state = {
         groups: getGroupsFixture(),
         variants: getVariantsFixture(),
@@ -24,8 +37,6 @@ describe('<ProductBox>', () => {
     };
 
     const onClose = jest.fn();
-
-    afterEach(() => jest.clearAllMocks());
 
     it('renders with cancel button', () => {
         render(
@@ -92,6 +103,7 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -107,6 +119,7 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -122,6 +135,7 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(addProduct).not.toHaveBeenCalled();
@@ -136,6 +150,7 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Avietės');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -156,6 +171,7 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
             await user.click(screen.getByRole('button', { name: 'Update' }));
@@ -172,6 +188,7 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
             await user.click(screen.getByRole('button', { name: 'Update' }));
@@ -188,6 +205,7 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
@@ -203,6 +221,7 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Braškės');
             await user.click(screen.getByRole('button', { name: 'Update' }));
@@ -220,6 +239,7 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
             expect(renameProduct).not.toHaveBeenCalled();
@@ -237,6 +257,9 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
+            // Wait for initial focus timer to complete
+            await act(() => jest.advanceTimersByTimeAsync(100));
 
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.clear(screen.getByRole('textbox', { name: 'Group' }));
@@ -257,6 +280,9 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
+            // Wait for initial focus timer to complete
+            await act(() => jest.advanceTimersByTimeAsync(100));
+
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.clear(screen.getByRole('textbox', { name: 'Group' }));
             await user.type(screen.getByRole('textbox', { name: 'Group' }), 'Dar');
@@ -275,6 +301,9 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
+            // Wait for initial focus timer to complete
+            await act(() => jest.advanceTimersByTimeAsync(100));
 
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.clear(screen.getByRole('textbox', { name: 'Group' }));
@@ -295,6 +324,9 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
+            // Wait for initial focus timer to complete
+            await act(() => jest.advanceTimersByTimeAsync(100));
 
             await user.click(screen.getByRole('textbox', { name: 'Group' }));
             await user.clear(screen.getByRole('textbox', { name: 'Group' }));
@@ -317,6 +349,7 @@ describe('<ProductBox>', () => {
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
+
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
             expect(moveProduct).not.toHaveBeenCalled();
@@ -364,20 +397,6 @@ describe('<ProductBox>', () => {
     });
 
     describe('loading state with fake timers', () => {
-        let timeUser: UserEvent;
-
-        beforeEach(() => {
-            jest.useFakeTimers();
-            timeUser = user.setup({ advanceTimers: jest.advanceTimersByTime });
-        });
-
-        afterEach(() => {
-            jest.runOnlyPendingTimers();
-            jest.clearAllTimers();
-        });
-
-        afterAll(() => jest.useRealTimers());
-
         it('shows loading state after 300ms delay when submitting form', async () => {
             const addProduct = jest.fn().mockResolvedValue(undefined);
             jest.mocked(useAddProduct).mockReturnValue(addProduct);
@@ -388,21 +407,20 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            await timeUser.click(screen.getByRole('textbox', { name: 'Group' }));
-            await timeUser.click(await screen.findByRole('option', { name: 'Daržovės' }));
-            await timeUser.type(screen.getByRole('textbox', { name: 'Title' }), 'New Entry');
+            // Wait for initial focus timer to complete
+            await act(() => jest.advanceTimersByTimeAsync(100));
+
+            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'New Entry');
 
             const addButton = screen.getByRole('button', { name: 'Add' });
-            await timeUser.click(addButton);
+            await user.click(addButton);
 
             // Advance timers by 300ms to trigger loading state (line 130)
             // This tests that setTimeout with 300ms delay is executed
-            act(() => {
-                jest.advanceTimersByTime(300);
-            });
+            await act(() => jest.advanceTimersByTimeAsync(300));
 
-            // Verify that loading state was triggered (line 130: setLoading(true))
-            // The button should have loading prop active, which Mantine handles internally
             expect(addButton).toBeInTheDocument();
 
             // Complete the async operation
@@ -422,20 +440,20 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            await timeUser.click(screen.getByRole('textbox', { name: 'Group' }));
-            await timeUser.click(await screen.findByRole('option', { name: 'Daržovės' }));
-            await timeUser.type(screen.getByRole('textbox', { name: 'Title' }), 'Fast Entry');
+            await act(() => jest.advanceTimersByTimeAsync(100));
+
+            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Fast Entry');
 
             const addButton = screen.getByRole('button', { name: 'Add' });
-            await timeUser.click(addButton);
+            await user.click(addButton);
 
             // Complete the async operation immediately (before 300ms)
             await addProduct();
 
             // Advance timers by less than 300ms - timeout should be cleared
-            act(() => {
-                jest.advanceTimersByTime(200);
-            });
+            await act(() => jest.advanceTimersByTimeAsync(200));
 
             // Button should be enabled and timeout cleared
             expect(addButton).not.toBeDisabled();
