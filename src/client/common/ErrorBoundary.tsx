@@ -31,12 +31,12 @@ function ErrorFallback({ resetErrorBoundary, onReload }: ErrorFallbackProps) {
 }
 
 type ErrorBoundaryProps = Readonly<React.PropsWithChildren<{ onReload?: () => void }>>;
-type ErrorBoundaryInfo = { componentStack?: string | null };
 
 export function ErrorBoundary({ children, onReload }: ErrorBoundaryProps): React.ReactElement {
-    const handleError = (error: Error, info: ErrorBoundaryInfo) => {
+    const handleError = (error: unknown, info: React.ErrorInfo) => {
+        const message = error instanceof Error ? error.message : String(error);
         // eslint-disable-next-line no-console
-        console.error(`[ERR] ErrorBoundary caught error: ${error}`, info);
+        console.error(`[ERR] ErrorBoundary caught error: ${message}`, info);
     };
 
     const renderFallback = (props: FallbackProps) => <ErrorFallback {...props} onReload={onReload} />;
