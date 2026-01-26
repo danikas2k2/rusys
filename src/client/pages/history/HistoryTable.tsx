@@ -23,6 +23,14 @@ export function HistoryTable(): React.ReactElement {
     const [year] = useYearFilter();
     const history = useHistory();
 
+    const sessions = useMemo(() => {
+        return history.reduce<Record<string, History[]>>((r, h) => {
+            const sessionId = h.sessionId || h.time;
+            r[sessionId] = [...(r[sessionId] || []), h];
+            return r;
+        }, {});
+    }, [history]);
+
     // const { history, loading, error, reload } = useGetHistory(year);
     //
     // const [active, setActive] = useActiveContent<History>();
@@ -46,11 +54,11 @@ export function HistoryTable(): React.ReactElement {
     //     [groupFilter, history, quickFilter]
     // );
 
-    const sessions = useMemo(() => {
+    /*const sessions = useMemo(() => {
         const allSessions = useHistorySessions(history);
         // Filtering is evaluated by session start time (first entry in the session).
         return allSessions.filter((s) => new Date(s.startTime).getFullYear() === year);
-    }, [filtered, year]);
+    }, [filtered, year]);*/
 
     // const ContinuationMark = () => (
     //     <div
@@ -194,7 +202,7 @@ export function HistoryTable(): React.ReactElement {
         <LoadableContent loader={useGetHistory(year)} hasData={useHistoryHasData()}>
             <Table layout="fixed" data-table="history">
                 <Table.Thead>
-                    <Table.Tr>
+                    <Table.Tr h="3rem">
                         <Table.Th>
                             <Label>Time</Label>
                         </Table.Th>
@@ -209,8 +217,44 @@ export function HistoryTable(): React.ReactElement {
                         </Table.Th>
                     </Table.Tr>
                 </Table.Thead>
-                {/**/}
-                {/*{sessions.map(renderSession)}*/}
+                {Object.entries(sessions).map(([s, hs]) => {
+                    const [user, time] = s.split(':', 2);
+                    return (
+                        <>
+                            <GroupTitle colSpan={4}>
+                                <Group justify="space-between">
+                                    <Group wrap="nowrap" gap="xs">
+                                        <EmailAvatar email={user} />
+                                        <Label>{formatSessionStartTitle(+time || 0)}</Label>
+                                    </Group>
+                                </Group>
+                            </GroupTitle>
+                            <Table.Tbody>
+                                {hs.map((h) => (
+                                    <SwipeableRow
+                                        key={h.time}
+                                        id={`${h.time}`}
+                                        data={h}
+                                        data-group={h.group}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <Table.Td>{formatTimeHHmm(h.time)}</Table.Td>
+                                        <Table.Td>
+                                            <Text size="sm">{h.name}</Text>
+                                            <Text size="xs" c="dimmed">
+                                                {h.group}
+                                            </Text>
+                                        </Table.Td>
+                                        <Table.Td>{h.year ?? '-'}</Table.Td>
+                                        <Table.Td>
+                                            <AmountsCell amounts={h.amounts ?? []} />
+                                        </Table.Td>
+                                    </SwipeableRow>
+                                ))}
+                            </Table.Tbody>
+                        </>
+                    );
+                })}
             </Table>
         </LoadableContent>
     );
