@@ -9,8 +9,8 @@ const base: Config = {
         '^~/(.*)$': '<rootDir>/src/$1',
     },
     modulePathIgnorePatterns: ['<rootDir>/src/.*?\\.d\\.ts$', '<rootDir>/src/.*?/types\\.ts$'],
-    // Allow transpiling ESM-only react-error-boundary from node_modules (pnpm layout).
-    transformIgnorePatterns: ['/node_modules/(?!((\\.pnpm/)?react-error-boundary))'],
+    // Allow transpiling ESM-only deps from node_modules (pnpm layout).
+    transformIgnorePatterns: ['/node_modules/(?!((\\.pnpm/)?(react-error-boundary|transliteration)))'],
     setupFilesAfterEnv: [
         'jest-extended/all',
         'jest-chain',
