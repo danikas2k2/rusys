@@ -1,4 +1,5 @@
-import { Table, Text } from '@mantine/core';
+import { Alert, Center, Flex, Table, Text } from '@mantine/core';
+import { IconInfoCircle } from '@tabler/icons-react';
 import React, { useMemo } from 'react';
 
 import { Label } from '~/client/common/Label';
@@ -194,56 +195,76 @@ export function HistoryTable(): React.ReactElement {
     //     [active, meEmail, mePicture, openEdit, profilesByEmail, setActive]
     // );
 
+    const hasData = useHistoryHasData();
+    const size = 48;
+
     return (
-        <LoadableContent loader={useGetHistory(year)} hasData={useHistoryHasData()}>
-            <Table layout="fixed" data-table="history">
-                <Table.Thead>
-                    <Table.Tr h="3rem">
-                        <Table.Th>
-                            <Label>Time</Label>
-                        </Table.Th>
-                        <Table.Th>
-                            <Label>Name</Label>
-                        </Table.Th>
-                        <Table.Th>
-                            <Label>Year</Label>
-                        </Table.Th>
-                        <Table.Th>
-                            <Label>Amounts</Label>
-                        </Table.Th>
-                    </Table.Tr>
-                </Table.Thead>
-                {Object.entries(sessions).map(([s, hs]) => {
-                    return (
-                        <>
-                            <SessionTitle session={s} />
-                            <Table.Tbody>
-                                {hs.map((h) => (
-                                    <SwipeableRow
-                                        key={h.time}
-                                        id={`${h.time}`}
-                                        data={h}
-                                        data-group={h.group}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <Table.Td>{formatTime(new Date(h.time))}</Table.Td>
-                                        <Table.Td>
-                                            <Text size="sm">{h.name}</Text>
-                                            <Text size="xs" c="dimmed">
-                                                {h.group}
-                                            </Text>
-                                        </Table.Td>
-                                        <Table.Td>{h.year ?? '-'}</Table.Td>
-                                        <Table.Td>
-                                            <AmountsCell amounts={h.amounts ?? []} />
-                                        </Table.Td>
-                                    </SwipeableRow>
-                                ))}
-                            </Table.Tbody>
-                        </>
-                    );
-                })}
-            </Table>
+        <LoadableContent loader={useGetHistory(year)} hasData>
+            {hasData ? (
+                <Table layout="fixed" data-table="history">
+                    <Table.Thead>
+                        <Table.Tr h="3rem">
+                            <Table.Th>
+                                <Label>Time</Label>
+                            </Table.Th>
+                            <Table.Th>
+                                <Label>Name</Label>
+                            </Table.Th>
+                            <Table.Th>
+                                <Label>Year</Label>
+                            </Table.Th>
+                            <Table.Th>
+                                <Label>Amounts</Label>
+                            </Table.Th>
+                        </Table.Tr>
+                    </Table.Thead>
+                    {Object.entries(sessions).map(([s, hs]) => {
+                        return (
+                            <>
+                                <SessionTitle session={s} />
+                                <Table.Tbody>
+                                    {hs.map((h) => (
+                                        <SwipeableRow
+                                            key={h.time}
+                                            id={`${h.time}`}
+                                            data={h}
+                                            data-group={h.group}
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            <Table.Td>{formatTime(new Date(h.time))}</Table.Td>
+                                            <Table.Td>
+                                                <Text size="sm">{h.name}</Text>
+                                                <Text size="xs" c="dimmed">
+                                                    {h.group}
+                                                </Text>
+                                            </Table.Td>
+                                            <Table.Td>{h.year ?? '-'}</Table.Td>
+                                            <Table.Td>
+                                                <AmountsCell amounts={h.amounts ?? []} />
+                                            </Table.Td>
+                                        </SwipeableRow>
+                                    ))}
+                                </Table.Tbody>
+                            </>
+                        );
+                    })}
+                </Table>
+            ) : (
+                <Flex data-error>
+                    <Center pos="fixed" inset={0}>
+                        <Alert
+                            variant="filled"
+                            color="primary"
+                            radius="md"
+                            title={<Label>Notice</Label>}
+                            icon={<IconInfoCircle size={size} />}
+                            styles={{ icon: { width: size, height: size } }}
+                        >
+                            <Label>No data</Label>. <Label>Choose another year</Label>.
+                        </Alert>
+                    </Center>
+                </Flex>
+            )}
         </LoadableContent>
     );
 }
