@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 import { debugRequest } from '~/server/api/debug';
 import { getProductsWithGroups } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
@@ -49,7 +47,7 @@ export async function handleImport(req: ApiRequest, res: ApiResponse<ApiProducts
                         ...d,
                         updates: d.updates?.map((u) => ({
                             ...u,
-                            time: moment(u.time).valueOf(),
+                            time: new Date(u.time).getTime(),
                         })),
                     })),
                     data.variants,

@@ -1,7 +1,6 @@
 /** @jest-environment node */
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 
-import moment from 'moment';
 import { AggregationCursor, ClientSession, Collection, Db } from 'mongodb';
 
 import {
@@ -460,7 +459,7 @@ describe('common', () => {
         beforeEach(() =>
             jest
                 .useFakeTimers({ doNotFake: ['nextTick'] }) // do not fake nextTick behavior for mongo in memory
-                .setSystemTime(moment('2025-05-05T12:11:10.123Z').valueOf())
+                .setSystemTime(new Date('2025-05-05T12:11:10.123Z'))
         );
 
         afterAll(() => jest.useRealTimers());

@@ -42,7 +42,6 @@ export function generatePackageJson(): Plugin {
                     'helmet',
                     'jwt-decode',
                     'lodash',
-                    'moment',
                     'mongodb',
                     'react',
                     'react-dom',

@@ -1,4 +1,3 @@
-import moment from 'moment';
 import type { Db } from 'mongodb';
 
 import { deleteGroup, renameGroup } from '~/server/data/groups';
@@ -119,7 +118,8 @@ export async function importEverything(
 ): Promise<boolean> {
     const current = await db();
     const name = current.databaseName;
-    const now = moment().format('YYYYMMDD_HHmmss');
+
+    const now = new Date().toISOString().replaceAll(/\D/g, (x) => (x === 'T' ? '_' : ''));
 
     // Create a temporary database
     const temporary = await db(`${name}_temp_${now}`);

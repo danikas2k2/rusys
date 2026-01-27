@@ -41,7 +41,6 @@ export default defineConfig(() => {
                     'express',
                     'cors',
                     'body-parser',
-                    'moment',
                     'mongodb',
                     'helmet',
                     'express-fileupload',
