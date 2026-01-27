@@ -1,227 +1,287 @@
 {
-    "Add": {
-        "lt-LT": "Pridėti"
-    },
-    "Add new entry": {
-        "lt-LT": "Pridėti naują produktą"
-    },
-    "Add new group": {
-        "lt-LT": "Pridėti naują grupę"
-    },
-    "Add new variant": {
-        "lt-LT": "Pridėti naują variantą"
-    },
-    "All groups": {
-        "lt-LT": "Visos grupės"
-    },
-    "Annual": {
-        "lt-LT": "Metiniai"
-    },
-    "Are you sure to logout?": {
-        "lt-LT": "Ar tikrai norite išeiti?"
-    },
-    "Are you sure to remove?": {
-        "lt-LT": "Ar tikrai norite pašalinti?"
-    },
-    "Are you sure?": {
-        "lt-LT": "Ar jus tikras?"
-    },
-    "Cancel": {
-        "lt-LT": "Atšaukti"
-    },
-    "Cannot contain \":\" character": {
-        "lt-LT": "Negali turėti \":\" simbolio"
-    },
-    "Cellar": {
-        "lt-LT": "Rūsys"
-    },
-    "Choose a valid JSON file": {
-        "lt-LT": "Pasirinkite tinkamą JSON failą"
-    },
-    "Choose file": {
-        "lt-LT": "Pasirinkite failą"
-    },
-    "Clear": {
-        "lt-LT": "Išvalyti"
-    },
-    "Close": {
-        "lt-LT": "Uždaryti"
-    },
-    "Confirm": {
-        "lt-LT": "Patvirtinti"
-    },
-    "Consumed": {
-        "lt-LT": "Sunaudota"
-    },
-    "Dark mode": {
-        "lt-LT": "Tamsi tema"
-    },
-    "Decrease": {
-        "lt-LT": "Mažinti"
-    },
-    "Drag JSON file here or click to select": {
-        "lt-LT": "Vilkite JSON failą čia arba spustelėkite ir pasirinkite"
-    },
-    "Duplicate": {
-        "lt-LT": "Kopijuoti"
-    },
-    "Edit": {
-        "lt-LT": "Taisyti"
-    },
-    "Edit entry": {
-        "lt-LT": "Taisyti produktą"
-    },
-    "Edit group": {
-        "lt-LT": "Taisyti grupę"
-    },
-    "Edit variant": {
-        "lt-LT": "Taisyti variantą"
-    },
-    "Enter group name": {
-        "lt-LT": "Įveskite grupės pavadinimą"
-    },
-    "Enter name": {
-        "lt-LT": "Įveskite pavadinimą"
-    },
-    "Enter suffix": {
-        "lt-LT": "Įveskite žymėjimą"
-    },
-    "Enter variant name": {
-        "lt-LT": "Įveskite varianto pavadinimą"
-    },
-    "Error": {
-        "lt-LT": "Klaida"
-    },
-    "Expand": {
-        "lt-LT": "Išplėsti"
-    },
-    "Export": {
-        "lt-LT": "Eksportuoti"
-    },
-    "Export data?": {
-        "lt-LT": "Eksportuoti duomenis?"
-    },
-    "Failed to import file": {
-        "lt-LT": "Nepavyko importuoti failo"
-    },
-    "Failed to load data": {
-        "lt-LT": "Nepavyko įkelti duomenų"
-    },
-    "File should not exceed": {
-        "lt-LT": "Failo dydis negali viršyti"
-    },
-    "Group": {
-        "lt-LT": "Grupė"
-    },
-    "Group already exists": {
-        "lt-LT": "Tokia grupė jau yra"
-    },
-    "Group is required": {
-        "lt-LT": "Grupė yra privaloma"
-    },
-    "Group name": {
-        "lt-LT": "Grupės pavadinimas"
-    },
-    "Groups": {
-        "lt-LT": "Grupės"
-    },
-    "Import": {
-        "lt-LT": "Importuoti"
-    },
-    "Increase": {
-        "lt-LT": "Didinti"
-    },
-    "Invalid Client ID": {
-        "lt-LT": "Netinkamas kliento ID"
-    },
-    "Light mode": {
-        "lt-LT": "Šviesi tema"
-    },
-    "Products": {
-        "lt-LT": "Produktai"
-    },
-    "Login with Google": {
-        "lt-LT": "Įeiti su Google"
-    },
-    "Logout": {
-        "lt-LT": "Išeiti"
-    },
-    "Menu": {
-        "lt-LT": "Meniu"
-    },
-    "Move": {
-        "lt-LT": "Perkelti"
-    },
-    "Name": {
-        "lt-LT": "Pavadinimas"
-    },
-    "Name already exists": {
-        "lt-LT": "Toks pavadinimas jau yra"
-    },
-    "Name already exists in this group": {
-        "lt-LT": "Toks pavadinimas jau yra šioje grupėje"
-    },
-    "Name is required": {
-        "lt-LT": "Pavadinimas yra privalomas"
-    },
-    "No data": {
-        "lt-LT": "Duomenų nėra"
-    },
-    "Recycled": {
-        "lt-LT": "Išmesta"
-    },
-    "Remove": {
-        "lt-LT": "Šalinti"
-    },
-    "Select group": {
-        "lt-LT": "Pasirinkite grupę"
-    },
-    "Summary": {
-        "lt-LT": "Suvestinė"
-    },
-    "Suffix": {
-        "lt-LT": "Žymėjimas"
-    },
-    "System preferred mode": {
-        "lt-LT": "Sistemos tema"
-    },
-    "This will download all your data as a file.": {
-        "lt-LT": "Bus atsisiųsti visi jūsų duomenys kaip failas."
-    },
-    "Title": {
-        "lt-LT": "Pavadinimas"
-    },
-    "Update": {
-        "lt-LT": "Naujinti"
-    },
-    "Update entry": {
-        "lt-LT": "Naujinti įrašą"
-    },
-    "Updated": {
-        "lt-LT": "Atnaujinta"
-    },
-    "Utilities": {
-        "lt-LT": "Įrankiai"
-    },
-    "Variant": {
-        "lt-LT": "Variantas"
-    },
-    "Variant already exists": {
-        "lt-LT": "Toks variantas jau yra"
-    },
-    "Variant already exists in this group": {
-        "lt-LT": "Toks variantas jau yra šioje grupėje"
-    },
-    "Variant name": {
-        "lt-LT": "Varianto pavadinimas"
-    },
-    "Variant name is required": {
-        "lt-LT": "Varianto pavadinimas yra privalomas"
-    },
-    "Variants": {
-        "lt-LT": "Variantai"
-    },
-    "type to filter": {
-        "lt-LT": "filtruokite"
-    }
+  "Add": {
+    "lt-LT": "Pridėti"
+  },
+  "Add new entry": {
+    "lt-LT": "Pridėti naują produktą"
+  },
+  "Add new group": {
+    "lt-LT": "Pridėti naują grupę"
+  },
+  "Add new variant": {
+    "lt-LT": "Pridėti naują variantą"
+  },
+  "All groups": {
+    "lt-LT": "Visos grupės"
+  },
+  "Annual": {
+    "lt-LT": "Metiniai"
+  },
+  "Are you sure to logout?": {
+    "lt-LT": "Ar tikrai norite išeiti?"
+  },
+  "Are you sure to remove?": {
+    "lt-LT": "Ar tikrai norite pašalinti?"
+  },
+  "Are you sure?": {
+    "lt-LT": "Ar jus tikras?"
+  },
+  "Cancel": {
+    "lt-LT": "Atšaukti"
+  },
+  "Cannot contain \":\" character": {
+    "lt-LT": "Negali turėti \":\" simbolio"
+  },
+  "Cellar": {
+    "lt-LT": "Rūsys"
+  },
+  "Choose a valid JSON file": {
+    "lt-LT": "Pasirinkite tinkamą JSON failą"
+  },
+  "Choose file": {
+    "lt-LT": "Pasirinkite failą"
+  },
+  "Clear": {
+    "lt-LT": "Išvalyti"
+  },
+  "Close": {
+    "lt-LT": "Uždaryti"
+  },
+  "Confirm": {
+    "lt-LT": "Patvirtinti"
+  },
+  "Consumed": {
+    "lt-LT": "Sunaudota"
+  },
+  "Dark mode": {
+    "lt-LT": "Tamsi tema"
+  },
+  "Decrease": {
+    "lt-LT": "Mažinti"
+  },
+  "Drag JSON file here or click to select": {
+    "lt-LT": "Vilkite JSON failą čia arba spustelėkite ir pasirinkite"
+  },
+  "Duplicate": {
+    "lt-LT": "Kopijuoti"
+  },
+  "Edit": {
+    "lt-LT": "Taisyti"
+  },
+  "Edit entry": {
+    "lt-LT": "Taisyti produktą"
+  },
+  "Edit group": {
+    "lt-LT": "Taisyti grupę"
+  },
+  "Edit variant": {
+    "lt-LT": "Taisyti variantą"
+  },
+  "Enter group name": {
+    "lt-LT": "Įveskite grupės pavadinimą"
+  },
+  "Enter name": {
+    "lt-LT": "Įveskite pavadinimą"
+  },
+  "Enter suffix": {
+    "lt-LT": "Įveskite žymėjimą"
+  },
+  "Enter variant name": {
+    "lt-LT": "Įveskite varianto pavadinimą"
+  },
+  "Error": {
+    "lt-LT": "Klaida"
+  },
+  "Expand": {
+    "lt-LT": "Išplėsti"
+  },
+  "Export": {
+    "lt-LT": "Eksportuoti"
+  },
+  "Export data?": {
+    "lt-LT": "Eksportuoti duomenis?"
+  },
+  "Failed to import file": {
+    "lt-LT": "Nepavyko importuoti failo"
+  },
+  "Failed to load data": {
+    "lt-LT": "Nepavyko įkelti duomenų"
+  },
+  "File should not exceed": {
+    "lt-LT": "Failo dydis negali viršyti"
+  },
+  "Group": {
+    "lt-LT": "Grupė"
+  },
+  "Group already exists": {
+    "lt-LT": "Tokia grupė jau yra"
+  },
+  "Group is required": {
+    "lt-LT": "Grupė yra privaloma"
+  },
+  "Group name": {
+    "lt-LT": "Grupės pavadinimas"
+  },
+  "Groups": {
+    "lt-LT": "Grupės"
+  },
+  "Import": {
+    "lt-LT": "Importuoti"
+  },
+  "Increase": {
+    "lt-LT": "Didinti"
+  },
+  "Invalid Client ID": {
+    "lt-LT": "Netinkamas kliento ID"
+  },
+  "Light mode": {
+    "lt-LT": "Šviesi tema"
+  },
+  "Products": {
+    "lt-LT": "Produktai"
+  },
+  "Login with Google": {
+    "lt-LT": "Įeiti su Google"
+  },
+  "Logout": {
+    "lt-LT": "Išeiti"
+  },
+  "Menu": {
+    "lt-LT": "Meniu"
+  },
+  "Move": {
+    "lt-LT": "Perkelti"
+  },
+  "Name": {
+    "lt-LT": "Pavadinimas"
+  },
+  "Name already exists": {
+    "lt-LT": "Toks pavadinimas jau yra"
+  },
+  "Name already exists in this group": {
+    "lt-LT": "Toks pavadinimas jau yra šioje grupėje"
+  },
+  "Name is required": {
+    "lt-LT": "Pavadinimas yra privalomas"
+  },
+  "No data": {
+    "lt-LT": "Duomenų nėra"
+  },
+  "Recycled": {
+    "lt-LT": "Išmesta"
+  },
+  "Remove": {
+    "lt-LT": "Šalinti"
+  },
+  "Select group": {
+    "lt-LT": "Pasirinkite grupę"
+  },
+  "Summary": {
+    "lt-LT": "Suvestinė"
+  },
+  "Suffix": {
+    "lt-LT": "Žymėjimas"
+  },
+  "System preferred mode": {
+    "lt-LT": "Sistemos tema"
+  },
+  "This will download all your data as a file.": {
+    "lt-LT": "Bus atsisiųsti visi jūsų duomenys kaip failas."
+  },
+  "Title": {
+    "lt-LT": "Pavadinimas"
+  },
+  "Update": {
+    "lt-LT": "Naujinti"
+  },
+  "Update entry": {
+    "lt-LT": "Naujinti įrašą"
+  },
+  "Updated": {
+    "lt-LT": "Atnaujinta"
+  },
+  "Utilities": {
+    "lt-LT": "Įrankiai"
+  },
+  "Variant": {
+    "lt-LT": "Variantas"
+  },
+  "Variant already exists": {
+    "lt-LT": "Toks variantas jau yra"
+  },
+  "Variant already exists in this group": {
+    "lt-LT": "Toks variantas jau yra šioje grupėje"
+  },
+  "Variant name": {
+    "lt-LT": "Varianto pavadinimas"
+  },
+  "Variant name is required": {
+    "lt-LT": "Varianto pavadinimas yra privalomas"
+  },
+  "Variants": {
+    "lt-LT": "Variantai"
+  },
+  "type to filter": {
+    "lt-LT": "filtruokite"
+  },
+  "Yesterday": {
+    "lt-LT": "Vakar"
+  },
+  "Monday": {
+    "lt-LT": "Pirmadienis"
+  },
+  "Tuesday": {
+    "lt-LT": "Antradienis"
+  },
+  "Wednesday": {
+    "lt-LT": "Trečiadienis"
+  },
+  "Thursday": {
+    "lt-LT": "Ketvirtadienis"
+  },
+  "Friday": {
+    "lt-LT": "Penktadienis"
+  },
+  "Saturday": {
+    "lt-LT": "Šeštadienis"
+  },
+  "Sunday": {
+    "lt-LT": "Sekmadienis"
+  },
+  "January": {
+    "lt-LT": "Sausio"
+  },
+  "February": {
+    "lt-LT": "Vasario"
+  },
+  "March": {
+    "lt-LT": "Kovo"
+  },
+  "April": {
+    "lt-LT": "Balandžio"
+  },
+  "May": {
+    "lt-LT": "Gegužės"
+  },
+  "June": {
+    "lt-LT": "Birželio"
+  },
+  "July": {
+    "lt-LT": "Liepos"
+  },
+  "August": {
+    "lt-LT": "Rugpjūčio"
+  },
+  "September": {
+    "lt-LT": "Rugsėjo"
+  },
+  "October": {
+    "lt-LT": "Spalio"
+  },
+  "November": {
+    "lt-LT": "Lapkričio"
+  },
+  "December": {
+    "lt-LT": "Gruodžio"
+  }
 }

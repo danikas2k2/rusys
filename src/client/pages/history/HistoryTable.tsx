@@ -1,21 +1,17 @@
-import { Group, Table, Text } from '@mantine/core';
+import { Table, Text } from '@mantine/core';
 import React, { useMemo } from 'react';
 
 import { Label } from '~/client/common/Label';
 import { LoadableContent } from '~/client/common/LoadableContent';
 import { useYearFilter } from '~/client/filters/YearFilterContext';
 import { useHistoryHasData } from '~/client/pages/history/hooks/useHistoryHasData';
-import { useProductsHasData } from '~/client/pages/products/hooks/useProductsHasData';
+import { SessionTitle } from '~/client/pages/history/SessionTitle';
 import { useGetHistory } from '~/client/state/history/useGetHistory';
 import { useHistory } from '~/client/state/history/useHistory';
-import { useGetProducts } from '~/client/state/products/useGetProducts';
-import { GroupTitle } from '~/client/table/GroupTitle';
 import { SwipeableRow } from '~/client/table/SwipeableRow';
+import { formatTime } from '~/client/utils/time';
 import type { History, UserProfile } from '~/types/data';
 import { AmountsCell } from './components/AmountsCell';
-import { EmailAvatar } from './components/EmailAvatar';
-import { useHistorySessions, type HistorySession } from './utils/sessions';
-import { formatSessionStartTitle, formatTimeHHmm, minuteKey } from './utils/time';
 
 type ProfilesByEmail = Record<string, UserProfile>;
 
@@ -218,17 +214,9 @@ export function HistoryTable(): React.ReactElement {
                     </Table.Tr>
                 </Table.Thead>
                 {Object.entries(sessions).map(([s, hs]) => {
-                    const [user, time] = s.split(':', 2);
                     return (
                         <>
-                            <GroupTitle colSpan={4}>
-                                <Group justify="space-between">
-                                    <Group wrap="nowrap" gap="xs">
-                                        <EmailAvatar email={user} />
-                                        <Label>{formatSessionStartTitle(+time || 0)}</Label>
-                                    </Group>
-                                </Group>
-                            </GroupTitle>
+                            <SessionTitle session={s} />
                             <Table.Tbody>
                                 {hs.map((h) => (
                                     <SwipeableRow
@@ -238,7 +226,7 @@ export function HistoryTable(): React.ReactElement {
                                         data-group={h.group}
                                         style={{ cursor: 'pointer' }}
                                     >
-                                        <Table.Td>{formatTimeHHmm(h.time)}</Table.Td>
+                                        <Table.Td>{formatTime(new Date(h.time))}</Table.Td>
                                         <Table.Td>
                                             <Text size="sm">{h.name}</Text>
                                             <Text size="xs" c="dimmed">

@@ -313,3 +313,7 @@ select,
         text-underline-position: under;
     }
 }
+
+time[data-date]:has(+ time[data-time])::after {
+    content: ", ";
+}
