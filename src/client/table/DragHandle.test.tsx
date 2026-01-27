@@ -28,7 +28,7 @@ describe('<DragHandle>', () => {
     });
 
     it('applies custom style', () => {
-        const customStyle = { color: 'red' };
+        const customStyle = { color: 'negative' };
 
         render(
             <MockTheme>

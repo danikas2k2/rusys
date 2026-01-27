@@ -138,7 +138,7 @@ select,
 }
 
 .ui-SegmentedControl-root {
-    background-color: var(--mantine-color-gray-3);
+    background-color: var(--mantine-color-neutral-3);
     border-color: var(--mantine-color-default-border);
 
     .ui-SegmentedControl-label:not([data-active="true"]) {
@@ -161,24 +161,24 @@ select,
 .ui-Dropzone-root {
     &:where([data-idle]) {
         color: var(--mantine-color-text);
-        background-color: var(--mantine-color-gray-3);
+        background-color: var(--mantine-color-neutral-3);
         border-color: var(--mantine-color-default-border);
     }
 
     &:where([data-accept]) {
-        --mantine-color-dimmed: color-mix(in srgb, var(--mantine-color-green-text) 30%, var(--mantine-color-subtext0) 70%);
+        --mantine-color-dimmed: color-mix(in srgb, var(--mantine-color-positive-text) 30%, var(--mantine-color-subtext0) 70%);
 
-        color: var(--mantine-color-green-text);
-        background-color: color-mix(in srgb, var(--mantine-color-green-filled) 10%, var(--mantine-color-surface0) 90%);
-        border-color: color-mix(in srgb, var(--mantine-color-green-filled) 20%, var(--mantine-color-surface2) 80%);
+        color: var(--mantine-color-positive-text);
+        background-color: color-mix(in srgb, var(--mantine-color-positive-filled) 10%, var(--mantine-color-surface0) 90%);
+        border-color: color-mix(in srgb, var(--mantine-color-positive-filled) 20%, var(--mantine-color-surface2) 80%);
     }
 
     &:where([data-reject]) {
-        --mantine-color-dimmed: color-mix(in srgb, var(--mantine-color-red-text) 30%, var(--mantine-color-subtext0) 70%);
+        --mantine-color-dimmed: color-mix(in srgb, var(--mantine-color-negative-text) 30%, var(--mantine-color-subtext0) 70%);
 
-        color: var(--mantine-color-red-text);
-        background-color: color-mix(in srgb, var(--mantine-color-red-filled) 10%, var(--mantine-color-surface0) 90%);
-        border-color: color-mix(in srgb, var(--mantine-color-red-filled) 20%, var(--mantine-color-surface2) 80%);
+        color: var(--mantine-color-negative-text);
+        background-color: color-mix(in srgb, var(--mantine-color-negative-filled) 10%, var(--mantine-color-surface0) 90%);
+        border-color: color-mix(in srgb, var(--mantine-color-negative-filled) 20%, var(--mantine-color-surface2) 80%);
     }
 }
 
@@ -189,7 +189,7 @@ select,
 }
 
 .ui-Table-table {
-    --table-border-color: var(--mantine-color-gray-1);
+    --table-border-color: var(--mantine-color-neutral-1);
 
     font-size: var(--mantine-font-size-md);
     margin-block-end: 12px;
@@ -201,17 +201,17 @@ select,
         box-shadow: var(--mantine-shadow-md);
     }
 
-    --mantine-color-group-title: var(--mantine-color-gray-filled);
+    --mantine-color-group-title: var(--mantine-color-neutral-filled);
 
     &[data-table="product"] {
-        --mantine-color-group-title: var(--mantine-color-blue-filled);
+        --mantine-color-group-title: var(--mantine-color-primary-filled);
     }
 
     &[data-table="summary"] {
-        --mantine-color-group-title: var(--mantine-color-green-filled);
+        --mantine-color-group-title: var(--mantine-color-positive-filled);
 
         &[data-recycled='true'] {
-            --mantine-color-group-title: var(--mantine-color-red-filled);
+            --mantine-color-group-title: var(--mantine-color-negative-filled);
         }
     }
 }
@@ -230,12 +230,11 @@ select,
         //background-color: var(--mantine-color-body);
 
         transition: --mantine-color-group-title 200ms ease-in-out;
-        background: var(--mantine-color-body)
-            linear-gradient(
+        background: var(--mantine-color-body) linear-gradient(
                 150deg,
                 color(from var(--mantine-color-group-title) srgb r g b / 0%) 40%,
                 color(from var(--mantine-color-group-title) srgb r g b / 30%)
-            );
+        );
     }
 }
 
@@ -251,12 +250,11 @@ select,
     --transition-duration: 100ms;
     --transition-timing-function: linear;
 
-    transition:
-            height var(--transition-duration) var(--transition-timing-function),
-            padding var(--transition-duration) var(--transition-timing-function),
-            margin var(--transition-duration) var(--transition-timing-function),
-            opacity var(--transition-duration) var(--transition-timing-function) calc(var(--transition-duration) / 2),
-            visibility 0s var(--transition-timing-function);
+    transition: height var(--transition-duration) var(--transition-timing-function),
+    padding var(--transition-duration) var(--transition-timing-function),
+    margin var(--transition-duration) var(--transition-timing-function),
+    opacity var(--transition-duration) var(--transition-timing-function) calc(var(--transition-duration) / 2),
+    visibility 0s var(--transition-timing-function);
 
     &[data-hidden="true"] {
         visibility: collapse;
@@ -265,12 +263,11 @@ select,
         padding: 0;
         margin: 0;
         border: 0;
-        transition:
-                height var(--transition-duration) var(--transition-timing-function),
-                padding var(--transition-duration) var(--transition-timing-function),
-                margin var(--transition-duration) var(--transition-timing-function),
-                opacity var(--transition-duration) var(--transition-timing-function),
-                visibility 0s var(--transition-timing-function) var(--transition-duration);
+        transition: height var(--transition-duration) var(--transition-timing-function),
+        padding var(--transition-duration) var(--transition-timing-function),
+        margin var(--transition-duration) var(--transition-timing-function),
+        opacity var(--transition-duration) var(--transition-timing-function),
+        visibility 0s var(--transition-timing-function) var(--transition-duration);
     }
 }
 
@@ -294,14 +291,14 @@ select,
     }
 }
 
-.ui-Title-root{
+.ui-Title-root {
     &[data-available="false"] {
         color: var(--mantine-color-dark-text);
         font-weight: var(--mantine-font-weight-xs);
     }
 
     &[data-available="true"][data-removing="true"] {
-        color: var(--mantine-color-red-text);
+        color: var(--mantine-color-negative-text);
         font-weight: var(--mantine-font-weight-xl);
         letter-spacing: -0.25px;
         text-decoration: underline dashed 1px;
@@ -312,7 +309,7 @@ select,
         font-weight: var(--mantine-font-weight-xs);
         color: var(--mantine-color-dark-text);
         text-decoration: underline wavy 1px;
-        text-decoration-color: var(--mantine-color-red-text);
+        text-decoration-color: var(--mantine-color-negative-text);
         text-underline-position: under;
     }
 }

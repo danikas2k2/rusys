@@ -16,9 +16,9 @@ interface UpdateTypeToggleProps {
 }
 
 const UPDATE_TYPE_COLORS: Record<UpdateTypes, MantineColor> = {
-    consumed: 'green',
-    updated: 'blue',
-    recycled: 'red',
+    consumed: 'positive',
+    updated: 'primary',
+    recycled: 'negative',
 };
 
 export function UpdateTypeToggle(props: Readonly<UpdateTypeToggleProps>) {

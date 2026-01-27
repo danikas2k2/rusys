@@ -110,7 +110,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
             </Dropzone>
 
             {error && (
-                <Alert variant="light" color="red" icon={<IconAlertCircle size={18} />} mt="md">
+                <Alert variant="light" color="negative" icon={<IconAlertCircle size={18} />} mt="md">
                     {error}
                 </Alert>
             )}
@@ -127,7 +127,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
                 </Button>
                 <Button
                     variant="filled"
-                    color="blue"
+                    color="primary"
                     leftSection={<IconCloudUpload size={18} />}
                     loading={loading}
                     onClick={handleSubmit}

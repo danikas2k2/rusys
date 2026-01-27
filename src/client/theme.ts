@@ -1,7 +1,28 @@
-import { createTheme } from '@mantine/core';
+import { createTheme, virtualColor, type MantineThemeColorsOverride } from '@mantine/core';
 
 export function getTheme() {
     return createTheme({
+        colors: [
+            // missing catppuccin colors
+            'flamingo',
+            'lavender',
+            'maroon',
+            'mauve',
+            'peach',
+            'rosewater',
+            'sapphire',
+            'sky',
+            // override default colors to use css variables
+            'primary',
+            'secondary',
+            'positive',
+            'negative',
+            'moderate',
+            'neutral',
+        ].reduce(
+            (acc, color) => ({ ...acc, [color]: virtualColor({ name: color, dark: '', light: '' }) }),
+            {} as MantineThemeColorsOverride
+        ),
         components: {
             Alert: {
                 defaultProps: {

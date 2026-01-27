@@ -23,7 +23,7 @@ export function AddAction({ onClick }: { onClick?: React.MouseEventHandler }) {
         <ActionIcon
             size="xl"
             radius="xl"
-            color="green"
+            color="positive"
             variant="filled"
             onClick={handleClick}
             data-hidden={hidden}

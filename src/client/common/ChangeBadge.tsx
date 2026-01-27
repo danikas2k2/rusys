@@ -42,9 +42,9 @@ function getColor(change: ChangeBadgeType): MantineColor {
         return '';
     }
     if (change === true) {
-        return 'yellow';
+        return 'moderate';
     }
-    return change > 0 ? 'green' : 'red';
+    return change > 0 ? 'positive' : 'negative';
 }
 
 function getDisplay(change: ChangeBadgeType): string {

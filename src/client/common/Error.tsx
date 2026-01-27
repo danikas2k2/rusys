@@ -12,7 +12,7 @@ export function Error({
         <Center pos="fixed" inset={0}>
             <Alert
                 variant="filled"
-                color="red"
+                color="negative"
                 radius="md"
                 title={<Label>Error</Label>}
                 icon={<IconAlertOctagon size={size} />}

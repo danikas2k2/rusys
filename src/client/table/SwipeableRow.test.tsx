@@ -70,7 +70,7 @@ describe('<SwipeableRow>', () => {
         });
 
         it('renders with custom style', () => {
-            const customStyle = { backgroundColor: 'red', zIndex: 999 };
+            const customStyle = { backgroundColor: 'negative', zIndex: 999 };
 
             render(
                 <MockTheme>

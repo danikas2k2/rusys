@@ -38,10 +38,22 @@ export function SwipeControls<D = object>({ onEdit, onDelete }: SlideControlsPro
 
     return (
         <SwipePanel>
-            <Button variant="filled" color="blue" size="sm" leftSection={<IconEdit size={18} />} onClick={handleEdit}>
+            <Button
+                variant="filled"
+                color="primary"
+                size="sm"
+                leftSection={<IconEdit size={18} />}
+                onClick={handleEdit}
+            >
                 <Label>Edit</Label>
             </Button>
-            <Button variant="filled" color="red" size="sm" leftSection={<IconTrash size={18} />} onClick={handleDelete}>
+            <Button
+                variant="filled"
+                color="negative"
+                size="sm"
+                leftSection={<IconTrash size={18} />}
+                onClick={handleDelete}
+            >
                 <Label>Remove</Label>
             </Button>
         </SwipePanel>

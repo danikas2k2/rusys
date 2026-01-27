@@ -228,7 +228,7 @@ export function ProductBox({
                             type="submit"
                             loading={loading}
                             leftSection={buttonContent.icon}
-                            color={!isEditing ? 'green' : undefined}
+                            color={!isEditing ? 'positive' : undefined}
                         >
                             <Label>{buttonContent.label}</Label>
                         </Button>

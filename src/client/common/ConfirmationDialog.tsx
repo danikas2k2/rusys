@@ -22,7 +22,7 @@ export interface ConfirmationDialogProps extends ModalProps {
 
 export const confirmButtonProps: ButtonProps = {
     variant: 'solid',
-    color: 'blue',
+    color: 'primary',
     leftSection: <IconCheck size={18} />,
     children: <Label>Confirm</Label>,
 };
@@ -99,7 +99,7 @@ export function ConfirmationDialog({
         >
             {children}
             {error && (
-                <Alert variant="light" color="red" icon={<IconAlertCircle size={18} />} mt="md">
+                <Alert variant="light" color="negative" icon={<IconAlertCircle size={18} />} mt="md">
                     {error}
                 </Alert>
             )}

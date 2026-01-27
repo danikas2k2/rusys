@@ -9,26 +9,26 @@
     --value-cell-font-weight: inherit;
 
     &[data-last="true"] {
-        --value-cell-color: var(--mantine-color-red-text);
+        --value-cell-color: var(--mantine-color-negative-text);
     }
 
     &[data-empty="true"] {
-        --value-cell-color: var(--mantine-color-gray-5);
+        --value-cell-color: var(--mantine-color-neutral-5);
     }
 
     &[data-preferred="true"] {
         --value-cell-color: var(--mantine-color-dark-9);
-        --value-cell-background: var(--mantine-color-gray-1);
+        --value-cell-background: var(--mantine-color-neutral-1);
         --value-cell-font-weight: var(--mantine-font-weight-md);
 
         > div {
-            outline: 1px dotted var(--mantine-color-gray-filled);
+            outline: 1px dotted var(--mantine-color-neutral-filled);
         }
     }
 
     &[data-removing="true"] {
         --value-cell-color: var(--mantine-color-body);
-        --value-cell-background: var(--mantine-color-red-text);
+        --value-cell-background: var(--mantine-color-negative-text);
         --value-cell-font-weight: var(--mantine-font-weight-xl);
     }
 

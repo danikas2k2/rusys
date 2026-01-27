@@ -177,7 +177,7 @@ export function GroupBox({
                             type="submit"
                             loading={loading}
                             leftSection={isEditing ? <IconCheck size={18} /> : <IconPlus size={18} />}
-                            color={!isEditing ? 'green' : undefined}
+                            color={!isEditing ? 'positive' : undefined}
                         >
                             <Label>{isEditing ? 'Update' : 'Add'}</Label>
                         </Button>

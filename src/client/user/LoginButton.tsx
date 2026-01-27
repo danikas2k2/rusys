@@ -27,7 +27,7 @@ export function LoginButton() {
     const handleClick = useCallback(() => login(), [login]);
 
     return (
-        <Button size="lg" color="blue" variant="outline" onClick={handleClick} data-action="login">
+        <Button size="lg" color="primary" variant="outline" onClick={handleClick} data-action="login">
             <IconBrandGoogleFilled />
             <Label>Login with Google</Label>
         </Button>

@@ -26,5 +26,13 @@ export function MissingOnlyCheckbox({ onClick }: { onClick?: () => void }) {
         onClick?.();
     }, [hasFilteredMissing, hasMissing, missingOnly, onClick, setFilter, setMissingOnly]);
 
-    return <Checkbox variant="outline" disabled={!hasMissing} checked={!missingOnly} onChange={handleChange} />;
+    return (
+        <Checkbox
+            variant="outline"
+            color="primary"
+            disabled={!hasMissing}
+            checked={!missingOnly}
+            onChange={handleChange}
+        />
+    );
 }

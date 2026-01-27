@@ -22,7 +22,7 @@ function ErrorFallback({ resetErrorBoundary, onReload }: ErrorFallbackProps) {
         <ScreenError>
             <Stack gap="sm" align="center">
                 <Label>Unexpected error occurred</Label>
-                <Button variant="filled" color="red" onClick={handleReload}>
+                <Button variant="filled" color="negative" onClick={handleReload}>
                     <Label>Reload page</Label>
                 </Button>
             </Stack>

@@ -27,7 +27,7 @@ export function ActiveExportBox() {
             onConfirm={handleConfirm}
             title={<Label>Export data?</Label>}
             confirmButton={
-                <Button variant="filled" color="blue" leftSection={<IconCloudDownload size={18} />}>
+                <Button variant="filled" color="primary" leftSection={<IconCloudDownload size={18} />}>
                     <Label>Export</Label>
                 </Button>
             }

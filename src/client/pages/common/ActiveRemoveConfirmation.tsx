@@ -31,7 +31,7 @@ export function ActiveRemoveConfirmation<D = ActiveContentData>({
             onConfirm={handleConfirm}
             title={<Label>Are you sure to remove?</Label>}
             confirmButton={
-                <Button variant="filled" color="red" leftSection={<IconTrash size={18} />}>
+                <Button variant="filled" color="negative" leftSection={<IconTrash size={18} />}>
                     <Label>Remove</Label>
                 </Button>
             }
