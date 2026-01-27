@@ -19,7 +19,13 @@ export function HistorySwipeControls(): React.ReactElement {
 
     return (
         <SwipePanel>
-            <Button variant="filled" color="red" size="sm" leftSection={<IconTrash size={18} />} onClick={handleDelete}>
+            <Button
+                variant="filled"
+                color="negative"
+                size="sm"
+                leftSection={<IconTrash size={18} />}
+                onClick={handleDelete}
+            >
                 <Label>Remove</Label>
             </Button>
         </SwipePanel>

@@ -21,7 +21,7 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
             {sorted.map((a) => {
                 const recycled = !!a.recycled;
                 const typeLabel = recycled ? 'Recycled' : 'Consumed';
-                const color = recycled ? 'red' : 'green';
+                const color = recycled ? 'negative' : 'positive';
                 const Icon = recycled ? IconTrash : IconToolsKitchen2;
 
                 return (
@@ -37,7 +37,7 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
                             </ThemeIcon>
                             <Text size="sm">{a.variant}</Text>
                         </Group>
-                        <Text size="sm" fw={500} c={a.amount > 0 ? 'green' : a.amount < 0 ? 'red' : undefined}>
+                        <Text size="sm" fw={500} c={a.amount > 0 ? 'positive' : a.amount < 0 ? 'negative' : undefined}>
                             {a.amount > 0 ? `+${a.amount}` : a.amount < 0 ? `−${Math.abs(a.amount)}` : '0'}
                         </Text>
                     </Group>
@@ -46,5 +46,3 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
         </Stack>
     );
 }
-
-
