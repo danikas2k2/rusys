@@ -7,8 +7,8 @@ import {
     IconList,
     IconTriangleSquareCircle,
 } from '@tabler/icons-react';
-import React from 'react';
-import { Link, useMatch } from 'react-router-dom';
+import React, { useCallback } from 'react';
+import { Link, useLocation, useMatch } from 'react-router-dom';
 
 import { ColorSchemeToggle } from '~/client/common/ColorSchemeToggle';
 import { Label } from '~/client/common/Label';
@@ -22,6 +22,9 @@ import './ToolbarMenu.pcss';
 
 export function ToolbarMenu() {
     const [opened, { toggle, close }] = useDisclosure();
+    const { search } = useLocation();
+
+    const to = useCallback((path: string) => ({ pathname: path, search }), [search]);
 
     return (
         <>
@@ -48,7 +51,7 @@ export function ToolbarMenu() {
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
-                            to={Links.PRODUCTS}
+                            to={to(Links.PRODUCTS)}
                             active={!!useMatch(Links.PRODUCTS)}
                             onClick={close}
                         />
@@ -60,7 +63,7 @@ export function ToolbarMenu() {
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
-                            to={Links.SUMMARY}
+                            to={to(Links.SUMMARY)}
                             active={!!useMatch(Links.SUMMARY)}
                             onClick={close}
                         />
@@ -75,7 +78,7 @@ export function ToolbarMenu() {
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
-                            to={Links.GROUPS}
+                            to={to(Links.GROUPS)}
                             active={!!useMatch(Links.GROUPS)}
                             onClick={close}
                         />
@@ -87,7 +90,7 @@ export function ToolbarMenu() {
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
-                            to={Links.VARIANTS}
+                            to={to(Links.VARIANTS)}
                             active={!!useMatch(Links.VARIANTS)}
                             onClick={close}
                         />

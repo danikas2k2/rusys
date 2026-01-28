@@ -17,7 +17,7 @@ export function VariantsPage() {
 
     return (
         <GroupFilterWrapper>
-            <QuickFilterWrapper>
+            <QuickFilterWrapper paramName="qv">
                 <Page withAdd toolbar={<ToolbarGroupFilter />} onDelete={handleDelete}>
                     <SwipeControlsWrapper>
                         <VariantsTable />
