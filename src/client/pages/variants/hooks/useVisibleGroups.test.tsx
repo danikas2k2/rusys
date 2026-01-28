@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+import { MockRoute } from '@tests/MockRoute';
 
 import React from 'react';
 
@@ -21,7 +22,11 @@ describe('useVisibleGroups', () => {
 
     it('returns all groups when no group filter is set', () => {
         const { result } = renderHook(() => useVisibleGroups(), {
-            wrapper: ({ children }) => <GroupFilterWrapper>{children}</GroupFilterWrapper>,
+            wrapper: ({ children }) => (
+                <MockRoute>
+                    <GroupFilterWrapper>{children}</GroupFilterWrapper>
+                </MockRoute>
+            ),
         });
 
         expect(result.current).toStrictEqual(['Group1', 'Group2', 'Group3']);
@@ -29,7 +34,11 @@ describe('useVisibleGroups', () => {
 
     it('returns single group array when group filter is set', () => {
         const { result } = renderHook(() => useVisibleGroups(), {
-            wrapper: ({ children }) => <GroupFilterWrapper initialState="Group2">{children}</GroupFilterWrapper>,
+            wrapper: ({ children }) => (
+                <MockRoute>
+                    <GroupFilterWrapper initialState="Group2">{children}</GroupFilterWrapper>
+                </MockRoute>
+            ),
         });
 
         expect(result.current).toStrictEqual(['Group2']);
@@ -39,7 +48,11 @@ describe('useVisibleGroups', () => {
         jest.mocked(useGroups).mockReturnValue([]);
 
         const { result } = renderHook(() => useVisibleGroups(), {
-            wrapper: ({ children }) => <GroupFilterWrapper>{children}</GroupFilterWrapper>,
+            wrapper: ({ children }) => (
+                <MockRoute>
+                    <GroupFilterWrapper>{children}</GroupFilterWrapper>
+                </MockRoute>
+            ),
         });
 
         expect(result.current).toStrictEqual([]);
@@ -49,7 +62,11 @@ describe('useVisibleGroups', () => {
         jest.mocked(useGroups).mockReturnValue([]);
 
         const { result } = renderHook(() => useVisibleGroups(), {
-            wrapper: ({ children }) => <GroupFilterWrapper initialState="Group1">{children}</GroupFilterWrapper>,
+            wrapper: ({ children }) => (
+                <MockRoute>
+                    <GroupFilterWrapper initialState="Group1">{children}</GroupFilterWrapper>
+                </MockRoute>
+            ),
         });
 
         expect(result.current).toStrictEqual(['Group1']);

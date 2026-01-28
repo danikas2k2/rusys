@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+import { MockRoute } from '@tests/MockRoute';
 
 import React from 'react';
 
@@ -8,7 +9,11 @@ import { useGroupFilterPredicate } from '~/client/filters/hooks/useGroupFilterPr
 describe('useGroupFilterPredicate', () => {
     it('returns true when filter is empty', () => {
         const { result } = renderHook(() => useGroupFilterPredicate(), {
-            wrapper: ({ children }) => <GroupFilterWrapper>{children}</GroupFilterWrapper>,
+            wrapper: ({ children }) => (
+                <MockRoute>
+                    <GroupFilterWrapper>{children}</GroupFilterWrapper>
+                </MockRoute>
+            ),
         });
 
         expect(result.current('any-group')).toBe(true);
@@ -17,7 +22,11 @@ describe('useGroupFilterPredicate', () => {
 
     it('returns true when value matches filter', () => {
         const { result } = renderHook(() => useGroupFilterPredicate(), {
-            wrapper: ({ children }) => <GroupFilterWrapper initialState="test-group">{children}</GroupFilterWrapper>,
+            wrapper: ({ children }) => (
+                <MockRoute>
+                    <GroupFilterWrapper initialState="test-group">{children}</GroupFilterWrapper>
+                </MockRoute>
+            ),
         });
 
         expect(result.current('test-group')).toBe(true);
@@ -25,7 +34,11 @@ describe('useGroupFilterPredicate', () => {
 
     it('returns false when value does not match filter', () => {
         const { result } = renderHook(() => useGroupFilterPredicate(), {
-            wrapper: ({ children }) => <GroupFilterWrapper initialState="test-group">{children}</GroupFilterWrapper>,
+            wrapper: ({ children }) => (
+                <MockRoute>
+                    <GroupFilterWrapper initialState="test-group">{children}</GroupFilterWrapper>
+                </MockRoute>
+            ),
         });
 
         expect(result.current('other-group')).toBe(false);

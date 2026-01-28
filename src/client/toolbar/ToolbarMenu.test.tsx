@@ -144,4 +144,25 @@ describe('<ToolbarMenu>', () => {
 
         expect(active).toHaveLength(1).toHaveListWithTextContent([item]);
     });
+
+    it('keeps search params in navigation links', async () => {
+        render(
+            <MockThemeRedux>
+                <MockRoute initialEntries={['/?q=apple&g=fruit']}>
+                    <MockActiveContent>
+                        <ToolbarMenu />
+                    </MockActiveContent>
+                </MockRoute>
+            </MockThemeRedux>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Menu' }));
+
+        const menu = within(screen.getByRole('menu'));
+        const products = menu.getByRole('link', { name: 'Products' });
+        const summary = menu.getByRole('link', { name: 'Summary' });
+
+        expect(products).toHaveAttribute('href', expect.stringContaining('?q=apple&g=fruit'));
+        expect(summary).toHaveAttribute('href', expect.stringContaining('?q=apple&g=fruit'));
+    });
 });

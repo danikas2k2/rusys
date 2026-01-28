@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+import { MockRoute } from '@tests/MockRoute';
 
 import React from 'react';
 
@@ -12,7 +13,11 @@ jest.mock('~/client/utils/matchParts', () => ({
 describe('useQuickFilterPredicate', () => {
     it('returns true when filter is empty', () => {
         const { result } = renderHook(() => useQuickFilterPredicate(), {
-            wrapper: ({ children }) => <QuickFilterWrapper>{children}</QuickFilterWrapper>,
+            wrapper: ({ children }) => (
+                <MockRoute>
+                    <QuickFilterWrapper>{children}</QuickFilterWrapper>
+                </MockRoute>
+            ),
         });
 
         expect(result.current('any-value')).toBe(true);
@@ -21,7 +26,11 @@ describe('useQuickFilterPredicate', () => {
 
     it('returns true when value matches filter', () => {
         const { result } = renderHook(() => useQuickFilterPredicate(), {
-            wrapper: ({ children }) => <QuickFilterWrapper initialState="test">{children}</QuickFilterWrapper>,
+            wrapper: ({ children }) => (
+                <MockRoute>
+                    <QuickFilterWrapper initialState="test">{children}</QuickFilterWrapper>
+                </MockRoute>
+            ),
         });
 
         expect(result.current('test-value')).toBe(true);
@@ -30,7 +39,11 @@ describe('useQuickFilterPredicate', () => {
 
     it('returns false when value does not match filter', () => {
         const { result } = renderHook(() => useQuickFilterPredicate(), {
-            wrapper: ({ children }) => <QuickFilterWrapper initialState="test">{children}</QuickFilterWrapper>,
+            wrapper: ({ children }) => (
+                <MockRoute>
+                    <QuickFilterWrapper initialState="test">{children}</QuickFilterWrapper>
+                </MockRoute>
+            ),
         });
 
         expect(result.current('other-value')).toBe(false);
