@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+import { MockRoute } from '@tests/MockRoute';
 
 import React from 'react';
 
@@ -17,9 +18,11 @@ describe('useProductFilters', () => {
     it('returns filter predicates object', () => {
         const { result } = renderHook(() => useProductFilters(), {
             wrapper: ({ children }) => (
-                <GroupFilterWrapper>
-                    <QuickFilterWrapper>{children}</QuickFilterWrapper>
-                </GroupFilterWrapper>
+                <MockRoute>
+                    <GroupFilterWrapper>
+                        <QuickFilterWrapper>{children}</QuickFilterWrapper>
+                    </GroupFilterWrapper>
+                </MockRoute>
             ),
         });
 
@@ -32,9 +35,11 @@ describe('useProductFilters', () => {
     it('name predicate filters correctly', () => {
         const { result } = renderHook(() => useProductFilters(), {
             wrapper: ({ children }) => (
-                <GroupFilterWrapper>
-                    <QuickFilterWrapper>{children}</QuickFilterWrapper>
-                </GroupFilterWrapper>
+                <MockRoute>
+                    <GroupFilterWrapper>
+                        <QuickFilterWrapper>{children}</QuickFilterWrapper>
+                    </GroupFilterWrapper>
+                </MockRoute>
             ),
         });
 
@@ -45,9 +50,11 @@ describe('useProductFilters', () => {
     it('group predicate filters correctly', () => {
         const { result } = renderHook(() => useProductFilters(), {
             wrapper: ({ children }) => (
-                <GroupFilterWrapper>
-                    <QuickFilterWrapper>{children}</QuickFilterWrapper>
-                </GroupFilterWrapper>
+                <MockRoute>
+                    <GroupFilterWrapper>
+                        <QuickFilterWrapper>{children}</QuickFilterWrapper>
+                    </GroupFilterWrapper>
+                </MockRoute>
             ),
         });
 
