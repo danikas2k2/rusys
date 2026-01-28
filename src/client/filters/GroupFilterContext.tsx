@@ -10,11 +10,7 @@ export function GroupFilterWrapper({
     initialState = '',
     children,
 }: React.PropsWithChildren<{ paramName?: string; initialState?: string }>) {
-    return (
-        <GroupFilterContext value={useSearchParamState(paramName, initialState)}>
-            {children}
-        </GroupFilterContext>
-    );
+    return <GroupFilterContext value={useSearchParamState(paramName, initialState)}>{children}</GroupFilterContext>;
 }
 
 export function useGroupFilter() {

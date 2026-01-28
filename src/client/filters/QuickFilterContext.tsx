@@ -10,11 +10,7 @@ export function QuickFilterWrapper({
     initialState = '',
     children,
 }: React.PropsWithChildren<{ paramName?: string; initialState?: string }>) {
-    return (
-        <QuickFilterContext value={useSearchParamState(paramName, initialState)}>
-            {children}
-        </QuickFilterContext>
-    );
+    return <QuickFilterContext value={useSearchParamState(paramName, initialState)}>{children}</QuickFilterContext>;
 }
 
 export function useQuickFilter() {
