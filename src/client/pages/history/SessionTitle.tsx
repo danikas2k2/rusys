@@ -2,7 +2,7 @@ import { Group } from '@mantine/core';
 import React from 'react';
 
 import { Label } from '~/client/common/Label';
-import { EmailAvatar } from '~/client/pages/history/components/EmailAvatar';
+import { EmailAvatar } from '~/client/pages/history/EmailAvatar';
 import { GroupTitle } from '~/client/table/GroupTitle';
 import { formatDate, formatTime, getRoundedDate } from '~/client/utils/time';
 
@@ -11,6 +11,13 @@ interface SessionTitleProps {
 }
 
 export function SessionTitle({ session }: SessionTitleProps) {
+    // type ProfilesByEmail = Record<string, UserProfile>;
+    // const me = useProfile();
+    //
+    // const historyEmails = useMemo(() => history.map((h) => h.user ?? '').filter(Boolean), [history]);
+    // const profilesByEmail = useHistoryUserProfiles(historyEmails);
+    //
+
     const [email, ts] = session.split(':', 2);
     const round = getRoundedDate(ts);
     const time = formatTime(round);

@@ -2,7 +2,7 @@ import { Table, Text } from '@mantine/core';
 import React from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
-import { AmountsCell } from '~/client/pages/history/components/AmountsCell';
+import { AmountsCell } from '~/client/pages/history/AmountsCell';
 import { SwipeableRow } from '~/client/table/SwipeableRow';
 import { formatTime } from '~/client/utils/time';
 import type { History } from '~/types/data';
@@ -19,7 +19,7 @@ export function HistoryRow({ history: h }: HistoryRowProps): React.ReactElement 
         <SwipeableRow id={id} data={h} data-group={h.group} onClick={() => setActive({ id, data: h })}>
             <Table.Td>{formatTime(new Date(h.time))}</Table.Td>
             <Table.Td>
-                <Text size="sm">{h.name}</Text>
+                {h.name}
                 <Text size="xs" c="dimmed">
                     {h.group}
                 </Text>

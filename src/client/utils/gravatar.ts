@@ -6,5 +6,3 @@ export function gravatarUrl(email: string, size = 64): string {
     // identicon ensures we always get a real image even if no gravatar is set
     return `https://www.gravatar.com/avatar/${hash}?d=identicon&s=${size}`;
 }
-
-

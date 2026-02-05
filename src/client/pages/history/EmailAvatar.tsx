@@ -3,8 +3,8 @@ import { IconRobotFace } from '@tabler/icons-react';
 import React from 'react';
 
 import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
+import { gravatarUrl } from '~/client/utils/gravatar';
 import type { UserProfile } from '~/types/data';
-import { gravatarUrl } from '../utils/gravatar';
 
 export function EmailAvatar({
     email,
@@ -44,5 +44,3 @@ export function EmailAvatar({
         </Avatar>
     );
 }
-
-

@@ -6,6 +6,7 @@ import { Label } from '~/client/common/Label';
 import { useUpdateType, type UpdateTypes } from '~/client/common/UpdateTypeContext';
 import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
 import { useLabels } from '~/client/hooks/useLabels';
+import { EmailAvatar } from '~/client/pages/history/EmailAvatar';
 import { AmountInput } from '~/client/pages/products/AmountInput';
 import { useGetGroups } from '~/client/state/groups/useGetGroups';
 import { useGroups } from '~/client/state/groups/useGroups';
@@ -15,7 +16,6 @@ import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { getVariantAmount } from '~/common/utils/amounts';
 import type { History, UserProfile, VariantAmount } from '~/types/data';
-import { EmailAvatar } from './components/EmailAvatar';
 
 import './HistoryBox.pcss';
 
