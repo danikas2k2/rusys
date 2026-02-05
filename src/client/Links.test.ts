@@ -6,6 +6,5 @@ describe('links', () => {
         expect(Links.GROUPS).toBe('/groups');
         expect(Links.VARIANTS).toBe('/variants');
         expect(Links.SUMMARY).toBe('/summary');
-        expect(Links.HISTORY).toBe('/history');
     });
 });

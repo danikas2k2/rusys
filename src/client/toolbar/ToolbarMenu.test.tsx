@@ -13,18 +13,10 @@ jest.mock('~/client/hooks/useLabel', () => ({
     useLabel: jest.fn((key: string) => key),
 }));
 jest.mock('~/client/toolbar/items/ExportMenuItem', () => ({
-    ExportMenuItem: jest.fn(() => (
-        <div>
-            <a href="#export">Export</a>
-        </div>
-    )),
+    ExportMenuItem: jest.fn(() => <a href="/export">Export</a>),
 }));
 jest.mock('~/client/toolbar/items/ImportMenuItem', () => ({
-    ImportMenuItem: jest.fn(() => (
-        <div>
-            <a href="#import">Import</a>
-        </div>
-    )),
+    ImportMenuItem: jest.fn(() => <a href="/import">Import</a>),
 }));
 
 describe('<ToolbarMenu>', () => {
@@ -85,13 +77,13 @@ describe('<ToolbarMenu>', () => {
 
         const menu = within(screen.getByRole('menu'));
 
-        expect(menu.getAllByRole('link')).toHaveLength(6);
-        expect(menu.getByRole('link', { name: 'Products' })).toBeInTheDocument();
-        expect(menu.getByRole('link', { name: 'Summary' })).toBeInTheDocument();
-        expect(menu.getByRole('link', { name: 'History' })).toBeInTheDocument();
-        expect(menu.getByRole('link', { name: 'Groups' })).toBeInTheDocument();
-        expect(menu.getByRole('link', { name: 'Variants' })).toBeInTheDocument();
-        expect(menu.getByRole('link', { name: 'Utilities' })).toBeInTheDocument();
+        expect(menu.getAllByRole('link')).toHaveListWithTextContent([
+            'Products',
+            'Summary',
+            'Groups',
+            'Variants',
+            'Utilities',
+        ]);
 
         expect(menu.getByRole('radiogroup')).toBeInTheDocument();
     });
@@ -114,7 +106,7 @@ describe('<ToolbarMenu>', () => {
 
         expect(utilities).toHaveAttribute('data-expanded', 'true');
 
-        await waitFor(() => expect(within(screen.getByRole('menu')).findAllByRole('link')).resolves.toHaveLength(8));
+        await waitFor(() => expect(within(screen.getByRole('menu')).findAllByRole('link')).resolves.toHaveLength(7));
 
         expect(screen.getByRole('link', { name: 'Export' })).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Import' })).toBeInTheDocument();
@@ -124,7 +116,6 @@ describe('<ToolbarMenu>', () => {
         link              | item
         ${Links.PRODUCTS} | ${'Products'}
         ${Links.SUMMARY}  | ${'Summary'}
-        ${Links.HISTORY}  | ${'History'}
         ${Links.GROUPS}   | ${'Groups'}
         ${Links.VARIANTS} | ${'Variants'}
     `('renders $item menu item being active', async ({ link, item }) => {

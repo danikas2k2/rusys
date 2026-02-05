@@ -10,9 +10,6 @@ jest.mock('~/client/pages/products/ProductsPage', () => ({
 jest.mock('~/client/pages/summary/SummaryPage', () => ({
     SummaryPage: () => <div>SummaryPage</div>,
 }));
-jest.mock('~/client/pages/history/HistoryPage', () => ({
-    HistoryPage: () => <div>HistoryPage</div>,
-}));
 
 describe('appRouter component', () => {
     it('renders SummaryPage at route /summary', () => {
@@ -37,13 +34,5 @@ describe('appRouter component', () => {
         render(<AppRouter />);
 
         expect(screen.getByText('ProductsPage')).toBeInTheDocument();
-    });
-
-    it('renders HistoryPage at route /history', () => {
-        window.history.pushState({}, '', '#/history');
-
-        render(<AppRouter />);
-
-        expect(screen.getByText('HistoryPage')).toBeInTheDocument();
     });
 });
