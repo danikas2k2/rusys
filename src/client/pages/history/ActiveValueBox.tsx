@@ -63,6 +63,8 @@ export function ActiveValueBox(): React.ReactElement | null {
 
     const handleAfterClose = useCallback(() => setActive(), [setActive]);
 
+    const opened = active?.action === 'history' && !!active?.data;
+
     return active?.data ? (
         <UpdateTypeWrapper>
             <HistoryBox

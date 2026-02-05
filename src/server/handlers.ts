@@ -4,11 +4,14 @@ import { handleClientId } from '~/server/api/handleClientId';
 import { handleCopyVariant } from '~/server/api/handleCopyVariant';
 import { handleDelete } from '~/server/api/handleDelete';
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
+import { handleDeleteProductsHistory } from '~/server/api/handleDeleteProductsHistory';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { handleExport } from '~/server/api/handleExport';
 import { handleGroups } from '~/server/api/handleGroups';
+import { handleHistory } from '~/server/api/handleHistory';
 import { handleImport } from '~/server/api/handleImport';
 import { handleMove } from '~/server/api/handleMove';
+import { handleMoveProductsHistory } from '~/server/api/handleMoveProductsHistory';
 import { handleProducts } from '~/server/api/handleProducts';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
@@ -20,7 +23,10 @@ import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { handleSummary } from '~/server/api/handleSummary';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
+import { handleUpdateProductsHistory } from '~/server/api/handleUpdateProductsHistory';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
+import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
+import { handleUserProfiles } from '~/server/api/handleUserProfiles';
 import { handleVariants } from '~/server/api/handleVariants';
 import { ApiUrl, type ApiRequest, type ApiResponse } from '~/types/api';
 
@@ -29,10 +35,16 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.Import]: handleImport,
     [ApiUrl.ClientId]: handleClientId,
     [ApiUrl.CheckUser]: handleCheckUser,
+    [ApiUrl.UserProfileUpsert]: handleUpsertUserProfile,
+    [ApiUrl.UserProfiles]: handleUserProfiles,
     [ApiUrl.Summary]: handleSummary,
     [ApiUrl.Products]: handleProducts,
     [ApiUrl.ProductsAdd]: handleAdd,
     [ApiUrl.ProductsUpdate]: handleUpdateProduct,
+    [ApiUrl.History]: handleHistory,
+    [ApiUrl.HistoryUpdate]: handleUpdateProductsHistory,
+    [ApiUrl.HistoryDelete]: handleDeleteProductsHistory,
+    [ApiUrl.HistoryMove]: handleMoveProductsHistory,
     [ApiUrl.ProductsSetRemoving]: handleSetRemoving,
     [ApiUrl.ProductsSetMissing]: handleSetMissing,
     [ApiUrl.ProductsRename]: handleRename,

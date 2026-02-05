@@ -16,6 +16,8 @@ export const enum ApiUrl {
     // Client/User
     ClientId = '/clientId',
     CheckUser = '/checkUser',
+    UserProfileUpsert = '/userProfile/upsert',
+    UserProfiles = '/userProfiles',
 
     // Summary
     Summary = '/summary',
@@ -44,6 +46,12 @@ export const enum ApiUrl {
     VariantsRename = '/variants/rename',
     VariantsCopy = '/variants/copy',
     VariantsDelete = '/variants/delete',
+
+    // History
+    History = '/history',
+    HistoryUpdate = '/history/update',
+    HistoryDelete = '/history/delete',
+    HistoryMove = '/history/move',
 }
 
 export interface ApiUserEmail {

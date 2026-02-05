@@ -12,9 +12,12 @@ import { handleCheckUser } from '~/server/api/handleCheckUser';
 import { handleClientId } from '~/server/api/handleClientId';
 import { handleDelete } from '~/server/api/handleDelete';
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
+import { handleDeleteProductsHistory } from '~/server/api/handleDeleteProductsHistory';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { handleGroups } from '~/server/api/handleGroups';
+import { handleHistory } from '~/server/api/handleHistory';
 import { handleMove } from '~/server/api/handleMove';
+import { handleMoveProductsHistory } from '~/server/api/handleMoveProductsHistory';
 import { handleProducts } from '~/server/api/handleProducts';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
@@ -24,7 +27,10 @@ import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { handleSummary } from '~/server/api/handleSummary';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
+import { handleUpdateProductsHistory } from '~/server/api/handleUpdateProductsHistory';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
+import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
+import { handleUserProfiles } from '~/server/api/handleUserProfiles';
 import { handleVariants } from '~/server/api/handleVariants';
 import { setup, startHttpServer, startHttpsServer } from '~/server/app';
 import { ApiUrl } from '~/types/api';
@@ -34,6 +40,8 @@ jest.mock('~/server/api/debug');
 // Client/User
 jest.mock('~/server/api/handleClientId', () => ({ handleClientId: jest.fn() }));
 jest.mock('~/server/api/handleCheckUser', () => ({ handleCheckUser: jest.fn() }));
+jest.mock('~/server/api/handleUpsertUserProfile', () => ({ handleUpsertUserProfile: jest.fn() }));
+jest.mock('~/server/api/handleUserProfiles', () => ({ handleUserProfiles: jest.fn() }));
 
 // Summary
 jest.mock('~/server/api/handleSummary', () => ({ handleSummary: jest.fn() }));
@@ -42,6 +50,10 @@ jest.mock('~/server/api/handleSummary', () => ({ handleSummary: jest.fn() }));
 jest.mock('~/server/api/handleAdd', () => ({ handleAdd: jest.fn() }));
 jest.mock('~/server/api/handleProducts', () => ({ handleProducts: jest.fn() }));
 jest.mock('~/server/api/handleUpdateProduct', () => ({ handleUpdateProduct: jest.fn() }));
+jest.mock('~/server/api/handleHistory', () => ({ handleProductsHistory: jest.fn() }));
+jest.mock('~/server/api/handleUpdateProductsHistory', () => ({ handleUpdateProductsHistory: jest.fn() }));
+jest.mock('~/server/api/handleDeleteProductsHistory', () => ({ handleDeleteProductsHistory: jest.fn() }));
+jest.mock('~/server/api/handleMoveProductsHistory', () => ({ handleMoveProductsHistory: jest.fn() }));
 jest.mock('~/server/api/handleSetRemoving', () => ({ handleSetRemoving: jest.fn() }));
 jest.mock('~/server/api/handleSetMissing', () => ({ handleSetMissing: jest.fn() }));
 jest.mock('~/server/api/handleRename', () => ({ handleRename: jest.fn() }));
@@ -71,10 +83,16 @@ describe('app', () => {
             url                           | handle
             ${ApiUrl.ClientId}            | ${handleClientId}
             ${ApiUrl.CheckUser}           | ${handleCheckUser}
+            ${ApiUrl.UserProfileUpsert}   | ${handleUpsertUserProfile}
+            ${ApiUrl.UserProfiles}        | ${handleUserProfiles}
             ${ApiUrl.Summary}             | ${handleSummary}
             ${ApiUrl.Products}            | ${handleProducts}
             ${ApiUrl.ProductsUpdate}      | ${handleUpdateProduct}
             ${ApiUrl.ProductsAdd}         | ${handleAdd}
+            ${ApiUrl.History}             | ${handleHistory}
+            ${ApiUrl.HistoryUpdate}       | ${handleUpdateProductsHistory}
+            ${ApiUrl.HistoryDelete}       | ${handleDeleteProductsHistory}
+            ${ApiUrl.HistoryMove}         | ${handleMoveProductsHistory}
             ${ApiUrl.ProductsSetRemoving} | ${handleSetRemoving}
             ${ApiUrl.ProductsSetMissing}  | ${handleSetMissing}
             ${ApiUrl.ProductsRename}      | ${handleRename}
