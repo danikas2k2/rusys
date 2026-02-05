@@ -457,12 +457,10 @@ describe('common', () => {
 
     describe('importEverything', () => {
         beforeEach(() =>
-            jest
-                .useFakeTimers({ doNotFake: ['nextTick'] }) // do not fake nextTick behavior for mongo in memory
-                .setSystemTime(new Date('2025-05-05T12:11:10.123Z'))
+            jest.useFakeTimers({ advanceTimers: true }).setSystemTime(new Date('2025-05-05T12:11:10.123Z'))
         );
 
-        afterAll(() => jest.useRealTimers());
+        afterEach(() => jest.useRealTimers());
 
         it('inserts data into the database and returns true', async () => {
             await expect(importEverything(products, variants, groups)).resolves.toBeTrue();
