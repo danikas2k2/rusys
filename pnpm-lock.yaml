@@ -134,8 +134,8 @@ importers:
         specifier: ^1.7.1
         version: 1.7.1
       '@css-modules-kit/stylelint-plugin':
-        specifier: ^0.8.1
-        version: 0.8.1(stylelint@17.1.1(typescript@5.9.3))(typescript@5.9.3)
+        specifier: ^0.9.0
+        version: 0.9.0(stylelint@17.1.1(typescript@5.9.3))(typescript@5.9.3)
       '@csstools/postcss-relative-color-syntax':
         specifier: ^4.0.1
         version: 4.0.1(postcss@8.5.6)
@@ -1102,14 +1102,14 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-  '@css-modules-kit/core@0.8.1':
-    resolution: {integrity: sha512-D7sxqcIKqGgEPcekZ34E4N3ZzgydI7yxKC/l8dXvgpzYhajioOPEoY0QQbVqz2ibMgwRe7WVjzG7TtxmvnkAzQ==}
+  '@css-modules-kit/core@0.9.0':
+    resolution: {integrity: sha512-CDj8uRVtgsowII6tXaxujzYjDsbmdSCdbc2tvQwih9/YbD3/asPSXq8BnhEvx4kn79t4Wc5J+5mtzNIMp0eSwQ==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
       typescript: ^5.7.3
 
-  '@css-modules-kit/stylelint-plugin@0.8.1':
-    resolution: {integrity: sha512-eDhceW098kUHuNGE8IXbsd8+lGMJ3AGZvJIZavRVnGnbfdH1/EoC4WIxztffD2j3hBgsHD/7AutHmHrn2RaxUw==}
+  '@css-modules-kit/stylelint-plugin@0.9.0':
+    resolution: {integrity: sha512-eQ1vXCgttRSTRX0a+0ptXw0ps/+PR9ZEb1FfTEJ1/so5s/RDzPdT9jKtDM+TSSFs/MYfRZCr5Buta7eahj3bPQ==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
       stylelint: ^17.1.1
@@ -2382,6 +2382,9 @@ packages:
 
   '@types/node@25.2.0':
     resolution: {integrity: sha512-DZ8VwRFUNzuqJ5khrvwMXHmvPe+zGayJhr2CDNiKB1WBE1ST8Djl00D0IC4vvNmHMdj6DlbYRIaFE7WHjlDl5w==}
+
+  '@types/node@25.2.2':
+    resolution: {integrity: sha512-BkmoP5/FhRYek5izySdkOneRyXYN35I860MFAGupTdebyE66uZaR+bXLHq8k4DirE5DwQi3NuhvRU1jqTVwUrQ==}
 
   '@types/postcss-import@14.0.3':
     resolution: {integrity: sha512-raZhRVTf6Vw5+QbmQ7LOHSDML71A5rj4+EqDzAbrZPfxfoGzFxMHRCq16VlddGIZpHELw0BG4G0YE2ANkdZiIQ==}
@@ -7852,7 +7855,7 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@css-modules-kit/core@0.8.1(typescript@5.9.3)':
+  '@css-modules-kit/core@0.9.0(typescript@5.9.3)':
     dependencies:
       postcss: 8.5.6
       postcss-safe-parser: 7.0.1(postcss@8.5.6)
@@ -7860,9 +7863,9 @@ snapshots:
       postcss-value-parser: 4.2.0
       typescript: 5.9.3
 
-  '@css-modules-kit/stylelint-plugin@0.8.1(stylelint@17.1.1(typescript@5.9.3))(typescript@5.9.3)':
+  '@css-modules-kit/stylelint-plugin@0.9.0(stylelint@17.1.1(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@css-modules-kit/core': 0.8.1(typescript@5.9.3)
+      '@css-modules-kit/core': 0.9.0(typescript@5.9.3)
       stylelint: 17.1.1(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
@@ -9185,6 +9188,11 @@ snapshots:
   '@types/node@25.2.0':
     dependencies:
       undici-types: 7.16.0
+
+  '@types/node@25.2.2':
+    dependencies:
+      undici-types: 7.16.0
+    optional: true
 
   '@types/postcss-import@14.0.3':
     dependencies:
@@ -12024,7 +12032,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 25.2.0
+      '@types/node': 25.2.2
       merge-stream: 2.0.0
       supports-color: 8.1.1
     optional: true
