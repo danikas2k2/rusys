@@ -6,7 +6,7 @@ import { GroupFilterWrapper } from '~/client/filters/GroupFilterContext';
 import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
 import { YearFilterWrapper } from '~/client/filters/YearFilterContext';
 import { Page } from '~/client/pages/common/Page';
-// import { ActiveValueBox } from '~/client/pages/history/ActiveValueBox';
+import { ActiveValueBox } from '~/client/pages/history/ActiveValueBox';
 import { HistoryTable } from '~/client/pages/history/HistoryTable';
 import { useDeleteHistory } from '~/client/state/history/useDeleteHistory';
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
@@ -34,7 +34,7 @@ export function HistoryPage() {
                             <HistoryTable />
                             <SwipeControls withEdit={false} />
                         </SwipeControlsWrapper>
-                        {/*<ActiveValueBox />*/}
+                        <ActiveValueBox />
                     </Page>
                 </QuickFilterWrapper>
             </GroupFilterWrapper>

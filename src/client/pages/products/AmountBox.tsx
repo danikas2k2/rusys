@@ -115,6 +115,24 @@ export function AmountBox({ opened = false, group, name, year, amounts, onClose,
         [amounts, currentChanges, oppositeChanges, setChangingAmounts]
     );
 
+    const title = useMemo(
+        () => (
+            <Stack gap={2}>
+                <Title order={4} fz="h2">
+                    {name}
+                </Title>
+                <Title order={4} fz="lg">
+                    {group}
+                    {!!year && `, ${year}`}
+                </Title>
+                <Center mt="sm">
+                    <UpdateTypeToggle changes={changes} />
+                </Center>
+            </Stack>
+        ),
+        [changes, name, group, year]
+    );
+
     return (
         <Modal
             className="value-box"
@@ -126,20 +144,7 @@ export function AmountBox({ opened = false, group, name, year, amounts, onClose,
             closeButtonProps={{ 'aria-label': _('Close') }}
             onEnterTransitionEnd={handleEnterTransitionEnd}
             onExitTransitionEnd={handleExitTransitionEnd}
-            title={
-                <Stack gap={2}>
-                    <Title order={4} fz="h2">
-                        {name}
-                    </Title>
-                    <Title order={4} fz="lg">
-                        {group}
-                        {!!year && `, ${year}`}
-                    </Title>
-                    <Center mt="sm">
-                        <UpdateTypeToggle changes={changes} />
-                    </Center>
-                </Stack>
-            }
+            title={title}
         >
             <div className="content" data-expanded={expanded}>
                 <div

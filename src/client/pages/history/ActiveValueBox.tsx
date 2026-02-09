@@ -21,8 +21,6 @@ export function ActiveValueBox(): React.ReactElement | null {
     const profilesByEmail = useHistoryUserProfiles(email ? [email] : []);
     const profile = email ? profilesByEmail[email.toLowerCase()] : undefined;
 
-    const opened = active?.action === 'values' && !!active?.data;
-
     const handleClose = useCallback(
         async (changed?: Readonly<Update>): Promise<void> => {
             const data = active?.data;
@@ -58,12 +56,12 @@ export function ActiveValueBox(): React.ReactElement | null {
                 setActive();
             }
         },
-        [active?.data, move, onUpdated, setActive, update]
+        [active?.data, move, setActive, update]
     );
 
     const handleAfterClose = useCallback(() => setActive(), [setActive]);
 
-    const opened = active?.action === 'history' && !!active?.data;
+    const opened = active?.action === 'values' && !!active?.data;
 
     return active?.data ? (
         <UpdateTypeWrapper>

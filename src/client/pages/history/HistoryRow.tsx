@@ -1,5 +1,5 @@
 import { Table, Text } from '@mantine/core';
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { AmountsCell } from '~/client/pages/history/AmountsCell';
@@ -15,8 +15,10 @@ export function HistoryRow({ history: h }: HistoryRowProps): React.ReactElement 
     const [, setActive] = useActiveContent<History>();
     const id = h.sessionId ?? `${h.time}`;
 
+    const handleClick = useCallback(() => setActive({ action: 'values', id, data: h }), [setActive, id, h]);
+
     return (
-        <SwipeableRow id={id} data={h} data-group={h.group} onClick={() => setActive({ id, data: h })}>
+        <SwipeableRow id={id} data={h} data-group={h.group} onClick={handleClick}>
             <Table.Td>{formatTime(new Date(h.time))}</Table.Td>
             <Table.Td>
                 {h.name}
