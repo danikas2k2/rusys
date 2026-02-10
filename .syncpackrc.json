@@ -1,17 +1,13 @@
 {
-    "indent": "    ",
-    "versionGroups": [
-        {
-            "dependencies": ["prismjs"],
-            "pinVersion": "^1"
-        },
-        {
-            "dependencies": ["eslint-plugin-react-hooks"],
-            "pinVersion": "^5"
-        },
-        {
-            "dependencies": ["@react-oauth/google"],
-            "pinVersion": "^0"
-        }
-    ]
+  "indent": "    ",
+  "versionGroups": [
+    {
+      "dependencies": ["eslint-plugin-react-hooks"],
+      "pinVersion": "^5"
+    },
+    {
+      "dependencies": ["@react-oauth/google"],
+      "pinVersion": "^0"
+    }
+  ]
 }
