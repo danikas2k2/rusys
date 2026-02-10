@@ -1,4 +1,4 @@
-import { Button, Center, Flex, Group, Modal, Stack, Title } from '@mantine/core';
+import { Button, Center, Flex, Group, Modal, ModalProps, Stack, Title } from '@mantine/core';
 import { IconCheck, IconChevronDown, IconX } from '@tabler/icons-react';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
@@ -10,11 +10,11 @@ import { AmountInput } from '~/client/pages/products/AmountInput';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { getVariantAmount } from '~/common/utils/amounts';
-import type { ProductAmounts, VariantAmount } from '~/types/data';
+import { GroupAmounts, ProductAmounts, VariantAmount } from '~/types/data';
 
 import './AmountBox.pcss';
 
-export interface AmountBoxProps extends ProductAmounts {
+export interface AmountBoxProps extends GroupAmounts, Pick<ModalProps, 'title'> {
     opened?: boolean;
     onClose?: (changes?: readonly VariantAmount[]) => void;
     onAfterClose?: () => void;
@@ -28,8 +28,15 @@ const NO_AMOUNTS: UpdatingAmounts = {
     recycled: [],
 };
 
-// TODO refactor: extract single element with input element and all handlers to avoid multiple re-renders
-export function AmountBox({ opened = false, group, name, year, amounts, onClose, onAfterClose }: AmountBoxProps) {
+export function AmountBox({
+    opened = false,
+    title,
+    group,
+    amounts,
+    onClose,
+    onAfterClose,
+    children,
+}: React.PropsWithChildren<AmountBoxProps>) {
     const _ = useLabels();
     const allVariants = useAllVariants(group);
     const amountVariants = useMemo<string[]>(() => amounts?.map((v) => v.variant) ?? [], [amounts]);
@@ -115,24 +122,6 @@ export function AmountBox({ opened = false, group, name, year, amounts, onClose,
         [amounts, currentChanges, oppositeChanges, setChangingAmounts]
     );
 
-    const title = useMemo(
-        () => (
-            <Stack gap={2}>
-                <Title order={4} fz="h2">
-                    {name}
-                </Title>
-                <Title order={4} fz="lg">
-                    {group}
-                    {!!year && `, ${year}`}
-                </Title>
-                <Center mt="sm">
-                    <UpdateTypeToggle changes={changes} />
-                </Center>
-            </Stack>
-        ),
-        [changes, name, group, year]
-    );
-
     return (
         <Modal
             className="value-box"
@@ -146,6 +135,10 @@ export function AmountBox({ opened = false, group, name, year, amounts, onClose,
             onExitTransitionEnd={handleExitTransitionEnd}
             title={title}
         >
+            <Center mt="sm">
+                <UpdateTypeToggle changes={changes} />
+            </Center>
+            {children}
             <div className="content" data-expanded={expanded}>
                 <div
                     className="article"

@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { UpdateTypeWrapper } from '~/client/common/UpdateTypeContext';
-import { AmountBox } from '~/client/pages/products/AmountBox';
+import { ProductAmountBox } from '~/client/pages/products/ProductAmountBox';
 import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
 import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
 import { useProfile } from '~/client/state/profile/useProfile';
@@ -36,7 +36,7 @@ export function ActiveValueBox(): React.ReactElement {
 
     return (
         <UpdateTypeWrapper>
-            <AmountBox
+            <ProductAmountBox
                 opened={opened}
                 {...(active?.data ?? { group: '', name: '', year: 0 })}
                 onClose={handleClose}

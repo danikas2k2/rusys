@@ -6,8 +6,8 @@ import { MockApp } from '@tests/MockApp';
 import React from 'react';
 
 import { UpdateTypeWrapper } from '~/client/common/UpdateTypeContext';
-import { AmountBox, type AmountBoxProps } from '~/client/pages/products/AmountBox';
 import { AmountInput } from '~/client/pages/products/AmountInput';
+import { ProductAmountBox, type AmountBoxProps } from '~/client/pages/products/ProductAmountBox';
 import type { WithVariantsState } from '~/client/state/variants/types';
 import { getVariantAmount } from '~/common/utils/amounts';
 import type { VariantAmount } from '~/types/data';
@@ -16,7 +16,7 @@ jest.mock('~/client/pages/products/AmountInput', () => ({
     AmountInput: jest.fn(jest.requireActual('~/client/pages/products/AmountInput').AmountInput),
 }));
 
-describe('<AmountBox>', () => {
+describe('<ProductAmountBox>', () => {
     afterEach(() => jest.clearAllMocks());
 
     const group = 'Uogienės';
@@ -40,7 +40,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -54,7 +54,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -70,7 +70,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -93,7 +93,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} onClose={onClose} amounts={amounts} opened />
+                    <ProductAmountBox {...props} onClose={onClose} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -107,7 +107,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} onClose={onClose} amounts={amounts} opened />
+                    <ProductAmountBox {...props} onClose={onClose} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -121,7 +121,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} onClose={onClose} amounts={amounts} opened />
+                    <ProductAmountBox {...props} onClose={onClose} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -140,7 +140,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} onClose={onClose} amounts={amounts} opened />
+                    <ProductAmountBox {...props} onClose={onClose} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -162,7 +162,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} onClose={onClose} amounts={amounts} opened />
+                    <ProductAmountBox {...props} onClose={onClose} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -185,7 +185,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} onClose={onClose} amounts={amounts} opened />
+                    <ProductAmountBox {...props} onClose={onClose} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -207,7 +207,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -240,7 +240,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -268,7 +268,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -285,7 +285,7 @@ describe('<AmountBox>', () => {
     it('expand by default if value contains all available variants', async () => {
         render(
             <MockApp state={state}>
-                <AmountBox {...props} amounts={allVariants.map((variant) => ({ variant, amount: 1 }))} opened />
+                <ProductAmountBox {...props} amounts={allVariants.map((variant) => ({ variant, amount: 1 }))} opened />
             </MockApp>
         );
 
@@ -298,7 +298,7 @@ describe('<AmountBox>', () => {
             render(
                 <MockApp state={state}>
                     <UpdateTypeWrapper>
-                        <AmountBox {...props} amounts={amounts} opened />
+                        <ProductAmountBox {...props} amounts={amounts} opened />
                     </UpdateTypeWrapper>
                 </MockApp>
             );
@@ -320,7 +320,7 @@ describe('<AmountBox>', () => {
             render(
                 <MockApp state={state}>
                     <UpdateTypeWrapper>
-                        <AmountBox {...props} amounts={amounts} opened />
+                        <ProductAmountBox {...props} amounts={amounts} opened />
                     </UpdateTypeWrapper>
                 </MockApp>
             );
@@ -347,7 +347,7 @@ describe('<AmountBox>', () => {
         const { rerender } = render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened onAfterClose={onAfterClose} />
+                    <ProductAmountBox {...props} amounts={amounts} opened onAfterClose={onAfterClose} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -359,7 +359,7 @@ describe('<AmountBox>', () => {
         rerender(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened={false} onAfterClose={onAfterClose} />
+                    <ProductAmountBox {...props} amounts={amounts} opened={false} onAfterClose={onAfterClose} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -375,7 +375,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} year={0} amounts={amounts} opened />
+                    <ProductAmountBox {...props} year={0} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -390,7 +390,12 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} onClose={onCloseHandler} amounts={[{ variant: 'p', amount: 1 }]} opened />
+                    <ProductAmountBox
+                        {...props}
+                        onClose={onCloseHandler}
+                        amounts={[{ variant: 'p', amount: 1 }]}
+                        opened
+                    />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -414,7 +419,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} onClose={onCloseHandler} amounts={amounts} opened />
+                    <ProductAmountBox {...props} onClose={onCloseHandler} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -438,7 +443,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={emptyState}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={[]} opened />
+                    <ProductAmountBox {...props} amounts={[]} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -451,7 +456,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened={false} />
+                    <ProductAmountBox {...props} amounts={amounts} opened={false} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -463,7 +468,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} />
+                    <ProductAmountBox {...props} amounts={amounts} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -475,7 +480,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={undefined} opened />
+                    <ProductAmountBox {...props} amounts={undefined} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -488,7 +493,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -502,7 +507,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -516,7 +521,7 @@ describe('<AmountBox>', () => {
         const { rerender } = render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -528,7 +533,7 @@ describe('<AmountBox>', () => {
         rerender(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened={false} />
+                    <ProductAmountBox {...props} amounts={amounts} opened={false} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -544,7 +549,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} onClose={onCloseHandler} amounts={amounts} opened />
+                    <ProductAmountBox {...props} onClose={onCloseHandler} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -564,7 +569,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -580,7 +585,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} year={2024} amounts={amounts} opened />
+                    <ProductAmountBox {...props} year={2024} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -594,7 +599,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={emptyVariantsState}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={[]} opened />
+                    <ProductAmountBox {...props} amounts={[]} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -606,7 +611,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -622,7 +627,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -645,7 +650,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -668,7 +673,7 @@ describe('<AmountBox>', () => {
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <AmountBox {...props} amounts={amounts} opened />
+                    <ProductAmountBox {...props} amounts={amounts} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );

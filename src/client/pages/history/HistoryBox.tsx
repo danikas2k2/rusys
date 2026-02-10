@@ -1,11 +1,14 @@
-import { Button, Center, Flex, Group, Modal, NumberInput, Select, Stack, Text } from '@mantine/core';
+import { Button, Center, Flex, Group, Modal, NumberInput, Select, Stack, Text, Title } from '@mantine/core';
 import { IconCheck, IconChevronDown, IconX } from '@tabler/icons-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+
 
 import { Label } from '~/client/common/Label';
 import { useUpdateType, type UpdateTypes } from '~/client/common/UpdateTypeContext';
 import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
 import { useLabels } from '~/client/hooks/useLabels';
+import { AmountBox } from '~/client/pages/common/AmountBox';
 import { EmailAvatar } from '~/client/pages/history/EmailAvatar';
 import { AmountInput } from '~/client/pages/products/AmountInput';
 import { useGetGroups } from '~/client/state/groups/useGetGroups';
@@ -18,7 +21,13 @@ import { formatDate, formatTime } from '~/client/utils/time';
 import { getVariantAmount } from '~/common/utils/amounts';
 import type { History, UserProfile, VariantAmount } from '~/types/data';
 
+
+
 import './HistoryBox.pcss';
+
+
+
+
 
 type EditingAmounts = Record<UpdateTypes, readonly VariantAmount[]>;
 
@@ -176,17 +185,6 @@ export function HistoryBox({
 
     const title = useMemo(
         () => (
-            <Stack gap={6}>
-                <Group justify="center" gap="sm">
-                    <EmailAvatar email={user} /*profile={userProfile}*/ />
-                    <Text size="sm" fw={600}>
-                        {dateLine}
-                    </Text>
-                </Group>
-                <Center>
-                    <UpdateTypeToggle changes={changes} />
-                </Center>
-            </Stack>
         ),
         [changes, dateLine, user, userProfile]
     );
@@ -196,16 +194,22 @@ export function HistoryBox({
     }, [onAfterClose]);
 
     return (
-        <Modal
-            className="value-box history-box"
-            fullScreen={expanded}
-            size="auto"
+        <AmountBox
             opened={opened}
-            withCloseButton
-            onClose={handleClose}
-            closeButtonProps={{ 'aria-label': _('Close') }}
-            onExitTransitionEnd={handleExitTransitionEnd}
-            title={title}
+            group={group}
+            amounts={amounts}
+            onClose={onClose}
+            onAfterClose={onAfterClose}
+            title={
+                <Stack gap={6}>
+                    <Group justify="center" gap="sm">
+                        <EmailAvatar email={user} /*profile={userProfile}*/ />
+                        <Text size="sm" fw={600}>
+                            {dateLine}
+                        </Text>
+                    </Group>
+                </Stack>
+            }
         >
             <Stack>
                 <Select
@@ -234,7 +238,21 @@ export function HistoryBox({
                     min={1}
                 />
             </Stack>
+        </AmountBox>
+    );
 
+    return (
+        <Modal
+            className="value-box history-box"
+            fullScreen={expanded}
+            size="auto"
+            opened={opened}
+            withCloseButton
+            onClose={handleClose}
+            closeButtonProps={{ 'aria-label': _('Close') }}
+            onExitTransitionEnd={handleExitTransitionEnd}
+            title={title}
+        >
             <div className="content" data-expanded={expanded}>
                 <div className="article" data-variant={currentVariant} role="presentation">
                     {editingVariants.map((variant) => (
