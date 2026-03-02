@@ -20,6 +20,11 @@ overrides:
   test-exclude: ^8.0.0
   tough-cookie: ^6.0.0
 
+patchedDependencies:
+  eslint-plugin-react@7.37.5:
+    hash: 3c6c16111825cd12e6f7246bc90a91903cd69f0ae2b7e1908fc0d8ac6690433a
+    path: patches/eslint-plugin-react@7.37.5.patch
+
 importers:
 
   .:
@@ -267,7 +272,7 @@ importers:
         version: 5.5.5(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@10.0.2(jiti@2.6.1)))(eslint@10.0.2(jiti@2.6.1))(prettier@3.8.1)
       eslint-plugin-react:
         specifier: ^7.37.5
-        version: 7.37.5(eslint@10.0.2(jiti@2.6.1))
+        version: 7.37.5(patch_hash=3c6c16111825cd12e6f7246bc90a91903cd69f0ae2b7e1908fc0d8ac6690433a)(eslint@10.0.2(jiti@2.6.1))
       eslint-plugin-react-compiler:
         specifier: 19.1.0-rc.2
         version: 19.1.0-rc.2(eslint@10.0.2(jiti@2.6.1))
@@ -10044,7 +10049,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react@7.37.5(eslint@10.0.2(jiti@2.6.1)):
+  eslint-plugin-react@7.37.5(patch_hash=3c6c16111825cd12e6f7246bc90a91903cd69f0ae2b7e1908fc0d8ac6690433a)(eslint@10.0.2(jiti@2.6.1)):
     dependencies:
       array-includes: 3.1.9
       array.prototype.findlast: 1.2.5
