@@ -187,6 +187,11 @@
         "vite-plugin-svgr": "^4.5.0"
     },
     "pnpm": {
+        "peerDependencyRules": {
+            "allowedVersions": {
+                "eslint": "10"
+            }
+        },
         "overrides": {
             "braces": "^3.0.3",
             "diff": "^8.0.3",
