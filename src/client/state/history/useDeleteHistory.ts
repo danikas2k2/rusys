@@ -11,7 +11,6 @@ export function useDeleteHistory(): (
     user?: string
 ) => Promise<void> {
     const request = useUpdatingApiRequest<ApiRequestHistory>();
-
     return useCallback(
         async (time: number, group: string, name: string, year?: number, user?: string): Promise<void> => {
             if (time && group && name) {

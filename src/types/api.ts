@@ -206,12 +206,22 @@ export type ApiExport = ApiProducts & ApiVariantsWithGroups;
 
 export type ApiWithFiles = { files?: FileArray };
 
+export interface ApiHistory {
+    history: readonly History[];
+}
+
 export interface ApiRequestHistory extends ApiRequestProduct {
     time: number;
     year?: number;
     user?: string;
 }
 
-export interface ApiHistory {
-    history: readonly History[];
+export interface ApiUpdateHistory extends ApiRequestHistory {
+    amounts?: readonly VariantAmount[];
+}
+
+export interface ApiMoveHistory extends ApiRequestHistory {
+    newGroup?: string;
+    newName?: string;
+    newYear?: number;
 }
