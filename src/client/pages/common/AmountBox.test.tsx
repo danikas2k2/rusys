@@ -6,8 +6,9 @@ import { MockApp } from '@tests/MockApp';
 import React from 'react';
 
 import { UpdateTypeWrapper } from '~/client/common/UpdateTypeContext';
+import { AmountBox, type AmountBoxProps } from '~/client/pages/common/AmountBox';
 import { AmountInput } from '~/client/pages/products/AmountInput';
-import { ProductAmountBox, type AmountBoxProps } from '~/client/pages/products/ProductAmountBox';
+import { AmountTitle } from '~/client/pages/products/AmountTitle';
 import type { WithVariantsState } from '~/client/state/variants/types';
 import { getVariantAmount } from '~/common/utils/amounts';
 import type { VariantAmount } from '~/types/data';
@@ -16,16 +17,10 @@ jest.mock('~/client/pages/products/AmountInput', () => ({
     AmountInput: jest.fn(jest.requireActual('~/client/pages/products/AmountInput').AmountInput),
 }));
 
-describe('<ProductAmountBox>', () => {
+describe('<AmountBox>', () => {
     afterEach(() => jest.clearAllMocks());
 
     const group = 'Uogienės';
-    const props: AmountBoxProps = {
-        group,
-        name: 'Braškės',
-        year: 23,
-    };
-
     const amounts: VariantAmount[] = [
         { variant: 'p', amount: 1 },
         { variant: 'm', amount: 2 },
@@ -36,14 +31,23 @@ describe('<ProductAmountBox>', () => {
     const allVariants = variants.filter((v) => v.group === group).map((v) => v.variant);
     const state: WithVariantsState = { variants };
 
-    it('renders heading details', () => {
+    const defaultProps: AmountBoxProps = {
+        group,
+        amounts,
+        title: <AmountTitle group={group} name="Braškės" year={23} />,
+    };
+
+    const renderAmountBox = (props: Partial<AmountBoxProps> = {}) =>
         render(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
+                    <AmountBox {...defaultProps} {...props} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
+
+    it('renders heading details', () => {
+        renderAmountBox({ opened: true });
 
         expect(screen.getByRole('dialog')).toBeInTheDocument();
         expect(screen.getByText(/Braškės/)).toBeInTheDocument();
@@ -51,13 +55,7 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('renders controls', () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true });
 
         expect(screen.getByLabelText(/Close/)).toBeInTheDocument();
         expect(screen.getByText(/Cancel/)).toBeInTheDocument();
@@ -67,13 +65,7 @@ describe('<ProductAmountBox>', () => {
 
     // eslint-disable-next-line jest/prefer-ending-with-an-expect
     it('renders inputs', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true });
 
         await screen.findByRole('dialog');
 
@@ -81,7 +73,12 @@ describe('<ProductAmountBox>', () => {
 
         for (const { variant, amount } of amounts) {
             expect(AmountInput).toHaveBeenCalledWith(
-                expect.objectContaining({ variant, amount, focused: variant === amounts[0].variant }),
+                expect.objectContaining({
+                    variant,
+                    amount,
+                    change: 0,
+                    focused: variant === amounts[0].variant,
+                }),
                 undefined
             );
         }
@@ -90,13 +87,7 @@ describe('<ProductAmountBox>', () => {
     const onClose = jest.fn();
 
     it('calls onClose when dialog is closed', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} onClose={onClose} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true, onClose });
 
         await user.click(screen.getByLabelText('Close'));
 
@@ -104,13 +95,7 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('calls onClose when `Cancel` is clicked', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} onClose={onClose} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true, onClose });
 
         await user.click(screen.getByText('Cancel'));
 
@@ -118,13 +103,7 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('calls onClose without changes when `Update` is clicked', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} onClose={onClose} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true, onClose });
 
         await user.click(screen.getByText('Update'));
 
@@ -137,13 +116,7 @@ describe('<ProductAmountBox>', () => {
     };
 
     it('calls onClose with changes when `Update` is clicked after some changes in `Consumed` tab', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} onClose={onClose} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true, onClose });
 
         await user.type(screen.getByLabelText('p'), '2', selection);
         await user.type(screen.getByLabelText('d'), '4', selection);
@@ -159,13 +132,7 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('calls onClose with changes when `Update` is clicked after some changes in `Recycled` tab', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} onClose={onClose} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true, onClose });
 
         await user.click(screen.getByLabelText('Recycled'));
 
@@ -182,13 +149,7 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('calls onClose with changes when `Update` is clicked after some changes in `Consumed` and `Recycled` tabs', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} onClose={onClose} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true, onClose });
 
         await user.type(screen.getByLabelText('p'), '2', selection);
         await user.click(screen.getByLabelText('Recycled'));
@@ -204,17 +165,9 @@ describe('<ProductAmountBox>', () => {
 
     // eslint-disable-next-line jest/prefer-ending-with-an-expect
     it('renders all variants when expand pressed', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true });
 
         jest.mocked(AmountInput).mockClear();
-
-        // expect(screen.getByRole('dialog')).not.toHaveClass('fullscreen');
 
         const expand = screen.getByRole('button', { name: 'Expand' });
         await user.click(expand);
@@ -237,13 +190,7 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('ensure all changed values are preserved after expansion', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true });
 
         await user.type(screen.getByLabelText('p'), '2', selection);
 
@@ -265,13 +212,7 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('ensure focused item is still focused after expansion', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true });
 
         await user.click(screen.getByLabelText('m'));
 
@@ -285,7 +226,13 @@ describe('<ProductAmountBox>', () => {
     it('expand by default if value contains all available variants', async () => {
         render(
             <MockApp state={state}>
-                <ProductAmountBox {...props} amounts={allVariants.map((variant) => ({ variant, amount: 1 }))} opened />
+                <UpdateTypeWrapper>
+                    <AmountBox
+                        {...defaultProps}
+                        amounts={allVariants.map((variant) => ({ variant, amount: 1 }))}
+                        opened
+                    />
+                </UpdateTypeWrapper>
             </MockApp>
         );
 
@@ -295,13 +242,7 @@ describe('<ProductAmountBox>', () => {
 
     describe('ensure to have no negative amounts', () => {
         it('does not accept any other symbols, but digits', async () => {
-            render(
-                <MockApp state={state}>
-                    <UpdateTypeWrapper>
-                        <ProductAmountBox {...props} amounts={amounts} opened />
-                    </UpdateTypeWrapper>
-                </MockApp>
-            );
+            renderAmountBox({ opened: true });
 
             await user.type(screen.getByLabelText('p'), '-', selection);
 
@@ -317,13 +258,7 @@ describe('<ProductAmountBox>', () => {
         });
 
         it('does not decrease value below zero while using `Increase`/`Decrease` buttons', async () => {
-            render(
-                <MockApp state={state}>
-                    <UpdateTypeWrapper>
-                        <ProductAmountBox {...props} amounts={amounts} opened />
-                    </UpdateTypeWrapper>
-                </MockApp>
-            );
+            renderAmountBox({ opened: true });
 
             await user.type(screen.getByLabelText('p'), '0', selection);
 
@@ -344,13 +279,7 @@ describe('<ProductAmountBox>', () => {
     it('calls onAfterClose when dialog exit transition ends', async () => {
         const onAfterClose = jest.fn();
 
-        const { rerender } = render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened onAfterClose={onAfterClose} />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        const { rerender } = renderAmountBox({ opened: true, onAfterClose });
 
         const dialog = await screen.findByRole('dialog');
 
@@ -359,7 +288,7 @@ describe('<ProductAmountBox>', () => {
         rerender(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened={false} onAfterClose={onAfterClose} />
+                    <AmountBox {...defaultProps} amounts={amounts} opened={false} onAfterClose={onAfterClose} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -371,34 +300,14 @@ describe('<ProductAmountBox>', () => {
         });
     });
 
-    it('renders without year when year is 0', () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} year={0} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
-
-        expect(screen.getByText(/Uogienės/)).toBeInTheDocument();
-        expect(screen.queryByText(/, 0/)).not.toBeInTheDocument();
-    });
-
     it('does not update when newValue would be negative', async () => {
         const onCloseHandler = jest.fn();
 
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox
-                        {...props}
-                        onClose={onCloseHandler}
-                        amounts={[{ variant: 'p', amount: 1 }]}
-                        opened
-                    />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({
+            opened: true,
+            onClose: onCloseHandler,
+            amounts: [{ variant: 'p', amount: 1 }],
+        });
 
         const input = screen.getByLabelText('p');
 
@@ -416,13 +325,7 @@ describe('<ProductAmountBox>', () => {
     it('updates existing variant change when variant already exists in currentChanges', async () => {
         const onCloseHandler = jest.fn();
 
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} onClose={onCloseHandler} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true, onClose: onCloseHandler });
 
         await user.type(screen.getByLabelText('p'), '2', selection);
 
@@ -443,7 +346,7 @@ describe('<ProductAmountBox>', () => {
         render(
             <MockApp state={emptyState}>
                 <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={[]} opened />
+                    <AmountBox {...defaultProps} amounts={[]} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -453,50 +356,26 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('does not render modal when opened is false', () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened={false} />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: false });
 
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
     it('uses default opened value when not provided', () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox();
 
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
     it('handles undefined amounts', () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={undefined} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ amounts: undefined, opened: true });
 
         expect(AmountInput).toHaveBeenCalledTimes(1);
         expect(AmountInput).toHaveBeenCalledWith(expect.objectContaining({ variant: allVariants[0] }), undefined);
     });
 
     it('does not call onClose when onClose is not provided', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true });
 
         await user.click(screen.getByLabelText('Close'));
 
@@ -504,13 +383,7 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('does not call onClose when Update is clicked and onClose is not provided', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true });
 
         await user.click(screen.getByText('Update'));
 
@@ -518,13 +391,7 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('does not call onAfterClose when onAfterClose is not provided', async () => {
-        const { rerender } = render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        const { rerender } = renderAmountBox({ opened: true });
 
         const dialog = await screen.findByRole('dialog');
 
@@ -533,7 +400,7 @@ describe('<ProductAmountBox>', () => {
         rerender(
             <MockApp state={state}>
                 <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened={false} />
+                    <AmountBox {...defaultProps} amounts={amounts} opened={false} />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -546,13 +413,7 @@ describe('<ProductAmountBox>', () => {
     it('adds new variant change when currentChanges is undefined', async () => {
         const onCloseHandler = jest.fn();
 
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} onClose={onCloseHandler} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true, onClose: onCloseHandler });
 
         await user.click(screen.getByLabelText('Recycled'));
 
@@ -566,13 +427,7 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('handles focus when ref is null', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true });
 
         await screen.findByRole('dialog');
 
@@ -581,25 +436,13 @@ describe('<ProductAmountBox>', () => {
         expect(screen.queryByRole('button', { name: 'Expand' })).not.toBeInTheDocument();
     });
 
-    it('renders year when year is provided', () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} year={2024} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
-
-        expect(screen.getByText(/Uogienės, 2024/)).toBeInTheDocument();
-    });
-
     it('handles when allVariants is empty', () => {
         const emptyVariantsState: WithVariantsState = { variants: [] };
 
         render(
             <MockApp state={emptyVariantsState}>
                 <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={[]} opened />
+                    <AmountBox {...defaultProps} amounts={[]} opened />
                 </UpdateTypeWrapper>
             </MockApp>
         );
@@ -608,13 +451,7 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('handles when focused is undefined', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true });
 
         await screen.findByRole('dialog');
 
@@ -624,13 +461,7 @@ describe('<ProductAmountBox>', () => {
     });
 
     it('calls handleFocus when enter transition ends', async () => {
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true });
 
         const dialog = await screen.findByRole('dialog');
         act(() => fireEvent.transitionEnd(dialog));
@@ -647,13 +478,7 @@ describe('<ProductAmountBox>', () => {
             return <input aria-label={variant} />;
         });
 
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true });
 
         const dialog = await screen.findByRole('dialog');
         act(() => fireEvent.transitionEnd(dialog));
@@ -670,13 +495,7 @@ describe('<ProductAmountBox>', () => {
             return <input aria-label={variant} />;
         });
 
-        render(
-            <MockApp state={state}>
-                <UpdateTypeWrapper>
-                    <ProductAmountBox {...props} amounts={amounts} opened />
-                </UpdateTypeWrapper>
-            </MockApp>
-        );
+        renderAmountBox({ opened: true });
 
         await screen.findByRole('dialog');
 

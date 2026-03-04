@@ -1,4 +1,4 @@
-import { Button, Center, Flex, Group, Modal, ModalProps, Stack, Title } from '@mantine/core';
+import { Button, Center, Flex, Group, Modal, type ModalProps } from '@mantine/core';
 import { IconCheck, IconChevronDown, IconX } from '@tabler/icons-react';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
@@ -10,7 +10,7 @@ import { AmountInput } from '~/client/pages/products/AmountInput';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { getVariantAmount } from '~/common/utils/amounts';
-import { GroupAmounts, ProductAmounts, VariantAmount } from '~/types/data';
+import type { GroupAmounts, VariantAmount } from '~/types/data';
 
 import './AmountBox.pcss';
 
@@ -138,7 +138,9 @@ export function AmountBox({
             <Center mt="sm">
                 <UpdateTypeToggle changes={changes} />
             </Center>
+
             {children}
+
             <div className="content" data-expanded={expanded}>
                 <div
                     className="article"

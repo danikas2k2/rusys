@@ -20,7 +20,7 @@ jest.mock('~/client/state/profile/useProfile', () => ({
     useProfile: jest.fn(() => ({ email: 'test@example.com' })),
 }));
 
-jest.mock('~/client/pages/products/ProductAmountBox', () => ({
+jest.mock('~/client/pages/common/AmountBox', () => ({
     AmountBox: ({ opened, onClose, onAfterClose }: any) =>
         opened ? (
             <div role="dialog" aria-label="Value box">
