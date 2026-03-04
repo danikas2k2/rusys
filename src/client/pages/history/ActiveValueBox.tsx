@@ -6,6 +6,7 @@ import { Label } from '~/client/common/Label';
 import { UpdateTypeWrapper } from '~/client/common/UpdateTypeContext';
 import { AmountBox } from '~/client/pages/common/AmountBox';
 import { AmountTitle } from '~/client/pages/history/AmountTitle';
+import { useUpdatingHistory } from '~/client/pages/history/UpdatingHistoryContext';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useMoveHistory } from '~/client/state/history/useMoveHistory';
 import { useUpdateHistory } from '~/client/state/history/useUpdateHistory';
@@ -14,6 +15,7 @@ import type { History, VariantAmount } from '~/types/data';
 
 export function ActiveValueBox(): React.ReactElement | null {
     const [active, setActive] = useActiveContent<History>();
+    const [, setUpdating] = useUpdatingHistory();
     const data = active?.data;
     const time = data?.time ?? 0;
     const user = data?.user;
@@ -46,13 +48,33 @@ export function ActiveValueBox(): React.ReactElement | null {
                 return;
             }
 
-            if (initialGroup !== group || initialName !== name || initialYear !== year) {
-                await handleMove(time, initialGroup, initialName, initialYear, group, name, year);
-            }
+            const historyKey = { time, group: initialGroup, name: initialName, year: initialYear, user };
+            setUpdating(historyKey, true);
 
-            await handleUpdate(time, group, name, year, changed, user);
+            try {
+                if (initialGroup !== group || initialName !== name || initialYear !== year) {
+                    await handleMove(time, initialGroup, initialName, initialYear, group, name, year);
+                }
+
+                await handleUpdate(time, group, name, year, changed, user);
+            } finally {
+                setUpdating(historyKey, false);
+            }
         },
-        [data, group, handleMove, handleUpdate, initialGroup, initialName, initialYear, name, time, user, year]
+        [
+            data,
+            group,
+            handleMove,
+            handleUpdate,
+            initialGroup,
+            initialName,
+            initialYear,
+            name,
+            setUpdating,
+            time,
+            user,
+            year,
+        ]
     );
 
     const handleAfterClose = useCallback(() => setActive(), [setActive]);

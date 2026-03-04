@@ -8,6 +8,7 @@ import { YearFilterWrapper } from '~/client/filters/YearFilterContext';
 import { Page } from '~/client/pages/common/Page';
 import { ActiveValueBox } from '~/client/pages/history/ActiveValueBox';
 import { HistoryTable } from '~/client/pages/history/HistoryTable';
+import { UpdatingHistoryWrapper } from '~/client/pages/history/UpdatingHistoryContext';
 import { useDeleteHistory } from '~/client/state/history/useDeleteHistory';
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
 import { ToolbarYearFilter } from '~/client/toolbar/ToolbarYearFilter';
@@ -21,21 +22,23 @@ export function HistoryPage() {
         <YearFilterWrapper>
             <GroupFilterWrapper>
                 <QuickFilterWrapper>
-                    <Page
-                        toolbar={
-                            <>
-                                <ToolbarGroupFilter />
-                                <ToolbarYearFilter />
-                            </>
-                        }
-                        onDelete={handleDelete}
-                    >
-                        <SwipeControlsWrapper>
-                            <HistoryTable />
-                            <SwipeControls withEdit={false} />
-                        </SwipeControlsWrapper>
-                        <ActiveValueBox />
-                    </Page>
+                    <UpdatingHistoryWrapper>
+                        <Page
+                            toolbar={
+                                <>
+                                    <ToolbarGroupFilter />
+                                    <ToolbarYearFilter />
+                                </>
+                            }
+                            onDelete={handleDelete}
+                        >
+                            <SwipeControlsWrapper>
+                                <HistoryTable />
+                                <SwipeControls withEdit={false} />
+                            </SwipeControlsWrapper>
+                            <ActiveValueBox />
+                        </Page>
+                    </UpdatingHistoryWrapper>
                 </QuickFilterWrapper>
             </GroupFilterWrapper>
         </YearFilterWrapper>

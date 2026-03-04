@@ -2,10 +2,7 @@ import { Alert, Center, Flex } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import React from 'react';
 
-
-
 import { Label } from '~/client/common/Label';
-
 
 export function HistoryMissingData(): React.ReactElement {
     const size = 48;
