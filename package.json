@@ -44,7 +44,7 @@
         "preversion": "git pull && pnpm check",
         "version": "sed -i '' 's/APP_VERSION: \".*\"/APP_VERSION: \"'\"$npm_package_version\"'\"/' ./docker/compose.yaml && git add --all",
         "postversion": "git push && git push --tags",
-        "update-deps": "syncpack update && pnpm install"
+        "update-deps": "pnpm update --latest && syncpack update && pnpm install"
     },
     "browserslist": {
         "production": [
@@ -63,10 +63,10 @@
         "@dnd-kit/modifiers": "^9.0.0",
         "@dnd-kit/sortable": "^10.0.0",
         "@dnd-kit/utilities": "^3.2.2",
-        "@mantine/core": "^8.3.17",
-        "@mantine/dropzone": "^8.3.17",
-        "@mantine/form": "^8.3.17",
-        "@mantine/hooks": "^8.3.17",
+        "@mantine/core": "^8.3.18",
+        "@mantine/dropzone": "^8.3.18",
+        "@mantine/form": "^8.3.18",
+        "@mantine/hooks": "^8.3.18",
         "@react-oauth/google": "^0.13.4",
         "@reduxjs/toolkit": "^2.11.2",
         "@tabler/icons-react": "^3.40.0",
@@ -93,7 +93,7 @@
     "devDependencies": {
         "@babel/core": "^7.29.0",
         "@babel/plugin-transform-react-jsx": "^7.28.6",
-        "@babel/preset-env": "^7.29.0",
+        "@babel/preset-env": "^7.29.2",
         "@babel/preset-react": "^7.28.5",
         "@babel/preset-typescript": "^7.28.5",
         "@catppuccin/palette": "^1.7.1",
@@ -125,8 +125,8 @@
         "@types/serve-static": "^2.2.0",
         "@types/superagent": "^8.1.9",
         "@types/supertest": "^7.2.0",
-        "@typescript-eslint/eslint-plugin": "^8.57.0",
-        "@typescript-eslint/parser": "^8.57.0",
+        "@typescript-eslint/eslint-plugin": "^8.57.1",
+        "@typescript-eslint/parser": "^8.57.1",
         "@vitejs/plugin-react": "^6.0.1",
         "autoprefixer": "^10.4.27",
         "babel-jest": "^30.3.0",
@@ -181,7 +181,7 @@
         "ts-node": "^10.9.2",
         "tsconfig-paths": "^4.2.0",
         "typescript": "^5.9.3",
-        "typescript-eslint": "^8.57.0",
+        "typescript-eslint": "^8.57.1",
         "vite": "^8.0.0",
         "vite-plugin-html": "^3.2.2",
         "vite-plugin-svgr": "^4.5.0"
@@ -199,7 +199,7 @@
             "jsdom": "^29.0.0",
             "micromatch": "^4.0.8",
             "minimatch": "^10.2.4",
-            "nth-check": "^2.1.1",
+            "nth-check": "^3.0.1",
             "parse5": "^8.0.0",
             "postcss": "^8.5.8",
             "qs": "^6.15.0",
