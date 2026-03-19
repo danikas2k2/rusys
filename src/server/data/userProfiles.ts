@@ -37,5 +37,3 @@ export async function getUserProfiles(emails: readonly string[]): Promise<readon
         .find({ email: { $in: clean } }, { projection: { _id: 0, email: 1, name: 1, picture: 1, updatedAt: 1 } })
         .toArray();
 }
-
-

@@ -5,14 +5,14 @@ import { useProfile } from '~/client/state/profile/useProfile';
 import { ApiUrl, type ApiResult, type ApiUpsertUserProfile } from '~/types/api';
 import type { UserProfile } from '~/types/data';
 
+// Refresh profile in DB if missing or stale
+const STALE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
+
 export function useSyncUserProfile(): void {
     const request = useApiRequest();
     const profile = useProfile();
     const lastKeyRef = useRef<string>('');
     const lastCheckedEmailRef = useRef<string>('');
-
-    // Refresh profile in DB if missing or stale
-    const STALE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
 
     useEffect(() => {
         const email = profile?.email?.trim();
@@ -61,5 +61,3 @@ export function useSyncUserProfile(): void {
         })();
     }, [profile.email, profile.name, profile.picture, request]);
 }
-
-

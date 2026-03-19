@@ -9,5 +9,3 @@ export async function handleUpsertUserProfile(req: ApiRequest<ApiUpsertUserProfi
     const { email, name, picture } = req.body;
     res.json(await run(() => upsertUserProfile(email, name, picture)));
 }
-
-

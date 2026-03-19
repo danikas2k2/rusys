@@ -5,7 +5,7 @@ import type { ParamsDictionary } from 'express-serve-static-core';
 import type { Group, Product, Summary, UserProfile, Variant, VariantAmount } from '~/types/data';
 
 export type ApiRequest<R = unknown> = Request<ParamsDictionary, unknown, R>;
-export type ApiResult<R = unknown> = { ok: true } | ({ ok: true } & R) | { ok?: false; error?: string };
+export type ApiResult<R = unknown> = ({ ok: true } & R) | { ok?: false; error?: string };
 export type ApiResponse<R = unknown> = Response<ApiResult<R>>;
 
 export const enum ApiUrl {
@@ -59,7 +59,6 @@ export interface ApiUserEmail {
 }
 
 export interface ApiUserAllowed {
-    email: string;
     allowed: boolean;
 }
 

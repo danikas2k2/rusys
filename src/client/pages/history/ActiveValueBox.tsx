@@ -42,8 +42,6 @@ export function ActiveValueBox(): React.ReactElement | null {
     const handleMove = useMoveHistory();
     const handleClose = useCallback(
         async (changed?: readonly VariantAmount[]): Promise<void> => {
-            console.info(`[DEV]`, { group, name, year, changed });
-
             if (!data) {
                 return;
             }
