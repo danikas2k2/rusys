@@ -38,39 +38,41 @@ import { ApiUrl } from '~/types/api';
 jest.mock('~/server/api/debug');
 
 // Client/User
-jest.mock('~/server/api/handleClientId', () => ({ handleClientId: jest.fn() }));
-jest.mock('~/server/api/handleCheckUser', () => ({ handleCheckUser: jest.fn() }));
-jest.mock('~/server/api/handleUpsertUserProfile', () => ({ handleUpsertUserProfile: jest.fn() }));
-jest.mock('~/server/api/handleUserProfiles', () => ({ handleUserProfiles: jest.fn() }));
+jest.mock('~/server/api/handleClientId');
+jest.mock('~/server/api/handleCheckUser');
+jest.mock('~/server/api/handleUpsertUserProfile');
+jest.mock('~/server/api/handleUserProfiles');
 
 // Summary
-jest.mock('~/server/api/handleSummary', () => ({ handleSummary: jest.fn() }));
+jest.mock('~/server/api/handleSummary');
 
 // Products
-jest.mock('~/server/api/handleAdd', () => ({ handleAdd: jest.fn() }));
-jest.mock('~/server/api/handleProducts', () => ({ handleProducts: jest.fn() }));
-jest.mock('~/server/api/handleUpdateProduct', () => ({ handleUpdateProduct: jest.fn() }));
-jest.mock('~/server/api/handleHistory', () => ({ handleProductsHistory: jest.fn() }));
-jest.mock('~/server/api/handleUpdateProductsHistory', () => ({ handleUpdateProductsHistory: jest.fn() }));
-jest.mock('~/server/api/handleDeleteProductsHistory', () => ({ handleDeleteProductsHistory: jest.fn() }));
-jest.mock('~/server/api/handleMoveProductsHistory', () => ({ handleMoveProductsHistory: jest.fn() }));
-jest.mock('~/server/api/handleSetRemoving', () => ({ handleSetRemoving: jest.fn() }));
-jest.mock('~/server/api/handleSetMissing', () => ({ handleSetMissing: jest.fn() }));
-jest.mock('~/server/api/handleRename', () => ({ handleRename: jest.fn() }));
-jest.mock('~/server/api/handleMove', () => ({ handleMove: jest.fn() }));
-jest.mock('~/server/api/handleDelete', () => ({ handleDelete: jest.fn() }));
+jest.mock('~/server/api/handleAdd');
+jest.mock('~/server/api/handleProducts');
+jest.mock('~/server/api/handleUpdateProduct');
+jest.mock('~/server/api/handleSetRemoving');
+jest.mock('~/server/api/handleSetMissing');
+jest.mock('~/server/api/handleRename');
+jest.mock('~/server/api/handleMove');
+jest.mock('~/server/api/handleDelete');
+
+// History
+jest.mock('~/server/api/handleHistory');
+jest.mock('~/server/api/handleUpdateProductsHistory');
+jest.mock('~/server/api/handleDeleteProductsHistory');
+jest.mock('~/server/api/handleMoveProductsHistory');
 
 // Groups
-jest.mock('~/server/api/handleGroups', () => ({ handleGroups: jest.fn() }));
-jest.mock('~/server/api/handleUpdateGroup', () => ({ handleUpdateGroup: jest.fn() }));
-jest.mock('~/server/api/handleRenameGroup', () => ({ handleRenameGroup: jest.fn() }));
-jest.mock('~/server/api/handleDeleteGroup', () => ({ handleDeleteGroup: jest.fn() }));
+jest.mock('~/server/api/handleGroups');
+jest.mock('~/server/api/handleUpdateGroup');
+jest.mock('~/server/api/handleRenameGroup');
+jest.mock('~/server/api/handleDeleteGroup');
 
 // Variants
-jest.mock('~/server/api/handleVariants', () => ({ handleVariants: jest.fn() }));
-jest.mock('~/server/api/handleUpdateVariant', () => ({ handleUpdateVariant: jest.fn() }));
-jest.mock('~/server/api/handleRenameVariant', () => ({ handleRenameVariant: jest.fn() }));
-jest.mock('~/server/api/handleDeleteVariant', () => ({ handleDeleteVariant: jest.fn() }));
+jest.mock('~/server/api/handleVariants');
+jest.mock('~/server/api/handleUpdateVariant');
+jest.mock('~/server/api/handleRenameVariant');
+jest.mock('~/server/api/handleDeleteVariant');
 
 describe('app', () => {
     afterEach(() => jest.clearAllMocks());
