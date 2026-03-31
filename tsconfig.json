@@ -3,11 +3,10 @@
     "include": ["src/**/*", "jest/*.ts"],
     "exclude": ["node_modules", "**/*.spec.ts"],
     "compilerOptions": {
-        "baseUrl": ".",
         "paths": {
             "package.json": ["./package.json"],
-            "@tests/*": ["src/tests/*"],
-            "~/*": ["src/*"]
+            "@tests/*": ["./src/tests/*"],
+            "~/*": ["./src/*"]
         },
         "lib": ["ESNext", "DOM", "DOM.Iterable"],
         "target": "ESNext",
@@ -16,7 +15,6 @@
         "allowSyntheticDefaultImports": true,
         "noFallthroughCasesInSwitch": true,
         "resolveJsonModule": true,
-        "downlevelIteration": true,
         "preserveSymlinks": true,
         "jsx": "react-jsx",
         "types": [
