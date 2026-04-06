@@ -1,5 +1,4 @@
 /** @jest-environment node */
-/** @jest-environment node */
 import { getGroupsFixture, getProductsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 
 import {
