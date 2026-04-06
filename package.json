@@ -86,7 +86,7 @@
         "react-dom": "^19.2.4",
         "react-error-boundary": "^6.1.1",
         "react-redux": "^9.2.0",
-        "react-router": "^7.13.2",
+        "react-router": "^7.14.0",
         "redux": "^5.0.1",
         "transliteration": "^2.6.1"
     },
