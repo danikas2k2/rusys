@@ -62,7 +62,7 @@ describe('<VariantBox>', () => {
 
         expect(screen.getByRole('heading', { name: 'Add new variant' })).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveValue('');
-        expect(screen.getByRole('textbox', { name: 'Group' })).toHaveValue('');
+        expect(screen.getByRole('combobox', { name: 'Group' })).toHaveValue('');
         expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
     });
 
@@ -75,7 +75,7 @@ describe('<VariantBox>', () => {
             </MockApp>
         );
 
-        expect(screen.getByRole('textbox', { name: 'Group' })).toHaveValue('Daržovės');
+        expect(screen.getByRole('combobox', { name: 'Group' })).toHaveValue('Daržovės');
     });
 
     it('shows Duplicate button when editing and filterGroup differs from initialGroup', () => {
@@ -99,7 +99,7 @@ describe('<VariantBox>', () => {
 
         expect(screen.getByRole('heading', { name: 'Edit variant' })).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveValue('Litriukas');
-        expect(screen.getByRole('textbox', { name: 'Group' })).toHaveValue('Daržovės');
+        expect(screen.getByRole('combobox', { name: 'Group' })).toHaveValue('Daržovės');
         expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
     });
 
@@ -130,7 +130,7 @@ describe('<VariantBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.type(screen.getByRole('textbox', { name: 'Suffix' }), '4½');
@@ -153,7 +153,7 @@ describe('<VariantBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.click(screen.getByRole('button', { name: 'Add' }));
@@ -175,7 +175,7 @@ describe('<VariantBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
@@ -196,7 +196,7 @@ describe('<VariantBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'd');
             await user.click(screen.getByRole('button', { name: 'Add' }));
@@ -336,7 +336,7 @@ describe('<VariantBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
@@ -359,7 +359,7 @@ describe('<VariantBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
@@ -380,7 +380,7 @@ describe('<VariantBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
@@ -410,7 +410,7 @@ describe('<VariantBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('textbox', { name: 'Group' })).toHaveFocus();
+            expect(screen.getByRole('combobox', { name: 'Group' })).toHaveFocus();
             expect(screen.getByRole('alert')).toHaveTextContent('Group is required');
         });
 
@@ -424,7 +424,7 @@ describe('<VariantBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test:variant');
             await user.click(screen.getByRole('button', { name: 'Add' }));
@@ -449,7 +449,7 @@ describe('<VariantBox>', () => {
             expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
 
             // Change group to trigger Duplicate button
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Uogienės' }));
 
             await act(() => jest.advanceTimersByTimeAsync(100));
@@ -473,7 +473,7 @@ describe('<VariantBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'New Variant');
 
@@ -506,7 +506,7 @@ describe('<VariantBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'Fast Variant');
 

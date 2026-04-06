@@ -78,7 +78,7 @@ describe('<ProductBox>', () => {
             </MockThemeRedux>
         );
 
-        expect(screen.getByRole('textbox', { name: 'Group' })).toHaveDisplayValue('Uogienės');
+        expect(screen.getByRole('combobox', { name: 'Group' })).toHaveDisplayValue('Uogienės');
     });
 
     it('calls onClose when close button is clicked', async () => {
@@ -261,9 +261,9 @@ describe('<ProductBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.clear(screen.getByRole('textbox', { name: 'Group' }));
-            await user.type(screen.getByRole('textbox', { name: 'Group' }), 'Dar');
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
+            await user.clear(screen.getByRole('combobox', { name: 'Group' }));
+            await user.type(screen.getByRole('combobox', { name: 'Group' }), 'Dar');
             await user.click(screen.getByRole('option', { name: 'Daržovės' }));
             await user.click(screen.getByRole('button', { name: 'Move' }));
 
@@ -283,9 +283,9 @@ describe('<ProductBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.clear(screen.getByRole('textbox', { name: 'Group' }));
-            await user.type(screen.getByRole('textbox', { name: 'Group' }), 'Dar');
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
+            await user.clear(screen.getByRole('combobox', { name: 'Group' }));
+            await user.type(screen.getByRole('combobox', { name: 'Group' }), 'Dar');
             await user.click(screen.getByRole('option', { name: 'Daržovės' }));
             await user.click(screen.getByRole('button', { name: 'Move' }));
 
@@ -305,9 +305,9 @@ describe('<ProductBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.clear(screen.getByRole('textbox', { name: 'Group' }));
-            await user.type(screen.getByRole('textbox', { name: 'Group' }), 'Dar');
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
+            await user.clear(screen.getByRole('combobox', { name: 'Group' }));
+            await user.type(screen.getByRole('combobox', { name: 'Group' }), 'Dar');
             await user.click(screen.getByRole('option', { name: 'Daržovės' }));
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
             await user.click(screen.getByRole('button', { name: 'Move' }));
@@ -328,9 +328,9 @@ describe('<ProductBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
-            await user.clear(screen.getByRole('textbox', { name: 'Group' }));
-            await user.type(screen.getByRole('textbox', { name: 'Group' }), 'Dar');
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
+            await user.clear(screen.getByRole('combobox', { name: 'Group' }));
+            await user.type(screen.getByRole('combobox', { name: 'Group' }), 'Dar');
             await user.click(screen.getByRole('option', { name: 'Daržovės' }));
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agurkai');
@@ -369,12 +369,12 @@ describe('<ProductBox>', () => {
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Test');
-            await user.clear(screen.getByRole('textbox', { name: 'Group' }));
+            await user.clear(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(addProduct).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('textbox', { name: 'Group' })).toHaveFocus();
+            expect(screen.getByRole('combobox', { name: 'Group' })).toHaveFocus();
         });
 
         it('displays error when name contains colon', async () => {
@@ -410,7 +410,7 @@ describe('<ProductBox>', () => {
             // Wait for initial focus timer to complete
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'New Entry');
 
@@ -442,7 +442,7 @@ describe('<ProductBox>', () => {
 
             await act(() => jest.advanceTimersByTimeAsync(100));
 
-            await user.click(screen.getByRole('textbox', { name: 'Group' }));
+            await user.click(screen.getByRole('combobox', { name: 'Group' }));
             await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Fast Entry');
 
