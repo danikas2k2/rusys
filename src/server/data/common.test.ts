@@ -457,7 +457,7 @@ describe('common', () => {
 
     describe('importEverything', () => {
         beforeEach(() =>
-            jest.useFakeTimers({ advanceTimers: true }).setSystemTime(new Date('2025-05-05T12:11:10.123Z'))
+            jest.useFakeTimers({ advanceTimers: true }).setSystemTime(Date.parse('2025-05-05T12:11:10.123Z'))
         );
 
         afterEach(() => jest.useRealTimers());
