@@ -28,7 +28,7 @@ describe('<DragHandle>', () => {
     });
 
     it('applies custom style', () => {
-        const customStyle = { cursor: 'drag' };
+        const customStyle = { cursor: 'grab' };
 
         render(
             <MockTheme>
@@ -44,7 +44,7 @@ describe('<DragHandle>', () => {
 
         const button = screen.getByRole('button', { name: 'Drag' });
 
-        expect(button).toHaveStyle({ cursor: 'drag' });
+        expect(button).toHaveStyle({ cursor: 'grab' });
     });
 
     it('forwards ref', () => {
