@@ -16,22 +16,24 @@ export function ActiveValueBox(): React.ReactElement {
     const profile = useProfile();
     const updateProduct = useUpdateProduct();
 
-    const handleClose = useCallback(
-        async (changed?: readonly VariantAmount[]): Promise<void> => {
+    const handleClose = useCallback(() => setActive({ data: active?.data }), [active?.data, setActive]);
+
+    const handleAfterClose = useCallback(() => setActive(), [setActive]);
+
+    const handleSubmit = useCallback(
+        async (changed: readonly VariantAmount[]): Promise<void> => {
             const data = active?.data;
-            const clean = changed?.filter(({ amount }) => !!amount) ?? [];
+            const clean = changed.filter(({ amount }) => !!amount) ?? [];
             if (data && clean.length) {
                 setUpdating(data, true);
                 void updateProduct(data.group, data.name, data.year, clean, profile.email).finally(() =>
                     setUpdating(data, false)
                 );
             }
-            setActive({ data });
+            handleClose();
         },
-        [active?.data, setActive, setUpdating, updateProduct, profile.email]
+        [active?.data, handleClose, setUpdating, updateProduct, profile.email]
     );
-
-    const handleAfterClose = useCallback(() => setActive(), [setActive]);
 
     const opened = active?.action === 'values' && !!active?.data;
 
@@ -41,6 +43,7 @@ export function ActiveValueBox(): React.ReactElement {
                 opened={opened}
                 group={active?.data?.group ?? ''}
                 amounts={active?.data?.amounts}
+                onSubmit={handleSubmit}
                 onClose={handleClose}
                 onAfterClose={handleAfterClose}
                 title={<AmountTitle {...active?.data} />}

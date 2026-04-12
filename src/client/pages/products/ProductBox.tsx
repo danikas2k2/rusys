@@ -113,7 +113,7 @@ export function ProductBox({
     const moveProduct = useMoveProduct();
     const renameProduct = useRenameProduct();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
 
         const validation = form.validate();

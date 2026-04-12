@@ -16,8 +16,9 @@ import './AmountBox.pcss';
 
 export interface AmountBoxProps extends GroupAmounts, Pick<ModalProps, 'title'> {
     opened?: boolean;
-    onClose?: (changes?: readonly VariantAmount[]) => void;
+    onClose?: () => void;
     onAfterClose?: () => void;
+    onSubmit?: (changes: readonly VariantAmount[]) => void;
 }
 
 type UpdatingAmounts = Record<UpdateTypes, readonly VariantAmount[]>;
@@ -33,6 +34,7 @@ export function AmountBox({
     title,
     group,
     amounts,
+    onSubmit,
     onClose,
     onAfterClose,
     children,
@@ -80,14 +82,18 @@ export function AmountBox({
         onAfterClose?.();
     }, [onAfterClose]);
 
-    const handleUpdate = useCallback((): void => {
-        setExpanded(false);
-        onClose?.([
-            ...changes.updated,
-            ...changes.consumed.map((v) => ({ ...v, recycled: false })),
-            ...changes.recycled.map((v) => ({ ...v, recycled: true })),
-        ]);
-    }, [changes, onClose]);
+    const handleUpdate = useCallback(
+        (e: React.SubmitEvent): void => {
+            e.preventDefault();
+            setExpanded(false);
+            onSubmit?.([
+                ...changes.updated,
+                ...changes.consumed.map((v) => ({ ...v, recycled: false })),
+                ...changes.recycled.map((v) => ({ ...v, recycled: true })),
+            ]);
+        },
+        [changes, onSubmit]
+    );
 
     const stopPropagation = useCallback((e: React.SyntheticEvent) => e.stopPropagation(), []);
 
@@ -135,60 +141,68 @@ export function AmountBox({
             onExitTransitionEnd={handleExitTransitionEnd}
             title={title}
         >
-            <Center mt="sm">
-                <UpdateTypeToggle changes={changes} />
-            </Center>
+            <form onSubmit={handleUpdate}>
+                <Center mt="sm">
+                    <UpdateTypeToggle changes={changes} />
+                </Center>
 
-            {children}
+                {children}
 
-            <div className="content" data-expanded={expanded}>
-                <div
-                    className="article"
-                    data-variant={currentVariant}
-                    role="presentation"
-                    onClick={stopPropagation}
-                    onDoubleClick={stopPropagation}
-                >
-                    {editingVariants.map((variant) => (
-                        <AmountInput
-                            key={variant}
-                            ref={(ref) => {
-                                refs.current[variant] = ref;
-                            }}
-                            variant={variant}
-                            amount={getVariantAmount(amounts, variant) + getVariantAmount(oppositeChanges, variant)}
-                            change={getVariantAmount(currentChanges, variant)}
-                            onClose={handleClose}
-                            onChange={handleChange}
-                            onFocus={setFocused}
-                            focused={variant === focused}
-                        />
-                    ))}
+                <div className="content" data-expanded={expanded}>
+                    <div
+                        className="article"
+                        data-variant={currentVariant}
+                        role="presentation"
+                        onClick={stopPropagation}
+                        onDoubleClick={stopPropagation}
+                    >
+                        {editingVariants.map((variant) => (
+                            <AmountInput
+                                key={variant}
+                                ref={(ref) => {
+                                    refs.current[variant] = ref;
+                                }}
+                                variant={variant}
+                                amount={getVariantAmount(amounts, variant) + getVariantAmount(oppositeChanges, variant)}
+                                change={getVariantAmount(currentChanges, variant)}
+                                onClose={handleClose}
+                                onChange={handleChange}
+                                onFocus={setFocused}
+                                focused={variant === focused}
+                            />
+                        ))}
+                    </div>
+                    {!expanded && (
+                        <Flex justify="center">
+                            <Button
+                                variant="subtle"
+                                color="text"
+                                leftSection={<IconChevronDown size={18} />}
+                                onClick={handleExpand}
+                            >
+                                <Label>Expand</Label>
+                            </Button>
+                        </Flex>
+                    )}
                 </div>
-                {!expanded && (
-                    <Flex justify="center">
-                        <Button
-                            variant="subtle"
-                            color="text"
-                            leftSection={<IconChevronDown size={18} />}
-                            onClick={handleExpand}
-                        >
-                            <Label>Expand</Label>
-                        </Button>
-                    </Flex>
-                )}
-            </div>
 
-            <div className="footer">
-                <Group justify="center">
-                    <Button variant="outline" color="gray" leftSection={<IconX size={18} />} onClick={handleClose}>
-                        <Label>Cancel</Label>
-                    </Button>
-                    <Button onClick={handleUpdate} leftSection={<IconCheck size={18} />}>
-                        <Label>Update</Label>
-                    </Button>
-                </Group>
-            </div>
+                <div className="footer">
+                    <Group justify="center">
+                        <Button
+                            type="reset"
+                            variant="outline"
+                            color="gray"
+                            leftSection={<IconX size={18} />}
+                            onClick={handleClose}
+                        >
+                            <Label>Cancel</Label>
+                        </Button>
+                        <Button type="submit" leftSection={<IconCheck size={18} />}>
+                            <Label>Update</Label>
+                        </Button>
+                    </Group>
+                </div>
+            </form>
         </Modal>
     );
 }

@@ -1,8 +1,8 @@
 import { Group, Text } from '@mantine/core';
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import { EmailAvatar } from '~/client/pages/history/EmailAvatar';
-import { formatDate, formatTime } from '~/client/utils/time';
+import { FormatDate } from '~/client/pages/history/FormatDate';
 
 interface AmountTitleProps {
     time: number;
@@ -10,18 +10,11 @@ interface AmountTitleProps {
 }
 
 export function AmountTitle({ time, email }: AmountTitleProps) {
-    const datetime = useMemo(() => {
-        const date = new Date(time);
-        const ds = formatDate(date);
-        const ts = formatTime(date);
-        return ds ? `${ds} ${ts}` : ts;
-    }, [time]);
-
     return (
         <Group>
             <EmailAvatar email={email} /*profile={userProfile}*/ />
             <Text size="xl" fw={600}>
-                {datetime}
+                <FormatDate date={new Date(time)} />
             </Text>
         </Group>
     );
