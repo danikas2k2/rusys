@@ -1,5 +1,5 @@
 import type { DragEndEvent, UniqueIdentifier } from '@dnd-kit/core';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { flushSync } from 'react-dom';
 
 export function useReorderHandler<T, P = Partial<T>>({
@@ -18,19 +18,14 @@ export function useReorderHandler<T, P = Partial<T>>({
     onDragEnd: (e: DragEndEvent) => Promise<void>;
 } {
     const [reordering, setReordering] = useState(false);
+    const [frozenItems, setFrozenItems] = useState<readonly T[] | null>(null);
 
     // Freeze items during reordering to prevent jumping
-    const frozenItemsRef = useRef(items);
-    const displayItems = reordering ? frozenItemsRef.current : items;
+    const displayItems = frozenItems ?? items;
     const findIndex = useCallback(
         (a: P) => displayItems.findIndex((b) => equals(a, b as unknown as P)),
         [displayItems, equals]
     );
-
-    // Update frozen variants when not reordering
-    if (!reordering) {
-        frozenItemsRef.current = items;
-    }
 
     const onDragEnd = useCallback(
         async ({ active, over }: DragEndEvent) => {
@@ -48,7 +43,8 @@ export function useReorderHandler<T, P = Partial<T>>({
             const reorderedItems = [...displayItems];
             const [movedItem] = reorderedItems.splice(oldIndex, 1);
             reorderedItems.splice(newIndex, 0, movedItem);
-            frozenItemsRef.current = reorderedItems;
+
+            setFrozenItems(reorderedItems);
 
             flushSync(() => setReordering(true));
 
@@ -56,6 +52,7 @@ export function useReorderHandler<T, P = Partial<T>>({
                 await onReorder(reorderedItems, activeItem);
             } finally {
                 setReordering(false);
+                setFrozenItems(null);
             }
         },
         [displayItems, findIndex, resolve, onReorder]
