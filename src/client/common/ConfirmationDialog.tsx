@@ -1,6 +1,6 @@
 import { Alert, Button, Group, Modal, type ButtonProps, type ModalProps } from '@mantine/core';
 import { IconAlertCircle, IconCheck, IconX } from '@tabler/icons-react';
-import React, { cloneElement, useCallback, useEffect, useState } from 'react';
+import React, { cloneElement, useCallback, useState } from 'react';
 
 import { Label } from '~/client/common/Label';
 import { getErrorMessage } from '~/client/utils/errors';
@@ -12,11 +12,13 @@ export type ButtonElementProps = ButtonProps &
     };
 export type ButtonElement = React.ReactElement<ButtonElementProps>;
 
-export interface ConfirmationDialogProps extends ModalProps {
+export interface ConfirmationDialogProps extends Omit<ModalProps, 'onClose'> {
     actions?: React.ReactElement;
     confirmButton?: ButtonElement;
     cancelButton?: ButtonElement;
     onConfirm?: (e: React.MouseEvent<HTMLButtonElement>) => void | Promise<void>;
+    /** Called with the click event from Cancel; without args from Modal chrome / after confirm */
+    onClose?: (event?: React.SyntheticEvent) => void;
     closeLabel?: string;
 }
 
@@ -50,12 +52,17 @@ export function ConfirmationDialog({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Clear error when dialog closes
-    useEffect(() => {
-        if (!opened) {
+    const handleClose = useCallback(
+        (e?: React.SyntheticEvent) => {
             setError(null);
-        }
-    }, [opened]);
+            if (e !== undefined) {
+                onClose?.(e);
+            } else {
+                onClose?.();
+            }
+        },
+        [onClose]
+    );
 
     const handleConfirm = useCallback(
         async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -69,7 +76,7 @@ export function ConfirmationDialog({
 
             try {
                 await onConfirm?.(e);
-                onClose?.();
+                handleClose();
             } catch (err) {
                 setError(getErrorMessage(err));
             } finally {
@@ -77,7 +84,7 @@ export function ConfirmationDialog({
                 setLoading(false);
             }
         },
-        [onConfirm, onClose]
+        [onConfirm, handleClose]
     );
 
     return (
@@ -88,7 +95,7 @@ export function ConfirmationDialog({
             closeOnClickOutside={!loading}
             centered
             opened={opened}
-            onClose={onClose}
+            onClose={handleClose}
             closeButtonProps={{
                 'aria-label': closeLabel,
                 disabled: loading,
@@ -98,7 +105,7 @@ export function ConfirmationDialog({
             {...props}
         >
             {children}
-            {error && (
+            {opened && error && (
                 <Alert variant="light" color="negative" icon={<IconAlertCircle size={18} />} mt="md">
                     {error}
                 </Alert>
@@ -109,11 +116,11 @@ export function ConfirmationDialog({
                         cloneElement(cancelButton, {
                             ...cancelButtonProps,
                             ...cancelButton.props,
-                            onClick: onClose,
+                            onClick: handleClose,
                             disabled: loading,
                         })
                     ) : (
-                        <Button {...cancelButtonProps} onClick={onClose} disabled={loading} />
+                        <Button {...cancelButtonProps} onClick={handleClose} disabled={loading} />
                     )}
                     {confirmButton ? (
                         cloneElement(confirmButton, {
