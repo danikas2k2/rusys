@@ -1,7 +1,7 @@
 import { Button, Checkbox, Group, Modal, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconCalendarClock, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { Label } from '~/client/common/Label';
 import { useLabels } from '~/client/hooks/useLabels';
@@ -56,8 +56,11 @@ export function GroupBox({
             },
         },
     });
+
     const formRef = useRef(form);
-    formRef.current = form;
+    useLayoutEffect(() => {
+        formRef.current = form;
+    });
 
     const [loading, setLoading] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -71,6 +74,7 @@ export function GroupBox({
             });
             formRef.current.resetTouched();
             formRef.current.resetDirty();
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- loading reset when modal opens
             setLoading(false);
 
             const timer = setTimeout(() => {

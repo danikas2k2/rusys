@@ -1,7 +1,7 @@
 import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconArrowRight, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { Label } from '~/client/common/Label';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
@@ -71,8 +71,11 @@ export function ProductBox({
             },
         },
     });
+
     const formRef = useRef(form);
-    formRef.current = form;
+    useLayoutEffect(() => {
+        formRef.current = form;
+    });
 
     const [loading, setLoading] = useState(false);
     const groupRef = useRef<HTMLInputElement>(null);
@@ -87,6 +90,7 @@ export function ProductBox({
             });
             formRef.current.resetTouched();
             formRef.current.resetDirty();
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- loading reset when modal opens
             setLoading(false);
 
             const timer = setTimeout(() => {
