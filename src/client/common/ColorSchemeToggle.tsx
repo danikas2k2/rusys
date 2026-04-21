@@ -13,8 +13,9 @@ export function ColorSchemeToggle({ auto = true }: ColorSchemeToggleProps) {
     const [animatedValue, setAnimatedValue] = useState<MantineColorScheme>(colorScheme);
     const _ = useLabels();
 
-    // Sync animatedValue with colorScheme when it changes externally
+    // Sync animatedValue when colorScheme changes elsewhere (e.g. system / another control)
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror external scheme into local SegmentedControl value
         setAnimatedValue(colorScheme);
     }, [colorScheme]);
 
