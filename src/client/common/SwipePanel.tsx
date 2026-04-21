@@ -36,9 +36,8 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
         const prevActive = prevActiveRef.current;
         prevActiveRef.current = active;
 
+        /* eslint-disable react-hooks/set-state-in-effect -- panel layout must follow active row in the same frame */
         if (prevActive?.id && (!active || active.action || prevActive.id !== active.id)) {
-            // This is intentional - we're reacting to active changes
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             closeAllPanels();
         }
 
@@ -55,6 +54,7 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
                 return found < 0 ? [...prev, panel] : [...prev.slice(0, found), panel, ...prev.slice(found + 1)];
             });
         }
+        /* eslint-enable react-hooks/set-state-in-effect */
     }, [active, closeAllPanels]);
 
     const handleTransitionEnd = useCallback(
