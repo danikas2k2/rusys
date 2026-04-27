@@ -65,7 +65,7 @@
         "@dnd-kit/utilities": "^3.2.2",
         "@mantine/core": "^9.0.2",
         "@mantine/dropzone": "^9.0.2",
-        "@mantine/form": "^9.0.2",
+        "@mantine/form": "^9.1.0",
         "@mantine/hooks": "^9.0.2",
         "@react-oauth/google": "^0.13.5",
         "@reduxjs/toolkit": "^2.11.2",
