@@ -16,18 +16,18 @@ describe('useDeleteHistory', () => {
 
     it('calls delete action with required params', async () => {
         const { result } = renderHook(() => useDeleteHistory(), { wrapper: MockRedux });
-        await result.current(1234567890, 'Uogienės', 'Avietės');
+        await result.current(1234567890, 'Uogienės', 'Avietės', 22);
 
         expect(request).toHaveBeenCalledWith(ApiUrl.HistoryDelete, {
             time: 1234567890,
             group: 'Uogienės',
             name: 'Avietės',
-            year: undefined,
+            year: 22,
             user: undefined,
         });
     });
 
-    it('calls delete action with optional year and user', async () => {
+    it('calls delete action with optional user', async () => {
         const { result } = renderHook(() => useDeleteHistory(), { wrapper: MockRedux });
         await result.current(1234567890, 'Uogienės', 'Avietės', 22, 'user@email.com');
 
@@ -42,21 +42,21 @@ describe('useDeleteHistory', () => {
 
     it('does not call delete action with falsy time', async () => {
         const { result } = renderHook(() => useDeleteHistory(), { wrapper: MockRedux });
-        await result.current(0, 'Uogienės', 'Avietės');
+        await result.current(0, 'Uogienės', 'Avietės', 22);
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call delete action with empty group', async () => {
         const { result } = renderHook(() => useDeleteHistory(), { wrapper: MockRedux });
-        await result.current(1234567890, '', 'Avietės');
+        await result.current(1234567890, '', 'Avietės', 22);
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call delete action with empty name', async () => {
         const { result } = renderHook(() => useDeleteHistory(), { wrapper: MockRedux });
-        await result.current(1234567890, 'Uogienės', '');
+        await result.current(1234567890, 'Uogienės', '', 22);
 
         expect(request).not.toHaveBeenCalled();
     });

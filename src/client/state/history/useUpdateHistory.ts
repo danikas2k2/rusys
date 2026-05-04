@@ -8,7 +8,7 @@ export function useUpdateHistory(): (
     time: number,
     group: string,
     name: string,
-    year?: number,
+    year: number,
     amounts?: readonly VariantAmount[],
     user?: string
 ) => Promise<void> {
@@ -18,7 +18,7 @@ export function useUpdateHistory(): (
             time: number,
             group: string,
             name: string,
-            year?: number,
+            year: number,
             amounts?: readonly VariantAmount[],
             user?: string
         ): Promise<void> => {

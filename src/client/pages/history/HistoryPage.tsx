@@ -16,7 +16,12 @@ import type { History } from '~/types/data';
 
 export function HistoryPage() {
     const deleteHistory = useDeleteHistory();
-    const handleDelete = ({ time, group, name, year, user }: History) => deleteHistory(time, group, name, year, user);
+    const handleDelete = ({ time, group, name, year, user }: History) => {
+        if (year === undefined) {
+            return;
+        }
+        return deleteHistory(time, group, name, year, user);
+    };
 
     return (
         <YearFilterWrapper>

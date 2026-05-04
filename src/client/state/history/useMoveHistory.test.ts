@@ -16,13 +16,13 @@ describe('useMoveHistory', () => {
 
     it('calls move action with newGroup', async () => {
         const { result } = renderHook(() => useMoveHistory(), { wrapper: MockRedux });
-        await result.current(1234567890, 'Uogienės', 'Avietės', undefined, 'Daržovės');
+        await result.current(1234567890, 'Uogienės', 'Avietės', 22, 'Daržovės');
 
         expect(request).toHaveBeenCalledWith(ApiUrl.HistoryMove, {
             time: 1234567890,
             group: 'Uogienės',
             name: 'Avietės',
-            year: undefined,
+            year: 22,
             newGroup: 'Daržovės',
             newName: undefined,
             newYear: undefined,
@@ -61,35 +61,35 @@ describe('useMoveHistory', () => {
 
     it('does not call move action with falsy time', async () => {
         const { result } = renderHook(() => useMoveHistory(), { wrapper: MockRedux });
-        await result.current(0, 'Uogienės', 'Avietės', undefined, 'Daržovės');
+        await result.current(0, 'Uogienės', 'Avietės', 22, 'Daržovės');
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call move action with empty group', async () => {
         const { result } = renderHook(() => useMoveHistory(), { wrapper: MockRedux });
-        await result.current(1234567890, '', 'Avietės', undefined, 'Daržovės');
+        await result.current(1234567890, '', 'Avietės', 22, 'Daržovės');
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call move action with empty name', async () => {
         const { result } = renderHook(() => useMoveHistory(), { wrapper: MockRedux });
-        await result.current(1234567890, 'Uogienės', '', undefined, 'Daržovės');
+        await result.current(1234567890, 'Uogienės', '', 22, 'Daržovės');
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call move action without newGroup, newName or newYear', async () => {
         const { result } = renderHook(() => useMoveHistory(), { wrapper: MockRedux });
-        await result.current(1234567890, 'Uogienės', 'Avietės');
+        await result.current(1234567890, 'Uogienės', 'Avietės', 22);
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call move action when newGroup equals group', async () => {
         const { result } = renderHook(() => useMoveHistory(), { wrapper: MockRedux });
-        await result.current(1234567890, 'Uogienės', 'Avietės', undefined, 'Uogienės');
+        await result.current(1234567890, 'Uogienės', 'Avietės', 22, 'Uogienės');
 
         expect(request).not.toHaveBeenCalled();
     });

@@ -1,6 +1,6 @@
 import { NumberInput, Select, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';
@@ -51,7 +51,9 @@ export function ActiveValueBox(): React.ReactElement | null {
         },
     });
     const formRef = useRef(form);
-    formRef.current = form;
+    useLayoutEffect(() => {
+        formRef.current = form;
+    });
 
     const group = form.values.group;
     const products = useProducts();
@@ -69,13 +71,10 @@ export function ActiveValueBox(): React.ReactElement | null {
 
     const handleSubmit = useCallback(
         async (changed: readonly VariantAmount[]): Promise<void> => {
-            console.info(`[DEV]`, { amounts: data.amounts, changed });
             return;
 
             if (data) {
                 const { group: nextGroup, name: nextName, year: nextYear } = formRef.current.values;
-
-                console.info(`[DEV] ???`, changed);
 
                 if (changed !== undefined) {
                     const validation = formRef.current.validate();

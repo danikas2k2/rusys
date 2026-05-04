@@ -119,25 +119,6 @@ export interface ApiUpdateProduct extends ApiRequestProduct, ApiRequestYear {
     user?: string;
 }
 
-export interface ApiMoveProductsHistoryEntry {
-    group: string;
-    name: string;
-    time: number;
-    year: number;
-    newGroup: string;
-    newName: string;
-    newYear: number;
-}
-
-export interface ApiDeleteProductsHistoryEntry extends ApiRequestProduct, ApiRequestYear {
-    time: number;
-}
-
-export interface ApiUpdateProductsHistoryEntry extends ApiDeleteProductsHistoryEntry {
-    amounts: readonly VariantAmount[];
-    user?: string;
-}
-
 export interface ApiSummary {
     years: readonly number[];
     summary: readonly Summary[];
@@ -209,9 +190,8 @@ export interface ApiHistory {
     history: readonly History[];
 }
 
-export interface ApiRequestHistory extends ApiRequestProduct {
+export interface ApiRequestHistory extends ApiRequestProduct, ApiRequestYear {
     time: number;
-    year?: number;
     user?: string;
 }
 

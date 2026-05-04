@@ -17,13 +17,13 @@ describe('useUpdateHistory', () => {
 
     it('calls update action with required params', async () => {
         const { result } = renderHook(() => useUpdateHistory(), { wrapper: MockRedux });
-        await result.current(1234567890, 'Uogienės', 'Avietės');
+        await result.current(1234567890, 'Uogienės', 'Avietės', 22);
 
         expect(request).toHaveBeenCalledWith(ApiUrl.HistoryUpdate, {
             time: 1234567890,
             group: 'Uogienės',
             name: 'Avietės',
-            year: undefined,
+            year: 22,
             amounts: undefined,
             user: undefined,
         });
@@ -46,21 +46,21 @@ describe('useUpdateHistory', () => {
 
     it('does not call update action with falsy time', async () => {
         const { result } = renderHook(() => useUpdateHistory(), { wrapper: MockRedux });
-        await result.current(0, 'Uogienės', 'Avietės');
+        await result.current(0, 'Uogienės', 'Avietės', 22);
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call update action with empty group', async () => {
         const { result } = renderHook(() => useUpdateHistory(), { wrapper: MockRedux });
-        await result.current(1234567890, '', 'Avietės');
+        await result.current(1234567890, '', 'Avietės', 22);
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call update action with empty name', async () => {
         const { result } = renderHook(() => useUpdateHistory(), { wrapper: MockRedux });
-        await result.current(1234567890, 'Uogienės', '');
+        await result.current(1234567890, 'Uogienės', '', 22);
 
         expect(request).not.toHaveBeenCalled();
     });

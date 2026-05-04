@@ -7,7 +7,7 @@ export function useMoveHistory(): (
     time: number,
     group: string,
     name: string,
-    year?: number,
+    year: number,
     newGroup?: string,
     newName?: string,
     newYear?: number
@@ -18,7 +18,7 @@ export function useMoveHistory(): (
             time: number,
             group: string,
             name: string,
-            year?: number | undefined,
+            year: number,
             newGroup?: string,
             newName?: string,
             newYear?: number

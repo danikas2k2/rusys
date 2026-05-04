@@ -315,12 +315,7 @@ export async function getHistorySessions(year: number, gapMs: number = HISTORY_S
         .toArray();
 }
 
-export async function deleteProductsHistoryEntry(
-    group: string,
-    name: string,
-    time: number,
-    year: number
-): Promise<boolean> {
+export async function deleteHistory(group: string, name: string, time: number, year: number): Promise<boolean> {
     if (!group || !name || !time || !year) {
         return false;
     }
@@ -330,12 +325,12 @@ export async function deleteProductsHistoryEntry(
         .then(hasEffect);
 }
 
-export async function updateProductsHistoryEntry(
+export async function updateHistory(
     group: string,
     name: string,
     time: number,
     year: number,
-    amounts: readonly VariantAmount[],
+    amounts?: readonly VariantAmount[],
     user?: string
 ): Promise<boolean> {
     if (!group || !name || !time || !year) {
@@ -402,7 +397,7 @@ export async function updateProductsHistoryEntry(
         .then(hasEffect);
 }
 
-export async function moveProductsHistoryEntry(
+export async function moveHistory(
     group: string,
     name: string,
     time: number,

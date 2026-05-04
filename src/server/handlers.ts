@@ -4,14 +4,14 @@ import { handleClientId } from '~/server/api/handleClientId';
 import { handleCopyVariant } from '~/server/api/handleCopyVariant';
 import { handleDelete } from '~/server/api/handleDelete';
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
-import { handleDeleteProductsHistory } from '~/server/api/handleDeleteProductsHistory';
+import { handleDeleteHistory } from '~/server/api/handleDeleteHistory';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { handleExport } from '~/server/api/handleExport';
 import { handleGroups } from '~/server/api/handleGroups';
 import { handleHistory } from '~/server/api/handleHistory';
 import { handleImport } from '~/server/api/handleImport';
 import { handleMove } from '~/server/api/handleMove';
-import { handleMoveProductsHistory } from '~/server/api/handleMoveProductsHistory';
+import { handleMoveHistory } from '~/server/api/handleMoveHistory';
 import { handleProducts } from '~/server/api/handleProducts';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
@@ -22,8 +22,8 @@ import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { handleSummary } from '~/server/api/handleSummary';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
+import { handleUpdateHistory } from '~/server/api/handleUpdateHistory';
 import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
-import { handleUpdateProductsHistory } from '~/server/api/handleUpdateProductsHistory';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
 import { handleUserProfiles } from '~/server/api/handleUserProfiles';
@@ -42,9 +42,9 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.ProductsAdd]: handleAdd,
     [ApiUrl.ProductsUpdate]: handleUpdateProduct,
     [ApiUrl.History]: handleHistory,
-    [ApiUrl.HistoryUpdate]: handleUpdateProductsHistory,
-    [ApiUrl.HistoryDelete]: handleDeleteProductsHistory,
-    [ApiUrl.HistoryMove]: handleMoveProductsHistory,
+    [ApiUrl.HistoryUpdate]: handleUpdateHistory,
+    [ApiUrl.HistoryDelete]: handleDeleteHistory,
+    [ApiUrl.HistoryMove]: handleMoveHistory,
     [ApiUrl.ProductsSetRemoving]: handleSetRemoving,
     [ApiUrl.ProductsSetMissing]: handleSetMissing,
     [ApiUrl.ProductsRename]: handleRename,
