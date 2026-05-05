@@ -531,4 +531,83 @@ describe('<ProductCell>', () => {
             expect(setActive).not.toHaveBeenCalled();
         });
     });
+
+    describe('preferred logic', () => {
+        const thisYear = 26;
+        const prevYear = 25;
+        it('preferred is true for previous year if it exists and not removing', () => {
+            const product = {
+                ...defaultProduct,
+                years: [
+                    { year: thisYear, amounts: [{ variant: 'p', amount: 1 }], removing: false },
+                    { year: prevYear, amounts: [{ variant: 'p', amount: 1 }], removing: false },
+                ],
+            };
+            render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell product={product} year={prevYear} />
+                                <ProductCell product={product} year={thisYear} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+            const cells = screen.getAllByRole('cell');
+            expect(cells[0]).toHaveAttribute('data-preferred', 'true'); // 25
+            expect(cells[1]).toHaveAttribute('data-preferred', 'false'); // 26
+        });
+
+        it('preferred is true for current year if previous year is missing or all removing', () => {
+            const product = {
+                ...defaultProduct,
+                years: [
+                    { year: thisYear, amounts: [{ variant: 'p', amount: 1 }], removing: false },
+                    { year: prevYear, amounts: [{ variant: 'p', amount: 1 }], removing: true },
+                ],
+            };
+            render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell product={product} year={prevYear} />
+                                <ProductCell product={product} year={thisYear} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+            const cells = screen.getAllByRole('cell');
+            expect(cells[0]).toHaveAttribute('data-preferred', 'false'); // 25
+            expect(cells[1]).toHaveAttribute('data-preferred', 'true'); // 26
+        });
+
+        it('preferred is false if neither previous nor current year is valid', () => {
+            const product = {
+                ...defaultProduct,
+                years: [
+                    { year: thisYear, amounts: [], removing: false },
+                    { year: prevYear, amounts: [], removing: false },
+                ],
+            };
+            render(
+                <MockApp>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell product={product} year={prevYear} />
+                                <ProductCell product={product} year={thisYear} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+            const cells = screen.getAllByRole('cell');
+            expect(cells[0]).toHaveAttribute('data-preferred', 'false');
+            expect(cells[1]).toHaveAttribute('data-preferred', 'false');
+        });
+    });
 });

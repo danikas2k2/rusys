@@ -29,20 +29,31 @@ export function ProductCell({ product, year = 0, last = false, span }: ProductCe
         [year, years]
     );
 
-    const thisYear = new Date().getFullYear();
-    const prevYear = thisYear - 1;
+    // Metai duomenyse yra dviejų skaitmenų formatu (pvz., 26)
+    const thisYear = new Date().getFullYear() % 100;
     const preferred = useMemo(() => {
-        if (!year || removing || !amounts?.length) {
+        if (!year || removing || !amounts?.length || !years?.length) {
             return false;
         }
-        if (year === thisYear) {
-            return !years?.some((v) => v.year === prevYear && !!v.amounts?.length && !v.removing);
+        let maxOlderYear = -1;
+        let hasThisYear = false;
+        for (const y of years) {
+            if (!y.amounts?.length || y.removing) {
+                continue;
+            }
+            if (y.year < thisYear && y.year > maxOlderYear) {
+                maxOlderYear = y.year;
+            }
+            if (y.year === thisYear) {
+                hasThisYear = true;
+            }
         }
-        if (year === prevYear) {
-            return true;
-        }
-        return !years?.some((v) => v.year > year && !!v.amounts?.length && !v.removing);
-    }, [amounts?.length, prevYear, removing, thisYear, year, years]);
+        return maxOlderYear !== -1 ? year === maxOlderYear : year === thisYear && hasThisYear;
+    }, [amounts?.length, removing, thisYear, year, years]);
+
+    // if (name === 'Rugštynės') {
+    //     console.info(`[DEV]`, name, year, years, preferred);
+    // }
 
     const [, setActive] = useActiveContent<ProductAmountsType>();
     const setRemoving = useSetProductRemoving();
