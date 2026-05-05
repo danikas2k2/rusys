@@ -12,7 +12,7 @@ module.exports = {
       },
     },
     {
-      files: ['package.json'],
+      files: ['package.json', 'tsconfig.json'],
       options: {
         tabWidth: 4,
       },
