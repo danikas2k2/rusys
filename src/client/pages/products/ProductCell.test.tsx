@@ -7,7 +7,7 @@ import React from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';
-import { ProductCell, type ProductCellProps } from '~/client/pages/products/ProductCell';
+import { isPreferred, ProductCell, type ProductCellProps } from '~/client/pages/products/ProductCell';
 import { useProductUpdating } from '~/client/pages/products/UpdatingProductsContext';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 
@@ -535,6 +535,7 @@ describe('<ProductCell>', () => {
     describe('preferred logic', () => {
         const thisYear = 26;
         const prevYear = 25;
+
         it('preferred is true for previous year if it exists and not removing', () => {
             const product = {
                 ...defaultProduct,
@@ -543,6 +544,7 @@ describe('<ProductCell>', () => {
                     { year: prevYear, amounts: [{ variant: 'p', amount: 1 }], removing: false },
                 ],
             };
+
             render(
                 <MockApp>
                     <Table>
@@ -555,9 +557,11 @@ describe('<ProductCell>', () => {
                     </Table>
                 </MockApp>
             );
-            const cells = screen.getAllByRole('cell');
-            expect(cells[0]).toHaveAttribute('data-preferred', 'true'); // 25
-            expect(cells[1]).toHaveAttribute('data-preferred', 'false'); // 26
+
+            const [first, second] = screen.getAllByRole('cell');
+
+            expect(first).toHaveAttribute('data-preferred', 'true'); // 25
+            expect(second).toHaveAttribute('data-preferred', 'false'); // 26
         });
 
         it('preferred is true for current year if previous year is missing or all removing', () => {
@@ -568,6 +572,7 @@ describe('<ProductCell>', () => {
                     { year: prevYear, amounts: [{ variant: 'p', amount: 1 }], removing: true },
                 ],
             };
+
             render(
                 <MockApp>
                     <Table>
@@ -580,9 +585,11 @@ describe('<ProductCell>', () => {
                     </Table>
                 </MockApp>
             );
-            const cells = screen.getAllByRole('cell');
-            expect(cells[0]).toHaveAttribute('data-preferred', 'false'); // 25
-            expect(cells[1]).toHaveAttribute('data-preferred', 'true'); // 26
+
+            const [first, second] = screen.getAllByRole('cell');
+
+            expect(first).toHaveAttribute('data-preferred', 'false'); // 25
+            expect(second).toHaveAttribute('data-preferred', 'true'); // 26
         });
 
         it('preferred is false if neither previous nor current year is valid', () => {
@@ -593,6 +600,7 @@ describe('<ProductCell>', () => {
                     { year: prevYear, amounts: [], removing: false },
                 ],
             };
+
             render(
                 <MockApp>
                     <Table>
@@ -605,9 +613,71 @@ describe('<ProductCell>', () => {
                     </Table>
                 </MockApp>
             );
-            const cells = screen.getAllByRole('cell');
-            expect(cells[0]).toHaveAttribute('data-preferred', 'false');
-            expect(cells[1]).toHaveAttribute('data-preferred', 'false');
+
+            const [first, second] = screen.getAllByRole('cell');
+
+            expect(first).toHaveAttribute('data-preferred', 'false');
+            expect(second).toHaveAttribute('data-preferred', 'false');
+        });
+    });
+
+    describe('isPreferred', () => {
+        const thisYear = new Date().getFullYear() % 100;
+        const prevYear = thisYear - 1;
+        const nextYear = thisYear + 1;
+        const defaultAmounts = [{ variant: 'p', amount: 1 }];
+
+        it('returns true for previous year if it exists and not removing', () => {
+            const years = [
+                { year: thisYear, amounts: defaultAmounts, removing: false },
+                { year: prevYear, amounts: defaultAmounts, removing: false },
+            ];
+
+            expect(isPreferred(prevYear, years)).toBe(true);
+        });
+
+        it('returns true for current year if previous year is missing or all removing', () => {
+            const years = [
+                { year: thisYear, amounts: defaultAmounts, removing: false },
+                { year: prevYear, amounts: defaultAmounts, removing: true },
+            ];
+
+            expect(isPreferred(thisYear, years)).toBe(true);
+        });
+
+        it('returns false if neither previous nor current year is valid', () => {
+            const years = [
+                { year: thisYear, amounts: [], removing: false },
+                { year: prevYear, amounts: [], removing: false },
+            ];
+
+            expect(isPreferred(prevYear, years)).toBe(false);
+        });
+
+        it('returns true for the largest available year less than thisYear', () => {
+            const years = [
+                { year: thisYear - 2, amounts: defaultAmounts, removing: false },
+                { year: thisYear - 3, amounts: defaultAmounts, removing: false },
+                { year: thisYear - 4, amounts: defaultAmounts, removing: false },
+                { year: thisYear, amounts: defaultAmounts, removing: false },
+            ];
+
+            expect(isPreferred(thisYear - 2, years)).toBe(true);
+        });
+
+        it('returns true for current year if it is the only available', () => {
+            const years = [{ year: thisYear, amounts: defaultAmounts, removing: false }];
+
+            expect(isPreferred(thisYear, years)).toBe(true);
+        });
+
+        it('returns false for a year greater than thisYear', () => {
+            const years = [
+                { year: nextYear, amounts: defaultAmounts, removing: false },
+                { year: thisYear, amounts: defaultAmounts, removing: false },
+            ];
+
+            expect(isPreferred(nextYear, years)).toBe(false);
         });
     });
 });

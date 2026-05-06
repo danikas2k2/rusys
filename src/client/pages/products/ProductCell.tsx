@@ -19,6 +19,24 @@ export interface ProductCellProps {
     span?: number;
 }
 
+export function isPreferred(year: number, years: readonly RemovingYearAmounts[]): boolean {
+    const thisYear = new Date().getFullYear() % 100;
+    let maxOlderYear = -1;
+    let hasThisYear = false;
+    for (const y of years) {
+        if (!y.amounts?.length || y.removing) {
+            continue;
+        }
+        if (y.year < thisYear && y.year > maxOlderYear) {
+            maxOlderYear = y.year;
+        }
+        if (y.year === thisYear) {
+            hasThisYear = true;
+        }
+    }
+    return maxOlderYear !== -1 ? year === maxOlderYear : year === thisYear && hasThisYear;
+}
+
 export function ProductCell({ product, year = 0, last = false, span }: ProductCellProps) {
     const { group, name, years } = product;
     const { amounts, removing = false } = useMemo(
@@ -29,27 +47,10 @@ export function ProductCell({ product, year = 0, last = false, span }: ProductCe
         [year, years]
     );
 
-    // Metai duomenyse yra dviejų skaitmenų formatu (pvz., 26)
-    const thisYear = new Date().getFullYear() % 100;
-    const preferred = useMemo(() => {
-        if (!year || removing || !amounts?.length || !years?.length) {
-            return false;
-        }
-        let maxOlderYear = -1;
-        let hasThisYear = false;
-        for (const y of years) {
-            if (!y.amounts?.length || y.removing) {
-                continue;
-            }
-            if (y.year < thisYear && y.year > maxOlderYear) {
-                maxOlderYear = y.year;
-            }
-            if (y.year === thisYear) {
-                hasThisYear = true;
-            }
-        }
-        return maxOlderYear !== -1 ? year === maxOlderYear : year === thisYear && hasThisYear;
-    }, [amounts?.length, removing, thisYear, year, years]);
+    const preferred = useMemo(
+        () => (!year || removing || !amounts?.length || !years?.length ? false : isPreferred(year, years)),
+        [amounts?.length, removing, year, years]
+    );
 
     // if (name === 'Rugštynės') {
     //     console.info(`[DEV]`, name, year, years, preferred);
