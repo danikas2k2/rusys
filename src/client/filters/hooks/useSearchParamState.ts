@@ -1,25 +1,35 @@
-import { useCallback, useMemo } from 'react';
+import { useDebouncedCallback } from '@mantine/hooks';
+import { useCallback, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 type SearchParamState = [string, (value: string) => void];
 
 export function useSearchParamState(key: string, defaultValue = ''): SearchParamState {
     const [searchParams, setSearchParams] = useSearchParams();
-    const rawValue = searchParams.get(key);
-    const value = rawValue ?? defaultValue;
+    const [localValue, setLocalValue] = useState(() => searchParams.get(key) ?? defaultValue);
+
+    const flushToUrl = useDebouncedCallback((nextValue: string) => {
+        setSearchParams(
+            (prev) => {
+                const nextParams = new URLSearchParams(prev);
+                if (nextValue) {
+                    nextParams.set(key, nextValue);
+                } else {
+                    nextParams.delete(key);
+                }
+                return nextParams;
+            },
+            { replace: true }
+        );
+    }, 300);
 
     const setValue = useCallback(
         (nextValue: string) => {
-            const nextParams = new URLSearchParams(searchParams);
-            if (nextValue) {
-                nextParams.set(key, nextValue);
-            } else {
-                nextParams.delete(key);
-            }
-            setSearchParams(nextParams, { replace: true });
+            setLocalValue(nextValue);
+            flushToUrl(nextValue);
         },
-        [key, searchParams, setSearchParams]
+        [flushToUrl]
     );
 
-    return useMemo(() => [value, setValue], [value, setValue]);
+    return useMemo(() => [localValue, setValue], [localValue, setValue]);
 }

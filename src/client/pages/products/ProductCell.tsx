@@ -52,10 +52,6 @@ export function ProductCell({ product, year = 0, last = false, span }: ProductCe
         [amounts?.length, removing, year, years]
     );
 
-    // if (name === 'Rugštynės') {
-    //     console.info(`[DEV]`, name, year, years, preferred);
-    // }
-
     const [, setActive] = useActiveContent<ProductAmountsType>();
     const setRemoving = useSetProductRemoving();
     const updating = useProductUpdating({ group, name, year });
