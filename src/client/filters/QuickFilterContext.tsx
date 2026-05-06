@@ -10,6 +10,4 @@ export function QuickFilterWrapper({
     return <QuickFilterContext value={useState(initialState)}>{children}</QuickFilterContext>;
 }
 
-export function useQuickFilter() {
-    return use(QuickFilterContext);
-}
+export const useQuickFilter = () => use(QuickFilterContext);

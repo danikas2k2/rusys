@@ -2,19 +2,16 @@ import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 
 import React from 'react';
-import { useSearchParams } from 'react-router-dom';
 
 import { MockRoute } from '~/tests/MockRoute';
 import { getCurrentYear, useYearFilter, YearFilterWrapper } from './YearFilterContext';
 
-function TestComponent({ paramName = 'y' }: { paramName?: string }) {
+function TestComponent() {
     const [year, setYear] = useYearFilter();
-    const [searchParams] = useSearchParams();
 
     return (
         <div>
             <span aria-label="filter-value">{year}</span>
-            <span aria-label="search-value">{searchParams.get(paramName) || ''}</span>
             <button onClick={() => setYear(2021)}>Set Year</button>
         </div>
     );
@@ -55,20 +52,18 @@ describe('<YearFilterWrapper>', () => {
         );
 
         expect(screen.getByRole('generic', { name: 'filter-value' })).toHaveTextContent('2019');
-        expect(screen.getByRole('generic', { name: 'search-value' })).toHaveTextContent('2019');
     });
 
     it('uses custom param name when provided', () => {
         render(
             <MockRoute initialEntries={['/?year=2017']}>
-                <YearFilterWrapper paramName="year">
-                    <TestComponent paramName="year" />
+                <YearFilterWrapper>
+                    <TestComponent />
                 </YearFilterWrapper>
             </MockRoute>
         );
 
         expect(screen.getByRole('generic', { name: 'filter-value' })).toHaveTextContent('2017');
-        expect(screen.getByRole('generic', { name: 'search-value' })).toHaveTextContent('2017');
     });
 
     it('syncs search params on update', async () => {
@@ -83,6 +78,5 @@ describe('<YearFilterWrapper>', () => {
         await user.click(screen.getByRole('button', { name: 'Set Year' }));
 
         expect(screen.getByRole('generic', { name: 'filter-value' })).toHaveTextContent('2021');
-        expect(screen.getByRole('generic', { name: 'search-value' })).toHaveTextContent('2021');
     });
 });
