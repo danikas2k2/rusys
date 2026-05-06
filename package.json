@@ -27,7 +27,7 @@
         "assets:icons": "pwa-asset-generator public/assets/logo.svg public/assets --padding '1%' --type png --opaque false --icon-only --favicon --mstile --manifest ./public/manifest.json --path-override /assets --index ./templates/icons.html --xhtml",
         "assets:compress": "oxipng -o 4 public/assets/*.png",
         "build": "pnpm build:client && pnpm build:server",
-        "build:client": "vite build --config vite.client.config.ts --mode production",
+        "build:client": "NODE_ENV=production vite build --config vite.client.config.ts --mode production",
         "build:server": "vite build --config vite.server.config.ts --mode production",
         "deploy": "pnpm check && pnpm build && pnpm deploy:production",
         "deploy:production": "dotenv -e .env.deploy.local -- vite build --config vite.deploy.config.ts --mode production",

@@ -173,17 +173,7 @@ export default defineConfig(({ mode }) => {
                 jsxRuntime: 'automatic',
                 jsxImportSource: 'react',
                 babel: {
-                    plugins: [
-                        ['babel-plugin-react-compiler', { target: '19', development }],
-                        ...(development
-                            ? []
-                            : [
-                                  [
-                                      '@babel/plugin-transform-react-jsx',
-                                      { runtime: 'automatic', importSource: 'react', development },
-                                  ],
-                              ]),
-                    ],
+                    plugins: [['babel-plugin-react-compiler', { target: '19', development }]],
                 },
             }),
             svgr({ svgrOptions: {} }),
