@@ -78,9 +78,11 @@ describe('<QuickFilterWrapper>', () => {
         );
 
         await user.click(screen.getByRole('button', { name: 'Set Filter' }));
+
         expect(screen.getByRole('generic', { name: 'filter-value' })).toHaveTextContent('new filter');
 
         await user.click(screen.getByRole('button', { name: 'Clear Filter' }));
+
         expect(screen.getByRole('generic', { name: 'filter-value' })).toHaveTextContent('');
     });
 });
