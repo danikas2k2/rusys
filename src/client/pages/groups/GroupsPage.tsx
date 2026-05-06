@@ -14,7 +14,7 @@ export function GroupsPage() {
     const handleDelete = ({ group }: Group) => deleteGroup(group);
 
     return (
-        <QuickFilterWrapper paramName="qg">
+        <QuickFilterWrapper>
             <Page withAdd onDelete={handleDelete}>
                 <SwipeControlsWrapper>
                     <GroupsTable />

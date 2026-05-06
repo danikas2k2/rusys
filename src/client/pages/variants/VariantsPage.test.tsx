@@ -6,13 +6,6 @@ import React from 'react';
 
 import { VariantsPage } from './VariantsPage';
 
-// Mock all the complex context wrappers to avoid issues
-jest.mock('~/client/filters/GroupFilterContext', () => ({
-    GroupFilterWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-jest.mock('~/client/filters/QuickFilterContext', () => ({
-    QuickFilterWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
 jest.mock('~/client/common/SwipeControlsContext');
 
 // Mock the components

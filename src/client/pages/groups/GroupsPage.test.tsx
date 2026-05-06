@@ -14,10 +14,6 @@ jest.mock('~/client/common/SwipeControls', () => ({
 jest.mock('~/client/common/SwipeControlsContext', () => ({
     SwipeControlsWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-jest.mock('~/client/filters/QuickFilterContext', () => ({
-    QuickFilterWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-
 jest.mock('~/client/pages/groups/GroupsTable', () => ({
     GroupsTable: jest.fn(() => <div>GroupsTable</div>),
 }));

@@ -28,12 +28,6 @@ jest.mock('~/client/pages/products/ActiveProductBox', () => ({
 jest.mock('~/client/pages/products/ActiveValueBox', () => ({
     ActiveValueBox: () => null,
 }));
-jest.mock('~/client/filters/GroupFilterContext', () => ({
-    GroupFilterWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-jest.mock('~/client/filters/QuickFilterContext', () => ({
-    QuickFilterWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
 jest.mock('~/client/toolbar/ToolbarGroupFilter', () => ({
     ToolbarGroupFilter: () => null,
 }));
