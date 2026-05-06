@@ -36,6 +36,7 @@ export default defineConfig(({ mode }) => {
             emptyOutDir: true,
             sourcemap: false,
             minify: 'terser',
+            cssMinify: 'esbuild',
             terserOptions: {
                 compress: true,
                 mangle: true,
