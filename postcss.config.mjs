@@ -21,6 +21,85 @@ const alias = {
 
 const expr = new RegExp(`^(${Object.keys(alias).join('|')})/`);
 
+function splitAtCommaOrParen(char, str) {
+    let i = 0;
+    let depth = 0;
+    while (i < str.length && (str[i] !== char || depth)) {
+        if (str[i] === '(') depth++;
+        if (str[i] === ')') depth--;
+        i++;
+    }
+    return [str.slice(0, i), str.slice(i + 1)];
+}
+
+function parseLightDark(value) {
+    const fn = 'light-dark(';
+    const idx = value.indexOf(fn);
+    if (idx === -1) return { light: value, dark: value };
+    const prefix = value.slice(0, idx);
+    const rest = value.slice(idx + fn.length);
+    const [args, suffix] = splitAtCommaOrParen(')', rest);
+    const [lightRaw, darkRaw] = splitAtCommaOrParen(',', args);
+    const light = prefix + parseLightDark(lightRaw.trim()).light + parseLightDark(suffix).light;
+    const dark = prefix + parseLightDark(darkRaw.trim()).dark + parseLightDark(suffix).dark;
+    return { light, dark };
+}
+
+const SUPPORTS_LIGHT_DARK = '(color: light-dark(white, black))';
+
+const lightDarkFallback = () => ({
+    postcssPlugin: 'light-dark-fallback',
+    OnceExit(root, { postcss }) {
+        const rules = [];
+        root.walkRules((rule) => {
+            let node = rule.parent;
+            while (node) {
+                if (node.type === 'atrule' && node.name === 'supports' && node.params.includes('light-dark')) return;
+                node = node.parent;
+            }
+            rules.push(rule);
+        });
+        for (const rule of rules) {
+            const entries = [];
+            rule.walkDecls((decl) => {
+                if (!/\blight-dark\s*\(/.test(decl.value)) return;
+                entries.push({ decl, ...parseLightDark(decl.value) });
+            });
+            if (!entries.length) continue;
+
+            for (const { decl } of entries) decl.remove();
+
+            const supportsRule = rule.clone({ nodes: [] });
+            const supportsNotLightRule = rule.clone({ nodes: [] });
+            const supportsNotDarkRule = rule.clone({ nodes: [] });
+            for (const { decl, light, dark } of entries) {
+                supportsRule.append(decl.clone());
+                supportsNotLightRule.append(postcss.decl({ prop: decl.prop, value: light, important: decl.important }));
+                if (light !== dark) {
+                    supportsNotDarkRule.append(postcss.decl({ prop: decl.prop, value: dark, important: decl.important }));
+                }
+            }
+
+            const supports = postcss.atRule({ name: 'supports', params: SUPPORTS_LIGHT_DARK });
+            supports.append(supportsRule);
+
+            const lightMedia = postcss.atRule({ name: 'media', params: '(prefers-color-scheme: light)' });
+            lightMedia.append(supportsNotLightRule);
+            const supportsNot = postcss.atRule({ name: 'supports', params: `not ${SUPPORTS_LIGHT_DARK}` });
+            supportsNot.append(lightMedia);
+            if (supportsNotDarkRule.nodes.length) {
+                const darkMedia = postcss.atRule({ name: 'media', params: '(prefers-color-scheme: dark)' });
+                darkMedia.append(supportsNotDarkRule);
+                supportsNot.append(darkMedia);
+            }
+
+            rule.parent.insertAfter(rule, supports);
+            supports.parent.insertAfter(supports, supportsNot);
+        }
+    },
+});
+lightDarkFallback.postcss = true;
+
 // Minimal PostCSS 8-compatible stripper for inline (//) comments
 const stripInlineComments = () => ({
     postcssPlugin: 'strip-inline-comments-inline',
@@ -76,6 +155,7 @@ export default {
         }),
         stripInlineComments(),
         postcssNested(),
+        lightDarkFallback(),
         postcssPresetEnv({
             stage: 0,
             enableClientSidePolyfills: false,
