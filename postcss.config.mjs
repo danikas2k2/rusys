@@ -4,6 +4,7 @@ import postcssSimpleVars from 'postcss-simple-vars';
 import postcssNested from 'postcss-nested';
 import postcssPresetEnv from 'postcss-preset-env';
 import relativeColorSyntax from '@csstools/postcss-relative-color-syntax';
+import { relativeColorFallback } from './vite/plugins/relative-color-fallback.mjs';
 import autoprefixer from 'autoprefixer';
 import postcssPresetMantine from 'postcss-preset-mantine';
 import postcssScss from 'postcss-scss';
@@ -70,31 +71,14 @@ const lightDarkFallback = () => ({
             for (const { decl } of entries) decl.remove();
 
             const supportsRule = rule.clone({ nodes: [] });
-            const supportsNotLightRule = rule.clone({ nodes: [] });
-            const supportsNotDarkRule = rule.clone({ nodes: [] });
-            for (const { decl, light, dark } of entries) {
+            for (const { decl } of entries) {
                 supportsRule.append(decl.clone());
-                supportsNotLightRule.append(postcss.decl({ prop: decl.prop, value: light, important: decl.important }));
-                if (light !== dark) {
-                    supportsNotDarkRule.append(postcss.decl({ prop: decl.prop, value: dark, important: decl.important }));
-                }
             }
 
             const supports = postcss.atRule({ name: 'supports', params: SUPPORTS_LIGHT_DARK });
             supports.append(supportsRule);
-
-            const lightMedia = postcss.atRule({ name: 'media', params: '(prefers-color-scheme: light)' });
-            lightMedia.append(supportsNotLightRule);
-            const supportsNot = postcss.atRule({ name: 'supports', params: `not ${SUPPORTS_LIGHT_DARK}` });
-            supportsNot.append(lightMedia);
-            if (supportsNotDarkRule.nodes.length) {
-                const darkMedia = postcss.atRule({ name: 'media', params: '(prefers-color-scheme: dark)' });
-                darkMedia.append(supportsNotDarkRule);
-                supportsNot.append(darkMedia);
-            }
-
             rule.parent.insertAfter(rule, supports);
-            supports.parent.insertAfter(supports, supportsNot);
+            if (!rule.nodes.length) rule.remove();
         }
     },
 });
@@ -156,6 +140,7 @@ export default {
         stripInlineComments(),
         postcssNested(),
         lightDarkFallback(),
+        relativeColorFallback(),
         postcssPresetEnv({
             stage: 0,
             enableClientSidePolyfills: false,

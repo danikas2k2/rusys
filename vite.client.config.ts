@@ -6,6 +6,7 @@ import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
+import { cssFallback } from './vite/plugins/css-fallback';
 import { injectTags, parseTemplate } from './vite/plugins/parse-template';
 
 export default defineConfig(({ mode }) => {
@@ -51,7 +52,7 @@ export default defineConfig(({ mode }) => {
                     entryFileNames: 'assets/[name].js',
                     chunkFileNames: 'assets/[name].js',
                     assetFileNames: 'assets/[name].[ext]',
-                    manualChunks(id) {
+                    manualChunks(id: string) {
                         let pos = id.indexOf('node_modules/');
                         if (pos < 0) {
                             return undefined;
@@ -173,11 +174,13 @@ export default defineConfig(({ mode }) => {
             react({
                 jsxRuntime: 'automatic',
                 jsxImportSource: 'react',
-                babel: {
-                    plugins: [['babel-plugin-react-compiler', { target: '19', development }]],
-                },
             }),
             svgr({ svgrOptions: {} }),
+            cssFallback({
+                outDir: path.resolve(__dirname, 'dist/public'),
+                sourceFile: 'assets/index.css',
+                outputFile: 'assets/fallback.css',
+            }),
         ],
         server: {
             // Run Vite standalone server (dev mode only)

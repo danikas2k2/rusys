@@ -1,9 +1,9 @@
 {
     "extends": "@tsconfig/node24",
+    "references": [{ "path": "./tsconfig.node.json" }],
     "include": ["src/**/*"],
     "exclude": ["node_modules", "**/*.spec.ts"],
     "compilerOptions": {
-        "rootDir": "./src",
         "paths": {
             "package.json": ["./package.json"],
             "@tests/*": ["./src/tests/*"],

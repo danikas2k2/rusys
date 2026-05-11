@@ -1,0 +1,20 @@
+{
+    "extends": "@tsconfig/node24",
+    "include": [
+        "vite.config.ts",
+        "vite.client.config.ts",
+        "vite/*.ts",
+        "vite/plugins/*.ts"
+    ],
+    "compilerOptions": {
+        "composite": true,
+        "moduleResolution": "Bundler",
+        "module": "ESNext",
+        "target": "ESNext",
+        "lib": ["ESNext"],
+        "types": ["node"],
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true
+    }
+}
