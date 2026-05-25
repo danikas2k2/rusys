@@ -152,6 +152,7 @@
         "jest-matcher-utils": "^30.4.1",
         "jest-to-match-shape-of": "^1.3.2",
         "jest-transformer-svg": "^2.1.0",
+        "jiti": "^2.7.0",
         "jsdom": "^29.1.1",
         "mongodb-memory-server": "^11.1.0",
         "mongodb-memory-server-core": "^11.1.0",
