@@ -1,0 +1,27 @@
+allowBuilds:
+  mongodb-memory-server: true
+  unrs-resolver: true
+
+peerDependencyRules:
+  allowedVersions:
+    eslint: "10"
+    "@css-modules-kit/core>typescript": "6"
+
+overrides:
+  braces: "^3.0.3"
+  diff: "^9.0.0"
+  glob: "^13.0.6"
+  jsdom: "^29.1.1"
+  micromatch: "^4.0.8"
+  minimatch: "^10.2.5"
+  nth-check: "^3.0.1"
+  parse5: "^8.0.1"
+  postcss: "^8.5.13"
+  qs: "^6.15.1"
+  sane: "^5.0.1"
+  stylelint: "^17.10.0"
+  test-exclude: "^8.0.0"
+  tough-cookie: "^6.0.1"
+
+patchedDependencies:
+  eslint-plugin-react@7.37.5: patches/eslint-plugin-react@7.37.5.patch
