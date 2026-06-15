@@ -4,6 +4,7 @@
     "include": ["src/**/*", "jest/*.ts"],
     "exclude": ["node_modules", "**/*.spec.ts"],
     "compilerOptions": {
+        "rootDir": ".",
         "paths": {
             "package.json": ["./package.json"],
             "@tests/*": ["./src/tests/*"],
