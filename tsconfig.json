@@ -1,5 +1,5 @@
 {
-    "extends": "@tsconfig/node24",
+    "extends": "@tsconfig/node26",
     "references": [{ "path": "./tsconfig.node.json" }],
     "include": ["src/**/*"],
     "exclude": ["node_modules", "**/*.spec.ts"],

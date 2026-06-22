@@ -1,4 +1,9 @@
+import { createRequire } from 'module';
+
 import type { Config } from 'jest';
+
+// @ts-ignore
+const require = createRequire(import.meta.url);
 
 const base: Config = {
     moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
@@ -20,13 +25,34 @@ const base: Config = {
         '<rootDir>/jest/expect.ts',
     ],
     transform: {
-        '\\.[jt]sx?$': [
-            'babel-jest',
+        '\\.tsx$': [
+            require.resolve('babel-jest'),
             {
+                configFile: false,
                 presets: [
-                    ['@babel/preset-env', { targets: { node: 'current' }, modules: 'commonjs' }],
-                    ['@babel/preset-react', { runtime: 'automatic', importSource: 'react' }],
                     '@babel/preset-typescript',
+                    ['@babel/preset-react', { runtime: 'automatic', importSource: 'react' }],
+                    ['@babel/preset-env', { targets: { node: 'current' }, modules: 'commonjs' }],
+                ],
+            },
+        ],
+        '\\.[jt]s$': [
+            require.resolve('babel-jest'),
+            {
+                configFile: false,
+                presets: [
+                    '@babel/preset-typescript',
+                    ['@babel/preset-env', { targets: { node: 'current' }, modules: 'commonjs' }],
+                ],
+            },
+        ],
+        '\\.jsx$': [
+            require.resolve('babel-jest'),
+            {
+                configFile: false,
+                presets: [
+                    ['@babel/preset-react', { runtime: 'automatic', importSource: 'react' }],
+                    ['@babel/preset-env', { targets: { node: 'current' }, modules: 'commonjs' }],
                 ],
             },
         ],
