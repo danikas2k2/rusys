@@ -2,16 +2,7 @@ import axios from 'axios';
 import { useCallback } from 'react';
 
 export type RequestMethod =
-    | 'GET'
-    | 'HEAD'
-    | 'POST'
-    | 'PUT'
-    | 'DELETE'
-    | 'CONNECT'
-    | 'OPTIONS'
-    | 'TRACE'
-    | 'PATCH'
-    | 'MOVE';
+    'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'CONNECT' | 'OPTIONS' | 'TRACE' | 'PATCH' | 'MOVE';
 
 export function useApiRequest(): <R, D = object | string>(url: string, data?: D, method?: RequestMethod) => Promise<R> {
     return useCallback(async <R, D = object | string>(url: string, data?: D, method?: RequestMethod): Promise<R> => {

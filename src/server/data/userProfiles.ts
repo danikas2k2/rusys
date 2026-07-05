@@ -17,7 +17,9 @@ export async function upsertUserProfile(email: string, name?: string, picture?: 
         $set.picture = picture;
     }
 
-    const result = await (await db())
+    const result = await (
+        await db()
+    )
         .collection<UserProfile & { updatedAt: number }>('user_profiles')
         .updateOne({ email: cleanEmail }, { $set, $setOnInsert: { email: cleanEmail } }, { upsert: true });
 
