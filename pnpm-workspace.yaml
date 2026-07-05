@@ -17,10 +17,10 @@ overrides:
   minimatch: "^10.2.5"
   nth-check: "^3.0.1"
   parse5: "^8.0.1"
-  postcss: "^8.5.15"
-  qs: "^6.15.2"
+  postcss: ^8.5.16
+  qs: ^6.15.3
   sane: "^5.0.1"
-  stylelint: "^17.13.0"
+  stylelint: ^17.14.0
   test-exclude: "^8.0.0"
   tough-cookie: "^6.0.1"
 
