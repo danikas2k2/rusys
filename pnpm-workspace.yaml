@@ -22,7 +22,7 @@ overrides:
   sane: "^5.0.1"
   stylelint: ^17.14.0
   test-exclude: "^8.0.0"
-  tough-cookie: "^6.0.1"
+  tough-cookie: ^6.0.2
 
 patchedDependencies:
   eslint-plugin-react@7.37.5: patches/eslint-plugin-react@7.37.5.patch
