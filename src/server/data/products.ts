@@ -3,7 +3,7 @@ import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter } from 
 import { addVariantAmount, getCombinedAmounts } from '~/common/utils/amounts';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
-import type { Product, VariantAmount } from '~/types/data';
+import type { Product, Update, VariantAmount } from '~/types/data';
 
 export async function getProducts(years: readonly number[] = []): Promise<Product[]> {
     const col = (await db()).collection('products');
@@ -67,6 +67,51 @@ export const cleanupRecycled = ({ recycled, ...v }: VariantAmount): VariantAmoun
 
 export const hasAmount = (a: VariantAmount) => a.amount > 0;
 
+export function applyCorrectionsToUpdates(
+    existingUpdates: readonly Update[],
+    year: number,
+    corrections: readonly VariantAmount[]
+): readonly Update[] {
+    if (!corrections.length) {
+        return existingUpdates;
+    }
+
+    // remaining delta per variant (positive = need to reduce consumed/recycled amounts)
+    const remaining = new Map<string, number>(corrections.map((c) => [c.variant, c.amount]));
+
+    const result = [...existingUpdates].reverse().map((u) => {
+        const yi = u.years.findIndex((y) => y.year === year);
+        if (yi === -1) {
+            return u;
+        }
+
+        const yearEntry = u.years[yi];
+        const newAmounts = yearEntry.amounts
+            .map((a) => {
+                const delta = remaining.get(a.variant);
+                // only adjust negative amounts (consumed/recycled); skip positive (added inventory)
+                if (delta === undefined || delta === 0 || a.amount >= 0) {
+                    return a;
+                }
+                const newAmount = a.amount + delta;
+                // cap at 0: can't un-consume more than what's in this entry
+                const capped = Math.min(newAmount, 0);
+                remaining.set(a.variant, delta - (capped - a.amount));
+                return { ...a, amount: capped };
+            })
+            .filter((a) => a.amount !== 0);
+
+        const newYears =
+            newAmounts.length === 0
+                ? u.years.filter((_, i) => i !== yi)
+                : u.years.map((y, i) => (i === yi ? { ...y, amounts: newAmounts } : y));
+
+        return { ...u, years: newYears };
+    });
+
+    return result.reverse().filter((u) => u.years.length > 0);
+}
+
 export async function updateProduct(
     group: string,
     name: string,
@@ -81,44 +126,14 @@ export async function updateProduct(
     return withTransaction(async (session) => {
         const filter: UpdateFilter<Product> = { group, name };
 
-        const update = {
-            time: Date.now(),
-            user,
-            years: [
-                {
-                    year,
-                    amounts: changes.filter((v) => v.recycled != null).map(cleanupRecycled),
-                },
-            ],
-        };
+        const historyChanges = changes.filter((v) => v.recycled != null).map(cleanupRecycled);
+        const correctionChanges = changes.filter((v) => v.recycled == null);
 
-        // adding changes to updates
-        const operations: AnyBulkWriteOperation<Product>[] = [
-            {
-                updateOne: {
-                    filter,
-                    update: [
-                        {
-                            $set: {
-                                updates: {
-                                    $cond: [
-                                        { $isArray: '$updates' },
-                                        // add to existing updates
-                                        { $concatArrays: ['$updates', [update]] },
-                                        // create new updates
-                                        [update],
-                                    ],
-                                },
-                            },
-                        },
-                    ],
-                },
-            },
-        ];
+        const operations: AnyBulkWriteOperation<Product>[] = [];
 
         // calculates amount updates
         const col = (await db()).collection<Product>('products');
-        const product = await col.findOne(filter, { projection: { years: 1, missing: 1 }, session });
+        const product = await col.findOne(filter, { projection: { years: 1, missing: 1, updates: 1 }, session });
         const amounts =
             (year ? product?.years?.find((y) => y.year === year)?.amounts : getCombinedAmounts(product?.years)) ?? [];
         const updates = changes
@@ -128,6 +143,19 @@ export async function updateProduct(
             .filter(hasAmount)
             // remove recycled if not set
             .map(cleanupRecycled);
+
+        // build the new updates array: apply corrections to history, then append new history entry if any
+        const baseUpdates = correctionChanges.length
+            ? applyCorrectionsToUpdates(product?.updates ?? [], year, correctionChanges)
+            : product?.updates;
+
+        if (historyChanges.length) {
+            const newEntry = { time: Date.now(), user, years: [{ year, amounts: historyChanges }] };
+            const newUpdates = baseUpdates ? [...baseUpdates, newEntry] : [newEntry];
+            operations.push({ updateOne: { filter, update: { $set: { updates: newUpdates } } } });
+        } else if (correctionChanges.length) {
+            operations.push({ updateOne: { filter, update: { $set: { updates: baseUpdates ?? [] } } } });
+        }
 
         // no updates
         if (!updates.length) {

@@ -6,6 +6,7 @@ import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
 import { addVariantAmount } from '~/common/utils/amounts';
 import {
     addProduct,
+    applyCorrectionsToUpdates,
     deleteProduct,
     deleteProductsGroup,
     deleteProductsVariant,
@@ -287,6 +288,147 @@ describe('products', () => {
                     },
                 })
             );
+        });
+    });
+
+    describe('updateProduct corrections', () => {
+        type KopUpdates = { years: { year: number; amounts: { variant: string; amount: number }[] }[] }[];
+
+        const getKopUpdates = async (): Promise<KopUpdates> => {
+            const all = (await $all('products')) as { updates?: KopUpdates }[];
+            return all[3].updates ?? [];
+        };
+
+        it('corrects last history entry when updated type reduces consumed amount', async () => {
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -3, recycled: false }], user);
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: 2 }], user);
+
+            const kopUpdates = await getKopUpdates();
+
+            expect(kopUpdates).toHaveLength(1);
+            expect(kopUpdates[0].years[0].amounts[0].amount).toBe(-1);
+        });
+
+        it('spans correction across multiple history entries when one is not enough', async () => {
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -1, recycled: false }], user);
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -1, recycled: false }], user);
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: 3 }], user);
+
+            const kopUpdates = await getKopUpdates();
+
+            expect(kopUpdates).toHaveLength(0);
+        });
+
+        it('removes history entry when correction zeros out all amounts', async () => {
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -2, recycled: false }], user);
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: 2 }], user);
+
+            const kopUpdates = await getKopUpdates();
+
+            expect(kopUpdates).toHaveLength(0);
+        });
+
+        it('does not affect other year entries in the same history record', async () => {
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -3, recycled: false }], user);
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: 1 }], user);
+
+            const kopUpdates = await getKopUpdates();
+
+            expect(kopUpdates[0].years[0].amounts[0].amount).toBe(-2);
+        });
+
+        it('does not touch consumed/recycled entries for a different variant', async () => {
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -3, recycled: false }], user);
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'd', amount: 2 }], user);
+
+            const kopUpdates = await getKopUpdates();
+
+            expect(kopUpdates[0].years[0].amounts[0]).toStrictEqual({ variant: 'p', amount: -3 });
+        });
+    });
+
+    describe('applyCorrectionsToUpdates', () => {
+        const makeUpdate = (
+            t: number,
+            year: number,
+            amounts: { variant: string; amount: number; recycled?: boolean }[]
+        ) => ({
+            time: t,
+            years: [{ year, amounts }],
+        });
+
+        it('returns unchanged updates when no corrections', () => {
+            const updates = [makeUpdate(1, 21, [{ variant: 'p', amount: -3 }])];
+
+            expect(applyCorrectionsToUpdates(updates, 21, [])).toStrictEqual(updates);
+        });
+
+        it('reduces consumed amount in last entry', () => {
+            const updates = [makeUpdate(1, 21, [{ variant: 'p', amount: -5 }])];
+            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: 3 }]);
+
+            expect(result[0].years[0].amounts[0].amount).toBe(-2);
+        });
+
+        it('removes update entry when correction zeros out all amounts in its year', () => {
+            const updates = [makeUpdate(1, 21, [{ variant: 'p', amount: -3 }])];
+            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: 3 }]);
+
+            expect(result).toHaveLength(0);
+        });
+
+        it('spans correction across multiple entries newest-first', () => {
+            const updates = [
+                makeUpdate(1, 21, [{ variant: 'p', amount: -2 }]),
+                makeUpdate(2, 21, [{ variant: 'p', amount: -3 }]),
+            ];
+            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: 4 }]);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].years[0].amounts[0].amount).toBe(-1);
+        });
+
+        it('does not affect entries for a different year', () => {
+            const updates = [
+                makeUpdate(1, 20, [{ variant: 'p', amount: -2 }]),
+                makeUpdate(2, 21, [{ variant: 'p', amount: -3 }]),
+            ];
+            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: 3 }]);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].years[0].year).toBe(20);
+        });
+
+        it('does not affect a different variant', () => {
+            const updates = [
+                makeUpdate(1, 21, [
+                    { variant: 'p', amount: -3 },
+                    { variant: 'd', amount: -2 },
+                ]),
+            ];
+            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: 3 }]);
+
+            expect(result[0].years[0].amounts).toStrictEqual([{ variant: 'd', amount: -2 }]);
+        });
+
+        it('adds to last entry for negative correction (increasing consumed)', () => {
+            const updates = [makeUpdate(1, 21, [{ variant: 'p', amount: -3 }])];
+            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: -2 }]);
+
+            expect(result[0].years[0].amounts[0].amount).toBe(-5);
+        });
+
+        it('returns unchanged if no entries for that year', () => {
+            const updates = [makeUpdate(1, 20, [{ variant: 'p', amount: -3 }])];
+            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: 2 }]);
+
+            expect(result).toStrictEqual(updates);
+        });
+
+        it('returns empty when no existing updates', () => {
+            const result = applyCorrectionsToUpdates([], 21, [{ variant: 'p', amount: 2 }]);
+
+            expect(result).toStrictEqual([]);
         });
     });
 
