@@ -41,12 +41,17 @@ export interface RemovingYearAmounts extends YearAmounts {
     removing?: boolean;
 }
 
+export interface ProductHistoryMeta {
+    year: number;
+}
+
 export interface Product {
     group: string;
     name: string;
     years?: readonly RemovingYearAmounts[];
     missing?: boolean;
-    updates?: readonly Update[];
+    updates?: readonly Update[] | readonly ProductHistoryMeta[];
+    undates?: readonly Update[] | readonly ProductHistoryMeta[];
 }
 
 export interface ProductAmounts extends GroupAmounts {

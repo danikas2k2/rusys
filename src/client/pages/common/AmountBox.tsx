@@ -1,5 +1,5 @@
-import { Button, Center, Flex, Group, Modal, type ModalProps } from '@mantine/core';
-import { IconCheck, IconChevronDown, IconX } from '@tabler/icons-react';
+import { ActionIcon, Button, Center, Flex, Group, Modal, type ModalProps } from '@mantine/core';
+import { IconArrowBackUp, IconArrowForwardUp, IconCheck, IconChevronDown, IconX } from '@tabler/icons-react';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import { Label } from '~/client/common/Label';
@@ -19,6 +19,10 @@ export interface AmountBoxProps extends GroupAmounts, Pick<ModalProps, 'title'> 
     onClose?: () => void;
     onAfterClose?: () => void;
     onSubmit?: (changes: readonly VariantAmount[]) => void;
+    onUndo?: () => void;
+    onRedo?: () => void;
+    canUndo?: boolean;
+    canRedo?: boolean;
 }
 
 type UpdatingAmounts = Record<UpdateTypes, readonly VariantAmount[]>;
@@ -37,6 +41,10 @@ export function AmountBox({
     onSubmit,
     onClose,
     onAfterClose,
+    onUndo,
+    onRedo,
+    canUndo = false,
+    canRedo = false,
     children,
 }: React.PropsWithChildren<AmountBoxProps>) {
     const _ = useLabels();
@@ -188,15 +196,38 @@ export function AmountBox({
 
                 <div className="footer">
                     <Group justify="center">
-                        <Button
+                        {(canUndo || canRedo) && (
+                            <ActionIcon.Group>
+                                <ActionIcon
+                                    variant="default"
+                                    size="lg"
+                                    aria-label="Undo"
+                                    onClick={onUndo}
+                                    disabled={!canUndo}
+                                >
+                                    <IconArrowBackUp size={18} />
+                                </ActionIcon>
+                                <ActionIcon
+                                    variant="default"
+                                    size="lg"
+                                    aria-label="Redo"
+                                    onClick={onRedo}
+                                    disabled={!canRedo}
+                                >
+                                    <IconArrowForwardUp size={18} />
+                                </ActionIcon>
+                            </ActionIcon.Group>
+                        )}
+                        <ActionIcon
                             type="reset"
                             variant="outline"
                             color="gray"
-                            leftSection={<IconX size={18} />}
+                            size="lg"
+                            aria-label="Cancel"
                             onClick={handleClose}
                         >
-                            <Label>Cancel</Label>
-                        </Button>
+                            <IconX size={18} />
+                        </ActionIcon>
                         <Button type="submit" leftSection={<IconCheck size={18} />}>
                             <Label>Update</Label>
                         </Button>

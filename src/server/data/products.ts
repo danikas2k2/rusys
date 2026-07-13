@@ -3,11 +3,11 @@ import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter } from 
 import { addVariantAmount, getCombinedAmounts } from '~/common/utils/amounts';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
-import type { Product, Update, VariantAmount } from '~/types/data';
+import type { Product, VariantAmount } from '~/types/data';
 
 export async function getProducts(years: readonly number[] = []): Promise<Product[]> {
     const col = (await db()).collection('products');
-    const filter: Filter<Product> = years.length
+    const match: Filter<Product> = years.length
         ? {
               $or: [
                   { years: { $exists: false } },
@@ -17,7 +17,55 @@ export async function getProducts(years: readonly number[] = []): Promise<Produc
           }
         : {};
     return col
-        .find(filter, { projection: { _id: 0, updates: 0, removes: 0 }, sort: { group: 1, name: 1, 'years.year': 1 } })
+        .aggregate<Product>([
+            { $match: match },
+            {
+                $project: {
+                    _id: 0,
+                    group: 1,
+                    name: 1,
+                    years: 1,
+                    missing: 1,
+                    updates: {
+                        $cond: [
+                            { $gt: [{ $size: { $ifNull: ['$updates', []] } }, 0] },
+                            {
+                                $reduce: {
+                                    input: '$updates',
+                                    initialValue: [],
+                                    in: {
+                                        $setUnion: [
+                                            '$$value',
+                                            { $map: { input: '$$this.years', as: 'y', in: { year: '$$y.year' } } },
+                                        ],
+                                    },
+                                },
+                            },
+                            '$$REMOVE',
+                        ],
+                    },
+                    undates: {
+                        $cond: [
+                            { $gt: [{ $size: { $ifNull: ['$undates', []] } }, 0] },
+                            {
+                                $reduce: {
+                                    input: '$undates',
+                                    initialValue: [],
+                                    in: {
+                                        $setUnion: [
+                                            '$$value',
+                                            { $map: { input: '$$this.years', as: 'y', in: { year: '$$y.year' } } },
+                                        ],
+                                    },
+                                },
+                            },
+                            '$$REMOVE',
+                        ],
+                    },
+                },
+            },
+            { $sort: { group: 1, name: 1, 'years.year': 1 } },
+        ])
         .toArray();
 }
 
@@ -67,51 +115,6 @@ export const cleanupRecycled = ({ recycled, ...v }: VariantAmount): VariantAmoun
 
 export const hasAmount = (a: VariantAmount) => a.amount > 0;
 
-export function applyCorrectionsToUpdates(
-    existingUpdates: readonly Update[],
-    year: number,
-    corrections: readonly VariantAmount[]
-): readonly Update[] {
-    if (!corrections.length) {
-        return existingUpdates;
-    }
-
-    // remaining delta per variant (positive = need to reduce consumed/recycled amounts)
-    const remaining = new Map<string, number>(corrections.map((c) => [c.variant, c.amount]));
-
-    const result = [...existingUpdates].reverse().map((u) => {
-        const yi = u.years.findIndex((y) => y.year === year);
-        if (yi === -1) {
-            return u;
-        }
-
-        const yearEntry = u.years[yi];
-        const newAmounts = yearEntry.amounts
-            .map((a) => {
-                const delta = remaining.get(a.variant);
-                // only adjust negative amounts (consumed/recycled); skip positive (added inventory)
-                if (delta === undefined || delta === 0 || a.amount >= 0) {
-                    return a;
-                }
-                const newAmount = a.amount + delta;
-                // cap at 0: can't un-consume more than what's in this entry
-                const capped = Math.min(newAmount, 0);
-                remaining.set(a.variant, delta - (capped - a.amount));
-                return { ...a, amount: capped };
-            })
-            .filter((a) => a.amount !== 0);
-
-        const newYears =
-            newAmounts.length === 0
-                ? u.years.filter((_, i) => i !== yi)
-                : u.years.map((y, i) => (i === yi ? { ...y, amounts: newAmounts } : y));
-
-        return { ...u, years: newYears };
-    });
-
-    return result.reverse().filter((u) => u.years.length > 0);
-}
-
 export async function updateProduct(
     group: string,
     name: string,
@@ -125,46 +128,26 @@ export async function updateProduct(
 
     return withTransaction(async (session) => {
         const filter: UpdateFilter<Product> = { group, name };
-
-        const historyChanges = changes.filter((v) => v.recycled != null).map(cleanupRecycled);
-        const correctionChanges = changes.filter((v) => v.recycled == null);
-
         const operations: AnyBulkWriteOperation<Product>[] = [];
 
-        // calculates amount updates
         const col = (await db()).collection<Product>('products');
         const product = await col.findOne(filter, { projection: { years: 1, missing: 1, updates: 1 }, session });
         const amounts =
             (year ? product?.years?.find((y) => y.year === year)?.amounts : getCombinedAmounts(product?.years)) ?? [];
-        const updates = changes
-            // update amounts
-            .reduce(addVariantAmount, amounts)
-            // remove invalid amounts
-            .filter(hasAmount)
-            // remove recycled if not set
-            .map(cleanupRecycled);
+        const updates = changes.reduce(addVariantAmount, amounts).filter(hasAmount).map(cleanupRecycled);
 
-        // build the new updates array: apply corrections to history, then append new history entry if any
-        const baseUpdates = correctionChanges.length
-            ? applyCorrectionsToUpdates(product?.updates ?? [], year, correctionChanges)
-            : product?.updates;
-
-        if (historyChanges.length) {
-            const newEntry = { time: Date.now(), user, years: [{ year, amounts: historyChanges }] };
-            const newUpdates = baseUpdates ? [...baseUpdates, newEntry] : [newEntry];
-            operations.push({ updateOne: { filter, update: { $set: { updates: newUpdates } } } });
-        } else if (correctionChanges.length) {
-            operations.push({ updateOne: { filter, update: { $set: { updates: baseUpdates ?? [] } } } });
-        }
+        // save all change types (consumed=recycled:false, recycled=recycled:true, updated=no recycled field)
+        const historyAmounts = changes.map(cleanupRecycled);
+        const newEntry = { time: Date.now(), user, years: [{ year, amounts: historyAmounts }] };
+        const newUpdates = [...(product?.updates ?? []), newEntry];
+        // clear undates on new update
+        operations.push({ updateOne: { filter, update: { $set: { updates: newUpdates }, $unset: { undates: 1 } } } });
 
         // no updates
         if (!updates.length) {
-            // and currently no amounts
             if (!amounts.length) {
-                // do nothing
                 return false;
             }
-            // remove year
             operations.push({
                 updateOne: {
                     filter,
@@ -172,10 +155,8 @@ export async function updateProduct(
                 },
             });
         } else if (!amounts.length) {
-            // add year if not exists
             operations.push({ updateOne: { filter, update: { $push: { years: { year, amounts: updates } } } } });
         } else {
-            // update amounts
             operations.push({
                 updateOne: year
                     ? {
@@ -196,6 +177,161 @@ export async function updateProduct(
         }
 
         // clear all other empty years
+        operations.push({
+            updateOne: {
+                filter: { group, name, years: { $size: 0 } },
+                update: { $unset: { years: 1, missing: 1 } },
+            },
+        });
+
+        return await col.bulkWrite(operations, { session }).then(hasEffect);
+    });
+}
+
+function invertAmounts(amounts: readonly VariantAmount[]): VariantAmount[] {
+    return amounts.map((a) => ({ ...a, amount: -a.amount }));
+}
+
+export async function undoProduct(group: string, name: string, year: number): Promise<boolean> {
+    if (!group || !name) {
+        return false;
+    }
+
+    return withTransaction(async (session) => {
+        const filter: UpdateFilter<Product> = { group, name };
+        const col = (await db()).collection<Product>('products');
+        const product = await col.findOne(filter, { projection: { years: 1, updates: 1, undates: 1 }, session });
+
+        const updates = product?.updates ?? [];
+        const entryIndex = [...updates].reverse().findIndex((u) => u.years.some((y) => y.year === year));
+        if (entryIndex === -1) {
+            return false;
+        }
+        const realIndex = updates.length - 1 - entryIndex;
+        const entry = updates[realIndex];
+        const newUpdates = [...updates.slice(0, realIndex), ...updates.slice(realIndex + 1)];
+        const newUndates = [...(product?.undates ?? []), entry];
+
+        const operations: AnyBulkWriteOperation<Product>[] = [
+            { updateOne: { filter, update: { $set: { updates: newUpdates, undates: newUndates } } } },
+        ];
+
+        // apply inverted amounts to years
+        for (const { year: entryYear, amounts: entryAmounts } of entry.years) {
+            const inverted = invertAmounts(entryAmounts);
+            const currentAmounts =
+                (entryYear
+                    ? product?.years?.find((y) => y.year === entryYear)?.amounts
+                    : getCombinedAmounts(product?.years)) ?? [];
+            const newAmounts = inverted.reduce(addVariantAmount, currentAmounts).filter(hasAmount).map(cleanupRecycled);
+
+            if (!newAmounts.length) {
+                operations.push({
+                    updateOne: {
+                        filter,
+                        update: entryYear ? { $pull: { years: { year: entryYear } } } : { $unset: { years: 1 } },
+                    },
+                });
+            } else if (!currentAmounts.length) {
+                operations.push({
+                    updateOne: { filter, update: { $push: { years: { year: entryYear, amounts: newAmounts } } } },
+                });
+            } else {
+                operations.push({
+                    updateOne: entryYear
+                        ? {
+                              filter,
+                              update: { $set: { 'years.$[y].amounts': newAmounts } },
+                              arrayFilters: [{ 'y.year': entryYear }],
+                          }
+                        : {
+                              filter,
+                              update: { $set: { years: [{ year: entryYear, amounts: newAmounts }] } },
+                          },
+                });
+            }
+        }
+
+        operations.push({
+            updateOne: {
+                filter: { group, name, years: { $size: 0 } },
+                update: { $unset: { years: 1, missing: 1 } },
+            },
+        });
+
+        return await col.bulkWrite(operations, { session }).then(hasEffect);
+    });
+}
+
+export async function redoProduct(group: string, name: string, year: number): Promise<boolean> {
+    if (!group || !name) {
+        return false;
+    }
+
+    return withTransaction(async (session) => {
+        const filter: UpdateFilter<Product> = { group, name };
+        const col = (await db()).collection<Product>('products');
+        const product = await col.findOne(filter, { projection: { years: 1, updates: 1, undates: 1 }, session });
+
+        const undates = product?.undates ?? [];
+        const entryIndex = [...undates].reverse().findIndex((u) => u.years.some((y) => y.year === year));
+        if (entryIndex === -1) {
+            return false;
+        }
+        const realIndex = undates.length - 1 - entryIndex;
+        const entry = undates[realIndex];
+        const newUndates = [...undates.slice(0, realIndex), ...undates.slice(realIndex + 1)];
+        const newUpdates = [...(product?.updates ?? []), entry];
+
+        const operations: AnyBulkWriteOperation<Product>[] = [
+            {
+                updateOne: {
+                    filter,
+                    update: newUndates.length
+                        ? { $set: { updates: newUpdates, undates: newUndates } }
+                        : { $set: { updates: newUpdates }, $unset: { undates: 1 } },
+                },
+            },
+        ];
+
+        // re-apply original amounts to years
+        for (const { year: entryYear, amounts: entryAmounts } of entry.years) {
+            const currentAmounts =
+                (entryYear
+                    ? product?.years?.find((y) => y.year === entryYear)?.amounts
+                    : getCombinedAmounts(product?.years)) ?? [];
+            const newAmounts = entryAmounts
+                .reduce(addVariantAmount, currentAmounts)
+                .filter(hasAmount)
+                .map(cleanupRecycled);
+
+            if (!newAmounts.length) {
+                operations.push({
+                    updateOne: {
+                        filter,
+                        update: entryYear ? { $pull: { years: { year: entryYear } } } : { $unset: { years: 1 } },
+                    },
+                });
+            } else if (!currentAmounts.length) {
+                operations.push({
+                    updateOne: { filter, update: { $push: { years: { year: entryYear, amounts: newAmounts } } } },
+                });
+            } else {
+                operations.push({
+                    updateOne: entryYear
+                        ? {
+                              filter,
+                              update: { $set: { 'years.$[y].amounts': newAmounts } },
+                              arrayFilters: [{ 'y.year': entryYear }],
+                          }
+                        : {
+                              filter,
+                              update: { $set: { years: [{ year: entryYear, amounts: newAmounts }] } },
+                          },
+                });
+            }
+        }
+
         operations.push({
             updateOne: {
                 filter: { group, name, years: { $size: 0 } },

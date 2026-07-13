@@ -53,11 +53,27 @@
 
     ```tsx
     // ❌ BLOGAI
-    const { container } = render(<Table><Table.Tbody><Table.Tr><td>Cell</td></Table.Tr></Table.Tbody></Table>);
+    const { container } = render(
+        <Table>
+            <Table.Tbody>
+                <Table.Tr>
+                    <td>Cell</td>
+                </Table.Tr>
+            </Table.Tbody>
+        </Table>
+    );
     expect(container.querySelectorAll('td')).toHaveLength(1);
 
     // ✅ GERAI
-    render(<Table><Table.Tbody><Table.Tr><td>Cell</td></Table.Tr></Table.Tbody></Table>);
+    render(
+        <Table>
+            <Table.Tbody>
+                <Table.Tr>
+                    <td>Cell</td>
+                </Table.Tr>
+            </Table.Tbody>
+        </Table>
+    );
     expect(screen.getAllByRole('cell')).toHaveLength(1);
 
     // ❌ BLOGAI
@@ -757,26 +773,15 @@ it('handles drag gesture', async () => {
 
     ```tsx
     // ✅ GERAI - tikrinti konkretų kvietimą
-    expect(Component).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({ prop: 'first' }),
-        undefined
-    );
-    expect(Component).toHaveBeenNthCalledWith(
-        2,
-        expect.objectContaining({ prop: 'second' }),
-        undefined
-    );
+    expect(Component).toHaveBeenNthCalledWith(1, expect.objectContaining({ prop: 'first' }), undefined);
+    expect(Component).toHaveBeenNthCalledWith(2, expect.objectContaining({ prop: 'second' }), undefined);
     ```
 
 - **Naudoti `toHaveBeenLastCalledWith()`** tikrinti paskutinį kvietimą:
 
     ```tsx
     // ✅ GERAI - tikrinti paskutinį kvietimą
-    expect(Component).toHaveBeenLastCalledWith(
-        expect.objectContaining({ last: true }),
-        undefined
-    );
+    expect(Component).toHaveBeenLastCalledWith(expect.objectContaining({ last: true }), undefined);
     ```
 
 - **Kodėl ne `mock.calls`?**

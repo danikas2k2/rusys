@@ -13,6 +13,7 @@ import { handleImport } from '~/server/api/handleImport';
 import { handleMove } from '~/server/api/handleMove';
 import { handleMoveHistory } from '~/server/api/handleMoveHistory';
 import { handleProducts } from '~/server/api/handleProducts';
+import { handleRedoProduct } from '~/server/api/handleRedoProduct';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
@@ -21,6 +22,7 @@ import { handleReorderVariants } from '~/server/api/handleReorderVariants';
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { handleSummary } from '~/server/api/handleSummary';
+import { handleUndoProduct } from '~/server/api/handleUndoProduct';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { handleUpdateHistory } from '~/server/api/handleUpdateHistory';
 import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
@@ -41,6 +43,8 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.Products]: handleProducts,
     [ApiUrl.ProductsAdd]: handleAdd,
     [ApiUrl.ProductsUpdate]: handleUpdateProduct,
+    [ApiUrl.ProductsUndo]: handleUndoProduct,
+    [ApiUrl.ProductsRedo]: handleRedoProduct,
     [ApiUrl.History]: handleHistory,
     [ApiUrl.HistoryUpdate]: handleUpdateHistory,
     [ApiUrl.HistoryDelete]: handleDeleteHistory,

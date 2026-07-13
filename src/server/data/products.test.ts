@@ -6,18 +6,19 @@ import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
 import { addVariantAmount } from '~/common/utils/amounts';
 import {
     addProduct,
-    applyCorrectionsToUpdates,
     deleteProduct,
     deleteProductsGroup,
     deleteProductsVariant,
     getProducts,
     getProductVariants,
     moveProduct,
+    redoProduct,
     renameProduct,
     renameProductsGroup,
     renameProductsVariant,
     setMissing,
     setRemoving,
+    undoProduct,
     updateProduct,
 } from '~/server/data/products';
 import { $all } from '~/server/data/tests/utils';
@@ -44,18 +45,29 @@ describe('products', () => {
     describe('getProducts', () => {
         it('returns products for specified years', async () => {
             await expect(getProducts([21, 22])).resolves.toStrictEqual([
-                { group: 'Daržovės', name: 'Agurkai', years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }] },
+                {
+                    group: 'Daržovės',
+                    name: 'Agurkai',
+                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }],
+                    updates: expect.arrayContaining([{ year: 22 }]),
+                },
                 {
                     group: 'Daržovės',
                     name: 'Kopūstai',
                     years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }],
                 },
-                { group: 'Uogienės', name: 'Avietės', years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }] },
+                {
+                    group: 'Uogienės',
+                    name: 'Avietės',
+                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }],
+                    updates: expect.arrayContaining([{ year: 21 }]),
+                },
                 {
                     group: 'Uogienės',
                     name: 'Braškės',
                     years: [{ year: 22, amounts: [{ variant: 'p', amount: 2 }] }],
                     missing: true,
+                    updates: expect.arrayContaining([{ year: 22 }]),
                 },
             ]);
         });
@@ -67,24 +79,40 @@ describe('products', () => {
                     name: 'Kopūstai',
                     years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }],
                 },
-                { group: 'Uogienės', name: 'Avietės', years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }] },
+                {
+                    group: 'Uogienės',
+                    name: 'Avietės',
+                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }],
+                    updates: expect.arrayContaining([{ year: 21 }]),
+                },
             ]);
         });
 
         it('returns products for empty years', async () => {
             await expect(getProducts()).resolves.toStrictEqual([
-                { group: 'Daržovės', name: 'Agurkai', years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }] },
+                {
+                    group: 'Daržovės',
+                    name: 'Agurkai',
+                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }],
+                    updates: expect.arrayContaining([{ year: 22 }]),
+                },
                 {
                     group: 'Daržovės',
                     name: 'Kopūstai',
                     years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }],
                 },
-                { group: 'Uogienės', name: 'Avietės', years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }] },
+                {
+                    group: 'Uogienės',
+                    name: 'Avietės',
+                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }],
+                    updates: expect.arrayContaining([{ year: 21 }]),
+                },
                 {
                     group: 'Uogienės',
                     name: 'Braškės',
                     years: [{ year: 22, amounts: [{ variant: 'p', amount: 2 }] }],
                     missing: true,
+                    updates: expect.arrayContaining([{ year: 22 }]),
                 },
             ]);
         });
@@ -156,6 +184,7 @@ describe('products', () => {
                                     year: 22,
                                     amounts: [
                                         { variant: 'p', amount: 1 },
+                                        { variant: 'm', amount: 2 },
                                         { variant: 'd', amount: -1, recycled: true },
                                     ],
                                 },
@@ -205,6 +234,7 @@ describe('products', () => {
                                     year: 0,
                                     amounts: [
                                         { variant: 'p', amount: 1 },
+                                        { variant: 'm', amount: 2 },
                                         { variant: 'd', amount: -1, recycled: true },
                                     ],
                                 },
@@ -291,144 +321,210 @@ describe('products', () => {
         });
     });
 
-    describe('updateProduct corrections', () => {
-        type KopUpdates = { years: { year: number; amounts: { variant: string; amount: number }[] }[] }[];
-
-        const getKopUpdates = async (): Promise<KopUpdates> => {
-            const all = (await $all('products')) as { updates?: KopUpdates }[];
-            return all[3].updates ?? [];
-        };
-
-        it('corrects last history entry when updated type reduces consumed amount', async () => {
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -3, recycled: false }], user);
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: 2 }], user);
-
-            const kopUpdates = await getKopUpdates();
-
-            expect(kopUpdates).toHaveLength(1);
-            expect(kopUpdates[0].years[0].amounts[0].amount).toBe(-1);
+    describe('undoProduct', () => {
+        it('returns false for empty group or name', async () => {
+            await expect(undoProduct('', 'Agurkai', 22)).resolves.toBeFalse();
+            await expect(undoProduct('Daržovės', '', 22)).resolves.toBeFalse();
         });
 
-        it('spans correction across multiple history entries when one is not enough', async () => {
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -1, recycled: false }], user);
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -1, recycled: false }], user);
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: 3 }], user);
-
-            const kopUpdates = await getKopUpdates();
-
-            expect(kopUpdates).toHaveLength(0);
+        it('returns false when product has no updates for that year', async () => {
+            await expect(undoProduct('Daržovės', 'Kopūstai', 21)).resolves.toBeFalse();
         });
 
-        it('removes history entry when correction zeros out all amounts', async () => {
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -2, recycled: false }], user);
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: 2 }], user);
+        it('undoes a consumed update', async () => {
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -1, recycled: false }], user);
+            await undoProduct('Daržovės', 'Agurkai', 22);
 
-            const kopUpdates = await getKopUpdates();
-
-            expect(kopUpdates).toHaveLength(0);
+            await expect($all('products')).resolves.toStrictEqual(
+                bulk(products, {
+                    $set: {
+                        '2.undates': [{ time, user, years: [{ year: 22, amounts: [{ variant: 'd', amount: -1 }] }] }],
+                    },
+                })
+            );
         });
 
-        it('does not affect other year entries in the same history record', async () => {
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -3, recycled: false }], user);
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: 1 }], user);
+        it('reverts inventory changes when undoing', async () => {
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -1, recycled: false }], user);
 
-            const kopUpdates = await getKopUpdates();
+            const beforeUndo = (await $all('products')) as {
+                years?: { year: number; amounts: { variant: string; amount: number }[] }[];
+            }[];
 
-            expect(kopUpdates[0].years[0].amounts[0].amount).toBe(-2);
+            // inventory hits 0 so year entry is removed
+            expect(beforeUndo[2].years).toBeUndefined();
+
+            await undoProduct('Daržovės', 'Agurkai', 22);
+            const afterUndo = (await $all('products')) as {
+                years?: { year: number; amounts: { variant: string; amount: number }[] }[];
+            }[];
+
+            expect(afterUndo[2].years?.[0].amounts[0].amount).toBe(1);
         });
 
-        it('does not touch consumed/recycled entries for a different variant', async () => {
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -3, recycled: false }], user);
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'd', amount: 2 }], user);
+        it('moves last update to undates', async () => {
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
+            await undoProduct('Daržovės', 'Agurkai', 22);
 
-            const kopUpdates = await getKopUpdates();
+            const all = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
+            const agurkai = all[2];
 
-            expect(kopUpdates[0].years[0].amounts[0]).toStrictEqual({ variant: 'p', amount: -3 });
+            expect(agurkai.undates).toHaveLength(1);
+            expect(agurkai.updates).toHaveLength(2);
+        });
+
+        it('stacks multiple undos correctly', async () => {
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await undoProduct('Daržovės', 'Agurkai', 22);
+            await undoProduct('Daržovės', 'Agurkai', 22);
+
+            const all = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
+            const agurkai = all[2];
+
+            expect(agurkai.undates).toHaveLength(2);
+            expect(agurkai.updates).toHaveLength(2);
+        });
+
+        it('clears year entry when undo brings inventory to zero', async () => {
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: 2, recycled: false }], user);
+            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -4, recycled: false }], user);
+            await undoProduct('Daržovės', 'Kopūstai', 21);
+
+            const all = (await $all('products')) as { years?: { year: number }[]; updates?: unknown[] }[];
+            const kopustai = all[3];
+
+            expect(kopustai.years?.find((y) => y.year === 21)).toBeDefined();
+        });
+
+        it('undoes a recycled update', async () => {
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -1, recycled: true }], user);
+            const afterUpdate = (await $all('products')) as {
+                years?: { year: number; amounts: { variant: string; amount: number }[] }[];
+            }[];
+
+            // inventory hits 0 so year entry is removed
+            expect(afterUpdate[2].years).toBeUndefined();
+
+            await undoProduct('Daržovės', 'Agurkai', 22);
+            const afterUndo = (
+                (await $all('products')) as {
+                    years?: { year: number; amounts: { variant: string; amount: number }[] }[];
+                }[]
+            )[2].years?.[0].amounts[0].amount;
+
+            expect(afterUndo).toBe(1);
+        });
+
+        it('undoes an updated (no recycled field) entry', async () => {
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2 }], user);
+            const afterUpdate = (
+                (await $all('products')) as {
+                    years?: { year: number; amounts: { variant: string; amount: number }[] }[];
+                }[]
+            )[2].years?.[0].amounts[0].amount;
+
+            await undoProduct('Daržovės', 'Agurkai', 22);
+            const afterUndo = (
+                (await $all('products')) as {
+                    years?: { year: number; amounts: { variant: string; amount: number }[] }[];
+                }[]
+            )[2].years?.[0].amounts[0].amount;
+
+            expect(afterUpdate).toBe(3);
+            expect(afterUndo).toBe(1);
         });
     });
 
-    describe('applyCorrectionsToUpdates', () => {
-        const makeUpdate = (
-            t: number,
-            year: number,
-            amounts: { variant: string; amount: number; recycled?: boolean }[]
-        ) => ({
-            time: t,
-            years: [{ year, amounts }],
+    describe('redoProduct', () => {
+        it('returns false for empty group or name', async () => {
+            await expect(redoProduct('', 'Agurkai', 22)).resolves.toBeFalse();
+            await expect(redoProduct('Daržovės', '', 22)).resolves.toBeFalse();
         });
 
-        it('returns unchanged updates when no corrections', () => {
-            const updates = [makeUpdate(1, 21, [{ variant: 'p', amount: -3 }])];
-
-            expect(applyCorrectionsToUpdates(updates, 21, [])).toStrictEqual(updates);
+        it('returns false when product has no undates for that year', async () => {
+            await expect(redoProduct('Daržovės', 'Kopūstai', 21)).resolves.toBeFalse();
         });
 
-        it('reduces consumed amount in last entry', () => {
-            const updates = [makeUpdate(1, 21, [{ variant: 'p', amount: -5 }])];
-            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: 3 }]);
+        it('redoes last undone update', async () => {
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
+            const afterUpdate = (
+                (await $all('products')) as {
+                    years?: { year: number; amounts: { variant: string; amount: number }[] }[];
+                }[]
+            )[2].years?.[0].amounts[0].amount;
 
-            expect(result[0].years[0].amounts[0].amount).toBe(-2);
+            await undoProduct('Daržovės', 'Agurkai', 22);
+            const afterUndo = (
+                (await $all('products')) as {
+                    years?: { year: number; amounts: { variant: string; amount: number }[] }[];
+                }[]
+            )[2].years?.[0].amounts[0].amount;
+
+            await redoProduct('Daržovės', 'Agurkai', 22);
+            const afterRedo = (
+                (await $all('products')) as {
+                    years?: { year: number; amounts: { variant: string; amount: number }[] }[];
+                }[]
+            )[2].years?.[0].amounts[0].amount;
+
+            expect(afterUpdate).toBe(3);
+            expect(afterUndo).toBe(1);
+            expect(afterRedo).toBe(3);
         });
 
-        it('removes update entry when correction zeros out all amounts in its year', () => {
-            const updates = [makeUpdate(1, 21, [{ variant: 'p', amount: -3 }])];
-            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: 3 }]);
+        it('moves last undate back to updates', async () => {
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
+            await undoProduct('Daržovės', 'Agurkai', 22);
 
-            expect(result).toHaveLength(0);
+            const beforeRedo = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
+
+            expect(beforeRedo[2].updates).toHaveLength(2);
+            expect(beforeRedo[2].undates).toHaveLength(1);
+
+            await redoProduct('Daržovės', 'Agurkai', 22);
+
+            const afterRedo = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
+
+            expect(afterRedo[2].updates).toHaveLength(3);
+            expect(afterRedo[2].undates).toBeUndefined();
         });
 
-        it('spans correction across multiple entries newest-first', () => {
-            const updates = [
-                makeUpdate(1, 21, [{ variant: 'p', amount: -2 }]),
-                makeUpdate(2, 21, [{ variant: 'p', amount: -3 }]),
-            ];
-            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: 4 }]);
+        it('redoes multiple undos in correct order (LIFO)', async () => {
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await undoProduct('Daržovės', 'Agurkai', 22);
+            await undoProduct('Daržovės', 'Agurkai', 22);
 
-            expect(result).toHaveLength(1);
-            expect(result[0].years[0].amounts[0].amount).toBe(-1);
+            await redoProduct('Daržovės', 'Agurkai', 22);
+            await redoProduct('Daržovės', 'Agurkai', 22);
+
+            const all = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
+            const agurkai = all[2];
+
+            expect(agurkai.updates).toHaveLength(4);
+            expect(agurkai.undates).toBeUndefined();
         });
 
-        it('does not affect entries for a different year', () => {
-            const updates = [
-                makeUpdate(1, 20, [{ variant: 'p', amount: -2 }]),
-                makeUpdate(2, 21, [{ variant: 'p', amount: -3 }]),
-            ];
-            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: 3 }]);
+        it('new update clears undates, making redo impossible', async () => {
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await undoProduct('Daržovės', 'Agurkai', 22);
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
 
-            expect(result).toHaveLength(1);
-            expect(result[0].years[0].year).toBe(20);
+            await expect(redoProduct('Daržovės', 'Agurkai', 22)).resolves.toBeFalse();
+
+            const all = (await $all('products')) as { undates?: unknown[] }[];
+
+            expect(all[2].undates).toBeUndefined();
         });
 
-        it('does not affect a different variant', () => {
-            const updates = [
-                makeUpdate(1, 21, [
-                    { variant: 'p', amount: -3 },
-                    { variant: 'd', amount: -2 },
-                ]),
-            ];
-            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: 3 }]);
+        it('undo on fixture product with pre-existing updates leaves undates with one entry', async () => {
+            await undoProduct('Daržovės', 'Agurkai', 22);
 
-            expect(result[0].years[0].amounts).toStrictEqual([{ variant: 'd', amount: -2 }]);
-        });
+            const all = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
 
-        it('adds to last entry for negative correction (increasing consumed)', () => {
-            const updates = [makeUpdate(1, 21, [{ variant: 'p', amount: -3 }])];
-            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: -2 }]);
-
-            expect(result[0].years[0].amounts[0].amount).toBe(-5);
-        });
-
-        it('returns unchanged if no entries for that year', () => {
-            const updates = [makeUpdate(1, 20, [{ variant: 'p', amount: -3 }])];
-            const result = applyCorrectionsToUpdates(updates, 21, [{ variant: 'p', amount: 2 }]);
-
-            expect(result).toStrictEqual(updates);
-        });
-
-        it('returns empty when no existing updates', () => {
-            const result = applyCorrectionsToUpdates([], 21, [{ variant: 'p', amount: 2 }]);
-
-            expect(result).toStrictEqual([]);
+            expect(all[2].updates).toHaveLength(1);
+            expect(all[2].undates).toHaveLength(1);
         });
     });
 

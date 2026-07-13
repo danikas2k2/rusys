@@ -26,6 +26,8 @@ export const enum ApiUrl {
     Products = '/products',
     ProductsAdd = '/products/add',
     ProductsUpdate = '/products/update',
+    ProductsUndo = '/products/undo',
+    ProductsRedo = '/products/redo',
     ProductsSetRemoving = '/products/removing',
     ProductsSetMissing = '/products/missing',
     ProductsRename = '/products/rename',
@@ -91,6 +93,11 @@ export interface ApiYears {
 export interface ApiRequestProduct {
     group: string;
     name: string;
+    year?: number;
+}
+
+export interface ApiRequestProductWithYear extends ApiRequestProduct {
+    year: number;
 }
 
 export interface ApiMoveProduct extends ApiRequestProduct {
@@ -110,11 +117,11 @@ export interface ApiRequestYear {
     year: number;
 }
 
-export interface ApiSetRemoving extends ApiRequestProduct, ApiRequestYear {
+export interface ApiSetRemoving extends ApiRequestProductWithYear {
     removing: boolean;
 }
 
-export interface ApiUpdateProduct extends ApiRequestProduct, ApiRequestYear {
+export interface ApiUpdateProduct extends ApiRequestProductWithYear {
     amounts?: readonly VariantAmount[];
     user?: string;
 }
@@ -190,7 +197,7 @@ export interface ApiHistory {
     history: readonly History[];
 }
 
-export interface ApiRequestHistory extends ApiRequestProduct, ApiRequestYear {
+export interface ApiRequestHistory extends ApiRequestProductWithYear {
     time: number;
     user?: string;
 }

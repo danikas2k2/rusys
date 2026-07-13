@@ -59,6 +59,11 @@
         flex-shrink: 0;
         padding: var(--mantine-spacing-md);
         background-color: var(--mantine-color-body);
+
+        .ui-ActionIcon-root:disabled,
+        .ui-ActionIcon-root[data-disabled] {
+            border-color: var(--mantine-color-default-border);
+        }
     }
 
     .article {
