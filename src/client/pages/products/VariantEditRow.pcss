@@ -1,0 +1,35 @@
+.ui-Flex-root.variant-edit-row {
+    --row-color: var(--mantine-color-neutral-filled);
+
+    &[data-type='updated'] {
+        --row-color: var(--mantine-color-primary-filled);
+    }
+
+    &[data-type='consumed'] {
+        --row-color: var(--mantine-color-positive-filled);
+    }
+
+    &[data-type='recycled'] {
+        --row-color: var(--mantine-color-negative-filled);
+    }
+
+    padding: 0.625rem 1rem;
+    border-radius: var(--mantine-radius-md);
+    border: 1px solid var(--row-color);
+    color: var(--row-color);
+    background-color: color-mix(in srgb, var(--row-color) 5%, transparent 95%);
+
+    .ui-NumberInput-root {
+        width: 8rem;
+    }
+
+    .ui-NumberInput-input {
+        text-align: center;
+        color: var(--row-color);
+        border-color: var(--row-color);
+    }
+
+    .ui-NumberInput-section {
+        width: 1.75rem;
+    }
+}

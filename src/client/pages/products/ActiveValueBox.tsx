@@ -1,10 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
-import { UpdateTypeWrapper } from '~/client/common/UpdateTypeContext';
-import { AmountBox } from '~/client/pages/common/AmountBox';
 import { AmountTitle } from '~/client/pages/products/AmountTitle';
 import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
+import { ValueListBox } from '~/client/pages/products/ValueListBox';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useRedoProduct } from '~/client/state/products/useRedoProduct';
 import { useUndoProduct } from '~/client/state/products/useUndoProduct';
@@ -31,14 +30,7 @@ export function ActiveValueBox(): React.ReactElement {
         [activeData, products]
     );
 
-    const currentAmounts = useMemo(() => {
-        if (!activeData || !activeProduct) {
-            return activeData?.amounts;
-        }
-        return activeProduct.years?.find((y) => y.year === activeData.year)?.amounts ?? [];
-    }, [activeData, activeProduct]);
-
-    const year = active?.data?.year ?? 0;
+    const year = activeData?.year ?? 0;
     const canUndo = !!activeProduct?.updates?.some((u) => 'year' in u && u.year === year);
     const canRedo = !!activeProduct?.undates?.some((u) => 'year' in u && u.year === year);
 
@@ -51,13 +43,12 @@ export function ActiveValueBox(): React.ReactElement {
             const clean = changed.filter(({ amount }) => !!amount) ?? [];
             if (activeData && clean.length) {
                 setUpdating(activeData, true);
-                void updateProduct(activeData.group, activeData.name, activeData.year, clean, profile.email).finally(
+                await updateProduct(activeData.group, activeData.name, activeData.year, clean, profile.email).finally(
                     () => setUpdating(activeData, false)
                 );
             }
-            handleClose();
         },
-        [activeData, handleClose, setUpdating, updateProduct, profile.email]
+        [activeData, setUpdating, updateProduct, profile.email]
     );
 
     const handleUndo = useCallback(async (): Promise<void> => {
@@ -81,20 +72,20 @@ export function ActiveValueBox(): React.ReactElement {
     const opened = active?.action === 'values' && !!activeData;
 
     return (
-        <UpdateTypeWrapper>
-            <AmountBox
-                opened={opened}
-                group={activeData?.group ?? ''}
-                amounts={currentAmounts}
-                onSubmit={handleSubmit}
-                onClose={handleClose}
-                onAfterClose={handleAfterClose}
-                onUndo={handleUndo}
-                onRedo={handleRedo}
-                canUndo={canUndo}
-                canRedo={canRedo}
-                title={<AmountTitle {...activeData} />}
-            />
-        </UpdateTypeWrapper>
+        <ValueListBox
+            opened={opened}
+            group={activeData?.group ?? ''}
+            name={activeData?.name}
+            year={activeData?.year}
+            amounts={activeData?.amounts}
+            onSubmit={handleSubmit}
+            onClose={handleClose}
+            onAfterClose={handleAfterClose}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            title={<AmountTitle {...activeData} />}
+        />
     );
 }

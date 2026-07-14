@@ -35,6 +35,15 @@
   "Cancel": {
     "lt-LT": "Atšaukti"
   },
+  "Redo": {
+    "lt-LT": "Pakartoti"
+  },
+  "Undo": {
+    "lt-LT": "Atšaukti"
+  },
+  "Select variant": {
+    "lt-LT": "Pasirinkite variantą"
+  },
   "Cannot contain \":\" character": {
     "lt-LT": "Negali turėti \":\" simbolio"
   },

@@ -16,15 +16,33 @@ jest.mock('~/client/state/products/useUpdateProduct', () => ({
     useUpdateProduct: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
 }));
 
+jest.mock('~/client/state/products/useUndoProduct', () => ({
+    useUndoProduct: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
+}));
+
+jest.mock('~/client/state/products/useRedoProduct', () => ({
+    useRedoProduct: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
+}));
+
+jest.mock('~/client/state/products/useProducts', () => ({
+    useProducts: jest.fn(() => []),
+}));
+
 jest.mock('~/client/state/profile/useProfile', () => ({
     useProfile: jest.fn(() => ({ email: 'test@example.com' })),
 }));
 
-jest.mock('~/client/pages/common/AmountBox', () => ({
-    AmountBox: ({ opened, onClose, onAfterClose }: any) =>
+jest.mock('~/client/pages/products/ValueListBox', () => ({
+    ValueListBox: ({ opened, onSubmit, onClose, onAfterClose }: any) =>
         opened ? (
             <div role="dialog" aria-label="Value box">
-                <button type="button" onClick={() => onClose([{ variant: 'test', amount: 5 }])}>
+                <button
+                    type="button"
+                    onClick={async () => {
+                        await onSubmit([{ variant: 'test', amount: 5 }]);
+                        onClose();
+                    }}
+                >
                     Close with changes
                 </button>
                 <button type="button" onClick={() => onClose()}>
