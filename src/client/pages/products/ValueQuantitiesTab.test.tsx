@@ -166,7 +166,7 @@ describe('<ValueQuantitiesTab>', () => {
         await user.click(screen.getAllByRole('row')[0]);
         await user.click(screen.getByRole('button', { name: 'Submit deltas' }));
 
-        expect(mockUpdate).toHaveBeenCalledWith(group, 'Avietės', 2023, expect.any(Array), 'test@example.com');
+        expect(mockUpdate).toHaveBeenCalledWith(group, 'Avietės', 2023, expect.any(Array), 'test@example.com', undefined);
     });
 
     it('does not call updateProduct when VariantEditBox closes without submitting', async () => {

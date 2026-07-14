@@ -101,8 +101,8 @@ export function ValueQuantitiesTab() {
             }
             if (changes.length && activeData) {
                 setUpdating(activeData, true);
-                await updateProduct(group, name, year, changes, profile.email).finally(() =>
-                    setUpdating(activeData, false)
+                await updateProduct(group, name, year, changes, profile.email, deltas.comment || undefined).finally(
+                    () => setUpdating(activeData, false)
                 );
             }
             setActiveVariant(null);

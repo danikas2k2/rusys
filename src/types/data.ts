@@ -14,6 +14,7 @@ export interface YearAmounts {
 export interface Update {
     time: number;
     user?: string;
+    comment?: string;
     years: readonly YearAmounts[];
 }
 
@@ -28,6 +29,7 @@ export interface History extends GroupAmounts {
     name: string;
     year?: number;
     user?: string;
+    comment?: string;
 }
 
 export interface UserProfile {

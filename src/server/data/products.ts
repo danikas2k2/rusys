@@ -120,7 +120,8 @@ export async function updateProduct(
     name: string,
     year: number,
     changes: readonly VariantAmount[] = [],
-    user?: string
+    user?: string,
+    comment?: string
 ): Promise<boolean> {
     if (!group || !name || !changes.length) {
         return false;
@@ -138,7 +139,7 @@ export async function updateProduct(
 
         // save all change types (consumed=recycled:false, recycled=recycled:true, updated=no recycled field)
         const historyAmounts = changes.map(cleanupRecycled);
-        const newEntry = { time: Date.now(), user, years: [{ year, amounts: historyAmounts }] };
+        const newEntry = { time: Date.now(), user, ...(comment ? { comment } : {}), years: [{ year, amounts: historyAmounts }] };
         const newUpdates = [...(product?.updates ?? []), newEntry];
         // clear undates on new update
         operations.push({ updateOne: { filter, update: { $set: { updates: newUpdates }, $unset: { undates: 1 } } } });

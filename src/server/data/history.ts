@@ -106,6 +106,7 @@ export async function getHistorySessions(
                     time: '$updates.time',
                     timeMs: { $toLong: { $toDate: '$updates.time' } },
                     user: '$updates.user',
+                    comment: '$updates.comment',
                     userKey: { $toLower: { $ifNull: ['$updates.user', ''] } },
                     year: { $ifNull: ['$updates.years.year', 0] },
                     // amounts already normalized/filtered above

@@ -1,10 +1,11 @@
-import { Button, Group, Modal, Stack, Title } from '@mantine/core';
+import { Button, Group, Modal, Stack, Textarea, Title } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { AmountVariant } from '~/client/common/AmountVariant';
 import { ChangeBadge } from '~/client/common/ChangeBadge';
 import { Label } from '~/client/common/Label';
+import { useLabels } from '~/client/hooks/useLabels';
 import { VariantEditRow, type VariantEditType } from '~/client/pages/products/VariantEditRow';
 
 import './VariantEditBox.pcss';
@@ -13,6 +14,7 @@ export interface VariantDeltas {
     updated: number;
     consumed: number;
     recycled: number;
+    comment: string;
 }
 
 export interface VariantEditBoxProps {
@@ -26,7 +28,7 @@ export interface VariantEditBoxProps {
     onClose: () => void;
 }
 
-const ZERO_DELTAS: VariantDeltas = { updated: 0, consumed: 0, recycled: 0 };
+const ZERO_DELTAS: VariantDeltas = { updated: 0, consumed: 0, recycled: 0, comment: '' };
 
 export function VariantEditBox({
     opened,
@@ -38,10 +40,15 @@ export function VariantEditBox({
     onSubmit,
     onClose,
 }: VariantEditBoxProps) {
+    const _ = useLabels();
     const [deltas, setDeltas] = useState<VariantDeltas>(ZERO_DELTAS);
 
     const handleChange = useCallback((type: VariantEditType, value: number) => {
         setDeltas((prev) => ({ ...prev, [type]: value }));
+    }, []);
+
+    const handleCommentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setDeltas((prev) => ({ ...prev, comment: e.target.value }));
     }, []);
 
     const totalDelta = deltas.updated + deltas.consumed + deltas.recycled;
@@ -140,6 +147,14 @@ export function VariantEditBox({
                         onChange={handleChange}
                     />
                 </Stack>
+
+                <Textarea
+                    placeholder={_('Comment')}
+                    value={deltas.comment}
+                    onChange={handleCommentChange}
+                    rows={2}
+                    mb="md"
+                />
 
                 <Group justify="center" gap="xs">
                     <Button variant="default" size="sm" leftSection={<IconX size={16} />} onClick={handleClose}>

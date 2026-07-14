@@ -9,7 +9,8 @@ export function useUpdateProduct(): (
     name: string,
     year: number,
     amounts?: readonly VariantAmount[],
-    user?: string
+    user?: string,
+    comment?: string
 ) => Promise<void> {
     const request = useUpdatingApiRequest<ApiUpdateProduct>();
     return useCallback(
@@ -18,10 +19,11 @@ export function useUpdateProduct(): (
             name: string,
             year: number,
             amounts?: readonly VariantAmount[],
-            user?: string
+            user?: string,
+            comment?: string
         ): Promise<void> => {
             if (group && name) {
-                return request(ApiUrl.ProductsUpdate, { group, name, year, amounts, user });
+                return request(ApiUrl.ProductsUpdate, { group, name, year, amounts, user, comment });
             }
         },
         [request]

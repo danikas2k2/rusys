@@ -1,4 +1,4 @@
-import { Group, Table, Text } from '@mantine/core';
+import { Group, Stack, Table, Text } from '@mantine/core';
 import React from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
@@ -21,10 +21,9 @@ export function ValueHistoryTab() {
 
     const loader = useGetHistory(year, group, name);
     const history = useHistory();
-    const hasData = history.length > 0;
 
     return (
-        <LoadableContent loader={loader} hasData={hasData}>
+        <LoadableContent loader={loader} hasData={true}>
             <Table data-table="history">
                 <Table.Thead>
                     <Table.Tr>
@@ -40,12 +39,19 @@ export function ValueHistoryTab() {
                     {history.map((h) => (
                         <Table.Tr key={`${h.time}:${h.year}`}>
                             <Table.Td>
-                                <Group wrap="nowrap" gap="xs">
-                                    <EmailAvatar email={h.user} />
-                                    <Text size="sm">
-                                        <FormatDate date={getRoundedDate(h.time)} />
-                                    </Text>
-                                </Group>
+                                <Stack gap={2}>
+                                    <Group wrap="nowrap" gap="xs">
+                                        <EmailAvatar email={h.user} />
+                                        <Text size="sm">
+                                            <FormatDate date={getRoundedDate(h.time)} />
+                                        </Text>
+                                    </Group>
+                                    {h.comment && (
+                                        <Text size="xs" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
+                                            {h.comment}
+                                        </Text>
+                                    )}
+                                </Stack>
                             </Table.Td>
                             <Table.Td>
                                 <AmountsCell amounts={h.amounts ?? []} />

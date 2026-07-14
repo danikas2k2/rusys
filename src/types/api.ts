@@ -127,6 +127,7 @@ export interface ApiSetRemoving extends ApiRequestProductWithYear {
 export interface ApiUpdateProduct extends ApiRequestProductWithYear {
     amounts?: readonly VariantAmount[];
     user?: string;
+    comment?: string;
 }
 
 export interface ApiSummary {

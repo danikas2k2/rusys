@@ -152,7 +152,7 @@ describe('<VariantEditBox>', () => {
         await user.click(screen.getByRole('button', { name: /Update/ }));
 
         expect(defaultProps.onSubmit).toHaveBeenCalledTimes(1);
-        expect(defaultProps.onSubmit).toHaveBeenCalledWith({ updated: 0, consumed: -2, recycled: 0 });
+        expect(defaultProps.onSubmit).toHaveBeenCalledWith({ updated: 0, consumed: -2, recycled: 0, comment: '' });
         expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
     });
 
