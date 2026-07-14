@@ -3,7 +3,7 @@ import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter } from 
 import { addVariantAmount, getCombinedAmounts } from '~/common/utils/amounts';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
-import type { Product, VariantAmount } from '~/types/data';
+import type { Product, Update, VariantAmount } from '~/types/data';
 
 export async function getProducts(years: readonly number[] = []): Promise<Product[]> {
     const col = (await db()).collection('products');
@@ -202,7 +202,7 @@ export async function undoProduct(group: string, name: string, year: number): Pr
         const col = (await db()).collection<Product>('products');
         const product = await col.findOne(filter, { projection: { years: 1, updates: 1, undates: 1 }, session });
 
-        const updates = product?.updates ?? [];
+        const updates = (product?.updates ?? []) as Update[];
         const entryIndex = [...updates].reverse().findIndex((u) => u.years.some((y) => y.year === year));
         if (entryIndex === -1) {
             return false;
@@ -273,7 +273,7 @@ export async function redoProduct(group: string, name: string, year: number): Pr
         const col = (await db()).collection<Product>('products');
         const product = await col.findOne(filter, { projection: { years: 1, updates: 1, undates: 1 }, session });
 
-        const undates = product?.undates ?? [];
+        const undates = (product?.undates ?? []) as Update[];
         const entryIndex = [...undates].reverse().findIndex((u) => u.years.some((y) => y.year === year));
         if (entryIndex === -1) {
             return false;

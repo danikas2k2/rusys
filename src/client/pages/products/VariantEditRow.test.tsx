@@ -102,7 +102,7 @@ describe('<VariantEditRow>', () => {
     });
 
     describe('updated type — keyboard', () => {
-        it('ArrowUp calls onChange with delta + 1', async () => {
+        it('arrowUp calls onChange with delta + 1', async () => {
             render(
                 <MockTheme>
                     <VariantEditRow type="updated" delta={2} minDelta={0} onChange={onChange} />
@@ -114,7 +114,7 @@ describe('<VariantEditRow>', () => {
             expect(onChange).toHaveBeenCalledWith('updated', 3);
         });
 
-        it('ArrowDown calls onChange with delta - 1', async () => {
+        it('arrowDown calls onChange with delta - 1', async () => {
             render(
                 <MockTheme>
                     <VariantEditRow type="updated" delta={2} minDelta={0} onChange={onChange} />
@@ -126,7 +126,7 @@ describe('<VariantEditRow>', () => {
             expect(onChange).toHaveBeenCalledWith('updated', 1);
         });
 
-        it('ArrowDown at minDelta does not show Decrease button', () => {
+        it('arrowDown at minDelta does not show Decrease button', () => {
             render(
                 <MockTheme>
                     <VariantEditRow type="updated" delta={0} minDelta={0} onChange={onChange} />
@@ -206,7 +206,7 @@ describe('<VariantEditRow>', () => {
     });
 
     describe('consumed type — keyboard', () => {
-        it('ArrowUp calls onChange with delta + 1', async () => {
+        it('arrowUp calls onChange with delta + 1', async () => {
             render(
                 <MockTheme>
                     <VariantEditRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />
@@ -218,7 +218,7 @@ describe('<VariantEditRow>', () => {
             expect(onChange).toHaveBeenCalledWith('consumed', -1);
         });
 
-        it('ArrowDown calls onChange with delta - 1', async () => {
+        it('arrowDown calls onChange with delta - 1', async () => {
             render(
                 <MockTheme>
                     <VariantEditRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />

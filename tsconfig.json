@@ -4,13 +4,12 @@
     "include": ["src/**/*", "jest/*.ts"],
     "exclude": ["node_modules", "**/*.spec.ts"],
     "compilerOptions": {
-        "rootDir": ".",
         "paths": {
             "package.json": ["./package.json"],
             "@tests/*": ["./src/tests/*"],
             "~/*": ["./src/*"]
         },
-        "rootDir": "./src",
+        "rootDir": ".",
         "lib": ["ESNext", "DOM", "DOM.Iterable"],
         "target": "ESNext",
         "moduleResolution": "NodeNext",

@@ -1,4 +1,4 @@
-import { Button, Group, Modal, Stack, Text, Title } from '@mantine/core';
+import { Button, Group, Modal, Stack, Title } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import React, { useCallback, useMemo, useState } from 'react';
 

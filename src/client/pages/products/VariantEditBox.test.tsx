@@ -22,9 +22,9 @@ const defaultProps = {
     onClose: jest.fn(),
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('<VariantEditBox>', () => {
+    afterEach(() => jest.clearAllMocks());
+
     it('does not render when opened=false', () => {
         render(
             <MockTheme>
@@ -59,7 +59,7 @@ describe('<VariantEditBox>', () => {
         expect(screen.queryByText(/,/)).not.toBeInTheDocument();
     });
 
-    it('Update button is disabled when no changes', () => {
+    it('update button is disabled when no changes', () => {
         render(
             <MockTheme>
                 <VariantEditBox {...defaultProps} />
@@ -127,9 +127,20 @@ describe('<VariantEditBox>', () => {
     });
 
     it('submitting with changes calls onSubmit with correct deltas, then onClose', async () => {
-        jest.mocked(VariantEditRow).mockImplementation(({ type, onChange }: { type: VariantEditType; onChange: (type: VariantEditType, value: number) => void }) => (
-            <button type="button" onClick={() => onChange(type, type === 'consumed' ? -2 : 0)}>{type}</button>
-        ));
+        const consumedValues: Record<VariantEditType, number> = { updated: 0, consumed: -2, recycled: 0 };
+        jest.mocked(VariantEditRow).mockImplementation(
+            ({
+                type,
+                onChange,
+            }: {
+                type: VariantEditType;
+                onChange: (type: VariantEditType, value: number) => void;
+            }) => (
+                <button type="button" onClick={() => onChange(type, consumedValues[type])}>
+                    {type}
+                </button>
+            )
+        );
 
         render(
             <MockTheme>
@@ -145,10 +156,21 @@ describe('<VariantEditBox>', () => {
         expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
     });
 
-    it('Update button becomes enabled when a delta changes', async () => {
-        jest.mocked(VariantEditRow).mockImplementation(({ type, onChange }: { type: VariantEditType; onChange: (type: VariantEditType, value: number) => void }) => (
-            <button type="button" onClick={() => onChange(type, type === 'updated' ? 3 : 0)}>{type}</button>
-        ));
+    it('update button becomes enabled when a delta changes', async () => {
+        const enabledValues: Record<VariantEditType, number> = { updated: 3, consumed: 0, recycled: 0 };
+        jest.mocked(VariantEditRow).mockImplementation(
+            ({
+                type,
+                onChange,
+            }: {
+                type: VariantEditType;
+                onChange: (type: VariantEditType, value: number) => void;
+            }) => (
+                <button type="button" onClick={() => onChange(type, enabledValues[type])}>
+                    {type}
+                </button>
+            )
+        );
 
         render(
             <MockTheme>
@@ -164,9 +186,20 @@ describe('<VariantEditBox>', () => {
     });
 
     it('result amount reflects total delta', async () => {
-        jest.mocked(VariantEditRow).mockImplementation(({ type, onChange }: { type: VariantEditType; onChange: (type: VariantEditType, value: number) => void }) => (
-            <button type="button" onClick={() => onChange(type, type === 'updated' ? 5 : 0)}>{type}</button>
-        ));
+        const deltaValues: Record<VariantEditType, number> = { updated: 5, consumed: 0, recycled: 0 };
+        jest.mocked(VariantEditRow).mockImplementation(
+            ({
+                type,
+                onChange,
+            }: {
+                type: VariantEditType;
+                onChange: (type: VariantEditType, value: number) => void;
+            }) => (
+                <button type="button" onClick={() => onChange(type, deltaValues[type])}>
+                    {type}
+                </button>
+            )
+        );
 
         render(
             <MockTheme>
