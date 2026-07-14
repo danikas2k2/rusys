@@ -51,9 +51,6 @@ export const enum ApiUrl {
 
     // History
     History = '/history',
-    HistoryUpdate = '/history/update',
-    HistoryDelete = '/history/delete',
-    HistoryMove = '/history/move',
 }
 
 export interface ApiUserEmail {
@@ -203,17 +200,3 @@ export interface ApiHistory {
     history: readonly History[];
 }
 
-export interface ApiRequestHistory extends ApiRequestProductWithYear {
-    time: number;
-    user?: string;
-}
-
-export interface ApiUpdateHistory extends ApiRequestHistory {
-    amounts?: readonly VariantAmount[];
-}
-
-export interface ApiMoveHistory extends ApiRequestHistory {
-    newGroup?: string;
-    newName?: string;
-    newYear?: number;
-}

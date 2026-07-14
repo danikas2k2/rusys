@@ -5,7 +5,6 @@ import { GroupFilterWrapper } from '~/client/filters/GroupFilterContext';
 import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
 import { Links } from '~/client/Links';
 import { GroupsPage } from '~/client/pages/groups/GroupsPage';
-import { HistoryPage } from '~/client/pages/history/HistoryPage';
 import { ProductsPage } from '~/client/pages/products/ProductsPage';
 import { SummaryPage } from '~/client/pages/summary/SummaryPage';
 import { VariantsPage } from '~/client/pages/variants/VariantsPage';
@@ -35,7 +34,6 @@ export function AppRouter() {
                     <Route path={Links.VARIANTS} element={<VariantsPage />} />
                     <Route element={<QuickFilterLayout />}>
                         <Route path={Links.SUMMARY} element={<SummaryPage />} />
-                        <Route path={Links.HISTORY} element={<HistoryPage />} />
                         <Route path={Links.PRODUCTS} element={<ProductsPage />} />
                         <Route path="*" element={<ProductsPage />} />
                     </Route>

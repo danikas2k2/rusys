@@ -4,7 +4,6 @@ import {
     IconAdjustmentsUp,
     IconChartBubble,
     IconChartColumn,
-    IconHistory,
     IconList,
     IconTriangleSquareCircle,
 } from '@tabler/icons-react';
@@ -68,19 +67,6 @@ export function ToolbarMenu() {
                             active={!!useMatch(Links.SUMMARY)}
                             onClick={close}
                         />
-                        <NavLink
-                            label={<Label>History</Label>}
-                            leftSection={
-                                <ToolbarMenuIcon>
-                                    <IconHistory />
-                                </ToolbarMenuIcon>
-                            }
-                            component={Link}
-                            to={to(Links.HISTORY)}
-                            active={!!useMatch(Links.HISTORY)}
-                            onClick={close}
-                        />
-
                         <Divider m="xs" />
 
                         <NavLink

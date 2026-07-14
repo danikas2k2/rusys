@@ -12,12 +12,10 @@ import { handleCheckUser } from '~/server/api/handleCheckUser';
 import { handleClientId } from '~/server/api/handleClientId';
 import { handleDelete } from '~/server/api/handleDelete';
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
-import { handleDeleteHistory } from '~/server/api/handleDeleteHistory';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { handleGroups } from '~/server/api/handleGroups';
 import { handleHistory } from '~/server/api/handleHistory';
 import { handleMove } from '~/server/api/handleMove';
-import { handleMoveHistory } from '~/server/api/handleMoveHistory';
 import { handleProducts } from '~/server/api/handleProducts';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
@@ -26,7 +24,6 @@ import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { handleSummary } from '~/server/api/handleSummary';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
-import { handleUpdateHistory } from '~/server/api/handleUpdateHistory';
 import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
@@ -58,9 +55,6 @@ jest.mock('~/server/api/handleDelete');
 
 // History
 jest.mock('~/server/api/handleHistory');
-jest.mock('~/server/api/handleUpdateHistory');
-jest.mock('~/server/api/handleDeleteHistory');
-jest.mock('~/server/api/handleMoveHistory');
 
 // Groups
 jest.mock('~/server/api/handleGroups');
@@ -92,9 +86,6 @@ describe('app', () => {
             ${ApiUrl.ProductsUpdate}      | ${handleUpdateProduct}
             ${ApiUrl.ProductsAdd}         | ${handleAdd}
             ${ApiUrl.History}             | ${handleHistory}
-            ${ApiUrl.HistoryUpdate}       | ${handleUpdateHistory}
-            ${ApiUrl.HistoryDelete}       | ${handleDeleteHistory}
-            ${ApiUrl.HistoryMove}         | ${handleMoveHistory}
             ${ApiUrl.ProductsSetRemoving} | ${handleSetRemoving}
             ${ApiUrl.ProductsSetMissing}  | ${handleSetMissing}
             ${ApiUrl.ProductsRename}      | ${handleRename}

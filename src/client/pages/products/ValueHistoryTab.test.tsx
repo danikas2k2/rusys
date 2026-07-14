@@ -19,11 +19,11 @@ jest.mock('~/client/state/history/useHistory', () => ({
     useHistory: jest.fn(() => []),
 }));
 
-jest.mock('~/client/pages/history/EmailAvatar', () => ({
+jest.mock('~/client/pages/products/EmailAvatar', () => ({
     EmailAvatar: jest.fn(() => null),
 }));
 
-jest.mock('~/client/pages/history/AmountsCell', () => ({
+jest.mock('~/client/pages/products/AmountsCell', () => ({
     AmountsCell: jest.fn(({ amounts }: any) => <span data-testid="amounts">{amounts.length}</span>),
 }));
 
