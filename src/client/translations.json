@@ -152,6 +152,9 @@
   "Groups": {
     "lt-LT": "Grupės"
   },
+  "History": {
+    "lt-LT": "Istorija"
+  },
   "Import": {
     "lt-LT": "Importuoti"
   },
@@ -242,6 +245,9 @@
   "Summary": {
     "lt-LT": "Suvestinė"
   },
+  "Quantities": {
+    "lt-LT": "Kiekiai"
+  },
   "Sunday": {
     "lt-LT": "Sekmadienis"
   },
@@ -304,5 +310,11 @@
   },
   "type to filter": {
     "lt-LT": "filtruokite"
+  },
+  "When": {
+    "lt-LT": "Kada"
+  },
+  "What": {
+    "lt-LT": "Kiek"
   }
 }

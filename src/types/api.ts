@@ -117,6 +117,12 @@ export interface ApiRequestYear {
     year: number;
 }
 
+export interface ApiRequestHistoryGet {
+    group: string;
+    name: string;
+    year: number;
+}
+
 export interface ApiSetRemoving extends ApiRequestProductWithYear {
     removing: boolean;
 }

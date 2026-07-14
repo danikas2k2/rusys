@@ -131,32 +131,48 @@ export async function getHistory(year: number): Promise<{ history: readonly Hist
 
 export const HISTORY_SESSION_GAP_MS = 15 * 60 * 1000;
 
-export async function getHistorySessions(year: number, gapMs: number = HISTORY_SESSION_GAP_MS): Promise<History[]> {
+export async function getHistorySessions(
+    year: number,
+    gapMs: number = HISTORY_SESSION_GAP_MS,
+    group?: string,
+    name?: string
+): Promise<History[]> {
+    const productFilter: Document =
+        group && name ? { updates: { $exists: true, $ne: [] }, group, name } : { updates: { $exists: true, $ne: [] } };
+
+    const yearFilter: Document =
+        group && name
+            ? {
+                  $or: [
+                      { 'updates.years': { $elemMatch: { year } } },
+                      { 'updates.years': { $elemMatch: { year: year - 2000 } } },
+                  ],
+              }
+            : {
+                  $expr: {
+                      $and: [
+                          {
+                              $gte: [{ $toDate: '$updates.time' }, { $dateFromParts: { year, month: 1, day: 1 } }],
+                          },
+                          {
+                              $lt: [
+                                  { $toDate: '$updates.time' },
+                                  { $dateFromParts: { year: year + 1, month: 1, day: 1 } },
+                              ],
+                          },
+                      ],
+                  },
+              };
+
     return (await db())
         .collection('products')
         .aggregate<WithId<History>>([
-            // Only documents with updates
-            { $match: { updates: { $exists: true, $ne: [] } } },
+            // Only documents with updates; narrow to product when group+name provided
+            { $match: productFilter },
             { $unwind: '$updates' },
 
-            // Filter by update time *as date* (works for number/date/string) and calendar year boundaries
-            {
-                $match: {
-                    $expr: {
-                        $and: [
-                            {
-                                $gte: [{ $toDate: '$updates.time' }, { $dateFromParts: { year, month: 1, day: 1 } }],
-                            },
-                            {
-                                $lt: [
-                                    { $toDate: '$updates.time' },
-                                    { $dateFromParts: { year: year + 1, month: 1, day: 1 } },
-                                ],
-                            },
-                        ],
-                    },
-                },
-            },
+            // For product-specific: filter by product year; for global: filter by update timestamp year
+            { $match: yearFilter },
 
             // Normalize and filter out "empty changes" at the update level:
             // - ensure years is an array

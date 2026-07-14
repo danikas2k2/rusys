@@ -11,11 +11,13 @@ export function FormatDate({ date }: FormatDateProps) {
     const ts = formatTime(date);
     const ds = formatDate(date);
     const [mon, day] = ds.split(' ', 2);
+
     return (
         <>
             {mon && (
                 <time data-date>
-                    <Label>{mon}</Label> {day}
+                    <Label>{mon}</Label>
+                    {day && <> {day}</>}
                 </time>
             )}
             <time data-time>{ts}</time>
