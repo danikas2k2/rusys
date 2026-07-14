@@ -40,10 +40,11 @@ describe('<ValueHistoryTab>', () => {
         );
     }
 
-    it('shows "No data" when history is empty', () => {
+    it('shows empty table when history is empty', () => {
         renderTab();
 
-        expect(screen.getByText('No data')).toBeInTheDocument();
+        expect(screen.getByRole('table')).toBeInTheDocument();
+        expect(screen.queryAllByRole('row')).toHaveLength(1); // only thead
     });
 
     it('calls useGetHistory with year, group, name from active context', () => {
