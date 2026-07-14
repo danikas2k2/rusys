@@ -135,7 +135,7 @@ export function ValueListBox({
         <>
             <Modal
                 className="value-list-box"
-                size="xs"
+                fullScreen
                 opened={opened}
                 withCloseButton
                 onClose={handleClose}

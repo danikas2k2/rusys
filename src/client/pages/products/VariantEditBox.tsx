@@ -84,7 +84,7 @@ export function VariantEditBox({
     return (
         <Modal
             className="variant-edit-box"
-            size="xs"
+            fullScreen
             opened={opened}
             withCloseButton
             onClose={handleClose}
