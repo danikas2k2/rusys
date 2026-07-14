@@ -124,33 +124,27 @@ export function ValueListBox({
                 <Stack gap="sm">
                     <Table highlightOnHover>
                         <Table.Tbody>
-                            {visibleVariants.map((variant) => {
-                                const amt = getVariantAmount(amounts, variant);
-                                return (
-                                    <Table.Tr
-                                        key={variant}
-                                        className="variant-row"
-                                        onClick={() => handleRowClick(variant)}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <Table.Td>
-                                            <Text fz="md" fw={500}>
-                                                <AmountVariant variant={variant} />
-                                            </Text>
-                                        </Table.Td>
-                                        <Table.Td style={{ textAlign: 'right' }}>
-                                            <Text fz="md">
-                                                {amt}
-                                                <AmountSuffix group={group} variant={variant} />
-                                            </Text>
-                                        </Table.Td>
-                                    </Table.Tr>
-                                );
-                            })}
+                            {visibleVariants.map((variant) => (
+                                <Table.Tr
+                                    key={variant}
+                                    className="variant-row"
+                                    onClick={() => handleRowClick(variant)}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    <Table.Td>
+                                        <Text fz="md" fw={500}>
+                                            <AmountVariant variant={variant} />
+                                        </Text>
+                                    </Table.Td>
+                                    <Table.Td align="right">
+                                        <Text fz="md">{getVariantAmount(amounts, variant)}</Text>
+                                    </Table.Td>
+                                </Table.Tr>
+                            ))}
                         </Table.Tbody>
                     </Table>
 
-                    {unusedVariants.length > 0 && (
+                    {!!unusedVariants.length && (
                         <Select
                             placeholder={_('Select variant')}
                             data={unusedVariants}
