@@ -6,6 +6,7 @@ import React from 'react';
 
 import { VariantEditBox } from '~/client/pages/products/VariantEditBox';
 import { ValueListBox, type ValueListBoxProps } from '~/client/pages/products/ValueListBox';
+import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 
@@ -15,6 +16,17 @@ jest.mock('~/client/pages/products/VariantEditBox', () => ({
             <div role="dialog" aria-label="Edit variant">
                 <button type="button" onClick={() => onSubmit({ updated: 1, consumed: -2, recycled: 0 })}>Submit deltas</button>
                 <button type="button" onClick={onClose}>Close edit</button>
+            </div>
+        ) : null
+    ),
+}));
+
+jest.mock('~/client/pages/variants/VariantBox', () => ({
+    VariantBox: jest.fn(({ opened, onClose }: any) =>
+        opened ? (
+            <div role="dialog" aria-label="Add variant">
+                <button type="button" onClick={() => onClose('Uogienės', 'x')}>Create variant x</button>
+                <button type="button" onClick={() => onClose()}>Cancel add</button>
             </div>
         ) : null
     ),
@@ -222,6 +234,67 @@ describe('<ValueListBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onClose).toHaveBeenCalled();
+    });
+
+    it('"Naujas variantas" option is always present in the dropdown', () => {
+        render(
+            <MockTheme>
+                <ValueListBox opened group={group} amounts={amounts} />
+            </MockTheme>
+        );
+
+        // Open the combobox dropdown
+        fireEvent.click(screen.getByRole('combobox'));
+
+        expect(screen.getByRole('option', { name: /new variant/i })).toBeInTheDocument();
+    });
+
+    it('selecting "Naujas variantas" opens VariantBox with group pre-filled', async () => {
+        render(
+            <MockTheme>
+                <ValueListBox opened group={group} amounts={amounts} />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('combobox'));
+        await user.click(screen.getByRole('option', { name: /new variant/i }));
+
+        expect(VariantBox).toHaveBeenCalledWith(
+            expect.objectContaining({ opened: true, group }),
+            undefined
+        );
+    });
+
+    it('after creating a variant, it appears in the list and VariantEditBox opens for it', async () => {
+        render(
+            <MockTheme>
+                <ValueListBox opened group={group} amounts={amounts} />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('combobox'));
+        await user.click(screen.getByRole('option', { name: /new variant/i }));
+        await user.click(screen.getByRole('button', { name: 'Create variant x' }));
+
+        expect(VariantEditBox).toHaveBeenCalledWith(
+            expect.objectContaining({ opened: true, variant: 'x', currentAmount: 0 }),
+            undefined
+        );
+        expect(screen.getAllByRole('row')).toHaveLength(3);
+    });
+
+    it('cancelling VariantBox without a variant does not change the list', async () => {
+        render(
+            <MockTheme>
+                <ValueListBox opened group={group} amounts={amounts} />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('combobox'));
+        await user.click(screen.getByRole('option', { name: /new variant/i }));
+        await user.click(screen.getByRole('button', { name: 'Cancel add' }));
+
+        expect(screen.getAllByRole('row')).toHaveLength(2);
     });
 
     it('calls onAfterClose after exit transition ends', async () => {

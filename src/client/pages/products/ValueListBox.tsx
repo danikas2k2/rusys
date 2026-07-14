@@ -1,12 +1,23 @@
-import { Button, Flex, Modal, Select, Stack, Table, Text, type ModalProps } from '@mantine/core';
-import { IconArrowBackUp, IconArrowForwardUp } from '@tabler/icons-react';
+import {
+    Button,
+    Flex,
+    Group,
+    Modal,
+    Select,
+    Stack,
+    Table,
+    Text,
+    type ComboboxItem,
+    type ModalProps,
+} from '@mantine/core';
+import { IconArrowBackUp, IconArrowForwardUp, IconPlus } from '@tabler/icons-react';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { AmountVariant } from '~/client/common/AmountVariant';
 import { Label } from '~/client/common/Label';
 import { useLabels } from '~/client/hooks/useLabels';
 import { VariantEditBox, type VariantDeltas } from '~/client/pages/products/VariantEditBox';
+import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { getVariantAmount } from '~/common/utils/amounts';
@@ -66,6 +77,17 @@ export function ValueListBox({
     );
 
     const [activeVariant, setActiveVariant] = useState<string | null>(null);
+
+    const [addingVariant, setAddingVariant] = useState(false);
+    const handleAddVariantOpen = useCallback(() => setAddingVariant(true), []);
+    const handleAddVariantClose = useCallback((_newGroup?: string, newVariant?: string) => {
+        setAddingVariant(false);
+        if (newVariant) {
+            setExtraVariants((prev) => [...prev, newVariant]);
+            setActiveVariant(newVariant);
+        }
+    }, []);
+    const handleAddVariantAfterClose = useCallback(() => setAddingVariant(false), []);
 
     const handleRowClick = useCallback((variant: string) => setActiveVariant(variant), []);
 
@@ -144,16 +166,27 @@ export function ValueListBox({
                         </Table.Tbody>
                     </Table>
 
-                    {!!unusedVariants.length && (
-                        <Select
-                            placeholder={_('Select variant')}
-                            data={unusedVariants}
-                            value={null}
-                            onChange={handleSelectVariant}
-                            size="sm"
-                            clearable={false}
-                        />
-                    )}
+                    <Select
+                        placeholder={_('Select variant')}
+                        data={[
+                            ...unusedVariants.map((v) => ({ value: v, label: v })),
+                            { value: '', label: _('New variant') },
+                        ]}
+                        value={null}
+                        onChange={(v) => (v === '' ? handleAddVariantOpen() : handleSelectVariant(v))}
+                        renderOption={({ option }: { option: ComboboxItem }) =>
+                            option.value === '' ? (
+                                <Group gap="xs" className={unusedVariants.length ? 'with-separator' : undefined}>
+                                    <IconPlus size={14} />
+                                    {option.label}
+                                </Group>
+                            ) : (
+                                option.label
+                            )
+                        }
+                        size="sm"
+                        clearable={false}
+                    />
 
                     {(canUndo || canRedo) && (
                         <Flex justify="center" gap="xs">
@@ -192,6 +225,13 @@ export function ValueListBox({
                     onClose={handleEditClose}
                 />
             )}
+
+            <VariantBox
+                opened={addingVariant}
+                group={group}
+                onClose={handleAddVariantClose}
+                onAfterClose={handleAddVariantAfterClose}
+            />
         </>
     );
 }
