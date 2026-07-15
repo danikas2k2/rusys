@@ -7,7 +7,7 @@ import {
     IconList,
     IconTriangleSquareCircle,
 } from '@tabler/icons-react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Link, useLocation, useMatch } from 'react-router-dom';
 
 import { ColorSchemeToggle } from '~/client/common/ColorSchemeToggle';
@@ -22,15 +22,23 @@ import './ToolbarMenu.pcss';
 
 export function ToolbarMenu() {
     const [opened, { toggle, close }] = useDisclosure();
-    const { search } = useLocation();
 
+    const [burgerAbove, setBurgerAbove] = useState(false);
+    const handleToggle = useCallback(() => {
+        if (!opened) {
+            setBurgerAbove(true);
+        }
+        toggle();
+    }, [opened, toggle]);
+
+    const { search } = useLocation();
     const to = useCallback((path: string) => ({ pathname: path, search }), [search]);
 
     return (
         <>
             <Portal>
-                <Box className="burger">
-                    <Burger size="sm" opened={opened} onClick={toggle} aria-label={useLabel('Menu')} />
+                <Box className="burger" style={{ zIndex: burgerAbove ? 300 : 100 }}>
+                    <Burger size="sm" opened={opened} onClick={handleToggle} aria-label={useLabel('Menu')} />
                 </Box>
             </Portal>
             <Drawer
@@ -40,6 +48,7 @@ export function ToolbarMenu() {
                 position="left"
                 withCloseButton={false}
                 className="drawer"
+                onExitTransitionEnd={() => setBurgerAbove(false)}
             >
                 <Flex direction="column" className="menu">
                     <Box>
