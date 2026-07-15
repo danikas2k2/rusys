@@ -19,6 +19,10 @@ jest.mock('~/client/state/history/useHistory', () => ({
     useHistory: jest.fn(() => []),
 }));
 
+jest.mock('~/client/state/history/useUndates', () => ({
+    useUndates: jest.fn(() => []),
+}));
+
 jest.mock('~/client/pages/products/EmailAvatar', () => ({
     EmailAvatar: jest.fn(() => null),
 }));

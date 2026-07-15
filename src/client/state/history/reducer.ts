@@ -12,3 +12,16 @@ export function history(state: readonly History[] = [], action: Readonly<History
             return state;
     }
 }
+
+export function undates(state: readonly History[] = [], action: Readonly<HistoryAction>): readonly History[] {
+    switch (action.type) {
+        case HistoryActionType.SET_UNDATES:
+            return cloneDeep(action.undates);
+
+        case HistoryActionType.SET:
+            return [];
+
+        default:
+            return state;
+    }
+}

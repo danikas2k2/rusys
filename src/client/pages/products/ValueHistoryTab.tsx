@@ -1,4 +1,4 @@
-import { Group, Stack, Table, Text } from '@mantine/core';
+import { Divider, Group, Stack, Table, Text } from '@mantine/core';
 import React from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
@@ -9,8 +9,34 @@ import { EmailAvatar } from '~/client/pages/products/EmailAvatar';
 import { FormatDate } from '~/client/pages/products/FormatDate';
 import { useGetHistory } from '~/client/state/history/useGetHistory';
 import { useHistory } from '~/client/state/history/useHistory';
+import { useUndates } from '~/client/state/history/useUndates';
 import { getRoundedDate } from '~/client/utils/time';
-import type { ProductAmounts } from '~/types/data';
+import type { History, ProductAmounts } from '~/types/data';
+
+function HistoryRow({ h, dimmed = false }: { h: History; dimmed?: boolean }) {
+    return (
+        <Table.Tr key={`${h.time}:${h.year}`} opacity={dimmed ? 0.4 : undefined}>
+            <Table.Td>
+                <Stack gap={2}>
+                    <Group wrap="nowrap" gap="xs">
+                        <EmailAvatar email={h.user} />
+                        <Text size="sm" c={dimmed ? 'dimmed' : undefined}>
+                            <FormatDate date={getRoundedDate(h.time)} />
+                        </Text>
+                    </Group>
+                    {h.comment && (
+                        <Text size="xs" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
+                            {h.comment}
+                        </Text>
+                    )}
+                </Stack>
+            </Table.Td>
+            <Table.Td>
+                <AmountsCell amounts={h.amounts ?? []} />
+            </Table.Td>
+        </Table.Tr>
+    );
+}
 
 export function ValueHistoryTab() {
     const [active] = useActiveContent<ProductAmounts>();
@@ -21,6 +47,7 @@ export function ValueHistoryTab() {
 
     const loader = useGetHistory(year, group, name);
     const history = useHistory();
+    const undates = useUndates();
 
     return (
         <LoadableContent loader={loader} hasData={true}>
@@ -36,27 +63,18 @@ export function ValueHistoryTab() {
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                    {history.map((h) => (
-                        <Table.Tr key={`${h.time}:${h.year}`}>
-                            <Table.Td>
-                                <Stack gap={2}>
-                                    <Group wrap="nowrap" gap="xs">
-                                        <EmailAvatar email={h.user} />
-                                        <Text size="sm">
-                                            <FormatDate date={getRoundedDate(h.time)} />
-                                        </Text>
-                                    </Group>
-                                    {h.comment && (
-                                        <Text size="xs" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
-                                            {h.comment}
-                                        </Text>
-                                    )}
-                                </Stack>
-                            </Table.Td>
-                            <Table.Td>
-                                <AmountsCell amounts={h.amounts ?? []} />
+                    {[...undates].reverse().map((h) => (
+                        <HistoryRow key={`u:${h.time}:${h.year}`} h={h} dimmed />
+                    ))}
+                    {undates.length > 0 && (
+                        <Table.Tr>
+                            <Table.Td colSpan={2} p={0}>
+                                <Divider color="red" size="sm" />
                             </Table.Td>
                         </Table.Tr>
+                    )}
+                    {history.map((h) => (
+                        <HistoryRow key={`${h.time}:${h.year}`} h={h} />
                     ))}
                 </Table.Tbody>
             </Table>

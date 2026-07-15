@@ -1,4 +1,4 @@
-import { Button, Flex, Group, Select, Stack, Table, Text, type ComboboxItem } from '@mantine/core';
+import { Badge, Button, Flex, Group, Select, Stack, Table, Text, type ComboboxItem } from '@mantine/core';
 import { IconArrowBackUp, IconArrowForwardUp, IconPlus } from '@tabler/icons-react';
 import React, { useCallback, useMemo, useState } from 'react';
 
@@ -41,16 +41,23 @@ export function ValueQuantitiesTab() {
         [activeData, products]
     );
 
-    const canUndo = !!activeProduct?.updates?.some((u) => 'year' in u && u.year === year);
-    const canRedo = !!activeProduct?.undates?.some((u) => 'year' in u && u.year === year);
+    const liveAmounts = useMemo(
+        () => activeProduct?.years?.find((y) => y.year === year)?.amounts ?? amounts,
+        [activeProduct, year, amounts]
+    );
+
+    const undoCount = activeProduct?.updates?.filter((u) => 'year' in u && u.year === year).length ?? 0;
+    const redoCount = activeProduct?.undates?.filter((u) => 'year' in u && u.year === year).length ?? 0;
+    const canUndo = undoCount > 0;
+    const canRedo = redoCount > 0;
 
     const allVariants = useAllVariants(group);
     const compareVariants = useGroupVariantComparator(group);
 
     const presentVariants = useMemo(() => {
-        const fromAmounts = amounts?.filter((a) => a.amount > 0).map((a) => a.variant) ?? [];
+        const fromAmounts = liveAmounts?.filter((a) => a.amount > 0).map((a) => a.variant) ?? [];
         return [...fromAmounts].sort(compareVariants);
-    }, [amounts, compareVariants]);
+    }, [liveAmounts, compareVariants]);
 
     const [extraVariants, setExtraVariants] = useState<string[]>([]);
 
@@ -128,7 +135,7 @@ export function ValueQuantitiesTab() {
         await redoProduct(group, name, year).finally(() => setUpdating(activeData, false));
     }, [activeData, group, name, year, setUpdating, redoProduct]);
 
-    const activeAmount = activeVariant ? getVariantAmount(amounts, activeVariant) : 0;
+    const activeAmount = activeVariant ? getVariantAmount(liveAmounts, activeVariant) : 0;
 
     return (
         <>
@@ -148,7 +155,7 @@ export function ValueQuantitiesTab() {
                                     </Text>
                                 </Table.Td>
                                 <Table.Td align="right">
-                                    <Text fz="md">{getVariantAmount(amounts, variant)}</Text>
+                                    <Text fz="md">{getVariantAmount(liveAmounts, variant)}</Text>
                                 </Table.Td>
                             </Table.Tr>
                         ))}
@@ -183,6 +190,13 @@ export function ValueQuantitiesTab() {
                             variant="default"
                             size="sm"
                             leftSection={<IconArrowBackUp size={16} />}
+                            rightSection={
+                                undoCount ? (
+                                    <Badge size="xs" circle>
+                                        {undoCount}
+                                    </Badge>
+                                ) : undefined
+                            }
                             onClick={handleUndo}
                             disabled={!canUndo}
                         >
@@ -192,6 +206,13 @@ export function ValueQuantitiesTab() {
                             variant="default"
                             size="sm"
                             leftSection={<IconArrowForwardUp size={16} />}
+                            rightSection={
+                                redoCount ? (
+                                    <Badge size="xs" circle>
+                                        {redoCount}
+                                    </Badge>
+                                ) : undefined
+                            }
                             onClick={handleRedo}
                             disabled={!canRedo}
                         >

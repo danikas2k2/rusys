@@ -1,7 +1,7 @@
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
 import { getGroups } from '~/server/data/groups';
-import { getHistorySessions } from '~/server/data/history';
+import { getHistorySessions, getUndateSessions } from '~/server/data/history';
 import type { ApiHistory, ApiRequest, ApiRequestHistoryGet, ApiRequestYear, ApiResponse } from '~/types/api';
 
 function parseYear(raw: number): number {
@@ -36,6 +36,7 @@ export async function handleHistory(
     res.json(
         await run(async () => ({
             history: await getHistorySessions(year, undefined, group, name),
+            undates: await getUndateSessions(year, undefined, group, name),
             groups: await getGroups(),
         }))
     );

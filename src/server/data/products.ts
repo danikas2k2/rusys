@@ -34,7 +34,7 @@ export async function getProducts(years: readonly number[] = []): Promise<Produc
                                     input: '$updates',
                                     initialValue: [],
                                     in: {
-                                        $setUnion: [
+                                        $concatArrays: [
                                             '$$value',
                                             { $map: { input: '$$this.years', as: 'y', in: { year: '$$y.year' } } },
                                         ],
@@ -52,7 +52,7 @@ export async function getProducts(years: readonly number[] = []): Promise<Produc
                                     input: '$undates',
                                     initialValue: [],
                                     in: {
-                                        $setUnion: [
+                                        $concatArrays: [
                                             '$$value',
                                             { $map: { input: '$$this.years', as: 'y', in: { year: '$$y.year' } } },
                                         ],

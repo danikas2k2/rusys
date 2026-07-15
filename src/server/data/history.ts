@@ -5,32 +5,34 @@ import type { History } from '~/types/data';
 
 export const HISTORY_SESSION_GAP_MS = 15 * 60 * 1000;
 
-export async function getHistorySessions(
+async function getSessionsFromField(
+    field: 'updates' | 'undates',
     year: number,
-    gapMs: number = HISTORY_SESSION_GAP_MS,
+    gapMs: number,
     group?: string,
     name?: string
 ): Promise<History[]> {
+    const f = field;
     const productFilter: Document =
-        group && name ? { updates: { $exists: true, $ne: [] }, group, name } : { updates: { $exists: true, $ne: [] } };
+        group && name ? { [f]: { $exists: true, $ne: [] }, group, name } : { [f]: { $exists: true, $ne: [] } };
 
     const yearFilter: Document =
         group && name
             ? {
                   $or: [
-                      { 'updates.years': { $elemMatch: { year } } },
-                      { 'updates.years': { $elemMatch: { year: year - 2000 } } },
+                      { [`${f}.years`]: { $elemMatch: { year } } },
+                      { [`${f}.years`]: { $elemMatch: { year: year - 2000 } } },
                   ],
               }
             : {
                   $expr: {
                       $and: [
                           {
-                              $gte: [{ $toDate: '$updates.time' }, { $dateFromParts: { year, month: 1, day: 1 } }],
+                              $gte: [{ $toDate: `$${f}.time` }, { $dateFromParts: { year, month: 1, day: 1 } }],
                           },
                           {
                               $lt: [
-                                  { $toDate: '$updates.time' },
+                                  { $toDate: `$${f}.time` },
                                   { $dateFromParts: { year: year + 1, month: 1, day: 1 } },
                               ],
                           },
@@ -41,26 +43,16 @@ export async function getHistorySessions(
     return (await db())
         .collection('products')
         .aggregate<WithId<History>>([
-            // Only documents with updates; narrow to product when group+name provided
             { $match: productFilter },
-            { $unwind: '$updates' },
-
-            // For product-specific: filter by product year; for global: filter by update timestamp year
+            { $unwind: `$${f}` },
             { $match: yearFilter },
-
-            // Normalize and filter out "empty changes" at the update level:
-            // - ensure years is an array
-            // - ensure amounts is an array
-            // - drop amounts without variant or with amount=0
-            // - drop year entries with no remaining amounts
-            // - drop updates that have no remaining year entries
             {
                 $set: {
-                    'updates.years': {
+                    [`${f}.years`]: {
                         $filter: {
                             input: {
                                 $map: {
-                                    input: { $cond: [{ $isArray: '$updates.years' }, '$updates.years', []] },
+                                    input: { $cond: [{ $isArray: `$${f}.years` }, `$${f}.years`, []] },
                                     as: 'y',
                                     in: {
                                         $mergeObjects: [
@@ -93,35 +85,29 @@ export async function getHistorySessions(
             },
             {
                 $match: {
-                    $expr: { $gt: [{ $size: '$updates.years' }, 0] },
+                    $expr: { $gt: [{ $size: `$${f}.years` }, 0] },
                 },
             },
-            { $unwind: '$updates.years' },
+            { $unwind: `$${f}.years` },
             {
                 $project: {
                     _id: 0,
                     group: 1,
                     name: 1,
-                    // keep raw time value (whatever stored) for ID + client rendering
-                    time: '$updates.time',
-                    timeMs: { $toLong: { $toDate: '$updates.time' } },
-                    user: '$updates.user',
-                    comment: '$updates.comment',
-                    userKey: { $toLower: { $ifNull: ['$updates.user', ''] } },
-                    year: { $ifNull: ['$updates.years.year', 0] },
-                    // amounts already normalized/filtered above
-                    amounts: '$updates.years.amounts',
+                    time: `$${f}.time`,
+                    timeMs: { $toLong: { $toDate: `$${f}.time` } },
+                    user: `$${f}.user`,
+                    comment: `$${f}.comment`,
+                    userKey: { $toLower: { $ifNull: [`$${f}.user`, ''] } },
+                    year: { $ifNull: [`$${f}.years.year`, 0] },
+                    amounts: `$${f}.years.amounts`,
                 },
             },
-
-            // Safety: never emit entries with empty amounts
             {
                 $match: {
                     $expr: { $gt: [{ $size: { $ifNull: ['$amounts', []] } }, 0] },
                 },
             },
-
-            // Window calc 1: previous time per user (ascending)
             {
                 $setWindowFields: {
                     partitionBy: '$userKey',
@@ -131,8 +117,6 @@ export async function getHistorySessions(
                     },
                 },
             },
-
-            // Mark session boundaries (same rule as client: new session if gap > gapMs)
             {
                 $set: {
                     newSession: {
@@ -149,8 +133,6 @@ export async function getHistorySessions(
                     },
                 },
             },
-
-            // Window calc 2: running session index per user
             {
                 $setWindowFields: {
                     partitionBy: '$userKey',
@@ -163,8 +145,6 @@ export async function getHistorySessions(
                     },
                 },
             },
-
-            // Window calc 3: session start time per (user, sessionIndex)
             {
                 $setWindowFields: {
                     partitionBy: { userKey: '$userKey', sessionIndex: '$sessionIndex' },
@@ -177,8 +157,6 @@ export async function getHistorySessions(
                     },
                 },
             },
-
-            // Produce sessionId and id fields
             {
                 $set: {
                     sessionId: { $concat: ['$userKey', ':', { $toString: '$sessionStartTimeMs' }] },
@@ -187,11 +165,7 @@ export async function getHistorySessions(
                     },
                 },
             },
-
-            // Final sort similar to getHistory (use normalized time for safety)
             { $sort: { timeMs: -1, group: 1, name: 1, year: -1 } },
-
-            // Drop helper fields
             {
                 $project: {
                     timeMs: 0,
@@ -204,4 +178,22 @@ export async function getHistorySessions(
             },
         ])
         .toArray();
+}
+
+export async function getHistorySessions(
+    year: number,
+    gapMs: number = HISTORY_SESSION_GAP_MS,
+    group?: string,
+    name?: string
+): Promise<History[]> {
+    return getSessionsFromField('updates', year, gapMs, group, name);
+}
+
+export async function getUndateSessions(
+    year: number,
+    gapMs: number = HISTORY_SESSION_GAP_MS,
+    group?: string,
+    name?: string
+): Promise<History[]> {
+    return getSessionsFromField('undates', year, gapMs, group, name);
 }

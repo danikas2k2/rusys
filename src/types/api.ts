@@ -199,5 +199,6 @@ export type ApiWithFiles = { files?: FileArray };
 
 export interface ApiHistory {
     history: readonly History[];
+    undates: readonly History[];
 }
 
