@@ -169,11 +169,13 @@ export function ValueQuantitiesTab() {
     return (
         <>
             <Stack gap="sm">
-                <Table>
+                <Table layout="fixed">
                     <Table.Tbody>
                         {visibleVariants.map((variant) => {
                             const variantDelta = allDeltas[variant] ?? ZERO_DELTA;
                             const totalDelta = variantDelta.updated + variantDelta.consumed + variantDelta.recycled;
+                            const totalChanges =
+                                !!variantDelta.updated || !!variantDelta.consumed || !!variantDelta.recycled;
                             const baseAmount = getVariantAmount(liveAmounts, variant);
                             const displayAmount = baseAmount + totalDelta;
                             const isExpanded = expandedVariant === variant;
@@ -181,9 +183,9 @@ export function ValueQuantitiesTab() {
                             return (
                                 <React.Fragment key={variant}>
                                     <Table.Tr
-                                        className="variant-row"
+                                        data-variant
+                                        data-expanded={isExpanded}
                                         onClick={() => handleRowClick(variant)}
-                                        style={{ cursor: 'pointer' }}
                                     >
                                         <Table.Td>
                                             <Text fz="md" fw={500}>
@@ -195,7 +197,7 @@ export function ValueQuantitiesTab() {
                                                 <Text fz="md" component="span">
                                                     {displayAmount}
                                                 </Text>
-                                                <ChangeBadge change={totalDelta || false} />
+                                                <ChangeBadge change={totalDelta || totalChanges} />
                                             </Group>
                                         </Table.Td>
                                     </Table.Tr>
@@ -228,7 +230,7 @@ export function ValueQuantitiesTab() {
                     onChange={(v) => (v === '' ? handleAddVariantOpen() : handleSelectVariant(v))}
                     renderOption={({ option }: { option: ComboboxItem }) =>
                         option.value === '' ? (
-                            <Group gap="xs" className={unusedVariants.length ? 'with-separator' : undefined}>
+                            <Group gap="xs" data-separator={!!unusedVariants.length}>
                                 <IconPlus size={14} />
                                 {option.label}
                             </Group>
@@ -240,7 +242,7 @@ export function ValueQuantitiesTab() {
                     clearable={false}
                 />
 
-                {(canUndo || canRedo) && !expandedVariant && (
+                {(canUndo || canRedo) && !expandedVariant && !hasChanges && (
                     <Flex justify="center" gap="xs">
                         <Button
                             variant="default"
@@ -277,7 +279,7 @@ export function ValueQuantitiesTab() {
                     </Flex>
                 )}
 
-                {expandedVariant && (
+                {(expandedVariant || hasChanges) && (
                     <Group justify="center" gap="xs">
                         <Button variant="default" size="sm" leftSection={<IconX size={16} />} onClick={handleCancel}>
                             <Label>Cancel</Label>

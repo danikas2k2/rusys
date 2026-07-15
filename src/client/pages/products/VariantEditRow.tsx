@@ -77,6 +77,7 @@ export function VariantEditRow({ type, delta, minDelta, onChange }: VariantEditR
                 value={delta}
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
+                onFocus={(e) => e.target.select()}
                 aria-label={type}
                 allowNegative
                 allowDecimal={false}
