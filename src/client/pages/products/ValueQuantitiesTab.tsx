@@ -1,13 +1,14 @@
 import { Badge, Button, Flex, Group, Select, Stack, Table, Text, type ComboboxItem } from '@mantine/core';
-import { IconArrowBackUp, IconArrowForwardUp, IconPlus } from '@tabler/icons-react';
+import { IconArrowBackUp, IconArrowForwardUp, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { AmountVariant } from '~/client/common/AmountVariant';
+import { ChangeBadge } from '~/client/common/ChangeBadge';
 import { Label } from '~/client/common/Label';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
-import { VariantEditBox, type VariantDeltas } from '~/client/pages/products/VariantEditBox';
+import { VariantExpandedRows, type VariantDelta } from '~/client/pages/products/VariantExpandedRows';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useRedoProduct } from '~/client/state/products/useRedoProduct';
@@ -18,6 +19,8 @@ import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { getVariantAmount } from '~/common/utils/amounts';
 import type { ProductAmounts, VariantAmount } from '~/types/data';
+
+const ZERO_DELTA: VariantDelta = { updated: 0, consumed: 0, recycled: 0 };
 
 export function ValueQuantitiesTab() {
     const _ = useLabels();
@@ -71,7 +74,9 @@ export function ValueQuantitiesTab() {
         [allVariants, visibleVariants]
     );
 
-    const [activeVariant, setActiveVariant] = useState<string | null>(null);
+    const [expandedVariant, setExpandedVariant] = useState<string | null>(null);
+    const [allDeltas, setAllDeltas] = useState<Record<string, VariantDelta>>({});
+    const [comment, setComment] = useState('');
 
     const [addingVariant, setAddingVariant] = useState(false);
     const handleAddVariantOpen = useCallback(() => setAddingVariant(true), []);
@@ -79,50 +84,74 @@ export function ValueQuantitiesTab() {
         setAddingVariant(false);
         if (newVariant) {
             setExtraVariants((prev) => [...prev, newVariant]);
-            setActiveVariant(newVariant);
+            setExpandedVariant(newVariant);
         }
     }, []);
     const handleAddVariantAfterClose = useCallback(() => setAddingVariant(false), []);
-
-    const handleRowClick = useCallback((variant: string) => setActiveVariant(variant), []);
 
     const handleSelectVariant = useCallback((variant: string | null) => {
         if (!variant) {
             return;
         }
         setExtraVariants((prev) => [...prev, variant]);
-        setActiveVariant(variant);
+        setExpandedVariant(variant);
     }, []);
 
-    const handleEditSubmit = useCallback(
-        async (deltas: VariantDeltas): Promise<void> => {
-            const changes: VariantAmount[] = [];
-            if (deltas.updated !== 0) {
-                changes.push({ variant: activeVariant!, amount: deltas.updated });
-            }
-            if (deltas.consumed !== 0) {
-                changes.push({ variant: activeVariant!, amount: deltas.consumed, recycled: false });
-            }
-            if (deltas.recycled !== 0) {
-                changes.push({ variant: activeVariant!, amount: deltas.recycled, recycled: true });
-            }
-            if (changes.length && activeData) {
-                setUpdating(activeData, true);
-                await updateProduct(group, name, year, changes, profile.email, deltas.comment || undefined).finally(
-                    () => setUpdating(activeData, false)
-                );
-            }
-            setActiveVariant(null);
+    const handleRowClick = useCallback((variant: string) => {
+        setExpandedVariant((prev) => (prev === variant ? null : variant));
+    }, []);
+
+    const handleDeltaChange = useCallback(
+        (type: keyof VariantDelta, value: number) => {
+            setAllDeltas((prev) => ({
+                ...prev,
+                [expandedVariant!]: { ...(prev[expandedVariant!] ?? ZERO_DELTA), [type]: value },
+            }));
         },
-        [activeVariant, activeData, group, name, year, profile.email, setUpdating, updateProduct]
+        [expandedVariant]
     );
 
-    const handleEditClose = useCallback(() => setActiveVariant(null), []);
+    const hasChanges = useMemo(
+        () => Object.values(allDeltas).some((d) => d.updated !== 0 || d.consumed !== 0 || d.recycled !== 0),
+        [allDeltas]
+    );
+
+    const handleCancel = useCallback(() => {
+        setAllDeltas({});
+        setComment('');
+        setExpandedVariant(null);
+    }, []);
+
+    const handleUpdate = useCallback(async () => {
+        const changes: VariantAmount[] = [];
+        for (const [variant, deltas] of Object.entries(allDeltas)) {
+            if (deltas.updated !== 0) {
+                changes.push({ variant, amount: deltas.updated });
+            }
+            if (deltas.consumed !== 0) {
+                changes.push({ variant, amount: deltas.consumed, recycled: false });
+            }
+            if (deltas.recycled !== 0) {
+                changes.push({ variant, amount: deltas.recycled, recycled: true });
+            }
+        }
+        if (activeData) {
+            setUpdating(activeData, true);
+            await updateProduct(group, name, year, changes, profile.email, comment || undefined).finally(() =>
+                setUpdating(activeData, false)
+            );
+            setAllDeltas({});
+            setComment('');
+            setExpandedVariant(null);
+        }
+    }, [allDeltas, activeData, group, name, year, profile.email, comment, setUpdating, updateProduct]);
 
     const handleUndo = useCallback(async (): Promise<void> => {
         if (!activeData) {
             return;
         }
+        setAllDeltas({});
+        setExpandedVariant(null);
         setUpdating(activeData, true);
         await undoProduct(group, name, year).finally(() => setUpdating(activeData, false));
     }, [activeData, group, name, year, setUpdating, undoProduct]);
@@ -131,34 +160,61 @@ export function ValueQuantitiesTab() {
         if (!activeData) {
             return;
         }
+        setAllDeltas({});
+        setExpandedVariant(null);
         setUpdating(activeData, true);
         await redoProduct(group, name, year).finally(() => setUpdating(activeData, false));
     }, [activeData, group, name, year, setUpdating, redoProduct]);
 
-    const activeAmount = activeVariant ? getVariantAmount(liveAmounts, activeVariant) : 0;
-
     return (
         <>
             <Stack gap="sm">
-                <Table highlightOnHover>
+                <Table>
                     <Table.Tbody>
-                        {visibleVariants.map((variant) => (
-                            <Table.Tr
-                                key={variant}
-                                className="variant-row"
-                                onClick={() => handleRowClick(variant)}
-                                style={{ cursor: 'pointer' }}
-                            >
-                                <Table.Td>
-                                    <Text fz="md" fw={500}>
-                                        <AmountVariant variant={variant} />
-                                    </Text>
-                                </Table.Td>
-                                <Table.Td align="right">
-                                    <Text fz="md">{getVariantAmount(liveAmounts, variant)}</Text>
-                                </Table.Td>
-                            </Table.Tr>
-                        ))}
+                        {visibleVariants.map((variant) => {
+                            const variantDelta = allDeltas[variant] ?? ZERO_DELTA;
+                            const totalDelta = variantDelta.updated + variantDelta.consumed + variantDelta.recycled;
+                            const baseAmount = getVariantAmount(liveAmounts, variant);
+                            const displayAmount = baseAmount + totalDelta;
+                            const isExpanded = expandedVariant === variant;
+
+                            return (
+                                <React.Fragment key={variant}>
+                                    <Table.Tr
+                                        className="variant-row"
+                                        onClick={() => handleRowClick(variant)}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <Table.Td>
+                                            <Text fz="md" fw={500}>
+                                                <AmountVariant variant={variant} />
+                                            </Text>
+                                        </Table.Td>
+                                        <Table.Td align="right">
+                                            <Group gap="xs">
+                                                <Text fz="md" component="span">
+                                                    {displayAmount}
+                                                </Text>
+                                                <ChangeBadge change={totalDelta || false} />
+                                            </Group>
+                                        </Table.Td>
+                                    </Table.Tr>
+                                    {isExpanded && (
+                                        <Table.Tr>
+                                            <Table.Td colSpan={2}>
+                                                <VariantExpandedRows
+                                                    delta={variantDelta}
+                                                    baseAmount={baseAmount}
+                                                    comment={comment}
+                                                    onChange={handleDeltaChange}
+                                                    onCommentChange={setComment}
+                                                />
+                                            </Table.Td>
+                                        </Table.Tr>
+                                    )}
+                                </React.Fragment>
+                            );
+                        })}
                     </Table.Tbody>
                 </Table>
 
@@ -184,15 +240,15 @@ export function ValueQuantitiesTab() {
                     clearable={false}
                 />
 
-                {(canUndo || canRedo) && (
+                {(canUndo || canRedo) && !expandedVariant && (
                     <Flex justify="center" gap="xs">
                         <Button
                             variant="default"
                             size="sm"
                             leftSection={<IconArrowBackUp size={16} />}
                             rightSection={
-                                undoCount ? (
-                                    <Badge size="xs" circle>
+                                undoCount > 0 ? (
+                                    <Badge size="sm" variant="filled" circle>
                                         {undoCount}
                                     </Badge>
                                 ) : undefined
@@ -207,8 +263,8 @@ export function ValueQuantitiesTab() {
                             size="sm"
                             leftSection={<IconArrowForwardUp size={16} />}
                             rightSection={
-                                redoCount ? (
-                                    <Badge size="xs" circle>
+                                redoCount > 0 ? (
+                                    <Badge size="sm" variant="filled" circle>
                                         {redoCount}
                                     </Badge>
                                 ) : undefined
@@ -220,20 +276,23 @@ export function ValueQuantitiesTab() {
                         </Button>
                     </Flex>
                 )}
-            </Stack>
 
-            {activeVariant && (
-                <VariantEditBox
-                    opened={!!activeVariant}
-                    group={group}
-                    name={name}
-                    year={year}
-                    variant={activeVariant}
-                    currentAmount={activeAmount}
-                    onSubmit={handleEditSubmit}
-                    onClose={handleEditClose}
-                />
-            )}
+                {expandedVariant && (
+                    <Group justify="center" gap="xs">
+                        <Button variant="default" size="sm" leftSection={<IconX size={16} />} onClick={handleCancel}>
+                            <Label>Cancel</Label>
+                        </Button>
+                        <Button
+                            size="sm"
+                            leftSection={<IconCheck size={16} />}
+                            onClick={handleUpdate}
+                            disabled={!hasChanges}
+                        >
+                            <Label>Update</Label>
+                        </Button>
+                    </Group>
+                )}
+            </Stack>
 
             <VariantBox
                 opened={addingVariant}

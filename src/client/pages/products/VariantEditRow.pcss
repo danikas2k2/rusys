@@ -1,8 +1,9 @@
 .ui-Flex-root.variant-edit-row {
     --row-color: var(--mantine-color-neutral-filled);
+    --input-sz: 50%;
 
     &[data-type='updated'] {
-        --row-color: var(--mantine-color-secondary-filled);
+        --input-sz: 100%;
     }
 
     &[data-type='consumed'] {
@@ -13,14 +14,11 @@
         --row-color: var(--mantine-color-negative-filled);
     }
 
-    padding: 0.625rem 1rem;
     border-radius: var(--mantine-radius-md);
-    border: 1px solid var(--row-color);
     color: var(--row-color);
-    background-color: color-mix(in srgb, var(--row-color) 5%, transparent 95%);
 
     .ui-NumberInput-root {
-        max-width: 12rem;
+        width: var(--input-sz);
     }
 
     .ui-NumberInput-input {
@@ -30,6 +28,6 @@
     }
 
     .ui-NumberInput-section {
-        width: 1.75rem;
+        width: auto;
     }
 }

@@ -23,6 +23,7 @@ const ICONS: Record<VariantEditType, React.ReactNode> = {
 
 export function VariantEditRow({ type, delta, minDelta, onChange }: VariantEditRowProps) {
     const _ = useLabels();
+    const isUpdated = type === 'updated';
 
     const decrease = useCallback(() => {
         const next = delta - 1;
@@ -31,7 +32,7 @@ export function VariantEditRow({ type, delta, minDelta, onChange }: VariantEditR
         }
     }, [delta, minDelta, onChange, type]);
 
-    const maxDelta = type === 'updated' ? Infinity : 0;
+    const maxDelta = isUpdated ? Infinity : 0;
 
     const increase = useCallback(() => {
         const next = delta + 1;
@@ -70,42 +71,40 @@ export function VariantEditRow({ type, delta, minDelta, onChange }: VariantEditR
     const canIncrease = delta < maxDelta;
 
     return (
-        <Flex className="variant-edit-row" align="center" gap="sm" data-type={type}>
-            {ICONS[type]}
-            <Group gap="xs" align="center" style={{ marginLeft: 'auto' }}>
-                <NumberInput
-                    value={delta}
-                    onChange={handleChange}
-                    onKeyDown={handleKeyDown}
-                    aria-label={type}
-                    allowNegative
-                    allowDecimal={false}
-                    size="sm"
-                    hideControls
-                    leftSection={
-                        <ActionIcon
-                            size="input-xs"
-                            color="text"
-                            variant="subtle"
-                            onClick={canDecrease ? decrease : undefined}
-                            aria-label={canDecrease ? _('Decrease') : undefined}
-                        >
-                            {canDecrease ? <IconMinus size={14} /> : undefined}
-                        </ActionIcon>
-                    }
-                    rightSection={
-                        <ActionIcon
-                            size="input-xs"
-                            color="text"
-                            variant="subtle"
-                            onClick={canIncrease ? increase : undefined}
-                            aria-label={canIncrease ? _('Increase') : undefined}
-                        >
-                            {canIncrease ? <IconPlus size={14} /> : undefined}
-                        </ActionIcon>
-                    }
-                />
-            </Group>
+        <Flex className="variant-edit-row" align="center" justify="end" gap="sm" data-type={type}>
+            {!isUpdated && ICONS[type]}
+            <NumberInput
+                value={delta}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                aria-label={type}
+                allowNegative
+                allowDecimal={false}
+                size="sm"
+                hideControls
+                leftSection={
+                    <ActionIcon
+                        size="input-xs"
+                        color="text"
+                        variant="subtle"
+                        onClick={canDecrease ? decrease : undefined}
+                        aria-label={canDecrease ? _('Decrease') : undefined}
+                    >
+                        {canDecrease ? <IconMinus size={14} /> : undefined}
+                    </ActionIcon>
+                }
+                rightSection={
+                    <ActionIcon
+                        size="input-xs"
+                        color="text"
+                        variant="subtle"
+                        onClick={canIncrease ? increase : undefined}
+                        aria-label={canIncrease ? _('Increase') : undefined}
+                    >
+                        {canIncrease ? <IconPlus size={14} /> : undefined}
+                    </ActionIcon>
+                }
+            />
         </Flex>
     );
 }

@@ -5,24 +5,8 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 import React from 'react';
 
 import { ValueQuantitiesTab } from '~/client/pages/products/ValueQuantitiesTab';
-import { VariantEditBox } from '~/client/pages/products/VariantEditBox';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
 import type { ProductAmounts } from '~/types/data';
-
-jest.mock('~/client/pages/products/VariantEditBox', () => ({
-    VariantEditBox: jest.fn(({ opened, onSubmit, onClose }: any) =>
-        opened ? (
-            <div role="dialog" aria-label="Edit variant">
-                <button type="button" onClick={() => onSubmit({ updated: 1, consumed: -2, recycled: 0 })}>
-                    Submit deltas
-                </button>
-                <button type="button" onClick={onClose}>
-                    Close edit
-                </button>
-            </div>
-        ) : null
-    ),
-}));
 
 jest.mock('~/client/pages/variants/VariantBox', () => ({
     VariantBox: jest.fn(({ opened, onClose }: any) =>
@@ -37,6 +21,16 @@ jest.mock('~/client/pages/variants/VariantBox', () => ({
             </div>
         ) : null
     ),
+}));
+
+jest.mock('~/client/pages/products/VariantEditRow', () => ({
+    VariantEditRow: jest.fn(({ type, delta, onChange }: any) => (
+        <div data-testid={`edit-row-${type}`}>
+            <button type="button" onClick={() => onChange(type, delta - 1)}>
+                {`decrease-${type}`}
+            </button>
+        </div>
+    )),
 }));
 
 jest.mock('~/client/state/variants/useAllVariants', () => ({
@@ -112,29 +106,45 @@ describe('<ValueQuantitiesTab>', () => {
         expect(screen.getAllByRole('row')).toHaveLength(2);
     });
 
-    it('clicking a row opens VariantEditBox with correct props', async () => {
+    it('clicking a row expands inline edit rows', async () => {
         renderTab();
+
+        expect(screen.queryByTestId('edit-row-updated')).not.toBeInTheDocument();
 
         await user.click(screen.getAllByRole('row')[0]);
 
-        expect(VariantEditBox).toHaveBeenCalledWith(
-            expect.objectContaining({
-                opened: true,
-                group,
-                name: 'Avietės',
-                year: 2023,
-                variant: 'd',
-                currentAmount: 1,
-            }),
-            undefined
-        );
+        expect(screen.getByTestId('edit-row-updated')).toBeInTheDocument();
+        expect(screen.getByTestId('edit-row-consumed')).toBeInTheDocument();
+        expect(screen.getByTestId('edit-row-recycled')).toBeInTheDocument();
+    });
+
+    it('clicking expanded row collapses it', async () => {
+        renderTab();
+
+        await user.click(screen.getAllByRole('row')[0]);
+        expect(screen.getByTestId('edit-row-updated')).toBeInTheDocument();
+
+        await user.click(screen.getAllByRole('row')[0]);
+        expect(screen.queryByTestId('edit-row-updated')).not.toBeInTheDocument();
+    });
+
+    it('clicking a different row switches expansion', async () => {
+        renderTab();
+
+        await user.click(screen.getAllByRole('row')[0]);
+        expect(screen.getByTestId('edit-row-updated')).toBeInTheDocument();
+
+        await user.click(screen.getAllByRole('row')[1]);
+        expect(screen.getByTestId('edit-row-updated')).toBeInTheDocument();
+        // only one expanded row at a time — still one set of edit rows
+        expect(screen.getAllByTestId('edit-row-updated')).toHaveLength(1);
     });
 
     it('does not show Undo/Redo buttons when canUndo and canRedo are false', () => {
         renderTab();
 
-        expect(screen.queryByRole('button', { name: 'Undo' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('button', { name: 'Redo' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /undo/i })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /redo/i })).not.toBeInTheDocument();
     });
 
     it('select dropdown is present', () => {
@@ -143,20 +153,17 @@ describe('<ValueQuantitiesTab>', () => {
         expect(screen.getByRole('combobox')).toBeInTheDocument();
     });
 
-    it('selecting a variant from dropdown adds it to the list and opens VariantEditBox', async () => {
+    it('selecting a variant from dropdown adds it to the list and expands it', async () => {
         renderTab();
 
         await user.click(screen.getByRole('combobox'));
         await user.click(screen.getByRole('option', { name: 'm' }));
 
-        expect(VariantEditBox).toHaveBeenCalledWith(
-            expect.objectContaining({ opened: true, variant: 'm', currentAmount: 0 }),
-            undefined
-        );
-        expect(screen.getAllByRole('row')).toHaveLength(3);
+        expect(screen.getAllByRole('row')).toHaveLength(3 + 1); // 3 variant rows + 1 expanded edit row
+        expect(screen.getByTestId('edit-row-updated')).toBeInTheDocument();
     });
 
-    it('calls updateProduct when VariantEditBox submits deltas', async () => {
+    it('calls updateProduct when Update is clicked after changing a delta', async () => {
         const { useUpdateProduct } = jest.requireMock('~/client/state/products/useUpdateProduct');
         const mockUpdate = jest.fn().mockResolvedValue(undefined);
         useUpdateProduct.mockReturnValue(mockUpdate);
@@ -164,25 +171,40 @@ describe('<ValueQuantitiesTab>', () => {
         renderTab();
 
         await user.click(screen.getAllByRole('row')[0]);
-        await user.click(screen.getByRole('button', { name: 'Submit deltas' }));
+        await user.click(screen.getByRole('button', { name: 'decrease-updated' }));
+        await user.click(screen.getByRole('button', { name: /^update$/i }));
 
-        expect(mockUpdate).toHaveBeenCalledWith(group, 'Avietės', 2023, expect.any(Array), 'test@example.com', undefined);
+        expect(mockUpdate).toHaveBeenCalledWith(
+            group,
+            'Avietės',
+            2023,
+            expect.any(Array),
+            'test@example.com',
+            undefined
+        );
     });
 
-    it('does not call updateProduct when VariantEditBox closes without submitting', async () => {
-        const { useUpdateProduct } = jest.requireMock('~/client/state/products/useUpdateProduct');
-        const mockUpdate = jest.fn();
-        useUpdateProduct.mockReturnValue(mockUpdate);
+    it('does not show Update/Cancel buttons before any delta change', () => {
+        renderTab();
 
+        expect(screen.queryByRole('button', { name: /^update$/i })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /^cancel$/i })).not.toBeInTheDocument();
+    });
+
+    it('Cancel clears deltas and hides Update/Cancel buttons', async () => {
         renderTab();
 
         await user.click(screen.getAllByRole('row')[0]);
-        await user.click(screen.getByRole('button', { name: 'Close edit' }));
+        await user.click(screen.getByRole('button', { name: 'decrease-updated' }));
+        expect(screen.getByRole('button', { name: /^cancel$/i })).toBeInTheDocument();
 
-        expect(mockUpdate).not.toHaveBeenCalled();
+        await user.click(screen.getByRole('button', { name: /^cancel$/i }));
+
+        expect(screen.queryByRole('button', { name: /^cancel$/i })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /^update$/i })).not.toBeInTheDocument();
     });
 
-    it('"Naujas variantas" option is present in the dropdown', () => {
+    it('"New variant" option is present in the dropdown', () => {
         renderTab();
 
         fireEvent.click(screen.getByRole('combobox'));
@@ -190,7 +212,7 @@ describe('<ValueQuantitiesTab>', () => {
         expect(screen.getByRole('option', { name: /new variant/i })).toBeInTheDocument();
     });
 
-    it('selecting "Naujas variantas" opens VariantBox with group pre-filled', async () => {
+    it('selecting "New variant" opens VariantBox with group pre-filled', async () => {
         renderTab();
 
         await user.click(screen.getByRole('combobox'));
@@ -199,18 +221,15 @@ describe('<ValueQuantitiesTab>', () => {
         expect(VariantBox).toHaveBeenCalledWith(expect.objectContaining({ opened: true, group }), undefined);
     });
 
-    it('after creating a variant, it appears in the list and VariantEditBox opens for it', async () => {
+    it('after creating a variant, it appears in the list and is expanded', async () => {
         renderTab();
 
         await user.click(screen.getByRole('combobox'));
         await user.click(screen.getByRole('option', { name: /new variant/i }));
         await user.click(screen.getByRole('button', { name: 'Create variant x' }));
 
-        expect(VariantEditBox).toHaveBeenCalledWith(
-            expect.objectContaining({ opened: true, variant: 'x', currentAmount: 0 }),
-            undefined
-        );
-        expect(screen.getAllByRole('row')).toHaveLength(3);
+        expect(screen.getByTestId('edit-row-updated')).toBeInTheDocument();
+        expect(screen.getAllByRole('row')).toHaveLength(3 + 1); // 3 variants + 1 expanded
     });
 
     it('cancelling VariantBox without a variant does not change the list', async () => {

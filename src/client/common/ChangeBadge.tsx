@@ -5,17 +5,19 @@ import './ChangeBadge.pcss';
 
 type ChangeBadgeType = number | boolean;
 
-type ChangeBadgePosition = 'left' | 'right' | 'top' | 'top-left' | 'top-right';
+type ChangeBadgePosition = 'left' | 'right' | 'top' | 'top-left' | 'top-right' | 'inline';
 
 interface ChangeBadgeProps {
     change: ChangeBadgeType;
     position?: ChangeBadgePosition;
 }
 
-export function ChangeBadge({ change, position = 'top' }: ChangeBadgeProps) {
+export function ChangeBadge({ change, position = 'inline' }: ChangeBadgeProps) {
+    const inline = position === 'inline';
     return change ? (
         <Badge
-            className="change-badge"
+            className={inline ? undefined : 'change-badge'}
+            circle={inline}
             role="status"
             data-position={position}
             data-state={getState(change)}
