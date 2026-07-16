@@ -16,6 +16,18 @@
         transition: none;
     }
 
+    @media (hover: hover) {
+        .ui-Accordion-control:where(:not(:disabled, [data-disabled])):hover {
+            background-color: transparent;
+        }
+    }
+
+    @media (hover: none) {
+        .ui-Accordion-control:where(:not(:disabled, [data-disabled])):active {
+            background-color: transparent;
+        }
+    }
+
     .ui-Accordion-item[data-active] .ui-Accordion-control,
     .ui-Accordion-item[data-active] .ui-Accordion-panel {
         background-color: var(--mantine-color-dark-1);
