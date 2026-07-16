@@ -1,4 +1,4 @@
-import { Badge, Button, Flex, Group, Select, Stack, Table, Text, type ComboboxItem } from '@mantine/core';
+import { Accordion, Badge, Button, Flex, Group, Select, Stack, Text, type ComboboxItem } from '@mantine/core';
 import { IconArrowBackUp, IconArrowForwardUp, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import React, { useCallback, useMemo, useState } from 'react';
 
@@ -97,10 +97,6 @@ export function ValueQuantitiesTab() {
         setExpandedVariant(variant);
     }, []);
 
-    const handleRowClick = useCallback((variant: string) => {
-        setExpandedVariant((prev) => (prev === variant ? null : variant));
-    }, []);
-
     const handleDeltaChange = useCallback(
         (type: keyof VariantDelta, value: number) => {
             setAllDeltas((prev) => ({
@@ -169,56 +165,49 @@ export function ValueQuantitiesTab() {
     return (
         <>
             <Stack gap="sm">
-                <Table layout="fixed">
-                    <Table.Tbody>
-                        {visibleVariants.map((variant) => {
-                            const variantDelta = allDeltas[variant] ?? ZERO_DELTA;
-                            const totalDelta = variantDelta.updated + variantDelta.consumed + variantDelta.recycled;
-                            const totalChanges =
-                                !!variantDelta.updated || !!variantDelta.consumed || !!variantDelta.recycled;
-                            const baseAmount = getVariantAmount(liveAmounts, variant);
-                            const displayAmount = baseAmount + totalDelta;
-                            const isExpanded = expandedVariant === variant;
+                <Accordion
+                    value={expandedVariant}
+                    onChange={setExpandedVariant}
+                    variant="contained"
+                    radius="md"
+                    chevron={null}
+                >
+                    {visibleVariants.map((variant) => {
+                        const variantDelta = allDeltas[variant] ?? ZERO_DELTA;
+                        const totalDelta = variantDelta.updated + variantDelta.consumed + variantDelta.recycled;
+                        const totalChanges =
+                            !!variantDelta.updated || !!variantDelta.consumed || !!variantDelta.recycled;
+                        const baseAmount = getVariantAmount(liveAmounts, variant);
+                        const displayAmount = baseAmount + totalDelta;
 
-                            return (
-                                <React.Fragment key={variant}>
-                                    <Table.Tr
-                                        data-variant
-                                        data-expanded={isExpanded}
-                                        onClick={() => handleRowClick(variant)}
-                                    >
-                                        <Table.Td>
-                                            <Text fz="md" fw={500}>
-                                                <AmountVariant variant={variant} />
+                        return (
+                            <Accordion.Item key={variant} value={variant}>
+                                <Accordion.Control>
+                                    <Group justify="space-between">
+                                        <Text fz="md" fw={500}>
+                                            <AmountVariant variant={variant} />
+                                        </Text>
+                                        <Group gap="xs">
+                                            <Text fz="md" component="span">
+                                                {displayAmount}
                                             </Text>
-                                        </Table.Td>
-                                        <Table.Td align="right">
-                                            <Group gap="xs">
-                                                <Text fz="md" component="span">
-                                                    {displayAmount}
-                                                </Text>
-                                                <ChangeBadge change={totalDelta || totalChanges} />
-                                            </Group>
-                                        </Table.Td>
-                                    </Table.Tr>
-                                    {isExpanded && (
-                                        <Table.Tr>
-                                            <Table.Td colSpan={2}>
-                                                <VariantExpandedRows
-                                                    delta={variantDelta}
-                                                    baseAmount={baseAmount}
-                                                    comment={comment}
-                                                    onChange={handleDeltaChange}
-                                                    onCommentChange={setComment}
-                                                />
-                                            </Table.Td>
-                                        </Table.Tr>
-                                    )}
-                                </React.Fragment>
-                            );
-                        })}
-                    </Table.Tbody>
-                </Table>
+                                            <ChangeBadge change={totalDelta || totalChanges} />
+                                        </Group>
+                                    </Group>
+                                </Accordion.Control>
+                                <Accordion.Panel>
+                                    <VariantExpandedRows
+                                        delta={variantDelta}
+                                        baseAmount={baseAmount}
+                                        comment={comment}
+                                        onChange={handleDeltaChange}
+                                        onCommentChange={setComment}
+                                    />
+                                </Accordion.Panel>
+                            </Accordion.Item>
+                        );
+                    })}
+                </Accordion>
 
                 <Select
                     placeholder={_('Select variant')}
@@ -238,6 +227,8 @@ export function ValueQuantitiesTab() {
                             option.label
                         )
                     }
+                    withScrollArea={false}
+                    comboboxProps={{ middlewares: { flip: false, shift: false } }}
                     size="sm"
                     clearable={false}
                 />

@@ -12,13 +12,23 @@
         overflow: hidden;
     }
 
-    .ui-Table-row[data-variant="true"] {
-        cursor: pointer;
+    .ui-Accordion-item {
+        transition: none;
     }
 
-    [data-expanded="true"],
-    [data-expanded="true"] + tr {
+    .ui-Accordion-item[data-active] .ui-Accordion-control,
+    .ui-Accordion-item[data-active] .ui-Accordion-panel {
         background-color: var(--mantine-color-dark-1);
+    }
+
+    .ui-Accordion-item:last-of-type[data-active] .ui-Accordion-control {
+        border-end-start-radius: 0;
+        border-end-end-radius: 0;
+    }
+
+    .ui-Accordion-item:last-of-type[data-active] .ui-Accordion-panel {
+        border-end-start-radius: var(--mantine-radius-md);
+        border-end-end-radius: var(--mantine-radius-md);
     }
 }
 

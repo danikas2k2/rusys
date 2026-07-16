@@ -23,6 +23,27 @@ jest.mock('~/client/pages/variants/VariantBox', () => ({
     ),
 }));
 
+jest.mock('@mantine/core', () => {
+    const actual = jest.requireActual('@mantine/core');
+    return {
+        ...actual,
+        Select: jest.fn(({ placeholder, data, onChange }: any) => (
+            <select
+                aria-label={placeholder}
+                onChange={(e) => onChange(e.target.value === '__null__' ? null : e.target.value)}
+                defaultValue="__null__"
+            >
+                <option value="__null__" disabled />
+                {(data as any[]).map((item: any) => (
+                    <option key={item.value ?? item} value={item.value ?? item}>
+                        {item.label ?? item}
+                    </option>
+                ))}
+            </select>
+        )),
+    };
+});
+
 jest.mock('~/client/pages/products/VariantEditRow', () => ({
     VariantEditRow: jest.fn(({ type, delta, onChange }: any) => (
         <div data-testid={`edit-row-${type}`}>
@@ -103,41 +124,46 @@ describe('<ValueQuantitiesTab>', () => {
 
         expect(screen.getByText('3')).toBeInTheDocument();
         expect(screen.getByText('1')).toBeInTheDocument();
-        expect(screen.getAllByRole('row')).toHaveLength(2);
+        // p and m only (d has 0)
+        expect(screen.queryByRole('button', { name: /\bd\b/ })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /\bp\b/ })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /\bm\b/ })).toBeInTheDocument();
     });
 
-    it('clicking a row expands inline edit rows', async () => {
+    it('clicking a row expands it', async () => {
         renderTab();
+        const control = screen.getByRole('button', { name: /\bd\b/ });
 
-        expect(screen.queryByTestId('edit-row-updated')).not.toBeInTheDocument();
+        expect(control).toHaveAttribute('aria-expanded', 'false');
 
-        await user.click(screen.getAllByRole('row')[0]);
+        await user.click(control);
 
-        expect(screen.getByTestId('edit-row-updated')).toBeInTheDocument();
-        expect(screen.getByTestId('edit-row-consumed')).toBeInTheDocument();
-        expect(screen.getByTestId('edit-row-recycled')).toBeInTheDocument();
+        expect(control).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('clicking expanded row collapses it', async () => {
         renderTab();
+        const control = screen.getByRole('button', { name: /\bd\b/ });
 
-        await user.click(screen.getAllByRole('row')[0]);
-        expect(screen.getByTestId('edit-row-updated')).toBeInTheDocument();
+        await user.click(control);
+        expect(control).toHaveAttribute('aria-expanded', 'true');
 
-        await user.click(screen.getAllByRole('row')[0]);
-        expect(screen.queryByTestId('edit-row-updated')).not.toBeInTheDocument();
+        await user.click(control);
+        expect(control).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('clicking a different row switches expansion', async () => {
         renderTab();
+        const controlD = screen.getByRole('button', { name: /\bd\b/ });
+        const controlP = screen.getByRole('button', { name: /\bp\b/ });
 
-        await user.click(screen.getAllByRole('row')[0]);
-        expect(screen.getByTestId('edit-row-updated')).toBeInTheDocument();
+        await user.click(controlD);
+        expect(controlD).toHaveAttribute('aria-expanded', 'true');
+        expect(controlP).toHaveAttribute('aria-expanded', 'false');
 
-        await user.click(screen.getAllByRole('row')[1]);
-        expect(screen.getByTestId('edit-row-updated')).toBeInTheDocument();
-        // only one expanded row at a time — still one set of edit rows
-        expect(screen.getAllByTestId('edit-row-updated')).toHaveLength(1);
+        await user.click(controlP);
+        expect(controlD).toHaveAttribute('aria-expanded', 'false');
+        expect(controlP).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('does not show Undo/Redo buttons when canUndo and canRedo are false', () => {
@@ -156,11 +182,9 @@ describe('<ValueQuantitiesTab>', () => {
     it('selecting a variant from dropdown adds it to the list and expands it', async () => {
         renderTab();
 
-        await user.click(screen.getByRole('combobox'));
-        await user.click(screen.getByRole('option', { name: 'm' }));
+        await user.selectOptions(screen.getByRole('combobox'), 'm');
 
-        expect(screen.getAllByRole('row')).toHaveLength(3 + 1); // 3 variant rows + 1 expanded edit row
-        expect(screen.getByTestId('edit-row-updated')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /\bm\b/ })).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('calls updateProduct when Update is clicked after changing a delta', async () => {
@@ -170,8 +194,8 @@ describe('<ValueQuantitiesTab>', () => {
 
         renderTab();
 
-        await user.click(screen.getAllByRole('row')[0]);
-        await user.click(screen.getByRole('button', { name: 'decrease-updated' }));
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('decrease-updated')[0]);
         await user.click(screen.getByRole('button', { name: /^update$/i }));
 
         expect(mockUpdate).toHaveBeenCalledWith(
@@ -194,8 +218,8 @@ describe('<ValueQuantitiesTab>', () => {
     it('Cancel clears deltas and hides Update/Cancel buttons', async () => {
         renderTab();
 
-        await user.click(screen.getAllByRole('row')[0]);
-        await user.click(screen.getByRole('button', { name: 'decrease-updated' }));
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('decrease-updated')[0]);
         expect(screen.getByRole('button', { name: /^cancel$/i })).toBeInTheDocument();
 
         await user.click(screen.getByRole('button', { name: /^cancel$/i }));
@@ -207,16 +231,13 @@ describe('<ValueQuantitiesTab>', () => {
     it('"New variant" option is present in the dropdown', () => {
         renderTab();
 
-        fireEvent.click(screen.getByRole('combobox'));
-
         expect(screen.getByRole('option', { name: /new variant/i })).toBeInTheDocument();
     });
 
     it('selecting "New variant" opens VariantBox with group pre-filled', async () => {
         renderTab();
 
-        await user.click(screen.getByRole('combobox'));
-        await user.click(screen.getByRole('option', { name: /new variant/i }));
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } });
 
         expect(VariantBox).toHaveBeenCalledWith(expect.objectContaining({ opened: true, group }), undefined);
     });
@@ -224,21 +245,18 @@ describe('<ValueQuantitiesTab>', () => {
     it('after creating a variant, it appears in the list and is expanded', async () => {
         renderTab();
 
-        await user.click(screen.getByRole('combobox'));
-        await user.click(screen.getByRole('option', { name: /new variant/i }));
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } });
         await user.click(screen.getByRole('button', { name: 'Create variant x' }));
 
-        expect(screen.getByTestId('edit-row-updated')).toBeInTheDocument();
-        expect(screen.getAllByRole('row')).toHaveLength(3 + 1); // 3 variants + 1 expanded
+        expect(screen.getByRole('button', { name: /\bx\b/ })).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('cancelling VariantBox without a variant does not change the list', async () => {
         renderTab();
 
-        await user.click(screen.getByRole('combobox'));
-        await user.click(screen.getByRole('option', { name: /new variant/i }));
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } });
         await user.click(screen.getByRole('button', { name: 'Cancel add' }));
 
-        expect(screen.getAllByRole('row')).toHaveLength(2);
+        expect(screen.queryByRole('button', { name: /\bm\b/ })).not.toBeInTheDocument();
     });
 });
