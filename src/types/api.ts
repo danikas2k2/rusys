@@ -21,6 +21,7 @@ export const enum ApiUrl {
 
     // Summary
     Summary = '/summary',
+    SummaryHistory = '/summary/history',
 
     // Products
     Products = '/products',
@@ -33,6 +34,7 @@ export const enum ApiUrl {
     ProductsRename = '/products/rename',
     ProductsMove = '/products/move',
     ProductsDelete = '/products/delete',
+    ProductsHistory = '/products/history',
 
     // Groups
     Groups = '/groups',
@@ -48,9 +50,6 @@ export const enum ApiUrl {
     VariantsRename = '/variants/rename',
     VariantsCopy = '/variants/copy',
     VariantsDelete = '/variants/delete',
-
-    // History
-    History = '/history',
 }
 
 export interface ApiUserEmail {
@@ -198,7 +197,6 @@ export type ApiExport = ApiProducts & ApiVariantsWithGroups;
 export type ApiWithFiles = { files?: FileArray };
 
 export interface ApiHistory {
-    history: readonly History[];
+    updates: readonly History[];
     undates: readonly History[];
 }
-

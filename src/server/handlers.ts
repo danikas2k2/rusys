@@ -7,9 +7,9 @@ import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { handleExport } from '~/server/api/handleExport';
 import { handleGroups } from '~/server/api/handleGroups';
-import { handleHistory } from '~/server/api/handleHistory';
 import { handleImport } from '~/server/api/handleImport';
 import { handleMove } from '~/server/api/handleMove';
+import { handleProductHistory } from '~/server/api/handleProductHistory';
 import { handleProducts } from '~/server/api/handleProducts';
 import { handleRedoProduct } from '~/server/api/handleRedoProduct';
 import { handleRename } from '~/server/api/handleRename';
@@ -20,6 +20,7 @@ import { handleReorderVariants } from '~/server/api/handleReorderVariants';
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { handleSummary } from '~/server/api/handleSummary';
+import { handleSummaryHistory } from '~/server/api/handleSummaryHistory';
 import { handleUndoProduct } from '~/server/api/handleUndoProduct';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
@@ -37,12 +38,13 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.UserProfileUpsert]: handleUpsertUserProfile,
     [ApiUrl.UserProfiles]: handleUserProfiles,
     [ApiUrl.Summary]: handleSummary,
+    [ApiUrl.SummaryHistory]: handleSummaryHistory,
     [ApiUrl.Products]: handleProducts,
     [ApiUrl.ProductsAdd]: handleAdd,
     [ApiUrl.ProductsUpdate]: handleUpdateProduct,
     [ApiUrl.ProductsUndo]: handleUndoProduct,
     [ApiUrl.ProductsRedo]: handleRedoProduct,
-    [ApiUrl.History]: handleHistory,
+    [ApiUrl.ProductsHistory]: handleProductHistory,
     [ApiUrl.ProductsSetRemoving]: handleSetRemoving,
     [ApiUrl.ProductsSetMissing]: handleSetMissing,
     [ApiUrl.ProductsRename]: handleRename,

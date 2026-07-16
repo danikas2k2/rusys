@@ -6,7 +6,7 @@ import React from 'react';
 import { ValueHistoryTab } from '~/client/pages/products/ValueHistoryTab';
 import type { History, ProductAmounts } from '~/types/data';
 
-jest.mock('~/client/state/history/useGetHistory', () => ({
+jest.mock('~/client/state/history/useGetProductHistory', () => ({
     useGetHistory: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
 }));
 
@@ -15,7 +15,7 @@ jest.mock('~/client/hooks/useLockingLoader', () => ({
     LoadingState: { INITIAL: 'initial', LOADING: 'loading', COMPLETE: 'complete', FAILED: 'failed' },
 }));
 
-jest.mock('~/client/state/history/useHistory', () => ({
+jest.mock('~/client/state/history/useUpdates', () => ({
     useHistory: jest.fn(() => []),
 }));
 
@@ -51,8 +51,8 @@ describe('<ValueHistoryTab>', () => {
         expect(screen.queryAllByRole('row')).toHaveLength(1); // only thead
     });
 
-    it('calls useGetHistory with year, group, name from active context', () => {
-        const { useGetHistory } = jest.requireMock('~/client/state/history/useGetHistory');
+    it('calls useGetProductHistory with year, group, name from active context', () => {
+        const { useGetHistory } = jest.requireMock('~/client/state/history/useGetProductHistory');
 
         renderTab();
 
@@ -60,7 +60,7 @@ describe('<ValueHistoryTab>', () => {
     });
 
     it('renders a row for each history entry', () => {
-        const { useHistory } = jest.requireMock('~/client/state/history/useHistory');
+        const { useHistory } = jest.requireMock('~/client/state/history/useUpdates');
         const entries: History[] = [
             { group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [{ variant: 'p', amount: 1 }] },
             { group: 'Uogienės', name: 'Avietės', time: 2000, year: 2026, amounts: [{ variant: 'd', amount: -1 }] },
@@ -73,7 +73,7 @@ describe('<ValueHistoryTab>', () => {
     });
 
     it('renders amounts for each row', () => {
-        const { useHistory } = jest.requireMock('~/client/state/history/useHistory');
+        const { useHistory } = jest.requireMock('~/client/state/history/useUpdates');
         useHistory.mockReturnValue([
             {
                 group: 'Uogienės',
@@ -93,7 +93,7 @@ describe('<ValueHistoryTab>', () => {
     });
 
     it('uses year=0 when active context has no year', () => {
-        const { useGetHistory } = jest.requireMock('~/client/state/history/useGetHistory');
+        const { useGetHistory } = jest.requireMock('~/client/state/history/useGetProductHistory');
 
         render(
             <MockThemeActive active={{ action: 'values', data: { group: 'G', name: 'N' } as ProductAmounts }}>

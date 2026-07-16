@@ -1,5 +1,5 @@
 import { HistoryActionType, type HistoryAction } from '~/client/state/history/actions';
-import { history as reducer } from '~/client/state/history/reducer';
+import { updates as reducer } from '~/client/state/history/reducer';
 import type { History } from '~/types/data';
 
 describe('history', () => {
@@ -32,8 +32,8 @@ describe('history', () => {
         it('update empty state', () => {
             expect(
                 reducer([], {
-                    type: HistoryActionType.SET,
-                    history,
+                    type: HistoryActionType.SET_UPDATES,
+                    updates: history,
                 })
             ).toStrictEqual(history);
         });
@@ -41,8 +41,8 @@ describe('history', () => {
         it('update empty state with empty set', () => {
             expect(
                 reducer([], {
-                    type: HistoryActionType.SET,
-                    history: [],
+                    type: HistoryActionType.SET_UPDATES,
+                    updates: [],
                 })
             ).toStrictEqual([]);
         });
@@ -50,8 +50,8 @@ describe('history', () => {
         it('update filled state', () => {
             expect(
                 reducer(history.slice(0, 1), {
-                    type: HistoryActionType.SET,
-                    history,
+                    type: HistoryActionType.SET_UPDATES,
+                    updates: history,
                 })
             ).toStrictEqual(history);
         });
@@ -59,14 +59,14 @@ describe('history', () => {
         it('update undefined state', () => {
             expect(
                 reducer(undefined, {
-                    type: HistoryActionType.SET,
-                    history,
+                    type: HistoryActionType.SET_UPDATES,
+                    updates: history,
                 })
             ).toStrictEqual(history);
         });
 
         it('return deep clone of history', () => {
-            const result = reducer([], { type: HistoryActionType.SET, history });
+            const result = reducer([], { type: HistoryActionType.SET_UPDATES, updates: history });
 
             expect(result).toStrictEqual(history);
             expect(result).not.toBe(history);

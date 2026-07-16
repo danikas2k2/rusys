@@ -12,7 +12,7 @@ function parseYear(raw: number): number {
     return 2000 + raw;
 }
 
-export async function handleHistory(
+export async function handleProductHistory(
     req: ApiRequest<ApiRequestYear | ApiRequestHistoryGet>,
     res: ApiResponse<ApiHistory>
 ): Promise<void> {
@@ -35,8 +35,8 @@ export async function handleHistory(
 
     res.json(
         await run(async () => ({
-            history: await getHistorySessions(year, undefined, group, name),
-            undates: await getUndateSessions(year, undefined, group, name),
+            updates: await getHistorySessions(year, group, name),
+            undates: await getUndateSessions(year, group, name),
             groups: await getGroups(),
         }))
     );

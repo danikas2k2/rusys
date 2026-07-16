@@ -12,6 +12,11 @@ jest.mock('~/client/state/variants/useGroupVariantComparator', () => ({
     useGroupVariantComparator: jest.fn(),
 }));
 
+jest.mock('~/client/common/ActiveContentContext', () => ({
+    ...jest.requireActual('~/client/common/ActiveContentContext'),
+    useActiveContent: jest.fn(() => [undefined, jest.fn()]),
+}));
+
 jest.mock('~/client/common/AmountSuffix', () => ({
     AmountSuffix: () => null,
 }));
@@ -29,7 +34,7 @@ describe('<SummaryCell>', () => {
                 <Table>
                     <Table.Tbody>
                         <Table.Tr>
-                            <SummaryCell group="Uogienės" />
+                            <SummaryCell group="Uogienės" name="Avietės" year={2023} />
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>
@@ -45,7 +50,7 @@ describe('<SummaryCell>', () => {
                 <Table>
                     <Table.Tbody>
                         <Table.Tr>
-                            <SummaryCell group="Uogienės" amounts={[]} />
+                            <SummaryCell group="Uogienės" name="Avietės" year={2023} amounts={[]} />
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>
@@ -61,7 +66,7 @@ describe('<SummaryCell>', () => {
                 <Table>
                     <Table.Tbody>
                         <Table.Tr>
-                            <SummaryCell group="Uogienės" amounts={[{ variant: 'p', amount: 5 }]} />
+                            <SummaryCell group="Uogienės" name="Avietės" year={2023} amounts={[{ variant: 'p', amount: 5 }]} />
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>
@@ -81,6 +86,8 @@ describe('<SummaryCell>', () => {
             <MockTableRow>
                 <SummaryCell
                     group="Uogienės"
+                    name="Avietės"
+                    year={2023}
                     amounts={[
                         { variant: 'm', amount: 15 },
                         { variant: 'p', amount: 5 },
@@ -105,7 +112,7 @@ describe('<SummaryCell>', () => {
 
         render(
             <MockTableRow>
-                <SummaryCell group="Uogienės" amounts={amounts} />
+                <SummaryCell group="Uogienės" name="Avietės" year={2023} amounts={amounts} />
             </MockTableRow>
         );
 

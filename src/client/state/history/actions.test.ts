@@ -1,4 +1,4 @@
-import { HistoryActionType, setHistoryAction } from '~/client/state/history/actions';
+import { HistoryActionType, setUpdatesAction } from '~/client/state/history/actions';
 import type { History } from '~/types/data';
 
 describe('setHistoryAction', () => {
@@ -12,8 +12,8 @@ describe('setHistoryAction', () => {
             },
         ];
 
-        expect(setHistoryAction(history)).toStrictEqual({
-            type: HistoryActionType.SET,
+        expect(setUpdatesAction(history)).toStrictEqual({
+            type: HistoryActionType.SET_UPDATES,
             history,
         });
     });
@@ -21,8 +21,8 @@ describe('setHistoryAction', () => {
     it('returns valid action for empty set', () => {
         const history: History[] = [];
 
-        expect(setHistoryAction(history)).toStrictEqual({
-            type: HistoryActionType.SET,
+        expect(setUpdatesAction(history)).toStrictEqual({
+            type: HistoryActionType.SET_UPDATES,
             history,
         });
     });

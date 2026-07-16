@@ -1,17 +1,17 @@
 import type { History } from '~/types/data';
 
 export const enum HistoryActionType {
-    SET = 'history.set',
+    SET_UPDATES = 'updates.set',
     SET_UNDATES = 'undates.set',
 }
 
 export type HistoryAction =
-    | { type: HistoryActionType.SET; history: readonly History[] }
+    | { type: HistoryActionType.SET_UPDATES; updates: readonly History[] }
     | { type: HistoryActionType.SET_UNDATES; undates: readonly History[] };
 
-export const setHistoryAction = (history: readonly History[]): Readonly<HistoryAction> => ({
-    type: HistoryActionType.SET,
-    history,
+export const setUpdatesAction = (updates: readonly History[]): Readonly<HistoryAction> => ({
+    type: HistoryActionType.SET_UPDATES,
+    updates,
 });
 
 export const setUndatesAction = (undates: readonly History[]): Readonly<HistoryAction> => ({

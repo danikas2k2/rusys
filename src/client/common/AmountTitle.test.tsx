@@ -3,7 +3,7 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { AmountTitle } from '~/client/pages/products/AmountTitle';
+import { AmountTitle } from '~/client/common/AmountTitle';
 
 describe('<AmountTitle>', () => {
     it('renders name and group', () => {
@@ -17,15 +17,15 @@ describe('<AmountTitle>', () => {
         expect(screen.getByText(/Uogienės/)).toBeInTheDocument();
     });
 
-    it('renders without year when year is 0', () => {
+    it('renders without year when year is not provided', () => {
         render(
             <MockTheme>
-                <AmountTitle group="Uogienės" name="Braškės" year={0} />
+                <AmountTitle group="Uogienės" name="Braškės" />
             </MockTheme>
         );
 
         expect(screen.getByText(/Uogienės/)).toBeInTheDocument();
-        expect(screen.queryByText(/, 0/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/, /)).not.toBeInTheDocument();
     });
 
     it('renders year when year is provided', () => {

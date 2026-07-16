@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 import { error } from '~/client/state/error/reducer';
 import { google } from '~/client/state/google/reducer';
 import { groups } from '~/client/state/groups/reducer';
-import { history, undates } from '~/client/state/history/reducer';
+import { undates, updates } from '~/client/state/history/reducer';
 import { products } from '~/client/state/products/reducer';
 import { profile } from '~/client/state/profile/reducer';
 import { summary } from '~/client/state/summary/reducer';
@@ -19,6 +19,6 @@ export const reducer = combineReducers({
     variants,
     products,
     summary,
-    history,
+    updates,
     undates,
 });

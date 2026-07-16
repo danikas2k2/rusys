@@ -5,19 +5,24 @@ import type { History } from '~/types/data';
 
 export const HISTORY_SESSION_GAP_MS = 15 * 60 * 1000;
 
+const SUMMARY_START_MONTH = 9; // September — matches summary year grouping
+
 async function getSessionsFromField(
     field: 'updates' | 'undates',
     year: number,
-    gapMs: number,
+    month: number = 1,
     group?: string,
-    name?: string
+    name?: string,
+    byDate = false
 ): Promise<History[]> {
     const f = field;
     const productFilter: Document =
         group && name ? { [f]: { $exists: true, $ne: [] }, group, name } : { [f]: { $exists: true, $ne: [] } };
 
+    const gapMs = HISTORY_SESSION_GAP_MS;
+
     const yearFilter: Document =
-        group && name
+        group && name /*&& !byDate*/
             ? {
                   $or: [
                       { [`${f}.years`]: { $elemMatch: { year } } },
@@ -28,13 +33,10 @@ async function getSessionsFromField(
                   $expr: {
                       $and: [
                           {
-                              $gte: [{ $toDate: `$${f}.time` }, { $dateFromParts: { year, month: 1, day: 1 } }],
+                              $gte: [{ $toDate: `$${f}.time` }, { $dateFromParts: { year, month, day: 1 } }],
                           },
                           {
-                              $lt: [
-                                  { $toDate: `$${f}.time` },
-                                  { $dateFromParts: { year: year + 1, month: 1, day: 1 } },
-                              ],
+                              $lt: [{ $toDate: `$${f}.time` }, { $dateFromParts: { year: year + 1, month, day: 1 } }],
                           },
                       ],
                   },
@@ -180,20 +182,18 @@ async function getSessionsFromField(
         .toArray();
 }
 
-export async function getHistorySessions(
-    year: number,
-    gapMs: number = HISTORY_SESSION_GAP_MS,
-    group?: string,
-    name?: string
-): Promise<History[]> {
-    return getSessionsFromField('updates', year, gapMs, group, name);
+export async function getHistorySessions(year: number, group?: string, name?: string): Promise<History[]> {
+    return getSessionsFromField('updates', year, 1, group, name);
 }
 
-export async function getUndateSessions(
-    year: number,
-    gapMs: number = HISTORY_SESSION_GAP_MS,
-    group?: string,
-    name?: string
-): Promise<History[]> {
-    return getSessionsFromField('undates', year, gapMs, group, name);
+export async function getUndateSessions(year: number, group?: string, name?: string): Promise<History[]> {
+    return getSessionsFromField('undates', year, 1, group, name);
+}
+
+export async function getHistorySessionsByDate(year: number, group: string, name: string): Promise<History[]> {
+    return getSessionsFromField('updates', year, SUMMARY_START_MONTH, group, name, true);
+}
+
+export async function getUndateSessionsByDate(year: number, group: string, name: string): Promise<History[]> {
+    return getSessionsFromField('undates', year, SUMMARY_START_MONTH, group, name, true);
 }

@@ -3,7 +3,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { useHistory } from '~/client/state/history/useHistory';
+import { useUpdates } from '~/client/state/history/useUpdates';
 import type { History } from '~/types/data';
 
 describe('useHistory', () => {
@@ -17,7 +17,7 @@ describe('useHistory', () => {
     ];
 
     it('returns history from state', () => {
-        const { result } = renderHook(() => useHistory(), {
+        const { result } = renderHook(() => useUpdates(), {
             wrapper: ({ children }) => <MockRedux state={{ history: historyData }}>{children}</MockRedux>,
         });
 
@@ -25,7 +25,7 @@ describe('useHistory', () => {
     });
 
     it('returns an empty array when state.history is undefined', () => {
-        const { result } = renderHook(() => useHistory(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useUpdates(), { wrapper: MockRedux });
 
         expect(result.current).toStrictEqual([]);
     });

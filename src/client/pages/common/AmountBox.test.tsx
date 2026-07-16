@@ -8,7 +8,7 @@ import React from 'react';
 import { UpdateTypeWrapper } from '~/client/common/UpdateTypeContext';
 import { AmountBox, type AmountBoxProps } from '~/client/pages/common/AmountBox';
 import { AmountInput } from '~/client/pages/products/AmountInput';
-import { AmountTitle } from '~/client/pages/products/AmountTitle';
+import { AmountTitle } from '~/client/common/AmountTitle';
 import type { WithVariantsState } from '~/client/state/variants/types';
 import { getVariantAmount } from '~/common/utils/amounts';
 import type { VariantAmount } from '~/types/data';

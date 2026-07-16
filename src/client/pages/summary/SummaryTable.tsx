@@ -4,6 +4,7 @@ import React from 'react';
 import { LoadableContent } from '~/client/common/LoadableContent';
 import { useUpdateType } from '~/client/common/UpdateTypeContext';
 import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
+import { SummaryYear } from '~/client/pages/summary/SummaryYear';
 import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
 import { useRecycledSummary } from '~/client/pages/summary/hooks/useRecycledSummary';
 import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasData';
@@ -29,7 +30,7 @@ export function SummaryTable() {
                         </Table.Th>
                         {summaryYears.map((year) => (
                             <Table.Th key={year}>
-                                <sup>{year}</sup>/<sub>{year + 1}</sub>
+                                <SummaryYear year={year} />
                             </Table.Th>
                         ))}
                     </Table.Tr>

@@ -14,8 +14,8 @@ import { handleDelete } from '~/server/api/handleDelete';
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { handleGroups } from '~/server/api/handleGroups';
-import { handleHistory } from '~/server/api/handleHistory';
 import { handleMove } from '~/server/api/handleMove';
+import { handleProductHistory } from '~/server/api/handleProductHistory';
 import { handleProducts } from '~/server/api/handleProducts';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
@@ -54,7 +54,7 @@ jest.mock('~/server/api/handleMove');
 jest.mock('~/server/api/handleDelete');
 
 // History
-jest.mock('~/server/api/handleHistory');
+jest.mock('~/server/api/handleProductHistory');
 
 // Groups
 jest.mock('~/server/api/handleGroups');
@@ -85,7 +85,7 @@ describe('app', () => {
             ${ApiUrl.Products}            | ${handleProducts}
             ${ApiUrl.ProductsUpdate}      | ${handleUpdateProduct}
             ${ApiUrl.ProductsAdd}         | ${handleAdd}
-            ${ApiUrl.History}             | ${handleHistory}
+            ${ApiUrl.ProductsHistory}     | ${handleProductHistory}
             ${ApiUrl.ProductsSetRemoving} | ${handleSetRemoving}
             ${ApiUrl.ProductsSetMissing}  | ${handleSetMissing}
             ${ApiUrl.ProductsRename}      | ${handleRename}

@@ -1,10 +1,10 @@
 import { Stack, Title } from '@mantine/core';
-import React from 'react';
+import React, { type ReactNode } from 'react';
 
 interface AmountTitleProps {
     group?: string;
     name?: string;
-    year?: number;
+    year?: ReactNode;
 }
 
 export function AmountTitle({ group, name, year }: AmountTitleProps): React.JSX.Element {
@@ -15,7 +15,7 @@ export function AmountTitle({ group, name, year }: AmountTitleProps): React.JSX.
             </Title>
             <Title order={4} fz="lg">
                 {group}
-                {!!year && `, ${year}`}
+                {year != null && year !== 0 && year !== '' && <>, {year}</>}
             </Title>
         </Stack>
     );

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
-import { AmountTitle } from '~/client/pages/products/AmountTitle';
+import { AmountTitle } from '~/client/common/AmountTitle';
 import { ValueListBox } from '~/client/pages/products/ValueListBox';
 import type { ProductAmounts } from '~/types/data';
 
