@@ -111,7 +111,7 @@ export async function addProduct(group: string, name: string): Promise<boolean> 
 }
 
 export const cleanupRecycled = ({ recycled, ...v }: VariantAmount): VariantAmount =>
-    recycled ? { ...v, recycled } : v;
+    recycled != null ? { ...v, recycled } : v;
 
 export const hasAmount = (a: VariantAmount) => a.amount > 0;
 

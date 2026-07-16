@@ -1,5 +1,5 @@
 import { Group, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconToolsKitchen2, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconToolsKitchen2, IconTrash } from '@tabler/icons-react';
 import React from 'react';
 
 import type { VariantAmount } from '~/types/data';
@@ -19,14 +19,14 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
     return (
         <Stack gap={4}>
             {sorted.map((a) => {
-                const recycled = !!a.recycled;
-                const typeLabel = recycled ? 'Recycled' : 'Consumed';
-                const color = recycled ? 'negative' : 'positive';
-                const Icon = recycled ? IconTrash : IconToolsKitchen2;
+                const isUpdated = a.recycled == null;
+                const typeLabel = isUpdated ? 'Updated' : a.recycled ? 'Recycled' : 'Consumed';
+                const color = isUpdated ? 'blue' : a.recycled ? 'negative' : 'positive';
+                const Icon = isUpdated ? IconEdit : a.recycled ? IconTrash : IconToolsKitchen2;
 
                 return (
                     <Group
-                        key={`${a.variant}-${a.amount}-${recycled ? 'r' : 'c'}`}
+                        key={`${a.variant}-${a.amount}-${a.recycled == null ? 'u' : a.recycled ? 'r' : 'c'}`}
                         justify="space-between"
                         wrap="nowrap"
                         gap="xs"
