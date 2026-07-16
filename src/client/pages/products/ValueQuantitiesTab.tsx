@@ -58,16 +58,18 @@ export function ValueQuantitiesTab() {
     const compareVariants = useGroupVariantComparator(group);
 
     const presentVariants = useMemo(() => {
-        const fromAmounts = liveAmounts?.filter((a) => a.amount > 0).map((a) => a.variant) ?? [];
+        const fromAmounts = (liveAmounts ?? amounts)?.filter((a) => a.amount > 0).map((a) => a.variant) ?? [];
         return [...fromAmounts].sort(compareVariants);
-    }, [liveAmounts, compareVariants]);
+    }, [liveAmounts, amounts, compareVariants]);
 
     const [extraVariants, setExtraVariants] = useState<string[]>([]);
 
     const visibleVariants = useMemo(() => {
         const combined = Array.from(new Set([...presentVariants, ...extraVariants]));
-        return combined.sort(compareVariants);
-    }, [compareVariants, extraVariants, presentVariants]);
+        return combined
+            .filter((v) => extraVariants.includes(v) || getVariantAmount(liveAmounts ?? amounts, v) > 0)
+            .sort(compareVariants);
+    }, [compareVariants, extraVariants, presentVariants, liveAmounts, amounts]);
 
     const unusedVariants = useMemo(
         () => allVariants.filter((v) => !visibleVariants.includes(v)),
@@ -116,6 +118,7 @@ export function ValueQuantitiesTab() {
         setAllDeltas({});
         setComment('');
         setExpandedVariant(null);
+        setExtraVariants([]);
     }, []);
 
     const handleUpdate = useCallback(async () => {
@@ -139,6 +142,7 @@ export function ValueQuantitiesTab() {
             setAllDeltas({});
             setComment('');
             setExpandedVariant(null);
+            setExtraVariants([]);
         }
     }, [allDeltas, activeData, group, name, year, profile.email, comment, setUpdating, updateProduct]);
 
