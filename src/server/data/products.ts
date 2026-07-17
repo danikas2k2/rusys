@@ -1,9 +1,10 @@
-import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter } from 'mongodb';
+import type { AnyBulkWriteOperation, ClientSession, Document, Filter, UpdateFilter, WithId } from 'mongodb';
 
 import { addVariantAmount, getCombinedAmounts } from '~/common/utils/amounts';
+import { buildHistoryPipeline } from '~/server/data/history';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
-import type { Product, Update, VariantAmount } from '~/types/data';
+import type { History, Product, Update, VariantAmount } from '~/types/data';
 
 export async function getProducts(years: readonly number[] = []): Promise<Product[]> {
     const col = (await db()).collection('products');
@@ -139,7 +140,12 @@ export async function updateProduct(
 
         // save all change types (consumed=recycled:false, recycled=recycled:true, updated=no recycled field)
         const historyAmounts = changes.map(cleanupRecycled);
-        const newEntry = { time: Date.now(), user, ...(comment ? { comment } : {}), years: [{ year, amounts: historyAmounts }] };
+        const newEntry = {
+            time: Date.now(),
+            user,
+            ...(comment ? { comment } : {}),
+            years: [{ year, amounts: historyAmounts }],
+        };
         const newUpdates = [...(product?.updates ?? []), newEntry];
         // clear undates on new update
         operations.push({ updateOne: { filter, update: { $set: { updates: newUpdates }, $unset: { undates: 1 } } } });
@@ -586,4 +592,26 @@ export async function setMissing(
         .collection('products')
         .updateOne({ group, name }, { [missing ? '$set' : '$unset']: { missing } }, { session })
         .then(hasEffect);
+}
+
+async function getProductHistory(
+    group: string,
+    name: string,
+    year: number,
+    field: 'updates' | 'undates'
+): Promise<History[]> {
+    return (await db())
+        .collection('products')
+        .aggregate<WithId<History>>(
+            buildHistoryPipeline(group, name, field, { [`${field}.years`]: { $elemMatch: { year } } })
+        )
+        .toArray();
+}
+
+export async function getProductUpdates(group: string, name: string, year: number): Promise<History[]> {
+    return getProductHistory(group, name, year, 'updates');
+}
+
+export async function getProductUndates(group: string, name: string, year: number): Promise<History[]> {
+    return getProductHistory(group, name, year, 'undates');
 }

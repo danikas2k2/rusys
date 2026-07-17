@@ -63,8 +63,6 @@ export function SummaryHistoryTab() {
     const updates = useUpdates();
     const undates = useUndates();
 
-    console.info(`[DEV]`, updates);
-
     const filteredUpdates = useMemo(() => filterByRecycled(updates, recycled), [updates, recycled]);
     const filteredUndates = useMemo(() => filterByRecycled(undates, recycled), [undates, recycled]);
 

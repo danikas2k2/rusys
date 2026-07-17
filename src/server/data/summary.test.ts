@@ -2,7 +2,7 @@
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 
 import { getGroups } from '~/server/data/groups';
-import { getFullSummary, getSummary } from '~/server/data/updates';
+import { getFullSummary, getSummary } from '~/server/data/summary';
 import { getVariants } from '~/server/data/variants';
 import { db } from '~/server/db';
 

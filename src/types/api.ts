@@ -113,7 +113,7 @@ export interface ApiRequestYear {
     year: number;
 }
 
-export interface ApiRequestHistoryGet {
+export interface ApiRequestHistory {
     group: string;
     name: string;
     year: number;

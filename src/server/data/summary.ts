@@ -1,8 +1,11 @@
+import type { Document, WithId } from 'mongodb';
+
 import { getGroups } from '~/server/data/groups';
+import { AMOUNT_FILTER_NEGATIVE, buildHistoryPipeline } from '~/server/data/history';
 import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
-import type { Group, Summary, Variant } from '~/types/data';
+import type { Group, History, Summary, Variant } from '~/types/data';
 
 const MAX_YEARS = 3;
 const START_MONTH = 9; // September
@@ -60,9 +63,9 @@ export const getSummary = async (years: number[] = getYears()): Promise<readonly
                             ],
                         },
                         variant: '$updates.years.amounts.variant',
+                        recycled: { $ifNull: ['$updates.years.amounts.recycled', null] },
                     },
                     amount: { $sum: '$updates.years.amounts.amount' },
-                    recycled: { $max: '$updates.years.amounts.recycled' },
                     variantOrder: { $first: '$variantOrder' },
                 },
             },
@@ -75,7 +78,7 @@ export const getSummary = async (years: number[] = getYears()): Promise<readonly
                             variant: '$_id.variant',
                             amount: { $multiply: [-1, '$amount'] },
                             recycled: {
-                                $cond: [{ $ne: ['$recycled', null] }, '$recycled', '$$REMOVE'],
+                                $cond: [{ $ne: ['$_id.recycled', null] }, '$_id.recycled', '$$REMOVE'],
                             },
                             variantOrder: '$variantOrder',
                         },
@@ -170,3 +173,50 @@ export const getFullSummary = async (): Promise<
         summary: await getSummary(years),
     };
 };
+
+export async function getSummaryHistory(
+    group: string,
+    name: string,
+    year: number,
+    field: 'updates' | 'undates'
+): Promise<History[]> {
+    const y = year + 2000;
+
+    return (await db())
+        .collection('products')
+        .aggregate<WithId<History>>(
+            buildHistoryPipeline(
+                group,
+                name,
+                field,
+                {
+                    $expr: {
+                        $and: [
+                            {
+                                $gte: [
+                                    { $toDate: `$${field}.time` },
+                                    { $dateFromParts: { year: y, month: START_MONTH, day: 1 } },
+                                ],
+                            },
+                            {
+                                $lt: [
+                                    { $toDate: `$${field}.time` },
+                                    { $dateFromParts: { year: y + 1, month: START_MONTH, day: 1 } },
+                                ],
+                            },
+                        ],
+                    },
+                },
+                AMOUNT_FILTER_NEGATIVE
+            )
+        )
+        .toArray();
+}
+
+export async function getSummaryUpdates(group: string, name: string, year: number): Promise<History[]> {
+    return getSummaryHistory(group, name, year, 'updates');
+}
+
+export async function getSummaryUndates(group: string, name: string, year: number): Promise<History[]> {
+    return getSummaryHistory(group, name, year, 'undates');
+}

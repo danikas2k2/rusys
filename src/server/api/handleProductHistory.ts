@@ -1,42 +1,22 @@
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
 import { getGroups } from '~/server/data/groups';
-import { getHistorySessions, getUndateSessions } from '~/server/data/history';
-import type { ApiHistory, ApiRequest, ApiRequestHistoryGet, ApiRequestYear, ApiResponse } from '~/types/api';
-
-function parseYear(raw: number): number {
-    if (raw >= 2000) {
-        return raw;
-    }
-    // short year e.g. 26 → 2026
-    return 2000 + raw;
-}
+import { getProductUndates, getProductUpdates } from '~/server/data/products';
+import type { ApiHistory, ApiRequest, ApiRequestHistory, ApiRequestYear, ApiResponse } from '~/types/api';
 
 export async function handleProductHistory(
-    req: ApiRequest<ApiRequestYear | ApiRequestHistoryGet>,
+    req: ApiRequest<ApiRequestHistory>,
     res: ApiResponse<ApiHistory>
 ): Promise<void> {
     debugRequest(req);
     headerNoCache(res);
 
-    const raw = req.body?.year;
-    if (typeof raw !== 'number' || !Number.isFinite(raw)) {
-        throw new Error('Invalid year');
-    }
-
-    const year = parseYear(raw);
-    if (year < 2000 || year > new Date().getFullYear()) {
-        throw new Error('Invalid year');
-    }
-
-    const body = req.body as ApiRequestHistoryGet | ApiRequestYear;
-    const group = 'group' in body ? body.group : undefined;
-    const name = 'name' in body ? body.name : undefined;
+    const { group, name, year } = req.body;
 
     res.json(
         await run(async () => ({
-            updates: await getHistorySessions(year, group, name),
-            undates: await getUndateSessions(year, group, name),
+            updates: await getProductUpdates(group, name, year),
+            undates: await getProductUndates(group, name, year),
             groups: await getGroups(),
         }))
     );
