@@ -1,7 +1,7 @@
 import type { Document, WithId } from 'mongodb';
 
 import { getGroups } from '~/server/data/groups';
-import { AMOUNT_FILTER_NEGATIVE, buildHistoryPipeline } from '~/server/data/history';
+import { buildHistoryPipeline } from '~/server/data/history';
 import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
@@ -30,7 +30,7 @@ export const getSummary = async (years: number[] = getYears()): Promise<readonly
 
             { $unwind: '$updates.years' },
             { $unwind: '$updates.years.amounts' },
-            { $match: { 'updates.years.amounts.amount': { $lt: 0 } } },
+            { $match: { 'updates.years.amounts.recycled': { $exists: true } } },
 
             {
                 $lookup: {
@@ -207,7 +207,7 @@ export async function getSummaryHistory(
                         ],
                     },
                 },
-                AMOUNT_FILTER_NEGATIVE
+                { $ne: [{ $ifNull: ['$$a.recycled', null] }, null] }
             )
         )
         .toArray();

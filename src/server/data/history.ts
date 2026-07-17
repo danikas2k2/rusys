@@ -1,16 +1,11 @@
 import type { Document } from 'mongodb';
 
-export const HISTORY_SESSION_GAP_MS = 15 * 60 * 1000;
-
-export const AMOUNT_FILTER_NONZERO: Document = { $ne: [{ $ifNull: ['$$a.amount', 0] }, 0] };
-export const AMOUNT_FILTER_NEGATIVE: Document = { $lt: [{ $ifNull: ['$$a.amount', 0] }, 0] };
-
 export function buildHistoryPipeline(
     group: string,
     name: string,
     field: 'updates' | 'undates',
     yearFilter: Document,
-    amountFilter: Document = AMOUNT_FILTER_NONZERO
+    amountFilter: Document = { $ne: [{ $ifNull: ['$$a.amount', 0] }, 0] }
 ): Document[] {
     return [
         { $match: { [field]: { $exists: true, $ne: [] }, group, name } },
@@ -84,7 +79,7 @@ export function buildHistoryPipeline(
                         {
                             $or: [
                                 { $eq: ['$prevTimeMs', null] },
-                                { $gt: [{ $subtract: ['$timeMs', '$prevTimeMs'] }, HISTORY_SESSION_GAP_MS] },
+                                { $gt: [{ $subtract: ['$timeMs', '$prevTimeMs'] }, 900_000 /* 15 min */] },
                             ],
                         },
                         1,
