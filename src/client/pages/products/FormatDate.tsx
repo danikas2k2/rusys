@@ -25,7 +25,7 @@ export function FormatDate({ date }: FormatDateProps) {
                     ) : (
                         month
                     )}
-                    {day && <> {day}</>}
+                    {day && <> {Number.parseInt(day, 10)}</>}
                 </time>
             )}
             <time data-time>{ts}</time>
