@@ -16,7 +16,7 @@ export function FormatDate({ date }: FormatDateProps) {
 
     return (
         <>
-            {mon && (
+            {ds && (
                 <time data-date>
                     {year ? (
                         <>
