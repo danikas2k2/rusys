@@ -1,12 +1,12 @@
 import { Flex } from '@mantine/core';
 import React from 'react';
 
-import { Error } from '~/client/common/Error';
+import { Error, type ErrorProps } from '~/client/common/Error';
 
-export function ScreenError({ children }: React.PropsWithChildren) {
+export function ScreenError({ children, ...props }: ErrorProps) {
     return (
         <Flex data-error>
-            <Error>{children}</Error>
+            <Error {...props}>{children}</Error>
         </Flex>
     );
 }

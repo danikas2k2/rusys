@@ -7,7 +7,7 @@ export function headerNoCache(res: Response): void {
     res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
 }
 
-export async function run<T, R extends object>(
+export async function run<T, R = unknown>(
     action: () => T | Promise<T>,
     response?: (data: T) => R | Promise<R>
 ): Promise<ApiResult<R>> {
@@ -15,9 +15,10 @@ export async function run<T, R extends object>(
         const result = await action();
         if (result || result === false) {
             debug('OK');
-            return result && response
-                ? { ok: true, ...(await response(result)) }
-                : { ok: true, ...(typeof result === 'object' ? result : {}) };
+            return {
+                ok: true,
+                ...((result && response ? await response(result) : typeof result === 'object' ? result : {}) as R),
+            };
         }
         debug('FAIL');
         return { ok: false };

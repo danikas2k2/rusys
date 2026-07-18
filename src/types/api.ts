@@ -5,7 +5,7 @@ import type { ParamsDictionary } from 'express-serve-static-core';
 import type { Group, Product, Summary, UserProfile, Variant, VariantAmount } from '~/types/data';
 
 export type ApiRequest<R = unknown> = Request<ParamsDictionary, unknown, R>;
-export type ApiResult<R = unknown> = { ok: true } | ({ ok: true } & R) | { ok?: false; error?: string };
+export type ApiResult<R = unknown> = ({ ok: true } & R) | { ok?: false; error?: string };
 export type ApiResponse<R = unknown> = Response<ApiResult<R>>;
 
 export const enum ApiUrl {
@@ -16,19 +16,25 @@ export const enum ApiUrl {
     // Client/User
     ClientId = '/clientId',
     CheckUser = '/checkUser',
+    UserProfileUpsert = '/userProfile/upsert',
+    UserProfiles = '/userProfiles',
 
     // Summary
     Summary = '/summary',
+    SummaryHistory = '/summary/history',
 
     // Products
     Products = '/products',
     ProductsAdd = '/products/add',
     ProductsUpdate = '/products/update',
+    ProductsUndo = '/products/undo',
+    ProductsRedo = '/products/redo',
     ProductsSetRemoving = '/products/removing',
     ProductsSetMissing = '/products/missing',
     ProductsRename = '/products/rename',
     ProductsMove = '/products/move',
     ProductsDelete = '/products/delete',
+    ProductsHistory = '/products/history',
 
     // Groups
     Groups = '/groups',
@@ -51,7 +57,6 @@ export interface ApiUserEmail {
 }
 
 export interface ApiUserAllowed {
-    email: string;
     allowed: boolean;
 }
 
@@ -84,6 +89,11 @@ export interface ApiYears {
 export interface ApiRequestProduct {
     group: string;
     name: string;
+    year?: number;
+}
+
+export interface ApiRequestProductWithYear extends ApiRequestProduct {
+    year: number;
 }
 
 export interface ApiMoveProduct extends ApiRequestProduct {
@@ -103,32 +113,20 @@ export interface ApiRequestYear {
     year: number;
 }
 
-export interface ApiSetRemoving extends ApiRequestProduct, ApiRequestYear {
+export interface ApiRequestHistory {
+    group: string;
+    name: string;
+    year: number;
+}
+
+export interface ApiSetRemoving extends ApiRequestProductWithYear {
     removing: boolean;
 }
 
-export interface ApiUpdateProduct extends ApiRequestProduct, ApiRequestYear {
+export interface ApiUpdateProduct extends ApiRequestProductWithYear {
     amounts?: readonly VariantAmount[];
     user?: string;
-}
-
-export interface ApiMoveProductsHistoryEntry {
-    group: string;
-    name: string;
-    time: number;
-    year: number;
-    newGroup: string;
-    newName: string;
-    newYear: number;
-}
-
-export interface ApiDeleteProductsHistoryEntry extends ApiRequestProduct, ApiRequestYear {
-    time: number;
-}
-
-export interface ApiUpdateProductsHistoryEntry extends ApiDeleteProductsHistoryEntry {
-    amounts: readonly VariantAmount[];
-    user?: string;
+    comment?: string;
 }
 
 export interface ApiSummary {
@@ -198,12 +196,7 @@ export type ApiExport = ApiProducts & ApiVariantsWithGroups;
 
 export type ApiWithFiles = { files?: FileArray };
 
-export interface ApiRequestHistory extends ApiRequestProduct {
-    time: number;
-    year?: number;
-    user?: string;
-}
-
 export interface ApiHistory {
-    history: readonly History[];
+    updates: readonly History[];
+    undates: readonly History[];
 }

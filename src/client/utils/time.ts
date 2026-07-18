@@ -7,11 +7,11 @@ export function getRoundedDate(time: string | number): Date {
     return d;
 }
 
-export function formatTime(date: Date): string {
-    return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+export function formatTime(date: Date, locale?: string): string {
+    return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
-export function formatDate(date: Date): string {
+export function formatDate(date: Date, locale = 'en', label: (s: string) => string = (s) => s): string {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (24 * 60 * 60 * 1000));
@@ -19,7 +19,7 @@ export function formatDate(date: Date): string {
         return '';
     }
     if (days === 1) {
-        return 'Yesterday';
+        return label('Yesterday');
     }
-    return date.toLocaleDateString('en', days < 7 ? { weekday: 'long' } : { month: 'long', day: 'numeric' });
+    return date.toLocaleDateString(locale, days < 7 ? { weekday: 'long' } : { month: 'long', day: 'numeric' });
 }

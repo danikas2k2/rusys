@@ -1,7 +1,7 @@
 {
     "extends": "@tsconfig/node26",
     "references": [{ "path": "./tsconfig.node.json" }],
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "jest/*.ts"],
     "exclude": ["node_modules", "**/*.spec.ts"],
     "compilerOptions": {
         "paths": {
@@ -9,6 +9,7 @@
             "@tests/*": ["./src/tests/*"],
             "~/*": ["./src/*"]
         },
+        "rootDir": ".",
         "lib": ["ESNext", "DOM", "DOM.Iterable"],
         "target": "ESNext",
         "moduleResolution": "NodeNext",

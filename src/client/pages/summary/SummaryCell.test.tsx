@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MockTableRow } from '@tests/MockTableRow';
 import { MockTheme } from '@tests/MockTheme';
+import { MockThemeActive } from '@tests/MockThemeActive';
 
 import { Table } from '@mantine/core';
 import React from 'react';
@@ -10,6 +11,16 @@ import { useGroupVariantComparator } from '~/client/state/variants/useGroupVaria
 
 jest.mock('~/client/state/variants/useGroupVariantComparator', () => ({
     useGroupVariantComparator: jest.fn(),
+}));
+
+jest.mock('~/client/common/ActiveContentContext', () => ({
+    ...jest.requireActual('~/client/common/ActiveContentContext'),
+    useActiveContent: jest.fn(() => [undefined, jest.fn()]),
+}));
+
+jest.mock('~/client/common/UpdateTypeContext', () => ({
+    ...jest.requireActual('~/client/common/UpdateTypeContext'),
+    useUpdateType: jest.fn(() => ['consumed', jest.fn()]),
 }));
 
 jest.mock('~/client/common/AmountSuffix', () => ({
@@ -29,7 +40,7 @@ describe('<SummaryCell>', () => {
                 <Table>
                     <Table.Tbody>
                         <Table.Tr>
-                            <SummaryCell group="Uogienės" />
+                            <SummaryCell group="Uogienės" name="Avietės" year={2023} />
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>
@@ -45,7 +56,7 @@ describe('<SummaryCell>', () => {
                 <Table>
                     <Table.Tbody>
                         <Table.Tr>
-                            <SummaryCell group="Uogienės" amounts={[]} />
+                            <SummaryCell group="Uogienės" name="Avietės" year={2023} amounts={[]} />
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>
@@ -61,7 +72,12 @@ describe('<SummaryCell>', () => {
                 <Table>
                     <Table.Tbody>
                         <Table.Tr>
-                            <SummaryCell group="Uogienės" amounts={[{ variant: 'p', amount: 5 }]} />
+                            <SummaryCell
+                                group="Uogienės"
+                                name="Avietės"
+                                year={2023}
+                                amounts={[{ variant: 'p', amount: 5 }]}
+                            />
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>
@@ -81,6 +97,8 @@ describe('<SummaryCell>', () => {
             <MockTableRow>
                 <SummaryCell
                     group="Uogienės"
+                    name="Avietės"
+                    year={2023}
                     amounts={[
                         { variant: 'm', amount: 15 },
                         { variant: 'p', amount: 5 },
@@ -105,10 +123,72 @@ describe('<SummaryCell>', () => {
 
         render(
             <MockTableRow>
-                <SummaryCell group="Uogienės" amounts={amounts} />
+                <SummaryCell group="Uogienės" name="Avietės" year={2023} amounts={amounts} />
             </MockTableRow>
         );
 
         expect(amounts).toStrictEqual(originalAmounts);
+    });
+
+    it('calls setActive with correct data when cell is clicked', () => {
+        const setActive = jest.fn();
+        const { useActiveContent } = jest.requireMock('~/client/common/ActiveContentContext');
+        useActiveContent.mockReturnValue([undefined, setActive]);
+
+        render(
+            <MockThemeActive setActive={setActive}>
+                <Table>
+                    <Table.Tbody>
+                        <Table.Tr>
+                            <SummaryCell
+                                group="Uogienės"
+                                name="Avietės"
+                                year={2023}
+                                amounts={[{ variant: 'p', amount: 5 }]}
+                            />
+                        </Table.Tr>
+                    </Table.Tbody>
+                </Table>
+            </MockThemeActive>
+        );
+
+        fireEvent.click(screen.getByRole('cell'));
+
+        expect(setActive).toHaveBeenCalledWith({
+            action: 'history',
+            data: {
+                group: 'Uogienės',
+                name: 'Avietės',
+                year: 2023,
+                amounts: [{ variant: 'p', amount: 5 }],
+                updateType: 'consumed',
+            },
+        });
+    });
+
+    it('passes amounts as empty array when undefined in click handler', () => {
+        const setActive = jest.fn();
+        const { useActiveContent } = jest.requireMock('~/client/common/ActiveContentContext');
+        useActiveContent.mockReturnValue([undefined, setActive]);
+
+        render(
+            <MockThemeActive setActive={setActive}>
+                <Table>
+                    <Table.Tbody>
+                        <Table.Tr>
+                            <SummaryCell group="Uogienės" name="Avietės" year={2023} />
+                        </Table.Tr>
+                    </Table.Tbody>
+                </Table>
+            </MockThemeActive>
+        );
+
+        fireEvent.click(screen.getByRole('cell'));
+
+        expect(setActive).toHaveBeenCalledWith(
+            expect.objectContaining({
+                data: expect.objectContaining({ amounts: [] }),
+            })
+        );
     });
 });

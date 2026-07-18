@@ -10,10 +10,10 @@ export async function handleUpdateProduct(
 ): Promise<void> {
     debugRequest(req);
     headerNoCache(res);
-    const { group, name, year, amounts, user } = req.body;
+    const { group, name, year, amounts, user, comment } = req.body;
     res.json(
         await run(
-            () => updateProduct(group, name, year, amounts, user),
+            () => updateProduct(group, name, year, amounts, user, comment),
             () => getProductsWithYears()
         )
     );

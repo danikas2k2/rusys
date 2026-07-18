@@ -1,193 +1,193 @@
 {
-    "type": "object",
-    "properties": {
-        "products": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "group": {
-                        "type": "string"
+  "type": "object",
+  "properties": {
+    "products": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "years": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "year": {
+                      "type": "integer"
                     },
-                    "name": {
-                        "type": "string"
+                    "amounts": {
+                      "anyOf": [
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "variant": {
+                                "type": "string"
+                              },
+                              "amount": {
+                                "type": "integer"
+                              },
+                              "recycled": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": ["variant", "amount"],
+                            "additionalProperties": false
+                          }
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "removing": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["year"],
+                  "additionalProperties": false
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "updates": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "time": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "integer"
+                        }
+                      ]
+                    },
+                    "user": {
+                      "type": "string"
                     },
                     "years": {
-                        "anyOf": [
-                            {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "year": {
-                                            "type": "integer"
+                      "anyOf": [
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "year": {
+                                "type": "integer"
+                              },
+                              "amounts": {
+                                "anyOf": [
+                                  {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "variant": {
+                                          "type": "string"
                                         },
-                                        "amounts": {
-                                            "anyOf": [
-                                                {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "variant": {
-                                                                "type": "string"
-                                                            },
-                                                            "amount": {
-                                                                "type": "integer"
-                                                            },
-                                                            "recycled": {
-                                                                "type": "boolean"
-                                                            }
-                                                        },
-                                                        "required": ["variant", "amount"],
-                                                        "additionalProperties": false
-                                                    }
-                                                },
-                                                {
-                                                    "type": "null"
-                                                }
-                                            ]
+                                        "amount": {
+                                          "type": "integer"
                                         },
-                                        "removing": {
-                                            "type": "boolean"
+                                        "recycled": {
+                                          "type": "boolean"
                                         }
-                                    },
-                                    "required": ["year"],
-                                    "additionalProperties": false
-                                }
+                                      },
+                                      "required": ["variant", "amount"],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
                             },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "updates": {
-                        "anyOf": [
-                            {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "time": {
-                                            "anyOf": [
-                                                {
-                                                    "type": "string",
-                                                    "format": "date-time"
-                                                },
-                                                {
-                                                    "type": "integer"
-                                                }
-                                            ]
-                                        },
-                                        "user": {
-                                            "type": "string"
-                                        },
-                                        "years": {
-                                            "anyOf": [
-                                                {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "year": {
-                                                                "type": "integer"
-                                                            },
-                                                            "amounts": {
-                                                                "anyOf": [
-                                                                    {
-                                                                        "type": "array",
-                                                                        "items": {
-                                                                            "type": "object",
-                                                                            "properties": {
-                                                                                "variant": {
-                                                                                    "type": "string"
-                                                                                },
-                                                                                "amount": {
-                                                                                    "type": "integer"
-                                                                                },
-                                                                                "recycled": {
-                                                                                    "type": "boolean"
-                                                                                }
-                                                                            },
-                                                                            "required": ["variant", "amount"],
-                                                                            "additionalProperties": false
-                                                                        }
-                                                                    },
-                                                                    {
-                                                                        "type": "null"
-                                                                    }
-                                                                ]
-                                                            }
-                                                        },
-                                                        "required": ["year"],
-                                                        "additionalProperties": false
-                                                    }
-                                                },
-                                                {
-                                                    "type": "null"
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    "required": ["time", "years"],
-                                    "additionalProperties": false
-                                }
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "missing": {
-                        "type": "boolean"
+                            "required": ["year"],
+                            "additionalProperties": false
+                          }
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
-                },
-                "required": ["group", "name"],
-                "additionalProperties": false
-            }
+                  },
+                  "required": ["time", "years"],
+                  "additionalProperties": false
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "missing": {
+            "type": "boolean"
+          }
         },
-        "groups": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "group": {
-                        "type": "string"
-                    },
-                    "order": {
-                        "type": "integer"
-                    },
-                    "annual": {
-                        "type": "boolean"
-                    }
-                },
-                "required": ["group", "order"],
-                "additionalProperties": false
-            }
-        },
-        "variants": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "group": {
-                        "type": "string"
-                    },
-                    "variant": {
-                        "type": "string"
-                    },
-                    "order": {
-                        "type": "integer"
-                    },
-                    "suffix": {
-                        "type": "string"
-                    }
-                },
-                "required": ["group", "variant", "order"],
-                "additionalProperties": false
-            }
-        }
+        "required": ["group", "name"],
+        "additionalProperties": false
+      }
     },
-    "required": ["products", "groups", "variants"],
-    "additionalProperties": false
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string"
+          },
+          "order": {
+            "type": "integer"
+          },
+          "annual": {
+            "type": "boolean"
+          }
+        },
+        "required": ["group", "order"],
+        "additionalProperties": false
+      }
+    },
+    "variants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string"
+          },
+          "variant": {
+            "type": "string"
+          },
+          "order": {
+            "type": "integer"
+          },
+          "suffix": {
+            "type": "string"
+          }
+        },
+        "required": ["group", "variant", "order"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["products", "groups", "variants"],
+  "additionalProperties": false
 }

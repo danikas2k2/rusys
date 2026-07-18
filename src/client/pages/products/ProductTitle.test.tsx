@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
@@ -75,6 +75,22 @@ describe('<ProductTitle>', () => {
         expect(screen.getByRole('heading', { level: 5 })).toHaveAttribute('data-removing', 'true');
     });
 
+    it('sets data-removing to false when product.years is undefined', () => {
+        renderTitle({ ...products[0], years: undefined });
+
+        expect(screen.getByRole('heading', { level: 5 })).toHaveAttribute('data-removing', 'false');
+    });
+
+    it('sets data-removing to false when removing year is not in allYears', () => {
+        const yearNotInAllYears = 99;
+        renderTitle({
+            ...products[0],
+            years: [{ year: yearNotInAllYears, removing: true, amounts: [{ variant: 'p', amount: 1 }] }],
+        });
+
+        expect(screen.getByRole('heading', { level: 5 })).toHaveAttribute('data-removing', 'false');
+    });
+
     it('calls setMissing on toggle when available', async () => {
         renderTitle({ ...products[0], missing: false });
 
@@ -87,6 +103,17 @@ describe('<ProductTitle>', () => {
         renderTitle({ ...products[0], years: [] });
 
         await user.click(screen.getByRole('checkbox'));
+
+        expect(setMissing).not.toHaveBeenCalled();
+    });
+
+    it('skips setMissing in handleClick when available is false (fireEvent on input)', () => {
+        renderTitle({ ...products[0], years: [] });
+
+        // fireEvent.click on the input bypasses userEvent's disabled-check,
+        // causing React to invoke onChange → handleClick with available=false
+        const input = screen.getByRole('checkbox') as HTMLInputElement;
+        fireEvent.click(input);
 
         expect(setMissing).not.toHaveBeenCalled();
     });

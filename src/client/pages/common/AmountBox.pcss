@@ -1,0 +1,118 @@
+.ui-Modal-root.value-box {
+    max-height: 100vh;
+
+    .ui-Modal-inner {
+        max-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ui-Modal-content {
+        max-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+
+        &[data-full-screen="true"] {
+            width: 100vw;
+        }
+    }
+
+    .ui-Modal-header {
+        align-items: flex-start; /* Align elements to top */
+        flex-shrink: 0;
+    }
+
+    .ui-Modal-title {
+        flex: 1;
+        text-align: center;
+        padding-left: 2.5rem; /* Compensate for close button width */
+    }
+
+    .ui-Modal-body {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .ui-SegmentedControl-innerLabel {
+        display: block;
+
+        .ui-Badge-root {
+            margin-block-start: -0.75rem;
+            margin-inline-end: -0.25rem;
+        }
+    }
+
+    .content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+        padding-inline: 0;
+    }
+
+    .footer {
+        flex-shrink: 0;
+        padding: var(--mantine-spacing-md);
+        background-color: var(--mantine-color-body);
+
+        .ui-ActionIcon-root:disabled,
+        .ui-ActionIcon-root[data-disabled] {
+            border-color: var(--mantine-color-default-border);
+        }
+    }
+
+    .article {
+        --article-color: var(--mantine-color-neutral-filled);
+
+        &[data-variant="consumed"] {
+            --article-color: var(--mantine-color-positive-filled);
+        }
+
+        &[data-variant="updated"] {
+            --article-color: var(--mantine-color-primary-filled);
+        }
+
+        &[data-variant="recycled"] {
+            --article-color: var(--mantine-color-negative-filled);
+        }
+
+        min-height: 0;
+        position: relative;
+        overflow: auto;
+        margin: 0;
+        padding-block: 1rem;
+        border-radius: var(--mantine-radius-md);
+        border: 1px solid var(--article-color);
+        color: var(--article-color);
+        background-color: color-mix(in srgb, var(--article-color) 5%, transparent 95%);
+        transition-property: color, border-color, background-color;
+        transition-duration: 100ms;
+        transition-timing-function: ease-in-out;
+    }
+
+    @media (width <= 320px) {
+        .article {
+            padding-inline: 0;
+        }
+    }
+
+    @media (width >= 640px) {
+        max-width: 100vw;
+        max-height: 100vh;
+
+        .article {
+            columns: 2;
+        }
+    }
+
+    @media (width >= 768px) {
+        .article {
+            column-gap: 8vw;
+        }
+    }
+}

@@ -19,4 +19,14 @@ describe('useLocale', () => {
 
         expect(result.current).toBe('de-DE');
     });
+
+    it('returns DEFAULT_LOCALE when context value is undefined', () => {
+        const { result } = renderHook(() => useLocale(), {
+            wrapper: ({ children }: React.PropsWithChildren) => (
+                <LocaleContext value={undefined}>{children}</LocaleContext>
+            ),
+        });
+
+        expect(result.current).toBe(DEFAULT_LOCALE);
+    });
 });

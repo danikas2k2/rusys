@@ -21,8 +21,7 @@ const UPDATE_TYPE_COLORS: Record<UpdateTypes, MantineColor> = {
     recycled: 'negative',
 };
 
-export function UpdateTypeToggle(props: Readonly<UpdateTypeToggleProps>) {
-    const { changes, updated = true } = props;
+export function UpdateTypeToggle({ changes, updated = true }: Readonly<UpdateTypeToggleProps>) {
     const _ = useLabels();
 
     const [updateType, setUpdateType] = useUpdateType();

@@ -15,16 +15,22 @@ import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { handleGroups } from '~/server/api/handleGroups';
 import { handleMove } from '~/server/api/handleMove';
+import { handleProductHistory } from '~/server/api/handleProductHistory';
 import { handleProducts } from '~/server/api/handleProducts';
+import { handleRedoProduct } from '~/server/api/handleRedoProduct';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { handleSummary } from '~/server/api/handleSummary';
+import { handleSummaryHistory } from '~/server/api/handleSummaryHistory';
+import { handleUndoProduct } from '~/server/api/handleUndoProduct';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
+import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
+import { handleUserProfiles } from '~/server/api/handleUserProfiles';
 import { handleVariants } from '~/server/api/handleVariants';
 import { setup, startHttpServer, startHttpsServer } from '~/server/app';
 import { ApiUrl } from '~/types/api';
@@ -32,33 +38,41 @@ import { ApiUrl } from '~/types/api';
 jest.mock('~/server/api/debug');
 
 // Client/User
-jest.mock('~/server/api/handleClientId', () => ({ handleClientId: jest.fn() }));
-jest.mock('~/server/api/handleCheckUser', () => ({ handleCheckUser: jest.fn() }));
+jest.mock('~/server/api/handleClientId');
+jest.mock('~/server/api/handleCheckUser');
+jest.mock('~/server/api/handleUpsertUserProfile');
+jest.mock('~/server/api/handleUserProfiles');
 
 // Summary
-jest.mock('~/server/api/handleSummary', () => ({ handleSummary: jest.fn() }));
+jest.mock('~/server/api/handleSummary');
 
 // Products
-jest.mock('~/server/api/handleAdd', () => ({ handleAdd: jest.fn() }));
-jest.mock('~/server/api/handleProducts', () => ({ handleProducts: jest.fn() }));
-jest.mock('~/server/api/handleUpdateProduct', () => ({ handleUpdateProduct: jest.fn() }));
-jest.mock('~/server/api/handleSetRemoving', () => ({ handleSetRemoving: jest.fn() }));
-jest.mock('~/server/api/handleSetMissing', () => ({ handleSetMissing: jest.fn() }));
-jest.mock('~/server/api/handleRename', () => ({ handleRename: jest.fn() }));
-jest.mock('~/server/api/handleMove', () => ({ handleMove: jest.fn() }));
-jest.mock('~/server/api/handleDelete', () => ({ handleDelete: jest.fn() }));
+jest.mock('~/server/api/handleAdd');
+jest.mock('~/server/api/handleProducts');
+jest.mock('~/server/api/handleUpdateProduct');
+jest.mock('~/server/api/handleSetRemoving');
+jest.mock('~/server/api/handleSetMissing');
+jest.mock('~/server/api/handleRename');
+jest.mock('~/server/api/handleMove');
+jest.mock('~/server/api/handleDelete');
+
+// History
+jest.mock('~/server/api/handleProductHistory');
+jest.mock('~/server/api/handleUndoProduct');
+jest.mock('~/server/api/handleRedoProduct');
+jest.mock('~/server/api/handleSummaryHistory');
 
 // Groups
-jest.mock('~/server/api/handleGroups', () => ({ handleGroups: jest.fn() }));
-jest.mock('~/server/api/handleUpdateGroup', () => ({ handleUpdateGroup: jest.fn() }));
-jest.mock('~/server/api/handleRenameGroup', () => ({ handleRenameGroup: jest.fn() }));
-jest.mock('~/server/api/handleDeleteGroup', () => ({ handleDeleteGroup: jest.fn() }));
+jest.mock('~/server/api/handleGroups');
+jest.mock('~/server/api/handleUpdateGroup');
+jest.mock('~/server/api/handleRenameGroup');
+jest.mock('~/server/api/handleDeleteGroup');
 
 // Variants
-jest.mock('~/server/api/handleVariants', () => ({ handleVariants: jest.fn() }));
-jest.mock('~/server/api/handleUpdateVariant', () => ({ handleUpdateVariant: jest.fn() }));
-jest.mock('~/server/api/handleRenameVariant', () => ({ handleRenameVariant: jest.fn() }));
-jest.mock('~/server/api/handleDeleteVariant', () => ({ handleDeleteVariant: jest.fn() }));
+jest.mock('~/server/api/handleVariants');
+jest.mock('~/server/api/handleUpdateVariant');
+jest.mock('~/server/api/handleRenameVariant');
+jest.mock('~/server/api/handleDeleteVariant');
 
 describe('app', () => {
     afterEach(() => jest.clearAllMocks());
@@ -71,10 +85,16 @@ describe('app', () => {
             url                           | handle
             ${ApiUrl.ClientId}            | ${handleClientId}
             ${ApiUrl.CheckUser}           | ${handleCheckUser}
+            ${ApiUrl.UserProfileUpsert}   | ${handleUpsertUserProfile}
+            ${ApiUrl.UserProfiles}        | ${handleUserProfiles}
             ${ApiUrl.Summary}             | ${handleSummary}
             ${ApiUrl.Products}            | ${handleProducts}
             ${ApiUrl.ProductsUpdate}      | ${handleUpdateProduct}
             ${ApiUrl.ProductsAdd}         | ${handleAdd}
+            ${ApiUrl.ProductsHistory}     | ${handleProductHistory}
+            ${ApiUrl.ProductsUndo}        | ${handleUndoProduct}
+            ${ApiUrl.ProductsRedo}        | ${handleRedoProduct}
+            ${ApiUrl.SummaryHistory}      | ${handleSummaryHistory}
             ${ApiUrl.ProductsSetRemoving} | ${handleSetRemoving}
             ${ApiUrl.ProductsSetMissing}  | ${handleSetMissing}
             ${ApiUrl.ProductsRename}      | ${handleRename}
@@ -134,6 +154,18 @@ describe('app', () => {
         });
     });
 
+    describe('setupHelmet dev-mode STS header middleware', () => {
+        it('sets Strict-Transport-Security: max-age=0 in dev mode', async () => {
+            // setup() runs in dev mode (NODE_ENV !== 'production') so the STS header middleware is active
+            const app = setup(express());
+            app.get('/probe-sts', (_req, res) => res.status(200).json({ ok: true }));
+
+            const response = await request(app).get('/probe-sts');
+
+            expect(response.headers['strict-transport-security']).toBe('max-age=0');
+        });
+    });
+
     describe('startHttpServer', () => {
         const app = { listen: jest.fn((host, port, cb) => cb()) } as unknown as Express;
 
@@ -187,6 +219,142 @@ describe('app', () => {
             expect(startHttpsServer(app, {})).toBe(app);
             expect(createServer).not.toHaveBeenCalled();
             expect(debug).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('startServers', () => {
+        const { startServers } = jest.requireActual<typeof import('~/server/app')>('~/server/app'); // eslint-disable-line @typescript-eslint/consistent-type-imports
+
+        const app = { listen: jest.fn((_port, _host, cb: () => void) => cb()) } as unknown as Express;
+
+        let readFileSync: jest.SpyInstance;
+        let createServer: jest.SpyInstance;
+
+        beforeEach(() => {
+            readFileSync = jest.spyOn(fs, 'readFileSync').mockReturnValue('mocked-content');
+            createServer = jest
+                .spyOn(https, 'createServer')
+                .mockReturnValue({ listen: jest.fn() } as unknown as https.Server);
+        });
+
+        afterEach(() => jest.restoreAllMocks());
+
+        it('starts HTTP server using default env vars', () => {
+            const savedEnv = { ...process.env };
+            delete process.env.PORT;
+            delete process.env.HOST;
+            delete process.env.HTTPS_PORT;
+            delete process.env.HTTPS_HOST;
+            delete process.env.HTTPS_KEY;
+            delete process.env.HTTPS_CERT;
+
+            startServers(app);
+            Object.assign(process.env, savedEnv);
+
+            expect(app.listen).toHaveBeenCalledWith(3000, 'localhost', expect.any(Function));
+            expect(debug).toHaveBeenCalledWith('HTTP server listening on http://localhost:3000');
+        });
+
+        it('starts HTTP server using custom PORT and HOST env vars', () => {
+            const savedEnv = { ...process.env };
+            process.env.PORT = '8080';
+            process.env.HOST = '0.0.0.0';
+            delete process.env.HTTPS_KEY;
+            delete process.env.HTTPS_CERT;
+
+            startServers(app);
+            Object.assign(process.env, savedEnv);
+
+            expect(app.listen).toHaveBeenCalledWith(8080, '0.0.0.0', expect.any(Function));
+            expect(debug).toHaveBeenCalledWith('HTTP server listening on http://0.0.0.0:8080');
+        });
+
+        it('starts HTTPS server when HTTPS_KEY and HTTPS_CERT env vars are set', () => {
+            const savedEnv = { ...process.env };
+            process.env.PORT = '3000';
+            process.env.HOST = 'localhost';
+            process.env.HTTPS_PORT = '4000';
+            process.env.HTTPS_HOST = 'localhost';
+            process.env.HTTPS_KEY = 'key.pem';
+            process.env.HTTPS_CERT = 'cert.pem';
+
+            startServers(app);
+            Object.assign(process.env, savedEnv);
+
+            expect(readFileSync).toHaveBeenCalledWith('key.pem');
+            expect(readFileSync).toHaveBeenCalledWith('cert.pem');
+            expect(createServer).toHaveBeenCalledWith(expect.objectContaining({ key: 'mocked-content' }), app);
+        });
+    });
+});
+
+describe('app (prod mode)', () => {
+    // Re-import app with isDevMode returning false to test the prod-only branches
+    let setupHelmetProd: typeof import('~/server/app').setupHelmet; // eslint-disable-line @typescript-eslint/consistent-type-imports
+
+    beforeAll(() => {
+        jest.mock('~/common/utils/dev', () => ({ isDevMode: () => false }));
+
+        jest.isolateModules(() => {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            setupHelmetProd = require('~/server/app').setupHelmet;
+        });
+    });
+
+    afterEach(() => jest.clearAllMocks());
+
+    afterAll(() => {
+        jest.resetModules();
+        jest.unmock('~/common/utils/dev');
+    });
+
+    describe('setupHelmet HTTPS redirect middleware', () => {
+        it('calls next() when req.secure is true', async () => {
+            const app = express();
+            setupHelmetProd(app);
+
+            const response = await request(app)
+                .get('/any')
+                .set('X-Forwarded-Proto', 'https')
+                .set('X-Forwarded-Ssl', 'on');
+
+            // The request goes through (no redirect) — we just verify no 308
+            expect(response.status).not.toBe(308);
+        });
+
+        it('calls next() when x-forwarded-proto is https', async () => {
+            const app = express();
+            setupHelmetProd(app);
+
+            const response = await request(app).get('/any').set('X-Forwarded-Proto', 'https');
+
+            expect(response.status).not.toBe(308);
+        });
+
+        it('calls next() when request has no host header', async () => {
+            const app = express();
+            setupHelmetProd(app);
+            // Add a simple handler so we can confirm request reaches it
+            app.get('/probe', (_req, res) => res.status(200).json({ ok: true }));
+
+            // An empty Host header value is falsy, so the middleware calls next() without redirecting
+            const response = await request(app).get('/probe').set('X-Forwarded-Proto', 'http').set('Host', '');
+
+            // Without a valid host header the middleware calls next(), so our handler responds
+            expect(response.status).toBe(200);
+        });
+
+        it('redirects 308 to https when request is plain http with a host header', async () => {
+            const app = express();
+            setupHelmetProd(app);
+
+            const response = await request(app)
+                .get('/path?q=1')
+                .set('X-Forwarded-Proto', 'http')
+                .set('Host', 'example.com');
+
+            expect(response.status).toBe(308);
+            expect(response.headers.location).toBe('https://example.com/path?q=1');
         });
     });
 });

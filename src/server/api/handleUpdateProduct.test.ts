@@ -41,7 +41,7 @@ describe('handleUpdateProduct', () => {
 
         await handleUpdateProduct(request, response);
 
-        expect(updateProduct).toHaveBeenCalledWith('Uogienės', 'Braškės', 21, amounts, user);
+        expect(updateProduct).toHaveBeenCalledWith('Uogienės', 'Braškės', 21, amounts, user, undefined);
         expect(getProductsWithYears).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true, years, products });
@@ -52,7 +52,7 @@ describe('handleUpdateProduct', () => {
 
         await handleUpdateProduct(request, response);
 
-        expect(updateProduct).toHaveBeenCalledWith('Uogienės', 'Braškės', 21, amounts, user);
+        expect(updateProduct).toHaveBeenCalledWith('Uogienės', 'Braškės', 21, amounts, user, undefined);
         expect(getProductsWithYears).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true });
@@ -63,7 +63,7 @@ describe('handleUpdateProduct', () => {
 
         await handleUpdateProduct(request, response);
 
-        expect(updateProduct).toHaveBeenCalledWith('Uogienės', 'Braškės', 21, amounts, user);
+        expect(updateProduct).toHaveBeenCalledWith('Uogienės', 'Braškės', 21, amounts, user, undefined);
         expect(getProductsWithYears).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to update product' });

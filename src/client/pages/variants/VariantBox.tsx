@@ -117,7 +117,7 @@ export function VariantBox({
     const renameVariant = useRenameVariant();
     const copyVariant = useCopyVariant();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
 
         const validation = form.validate();

@@ -6,7 +6,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
 import { getProductsWithVariants } from '~/server/api/response';
 import { renameVariantOccurrences } from '~/server/data/common';
-import type { ApiProductsWithYears, ApiRenameVariant } from '~/types/api';
+import type { ApiRenameVariant, ApiVariants } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');
@@ -21,7 +21,7 @@ describe('handleRenameVariant', () => {
         order: 7,
         suffix: 'Suffix',
     });
-    const response = mockResponse<ApiProductsWithYears>();
+    const response = mockResponse<ApiVariants>();
     const years = getYearsFixture();
     const products = getProductsFixture();
     const variants = getVariantsFixture();

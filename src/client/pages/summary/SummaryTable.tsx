@@ -9,6 +9,7 @@ import { useRecycledSummary } from '~/client/pages/summary/hooks/useRecycledSumm
 import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasData';
 import { useSummaryYears } from '~/client/pages/summary/hooks/useSummaryYears';
 import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
+import { SummaryYear } from '~/client/pages/summary/SummaryYear';
 import { useGetSummary } from '~/client/state/summary/useGetSummary';
 
 export function SummaryTable() {
@@ -29,7 +30,7 @@ export function SummaryTable() {
                         </Table.Th>
                         {summaryYears.map((year) => (
                             <Table.Th key={year}>
-                                <sup>{year}</sup>/<sub>{year + 1}</sub>
+                                <SummaryYear year={year} />
                             </Table.Th>
                         ))}
                     </Table.Tr>

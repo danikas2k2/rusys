@@ -5,7 +5,6 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { useFilteredList } from '~/client/filters/hooks/useFilteredList';
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useProductsHasData } from '~/client/pages/products/hooks/useProductsHasData';
@@ -17,9 +16,6 @@ import { useProducts } from '~/client/state/products/useProducts';
 import { useYears } from '~/client/state/years/useYears';
 
 jest.mock('~/client/state/years/useYears');
-jest.mock('~/client/filters/hooks/useFilteredList', () => ({
-    useFilteredList: jest.fn(),
-}));
 jest.mock('~/client/pages/products/hooks/useProductsHasData', () => ({
     useProductsHasData: jest.fn().mockReturnValue(true),
 }));
@@ -60,7 +56,6 @@ describe('<ProductsTable>', () => {
         jest.mocked(useQuickFilter).mockReturnValue(['', jest.fn()]);
         jest.mocked(useGroups).mockReturnValue(state.groups);
         jest.mocked(useProducts).mockReturnValue(products);
-        jest.mocked(useFilteredList).mockReturnValue(products);
         jest.mocked(useYears).mockReturnValue(state.years);
     });
 
@@ -87,7 +82,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('renders table for complete state with data filtered-out', () => {
-            jest.mocked(useFilteredList).mockReturnValue([]);
+            jest.mocked(useProducts).mockReturnValue([]);
             render(
                 <MockTheme>
                     <MockRedux state={state}>

@@ -29,15 +29,15 @@ export function AppRouter() {
     return (
         <HashRouter>
             <Routes>
+                <Route path={Links.GROUPS} element={<GroupsPage />} />
                 <Route element={<GroupFilterLayout />}>
+                    <Route path={Links.VARIANTS} element={<VariantsPage />} />
                     <Route element={<QuickFilterLayout />}>
                         <Route path={Links.SUMMARY} element={<SummaryPage />} />
                         <Route path={Links.PRODUCTS} element={<ProductsPage />} />
                         <Route path="*" element={<ProductsPage />} />
                     </Route>
-                    <Route path={Links.VARIANTS} element={<VariantsPage />} />
                 </Route>
-                <Route path={Links.GROUPS} element={<GroupsPage />} />
             </Routes>
         </HashRouter>
     );

@@ -6,7 +6,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
 import { getProductsWithGroups } from '~/server/api/response';
 import { deleteGroupOccurrences } from '~/server/data/common';
-import type { ApiProductsWithYears, ApiRequestGroup } from '~/types/api';
+import type { ApiGroups, ApiRequestGroup } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');
@@ -16,7 +16,7 @@ jest.mock('~/server/data/groups');
 
 describe('handleDeleteGroup', () => {
     const request = mockRequest<ApiRequestGroup>({ group: 'Uogienės' });
-    const response = mockResponse<ApiProductsWithYears>();
+    const response = mockResponse<ApiGroups>();
     const years = getYearsFixture();
     const products = getProductsFixture();
     const variants = getVariantsFixture();

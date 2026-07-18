@@ -41,20 +41,20 @@ export const getProductsFixture = (): Product[] => [
             {
                 time: Date.parse('2022-01-01T12:00:00.000Z'),
                 years: [
-                    { year: 20, amounts: [{ variant: 'p', amount: -2 }] },
-                    { year: 21, amounts: [{ variant: 'p', amount: -1 }] },
+                    { year: 20, amounts: [{ variant: 'p', amount: -2, recycled: false }] },
+                    { year: 21, amounts: [{ variant: 'p', amount: -1, recycled: false }] },
                 ],
             },
             {
                 time: Date.parse('2023-01-01T12:00:00.000Z'),
                 years: [
-                    { year: 21, amounts: [{ variant: 'p', amount: 2 }] },
-                    { year: 22, amounts: [{ variant: 'p', amount: 1 }] },
+                    { year: 21, amounts: [{ variant: 'p', amount: 2, recycled: false }] },
+                    { year: 22, amounts: [{ variant: 'p', amount: 1, recycled: false }] },
                 ],
             },
             {
                 time: Date.parse('2023-01-05T12:00:00.000Z'),
-                years: [{ year: 22, amounts: [{ variant: 'p', amount: -1 }] }],
+                years: [{ year: 22, amounts: [{ variant: 'p', amount: -1, recycled: false }] }],
             },
         ],
     },
@@ -81,7 +81,7 @@ export const getProductsFixture = (): Product[] => [
                     {
                         year: 22,
                         amounts: [
-                            { variant: 'p', amount: -1 },
+                            { variant: 'p', amount: -1, recycled: false },
                             { variant: 'm', amount: -2, recycled: true },
                         ],
                     },
@@ -96,11 +96,11 @@ export const getProductsFixture = (): Product[] => [
         updates: [
             {
                 time: Date.parse('2023-02-03T12:00:00.000Z'),
-                years: [{ year: 22, amounts: [{ variant: 'd', amount: 2 }] }],
+                years: [{ year: 22, amounts: [{ variant: 'd', amount: 2, recycled: false }] }],
             },
             {
                 time: Date.parse('2023-02-07T12:00:00.000Z'),
-                years: [{ year: 22, amounts: [{ variant: 'd', amount: -1 }] }],
+                years: [{ year: 22, amounts: [{ variant: 'd', amount: -1, recycled: false }] }],
             },
         ],
     },

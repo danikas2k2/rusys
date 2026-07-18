@@ -11,7 +11,7 @@ export async function handleClientId(req: ApiRequest, res: ApiResponse<ApiClient
     res.json(
         await run(
             () => clientId,
-            () => ({ clientId })
+            () => (clientId ? { clientId } : undefined)
         )
     );
 }

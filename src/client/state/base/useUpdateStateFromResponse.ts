@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import type { ActionCreatorsMapObject } from 'redux';
 
 import { setGroupsAction } from '~/client/state/groups/actions';
+import { setUndatesAction, setUpdatesAction } from '~/client/state/history/actions';
 import { setProductsAction } from '~/client/state/products/actions';
 import { setSummaryAction } from '~/client/state/summary/actions';
 import { setVariantsAction } from '~/client/state/variants/actions';
@@ -22,6 +23,8 @@ const UPDATE_ACTIONS: ActionCreatorsMapObject = {
     variants: setVariantsAction,
     products: setProductsAction,
     summary: setSummaryAction,
+    updates: setUpdatesAction,
+    undates: setUndatesAction,
 };
 
 export function useUpdateStateFromResponse(updateActions = UPDATE_ACTIONS): (result?: RefreshResult) => Promise<void> {

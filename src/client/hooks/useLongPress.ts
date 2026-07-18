@@ -67,6 +67,14 @@ export function useLongPress<T = HTMLElement>({
                     shortPressRef.current = true;
                     onClick(e);
                     handleCancel();
+                    if (e.pointerType === 'touch') {
+                        const absorb = (ev: MouseEvent) => {
+                            ev.stopPropagation();
+                            ev.preventDefault();
+                        };
+                        document.addEventListener('click', absorb, { capture: true, once: true });
+                        setTimeout(() => document.removeEventListener('click', absorb, true), 600);
+                    }
                 }
             } else {
                 handleCancel();

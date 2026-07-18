@@ -4,8 +4,10 @@ import { MockApp } from '@tests/MockApp';
 import { MockRedux } from '@tests/MockRedux';
 import { MockTheme } from '@tests/MockTheme';
 
+import type { UniqueIdentifier } from '@dnd-kit/core';
 import React from 'react';
 
+import { DraggableContent } from '~/client/common/DraggableContent';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
@@ -26,7 +28,31 @@ jest.mock('~/client/hooks/useLockingLoader');
 jest.mock('~/client/filters/QuickFilterContext', () => ({
     useQuickFilter: jest.fn().mockReturnValue(['', jest.fn()]),
 }));
-jest.mock('~/client/utils/getOverlapIndex');
+jest.mock('~/client/common/DraggableContent', () => ({
+    DraggableContent: jest.fn(({ children }: any) => <>{children}</>),
+}));
+
+jest.mock('~/client/common/SortableContent', () => ({
+    SortableContent: jest.fn(({ children }: any) => <>{children}</>),
+}));
+
+jest.mock('~/client/table/DragOverlayTable', () => ({
+    DragOverlayTable: jest.fn(({ children }: any) => (
+        <table data-testid="drag-overlay-table">
+            <tbody>{children}</tbody>
+        </table>
+    )),
+}));
+
+jest.mock('~/client/pages/groups/GroupsRow', () => ({
+    GroupsRow: jest.fn(({ group, hidden }: any) => (
+        <tr data-testid="groups-row" data-group={group.group} data-hidden={String(hidden ?? false)}>
+            <td />
+            <td>{group.group}</td>
+            <td />
+        </tr>
+    )),
+}));
 
 describe('<GroupsTable>', () => {
     const mockItems: Group[] = getGroupsFixture();
@@ -237,6 +263,54 @@ describe('<GroupsTable>', () => {
             await onReorder(reordered, { group: 'Daržovės' });
 
             expect(mockReorderGroups).toHaveBeenCalledWith({ Daržovės: 0, Uogienės: 1 });
+        });
+    });
+
+    describe('renderDragOverlay', () => {
+        let capturedRenderDragOverlay: ((activeId: UniqueIdentifier, columns: number[]) => React.ReactNode) | null =
+            null;
+
+        beforeEach(() => {
+            capturedRenderDragOverlay = null;
+            jest.mocked(DraggableContent).mockImplementation(({ renderDragOverlay, children }: any) => {
+                capturedRenderDragOverlay = renderDragOverlay ?? null;
+                return <>{children}</>;
+            });
+        });
+
+        it('returns DragOverlayTable with GroupsRow when the group is found by activeId', () => {
+            render(
+                <MockTheme>
+                    <MockRedux>
+                        <GroupsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(capturedRenderDragOverlay).not.toBeNull();
+
+            const result = capturedRenderDragOverlay!('Uogienės', [100, 200, 300]);
+            const { container } = render(<MockTheme>{result as React.ReactElement}</MockTheme>);
+
+            expect(container.querySelector('[data-testid="drag-overlay-table"]')).toBeInTheDocument();
+            expect(container.querySelector('[data-testid="groups-row"]')).toBeInTheDocument();
+            expect(container.querySelector('[data-group="Uogienės"]')).toBeInTheDocument();
+        });
+
+        it('returns null when no group matches the activeId', () => {
+            render(
+                <MockTheme>
+                    <MockRedux>
+                        <GroupsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(capturedRenderDragOverlay).not.toBeNull();
+
+            const result = capturedRenderDragOverlay!('NonExistentGroup', [100, 200]);
+
+            expect(result).toBeNull();
         });
     });
 });

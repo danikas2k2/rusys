@@ -6,7 +6,7 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { getProductsWithVariants } from '~/server/api/response';
 import { deleteVariantOccurrences } from '~/server/data/common';
-import type { ApiProductsWithYears, ApiRequestVariant } from '~/types/api';
+import type { ApiRequestVariant, ApiVariants } from '~/types/api';
 
 jest.mock('~/server/api/debug');
 jest.mock('~/server/api/response');
@@ -15,7 +15,7 @@ jest.mock('~/server/data/variants');
 
 describe('handleDeleteVariant', () => {
     const request = mockRequest<ApiRequestVariant>({ group: 'Uogienės', variant: 'd' });
-    const response = mockResponse<ApiProductsWithYears>();
+    const response = mockResponse<ApiVariants>();
     const years = getYearsFixture();
     const products = getProductsFixture();
     const variants = getVariantsFixture();

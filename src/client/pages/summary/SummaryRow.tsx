@@ -20,7 +20,13 @@ export function SummaryRow({ group, name, amounts, hidden = false }: SummaryRowP
                 <Title order={5}>{name}</Title>
             </Table.Td>
             {years.map((year) => (
-                <SummaryCell key={year} group={group} amounts={amounts?.find((y) => y.year === year)?.amounts} />
+                <SummaryCell
+                    key={year}
+                    group={group}
+                    name={name}
+                    year={year}
+                    amounts={amounts?.find((y) => y.year === year)?.amounts}
+                />
             ))}
         </Table.Tr>
     );

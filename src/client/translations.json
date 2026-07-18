@@ -11,11 +11,17 @@
   "Add new variant": {
     "lt-LT": "Pridėti naują variantą"
   },
+  "New variant": {
+    "lt-LT": "Naujas variantas"
+  },
   "All groups": {
     "lt-LT": "Visos grupės"
   },
   "Annual": {
     "lt-LT": "Metiniai"
+  },
+  "April": {
+    "lt-LT": "Balandžio"
   },
   "Are you sure to logout?": {
     "lt-LT": "Ar tikrai norite išeiti?"
@@ -26,8 +32,20 @@
   "Are you sure?": {
     "lt-LT": "Ar jus tikras?"
   },
+  "August": {
+    "lt-LT": "Rugpjūčio"
+  },
   "Cancel": {
     "lt-LT": "Atšaukti"
+  },
+  "Redo": {
+    "lt-LT": "Pakartoti"
+  },
+  "Undo": {
+    "lt-LT": "Atšaukti"
+  },
+  "Select variant": {
+    "lt-LT": "Pasirinkite variantą"
   },
   "Cannot contain \":\" character": {
     "lt-LT": "Negali turėti \":\" simbolio"
@@ -47,6 +65,9 @@
   "Close": {
     "lt-LT": "Uždaryti"
   },
+  "Comment": {
+    "lt-LT": "Komentaras"
+  },
   "Confirm": {
     "lt-LT": "Patvirtinti"
   },
@@ -55,6 +76,9 @@
   },
   "Dark mode": {
     "lt-LT": "Tamsi tema"
+  },
+  "December": {
+    "lt-LT": "Gruodžio"
   },
   "Decrease": {
     "lt-LT": "Mažinti"
@@ -107,8 +131,14 @@
   "Failed to load data": {
     "lt-LT": "Nepavyko įkelti duomenų"
   },
+  "February": {
+    "lt-LT": "Vasario"
+  },
   "File should not exceed": {
     "lt-LT": "Failo dydis negali viršyti"
+  },
+  "Friday": {
+    "lt-LT": "Penktadienis"
   },
   "Group": {
     "lt-LT": "Grupė"
@@ -125,6 +155,9 @@
   "Groups": {
     "lt-LT": "Grupės"
   },
+  "History": {
+    "lt-LT": "Istorija"
+  },
   "Import": {
     "lt-LT": "Importuoti"
   },
@@ -134,11 +167,20 @@
   "Invalid Client ID": {
     "lt-LT": "Netinkamas kliento ID"
   },
+  "Invalid year": {
+    "lt-LT": "Neteisingi metai"
+  },
+  "January": {
+    "lt-LT": "Sausio"
+  },
+  "July": {
+    "lt-LT": "Liepos"
+  },
+  "June": {
+    "lt-LT": "Birželio"
+  },
   "Light mode": {
     "lt-LT": "Šviesi tema"
-  },
-  "Products": {
-    "lt-LT": "Produktai"
   },
   "Login with Google": {
     "lt-LT": "Įeiti su Google"
@@ -146,8 +188,17 @@
   "Logout": {
     "lt-LT": "Išeiti"
   },
+  "March": {
+    "lt-LT": "Kovo"
+  },
+  "May": {
+    "lt-LT": "Gegužės"
+  },
   "Menu": {
     "lt-LT": "Meniu"
+  },
+  "Monday": {
+    "lt-LT": "Pirmadienis"
   },
   "Move": {
     "lt-LT": "Perkelti"
@@ -167,20 +218,41 @@
   "No data": {
     "lt-LT": "Duomenų nėra"
   },
+  "November": {
+    "lt-LT": "Lapkričio"
+  },
+  "October": {
+    "lt-LT": "Spalio"
+  },
+  "Products": {
+    "lt-LT": "Produktai"
+  },
   "Recycled": {
     "lt-LT": "Išmesta"
   },
   "Remove": {
     "lt-LT": "Šalinti"
   },
+  "Saturday": {
+    "lt-LT": "Šeštadienis"
+  },
   "Select group": {
     "lt-LT": "Pasirinkite grupę"
+  },
+  "September": {
+    "lt-LT": "Rugsėjo"
+  },
+  "Suffix": {
+    "lt-LT": "Žymėjimas"
   },
   "Summary": {
     "lt-LT": "Suvestinė"
   },
-  "Suffix": {
-    "lt-LT": "Žymėjimas"
+  "Quantities": {
+    "lt-LT": "Kiekiai"
+  },
+  "Sunday": {
+    "lt-LT": "Sekmadienis"
   },
   "System preferred mode": {
     "lt-LT": "Sistemos tema"
@@ -188,8 +260,14 @@
   "This will download all your data as a file.": {
     "lt-LT": "Bus atsisiųsti visi jūsų duomenys kaip failas."
   },
+  "Thursday": {
+    "lt-LT": "Ketvirtadienis"
+  },
   "Title": {
     "lt-LT": "Pavadinimas"
+  },
+  "Tuesday": {
+    "lt-LT": "Antradienis"
   },
   "Update": {
     "lt-LT": "Naujinti"
@@ -221,67 +299,25 @@
   "Variants": {
     "lt-LT": "Variantai"
   },
-  "type to filter": {
-    "lt-LT": "filtruokite"
+  "Wednesday": {
+    "lt-LT": "Trečiadienis"
+  },
+  "Year": {
+    "lt-LT": "Metai"
+  },
+  "Year is required": {
+    "lt-LT": "Metai yra privalomi"
   },
   "Yesterday": {
     "lt-LT": "Vakar"
   },
-  "Monday": {
-    "lt-LT": "Pirmadienis"
+  "type to filter": {
+    "lt-LT": "filtruokite"
   },
-  "Tuesday": {
-    "lt-LT": "Antradienis"
+  "When": {
+    "lt-LT": "Kada"
   },
-  "Wednesday": {
-    "lt-LT": "Trečiadienis"
-  },
-  "Thursday": {
-    "lt-LT": "Ketvirtadienis"
-  },
-  "Friday": {
-    "lt-LT": "Penktadienis"
-  },
-  "Saturday": {
-    "lt-LT": "Šeštadienis"
-  },
-  "Sunday": {
-    "lt-LT": "Sekmadienis"
-  },
-  "January": {
-    "lt-LT": "Sausio"
-  },
-  "February": {
-    "lt-LT": "Vasario"
-  },
-  "March": {
-    "lt-LT": "Kovo"
-  },
-  "April": {
-    "lt-LT": "Balandžio"
-  },
-  "May": {
-    "lt-LT": "Gegužės"
-  },
-  "June": {
-    "lt-LT": "Birželio"
-  },
-  "July": {
-    "lt-LT": "Liepos"
-  },
-  "August": {
-    "lt-LT": "Rugpjūčio"
-  },
-  "September": {
-    "lt-LT": "Rugsėjo"
-  },
-  "October": {
-    "lt-LT": "Spalio"
-  },
-  "November": {
-    "lt-LT": "Lapkričio"
-  },
-  "December": {
-    "lt-LT": "Gruodžio"
+  "What": {
+    "lt-LT": "Kiek"
   }
 }

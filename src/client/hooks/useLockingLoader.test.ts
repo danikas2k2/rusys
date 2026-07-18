@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 
 import React from 'react';
 
@@ -46,5 +46,58 @@ describe('useLockingLoader', () => {
         });
         const { result } = renderHook(() => useLockingLoader(loader));
         await waitFor(() => expect(result.current).toStrictEqual(LoadingState.FAILED));
+    });
+
+    it('does not update state to FAILED after unmount when loader rejects', async () => {
+        let rejectLoader!: (reason?: unknown) => void;
+        const pendingLoader = jest.fn(
+            () =>
+                new Promise<void>((_resolve, reject) => {
+                    rejectLoader = reject;
+                })
+        );
+
+        const { result, unmount } = renderHook(() => useLockingLoader(pendingLoader));
+
+        await waitFor(() => expect(result.current).toBe('loading'));
+
+        act(() => {
+            unmount();
+        });
+
+        await act(async () => {
+            rejectLoader(new Error('too late'));
+            await Promise.resolve();
+        });
+
+        expect(result.current).toBe('loading');
+    });
+
+    it('does not update state after unmount (loading guard branch)', async () => {
+        let resolveLoader!: () => void;
+        const pendingLoader = jest.fn(
+            () =>
+                new Promise<void>((resolve) => {
+                    resolveLoader = resolve;
+                })
+        );
+
+        const setState = jest.spyOn(React, 'useState');
+        const { result, unmount } = renderHook(() => useLockingLoader(pendingLoader));
+
+        await waitFor(() => expect(result.current).toBe('loading'));
+
+        act(() => {
+            unmount();
+        });
+
+        await act(async () => {
+            resolveLoader();
+            await Promise.resolve();
+        });
+
+        setState.mockRestore();
+
+        expect(result.current).toBe('loading');
     });
 });

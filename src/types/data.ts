@@ -14,17 +14,22 @@ export interface YearAmounts {
 export interface Update {
     time: number;
     user?: string;
+    comment?: string;
     years: readonly YearAmounts[];
 }
 
-export interface History {
+export interface GroupAmounts {
+    group: string;
+    amounts?: readonly VariantAmount[];
+}
+
+export interface History extends GroupAmounts {
     sessionId?: string;
     time: number;
-    group: string;
     name: string;
     year?: number;
     user?: string;
-    amounts: readonly VariantAmount[];
+    comment?: string;
 }
 
 export interface UserProfile {
@@ -38,19 +43,22 @@ export interface RemovingYearAmounts extends YearAmounts {
     removing?: boolean;
 }
 
+export interface ProductHistoryMeta {
+    year: number;
+}
+
 export interface Product {
     group: string;
     name: string;
     years?: readonly RemovingYearAmounts[];
     missing?: boolean;
-    updates?: readonly Update[];
+    updates?: readonly Update[] | readonly ProductHistoryMeta[];
+    undates?: readonly Update[] | readonly ProductHistoryMeta[];
 }
 
-export interface ProductAmounts {
-    group: string;
+export interface ProductAmounts extends GroupAmounts {
     name: string;
     year: number;
-    amounts?: readonly VariantAmount[];
 }
 
 export interface Summary {

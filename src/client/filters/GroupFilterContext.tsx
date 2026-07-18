@@ -10,6 +10,4 @@ export function GroupFilterWrapper({
     return <GroupFilterContext value={useState(initialState)}>{children}</GroupFilterContext>;
 }
 
-export function useGroupFilter() {
-    return use(GroupFilterContext);
-}
+export const useGroupFilter = () => use(GroupFilterContext);

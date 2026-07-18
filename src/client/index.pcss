@@ -314,6 +314,11 @@ select,
     }
 }
 
+time[data-date], time[data-time] {
+    text-wrap: nowrap;
+}
+
 time[data-date]:has(+ time[data-time])::after {
     content: ", ";
+    text-wrap: wrap;
 }

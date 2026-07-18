@@ -95,7 +95,7 @@ export function GroupBox({
 
     const updateGroup = useUpdateGroup();
     const renameGroup = useRenameGroup();
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
 
         const validation = form.validate();

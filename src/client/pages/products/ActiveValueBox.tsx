@@ -1,47 +1,26 @@
 import React, { useCallback } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
-import { UpdateTypeWrapper } from '~/client/common/UpdateTypeContext';
-import { AmountBox } from '~/client/pages/products/AmountBox';
-import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
-import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
-import { useProfile } from '~/client/state/profile/useProfile';
-import type { ProductAmounts, VariantAmount } from '~/types/data';
+import { AmountTitle } from '~/client/common/AmountTitle';
+import { ValueListBox } from '~/client/pages/products/ValueListBox';
+import type { ProductAmounts } from '~/types/data';
 
 export function ActiveValueBox(): React.ReactElement {
     const [active, setActive] = useActiveContent<ProductAmounts>();
-    const [, setUpdating] = useUpdatingProducts();
 
-    const profile = useProfile();
-    const updateProduct = useUpdateProduct();
+    const activeData = active?.data;
 
-    const handleClose = useCallback(
-        async (changed?: readonly VariantAmount[]): Promise<void> => {
-            const data = active?.data;
-            const clean = changed?.filter(({ amount }) => !!amount) ?? [];
-            if (data && clean.length) {
-                setUpdating(data, true);
-                void updateProduct(data.group, data.name, data.year, clean, profile.email).finally(() =>
-                    setUpdating(data, false)
-                );
-            }
-            setActive({ data });
-        },
-        [active?.data, setActive, setUpdating, updateProduct, profile.email]
-    );
-
+    const handleClose = useCallback(() => setActive({ data: activeData }), [activeData, setActive]);
     const handleAfterClose = useCallback(() => setActive(), [setActive]);
 
-    const opened = active?.action === 'values' && !!active?.data;
+    const opened = active?.action === 'values' && !!activeData;
 
     return (
-        <UpdateTypeWrapper>
-            <AmountBox
-                opened={opened}
-                {...(active?.data ?? { group: '', name: '', year: 0 })}
-                onClose={handleClose}
-                onAfterClose={handleAfterClose}
-            />
-        </UpdateTypeWrapper>
+        <ValueListBox
+            opened={opened}
+            onClose={handleClose}
+            onAfterClose={handleAfterClose}
+            title={<AmountTitle {...activeData} />}
+        />
     );
 }

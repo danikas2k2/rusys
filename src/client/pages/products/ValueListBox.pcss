@@ -1,0 +1,52 @@
+.ui-Modal-root.value-list-box {
+    .ui-Modal-title {
+        flex: 1;
+        text-align: center;
+        padding-left: 2.5rem;
+    }
+
+    .ui-Table-table {
+        border-radius: var(--mantine-radius-md);
+        border: 1px solid var(--mantine-color-default-border);
+        background-color: var(--mantine-color-dark-0);
+        overflow: hidden;
+    }
+
+    .ui-Accordion-item {
+        transition: none;
+    }
+
+    @media (hover: hover) {
+        .ui-Accordion-control:where(:not(:disabled, [data-disabled])):hover {
+            background-color: transparent;
+        }
+    }
+
+    @media (hover: none) {
+        .ui-Accordion-control:where(:not(:disabled, [data-disabled])):active {
+            background-color: transparent;
+        }
+    }
+
+    .ui-Accordion-item[data-active] .ui-Accordion-control,
+    .ui-Accordion-item[data-active] .ui-Accordion-panel {
+        background-color: var(--mantine-color-dark-1);
+    }
+
+    .ui-Accordion-item:last-of-type[data-active] .ui-Accordion-control {
+        border-end-start-radius: 0;
+        border-end-end-radius: 0;
+    }
+
+    .ui-Accordion-item:last-of-type[data-active] .ui-Accordion-panel {
+        border-end-start-radius: var(--mantine-radius-md);
+        border-end-end-radius: var(--mantine-radius-md);
+    }
+}
+
+.ui-Select-option:has([data-separator="true"]) {
+    border-top: 1px solid var(--mantine-color-default-border);
+    border-radius: 0;
+    margin-top: 0.25rem;
+    padding-top: 0.5rem;
+}
