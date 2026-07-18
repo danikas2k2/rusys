@@ -1,13 +1,25 @@
 .ui-Table-td[data-cell="true"] {
     --value-cell-color: inherit;
-    --value-sub-color: var(--mantine-color-dark-filled-hover);
     --value-comma-color: var(--mantine-color-dark-text);
+
+    [data-type] {
+        display: flex;
+    }
+
+    [data-type="consumed"] {
+        --value-cell-color: var(--mantine-color-positive-text);
+    }
+
+    [data-type="recycled"] {
+        --value-cell-color: var(--mantine-color-negative-text);
+    }
 
     [data-value="true"] {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
         margin-inline: 0.1rem;
+        color: var(--value-cell-color);
 
         &:has(+ *) {
             &::after {
@@ -21,7 +33,7 @@
         sub {
             font-size: var(--mantine-font-size-xs);
             font-weight: var(--mantine-font-weight-sm);
-            color: var(--value-sub-color);
+            opacity: 0.75;
         }
     }
 }

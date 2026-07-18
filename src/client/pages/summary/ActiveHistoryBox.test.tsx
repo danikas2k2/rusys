@@ -41,7 +41,7 @@ describe('<ActiveHistoryBox>', () => {
     it('renders with opened=false when active.action is not "history"', () => {
         const active = {
             action: 'update' as const,
-            data: { group: 'G', name: 'N', year: 2023, amounts: [], updateType: 'consumed' as const },
+            data: { group: 'G', name: 'N', year: 2023, amounts: [] } as SummaryHistoryData,
         };
         render(
             <MockThemeActive active={active}>
@@ -53,13 +53,7 @@ describe('<ActiveHistoryBox>', () => {
     });
 
     it('renders with opened=true when active.action is "history" and data is present', () => {
-        const activeData: SummaryHistoryData = {
-            group: 'G',
-            name: 'N',
-            year: 2023,
-            amounts: [],
-            updateType: 'consumed',
-        };
+        const activeData: SummaryHistoryData = { group: 'G', name: 'N', year: 2023, amounts: [] };
         const active = { action: 'history' as const, data: activeData };
 
         render(
@@ -73,13 +67,7 @@ describe('<ActiveHistoryBox>', () => {
 
     it('close callback calls setActive with data but no action', () => {
         const setActive = jest.fn();
-        const activeData: SummaryHistoryData = {
-            group: 'G',
-            name: 'N',
-            year: 2023,
-            amounts: [],
-            updateType: 'consumed',
-        };
+        const activeData: SummaryHistoryData = { group: 'G', name: 'N', year: 2023, amounts: [] };
         const active = { action: 'history' as const, data: activeData };
 
         render(
@@ -96,13 +84,7 @@ describe('<ActiveHistoryBox>', () => {
 
     it('afterClose callback calls setActive with no arguments', () => {
         const setActive = jest.fn();
-        const activeData: SummaryHistoryData = {
-            group: 'G',
-            name: 'N',
-            year: 2023,
-            amounts: [],
-            updateType: 'consumed',
-        };
+        const activeData: SummaryHistoryData = { group: 'G', name: 'N', year: 2023, amounts: [] };
         const active = { action: 'history' as const, data: activeData };
 
         render(
@@ -117,27 +99,8 @@ describe('<ActiveHistoryBox>', () => {
         expect(setActive).toHaveBeenCalledWith();
     });
 
-    it('passes initialUpdateType from activeData.updateType', () => {
-        const activeData: SummaryHistoryData = {
-            group: 'G',
-            name: 'N',
-            year: 2023,
-            amounts: [],
-            updateType: 'recycled',
-        };
-        const active = { action: 'history' as const, data: activeData };
-
-        render(
-            <MockThemeActive active={active}>
-                <ActiveHistoryBox />
-            </MockThemeActive>
-        );
-
-        expect(getLastProps()).toMatchObject({ initialUpdateType: 'recycled' });
-    });
-
     it('passes undefined as year to AmountTitle title prop when activeData.year is 0', () => {
-        const activeData = { group: 'G', name: 'N', year: 0, amounts: [], updateType: 'consumed' as const };
+        const activeData = { group: 'G', name: 'N', year: 0, amounts: [] } as SummaryHistoryData;
         const active = { action: 'history' as const, data: activeData };
 
         render(
@@ -154,13 +117,7 @@ describe('<ActiveHistoryBox>', () => {
     });
 
     it('passes a SummaryYear element as year prop in AmountTitle when activeData.year is non-zero', () => {
-        const activeData: SummaryHistoryData = {
-            group: 'G',
-            name: 'N',
-            year: 2023,
-            amounts: [],
-            updateType: 'consumed',
-        };
+        const activeData: SummaryHistoryData = { group: 'G', name: 'N', year: 2023, amounts: [] };
         const active = { action: 'history' as const, data: activeData };
 
         render(

@@ -18,11 +18,6 @@ jest.mock('~/client/common/ActiveContentContext', () => ({
     useActiveContent: jest.fn(() => [undefined, jest.fn()]),
 }));
 
-jest.mock('~/client/common/UpdateTypeContext', () => ({
-    ...jest.requireActual('~/client/common/UpdateTypeContext'),
-    useUpdateType: jest.fn(() => ['consumed', jest.fn()]),
-}));
-
 jest.mock('~/client/common/AmountSuffix', () => ({
     AmountSuffix: () => null,
 }));
@@ -161,7 +156,6 @@ describe('<SummaryCell>', () => {
                 name: 'Avietės',
                 year: 2023,
                 amounts: [{ variant: 'p', amount: 5 }],
-                updateType: 'consumed',
             },
         });
     });

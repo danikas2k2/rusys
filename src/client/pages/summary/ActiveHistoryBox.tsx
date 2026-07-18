@@ -21,7 +21,6 @@ export function ActiveHistoryBox(): React.ReactElement {
             opened={opened}
             onClose={handleClose}
             onAfterClose={handleAfterClose}
-            initialUpdateType={activeData?.updateType}
             title={
                 <AmountTitle
                     {...activeData}

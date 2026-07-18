@@ -7,10 +7,10 @@ import React from 'react';
 import { useGroupFilterPredicate } from '~/client/filters/hooks/useGroupFilterPredicate';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
-import { useRecycledSummary } from '~/client/pages/summary/hooks/useRecycledSummary';
 import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasData';
 import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
 import { SummaryTable } from '~/client/pages/summary/SummaryTable';
+import { useSummary } from '~/client/state/summary/useSummary';
 
 jest.mock('~/client/state/years/useYears');
 jest.mock('~/client/filters/hooks/useGroupFilterPredicate', () => ({
@@ -22,8 +22,8 @@ jest.mock('~/client/filters/hooks/useQuickFilterPredicate', () => ({
 jest.mock('~/client/pages/summary/hooks/useSummaryHasData', () => ({
     useSummaryHasData: jest.fn().mockReturnValue(true),
 }));
-jest.mock('~/client/pages/summary/hooks/useRecycledSummary', () => ({
-    useRecycledSummary: jest.fn(),
+jest.mock('~/client/state/summary/useSummary', () => ({
+    useSummary: jest.fn(),
 }));
 jest.mock('~/client/hooks/useLockingLoader', () => ({
     ...jest.requireActual('~/client/hooks/useLockingLoader'),
@@ -44,7 +44,7 @@ describe('<SummaryTable>', () => {
 
     beforeAll(() => {
         jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
-        jest.mocked(useRecycledSummary).mockReturnValue(summary);
+        jest.mocked(useSummary).mockReturnValue(summary);
         jest.mocked(useGroupFilterPredicate).mockReturnValue(() => true);
         jest.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
     });
@@ -69,7 +69,7 @@ describe('<SummaryTable>', () => {
         });
 
         it('renders table for complete state with data filtered-out', () => {
-            jest.mocked(useRecycledSummary).mockReturnValueOnce([]);
+            jest.mocked(useSummary).mockReturnValueOnce([]);
             render(
                 <MockApp state={state}>
                     <SummaryTable />

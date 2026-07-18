@@ -24,10 +24,6 @@ jest.mock('~/client/state/history/useUndates', () => ({
     useUndates: jest.fn(() => []),
 }));
 
-jest.mock('~/client/common/UpdateTypeContext', () => ({
-    useUpdateType: jest.fn(() => ['consumed', jest.fn()]),
-}));
-
 jest.mock('~/client/pages/products/EmailAvatar', () => ({
     EmailAvatar: jest.fn(() => null),
 }));
@@ -42,13 +38,9 @@ describe('<SummaryHistoryTab>', () => {
         name: 'Obuoliai',
         year: 2026,
         amounts: [],
-        updateType: 'consumed',
     };
 
     beforeEach(() => {
-        // Reset overrideable mocks to their defaults before each test
-        const { useUpdateType } = jest.requireMock('~/client/common/UpdateTypeContext');
-        useUpdateType.mockReturnValue(['consumed', jest.fn()]);
         const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
         useUpdates.mockReturnValue([]);
         const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
@@ -115,7 +107,7 @@ describe('<SummaryHistoryTab>', () => {
         expect(screen.getByTestId('amounts')).toHaveTextContent('2');
     });
 
-    it('filters out recycled amounts when updateType is consumed', () => {
+    it('renders all amounts regardless of recycled flag', () => {
         const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
         useUpdates.mockReturnValue([
             {
@@ -132,51 +124,8 @@ describe('<SummaryHistoryTab>', () => {
 
         renderTab();
 
-        // Only the non-recycled amount passes; AmountsCell receives 1 amount
-        expect(screen.getByTestId('amounts')).toHaveTextContent('1');
-    });
-
-    it('filters out non-recycled amounts when updateType is recycled', () => {
-        const { useUpdateType } = jest.requireMock('~/client/common/UpdateTypeContext');
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        useUpdateType.mockReturnValue(['recycled', jest.fn()]);
-        useUpdates.mockReturnValue([
-            {
-                group: 'Vaisiai',
-                name: 'Obuoliai',
-                time: 1000,
-                year: 2026,
-                amounts: [
-                    { variant: 'p', amount: 1, recycled: false },
-                    { variant: 'r', amount: 2, recycled: true },
-                ],
-            },
-        ]);
-
-        renderTab();
-
-        // Only the recycled amount passes; AmountsCell receives 1 amount
-        expect(screen.getByTestId('amounts')).toHaveTextContent('1');
-    });
-
-    it('hides entries whose amounts are entirely filtered out', () => {
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        // Entry only has recycled amounts, but updateType is 'consumed' → nothing passes
-        useUpdates.mockReturnValue([
-            {
-                group: 'Vaisiai',
-                name: 'Obuoliai',
-                time: 1000,
-                year: 2026,
-                amounts: [{ variant: 'r', amount: 2, recycled: true }],
-            },
-        ]);
-
-        renderTab();
-
-        // No data rows rendered
-        expect(screen.getAllByRole('row')).toHaveLength(1);
-        expect(screen.queryByTestId('amounts')).not.toBeInTheDocument();
+        // Both amounts passed through — AmountsCell receives 2 amounts
+        expect(screen.getByTestId('amounts')).toHaveTextContent('2');
     });
 
     it('renders undate rows with dimmed opacity (before update rows)', () => {
@@ -338,7 +287,6 @@ describe('<SummaryHistoryTab>', () => {
                         group: 'G',
                         name: 'N',
                         amounts: [],
-                        updateType: 'consumed',
                     } as unknown as SummaryHistoryData,
                 }}
             >

@@ -11,10 +11,6 @@ jest.mock('~/client/pages/summary/SummaryHistoryTab', () => ({
     SummaryHistoryTab: () => <div data-testid="summary-history-tab" />,
 }));
 
-jest.mock('~/client/common/UpdateTypeToggle', () => ({
-    UpdateTypeToggle: () => <div data-testid="update-type-toggle" />,
-}));
-
 jest.mock('~/client/hooks/useLocale', () => ({
     useLocale: jest.fn(() => 'en'),
 }));
@@ -89,7 +85,6 @@ describe('<SummaryHistoryBox>', () => {
             </MockTheme>
         );
 
-        // No onAfterClose prop — optional chaining should guard against the call
         expect(screen.getByTestId('summary-history-tab')).toBeInTheDocument();
     });
 
@@ -101,23 +96,5 @@ describe('<SummaryHistoryBox>', () => {
         );
 
         expect(screen.getByText('My Title')).toBeInTheDocument();
-    });
-
-    it('passes initialUpdateType to UpdateTypeWrapper (key changes on type change)', () => {
-        const { rerender } = render(
-            <MockTheme>
-                <SummaryHistoryBox opened initialUpdateType="consumed" />
-            </MockTheme>
-        );
-
-        expect(screen.getByTestId('update-type-toggle')).toBeInTheDocument();
-
-        rerender(
-            <MockTheme>
-                <SummaryHistoryBox opened initialUpdateType="recycled" />
-            </MockTheme>
-        );
-
-        expect(screen.getByTestId('update-type-toggle')).toBeInTheDocument();
     });
 });

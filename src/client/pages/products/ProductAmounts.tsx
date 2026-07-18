@@ -9,12 +9,13 @@ import './ProductAmounts.pcss';
 export interface ProductAmountsProps {
     group: string;
     amounts?: readonly VariantAmount[];
+    type?: 'consumed' | 'recycled';
 }
 
-export function ProductAmounts({ group, amounts }: ProductAmountsProps) {
+export function ProductAmounts({ group, amounts, type }: ProductAmountsProps) {
     const compareVariants = useGroupVariantComparator(group);
     return amounts?.length ? (
-        <>
+        <span data-type={type}>
             {[...amounts]
                 .sort((a, b) => compareVariants(a.variant, b.variant))
                 .map((v) => (
@@ -23,6 +24,6 @@ export function ProductAmounts({ group, amounts }: ProductAmountsProps) {
                         <AmountSuffix group={group} variant={v.variant} />
                     </span>
                 ))}
-        </>
+        </span>
     ) : null;
 }

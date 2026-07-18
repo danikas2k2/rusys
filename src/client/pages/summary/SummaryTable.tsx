@@ -2,32 +2,27 @@ import { Table } from '@mantine/core';
 import React from 'react';
 
 import { LoadableContent } from '~/client/common/LoadableContent';
-import { useUpdateType } from '~/client/common/UpdateTypeContext';
-import { UpdateTypeToggle } from '~/client/common/UpdateTypeToggle';
 import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
-import { useRecycledSummary } from '~/client/pages/summary/hooks/useRecycledSummary';
 import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasData';
 import { useSummaryYears } from '~/client/pages/summary/hooks/useSummaryYears';
 import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
 import { SummaryYear } from '~/client/pages/summary/SummaryYear';
 import { useGetSummary } from '~/client/state/summary/useGetSummary';
+import { useSummary } from '~/client/state/summary/useSummary';
 
 export function SummaryTable() {
-    const summary = useRecycledSummary();
+    const summary = useSummary();
     const groups = useSortedGroups();
 
     const summaryYears = useSummaryYears();
-    const headingWidth = 300 / (summaryYears.length + 3);
-    const [updateType] = useUpdateType();
+    const headingWidth = 200 / (summaryYears.length + 2);
 
     return (
         <LoadableContent loader={useGetSummary()} hasData={useSummaryHasData()}>
-            <Table layout="fixed" data-table="summary" data-recycled={updateType === 'recycled'}>
+            <Table layout="fixed" data-table="summary">
                 <Table.Thead>
                     <Table.Tr h="3rem" bd={0}>
-                        <Table.Th w={`${headingWidth}%`} py={0}>
-                            <UpdateTypeToggle updated={false} />
-                        </Table.Th>
+                        <Table.Th w={`${headingWidth}%`} py={0} />
                         {summaryYears.map((year) => (
                             <Table.Th key={year}>
                                 <SummaryYear year={year} />
