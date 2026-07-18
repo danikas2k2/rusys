@@ -138,4 +138,19 @@ describe('formatDate', () => {
 
         expect(withDefault).toBe(withExplicit);
     });
+
+    it('includes year when date is from a previous year', () => {
+        // NOW is 2024-06-15; a date from 2023 should show year
+        const lastYear = new Date('2023-03-10T10:00:00.000Z');
+        const result = formatDate(lastYear, 'en');
+
+        expect(result).toMatch(/2023/);
+    });
+
+    it('does not include year when date is from the current year', () => {
+        const thisYear = new Date(NOW - 30 * 24 * 60 * 60 * 1000); // 30 days ago, same year
+        const result = formatDate(thisYear, 'en');
+
+        expect(result).not.toMatch(/2024/);
+    });
 });

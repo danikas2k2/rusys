@@ -21,5 +21,13 @@ export function formatDate(date: Date, locale = 'en', label: (s: string) => stri
     if (days === 1) {
         return label('Yesterday');
     }
-    return date.toLocaleDateString(locale, days < 7 ? { weekday: 'long' } : { month: 'long', day: 'numeric' });
+    const sameYear = date.getFullYear() === now.getFullYear();
+    return date.toLocaleDateString(
+        locale,
+        days < 7
+            ? { weekday: 'long' }
+            : sameYear
+              ? { month: 'long', day: 'numeric' }
+              : { year: 'numeric', month: 'long', day: 'numeric' }
+    );
 }

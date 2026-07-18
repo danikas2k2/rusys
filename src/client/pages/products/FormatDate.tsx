@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Label } from '~/client/common/Label';
+import { useLabels } from '~/client/hooks/useLabels';
 import { formatDate, formatTime } from '~/client/utils/time';
 
 interface FormatDateProps {
@@ -8,15 +8,23 @@ interface FormatDateProps {
 }
 
 export function FormatDate({ date }: FormatDateProps) {
+    const _ = useLabels();
     const ts = formatTime(date);
     const ds = formatDate(date);
-    const [mon, day] = ds.split(' ', 2);
+    const [mon, day, year] = ds.split(' ', 3);
+    const month = _(mon);
 
     return (
         <>
             {mon && (
                 <time data-date>
-                    <Label>{mon}</Label>
+                    {year ? (
+                        <>
+                            {year} {month.toLocaleLowerCase()}
+                        </>
+                    ) : (
+                        month
+                    )}
                     {day && <> {day}</>}
                 </time>
             )}
