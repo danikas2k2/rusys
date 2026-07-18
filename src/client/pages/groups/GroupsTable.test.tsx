@@ -28,8 +28,6 @@ jest.mock('~/client/hooks/useLockingLoader');
 jest.mock('~/client/filters/QuickFilterContext', () => ({
     useQuickFilter: jest.fn().mockReturnValue(['', jest.fn()]),
 }));
-jest.mock('~/client/utils/getOverlapIndex');
-
 jest.mock('~/client/common/DraggableContent', () => ({
     DraggableContent: jest.fn(({ children }: any) => <>{children}</>),
 }));
