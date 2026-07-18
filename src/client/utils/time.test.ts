@@ -1,69 +1,129 @@
 import { formatDate, formatTime, getRoundedDate } from '~/client/utils/time';
 
 describe('getRoundedDate', () => {
-    it('rounds minutes down to nearest 15 and clears seconds and ms', () => {
-        // 10:23:45.678 -> 10:15:00.000
-        const input = new Date(2024, 0, 1, 10, 23, 45, 678).getTime();
-        const result = getRoundedDate(input);
+    const NOW = new Date('2024-06-15T10:23:45.678Z').getTime();
 
-        expect(result.getMinutes()).toBe(15);
-        expect(result.getSeconds()).toBe(0);
-        expect(result.getMilliseconds()).toBe(0);
+    beforeEach(() => {
+        jest.useFakeTimers();
+        jest.setSystemTime(NOW);
     });
 
-    it('rounds minutes at exact boundary (0 minutes stays 0)', () => {
-        const input = new Date(2024, 0, 1, 10, 0, 30, 500).getTime();
-        const result = getRoundedDate(input);
-
-        expect(result.getMinutes()).toBe(0);
-        expect(result.getSeconds()).toBe(0);
-        expect(result.getMilliseconds()).toBe(0);
+    afterEach(() => {
+        jest.useRealTimers();
     });
 
-    it('rounds to 30 when minutes are 30-44', () => {
-        const input = new Date(2024, 0, 1, 10, 44, 59, 999).getTime();
-        const result = getRoundedDate(input);
+    describe('last week (< 7 days) — 15 min precision', () => {
+        it('rounds minutes down to nearest 15 and clears seconds and ms', () => {
+            // 10:23:45.678 -> 10:15:00.000
+            const result = getRoundedDate(NOW - 2 * 24 * 60 * 60 * 1000);
 
-        expect(result.getMinutes()).toBe(30);
+            expect(result.getMinutes()).toBe(15);
+            expect(result.getSeconds()).toBe(0);
+            expect(result.getMilliseconds()).toBe(0);
+        });
+
+        it('rounds to 0 when minutes are 0-14', () => {
+            const result = getRoundedDate(new Date('2024-06-13T10:00:30.500Z').getTime());
+
+            expect(result.getMinutes()).toBe(0);
+            expect(result.getSeconds()).toBe(0);
+            expect(result.getMilliseconds()).toBe(0);
+        });
+
+        it('rounds to 30 when minutes are 30-44', () => {
+            const result = getRoundedDate(new Date('2024-06-13T10:44:59.999Z').getTime());
+
+            expect(result.getMinutes()).toBe(30);
+        });
+
+        it('rounds to 45 when minutes are 45-59', () => {
+            const result = getRoundedDate(new Date('2024-06-13T10:59:00.000Z').getTime());
+
+            expect(result.getMinutes()).toBe(45);
+        });
+
+        it('accepts a string timestamp', () => {
+            const result = getRoundedDate(String(new Date('2024-06-13T10:23:45.678Z').getTime()));
+
+            expect(result.getMinutes()).toBe(15);
+            expect(result.getSeconds()).toBe(0);
+        });
     });
 
-    it('rounds to 45 when minutes are 45-59', () => {
-        const input = new Date(2024, 0, 1, 10, 59, 0, 0).getTime();
-        const result = getRoundedDate(input);
+    describe('last 3 months (7 days – 90 days) — 1 hour precision', () => {
+        it('rounds to the start of the hour', () => {
+            const result = getRoundedDate(new Date('2024-05-01T10:44:59.999Z').getTime());
 
-        expect(result.getMinutes()).toBe(45);
+            expect(result.getMinutes()).toBe(0);
+            expect(result.getSeconds()).toBe(0);
+            expect(result.getMilliseconds()).toBe(0);
+        });
+
+        it('preserves the hour', () => {
+            const result = getRoundedDate(new Date('2024-05-01T14:59:00.000Z').getTime());
+
+            expect(result.getUTCHours()).toBe(14);
+        });
     });
 
-    it('accepts a string timestamp', () => {
-        const date = new Date(2024, 0, 1, 10, 23, 45, 678);
-        const result = getRoundedDate(String(date.getTime()));
+    describe('older than 3 months — 1 day precision', () => {
+        it('rounds to midnight (start of day)', () => {
+            const result = getRoundedDate(new Date('2024-01-01T14:44:59.999Z').getTime());
 
-        expect(result.getMinutes()).toBe(15);
-        expect(result.getSeconds()).toBe(0);
-        expect(result.getMilliseconds()).toBe(0);
-    });
+            expect(result.getHours()).toBe(0);
+            expect(result.getMinutes()).toBe(0);
+            expect(result.getSeconds()).toBe(0);
+            expect(result.getMilliseconds()).toBe(0);
+        });
 
-    it('accepts a numeric timestamp', () => {
-        const date = new Date(2024, 0, 1, 10, 16, 0, 0);
-        const result = getRoundedDate(date.getTime());
+        it('preserves the date', () => {
+            const result = getRoundedDate(new Date('2024-01-01T14:44:59.999Z').getTime());
 
-        expect(result.getMinutes()).toBe(15);
+            expect(result.getFullYear()).toBe(2024);
+            expect(result.getMonth()).toBe(0);
+            expect(result.getDate()).toBe(1);
+        });
     });
 });
 
 describe('formatTime', () => {
-    it('returns formatted HH:MM time string', () => {
-        const date = new Date(2024, 0, 1, 9, 5, 0, 0);
+    const NOW = new Date('2024-06-15T12:00:00.000Z').getTime();
+
+    beforeEach(() => {
+        jest.useFakeTimers();
+        jest.setSystemTime(NOW);
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
+    });
+
+    it('returns formatted HH:MM time string for a recent date', () => {
+        const date = new Date('2024-06-14T09:05:00.000Z');
         const result = formatTime(date, 'en-GB');
 
         expect(result).toMatch(/^\d{2}:\d{2}$/);
     });
 
     it('returns time without seconds', () => {
-        const date = new Date(2024, 0, 1, 14, 30, 45, 0);
+        const date = new Date(2024, 5, 14, 14, 30, 45, 0); // local time
         const result = formatTime(date, 'en-GB');
 
         expect(result).toBe('14:30');
+    });
+
+    it('returns null for a date older than 3 months', () => {
+        const old = new Date('2024-01-01T10:00:00.000Z');
+        const result = formatTime(old);
+
+        expect(result).toBeNull();
+    });
+
+    it('returns a string for a date within 3 months', () => {
+        const recent = new Date('2024-05-01T10:00:00.000Z');
+        const result = formatTime(recent);
+
+        expect(result).not.toBeNull();
     });
 });
 

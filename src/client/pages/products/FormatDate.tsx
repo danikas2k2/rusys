@@ -28,7 +28,7 @@ export function FormatDate({ date }: FormatDateProps) {
                     {day && <> {Number.parseInt(day, 10)}</>}
                 </time>
             )}
-            <time data-time>{ts}</time>
+            {ts && <time data-time>{ts}</time>}
         </>
     );
 }

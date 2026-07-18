@@ -1,13 +1,32 @@
-const QUARTER_HOUR_MINUTES = 15;
+const QUARTER_HOUR_MS = 15 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
+const WEEK_MS = 7 * DAY_MS;
+export const THREE_MONTHS_MS = 90 * DAY_MS;
 
 export function getRoundedDate(time: string | number): Date {
-    const d = new Date(+time);
-    d.setSeconds(0, 0);
-    d.setMinutes(Math.floor(d.getMinutes() / QUARTER_HOUR_MINUTES) * QUARTER_HOUR_MINUTES);
-    return d;
+    const t = +time;
+    const now = Date.now();
+    const age = now - t;
+
+    if (age >= THREE_MONTHS_MS) {
+        const d = new Date(t);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }
+
+    if (age >= WEEK_MS) {
+        return new Date(Math.floor(t / HOUR_MS) * HOUR_MS);
+    }
+
+    return new Date(Math.floor(t / QUARTER_HOUR_MS) * QUARTER_HOUR_MS);
 }
 
-export function formatTime(date: Date, locale?: string): string {
+export function formatTime(date: Date, locale?: string): string | null {
+    if (Date.now() - date.getTime() >= THREE_MONTHS_MS) {
+        return null;
+    }
+
     return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 

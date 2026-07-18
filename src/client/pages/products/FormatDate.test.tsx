@@ -78,4 +78,18 @@ describe('<FormatDate>', () => {
         expect(dateEl!.textContent).toMatch(/march|March/i);
         expect(dateEl!.textContent).toMatch(/10/);
     });
+
+    it('does not render time when date is older than 3 months', () => {
+        const old = new Date('2024-01-01T10:30:00.000Z'); // > 90 days before NOW (2024-06-15)
+        const container = renderDate(old);
+
+        expect(container.querySelector('[data-time]')).not.toBeInTheDocument();
+    });
+
+    it('renders time when date is within 3 months', () => {
+        const recent = new Date('2024-06-14T09:30:00.000Z');
+        const container = renderDate(recent);
+
+        expect(container.querySelector('[data-time]')).toBeInTheDocument();
+    });
 });
