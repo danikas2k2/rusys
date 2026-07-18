@@ -1,4 +1,4 @@
-import type { AnyBulkWriteOperation, ClientSession, Document, Filter, UpdateFilter, WithId } from 'mongodb';
+import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter, WithId } from 'mongodb';
 
 import { addVariantAmount, getCombinedAmounts } from '~/common/utils/amounts';
 import { buildHistoryPipeline } from '~/server/data/history';

@@ -73,7 +73,9 @@ describe('<VariantsPage>', () => {
             </MockTheme>
         );
 
-        const [{ onDelete }] = jest.mocked(Page).mock.calls[0] as [{ onDelete?: (v: { group: string; variant: string }) => void }];
+        const [{ onDelete }] = jest.mocked(Page).mock.calls[0] as [
+            { onDelete?: (v: { group: string; variant: string }) => void },
+        ];
         onDelete!({ group: 'G', variant: 'V' });
 
         expect(deleteVariant).toHaveBeenCalledWith('G', 'V');

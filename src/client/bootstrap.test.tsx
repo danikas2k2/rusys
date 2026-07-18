@@ -11,7 +11,7 @@ import { ErrorBoundary } from '~/client/common/ErrorBoundary';
 import { getStore } from '~/client/state/store';
 
 jest.mock('react-dom/client', () => {
-    const actual = jest.requireActual<typeof import('react-dom/client')>('react-dom/client');
+    const actual = jest.requireActual<typeof import('react-dom/client')>('react-dom/client'); // eslint-disable-line @typescript-eslint/consistent-type-imports
     return {
         createRoot: jest.fn((container: Element, options?: Parameters<typeof actual.createRoot>[1]) =>
             actual.createRoot(container, options)
@@ -74,13 +74,10 @@ describe('bootstrap', () => {
 
         const [, options] = createRootMock.mock.calls[0];
         const error = new Error('caught');
-        const errorInfo = { componentStack: 'stack' } as React.ErrorInfo;
+        const errorInfo = { componentStack: 'stack' };
         options!.onCaughtError!(error, errorInfo);
 
-        expect(console.warn).toHaveBeenCalledWith(
-            expect.stringContaining('Caught error in React tree'),
-            errorInfo
-        );
+        expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('Caught error in React tree'), errorInfo);
     });
 
     it('calls console.error from onUncaughtError callback', () => {
@@ -88,13 +85,10 @@ describe('bootstrap', () => {
 
         const [, options] = createRootMock.mock.calls[0];
         const error = new Error('uncaught');
-        const errorInfo = { componentStack: 'stack' } as React.ErrorInfo;
+        const errorInfo = { componentStack: 'stack' };
         options!.onUncaughtError!(error, errorInfo);
 
-        expect(console.error).toHaveBeenCalledWith(
-            expect.stringContaining('Uncaught error in React tree'),
-            errorInfo
-        );
+        expect(console.error).toHaveBeenCalledWith(expect.stringContaining('Uncaught error in React tree'), errorInfo);
     });
 
     it('renders redux Provider with store', async () => {

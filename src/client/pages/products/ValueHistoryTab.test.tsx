@@ -121,9 +121,7 @@ describe('<ValueHistoryTab>', () => {
 
     it('renders a divider row when undates are present', () => {
         const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
-        useUndates.mockReturnValue([
-            { group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] },
-        ]);
+        useUndates.mockReturnValue([{ group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] }]);
 
         renderTab();
 
@@ -159,9 +157,7 @@ describe('<ValueHistoryTab>', () => {
 
     it('does not show comment element when h.comment is absent', () => {
         const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        useUpdates.mockReturnValue([
-            { group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [] },
-        ]);
+        useUpdates.mockReturnValue([{ group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [] }]);
 
         renderTab();
 
@@ -171,14 +167,13 @@ describe('<ValueHistoryTab>', () => {
 
     it('dimmed (undate) rows have opacity 0.4', () => {
         const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
-        useUndates.mockReturnValue([
-            { group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] },
-        ]);
+        useUndates.mockReturnValue([{ group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] }]);
 
         renderTab();
 
         // The first tbody row is the undate row — check its style
         const tbodyRows = document.querySelectorAll('[data-table="history"] tbody tr');
+
         // first row = undate (dimmed), second = divider
         expect((tbodyRows[0] as HTMLElement).style.opacity).toBe('0.4');
     });
@@ -186,13 +181,12 @@ describe('<ValueHistoryTab>', () => {
     it('non-dimmed (update) rows do not have opacity set', () => {
         jest.requireMock('~/client/state/history/useUndates').useUndates.mockReturnValue([]);
         const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        useUpdates.mockReturnValue([
-            { group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [] },
-        ]);
+        useUpdates.mockReturnValue([{ group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [] }]);
 
         renderTab();
 
         const tbodyRows = document.querySelectorAll('[data-table="history"] tbody tr');
+
         expect((tbodyRows[0] as HTMLElement).style.opacity).toBe('');
     });
 });

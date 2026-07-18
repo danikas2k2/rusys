@@ -18,14 +18,14 @@ import { handleMove } from '~/server/api/handleMove';
 import { handleProductHistory } from '~/server/api/handleProductHistory';
 import { handleProducts } from '~/server/api/handleProducts';
 import { handleRedoProduct } from '~/server/api/handleRedoProduct';
-import { handleSummaryHistory } from '~/server/api/handleSummaryHistory';
-import { handleUndoProduct } from '~/server/api/handleUndoProduct';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { handleSummary } from '~/server/api/handleSummary';
+import { handleSummaryHistory } from '~/server/api/handleSummaryHistory';
+import { handleUndoProduct } from '~/server/api/handleUndoProduct';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
@@ -223,7 +223,7 @@ describe('app', () => {
     });
 
     describe('startServers', () => {
-        const { startServers } = jest.requireActual<typeof import('~/server/app')>('~/server/app');
+        const { startServers } = jest.requireActual<typeof import('~/server/app')>('~/server/app'); // eslint-disable-line @typescript-eslint/consistent-type-imports
 
         const app = { listen: jest.fn((_port, _host, cb: () => void) => cb()) } as unknown as Express;
 
@@ -249,11 +249,10 @@ describe('app', () => {
             delete process.env.HTTPS_CERT;
 
             startServers(app);
+            Object.assign(process.env, savedEnv);
 
             expect(app.listen).toHaveBeenCalledWith(3000, 'localhost', expect.any(Function));
             expect(debug).toHaveBeenCalledWith('HTTP server listening on http://localhost:3000');
-
-            Object.assign(process.env, savedEnv);
         });
 
         it('starts HTTP server using custom PORT and HOST env vars', () => {
@@ -264,11 +263,10 @@ describe('app', () => {
             delete process.env.HTTPS_CERT;
 
             startServers(app);
+            Object.assign(process.env, savedEnv);
 
             expect(app.listen).toHaveBeenCalledWith(8080, '0.0.0.0', expect.any(Function));
             expect(debug).toHaveBeenCalledWith('HTTP server listening on http://0.0.0.0:8080');
-
-            Object.assign(process.env, savedEnv);
         });
 
         it('starts HTTPS server when HTTPS_KEY and HTTPS_CERT env vars are set', () => {
@@ -281,19 +279,18 @@ describe('app', () => {
             process.env.HTTPS_CERT = 'cert.pem';
 
             startServers(app);
+            Object.assign(process.env, savedEnv);
 
             expect(readFileSync).toHaveBeenCalledWith('key.pem');
             expect(readFileSync).toHaveBeenCalledWith('cert.pem');
-            expect(createServer).toHaveBeenCalled();
-
-            Object.assign(process.env, savedEnv);
+            expect(createServer).toHaveBeenCalledWith(expect.objectContaining({ key: 'mocked-content' }), app);
         });
     });
 });
 
 describe('app (prod mode)', () => {
     // Re-import app with isDevMode returning false to test the prod-only branches
-    let setupHelmetProd: typeof import('~/server/app').setupHelmet;
+    let setupHelmetProd: typeof import('~/server/app').setupHelmet; // eslint-disable-line @typescript-eslint/consistent-type-imports
 
     beforeAll(() => {
         jest.mock('~/common/utils/dev', () => ({ isDevMode: () => false }));
@@ -304,12 +301,12 @@ describe('app (prod mode)', () => {
         });
     });
 
+    afterEach(() => jest.clearAllMocks());
+
     afterAll(() => {
         jest.resetModules();
         jest.unmock('~/common/utils/dev');
     });
-
-    afterEach(() => jest.clearAllMocks());
 
     describe('setupHelmet HTTPS redirect middleware', () => {
         it('calls next() when req.secure is true', async () => {

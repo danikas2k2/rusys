@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
+
 import React from 'react';
+
 import { AmountsCell } from '~/client/pages/products/AmountsCell';
 import type { VariantAmount } from '~/types/data';
 
@@ -69,7 +71,8 @@ describe('<AmountsCell>', () => {
         );
 
         const names = screen.getAllByText(/Apple|Mango|Zucchini/).map((el) => el.textContent);
-        expect(names).toEqual(['Apple', 'Mango', 'Zucchini']);
+
+        expect(names).toStrictEqual(['Apple', 'Mango', 'Zucchini']);
     });
 
     it('renders aria-label "Consumed" for recycled: false', () => {

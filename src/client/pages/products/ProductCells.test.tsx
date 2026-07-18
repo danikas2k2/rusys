@@ -48,6 +48,7 @@ describe('<ProductCells>', () => {
         nonLastCalls.forEach(([props]) => {
             expect(props).toMatchObject({ last: false });
         });
+
         expect(calls.at(-1)![0]).toMatchObject({ last: true });
     });
 

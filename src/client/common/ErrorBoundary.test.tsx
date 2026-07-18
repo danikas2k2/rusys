@@ -10,8 +10,8 @@ function Boom(): React.JSX.Element {
 }
 
 function BoomString(): React.JSX.Element {
-    // eslint-disable-next-line @typescript-eslint/no-throw-literal
-    throw 'string error';
+    // eslint-disable-next-line no-throw-literal
+    throw 'string error' as unknown;
 }
 
 describe('<ErrorBoundary>', () => {
@@ -90,10 +90,7 @@ describe('<ErrorBoundary>', () => {
             </MockTheme>
         );
 
-        expect(console.error).toHaveBeenCalledWith(
-            expect.stringContaining('string error'),
-            expect.anything()
-        );
+        expect(console.error).toHaveBeenCalledWith(expect.stringContaining('string error'), expect.anything());
     });
 
     it('reloadPage does not throw when called', () => {

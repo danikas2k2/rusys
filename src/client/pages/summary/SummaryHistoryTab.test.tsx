@@ -3,9 +3,9 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
+import type { SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
 import { SummaryHistoryTab } from '~/client/pages/summary/SummaryHistoryTab';
 import type { History } from '~/types/data';
-import type { SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
 
 jest.mock('~/client/state/history/useGetSummaryHistory', () => ({
     useGetSummaryHistory: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
@@ -202,11 +202,13 @@ describe('<SummaryHistoryTab>', () => {
         renderTab();
 
         const rows = screen.getAllByRole('row');
+
         // thead + undate row + divider row + update row = 4
         expect(rows).toHaveLength(4);
 
         // The undate row has reduced opacity via the dimmed prop (rendered as inline style)
         const undateRow = rows[1];
+
         expect(undateRow).toHaveStyle({ opacity: '0.4' });
     });
 
@@ -226,10 +228,13 @@ describe('<SummaryHistoryTab>', () => {
 
         // Divider row is an extra Table.Tr with a colSpan cell
         const rows = screen.getAllByRole('row');
+
         // thead + undate row + divider row = 3
         expect(rows).toHaveLength(3);
+
         const dividerRow = rows[2];
         const cell = dividerRow.querySelector('td');
+
         expect(cell).toHaveAttribute('colspan', '2');
     });
 
@@ -248,6 +253,7 @@ describe('<SummaryHistoryTab>', () => {
         renderTab();
 
         const rows = screen.getAllByRole('row');
+
         // thead + 1 update row, no divider
         expect(rows).toHaveLength(2);
     });
@@ -283,7 +289,7 @@ describe('<SummaryHistoryTab>', () => {
         renderTab();
 
         // Reversed: [time:2000, amount:2] first, then [time:1000, amount:1]
-        expect(renderOrder).toEqual([2, 1]);
+        expect(renderOrder).toStrictEqual([2, 1]);
     });
 
     it('displays comment text when present in a history entry', () => {
@@ -328,7 +334,12 @@ describe('<SummaryHistoryTab>', () => {
             <MockThemeActive
                 active={{
                     action: 'history',
-                    data: { group: 'G', name: 'N', amounts: [], updateType: 'consumed' } as SummaryHistoryData,
+                    data: {
+                        group: 'G',
+                        name: 'N',
+                        amounts: [],
+                        updateType: 'consumed',
+                    } as unknown as SummaryHistoryData,
                 }}
             >
                 <SummaryHistoryTab />

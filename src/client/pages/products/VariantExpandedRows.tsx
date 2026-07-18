@@ -1,5 +1,5 @@
 import { Stack, Textarea } from '@mantine/core';
-import React, { memo } from 'react';
+import React from 'react';
 
 import { useLabels } from '~/client/hooks/useLabels';
 import { VariantEditRow, type VariantEditType } from '~/client/pages/products/VariantEditRow';

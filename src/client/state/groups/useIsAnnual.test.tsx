@@ -1,6 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
+
 import React from 'react';
+
 import { useIsAnnual } from '~/client/state/groups/useIsAnnual';
 import type { Group } from '~/types/data';
 
@@ -14,6 +16,7 @@ describe('useIsAnnual', () => {
         const { result } = renderHook(() => useIsAnnual('Uogienės'), {
             wrapper: ({ children }) => <MockRedux state={{ groups }}>{children}</MockRedux>,
         });
+
         expect(result.current).toBe(true);
     });
 
@@ -21,6 +24,7 @@ describe('useIsAnnual', () => {
         const { result } = renderHook(() => useIsAnnual('Daržovės'), {
             wrapper: ({ children }) => <MockRedux state={{ groups }}>{children}</MockRedux>,
         });
+
         expect(result.current).toBe(false);
     });
 
@@ -28,11 +32,13 @@ describe('useIsAnnual', () => {
         const { result } = renderHook(() => useIsAnnual('Unknown'), {
             wrapper: ({ children }) => <MockRedux state={{ groups }}>{children}</MockRedux>,
         });
+
         expect(result.current).toBe(true);
     });
 
     it('returns true (default) when state.groups is undefined', () => {
         const { result } = renderHook(() => useIsAnnual('Uogienės'), { wrapper: MockRedux });
+
         expect(result.current).toBe(true);
     });
 
@@ -40,6 +46,7 @@ describe('useIsAnnual', () => {
         const { result } = renderHook(() => useIsAnnual('Uogienės'), {
             wrapper: ({ children }) => <MockRedux state={{ groups: [] }}>{children}</MockRedux>,
         });
+
         expect(result.current).toBe(true);
     });
 });

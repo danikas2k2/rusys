@@ -10,7 +10,11 @@ jest.mock('~/server/api/debug');
 jest.mock('~/server/data/userProfiles');
 
 describe('handleUpsertUserProfile', () => {
-    const request = mockRequest<ApiUpsertUserProfile>({ email: 'user@example.com', name: 'User', picture: 'https://example.com/pic.jpg' });
+    const request = mockRequest<ApiUpsertUserProfile>({
+        email: 'user@example.com',
+        name: 'User',
+        picture: 'https://example.com/pic.jpg',
+    });
     const response = mockResponse();
 
     afterEach(() => jest.clearAllMocks());

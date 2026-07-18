@@ -4,9 +4,9 @@ import { MockApp } from '@tests/MockApp';
 import { MockRedux } from '@tests/MockRedux';
 import { MockTheme } from '@tests/MockTheme';
 
+import type { UniqueIdentifier } from '@dnd-kit/core';
 import React from 'react';
 
-import type { UniqueIdentifier } from '@dnd-kit/core';
 import { DraggableContent } from '~/client/common/DraggableContent';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
@@ -55,7 +55,7 @@ jest.mock('~/client/pages/variants/VariantsRow', () => ({
             data-variant={variant.variant}
             data-hidden={String(hidden ?? false)}
         >
-            <td></td>
+            <td />
             <td>{variant.variant}</td>
             <td>{variant.suffix ?? ''}</td>
         </tr>
@@ -340,7 +340,8 @@ describe('<VariantsTable>', () => {
     });
 
     describe('renderDragOverlay', () => {
-        let capturedRenderDragOverlay: ((activeId: UniqueIdentifier, columns: number[]) => React.ReactNode) | null = null;
+        let capturedRenderDragOverlay: ((activeId: UniqueIdentifier, columns: number[]) => React.ReactNode) | null =
+            null;
 
         beforeEach(() => {
             capturedRenderDragOverlay = null;

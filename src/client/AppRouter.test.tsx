@@ -10,6 +10,7 @@ jest.mock('~/client/pages/products/ProductsPage', () => ({
 jest.mock('~/client/pages/summary/SummaryPage', () => ({
     SummaryPage: () => <div>SummaryPage</div>,
 }));
+
 describe('appRouter component', () => {
     it('renders SummaryPage at route /summary', () => {
         window.history.pushState({}, '', '#/summary');
@@ -34,5 +35,4 @@ describe('appRouter component', () => {
 
         expect(screen.getByText('ProductsPage')).toBeInTheDocument();
     });
-
 });

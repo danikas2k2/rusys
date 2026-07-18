@@ -11,16 +11,6 @@ jest.mock('~/client/table/SortableRow', () => ({
     SortableRow: jest.fn(({ children }) => <tr>{children}</tr>),
 }));
 
-const Wrapper = ({ children }: React.PropsWithChildren) => (
-    <MockTheme>
-        <Table>
-            <Table.Tbody>
-                <Table.Tr>{children}</Table.Tr>
-            </Table.Tbody>
-        </Table>
-    </MockTheme>
-);
-
 describe('<GroupsRow>', () => {
     afterEach(() => jest.clearAllMocks());
 
@@ -29,7 +19,7 @@ describe('<GroupsRow>', () => {
             <MockTheme>
                 <Table>
                     <Table.Tbody>
-                        <GroupsRow group={{ group: 'Uogienės' }} reordering={false} />
+                        <GroupsRow group={{ group: 'Uogienės', order: 0 }} reordering={false} />
                     </Table.Tbody>
                 </Table>
             </MockTheme>
@@ -43,7 +33,7 @@ describe('<GroupsRow>', () => {
             <MockTheme>
                 <Table>
                     <Table.Tbody>
-                        <GroupsRow group={{ group: 'Uogienės', annual: true }} reordering={false} />
+                        <GroupsRow group={{ group: 'Uogienės', order: 0, annual: true }} reordering={false} />
                     </Table.Tbody>
                 </Table>
             </MockTheme>
@@ -57,7 +47,7 @@ describe('<GroupsRow>', () => {
             <MockTheme>
                 <Table>
                     <Table.Tbody>
-                        <GroupsRow group={{ group: 'Daržovės' }} reordering={false} />
+                        <GroupsRow group={{ group: 'Daržovės', order: 0 }} reordering={false} />
                     </Table.Tbody>
                 </Table>
             </MockTheme>
@@ -71,7 +61,7 @@ describe('<GroupsRow>', () => {
             <MockTheme>
                 <Table>
                     <Table.Tbody>
-                        <GroupsRow group={{ group: 'Daržovės', annual: false }} reordering={false} />
+                        <GroupsRow group={{ group: 'Daržovės', order: 0, annual: false }} reordering={false} />
                     </Table.Tbody>
                 </Table>
             </MockTheme>
@@ -85,13 +75,14 @@ describe('<GroupsRow>', () => {
             <MockTheme>
                 <Table>
                     <Table.Tbody>
-                        <GroupsRow group={{ group: 'Uogienės' }} reordering={true} />
+                        <GroupsRow group={{ group: 'Uogienės', order: 0 }} reordering />
                     </Table.Tbody>
                 </Table>
             </MockTheme>
         );
 
         const props = jest.mocked(SortableRow).mock.calls[0][0];
+
         expect(props.disabled).toBe(true);
     });
 
@@ -100,13 +91,14 @@ describe('<GroupsRow>', () => {
             <MockTheme>
                 <Table>
                     <Table.Tbody>
-                        <GroupsRow group={{ group: 'Uogienės' }} reordering={false} hidden={true} />
+                        <GroupsRow group={{ group: 'Uogienės', order: 0 }} reordering={false} hidden />
                     </Table.Tbody>
                 </Table>
             </MockTheme>
         );
 
         const props = jest.mocked(SortableRow).mock.calls[0][0];
+
         expect(props.disabled).toBe(true);
     });
 
@@ -115,13 +107,14 @@ describe('<GroupsRow>', () => {
             <MockTheme>
                 <Table>
                     <Table.Tbody>
-                        <GroupsRow group={{ group: 'Uogienės' }} reordering={false} hidden={false} />
+                        <GroupsRow group={{ group: 'Uogienės', order: 0 }} reordering={false} hidden={false} />
                     </Table.Tbody>
                 </Table>
             </MockTheme>
         );
 
         const props = jest.mocked(SortableRow).mock.calls[0][0];
+
         expect(props.disabled).toBe(false);
     });
 
@@ -130,13 +123,14 @@ describe('<GroupsRow>', () => {
             <MockTheme>
                 <Table>
                     <Table.Tbody>
-                        <GroupsRow group={{ group: 'Uogienės' }} reordering={false} hidden={true} />
+                        <GroupsRow group={{ group: 'Uogienės', order: 0 }} reordering={false} hidden />
                     </Table.Tbody>
                 </Table>
             </MockTheme>
         );
 
-        const props = jest.mocked(SortableRow).mock.calls[0][0];
+        const props = jest.mocked(SortableRow).mock.calls[0][0] as unknown as Record<string, unknown>;
+
         expect(props['data-hidden']).toBe(true);
     });
 
@@ -145,13 +139,14 @@ describe('<GroupsRow>', () => {
             <MockTheme>
                 <Table>
                     <Table.Tbody>
-                        <GroupsRow group={{ group: 'Uogienės' }} reordering={false} />
+                        <GroupsRow group={{ group: 'Uogienės', order: 0 }} reordering={false} />
                     </Table.Tbody>
                 </Table>
             </MockTheme>
         );
 
-        const props = jest.mocked(SortableRow).mock.calls[0][0];
+        const props = jest.mocked(SortableRow).mock.calls[0][0] as unknown as Record<string, unknown>;
+
         expect(props['data-hidden']).toBe(false);
     });
 });

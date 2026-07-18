@@ -146,72 +146,65 @@ describe('updates', () => {
 
     describe('getSummaryUpdates', () => {
         it('returns history entries with recycled amounts for the given year', async () => {
-            // Year 22 = Sept 2022 to Sept 2023
-            // Braškės has updates in Feb 2023 (within year 22 range) with recycled amounts
             const result = await getSummaryUpdates('Uogienės', 'Braškės', 22);
 
             expect(result).toBeInstanceOf(Array);
             expect(result.length).toBeGreaterThan(0);
-
-            for (const entry of result) {
-                expect(entry.group).toBe('Uogienės');
-                expect(entry.name).toBe('Braškės');
-                expect(entry.year).toBe(22);
-                expect(entry.amounts).toBeDefined();
-                expect(Array.isArray(entry.amounts)).toBe(true);
-            }
+            expect(result.every((e) => e.group === 'Uogienės')).toBe(true);
+            expect(result.every((e) => e.name === 'Braškės')).toBe(true);
+            expect(result.every((e) => e.year === 22)).toBe(true);
+            expect(result.every((e) => Array.isArray(e.amounts))).toBe(true);
         });
 
         it('only includes entries where recycled field is present', async () => {
             const result = await getSummaryUpdates('Uogienės', 'Braškės', 22);
 
-            for (const entry of result) {
-                for (const amount of entry.amounts ?? []) {
-                    expect(amount).toHaveProperty('recycled');
-                }
-            }
+            const amounts = result.flatMap((e) => e.amounts as unknown as { recycled?: boolean }[]);
+            const allHaveRecycled = amounts.every((a) => 'recycled' in a);
+
+            expect(allHaveRecycled).toBe(true);
         });
 
         it('returns empty array for product with no recycled amounts', async () => {
             // Kopūstai has no updates at all
             const result = await getSummaryUpdates('Daržovės', 'Kopūstai', 21);
+
             expect(result).toStrictEqual([]);
         });
 
         it('returns empty array for non-existent product', async () => {
             const result = await getSummaryUpdates('Uogienės', 'Bruknės', 22);
+
             expect(result).toStrictEqual([]);
         });
 
         it('returns entries sorted by time descending', async () => {
             const result = await getSummaryUpdates('Uogienės', 'Braškės', 22);
 
-            if (result.length > 1) {
-                for (let i = 1; i < result.length; i++) {
-                    expect(result[i - 1].time).toBeGreaterThanOrEqual(result[i].time);
-                }
-            }
+            const times = result.map((e) => e.time);
+            const sorted = [...times].sort((a, b) => b - a);
+
+            expect(times).toStrictEqual(sorted);
         });
 
         it('returns entries with sessionId field', async () => {
             const result = await getSummaryUpdates('Uogienės', 'Braškės', 22);
 
             expect(result.length).toBeGreaterThan(0);
-
-            for (const entry of result) {
-                expect(entry).toHaveProperty('sessionId');
-            }
+            expect(result.every((e) => 'sessionId' in e)).toBe(true);
         });
     });
 
     describe('getSummaryUndates', () => {
         it('returns empty array when no undates exist', async () => {
             const result = await getSummaryUndates('Uogienės', 'Braškės', 22);
+
             expect(result).toStrictEqual([]);
         });
 
         it('returns empty array for non-existent product', async () => {
             const result = await getSummaryUndates('Uogienės', 'Bruknės', 22);
+
             expect(result).toStrictEqual([]);
         });
 
@@ -240,12 +233,9 @@ describe('updates', () => {
 
             expect(result).toBeInstanceOf(Array);
             expect(result.length).toBeGreaterThan(0);
-
-            for (const entry of result) {
-                expect(entry.group).toBe('Uogienės');
-                expect(entry.name).toBe('Testinė');
-                expect(entry.year).toBe(22);
-            }
+            expect(result.every((e) => e.group === 'Uogienės')).toBe(true);
+            expect(result.every((e) => e.name === 'Testinė')).toBe(true);
+            expect(result.every((e) => e.year === 22)).toBe(true);
         });
 
         it('excludes undates amounts without recycled field', async () => {

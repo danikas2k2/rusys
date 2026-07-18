@@ -72,7 +72,12 @@ describe('<SummaryCell>', () => {
                 <Table>
                     <Table.Tbody>
                         <Table.Tr>
-                            <SummaryCell group="Uogienės" name="Avietės" year={2023} amounts={[{ variant: 'p', amount: 5 }]} />
+                            <SummaryCell
+                                group="Uogienės"
+                                name="Avietės"
+                                year={2023}
+                                amounts={[{ variant: 'p', amount: 5 }]}
+                            />
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>

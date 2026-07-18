@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { Table } from '@mantine/core';
 import { MockTheme } from '@tests/MockTheme';
 
+import { Table } from '@mantine/core';
 import React from 'react';
 
 import { ProductsGroup } from '~/client/pages/products/ProductsGroup';
@@ -81,8 +81,11 @@ describe('<ProductsGroup>', () => {
         renderGroup();
 
         const rows = screen.getAllByTestId('product-row');
+
         expect(rows).toHaveLength(2);
+
         const names = rows.map((r) => r.getAttribute('data-name'));
+
         expect(names).toContain('Avietės');
         expect(names).toContain('Braškės');
         expect(names).not.toContain('Obuoliai');
@@ -92,47 +95,44 @@ describe('<ProductsGroup>', () => {
         renderGroup();
 
         const { ProductRow } = jest.requireMock('~/client/pages/products/ProductRow');
-        const calls = ProductRow.mock.calls;
-        expect(calls.length).toBeGreaterThan(0);
-        calls.forEach(([props]: any[]) => {
-            expect(props.annual).toBe(true);
-        });
+        const annuals = ProductRow.mock.calls.map(([props]: any[]) => props.annual);
+
+        expect(annuals.length).toBeGreaterThan(0);
+        expect(annuals.every((a: boolean) => a)).toBe(true);
     });
 
     it('passes annual=false when group.annual is false', () => {
         renderGroup({ ...group, annual: false });
 
         const { ProductRow } = jest.requireMock('~/client/pages/products/ProductRow');
-        ProductRow.mock.calls.forEach(([props]: any[]) => {
-            expect(props.annual).toBe(false);
-        });
+        const annuals = ProductRow.mock.calls.map(([props]: any[]) => props.annual);
+
+        expect(annuals.every((a: boolean) => !a)).toBe(true);
     });
 
     it('sets hidden=false when groupFilter passes and products match quickFilter', () => {
         renderGroup();
 
         const title = screen.getByTestId('group-title');
+
         expect(title.getAttribute('data-hidden')).toBe('false');
     });
 
     it('sets hidden=true when groupFilter returns false for this group', () => {
-        const { useGroupFilterPredicate } = jest.requireMock(
-            '~/client/filters/hooks/useGroupFilterPredicate'
-        );
+        const { useGroupFilterPredicate } = jest.requireMock('~/client/filters/hooks/useGroupFilterPredicate');
         useGroupFilterPredicate.mockReturnValue(() => false);
 
         renderGroup();
 
         expect(screen.getByTestId('group-title').getAttribute('data-hidden')).toBe('true');
-        screen.getAllByTestId('product-row').forEach((row) => {
-            expect(row.getAttribute('data-hidden')).toBe('true');
-        });
+
+        const hiddenStates = screen.getAllByTestId('product-row').map((r) => r.getAttribute('data-hidden'));
+
+        expect(hiddenStates.every((h) => h === 'true')).toBe(true);
     });
 
     it('sets hidden=true when no products pass quickFilter', () => {
-        const { useQuickFilterPredicate } = jest.requireMock(
-            '~/client/filters/hooks/useQuickFilterPredicate'
-        );
+        const { useQuickFilterPredicate } = jest.requireMock('~/client/filters/hooks/useQuickFilterPredicate');
         useQuickFilterPredicate.mockReturnValue(() => false);
 
         renderGroup();
@@ -141,9 +141,7 @@ describe('<ProductsGroup>', () => {
     });
 
     it('sets hidden=false when at least one product passes quickFilter', () => {
-        const { useQuickFilterPredicate } = jest.requireMock(
-            '~/client/filters/hooks/useQuickFilterPredicate'
-        );
+        const { useQuickFilterPredicate } = jest.requireMock('~/client/filters/hooks/useQuickFilterPredicate');
         // Only 'Avietės' passes the quick filter
         useQuickFilterPredicate.mockReturnValue((name: string) => name === 'Avietės');
 
@@ -153,9 +151,7 @@ describe('<ProductsGroup>', () => {
     });
 
     it('hides individual product rows that do not pass quickFilter', () => {
-        const { useQuickFilterPredicate } = jest.requireMock(
-            '~/client/filters/hooks/useQuickFilterPredicate'
-        );
+        const { useQuickFilterPredicate } = jest.requireMock('~/client/filters/hooks/useQuickFilterPredicate');
         useQuickFilterPredicate.mockReturnValue((name: string) => name === 'Avietės');
 
         renderGroup();
@@ -222,6 +218,7 @@ describe('<ProductsGroup>', () => {
 
         const { ProductRow } = jest.requireMock('~/client/pages/products/ProductRow');
         const passedNames = ProductRow.mock.calls.map(([props]: any[]) => props.product.name);
+
         expect(passedNames).toContain('Avietės');
         expect(passedNames).toContain('Braškės');
     });

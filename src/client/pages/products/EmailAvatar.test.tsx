@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
+
 import React from 'react';
+
 import { EmailAvatar } from '~/client/pages/products/EmailAvatar';
 
 jest.mock('~/client/utils/gravatar', () => ({
@@ -71,10 +73,7 @@ describe('<EmailAvatar>', () => {
     it('renders Avatar with fallbackPicture when no profile picture', () => {
         const { container } = render(
             <MockTheme>
-                <EmailAvatar
-                    email="user@example.com"
-                    fallbackPicture="https://cdn.example.com/fallback.jpg"
-                />
+                <EmailAvatar email="user@example.com" fallbackPicture="https://cdn.example.com/fallback.jpg" />
             </MockTheme>
         );
 
@@ -90,6 +89,7 @@ describe('<EmailAvatar>', () => {
 
         // Mantine Avatar places aria-label and title on the root div, not the inner img
         const root = container.querySelector('[aria-label="user@example.com"]');
+
         expect(root).toBeInTheDocument();
         expect(root).toHaveAttribute('title', 'user@example.com');
     });
@@ -103,10 +103,7 @@ describe('<EmailAvatar>', () => {
 
         // Mantine hides the placeholder span while the image is loading;
         // simulate an image load error so the initials become visible
-        const img = container.querySelector('img');
-        if (img) {
-            fireEvent.error(img);
-        }
+        fireEvent.error(container.querySelector('img')!);
 
         expect(screen.getByText('JD')).toBeInTheDocument();
     });
@@ -118,10 +115,7 @@ describe('<EmailAvatar>', () => {
             </MockTheme>
         );
 
-        const img = container.querySelector('img');
-        if (img) {
-            fireEvent.error(img);
-        }
+        fireEvent.error(container.querySelector('img')!);
 
         expect(screen.getByText('A')).toBeInTheDocument();
     });

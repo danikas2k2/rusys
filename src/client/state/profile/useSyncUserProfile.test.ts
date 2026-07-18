@@ -12,9 +12,7 @@ jest.mock('~/client/state/profile/useProfile');
 const STALE_MS = 14 * 24 * 60 * 60 * 1000;
 
 // Helper to flush all pending promises (microtasks)
-const flushPromises = () =>
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
-    new Promise<void>((resolve) => setTimeout(resolve, 0));
+const flushPromises = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 describe('useSyncUserProfile', () => {
     afterEach(() => jest.clearAllMocks());
@@ -44,7 +42,11 @@ describe('useSyncUserProfile', () => {
     it('calls UserProfileUpsert immediately on first render with an email (key changed)', async () => {
         const request = jest.fn().mockResolvedValue({ ok: true });
         jest.mocked(useApiRequest).mockReturnValue(request);
-        jest.mocked(useProfile).mockReturnValue({ email: 'user@example.com', name: 'Alice', picture: 'pic.png' } as any);
+        jest.mocked(useProfile).mockReturnValue({
+            email: 'user@example.com',
+            name: 'Alice',
+            picture: 'pic.png',
+        } as any);
 
         renderHook(() => useSyncUserProfile(), { wrapper: MockRedux });
         await act(flushPromises);
@@ -71,7 +73,9 @@ describe('useSyncUserProfile', () => {
 
         mockUseProfile.mockReturnValue({ email: 'user@example.com', name: 'Bob', picture: undefined } as any);
 
-        await act(async () => { rerender(); });
+        await act(async () => {
+            rerender();
+        });
         await act(flushPromises);
 
         expect(request).toHaveBeenCalledTimes(2);
@@ -86,9 +90,7 @@ describe('useSyncUserProfile', () => {
         const request1 = jest.fn().mockResolvedValue({ ok: true });
         const request2 = jest.fn().mockResolvedValue({ ok: true, profiles: [] });
 
-        jest.mocked(useApiRequest)
-            .mockReturnValueOnce(request1)
-            .mockReturnValueOnce(request2);
+        jest.mocked(useApiRequest).mockReturnValueOnce(request1).mockReturnValueOnce(request2);
 
         jest.mocked(useProfile).mockReturnValue({ email: 'check@example.com', name: 'Eve', picture: undefined } as any);
 
@@ -96,10 +98,15 @@ describe('useSyncUserProfile', () => {
         await act(flushPromises);
 
         // First render: key was '' → key changed → upsert via request1
-        expect(request1).toHaveBeenCalledWith(ApiUrl.UserProfileUpsert, expect.objectContaining({ email: 'check@example.com' }));
+        expect(request1).toHaveBeenCalledWith(
+            ApiUrl.UserProfileUpsert,
+            expect.objectContaining({ email: 'check@example.com' })
+        );
 
         // Rerender: request ref changes → effect re-fires with same key → staleness check via request2
-        await act(async () => { rerender(); });
+        await act(async () => {
+            rerender();
+        });
         await act(flushPromises);
 
         expect(request2).toHaveBeenCalledWith(ApiUrl.UserProfiles, { emails: ['check@example.com'] });
@@ -115,16 +122,24 @@ describe('useSyncUserProfile', () => {
             .mockReturnValueOnce(request2)
             .mockReturnValueOnce(request3);
 
-        jest.mocked(useProfile).mockReturnValue({ email: 'dedup@example.com', name: 'Fred', picture: undefined } as any);
+        jest.mocked(useProfile).mockReturnValue({
+            email: 'dedup@example.com',
+            name: 'Fred',
+            picture: undefined,
+        } as any);
 
         const { rerender } = renderHook(() => useSyncUserProfile(), { wrapper: MockRedux });
         await act(flushPromises);
 
-        await act(async () => { rerender(); });
+        await act(async () => {
+            rerender();
+        });
         await act(flushPromises);
 
         // Third render — same email, already checked → UserProfiles NOT called again
-        await act(async () => { rerender(); });
+        await act(async () => {
+            rerender();
+        });
         await act(flushPromises);
 
         // request2 was used for the staleness check, request3 should NOT have called UserProfiles
@@ -140,16 +155,20 @@ describe('useSyncUserProfile', () => {
             profiles: [{ email: 'fresh@example.com', updatedAt: freshUpdatedAt }],
         });
 
-        jest.mocked(useApiRequest)
-            .mockReturnValueOnce(request1)
-            .mockReturnValueOnce(request2);
+        jest.mocked(useApiRequest).mockReturnValueOnce(request1).mockReturnValueOnce(request2);
 
-        jest.mocked(useProfile).mockReturnValue({ email: 'fresh@example.com', name: 'Gina', picture: undefined } as any);
+        jest.mocked(useProfile).mockReturnValue({
+            email: 'fresh@example.com',
+            name: 'Gina',
+            picture: undefined,
+        } as any);
 
         const { rerender } = renderHook(() => useSyncUserProfile(), { wrapper: MockRedux });
         await act(flushPromises);
 
-        await act(async () => { rerender(); });
+        await act(async () => {
+            rerender();
+        });
         await act(flushPromises);
 
         await waitFor(() => {
@@ -160,7 +179,7 @@ describe('useSyncUserProfile', () => {
         expect(request2).not.toHaveBeenCalledWith(ApiUrl.UserProfileUpsert, expect.anything());
     });
 
-    it('DOES upsert if profile is stale (updatedAt > STALE_MS ago)', async () => {
+    it('dOES upsert if profile is stale (updatedAt > STALE_MS ago)', async () => {
         const staleUpdatedAt = Date.now() - STALE_MS - 1000;
         const request1 = jest.fn().mockResolvedValue({ ok: true });
         const request2 = jest.fn().mockResolvedValue({
@@ -168,65 +187,82 @@ describe('useSyncUserProfile', () => {
             profiles: [{ email: 'stale@example.com', updatedAt: staleUpdatedAt }],
         });
 
-        jest.mocked(useApiRequest)
-            .mockReturnValueOnce(request1)
-            .mockReturnValueOnce(request2);
+        jest.mocked(useApiRequest).mockReturnValueOnce(request1).mockReturnValueOnce(request2);
 
-        jest.mocked(useProfile).mockReturnValue({ email: 'stale@example.com', name: 'Hank', picture: undefined } as any);
+        jest.mocked(useProfile).mockReturnValue({
+            email: 'stale@example.com',
+            name: 'Hank',
+            picture: undefined,
+        } as any);
 
         const { rerender } = renderHook(() => useSyncUserProfile(), { wrapper: MockRedux });
         await act(flushPromises);
 
-        await act(async () => { rerender(); });
+        await act(async () => {
+            rerender();
+        });
         await act(flushPromises);
 
         await waitFor(() => {
-            expect(request2).toHaveBeenCalledWith(ApiUrl.UserProfileUpsert, expect.objectContaining({ email: 'stale@example.com' }));
+            expect(request2).toHaveBeenCalledWith(
+                ApiUrl.UserProfileUpsert,
+                expect.objectContaining({ email: 'stale@example.com' })
+            );
         });
     });
 
-    it('DOES upsert if existing profile not found in profiles response', async () => {
+    it('dOES upsert if existing profile not found in profiles response', async () => {
         const request1 = jest.fn().mockResolvedValue({ ok: true });
         const request2 = jest.fn().mockResolvedValue({ ok: true, profiles: [] });
 
-        jest.mocked(useApiRequest)
-            .mockReturnValueOnce(request1)
-            .mockReturnValueOnce(request2);
+        jest.mocked(useApiRequest).mockReturnValueOnce(request1).mockReturnValueOnce(request2);
 
-        jest.mocked(useProfile).mockReturnValue({ email: 'missing@example.com', name: 'Iris', picture: undefined } as any);
+        jest.mocked(useProfile).mockReturnValue({
+            email: 'missing@example.com',
+            name: 'Iris',
+            picture: undefined,
+        } as any);
 
         const { rerender } = renderHook(() => useSyncUserProfile(), { wrapper: MockRedux });
         await act(flushPromises);
 
-        await act(async () => { rerender(); });
+        await act(async () => {
+            rerender();
+        });
         await act(flushPromises);
 
         await waitFor(() => {
-            expect(request2).toHaveBeenCalledWith(ApiUrl.UserProfileUpsert, expect.objectContaining({ email: 'missing@example.com' }));
+            expect(request2).toHaveBeenCalledWith(
+                ApiUrl.UserProfileUpsert,
+                expect.objectContaining({ email: 'missing@example.com' })
+            );
         });
     });
 
-    it('DOES upsert if existing found but updatedAt is 0 (falsy)', async () => {
+    it('dOES upsert if existing found but updatedAt is 0 (falsy)', async () => {
         const request1 = jest.fn().mockResolvedValue({ ok: true });
         const request2 = jest.fn().mockResolvedValue({
             ok: true,
             profiles: [{ email: 'zero@example.com', updatedAt: 0 }],
         });
 
-        jest.mocked(useApiRequest)
-            .mockReturnValueOnce(request1)
-            .mockReturnValueOnce(request2);
+        jest.mocked(useApiRequest).mockReturnValueOnce(request1).mockReturnValueOnce(request2);
 
         jest.mocked(useProfile).mockReturnValue({ email: 'zero@example.com', name: 'Jack', picture: undefined } as any);
 
         const { rerender } = renderHook(() => useSyncUserProfile(), { wrapper: MockRedux });
         await act(flushPromises);
 
-        await act(async () => { rerender(); });
+        await act(async () => {
+            rerender();
+        });
         await act(flushPromises);
 
         await waitFor(() => {
-            expect(request2).toHaveBeenCalledWith(ApiUrl.UserProfileUpsert, expect.objectContaining({ email: 'zero@example.com' }));
+            expect(request2).toHaveBeenCalledWith(
+                ApiUrl.UserProfileUpsert,
+                expect.objectContaining({ email: 'zero@example.com' })
+            );
         });
     });
 
@@ -234,16 +270,16 @@ describe('useSyncUserProfile', () => {
         const request1 = jest.fn().mockResolvedValue({ ok: true });
         const request2 = jest.fn().mockResolvedValue({ ok: false, error: 'not allowed' });
 
-        jest.mocked(useApiRequest)
-            .mockReturnValueOnce(request1)
-            .mockReturnValueOnce(request2);
+        jest.mocked(useApiRequest).mockReturnValueOnce(request1).mockReturnValueOnce(request2);
 
         jest.mocked(useProfile).mockReturnValue({ email: 'no@example.com', name: 'Kate', picture: undefined } as any);
 
         const { rerender } = renderHook(() => useSyncUserProfile(), { wrapper: MockRedux });
         await act(flushPromises);
 
-        await act(async () => { rerender(); });
+        await act(async () => {
+            rerender();
+        });
         await act(flushPromises);
 
         await waitFor(() => {
@@ -258,9 +294,7 @@ describe('useSyncUserProfile', () => {
         const request1 = jest.fn().mockResolvedValue({ ok: true });
         const request2 = jest.fn().mockRejectedValue(new Error('network error'));
 
-        jest.mocked(useApiRequest)
-            .mockReturnValueOnce(request1)
-            .mockReturnValueOnce(request2);
+        jest.mocked(useApiRequest).mockReturnValueOnce(request1).mockReturnValueOnce(request2);
 
         jest.mocked(useProfile).mockReturnValue({ email: 'throw@example.com', name: 'Leo', picture: undefined } as any);
 
@@ -268,7 +302,9 @@ describe('useSyncUserProfile', () => {
         await act(flushPromises);
 
         await expect(
-            act(async () => { rerender(); })
+            act(async () => {
+                rerender();
+            })
         ).resolves.not.toThrow();
 
         await act(flushPromises);
@@ -279,7 +315,11 @@ describe('useSyncUserProfile', () => {
     it('handles initial UserProfileUpsert request throwing (catch in first-render branch)', async () => {
         const request = jest.fn().mockRejectedValue(new Error('network error'));
         jest.mocked(useApiRequest).mockReturnValue(request);
-        jest.mocked(useProfile).mockReturnValue({ email: 'throwinit@example.com', name: 'Mia', picture: undefined } as any);
+        jest.mocked(useProfile).mockReturnValue({
+            email: 'throwinit@example.com',
+            name: 'Mia',
+            picture: undefined,
+        } as any);
 
         // Should not throw — the .catch(() => undefined) in the hook swallows the error
         let threw = false;
@@ -289,6 +329,7 @@ describe('useSyncUserProfile', () => {
         } catch {
             threw = true;
         }
+
         expect(threw).toBe(false);
         expect(request).toHaveBeenCalledWith(
             ApiUrl.UserProfileUpsert,

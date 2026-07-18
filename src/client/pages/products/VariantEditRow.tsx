@@ -1,4 +1,4 @@
-import { ActionIcon, Flex, Group, NumberInput } from '@mantine/core';
+import { ActionIcon, Flex, NumberInput } from '@mantine/core';
 import { IconEdit, IconMinus, IconPlus, IconToolsKitchen2, IconTrash } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
 

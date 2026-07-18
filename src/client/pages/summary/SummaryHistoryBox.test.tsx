@@ -35,7 +35,7 @@ describe('<SummaryHistoryBox>', () => {
     it('is open when opened=true', () => {
         render(
             <MockTheme>
-                <SummaryHistoryBox opened={true} />
+                <SummaryHistoryBox opened />
             </MockTheme>
         );
 
@@ -47,7 +47,7 @@ describe('<SummaryHistoryBox>', () => {
 
         render(
             <MockTheme>
-                <SummaryHistoryBox opened={true} onClose={onClose} />
+                <SummaryHistoryBox opened onClose={onClose} />
             </MockTheme>
         );
 
@@ -56,35 +56,24 @@ describe('<SummaryHistoryBox>', () => {
         expect(onClose).toHaveBeenCalledTimes(1);
     });
 
-    it('calls onAfterClose when onExitTransitionEnd fires', () => {
+    it('does not throw when onAfterClose is called after close', () => {
         const onAfterClose = jest.fn();
 
-        const { container } = render(
+        render(
             <MockTheme>
-                <SummaryHistoryBox opened={true} onAfterClose={onAfterClose} />
+                <SummaryHistoryBox opened onAfterClose={onAfterClose} />
             </MockTheme>
         );
 
-        // Mantine Modal wraps content in an overlay; fire the transition end event on the modal root
-        const modal = container.querySelector('.mantine-Modal-root');
-        if (modal) {
-            fireEvent(modal, new Event('animationend', { bubbles: true }));
-        }
+        fireEvent.click(screen.getByRole('button', { name: 'Close' }));
 
-        // Trigger onExitTransitionEnd directly via the modal overlay
-        const overlay = container.querySelector('[data-modal]') ?? container.firstElementChild;
-        if (overlay) {
-            fireEvent.transitionEnd(overlay);
-        }
-
-        // The callback is wired to onExitTransitionEnd; verify no error thrown when not provided
-        expect(onAfterClose).toBeDefined();
+        expect(onAfterClose).not.toHaveBeenCalled();
     });
 
     it('does not throw when onClose is not provided', () => {
         render(
             <MockTheme>
-                <SummaryHistoryBox opened={true} />
+                <SummaryHistoryBox opened />
             </MockTheme>
         );
 
@@ -96,7 +85,7 @@ describe('<SummaryHistoryBox>', () => {
     it('does not throw when onAfterClose is not provided', () => {
         render(
             <MockTheme>
-                <SummaryHistoryBox opened={true} />
+                <SummaryHistoryBox opened />
             </MockTheme>
         );
 
@@ -107,7 +96,7 @@ describe('<SummaryHistoryBox>', () => {
     it('renders title when provided', () => {
         render(
             <MockTheme>
-                <SummaryHistoryBox opened={true} title={<span>My Title</span>} />
+                <SummaryHistoryBox opened title={<span>My Title</span>} />
             </MockTheme>
         );
 
@@ -117,7 +106,7 @@ describe('<SummaryHistoryBox>', () => {
     it('passes initialUpdateType to UpdateTypeWrapper (key changes on type change)', () => {
         const { rerender } = render(
             <MockTheme>
-                <SummaryHistoryBox opened={true} initialUpdateType="consumed" />
+                <SummaryHistoryBox opened initialUpdateType="consumed" />
             </MockTheme>
         );
 
@@ -125,7 +114,7 @@ describe('<SummaryHistoryBox>', () => {
 
         rerender(
             <MockTheme>
-                <SummaryHistoryBox opened={true} initialUpdateType="recycled" />
+                <SummaryHistoryBox opened initialUpdateType="recycled" />
             </MockTheme>
         );
 

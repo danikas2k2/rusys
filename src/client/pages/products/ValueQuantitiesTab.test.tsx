@@ -146,9 +146,11 @@ describe('<ValueQuantitiesTab>', () => {
         const control = screen.getByRole('button', { name: /\bd\b/ });
 
         await user.click(control);
+
         expect(control).toHaveAttribute('aria-expanded', 'true');
 
         await user.click(control);
+
         expect(control).toHaveAttribute('aria-expanded', 'false');
     });
 
@@ -158,10 +160,12 @@ describe('<ValueQuantitiesTab>', () => {
         const controlP = screen.getByRole('button', { name: /\bp\b/ });
 
         await user.click(controlD);
+
         expect(controlD).toHaveAttribute('aria-expanded', 'true');
         expect(controlP).toHaveAttribute('aria-expanded', 'false');
 
         await user.click(controlP);
+
         expect(controlD).toHaveAttribute('aria-expanded', 'false');
         expect(controlP).toHaveAttribute('aria-expanded', 'true');
     });
@@ -215,11 +219,12 @@ describe('<ValueQuantitiesTab>', () => {
         expect(screen.queryByRole('button', { name: /^cancel$/i })).not.toBeInTheDocument();
     });
 
-    it('Cancel clears deltas and hides Update/Cancel buttons', async () => {
+    it('cancel clears deltas and hides Update/Cancel buttons', async () => {
         renderTab();
 
         await user.click(screen.getByRole('button', { name: /\bd\b/ }));
         await user.click(screen.getAllByText('decrease-updated')[0]);
+
         expect(screen.getByRole('button', { name: /^cancel$/i })).toBeInTheDocument();
 
         await user.click(screen.getByRole('button', { name: /^cancel$/i }));
@@ -465,13 +470,14 @@ describe('<ValueQuantitiesTab>', () => {
         expect(screen.getByText('99')).toBeInTheDocument();
     });
 
-    it('Cancel also clears expandedVariant', async () => {
+    it('cancel also clears expandedVariant', async () => {
         // Ensure default empty products (previous test may have set a mock)
         jest.requireMock('~/client/state/products/useProducts').useProducts.mockReturnValue([]);
 
         renderTab();
 
         await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+
         expect(screen.getByRole('button', { name: /\bd\b/ })).toHaveAttribute('aria-expanded', 'true');
 
         await user.click(screen.getByRole('button', { name: /^cancel$/i }));

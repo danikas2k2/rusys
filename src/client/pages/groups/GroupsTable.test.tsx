@@ -4,9 +4,9 @@ import { MockApp } from '@tests/MockApp';
 import { MockRedux } from '@tests/MockRedux';
 import { MockTheme } from '@tests/MockTheme';
 
+import type { UniqueIdentifier } from '@dnd-kit/core';
 import React from 'react';
 
-import type { UniqueIdentifier } from '@dnd-kit/core';
 import { DraggableContent } from '~/client/common/DraggableContent';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
@@ -49,9 +49,9 @@ jest.mock('~/client/table/DragOverlayTable', () => ({
 jest.mock('~/client/pages/groups/GroupsRow', () => ({
     GroupsRow: jest.fn(({ group, hidden }: any) => (
         <tr data-testid="groups-row" data-group={group.group} data-hidden={String(hidden ?? false)}>
-            <td></td>
+            <td />
             <td>{group.group}</td>
-            <td></td>
+            <td />
         </tr>
     )),
 }));
@@ -269,7 +269,8 @@ describe('<GroupsTable>', () => {
     });
 
     describe('renderDragOverlay', () => {
-        let capturedRenderDragOverlay: ((activeId: UniqueIdentifier, columns: number[]) => React.ReactNode) | null = null;
+        let capturedRenderDragOverlay: ((activeId: UniqueIdentifier, columns: number[]) => React.ReactNode) | null =
+            null;
 
         beforeEach(() => {
             capturedRenderDragOverlay = null;

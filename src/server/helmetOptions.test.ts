@@ -1,7 +1,7 @@
 /** @jest-environment node */
 
 describe('helmetOptions (dev mode)', () => {
-    let helmetOptions: typeof import('~/server/helmetOptions').default;
+    let helmetOptions: typeof import('~/server/helmetOptions').default; // eslint-disable-line @typescript-eslint/consistent-type-imports
 
     beforeAll(() => {
         jest.mock('~/common/utils/dev', () => ({ isDevMode: () => true }));
@@ -24,6 +24,7 @@ describe('helmetOptions (dev mode)', () => {
     it('includes ws:// WebSocket hosts in connectSrc in dev mode', () => {
         const connectSrc = (helmetOptions.contentSecurityPolicy as { directives: { connectSrc: string[] } }).directives
             .connectSrc;
+
         expect(connectSrc).toContain('ws://localhost:5173');
         expect(connectSrc).toContain('ws://127.0.0.1:5173');
     });
@@ -31,6 +32,7 @@ describe('helmetOptions (dev mode)', () => {
     it("includes 'unsafe-inline' in scriptSrcElem in dev mode", () => {
         const scriptSrcElem = (helmetOptions.contentSecurityPolicy as { directives: { scriptSrcElem: string[] } })
             .directives.scriptSrcElem;
+
         expect(scriptSrcElem).toContain("'unsafe-inline'");
     });
 
@@ -38,12 +40,13 @@ describe('helmetOptions (dev mode)', () => {
         const upgradeInsecureRequests = (
             helmetOptions.contentSecurityPolicy as { directives: { upgradeInsecureRequests: null | string[] } }
         ).directives.upgradeInsecureRequests;
+
         expect(upgradeInsecureRequests).toBeNull();
     });
 });
 
 describe('helmetOptions (prod mode)', () => {
-    let helmetOptions: typeof import('~/server/helmetOptions').default;
+    let helmetOptions: typeof import('~/server/helmetOptions').default; // eslint-disable-line @typescript-eslint/consistent-type-imports
 
     beforeAll(() => {
         jest.mock('~/common/utils/dev', () => ({ isDevMode: () => false }));
@@ -70,6 +73,7 @@ describe('helmetOptions (prod mode)', () => {
     it('does not include ws:// WebSocket hosts in connectSrc in prod mode', () => {
         const connectSrc = (helmetOptions.contentSecurityPolicy as { directives: { connectSrc: string[] } }).directives
             .connectSrc;
+
         expect(connectSrc).not.toContain('ws://localhost:5173');
         expect(connectSrc).not.toContain('ws://127.0.0.1:5173');
     });
@@ -78,12 +82,14 @@ describe('helmetOptions (prod mode)', () => {
         const upgradeInsecureRequests = (
             helmetOptions.contentSecurityPolicy as { directives: { upgradeInsecureRequests: null | string[] } }
         ).directives.upgradeInsecureRequests;
+
         expect(upgradeInsecureRequests).toStrictEqual([]);
     });
 
     it("includes 'unsafe-inline' via prodInlineScriptHashes in scriptSrcElem in prod mode", () => {
         const scriptSrcElem = (helmetOptions.contentSecurityPolicy as { directives: { scriptSrcElem: string[] } })
             .directives.scriptSrcElem;
+
         // prodInlineScriptHashes contains "'unsafe-inline'" as a placeholder
         expect(scriptSrcElem).toContain("'unsafe-inline'");
     });

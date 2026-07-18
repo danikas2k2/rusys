@@ -85,25 +85,19 @@ describe('useLockingLoader', () => {
         const setState = jest.spyOn(React, 'useState');
         const { result, unmount } = renderHook(() => useLockingLoader(pendingLoader));
 
-        // Hook should be in loading state while promise is pending
         await waitFor(() => expect(result.current).toBe('loading'));
 
-        // Unmount before the promise resolves — sets loading = false
         act(() => {
             unmount();
         });
 
-        // Resolve after unmount — the setState for COMPLETE must not be called
         await act(async () => {
             resolveLoader();
-            // Flush all microtasks
             await Promise.resolve();
         });
 
-        // State should still be 'loading' (not 'complete') because loading=false guard fired
-        // The important thing is no setState call throws a warning and result stays 'loading'
-        expect(result.current).toBe('loading');
-
         setState.mockRestore();
+
+        expect(result.current).toBe('loading');
     });
 });
