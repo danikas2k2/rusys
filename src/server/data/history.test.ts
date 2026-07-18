@@ -71,7 +71,23 @@ describe('buildHistoryPipeline', () => {
         expect(pipelineStr).not.toContain(JSON.stringify({ $ne: [{ $ifNull: ['$$a.amount', 0] }, 0] }));
     });
 
-    it('last $sort stage sorts by timeMs: -1', () => {
+    it('final $project stage includes time, user, comment, sessionId, year, amounts', () => {
+        const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
+        const lastStage = pipeline[pipeline.length - 1] as { $project?: Record<string, unknown> };
+
+        expect(lastStage.$project).toBeDefined();
+        expect(lastStage.$project).toMatchObject({
+            _id: 0,
+            group: 1,
+            name: 1,
+            user: 1,
+            comment: 1,
+            year: '$_id.year',
+            sessionId: '$_id.sessionId',
+        });
+    });
+
+    it('$sort stage sorts by timeMs: -1', () => {
         const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
         const sortStage = pipeline.find((stage) => '$sort' in stage) as { $sort: Record<string, number> } | undefined;
 
@@ -79,33 +95,10 @@ describe('buildHistoryPipeline', () => {
         expect(sortStage!.$sort).toMatchObject({ timeMs: -1 });
     });
 
-    it('last $sort stage is the second-to-last stage', () => {
+    it('pipeline merges entries by sessionId+year (contains two $group stages)', () => {
         const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
-        const secondToLast = pipeline[pipeline.length - 2] as { $sort?: Record<string, number> };
+        const groupStages = pipeline.filter((stage) => '$group' in stage);
 
-        expect(secondToLast.$sort).toBeDefined();
-        expect(secondToLast.$sort!.timeMs).toBe(-1);
-    });
-
-    it('final $project stage excludes timeMs, userKey, prevTimeMs, newSession, sessionIndex, sessionStartTimeMs', () => {
-        const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
-        const lastStage = pipeline[pipeline.length - 1] as { $project?: Record<string, number> };
-
-        expect(lastStage.$project).toBeDefined();
-        expect(lastStage.$project).toMatchObject({
-            timeMs: 0,
-            userKey: 0,
-            prevTimeMs: 0,
-            newSession: 0,
-            sessionIndex: 0,
-            sessionStartTimeMs: 0,
-        });
-    });
-
-    it('$sort also sorts by group: 1, name: 1, year: -1', () => {
-        const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
-        const sortStage = pipeline[pipeline.length - 2] as { $sort: Record<string, number> };
-
-        expect(sortStage.$sort).toMatchObject({ group: 1, name: 1, year: -1 });
+        expect(groupStages).toHaveLength(2);
     });
 });

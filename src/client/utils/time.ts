@@ -1,8 +1,6 @@
-const QUARTER_HOUR_MS = 15 * 60 * 1000;
-const HOUR_MS = 60 * 60 * 1000;
-const DAY_MS = 24 * HOUR_MS;
-const WEEK_MS = 7 * DAY_MS;
-export const THREE_MONTHS_MS = 90 * DAY_MS;
+import { HOUR_MS, QUARTER_HOUR_MS, THREE_MONTHS_MS, WEEK_MS } from '~/common/utils/time';
+
+export { THREE_MONTHS_MS };
 
 export function getRoundedDate(time: string | number): Date {
     const t = +time;

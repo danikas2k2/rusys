@@ -1,5 +1,18 @@
 import type { Document } from 'mongodb';
 
+import { DAY_MS, HOUR_MS, QUARTER_HOUR_MS, THREE_MONTHS_MS, WEEK_MS } from '~/common/utils/time';
+
+// Age-based session gap: last week = 15 min, last 3 months = 1 hour, older = 1 day
+const sessionGap = {
+    $cond: [
+        { $lt: [{ $subtract: [{ $toLong: '$$NOW' }, '$timeMs'] }, WEEK_MS] },
+        QUARTER_HOUR_MS,
+        {
+            $cond: [{ $lt: [{ $subtract: [{ $toLong: '$$NOW' }, '$timeMs'] }, THREE_MONTHS_MS] }, HOUR_MS, DAY_MS],
+        },
+    ],
+};
+
 export function buildHistoryPipeline(
     group: string,
     name: string,
@@ -55,7 +68,6 @@ export function buildHistoryPipeline(
                 _id: 0,
                 group: 1,
                 name: 1,
-                time: `$${field}.time`,
                 timeMs: { $toLong: { $toDate: `$${field}.time` } },
                 user: `$${field}.user`,
                 comment: `$${field}.comment`,
@@ -79,7 +91,7 @@ export function buildHistoryPipeline(
                         {
                             $or: [
                                 { $eq: ['$prevTimeMs', null] },
-                                { $gt: [{ $subtract: ['$timeMs', '$prevTimeMs'] }, 900_000 /* 15 min */] },
+                                { $gt: [{ $subtract: ['$timeMs', '$prevTimeMs'] }, sessionGap] },
                             ],
                         },
                         1,
@@ -109,10 +121,69 @@ export function buildHistoryPipeline(
         {
             $set: {
                 sessionId: { $concat: ['$userKey', ':', { $toString: '$sessionStartTimeMs' }] },
-                id: { $concat: ['$group', ':', '$name', ':', { $toString: '$time' }, ':', { $toString: '$year' }] },
             },
         },
-        { $sort: { timeMs: -1, group: 1, name: 1, year: -1 } },
-        { $project: { timeMs: 0, userKey: 0, prevTimeMs: 0, newSession: 0, sessionIndex: 0, sessionStartTimeMs: 0 } },
+        // Merge entries with same (sessionId, year) by summing amounts
+        { $unwind: '$amounts' },
+        {
+            $group: {
+                _id: {
+                    sessionId: '$sessionId',
+                    year: '$year',
+                    variant: '$amounts.variant',
+                    recycledKey: { $ifNull: ['$amounts.recycled', null] },
+                },
+                group: { $first: '$group' },
+                name: { $first: '$name' },
+                timeMs: { $min: '$timeMs' },
+                user: { $first: '$user' },
+                comment: { $first: '$comment' },
+                amount: { $sum: '$amounts.amount' },
+            },
+        },
+        {
+            $group: {
+                _id: { sessionId: '$_id.sessionId', year: '$_id.year' },
+                group: { $first: '$group' },
+                name: { $first: '$name' },
+                timeMs: { $min: '$timeMs' },
+                user: { $first: '$user' },
+                comment: { $first: '$comment' },
+                amounts: {
+                    $push: {
+                        $mergeObjects: [
+                            { variant: '$_id.variant', amount: '$amount' },
+                            { $cond: [{ $ne: ['$_id.recycledKey', null] }, { recycled: '$_id.recycledKey' }, {}] },
+                        ],
+                    },
+                },
+            },
+        },
+        {
+            $set: {
+                amounts: {
+                    $filter: {
+                        input: '$amounts',
+                        as: 'a',
+                        cond: { $ne: ['$$a.amount', 0] },
+                    },
+                },
+            },
+        },
+        { $match: { $expr: { $gt: [{ $size: '$amounts' }, 0] } } },
+        { $sort: { timeMs: -1, group: 1, name: 1, '_id.year': -1 } },
+        {
+            $project: {
+                _id: 0,
+                group: 1,
+                name: 1,
+                time: '$timeMs',
+                user: 1,
+                comment: 1,
+                sessionId: '$_id.sessionId',
+                year: '$_id.year',
+                amounts: 1,
+            },
+        },
     ];
 }
