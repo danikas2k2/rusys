@@ -5,48 +5,13 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 import React from 'react';
 
 import { ActiveValueBox } from '~/client/pages/products/ActiveValueBox';
-import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
-import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
-
-jest.mock('~/client/pages/products/UpdatingProductsContext', () => ({
-    useUpdatingProducts: jest.fn(() => [{}, jest.fn()]),
-}));
-
-jest.mock('~/client/state/products/useUpdateProduct', () => ({
-    useUpdateProduct: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
-}));
-
-jest.mock('~/client/state/products/useUndoProduct', () => ({
-    useUndoProduct: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
-}));
-
-jest.mock('~/client/state/products/useRedoProduct', () => ({
-    useRedoProduct: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
-}));
-
-jest.mock('~/client/state/products/useProducts', () => ({
-    useProducts: jest.fn(() => []),
-}));
-
-jest.mock('~/client/state/profile/useProfile', () => ({
-    useProfile: jest.fn(() => ({ email: 'test@example.com' })),
-}));
 
 jest.mock('~/client/pages/products/ValueListBox', () => ({
-    ValueListBox: ({ opened, onSubmit, onClose, onAfterClose }: any) =>
+    ValueListBox: ({ opened, onClose, onAfterClose }: any) =>
         opened ? (
             <div role="dialog" aria-label="Value box">
-                <button
-                    type="button"
-                    onClick={async () => {
-                        await onSubmit([{ variant: 'test', amount: 5 }]);
-                        onClose();
-                    }}
-                >
-                    Close with changes
-                </button>
                 <button type="button" onClick={() => onClose()}>
-                    Close without changes
+                    Close
                 </button>
                 <button type="button" onClick={onAfterClose}>
                     After close
@@ -57,14 +22,10 @@ jest.mock('~/client/pages/products/ValueListBox', () => ({
 
 describe('<ActiveValueBox>', () => {
     const mockSetActive = jest.fn();
-    const mockSetUpdating = jest.fn();
-    const mockUpdateProduct = jest.fn().mockResolvedValue(undefined);
     const data = { group: 'Test', name: 'Item', year: 2024 };
 
     beforeEach(() => {
         jest.clearAllMocks();
-        jest.mocked(useUpdatingProducts).mockReturnValue([{}, mockSetUpdating]);
-        jest.mocked(useUpdateProduct).mockReturnValue(mockUpdateProduct);
     });
 
     it('renders closed when no active content', () => {
@@ -97,48 +58,15 @@ describe('<ActiveValueBox>', () => {
         expect(screen.getByRole('dialog', { name: 'Value box' })).toBeInTheDocument();
     });
 
-    it('calls updateProduct and setActive on close with changes', async () => {
+    it('calls setActive with data on close', async () => {
         render(
             <MockThemeActive active={{ action: 'values', data }} setActive={mockSetActive}>
                 <ActiveValueBox />
             </MockThemeActive>
         );
 
-        await user.click(screen.getByRole('button', { name: 'Close with changes' }));
+        await user.click(screen.getByRole('button', { name: 'Close' }));
 
-        expect(mockSetUpdating).toHaveBeenCalledWith(data, true);
-        expect(mockUpdateProduct).toHaveBeenCalledWith(
-            'Test',
-            'Item',
-            2024,
-            [{ variant: 'test', amount: 5 }],
-            'test@example.com'
-        );
-        expect(mockSetActive).toHaveBeenCalledWith({ data });
-    });
-
-    it('clears active data on close even without changes', async () => {
-        render(
-            <MockThemeActive active={{ action: 'values', data }} setActive={mockSetActive}>
-                <ActiveValueBox />
-            </MockThemeActive>
-        );
-
-        await user.click(screen.getByRole('button', { name: 'Close without changes' }));
-
-        expect(mockSetActive).toHaveBeenCalledWith({ data });
-    });
-
-    it('does not call updateProduct on close without changes', async () => {
-        render(
-            <MockThemeActive active={{ action: 'values', data }} setActive={mockSetActive}>
-                <ActiveValueBox />
-            </MockThemeActive>
-        );
-
-        await user.click(screen.getByRole('button', { name: 'Close without changes' }));
-
-        expect(mockUpdateProduct).not.toHaveBeenCalled();
         expect(mockSetActive).toHaveBeenCalledWith({ data });
     });
 

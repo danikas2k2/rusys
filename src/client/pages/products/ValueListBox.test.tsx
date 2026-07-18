@@ -7,11 +7,11 @@ import React from 'react';
 import { ValueListBox } from '~/client/pages/products/ValueListBox';
 
 jest.mock('~/client/pages/products/ValueHistoryTab', () => ({
-    ProductHistoryTab: jest.fn().mockReturnValue(null),
+    ValueHistoryTab: jest.fn().mockReturnValue(null),
 }));
 
 jest.mock('~/client/pages/products/ValueQuantitiesTab', () => ({
-    ProductQuantitiesTab: jest.fn().mockReturnValue(null),
+    ValueQuantitiesTab: jest.fn().mockReturnValue(null),
 }));
 
 describe('<ValueListBox>', () => {

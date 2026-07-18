@@ -46,14 +46,14 @@ describe('<ChangeBadge>', () => {
         expect(screen.getByRole('status')).toHaveTextContent('﹡').toHaveAttribute('data-state', 'updated');
     });
 
-    it('renders with top position by default', async () => {
+    it('renders with inline position by default', async () => {
         render(
             <MockTheme>
                 <ChangeBadge change={1} />
             </MockTheme>
         );
 
-        expect(screen.getByRole('status')).toHaveAttribute('data-position', 'top');
+        expect(screen.getByRole('status')).toHaveAttribute('data-position', 'inline');
     });
 
     it('renders with left position', async () => {

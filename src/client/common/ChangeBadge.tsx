@@ -12,6 +12,7 @@ interface ChangeBadgeProps {
     position?: ChangeBadgePosition;
 }
 
+/** TODO check if `position` is still used */
 export function ChangeBadge({ change, position = 'inline' }: ChangeBadgeProps) {
     const inline = position === 'inline';
     return change ? (

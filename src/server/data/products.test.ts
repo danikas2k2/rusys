@@ -183,7 +183,7 @@ describe('products', () => {
                                 {
                                     year: 22,
                                     amounts: [
-                                        { variant: 'p', amount: 1 },
+                                        { variant: 'p', amount: 1, recycled: false },
                                         { variant: 'm', amount: 2 },
                                         { variant: 'd', amount: -1, recycled: true },
                                     ],
@@ -208,7 +208,7 @@ describe('products', () => {
                         ],
                     },
                     $push: {
-                        '2.updates': { time, user, years: [{ year: 22, amounts: [{ variant: 'x', amount: 1 }] }] },
+                        '2.updates': { time, user, years: [{ year: 22, amounts: [{ variant: 'x', amount: 1, recycled: false }] }] },
                     },
                 })
             );
@@ -233,7 +233,7 @@ describe('products', () => {
                                 {
                                     year: 0,
                                     amounts: [
-                                        { variant: 'p', amount: 1 },
+                                        { variant: 'p', amount: 1, recycled: false },
                                         { variant: 'm', amount: 2 },
                                         { variant: 'd', amount: -1, recycled: true },
                                     ],
@@ -276,7 +276,7 @@ describe('products', () => {
                     $unset: ['1.missing'],
                     $set: { '1.years.0.amounts.0.amount': 1 },
                     $push: {
-                        '1.updates': { time, user, years: [{ year: 22, amounts: [{ variant: 'p', amount: -1 }] }] },
+                        '1.updates': { time, user, years: [{ year: 22, amounts: [{ variant: 'p', amount: -1, recycled: false }] }] },
                     },
                 })
             );
@@ -289,7 +289,7 @@ describe('products', () => {
                 bulk(products, {
                     $set: { '1.years.0.amounts.0.amount': 3 },
                     $push: {
-                        '1.updates': { time, user, years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }] },
+                        '1.updates': { time, user, years: [{ year: 22, amounts: [{ variant: 'p', amount: 1, recycled: false }] }] },
                     },
                 })
             );
@@ -314,7 +314,7 @@ describe('products', () => {
                 bulk(products, {
                     $unset: ['1.missing', '1.years'],
                     $push: {
-                        '1.updates': { time, user, years: [{ year: 22, amounts: [{ variant: 'p', amount: -2 }] }] },
+                        '1.updates': { time, user, years: [{ year: 22, amounts: [{ variant: 'p', amount: -2, recycled: false }] }] },
                     },
                 })
             );
@@ -338,7 +338,7 @@ describe('products', () => {
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
                     $set: {
-                        '2.undates': [{ time, user, years: [{ year: 22, amounts: [{ variant: 'd', amount: -1 }] }] }],
+                        '2.undates': [{ time, user, years: [{ year: 22, amounts: [{ variant: 'd', amount: -1, recycled: false }] }] }],
                     },
                 })
             );
@@ -700,7 +700,7 @@ describe('products', () => {
                     $set: { '3.years.0.amounts.0.variant': '1/2' },
                     $push: {
                         '3.years': { year: 22, amounts: [{ variant: '1/2', amount: 1 }] },
-                        '3.updates': { time, user, years: [{ year: 22, amounts: [{ variant: '1/2', amount: 1 }] }] },
+                        '3.updates': { time, user, years: [{ year: 22, amounts: [{ variant: '1/2', amount: 1, recycled: false }] }] },
                     },
                 })
             );
@@ -719,7 +719,7 @@ describe('products', () => {
                     },
                     $push: {
                         '3.years.0.amounts': { variant: '3/4', amount: 1 },
-                        '3.updates': { time, user, years: [{ year: 21, amounts: [{ variant: '3/4', amount: 1 }] }] },
+                        '3.updates': { time, user, years: [{ year: 21, amounts: [{ variant: '3/4', amount: 1, recycled: false }] }] },
                     },
                 })
             );
@@ -862,7 +862,7 @@ describe('products', () => {
                     $unset: ['2.years', '2.updates'],
                     $push: {
                         '3.years': { year: 22, amounts: [{ variant: 'm', amount: 2 }] },
-                        '3.updates': { time, user, years: [{ year: 22, amounts: [{ variant: 'm', amount: 2 }] }] },
+                        '3.updates': { time, user, years: [{ year: 22, amounts: [{ variant: 'm', amount: 2, recycled: false }] }] },
                     },
                 })
             );

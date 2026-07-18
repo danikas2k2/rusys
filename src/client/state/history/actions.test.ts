@@ -14,7 +14,7 @@ describe('setHistoryAction', () => {
 
         expect(setUpdatesAction(history)).toStrictEqual({
             type: HistoryActionType.SET_UPDATES,
-            history,
+            updates: history,
         });
     });
 
@@ -23,7 +23,7 @@ describe('setHistoryAction', () => {
 
         expect(setUpdatesAction(history)).toStrictEqual({
             type: HistoryActionType.SET_UPDATES,
-            history,
+            updates: history,
         });
     });
 });

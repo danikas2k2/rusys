@@ -106,7 +106,7 @@ export const getSummary = async (years: number[] = getYears()): Promise<readonly
                                         amounts: {
                                             $sortArray: {
                                                 input: '$$y.amounts',
-                                                sortBy: { variantOrder: 1, variant: 1 },
+                                                sortBy: { variantOrder: 1, variant: 1, recycled: -1 },
                                             },
                                         },
                                     },

@@ -58,7 +58,7 @@ describe('<AmountBox>', () => {
         renderAmountBox({ opened: true });
 
         expect(screen.getByLabelText(/Close/)).toBeInTheDocument();
-        expect(screen.getByText(/Cancel/)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Cancel/ })).toBeInTheDocument();
         expect(screen.getByText(/Update/)).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Expand/ })).toBeInTheDocument();
     });
@@ -85,6 +85,7 @@ describe('<AmountBox>', () => {
     });
 
     const onClose = jest.fn();
+    const onSubmit = jest.fn();
 
     it('calls onClose when dialog is closed', async () => {
         renderAmountBox({ opened: true, onClose });
@@ -97,17 +98,17 @@ describe('<AmountBox>', () => {
     it('calls onClose when `Cancel` is clicked', async () => {
         renderAmountBox({ opened: true, onClose });
 
-        await user.click(screen.getByText('Cancel'));
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
         expect(onClose).toHaveBeenCalledWith();
     });
 
-    it('calls onClose without changes when `Update` is clicked', async () => {
-        renderAmountBox({ opened: true, onClose });
+    it('calls onSubmit without changes when `Update` is clicked', async () => {
+        renderAmountBox({ opened: true, onSubmit });
 
         await user.click(screen.getByText('Update'));
 
-        expect(onClose).toHaveBeenCalledWith([]);
+        expect(onSubmit).toHaveBeenCalledWith([]);
     });
 
     const selection = {
@@ -115,8 +116,8 @@ describe('<AmountBox>', () => {
         initialSelectionEnd: 10,
     };
 
-    it('calls onClose with changes when `Update` is clicked after some changes in `Consumed` tab', async () => {
-        renderAmountBox({ opened: true, onClose });
+    it('calls onSubmit with changes when `Update` is clicked after some changes in `Consumed` tab', async () => {
+        renderAmountBox({ opened: true, onSubmit });
 
         await user.type(screen.getByLabelText('p'), '2', selection);
         await user.type(screen.getByLabelText('d'), '4', selection);
@@ -124,15 +125,15 @@ describe('<AmountBox>', () => {
 
         await user.click(screen.getByText('Update'));
 
-        expect(onClose).toHaveBeenCalledWith([
+        expect(onSubmit).toHaveBeenCalledWith([
             { variant: 'p', amount: 1, recycled: false },
             { variant: 'd', amount: 1, recycled: false },
             { variant: 'm', amount: 4, recycled: false },
         ]);
     });
 
-    it('calls onClose with changes when `Update` is clicked after some changes in `Recycled` tab', async () => {
-        renderAmountBox({ opened: true, onClose });
+    it('calls onSubmit with changes when `Update` is clicked after some changes in `Recycled` tab', async () => {
+        renderAmountBox({ opened: true, onSubmit });
 
         await user.click(screen.getByLabelText('Recycled'));
 
@@ -142,14 +143,14 @@ describe('<AmountBox>', () => {
 
         await user.click(screen.getByText('Update'));
 
-        expect(onClose).toHaveBeenCalledWith([
+        expect(onSubmit).toHaveBeenCalledWith([
             { variant: 'p', amount: -1, recycled: true },
             { variant: 'd', amount: -2, recycled: true },
         ]);
     });
 
-    it('calls onClose with changes when `Update` is clicked after some changes in `Consumed` and `Recycled` tabs', async () => {
-        renderAmountBox({ opened: true, onClose });
+    it('calls onSubmit with changes when `Update` is clicked after some changes in `Consumed` and `Recycled` tabs', async () => {
+        renderAmountBox({ opened: true, onSubmit });
 
         await user.type(screen.getByLabelText('p'), '2', selection);
         await user.click(screen.getByLabelText('Recycled'));
@@ -157,7 +158,7 @@ describe('<AmountBox>', () => {
 
         await user.click(screen.getByText('Update'));
 
-        expect(onClose).toHaveBeenCalledWith([
+        expect(onSubmit).toHaveBeenCalledWith([
             { variant: 'p', amount: 1, recycled: false },
             { variant: 'd', amount: -2, recycled: true },
         ]);
@@ -325,7 +326,7 @@ describe('<AmountBox>', () => {
     it('updates existing variant change when variant already exists in currentChanges', async () => {
         const onCloseHandler = jest.fn();
 
-        renderAmountBox({ opened: true, onClose: onCloseHandler });
+        renderAmountBox({ opened: true, onSubmit: onCloseHandler });
 
         await user.type(screen.getByLabelText('p'), '2', selection);
 
@@ -382,12 +383,12 @@ describe('<AmountBox>', () => {
         expect(onClose).not.toHaveBeenCalled();
     });
 
-    it('does not call onClose when Update is clicked and onClose is not provided', async () => {
+    it('does not call onSubmit when Update is clicked and onSubmit is not provided', async () => {
         renderAmountBox({ opened: true });
 
         await user.click(screen.getByText('Update'));
 
-        expect(onClose).not.toHaveBeenCalled();
+        expect(onSubmit).not.toHaveBeenCalled();
     });
 
     it('does not call onAfterClose when onAfterClose is not provided', async () => {
@@ -413,7 +414,7 @@ describe('<AmountBox>', () => {
     it('adds new variant change when currentChanges is undefined', async () => {
         const onCloseHandler = jest.fn();
 
-        renderAmountBox({ opened: true, onClose: onCloseHandler });
+        renderAmountBox({ opened: true, onSubmit: onCloseHandler });
 
         await user.click(screen.getByLabelText('Recycled'));
 

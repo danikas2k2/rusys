@@ -3,10 +3,10 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { useUpdates } from '~/client/state/history/useUpdates';
+import { useUndates } from '~/client/state/history/useUndates';
 import type { History } from '~/types/data';
 
-describe('useHistory', () => {
+describe('useUndates', () => {
     const historyData: History[] = [
         {
             group: 'Uogienės',
@@ -16,16 +16,16 @@ describe('useHistory', () => {
         },
     ];
 
-    it('returns history from state', () => {
-        const { result } = renderHook(() => useUpdates(), {
-            wrapper: ({ children }) => <MockRedux state={{ updates: historyData }}>{children}</MockRedux>,
+    it('returns undates from state', () => {
+        const { result } = renderHook(() => useUndates(), {
+            wrapper: ({ children }) => <MockRedux state={{ undates: historyData }}>{children}</MockRedux>,
         });
 
         expect(result.current).toStrictEqual(historyData);
     });
 
-    it('returns an empty array when state.history is undefined', () => {
-        const { result } = renderHook(() => useUpdates(), { wrapper: MockRedux });
+    it('returns an empty array when state.undates is undefined', () => {
+        const { result } = renderHook(() => useUndates(), { wrapper: MockRedux });
 
         expect(result.current).toStrictEqual([]);
     });

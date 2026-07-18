@@ -17,6 +17,9 @@ import { handleGroups } from '~/server/api/handleGroups';
 import { handleMove } from '~/server/api/handleMove';
 import { handleProductHistory } from '~/server/api/handleProductHistory';
 import { handleProducts } from '~/server/api/handleProducts';
+import { handleRedoProduct } from '~/server/api/handleRedoProduct';
+import { handleSummaryHistory } from '~/server/api/handleSummaryHistory';
+import { handleUndoProduct } from '~/server/api/handleUndoProduct';
 import { handleRename } from '~/server/api/handleRename';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
@@ -55,6 +58,9 @@ jest.mock('~/server/api/handleDelete');
 
 // History
 jest.mock('~/server/api/handleProductHistory');
+jest.mock('~/server/api/handleUndoProduct');
+jest.mock('~/server/api/handleRedoProduct');
+jest.mock('~/server/api/handleSummaryHistory');
 
 // Groups
 jest.mock('~/server/api/handleGroups');
@@ -86,6 +92,9 @@ describe('app', () => {
             ${ApiUrl.ProductsUpdate}      | ${handleUpdateProduct}
             ${ApiUrl.ProductsAdd}         | ${handleAdd}
             ${ApiUrl.ProductsHistory}     | ${handleProductHistory}
+            ${ApiUrl.ProductsUndo}        | ${handleUndoProduct}
+            ${ApiUrl.ProductsRedo}        | ${handleRedoProduct}
+            ${ApiUrl.SummaryHistory}      | ${handleSummaryHistory}
             ${ApiUrl.ProductsSetRemoving} | ${handleSetRemoving}
             ${ApiUrl.ProductsSetMissing}  | ${handleSetMissing}
             ${ApiUrl.ProductsRename}      | ${handleRename}
