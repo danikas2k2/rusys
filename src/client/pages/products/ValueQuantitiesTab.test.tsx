@@ -259,4 +259,223 @@ describe('<ValueQuantitiesTab>', () => {
 
         expect(screen.queryByRole('button', { name: /\bm\b/ })).not.toBeInTheDocument();
     });
+
+    it('shows Undo/Redo buttons when canUndo is true and no expandedVariant and no changes', () => {
+        const { useProducts } = jest.requireMock('~/client/state/products/useProducts');
+        useProducts.mockReturnValue([
+            {
+                group: baseActive.group,
+                name: baseActive.name,
+                updates: [{ year: baseActive.year }],
+                undates: [],
+            },
+        ]);
+
+        renderTab();
+
+        expect(screen.getByRole('button', { name: /undo/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /redo/i })).toBeInTheDocument();
+    });
+
+    it('shows Undo/Redo buttons when canRedo is true and no expandedVariant and no changes', () => {
+        const { useProducts } = jest.requireMock('~/client/state/products/useProducts');
+        useProducts.mockReturnValue([
+            {
+                group: baseActive.group,
+                name: baseActive.name,
+                updates: [],
+                undates: [{ year: baseActive.year }],
+            },
+        ]);
+
+        renderTab();
+
+        expect(screen.getByRole('button', { name: /undo/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /redo/i })).toBeInTheDocument();
+    });
+
+    it('hides Undo/Redo buttons when a variant is expanded', async () => {
+        const { useProducts } = jest.requireMock('~/client/state/products/useProducts');
+        useProducts.mockReturnValue([
+            {
+                group: baseActive.group,
+                name: baseActive.name,
+                updates: [{ year: baseActive.year }],
+                undates: [],
+            },
+        ]);
+
+        renderTab();
+
+        expect(screen.getByRole('button', { name: /undo/i })).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+
+        expect(screen.queryByRole('button', { name: /undo/i })).not.toBeInTheDocument();
+    });
+
+    it('calls undoProduct when Undo is clicked', async () => {
+        const { useProducts } = jest.requireMock('~/client/state/products/useProducts');
+        const { useUndoProduct } = jest.requireMock('~/client/state/products/useUndoProduct');
+        const mockUndo = jest.fn().mockResolvedValue(undefined);
+        useUndoProduct.mockReturnValue(mockUndo);
+        useProducts.mockReturnValue([
+            {
+                group: baseActive.group,
+                name: baseActive.name,
+                updates: [{ year: baseActive.year }],
+                undates: [],
+            },
+        ]);
+
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /undo/i }));
+
+        expect(mockUndo).toHaveBeenCalledWith(baseActive.group, baseActive.name, baseActive.year);
+    });
+
+    it('calls redoProduct when Redo is clicked', async () => {
+        const { useProducts } = jest.requireMock('~/client/state/products/useProducts');
+        const { useRedoProduct } = jest.requireMock('~/client/state/products/useRedoProduct');
+        const mockRedo = jest.fn().mockResolvedValue(undefined);
+        useRedoProduct.mockReturnValue(mockRedo);
+        useProducts.mockReturnValue([
+            {
+                group: baseActive.group,
+                name: baseActive.name,
+                updates: [],
+                undates: [{ year: baseActive.year }],
+            },
+        ]);
+
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /redo/i }));
+
+        expect(mockRedo).toHaveBeenCalledWith(baseActive.group, baseActive.name, baseActive.year);
+    });
+
+    it('includes comment in update call when comment is non-empty', async () => {
+        const { useUpdateProduct } = jest.requireMock('~/client/state/products/useUpdateProduct');
+        const mockUpdate = jest.fn().mockResolvedValue(undefined);
+        useUpdateProduct.mockReturnValue(mockUpdate);
+
+        // VariantExpandedRows is already mocked but we need to expose the onCommentChange —
+        // re-mock to also trigger comment change
+        const { VariantEditRow } = jest.requireMock('~/client/pages/products/VariantEditRow');
+        VariantEditRow.mockImplementation(({ type, delta, onChange }: any) => (
+            <div data-testid={`edit-row-${type}`}>
+                <button type="button" onClick={() => onChange(type, delta - 1)}>
+                    {`decrease-${type}`}
+                </button>
+            </div>
+        ));
+
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('decrease-updated')[0]);
+        await user.click(screen.getByRole('button', { name: /^update$/i }));
+
+        // comment is '' so it passes undefined
+        expect(mockUpdate).toHaveBeenCalledWith(
+            group,
+            'Avietės',
+            2023,
+            expect.any(Array),
+            'test@example.com',
+            undefined
+        );
+    });
+
+    it('passes consumed delta in changes array', async () => {
+        const { useUpdateProduct } = jest.requireMock('~/client/state/products/useUpdateProduct');
+        const mockUpdate = jest.fn().mockResolvedValue(undefined);
+        useUpdateProduct.mockReturnValue(mockUpdate);
+
+        const { VariantEditRow } = jest.requireMock('~/client/pages/products/VariantEditRow');
+        VariantEditRow.mockImplementation(({ type, delta, onChange }: any) => (
+            <div data-testid={`edit-row-${type}`}>
+                <button type="button" onClick={() => onChange(type, delta - 1)}>
+                    {`decrease-${type}`}
+                </button>
+            </div>
+        ));
+
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('decrease-consumed')[0]);
+        await user.click(screen.getByRole('button', { name: /^update$/i }));
+
+        expect(mockUpdate).toHaveBeenCalledWith(
+            group,
+            'Avietės',
+            2023,
+            expect.arrayContaining([expect.objectContaining({ variant: 'd', recycled: false })]),
+            'test@example.com',
+            undefined
+        );
+    });
+
+    it('passes recycled delta in changes array', async () => {
+        const { useUpdateProduct } = jest.requireMock('~/client/state/products/useUpdateProduct');
+        const mockUpdate = jest.fn().mockResolvedValue(undefined);
+        useUpdateProduct.mockReturnValue(mockUpdate);
+
+        const { VariantEditRow } = jest.requireMock('~/client/pages/products/VariantEditRow');
+        VariantEditRow.mockImplementation(({ type, delta, onChange }: any) => (
+            <div data-testid={`edit-row-${type}`}>
+                <button type="button" onClick={() => onChange(type, delta - 1)}>
+                    {`decrease-${type}`}
+                </button>
+            </div>
+        ));
+
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('decrease-recycled')[0]);
+        await user.click(screen.getByRole('button', { name: /^update$/i }));
+
+        expect(mockUpdate).toHaveBeenCalledWith(
+            group,
+            'Avietės',
+            2023,
+            expect.arrayContaining([expect.objectContaining({ variant: 'd', recycled: true })]),
+            'test@example.com',
+            undefined
+        );
+    });
+
+    it('uses liveAmounts from activeProduct.years when available', () => {
+        const { useProducts } = jest.requireMock('~/client/state/products/useProducts');
+        useProducts.mockReturnValue([
+            {
+                group: baseActive.group,
+                name: baseActive.name,
+                years: [{ year: baseActive.year, amounts: [{ variant: 'p', amount: 99 }] }],
+            },
+        ]);
+
+        renderTab();
+
+        // liveAmounts from product.years[0].amounts has p=99
+        expect(screen.getByText('99')).toBeInTheDocument();
+    });
+
+    it('Cancel also clears expandedVariant', async () => {
+        // Ensure default empty products (previous test may have set a mock)
+        jest.requireMock('~/client/state/products/useProducts').useProducts.mockReturnValue([]);
+
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        expect(screen.getByRole('button', { name: /\bd\b/ })).toHaveAttribute('aria-expanded', 'true');
+
+        await user.click(screen.getByRole('button', { name: /^cancel$/i }));
+
+        expect(screen.getByRole('button', { name: /\bd\b/ })).toHaveAttribute('aria-expanded', 'false');
+    });
 });

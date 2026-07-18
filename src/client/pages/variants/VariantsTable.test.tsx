@@ -6,6 +6,8 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
+import type { UniqueIdentifier } from '@dnd-kit/core';
+import { DraggableContent } from '~/client/common/DraggableContent';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
@@ -32,6 +34,33 @@ jest.mock('~/client/filters/QuickFilterContext', () => ({
     useQuickFilter: jest.fn().mockReturnValue(['', jest.fn()]),
 }));
 jest.mock('~/client/utils/getOverlapIndex');
+
+jest.mock('~/client/common/DraggableContent', () => ({
+    DraggableContent: jest.fn(({ children }: any) => <>{children}</>),
+}));
+
+jest.mock('~/client/table/DragOverlayTable', () => ({
+    DragOverlayTable: jest.fn(({ children }: any) => (
+        <table data-testid="drag-overlay-table">
+            <tbody>{children}</tbody>
+        </table>
+    )),
+}));
+
+jest.mock('~/client/pages/variants/VariantsRow', () => ({
+    VariantsRow: jest.fn(({ variant, hidden }: any) => (
+        <tr
+            data-testid="variants-row"
+            data-group={variant.group}
+            data-variant={variant.variant}
+            data-hidden={String(hidden ?? false)}
+        >
+            <td></td>
+            <td>{variant.variant}</td>
+            <td>{variant.suffix ?? ''}</td>
+        </tr>
+    )),
+}));
 
 describe('<VariantsTable>', () => {
     const mockItems: Variant[] = getVariantsFixture();
@@ -307,6 +336,54 @@ describe('<VariantsTable>', () => {
             await onReorder(reordered, { group: 'Uogienės', variant: 'd' });
 
             expect(mockReorderVariants).toHaveBeenCalledWith('Uogienės', { d: 0, p: 1 });
+        });
+    });
+
+    describe('renderDragOverlay', () => {
+        let capturedRenderDragOverlay: ((activeId: UniqueIdentifier, columns: number[]) => React.ReactNode) | null = null;
+
+        beforeEach(() => {
+            capturedRenderDragOverlay = null;
+            jest.mocked(DraggableContent).mockImplementation(({ renderDragOverlay, children }: any) => {
+                capturedRenderDragOverlay = renderDragOverlay ?? null;
+                return <>{children}</>;
+            });
+        });
+
+        it('returns DragOverlayTable with VariantsRow when the variant is found by activeId', () => {
+            render(
+                <MockTheme>
+                    <MockRedux>
+                        <VariantsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(capturedRenderDragOverlay).not.toBeNull();
+
+            // 'Uogienės:p' is the getId result for { group: 'Uogienės', variant: 'p' }
+            const result = capturedRenderDragOverlay!('Uogienės:p', [100, 200, 300]);
+            const { container } = render(<MockTheme>{result as React.ReactElement}</MockTheme>);
+
+            expect(container.querySelector('[data-testid="drag-overlay-table"]')).toBeInTheDocument();
+            expect(container.querySelector('[data-testid="variants-row"]')).toBeInTheDocument();
+            expect(container.querySelector('[data-group="Uogienės"][data-variant="p"]')).toBeInTheDocument();
+        });
+
+        it('returns null when no variant matches the activeId', () => {
+            render(
+                <MockTheme>
+                    <MockRedux>
+                        <VariantsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(capturedRenderDragOverlay).not.toBeNull();
+
+            const result = capturedRenderDragOverlay!('NonExistent:zzz', [100, 200]);
+
+            expect(result).toBeNull();
         });
     });
 });

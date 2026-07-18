@@ -1,4 +1,4 @@
-import { HistoryActionType, setUpdatesAction } from '~/client/state/history/actions';
+import { HistoryActionType, setUndatesAction, setUpdatesAction } from '~/client/state/history/actions';
 import type { History } from '~/types/data';
 
 describe('setHistoryAction', () => {
@@ -24,6 +24,17 @@ describe('setHistoryAction', () => {
         expect(setUpdatesAction(history)).toStrictEqual({
             type: HistoryActionType.SET_UPDATES,
             updates: history,
+        });
+    });
+});
+
+describe('setUndatesAction', () => {
+    it('returns valid undates action', () => {
+        const history: History[] = [{ group: 'Uogienės', name: 'Avietės', time: 1000, year: 22 }];
+
+        expect(setUndatesAction(history)).toStrictEqual({
+            type: HistoryActionType.SET_UNDATES,
+            undates: history,
         });
     });
 });

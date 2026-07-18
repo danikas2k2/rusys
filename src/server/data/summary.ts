@@ -1,4 +1,4 @@
-import type { Document, WithId } from 'mongodb';
+import type { WithId } from 'mongodb';
 
 import { getGroups } from '~/server/data/groups';
 import { buildHistoryPipeline } from '~/server/data/history';

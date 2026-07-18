@@ -1,6 +1,6 @@
 /** @jest-environment node */
-import { getUserProfiles, upsertUserProfile } from '~/server/data/userProfiles';
 import { $all } from '~/server/data/tests/utils';
+import { getUserProfiles, upsertUserProfile } from '~/server/data/userProfiles';
 
 jest.setTimeout(30_000);
 

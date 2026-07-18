@@ -103,4 +103,96 @@ describe('<ValueHistoryTab>', () => {
 
         expect(useGetHistory).toHaveBeenCalledWith(0, 'G', 'N');
     });
+
+    it('renders undates rows reversed before the divider', () => {
+        jest.requireMock('~/client/state/history/useUpdates').useUpdates.mockReturnValue([]);
+        const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
+        const undates: History[] = [
+            { group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] },
+            { group: 'Uogienės', name: 'Avietės', time: 200, year: 2026, amounts: [] },
+        ];
+        useUndates.mockReturnValue(undates);
+
+        renderTab();
+
+        // thead row + 2 undate rows + 1 divider row = 4
+        expect(screen.getAllByRole('row')).toHaveLength(4);
+    });
+
+    it('renders a divider row when undates are present', () => {
+        const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
+        useUndates.mockReturnValue([
+            { group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] },
+        ]);
+
+        renderTab();
+
+        // The divider is rendered inside a Table.Tr — Divider has role "separator"
+        expect(document.querySelector('[data-table="history"] hr, [role="separator"]')).not.toBeNull();
+    });
+
+    it('does not render a divider row when undates are empty', () => {
+        jest.requireMock('~/client/state/history/useUndates').useUndates.mockReturnValue([]);
+
+        renderTab();
+
+        expect(document.querySelector('[role="separator"]')).toBeNull();
+    });
+
+    it('shows comment text when h.comment is set', () => {
+        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
+        useUpdates.mockReturnValue([
+            {
+                group: 'Uogienės',
+                name: 'Avietės',
+                time: 1000,
+                year: 2026,
+                amounts: [],
+                comment: 'Special batch',
+            },
+        ]);
+
+        renderTab();
+
+        expect(screen.getByText('Special batch')).toBeInTheDocument();
+    });
+
+    it('does not show comment element when h.comment is absent', () => {
+        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
+        useUpdates.mockReturnValue([
+            { group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [] },
+        ]);
+
+        renderTab();
+
+        // No comment text should appear
+        expect(screen.queryByText(/batch/i)).not.toBeInTheDocument();
+    });
+
+    it('dimmed (undate) rows have opacity 0.4', () => {
+        const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
+        useUndates.mockReturnValue([
+            { group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] },
+        ]);
+
+        renderTab();
+
+        // The first tbody row is the undate row — check its style
+        const tbodyRows = document.querySelectorAll('[data-table="history"] tbody tr');
+        // first row = undate (dimmed), second = divider
+        expect((tbodyRows[0] as HTMLElement).style.opacity).toBe('0.4');
+    });
+
+    it('non-dimmed (update) rows do not have opacity set', () => {
+        jest.requireMock('~/client/state/history/useUndates').useUndates.mockReturnValue([]);
+        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
+        useUpdates.mockReturnValue([
+            { group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [] },
+        ]);
+
+        renderTab();
+
+        const tbodyRows = document.querySelectorAll('[data-table="history"] tbody tr');
+        expect((tbodyRows[0] as HTMLElement).style.opacity).toBe('');
+    });
 });

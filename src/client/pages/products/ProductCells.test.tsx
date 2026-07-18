@@ -36,10 +36,38 @@ describe('<ProductCells>', () => {
             .toHaveBeenLastCalledWith(expect.objectContaining({ last: true, year: years.at(-1) }), undefined);
     });
 
+    it('passes last=false for non-last years and last=true for the last year', () => {
+        render(
+            <MockTableRow>
+                <ProductCells product={product} annual />
+            </MockTableRow>
+        );
+
+        const calls = jest.mocked(ProductCell).mock.calls;
+        const nonLastCalls = calls.slice(0, calls.length - 1);
+        nonLastCalls.forEach(([props]) => {
+            expect(props).toMatchObject({ last: false });
+        });
+        expect(calls.at(-1)![0]).toMatchObject({ last: true });
+    });
+
     it('renders single ProductCell with span when annual is false', () => {
         render(
             <MockTableRow>
                 <ProductCells product={product} annual={false} />
+            </MockTableRow>
+        );
+
+        expect(screen.getAllByRole('cell')).toHaveLength(1);
+        expect(ProductCell)
+            .toHaveBeenCalledTimes(1)
+            .toHaveBeenCalledWith(expect.objectContaining({ span: years.length }), undefined);
+    });
+
+    it('defaults annual to false when prop is omitted', () => {
+        render(
+            <MockTableRow>
+                <ProductCells product={product} />
             </MockTableRow>
         );
 

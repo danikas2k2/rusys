@@ -154,6 +154,18 @@ describe('app', () => {
         });
     });
 
+    describe('setupHelmet dev-mode STS header middleware', () => {
+        it('sets Strict-Transport-Security: max-age=0 in dev mode', async () => {
+            // setup() runs in dev mode (NODE_ENV !== 'production') so the STS header middleware is active
+            const app = setup(express());
+            app.get('/probe-sts', (_req, res) => res.status(200).json({ ok: true }));
+
+            const response = await request(app).get('/probe-sts');
+
+            expect(response.headers['strict-transport-security']).toBe('max-age=0');
+        });
+    });
+
     describe('startHttpServer', () => {
         const app = { listen: jest.fn((host, port, cb) => cb()) } as unknown as Express;
 
@@ -207,6 +219,145 @@ describe('app', () => {
             expect(startHttpsServer(app, {})).toBe(app);
             expect(createServer).not.toHaveBeenCalled();
             expect(debug).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('startServers', () => {
+        const { startServers } = jest.requireActual<typeof import('~/server/app')>('~/server/app');
+
+        const app = { listen: jest.fn((_port, _host, cb: () => void) => cb()) } as unknown as Express;
+
+        let readFileSync: jest.SpyInstance;
+        let createServer: jest.SpyInstance;
+
+        beforeEach(() => {
+            readFileSync = jest.spyOn(fs, 'readFileSync').mockReturnValue('mocked-content');
+            createServer = jest
+                .spyOn(https, 'createServer')
+                .mockReturnValue({ listen: jest.fn() } as unknown as https.Server);
+        });
+
+        afterEach(() => jest.restoreAllMocks());
+
+        it('starts HTTP server using default env vars', () => {
+            const savedEnv = { ...process.env };
+            delete process.env.PORT;
+            delete process.env.HOST;
+            delete process.env.HTTPS_PORT;
+            delete process.env.HTTPS_HOST;
+            delete process.env.HTTPS_KEY;
+            delete process.env.HTTPS_CERT;
+
+            startServers(app);
+
+            expect(app.listen).toHaveBeenCalledWith(3000, 'localhost', expect.any(Function));
+            expect(debug).toHaveBeenCalledWith('HTTP server listening on http://localhost:3000');
+
+            Object.assign(process.env, savedEnv);
+        });
+
+        it('starts HTTP server using custom PORT and HOST env vars', () => {
+            const savedEnv = { ...process.env };
+            process.env.PORT = '8080';
+            process.env.HOST = '0.0.0.0';
+            delete process.env.HTTPS_KEY;
+            delete process.env.HTTPS_CERT;
+
+            startServers(app);
+
+            expect(app.listen).toHaveBeenCalledWith(8080, '0.0.0.0', expect.any(Function));
+            expect(debug).toHaveBeenCalledWith('HTTP server listening on http://0.0.0.0:8080');
+
+            Object.assign(process.env, savedEnv);
+        });
+
+        it('starts HTTPS server when HTTPS_KEY and HTTPS_CERT env vars are set', () => {
+            const savedEnv = { ...process.env };
+            process.env.PORT = '3000';
+            process.env.HOST = 'localhost';
+            process.env.HTTPS_PORT = '4000';
+            process.env.HTTPS_HOST = 'localhost';
+            process.env.HTTPS_KEY = 'key.pem';
+            process.env.HTTPS_CERT = 'cert.pem';
+
+            startServers(app);
+
+            expect(readFileSync).toHaveBeenCalledWith('key.pem');
+            expect(readFileSync).toHaveBeenCalledWith('cert.pem');
+            expect(createServer).toHaveBeenCalled();
+
+            Object.assign(process.env, savedEnv);
+        });
+    });
+});
+
+describe('app (prod mode)', () => {
+    // Re-import app with isDevMode returning false to test the prod-only branches
+    let setupHelmetProd: typeof import('~/server/app').setupHelmet;
+
+    beforeAll(() => {
+        jest.mock('~/common/utils/dev', () => ({ isDevMode: () => false }));
+
+        jest.isolateModules(() => {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            setupHelmetProd = require('~/server/app').setupHelmet;
+        });
+    });
+
+    afterAll(() => {
+        jest.resetModules();
+        jest.unmock('~/common/utils/dev');
+    });
+
+    afterEach(() => jest.clearAllMocks());
+
+    describe('setupHelmet HTTPS redirect middleware', () => {
+        it('calls next() when req.secure is true', async () => {
+            const app = express();
+            setupHelmetProd(app);
+
+            const response = await request(app)
+                .get('/any')
+                .set('X-Forwarded-Proto', 'https')
+                .set('X-Forwarded-Ssl', 'on');
+
+            // The request goes through (no redirect) — we just verify no 308
+            expect(response.status).not.toBe(308);
+        });
+
+        it('calls next() when x-forwarded-proto is https', async () => {
+            const app = express();
+            setupHelmetProd(app);
+
+            const response = await request(app).get('/any').set('X-Forwarded-Proto', 'https');
+
+            expect(response.status).not.toBe(308);
+        });
+
+        it('calls next() when request has no host header', async () => {
+            const app = express();
+            setupHelmetProd(app);
+            // Add a simple handler so we can confirm request reaches it
+            app.get('/probe', (_req, res) => res.status(200).json({ ok: true }));
+
+            // An empty Host header value is falsy, so the middleware calls next() without redirecting
+            const response = await request(app).get('/probe').set('X-Forwarded-Proto', 'http').set('Host', '');
+
+            // Without a valid host header the middleware calls next(), so our handler responds
+            expect(response.status).toBe(200);
+        });
+
+        it('redirects 308 to https when request is plain http with a host header', async () => {
+            const app = express();
+            setupHelmetProd(app);
+
+            const response = await request(app)
+                .get('/path?q=1')
+                .set('X-Forwarded-Proto', 'http')
+                .set('Host', 'example.com');
+
+            expect(response.status).toBe(308);
+            expect(response.headers.location).toBe('https://example.com/path?q=1');
         });
     });
 });
