@@ -97,16 +97,26 @@ export const getProductsFixture = (): Product[] => [
         updates: [
             {
                 time: Date.parse('2023-02-03T12:00:00.000Z'),
-                years: [{ year: 22, amounts: [
-                    { variant: 'p', amount: 2, recycled: false }, // positive with recycled → ignored
-                    { variant: 'd', amount: -3, recycled: false }, // negative with recycled → included
-                ] }],
+                years: [
+                    {
+                        year: 22,
+                        amounts: [
+                            { variant: 'p', amount: 2, recycled: false }, // positive with recycled → ignored
+                            { variant: 'd', amount: -3, recycled: false }, // negative with recycled → included
+                        ],
+                    },
+                ],
             },
             {
                 time: Date.parse('2023-02-07T12:00:00.000Z'),
-                years: [{ year: 22, amounts: [
-                    { variant: 'm', amount: -1 }, // no recycled field → ignored
-                ] }],
+                years: [
+                    {
+                        year: 22,
+                        amounts: [
+                            { variant: 'm', amount: -1 }, // no recycled field → ignored
+                        ],
+                    },
+                ],
             },
         ],
     },
