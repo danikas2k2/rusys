@@ -1,6 +1,6 @@
 /** @jest-environment node */
-import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 import { bulk } from '@tests/bulk';
+import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 
 import { AggregationCursor, ClientSession, Collection, Db } from 'mongodb';
 
@@ -98,7 +98,12 @@ describe('common', () => {
             await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBeTrue();
             expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
             expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkai', session);
-            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Šaldyti', expect.arrayContaining(['p', 'd', 'm']), session);
+            expect(copyVariants).toHaveBeenCalledWith(
+                'Daržovės',
+                'Šaldyti',
+                expect.arrayContaining(['p', 'd', 'm']),
+                session
+            );
             await expect($all('groups')).resolves.toStrictEqual(groups);
             await expect($all('variants')).resolves.toIncludeSameMembers([
                 ...variants,
@@ -117,7 +122,12 @@ describe('common', () => {
             await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti', 'Agurkėliai')).resolves.toBeTrue();
             expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', 'Agurkėliai', session);
             expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkėliai', session);
-            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Šaldyti', expect.arrayContaining(['p', 'd', 'm']), session);
+            expect(copyVariants).toHaveBeenCalledWith(
+                'Daržovės',
+                'Šaldyti',
+                expect.arrayContaining(['p', 'd', 'm']),
+                session
+            );
             await expect($all('groups')).resolves.toStrictEqual(groups);
             await expect($all('variants')).resolves.toIncludeSameMembers([
                 ...variants,
@@ -186,7 +196,12 @@ describe('common', () => {
             );
             expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
             expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkai', session);
-            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Šaldyti', expect.arrayContaining(['p', 'd', 'm']), session);
+            expect(copyVariants).toHaveBeenCalledWith(
+                'Daržovės',
+                'Šaldyti',
+                expect.arrayContaining(['p', 'd', 'm']),
+                session
+            );
             await expect($all('groups')).resolves.toStrictEqual(groups);
             await expect($all('variants')).resolves.toStrictEqual(variants);
             await expect($all('products')).resolves.toStrictEqual(products);

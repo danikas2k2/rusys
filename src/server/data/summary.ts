@@ -213,10 +213,7 @@ export async function getSummaryHistory(
                     },
                 },
                 {
-                    $and: [
-                        { $ne: [{ $ifNull: ['$$a.recycled', null] }, null] },
-                        { $lt: ['$$a.amount', 0] },
-                    ],
+                    $and: [{ $ne: [{ $ifNull: ['$$a.recycled', null] }, null] }, { $lt: ['$$a.amount', 0] }],
                 }
             )
         )
