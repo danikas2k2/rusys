@@ -9,10 +9,10 @@ import './ProductAmounts.pcss';
 export interface ProductAmountsProps {
     group: string;
     amounts?: readonly VariantAmount[];
-    type?: 'consumed' | 'recycled';
+    type?: 'common' | 'consumed' | 'recycled';
 }
 
-export function ProductAmounts({ group, amounts, type }: ProductAmountsProps) {
+export function ProductAmounts({ group, amounts, type = 'common' }: ProductAmountsProps) {
     const compareVariants = useGroupVariantComparator(group);
     return amounts?.length ? (
         <span data-type={type}>
