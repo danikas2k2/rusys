@@ -30,7 +30,7 @@ export function Page<D = ActiveContentData>({
             <AppShell.Header>
                 <Toolbar>{toolbar}</Toolbar>
             </AppShell.Header>
-            <AppShell.Main data-no-scroll={useSwipeVisible()} component={ScrollArea}>
+            <AppShell.Main data-no-scroll={useSwipeVisible()} component={ScrollArea} viewportProps={{ style: { overflowY: 'scroll' } }}>
                 {children}
             </AppShell.Main>
             <AppShell.Footer>
