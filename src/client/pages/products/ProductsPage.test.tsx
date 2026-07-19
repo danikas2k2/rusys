@@ -26,7 +26,7 @@ jest.mock('~/client/pages/products/ActiveProductBox', () => ({
     ActiveProductBox: () => null,
 }));
 jest.mock('~/client/pages/products/ActiveAmountBox', () => ({
-    ActiveValueBox: () => null,
+    ActiveAmountBox: () => null,
 }));
 jest.mock('~/client/toolbar/ToolbarGroupFilter', () => ({
     ToolbarGroupFilter: () => null,

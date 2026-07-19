@@ -45,7 +45,7 @@ jest.mock('@mantine/core', () => {
 });
 
 jest.mock('~/client/pages/products/AmountVariantRow', () => ({
-    VariantEditRow: jest.fn(({ type, delta, onChange }: any) => (
+    AmountVariantRow: jest.fn(({ type, delta, onChange }: any) => (
         <div data-testid={`edit-row-${type}`}>
             <button type="button" onClick={() => onChange(type, delta - 1)}>
                 {`decrease-${type}`}
@@ -368,8 +368,8 @@ describe('<AmountVariantsTab>', () => {
 
         // AmountExpanded is already mocked but we need to expose the onCommentChange —
         // re-mock to also trigger comment change
-        const { VariantEditRow } = jest.requireMock('~/client/pages/products/AmountVariantRow');
-        VariantEditRow.mockImplementation(({ type, delta, onChange }: any) => (
+        const { AmountVariantRow } = jest.requireMock('~/client/pages/products/AmountVariantRow');
+        AmountVariantRow.mockImplementation(({ type, delta, onChange }: any) => (
             <div data-testid={`edit-row-${type}`}>
                 <button type="button" onClick={() => onChange(type, delta - 1)}>
                     {`decrease-${type}`}
@@ -399,8 +399,8 @@ describe('<AmountVariantsTab>', () => {
         const mockUpdate = jest.fn().mockResolvedValue(undefined);
         useUpdateProduct.mockReturnValue(mockUpdate);
 
-        const { VariantEditRow } = jest.requireMock('~/client/pages/products/AmountVariantRow');
-        VariantEditRow.mockImplementation(({ type, delta, onChange }: any) => (
+        const { AmountVariantRow } = jest.requireMock('~/client/pages/products/AmountVariantRow');
+        AmountVariantRow.mockImplementation(({ type, delta, onChange }: any) => (
             <div data-testid={`edit-row-${type}`}>
                 <button type="button" onClick={() => onChange(type, delta - 1)}>
                     {`decrease-${type}`}
@@ -429,8 +429,8 @@ describe('<AmountVariantsTab>', () => {
         const mockUpdate = jest.fn().mockResolvedValue(undefined);
         useUpdateProduct.mockReturnValue(mockUpdate);
 
-        const { VariantEditRow } = jest.requireMock('~/client/pages/products/AmountVariantRow');
-        VariantEditRow.mockImplementation(({ type, delta, onChange }: any) => (
+        const { AmountVariantRow } = jest.requireMock('~/client/pages/products/AmountVariantRow');
+        AmountVariantRow.mockImplementation(({ type, delta, onChange }: any) => (
             <div data-testid={`edit-row-${type}`}>
                 <button type="button" onClick={() => onChange(type, delta - 1)}>
                     {`decrease-${type}`}

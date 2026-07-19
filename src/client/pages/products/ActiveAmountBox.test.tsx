@@ -7,7 +7,7 @@ import React from 'react';
 import { ActiveAmountBox } from '~/client/pages/products/ActiveAmountBox';
 
 jest.mock('~/client/pages/products/AmountBox', () => ({
-    ValueListBox: ({ opened, onClose, onAfterClose }: any) =>
+    AmountBox: ({ opened, onClose, onAfterClose }: any) =>
         opened ? (
             <div role="dialog" aria-label="Value box">
                 <button type="button" onClick={() => onClose()}>

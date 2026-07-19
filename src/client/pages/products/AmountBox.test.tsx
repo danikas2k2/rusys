@@ -7,11 +7,11 @@ import React from 'react';
 import { AmountBox } from '~/client/pages/products/AmountBox';
 
 jest.mock('~/client/pages/products/AmountHistoryTab', () => ({
-    ValueHistoryTab: jest.fn().mockReturnValue(null),
+    AmountHistoryTab: jest.fn().mockReturnValue(null),
 }));
 
 jest.mock('~/client/pages/products/AmountVariantsTab', () => ({
-    ValueQuantitiesTab: jest.fn().mockReturnValue(null),
+    AmountVariantsTab: jest.fn().mockReturnValue(null),
 }));
 
 describe('<AmountBox>', () => {
