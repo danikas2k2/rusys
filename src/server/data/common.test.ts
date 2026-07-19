@@ -1,5 +1,6 @@
 /** @jest-environment node */
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
+import { bulk } from '@tests/bulk';
 
 import { AggregationCursor, ClientSession, Collection, Db } from 'mongodb';
 
@@ -97,11 +98,13 @@ describe('common', () => {
             await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBeTrue();
             expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
             expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkai', session);
-            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Šaldyti', ['d'], session);
+            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Šaldyti', expect.arrayContaining(['p', 'd', 'm']), session);
             await expect($all('groups')).resolves.toStrictEqual(groups);
-            await expect($all('variants')).resolves.toStrictEqual([
+            await expect($all('variants')).resolves.toIncludeSameMembers([
                 ...variants,
+                { group: 'Šaldyti', variant: 'p', order: 1 },
                 { group: 'Šaldyti', variant: 'd', order: 0 },
+                { group: 'Šaldyti', variant: 'm', order: 2 },
             ]);
             await expect($all('products')).resolves.toStrictEqual([
                 ...products.slice(0, 2),
@@ -114,11 +117,13 @@ describe('common', () => {
             await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti', 'Agurkėliai')).resolves.toBeTrue();
             expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', 'Agurkėliai', session);
             expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkėliai', session);
-            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Šaldyti', ['d'], session);
+            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Šaldyti', expect.arrayContaining(['p', 'd', 'm']), session);
             await expect($all('groups')).resolves.toStrictEqual(groups);
-            await expect($all('variants')).resolves.toStrictEqual([
+            await expect($all('variants')).resolves.toIncludeSameMembers([
                 ...variants,
+                { group: 'Šaldyti', variant: 'p', order: 1 },
                 { group: 'Šaldyti', variant: 'd', order: 0 },
+                { group: 'Šaldyti', variant: 'm', order: 2 },
             ]);
             await expect($all('products')).resolves.toStrictEqual([
                 ...products.slice(0, 2),
@@ -181,7 +186,7 @@ describe('common', () => {
             );
             expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
             expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkai', session);
-            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Šaldyti', ['d'], session);
+            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Šaldyti', expect.arrayContaining(['p', 'd', 'm']), session);
             await expect($all('groups')).resolves.toStrictEqual(groups);
             await expect($all('variants')).resolves.toStrictEqual(variants);
             await expect($all('products')).resolves.toStrictEqual(products);
@@ -328,7 +333,10 @@ describe('common', () => {
                 ...variants.slice(7),
             ]);
             await expect($all('products')).resolves.toStrictEqual([
-                ...products.slice(0, 3),
+                ...products.slice(0, 2),
+                bulk(products[2], {
+                    $set: { 'updates.0.years.0.amounts.0.variant': '2' },
+                }),
                 { ...products[3], years: [{ ...products[3].years![0], amounts: [{ variant: '2', amount: 2 }] }] },
                 ...products.slice(4),
             ]);
@@ -346,7 +354,10 @@ describe('common', () => {
                 ...variants.slice(7),
             ]);
             await expect($all('products')).resolves.toStrictEqual([
-                ...products.slice(0, 3),
+                ...products.slice(0, 2),
+                bulk(products[2], {
+                    $set: { 'updates.0.years.0.amounts.0.variant': '2' },
+                }),
                 { ...products[3], years: [{ ...products[3].years![0], amounts: [{ variant: '2', amount: 2 }] }] },
                 ...products.slice(4),
             ]);
@@ -392,7 +403,10 @@ describe('common', () => {
             expect(deleteProductsVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
             await expect($all('variants')).resolves.toStrictEqual([...variants.slice(0, 6), ...variants.slice(7)]);
             await expect($all('products')).resolves.toStrictEqual([
-                ...products.slice(0, 3),
+                ...products.slice(0, 2),
+                bulk(products[2], {
+                    $set: { 'updates.0.years.0.amounts': [{ variant: 'd', amount: -3, recycled: false }] },
+                }),
                 {
                     group: 'Daržovės',
                     name: 'Kopūstai',

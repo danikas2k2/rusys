@@ -18,7 +18,8 @@ export function buildHistoryPipeline(
     name: string,
     field: 'updates' | 'undates',
     yearFilter: Document,
-    amountFilter: Document = { $ne: [{ $ifNull: ['$$a.amount', 0] }, 0] }
+    amountFilter: Document = { $ne: [{ $ifNull: ['$$a.amount', 0] }, 0] },
+    yearEntryFilter?: Document
 ): Document[] {
     return [
         { $match: { [field]: { $exists: true, $ne: [] }, group, name } },
@@ -56,7 +57,9 @@ export function buildHistoryPipeline(
                             },
                         },
                         as: 'y',
-                        cond: { $gt: [{ $size: '$$y.amounts' }, 0] },
+                        cond: yearEntryFilter
+                            ? { $and: [{ $gt: [{ $size: '$$y.amounts' }, 0] }, yearEntryFilter] }
+                            : { $gt: [{ $size: '$$y.amounts' }, 0] },
                     },
                 },
             },

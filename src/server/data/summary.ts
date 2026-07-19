@@ -30,7 +30,12 @@ export const getSummary = async (years: number[] = getYears()): Promise<readonly
 
             { $unwind: '$updates.years' },
             { $unwind: '$updates.years.amounts' },
-            { $match: { 'updates.years.amounts.recycled': { $exists: true } } },
+            {
+                $match: {
+                    'updates.years.amounts.recycled': { $exists: true },
+                    'updates.years.amounts.amount': { $lt: 0 },
+                },
+            },
 
             {
                 $lookup: {
@@ -207,7 +212,12 @@ export async function getSummaryHistory(
                         ],
                     },
                 },
-                { $ne: [{ $ifNull: ['$$a.recycled', null] }, null] }
+                {
+                    $and: [
+                        { $ne: [{ $ifNull: ['$$a.recycled', null] }, null] },
+                        { $lt: ['$$a.amount', 0] },
+                    ],
+                }
             )
         )
         .toArray();

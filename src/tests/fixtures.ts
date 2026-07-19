@@ -27,6 +27,7 @@ export const getAggregatedVariantsFixture = (): Variant[] => {
             used:
                 v.variant === 'p' ||
                 (v.variant === 'd' && v.group === 'Daržovės') ||
+                (v.variant === 'm' && v.group === 'Daržovės') ||
                 (v.variant === 'm' && v.group === 'Uogienės'),
         }))
         .sort((a, b) => a.group.localeCompare(b.group) || a.order - b.order);
@@ -92,15 +93,20 @@ export const getProductsFixture = (): Product[] => [
     {
         group: 'Daržovės',
         name: 'Agurkai',
-        years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }],
+        years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
         updates: [
             {
                 time: Date.parse('2023-02-03T12:00:00.000Z'),
-                years: [{ year: 22, amounts: [{ variant: 'd', amount: 2, recycled: false }] }],
+                years: [{ year: 22, amounts: [
+                    { variant: 'p', amount: 2, recycled: false }, // positive with recycled → ignored
+                    { variant: 'd', amount: -3, recycled: false }, // negative with recycled → included
+                ] }],
             },
             {
                 time: Date.parse('2023-02-07T12:00:00.000Z'),
-                years: [{ year: 22, amounts: [{ variant: 'd', amount: -1, recycled: false }] }],
+                years: [{ year: 22, amounts: [
+                    { variant: 'm', amount: -1 }, // no recycled field → ignored
+                ] }],
             },
         ],
     },

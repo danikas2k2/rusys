@@ -603,7 +603,14 @@ async function getProductHistory(
     return (await db())
         .collection('products')
         .aggregate<WithId<History>>(
-            buildHistoryPipeline(group, name, field, { [`${field}.years`]: { $elemMatch: { year } } })
+            buildHistoryPipeline(
+                group,
+                name,
+                field,
+                { [`${field}.years`]: { $elemMatch: { year } } },
+                undefined,
+                { $eq: ['$$y.year', year] }
+            )
         )
         .toArray();
 }

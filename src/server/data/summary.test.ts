@@ -36,7 +36,7 @@ describe('updates', () => {
                     group: 'Uogienės',
                     name: 'Avietės',
                     years: [
-                        { year: 22, amounts: [{ variant: 'p', amount: -2, recycled: false }] },
+                        { year: 22, amounts: [{ variant: 'p', amount: 1, recycled: false }] },
                         { year: 21, amounts: [{ variant: 'p', amount: 3, recycled: false }] },
                     ],
                 },
@@ -47,7 +47,6 @@ describe('updates', () => {
                         {
                             year: 22,
                             amounts: [
-                                { variant: 'p', amount: -2, recycled: true },
                                 { variant: 'p', amount: 1, recycled: false },
                                 { variant: 'm', amount: 3, recycled: true },
                             ],
@@ -61,7 +60,7 @@ describe('updates', () => {
                 {
                     group: 'Daržovės',
                     name: 'Agurkai',
-                    years: [{ year: 22, amounts: [{ variant: 'd', amount: -1, recycled: false }] }],
+                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 3, recycled: false }] }],
                 },
             ]);
         });
@@ -71,7 +70,7 @@ describe('updates', () => {
                 {
                     group: 'Uogienės',
                     name: 'Avietės',
-                    years: [{ year: 22, amounts: [{ variant: 'p', amount: -2, recycled: false }] }],
+                    years: [{ year: 22, amounts: [{ variant: 'p', amount: 1, recycled: false }] }],
                 },
                 {
                     group: 'Uogienės',
@@ -80,7 +79,6 @@ describe('updates', () => {
                         {
                             year: 22,
                             amounts: [
-                                { variant: 'p', amount: -2, recycled: true },
                                 { variant: 'p', amount: 1, recycled: false },
                                 { variant: 'm', amount: 3, recycled: true },
                             ],
@@ -90,7 +88,7 @@ describe('updates', () => {
                 {
                     group: 'Daržovės',
                     name: 'Agurkai',
-                    years: [{ year: 22, amounts: [{ variant: 'd', amount: -1, recycled: false }] }],
+                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 3, recycled: false }] }],
                 },
             ]);
         });
@@ -115,7 +113,7 @@ describe('updates', () => {
                         group: 'Uogienės',
                         name: 'Avietės',
                         years: [
-                            { year: 22, amounts: [{ variant: 'p', amount: -2, recycled: false }] },
+                            { year: 22, amounts: [{ variant: 'p', amount: 1, recycled: false }] },
                             { year: 21, amounts: [{ variant: 'p', amount: 3, recycled: false }] },
                         ],
                     },
@@ -126,7 +124,6 @@ describe('updates', () => {
                             {
                                 year: 22,
                                 amounts: [
-                                    { variant: 'p', amount: -2, recycled: true },
                                     { variant: 'p', amount: 1, recycled: false },
                                     { variant: 'm', amount: 3, recycled: true },
                                 ],
@@ -137,7 +134,7 @@ describe('updates', () => {
                     {
                         group: 'Daržovės',
                         name: 'Agurkai',
-                        years: [{ year: 22, amounts: [{ variant: 'd', amount: -1, recycled: false }] }],
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: 3, recycled: false }] }],
                     },
                 ],
             });

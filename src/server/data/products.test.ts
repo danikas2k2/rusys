@@ -48,7 +48,7 @@ describe('products', () => {
                 {
                     group: 'Daržovės',
                     name: 'Agurkai',
-                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }],
+                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
                     updates: expect.arrayContaining([{ year: 22 }]),
                 },
                 {
@@ -93,7 +93,7 @@ describe('products', () => {
                 {
                     group: 'Daržovės',
                     name: 'Agurkai',
-                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }],
+                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
                     updates: expect.arrayContaining([{ year: 22 }]),
                 },
                 {
@@ -171,6 +171,7 @@ describe('products', () => {
                 bulk(products, {
                     $set: {
                         '2.years.0.amounts': [
+                            { variant: 'd', amount: 2 },
                             { variant: 'p', amount: 1 },
                             { variant: 'm', amount: 2 },
                         ],
@@ -203,7 +204,7 @@ describe('products', () => {
                 bulk(products, {
                     $set: {
                         '2.years.0.amounts': [
-                            { variant: 'd', amount: 1 },
+                            { variant: 'd', amount: 3 },
                             { variant: 'x', amount: 1 },
                         ],
                     },
@@ -225,6 +226,7 @@ describe('products', () => {
                     $set: {
                         '2.years.0.year': 0,
                         '2.years.0.amounts': [
+                            { variant: 'd', amount: 2 },
                             { variant: 'p', amount: 1 },
                             { variant: 'm', amount: 2 },
                         ],
@@ -367,7 +369,7 @@ describe('products', () => {
         });
 
         it('reverts inventory changes when undoing', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -1, recycled: false }], user);
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -3, recycled: false }], user);
 
             const beforeUndo = (await $all('products')) as {
                 years?: { year: number; amounts: { variant: string; amount: number }[] }[];
@@ -381,7 +383,7 @@ describe('products', () => {
                 years?: { year: number; amounts: { variant: string; amount: number }[] }[];
             }[];
 
-            expect(afterUndo[2].years?.[0].amounts[0].amount).toBe(1);
+            expect(afterUndo[2].years?.[0].amounts[0].amount).toBe(3);
         });
 
         it('moves last update to undates', async () => {
@@ -420,7 +422,7 @@ describe('products', () => {
         });
 
         it('undoes a recycled update', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -1, recycled: true }], user);
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -3, recycled: true }], user);
             const afterUpdate = (await $all('products')) as {
                 years?: { year: number; amounts: { variant: string; amount: number }[] }[];
             }[];
@@ -435,7 +437,7 @@ describe('products', () => {
                 }[]
             )[2].years?.[0].amounts[0].amount;
 
-            expect(afterUndo).toBe(1);
+            expect(afterUndo).toBe(3);
         });
 
         it('undoes an updated (no recycled field) entry', async () => {
@@ -453,8 +455,8 @@ describe('products', () => {
                 }[]
             )[2].years?.[0].amounts[0].amount;
 
-            expect(afterUpdate).toBe(3);
-            expect(afterUndo).toBe(1);
+            expect(afterUpdate).toBe(5);
+            expect(afterUndo).toBe(3);
         });
     });
 
@@ -490,9 +492,9 @@ describe('products', () => {
                 }[]
             )[2].years?.[0].amounts[0].amount;
 
-            expect(afterUpdate).toBe(3);
-            expect(afterUndo).toBe(1);
-            expect(afterRedo).toBe(3);
+            expect(afterUpdate).toBe(5);
+            expect(afterUndo).toBe(3);
+            expect(afterRedo).toBe(5);
         });
 
         it('moves last undate back to updates', async () => {
@@ -647,8 +649,7 @@ describe('products', () => {
                 bulk(products, {
                     $set: {
                         '2.years.0.amounts.0.variant': '3/4',
-                        '2.updates.0.years.0.amounts.0.variant': '3/4',
-                        '2.updates.1.years.0.amounts.0.variant': '3/4',
+                        '2.updates.0.years.0.amounts.1.variant': '3/4',
                     },
                 })
             );
@@ -682,8 +683,7 @@ describe('products', () => {
                 bulk([...products, d], {
                     $set: {
                         '2.years.0.amounts.0.variant': '3/4',
-                        '2.updates.0.years.0.amounts.0.variant': '3/4',
-                        '2.updates.1.years.0.amounts.0.variant': '3/4',
+                        '2.updates.0.years.0.amounts.1.variant': '3/4',
                         '4.years.1.amounts.0.variant': '3/4',
                         '4.years.2.amounts.0.variant': '3/4',
                         '4.updates.0.years.1.amounts.0.variant': '3/4',
@@ -719,7 +719,10 @@ describe('products', () => {
             await expect(renameProductsVariant('Daržovės', 'p', '1/2')).resolves.toBeTrue();
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
-                    $set: { '3.years.0.amounts.0.variant': '1/2' },
+                    $set: {
+                        '2.updates.0.years.0.amounts.0.variant': '1/2',
+                        '3.years.0.amounts.0.variant': '1/2',
+                    },
                     $push: {
                         '3.years': { year: 22, amounts: [{ variant: '1/2', amount: 1 }] },
                         '3.updates': {
@@ -740,8 +743,7 @@ describe('products', () => {
                 bulk(products, {
                     $set: {
                         '2.years.0.amounts.0.variant': '3/4',
-                        '2.updates.0.years.0.amounts.0.variant': '3/4',
-                        '2.updates.1.years.0.amounts.0.variant': '3/4',
+                        '2.updates.0.years.0.amounts.1.variant': '3/4',
                     },
                     $push: {
                         '3.years.0.amounts': { variant: '3/4', amount: 1 },
@@ -860,7 +862,12 @@ describe('products', () => {
     describe('deleteProductVariant', () => {
         it('deletes products variant', async () => {
             await expect(deleteProductsVariant('Daržovės', 'p')).resolves.toBeTrue();
-            await expect($all('products')).resolves.toStrictEqual(bulk(products, { $unset: ['3.years', '3.updates'] }));
+            await expect($all('products')).resolves.toStrictEqual(
+                bulk(products, {
+                    $unset: ['3.years', '3.updates'],
+                    $set: { '2.updates.0.years.0.amounts': [{ variant: 'd', amount: -3, recycled: false }] },
+                })
+            );
         });
 
         it('deletes products variant for different group', async () => {
@@ -889,7 +896,19 @@ describe('products', () => {
             await expect(deleteProductsVariant('Daržovės', 'd')).resolves.toBeTrue();
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
-                    $unset: ['2.years', '2.updates'],
+                    $unset: ['2.years'],
+                    $set: {
+                        '2.updates': [
+                            {
+                                time: 1675425600000,
+                                years: [{ year: 22, amounts: [{ variant: 'p', amount: 2, recycled: false }] }],
+                            },
+                            {
+                                time: 1675771200000,
+                                years: [{ year: 22, amounts: [{ variant: 'm', amount: -1 }] }],
+                            },
+                        ],
+                    },
                     $push: {
                         '3.years': { year: 22, amounts: [{ variant: 'm', amount: 2 }] },
                         '3.updates': {
