@@ -7,8 +7,8 @@ import { AmountVariant } from '~/client/common/AmountVariant';
 import { ChangeBadge } from '~/client/common/ChangeBadge';
 import { Label } from '~/client/common/Label';
 import { useLabels } from '~/client/hooks/useLabels';
+import { AmountExpanded, type VariantDelta } from '~/client/pages/products/AmountExpanded';
 import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
-import { VariantExpandedRows, type VariantDelta } from '~/client/pages/products/VariantExpandedRows';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useRedoProduct } from '~/client/state/products/useRedoProduct';
@@ -22,7 +22,7 @@ import type { ProductAmounts, VariantAmount } from '~/types/data';
 
 const ZERO_DELTA: VariantDelta = { updated: 0, consumed: 0, recycled: 0 };
 
-export function ValueQuantitiesTab() {
+export function AmountVariantsTab() {
     const _ = useLabels();
     const [active] = useActiveContent<ProductAmounts>();
     const [, setUpdating] = useUpdatingProducts();
@@ -200,7 +200,7 @@ export function ValueQuantitiesTab() {
                                     </Group>
                                 </Accordion.Control>
                                 <Accordion.Panel>
-                                    <VariantExpandedRows
+                                    <AmountExpanded
                                         delta={variantDelta}
                                         baseAmount={baseAmount}
                                         comment={comment}

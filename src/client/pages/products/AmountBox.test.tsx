@@ -4,23 +4,23 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { ValueListBox } from '~/client/pages/products/ValueListBox';
+import { AmountBox } from '~/client/pages/products/AmountBox';
 
-jest.mock('~/client/pages/products/ValueHistoryTab', () => ({
+jest.mock('~/client/pages/products/AmountHistoryTab', () => ({
     ValueHistoryTab: jest.fn().mockReturnValue(null),
 }));
 
-jest.mock('~/client/pages/products/ValueQuantitiesTab', () => ({
+jest.mock('~/client/pages/products/AmountVariantsTab', () => ({
     ValueQuantitiesTab: jest.fn().mockReturnValue(null),
 }));
 
-describe('<ValueListBox>', () => {
+describe('<AmountBox>', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('does not render when opened=false', () => {
         render(
             <MockTheme>
-                <ValueListBox />
+                <AmountBox />
             </MockTheme>
         );
 
@@ -30,7 +30,7 @@ describe('<ValueListBox>', () => {
     it('renders when opened=true', () => {
         render(
             <MockTheme>
-                <ValueListBox opened />
+                <AmountBox opened />
             </MockTheme>
         );
 
@@ -42,7 +42,7 @@ describe('<ValueListBox>', () => {
 
         render(
             <MockTheme>
-                <ValueListBox opened onClose={onClose} />
+                <AmountBox opened onClose={onClose} />
             </MockTheme>
         );
 
@@ -56,7 +56,7 @@ describe('<ValueListBox>', () => {
 
         const { rerender } = render(
             <MockTheme>
-                <ValueListBox opened onAfterClose={onAfterClose} />
+                <AmountBox opened onAfterClose={onAfterClose} />
             </MockTheme>
         );
 
@@ -66,7 +66,7 @@ describe('<ValueListBox>', () => {
 
         rerender(
             <MockTheme>
-                <ValueListBox opened={false} onAfterClose={onAfterClose} />
+                <AmountBox opened={false} onAfterClose={onAfterClose} />
             </MockTheme>
         );
 

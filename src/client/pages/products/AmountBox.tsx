@@ -4,10 +4,10 @@ import React, { useCallback } from 'react';
 
 import { Label } from '~/client/common/Label';
 import { useLabels } from '~/client/hooks/useLabels';
-import { ValueHistoryTab } from '~/client/pages/products/ValueHistoryTab';
-import { ValueQuantitiesTab } from '~/client/pages/products/ValueQuantitiesTab';
+import { AmountHistoryTab } from '~/client/pages/products/AmountHistoryTab';
+import { AmountVariantsTab } from '~/client/pages/products/AmountVariantsTab';
 
-import './ValueListBox.pcss';
+import './AmountBox.pcss';
 
 export interface ValueListBoxProps extends Pick<ModalProps, 'title'> {
     opened?: boolean;
@@ -15,7 +15,7 @@ export interface ValueListBoxProps extends Pick<ModalProps, 'title'> {
     onAfterClose?: () => void;
 }
 
-export function ValueListBox({ opened = false, title, onClose, onAfterClose }: ValueListBoxProps) {
+export function AmountBox({ opened = false, title, onClose, onAfterClose }: ValueListBoxProps) {
     const _ = useLabels();
 
     const handleClose = useCallback(() => onClose?.(), [onClose]);
@@ -26,7 +26,6 @@ export function ValueListBox({ opened = false, title, onClose, onAfterClose }: V
 
     return (
         <Modal
-            className="value-list-box"
             fullScreen
             opened={opened}
             withCloseButton
@@ -34,6 +33,7 @@ export function ValueListBox({ opened = false, title, onClose, onAfterClose }: V
             closeButtonProps={{ 'aria-label': _('Close') }}
             onExitTransitionEnd={handleExitTransitionEnd}
             title={title}
+            data-dialog="product"
         >
             <Tabs
                 variant="outline"
@@ -51,11 +51,11 @@ export function ValueListBox({ opened = false, title, onClose, onAfterClose }: V
                 </Tabs.List>
 
                 <Tabs.Panel value="quantities" pt="sm">
-                    <ValueQuantitiesTab />
+                    <AmountVariantsTab />
                 </Tabs.Panel>
 
                 <Tabs.Panel value="history" pt="sm">
-                    <ValueHistoryTab />
+                    <AmountHistoryTab />
                 </Tabs.Panel>
             </Tabs>
         </Modal>

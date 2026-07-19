@@ -3,7 +3,7 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
-import { ValueHistoryTab } from '~/client/pages/products/ValueHistoryTab';
+import { AmountHistoryTab } from '~/client/pages/products/AmountHistoryTab';
 import type { History, ProductAmounts } from '~/types/data';
 
 jest.mock('~/client/state/history/useGetProductHistory', () => ({
@@ -31,7 +31,7 @@ jest.mock('~/client/pages/products/AmountsCell', () => ({
     AmountsCell: jest.fn(({ amounts }: any) => <span data-testid="amounts">{amounts.length}</span>),
 }));
 
-describe('<ValueHistoryTab>', () => {
+describe('<AmountHistoryTab>', () => {
     const activeData: ProductAmounts = { group: 'Uogienės', name: 'Avietės', year: 2026 };
 
     afterEach(() => jest.clearAllMocks());
@@ -39,7 +39,7 @@ describe('<ValueHistoryTab>', () => {
     function renderTab(active = activeData) {
         return render(
             <MockThemeActive active={{ action: 'values', data: active }}>
-                <ValueHistoryTab />
+                <AmountHistoryTab />
             </MockThemeActive>
         );
     }
@@ -97,7 +97,7 @@ describe('<ValueHistoryTab>', () => {
 
         render(
             <MockThemeActive active={{ action: 'values', data: { group: 'G', name: 'N' } as ProductAmounts }}>
-                <ValueHistoryTab />
+                <AmountHistoryTab />
             </MockThemeActive>
         );
 

@@ -4,9 +4,9 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { VariantEditRow } from '~/client/pages/products/VariantEditRow';
+import { AmountVariantRow } from '~/client/pages/products/AmountVariantRow';
 
-describe('<VariantEditRow>', () => {
+describe('<AmountVariantRow>', () => {
     const onChange = jest.fn();
 
     afterEach(() => jest.clearAllMocks());
@@ -15,7 +15,7 @@ describe('<VariantEditRow>', () => {
         it('renders input with correct delta value for updated type', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="updated" delta={5} minDelta={0} onChange={onChange} />
+                    <AmountVariantRow type="updated" delta={5} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -25,7 +25,7 @@ describe('<VariantEditRow>', () => {
         it('renders input with correct delta value for consumed type', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="consumed" delta={-3} minDelta={-10} onChange={onChange} />
+                    <AmountVariantRow type="consumed" delta={-3} minDelta={-10} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -35,7 +35,7 @@ describe('<VariantEditRow>', () => {
         it('renders input with correct delta value for recycled type', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="recycled" delta={-1} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="recycled" delta={-1} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -47,7 +47,7 @@ describe('<VariantEditRow>', () => {
         it('shows Decrease button when delta > minDelta', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="updated" delta={1} minDelta={0} onChange={onChange} />
+                    <AmountVariantRow type="updated" delta={1} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -57,7 +57,7 @@ describe('<VariantEditRow>', () => {
         it('does not show Decrease button when delta === minDelta', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="updated" delta={0} minDelta={0} onChange={onChange} />
+                    <AmountVariantRow type="updated" delta={0} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -67,7 +67,7 @@ describe('<VariantEditRow>', () => {
         it('clicking Decrease calls onChange with delta - 1', async () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="updated" delta={3} minDelta={0} onChange={onChange} />
+                    <AmountVariantRow type="updated" delta={3} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -81,7 +81,7 @@ describe('<VariantEditRow>', () => {
         it('shows Increase button (no upper bound)', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="updated" delta={100} minDelta={0} onChange={onChange} />
+                    <AmountVariantRow type="updated" delta={100} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -91,7 +91,7 @@ describe('<VariantEditRow>', () => {
         it('clicking Increase calls onChange with delta + 1', async () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="updated" delta={3} minDelta={0} onChange={onChange} />
+                    <AmountVariantRow type="updated" delta={3} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -105,7 +105,7 @@ describe('<VariantEditRow>', () => {
         it('arrowUp calls onChange with delta + 1', async () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="updated" delta={2} minDelta={0} onChange={onChange} />
+                    <AmountVariantRow type="updated" delta={2} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -117,7 +117,7 @@ describe('<VariantEditRow>', () => {
         it('arrowDown calls onChange with delta - 1', async () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="updated" delta={2} minDelta={0} onChange={onChange} />
+                    <AmountVariantRow type="updated" delta={2} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -129,7 +129,7 @@ describe('<VariantEditRow>', () => {
         it('arrowDown at minDelta does not show Decrease button', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="updated" delta={0} minDelta={0} onChange={onChange} />
+                    <AmountVariantRow type="updated" delta={0} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -141,7 +141,7 @@ describe('<VariantEditRow>', () => {
         it('shows Decrease button when delta > minDelta', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="consumed" delta={-1} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="consumed" delta={-1} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -151,7 +151,7 @@ describe('<VariantEditRow>', () => {
         it('does not show Decrease button when delta === minDelta', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="consumed" delta={-5} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="consumed" delta={-5} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -161,7 +161,7 @@ describe('<VariantEditRow>', () => {
         it('clicking Decrease calls onChange with delta - 1', async () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="consumed" delta={-1} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="consumed" delta={-1} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -175,7 +175,7 @@ describe('<VariantEditRow>', () => {
         it('shows Increase button when delta < 0', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -185,7 +185,7 @@ describe('<VariantEditRow>', () => {
         it('does not show Increase button when delta === 0', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="consumed" delta={0} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="consumed" delta={0} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -195,7 +195,7 @@ describe('<VariantEditRow>', () => {
         it('clicking Increase calls onChange with delta + 1', async () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -209,7 +209,7 @@ describe('<VariantEditRow>', () => {
         it('arrowUp calls onChange with delta + 1', async () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -221,7 +221,7 @@ describe('<VariantEditRow>', () => {
         it('arrowDown calls onChange with delta - 1', async () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -235,7 +235,7 @@ describe('<VariantEditRow>', () => {
         it('does not show Increase button when delta === 0', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="recycled" delta={0} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="recycled" delta={0} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -245,7 +245,7 @@ describe('<VariantEditRow>', () => {
         it('clicking Decrease calls onChange with delta - 1', async () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="recycled" delta={-1} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="recycled" delta={-1} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -259,7 +259,7 @@ describe('<VariantEditRow>', () => {
         it('negates positive input for consumed type', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="consumed" delta={0} minDelta={-10} onChange={onChange} />
+                    <AmountVariantRow type="consumed" delta={0} minDelta={-10} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -271,7 +271,7 @@ describe('<VariantEditRow>', () => {
         it('negates positive input for recycled type', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="recycled" delta={0} minDelta={-10} onChange={onChange} />
+                    <AmountVariantRow type="recycled" delta={0} minDelta={-10} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -283,7 +283,7 @@ describe('<VariantEditRow>', () => {
         it('does not negate input for updated type', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="updated" delta={0} minDelta={0} onChange={onChange} />
+                    <AmountVariantRow type="updated" delta={0} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -295,7 +295,7 @@ describe('<VariantEditRow>', () => {
         it('clamps value to minDelta for consumed type when input is below minDelta', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="consumed" delta={0} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="consumed" delta={0} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -307,7 +307,7 @@ describe('<VariantEditRow>', () => {
         it('negates negative string input for consumed type (abs then negate)', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />
+                    <AmountVariantRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
@@ -319,7 +319,7 @@ describe('<VariantEditRow>', () => {
         it('returns early and does not call onChange for NaN input', () => {
             render(
                 <MockTheme>
-                    <VariantEditRow type="updated" delta={5} minDelta={0} onChange={onChange} />
+                    <AmountVariantRow type="updated" delta={5} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 

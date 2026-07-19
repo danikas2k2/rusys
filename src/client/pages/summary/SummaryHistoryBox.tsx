@@ -20,7 +20,6 @@ export function SummaryHistoryBox({ opened = false, title, onClose, onAfterClose
 
     return (
         <Modal
-            className="summary-history-box"
             fullScreen
             opened={opened}
             withCloseButton
@@ -28,6 +27,7 @@ export function SummaryHistoryBox({ opened = false, title, onClose, onAfterClose
             closeButtonProps={{ 'aria-label': _('Close') }}
             onExitTransitionEnd={handleExitTransitionEnd}
             title={title}
+            data-dialog="summary"
         >
             <SummaryHistoryTab />
         </Modal>

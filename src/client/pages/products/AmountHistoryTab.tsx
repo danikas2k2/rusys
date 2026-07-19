@@ -1,44 +1,18 @@
-import { Divider, Group, Stack, Table, Text } from '@mantine/core';
+import { Divider, Table } from '@mantine/core';
 import React from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';
 import { LoadableContent } from '~/client/common/LoadableContent';
-import { AmountsCell } from '~/client/pages/products/AmountsCell';
-import { EmailAvatar } from '~/client/pages/products/EmailAvatar';
-import { FormatDate } from '~/client/pages/products/FormatDate';
+import { AmountHistoryRow } from '~/client/pages/products/AmountHistoryRow';
 import { useGetProductHistory } from '~/client/state/history/useGetProductHistory';
 import { useUndates } from '~/client/state/history/useUndates';
 import { useUpdates } from '~/client/state/history/useUpdates';
-import { getRoundedDate } from '~/client/utils/time';
-import type { History, ProductAmounts } from '~/types/data';
+import type { ProductAmounts } from '~/types/data';
 
-function HistoryRow({ h, dimmed = false }: { h: History; dimmed?: boolean }) {
-    return (
-        <Table.Tr key={`${h.time}:${h.year}`} opacity={dimmed ? 0.4 : undefined}>
-            <Table.Td>
-                <Stack gap={2}>
-                    <Group wrap="nowrap" gap="xs">
-                        <EmailAvatar email={h.user} />
-                        <Text size="sm" c={dimmed ? 'dimmed' : undefined}>
-                            <FormatDate date={getRoundedDate(h.time)} />
-                        </Text>
-                    </Group>
-                    {h.comment && (
-                        <Text size="xs" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
-                            {h.comment}
-                        </Text>
-                    )}
-                </Stack>
-            </Table.Td>
-            <Table.Td>
-                <AmountsCell amounts={h.amounts ?? []} />
-            </Table.Td>
-        </Table.Tr>
-    );
-}
+import './AmountHistoryTab.pcss';
 
-export function ValueHistoryTab() {
+export function AmountHistoryTab() {
     const [active] = useActiveContent<ProductAmounts>();
     const activeData = active?.data;
     const group = activeData?.group ?? '';
@@ -64,7 +38,7 @@ export function ValueHistoryTab() {
                 </Table.Thead>
                 <Table.Tbody>
                     {[...undates].reverse().map((h) => (
-                        <HistoryRow key={`u:${h.time}:${h.year}`} h={h} dimmed />
+                        <AmountHistoryRow key={`u:${h.time}:${h.year}`} h={h} dimmed />
                     ))}
                     {undates.length > 0 && (
                         <Table.Tr>
@@ -74,7 +48,7 @@ export function ValueHistoryTab() {
                         </Table.Tr>
                     )}
                     {updates.map((h) => (
-                        <HistoryRow key={`${h.time}:${h.year}`} h={h} />
+                        <AmountHistoryRow key={`${h.time}:${h.year}`} h={h} />
                     ))}
                 </Table.Tbody>
             </Table>

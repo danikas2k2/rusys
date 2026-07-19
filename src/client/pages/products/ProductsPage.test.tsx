@@ -25,7 +25,7 @@ jest.mock('~/client/common/SwipeControlsContext', () => ({
 jest.mock('~/client/pages/products/ActiveProductBox', () => ({
     ActiveProductBox: () => null,
 }));
-jest.mock('~/client/pages/products/ActiveValueBox', () => ({
+jest.mock('~/client/pages/products/ActiveAmountBox', () => ({
     ActiveValueBox: () => null,
 }));
 jest.mock('~/client/toolbar/ToolbarGroupFilter', () => ({

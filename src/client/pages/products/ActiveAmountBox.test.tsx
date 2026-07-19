@@ -4,9 +4,9 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
-import { ActiveValueBox } from '~/client/pages/products/ActiveValueBox';
+import { ActiveAmountBox } from '~/client/pages/products/ActiveAmountBox';
 
-jest.mock('~/client/pages/products/ValueListBox', () => ({
+jest.mock('~/client/pages/products/AmountBox', () => ({
     ValueListBox: ({ opened, onClose, onAfterClose }: any) =>
         opened ? (
             <div role="dialog" aria-label="Value box">
@@ -20,7 +20,7 @@ jest.mock('~/client/pages/products/ValueListBox', () => ({
         ) : null,
 }));
 
-describe('<ActiveValueBox>', () => {
+describe('<ActiveAmountBox>', () => {
     const mockSetActive = jest.fn();
     const data = { group: 'Test', name: 'Item', year: 2024 };
 
@@ -31,7 +31,7 @@ describe('<ActiveValueBox>', () => {
     it('renders closed when no active content', () => {
         render(
             <MockThemeActive>
-                <ActiveValueBox />
+                <ActiveAmountBox />
             </MockThemeActive>
         );
 
@@ -41,7 +41,7 @@ describe('<ActiveValueBox>', () => {
     it('renders closed when action is not values', () => {
         render(
             <MockThemeActive active={{ action: 'update', data }}>
-                <ActiveValueBox />
+                <ActiveAmountBox />
             </MockThemeActive>
         );
 
@@ -51,7 +51,7 @@ describe('<ActiveValueBox>', () => {
     it('renders opened when action is values and data exists', () => {
         render(
             <MockThemeActive active={{ action: 'values', data }}>
-                <ActiveValueBox />
+                <ActiveAmountBox />
             </MockThemeActive>
         );
 
@@ -61,7 +61,7 @@ describe('<ActiveValueBox>', () => {
     it('calls setActive with data on close', async () => {
         render(
             <MockThemeActive active={{ action: 'values', data }} setActive={mockSetActive}>
-                <ActiveValueBox />
+                <ActiveAmountBox />
             </MockThemeActive>
         );
 
@@ -73,7 +73,7 @@ describe('<ActiveValueBox>', () => {
     it('calls setActive without data on after close', async () => {
         render(
             <MockThemeActive active={{ action: 'values', data }} setActive={mockSetActive}>
-                <ActiveValueBox />
+                <ActiveAmountBox />
             </MockThemeActive>
         );
 

@@ -2,10 +2,10 @@ import React, { useCallback } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { AmountTitle } from '~/client/common/AmountTitle';
-import { ValueListBox } from '~/client/pages/products/ValueListBox';
+import { AmountBox } from '~/client/pages/products/AmountBox';
 import type { ProductAmounts } from '~/types/data';
 
-export function ActiveValueBox(): React.ReactElement {
+export function ActiveAmountBox(): React.ReactElement {
     const [active, setActive] = useActiveContent<ProductAmounts>();
 
     const activeData = active?.data;
@@ -16,7 +16,7 @@ export function ActiveValueBox(): React.ReactElement {
     const opened = active?.action === 'values' && !!activeData;
 
     return (
-        <ValueListBox
+        <AmountBox
             opened={opened}
             onClose={handleClose}
             onAfterClose={handleAfterClose}

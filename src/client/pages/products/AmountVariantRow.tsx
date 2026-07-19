@@ -4,7 +4,7 @@ import React, { useCallback } from 'react';
 
 import { useLabels } from '~/client/hooks/useLabels';
 
-import './VariantEditRow.pcss';
+import './AmountVariantRow.pcss';
 
 export type VariantEditType = 'updated' | 'consumed' | 'recycled';
 
@@ -21,7 +21,7 @@ const ICONS: Record<VariantEditType, React.ReactNode> = {
     recycled: <IconTrash size={18} />,
 };
 
-export function VariantEditRow({ type, delta, minDelta, onChange }: VariantEditRowProps) {
+export function AmountVariantRow({ type, delta, minDelta, onChange }: VariantEditRowProps) {
     const _ = useLabels();
     const isUpdated = type === 'updated';
 

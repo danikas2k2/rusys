@@ -3,8 +3,8 @@ import React from 'react';
 import { SwipeControls } from '~/client/common/SwipeControls';
 import { SwipeControlsWrapper } from '~/client/common/SwipeControlsContext';
 import { Page } from '~/client/pages/common/Page';
+import { ActiveAmountBox } from '~/client/pages/products/ActiveAmountBox';
 import { ActiveProductBox } from '~/client/pages/products/ActiveProductBox';
-import { ActiveValueBox } from '~/client/pages/products/ActiveValueBox';
 import { MissingOnlyWrapper } from '~/client/pages/products/MissingOnlyContext';
 import { MissingOnlyEffects } from '~/client/pages/products/MissingOnlyEffects';
 import { ProductsTable } from '~/client/pages/products/ProductsTable';
@@ -28,7 +28,7 @@ export function ProductsPage() {
                     <SwipeControls />
                 </SwipeControlsWrapper>
                 <ActiveProductBox />
-                <ActiveValueBox />
+                <ActiveAmountBox />
             </Page>
         </UpdatingProductsWrapper>
     );

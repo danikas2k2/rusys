@@ -4,7 +4,7 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
-import { ValueQuantitiesTab } from '~/client/pages/products/ValueQuantitiesTab';
+import { AmountVariantsTab } from '~/client/pages/products/AmountVariantsTab';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
 import type { ProductAmounts } from '~/types/data';
 
@@ -44,7 +44,7 @@ jest.mock('@mantine/core', () => {
     };
 });
 
-jest.mock('~/client/pages/products/VariantEditRow', () => ({
+jest.mock('~/client/pages/products/AmountVariantRow', () => ({
     VariantEditRow: jest.fn(({ type, delta, onChange }: any) => (
         <div data-testid={`edit-row-${type}`}>
             <button type="button" onClick={() => onChange(type, delta - 1)}>
@@ -90,7 +90,7 @@ jest.mock('~/client/state/profile/useProfile', () => ({
     useProfile: jest.fn(() => ({ email: 'test@example.com' })),
 }));
 
-describe('<ValueQuantitiesTab>', () => {
+describe('<AmountVariantsTab>', () => {
     const group = 'Uogienės';
     const baseActive: ProductAmounts = {
         group,
@@ -107,7 +107,7 @@ describe('<ValueQuantitiesTab>', () => {
     function renderTab(active: ProductAmounts = baseActive) {
         return render(
             <MockThemeActive active={{ action: 'values', data: active }}>
-                <ValueQuantitiesTab />
+                <AmountVariantsTab />
             </MockThemeActive>
         );
     }
@@ -366,9 +366,9 @@ describe('<ValueQuantitiesTab>', () => {
         const mockUpdate = jest.fn().mockResolvedValue(undefined);
         useUpdateProduct.mockReturnValue(mockUpdate);
 
-        // VariantExpandedRows is already mocked but we need to expose the onCommentChange —
+        // AmountExpanded is already mocked but we need to expose the onCommentChange —
         // re-mock to also trigger comment change
-        const { VariantEditRow } = jest.requireMock('~/client/pages/products/VariantEditRow');
+        const { VariantEditRow } = jest.requireMock('~/client/pages/products/AmountVariantRow');
         VariantEditRow.mockImplementation(({ type, delta, onChange }: any) => (
             <div data-testid={`edit-row-${type}`}>
                 <button type="button" onClick={() => onChange(type, delta - 1)}>
@@ -399,7 +399,7 @@ describe('<ValueQuantitiesTab>', () => {
         const mockUpdate = jest.fn().mockResolvedValue(undefined);
         useUpdateProduct.mockReturnValue(mockUpdate);
 
-        const { VariantEditRow } = jest.requireMock('~/client/pages/products/VariantEditRow');
+        const { VariantEditRow } = jest.requireMock('~/client/pages/products/AmountVariantRow');
         VariantEditRow.mockImplementation(({ type, delta, onChange }: any) => (
             <div data-testid={`edit-row-${type}`}>
                 <button type="button" onClick={() => onChange(type, delta - 1)}>
@@ -429,7 +429,7 @@ describe('<ValueQuantitiesTab>', () => {
         const mockUpdate = jest.fn().mockResolvedValue(undefined);
         useUpdateProduct.mockReturnValue(mockUpdate);
 
-        const { VariantEditRow } = jest.requireMock('~/client/pages/products/VariantEditRow');
+        const { VariantEditRow } = jest.requireMock('~/client/pages/products/AmountVariantRow');
         VariantEditRow.mockImplementation(({ type, delta, onChange }: any) => (
             <div data-testid={`edit-row-${type}`}>
                 <button type="button" onClick={() => onChange(type, delta - 1)}>

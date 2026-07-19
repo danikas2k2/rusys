@@ -1,15 +1,13 @@
-.ui-Modal-root.value-list-box {
+.ui-Modal-root[data-dialog="product"] {
+    .ui-Modal-header {
+        align-items: flex-start;
+        flex-shrink: 0;
+    }
+
     .ui-Modal-title {
         flex: 1;
         text-align: center;
         padding-left: 2.5rem;
-    }
-
-    .ui-Table-table {
-        border-radius: var(--mantine-radius-md);
-        border: 1px solid var(--mantine-color-default-border);
-        background-color: var(--mantine-color-dark-0);
-        overflow: hidden;
     }
 
     .ui-Accordion-item {
@@ -30,7 +28,7 @@
 
     .ui-Accordion-item[data-active] .ui-Accordion-control,
     .ui-Accordion-item[data-active] .ui-Accordion-panel {
-        background-color: var(--mantine-color-dark-1);
+        background-color: var(--mantine-color-soft);
     }
 
     .ui-Accordion-item:last-of-type[data-active] .ui-Accordion-control {
