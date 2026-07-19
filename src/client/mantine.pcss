@@ -3,18 +3,16 @@
 
 .ui-Modal-root[data-full-screen] {
     .ui-ModalBase-header {
-        top: env(safe-area-inset-top);
-        padding-top: calc(var(--mb-padding, var(--mantine-spacing-md)) + env(safe-area-inset-top));
-        padding-inline-start: calc(var(--mb-padding, var(--mantine-spacing-md)) + env(safe-area-inset-left));
-        padding-inline-end: calc(
-            var(--mb-padding, var(--mantine-spacing-md)) - calc(0.3125rem * var(--mantine-scale)) +
+        inset-block-start: env(safe-area-inset-top);
+        padding-block-start: calc(var(--mb-padding, var(--mantine-spacing-md)) + env(safe-area-inset-top));
+        padding-inline: calc(var(--mb-padding, var(--mantine-spacing-md)) + env(safe-area-inset-left)) calc(
+                var(--mb-padding, var(--mantine-spacing-md)) - calc(0.3125rem * var(--mantine-scale)) +
                 env(safe-area-inset-right)
         );
     }
 
     .ui-ModalBase-body {
-        padding-bottom: calc(var(--mb-padding, var(--mantine-spacing-md)) + env(safe-area-inset-bottom));
-        padding-inline-start: calc(var(--mb-padding, var(--mantine-spacing-md)) + env(safe-area-inset-left));
-        padding-inline-end: calc(var(--mb-padding, var(--mantine-spacing-md)) + env(safe-area-inset-right));
+        padding-block-end: calc(var(--mb-padding, var(--mantine-spacing-md)) + env(safe-area-inset-bottom));
+        padding-inline: calc(var(--mb-padding, var(--mantine-spacing-md)) + env(safe-area-inset-left)) calc(var(--mb-padding, var(--mantine-spacing-md)) + env(safe-area-inset-right));
     }
 }

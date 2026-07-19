@@ -1,4 +1,4 @@
-import { Center, Stack, Table, Text } from '@mantine/core';
+import { Center, Stack, Table } from '@mantine/core';
 import React, { useCallback, useMemo } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
