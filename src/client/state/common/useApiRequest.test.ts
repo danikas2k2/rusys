@@ -4,14 +4,14 @@ import axios from 'axios';
 
 import { useApiRequest } from '~/client/state/common/useApiRequest';
 
-jest.mock('axios', () => jest.fn().mockResolvedValue({}));
+vi.mock(import('axios'), () => ({ default: vi.fn().mockResolvedValue({}) }));
 
 describe('useApiRequest', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('sends /test api request using GET method by default, then call update with response data', async () => {
         const response = { ok: true, data: [42] };
-        jest.mocked(axios).mockResolvedValueOnce({ data: response });
+        vi.mocked(axios).mockResolvedValueOnce({ data: response });
 
         const { result } = renderHook(() => useApiRequest());
 

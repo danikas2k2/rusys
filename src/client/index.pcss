@@ -310,6 +310,18 @@ select,
     }
 }
 
+.ui-Modal-root[data-full-screen="true"] {
+    .ui-Modal-header {
+        padding-block-start: calc(var(--mb-padding, var(--mantine-spacing-md)) + var(--safe-block-start));
+        padding-inline: calc(var(--mb-padding, var(--mantine-spacing-md)) + var(--safe-inline-start)) calc(var(--mb-padding, var(--mantine-spacing-md)) - calc(0.3125rem * var(--mantine-scale)) + var(--safe-inline-end));
+    }
+
+    .ui-Modal-body {
+        padding-block-end: calc(var(--mb-padding, var(--mantine-spacing-md)) + var(--safe-block-end));
+        padding-inline: calc(var(--mb-padding, var(--mantine-spacing-md)) + var(--safe-inline-start)) calc(var(--mb-padding, var(--mantine-spacing-md)) + var(--safe-inline-end));
+    }
+}
+
 time[data-date], time[data-time] {
     text-wrap: nowrap;
 }

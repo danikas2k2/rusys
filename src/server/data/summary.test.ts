@@ -1,4 +1,4 @@
-/** @jest-environment node */
+/** @vitest-environment node */
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 
 import { getGroups } from '~/server/data/groups';
@@ -6,12 +6,10 @@ import { getFullSummary, getSummary, getSummaryUndates, getSummaryUpdates } from
 import { getVariants } from '~/server/data/variants';
 import { db } from '~/server/db';
 
-jest.setTimeout(30_000);
-
-jest.mock('~/server/db');
-jest.mock('~/server/data/years');
-jest.mock('~/server/data/groups');
-jest.mock('~/server/data/variants');
+vi.mock(import('~/server/db'));
+vi.mock(import('~/server/data/years'));
+vi.mock(import('~/server/data/groups'));
+vi.mock(import('~/server/data/variants'));
 
 describe('updates', () => {
     beforeEach(async () => {
@@ -26,7 +24,7 @@ describe('updates', () => {
         await d.collection('products').deleteMany({});
         await d.collection('groups').deleteMany({});
         await d.collection('variants').deleteMany({});
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe('getSummary', () => {
@@ -99,8 +97,8 @@ describe('updates', () => {
         const variants = getVariantsFixture();
 
         beforeEach(() => {
-            jest.mocked(getGroups).mockResolvedValue(groups);
-            jest.mocked(getVariants).mockResolvedValue(variants);
+            vi.mocked(getGroups).mockResolvedValue(groups);
+            vi.mocked(getVariants).mockResolvedValue(variants);
         });
 
         it('returns summary', async () => {

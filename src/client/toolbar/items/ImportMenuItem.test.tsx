@@ -7,12 +7,12 @@ import React from 'react';
 
 import { ImportMenuItem } from '~/client/toolbar/items/ImportMenuItem';
 
-jest.mock('~/client/common/Label');
+vi.mock(import('~/client/common/Label'));
 
 describe('<ImportMenuItem>', () => {
-    const setActive = jest.fn();
+    const setActive = vi.fn();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders import label', () => {
         render(
@@ -53,7 +53,7 @@ describe('<ImportMenuItem>', () => {
     });
 
     it('calls onClick callback when provided', async () => {
-        const onClick = jest.fn();
+        const onClick = vi.fn();
 
         render(
             <MockTheme>
@@ -70,7 +70,7 @@ describe('<ImportMenuItem>', () => {
     });
 
     it('calls both onClick and setActive when onClick is provided', async () => {
-        const onClick = jest.fn();
+        const onClick = vi.fn();
 
         render(
             <MockTheme>
@@ -101,7 +101,7 @@ describe('<ImportMenuItem>', () => {
     });
 
     it('does not call setActive if onClick prevents default', async () => {
-        const onClick = jest.fn((e: React.MouseEvent) => e.preventDefault());
+        const onClick = vi.fn((e: React.MouseEvent) => e.preventDefault());
 
         render(
             <MockTheme>

@@ -4,16 +4,19 @@ import { reducer } from '~/client/state/base/reducer';
 import { getStore } from '~/client/state/store';
 import { isDevMode } from '~/common/utils/dev';
 
-jest.mock('~/common/utils/dev', () => ({
-    isDevMode: jest.fn().mockReturnValue(false),
+vi.mock(import('~/common/utils/dev'), () => ({
+    isDevMode: vi.fn().mockReturnValue(false),
 }));
-jest.mock('@reduxjs/toolkit', () => ({
-    ...jest.requireActual('@reduxjs/toolkit'),
-    configureStore: jest.fn().mockImplementation(jest.requireActual('@reduxjs/toolkit').configureStore),
-}));
+vi.mock(import('@reduxjs/toolkit'), async () => {
+    const actual = await vi.importActual('@reduxjs/toolkit');
+    return {
+        ...actual,
+        configureStore: vi.fn().mockImplementation(actual.configureStore),
+    };
+});
 
 describe('store configuration', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('creates store with initial state', () => {
         expect(getStore().getState()).toStrictEqual(reducer(undefined, {} as any));
@@ -26,7 +29,7 @@ describe('store configuration', () => {
     });
 
     it('enables devTools in development mode', () => {
-        jest.mocked(isDevMode).mockReturnValue(true);
+        vi.mocked(isDevMode).mockReturnValue(true);
         getStore();
 
         expect(configureStore).toHaveBeenCalledWith({ reducer, devTools: true });

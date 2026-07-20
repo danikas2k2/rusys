@@ -10,26 +10,26 @@ import { ProductTitle } from '~/client/pages/products/ProductTitle';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
 import { useYears } from '~/client/state/years/useYears';
 
-jest.mock('~/client/state/products/useSetProductMissing', () => ({
-    useSetProductMissing: jest.fn(),
+vi.mock(import('~/client/state/products/useSetProductMissing'), () => ({
+    useSetProductMissing: vi.fn(),
 }));
-jest.mock('~/client/state/profile/useProfile');
-jest.mock('~/client/state/years/useYears');
+vi.mock(import('~/client/state/profile/useProfile'));
+vi.mock(import('~/client/state/years/useYears'));
 
 describe('<ProductTitle>', () => {
     const user = userEvent.setup();
     const products = getProductsFixture();
     const years = getYearsFixture();
 
-    const setMissing = jest.fn();
+    const setMissing = vi.fn();
 
     beforeEach(() => {
-        jest.mocked(useYears).mockReturnValue(years);
-        jest.mocked(useSetProductMissing).mockReturnValue(setMissing);
+        vi.mocked(useYears).mockReturnValue(years);
+        vi.mocked(useSetProductMissing).mockReturnValue(setMissing);
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     function renderTitle(product = products[0]) {
@@ -49,7 +49,10 @@ describe('<ProductTitle>', () => {
     it('renders available product checkbox as checked and enabled', () => {
         renderTitle(products[0]);
 
-        expect(screen.getByRole('checkbox')).toBeEnabled().toBeChecked();
+        const checkbox = screen.getByRole('checkbox');
+
+        expect(checkbox).toBeEnabled();
+        expect(checkbox).toBeChecked();
         expect(screen.getByRole('heading', { level: 5 })).toHaveAttribute('data-available', 'true');
     });
 
@@ -62,7 +65,10 @@ describe('<ProductTitle>', () => {
     it('disables checkbox and sets indeterminate for unavailable product', () => {
         renderTitle({ ...products[0], years: [] });
 
-        expect(screen.getByRole('checkbox')).toBeDisabled().toBePartiallyChecked();
+        const checkbox = screen.getByRole('checkbox');
+
+        expect(checkbox).toBeDisabled();
+        expect(checkbox).toBePartiallyChecked();
         expect(screen.getByRole('heading', { level: 5 })).toHaveAttribute('data-available', 'false');
     });
 

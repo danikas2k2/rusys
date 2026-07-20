@@ -5,15 +5,17 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { useGetSummaryHistory } from '~/client/state/history/useGetSummaryHistory';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
-jest.mock('react-redux', () => ({ ...jest.requireActual('react-redux'), useDispatch: jest.fn() }));
+vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
+vi.mock(import('react-redux'), async () => ({ ...(await vi.importActual('react-redux')), useDispatch: vi.fn() }));
 
 describe('useGetSummaryHistory', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeAll(() => {
+        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls request with ApiUrl.SummaryHistory and full payload', async () => {
         const { result } = renderHook(() => useGetSummaryHistory(25, 'Uogienės', 'Avietės'), {

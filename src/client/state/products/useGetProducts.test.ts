@@ -3,14 +3,16 @@ import { renderHook } from '@testing-library/react';
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useGetProducts } from '~/client/state/products/useGetProducts';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
+vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
 
 describe('useGetProducts', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeEach(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeEach(() => {
+        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('request data from /products and update current state', async () => {
         const { result } = renderHook(() => useGetProducts());

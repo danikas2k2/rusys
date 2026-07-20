@@ -1,4 +1,3 @@
-/** @jest-environment node */
 import { getGroupsFixture, getProductsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
@@ -7,9 +6,9 @@ import { handleProducts } from '~/server/api/handleProducts';
 import { getProductsWithGroups } from '~/server/api/response';
 import type { ApiProductsWithYears } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/products');
+vi.mock(import('~/server/api/debug'));
+vi.mock(import('~/server/api/response'));
+vi.mock(import('~/server/data/products'));
 
 describe('handleProducts', () => {
     const request = mockRequest();
@@ -19,10 +18,10 @@ describe('handleProducts', () => {
     const variants = getVariantsFixture();
     const products = getProductsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(getProductsWithGroups).mockResolvedValueOnce({ years, groups, variants, products });
+        vi.mocked(getProductsWithGroups).mockResolvedValueOnce({ years, groups, variants, products });
 
         await handleProducts(request, response);
 
@@ -40,7 +39,7 @@ describe('handleProducts', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(getProductsWithGroups).mockRejectedValueOnce('Failed to get products');
+        vi.mocked(getProductsWithGroups).mockRejectedValueOnce('Failed to get products');
 
         await handleProducts(request, response);
 

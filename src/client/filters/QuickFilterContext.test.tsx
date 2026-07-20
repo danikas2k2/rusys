@@ -33,7 +33,7 @@ describe('useQuickFilterContext', () => {
     });
 
     it('returns custom filter from context', () => {
-        const setFilter = jest.fn();
+        const setFilter = vi.fn();
 
         const { result } = renderHook(() => useQuickFilter(), {
             wrapper: ({ children }) => <QuickFilterContext value={['test', setFilter]}>{children}</QuickFilterContext>,
@@ -79,10 +79,12 @@ describe('<QuickFilterWrapper>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Set Filter' }));
 
-        expect(screen.getByRole('generic', { name: 'filter-value' })).toHaveTextContent('new filter');
+        const filterValue = screen.getByRole('generic', { name: 'filter-value' });
+
+        expect(filterValue).toHaveTextContent('new filter');
 
         await user.click(screen.getByRole('button', { name: 'Clear Filter' }));
 
-        expect(screen.getByRole('generic', { name: 'filter-value' })).toHaveTextContent('');
+        expect(filterValue).toHaveTextContent('');
     });
 });

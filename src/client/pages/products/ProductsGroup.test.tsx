@@ -4,33 +4,38 @@ import { MockTheme } from '@tests/MockTheme';
 import { Table } from '@mantine/core';
 import React from 'react';
 
+import { useGroupFilterPredicate } from '~/client/filters/hooks/useGroupFilterPredicate';
+import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
+import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
+import { ProductRow } from '~/client/pages/products/ProductRow';
 import { ProductsGroup } from '~/client/pages/products/ProductsGroup';
+import { useYears } from '~/client/state/years/useYears';
 import type { Group, Product } from '~/types/data';
 
-jest.mock('~/client/state/years/useYears', () => ({
-    useYears: jest.fn(() => [2024, 2025, 2026]),
+vi.mock(import('~/client/state/years/useYears'), () => ({
+    useYears: vi.fn(() => [2024, 2025, 2026]),
 }));
 
-jest.mock('~/client/filters/hooks/useGroupFilterPredicate', () => ({
-    useGroupFilterPredicate: jest.fn(() => () => true),
+vi.mock(import('~/client/filters/hooks/useGroupFilterPredicate'), () => ({
+    useGroupFilterPredicate: vi.fn(() => () => true),
 }));
 
-jest.mock('~/client/filters/hooks/useQuickFilterPredicate', () => ({
-    useQuickFilterPredicate: jest.fn(() => () => true),
+vi.mock(import('~/client/filters/hooks/useQuickFilterPredicate'), () => ({
+    useQuickFilterPredicate: vi.fn(() => () => true),
 }));
 
-jest.mock('~/client/pages/products/MissingOnlyContext', () => ({
-    useMissingOnly: jest.fn(() => [false, jest.fn()]),
+vi.mock(import('~/client/pages/products/MissingOnlyContext'), () => ({
+    useMissingOnly: vi.fn(() => [false, vi.fn()]),
 }));
 
-jest.mock('~/client/pages/products/ProductRow', () => ({
-    ProductRow: jest.fn(({ product, hidden }: any) => (
+vi.mock(import('~/client/pages/products/ProductRow'), () => ({
+    ProductRow: vi.fn(({ product, hidden }: any) => (
         <tr data-testid="product-row" data-name={product.name} data-hidden={String(hidden)} />
     )),
 }));
 
-jest.mock('~/client/table/GroupTitle', () => ({
-    GroupTitle: jest.fn(({ children, hidden }: any) => (
+vi.mock(import('~/client/table/GroupTitle'), () => ({
+    GroupTitle: vi.fn(({ children, hidden }: any) => (
         <tbody data-testid="group-title" data-hidden={String(hidden)}>
             <tr>
                 <th>{children}</th>
@@ -48,17 +53,13 @@ describe('<ProductsGroup>', () => {
     ];
 
     beforeEach(() => {
-        const { useGroupFilterPredicate } = jest.requireMock('~/client/filters/hooks/useGroupFilterPredicate');
-        useGroupFilterPredicate.mockReturnValue(() => true);
-        const { useQuickFilterPredicate } = jest.requireMock('~/client/filters/hooks/useQuickFilterPredicate');
-        useQuickFilterPredicate.mockReturnValue(() => true);
-        const { useMissingOnly } = jest.requireMock('~/client/pages/products/MissingOnlyContext');
-        useMissingOnly.mockReturnValue([false, jest.fn()]);
-        const { useYears } = jest.requireMock('~/client/state/years/useYears');
-        useYears.mockReturnValue([2024, 2025, 2026]);
+        vi.mocked(useGroupFilterPredicate).mockReturnValue(() => true);
+        vi.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
+        vi.mocked(useMissingOnly).mockReturnValue([false, vi.fn()]);
+        vi.mocked(useYears).mockReturnValue([2024, 2025, 2026]);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     function renderGroup(g = group, p = products) {
         return render(
@@ -94,8 +95,7 @@ describe('<ProductsGroup>', () => {
     it('passes annual from group to each ProductRow', () => {
         renderGroup();
 
-        const { ProductRow } = jest.requireMock('~/client/pages/products/ProductRow');
-        const annuals = ProductRow.mock.calls.map(([props]: any[]) => props.annual);
+        const annuals = vi.mocked(ProductRow).mock.calls.map(([props]: any[]) => props.annual);
 
         expect(annuals.length).toBeGreaterThan(0);
         expect(annuals.every((a: boolean) => a)).toBe(true);
@@ -104,8 +104,7 @@ describe('<ProductsGroup>', () => {
     it('passes annual=false when group.annual is false', () => {
         renderGroup({ ...group, annual: false });
 
-        const { ProductRow } = jest.requireMock('~/client/pages/products/ProductRow');
-        const annuals = ProductRow.mock.calls.map(([props]: any[]) => props.annual);
+        const annuals = vi.mocked(ProductRow).mock.calls.map(([props]: any[]) => props.annual);
 
         expect(annuals.every((a: boolean) => !a)).toBe(true);
     });
@@ -119,8 +118,7 @@ describe('<ProductsGroup>', () => {
     });
 
     it('sets hidden=true when groupFilter returns false for this group', () => {
-        const { useGroupFilterPredicate } = jest.requireMock('~/client/filters/hooks/useGroupFilterPredicate');
-        useGroupFilterPredicate.mockReturnValue(() => false);
+        vi.mocked(useGroupFilterPredicate).mockReturnValue(() => false);
 
         renderGroup();
 
@@ -132,8 +130,7 @@ describe('<ProductsGroup>', () => {
     });
 
     it('sets hidden=true when no products pass quickFilter', () => {
-        const { useQuickFilterPredicate } = jest.requireMock('~/client/filters/hooks/useQuickFilterPredicate');
-        useQuickFilterPredicate.mockReturnValue(() => false);
+        vi.mocked(useQuickFilterPredicate).mockReturnValue(() => false);
 
         renderGroup();
 
@@ -141,9 +138,8 @@ describe('<ProductsGroup>', () => {
     });
 
     it('sets hidden=false when at least one product passes quickFilter', () => {
-        const { useQuickFilterPredicate } = jest.requireMock('~/client/filters/hooks/useQuickFilterPredicate');
         // Only 'Avietės' passes the quick filter
-        useQuickFilterPredicate.mockReturnValue((name: string) => name === 'Avietės');
+        vi.mocked(useQuickFilterPredicate).mockReturnValue((name: string) => name === 'Avietės');
 
         renderGroup();
 
@@ -151,8 +147,7 @@ describe('<ProductsGroup>', () => {
     });
 
     it('hides individual product rows that do not pass quickFilter', () => {
-        const { useQuickFilterPredicate } = jest.requireMock('~/client/filters/hooks/useQuickFilterPredicate');
-        useQuickFilterPredicate.mockReturnValue((name: string) => name === 'Avietės');
+        vi.mocked(useQuickFilterPredicate).mockReturnValue((name: string) => name === 'Avietės');
 
         renderGroup();
 
@@ -165,8 +160,7 @@ describe('<ProductsGroup>', () => {
     });
 
     it('sets hidden=true for the group when missingOnly=true and no products have missing=true', () => {
-        const { useMissingOnly } = jest.requireMock('~/client/pages/products/MissingOnlyContext');
-        useMissingOnly.mockReturnValue([true, jest.fn()]);
+        vi.mocked(useMissingOnly).mockReturnValue([true, vi.fn()]);
         // Neither product has missing=true
 
         renderGroup();
@@ -175,8 +169,7 @@ describe('<ProductsGroup>', () => {
     });
 
     it('sets hidden=false for the group when missingOnly=true and at least one product has missing=true', () => {
-        const { useMissingOnly } = jest.requireMock('~/client/pages/products/MissingOnlyContext');
-        useMissingOnly.mockReturnValue([true, jest.fn()]);
+        vi.mocked(useMissingOnly).mockReturnValue([true, vi.fn()]);
         const productsWithMissing: Product[] = [
             { group: 'Uogienės', name: 'Avietės', missing: true },
             { group: 'Uogienės', name: 'Braškės', missing: false },
@@ -188,8 +181,7 @@ describe('<ProductsGroup>', () => {
     });
 
     it('hides individual product rows where missing=false when missingOnly=true', () => {
-        const { useMissingOnly } = jest.requireMock('~/client/pages/products/MissingOnlyContext');
-        useMissingOnly.mockReturnValue([true, jest.fn()]);
+        vi.mocked(useMissingOnly).mockReturnValue([true, vi.fn()]);
         const productsWithMissing: Product[] = [
             { group: 'Uogienės', name: 'Avietės', missing: true },
             { group: 'Uogienės', name: 'Braškės', missing: false },
@@ -216,8 +208,7 @@ describe('<ProductsGroup>', () => {
     it('passes the correct product object to each ProductRow', () => {
         renderGroup();
 
-        const { ProductRow } = jest.requireMock('~/client/pages/products/ProductRow');
-        const passedNames = ProductRow.mock.calls.map(([props]: any[]) => props.product.name);
+        const passedNames = vi.mocked(ProductRow).mock.calls.map(([props]: any[]) => props.product.name);
 
         expect(passedNames).toContain('Avietės');
         expect(passedNames).toContain('Braškės');

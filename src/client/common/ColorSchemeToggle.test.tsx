@@ -7,24 +7,24 @@ import React from 'react';
 
 import { ColorSchemeToggle } from '~/client/common/ColorSchemeToggle';
 
-jest.mock('@mantine/core', () => ({
-    ...jest.requireActual('@mantine/core'),
-    useMantineColorScheme: jest.fn(),
+vi.mock(import('@mantine/core'), async () => ({
+    ...(await vi.importActual('@mantine/core')),
+    useMantineColorScheme: vi.fn(),
 }));
 
 describe('<ColorSchemeToggle>', () => {
-    const setColorScheme = jest.fn();
+    const setColorScheme = vi.fn();
 
     beforeEach(() =>
-        jest.mocked(useMantineColorScheme).mockReturnValue({
+        vi.mocked(useMantineColorScheme).mockReturnValue({
             colorScheme: 'light',
             setColorScheme,
-            toggleColorScheme: jest.fn(),
-            clearColorScheme: jest.fn(),
+            toggleColorScheme: vi.fn(),
+            clearColorScheme: vi.fn(),
         })
     );
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders with light scheme selected', () => {
         render(
@@ -37,11 +37,11 @@ describe('<ColorSchemeToggle>', () => {
     });
 
     it('renders with dark scheme selected', () => {
-        jest.mocked(useMantineColorScheme).mockReturnValue({
+        vi.mocked(useMantineColorScheme).mockReturnValue({
             colorScheme: 'dark',
             setColorScheme,
-            toggleColorScheme: jest.fn(),
-            clearColorScheme: jest.fn(),
+            toggleColorScheme: vi.fn(),
+            clearColorScheme: vi.fn(),
         });
 
         render(
@@ -55,11 +55,11 @@ describe('<ColorSchemeToggle>', () => {
     });
 
     it('renders with auto scheme selected', () => {
-        jest.mocked(useMantineColorScheme).mockReturnValue({
+        vi.mocked(useMantineColorScheme).mockReturnValue({
             colorScheme: 'auto',
             setColorScheme,
-            toggleColorScheme: jest.fn(),
-            clearColorScheme: jest.fn(),
+            toggleColorScheme: vi.fn(),
+            clearColorScheme: vi.fn(),
         });
 
         render(
@@ -84,11 +84,11 @@ describe('<ColorSchemeToggle>', () => {
     });
 
     it('changes to light scheme when light button is clicked', async () => {
-        jest.mocked(useMantineColorScheme).mockReturnValue({
+        vi.mocked(useMantineColorScheme).mockReturnValue({
             colorScheme: 'dark',
             setColorScheme,
-            toggleColorScheme: jest.fn(),
-            clearColorScheme: jest.fn(),
+            toggleColorScheme: vi.fn(),
+            clearColorScheme: vi.fn(),
         });
 
         render(

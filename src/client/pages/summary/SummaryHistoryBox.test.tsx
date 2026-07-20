@@ -5,18 +5,18 @@ import React from 'react';
 
 import { SummaryHistoryBox } from '~/client/pages/summary/SummaryHistoryBox';
 
-jest.mock('~/client/pages/summary/SummaryHistoryBox.pcss', () => ({}));
+vi.mock(import('~/client/pages/summary/SummaryHistoryBox.pcss'), () => ({}));
 
-jest.mock('~/client/pages/summary/SummaryHistoryTab', () => ({
+vi.mock(import('~/client/pages/summary/SummaryHistoryTab'), () => ({
     SummaryHistoryTab: () => <div data-testid="summary-history-tab" />,
 }));
 
-jest.mock('~/client/hooks/useLocale', () => ({
-    useLocale: jest.fn(() => 'en'),
+vi.mock(import('~/client/hooks/useLocale'), () => ({
+    useLocale: vi.fn(() => 'en'),
 }));
 
 describe('<SummaryHistoryBox>', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('is closed by default (opened=false)', () => {
         render(
@@ -39,7 +39,7 @@ describe('<SummaryHistoryBox>', () => {
     });
 
     it('calls onClose when the close button is clicked', () => {
-        const onClose = jest.fn();
+        const onClose = vi.fn();
 
         render(
             <MockTheme>
@@ -53,7 +53,7 @@ describe('<SummaryHistoryBox>', () => {
     });
 
     it('does not throw when onAfterClose is called after close', () => {
-        const onAfterClose = jest.fn();
+        const onAfterClose = vi.fn();
 
         render(
             <MockTheme>

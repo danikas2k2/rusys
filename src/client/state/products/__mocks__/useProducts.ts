@@ -1,3 +1,5 @@
 import { getProductsFixture } from '@tests/fixtures';
 
-export const useProducts = jest.fn().mockReturnValue(getProductsFixture());
+import { vi } from 'vitest';
+
+export const useProducts = vi.fn().mockReturnValue(getProductsFixture());

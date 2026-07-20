@@ -16,11 +16,11 @@ function BoomString(): React.JSX.Element {
 
 describe('<ErrorBoundary>', () => {
     beforeEach(() => {
-        jest.spyOn(console, 'error').mockImplementation();
+        vi.spyOn(console, 'error').mockImplementation();
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     it('renders children when no error occurs', () => {
@@ -48,7 +48,7 @@ describe('<ErrorBoundary>', () => {
     });
 
     it('calls onReload prop when the Reload page button is clicked', () => {
-        const reloadSpy = jest.fn();
+        const reloadSpy = vi.fn();
 
         render(
             <MockTheme>

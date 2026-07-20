@@ -9,7 +9,7 @@ import type { History } from '~/types/data';
 
 export function AmountHistoryRow({ h, dimmed = false }: { h: History; dimmed?: boolean }) {
     return (
-        <Table.Tr key={`${h.time}:${h.year}`} opacity={dimmed ? 0.4 : undefined}>
+        <Table.Tr opacity={dimmed ? 0.4 : undefined}>
             <Table.Td>
                 <Stack gap={2}>
                     <Group wrap="nowrap" gap="xs">
@@ -18,15 +18,13 @@ export function AmountHistoryRow({ h, dimmed = false }: { h: History; dimmed?: b
                             <FormatDate date={getRoundedDate(h.time)} />
                         </Text>
                     </Group>
-                    {h.comment && (
-                        <Text size="xs" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
-                            {h.comment}
-                        </Text>
-                    )}
                 </Stack>
             </Table.Td>
             <Table.Td>
                 <AmountsCell amounts={h.amounts ?? []} />
+                <Text size="xs" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
+                    {h.comment}
+                </Text>
             </Table.Td>
         </Table.Tr>
     );

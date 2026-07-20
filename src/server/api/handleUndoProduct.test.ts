@@ -1,4 +1,3 @@
-/** @jest-environment node */
 import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
@@ -8,9 +7,9 @@ import { getProductsWithYears } from '~/server/api/response';
 import { undoProduct } from '~/server/data/products';
 import type { ApiProductsWithYears, ApiRequestProduct } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/products');
+vi.mock(import('~/server/api/debug'));
+vi.mock(import('~/server/api/response'));
+vi.mock(import('~/server/data/products'));
 
 describe('handleUndoProduct', () => {
     const request = mockRequest<ApiRequestProduct>({ group: 'Uogienės', name: 'Braškės', year: 21 });
@@ -18,11 +17,11 @@ describe('handleUndoProduct', () => {
     const years = getYearsFixture();
     const products = getProductsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(undoProduct).mockResolvedValueOnce(true);
-        jest.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
+        vi.mocked(undoProduct).mockResolvedValueOnce(true);
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
 
         await handleUndoProduct(request, response);
 
@@ -33,7 +32,7 @@ describe('handleUndoProduct', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(undoProduct).mockResolvedValueOnce(false);
+        vi.mocked(undoProduct).mockResolvedValueOnce(false);
 
         await handleUndoProduct(request, response);
 
@@ -43,7 +42,7 @@ describe('handleUndoProduct', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(undoProduct).mockRejectedValueOnce('Failed to undo');
+        vi.mocked(undoProduct).mockRejectedValueOnce('Failed to undo');
 
         await handleUndoProduct(request, response);
 
@@ -53,7 +52,7 @@ describe('handleUndoProduct', () => {
 
     it('uses year=0 when year is not provided', async () => {
         const req = mockRequest<ApiRequestProduct>({ group: 'Uogienės', name: 'Braškės' });
-        jest.mocked(undoProduct).mockResolvedValueOnce(false);
+        vi.mocked(undoProduct).mockResolvedValueOnce(false);
 
         await handleUndoProduct(req, response);
 

@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
 import { Table } from '@mantine/core';
@@ -11,18 +10,18 @@ import { isPreferred, ProductCell, type ProductCellProps } from '~/client/pages/
 import { useProductUpdating } from '~/client/pages/products/UpdatingProductsContext';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 
-jest.mock('~/client/state/products/useSetProductRemoving', () => ({
-    useSetProductRemoving: jest.fn(),
+vi.mock(import('~/client/state/products/useSetProductRemoving'), () => ({
+    useSetProductRemoving: vi.fn(),
 }));
-jest.mock('~/client/common/ActiveContentContext', () => ({
-    ...jest.requireActual('~/client/common/ActiveContentContext'),
-    useActiveContent: jest.fn(),
+vi.mock(import('~/client/common/ActiveContentContext'), async () => ({
+    ...(await vi.importActual('~/client/common/ActiveContentContext')),
+    useActiveContent: vi.fn(),
 }));
-jest.mock('~/client/pages/products/UpdatingProductsContext', () => ({
-    useProductUpdating: jest.fn(),
+vi.mock(import('~/client/pages/products/UpdatingProductsContext'), () => ({
+    useProductUpdating: vi.fn(),
 }));
-jest.mock('~/client/common/hooks/useSwipeVisible', () => ({
-    useSwipeVisible: jest.fn(),
+vi.mock(import('~/client/common/hooks/useSwipeVisible'), () => ({
+    useSwipeVisible: vi.fn(),
 }));
 
 describe('<ProductCell>', () => {
@@ -34,26 +33,23 @@ describe('<ProductCell>', () => {
         { group, variant: 'm', order: 2, suffix: 'm' },
     ];
 
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
-    const setRemoving = jest.fn();
-    const setActive = jest.fn();
+    const setRemoving = vi.fn();
+    const setActive = vi.fn();
 
     beforeEach(() => {
-        jest.mocked(useSetProductRemoving).mockReturnValue(setRemoving);
-        jest.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
-        jest.mocked(useSwipeVisible).mockReturnValue(false);
-        jest.mocked(useProductUpdating).mockReturnValue(false);
-        jest.useFakeTimers();
+        vi.mocked(useSetProductRemoving).mockReturnValue(setRemoving);
+        vi.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
+        vi.mocked(useSwipeVisible).mockReturnValue(false);
+        vi.mocked(useProductUpdating).mockReturnValue(false);
+        vi.useFakeTimers();
     });
 
     afterEach(() => {
-        jest.runOnlyPendingTimers();
-        jest.clearAllTimers();
-        jest.clearAllMocks();
+        vi.runOnlyPendingTimers();
+        vi.clearAllTimers();
+        vi.clearAllMocks();
+        vi.useRealTimers();
     });
-
-    afterAll(() => jest.useRealTimers());
 
     const defaultProduct = {
         group,
@@ -92,7 +88,7 @@ describe('<ProductCell>', () => {
             expect(screen.getByRole('cell', { name: '23d' })).toBeInTheDocument();
         });
 
-        it('handles long press', async () => {
+        it('handles long press', () => {
             render(
                 <MockApp>
                     <Table>
@@ -105,8 +101,8 @@ describe('<ProductCell>', () => {
                 </MockApp>
             );
 
-            await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
+            act(() => fireEvent.pointerDown(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' }));
+            act(() => vi.advanceTimersByTime(500));
 
             expect(setActive).not.toHaveBeenCalled();
             expect(setRemoving).toHaveBeenCalledWith(props.product.group, props.product.name, props.year, true);
@@ -145,9 +141,9 @@ describe('<ProductCell>', () => {
 
             const cell = screen.getByRole('cell');
             fireEvent.pointerDown(cell);
-            act(() => jest.advanceTimersByTime(500));
+            act(() => vi.advanceTimersByTime(500));
             fireEvent.pointerUp(cell);
-            act(() => jest.advanceTimersByTime(100));
+            act(() => vi.advanceTimersByTime(100));
 
             expect(setActive).not.toHaveBeenCalled();
             expect(setRemoving).toHaveBeenCalledWith(
@@ -158,7 +154,7 @@ describe('<ProductCell>', () => {
             );
         });
 
-        it('handles short press', async () => {
+        it('handles short press', () => {
             render(
                 <MockApp>
                     <Table>
@@ -171,8 +167,11 @@ describe('<ProductCell>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
+            act(() => {
+                fireEvent.pointerDown(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerUp(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+            });
+            act(() => vi.advanceTimersByTime(100));
 
             expect(setActive).toHaveBeenCalledWith({
                 action: 'values',
@@ -215,7 +214,7 @@ describe('<ProductCell>', () => {
             expect(screen.getByRole('cell', { name: '.' })).toBeInTheDocument();
         });
 
-        it('does not handle long press for empty cell', async () => {
+        it('does not handle long press for empty cell', () => {
             const emptyProduct = {
                 ...defaultProduct,
                 years: [
@@ -239,14 +238,14 @@ describe('<ProductCell>', () => {
                 </MockApp>
             );
 
-            await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
+            act(() => fireEvent.pointerDown(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' }));
+            act(() => vi.advanceTimersByTime(500));
 
             expect(setActive).not.toHaveBeenCalled();
             expect(setRemoving).not.toHaveBeenCalled();
         });
 
-        it('handles short press with empty amounts', async () => {
+        it('handles short press with empty amounts', () => {
             const emptyProduct = {
                 ...defaultProduct,
                 years: [
@@ -270,8 +269,8 @@ describe('<ProductCell>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
+            act(() => fireEvent.click(screen.getByRole('cell')));
+            act(() => vi.advanceTimersByTime(100));
 
             expect(setActive).toHaveBeenCalledWith({
                 action: 'values',
@@ -302,7 +301,7 @@ describe('<ProductCell>', () => {
         };
 
         it('shows loader when updating is true', () => {
-            jest.mocked(useProductUpdating).mockReturnValue(true);
+            vi.mocked(useProductUpdating).mockReturnValue(true);
 
             render(
                 <MockApp>
@@ -320,7 +319,7 @@ describe('<ProductCell>', () => {
         });
 
         it('hides loader when updating becomes false and transition ends', () => {
-            jest.mocked(useProductUpdating).mockReturnValue(true);
+            vi.mocked(useProductUpdating).mockReturnValue(true);
 
             const { rerender } = render(
                 <MockApp>
@@ -336,7 +335,7 @@ describe('<ProductCell>', () => {
 
             expect(screen.getByRole('progressbar')).toBeInTheDocument();
 
-            jest.mocked(useProductUpdating).mockReturnValue(false);
+            vi.mocked(useProductUpdating).mockReturnValue(false);
 
             rerender(
                 <MockApp>
@@ -356,7 +355,7 @@ describe('<ProductCell>', () => {
         });
 
         it('does not hide loader when updating is true and transition ends', () => {
-            jest.mocked(useProductUpdating).mockReturnValue(true);
+            vi.mocked(useProductUpdating).mockReturnValue(true);
 
             render(
                 <MockApp>
@@ -408,7 +407,7 @@ describe('<ProductCell>', () => {
             expect(screen.getByRole('cell')).toBeInTheDocument();
         });
 
-        it('calls setActive with correct data when span is provided and cell is clicked', async () => {
+        it('calls setActive with correct data when span is provided and cell is clicked', () => {
             render(
                 <MockApp>
                     <Table>
@@ -421,8 +420,11 @@ describe('<ProductCell>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
+            act(() => {
+                fireEvent.pointerDown(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerUp(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+            });
+            act(() => vi.advanceTimersByTime(100));
 
             expect(setActive).toHaveBeenCalledWith({
                 action: 'values',
@@ -451,8 +453,8 @@ describe('<ProductCell>', () => {
             year: 22,
         };
 
-        it('disables interactions when swipeActive is true', async () => {
-            jest.mocked(useSwipeVisible).mockReturnValue(true);
+        it('disables interactions when swipeActive is true', () => {
+            vi.mocked(useSwipeVisible).mockReturnValue(true);
 
             render(
                 <MockApp>
@@ -466,8 +468,11 @@ describe('<ProductCell>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
+            act(() => {
+                fireEvent.pointerDown(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerUp(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+            });
+            act(() => vi.advanceTimersByTime(100));
 
             expect(setActive).not.toHaveBeenCalled();
         });
@@ -488,8 +493,8 @@ describe('<ProductCell>', () => {
             year: 22,
         };
 
-        it('disables interactions when updating is true', async () => {
-            jest.mocked(useProductUpdating).mockReturnValue(true);
+        it('disables interactions when updating is true', () => {
+            vi.mocked(useProductUpdating).mockReturnValue(true);
 
             render(
                 <MockApp>
@@ -503,14 +508,17 @@ describe('<ProductCell>', () => {
                 </MockApp>
             );
 
-            await user.click(screen.getByRole('cell'));
-            act(() => jest.advanceTimersByTime(100));
+            act(() => {
+                fireEvent.pointerDown(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerUp(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+            });
+            act(() => vi.advanceTimersByTime(100));
 
             expect(setActive).not.toHaveBeenCalled();
         });
 
-        it('disables long press when updating is true', async () => {
-            jest.mocked(useProductUpdating).mockReturnValue(true);
+        it('disables long press when updating is true', () => {
+            vi.mocked(useProductUpdating).mockReturnValue(true);
 
             render(
                 <MockApp>
@@ -524,8 +532,8 @@ describe('<ProductCell>', () => {
                 </MockApp>
             );
 
-            await user.pointer({ target: screen.getByRole('cell'), keys: `[MouseLeft>]` });
-            act(() => jest.advanceTimersByTime(500));
+            act(() => fireEvent.pointerDown(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' }));
+            act(() => vi.advanceTimersByTime(500));
 
             expect(setRemoving).not.toHaveBeenCalled();
             expect(setActive).not.toHaveBeenCalled();

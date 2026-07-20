@@ -9,22 +9,22 @@ import { rollbackProductsMissingAction, setProductsMissingAction } from '~/clien
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
-jest.mock('react-redux', () => ({
-    ...jest.requireActual('react-redux'),
-    useDispatch: jest.fn(),
+vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
+vi.mock(import('react-redux'), async () => ({
+    ...(await vi.importActual('react-redux')),
+    useDispatch: vi.fn(),
 }));
 
 describe('useSetProductMissing', () => {
-    const request = jest.fn();
-    const dispatch = jest.fn();
+    const request = vi.fn();
+    const dispatch = vi.fn();
 
     beforeAll(() => {
-        jest.mocked(useUpdatingApiRequest).mockReturnValue(request);
-        jest.mocked(useDispatch).mockReturnValue(dispatch);
+        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+        vi.mocked(useDispatch).mockReturnValue(dispatch);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls update action', async () => {
         const { result } = renderHook(() => useSetProductMissing(), { wrapper: MockRedux });
@@ -76,9 +76,8 @@ describe('useSetProductMissing', () => {
 
         await result.current('Uogienės', 'Avietės', true);
 
-        expect(dispatch)
-            .toHaveBeenCalledWith(setProductsMissingAction('Uogienės', 'Avietės', true))
-            .toHaveBeenCalledWith(rollbackProductsMissingAction('Uogienės', 'Avietės'))
-            .toHaveBeenCalledWith(setErrorAction('Request failed'));
+        expect(dispatch).toHaveBeenCalledWith(setProductsMissingAction('Uogienės', 'Avietės', true));
+        expect(dispatch).toHaveBeenCalledWith(rollbackProductsMissingAction('Uogienės', 'Avietės'));
+        expect(dispatch).toHaveBeenCalledWith(setErrorAction('Request failed'));
     });
 });

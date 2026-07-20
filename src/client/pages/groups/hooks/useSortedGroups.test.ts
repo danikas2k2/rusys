@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useSortedGroups } from './useSortedGroups';
 
-jest.mock('~/client/state/groups/useGroups');
+vi.mock(import('~/client/state/groups/useGroups'));
 
 describe('useSortedGroups', () => {
     const mockGroups = [
@@ -12,9 +12,11 @@ describe('useSortedGroups', () => {
         { group: 'Cherry', order: 2 },
     ];
 
-    beforeEach(() => jest.mocked(useGroups).mockReturnValue(mockGroups));
+    beforeEach(() => {
+        vi.mocked(useGroups).mockReturnValue(mockGroups);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns groups sorted by order', () => {
         const { result } = renderHook(() => useSortedGroups());
@@ -27,7 +29,7 @@ describe('useSortedGroups', () => {
     });
 
     it('returns empty array when groups is empty', () => {
-        jest.mocked(useGroups).mockReturnValue([]);
+        vi.mocked(useGroups).mockReturnValue([]);
 
         const { result } = renderHook(() => useSortedGroups());
 
@@ -51,7 +53,7 @@ describe('useSortedGroups', () => {
 
         expect(firstResult).toHaveLength(3);
 
-        jest.mocked(useGroups).mockReturnValue([{ group: 'NewGroup', order: 1 }]);
+        vi.mocked(useGroups).mockReturnValue([{ group: 'NewGroup', order: 1 }]);
 
         rerender();
 

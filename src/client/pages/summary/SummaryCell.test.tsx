@@ -6,28 +6,31 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 import { Table } from '@mantine/core';
 import React from 'react';
 
+import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { SummaryCell } from '~/client/pages/summary/SummaryCell';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 
-jest.mock('~/client/state/variants/useGroupVariantComparator', () => ({
-    useGroupVariantComparator: jest.fn(),
+vi.mock(import('~/client/state/variants/useGroupVariantComparator'), (): any => ({
+    useGroupVariantComparator: vi.fn(),
 }));
 
-jest.mock('~/client/common/ActiveContentContext', () => ({
-    ...jest.requireActual('~/client/common/ActiveContentContext'),
-    useActiveContent: jest.fn(() => [undefined, jest.fn()]),
+vi.mock(import('~/client/common/ActiveContentContext'), async (): Promise<any> => ({
+    ...(await vi.importActual('~/client/common/ActiveContentContext')),
+    useActiveContent: vi.fn(() => [undefined, vi.fn()]),
 }));
 
-jest.mock('~/client/common/AmountSuffix', () => ({
+vi.mock(import('~/client/common/AmountSuffix'), (): any => ({
     AmountSuffix: () => null,
 }));
 
 describe('<SummaryCell>', () => {
-    const mockCompareVariants = jest.fn((a: string, b: string) => a.localeCompare(b));
+    const mockCompareVariants = vi.fn((a: string, b: string) => a.localeCompare(b));
 
-    beforeAll(() => jest.mocked(useGroupVariantComparator).mockReturnValue(mockCompareVariants));
+    beforeAll(() => {
+        vi.mocked(useGroupVariantComparator).mockReturnValue(mockCompareVariants);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders empty cell when no amounts provided', () => {
         render(
@@ -42,7 +45,10 @@ describe('<SummaryCell>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByRole('cell')).toHaveTextContent('.').toHaveAttribute('data-empty', 'true');
+        const cell = screen.getByRole('cell');
+
+        expect(cell).toHaveTextContent('.');
+        expect(cell).toHaveAttribute('data-empty', 'true');
     });
 
     it('renders empty cell when amounts array is empty', () => {
@@ -58,7 +64,10 @@ describe('<SummaryCell>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByRole('cell')).toHaveTextContent('.').toHaveAttribute('data-empty', 'true');
+        const cell = screen.getByRole('cell');
+
+        expect(cell).toHaveTextContent('.');
+        expect(cell).toHaveAttribute('data-empty', 'true');
     });
 
     it('renders single variant amount', () => {
@@ -79,7 +88,10 @@ describe('<SummaryCell>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByRole('cell')).toHaveTextContent('5').toHaveAttribute('data-empty', 'false');
+        const cell = screen.getByRole('cell');
+
+        expect(cell).toHaveTextContent('5');
+        expect(cell).toHaveAttribute('data-empty', 'false');
     });
 
     it('renders multiple variant amounts sorted by comparator', () => {
@@ -103,9 +115,10 @@ describe('<SummaryCell>', () => {
             </MockTableRow>
         );
 
-        expect(screen.getByRole('cell'))
-            .toHaveAttribute('data-empty', 'false')
-            .toHaveTextContent('5' + '10' + '15');
+        const cell = screen.getByRole('cell');
+
+        expect(cell).toHaveAttribute('data-empty', 'false');
+        expect(cell).toHaveTextContent('5' + '10' + '15');
         expect(mockCompareVariants).toHaveBeenCalledWith(expect.any(String), expect.any(String));
     });
 
@@ -126,9 +139,8 @@ describe('<SummaryCell>', () => {
     });
 
     it('calls setActive with correct data when cell is clicked', () => {
-        const setActive = jest.fn();
-        const { useActiveContent } = jest.requireMock('~/client/common/ActiveContentContext');
-        useActiveContent.mockReturnValue([undefined, setActive]);
+        const setActive = vi.fn();
+        vi.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
 
         render(
             <MockThemeActive setActive={setActive}>
@@ -161,9 +173,8 @@ describe('<SummaryCell>', () => {
     });
 
     it('passes amounts as empty array when undefined in click handler', () => {
-        const setActive = jest.fn();
-        const { useActiveContent } = jest.requireMock('~/client/common/ActiveContentContext');
-        useActiveContent.mockReturnValue([undefined, setActive]);
+        const setActive = vi.fn();
+        vi.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
 
         render(
             <MockThemeActive setActive={setActive}>

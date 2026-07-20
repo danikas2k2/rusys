@@ -5,19 +5,19 @@ import { useUpdateStateFromResponse } from '~/client/state/base/useUpdateStateFr
 import { useApiRequest } from '~/client/state/common/useApiRequest';
 import { useEmailCheck } from '~/client/state/profile/useEmailCheck';
 
-jest.mock('~/client/state/common/useApiRequest');
-jest.mock('~/client/state/base/useUpdateStateFromResponse');
+vi.mock(import('~/client/state/common/useApiRequest'));
+vi.mock(import('~/client/state/base/useUpdateStateFromResponse'));
 
 describe('useEmailCheck', () => {
-    const request = jest.fn();
-    const update = jest.fn();
+    const request = vi.fn();
+    const update = vi.fn();
 
     beforeAll(() => {
-        jest.mocked(useApiRequest).mockReturnValue(request);
-        jest.mocked(useUpdateStateFromResponse).mockReturnValue(update);
+        vi.mocked(useApiRequest).mockReturnValue(request);
+        vi.mocked(useUpdateStateFromResponse).mockReturnValue(update);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls user check', async () => {
         const response = { ok: true, allowed: true };

@@ -9,7 +9,7 @@ import { useVariant } from '~/client/state/variants/useVariant';
 describe('useVariant', () => {
     const variants = getVariantsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns variant details', () => {
         const { result } = renderHook(() => useVariant('Uogienės', 'p'), {
@@ -25,7 +25,7 @@ describe('useVariant', () => {
         ${'missing group'} | ${'Šaldyti'}  | ${'p'}
         ${'empty name'}    | ${'Uogienės'} | ${''}
         ${'empty group'}   | ${''}         | ${'p'}
-    `('does not return variant for $title', ({ group, variant }) => {
+    `('does not return variant for $title', ({ group, variant }: { group: string; variant: string }) => {
         const { result } = renderHook(() => useVariant(group, variant), {
             wrapper: ({ children }) => <MockRedux state={{ variants }}>{children}</MockRedux>,
         });

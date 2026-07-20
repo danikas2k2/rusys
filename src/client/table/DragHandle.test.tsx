@@ -6,8 +6,8 @@ import React from 'react';
 
 import { DragHandle } from './DragHandle';
 
-jest.mock('~/client/hooks/useLabel', () => ({
-    useLabel: jest.fn((key: string) => key),
+vi.mock(import('~/client/hooks/useLabel'), () => ({
+    useLabel: vi.fn((key: string) => key),
 }));
 
 describe('<DragHandle>', () => {
@@ -62,6 +62,7 @@ describe('<DragHandle>', () => {
             </MockTheme>
         );
 
-        expect(ref.current).toBeInstanceOf(HTMLDivElement).toHaveAttribute('data-drag-handle');
+        expect(ref.current).toBeInstanceOf(HTMLDivElement);
+        expect(ref.current).toHaveAttribute('data-drag-handle');
     });
 });

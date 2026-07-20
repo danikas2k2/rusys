@@ -1,4 +1,4 @@
-/** @jest-environment node */
+/** @vitest-environment node */
 import { mockEnv } from '@tests/mockEnv';
 
 import { Db, MongoClient } from 'mongodb';
@@ -6,7 +6,7 @@ import { MongoMemoryReplSet } from 'mongodb-memory-server';
 
 import { $clients, db, getClient, withTransaction } from '~/server/db';
 
-jest.setTimeout(30_000);
+vi.setConfig({ testTimeout: 30_000 });
 
 describe('db.ts', () => {
     mockEnv();
@@ -124,7 +124,7 @@ describe('db.ts', () => {
                     await col2.insertOne({ test: 'data' }, { session });
                     return true;
                 })
-            ).resolves.toBeTrue();
+            ).resolves.toBe(true);
             await expect(database.collection('collection1').countDocuments({})).resolves.toBe(1);
             await expect(database.collection('collection2').countDocuments({})).resolves.toBe(1);
         });
@@ -152,7 +152,7 @@ describe('db.ts', () => {
                     await col2.insertOne({ test: 'data' }, { session });
                     return false;
                 })
-            ).resolves.toBeFalse();
+            ).resolves.toBe(false);
             await expect(database.collection('collection1').countDocuments({})).resolves.toBe(0);
             await expect(database.collection('collection2').countDocuments({})).resolves.toBe(0);
         });

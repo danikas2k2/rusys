@@ -7,9 +7,9 @@ import React from 'react';
 import { AmountVariantRow } from '~/client/pages/products/AmountVariantRow';
 
 describe('<AmountVariantRow>', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     describe('rendering', () => {
         it('renders input with correct delta value for updated type', () => {

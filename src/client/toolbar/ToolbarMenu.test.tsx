@@ -9,14 +9,14 @@ import React from 'react';
 import { Links } from '~/client/Links';
 import { ToolbarMenu } from '~/client/toolbar/ToolbarMenu';
 
-jest.mock('~/client/hooks/useLabel', () => ({
-    useLabel: jest.fn((key: string) => key),
+vi.mock(import('~/client/hooks/useLabel'), () => ({
+    useLabel: vi.fn((key: string) => key),
 }));
-jest.mock('~/client/toolbar/items/ExportMenuItem', () => ({
-    ExportMenuItem: jest.fn(() => <a href="/export">Export</a>),
+vi.mock(import('~/client/toolbar/items/ExportMenuItem'), () => ({
+    ExportMenuItem: vi.fn(() => <a href="/export">Export</a>),
 }));
-jest.mock('~/client/toolbar/items/ImportMenuItem', () => ({
-    ImportMenuItem: jest.fn(() => <a href="/import">Import</a>),
+vi.mock(import('~/client/toolbar/items/ImportMenuItem'), () => ({
+    ImportMenuItem: vi.fn(() => <a href="/import">Import</a>),
 }));
 
 describe('<ToolbarMenu>', () => {
@@ -118,7 +118,7 @@ describe('<ToolbarMenu>', () => {
         ${Links.SUMMARY}  | ${'Summary'}
         ${Links.GROUPS}   | ${'Groups'}
         ${Links.VARIANTS} | ${'Variants'}
-    `('renders $item menu item being active', async ({ link, item }) => {
+    `('renders $item menu item being active', async ({ link, item }: { link: string; item: string }) => {
         render(
             <MockThemeRedux>
                 <MockRoute initialEntries={[link]}>
@@ -135,7 +135,8 @@ describe('<ToolbarMenu>', () => {
         const links = menu.getAllByRole('link');
         const active = links.filter((l) => l.matches('[data-active]'));
 
-        expect(active).toHaveLength(1).toHaveListWithTextContent([item]);
+        expect(active).toHaveLength(1);
+        expect(active).toHaveListWithTextContent([item]);
     });
 
     it('keeps search params in navigation links', async () => {

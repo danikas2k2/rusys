@@ -1,4 +1,5 @@
 import { screen, waitFor } from '@testing-library/react';
+import { expectElement } from '@tests/matchers';
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -10,38 +11,38 @@ import { bootstrap } from '~/client/bootstrap';
 import { ErrorBoundary } from '~/client/common/ErrorBoundary';
 import { getStore } from '~/client/state/store';
 
-jest.mock('react-dom/client', () => {
-    const actual = jest.requireActual<typeof import('react-dom/client')>('react-dom/client'); // eslint-disable-line @typescript-eslint/consistent-type-imports
+vi.mock(import('react-dom/client'), async () => {
+    const actual = await vi.importActual<typeof import('react-dom/client')>('react-dom/client'); // eslint-disable-line @typescript-eslint/consistent-type-imports
     return {
-        createRoot: jest.fn((container: Element, options?: Parameters<typeof actual.createRoot>[1]) =>
+        createRoot: vi.fn((container: Element, options?: Parameters<typeof actual.createRoot>[1]) =>
             actual.createRoot(container, options)
         ),
     };
 });
-jest.mock('react-redux', () => ({
-    Provider: jest.fn(({ children }) => <div>{children}</div>),
+vi.mock(import('react-redux'), () => ({
+    Provider: vi.fn(({ children }: { children: React.ReactNode }) => <div>{children}</div>),
 }));
-jest.mock('~/client/state/store', () => ({
-    getStore: jest.fn(),
+vi.mock(import('~/client/state/store'), () => ({
+    getStore: vi.fn(),
 }));
-jest.mock('~/client/App', () => ({
+vi.mock(import('~/client/App'), () => ({
     App: () => <div>App</div>,
 }));
-jest.mock('~/client/common/ErrorBoundary', () => ({
-    ErrorBoundary: jest.fn(({ children }) => <div role="alertdialog">{children}</div>),
+vi.mock(import('~/client/common/ErrorBoundary'), () => ({
+    ErrorBoundary: vi.fn(({ children }: { children: React.ReactNode }) => <div role="alertdialog">{children}</div>),
 }));
 
-const ErrorBoundaryMock = jest.mocked(ErrorBoundary);
-const createRootMock = jest.mocked(createRoot);
+const ErrorBoundaryMock = vi.mocked(ErrorBoundary);
+const createRootMock = vi.mocked(createRoot);
 
 describe('bootstrap', () => {
     beforeEach(() => {
         document.body.innerHTML = '<div id="root"></div>';
-        jest.spyOn(console, 'error').mockImplementation();
+        vi.spyOn(console, 'error').mockImplementation();
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         document.body.innerHTML = '';
     });
 
@@ -69,7 +70,7 @@ describe('bootstrap', () => {
     });
 
     it('calls console.warn from onCaughtError callback', () => {
-        jest.spyOn(console, 'warn').mockImplementation();
+        vi.spyOn(console, 'warn').mockImplementation();
         bootstrap();
 
         const [, options] = createRootMock.mock.calls[0];
@@ -93,7 +94,7 @@ describe('bootstrap', () => {
 
     it('renders redux Provider with store', async () => {
         const store = {} as Store;
-        jest.mocked(getStore).mockReturnValueOnce(store);
+        vi.mocked(getStore).mockReturnValueOnce(store);
 
         bootstrap();
 
@@ -101,10 +102,10 @@ describe('bootstrap', () => {
         expect(Provider).toHaveBeenCalledWith(
             expect.objectContaining({
                 store,
-                children: expect.element({
-                    children: expect.element({
-                        children: expect.element({
-                            children: expect.element(App),
+                children: expectElement({
+                    children: expectElement({
+                        children: expectElement({
+                            children: expectElement(App),
                         }),
                     }),
                 }),

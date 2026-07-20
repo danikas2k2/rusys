@@ -5,7 +5,7 @@ import { profile as reducer } from '~/client/state/profile/reducer';
 import type { Profile } from '~/client/state/profile/types';
 
 describe('profile', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     const { setItem, removeItem } = mockLocalStorage();
 

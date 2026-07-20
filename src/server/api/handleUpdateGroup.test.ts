@@ -1,4 +1,3 @@
-/** @jest-environment node */
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
@@ -6,17 +5,17 @@ import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { updateGroup } from '~/server/data/groups';
 import type { Group } from '~/types/data';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/data/groups');
+vi.mock(import('~/server/api/debug'));
+vi.mock(import('~/server/data/groups'));
 
 describe('handleUpdateGroup', () => {
     const request = mockRequest<Group>({ group: 'Uogienės', order: 3 });
     const response = mockResponse();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(updateGroup).mockResolvedValueOnce(true);
+        vi.mocked(updateGroup).mockResolvedValueOnce(true);
 
         await handleUpdateGroup(request, response);
 
@@ -26,7 +25,7 @@ describe('handleUpdateGroup', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(updateGroup).mockResolvedValueOnce(false);
+        vi.mocked(updateGroup).mockResolvedValueOnce(false);
 
         await handleUpdateGroup(request, response);
 
@@ -36,7 +35,7 @@ describe('handleUpdateGroup', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(updateGroup).mockRejectedValueOnce('Failed to update group');
+        vi.mocked(updateGroup).mockRejectedValueOnce('Failed to update group');
 
         await handleUpdateGroup(request, response);
 

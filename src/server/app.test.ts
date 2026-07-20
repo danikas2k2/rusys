@@ -1,10 +1,11 @@
-/** @jest-environment node */
+// @vitest-environment node
 import fs from 'fs';
 import https from 'https';
 
 import express, { type Request, type Response } from 'express';
 import type { Express } from 'express-serve-static-core';
 import request from 'supertest';
+import type { MockInstance } from 'vitest';
 
 import { debug } from '~/server/api/debug';
 import { handleAdd } from '~/server/api/handleAdd';
@@ -32,54 +33,63 @@ import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
 import { handleUserProfiles } from '~/server/api/handleUserProfiles';
 import { handleVariants } from '~/server/api/handleVariants';
-import { setup, startHttpServer, startHttpsServer } from '~/server/app';
+import { setup, startHttpServer, startHttpsServer, startServers } from '~/server/app';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/server/api/debug');
+vi.mock(import('~/server/api/debug'));
 
 // Client/User
-jest.mock('~/server/api/handleClientId');
-jest.mock('~/server/api/handleCheckUser');
-jest.mock('~/server/api/handleUpsertUserProfile');
-jest.mock('~/server/api/handleUserProfiles');
+vi.mock(import('~/server/api/handleClientId'));
+vi.mock(import('~/server/api/handleCheckUser'));
+vi.mock(import('~/server/api/handleUpsertUserProfile'));
+vi.mock(import('~/server/api/handleUserProfiles'));
 
 // Summary
-jest.mock('~/server/api/handleSummary');
+vi.mock(import('~/server/api/handleSummary'));
 
 // Products
-jest.mock('~/server/api/handleAdd');
-jest.mock('~/server/api/handleProducts');
-jest.mock('~/server/api/handleUpdateProduct');
-jest.mock('~/server/api/handleSetRemoving');
-jest.mock('~/server/api/handleSetMissing');
-jest.mock('~/server/api/handleRename');
-jest.mock('~/server/api/handleMove');
-jest.mock('~/server/api/handleDelete');
+vi.mock(import('~/server/api/handleAdd'));
+vi.mock(import('~/server/api/handleProducts'));
+vi.mock(import('~/server/api/handleUpdateProduct'));
+vi.mock(import('~/server/api/handleSetRemoving'));
+vi.mock(import('~/server/api/handleSetMissing'));
+vi.mock(import('~/server/api/handleRename'));
+vi.mock(import('~/server/api/handleMove'));
+vi.mock(import('~/server/api/handleDelete'));
 
 // History
-jest.mock('~/server/api/handleProductHistory');
-jest.mock('~/server/api/handleUndoProduct');
-jest.mock('~/server/api/handleRedoProduct');
-jest.mock('~/server/api/handleSummaryHistory');
+vi.mock(import('~/server/api/handleProductHistory'));
+vi.mock(import('~/server/api/handleUndoProduct'));
+vi.mock(import('~/server/api/handleRedoProduct'));
+vi.mock(import('~/server/api/handleSummaryHistory'));
 
 // Groups
-jest.mock('~/server/api/handleGroups');
-jest.mock('~/server/api/handleUpdateGroup');
-jest.mock('~/server/api/handleRenameGroup');
-jest.mock('~/server/api/handleDeleteGroup');
+vi.mock(import('~/server/api/handleGroups'));
+vi.mock(import('~/server/api/handleUpdateGroup'));
+vi.mock(import('~/server/api/handleRenameGroup'));
+vi.mock(import('~/server/api/handleDeleteGroup'));
 
 // Variants
-jest.mock('~/server/api/handleVariants');
-jest.mock('~/server/api/handleUpdateVariant');
-jest.mock('~/server/api/handleRenameVariant');
-jest.mock('~/server/api/handleDeleteVariant');
+vi.mock(import('~/server/api/handleVariants'));
+vi.mock(import('~/server/api/handleUpdateVariant'));
+vi.mock(import('~/server/api/handleRenameVariant'));
+vi.mock(import('~/server/api/handleDeleteVariant'));
+vi.mock(import('~/server/api/handleCopyVariant'));
+vi.mock(import('~/server/api/handleReorderGroups'));
+vi.mock(import('~/server/api/handleReorderVariants'));
+vi.mock(import('~/server/api/handleExport'));
+vi.mock(import('~/server/api/handleImport'));
 
 describe('app', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     describe('handle requests', () => {
-        const app = setup(express());
+        let app: Express;
         const handler = async (_req: Request, res: Response): Promise<void> => void res.json({ ok: true });
+
+        beforeAll(() => {
+            app = setup(express());
+        });
 
         describe.each`
             url                           | handle
@@ -108,14 +118,16 @@ describe('app', () => {
             ${ApiUrl.VariantsUpdate}      | ${handleUpdateVariant}
             ${ApiUrl.VariantsRename}      | ${handleRenameVariant}
             ${ApiUrl.VariantsDelete}      | ${handleDeleteVariant}
-        `('request $url', ({ url, handle }) => {
-            beforeEach(() => jest.mocked(handle).mockImplementation(handler));
+        `('request $url', ({ url, handle }: { url: string; handle: (...args: any[]) => any }) => {
+            beforeEach(() => {
+                vi.mocked(handle).mockImplementation(handler);
+            });
 
             it('responds to POST', async () => {
                 const response = await request(app).post(url);
 
                 expect(response.status).toBe(200);
-                // eslint-disable-next-line jest/prefer-called-with
+                // eslint-disable-next-line vitest/prefer-called-with
                 expect(handle).toHaveBeenCalled();
             });
 
@@ -150,7 +162,7 @@ describe('app', () => {
         });
 
         it('setup app with auto-created express server', async () => {
-            expect(setup()).toBeFunction();
+            expect(setup()).toBeInstanceOf(Function);
         });
     });
 
@@ -167,7 +179,7 @@ describe('app', () => {
     });
 
     describe('startHttpServer', () => {
-        const app = { listen: jest.fn((host, port, cb) => cb()) } as unknown as Express;
+        const app = { listen: vi.fn((_host: unknown, _port: unknown, cb: () => void) => cb()) } as unknown as Express;
 
         it('starts the HTTP server with default options', () => {
             expect(startHttpServer(app, {})).toBe(app);
@@ -184,18 +196,18 @@ describe('app', () => {
 
     describe('startHttpsServer', () => {
         const app = {} as unknown as Express;
-        const listen = jest.fn((host, port, cb) => cb());
+        const listen = vi.fn((_host: unknown, _port: unknown, cb: () => void) => cb());
         const keys = { keyFile: 'key.pem', certFile: 'cert.pem' };
 
-        let readFileSync: jest.SpyInstance;
-        let createServer: jest.SpyInstance;
+        let readFileSync: MockInstance;
+        let createServer: MockInstance;
 
         beforeEach(() => {
-            readFileSync = jest.spyOn(fs, 'readFileSync').mockReturnValue('mocked-content');
-            createServer = jest.spyOn(https, 'createServer').mockReturnValue({ listen } as unknown as https.Server);
+            readFileSync = vi.spyOn(fs, 'readFileSync').mockReturnValue('mocked-content');
+            createServer = vi.spyOn(https, 'createServer').mockReturnValue({ listen } as unknown as https.Server);
         });
 
-        afterAll(() => jest.restoreAllMocks());
+        afterAll(() => vi.restoreAllMocks());
 
         it('starts the HTTPS server with valid key and cert files, and default port/server options', () => {
             expect(startHttpsServer(app, keys)).toBe(app);
@@ -223,21 +235,19 @@ describe('app', () => {
     });
 
     describe('startServers', () => {
-        const { startServers } = jest.requireActual<typeof import('~/server/app')>('~/server/app'); // eslint-disable-line @typescript-eslint/consistent-type-imports
+        const app = { listen: vi.fn((_port: unknown, _host: unknown, cb: () => void) => cb()) } as unknown as Express;
 
-        const app = { listen: jest.fn((_port, _host, cb: () => void) => cb()) } as unknown as Express;
-
-        let readFileSync: jest.SpyInstance;
-        let createServer: jest.SpyInstance;
+        let readFileSync: MockInstance;
+        let createServer: MockInstance;
 
         beforeEach(() => {
-            readFileSync = jest.spyOn(fs, 'readFileSync').mockReturnValue('mocked-content');
-            createServer = jest
+            readFileSync = vi.spyOn(fs, 'readFileSync').mockReturnValue('mocked-content');
+            createServer = vi
                 .spyOn(https, 'createServer')
-                .mockReturnValue({ listen: jest.fn() } as unknown as https.Server);
+                .mockReturnValue({ listen: vi.fn() } as unknown as https.Server);
         });
 
-        afterEach(() => jest.restoreAllMocks());
+        afterEach(() => vi.restoreAllMocks());
 
         it('starts HTTP server using default env vars', () => {
             const savedEnv = { ...process.env };
@@ -292,20 +302,17 @@ describe('app (prod mode)', () => {
     // Re-import app with isDevMode returning false to test the prod-only branches
     let setupHelmetProd: typeof import('~/server/app').setupHelmet; // eslint-disable-line @typescript-eslint/consistent-type-imports
 
-    beforeAll(() => {
-        jest.mock('~/common/utils/dev', () => ({ isDevMode: () => false }));
-
-        jest.isolateModules(() => {
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            setupHelmetProd = require('~/server/app').setupHelmet;
-        });
+    beforeAll(async () => {
+        vi.doMock(import('~/common/utils/dev'), () => ({ isDevMode: () => false }));
+        vi.resetModules();
+        setupHelmetProd = (await import('~/server/app')).setupHelmet;
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     afterAll(() => {
-        jest.resetModules();
-        jest.unmock('~/common/utils/dev');
+        vi.resetModules();
+        vi.doUnmock('~/common/utils/dev');
     });
 
     describe('setupHelmet HTTPS redirect middleware', () => {

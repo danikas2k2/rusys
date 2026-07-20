@@ -6,16 +6,16 @@ import React from 'react';
 
 import { AmountBox } from '~/client/pages/products/AmountBox';
 
-jest.mock('~/client/pages/products/AmountHistoryTab', () => ({
-    AmountHistoryTab: jest.fn().mockReturnValue(null),
+vi.mock(import('~/client/pages/products/AmountHistoryTab'), () => ({
+    AmountHistoryTab: vi.fn().mockReturnValue(null),
 }));
 
-jest.mock('~/client/pages/products/AmountVariantsTab', () => ({
-    AmountVariantsTab: jest.fn().mockReturnValue(null),
+vi.mock(import('~/client/pages/products/AmountVariantsTab'), () => ({
+    AmountVariantsTab: vi.fn().mockReturnValue(null),
 }));
 
 describe('<AmountBox>', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('does not render when opened=false', () => {
         render(
@@ -38,7 +38,7 @@ describe('<AmountBox>', () => {
     });
 
     it('closing the modal calls onClose', async () => {
-        const onClose = jest.fn();
+        const onClose = vi.fn();
 
         render(
             <MockTheme>
@@ -52,7 +52,7 @@ describe('<AmountBox>', () => {
     });
 
     it('calls onAfterClose after exit transition ends', async () => {
-        const onAfterClose = jest.fn();
+        const onAfterClose = vi.fn();
 
         const { rerender } = render(
             <MockTheme>

@@ -5,27 +5,45 @@ import React from 'react';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
-jest.spyOn(React, 'useEffect');
+vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
 
 describe('useLockingLoader', () => {
-    const loader = jest.fn();
-    const request = jest.fn();
+    const loader = vi.fn();
+    const request = vi.fn();
 
-    beforeEach(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeEach(() => {
+        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('return INITIAL state while no loading started', () => {
-        jest.mocked(React.useEffect).mockReturnValueOnce(undefined);
-        const { result } = renderHook(() => useLockingLoader(loader));
+        let initialState: LoadingState | undefined;
+        renderHook(() => {
+            const state = useLockingLoader(loader);
+            if (initialState === undefined) {
+                initialState = state;
+            }
+            return state;
+        });
 
-        expect(result.current).toStrictEqual(LoadingState.INITIAL);
+        expect(initialState).toStrictEqual(LoadingState.INITIAL);
     });
 
     it('return LOADING state when loading started', async () => {
-        const { result } = renderHook(() => useLockingLoader(loader));
+        let resolve!: () => void;
+        loader.mockReturnValueOnce(
+            new Promise<void>((r) => {
+                resolve = r;
+            })
+        );
+        const { result, unmount } = renderHook(() => useLockingLoader(loader));
         await waitFor(() => expect(result.current).toStrictEqual(LoadingState.LOADING));
+        unmount();
+        await act(async () => {
+            resolve();
+            await Promise.resolve();
+        });
     });
 
     it('return COMPLETE state when loading finished', async () => {
@@ -50,7 +68,7 @@ describe('useLockingLoader', () => {
 
     it('does not update state to FAILED after unmount when loader rejects', async () => {
         let rejectLoader!: (reason?: unknown) => void;
-        const pendingLoader = jest.fn(
+        const pendingLoader = vi.fn(
             () =>
                 new Promise<void>((_resolve, reject) => {
                     rejectLoader = reject;
@@ -75,14 +93,14 @@ describe('useLockingLoader', () => {
 
     it('does not update state after unmount (loading guard branch)', async () => {
         let resolveLoader!: () => void;
-        const pendingLoader = jest.fn(
+        const pendingLoader = vi.fn(
             () =>
                 new Promise<void>((resolve) => {
                     resolveLoader = resolve;
                 })
         );
 
-        const setState = jest.spyOn(React, 'useState');
+        const setState = vi.spyOn(React, 'useState');
         const { result, unmount } = renderHook(() => useLockingLoader(pendingLoader));
 
         await waitFor(() => expect(result.current).toBe('loading'));

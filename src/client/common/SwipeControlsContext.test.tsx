@@ -39,10 +39,12 @@ describe('<SwipeControlsWrapper>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByRole('generic', { name: 'width' })).toHaveTextContent('0');
+        const widthEl = screen.getByRole('generic', { name: 'width' });
+
+        expect(widthEl).toHaveTextContent('0');
 
         await user.click(screen.getByRole('button', { name: 'Set Width' }));
 
-        expect(screen.getByRole('generic', { name: 'width' })).toHaveTextContent('100');
+        expect(widthEl).toHaveTextContent('100');
     });
 });

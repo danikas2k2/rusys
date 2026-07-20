@@ -10,7 +10,7 @@ describe('useHasMissing', () => {
     it('return false for empty state', () => {
         const { result } = renderHook(() => useHasMissing(), { wrapper: MockRedux });
 
-        expect(result.current).toBeFalse();
+        expect(result.current).toBe(false);
     });
 
     it('return true for filled state', () => {
@@ -19,6 +19,6 @@ describe('useHasMissing', () => {
             wrapper: ({ children }) => <MockRedux state={{ products }}>{children}</MockRedux>,
         });
 
-        expect(result.current).toBeTrue();
+        expect(result.current).toBe(true);
     });
 });

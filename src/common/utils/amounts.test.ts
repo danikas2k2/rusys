@@ -1,13 +1,13 @@
 import { getChangedAmount, getVariantAmount } from '~/common/utils/amounts';
 
-jest.mock('~/client/state/groups/useGetGroups');
-jest.mock('~/client/state/variants/useGetVariants');
-jest.mock('~/client/state/products/useGetProducts');
+vi.mock(import('~/client/state/groups/useGetGroups'));
+vi.mock(import('~/client/state/variants/useGetVariants'));
+vi.mock(import('~/client/state/products/useGetProducts'));
 
 describe('amounts', () => {
     beforeEach(() => {});
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     describe('getVariantAmount', () => {
         it('returns 0 if variant is not found', () => {
@@ -21,7 +21,7 @@ describe('amounts', () => {
 
     describe('getChangedAmount', () => {
         it('returns false if no amounts', () => {
-            expect(getChangedAmount([])).toBeFalse();
+            expect(getChangedAmount([])).toBe(false);
         });
 
         it('returns the sum of all amounts', () => {
@@ -39,7 +39,7 @@ describe('amounts', () => {
                     { variant: 'p', amount: 1 },
                     { variant: 'd', amount: -1 },
                 ])
-            ).toBeTrue();
+            ).toBe(true);
         });
     });
 });

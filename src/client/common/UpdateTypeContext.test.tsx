@@ -21,7 +21,7 @@ describe('useUpdateType', () => {
     });
 
     it('returns recycled update variant', () => {
-        const setRecycled = jest.fn();
+        const setRecycled = vi.fn();
         const { result } = renderHook(() => useUpdateType(), {
             wrapper: ({ children }) => (
                 <UpdateTypeContext value={['recycled', setRecycled]}>{children}</UpdateTypeContext>
@@ -32,7 +32,7 @@ describe('useUpdateType', () => {
     });
 
     it('returns update-only variant', () => {
-        const setRecycled = jest.fn();
+        const setRecycled = vi.fn();
         const { result } = renderHook(() => useUpdateType(), {
             wrapper: ({ children }) => (
                 <UpdateTypeContext value={['updated', setRecycled]}>{children}</UpdateTypeContext>

@@ -1,15 +1,13 @@
-import { waitFor } from '@testing-library/react';
-
 import { bootstrap } from '~/client/bootstrap';
+// Import index module to execute its top-level code (calls bootstrap())
+import '~/client/index';
 
-jest.mock('~/client/bootstrap', () => ({
-    bootstrap: jest.fn(),
+vi.mock(import('~/client/bootstrap'), () => ({
+    bootstrap: vi.fn(),
 }));
 
 describe('index', () => {
-    it('calls bootstrap function', async () => {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        require('~/client/index');
-        await waitFor(() => expect(bootstrap).toHaveBeenCalledWith());
+    it('calls bootstrap function', () => {
+        expect(bootstrap).toHaveBeenCalledWith();
     });
 });

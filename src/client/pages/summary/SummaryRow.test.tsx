@@ -9,15 +9,17 @@ import { useSummaryYears } from '~/client/pages/summary/hooks/useSummaryYears';
 import { SummaryRow } from '~/client/pages/summary/SummaryRow';
 import type { WithVariantsState } from '~/client/state/variants/types';
 
-jest.mock('~/client/pages/summary/hooks/useSummaryYears');
+vi.mock(import('~/client/pages/summary/hooks/useSummaryYears'));
 
 describe('<SummaryRow>', () => {
     const variants = getVariantsFixture();
     const state: WithVariantsState = { variants };
 
-    beforeAll(() => jest.mocked(useSummaryYears).mockReturnValue([23, 22, 21]));
+    beforeAll(() => {
+        vi.mocked(useSummaryYears).mockReturnValue([23, 22, 21]);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders row with name', () => {
         render(

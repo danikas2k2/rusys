@@ -4,10 +4,10 @@ import React from 'react';
 
 import { AppRouter } from '~/client/AppRouter';
 
-jest.mock('~/client/pages/products/ProductsPage', () => ({
+vi.mock(import('~/client/pages/products/ProductsPage'), () => ({
     ProductsPage: () => <div>ProductsPage</div>,
 }));
-jest.mock('~/client/pages/summary/SummaryPage', () => ({
+vi.mock(import('~/client/pages/summary/SummaryPage'), () => ({
     SummaryPage: () => <div>SummaryPage</div>,
 }));
 

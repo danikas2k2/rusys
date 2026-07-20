@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { useVariants } from '~/client/state/variants/useVariants';
 import { useSortedVariants } from './useSortedVariants';
 
-jest.mock('~/client/state/variants/useVariants');
+vi.mock(import('~/client/state/variants/useVariants'));
 
 describe('useSortedVariants', () => {
     const mockVariants = [
@@ -13,9 +13,11 @@ describe('useSortedVariants', () => {
         { variant: 'n', group: 'Group2', order: 2 },
     ];
 
-    beforeEach(() => jest.mocked(useVariants).mockReturnValue(mockVariants));
+    beforeEach(() => {
+        vi.mocked(useVariants).mockReturnValue(mockVariants);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns all variants sorted by order', () => {
         const { result } = renderHook(() => useSortedVariants());
@@ -29,7 +31,7 @@ describe('useSortedVariants', () => {
     });
 
     it('sorts variants by order', () => {
-        jest.mocked(useVariants).mockReturnValue([
+        vi.mocked(useVariants).mockReturnValue([
             { variant: 'z', group: 'Group1', order: 3 },
             { variant: 'a', group: 'Group1', order: 1 },
             { variant: 'b', group: 'Group1', order: 2 },

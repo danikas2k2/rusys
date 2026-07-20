@@ -1,4 +1,4 @@
-/** @jest-environment node */
+/** @vitest-environment node */
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
@@ -7,8 +7,8 @@ import { getUserProfiles } from '~/server/data/userProfiles';
 import type { ApiGetUserProfiles, ApiUserProfiles } from '~/types/api';
 import type { UserProfile } from '~/types/data';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/data/userProfiles');
+vi.mock(import('~/server/api/debug'));
+vi.mock(import('~/server/data/userProfiles'));
 
 describe('handleUserProfiles', () => {
     const request = mockRequest<ApiGetUserProfiles>({ emails: ['user@example.com', 'other@example.com'] });
@@ -19,10 +19,10 @@ describe('handleUserProfiles', () => {
         { email: 'other@example.com' },
     ];
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns profiles on success', async () => {
-        jest.mocked(getUserProfiles).mockResolvedValueOnce(profiles);
+        vi.mocked(getUserProfiles).mockResolvedValueOnce(profiles);
 
         await handleUserProfiles(request, response);
 
@@ -32,7 +32,7 @@ describe('handleUserProfiles', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(getUserProfiles).mockRejectedValueOnce('Failed to get user profiles');
+        vi.mocked(getUserProfiles).mockRejectedValueOnce('Failed to get user profiles');
 
         await handleUserProfiles(request, response);
 

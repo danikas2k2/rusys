@@ -5,18 +5,20 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { useUndoProduct } from '~/client/state/products/useUndoProduct';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
-jest.mock('react-redux', () => ({
-    ...jest.requireActual('react-redux'),
-    useDispatch: jest.fn(),
+vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
+vi.mock(import('react-redux'), async () => ({
+    ...(await vi.importActual('react-redux')),
+    useDispatch: vi.fn(),
 }));
 
 describe('useUndoProduct', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeAll(() => {
+        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls undo action', async () => {
         const { result } = renderHook(() => useUndoProduct(), { wrapper: MockRedux });

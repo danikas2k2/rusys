@@ -1,4 +1,3 @@
-/** @jest-environment node */
 import { getGroupsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
@@ -8,9 +7,9 @@ import { getGroupsResponse } from '~/server/api/response';
 import { reorderGroups } from '~/server/data/groups';
 import type { ApiGroups, ApiReorderGroups } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/groups');
+vi.mock(import('~/server/api/debug'));
+vi.mock(import('~/server/api/response'));
+vi.mock(import('~/server/data/groups'));
 
 describe('handleReorderGroups', () => {
     const groups = getGroupsFixture();
@@ -18,11 +17,11 @@ describe('handleReorderGroups', () => {
     const request = mockRequest<ApiReorderGroups>({ groups: reorder });
     const response = mockResponse<ApiGroups>();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(reorderGroups).mockResolvedValueOnce(true);
-        jest.mocked(getGroupsResponse).mockResolvedValueOnce({ groups });
+        vi.mocked(reorderGroups).mockResolvedValueOnce(true);
+        vi.mocked(getGroupsResponse).mockResolvedValueOnce({ groups });
 
         await handleReorderGroups(request, response);
 
@@ -33,7 +32,7 @@ describe('handleReorderGroups', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(reorderGroups).mockResolvedValueOnce(false);
+        vi.mocked(reorderGroups).mockResolvedValueOnce(false);
 
         await handleReorderGroups(request, response);
 
@@ -44,7 +43,7 @@ describe('handleReorderGroups', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(reorderGroups).mockRejectedValueOnce('Failed to reorder groups');
+        vi.mocked(reorderGroups).mockRejectedValueOnce('Failed to reorder groups');
 
         await handleReorderGroups(request, response);
 

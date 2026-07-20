@@ -9,7 +9,7 @@ import { useGroups } from '~/client/state/groups/useGroups';
 describe('useGroups', () => {
     const groups = getGroupsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns groups from state', () => {
         const { result } = renderHook(() => useGroups(), {

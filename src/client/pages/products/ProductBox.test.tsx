@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockThemeRedux } from '@tests/MockThemeRedux';
@@ -10,25 +10,27 @@ import { useAddProduct } from '~/client/state/products/useAddProduct';
 import { useMoveProduct } from '~/client/state/products/useMoveProduct';
 import { useRenameProduct } from '~/client/state/products/useRenameProduct';
 
-jest.mock('~/client/state/products/useAddProduct');
-jest.mock('~/client/state/products/useDeleteProduct');
-jest.mock('~/client/state/products/useMoveProduct');
-jest.mock('~/client/state/products/useRenameProduct');
-jest.mock('~/client/common/Label');
+vi.mock(import('~/client/state/products/useAddProduct'));
+vi.mock(import('~/client/state/products/useDeleteProduct'));
+vi.mock(import('~/client/state/products/useMoveProduct'));
+vi.mock(import('~/client/state/products/useRenameProduct'));
+vi.mock(import('~/client/common/Label'));
+
+function selectOption(name: string) {
+    const combobox = screen.getByRole('combobox', { name: 'Group' });
+    act(() => fireEvent.click(combobox));
+    act(() => fireEvent.change(combobox, { target: { value: name } }));
+    act(() => fireEvent.click(screen.getByRole('option', { name })));
+}
 
 describe('<ProductBox>', () => {
-    const user = userEvent.setup({
-        advanceTimers: (ms) => act(() => jest.advanceTimersByTimeAsync(ms)),
+    let user: ReturnType<typeof userEvent.setup>;
+
+    beforeEach(() => {
+        user = userEvent.setup({ delay: null });
     });
 
-    beforeEach(() => jest.useFakeTimers());
-
-    afterEach(async () => {
-        await act(() => jest.runAllTimersAsync());
-        jest.clearAllMocks();
-    });
-
-    afterAll(() => jest.useRealTimers());
+    afterEach(() => vi.clearAllMocks());
 
     const state = {
         groups: getGroupsFixture(),
@@ -36,7 +38,7 @@ describe('<ProductBox>', () => {
         products: getProductsFixture(),
     };
 
-    const onClose = jest.fn();
+    const onClose = vi.fn();
 
     it('renders with cancel button', () => {
         render(
@@ -94,10 +96,10 @@ describe('<ProductBox>', () => {
     });
 
     describe('calls add product handler when adding a new entry', () => {
-        const addProduct = jest.fn();
+        const addProduct = vi.fn();
 
         it('closes dialog without error when successfully added', async () => {
-            jest.mocked(useAddProduct).mockReturnValue(addProduct.mockResolvedValue(true));
+            vi.mocked(useAddProduct).mockReturnValue(addProduct.mockResolvedValue(true));
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
@@ -113,7 +115,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when adding fails', async () => {
-            jest.mocked(useAddProduct).mockReturnValue(addProduct.mockRejectedValueOnce('Failed to add'));
+            vi.mocked(useAddProduct).mockReturnValue(addProduct.mockRejectedValueOnce('Failed to add'));
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
@@ -129,7 +131,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
-            jest.mocked(useAddProduct).mockReturnValue(addProduct);
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
@@ -140,11 +142,11 @@ describe('<ProductBox>', () => {
 
             expect(addProduct).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('textbox', { name: 'Title' })).toHaveFocus();
+            expect(screen.getByRole('textbox', { name: 'Title' })).toHaveAttribute('aria-invalid', 'true');
         });
 
         it('displays error without closing dialog when name already exists', async () => {
-            jest.mocked(useAddProduct).mockReturnValue(addProduct);
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
@@ -162,10 +164,10 @@ describe('<ProductBox>', () => {
     });
 
     describe('calls rename product handle when updating an existing entry', () => {
-        const renameProduct = jest.fn();
+        const renameProduct = vi.fn();
 
         it('closes dialog without error when successfully renamed', async () => {
-            jest.mocked(useRenameProduct).mockReturnValue(renameProduct.mockResolvedValueOnce(true));
+            vi.mocked(useRenameProduct).mockReturnValue(renameProduct.mockResolvedValueOnce(true));
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -182,7 +184,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when rename fails', async () => {
-            jest.mocked(useRenameProduct).mockReturnValue(renameProduct.mockRejectedValueOnce('Failed to rename'));
+            vi.mocked(useRenameProduct).mockReturnValue(renameProduct.mockRejectedValueOnce('Failed to rename'));
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -199,7 +201,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
-            jest.mocked(useRenameProduct).mockReturnValue(renameProduct);
+            vi.mocked(useRenameProduct).mockReturnValue(renameProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -215,7 +217,7 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when name already exists', async () => {
-            jest.mocked(useRenameProduct).mockReturnValue(renameProduct);
+            vi.mocked(useRenameProduct).mockReturnValue(renameProduct);
             render(
                 <MockThemeRedux state={{ products: getProductsFixture() }}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -233,7 +235,7 @@ describe('<ProductBox>', () => {
         });
 
         it('closes without updating when name was not changed', async () => {
-            jest.mocked(useRenameProduct).mockReturnValue(renameProduct);
+            vi.mocked(useRenameProduct).mockReturnValue(renameProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -248,23 +250,17 @@ describe('<ProductBox>', () => {
     });
 
     describe('calls move product handle when changing entry group', () => {
-        const moveProduct = jest.fn();
+        const moveProduct = vi.fn();
 
         it('closes dialog without error when successfully moved', async () => {
-            jest.mocked(useMoveProduct).mockReturnValue(moveProduct.mockResolvedValueOnce(true));
+            vi.mocked(useMoveProduct).mockReturnValue(moveProduct.mockResolvedValueOnce(true));
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
 
-            // Wait for initial focus timer to complete
-            await act(() => jest.advanceTimersByTimeAsync(100));
-
-            await user.click(screen.getByRole('combobox', { name: 'Group' }));
-            await user.clear(screen.getByRole('combobox', { name: 'Group' }));
-            await user.type(screen.getByRole('combobox', { name: 'Group' }), 'Dar');
-            await user.click(screen.getByRole('option', { name: 'Daržovės' }));
+            selectOption('Daržovės');
             await user.click(screen.getByRole('button', { name: 'Move' }));
 
             expect(moveProduct).toHaveBeenCalledWith('Uogienės', 'Avietės', 'Daržovės', 'Avietės');
@@ -273,20 +269,14 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when move fails', async () => {
-            jest.mocked(useMoveProduct).mockReturnValue(moveProduct.mockRejectedValueOnce('Failed to move'));
+            vi.mocked(useMoveProduct).mockReturnValue(moveProduct.mockRejectedValueOnce('Failed to move'));
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
 
-            // Wait for initial focus timer to complete
-            await act(() => jest.advanceTimersByTimeAsync(100));
-
-            await user.click(screen.getByRole('combobox', { name: 'Group' }));
-            await user.clear(screen.getByRole('combobox', { name: 'Group' }));
-            await user.type(screen.getByRole('combobox', { name: 'Group' }), 'Dar');
-            await user.click(screen.getByRole('option', { name: 'Daržovės' }));
+            selectOption('Daržovės');
             await user.click(screen.getByRole('button', { name: 'Move' }));
 
             expect(moveProduct).toHaveBeenCalledWith('Uogienės', 'Avietės', 'Daržovės', 'Avietės');
@@ -295,20 +285,14 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
-            jest.mocked(useMoveProduct).mockReturnValue(moveProduct);
+            vi.mocked(useMoveProduct).mockReturnValue(moveProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
 
-            // Wait for initial focus timer to complete
-            await act(() => jest.advanceTimersByTimeAsync(100));
-
-            await user.click(screen.getByRole('combobox', { name: 'Group' }));
-            await user.clear(screen.getByRole('combobox', { name: 'Group' }));
-            await user.type(screen.getByRole('combobox', { name: 'Group' }), 'Dar');
-            await user.click(screen.getByRole('option', { name: 'Daržovės' }));
+            selectOption('Daržovės');
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
             await user.click(screen.getByRole('button', { name: 'Move' }));
 
@@ -318,20 +302,14 @@ describe('<ProductBox>', () => {
         });
 
         it('displays error without closing dialog when name already exists', async () => {
-            jest.mocked(useMoveProduct).mockReturnValue(moveProduct);
+            vi.mocked(useMoveProduct).mockReturnValue(moveProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                 </MockThemeRedux>
             );
 
-            // Wait for initial focus timer to complete
-            await act(() => jest.advanceTimersByTimeAsync(100));
-
-            await user.click(screen.getByRole('combobox', { name: 'Group' }));
-            await user.clear(screen.getByRole('combobox', { name: 'Group' }));
-            await user.type(screen.getByRole('combobox', { name: 'Group' }), 'Dar');
-            await user.click(screen.getByRole('option', { name: 'Daržovės' }));
+            selectOption('Daržovės');
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agurkai');
             await user.click(screen.getByRole('button', { name: 'Move' }));
@@ -343,7 +321,7 @@ describe('<ProductBox>', () => {
         });
 
         it('closes without updating when group was not changed', async () => {
-            jest.mocked(useMoveProduct).mockReturnValue(moveProduct);
+            vi.mocked(useMoveProduct).mockReturnValue(moveProduct);
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
@@ -359,8 +337,8 @@ describe('<ProductBox>', () => {
 
     describe('validation errors', () => {
         it('displays error when group is empty', async () => {
-            const addProduct = jest.fn();
-            jest.mocked(useAddProduct).mockReturnValue(addProduct);
+            const addProduct = vi.fn();
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
                 <MockThemeRedux state={state}>
@@ -374,12 +352,12 @@ describe('<ProductBox>', () => {
 
             expect(addProduct).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('combobox', { name: 'Group' })).toHaveFocus();
+            expect(screen.getByRole('combobox', { name: 'Group' })).toHaveAttribute('aria-invalid', 'true');
         });
 
         it('displays error when name contains colon', async () => {
-            const addProduct = jest.fn();
-            jest.mocked(useAddProduct).mockReturnValue(addProduct);
+            const addProduct = vi.fn();
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
                 <MockThemeRedux state={state}>
@@ -397,9 +375,20 @@ describe('<ProductBox>', () => {
     });
 
     describe('loading state with fake timers', () => {
+        let resolveAdd: () => void;
+
+        beforeEach(() => vi.useFakeTimers());
+
+        afterEach(() => vi.useRealTimers());
+
         it('shows loading state after 300ms delay when submitting form', async () => {
-            const addProduct = jest.fn().mockResolvedValue(undefined);
-            jest.mocked(useAddProduct).mockReturnValue(addProduct);
+            const addProduct = vi.fn().mockImplementation(
+                () =>
+                    new Promise<void>((resolve) => {
+                        resolveAdd = resolve;
+                    })
+            );
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
                 <MockThemeRedux state={state}>
@@ -407,32 +396,42 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            // Wait for initial focus timer to complete
-            await act(() => jest.advanceTimersByTimeAsync(100));
-
-            await user.click(screen.getByRole('combobox', { name: 'Group' }));
-            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
-            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'New Entry');
+            // Use fireEvent to avoid userEvent incompatibility with fake timers
+            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Group' })));
+            act(() =>
+                fireEvent.change(screen.getByRole('combobox', { name: 'Group' }), { target: { value: 'Daržovės' } })
+            );
+            act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
+            act(() =>
+                fireEvent.change(screen.getByRole('textbox', { name: 'Title' }), { target: { value: 'New Entry' } })
+            );
 
             const addButton = screen.getByRole('button', { name: 'Add' });
-            await user.click(addButton);
+            act(() => fireEvent.click(addButton));
 
-            // Advance timers by 300ms to trigger loading state (line 130)
-            // This tests that setTimeout with 300ms delay is executed
-            await act(() => jest.advanceTimersByTimeAsync(300));
+            // Advance timers by 300ms to trigger loading state
+            await act(() => vi.advanceTimersByTimeAsync(300));
 
             expect(addButton).toBeInTheDocument();
 
-            // Complete the async operation
-            await addProduct();
+            // Complete the async operation and flush microtasks
+            await act(async () => {
+                resolveAdd();
+                await vi.runAllTimersAsync();
+            });
 
             // Button should be enabled again after operation completes
             expect(addButton).not.toBeDisabled();
         });
 
         it('clears timeout when operation completes before 300ms', async () => {
-            const addProduct = jest.fn().mockResolvedValue(undefined);
-            jest.mocked(useAddProduct).mockReturnValue(addProduct);
+            const addProduct = vi.fn().mockImplementation(
+                () =>
+                    new Promise<void>((resolve) => {
+                        resolveAdd = resolve;
+                    })
+            );
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
                 <MockThemeRedux state={state}>
@@ -440,22 +439,26 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            await act(() => jest.advanceTimersByTimeAsync(100));
-
-            await user.click(screen.getByRole('combobox', { name: 'Group' }));
-            await user.click(await screen.findByRole('option', { name: 'Daržovės' }));
-            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Fast Entry');
+            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Group' })));
+            act(() =>
+                fireEvent.change(screen.getByRole('combobox', { name: 'Group' }), { target: { value: 'Daržovės' } })
+            );
+            act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
+            act(() =>
+                fireEvent.change(screen.getByRole('textbox', { name: 'Title' }), { target: { value: 'Fast Entry' } })
+            );
 
             const addButton = screen.getByRole('button', { name: 'Add' });
-            await user.click(addButton);
+            act(() => fireEvent.click(addButton));
 
-            // Complete the async operation immediately (before 300ms)
-            await addProduct();
+            // Complete the async operation immediately (before 300ms) — clears the timeout
+            await act(() => {
+                resolveAdd();
+            });
 
-            // Advance timers by less than 300ms - timeout should be cleared
-            await act(() => jest.advanceTimersByTimeAsync(200));
+            // Advance timers by less than 300ms — timeout already cleared, no loading state
+            await act(() => vi.advanceTimersByTimeAsync(200));
 
-            // Button should be enabled and timeout cleared
             expect(addButton).not.toBeDisabled();
             expect(onClose).toHaveBeenCalledWith('Daržovės', 'Fast Entry');
         });

@@ -4,7 +4,8 @@ import React from 'react';
 
 import { AppVersion } from './AppVersion';
 
-jest.mock('package.json', () => ({
+vi.mock(import('package.json'), (): any => ({
+    default: { version: '1.0.0' },
     version: '1.0.0',
 }));
 

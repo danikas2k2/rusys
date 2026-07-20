@@ -6,8 +6,8 @@ import React from 'react';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
 
-jest.mock('~/client/utils/matchParts', () => ({
-    matchParts: jest.fn((value: string, filter: string) => value.toLowerCase().includes(filter.toLowerCase())),
+vi.mock(import('~/client/utils/matchParts'), () => ({
+    matchParts: vi.fn((value: string, filter: string) => value.toLowerCase().includes(filter.toLowerCase())),
 }));
 
 describe('useQuickFilterPredicate', () => {

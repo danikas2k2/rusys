@@ -6,7 +6,7 @@ import React from 'react';
 
 import { ActiveAmountBox } from '~/client/pages/products/ActiveAmountBox';
 
-jest.mock('~/client/pages/products/AmountBox', () => ({
+vi.mock(import('~/client/pages/products/AmountBox'), (): any => ({
     AmountBox: ({ opened, onClose, onAfterClose }: any) =>
         opened ? (
             <div role="dialog" aria-label="Value box">
@@ -21,11 +21,11 @@ jest.mock('~/client/pages/products/AmountBox', () => ({
 }));
 
 describe('<ActiveAmountBox>', () => {
-    const mockSetActive = jest.fn();
+    const mockSetActive = vi.fn();
     const data = { group: 'Test', name: 'Item', year: 2024 };
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it('renders closed when no active content', () => {

@@ -4,37 +4,40 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 import React from 'react';
 
 import { AmountHistoryTab } from '~/client/pages/products/AmountHistoryTab';
+import { useGetProductHistory } from '~/client/state/history/useGetProductHistory';
+import { useUndates } from '~/client/state/history/useUndates';
+import { useUpdates } from '~/client/state/history/useUpdates';
 import type { History, ProductAmounts } from '~/types/data';
 
-jest.mock('~/client/state/history/useGetProductHistory', () => ({
-    useGetProductHistory: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
+vi.mock(import('~/client/state/history/useGetProductHistory'), (): any => ({
+    useGetProductHistory: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
-jest.mock('~/client/hooks/useLockingLoader', () => ({
-    useLockingLoader: jest.fn(() => 'complete'),
+vi.mock(import('~/client/hooks/useLockingLoader'), (): any => ({
+    useLockingLoader: vi.fn(() => 'complete'),
     LoadingState: { INITIAL: 'initial', LOADING: 'loading', COMPLETE: 'complete', FAILED: 'failed' },
 }));
 
-jest.mock('~/client/state/history/useUpdates', () => ({
-    useUpdates: jest.fn(() => []),
+vi.mock(import('~/client/state/history/useUpdates'), (): any => ({
+    useUpdates: vi.fn(() => []),
 }));
 
-jest.mock('~/client/state/history/useUndates', () => ({
-    useUndates: jest.fn(() => []),
+vi.mock(import('~/client/state/history/useUndates'), (): any => ({
+    useUndates: vi.fn(() => []),
 }));
 
-jest.mock('~/client/pages/products/EmailAvatar', () => ({
-    EmailAvatar: jest.fn(() => null),
+vi.mock(import('~/client/pages/products/EmailAvatar'), (): any => ({
+    EmailAvatar: vi.fn(() => null),
 }));
 
-jest.mock('~/client/pages/products/AmountsCell', () => ({
-    AmountsCell: jest.fn(({ amounts }: any) => <span data-testid="amounts">{amounts.length}</span>),
+vi.mock(import('~/client/pages/products/AmountsCell'), (): any => ({
+    AmountsCell: vi.fn(({ amounts }: any) => <span data-testid="amounts">{amounts.length}</span>),
 }));
 
 describe('<AmountHistoryTab>', () => {
     const activeData: ProductAmounts = { group: 'Uogienės', name: 'Avietės', year: 2026 };
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     function renderTab(active = activeData) {
         return render(
@@ -52,7 +55,7 @@ describe('<AmountHistoryTab>', () => {
     });
 
     it('calls useGetProductHistory with year, group, name from active context', () => {
-        const { useGetProductHistory: useGetHistory } = jest.requireMock('~/client/state/history/useGetProductHistory');
+        const useGetHistory = vi.mocked(useGetProductHistory);
 
         renderTab();
 
@@ -60,7 +63,7 @@ describe('<AmountHistoryTab>', () => {
     });
 
     it('renders a row for each history entry', () => {
-        const { useUpdates: useHistory } = jest.requireMock('~/client/state/history/useUpdates');
+        const useHistory = vi.mocked(useUpdates);
         const entries: History[] = [
             { group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [{ variant: 'p', amount: 1 }] },
             { group: 'Uogienės', name: 'Avietės', time: 2000, year: 2026, amounts: [{ variant: 'd', amount: -1 }] },
@@ -73,7 +76,7 @@ describe('<AmountHistoryTab>', () => {
     });
 
     it('renders amounts for each row', () => {
-        const { useUpdates: useHistory } = jest.requireMock('~/client/state/history/useUpdates');
+        const useHistory = vi.mocked(useUpdates);
         useHistory.mockReturnValue([
             {
                 group: 'Uogienės',
@@ -93,7 +96,7 @@ describe('<AmountHistoryTab>', () => {
     });
 
     it('uses year=0 when active context has no year', () => {
-        const { useGetProductHistory: useGetHistory } = jest.requireMock('~/client/state/history/useGetProductHistory');
+        const useGetHistory = vi.mocked(useGetProductHistory);
 
         render(
             <MockThemeActive active={{ action: 'values', data: { group: 'G', name: 'N' } as ProductAmounts }}>
@@ -105,13 +108,12 @@ describe('<AmountHistoryTab>', () => {
     });
 
     it('renders undates rows reversed before the divider', () => {
-        jest.requireMock('~/client/state/history/useUpdates').useUpdates.mockReturnValue([]);
-        const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
+        vi.mocked(useUpdates).mockReturnValue([]);
         const undates: History[] = [
             { group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] },
             { group: 'Uogienės', name: 'Avietės', time: 200, year: 2026, amounts: [] },
         ];
-        useUndates.mockReturnValue(undates);
+        vi.mocked(useUndates).mockReturnValue(undates);
 
         renderTab();
 
@@ -120,8 +122,9 @@ describe('<AmountHistoryTab>', () => {
     });
 
     it('renders a divider row when undates are present', () => {
-        const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
-        useUndates.mockReturnValue([{ group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] }]);
+        vi.mocked(useUndates).mockReturnValue([
+            { group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] },
+        ]);
 
         renderTab();
 
@@ -130,7 +133,7 @@ describe('<AmountHistoryTab>', () => {
     });
 
     it('does not render a divider row when undates are empty', () => {
-        jest.requireMock('~/client/state/history/useUndates').useUndates.mockReturnValue([]);
+        vi.mocked(useUndates).mockReturnValue([]);
 
         renderTab();
 
@@ -138,8 +141,7 @@ describe('<AmountHistoryTab>', () => {
     });
 
     it('shows comment text when h.comment is set', () => {
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        useUpdates.mockReturnValue([
+        vi.mocked(useUpdates).mockReturnValue([
             {
                 group: 'Uogienės',
                 name: 'Avietės',
@@ -156,8 +158,9 @@ describe('<AmountHistoryTab>', () => {
     });
 
     it('does not show comment element when h.comment is absent', () => {
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        useUpdates.mockReturnValue([{ group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [] }]);
+        vi.mocked(useUpdates).mockReturnValue([
+            { group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [] },
+        ]);
 
         renderTab();
 
@@ -166,8 +169,9 @@ describe('<AmountHistoryTab>', () => {
     });
 
     it('dimmed (undate) rows have opacity 0.4', () => {
-        const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
-        useUndates.mockReturnValue([{ group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] }]);
+        vi.mocked(useUndates).mockReturnValue([
+            { group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] },
+        ]);
 
         renderTab();
 
@@ -179,9 +183,10 @@ describe('<AmountHistoryTab>', () => {
     });
 
     it('non-dimmed (update) rows do not have opacity set', () => {
-        jest.requireMock('~/client/state/history/useUndates').useUndates.mockReturnValue([]);
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        useUpdates.mockReturnValue([{ group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [] }]);
+        vi.mocked(useUndates).mockReturnValue([]);
+        vi.mocked(useUpdates).mockReturnValue([
+            { group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [] },
+        ]);
 
         renderTab();
 

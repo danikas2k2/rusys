@@ -5,14 +5,16 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { useRenameProduct } from '~/client/state/products/useRenameProduct';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
+vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
 
 describe('useRenameProduct', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeAll(() => {
+        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls rename actions', async () => {
         const { result } = renderHook(() => useRenameProduct(), { wrapper: MockRedux });

@@ -4,7 +4,8 @@
         "vite.config.ts",
         "vite.client.config.ts",
         "vite/*.ts",
-        "vite/plugins/*.ts"
+        "vite/plugins/*.ts",
+        "vitest.config.ts"
     ],
     "compilerOptions": {
         "composite": true,

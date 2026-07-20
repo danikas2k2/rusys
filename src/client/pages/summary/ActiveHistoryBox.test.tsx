@@ -5,27 +5,27 @@ import React from 'react';
 
 import { ActiveHistoryBox } from '~/client/pages/summary/ActiveHistoryBox';
 import type { SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
+import { SummaryHistoryBox } from '~/client/pages/summary/SummaryHistoryBox';
+import { SummaryYear } from '~/client/pages/summary/SummaryYear';
 
-jest.mock('~/client/pages/summary/SummaryHistoryBox', () => ({
-    SummaryHistoryBox: jest.fn(() => null),
+vi.mock(import('~/client/pages/summary/SummaryHistoryBox'), () => ({
+    SummaryHistoryBox: vi.fn(() => null),
 }));
 
-jest.mock('~/client/common/AmountTitle', () => ({
-    AmountTitle: jest.fn(() => null),
+vi.mock(import('~/client/common/AmountTitle'), () => ({
+    AmountTitle: vi.fn(() => null),
 }));
 
-jest.mock('~/client/pages/summary/SummaryYear', () => ({
-    SummaryYear: jest.fn(() => null),
+vi.mock(import('~/client/pages/summary/SummaryYear'), () => ({
+    SummaryYear: vi.fn(() => null),
 }));
 
 describe('<ActiveHistoryBox>', () => {
-    const { SummaryHistoryBox } = jest.requireMock('~/client/pages/summary/SummaryHistoryBox');
-    const { SummaryYear } = jest.requireMock('~/client/pages/summary/SummaryYear');
-
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     function getLastProps() {
-        return SummaryHistoryBox.mock.calls[SummaryHistoryBox.mock.calls.length - 1][0];
+        const calls = vi.mocked(SummaryHistoryBox).mock.calls;
+        return calls[calls.length - 1][0];
     }
 
     it('renders with opened=false when there is no active content', () => {
@@ -66,7 +66,7 @@ describe('<ActiveHistoryBox>', () => {
     });
 
     it('close callback calls setActive with data but no action', () => {
-        const setActive = jest.fn();
+        const setActive = vi.fn();
         const activeData: SummaryHistoryData = { group: 'G', name: 'N', year: 2023, amounts: [] };
         const active = { action: 'history' as const, data: activeData };
 
@@ -83,7 +83,7 @@ describe('<ActiveHistoryBox>', () => {
     });
 
     it('afterClose callback calls setActive with no arguments', () => {
-        const setActive = jest.fn();
+        const setActive = vi.fn();
         const activeData: SummaryHistoryData = { group: 'G', name: 'N', year: 2023, amounts: [] };
         const active = { action: 'history' as const, data: activeData };
 

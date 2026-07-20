@@ -4,27 +4,27 @@ import { useVariantsHasData } from '~/client/pages/variants/hooks/useVariantsHas
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useVariants } from '~/client/state/variants/useVariants';
 
-jest.mock('~/client/state/groups/useGroups');
-jest.mock('~/client/state/variants/useVariants');
+vi.mock(import('~/client/state/groups/useGroups'));
+vi.mock(import('~/client/state/variants/useVariants'));
 
 describe('useVariantsHasData', () => {
     it('returns true if has all required Variants data', () => {
         const { result } = renderHook(() => useVariantsHasData());
 
-        expect(result.current).toBeTrue();
+        expect(result.current).toBe(true);
     });
 
     it('returns false if has no groups', () => {
-        jest.mocked(useGroups).mockReturnValueOnce([]);
+        vi.mocked(useGroups).mockReturnValueOnce([]);
         const { result } = renderHook(() => useVariantsHasData());
 
-        expect(result.current).toBeFalse();
+        expect(result.current).toBe(false);
     });
 
     it('returns false if has no variants', () => {
-        jest.mocked(useVariants).mockReturnValueOnce([]);
+        vi.mocked(useVariants).mockReturnValueOnce([]);
         const { result } = renderHook(() => useVariantsHasData());
 
-        expect(result.current).toBeFalse();
+        expect(result.current).toBe(false);
     });
 });

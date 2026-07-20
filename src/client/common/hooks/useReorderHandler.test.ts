@@ -24,7 +24,7 @@ describe('useReorderHandler', () => {
         const { result } = renderHook(() =>
             useReorderHandler({
                 items,
-                onReorder: jest.fn(),
+                onReorder: vi.fn(),
                 equals: (a: Item, b: Item) => a.id === b.id,
                 resolve: (id: UniqueIdentifier) => items.find((item) => item.id === id)!,
             })
@@ -39,7 +39,7 @@ describe('useReorderHandler', () => {
             { id: 1, name: 'Item 1' },
             { id: 2, name: 'Item 2' },
         ];
-        const onReorder = jest.fn();
+        const onReorder = vi.fn();
         const { result } = renderHook(() =>
             useReorderHandler({
                 items,
@@ -59,7 +59,7 @@ describe('useReorderHandler', () => {
             { id: 1, name: 'Item 1' },
             { id: 2, name: 'Item 2' },
         ];
-        const onReorder = jest.fn();
+        const onReorder = vi.fn();
         const { result } = renderHook(() =>
             useReorderHandler({
                 items,
@@ -80,7 +80,7 @@ describe('useReorderHandler', () => {
             { id: 2, name: 'Item 2' },
             { id: 3, name: 'Item 3' },
         ];
-        const onReorder = jest.fn().mockResolvedValue(undefined);
+        const onReorder = vi.fn().mockResolvedValue(undefined);
         const { result } = renderHook(() =>
             useReorderHandler({
                 items,
@@ -109,7 +109,7 @@ describe('useReorderHandler', () => {
             { id: 2, name: 'Item 2' },
             { id: 3, name: 'Item 3' },
         ];
-        const onReorder = jest.fn().mockResolvedValue(undefined);
+        const onReorder = vi.fn().mockResolvedValue(undefined);
         const { result } = renderHook(() =>
             useReorderHandler({
                 items,
@@ -134,7 +134,7 @@ describe('useReorderHandler', () => {
 
     it('works with string items', async () => {
         const items = ['First', 'Second', 'Third'];
-        const onReorder = jest.fn().mockResolvedValue(undefined);
+        const onReorder = vi.fn().mockResolvedValue(undefined);
         const { result } = renderHook(() =>
             useReorderHandler({
                 items,
@@ -154,7 +154,7 @@ describe('useReorderHandler', () => {
             { id: 1, name: 'Item 1' },
             { id: 2, name: 'Item 2' },
         ];
-        const onReorder = jest.fn();
+        const onReorder = vi.fn();
         const { result } = renderHook(() =>
             useReorderHandler({
                 items,
@@ -174,9 +174,9 @@ describe('useReorderHandler', () => {
             { id: 1, name: 'Item 1' },
             { id: 2, name: 'Item 2' },
         ];
-        const onReorder = jest.fn();
-        const resolveForId1 = jest.fn(() => items.find((item) => item.id === 1)!);
-        const resolveForId2 = jest.fn(() => ({ id: 999, name: 'Not Found' }) as Item);
+        const onReorder = vi.fn();
+        const resolveForId1 = vi.fn(() => items.find((item) => item.id === 1)!);
+        const resolveForId2 = vi.fn(() => ({ id: 999, name: 'Not Found' }) as Item);
         const resolveForId = (id: UniqueIdentifier) => {
             const idNum = id as number;
             const resolverMap: Record<number, () => Item> = {
@@ -184,11 +184,11 @@ describe('useReorderHandler', () => {
                 2: resolveForId2,
             };
             const resolver = resolverMap[idNum];
-            // eslint-disable-next-line jest/no-conditional-in-test
+
             const finalResolver = resolver !== undefined ? resolver : resolveForId2;
             return finalResolver();
         };
-        const resolve = jest.fn(resolveForId);
+        const resolve = vi.fn(resolveForId);
         const { result } = renderHook(() =>
             useReorderHandler({
                 items,
@@ -212,8 +212,8 @@ describe('useReorderHandler', () => {
             { id: 1, name: 'Item 1' },
             { id: 2, name: 'Item 2' },
         ];
-        const onReorder = jest.fn().mockResolvedValue(undefined);
-        const customEquals = jest.fn((a: Item, b: Item) => a.id === b.id);
+        const onReorder = vi.fn().mockResolvedValue(undefined);
+        const customEquals = vi.fn((a: Item, b: Item) => a.id === b.id);
         const { result } = renderHook(() =>
             useReorderHandler({
                 items,
@@ -234,8 +234,8 @@ describe('useReorderHandler', () => {
             { id: 1, name: 'Item 1' },
             { id: 2, name: 'Item 2' },
         ];
-        const onReorder = jest.fn().mockResolvedValue(undefined);
-        const customResolve = jest.fn((id: UniqueIdentifier) => items.find((item) => item.id === id)!);
+        const onReorder = vi.fn().mockResolvedValue(undefined);
+        const customResolve = vi.fn((id: UniqueIdentifier) => items.find((item) => item.id === id)!);
         const { result } = renderHook(() =>
             useReorderHandler({
                 items,
@@ -253,7 +253,7 @@ describe('useReorderHandler', () => {
 
     it('uses default equals function when not provided', async () => {
         const items = ['a', 'b', 'c'];
-        const onReorder = jest.fn().mockResolvedValue(undefined);
+        const onReorder = vi.fn().mockResolvedValue(undefined);
         const { result } = renderHook(() =>
             useReorderHandler({
                 items,
@@ -273,14 +273,14 @@ describe('useReorderHandler', () => {
             { id: 1, name: 'Item 1' },
             { id: 2, name: 'Item 2' },
         ];
-        const onReorder = jest.fn().mockResolvedValue(undefined);
+        const onReorder = vi.fn().mockResolvedValue(undefined);
         let equalsCallIndex = 0;
         const equalsReturnValues = [true, false, true, false];
         const equalsFn = (_a: Item, _b: Item) => {
             const index = equalsCallIndex;
             equalsCallIndex++;
             const hasValue = index < equalsReturnValues.length;
-            // eslint-disable-next-line jest/no-conditional-in-test
+
             return hasValue ? equalsReturnValues[index] : false;
         };
         const { result } = renderHook(() =>
@@ -311,7 +311,7 @@ describe('useReorderHandler', () => {
             ({ items: hookItems }) =>
                 useReorderHandler({
                     items: hookItems,
-                    onReorder: jest.fn(),
+                    onReorder: vi.fn(),
                     equals: (a: Item, b: Item) => a.id === b.id,
                     resolve: (id: UniqueIdentifier) => hookItems.find((item) => item.id === id)!,
                 }),

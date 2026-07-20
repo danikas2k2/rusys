@@ -1,13 +1,15 @@
 import { getValidator } from '~/server/data/schema/getValidator';
 
-jest.mock('~/server/data/schema/schema.json', () => ({
-    type: 'object',
-    properties: {
-        name: { type: 'string' },
-        age: { type: 'number' },
-        date: { type: 'string', format: 'date-time' },
+vi.mock(import('~/server/data/schema/schema.json'), (): any => ({
+    default: {
+        type: 'object',
+        properties: {
+            name: { type: 'string' },
+            age: { type: 'number' },
+            date: { type: 'string', format: 'date-time' },
+        },
+        required: ['name', 'age', 'date'],
     },
-    required: ['name', 'age', 'date'],
 }));
 
 describe('getValidator', () => {
@@ -25,7 +27,7 @@ describe('getValidator', () => {
             date: '2023-10-01T12:00:00Z',
         };
 
-        expect(validator(validData)).toBeTrue();
+        expect(validator(validData)).toBe(true);
     });
 
     it('invalidates an invalid schema', () => {
@@ -36,6 +38,6 @@ describe('getValidator', () => {
             date: 'invalid_date',
         };
 
-        expect(validator(invalidData)).toBeFalse();
+        expect(validator(invalidData)).toBe(false);
     });
 });

@@ -1,19 +1,17 @@
+import type { MockInstance } from 'vitest';
+
 import { download } from '~/client/utils/download';
 
 describe('download', () => {
-    const mockAnchor = {
-        href: '',
-        download: '',
-        click: jest.fn(),
-    } as unknown as HTMLAnchorElement;
+    let mockAnchor: HTMLAnchorElement;
 
-    const createObjectURLSpy = jest.fn();
-    const revokeObjectURLSpy = jest.fn();
+    const createObjectURLSpy = vi.fn();
+    const revokeObjectURLSpy = vi.fn();
 
-    let createElementSpy: jest.SpyInstance;
-    let appendChildSpy: jest.SpyInstance;
-    let removeChildSpy: jest.SpyInstance;
-    let clickSpy: jest.SpyInstance;
+    let createElementSpy: MockInstance;
+    let appendChildSpy: MockInstance;
+    let removeChildSpy: MockInstance;
+    let clickSpy: MockInstance;
 
     beforeAll(() => {
         globalThis.URL.createObjectURL = createObjectURLSpy;
@@ -21,16 +19,18 @@ describe('download', () => {
     });
 
     beforeEach(() => {
+        mockAnchor = document.createElement('a');
+
         createObjectURLSpy.mockReturnValue('blob:mock-url');
         revokeObjectURLSpy.mockImplementation();
 
-        createElementSpy = jest.spyOn(document, 'createElement').mockReturnValue(mockAnchor);
-        appendChildSpy = jest.spyOn(document.body, 'appendChild').mockImplementation();
-        removeChildSpy = jest.spyOn(document.body, 'removeChild').mockImplementation();
-        clickSpy = jest.spyOn(mockAnchor, 'click');
+        createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockAnchor);
+        appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockAnchor);
+        removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockAnchor);
+        clickSpy = vi.spyOn(mockAnchor, 'click').mockImplementation();
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('creates anchor element', () => {
         download({ test: 'data' });
@@ -46,7 +46,8 @@ describe('download', () => {
         const blob = (createObjectURLSpy.mock.calls[0] as unknown[])[0] as Blob;
 
         expect(createObjectURLSpy).toHaveBeenCalledTimes(1);
-        expect(blob).toBeInstanceOf(Blob).toHaveProperty('type', '');
+        expect(blob).toBeInstanceOf(Blob);
+        expect(blob).toHaveProperty('type', '');
     });
 
     it('sets anchor href to blob URL', () => {
@@ -57,7 +58,7 @@ describe('download', () => {
 
     it('sets anchor download with default filename', () => {
         const mockDate = new Date('2024-01-15T10:30:00.000Z');
-        const dateSpy = jest.spyOn(globalThis, 'Date').mockReturnValue(mockDate as unknown as Date);
+        const dateSpy = vi.spyOn(globalThis, 'Date').mockReturnValue(mockDate as unknown as Date);
 
         download({ test: 'data' });
 

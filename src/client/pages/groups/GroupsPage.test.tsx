@@ -2,32 +2,35 @@ import { render, screen } from '@testing-library/react';
 import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
+import type { Mocked } from 'vitest';
 
 import { Page } from '~/client/pages/common/Page';
 import { GroupsPage } from '~/client/pages/groups/GroupsPage';
 import { useDeleteGroup } from '~/client/state/groups/useDeleteGroup';
 
-jest.mock('~/client/pages/common/Page');
-jest.mock('~/client/common/SwipeControls', () => ({
-    SwipeControls: jest.fn(() => <div>SwipeControls</div>),
+vi.mock(import('~/client/pages/common/Page'));
+vi.mock(import('~/client/common/SwipeControls'), (): any => ({
+    SwipeControls: vi.fn(() => <div>SwipeControls</div>),
 }));
-jest.mock('~/client/common/SwipeControlsContext', () => ({
+vi.mock(import('~/client/common/SwipeControlsContext'), (): any => ({
     SwipeControlsWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-jest.mock('~/client/pages/groups/GroupsTable', () => ({
-    GroupsTable: jest.fn(() => <div>GroupsTable</div>),
+vi.mock(import('~/client/pages/groups/GroupsTable'), (): any => ({
+    GroupsTable: vi.fn(() => <div>GroupsTable</div>),
 }));
-jest.mock('~/client/pages/groups/ActiveGroupBox', () => ({
+vi.mock(import('~/client/pages/groups/ActiveGroupBox'), (): any => ({
     ActiveGroupBox: () => null,
 }));
-jest.mock('~/client/state/groups/useDeleteGroup');
+vi.mock(import('~/client/state/groups/useDeleteGroup'));
 
 describe('<GroupsPage>', () => {
-    const mockDeleteGroup = jest.fn().mockResolvedValue(undefined);
+    const mockDeleteGroup = vi.fn().mockResolvedValue(undefined);
 
-    beforeEach(() => jest.mocked(useDeleteGroup).mockReturnValue(mockDeleteGroup));
+    beforeEach(() => {
+        vi.mocked(useDeleteGroup).mockReturnValue(mockDeleteGroup);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders into the document', () => {
         render(
@@ -40,8 +43,8 @@ describe('<GroupsPage>', () => {
     });
 
     it('calls deleteGroup when handleDelete is called', async () => {
-        let mockDelete: jest.Mocked<React.ComponentProps<typeof Page>['onDelete']>;
-        jest.mocked(Page).mockImplementation(({ onDelete }) => {
+        let mockDelete: Mocked<React.ComponentProps<typeof Page>['onDelete']>;
+        vi.mocked(Page).mockImplementation(({ onDelete }: React.ComponentProps<typeof Page>) => {
             mockDelete = onDelete;
             return <div>Page</div>;
         });

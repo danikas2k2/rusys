@@ -1,4 +1,4 @@
-/** @jest-environment node */
+/** @vitest-environment node */
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
@@ -6,8 +6,8 @@ import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
 import { upsertUserProfile } from '~/server/data/userProfiles';
 import type { ApiUpsertUserProfile } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/data/userProfiles');
+vi.mock(import('~/server/api/debug'));
+vi.mock(import('~/server/data/userProfiles'));
 
 describe('handleUpsertUserProfile', () => {
     const request = mockRequest<ApiUpsertUserProfile>({
@@ -17,10 +17,10 @@ describe('handleUpsertUserProfile', () => {
     });
     const response = mockResponse();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns ok response on success', async () => {
-        jest.mocked(upsertUserProfile).mockResolvedValueOnce(true);
+        vi.mocked(upsertUserProfile).mockResolvedValueOnce(true);
 
         await handleUpsertUserProfile(request, response);
 
@@ -30,7 +30,7 @@ describe('handleUpsertUserProfile', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(upsertUserProfile).mockRejectedValueOnce('Failed to upsert user profile');
+        vi.mocked(upsertUserProfile).mockRejectedValueOnce('Failed to upsert user profile');
 
         await handleUpsertUserProfile(request, response);
 

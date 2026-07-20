@@ -5,18 +5,18 @@ import React from 'react';
 
 import { FormatDate } from '~/client/pages/products/FormatDate';
 
-jest.mock('~/client/hooks/useLabels', () => ({
+vi.mock(import('~/client/hooks/useLabels'), () => ({
     useLabels: () => (s: string) => s,
 }));
 
 describe('<FormatDate>', () => {
     beforeEach(() => {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date('2024-06-15T12:00:00.000Z'));
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date('2024-06-15T12:00:00.000Z'));
     });
 
     afterEach(() => {
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     function renderDate(date: Date) {

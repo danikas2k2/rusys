@@ -7,25 +7,25 @@ import { AppContent } from '~/client/AppContent';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { isDevMode } from '~/common/utils/dev';
 
-jest.mock('~/common/utils/dev');
-jest.mock('~/client/state/profile/useProfile');
-jest.mock('~/client/AppRouter', () => ({
+vi.mock(import('~/common/utils/dev'));
+vi.mock(import('~/client/state/profile/useProfile'));
+vi.mock(import('~/client/AppRouter'), () => ({
     AppRouter: () => <div>AppRouter</div>,
 }));
-jest.mock('~/client/user/LoginButton', () => ({
+vi.mock(import('~/client/user/LoginButton'), () => ({
     LoginButton: () => <div>LoginButton</div>,
 }));
-jest.mock('~/client/user/LogoutButton', () => ({
+vi.mock(import('~/client/user/LogoutButton'), () => ({
     LogoutButton: () => <div>LogoutButton</div>,
 }));
-jest.mock('~/client/common/ErrorDialog', () => ({
+vi.mock(import('~/client/common/ErrorDialog'), () => ({
     ErrorDialog: () => null,
 }));
 
 describe('<AppContent>', () => {
     beforeAll(() => {
-        jest.mocked(isDevMode).mockReturnValue(false);
-        jest.mocked(useProfile).mockReturnValue({ sub: undefined });
+        vi.mocked(isDevMode).mockReturnValue(false);
+        vi.mocked(useProfile).mockReturnValue({ sub: undefined });
     });
 
     it('renders LoginButton when not has no profile info', () => {
@@ -39,7 +39,7 @@ describe('<AppContent>', () => {
     });
 
     it('renders LogoutButton when has profile info but user is not allowed', () => {
-        jest.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: false });
+        vi.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: false });
 
         render(
             <MockRedux>
@@ -51,8 +51,8 @@ describe('<AppContent>', () => {
     });
 
     it('renders AppRouter when has profile and user is.allowed', () => {
-        jest.mocked(isDevMode).mockReturnValue(false);
-        jest.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: true });
+        vi.mocked(isDevMode).mockReturnValue(false);
+        vi.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: true });
 
         render(
             <MockRedux>
@@ -64,7 +64,7 @@ describe('<AppContent>', () => {
     });
 
     it('renders AppRouter when in dev mode event without profile', () => {
-        jest.mocked(isDevMode).mockReturnValue(true);
+        vi.mocked(isDevMode).mockReturnValue(true);
 
         render(
             <MockRedux>

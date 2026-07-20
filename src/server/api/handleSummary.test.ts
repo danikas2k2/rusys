@@ -1,4 +1,4 @@
-/** @jest-environment node */
+// @vitest-environment node
 import { getGroupsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
@@ -8,8 +8,8 @@ import { getFullSummary } from '~/server/data/summary';
 import type { ApiSummary } from '~/types/api';
 import type { Summary } from '~/types/data';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/data/summary');
+vi.mock(import('~/server/api/debug'));
+vi.mock(import('~/server/data/summary'));
 
 describe('handleSummary', () => {
     const request = mockRequest();
@@ -23,10 +23,10 @@ describe('handleSummary', () => {
     const groups = getGroupsFixture();
     const variants = getVariantsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(getFullSummary).mockResolvedValueOnce({ years, groups, variants, summary });
+        vi.mocked(getFullSummary).mockResolvedValueOnce({ years, groups, variants, summary });
 
         await handleSummary(request, response);
 
@@ -36,7 +36,7 @@ describe('handleSummary', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(getFullSummary).mockRejectedValueOnce('Failed to get summary');
+        vi.mocked(getFullSummary).mockRejectedValueOnce('Failed to get summary');
 
         await handleSummary(request, response);
 
