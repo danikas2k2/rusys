@@ -7,12 +7,12 @@ import React from 'react';
 import { GroupsRow } from '~/client/pages/groups/GroupsRow';
 import { SortableRow } from '~/client/table/SortableRow';
 
-jest.mock('~/client/table/SortableRow', () => ({
-    SortableRow: jest.fn(({ children }) => <tr>{children}</tr>),
+vi.mock(import('~/client/table/SortableRow'), () => ({
+    SortableRow: vi.fn(({ children }: { children: React.ReactNode }) => <tr>{children}</tr>),
 }));
 
 describe('<GroupsRow>', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders group name', () => {
         render(
@@ -81,7 +81,7 @@ describe('<GroupsRow>', () => {
             </MockTheme>
         );
 
-        const props = jest.mocked(SortableRow).mock.calls[0][0];
+        const props = vi.mocked(SortableRow).mock.calls[0][0];
 
         expect(props.disabled).toBe(true);
     });
@@ -97,7 +97,7 @@ describe('<GroupsRow>', () => {
             </MockTheme>
         );
 
-        const props = jest.mocked(SortableRow).mock.calls[0][0];
+        const props = vi.mocked(SortableRow).mock.calls[0][0];
 
         expect(props.disabled).toBe(true);
     });
@@ -113,7 +113,7 @@ describe('<GroupsRow>', () => {
             </MockTheme>
         );
 
-        const props = jest.mocked(SortableRow).mock.calls[0][0];
+        const props = vi.mocked(SortableRow).mock.calls[0][0];
 
         expect(props.disabled).toBe(false);
     });
@@ -129,7 +129,7 @@ describe('<GroupsRow>', () => {
             </MockTheme>
         );
 
-        const props = jest.mocked(SortableRow).mock.calls[0][0] as unknown as Record<string, unknown>;
+        const props = vi.mocked(SortableRow).mock.calls[0][0] as unknown as Record<string, unknown>;
 
         expect(props['data-hidden']).toBe(true);
     });
@@ -145,7 +145,7 @@ describe('<GroupsRow>', () => {
             </MockTheme>
         );
 
-        const props = jest.mocked(SortableRow).mock.calls[0][0] as unknown as Record<string, unknown>;
+        const props = vi.mocked(SortableRow).mock.calls[0][0] as unknown as Record<string, unknown>;
 
         expect(props['data-hidden']).toBe(false);
     });

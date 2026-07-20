@@ -6,7 +6,7 @@ import { UpdateTypeContext, type UpdateTypes } from '~/client/common/UpdateTypeC
 
 export function MockThemeUpdate({
     update = 'consumed',
-    setUpdate = jest.fn(),
+    setUpdate = vi.fn(),
     children,
 }: React.PropsWithChildren<{
     update?: UpdateTypes;

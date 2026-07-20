@@ -1,4 +1,6 @@
 import { getVariantsFixture } from '@tests/fixtures';
 
+import { vi } from 'vitest';
+
 // noinspection JSUnusedGlobalSymbols
-export const useVariants = jest.fn().mockReturnValue(getVariantsFixture());
+export const useVariants = vi.fn().mockReturnValue(getVariantsFixture());

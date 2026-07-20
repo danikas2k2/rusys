@@ -15,31 +15,31 @@ import { useGroups } from '~/client/state/groups/useGroups';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useYears } from '~/client/state/years/useYears';
 
-jest.mock('~/client/state/years/useYears');
-jest.mock('~/client/pages/products/hooks/useProductsHasData', () => ({
-    useProductsHasData: jest.fn().mockReturnValue(true),
+vi.mock(import('~/client/state/years/useYears'));
+vi.mock(import('~/client/pages/products/hooks/useProductsHasData'), () => ({
+    useProductsHasData: vi.fn().mockReturnValue(true),
 }));
-jest.mock('~/client/pages/products/MissingOnlyContext', () => ({
-    useMissingOnly: jest.fn().mockReturnValue([false, jest.fn()]),
+vi.mock(import('~/client/pages/products/MissingOnlyContext'), () => ({
+    useMissingOnly: vi.fn().mockReturnValue([false, vi.fn()]),
 }));
-jest.mock('~/client/hooks/useLockingLoader', () => ({
-    ...jest.requireActual('~/client/hooks/useLockingLoader'),
-    useLockingLoader: jest.fn(),
+vi.mock(import('~/client/hooks/useLockingLoader'), async () => ({
+    ...(await vi.importActual('~/client/hooks/useLockingLoader')),
+    useLockingLoader: vi.fn(),
 }));
-jest.mock('~/client/filters/QuickFilterContext', () => ({
-    useQuickFilter: jest.fn(),
+vi.mock(import('~/client/filters/QuickFilterContext'), () => ({
+    useQuickFilter: vi.fn(),
 }));
-jest.mock('~/client/pages/products/MissingOnlyCheckbox', () => ({
-    MissingOnlyCheckbox: jest.fn(() => <input type="checkbox" />),
+vi.mock(import('~/client/pages/products/MissingOnlyCheckbox'), () => ({
+    MissingOnlyCheckbox: vi.fn(() => <input type="checkbox" />),
 }));
-jest.mock('~/client/pages/products/ProductsGroup', () => ({
-    ProductsGroup: jest.fn().mockReturnValue(null),
+vi.mock(import('~/client/pages/products/ProductsGroup'), () => ({
+    ProductsGroup: vi.fn().mockReturnValue(null),
 }));
-jest.mock('~/client/state/groups/useGroups', () => ({
-    useGroups: jest.fn(),
+vi.mock(import('~/client/state/groups/useGroups'), () => ({
+    useGroups: vi.fn(),
 }));
-jest.mock('~/client/state/products/useProducts', () => ({
-    useProducts: jest.fn(),
+vi.mock(import('~/client/state/products/useProducts'), () => ({
+    useProducts: vi.fn(),
 }));
 
 describe('<ProductsTable>', () => {
@@ -52,14 +52,14 @@ describe('<ProductsTable>', () => {
     };
 
     beforeEach(() => {
-        jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
-        jest.mocked(useQuickFilter).mockReturnValue(['', jest.fn()]);
-        jest.mocked(useGroups).mockReturnValue(state.groups);
-        jest.mocked(useProducts).mockReturnValue(products);
-        jest.mocked(useYears).mockReturnValue(state.years);
+        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
+        vi.mocked(useQuickFilter).mockReturnValue(['', vi.fn()]);
+        vi.mocked(useGroups).mockReturnValue(state.groups);
+        vi.mocked(useProducts).mockReturnValue(products);
+        vi.mocked(useYears).mockReturnValue(state.years);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     describe('table', () => {
         it('renders table for complete state with data', () => {
@@ -82,7 +82,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('renders table for complete state with data filtered-out', () => {
-            jest.mocked(useProducts).mockReturnValue([]);
+            vi.mocked(useProducts).mockReturnValue([]);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -109,7 +109,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('does not render table for initial state', () => {
-            jest.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
+            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -122,7 +122,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('does not render table for loading state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -135,7 +135,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('does not render table for complete state without data', () => {
-            jest.mocked(useProductsHasData).mockReturnValueOnce(false);
+            vi.mocked(useProductsHasData).mockReturnValueOnce(false);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -162,7 +162,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('renders loader for initial state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -175,7 +175,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('renders loader for loading state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -188,7 +188,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('does not render loader for failed state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.FAILED);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.FAILED);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -215,7 +215,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('renders error for complete state without data', () => {
-            jest.mocked(useProductsHasData).mockReturnValueOnce(false);
+            vi.mocked(useProductsHasData).mockReturnValueOnce(false);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -228,7 +228,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('does not render error for initial state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -241,7 +241,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('does not render error for loading state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.LOADING);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -254,7 +254,7 @@ describe('<ProductsTable>', () => {
         });
 
         it('renders error for failed state', () => {
-            jest.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.FAILED);
+            vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.FAILED);
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -268,15 +268,15 @@ describe('<ProductsTable>', () => {
     });
 
     describe('missing-only', () => {
-        const setMissingOnly = jest.fn();
-        const mockSetFilter = jest.fn();
+        const setMissingOnly = vi.fn();
+        const mockSetFilter = vi.fn();
 
         beforeEach(() => {
-            jest.mocked(useMissingOnly).mockReturnValue([true, setMissingOnly]);
-            jest.mocked(useQuickFilter).mockReturnValue(['', mockSetFilter]);
+            vi.mocked(useMissingOnly).mockReturnValue([true, setMissingOnly]);
+            vi.mocked(useQuickFilter).mockReturnValue(['', mockSetFilter]);
         });
 
-        afterEach(() => jest.clearAllMocks());
+        afterEach(() => vi.clearAllMocks());
 
         it('renders checkbox in header', () => {
             render(

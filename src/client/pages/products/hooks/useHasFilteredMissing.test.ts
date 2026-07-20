@@ -6,28 +6,28 @@ import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPr
 import { useHasFilteredMissing } from '~/client/pages/products/hooks/useHasFilteredMissing';
 import { useProducts } from '~/client/state/products/useProducts';
 
-jest.mock('~/client/filters/hooks/useGroupFilterPredicate', () => ({
-    useGroupFilterPredicate: jest.fn(),
+vi.mock(import('~/client/filters/hooks/useGroupFilterPredicate'), () => ({
+    useGroupFilterPredicate: vi.fn(),
 }));
 
-jest.mock('~/client/filters/hooks/useQuickFilterPredicate', () => ({
-    useQuickFilterPredicate: jest.fn(),
+vi.mock(import('~/client/filters/hooks/useQuickFilterPredicate'), () => ({
+    useQuickFilterPredicate: vi.fn(),
 }));
 
-jest.mock('~/client/state/products/useProducts', () => ({
-    useProducts: jest.fn(),
+vi.mock(import('~/client/state/products/useProducts'), () => ({
+    useProducts: vi.fn(),
 }));
 
 describe('useHasFilteredMissing', () => {
     const products = getProductsFixture();
 
     beforeEach(() => {
-        jest.mocked(useProducts).mockReturnValue(products);
-        jest.mocked(useGroupFilterPredicate).mockReturnValue(() => true);
-        jest.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
+        vi.mocked(useProducts).mockReturnValue(products);
+        vi.mocked(useGroupFilterPredicate).mockReturnValue(() => true);
+        vi.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns true when a missing product passes both filters', () => {
         const { result } = renderHook(() => useHasFilteredMissing());
@@ -36,7 +36,7 @@ describe('useHasFilteredMissing', () => {
     });
 
     it('returns false when group filter hides missing products', () => {
-        jest.mocked(useGroupFilterPredicate).mockReturnValue((group: string) => group !== 'Uogienės');
+        vi.mocked(useGroupFilterPredicate).mockReturnValue((group: string) => group !== 'Uogienės');
 
         const { result } = renderHook(() => useHasFilteredMissing());
 
@@ -44,7 +44,7 @@ describe('useHasFilteredMissing', () => {
     });
 
     it('returns false when quick filter hides missing products', () => {
-        jest.mocked(useQuickFilterPredicate).mockReturnValue((name: string) => !name.includes('Braškės'));
+        vi.mocked(useQuickFilterPredicate).mockReturnValue((name: string) => !name.includes('Braškės'));
 
         const { result } = renderHook(() => useHasFilteredMissing());
 
@@ -52,7 +52,7 @@ describe('useHasFilteredMissing', () => {
     });
 
     it('returns false when there are no missing products', () => {
-        jest.mocked(useProducts).mockReturnValue(products.map((p) => ({ ...p, missing: false })));
+        vi.mocked(useProducts).mockReturnValue(products.map((p) => ({ ...p, missing: false })));
 
         const { result } = renderHook(() => useHasFilteredMissing());
 

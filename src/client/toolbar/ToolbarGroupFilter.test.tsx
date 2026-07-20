@@ -8,25 +8,25 @@ import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
 
-jest.mock('~/client/state/groups/useGroups', () => ({
-    useGroups: jest.fn(),
+vi.mock(import('~/client/state/groups/useGroups'), () => ({
+    useGroups: vi.fn(),
 }));
-jest.mock('~/client/filters/GroupFilterContext', () => ({
-    useGroupFilter: jest.fn(),
+vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
+    useGroupFilter: vi.fn(),
 }));
 
 describe('<ToolbarGroupFilter>', () => {
-    const setGroup = jest.fn();
+    const setGroup = vi.fn();
 
     beforeEach(() => {
-        jest.mocked(useGroupFilter).mockReturnValue(['', setGroup]);
-        jest.mocked(useGroups).mockReturnValue([
+        vi.mocked(useGroupFilter).mockReturnValue(['', setGroup]);
+        vi.mocked(useGroups).mockReturnValue([
             { group: 'Uogienės', order: 0 },
             { group: 'Daržovės', order: 1 },
         ]);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders select with placeholder', () => {
         render(
@@ -52,7 +52,7 @@ describe('<ToolbarGroupFilter>', () => {
     });
 
     it('clears group value when clear button is clicked', async () => {
-        jest.mocked(useGroupFilter).mockReturnValue(['Daržovės', setGroup]);
+        vi.mocked(useGroupFilter).mockReturnValue(['Daržovės', setGroup]);
 
         render(
             <MockApp>
@@ -71,7 +71,7 @@ describe('<ToolbarGroupFilter>', () => {
     });
 
     it('uses correct rightSectionWidth when group is set', () => {
-        jest.mocked(useGroupFilter).mockReturnValue(['Uogienės', setGroup]);
+        vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', setGroup]);
 
         render(
             <MockApp>
@@ -83,7 +83,7 @@ describe('<ToolbarGroupFilter>', () => {
     });
 
     it('uses correct rightSectionWidth when group is empty', () => {
-        jest.mocked(useGroupFilter).mockReturnValue(['', setGroup]);
+        vi.mocked(useGroupFilter).mockReturnValue(['', setGroup]);
 
         render(
             <MockApp>
@@ -95,7 +95,7 @@ describe('<ToolbarGroupFilter>', () => {
     });
 
     it('handles null value in onChange by converting to empty string', async () => {
-        jest.mocked(useGroupFilter).mockReturnValue(['Uogienės', setGroup]);
+        vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', setGroup]);
 
         render(
             <MockApp>

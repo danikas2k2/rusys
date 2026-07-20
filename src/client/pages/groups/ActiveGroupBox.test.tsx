@@ -7,7 +7,7 @@ import React from 'react';
 import type { ActiveContent } from '~/client/common/ActiveContentContext';
 import { ActiveGroupBox } from '~/client/pages/groups/ActiveGroupBox';
 
-jest.mock('~/client/pages/groups/GroupBox', () => ({
+vi.mock(import('~/client/pages/groups/GroupBox'), (): any => ({
     GroupBox: ({ opened, onClose, onAfterClose, ...props }: any) =>
         opened ? (
             <dialog open>
@@ -20,9 +20,9 @@ jest.mock('~/client/pages/groups/GroupBox', () => ({
 
 describe('<ActiveGroupBox>', () => {
     const active: ActiveContent = { action: 'update', data: { group: 'Uogienės' } };
-    const setActive = jest.fn();
+    const setActive = vi.fn();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('does not render box if not active', () => {
         render(

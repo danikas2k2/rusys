@@ -11,19 +11,21 @@ import { useProfile } from '~/client/state/profile/useProfile';
 import { useSetProfile } from '~/client/state/profile/useSetProfile';
 import { isDevMode } from '~/common/utils/dev';
 
-jest.mock('~/common/utils/dev', () => ({
-    isDevMode: jest.fn().mockReturnValue(false),
+vi.mock(import('~/common/utils/dev'), () => ({
+    isDevMode: vi.fn().mockReturnValue(false),
 }));
-jest.mock('~/client/state/profile/useSetProfile', () => ({
-    useSetProfile: jest.fn(),
+vi.mock(import('~/client/state/profile/useSetProfile'), () => ({
+    useSetProfile: vi.fn(),
 }));
 
 describe('useProfile', () => {
-    const setProfile = jest.fn();
+    const setProfile = vi.fn();
 
-    beforeAll(() => jest.mocked(useSetProfile).mockReturnValue(setProfile));
+    beforeAll(() => {
+        vi.mocked(useSetProfile).mockReturnValue(setProfile);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     const value: Profile = {
         sub: '123',
@@ -92,7 +94,7 @@ describe('useProfile', () => {
     });
 
     it('returns current profile if dev mode enabled but has profile', () => {
-        jest.mocked(isDevMode).mockReturnValue(true);
+        vi.mocked(isDevMode).mockReturnValue(true);
 
         const { result } = renderHook(() => useProfile(), {
             wrapper: ({ children }) => (
@@ -106,7 +108,7 @@ describe('useProfile', () => {
     });
 
     it('returns profile from localStorage if dev mode enabled', () => {
-        jest.mocked(isDevMode).mockReturnValueOnce(true);
+        vi.mocked(isDevMode).mockReturnValueOnce(true);
         getItem.mockReturnValueOnce(JSON.stringify(value));
 
         const { result } = renderHook(() => useProfile(), {
@@ -119,7 +121,7 @@ describe('useProfile', () => {
     });
 
     it('returns dev profile if dev mode enabled and has no profile neither in state nor in localStorage', () => {
-        jest.mocked(isDevMode).mockReturnValueOnce(true);
+        vi.mocked(isDevMode).mockReturnValueOnce(true);
 
         const { result } = renderHook(() => useProfile(), {
             wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,

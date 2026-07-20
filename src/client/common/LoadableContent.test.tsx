@@ -6,22 +6,22 @@ import React from 'react';
 import { LoadableContent } from '~/client/common/LoadableContent';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 
-jest.mock('~/client/hooks/useLockingLoader', () => ({
-    ...jest.requireActual('~/client/hooks/useLockingLoader'),
-    useLockingLoader: jest.fn(),
+vi.mock(import('~/client/hooks/useLockingLoader'), async () => ({
+    ...(await vi.importActual('~/client/hooks/useLockingLoader')),
+    useLockingLoader: vi.fn(),
 }));
 
 describe('<LoadableContent>', () => {
     const props = {
-        loader: jest.fn(),
+        loader: vi.fn(),
         hasData: false,
         children: <div role="main">Content</div>,
     };
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('displays loader on initial state', async () => {
-        jest.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
+        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
 
         render(
             <MockTheme>
@@ -35,7 +35,7 @@ describe('<LoadableContent>', () => {
     });
 
     it('displays loader on loading state', async () => {
-        jest.mocked(useLockingLoader).mockReturnValue(LoadingState.LOADING);
+        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.LOADING);
 
         render(
             <MockTheme>
@@ -49,7 +49,7 @@ describe('<LoadableContent>', () => {
     });
 
     it('displays error on failed state', async () => {
-        jest.mocked(useLockingLoader).mockReturnValue(LoadingState.FAILED);
+        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.FAILED);
 
         render(
             <MockTheme>
@@ -63,7 +63,7 @@ describe('<LoadableContent>', () => {
     });
 
     it('displays error on complete state with no data', async () => {
-        jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
+        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
 
         render(
             <MockTheme>
@@ -77,7 +77,7 @@ describe('<LoadableContent>', () => {
     });
 
     it('displays content on complete state with data', async () => {
-        jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
+        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
 
         render(
             <MockTheme>

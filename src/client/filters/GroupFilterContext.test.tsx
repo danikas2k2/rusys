@@ -52,11 +52,13 @@ describe('<GroupFilterWrapper>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByRole('generic', { name: 'filter-value' })).toHaveTextContent('');
+        const filterValue = screen.getByRole('generic', { name: 'filter-value' });
+
+        expect(filterValue).toHaveTextContent('');
 
         await user.click(screen.getByRole('button', { name: 'Set Filter' }));
 
-        expect(screen.getByRole('generic', { name: 'filter-value' })).toHaveTextContent('test');
+        expect(filterValue).toHaveTextContent('test');
     });
 
     it('clears filter value', async () => {

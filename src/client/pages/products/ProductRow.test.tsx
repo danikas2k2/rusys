@@ -11,14 +11,14 @@ import { useSetProductMissing } from '~/client/state/products/useSetProductMissi
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 import { useYears } from '~/client/state/years/useYears';
 
-jest.mock('~/client/state/products/useSetProductMissing', () => ({
-    useSetProductMissing: jest.fn(),
+vi.mock(import('~/client/state/products/useSetProductMissing'), () => ({
+    useSetProductMissing: vi.fn(),
 }));
-jest.mock('~/client/state/products/useSetProductRemoving', () => ({
-    useSetProductRemoving: jest.fn(),
+vi.mock(import('~/client/state/products/useSetProductRemoving'), () => ({
+    useSetProductRemoving: vi.fn(),
 }));
-jest.mock('~/client/state/profile/useProfile');
-jest.mock('~/client/state/years/useYears');
+vi.mock(import('~/client/state/profile/useProfile'));
+vi.mock(import('~/client/state/years/useYears'));
 
 describe('<ProductRow>', () => {
     const user = userEvent.setup();
@@ -26,17 +26,17 @@ describe('<ProductRow>', () => {
     const product = products[0];
     const years = getYearsFixture();
 
-    const setMissing = jest.fn();
-    const setRemoving = jest.fn();
+    const setMissing = vi.fn();
+    const setRemoving = vi.fn();
 
     beforeEach(() => {
-        jest.mocked(useYears).mockReturnValue(years);
-        jest.mocked(useSetProductMissing).mockReturnValue(setMissing);
-        jest.mocked(useSetProductRemoving).mockReturnValue(setRemoving);
+        vi.mocked(useYears).mockReturnValue(years);
+        vi.mocked(useSetProductMissing).mockReturnValue(setMissing);
+        vi.mocked(useSetProductRemoving).mockReturnValue(setRemoving);
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it('renders a row with title and cells', () => {

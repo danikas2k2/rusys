@@ -8,36 +8,36 @@ import { Page } from '~/client/pages/common/Page';
 import { useDeleteVariant } from '~/client/state/variants/useDeleteVariant';
 import { VariantsPage } from './VariantsPage';
 
-jest.mock('~/client/common/SwipeControlsContext');
+vi.mock(import('~/client/common/SwipeControlsContext'));
 
 // Mock the components
-jest.mock('~/client/pages/variants/VariantsTable', () => ({
+vi.mock(import('~/client/pages/variants/VariantsTable'), () => ({
     VariantsTable: () => <div>VariantsTable</div>,
 }));
-jest.mock('~/client/pages/variants/ActiveVariantBox', () => ({
+vi.mock(import('~/client/pages/variants/ActiveVariantBox'), () => ({
     ActiveVariantBox: () => <div>ActiveVariantBox</div>,
 }));
-jest.mock('~/client/toolbar/ToolbarGroupFilter', () => ({
+vi.mock(import('~/client/toolbar/ToolbarGroupFilter'), () => ({
     ToolbarGroupFilter: () => <div>ToolbarGroupFilter</div>,
 }));
-jest.mock('~/client/common/SwipeControls', () => ({
+vi.mock(import('~/client/common/SwipeControls'), () => ({
     SwipeControls: () => <div>SwipeControls</div>,
 }));
-jest.mock('~/client/pages/common/ActiveContentOutsideClick', () => ({
+vi.mock(import('~/client/pages/common/ActiveContentOutsideClick'), () => ({
     ActiveContentOutsideClick: () => null,
 }));
-jest.mock('~/client/pages/common/Page');
-jest.mock('~/client/state/variants/useDeleteVariant');
+vi.mock(import('~/client/pages/common/Page'));
+vi.mock(import('~/client/state/variants/useDeleteVariant'));
 
 describe('<VariantsPage>', () => {
-    const deleteVariant = jest.fn();
+    const deleteVariant = vi.fn();
 
     beforeEach(() => {
-        jest.mocked(useDeleteVariant).mockReturnValue(deleteVariant);
+        vi.mocked(useDeleteVariant).mockReturnValue(deleteVariant);
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it('renders variant table', () => {
@@ -73,7 +73,7 @@ describe('<VariantsPage>', () => {
             </MockTheme>
         );
 
-        const [{ onDelete }] = jest.mocked(Page).mock.calls[0] as [
+        const [{ onDelete }] = vi.mocked(Page).mock.calls[0] as [
             { onDelete?: (v: { group: string; variant: string }) => void },
         ];
         onDelete!({ group: 'G', variant: 'V' });

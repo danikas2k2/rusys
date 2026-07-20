@@ -6,10 +6,10 @@ import React from 'react';
 
 import { SummaryPage } from '~/client/pages/summary/SummaryPage';
 
-jest.mock('~/client/pages/summary/SummaryTable', () => ({
+vi.mock(import('~/client/pages/summary/SummaryTable'), () => ({
     SummaryTable: () => <div>SummaryTable</div>,
 }));
-jest.mock('~/client/toolbar/Toolbar', () => ({
+vi.mock(import('~/client/toolbar/Toolbar'), () => ({
     Toolbar: () => <div>Toolbar</div>,
 }));
 

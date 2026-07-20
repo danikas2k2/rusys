@@ -6,7 +6,7 @@ import { DEV_CLIENT_ID } from '~/common/utils/dev';
 import { handleClientId } from '~/server/api/handleClientId';
 import type { ApiClientId } from '~/types/api';
 
-jest.mock('~/server/api/debug');
+vi.mock(import('~/server/api/debug'));
 
 describe('handleClientId', () => {
     const request = mockRequest();
@@ -15,7 +15,7 @@ describe('handleClientId', () => {
     mockEnv();
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         delete process.env.GOOGLE_CLIENT_ID;
     });
 

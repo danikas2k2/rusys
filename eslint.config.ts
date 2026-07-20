@@ -1,9 +1,9 @@
 import ts from '@typescript-eslint/eslint-plugin';
 import parser from '@typescript-eslint/parser';
+import vitest from '@vitest/eslint-plugin';
 import prettierConfig from 'eslint-config-prettier';
 import functional from 'eslint-plugin-functional';
 import imp from 'eslint-plugin-import';
-import jest from 'eslint-plugin-jest';
 import a11y from 'eslint-plugin-jsx-a11y';
 import prettier from 'eslint-plugin-prettier';
 import react from 'eslint-plugin-react';
@@ -27,7 +27,7 @@ export default [
     a11y.flatConfigs.recommended,
     {
         files: ['**/*.test.{ts,tsx}', '**/__mocks__/*.{ts,tsx}'],
-        ...jest.configs['flat/all'],
+        ...vitest.configs.all,
         settings: {
             'import/resolver': {
                 typescript: {
@@ -37,15 +37,14 @@ export default [
             },
         },
         rules: {
-            ...jest.configs['flat/all'].rules,
-            'jest/no-hooks': 'off',
-            'jest/no-untyped-mock-factory': 'off',
-            'jest/prefer-expect-assertions': 'off',
-            'jest/prefer-importing-jest-globals': 'off',
-            'jest/max-expects': ['error', { max: 9 }],
-            'jest/prefer-ending-with-an-expect': ['error', { assertFunctionNames: ['waitFor'] }],
-            'jest/require-hook': ['error', { allowedFunctionCalls: ['mockEnv', 'mockWindow'] }],
-            'jest/valid-mock-module-path': 'off',
+            ...vitest.configs.all.rules,
+            'vitest/no-hooks': 'off',
+            'vitest/prefer-expect-assertions': 'off',
+            'vitest/prefer-importing-vitest-globals': 'off',
+            'vitest/prefer-describe-function-title': 'off',
+            'vitest/require-mock-type-parameters': 'off',
+            'vitest/max-expects': ['error', { max: 9 }],
+            'vitest/require-hook': ['error', { allowedFunctionCalls: ['mockEnv', 'mockWindow'] }],
         },
     },
     {
@@ -53,7 +52,7 @@ export default [
         ...prettierConfig,
     },
     {
-        files: ['src/**/*.{ts,tsx}'],
+        files: ['src/**/*.{ts,tsx}', 'vitest/**/*.{ts,tsx}'],
         languageOptions: {
             parser,
             parserOptions: {
@@ -215,7 +214,7 @@ export default [
             'react/display-name': 'off',
             'import/no-named-as-default': 'off',
             'no-console': 'off',
-            'jest/valid-title': ['error', { disallowedWords: ['should'] }],
+            'vitest/valid-title': ['error', { disallowedWords: ['should'] }],
 
             // my custom overrides
             'arrow-body-style': ['error', 'as-needed'],

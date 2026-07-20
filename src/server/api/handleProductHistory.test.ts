@@ -1,4 +1,3 @@
-/** @jest-environment node */
 import { getGroupsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
@@ -9,9 +8,9 @@ import { getProductUndates, getProductUpdates } from '~/server/data/products';
 import type { ApiHistory, ApiRequestHistory } from '~/types/api';
 import type { History } from '~/types/data';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/data/products');
-jest.mock('~/server/data/groups');
+vi.mock(import('~/server/api/debug'));
+vi.mock(import('~/server/data/products'));
+vi.mock(import('~/server/data/groups'));
 
 describe('handleProductHistory', () => {
     const request = mockRequest<ApiRequestHistory>({ group: 'Uogienės', name: 'Braškės', year: 22 });
@@ -21,12 +20,12 @@ describe('handleProductHistory', () => {
     const undates: History[] = [{ group: 'Uogienės', name: 'Braškės', time: 2000, year: 22 }];
     const groups = getGroupsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(getProductUpdates).mockResolvedValueOnce(updates);
-        jest.mocked(getProductUndates).mockResolvedValueOnce(undates);
-        jest.mocked(getGroups).mockResolvedValueOnce(groups);
+        vi.mocked(getProductUpdates).mockResolvedValueOnce(updates);
+        vi.mocked(getProductUndates).mockResolvedValueOnce(undates);
+        vi.mocked(getGroups).mockResolvedValueOnce(groups);
 
         await handleProductHistory(request, response);
 
@@ -38,7 +37,7 @@ describe('handleProductHistory', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(getProductUpdates).mockRejectedValueOnce('Failed to get history');
+        vi.mocked(getProductUpdates).mockRejectedValueOnce('Failed to get history');
 
         await handleProductHistory(request, response);
 

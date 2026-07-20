@@ -18,34 +18,34 @@ import { useGroups } from '~/client/state/groups/useGroups';
 import { useReorderGroups } from '~/client/state/groups/useReorderGroups';
 import type { Group } from '~/types/data';
 
-jest.mock('~/client/state/years/useYears');
-jest.mock('~/client/state/groups/useGroups');
-jest.mock('~/client/common/hooks/useReorderHandler');
-jest.mock('~/client/pages/groups/hooks/useGroupsHasData');
-jest.mock('~/client/state/groups/useGetGroups');
-jest.mock('~/client/state/groups/useReorderGroups');
-jest.mock('~/client/hooks/useLockingLoader');
-jest.mock('~/client/filters/QuickFilterContext', () => ({
-    useQuickFilter: jest.fn().mockReturnValue(['', jest.fn()]),
+vi.mock(import('~/client/state/years/useYears'));
+vi.mock(import('~/client/state/groups/useGroups'));
+vi.mock(import('~/client/common/hooks/useReorderHandler'));
+vi.mock(import('~/client/pages/groups/hooks/useGroupsHasData'));
+vi.mock(import('~/client/state/groups/useGetGroups'));
+vi.mock(import('~/client/state/groups/useReorderGroups'));
+vi.mock(import('~/client/hooks/useLockingLoader'));
+vi.mock(import('~/client/filters/QuickFilterContext'), () => ({
+    useQuickFilter: vi.fn().mockReturnValue(['', vi.fn()]),
 }));
-jest.mock('~/client/common/DraggableContent', () => ({
-    DraggableContent: jest.fn(({ children }: any) => <>{children}</>),
-}));
-
-jest.mock('~/client/common/SortableContent', () => ({
-    SortableContent: jest.fn(({ children }: any) => <>{children}</>),
+vi.mock(import('~/client/common/DraggableContent'), () => ({
+    DraggableContent: vi.fn(({ children }: any) => <>{children}</>),
 }));
 
-jest.mock('~/client/table/DragOverlayTable', () => ({
-    DragOverlayTable: jest.fn(({ children }: any) => (
+vi.mock(import('~/client/common/SortableContent'), () => ({
+    SortableContent: vi.fn(({ children }: any) => <>{children}</>),
+}));
+
+vi.mock(import('~/client/table/DragOverlayTable'), () => ({
+    DragOverlayTable: vi.fn(({ children }: any) => (
         <table data-testid="drag-overlay-table">
             <tbody>{children}</tbody>
         </table>
     )),
 }));
 
-jest.mock('~/client/pages/groups/GroupsRow', () => ({
-    GroupsRow: jest.fn(({ group, hidden }: any) => (
+vi.mock(import('~/client/pages/groups/GroupsRow'), () => ({
+    GroupsRow: vi.fn(({ group, hidden }: any) => (
         <tr data-testid="groups-row" data-group={group.group} data-hidden={String(hidden ?? false)}>
             <td />
             <td>{group.group}</td>
@@ -56,22 +56,22 @@ jest.mock('~/client/pages/groups/GroupsRow', () => ({
 
 describe('<GroupsTable>', () => {
     const mockItems: Group[] = getGroupsFixture();
-    const mockOnDragEnd = jest.fn();
-    const mockGetGroups = jest.fn().mockResolvedValue(undefined);
+    const mockOnDragEnd = vi.fn();
+    const mockGetGroups = vi.fn().mockResolvedValue(undefined);
 
     beforeEach(() => {
-        jest.mocked(useGroups).mockReturnValue(getGroupsFixture());
-        jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
-        jest.mocked(useGroupsHasData).mockReturnValue(true);
-        jest.mocked(useGetGroups).mockReturnValue(mockGetGroups);
-        jest.mocked(useReorderHandler).mockReturnValue({
+        vi.mocked(useGroups).mockReturnValue(getGroupsFixture());
+        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
+        vi.mocked(useGroupsHasData).mockReturnValue(true);
+        vi.mocked(useGetGroups).mockReturnValue(mockGetGroups);
+        vi.mocked(useReorderHandler).mockReturnValue({
             items: mockItems,
             reordering: false,
             onDragEnd: mockOnDragEnd,
         });
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders table structure', () => {
         render(
@@ -103,7 +103,7 @@ describe('<GroupsTable>', () => {
 
     describe('renders loader', () => {
         it('renders loader for initial state', () => {
-            jest.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
+            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
             render(
                 <MockTheme>
                     <MockRedux>
@@ -118,7 +118,7 @@ describe('<GroupsTable>', () => {
         });
 
         it('renders loader for loading state', () => {
-            jest.mocked(useLockingLoader).mockReturnValue(LoadingState.LOADING);
+            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.LOADING);
             render(
                 <MockTheme>
                     <MockRedux>
@@ -135,7 +135,7 @@ describe('<GroupsTable>', () => {
 
     describe('renders error', () => {
         it('renders error for failed state', () => {
-            jest.mocked(useLockingLoader).mockReturnValue(LoadingState.FAILED);
+            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.FAILED);
             render(
                 <MockTheme>
                     <MockRedux>
@@ -150,8 +150,8 @@ describe('<GroupsTable>', () => {
         });
 
         it('renders error for complete state without groups', () => {
-            jest.mocked(useGroups).mockReturnValue([]);
-            jest.mocked(useGroupsHasData).mockReturnValue(false);
+            vi.mocked(useGroups).mockReturnValue([]);
+            vi.mocked(useGroupsHasData).mockReturnValue(false);
             render(
                 <MockTheme>
                     <MockRedux>
@@ -168,7 +168,7 @@ describe('<GroupsTable>', () => {
 
     describe('handles filter state', () => {
         it('renders filtered data by quick filter', () => {
-            jest.mocked(useQuickFilter).mockReturnValue(['Uog', jest.fn()]);
+            vi.mocked(useQuickFilter).mockReturnValue(['Uog', vi.fn()]);
 
             render(
                 <MockTheme>
@@ -189,7 +189,7 @@ describe('<GroupsTable>', () => {
 
     describe('handles drag and reorder', () => {
         it('calls setActive when drag starts', () => {
-            const mockSetActive = jest.fn();
+            const mockSetActive = vi.fn();
             const state = {
                 groups: getGroupsFixture(),
             };
@@ -208,8 +208,8 @@ describe('<GroupsTable>', () => {
         });
 
         it('configures useReorderHandler with correct callbacks', () => {
-            const mockReorderGroups = jest.fn().mockResolvedValue(undefined);
-            jest.mocked(useReorderGroups).mockReturnValue(mockReorderGroups);
+            const mockReorderGroups = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useReorderGroups).mockReturnValue(mockReorderGroups);
 
             const state = {
                 groups: getGroupsFixture(),
@@ -223,7 +223,7 @@ describe('<GroupsTable>', () => {
 
             expect(useReorderHandler).toHaveBeenCalledWith(expect.any(Object));
 
-            const callArgs = jest.mocked(useReorderHandler).mock.calls[0][0];
+            const callArgs = vi.mocked(useReorderHandler).mock.calls[0][0];
 
             expect(callArgs).toHaveProperty('onReorder');
             expect(callArgs).toHaveProperty('equals');
@@ -239,8 +239,8 @@ describe('<GroupsTable>', () => {
         });
 
         it('calls reorderGroups with correct parameters when onReorder is called', async () => {
-            const mockReorderGroups = jest.fn().mockResolvedValue(undefined);
-            jest.mocked(useReorderGroups).mockReturnValue(mockReorderGroups);
+            const mockReorderGroups = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useReorderGroups).mockReturnValue(mockReorderGroups);
 
             const state = {
                 groups: getGroupsFixture(),
@@ -252,7 +252,7 @@ describe('<GroupsTable>', () => {
                 </MockApp>
             );
 
-            const callArgs = jest.mocked(useReorderHandler).mock.calls[0][0];
+            const callArgs = vi.mocked(useReorderHandler).mock.calls[0][0];
             const { onReorder } = callArgs;
 
             const reordered: Group[] = [
@@ -272,7 +272,7 @@ describe('<GroupsTable>', () => {
 
         beforeEach(() => {
             capturedRenderDragOverlay = null;
-            jest.mocked(DraggableContent).mockImplementation(({ renderDragOverlay, children }: any) => {
+            vi.mocked(DraggableContent).mockImplementation(({ renderDragOverlay, children }: any) => {
                 capturedRenderDragOverlay = renderDragOverlay ?? null;
                 return <>{children}</>;
             });

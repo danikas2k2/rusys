@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
+import type { Mocked } from 'vitest';
 
 import { Page } from '~/client/pages/common/Page';
 import { MissingOnlyEffects } from '~/client/pages/products/MissingOnlyEffects';
@@ -9,42 +10,44 @@ import { ProductsPage } from '~/client/pages/products/ProductsPage';
 import { ProductsTable } from '~/client/pages/products/ProductsTable';
 import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
 
-jest.mock('~/client/pages/products/ProductsTable', () => ({
-    ProductsTable: jest.fn(() => <div>ProductsTable</div>),
+vi.mock(import('~/client/pages/products/ProductsTable'), (): any => ({
+    ProductsTable: vi.fn(() => <div>ProductsTable</div>),
 }));
-jest.mock('~/client/pages/products/MissingOnlyEffects', () => ({
-    MissingOnlyEffects: jest.fn(() => null),
+vi.mock(import('~/client/pages/products/MissingOnlyEffects'), (): any => ({
+    MissingOnlyEffects: vi.fn(() => null),
 }));
-jest.mock('~/client/pages/common/Page');
-jest.mock('~/client/common/SwipeControls', () => ({
+vi.mock(import('~/client/pages/common/Page'));
+vi.mock(import('~/client/common/SwipeControls'), (): any => ({
     SwipeControls: () => null,
 }));
-jest.mock('~/client/common/SwipeControlsContext', () => ({
+vi.mock(import('~/client/common/SwipeControlsContext'), (): any => ({
     SwipeControlsWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-jest.mock('~/client/pages/products/ActiveProductBox', () => ({
+vi.mock(import('~/client/pages/products/ActiveProductBox'), (): any => ({
     ActiveProductBox: () => null,
 }));
-jest.mock('~/client/pages/products/ActiveAmountBox', () => ({
+vi.mock(import('~/client/pages/products/ActiveAmountBox'), (): any => ({
     ActiveAmountBox: () => null,
 }));
-jest.mock('~/client/toolbar/ToolbarGroupFilter', () => ({
+vi.mock(import('~/client/toolbar/ToolbarGroupFilter'), (): any => ({
     ToolbarGroupFilter: () => null,
 }));
-jest.mock('~/client/pages/products/MissingOnlyContext', () => ({
+vi.mock(import('~/client/pages/products/MissingOnlyContext'), (): any => ({
     MissingOnlyWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-jest.mock('~/client/pages/products/UpdatingProductsContext', () => ({
+vi.mock(import('~/client/pages/products/UpdatingProductsContext'), (): any => ({
     UpdatingProductsWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-jest.mock('~/client/state/products/useDeleteProduct');
+vi.mock(import('~/client/state/products/useDeleteProduct'));
 
 describe('<ProductsPage>', () => {
-    const mockDeleteProduct = jest.fn().mockResolvedValue(undefined);
+    const mockDeleteProduct = vi.fn().mockResolvedValue(undefined);
 
-    beforeEach(() => jest.mocked(useDeleteProduct).mockReturnValue(mockDeleteProduct));
+    beforeEach(() => {
+        vi.mocked(useDeleteProduct).mockReturnValue(mockDeleteProduct);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders into the document', () => {
         render(
@@ -59,8 +62,8 @@ describe('<ProductsPage>', () => {
     });
 
     it('calls deleteProduct when handleDelete is called', async () => {
-        let mockDelete: jest.Mocked<React.ComponentProps<typeof Page>['onDelete']>;
-        jest.mocked(Page).mockImplementation(({ onDelete }) => {
+        let mockDelete: Mocked<React.ComponentProps<typeof Page>['onDelete']>;
+        vi.mocked(Page).mockImplementation(({ onDelete }: React.ComponentProps<typeof Page>) => {
             mockDelete = onDelete;
             return <div>Page</div>;
         });

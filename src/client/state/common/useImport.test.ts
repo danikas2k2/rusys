@@ -4,14 +4,16 @@ import { useApiRequest } from '~/client/state/common/useApiRequest';
 import { useImport } from '~/client/state/common/useImport';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/common/useApiRequest');
+vi.mock(import('~/client/state/common/useApiRequest'));
 
 describe('useImport', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useApiRequest).mockReturnValue(request));
+    beforeAll(() => {
+        vi.mocked(useApiRequest).mockReturnValue(request);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls import action', async () => {
         const data = new FormData();

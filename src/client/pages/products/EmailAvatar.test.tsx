@@ -4,12 +4,13 @@ import { MockTheme } from '@tests/MockTheme';
 import React from 'react';
 
 import { EmailAvatar } from '~/client/pages/products/EmailAvatar';
+import { gravatarUrl } from '~/client/utils/gravatar';
 
-jest.mock('~/client/utils/gravatar', () => ({
-    gravatarUrl: jest.fn(() => 'https://gravatar.example.com/hash'),
+vi.mock(import('~/client/utils/gravatar'), (): any => ({
+    gravatarUrl: vi.fn(() => 'https://gravatar.example.com/hash'),
 }));
 
-jest.mock('~/client/state/profile/dev', () => ({
+vi.mock(import('~/client/state/profile/dev'), (): any => ({
     DEV_MODE_EMAIL: 'dev@mo.de',
 }));
 
@@ -45,8 +46,6 @@ describe('<EmailAvatar>', () => {
     });
 
     it('renders Avatar with gravatar URL when no profile or fallbackPicture', () => {
-        const { gravatarUrl } = jest.requireMock('~/client/utils/gravatar');
-
         const { container } = render(
             <MockTheme>
                 <EmailAvatar email="user@example.com" />

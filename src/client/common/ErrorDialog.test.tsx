@@ -9,21 +9,21 @@ import { useDispatch } from 'react-redux';
 import { ErrorDialog } from '~/client/common/ErrorDialog';
 import { clearErrorAction } from '~/client/state/error/actions';
 
-jest.mock('react-redux', () => ({
-    ...jest.requireActual('react-redux'),
-    useDispatch: jest.fn(),
+vi.mock(import('react-redux'), async () => ({
+    ...(await vi.importActual('react-redux')),
+    useDispatch: vi.fn(),
 }));
 
 describe('<ErrorDialog>', () => {
     const user = userEvent.setup();
-    const dispatch = jest.fn();
+    const dispatch = vi.fn();
 
     beforeAll(() => {
-        jest.mocked(useDispatch).mockReturnValue(dispatch);
+        vi.mocked(useDispatch).mockReturnValue(dispatch);
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it('does not render when error is null', () => {

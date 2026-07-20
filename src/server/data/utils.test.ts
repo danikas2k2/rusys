@@ -1,4 +1,3 @@
-/** @jest-environment node */
 import { MongoError, type DeleteResult, type InsertManyResult, type InsertOneResult, type UpdateResult } from 'mongodb';
 
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
@@ -7,67 +6,67 @@ describe('hasEffect', () => {
     it('returns true when insertedId is present', () => {
         const result = { insertedId: '123' } as InsertOneResult;
 
-        expect(hasEffect(result)).toBeTrue();
+        expect(hasEffect(result)).toBe(true);
     });
 
     it('returns false when insertedId is present but has falsy value', () => {
         const result = { insertedId: null } as InsertOneResult;
 
-        expect(hasEffect(result)).toBeFalse();
+        expect(hasEffect(result)).toBe(false);
     });
 
     it('returns true when insertedCount is present', () => {
         const result = { insertedCount: 1 } as InsertManyResult;
 
-        expect(hasEffect(result)).toBeTrue();
+        expect(hasEffect(result)).toBe(true);
     });
 
     it('returns false when insertedCount is present but has falsy value', () => {
         const result = { insertedCount: 0 } as InsertManyResult;
 
-        expect(hasEffect(result)).toBeFalse();
+        expect(hasEffect(result)).toBe(false);
     });
 
     it('returns true when modifiedCount is present', () => {
         const result = { modifiedCount: 1 } as UpdateResult;
 
-        expect(hasEffect(result)).toBeTrue();
+        expect(hasEffect(result)).toBe(true);
     });
 
     it('returns false when modifiedCount is present but has falsy value', () => {
         const result = { modifiedCount: 0 } as UpdateResult;
 
-        expect(hasEffect(result)).toBeFalse();
+        expect(hasEffect(result)).toBe(false);
     });
 
     it('returns true when upsertedCount is present', () => {
         const result = { upsertedCount: 1 } as UpdateResult;
 
-        expect(hasEffect(result)).toBeTrue();
+        expect(hasEffect(result)).toBe(true);
     });
 
     it('returns false when upsertedCount is present but has falsy value', () => {
         const result = { upsertedCount: 0 } as UpdateResult;
 
-        expect(hasEffect(result)).toBeFalse();
+        expect(hasEffect(result)).toBe(false);
     });
 
     it('returns true when deletedCount is present', () => {
         const result = { deletedCount: 1 } as DeleteResult;
 
-        expect(hasEffect(result)).toBeTrue();
+        expect(hasEffect(result)).toBe(true);
     });
 
     it('returns false when deletedCount is present but has falsy value', () => {
         const result = { deletedCount: 0 } as DeleteResult;
 
-        expect(hasEffect(result)).toBeFalse();
+        expect(hasEffect(result)).toBe(false);
     });
 
     it('returns false when no effect fields are present', () => {
         const result = {} as any;
 
-        expect(hasEffect(result)).toBeFalse();
+        expect(hasEffect(result)).toBe(false);
     });
 });
 
@@ -76,7 +75,7 @@ describe('hasDuplicates', () => {
         const error = new MongoError('Duplicate key error');
         error.code = 11000;
 
-        expect(hasDuplicates(error)).toBeFalse();
+        expect(hasDuplicates(error)).toBe(false);
     });
 
     it('returns false when MongoError with different code is thrown', () => {

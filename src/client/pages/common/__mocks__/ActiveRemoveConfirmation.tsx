@@ -1,6 +1,7 @@
 import React from 'react';
+import { vi } from 'vitest';
 
-export const ActiveRemoveConfirmation = jest.fn(({ onConfirm }: { onConfirm?: (data: unknown) => void }) => (
+export const ActiveRemoveConfirmation = vi.fn(({ onConfirm }: { onConfirm?: (data: unknown) => void }) => (
     <div role="dialog">
         <button onClick={() => onConfirm?.({})}>Remove</button>
     </div>

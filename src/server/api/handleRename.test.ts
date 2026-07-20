@@ -1,4 +1,3 @@
-/** @jest-environment node */
 import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
@@ -8,9 +7,9 @@ import { getProductsWithYears } from '~/server/api/response';
 import { renameProduct } from '~/server/data/products';
 import type { ApiProductsWithYears, ApiRenameProduct } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/products');
+vi.mock(import('~/server/api/debug'));
+vi.mock(import('~/server/api/response'));
+vi.mock(import('~/server/data/products'));
 
 describe('handleRename', () => {
     const request = mockRequest<ApiRenameProduct>({ group: 'Uogienės', name: 'Braškės', newName: 'Braškienė' });
@@ -18,11 +17,11 @@ describe('handleRename', () => {
     const years = getYearsFixture();
     const products = getProductsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(renameProduct).mockResolvedValueOnce(true);
-        jest.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
+        vi.mocked(renameProduct).mockResolvedValueOnce(true);
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
 
         await handleRename(request, response);
 
@@ -33,7 +32,7 @@ describe('handleRename', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(renameProduct).mockResolvedValueOnce(false);
+        vi.mocked(renameProduct).mockResolvedValueOnce(false);
 
         await handleRename(request, response);
 
@@ -44,7 +43,7 @@ describe('handleRename', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(renameProduct).mockRejectedValueOnce('Failed to rename product');
+        vi.mocked(renameProduct).mockRejectedValueOnce('Failed to rename product');
 
         await handleRename(request, response);
 

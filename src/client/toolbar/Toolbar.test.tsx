@@ -4,13 +4,13 @@ import React from 'react';
 
 import { Toolbar } from '~/client/toolbar/Toolbar';
 
-jest.mock('~/client/toolbar/ToolbarMenu', () => ({
+vi.mock(import('~/client/toolbar/ToolbarMenu'), () => ({
     ToolbarMenu: () => <div>ToolbarMenu</div>,
 }));
-jest.mock('~/client/toolbar/ToolbarFilter', () => ({
+vi.mock(import('~/client/toolbar/ToolbarFilter'), () => ({
     ToolbarFilter: () => <div>ToolbarFilter</div>,
 }));
-jest.mock('~/client/user/LogoutButton', () => ({
+vi.mock(import('~/client/user/LogoutButton'), () => ({
     LogoutButton: () => <div>LogoutButton</div>,
 }));
 

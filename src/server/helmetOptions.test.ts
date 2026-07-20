@@ -1,20 +1,15 @@
-/** @jest-environment node */
-
 describe('helmetOptions (dev mode)', () => {
     let helmetOptions: typeof import('~/server/helmetOptions').default; // eslint-disable-line @typescript-eslint/consistent-type-imports
 
-    beforeAll(() => {
-        jest.mock('~/common/utils/dev', () => ({ isDevMode: () => true }));
-
-        jest.isolateModules(() => {
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            helmetOptions = require('~/server/helmetOptions').default;
-        });
+    beforeAll(async () => {
+        vi.doMock(import('~/common/utils/dev'), () => ({ isDevMode: () => true }));
+        vi.resetModules();
+        helmetOptions = (await import('~/server/helmetOptions')).default;
     });
 
     afterAll(() => {
-        jest.resetModules();
-        jest.unmock('~/common/utils/dev');
+        vi.resetModules();
+        vi.doUnmock('~/common/utils/dev');
     });
 
     it('disables hsts in dev mode', () => {
@@ -48,18 +43,15 @@ describe('helmetOptions (dev mode)', () => {
 describe('helmetOptions (prod mode)', () => {
     let helmetOptions: typeof import('~/server/helmetOptions').default; // eslint-disable-line @typescript-eslint/consistent-type-imports
 
-    beforeAll(() => {
-        jest.mock('~/common/utils/dev', () => ({ isDevMode: () => false }));
-
-        jest.isolateModules(() => {
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            helmetOptions = require('~/server/helmetOptions').default;
-        });
+    beforeAll(async () => {
+        vi.doMock(import('~/common/utils/dev'), () => ({ isDevMode: () => false }));
+        vi.resetModules();
+        helmetOptions = (await import('~/server/helmetOptions')).default;
     });
 
     afterAll(() => {
-        jest.resetModules();
-        jest.unmock('~/common/utils/dev');
+        vi.resetModules();
+        vi.doUnmock('~/common/utils/dev');
     });
 
     it('enables hsts with correct options in prod mode', () => {

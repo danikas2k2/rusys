@@ -1,4 +1,3 @@
-/** @jest-environment node */
 import { getGroupsFixture, getProductsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 
 import {
@@ -13,13 +12,11 @@ import { getGroups } from '~/server/data/groups';
 import { getProducts } from '~/server/data/products';
 import { getVariants } from '~/server/data/variants';
 
-jest.setTimeout(30_000);
-
-jest.mock('~/server/db');
-jest.mock('~/server/data/years');
-jest.mock('~/server/data/products');
-jest.mock('~/server/data/variants');
-jest.mock('~/server/data/groups');
+vi.mock(import('~/server/db'));
+vi.mock(import('~/server/data/years'));
+vi.mock(import('~/server/data/products'));
+vi.mock(import('~/server/data/variants'));
+vi.mock(import('~/server/data/groups'));
 
 describe('products', () => {
     const years = getYearsFixture();
@@ -28,12 +25,12 @@ describe('products', () => {
     const groups = getGroupsFixture();
 
     beforeEach(async () => {
-        jest.mocked(getProducts).mockResolvedValue(products);
-        jest.mocked(getVariants).mockResolvedValue(variants);
-        jest.mocked(getGroups).mockResolvedValue(groups);
+        vi.mocked(getProducts).mockResolvedValue(products);
+        vi.mocked(getVariants).mockResolvedValue(variants);
+        vi.mocked(getGroups).mockResolvedValue(groups);
     });
 
-    afterEach(async () => jest.clearAllMocks());
+    afterEach(async () => vi.clearAllMocks());
 
     describe('getProductsWithYears', () => {
         it('handles products', async () =>
@@ -48,7 +45,7 @@ describe('products', () => {
                 { group: 'Test2', name: 'Test Item 2', years: undefined }, // explicit undefined
             ];
 
-            jest.mocked(getProducts).mockResolvedValueOnce(productsWithoutYears);
+            vi.mocked(getProducts).mockResolvedValueOnce(productsWithoutYears);
 
             const result = await getProductsWithYears();
 
@@ -69,7 +66,7 @@ describe('products', () => {
                 },
             ];
 
-            jest.mocked(getProducts).mockResolvedValueOnce(productsWithDuplicateYears);
+            vi.mocked(getProducts).mockResolvedValueOnce(productsWithDuplicateYears);
 
             const result = await getProductsWithYears();
 
@@ -95,7 +92,7 @@ describe('products', () => {
                 { group: 'Test3', name: 'Also No Years' }, // no years
             ];
 
-            jest.mocked(getProducts).mockResolvedValueOnce(mixedProducts);
+            vi.mocked(getProducts).mockResolvedValueOnce(mixedProducts);
 
             const result = await getProductsWithYears();
 

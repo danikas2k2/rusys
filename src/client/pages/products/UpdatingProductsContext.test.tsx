@@ -51,7 +51,7 @@ describe('useUpdatingProducts', () => {
     });
 
     it('returns custom updating products context', () => {
-        const setUpdating = jest.fn();
+        const setUpdating = vi.fn();
         const state = { 'Uogienės:Avietės:2024': true };
         const { result } = renderHook(() => useUpdatingProducts(), {
             wrapper: ({ children }) => (
@@ -76,7 +76,7 @@ describe('useProductUpdating', () => {
         const state = { 'Uogienės:Avietės:2024': true };
         const { result } = renderHook(() => useProductUpdating(product), {
             wrapper: ({ children }) => (
-                <UpdatingProductsContext value={[state, jest.fn()]}>{children}</UpdatingProductsContext>
+                <UpdatingProductsContext value={[state, vi.fn()]}>{children}</UpdatingProductsContext>
             ),
         });
 
@@ -129,11 +129,13 @@ describe('<UpdatingProductsWrapper>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Set updating' }));
 
-        expect(screen.getByRole('status')).toHaveTextContent('true');
+        const badge = screen.getByRole('status');
+
+        expect(badge).toHaveTextContent('true');
 
         await user.click(screen.getByRole('button', { name: 'Set idle' }));
 
-        expect(screen.getByRole('status')).toHaveTextContent('false');
+        expect(badge).toHaveTextContent('false');
     });
 
     it('handles multiple items independently', async () => {
@@ -163,10 +165,12 @@ describe('<UpdatingProductsWrapper>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Update first product' }));
 
-        expect(screen.getByRole('status')).toHaveTextContent('true : false');
+        const badge = screen.getByRole('status');
+
+        expect(badge).toHaveTextContent('true : false');
 
         await user.click(screen.getByRole('button', { name: 'Update second product' }));
 
-        expect(screen.getByRole('status')).toHaveTextContent('true : true');
+        expect(badge).toHaveTextContent('true : true');
     });
 });

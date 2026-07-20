@@ -9,19 +9,19 @@ import { App } from '~/client/App';
 import { useGoogleClientId } from '~/client/state/google/useGoogleClientId';
 import { isDevMode } from '~/common/utils/dev';
 
-jest.mock('@react-oauth/google', () => ({
-    GoogleOAuthProvider: jest.fn(({ children }) => <div>{children}</div>),
+vi.mock(import('@react-oauth/google'), () => ({
+    GoogleOAuthProvider: vi.fn(({ children }: { children: React.ReactNode }) => <div>{children}</div>),
 }));
-jest.mock('~/client/AppContent', () => ({
+vi.mock(import('~/client/AppContent'), () => ({
     AppContent: () => <div>AppContent</div>,
 }));
-jest.mock('~/common/utils/dev');
-jest.mock('~/client/state/google/useGoogleClientId');
+vi.mock(import('~/common/utils/dev'));
+vi.mock(import('~/client/state/google/useGoogleClientId'));
 
 describe('<App>', () => {
     mockEnv();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders Loader when clientId is null', () => {
         render(
@@ -35,7 +35,7 @@ describe('<App>', () => {
     });
 
     it('renders AppContent when dev mode is on even if clientId is null', () => {
-        jest.mocked(isDevMode).mockReturnValueOnce(true);
+        vi.mocked(isDevMode).mockReturnValueOnce(true);
 
         render(
             <MockThemeRedux>
@@ -47,9 +47,9 @@ describe('<App>', () => {
     });
 
     it('renders Error when Google OAuth script fails to load', () => {
-        jest.mocked(useGoogleClientId).mockReturnValueOnce('validId');
+        vi.mocked(useGoogleClientId).mockReturnValueOnce('validId');
 
-        const mockGoogleOAuthProvider = jest.mocked(GoogleOAuthProvider);
+        const mockGoogleOAuthProvider = vi.mocked(GoogleOAuthProvider);
         let onScriptLoadError: (() => void) | undefined;
 
         mockGoogleOAuthProvider.mockImplementation(
@@ -76,7 +76,7 @@ describe('<App>', () => {
     });
 
     it('renders AppContent when clientId is valid', () => {
-        jest.mocked(useGoogleClientId).mockReturnValueOnce('validId');
+        vi.mocked(useGoogleClientId).mockReturnValueOnce('validId');
 
         render(
             <MockThemeRedux>

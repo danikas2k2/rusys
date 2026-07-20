@@ -6,11 +6,11 @@ import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 
-jest.mock('~/client/state/variants/useGroupVariantComparator', () => ({
-    useGroupVariantComparator: jest.fn().mockReturnValue(() => 0),
+vi.mock(import('~/client/state/variants/useGroupVariantComparator'), () => ({
+    useGroupVariantComparator: vi.fn().mockReturnValue(() => 0),
 }));
-jest.mock('~/client/common/AmountSuffix', () => ({
-    AmountSuffix: jest.fn().mockReturnValue(null),
+vi.mock(import('~/client/common/AmountSuffix'), () => ({
+    AmountSuffix: vi.fn().mockReturnValue(null),
 }));
 
 describe('<ProductAmounts>', () => {
@@ -20,7 +20,7 @@ describe('<ProductAmounts>', () => {
         { variant: 'd', amount: 1 },
     ];
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders with group and amounts', () => {
         render(<ProductAmounts group={group} amounts={amounts} />);
@@ -28,24 +28,23 @@ describe('<ProductAmounts>', () => {
         expect(screen.getByText('2')).toBeInTheDocument();
         expect(screen.getByText('1')).toBeInTheDocument();
 
-        expect(AmountSuffix)
-            .toHaveBeenCalledTimes(2)
-            .toHaveBeenNthCalledWith(
-                1,
-                expect.objectContaining({
-                    group,
-                    variant: 'p',
-                }),
-                undefined
-            )
-            .toHaveBeenNthCalledWith(
-                2,
-                expect.objectContaining({
-                    group,
-                    variant: 'd',
-                }),
-                undefined
-            );
+        expect(AmountSuffix).toHaveBeenCalledTimes(2);
+        expect(AmountSuffix).toHaveBeenNthCalledWith(
+            1,
+            expect.objectContaining({
+                group,
+                variant: 'p',
+            }),
+            undefined
+        );
+        expect(AmountSuffix).toHaveBeenNthCalledWith(
+            2,
+            expect.objectContaining({
+                group,
+                variant: 'd',
+            }),
+            undefined
+        );
     });
 
     it('renders empty when amounts is empty array', () => {
@@ -61,8 +60,8 @@ describe('<ProductAmounts>', () => {
     });
 
     it('sorts amounts by variant using comparator', () => {
-        const mockComparator = jest.fn(() => 0);
-        jest.mocked(useGroupVariantComparator).mockReturnValue(mockComparator);
+        const mockComparator = vi.fn(() => 0);
+        vi.mocked(useGroupVariantComparator).mockReturnValue(mockComparator);
 
         render(<ProductAmounts group={group} amounts={amounts} />);
 

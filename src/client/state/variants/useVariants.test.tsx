@@ -9,7 +9,7 @@ import { useVariants } from '~/client/state/variants/useVariants';
 describe('useVariants', () => {
     const variants = getVariantsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns variants from state', () => {
         const { result } = renderHook(() => useVariants(), {

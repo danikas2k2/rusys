@@ -3,7 +3,7 @@ import { google as reducer } from '~/client/state/google/reducer';
 import type { Google } from '~/client/state/google/types';
 
 describe('google', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     const google: Google = {
         loading: false,

@@ -5,14 +5,16 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { useUpdateVariant } from '~/client/state/variants/useUpdateVariant';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
+vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
 
 describe('useUpdateVariant', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeAll(() => {
+        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls update action with mandatory parameters', async () => {
         const { result } = renderHook(() => useUpdateVariant(), { wrapper: MockRedux });

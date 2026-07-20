@@ -1,5 +1,6 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
+import { expectEvent } from '@tests/matchers';
 import { MockTheme } from '@tests/MockTheme';
 
 import { Button } from '@mantine/core';
@@ -7,15 +8,15 @@ import React from 'react';
 
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
 
-jest.mock('~/client/common/Label');
+vi.mock(import('~/client/common/Label'));
 
 describe('<ConfirmationDialog>', () => {
-    const onConfirm = jest.fn();
-    const onClose = jest.fn();
+    const onConfirm = vi.fn();
+    const onClose = vi.fn();
 
     afterEach(() => {
-        jest.clearAllMocks();
-        jest.useRealTimers();
+        vi.clearAllMocks();
+        vi.useRealTimers();
     });
 
     it('does not render if not open', () => {
@@ -59,7 +60,7 @@ describe('<ConfirmationDialog>', () => {
         const target = screen.getByRole('button', { name: 'Confirm' });
         await user.click(target);
 
-        expect(onConfirm).toHaveBeenCalledWith(expect.event('click', { target }));
+        expect(onConfirm).toHaveBeenCalledWith(expectEvent('click', { target }));
     });
 
     it('calls onClose when close button is clicked', async () => {
@@ -84,13 +85,17 @@ describe('<ConfirmationDialog>', () => {
         const target = screen.getByRole('button', { name: 'Cancel' });
         await user.click(target);
 
-        expect(onClose).toHaveBeenCalledWith(expect.event('click', { target }));
+        expect(onClose).toHaveBeenCalledWith(expectEvent('click', { target }));
     });
 
     it('shows loading state after 300ms delay', async () => {
-        jest.useFakeTimers();
-        const userWithTimers = user.setup({ advanceTimers: jest.advanceTimersByTime });
-        const slowConfirm = jest.fn(() => new Promise<void>((resolve) => setTimeout(() => resolve(), 500)));
+        let resolveConfirm: () => void;
+        const slowConfirm = vi.fn(
+            () =>
+                new Promise<void>((resolve) => {
+                    resolveConfirm = resolve;
+                })
+        );
 
         render(
             <MockTheme>
@@ -98,27 +103,32 @@ describe('<ConfirmationDialog>', () => {
             </MockTheme>
         );
 
-        const confirmButton = screen.getByRole('button', { name: 'Confirm' });
-        await userWithTimers.click(confirmButton);
+        vi.useFakeTimers();
+        try {
+            const confirmButton = screen.getByRole('button', { name: 'Confirm' });
+            act(() => fireEvent.click(confirmButton));
 
-        expect(confirmButton).not.toBeDisabled();
+            expect(confirmButton).not.toBeDisabled();
 
-        await act(async () => jest.advanceTimersByTime(300));
+            await act(() => vi.advanceTimersByTimeAsync(300));
 
-        expect(confirmButton).toBeDisabled();
+            expect(confirmButton).toBeDisabled();
 
-        await act(async () => {
-            jest.advanceTimersByTime(200);
-            await jest.runAllTimersAsync();
-        });
+            await act(async () => {
+                resolveConfirm();
+                await vi.runAllTimersAsync();
+            });
 
-        expect(confirmButton).not.toBeDisabled();
-        expect(slowConfirm).toHaveBeenCalledWith(expect.any(Object));
+            expect(confirmButton).not.toBeDisabled();
+            expect(slowConfirm).toHaveBeenCalledWith(expect.any(Object));
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it('displays error message when onConfirm throws', async () => {
         const errorMessage = 'Test error message';
-        const failingConfirm = jest.fn().mockRejectedValue(new Error(errorMessage));
+        const failingConfirm = vi.fn().mockRejectedValue(new Error(errorMessage));
 
         render(
             <MockTheme>
@@ -189,7 +199,7 @@ describe('<ConfirmationDialog>', () => {
         const target = screen.getByRole('button', { name: 'Custom Cancel' });
         await user.click(target);
 
-        expect(onClose).toHaveBeenCalledWith(expect.event('click', { target }));
+        expect(onClose).toHaveBeenCalledWith(expectEvent('click', { target }));
     });
 
     it('calls onConfirm when custom confirm button is clicked', async () => {

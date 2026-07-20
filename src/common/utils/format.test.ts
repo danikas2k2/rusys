@@ -22,7 +22,7 @@ describe('formatFileSize', () => {
         ${1.12e18}   | ${'1 EiB'}
         ${1.15e21}   | ${'1 ZiB'}
         ${1.18e24}   | ${'1 YiB'}
-    `('formats file size $size as $expected', ({ size, expected }) => {
+    `('formats file size $size as $expected', ({ size, expected }: { size: number; expected: string }) => {
         expect(formatFileSize(size)).toBe(expected);
     });
 });

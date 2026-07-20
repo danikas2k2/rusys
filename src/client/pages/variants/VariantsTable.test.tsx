@@ -19,32 +19,32 @@ import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
 import { useVariants } from '~/client/state/variants/useVariants';
 import type { Variant } from '~/types/data';
 
-jest.mock('~/client/state/years/useYears');
-jest.mock('~/client/state/groups/useGroups');
-jest.mock('~/client/state/variants/useVariants');
-jest.mock('~/client/state/variants/useReorderVariants');
-jest.mock('~/client/common/hooks/useReorderHandler');
-jest.mock('~/client/pages/variants/hooks/useVariantsHasData');
-jest.mock('~/client/state/variants/useGetVariants');
-jest.mock('~/client/hooks/useLockingLoader');
-jest.mock('~/client/filters/QuickFilterContext', () => ({
-    useQuickFilter: jest.fn().mockReturnValue(['', jest.fn()]),
+vi.mock(import('~/client/state/years/useYears'));
+vi.mock(import('~/client/state/groups/useGroups'));
+vi.mock(import('~/client/state/variants/useVariants'));
+vi.mock(import('~/client/state/variants/useReorderVariants'));
+vi.mock(import('~/client/common/hooks/useReorderHandler'));
+vi.mock(import('~/client/pages/variants/hooks/useVariantsHasData'));
+vi.mock(import('~/client/state/variants/useGetVariants'));
+vi.mock(import('~/client/hooks/useLockingLoader'));
+vi.mock(import('~/client/filters/QuickFilterContext'), () => ({
+    useQuickFilter: vi.fn().mockReturnValue(['', vi.fn()]),
 }));
 
-jest.mock('~/client/common/DraggableContent', () => ({
-    DraggableContent: jest.fn(({ children }: any) => <>{children}</>),
+vi.mock(import('~/client/common/DraggableContent'), () => ({
+    DraggableContent: vi.fn(({ children }: any) => <>{children}</>),
 }));
 
-jest.mock('~/client/table/DragOverlayTable', () => ({
-    DragOverlayTable: jest.fn(({ children }: any) => (
+vi.mock(import('~/client/table/DragOverlayTable'), () => ({
+    DragOverlayTable: vi.fn(({ children }: any) => (
         <table data-testid="drag-overlay-table">
             <tbody>{children}</tbody>
         </table>
     )),
 }));
 
-jest.mock('~/client/pages/variants/VariantsRow', () => ({
-    VariantsRow: jest.fn(({ variant, hidden }: any) => (
+vi.mock(import('~/client/pages/variants/VariantsRow'), () => ({
+    VariantsRow: vi.fn(({ variant, hidden }: any) => (
         <tr
             data-testid="variants-row"
             data-group={variant.group}
@@ -60,23 +60,23 @@ jest.mock('~/client/pages/variants/VariantsRow', () => ({
 
 describe('<VariantsTable>', () => {
     const mockItems: Variant[] = getVariantsFixture();
-    const mockOnDragEnd = jest.fn();
-    const mockGetVariants = jest.fn().mockResolvedValue(undefined);
+    const mockOnDragEnd = vi.fn();
+    const mockGetVariants = vi.fn().mockResolvedValue(undefined);
 
     beforeEach(() => {
-        jest.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
-        jest.mocked(useVariants).mockReturnValue(getVariantsFixture());
-        jest.mocked(useGroups).mockReturnValue(getGroupsFixture());
-        jest.mocked(useVariantsHasData).mockReturnValue(true);
-        jest.mocked(useGetVariants).mockReturnValue(mockGetVariants);
-        jest.mocked(useReorderHandler).mockReturnValue({
+        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
+        vi.mocked(useVariants).mockReturnValue(getVariantsFixture());
+        vi.mocked(useGroups).mockReturnValue(getGroupsFixture());
+        vi.mocked(useVariantsHasData).mockReturnValue(true);
+        vi.mocked(useGetVariants).mockReturnValue(mockGetVariants);
+        vi.mocked(useReorderHandler).mockReturnValue({
             items: mockItems,
             reordering: false,
             onDragEnd: mockOnDragEnd,
         });
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders table structure', () => {
         render(
@@ -126,7 +126,7 @@ describe('<VariantsTable>', () => {
 
     describe('renders loader', () => {
         it('renders loader for initial state', () => {
-            jest.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
+            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
             render(
                 <MockTheme>
                     <MockRedux>
@@ -141,7 +141,7 @@ describe('<VariantsTable>', () => {
         });
 
         it('renders loader for loading state', () => {
-            jest.mocked(useLockingLoader).mockReturnValue(LoadingState.LOADING);
+            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.LOADING);
             render(
                 <MockTheme>
                     <MockRedux>
@@ -158,7 +158,7 @@ describe('<VariantsTable>', () => {
 
     describe('renders error', () => {
         it('renders error for failed state', () => {
-            jest.mocked(useLockingLoader).mockReturnValue(LoadingState.FAILED);
+            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.FAILED);
             render(
                 <MockTheme>
                     <MockRedux>
@@ -173,8 +173,8 @@ describe('<VariantsTable>', () => {
         });
 
         it('renders error for complete state without variants', () => {
-            jest.mocked(useVariants).mockReturnValue([]);
-            jest.mocked(useVariantsHasData).mockReturnValue(false);
+            vi.mocked(useVariants).mockReturnValue([]);
+            vi.mocked(useVariantsHasData).mockReturnValue(false);
             render(
                 <MockTheme>
                     <MockRedux>
@@ -189,8 +189,8 @@ describe('<VariantsTable>', () => {
         });
 
         it('renders error for complete state without groups', () => {
-            jest.mocked(useGroups).mockReturnValue([]);
-            jest.mocked(useVariantsHasData).mockReturnValue(false);
+            vi.mocked(useGroups).mockReturnValue([]);
+            vi.mocked(useVariantsHasData).mockReturnValue(false);
             render(
                 <MockTheme>
                     <MockRedux>
@@ -207,8 +207,8 @@ describe('<VariantsTable>', () => {
 
     describe('handles filter state', () => {
         it('renders filtered data', () => {
-            jest.mocked(useQuickFilter).mockReturnValue(['e', jest.fn()]);
-            jest.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0 }]);
+            vi.mocked(useQuickFilter).mockReturnValue(['e', vi.fn()]);
+            vi.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0 }]);
 
             render(
                 <MockTheme>
@@ -230,8 +230,8 @@ describe('<VariantsTable>', () => {
         });
 
         it('renders filtered out data', () => {
-            jest.mocked(useQuickFilter).mockReturnValue(['zzz', jest.fn()]);
-            jest.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0 }]);
+            vi.mocked(useQuickFilter).mockReturnValue(['zzz', vi.fn()]);
+            vi.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0 }]);
 
             render(
                 <MockTheme>
@@ -253,7 +253,7 @@ describe('<VariantsTable>', () => {
 
     describe('handles drag and reorder', () => {
         it('calls setActive when drag starts', () => {
-            const mockSetActive = jest.fn();
+            const mockSetActive = vi.fn();
             const state = {
                 groups: getGroupsFixture(),
                 variants: getVariantsFixture(),
@@ -273,8 +273,8 @@ describe('<VariantsTable>', () => {
         });
 
         it('configures useReorderHandler with correct callbacks', () => {
-            const mockReorderVariants = jest.fn().mockResolvedValue(undefined);
-            jest.mocked(useReorderVariants).mockReturnValue(mockReorderVariants);
+            const mockReorderVariants = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useReorderVariants).mockReturnValue(mockReorderVariants);
 
             const state = {
                 groups: getGroupsFixture(),
@@ -289,7 +289,7 @@ describe('<VariantsTable>', () => {
 
             expect(useReorderHandler).toHaveBeenCalledWith(expect.any(Object));
 
-            const callArgs = jest.mocked(useReorderHandler).mock.calls[0][0];
+            const callArgs = vi.mocked(useReorderHandler).mock.calls[0][0];
 
             expect(callArgs).toHaveProperty('onReorder');
             expect(callArgs).toHaveProperty('equals');
@@ -306,8 +306,8 @@ describe('<VariantsTable>', () => {
         });
 
         it('calls reorderVariants with correct parameters when onReorder is called', async () => {
-            const mockReorderVariants = jest.fn().mockResolvedValue(undefined);
-            jest.mocked(useReorderVariants).mockReturnValue(mockReorderVariants);
+            const mockReorderVariants = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useReorderVariants).mockReturnValue(mockReorderVariants);
 
             const state = {
                 groups: getGroupsFixture(),
@@ -320,7 +320,7 @@ describe('<VariantsTable>', () => {
                 </MockApp>
             );
 
-            const callArgs = jest.mocked(useReorderHandler).mock.calls[0][0];
+            const callArgs = vi.mocked(useReorderHandler).mock.calls[0][0];
             const { onReorder } = callArgs;
 
             const reordered: Variant[] = [
@@ -340,7 +340,7 @@ describe('<VariantsTable>', () => {
 
         beforeEach(() => {
             capturedRenderDragOverlay = null;
-            jest.mocked(DraggableContent).mockImplementation(({ renderDragOverlay, children }: any) => {
+            vi.mocked(DraggableContent).mockImplementation(({ renderDragOverlay, children }: any) => {
                 capturedRenderDragOverlay = renderDragOverlay ?? null;
                 return <>{children}</>;
             });

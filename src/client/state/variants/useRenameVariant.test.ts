@@ -5,14 +5,16 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { useRenameVariant } from '~/client/state/variants/useRenameVariant';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
+vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
 
 describe('useRenameVariant', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeAll(() => {
+        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls rename action', async () => {
         const { result } = renderHook(() => useRenameVariant(), { wrapper: MockRedux });
@@ -31,10 +33,13 @@ describe('useRenameVariant', () => {
         ${'empty group'}       | ${''}         | ${'p'}  | ${'1/2'}
         ${'empty variant'}     | ${'Uogienės'} | ${''}   | ${'1/2'}
         ${'empty new variant'} | ${'Uogienės'} | ${'p'}  | ${''}
-    `('does not call rename action with $title', async ({ group, variant, newVariant }) => {
-        const { result } = renderHook(() => useRenameVariant(), { wrapper: MockRedux });
-        await result.current(group, variant, newVariant);
+    `(
+        'does not call rename action with $title',
+        async ({ group, variant, newVariant }: { group: string; variant: string; newVariant: string }) => {
+            const { result } = renderHook(() => useRenameVariant(), { wrapper: MockRedux });
+            await result.current(group, variant, newVariant);
 
-        expect(request).not.toHaveBeenCalled();
-    });
+            expect(request).not.toHaveBeenCalled();
+        }
+    );
 });

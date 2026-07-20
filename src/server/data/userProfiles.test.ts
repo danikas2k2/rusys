@@ -1,38 +1,37 @@
-/** @jest-environment node */
 import { $all } from '~/server/data/tests/utils';
 import { getUserProfiles, upsertUserProfile } from '~/server/data/userProfiles';
 import { db } from '~/server/db';
 
-jest.setTimeout(30_000);
-
-jest.mock('~/server/db');
+vi.mock(import('~/server/db'));
 
 describe('userProfiles', () => {
+    vi.setConfig({ testTimeout: 30_000 });
+
     afterEach(async () => {
         await (await db()).collection('user_profiles').deleteMany({});
     });
 
     describe('upsertUserProfile', () => {
         it('returns false when email is empty string', async () => {
-            await expect(upsertUserProfile('')).resolves.toBeFalse();
+            await expect(upsertUserProfile('')).resolves.toBe(false);
         });
 
         it('returns false when email is whitespace only', async () => {
-            await expect(upsertUserProfile('   ')).resolves.toBeFalse();
+            await expect(upsertUserProfile('   ')).resolves.toBe(false);
         });
 
         it('returns false when email is null-like (empty after trim)', async () => {
-            await expect(upsertUserProfile('\t\n')).resolves.toBeFalse();
+            await expect(upsertUserProfile('\t\n')).resolves.toBe(false);
         });
 
         it('returns true on first insert (upsertedCount > 0)', async () => {
-            await expect(upsertUserProfile('user@example.com')).resolves.toBeTrue();
+            await expect(upsertUserProfile('user@example.com')).resolves.toBe(true);
         });
 
         it('returns true when updating an existing profile (modifiedCount > 0)', async () => {
             await upsertUserProfile('user@example.com', 'Alice');
 
-            await expect(upsertUserProfile('user@example.com', 'Alice Updated')).resolves.toBeTrue();
+            await expect(upsertUserProfile('user@example.com', 'Alice Updated')).resolves.toBe(true);
         });
 
         it('normalises email by trimming whitespace', async () => {

@@ -9,17 +9,17 @@ import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPr
 import { useSummaryYears } from '~/client/pages/summary/hooks/useSummaryYears';
 import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
 
-jest.mock('~/client/pages/summary/hooks/useSummaryYears');
-jest.mock('~/client/filters/hooks/useGroupFilterPredicate');
-jest.mock('~/client/filters/hooks/useQuickFilterPredicate');
-jest.mock('~/client/pages/summary/SummaryRow', () => ({
+vi.mock(import('~/client/pages/summary/hooks/useSummaryYears'));
+vi.mock(import('~/client/filters/hooks/useGroupFilterPredicate'));
+vi.mock(import('~/client/filters/hooks/useQuickFilterPredicate'));
+vi.mock(import('~/client/pages/summary/SummaryRow'), (): any => ({
     SummaryRow: ({ name, hidden }: { name: string; hidden?: boolean }) => (
         <tr data-hidden={hidden}>
             <td>{name}</td>
         </tr>
     ),
 }));
-jest.mock('~/client/table/GroupTitle', () => ({
+vi.mock(import('~/client/table/GroupTitle'), (): any => ({
     GroupTitle: ({ children, bg, hidden }: { children: string; bg: string; hidden?: boolean }) => (
         <tbody data-hidden={hidden}>
             <tr>
@@ -31,12 +31,12 @@ jest.mock('~/client/table/GroupTitle', () => ({
 
 describe('<SummaryGroup>', () => {
     beforeAll(() => {
-        jest.mocked(useSummaryYears).mockReturnValue([23, 22, 21]);
-        jest.mocked(useGroupFilterPredicate).mockReturnValue(() => true);
-        jest.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
+        vi.mocked(useSummaryYears).mockReturnValue([23, 22, 21]);
+        vi.mocked(useGroupFilterPredicate).mockReturnValue(() => true);
+        vi.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders rows', () => {
         render(
@@ -71,13 +71,16 @@ describe('<SummaryGroup>', () => {
             </MockThemeUpdate>
         );
 
-        expect(screen.getAllByRole('rowgroup')).toHaveLength(2).toHaveListWithTextContent(['Uogienės', '']);
+        const rowgroups = screen.getAllByRole('rowgroup');
+
+        expect(rowgroups).toHaveLength(2);
+        expect(rowgroups).toHaveListWithTextContent(['Uogienės', '']);
     });
 
     it('marks group and rows as hidden when filters hide them', () => {
         // Mock filters to hide the group/name
-        jest.mocked(useGroupFilterPredicate).mockReturnValue(() => false);
-        jest.mocked(useQuickFilterPredicate).mockReturnValue(() => false);
+        vi.mocked(useGroupFilterPredicate).mockReturnValue(() => false);
+        vi.mocked(useQuickFilterPredicate).mockReturnValue(() => false);
 
         render(
             <MockThemeUpdate update="recycled">
@@ -88,6 +91,7 @@ describe('<SummaryGroup>', () => {
         );
 
         expect(screen.getAllByRole('rowgroup')[0]).toHaveAttribute('data-hidden', 'true');
-        expect(screen.getAllByRole('row')[1]).toHaveTextContent('Braškės').toHaveAttribute('data-hidden', 'true');
+        expect(screen.getAllByRole('row')[1]).toHaveTextContent('Braškės');
+        expect(screen.getAllByRole('row')[1]).toHaveAttribute('data-hidden', 'true');
     });
 });

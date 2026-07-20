@@ -4,12 +4,17 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
+import { AmountVariantRow } from '~/client/pages/products/AmountVariantRow';
 import { AmountVariantsTab } from '~/client/pages/products/AmountVariantsTab';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
+import { useProducts } from '~/client/state/products/useProducts';
+import { useRedoProduct } from '~/client/state/products/useRedoProduct';
+import { useUndoProduct } from '~/client/state/products/useUndoProduct';
+import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
 import type { ProductAmounts } from '~/types/data';
 
-jest.mock('~/client/pages/variants/VariantBox', () => ({
-    VariantBox: jest.fn(({ opened, onClose }: any) =>
+vi.mock(import('~/client/pages/variants/VariantBox'), () => ({
+    VariantBox: vi.fn(({ opened, onClose }: any) =>
         opened ? (
             <div role="dialog" aria-label="Add variant">
                 <button type="button" onClick={() => onClose('Uogienės', 'x')}>
@@ -23,11 +28,11 @@ jest.mock('~/client/pages/variants/VariantBox', () => ({
     ),
 }));
 
-jest.mock('@mantine/core', () => {
-    const actual = jest.requireActual('@mantine/core');
+vi.mock(import('@mantine/core'), async () => {
+    const actual = await vi.importActual('@mantine/core');
     return {
         ...actual,
-        Select: jest.fn(({ placeholder, data, onChange }: any) => (
+        Select: vi.fn(({ placeholder, data, onChange }: any) => (
             <select
                 aria-label={placeholder}
                 onChange={(e) => onChange(e.target.value === '__null__' ? null : e.target.value)}
@@ -44,8 +49,8 @@ jest.mock('@mantine/core', () => {
     };
 });
 
-jest.mock('~/client/pages/products/AmountVariantRow', () => ({
-    AmountVariantRow: jest.fn(({ type, delta, onChange }: any) => (
+vi.mock(import('~/client/pages/products/AmountVariantRow'), () => ({
+    AmountVariantRow: vi.fn(({ type, delta, onChange }: any) => (
         <div data-testid={`edit-row-${type}`}>
             <button type="button" onClick={() => onChange(type, delta - 1)}>
                 {`decrease-${type}`}
@@ -54,40 +59,40 @@ jest.mock('~/client/pages/products/AmountVariantRow', () => ({
     )),
 }));
 
-jest.mock('~/client/state/variants/useAllVariants', () => ({
-    useAllVariants: jest.fn(() => ['p', 'd', 'm']),
+vi.mock(import('~/client/state/variants/useAllVariants'), () => ({
+    useAllVariants: vi.fn(() => ['p', 'd', 'm']),
 }));
 
-jest.mock('~/client/state/variants/useGroupVariantComparator', () => ({
-    useGroupVariantComparator: jest.fn(() => (a: string, b: string) => a.localeCompare(b)),
+vi.mock(import('~/client/state/variants/useGroupVariantComparator'), () => ({
+    useGroupVariantComparator: vi.fn(() => (a: string, b: string) => a.localeCompare(b)),
 }));
 
-jest.mock('~/client/common/AmountSuffix', () => ({
-    AmountSuffix: jest.fn().mockReturnValue(null),
+vi.mock(import('~/client/common/AmountSuffix'), () => ({
+    AmountSuffix: vi.fn().mockReturnValue(null),
 }));
 
-jest.mock('~/client/pages/products/UpdatingProductsContext', () => ({
-    useUpdatingProducts: jest.fn(() => [{}, jest.fn()]),
+vi.mock(import('~/client/pages/products/UpdatingProductsContext'), () => ({
+    useUpdatingProducts: vi.fn(() => [{}, vi.fn()]),
 }));
 
-jest.mock('~/client/state/products/useProducts', () => ({
-    useProducts: jest.fn(() => []),
+vi.mock(import('~/client/state/products/useProducts'), () => ({
+    useProducts: vi.fn(() => []),
 }));
 
-jest.mock('~/client/state/products/useUpdateProduct', () => ({
-    useUpdateProduct: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
+vi.mock(import('~/client/state/products/useUpdateProduct'), () => ({
+    useUpdateProduct: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
-jest.mock('~/client/state/products/useUndoProduct', () => ({
-    useUndoProduct: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
+vi.mock(import('~/client/state/products/useUndoProduct'), () => ({
+    useUndoProduct: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
-jest.mock('~/client/state/products/useRedoProduct', () => ({
-    useRedoProduct: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
+vi.mock(import('~/client/state/products/useRedoProduct'), () => ({
+    useRedoProduct: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
-jest.mock('~/client/state/profile/useProfile', () => ({
-    useProfile: jest.fn(() => ({ email: 'test@example.com' })),
+vi.mock(import('~/client/state/profile/useProfile'), () => ({
+    useProfile: vi.fn(() => ({ email: 'test@example.com' })),
 }));
 
 describe('<AmountVariantsTab>', () => {
@@ -102,7 +107,7 @@ describe('<AmountVariantsTab>', () => {
         ],
     };
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     function renderTab(active: ProductAmounts = baseActive) {
         return render(
@@ -192,9 +197,8 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('calls updateProduct when Update is clicked after changing a delta', async () => {
-        const { useUpdateProduct } = jest.requireMock('~/client/state/products/useUpdateProduct');
-        const mockUpdate = jest.fn().mockResolvedValue(undefined);
-        useUpdateProduct.mockReturnValue(mockUpdate);
+        const mockUpdate = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
 
         renderTab();
 
@@ -266,8 +270,7 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('shows Undo/Redo buttons when canUndo is true and no expandedVariant and no changes', () => {
-        const { useProducts } = jest.requireMock('~/client/state/products/useProducts');
-        useProducts.mockReturnValue([
+        vi.mocked(useProducts).mockReturnValue([
             {
                 group: baseActive.group,
                 name: baseActive.name,
@@ -283,8 +286,7 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('shows Undo/Redo buttons when canRedo is true and no expandedVariant and no changes', () => {
-        const { useProducts } = jest.requireMock('~/client/state/products/useProducts');
-        useProducts.mockReturnValue([
+        vi.mocked(useProducts).mockReturnValue([
             {
                 group: baseActive.group,
                 name: baseActive.name,
@@ -300,8 +302,7 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('hides Undo/Redo buttons when a variant is expanded', async () => {
-        const { useProducts } = jest.requireMock('~/client/state/products/useProducts');
-        useProducts.mockReturnValue([
+        vi.mocked(useProducts).mockReturnValue([
             {
                 group: baseActive.group,
                 name: baseActive.name,
@@ -320,11 +321,9 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('calls undoProduct when Undo is clicked', async () => {
-        const { useProducts } = jest.requireMock('~/client/state/products/useProducts');
-        const { useUndoProduct } = jest.requireMock('~/client/state/products/useUndoProduct');
-        const mockUndo = jest.fn().mockResolvedValue(undefined);
-        useUndoProduct.mockReturnValue(mockUndo);
-        useProducts.mockReturnValue([
+        const mockUndo = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useUndoProduct).mockReturnValue(mockUndo);
+        vi.mocked(useProducts).mockReturnValue([
             {
                 group: baseActive.group,
                 name: baseActive.name,
@@ -341,11 +340,9 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('calls redoProduct when Redo is clicked', async () => {
-        const { useProducts } = jest.requireMock('~/client/state/products/useProducts');
-        const { useRedoProduct } = jest.requireMock('~/client/state/products/useRedoProduct');
-        const mockRedo = jest.fn().mockResolvedValue(undefined);
-        useRedoProduct.mockReturnValue(mockRedo);
-        useProducts.mockReturnValue([
+        const mockRedo = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useRedoProduct).mockReturnValue(mockRedo);
+        vi.mocked(useProducts).mockReturnValue([
             {
                 group: baseActive.group,
                 name: baseActive.name,
@@ -362,14 +359,12 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('includes comment in update call when comment is non-empty', async () => {
-        const { useUpdateProduct } = jest.requireMock('~/client/state/products/useUpdateProduct');
-        const mockUpdate = jest.fn().mockResolvedValue(undefined);
-        useUpdateProduct.mockReturnValue(mockUpdate);
+        const mockUpdate = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
 
         // AmountExpanded is already mocked but we need to expose the onCommentChange —
         // re-mock to also trigger comment change
-        const { AmountVariantRow } = jest.requireMock('~/client/pages/products/AmountVariantRow');
-        AmountVariantRow.mockImplementation(({ type, delta, onChange }: any) => (
+        vi.mocked(AmountVariantRow).mockImplementation(({ type, delta, onChange }: any) => (
             <div data-testid={`edit-row-${type}`}>
                 <button type="button" onClick={() => onChange(type, delta - 1)}>
                     {`decrease-${type}`}
@@ -395,12 +390,10 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('passes consumed delta in changes array', async () => {
-        const { useUpdateProduct } = jest.requireMock('~/client/state/products/useUpdateProduct');
-        const mockUpdate = jest.fn().mockResolvedValue(undefined);
-        useUpdateProduct.mockReturnValue(mockUpdate);
+        const mockUpdate = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
 
-        const { AmountVariantRow } = jest.requireMock('~/client/pages/products/AmountVariantRow');
-        AmountVariantRow.mockImplementation(({ type, delta, onChange }: any) => (
+        vi.mocked(AmountVariantRow).mockImplementation(({ type, delta, onChange }: any) => (
             <div data-testid={`edit-row-${type}`}>
                 <button type="button" onClick={() => onChange(type, delta - 1)}>
                     {`decrease-${type}`}
@@ -425,12 +418,10 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('passes recycled delta in changes array', async () => {
-        const { useUpdateProduct } = jest.requireMock('~/client/state/products/useUpdateProduct');
-        const mockUpdate = jest.fn().mockResolvedValue(undefined);
-        useUpdateProduct.mockReturnValue(mockUpdate);
+        const mockUpdate = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
 
-        const { AmountVariantRow } = jest.requireMock('~/client/pages/products/AmountVariantRow');
-        AmountVariantRow.mockImplementation(({ type, delta, onChange }: any) => (
+        vi.mocked(AmountVariantRow).mockImplementation(({ type, delta, onChange }: any) => (
             <div data-testid={`edit-row-${type}`}>
                 <button type="button" onClick={() => onChange(type, delta - 1)}>
                     {`decrease-${type}`}
@@ -455,8 +446,7 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('uses liveAmounts from activeProduct.years when available', () => {
-        const { useProducts } = jest.requireMock('~/client/state/products/useProducts');
-        useProducts.mockReturnValue([
+        vi.mocked(useProducts).mockReturnValue([
             {
                 group: baseActive.group,
                 name: baseActive.name,
@@ -472,16 +462,18 @@ describe('<AmountVariantsTab>', () => {
 
     it('cancel also clears expandedVariant', async () => {
         // Ensure default empty products (previous test may have set a mock)
-        jest.requireMock('~/client/state/products/useProducts').useProducts.mockReturnValue([]);
+        vi.mocked(useProducts).mockReturnValue([]);
 
         renderTab();
 
         await user.click(screen.getByRole('button', { name: /\bd\b/ }));
 
-        expect(screen.getByRole('button', { name: /\bd\b/ })).toHaveAttribute('aria-expanded', 'true');
+        const dButton = screen.getByRole('button', { name: /\bd\b/ });
+
+        expect(dButton).toHaveAttribute('aria-expanded', 'true');
 
         await user.click(screen.getByRole('button', { name: /^cancel$/i }));
 
-        expect(screen.getByRole('button', { name: /\bd\b/ })).toHaveAttribute('aria-expanded', 'false');
+        expect(dButton).toHaveAttribute('aria-expanded', 'false');
     });
 });

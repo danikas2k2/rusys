@@ -13,7 +13,10 @@ describe('<ChangeBadge>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByRole('status')).toHaveTextContent('+1').toHaveAttribute('data-state', 'positive');
+        const badge = screen.getByRole('status');
+
+        expect(badge).toHaveTextContent('+1');
+        expect(badge).toHaveAttribute('data-state', 'positive');
     });
 
     it('displays negative status when change is less than zero', async () => {
@@ -23,7 +26,10 @@ describe('<ChangeBadge>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByRole('status')).toHaveTextContent('–1').toHaveAttribute('data-state', 'negative');
+        const badge = screen.getByRole('status');
+
+        expect(badge).toHaveTextContent('–1');
+        expect(badge).toHaveAttribute('data-state', 'negative');
     });
 
     it('does not display status when change is zero', async () => {
@@ -43,7 +49,10 @@ describe('<ChangeBadge>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByRole('status')).toHaveTextContent('﹡').toHaveAttribute('data-state', 'updated');
+        const badge = screen.getByRole('status');
+
+        expect(badge).toHaveTextContent('﹡');
+        expect(badge).toHaveAttribute('data-state', 'updated');
     });
 
     it('renders with inline position by default', async () => {

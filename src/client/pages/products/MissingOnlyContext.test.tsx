@@ -23,7 +23,7 @@ describe('useMissingOnly', () => {
     });
 
     it('returns custom missing-only context', () => {
-        const setMissingOnly = jest.fn();
+        const setMissingOnly = vi.fn();
         const { result } = renderHook(() => useMissingOnly(), {
             wrapper: ({ children }) => (
                 <MissingOnlyContext value={[true, setMissingOnly]}>{children}</MissingOnlyContext>

@@ -8,11 +8,11 @@ import React from 'react';
 
 import { SortableRow } from '~/client/table/SortableRow';
 
-jest.mock('@dnd-kit/sortable', () => ({
-    useSortable: jest.fn(),
+vi.mock(import('@dnd-kit/sortable'), () => ({
+    useSortable: vi.fn(),
 }));
 
-jest.mock('~/client/table/SwipeableRow', () => ({
+vi.mock(import('~/client/table/SwipeableRow'), () => ({
     SwipeableRow: ({ children, style, ref, 'data-group': dataGroup, 'data-id': dataId, ...props }: any) => (
         <tr ref={ref} data-group={dataGroup} data-id={dataId} style={style} {...props}>
             {children}
@@ -21,13 +21,13 @@ jest.mock('~/client/table/SwipeableRow', () => ({
 }));
 
 describe('<SortableRow>', () => {
-    const mockSetNodeRef = jest.fn();
-    const mockSetActivatorNodeRef = jest.fn();
+    const mockSetNodeRef = vi.fn();
+    const mockSetActivatorNodeRef = vi.fn();
     const mockData = { id: 'test-1', name: 'Test Item' };
 
     const defaultSortableReturn = {
         attributes: { role: 'button' },
-        listeners: { onClick: jest.fn() },
+        listeners: { onClick: vi.fn() },
         setNodeRef: mockSetNodeRef,
         transform: { x: 0, y: 0, scaleX: 1, scaleY: 1 },
         transition: undefined,
@@ -44,8 +44,8 @@ describe('<SortableRow>', () => {
     };
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        jest.mocked(useSortable).mockReturnValue(defaultSortableReturn as any);
+        vi.clearAllMocks();
+        vi.mocked(useSortable).mockReturnValue(defaultSortableReturn as any);
     });
 
     it('renders table row with children', () => {
@@ -108,7 +108,7 @@ describe('<SortableRow>', () => {
 
     it('applies transform and transition styles', () => {
         const transform = { x: 10, y: 20, scaleX: 1, scaleY: 1 };
-        jest.mocked(useSortable).mockReturnValue({
+        vi.mocked(useSortable).mockReturnValue({
             ...defaultSortableReturn,
             transform,
             transition: 'transform 200ms ease',
@@ -135,7 +135,7 @@ describe('<SortableRow>', () => {
     });
 
     it('applies dragging styles when isDragging is true', () => {
-        jest.mocked(useSortable).mockReturnValue({
+        vi.mocked(useSortable).mockReturnValue({
             ...defaultSortableReturn,
             isDragging: true,
         } as any);
@@ -206,9 +206,10 @@ describe('<SortableRow>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByRole('button', { name: /drag/i }))
-            .toBeInTheDocument()
-            .toHaveStyle({ cursor: 'grab' });
+        const dragButton = screen.getByRole('button', { name: /drag/i });
+
+        expect(dragButton).toBeInTheDocument();
+        expect(dragButton).toHaveStyle({ cursor: 'grab' });
     });
 
     it('clones custom handle with sortable props', () => {

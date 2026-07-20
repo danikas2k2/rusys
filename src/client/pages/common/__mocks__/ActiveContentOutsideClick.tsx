@@ -1,1 +1,3 @@
-export const ActiveContentOutsideClick = jest.fn(() => null);
+import { vi } from 'vitest';
+
+export const ActiveContentOutsideClick = vi.fn(() => null);

@@ -1,4 +1,4 @@
-/** @jest-environment node */
+/** @vitest-environment node */
 import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
@@ -8,9 +8,9 @@ import { getProductsWithYears } from '~/server/api/response';
 import { redoProduct } from '~/server/data/products';
 import type { ApiProductsWithYears, ApiRequestProduct } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/products');
+vi.mock(import('~/server/api/debug'));
+vi.mock(import('~/server/api/response'));
+vi.mock(import('~/server/data/products'));
 
 describe('handleRedoProduct', () => {
     const request = mockRequest<ApiRequestProduct>({ group: 'Uogienės', name: 'Braškės', year: 21 });
@@ -18,11 +18,11 @@ describe('handleRedoProduct', () => {
     const years = getYearsFixture();
     const products = getProductsFixture();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(redoProduct).mockResolvedValueOnce(true);
-        jest.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
+        vi.mocked(redoProduct).mockResolvedValueOnce(true);
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
 
         await handleRedoProduct(request, response);
 
@@ -33,7 +33,7 @@ describe('handleRedoProduct', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(redoProduct).mockResolvedValueOnce(false);
+        vi.mocked(redoProduct).mockResolvedValueOnce(false);
 
         await handleRedoProduct(request, response);
 
@@ -43,7 +43,7 @@ describe('handleRedoProduct', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(redoProduct).mockRejectedValueOnce('Failed to redo');
+        vi.mocked(redoProduct).mockRejectedValueOnce('Failed to redo');
 
         await handleRedoProduct(request, response);
 
@@ -53,7 +53,7 @@ describe('handleRedoProduct', () => {
 
     it('uses year=0 when year is not provided', async () => {
         const req = mockRequest<ApiRequestProduct>({ group: 'Uogienės', name: 'Braškės' });
-        jest.mocked(redoProduct).mockResolvedValueOnce(false);
+        vi.mocked(redoProduct).mockResolvedValueOnce(false);
 
         await handleRedoProduct(req, response);
 

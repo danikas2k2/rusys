@@ -3,33 +3,37 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
+import { AmountsCell } from '~/client/pages/products/AmountsCell';
 import type { SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
 import { SummaryHistoryTab } from '~/client/pages/summary/SummaryHistoryTab';
+import { useGetSummaryHistory } from '~/client/state/history/useGetSummaryHistory';
+import { useUndates } from '~/client/state/history/useUndates';
+import { useUpdates } from '~/client/state/history/useUpdates';
 import type { History } from '~/types/data';
 
-jest.mock('~/client/state/history/useGetSummaryHistory', () => ({
-    useGetSummaryHistory: jest.fn(() => jest.fn().mockResolvedValue(undefined)),
+vi.mock(import('~/client/state/history/useGetSummaryHistory'), (): any => ({
+    useGetSummaryHistory: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
-jest.mock('~/client/hooks/useLockingLoader', () => ({
-    useLockingLoader: jest.fn(() => 'complete'),
+vi.mock(import('~/client/hooks/useLockingLoader'), (): any => ({
+    useLockingLoader: vi.fn(() => 'complete'),
     LoadingState: { INITIAL: 'initial', LOADING: 'loading', COMPLETE: 'complete', FAILED: 'failed' },
 }));
 
-jest.mock('~/client/state/history/useUpdates', () => ({
-    useUpdates: jest.fn(() => []),
+vi.mock(import('~/client/state/history/useUpdates'), (): any => ({
+    useUpdates: vi.fn(() => []),
 }));
 
-jest.mock('~/client/state/history/useUndates', () => ({
-    useUndates: jest.fn(() => []),
+vi.mock(import('~/client/state/history/useUndates'), (): any => ({
+    useUndates: vi.fn(() => []),
 }));
 
-jest.mock('~/client/pages/products/EmailAvatar', () => ({
-    EmailAvatar: jest.fn(() => null),
+vi.mock(import('~/client/pages/products/EmailAvatar'), (): any => ({
+    EmailAvatar: vi.fn(() => null),
 }));
 
-jest.mock('~/client/pages/products/AmountsCell', () => ({
-    AmountsCell: jest.fn(({ amounts }: any) => <span data-testid="amounts">{amounts.length}</span>),
+vi.mock(import('~/client/pages/products/AmountsCell'), (): any => ({
+    AmountsCell: vi.fn(({ amounts }: any) => <span data-testid="amounts">{amounts.length}</span>),
 }));
 
 describe('<SummaryHistoryTab>', () => {
@@ -41,13 +45,11 @@ describe('<SummaryHistoryTab>', () => {
     };
 
     beforeEach(() => {
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        useUpdates.mockReturnValue([]);
-        const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
-        useUndates.mockReturnValue([]);
+        vi.mocked(useUpdates).mockReturnValue([]);
+        vi.mocked(useUndates).mockReturnValue([]);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     function renderTab(active = activeData) {
         return render(
@@ -66,20 +68,17 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('calls useGetSummaryHistory with year, group, name from active context', () => {
-        const { useGetSummaryHistory } = jest.requireMock('~/client/state/history/useGetSummaryHistory');
-
         renderTab();
 
-        expect(useGetSummaryHistory).toHaveBeenCalledWith(2026, 'Vaisiai', 'Obuoliai');
+        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith(2026, 'Vaisiai', 'Obuoliai');
     });
 
     it('renders a row for each update entry', () => {
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
         const entries: History[] = [
             { group: 'Vaisiai', name: 'Obuoliai', time: 1000, year: 2026, amounts: [{ variant: 'p', amount: 1 }] },
             { group: 'Vaisiai', name: 'Obuoliai', time: 2000, year: 2026, amounts: [{ variant: 'd', amount: 2 }] },
         ];
-        useUpdates.mockReturnValue(entries);
+        vi.mocked(useUpdates).mockReturnValue(entries);
 
         renderTab();
 
@@ -88,8 +87,7 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('renders amounts for each update row', () => {
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        useUpdates.mockReturnValue([
+        vi.mocked(useUpdates).mockReturnValue([
             {
                 group: 'Vaisiai',
                 name: 'Obuoliai',
@@ -108,8 +106,7 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('renders all amounts regardless of recycled flag', () => {
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        useUpdates.mockReturnValue([
+        vi.mocked(useUpdates).mockReturnValue([
             {
                 group: 'Vaisiai',
                 name: 'Obuoliai',
@@ -129,8 +126,6 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('renders undate rows with dimmed opacity (before update rows)', () => {
-        const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
         const undate: History = {
             group: 'Vaisiai',
             name: 'Obuoliai',
@@ -145,8 +140,8 @@ describe('<SummaryHistoryTab>', () => {
             year: 2026,
             amounts: [{ variant: 'p', amount: 3 }],
         };
-        useUndates.mockReturnValue([undate]);
-        useUpdates.mockReturnValue([update]);
+        vi.mocked(useUndates).mockReturnValue([undate]);
+        vi.mocked(useUpdates).mockReturnValue([update]);
 
         renderTab();
 
@@ -162,8 +157,7 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('shows a divider row when there are undates', () => {
-        const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
-        useUndates.mockReturnValue([
+        vi.mocked(useUndates).mockReturnValue([
             {
                 group: 'Vaisiai',
                 name: 'Obuoliai',
@@ -188,8 +182,7 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('does not show a divider when there are no undates', () => {
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        useUpdates.mockReturnValue([
+        vi.mocked(useUpdates).mockReturnValue([
             {
                 group: 'Vaisiai',
                 name: 'Obuoliai',
@@ -208,8 +201,6 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('renders undates in reverse order (most recent first)', () => {
-        const { useUndates } = jest.requireMock('~/client/state/history/useUndates');
-        const { AmountsCell } = jest.requireMock('~/client/pages/products/AmountsCell');
         const undates: History[] = [
             {
                 group: 'Vaisiai',
@@ -226,11 +217,11 @@ describe('<SummaryHistoryTab>', () => {
                 amounts: [{ variant: 'p', amount: 2 }],
             },
         ];
-        useUndates.mockReturnValue(undates);
+        vi.mocked(useUndates).mockReturnValue(undates);
 
         // Track render order via AmountsCell calls
         const renderOrder: number[] = [];
-        AmountsCell.mockImplementation(({ amounts }: any) => {
+        vi.mocked(AmountsCell).mockImplementation(({ amounts }: any) => {
             renderOrder.push(amounts[0].amount);
             return <span data-testid="amounts">{amounts.length}</span>;
         });
@@ -242,8 +233,7 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('displays comment text when present in a history entry', () => {
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        useUpdates.mockReturnValue([
+        vi.mocked(useUpdates).mockReturnValue([
             {
                 group: 'Vaisiai',
                 name: 'Obuoliai',
@@ -260,8 +250,7 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('does not render comment element when comment is absent', () => {
-        const { useUpdates } = jest.requireMock('~/client/state/history/useUpdates');
-        useUpdates.mockReturnValue([
+        vi.mocked(useUpdates).mockReturnValue([
             {
                 group: 'Vaisiai',
                 name: 'Obuoliai',
@@ -277,8 +266,6 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('uses year=0 when active context has no year', () => {
-        const { useGetSummaryHistory } = jest.requireMock('~/client/state/history/useGetSummaryHistory');
-
         render(
             <MockThemeActive
                 active={{
@@ -294,6 +281,6 @@ describe('<SummaryHistoryTab>', () => {
             </MockThemeActive>
         );
 
-        expect(useGetSummaryHistory).toHaveBeenCalledWith(0, 'G', 'N');
+        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith(0, 'G', 'N');
     });
 });

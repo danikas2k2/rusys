@@ -1,4 +1,4 @@
-/** @jest-environment node */
+// @vitest-environment node
 import { getVariantsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
@@ -8,9 +8,9 @@ import { getVariantsResponse } from '~/server/api/response';
 import { reorderVariants } from '~/server/data/variants';
 import type { ApiReorderVariants, ApiVariants } from '~/types/api';
 
-jest.mock('~/server/api/debug');
-jest.mock('~/server/api/response');
-jest.mock('~/server/data/variants');
+vi.mock(import('~/server/api/debug'));
+vi.mock(import('~/server/api/response'));
+vi.mock(import('~/server/data/variants'));
 
 describe('handleReorderVariants', () => {
     const variants = getVariantsFixture();
@@ -18,11 +18,11 @@ describe('handleReorderVariants', () => {
     const request = mockRequest<ApiReorderVariants>({ group: 'Uogienės', variants: reorder });
     const response = mockResponse<ApiVariants>();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('returns filled response on success', async () => {
-        jest.mocked(reorderVariants).mockResolvedValueOnce(true);
-        jest.mocked(getVariantsResponse).mockResolvedValueOnce({ variants });
+        vi.mocked(reorderVariants).mockResolvedValueOnce(true);
+        vi.mocked(getVariantsResponse).mockResolvedValueOnce({ variants });
 
         await handleReorderVariants(request, response);
 
@@ -33,7 +33,7 @@ describe('handleReorderVariants', () => {
     });
 
     it('returns empty response on failure', async () => {
-        jest.mocked(reorderVariants).mockResolvedValueOnce(false);
+        vi.mocked(reorderVariants).mockResolvedValueOnce(false);
 
         await handleReorderVariants(request, response);
 
@@ -44,7 +44,7 @@ describe('handleReorderVariants', () => {
     });
 
     it('returns error response on error', async () => {
-        jest.mocked(reorderVariants).mockRejectedValueOnce('Failed to reorder variants');
+        vi.mocked(reorderVariants).mockRejectedValueOnce('Failed to reorder variants');
 
         await handleReorderVariants(request, response);
 

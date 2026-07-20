@@ -8,10 +8,10 @@ import { ProductCell } from '~/client/pages/products/ProductCell';
 import { ProductCells } from '~/client/pages/products/ProductCells';
 import { useYears } from '~/client/state/years/useYears';
 
-jest.mock('~/client/pages/products/ProductCell', () => ({
-    ProductCell: jest.fn(() => <td />),
+vi.mock(import('~/client/pages/products/ProductCell'), () => ({
+    ProductCell: vi.fn(() => <td />),
 }));
-jest.mock('~/client/state/years/useYears');
+vi.mock(import('~/client/state/years/useYears'));
 
 describe('<ProductCells>', () => {
     const products = getProductsFixture();
@@ -19,8 +19,8 @@ describe('<ProductCells>', () => {
     const years = getYearsFixture();
 
     beforeEach(() => {
-        jest.mocked(useYears).mockReturnValue(years);
-        jest.mocked(ProductCell).mockClear();
+        vi.mocked(useYears).mockReturnValue(years);
+        vi.mocked(ProductCell).mockClear();
     });
 
     it('renders one ProductCell per year when annual is true', () => {
@@ -31,9 +31,11 @@ describe('<ProductCells>', () => {
         );
 
         expect(screen.getAllByRole('cell')).toHaveLength(years.length);
-        expect(ProductCell)
-            .toHaveBeenCalledTimes(years.length)
-            .toHaveBeenLastCalledWith(expect.objectContaining({ last: true, year: years.at(-1) }), undefined);
+        expect(ProductCell).toHaveBeenCalledTimes(years.length);
+        expect(ProductCell).toHaveBeenLastCalledWith(
+            expect.objectContaining({ last: true, year: years.at(-1) }),
+            undefined
+        );
     });
 
     it('passes last=false for non-last years and last=true for the last year', () => {
@@ -43,9 +45,9 @@ describe('<ProductCells>', () => {
             </MockTableRow>
         );
 
-        const calls = jest.mocked(ProductCell).mock.calls;
+        const calls = vi.mocked(ProductCell).mock.calls;
         const nonLastCalls = calls.slice(0, calls.length - 1);
-        nonLastCalls.forEach(([props]) => {
+        nonLastCalls.forEach(([props]: [React.ComponentProps<typeof ProductCell>, ...unknown[]]) => {
             expect(props).toMatchObject({ last: false });
         });
 
@@ -60,9 +62,8 @@ describe('<ProductCells>', () => {
         );
 
         expect(screen.getAllByRole('cell')).toHaveLength(1);
-        expect(ProductCell)
-            .toHaveBeenCalledTimes(1)
-            .toHaveBeenCalledWith(expect.objectContaining({ span: years.length }), undefined);
+        expect(ProductCell).toHaveBeenCalledTimes(1);
+        expect(ProductCell).toHaveBeenCalledWith(expect.objectContaining({ span: years.length }), undefined);
     });
 
     it('defaults annual to false when prop is omitted', () => {
@@ -73,8 +74,7 @@ describe('<ProductCells>', () => {
         );
 
         expect(screen.getAllByRole('cell')).toHaveLength(1);
-        expect(ProductCell)
-            .toHaveBeenCalledTimes(1)
-            .toHaveBeenCalledWith(expect.objectContaining({ span: years.length }), undefined);
+        expect(ProductCell).toHaveBeenCalledTimes(1);
+        expect(ProductCell).toHaveBeenCalledWith(expect.objectContaining({ span: years.length }), undefined);
     });
 });

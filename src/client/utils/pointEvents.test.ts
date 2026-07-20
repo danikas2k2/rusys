@@ -4,8 +4,8 @@ describe('pointEvents', () => {
     describe('dispatchNativeCancelEvents', () => {
         it('dispatches pointercancel and pointerout events', () => {
             const element = document.createElement('div');
-            const pointerCancelSpy = jest.fn();
-            const pointerOutSpy = jest.fn();
+            const pointerCancelSpy = vi.fn();
+            const pointerOutSpy = vi.fn();
 
             element.addEventListener('pointercancel', pointerCancelSpy);
             element.addEventListener('pointerout', pointerOutSpy);
@@ -25,7 +25,7 @@ describe('pointEvents', () => {
             const child = document.createElement('div');
             parent.appendChild(child);
 
-            const parentSpy = jest.fn();
+            const parentSpy = vi.fn();
             parent.addEventListener('pointercancel', parentSpy);
 
             dispatchNativeCancelEvents(child);

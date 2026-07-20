@@ -10,8 +10,8 @@ import { DraggableContent } from './DraggableContent';
 
 let lastDndContextProps: Record<string, unknown> | null = null;
 
-jest.mock('@dnd-kit/core', () => {
-    const ReactActual = jest.requireActual('react');
+vi.mock(import('@dnd-kit/core'), async (): Promise<any> => {
+    const ReactActual = await vi.importActual<typeof React>('react');
 
     return {
         // runtime values only (types are erased)
@@ -58,8 +58,8 @@ describe('<DraggableContent>', () => {
     });
 
     it('wires DndContext configuration (collision detection, modifiers, sensors)', () => {
-        const onDragStart = jest.fn();
-        const onDragEnd = jest.fn();
+        const onDragStart = vi.fn();
+        const onDragEnd = vi.fn();
 
         render(
             <MockTheme>
@@ -83,14 +83,14 @@ describe('<DraggableContent>', () => {
     });
 
     it('onDragStart: calls callback and shows DragOverlay with measured column widths', () => {
-        const renderDragOverlay = jest.fn((activeId: UniqueIdentifier, columnWidths: number[]) => (
+        const renderDragOverlay = vi.fn((activeId: UniqueIdentifier, columnWidths: number[]) => (
             <div>
                 Overlay: {activeId} / widths: {columnWidths.join(',')}
             </div>
         ));
 
-        const onDragStart = jest.fn();
-        const onDragEnd = jest.fn();
+        const onDragStart = vi.fn();
+        const onDragEnd = vi.fn();
 
         render(
             <MockTheme>
@@ -118,8 +118,8 @@ describe('<DraggableContent>', () => {
         expect(cells).toHaveLength(2);
 
         // JSDOM doesn't calculate layout; fake widths
-        (cells[0] as HTMLElement).getBoundingClientRect = jest.fn(() => ({ width: 100 })) as any;
-        (cells[1] as HTMLElement).getBoundingClientRect = jest.fn(() => ({ width: 200 })) as any;
+        (cells[0] as HTMLElement).getBoundingClientRect = vi.fn(() => ({ width: 100 })) as any;
+        (cells[1] as HTMLElement).getBoundingClientRect = vi.fn(() => ({ width: 200 })) as any;
 
         act(() => (lastDndContextProps as any).onDragStart({ active: { id: 'item-1' } }));
 
@@ -135,10 +135,10 @@ describe('<DraggableContent>', () => {
     });
 
     it('onDragEnd: calls callback and hides DragOverlay', () => {
-        const renderDragOverlay = jest.fn((activeId: UniqueIdentifier) => <div>Overlay: {activeId}</div>);
+        const renderDragOverlay = vi.fn((activeId: UniqueIdentifier) => <div>Overlay: {activeId}</div>);
 
-        const onDragStart = jest.fn();
-        const onDragEnd = jest.fn();
+        const onDragStart = vi.fn();
+        const onDragEnd = vi.fn();
 
         render(
             <MockTheme>

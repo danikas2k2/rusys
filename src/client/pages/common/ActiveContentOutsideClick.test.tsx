@@ -7,9 +7,9 @@ import React from 'react';
 import { ActiveContentOutsideClick } from '~/client/pages/common/ActiveContentOutsideClick';
 
 describe('<ActiveContentOutsideClick>', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
-    const setActive = jest.fn();
+    const setActive = vi.fn();
     const ref = { current: document.createElement('div') };
 
     it('resets active content when clicking outside', async () => {

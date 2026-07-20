@@ -1,6 +1,5 @@
-import { fireEvent } from '@testing-library/dom';
-import { act, render, screen } from '@testing-library/react';
-import userEvent, { type UserEvent } from '@testing-library/user-event';
+import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
+import { expectEvent } from '@tests/matchers';
 
 import React from 'react';
 
@@ -8,16 +7,14 @@ import { dispatchNativeCancelEvents } from '~/client/utils/pointEvents';
 import { useLongPress } from './useLongPress';
 
 describe('useLongPress', () => {
-    let user: UserEvent;
-
     beforeEach(() => {
-        jest.useFakeTimers();
-        user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+        vi.useFakeTimers();
     });
 
-    afterEach(() => jest.clearAllMocks());
-
-    afterAll(() => jest.useRealTimers());
+    afterEach(() => {
+        vi.clearAllMocks();
+        vi.useRealTimers();
+    });
 
     function ButtonWithLongPress({
         onClick,
@@ -36,46 +33,51 @@ describe('useLongPress', () => {
         );
     }
 
-    const onClick = jest.fn();
-    const onLongPress = jest.fn();
+    const onClick = vi.fn();
+    const onLongPress = vi.fn();
 
     describe('pointer events', () => {
-        it('triggers onLongPress after duration', async () => {
+        it('triggers onLongPress after duration', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
-            await user.pointer({ target: screen.getByRole('button'), keys: '[TouchA>]' });
-            jest.advanceTimersByTime(500);
+            act(() => fireEvent.pointerDown(screen.getByRole('button'), { pointerId: 1, pointerType: 'touch' }));
+            act(() => vi.advanceTimersByTime(500));
 
-            expect(onLongPress).toHaveBeenCalledWith(expect.event('pointerdown'));
+            expect(onLongPress).toHaveBeenCalledWith(expectEvent('pointerdown'));
             expect(onClick).not.toHaveBeenCalled();
         });
 
-        it('does not trigger onLongPress if duration has not passed', async () => {
+        it('does not trigger onLongPress if duration has not passed', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
-            await user.pointer({ target: screen.getByRole('button'), keys: '[TouchA>]' });
+            act(() => fireEvent.pointerDown(screen.getByRole('button'), { pointerId: 1, pointerType: 'touch' }));
 
             expect(onLongPress).not.toHaveBeenCalled();
             expect(onClick).not.toHaveBeenCalled();
         });
 
-        it('triggers onClick immediately if duration has not passed and pointer is released', async () => {
+        it('triggers onClick immediately if duration has not passed and pointer is released', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
+            const button = screen.getByRole('button');
 
-            await user.pointer({ target: screen.getByRole('button'), keys: '[TouchA]' });
+            act(() => {
+                fireEvent.pointerDown(button, { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerUp(button, { pointerId: 1, pointerType: 'touch' });
+            });
 
             expect(onLongPress).not.toHaveBeenCalled();
-            expect(onClick).toHaveBeenCalledWith(expect.event('pointerup'));
+            expect(onClick).toHaveBeenCalledWith(expectEvent('pointerup'));
         });
 
-        it('stops long press timer on pointer move', async () => {
+        it('stops long press timer on pointer move', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
+            const button = screen.getByRole('button');
 
-            await user.pointer([
-                { target: screen.getByRole('button'), keys: '[TouchA>]' },
-                { target: document.body, pointerName: 'TouchA' },
-            ]);
-            jest.advanceTimersByTime(500);
+            act(() => {
+                fireEvent.pointerDown(button, { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerLeave(button, { pointerId: 1, pointerType: 'touch' });
+                vi.advanceTimersByTime(500);
+            });
 
             expect(onLongPress).not.toHaveBeenCalled();
             expect(onClick).not.toHaveBeenCalled();
@@ -83,64 +85,57 @@ describe('useLongPress', () => {
     });
 
     describe('cancel functionality', () => {
-        it('cancels long-press timer when dispatchNativeCancelEvents is called', async () => {
+        it('cancels long-press timer when dispatchNativeCancelEvents is called', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
             const button = screen.getByRole('button');
-            await user.pointer({ target: button, keys: '[MouseLeft>]' });
+            act(() => fireEvent.pointerDown(button, { pointerId: 1, pointerType: 'mouse' }));
 
-            // Dispatch cancel events
             dispatchNativeCancelEvents(button);
 
-            jest.advanceTimersByTime(500);
+            act(() => vi.advanceTimersByTime(500));
 
             expect(onLongPress).not.toHaveBeenCalled();
             expect(onClick).not.toHaveBeenCalled();
         });
 
-        it('cancels long-press timer when pointercancel event is fired', async () => {
+        it('cancels long-press timer when pointercancel event is fired', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
             const button = screen.getByRole('button');
-            await user.pointer({ target: button, keys: '[MouseLeft>]' });
+            act(() => fireEvent.pointerDown(button, { pointerId: 1, pointerType: 'mouse' }));
 
             act(() => fireEvent.pointerCancel(button));
 
-            jest.advanceTimersByTime(500);
+            act(() => vi.advanceTimersByTime(500));
 
             expect(onLongPress).not.toHaveBeenCalled();
             expect(onClick).not.toHaveBeenCalled();
         });
 
-        it('cancels long-press timer when pointerleave event is fired', async () => {
+        it('cancels long-press timer when pointerleave event is fired', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
-
-            await user.pointer([
-                { target: screen.getByRole('button'), keys: '[TouchA>]' },
-                { target: document.body, pointerName: 'TouchA' },
-            ]);
-
-            act(() => jest.advanceTimersByTime(500));
-
-            expect(onLongPress).not.toHaveBeenCalled();
-            expect(onClick).not.toHaveBeenCalled();
-        });
-
-        it('cancels long-press timer when pointerout event is fired', async () => {
-            render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
-
             const button = screen.getByRole('button');
 
-            await user.pointer([
-                // pointerover
-                { target: button },
-                // pointerdown
-                { target: button, keys: '[TouchA>]' },
-                // pointerout
-                { target: document.body },
-            ]);
+            act(() => {
+                fireEvent.pointerDown(button, { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerLeave(button, { pointerId: 1, pointerType: 'touch' });
+                vi.advanceTimersByTime(500);
+            });
 
-            act(() => jest.advanceTimersByTime(500));
+            expect(onLongPress).not.toHaveBeenCalled();
+            expect(onClick).not.toHaveBeenCalled();
+        });
+
+        it('cancels long-press timer when pointerout event is fired', () => {
+            render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
+            const button = screen.getByRole('button');
+
+            act(() => {
+                fireEvent.pointerDown(button, { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerOut(button, { pointerId: 1, pointerType: 'touch' });
+                vi.advanceTimersByTime(500);
+            });
 
             expect(onLongPress).not.toHaveBeenCalled();
             expect(onClick).not.toHaveBeenCalled();
@@ -148,146 +143,158 @@ describe('useLongPress', () => {
     });
 
     describe('click and long press interaction', () => {
-        it('does not trigger onClick when long press was already triggered', async () => {
+        it('does not trigger onClick when long press was already triggered', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
             const button = screen.getByRole('button');
-            await user.pointer({ target: button, keys: '[TouchA>]' });
-            act(() => jest.advanceTimersByTime(500));
+            act(() => {
+                fireEvent.pointerDown(button, { pointerId: 1, pointerType: 'touch' });
+                vi.advanceTimersByTime(500);
+            });
 
             expect(onLongPress).toHaveBeenCalledWith(expect.any(Object));
 
-            await user.pointer({ target: button, keys: '[/TouchA]' });
+            act(() => fireEvent.pointerUp(button, { pointerId: 1, pointerType: 'touch' }));
 
             expect(onClick).not.toHaveBeenCalled();
         });
 
-        it('does not trigger onLongPress when only onLongPress is provided', async () => {
+        it('does not trigger onLongPress when only onLongPress is provided', () => {
             render(<ButtonWithLongPress onLongPress={onLongPress} />);
 
             const button = screen.getByRole('button');
-            await user.pointer({ target: button, keys: '[TouchA]' });
+            act(() => {
+                fireEvent.pointerDown(button, { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerUp(button, { pointerId: 1, pointerType: 'touch' });
+            });
 
             expect(onLongPress).not.toHaveBeenCalled();
         });
 
-        it('does not trigger onClick when pointer is outside bounds', async () => {
+        it('does not trigger onClick when pointer is outside bounds', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
-            await user.pointer({
-                target: screen.getByRole('button'),
-                keys: '[TouchA]',
-                coords: { x: -100, y: -100 },
+            act(() => {
+                fireEvent.pointerDown(screen.getByRole('button'), {
+                    pointerId: 1,
+                    pointerType: 'touch',
+                    clientX: 0,
+                    clientY: 0,
+                });
+                fireEvent.pointerUp(screen.getByRole('button'), {
+                    pointerId: 1,
+                    pointerType: 'touch',
+                    clientX: -100,
+                    clientY: -100,
+                });
             });
 
             expect(onClick).not.toHaveBeenCalled();
         });
 
-        it('does not trigger onClick multiple times during same interaction', async () => {
+        it('does not trigger onClick multiple times during same interaction', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
-            await user.pointer({ target: screen.getByRole('button'), keys: '[TouchA]' });
+            act(() => {
+                fireEvent.pointerDown(screen.getByRole('button'), { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerUp(screen.getByRole('button'), { pointerId: 1, pointerType: 'touch' });
+            });
 
             expect(onClick).toHaveBeenCalledTimes(1);
         });
 
-        it('does not trigger onLongPress when click was already triggered', async () => {
+        it('does not trigger onLongPress when click was already triggered', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
             const button = screen.getByRole('button');
-            // Start pointer down
-            await user.pointer({ target: button, keys: '[TouchA>]' });
 
-            // Release pointer quickly to trigger onClick
-            await user.pointer({ target: button, keys: '[/TouchA]' });
+            act(() => fireEvent.pointerDown(button, { pointerId: 1, pointerType: 'touch' }));
+            act(() => fireEvent.pointerUp(button, { pointerId: 1, pointerType: 'touch' }));
 
             expect(onClick).toHaveBeenCalledTimes(1);
 
-            // Advance timers to trigger the long press timeout
-            jest.advanceTimersByTime(500);
+            act(() => vi.advanceTimersByTime(500));
 
-            // onLongPress should not be called because click was already triggered
             expect(onLongPress).not.toHaveBeenCalled();
         });
     });
 
     describe('pointer movement handling', () => {
-        it('does not cancel long press when move is within threshold', async () => {
+        it('does not cancel long press when move is within threshold', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
+            const button = screen.getByRole('button');
 
-            await user.pointer([
-                // pointerdown
-                { target: screen.getByRole('button'), keys: '[TouchA>]' },
-                // pointermove within threshold
-                { pointerName: 'TouchA', coords: { x: 2, y: 2 } },
-            ]);
-
-            jest.advanceTimersByTime(500);
+            act(() => {
+                fireEvent.pointerDown(button, { pointerId: 1, pointerType: 'touch', clientX: 0, clientY: 0 });
+                fireEvent.pointerMove(button, { pointerId: 1, pointerType: 'touch', clientX: 2, clientY: 2 });
+                vi.advanceTimersByTime(500);
+            });
 
             expect(onLongPress).toHaveBeenCalledWith(expect.any(Object));
         });
 
-        it('cancels long press when move exceeds threshold', async () => {
+        it('cancels long press when move exceeds threshold', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
+            const button = screen.getByRole('button');
 
-            await user.pointer([
-                // pointerdown
-                { target: screen.getByRole('button'), keys: '[TouchA>]' },
-                // pointermove beyond threshold (x > 10)
-                { pointerName: 'TouchA', coords: { x: 15, y: 0 } },
-            ]);
-
-            jest.advanceTimersByTime(500);
+            act(() => {
+                fireEvent.pointerDown(button, { pointerId: 1, pointerType: 'touch', clientX: 0, clientY: 0 });
+                fireEvent.pointerMove(button, { pointerId: 1, pointerType: 'touch', clientX: 15, clientY: 0 });
+                vi.advanceTimersByTime(500);
+            });
 
             expect(onLongPress).not.toHaveBeenCalled();
         });
 
-        it('cancels long press when move exceeds threshold in y direction', async () => {
+        it('cancels long press when move exceeds threshold in y direction', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
+            const button = screen.getByRole('button');
 
-            await user.pointer([
-                // pointerdown
-                { target: screen.getByRole('button'), keys: '[TouchA>]' },
-                // pointermove beyond threshold (y > 10)
-                { pointerName: 'TouchA', coords: { x: 0, y: 15 } },
-            ]);
-
-            jest.advanceTimersByTime(500);
+            act(() => {
+                fireEvent.pointerDown(button, { pointerId: 1, pointerType: 'touch', clientX: 0, clientY: 0 });
+                fireEvent.pointerMove(button, { pointerId: 1, pointerType: 'touch', clientX: 0, clientY: 15 });
+                vi.advanceTimersByTime(500);
+            });
 
             expect(onLongPress).not.toHaveBeenCalled();
         });
     });
 
     describe('click handler when onLongPress is not defined', () => {
-        it('triggers onClick when clicked', async () => {
-            render(<ButtonWithLongPress onClick={onClick} />);
+        it('triggers onClick when clicked', () => {
+            // When onLongPress is not defined, useLongPress passes onClick directly as a standard click handler
+            const directClick = vi.fn();
+            const { result } = renderHook(() => useLongPress({ onClick: directClick }));
+            const props = result.current as { onClick?: (e: MouseEvent) => void };
 
-            await user.click(screen.getByRole('button'));
+            act(() => props.onClick?.({} as unknown as MouseEvent));
 
-            expect(onClick).toHaveBeenCalledWith(expect.any(Object));
+            expect(directClick).toHaveBeenCalledWith(expect.any(Object));
         });
 
-        it('does not trigger onClick when onClick is not defined', async () => {
+        it('does not trigger onClick when onClick is not defined', () => {
             render(<ButtonWithLongPress />);
 
-            await user.click(screen.getByRole('button'));
+            act(() => fireEvent.click(screen.getByRole('button')));
 
             expect(onClick).not.toHaveBeenCalled();
         });
     });
 
     describe('context menu handling', () => {
-        it('prevents default and stops propagation', async () => {
+        it('prevents default and stops propagation', () => {
             render(<ButtonWithLongPress onClick={onClick} onLongPress={onLongPress} />);
 
-            jest.spyOn(Event.prototype, 'preventDefault');
-            jest.spyOn(Event.prototype, 'stopPropagation');
+            const preventDefaultSpy = vi.spyOn(Event.prototype, 'preventDefault');
+            const stopPropagationSpy = vi.spyOn(Event.prototype, 'stopPropagation');
 
-            const button = screen.getByRole('button');
-            await user.pointer({ target: button, keys: '[MouseRight]' });
+            act(() => fireEvent.contextMenu(screen.getByRole('button')));
 
-            expect(Event.prototype.preventDefault).toHaveBeenCalledWith();
-            expect(Event.prototype.stopPropagation).toHaveBeenCalledWith();
+            expect(preventDefaultSpy).toHaveBeenCalledWith();
+            expect(stopPropagationSpy).toHaveBeenCalledWith();
+
+            preventDefaultSpy.mockRestore();
+            stopPropagationSpy.mockRestore();
         });
     });
 
@@ -297,9 +304,7 @@ describe('useLongPress', () => {
 
             const button = screen.getByRole('button');
 
-            // Check that onClick handler exists by verifying it can be called
             expect(button.onclick).not.toBeNull();
-            // When onLongPress is not provided, we should not attach a context menu handler
             expect(button.oncontextmenu).toBeNull();
         });
     });

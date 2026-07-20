@@ -9,22 +9,22 @@ import { rollbackProductsRemovingAction, setProductsRemovingAction } from '~/cli
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
-jest.mock('react-redux', () => ({
-    ...jest.requireActual('react-redux'),
-    useDispatch: jest.fn(),
+vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
+vi.mock(import('react-redux'), async () => ({
+    ...(await vi.importActual('react-redux')),
+    useDispatch: vi.fn(),
 }));
 
 describe('useSetProductRemoving', () => {
-    const request = jest.fn();
-    const dispatch = jest.fn();
+    const request = vi.fn();
+    const dispatch = vi.fn();
 
     beforeAll(() => {
-        jest.mocked(useUpdatingApiRequest).mockReturnValue(request);
-        jest.mocked(useDispatch).mockReturnValue(dispatch);
+        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+        vi.mocked(useDispatch).mockReturnValue(dispatch);
     });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls update action', async () => {
         const { result } = renderHook(() => useSetProductRemoving(), { wrapper: MockRedux });
@@ -87,9 +87,8 @@ describe('useSetProductRemoving', () => {
 
         await result.current('Uogienės', 'Avietės', 21, true);
 
-        expect(dispatch)
-            .toHaveBeenCalledWith(setProductsRemovingAction('Uogienės', 'Avietės', 21, true))
-            .toHaveBeenCalledWith(rollbackProductsRemovingAction('Uogienės', 'Avietės', 21))
-            .toHaveBeenCalledWith(setErrorAction('Request failed'));
+        expect(dispatch).toHaveBeenCalledWith(setProductsRemovingAction('Uogienės', 'Avietės', 21, true));
+        expect(dispatch).toHaveBeenCalledWith(rollbackProductsRemovingAction('Uogienės', 'Avietės', 21));
+        expect(dispatch).toHaveBeenCalledWith(setErrorAction('Request failed'));
     });
 });

@@ -8,20 +8,22 @@ import React from 'react';
 import { useResetProfile } from '~/client/state/profile/useResetProfile';
 import { LogoutButton } from '~/client/user/LogoutButton';
 
-jest.mock('@react-oauth/google', () => ({
-    googleLogout: jest.fn(),
+vi.mock(import('@react-oauth/google'), () => ({
+    googleLogout: vi.fn(),
 }));
-jest.mock('~/client/user/ProfileAvatar', () => ({
+vi.mock(import('~/client/user/ProfileAvatar'), () => ({
     ProfileAvatar: () => <div>ProfileAvatar</div>,
 }));
-jest.mock('~/client/state/profile/useResetProfile');
+vi.mock(import('~/client/state/profile/useResetProfile'));
 
 describe('<LogoutButton>', () => {
-    const resetProfile = jest.fn();
+    const resetProfile = vi.fn();
 
-    beforeAll(() => jest.mocked(useResetProfile).mockReturnValue(resetProfile));
+    beforeAll(() => {
+        vi.mocked(useResetProfile).mockReturnValue(resetProfile);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders ProfileAvatar when no children are provided', () => {
         render(

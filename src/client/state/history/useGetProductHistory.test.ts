@@ -4,14 +4,16 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { useGetProductHistory } from '~/client/state/history/useGetProductHistory';
 import { ApiUrl } from '~/types/api';
 
-jest.mock('~/client/state/base/useUpdatingApiRequest');
+vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
 
 describe('useGetProductHistory', () => {
-    const request = jest.fn();
+    const request = vi.fn();
 
-    beforeAll(() => jest.mocked(useUpdatingApiRequest).mockReturnValue(request));
+    beforeAll(() => {
+        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+    });
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('calls request with ApiUrl.History and year', async () => {
         const year = 22;

@@ -4,12 +4,12 @@ describe('getRoundedDate', () => {
     const NOW = new Date('2024-06-15T10:23:45.678Z').getTime();
 
     beforeEach(() => {
-        jest.useFakeTimers();
-        jest.setSystemTime(NOW);
+        vi.useFakeTimers();
+        vi.setSystemTime(NOW);
     });
 
     afterEach(() => {
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     describe('last week (< 7 days) — 15 min precision', () => {
@@ -90,12 +90,12 @@ describe('formatTime', () => {
     const NOW = new Date('2024-06-15T12:00:00.000Z').getTime();
 
     beforeEach(() => {
-        jest.useFakeTimers();
-        jest.setSystemTime(NOW);
+        vi.useFakeTimers();
+        vi.setSystemTime(NOW);
     });
 
     afterEach(() => {
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('returns formatted HH:MM time string for a recent date', () => {
@@ -131,12 +131,12 @@ describe('formatDate', () => {
     const NOW = new Date('2024-06-15T12:00:00.000Z').getTime();
 
     beforeEach(() => {
-        jest.useFakeTimers();
-        jest.setSystemTime(NOW);
+        vi.useFakeTimers();
+        vi.setSystemTime(NOW);
     });
 
     afterEach(() => {
-        jest.useRealTimers();
+        vi.useRealTimers();
     });
 
     it('returns empty string for today (days=0)', () => {
@@ -152,7 +152,7 @@ describe('formatDate', () => {
     });
 
     it('calls custom label function with "Yesterday" for yesterday', () => {
-        const label = jest.fn((s: string) => `[${s}]`);
+        const label = vi.fn((s: string) => `[${s}]`);
         const yesterday = new Date(NOW - 24 * 60 * 60 * 1000);
         const result = formatDate(yesterday, 'en', label);
 

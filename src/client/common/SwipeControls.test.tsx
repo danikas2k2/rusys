@@ -1,22 +1,23 @@
 import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
+import { expectEvent } from '@tests/matchers';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
 import { SwipeControls } from '~/client/common/SwipeControls';
 
-jest.mock('~/client/state/groups/useDeleteGroup');
-jest.mock('~/client/common/SwipePanel', () => ({
+vi.mock(import('~/client/state/groups/useDeleteGroup'));
+vi.mock(import('~/client/common/SwipePanel'), (): any => ({
     SwipePanel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 describe('<SwipeControls>', () => {
-    const setActiveContent = jest.fn();
-    const onEdit = jest.fn();
-    const onDelete = jest.fn();
+    const setActiveContent = vi.fn();
+    const onEdit = vi.fn();
+    const onDelete = vi.fn();
 
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders control buttons', () => {
         render(
@@ -38,7 +39,7 @@ describe('<SwipeControls>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Edit' }));
 
-        expect(onEdit).toHaveBeenCalledWith({}, expect.event('click'));
+        expect(onEdit).toHaveBeenCalledWith({}, expectEvent('click'));
         expect(onDelete).not.toHaveBeenCalled();
         expect(setActiveContent).toHaveBeenCalledWith(expect.objectContaining({ action: 'update' }));
     });
@@ -52,7 +53,7 @@ describe('<SwipeControls>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Remove' }));
 
-        expect(onDelete).toHaveBeenCalledWith({}, expect.event('click'));
+        expect(onDelete).toHaveBeenCalledWith({}, expectEvent('click'));
         expect(onEdit).not.toHaveBeenCalled();
         expect(setActiveContent).toHaveBeenCalledWith(expect.objectContaining({ action: 'remove' }));
     });
@@ -66,7 +67,7 @@ describe('<SwipeControls>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Remove' }));
 
-        expect(onDelete).toHaveBeenCalledWith({}, expect.event('click'));
+        expect(onDelete).toHaveBeenCalledWith({}, expectEvent('click'));
         expect(onEdit).not.toHaveBeenCalled();
     });
 
@@ -80,7 +81,7 @@ describe('<SwipeControls>', () => {
         await user.click(screen.getByRole('button', { name: 'Remove' }));
 
         expect(onEdit).not.toHaveBeenCalled();
-        expect(onDelete).toHaveBeenCalledWith({}, expect.event('click'));
+        expect(onDelete).toHaveBeenCalledWith({}, expectEvent('click'));
         expect(setActiveContent).toHaveBeenCalledWith(expect.objectContaining({ action: 'remove' }));
     });
 

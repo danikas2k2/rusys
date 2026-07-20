@@ -6,12 +6,12 @@ import React from 'react';
 import { ActiveImportBox } from '~/client/dialogs/ActiveImportBox';
 import { ImportBox } from '~/client/dialogs/ImportBox';
 
-jest.mock('~/client/dialogs/ImportBox', () => ({
-    ImportBox: jest.fn(() => <div>ImportBox</div>),
+vi.mock(import('~/client/dialogs/ImportBox'), () => ({
+    ImportBox: vi.fn(() => <div>ImportBox</div>),
 }));
 
 describe('<ActiveImportBox>', () => {
-    afterEach(() => jest.clearAllMocks());
+    afterEach(() => vi.clearAllMocks());
 
     it('renders ImportBox when action is import', () => {
         render(
@@ -66,12 +66,12 @@ describe('<ActiveImportBox>', () => {
 
     it('calls setActive when onClose is called', () => {
         let mockClose: (() => void) | null = null;
-        jest.mocked(ImportBox).mockImplementation(({ onClose }) => {
+        vi.mocked(ImportBox).mockImplementation(({ onClose }: React.ComponentProps<typeof ImportBox>) => {
             mockClose = onClose;
             return <div>ImportBox</div>;
         });
 
-        const mockSetActive = jest.fn();
+        const mockSetActive = vi.fn();
 
         render(
             <MockThemeActive active={{ action: 'import' }} setActive={mockSetActive}>
