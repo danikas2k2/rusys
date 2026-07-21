@@ -1,5 +1,5 @@
 import { Avatar } from '@mantine/core';
-import { IconRobotFace } from '@tabler/icons-react';
+import { IconRobotFace, IconUserQuestion } from '@tabler/icons-react';
 import React from 'react';
 
 import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
@@ -16,7 +16,11 @@ export function EmailAvatar({
     fallbackPicture?: string;
 }): React.ReactElement | null {
     if (!email) {
-        return null;
+        return (
+            <Avatar color="gray" variant="outline" radius="50%" size="sm" data-anonymous="true">
+                <IconUserQuestion size="60%" />
+            </Avatar>
+        );
     }
 
     const initials = email

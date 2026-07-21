@@ -3,9 +3,9 @@ import { IconArrowBackUp, IconArrowForwardUp, IconCheck, IconPlus, IconX } from 
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
-import { AmountVariant } from '~/client/common/AmountVariant';
 import { ChangeBadge } from '~/client/common/ChangeBadge';
 import { Label } from '~/client/common/Label';
+import { VariantTitle } from '~/client/common/VariantTitle';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AmountExpanded, type VariantDelta } from '~/client/pages/products/AmountExpanded';
 import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
@@ -189,7 +189,7 @@ export function AmountVariantsTab() {
                                 <Accordion.Control>
                                     <Group justify="space-between">
                                         <Text fz="md" fw={500}>
-                                            <AmountVariant variant={variant} />
+                                            <VariantTitle group={group} variant={variant} />
                                         </Text>
                                         <Group gap="xs">
                                             <Text fz="md" component="span">
@@ -228,7 +228,9 @@ export function AmountVariantsTab() {
                                 {option.label}
                             </Group>
                         ) : (
-                            option.label
+                            <Text>
+                                <VariantTitle group={group} variant={option.label} />
+                            </Text>
                         )
                     }
                     withScrollArea={false}

@@ -75,7 +75,7 @@ export function VariantsTable() {
                                     <Label>Variant</Label>
                                 </Title>
                             </Table.Th>
-                            <Table.Th w="40%" ta="center">
+                            <Table.Th w="25%" ta="center">
                                 <Label>Suffix</Label>
                             </Table.Th>
                         </Table.Tr>

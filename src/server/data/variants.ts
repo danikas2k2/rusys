@@ -42,13 +42,16 @@ export async function updateVariant(group: string, variant: string, update: Upda
     }
     const col = (await db()).collection<Variant>('variants');
     const found = await col.findOne({ group, variant }, { projection: { _id: 0, order: 1 } });
-    const { order, suffix } = update;
+    const { order, name, suffix, count, units } = update;
     const $set: UpdateVariant = {};
     if (order != null) {
         $set.order = order;
     }
     const $unset: Omit<UpdateVariant, 'order'> = {};
+    (name ? $set : $unset).name = name;
     (suffix ? $set : $unset).suffix = suffix;
+    (count != null ? $set : $unset).count = count;
+    (units ? $set : $unset).units = units;
     return found != null
         ? col.updateOne({ group, variant }, { $set, $unset }, { upsert: true }).then(hasEffect)
         : col
@@ -72,8 +75,11 @@ export async function renameVariant(
     const $set: Omit<UpdateVariant, 'order'> = {};
     const $unset: Omit<UpdateVariant, 'order'> = {};
     if (update) {
-        const { suffix } = update;
+        const { name, suffix, count, units } = update;
+        (name ? $set : $unset).name = name;
         (suffix ? $set : $unset).suffix = suffix;
+        (count != null ? $set : $unset).count = count;
+        (units ? $set : $unset).units = units;
     }
     return col
         .updateOne({ group, variant }, { $set: { variant: newVariant, ...$set }, $unset }, { session })
@@ -115,14 +121,29 @@ export async function copyVariant(
         variant: newVariant ?? variant,
     };
     if (update) {
-        const { order, suffix } = update;
+        const { order, name, suffix, count, units } = update;
         if (order != null) {
             copied.order = order;
+        }
+        if (name) {
+            copied.name = name;
+        } else {
+            delete copied.name;
         }
         if (suffix) {
             copied.suffix = suffix;
         } else {
             delete copied.suffix;
+        }
+        if (count != null) {
+            copied.count = count;
+        } else {
+            delete copied.count;
+        }
+        if (units) {
+            copied.units = units;
+        } else {
+            delete copied.units;
         }
     }
     return col.insertOne(copied).then(hasEffect).catch(hasDuplicates);

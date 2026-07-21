@@ -17,6 +17,9 @@
   "All groups": {
     "lt-LT": "Visos grupės"
   },
+  "Amount": {
+    "lt-LT": "Kiekis"
+  },
   "Annual": {
     "lt-LT": "Metiniai"
   },
@@ -243,7 +246,7 @@
     "lt-LT": "Rugsėjo"
   },
   "Suffix": {
-    "lt-LT": "Žymėjimas"
+    "lt-LT": "Žyma"
   },
   "Summary": {
     "lt-LT": "Suvestinė"

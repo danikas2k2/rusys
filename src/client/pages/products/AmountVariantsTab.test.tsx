@@ -63,6 +63,10 @@ vi.mock(import('~/client/state/variants/useAllVariants'), () => ({
     useAllVariants: vi.fn(() => ['p', 'd', 'm']),
 }));
 
+vi.mock(import('~/client/state/variants/useVariant'), () => ({
+    useVariant: vi.fn().mockReturnValue(undefined),
+}));
+
 vi.mock(import('~/client/state/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn(() => (a: string, b: string) => a.localeCompare(b)),
 }));

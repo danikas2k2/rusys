@@ -6,6 +6,16 @@ import React from 'react';
 import { AmountsCell } from '~/client/pages/products/AmountsCell';
 import type { VariantAmount } from '~/types/data';
 
+vi.mock(import('~/client/common/ActiveContentContext'), () => ({
+    useActiveContent: vi.fn().mockReturnValue([{ data: { group: '' } }, vi.fn()]),
+}));
+vi.mock(import('~/client/state/variants/useVariant'), () => ({
+    useVariant: vi.fn().mockReturnValue(undefined),
+}));
+vi.mock(import('~/client/state/variants/useGroupVariantComparator'), () => ({
+    useGroupVariantComparator: vi.fn().mockReturnValue((a: string, b: string) => a.localeCompare(b)),
+}));
+
 describe('<AmountsCell>', () => {
     it('renders an em dash when amounts array is empty', () => {
         render(

@@ -2,10 +2,17 @@ import { Group, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconEdit, IconToolsKitchen2, IconTrash } from '@tabler/icons-react';
 import React from 'react';
 
-import type { VariantAmount } from '~/types/data';
+import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { VariantTitle } from '~/client/common/VariantTitle';
+import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
+import type { ProductAmounts, VariantAmount } from '~/types/data';
 
 export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }): React.ReactElement {
-    // Server should filter empty entries, but keep safe fallback.
+    const [active] = useActiveContent<ProductAmounts>();
+    const group = active?.data?.group ?? '';
+
+    const comparator = useGroupVariantComparator(group);
+
     if (!amounts.length) {
         return (
             <Text size="sm" c="dimmed">
@@ -14,7 +21,7 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
         );
     }
 
-    const sorted = [...amounts].sort((a, b) => a.variant.localeCompare(b.variant));
+    const sorted = [...amounts].sort((a, b) => comparator(a.variant, b.variant));
 
     return (
         <Stack gap={4}>
@@ -35,7 +42,9 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
                             <ThemeIcon size="sm" variant="light" color={color} title={typeLabel} aria-label={typeLabel}>
                                 <Icon size={14} />
                             </ThemeIcon>
-                            <Text size="sm">{a.variant}</Text>
+                            <Text size="sm">
+                                <VariantTitle group={group} variant={a.variant} />
+                            </Text>
                         </Group>
                         <Text size="sm" fw={500} c={a.amount > 0 ? 'positive' : a.amount < 0 ? 'negative' : undefined}>
                             {a.amount > 0 ? `+${a.amount}` : a.amount < 0 ? `−${Math.abs(a.amount)}` : '0'}

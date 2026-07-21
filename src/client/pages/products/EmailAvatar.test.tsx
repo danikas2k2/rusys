@@ -15,14 +15,14 @@ vi.mock(import('~/client/state/profile/dev'), (): any => ({
 }));
 
 describe('<EmailAvatar>', () => {
-    it('renders nothing when email is undefined', () => {
+    it('renders anonymous avatar when email is undefined', () => {
         const { container } = render(
             <MockTheme>
                 <EmailAvatar />
             </MockTheme>
         );
 
-        expect(container).toBeEmptyDOMElement();
+        expect(container.querySelector('[data-anonymous="true"]')).toBeInTheDocument();
     });
 
     it('renders robot avatar when email equals DEV_MODE_EMAIL', () => {
