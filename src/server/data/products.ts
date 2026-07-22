@@ -1,6 +1,6 @@
 import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter, WithId } from 'mongodb';
 
-import { addVariantAmount, getCombinedAmounts } from '~/common/utils/amounts';
+import { addVariantAmount, getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { buildHistoryPipeline } from '~/server/data/history';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
@@ -111,10 +111,11 @@ export async function addProduct(group: string, name: string): Promise<boolean> 
     return (await db()).collection('products').insertOne({ group, name }).then(hasEffect);
 }
 
-export const cleanupRecycled = ({ recycled, suspicious, ...v }: VariantAmount): VariantAmount => ({
+export const cleanupRecycled = ({ recycled, suspicious, home, ...v }: VariantAmount): VariantAmount => ({
     ...v,
     ...(recycled != null ? { recycled } : {}),
     ...(suspicious ? { suspicious } : {}),
+    ...(home ? { home } : {}),
 });
 
 export const hasAmount = (a: VariantAmount) => a.amount > 0;
@@ -136,13 +137,34 @@ export async function updateProduct(
         const operations: AnyBulkWriteOperation<Product>[] = [];
 
         const col = (await db()).collection<Product>('products');
-        const product = await col.findOne(filter, { projection: { years: 1, missing: 1, updates: 1 }, session });
+        const product = await col.findOne(filter, {
+            projection: { years: 1, missing: 1, updates: 1 },
+            session,
+        });
         const amounts =
             (year ? product?.years?.find((y) => y.year === year)?.amounts : getCombinedAmounts(product?.years)) ?? [];
-        const updates = changes.reduce(addVariantAmount, amounts).filter(hasAmount).map(cleanupRecycled);
+
+        // auto-consume home balance when cellar consumption starts for that variant
+        const autoHomeConsumes: VariantAmount[] = [];
+        for (const change of changes) {
+            if (!change.home && change.recycled === false && change.amount < 0) {
+                const homeBalance = getVariantAmount(amounts, change.variant, false, true);
+                if (homeBalance > 0) {
+                    autoHomeConsumes.push({
+                        variant: change.variant,
+                        amount: -homeBalance,
+                        recycled: false,
+                        home: true,
+                    });
+                }
+            }
+        }
+        const allChanges = autoHomeConsumes.length ? [...changes, ...autoHomeConsumes] : changes;
+
+        const updates = allChanges.reduce(addVariantAmount, amounts).filter(hasAmount).map(cleanupRecycled);
 
         // save all change types (consumed=recycled:false, recycled=recycled:true, updated=no recycled field)
-        const historyAmounts = changes.map(cleanupRecycled);
+        const historyAmounts = allChanges.map(cleanupRecycled);
         const newEntry = {
             time: Date.now(),
             user,
@@ -210,7 +232,10 @@ export async function undoProduct(group: string, name: string, year: number): Pr
     return withTransaction(async (session) => {
         const filter: UpdateFilter<Product> = { group, name };
         const col = (await db()).collection<Product>('products');
-        const product = await col.findOne(filter, { projection: { years: 1, updates: 1, undates: 1 }, session });
+        const product = await col.findOne(filter, {
+            projection: { years: 1, updates: 1, undates: 1 },
+            session,
+        });
 
         const updates = (product?.updates ?? []) as Update[];
         const entryIndex = [...updates].reverse().findIndex((u) => u.years.some((y) => y.year === year));
@@ -281,7 +306,10 @@ export async function redoProduct(group: string, name: string, year: number): Pr
     return withTransaction(async (session) => {
         const filter: UpdateFilter<Product> = { group, name };
         const col = (await db()).collection<Product>('products');
-        const product = await col.findOne(filter, { projection: { years: 1, updates: 1, undates: 1 }, session });
+        const product = await col.findOne(filter, {
+            projection: { years: 1, updates: 1, undates: 1 },
+            session,
+        });
 
         const undates = (product?.undates ?? []) as Update[];
         const entryIndex = [...undates].reverse().findIndex((u) => u.years.some((y) => y.year === year));

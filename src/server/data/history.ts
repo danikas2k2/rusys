@@ -136,6 +136,7 @@ export function buildHistoryPipeline(
                     variant: '$amounts.variant',
                     recycledKey: { $ifNull: ['$amounts.recycled', null] },
                     suspiciousKey: { $ifNull: ['$amounts.suspicious', null] },
+                    homeKey: { $ifNull: ['$amounts.home', null] },
                 },
                 group: { $first: '$group' },
                 name: { $first: '$name' },
@@ -164,6 +165,9 @@ export function buildHistoryPipeline(
                                     { suspicious: '$_id.suspiciousKey' },
                                     {},
                                 ],
+                            },
+                            {
+                                $cond: [{ $ne: ['$_id.homeKey', null] }, { home: '$_id.homeKey' }, {}],
                             },
                         ],
                     },

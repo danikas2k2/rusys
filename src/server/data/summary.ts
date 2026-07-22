@@ -5,7 +5,7 @@ import { buildHistoryPipeline } from '~/server/data/history';
 import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
-import type { Group, History, Summary, Variant } from '~/types/data';
+import type { Group, History, Summary, Variant, VariantAmount } from '~/types/data';
 
 const MAX_YEARS = 3;
 const START_MONTH = 9; // September
@@ -162,6 +162,86 @@ export const getSummary = async (years: number[] = getYears()): Promise<readonly
         ])
         .toArray();
 
+// Aggregates home balances (positive home amounts in product.years) per variant per year.
+// These are merged into the main summary so the client gets a single unified list.
+const getSummaryHomeBalance = async (): Promise<readonly Summary[]> =>
+    await (
+        await db()
+    )
+        .collection('products')
+        .aggregate<Summary>([
+            { $unwind: '$years' },
+            { $unwind: '$years.amounts' },
+            {
+                $match: {
+                    'years.amounts.home': true,
+                    'years.amounts.amount': { $gt: 0 },
+                },
+            },
+            {
+                $group: {
+                    _id: {
+                        group: '$group',
+                        name: '$name',
+                        year: '$years.year',
+                        variant: '$years.amounts.variant',
+                    },
+                    amount: { $sum: '$years.amounts.amount' },
+                },
+            },
+            {
+                $group: {
+                    _id: { group: '$_id.group', name: '$_id.name', year: '$_id.year' },
+                    amounts: {
+                        $push: {
+                            variant: '$_id.variant',
+                            amount: '$amount',
+                            home: true,
+                        },
+                    },
+                },
+            },
+            {
+                $group: {
+                    _id: { group: '$_id.group', name: '$_id.name' },
+                    years: { $push: { year: '$_id.year', amounts: '$amounts' } },
+                },
+            },
+            { $project: { _id: 0, group: '$_id.group', name: '$_id.name', years: 1 } },
+        ])
+        .toArray();
+
+function mergeSummaries(main: readonly Summary[], home: readonly Summary[]): readonly Summary[] {
+    type MutableYearAmounts = { year: number; amounts: VariantAmount[] };
+    type MutableSummary = { group: string; name: string; years: MutableYearAmounts[] };
+
+    const result: MutableSummary[] = main.map((s) => ({
+        group: s.group,
+        name: s.name,
+        years: (s.years ?? []).map((y) => ({ year: y.year, amounts: [...y.amounts] as VariantAmount[] })),
+    }));
+    const index = new Map(result.map((s, i) => [`${s.group}/${s.name}`, i]));
+    for (const h of home) {
+        const key = `${h.group}/${h.name}`;
+        let idx = index.get(key);
+        if (idx === undefined) {
+            idx = result.length;
+            index.set(key, idx);
+            result.push({ group: h.group, name: h.name, years: [] });
+        }
+        const entry = result[idx];
+        for (const hy of h.years ?? []) {
+            const existingYear = entry.years.find((y) => y.year === hy.year);
+            if (existingYear) {
+                existingYear.amounts.push(...(hy.amounts as VariantAmount[]));
+            } else {
+                entry.years.push({ year: hy.year, amounts: [...hy.amounts] as VariantAmount[] });
+            }
+        }
+    }
+    return result as unknown as readonly Summary[];
+}
+
 export const getFullSummary = async (): Promise<
     Readonly<{
         years: readonly number[];
@@ -171,11 +251,12 @@ export const getFullSummary = async (): Promise<
     }>
 > => {
     const years = getYears(MAX_YEARS);
+    const [main, home] = await Promise.all([getSummary(years), getSummaryHomeBalance()]);
     return {
         years,
         groups: await getGroups(),
         variants: await getVariants(),
-        summary: await getSummary(years),
+        summary: mergeSummaries(main, home),
     };
 };
 

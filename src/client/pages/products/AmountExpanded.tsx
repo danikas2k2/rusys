@@ -1,5 +1,5 @@
-import { Button, Stack, Textarea } from '@mantine/core';
-import { IconAlertTriangle } from '@tabler/icons-react';
+import { Button, Group, Stack, Textarea } from '@mantine/core';
+import { IconAlertTriangle, IconHome } from '@tabler/icons-react';
 import React from 'react';
 
 import { useLabels } from '~/client/hooks/useLabels';
@@ -18,6 +18,7 @@ interface VariantExpandedRowsProps {
     onChange: (type: VariantEditType, value: number) => void;
     onCommentChange: (value: string) => void;
     onAddSuspicious?: () => void;
+    onAddHome?: () => void;
 }
 
 export function AmountExpanded({
@@ -27,6 +28,7 @@ export function AmountExpanded({
     onChange,
     onCommentChange,
     onAddSuspicious,
+    onAddHome,
 }: VariantExpandedRowsProps) {
     const _ = useLabels();
     const minUpdated = -(baseAmount + delta.consumed + delta.recycled);
@@ -43,16 +45,31 @@ export function AmountExpanded({
                 onChange={(e) => onCommentChange(e.target.value)}
                 rows={2}
             />
-            {onAddSuspicious && (
-                <Button
-                    variant="subtle"
-                    color="moderate"
-                    size="xs"
-                    leftSection={<IconAlertTriangle size={14} />}
-                    onClick={onAddSuspicious}
-                >
-                    {_('Something suspicious?')}
-                </Button>
+            {(onAddSuspicious || onAddHome) && (
+                <Group gap="xs" justify="center" pt="sm">
+                    {onAddSuspicious && (
+                        <Button
+                            variant="light"
+                            color="moderate"
+                            size="sm"
+                            leftSection={<IconAlertTriangle size={14} />}
+                            onClick={onAddSuspicious}
+                        >
+                            {_('Suspicious')}
+                        </Button>
+                    )}
+                    {onAddHome && (
+                        <Button
+                            variant="light"
+                            color="blue"
+                            size="sm"
+                            leftSection={<IconHome size={14} />}
+                            onClick={onAddHome}
+                        >
+                            {_('Home')}
+                        </Button>
+                    )}
+                </Group>
             )}
         </Stack>
     );

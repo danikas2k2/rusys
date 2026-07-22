@@ -331,5 +331,11 @@
   },
   "Something suspicious?": {
     "lt-LT": "Kažkas įtartino?"
+  },
+  "Home amounts?": {
+    "lt-LT": "Liko namie?"
+  },
+  "Home": {
+    "lt-LT": "Namie"
   }
 }

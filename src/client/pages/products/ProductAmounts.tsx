@@ -1,7 +1,8 @@
-import { IconAlertTriangle } from '@tabler/icons-react';
+import { IconAlertTriangle, IconHome, IconTilde } from '@tabler/icons-react';
 import React from 'react';
 
 import { AmountSuffix } from '~/client/common/AmountSuffix';
+import { HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/client/pages/products/utils/variantKeys';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import type { VariantAmount } from '~/types/data';
 
@@ -21,17 +22,24 @@ export function ProductAmounts({ group, amounts, type = 'common' }: ProductAmoun
                 .sort(
                     (a, b) =>
                         compareVariants(a.variant, b.variant) ||
-                        (!!a.suspicious === !!b.suspicious ? 0 : a.suspicious ? 1 : -1)
+                        (!!a.suspicious === !!b.suspicious && !!a.home === !!b.home
+                            ? 0
+                            : a.suspicious || a.home
+                              ? 1
+                              : -1)
                 )
                 .map((v) => (
                     <span
-                        key={`${v.variant}${v.suspicious ? '|s' : ''}`}
+                        key={`${v.variant}${v.suspicious ? SUSPICIOUS_SUFFIX : ''}${v.home ? HOME_SUFFIX : ''}`}
                         data-value
                         data-suspicious={v.suspicious || undefined}
+                        data-home={v.home || undefined}
                     >
+                        {v.home && <IconTilde size=".75rem" style={{ alignSelf: 'center' }} />}
                         {v.amount}
                         <AmountSuffix group={group} variant={v.variant} />
-                        {v.suspicious && <IconAlertTriangle size={10} />}
+                        {v.suspicious && <IconAlertTriangle size={12} />}
+                        {v.home && <IconHome size={12} />}
                     </span>
                 ))}
         </span>

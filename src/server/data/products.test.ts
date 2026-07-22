@@ -6,6 +6,7 @@ import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
 import { addVariantAmount } from '~/common/utils/amounts';
 import {
     addProduct,
+    cleanupRecycled,
     deleteProduct,
     deleteProductsGroup,
     deleteProductsVariant,
@@ -1043,5 +1044,318 @@ describe('products', () => {
                 await expect($all('products')).resolves.toStrictEqual(products);
             }
         );
+    });
+
+    describe('cleanupRecycled', () => {
+        it('preserves suspicious flag', () => {
+            expect(cleanupRecycled({ variant: 'p', amount: 1, suspicious: true })).toStrictEqual({
+                variant: 'p',
+                amount: 1,
+                suspicious: true,
+            });
+        });
+
+        it('does not include suspicious when false', () => {
+            expect(cleanupRecycled({ variant: 'p', amount: 1, suspicious: false })).toStrictEqual({
+                variant: 'p',
+                amount: 1,
+            });
+        });
+
+        it('preserves home flag', () => {
+            expect(cleanupRecycled({ variant: 'p', amount: 1, home: true })).toStrictEqual({
+                variant: 'p',
+                amount: 1,
+                home: true,
+            });
+        });
+
+        it('does not include home when false', () => {
+            expect(cleanupRecycled({ variant: 'p', amount: 1, home: false })).toStrictEqual({
+                variant: 'p',
+                amount: 1,
+            });
+        });
+
+        it('preserves recycled flag when present', () => {
+            expect(cleanupRecycled({ variant: 'p', amount: 1, recycled: false })).toStrictEqual({
+                variant: 'p',
+                amount: 1,
+                recycled: false,
+            });
+        });
+
+        it('drops recycled when undefined', () => {
+            expect(cleanupRecycled({ variant: 'p', amount: 1, recycled: undefined })).toStrictEqual({
+                variant: 'p',
+                amount: 1,
+            });
+        });
+
+        it('preserves all flags together', () => {
+            expect(
+                cleanupRecycled({ variant: 'p', amount: 2, recycled: true, suspicious: true, home: true })
+            ).toStrictEqual({
+                variant: 'p',
+                amount: 2,
+                recycled: true,
+                suspicious: true,
+                home: true,
+            });
+        });
+    });
+
+    describe('updateProduct with suspicious amounts', () => {
+        it('stores suspicious flag in history amounts', async () => {
+            await updateProduct(
+                'Daržovės',
+                'Agurkai',
+                22,
+                [{ variant: 'd', amount: -1, recycled: false, suspicious: true }],
+                user
+            );
+
+            const all = (await $all('products')) as {
+                updates?: {
+                    years: { year: number; amounts: { variant: string; amount: number; suspicious?: boolean }[] }[];
+                }[];
+            }[];
+            const agurkai = all[2];
+            const lastUpdate = agurkai.updates![agurkai.updates!.length - 1];
+            const historyAmount = lastUpdate.years[0].amounts[0];
+
+            expect(historyAmount.suspicious).toBe(true);
+        });
+
+        it('stores suspicious flag in years.amounts', async () => {
+            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Agurkai' });
+            await (
+                await db()
+            )
+                .collection('products')
+                .insertOne({ group: 'Daržovės', name: 'Agurkai' }, { forceServerObjectId: true });
+
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 3, suspicious: true }], user);
+
+            const all = (await $all('products')) as {
+                group: string;
+                name: string;
+                years?: { year: number; amounts: { variant: string; amount: number; suspicious?: boolean }[] }[];
+            }[];
+            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
+            const yearEntry = agurkai.years?.find((y) => y.year === 22);
+
+            expect(yearEntry?.amounts.find((a) => a.variant === 'd' && a.suspicious)).toBeDefined();
+        });
+
+        it('does NOT merge suspicious and non-suspicious amounts for same variant', async () => {
+            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Agurkai' });
+            await (await db()).collection('products').insertOne(
+                {
+                    group: 'Daržovės',
+                    name: 'Agurkai',
+                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 2 }] }],
+                },
+                { forceServerObjectId: true }
+            );
+
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 3, suspicious: true }], user);
+
+            const all = (await $all('products')) as {
+                group: string;
+                name: string;
+                years?: { year: number; amounts: { variant: string; amount: number; suspicious?: boolean }[] }[];
+            }[];
+            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
+            const amounts = agurkai.years?.find((y) => y.year === 22)?.amounts ?? [];
+
+            // non-suspicious and suspicious are separate entries
+            expect(amounts.filter((a) => a.variant === 'd')).toHaveLength(2);
+            expect(amounts.find((a) => a.variant === 'd' && !a.suspicious)?.amount).toBe(2);
+            expect(amounts.find((a) => a.variant === 'd' && a.suspicious)?.amount).toBe(3);
+        });
+    });
+
+    describe('updateProduct with home amounts', () => {
+        it('stores home flag in history amounts', async () => {
+            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Agurkai' });
+            await (
+                await db()
+            )
+                .collection('products')
+                .insertOne({ group: 'Daržovės', name: 'Agurkai' }, { forceServerObjectId: true });
+
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 5, home: true }], user);
+
+            const all = (await $all('products')) as {
+                group: string;
+                name: string;
+                updates?: {
+                    years: { year: number; amounts: { variant: string; amount: number; home?: boolean }[] }[];
+                }[];
+            }[];
+            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
+            const lastUpdate = agurkai.updates![agurkai.updates!.length - 1];
+            const historyAmount = lastUpdate.years[0].amounts[0];
+
+            expect(historyAmount.home).toBe(true);
+        });
+
+        it('stores home flag in years.amounts', async () => {
+            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Agurkai' });
+            await (
+                await db()
+            )
+                .collection('products')
+                .insertOne({ group: 'Daržovės', name: 'Agurkai' }, { forceServerObjectId: true });
+
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 5, home: true }], user);
+
+            const all = (await $all('products')) as {
+                group: string;
+                name: string;
+                years?: { year: number; amounts: { variant: string; amount: number; home?: boolean }[] }[];
+            }[];
+            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
+            const yearEntry = agurkai.years?.find((y) => y.year === 22);
+
+            expect(yearEntry?.amounts.find((a) => a.variant === 'd' && a.home)).toBeDefined();
+        });
+
+        it('does NOT merge home and non-home amounts for same variant', async () => {
+            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Agurkai' });
+            await (await db()).collection('products').insertOne(
+                {
+                    group: 'Daržovės',
+                    name: 'Agurkai',
+                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 2 }] }],
+                },
+                { forceServerObjectId: true }
+            );
+
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 3, home: true }], user);
+
+            const all = (await $all('products')) as {
+                group: string;
+                name: string;
+                years?: { year: number; amounts: { variant: string; amount: number; home?: boolean }[] }[];
+            }[];
+            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
+            const amounts = agurkai.years?.find((y) => y.year === 22)?.amounts ?? [];
+
+            // non-home and home are separate entries
+            expect(amounts.filter((a) => a.variant === 'd')).toHaveLength(2);
+            expect(amounts.find((a) => a.variant === 'd' && !a.home)?.amount).toBe(2);
+            expect(amounts.find((a) => a.variant === 'd' && a.home)?.amount).toBe(3);
+        });
+    });
+
+    describe('auto-consume home balance on first cellar consume', () => {
+        const homeProduct = {
+            group: 'Šaldyti',
+            name: 'Mėsa',
+            years: [
+                {
+                    year: 22,
+                    amounts: [
+                        { variant: 'p', amount: 3 },
+                        { variant: 'p', amount: 5, home: true },
+                    ],
+                },
+            ],
+        };
+
+        beforeEach(async () => {
+            await (await db()).collection('products').insertOne({ ...homeProduct }, { forceServerObjectId: true });
+        });
+
+        it('auto-consumes home balance when cellar consume arrives for variant with home amounts', async () => {
+            await updateProduct('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: false }], user);
+
+            const result = await getProducts([22]);
+            const product = result.find((p) => p.group === 'Šaldyti' && p.name === 'Mėsa')!;
+            const amounts = product.years?.find((y) => y.year === 22)?.amounts ?? [];
+
+            // cellar: 3 - 1 = 2, home: 5 - 5 (auto-consumed) = 0 → removed
+            expect(amounts.find((a) => a.variant === 'p' && !a.home)?.amount).toBe(2);
+            expect(amounts.find((a) => a.variant === 'p' && a.home)).toBeUndefined();
+        });
+
+        it('auto-consume is saved in update history', async () => {
+            await updateProduct('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: false }], user);
+
+            const all = (await $all('products')) as {
+                group: string;
+                name: string;
+                updates?: {
+                    years: {
+                        year: number;
+                        amounts: { variant: string; amount: number; recycled?: boolean; home?: boolean }[];
+                    }[];
+                }[];
+            }[];
+            const product = all.find((p) => p.group === 'Šaldyti' && p.name === 'Mėsa')!;
+            const lastUpdate = product.updates![product.updates!.length - 1];
+            const amounts = lastUpdate.years.find((y) => y.year === 22)?.amounts ?? [];
+
+            expect(amounts.find((a) => a.variant === 'p' && a.recycled === false && !a.home)?.amount).toBe(-1);
+            expect(amounts.find((a) => a.variant === 'p' && a.recycled === false && a.home)?.amount).toBe(-5);
+        });
+
+        it('does NOT auto-consume when home consume arrives (only cellar triggers it)', async () => {
+            await updateProduct(
+                'Šaldyti',
+                'Mėsa',
+                22,
+                [{ variant: 'p', amount: -1, recycled: false, home: true }],
+                user
+            );
+
+            const result = await getProducts([22]);
+            const product = result.find((p) => p.group === 'Šaldyti' && p.name === 'Mėsa')!;
+            const amounts = product.years?.find((y) => y.year === 22)?.amounts ?? [];
+
+            // home manually consumed by 1, cellar unchanged
+            expect(amounts.find((a) => a.variant === 'p' && !a.home)?.amount).toBe(3);
+            expect(amounts.find((a) => a.variant === 'p' && a.home)?.amount).toBe(4);
+        });
+
+        it('does NOT auto-consume for recycled:true (thrown away)', async () => {
+            await updateProduct('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: true }], user);
+
+            const result = await getProducts([22]);
+            const product = result.find((p) => p.group === 'Šaldyti' && p.name === 'Mėsa')!;
+            const amounts = product.years?.find((y) => y.year === 22)?.amounts ?? [];
+
+            expect(amounts.find((a) => a.variant === 'p' && !a.home)?.amount).toBe(2);
+            expect(amounts.find((a) => a.variant === 'p' && a.home)?.amount).toBe(5);
+        });
+
+        it('does NOT auto-consume when variant has no home amounts', async () => {
+            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -1, recycled: false }], user);
+
+            const all = (await $all('products')) as {
+                group: string;
+                name: string;
+                updates?: { years: { year: number; amounts: { variant: string; home?: boolean }[] }[] }[];
+            }[];
+            const product = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
+            const lastUpdate = product.updates![product.updates!.length - 1];
+            const amounts = lastUpdate.years.find((y) => y.year === 22)?.amounts ?? [];
+
+            expect(amounts.filter((a) => a.home)).toHaveLength(0);
+        });
+
+        it('undo restores both cellar and auto-consumed home amounts', async () => {
+            await updateProduct('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: false }], user);
+            await undoProduct('Šaldyti', 'Mėsa', 22);
+
+            const result = await getProducts([22]);
+            const product = result.find((p) => p.group === 'Šaldyti' && p.name === 'Mėsa')!;
+            const amounts = product.years?.find((y) => y.year === 22)?.amounts ?? [];
+
+            expect(amounts.find((a) => a.variant === 'p' && !a.home)?.amount).toBe(3);
+            expect(amounts.find((a) => a.variant === 'p' && a.home)?.amount).toBe(5);
+        });
     });
 });

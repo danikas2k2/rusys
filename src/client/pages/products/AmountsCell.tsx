@@ -1,5 +1,5 @@
 import { Group, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconAlertTriangle, IconEdit, IconToolsKitchen2, IconTrash } from '@tabler/icons-react';
+import { IconAlertTriangle, IconEdit, IconHome, IconToolsKitchen2, IconTrash } from '@tabler/icons-react';
 import React from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
@@ -22,7 +22,9 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
     }
 
     const sorted = [...amounts].sort(
-        (a, b) => comparator(a.variant, b.variant) || (!!a.suspicious === !!b.suspicious ? 0 : a.suspicious ? 1 : -1)
+        (a, b) =>
+            comparator(a.variant, b.variant) ||
+            (!!a.suspicious === !!b.suspicious && !!a.home === !!b.home ? 0 : a.suspicious || a.home ? 1 : -1)
     );
 
     return (
@@ -32,7 +34,8 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
                 const typeLabel = isUpdated ? 'Updated' : a.recycled ? 'Recycled' : 'Consumed';
                 const color = isUpdated ? 'blue' : a.recycled ? 'negative' : 'positive';
                 const Icon = isUpdated ? IconEdit : a.recycled ? IconTrash : IconToolsKitchen2;
-                const key = `${a.variant}-${a.amount}-${a.recycled == null ? 'u' : a.recycled ? 'r' : 'c'}${a.suspicious ? '-s' : ''}`;
+                const key = `${a.variant}-${a.amount}-${a.recycled == null ? 'u' : a.recycled ? 'r' : 'c'}${a.suspicious ? '-s' : ''}${a.home ? '-h' : ''}`;
+                const labelColor = a.suspicious ? 'moderate' : a.home ? 'blue' : undefined;
 
                 return (
                     <Group key={key} justify="space-between" wrap="nowrap" gap="xs">
@@ -40,7 +43,7 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
                             <ThemeIcon size="sm" variant="light" color={color} title={typeLabel} aria-label={typeLabel}>
                                 <Icon size={14} />
                             </ThemeIcon>
-                            <Text size="sm" c={a.suspicious ? 'moderate' : undefined}>
+                            <Text size="sm" c={labelColor}>
                                 <VariantTitle group={group} variant={a.variant} />
                                 {a.suspicious && (
                                     <ThemeIcon
@@ -51,6 +54,17 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
                                         ms={4}
                                     >
                                         <IconAlertTriangle size={12} />
+                                    </ThemeIcon>
+                                )}
+                                {a.home && (
+                                    <ThemeIcon
+                                        size="xs"
+                                        variant="transparent"
+                                        color="blue"
+                                        display="inline-flex"
+                                        ms={4}
+                                    >
+                                        <IconHome size={12} />
                                     </ThemeIcon>
                                 )}
                             </Text>

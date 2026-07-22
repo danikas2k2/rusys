@@ -5,6 +5,7 @@ export interface VariantAmount {
     amount: number;
     recycled?: boolean;
     suspicious?: boolean;
+    home?: boolean;
 }
 
 export interface YearAmounts {

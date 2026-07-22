@@ -18,7 +18,7 @@ export function ChangeBadge({ change, position = 'inline' }: ChangeBadgeProps) {
     return change ? (
         <Badge
             className={inline ? undefined : 'change-badge'}
-            circle={inline}
+            p={2}
             role="status"
             data-position={position}
             data-state={getState(change)}

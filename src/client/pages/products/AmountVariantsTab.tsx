@@ -4,7 +4,9 @@ import {
     IconArrowBackUp,
     IconArrowForwardUp,
     IconCheck,
+    IconHome,
     IconPlus,
+    IconTilde,
     IconX,
 } from '@tabler/icons-react';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -16,6 +18,7 @@ import { VariantTitle } from '~/client/common/VariantTitle';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AmountExpanded, type VariantDelta } from '~/client/pages/products/AmountExpanded';
 import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
+import { HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/client/pages/products/utils/variantKeys';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useRedoProduct } from '~/client/state/products/useRedoProduct';
@@ -28,15 +31,20 @@ import { getVariantAmount } from '~/common/utils/amounts';
 import type { ProductAmounts, VariantAmount } from '~/types/data';
 
 const ZERO_DELTA: VariantDelta = { updated: 0, consumed: 0, recycled: 0 };
-const SUSPICIOUS_SUFFIX = '|suspicious';
 
-function toKey(variant: string, suspicious: boolean) {
+function toKey(variant: string, suspicious: boolean, home?: boolean) {
+    if (home) {
+        return `${variant}${HOME_SUFFIX}`;
+    }
     return suspicious ? `${variant}${SUSPICIOUS_SUFFIX}` : variant;
 }
 
-function fromKey(key: string): { variant: string; suspicious: boolean } {
+function fromKey(key: string): { variant: string; suspicious: boolean; home: boolean } {
+    if (key.endsWith(HOME_SUFFIX)) {
+        return { variant: key.slice(0, -HOME_SUFFIX.length), suspicious: false, home: true };
+    }
     const suspicious = key.endsWith(SUSPICIOUS_SUFFIX);
-    return { variant: suspicious ? key.slice(0, -SUSPICIOUS_SUFFIX.length) : key, suspicious };
+    return { variant: suspicious ? key.slice(0, -SUSPICIOUS_SUFFIX.length) : key, suspicious, home: false };
 }
 
 export function AmountVariantsTab() {
@@ -62,7 +70,7 @@ export function AmountVariantsTab() {
     );
 
     const liveAmounts = useMemo(
-        () => activeProduct?.years?.find((y) => y.year === year)?.amounts ?? amounts,
+        () => (activeProduct ? (activeProduct.years?.find((y) => y.year === year)?.amounts ?? []) : amounts),
         [activeProduct, year, amounts]
     );
 
@@ -76,11 +84,11 @@ export function AmountVariantsTab() {
 
     const presentKeys = useMemo(() => {
         const current = liveAmounts ?? amounts;
-        return (current?.filter((a) => a.amount > 0).map((a) => toKey(a.variant, !!a.suspicious)) ?? []).sort(
+        return (current?.filter((a) => a.amount > 0).map((a) => toKey(a.variant, !!a.suspicious, !!a.home)) ?? []).sort(
             (a, b) => {
                 const ka = fromKey(a);
                 const kb = fromKey(b);
-                return compareVariants(ka.variant, kb.variant) || (ka.suspicious ? 1 : -1);
+                return compareVariants(ka.variant, kb.variant) || (ka.home ? 1 : ka.suspicious ? 1 : -1);
             }
         );
     }, [liveAmounts, amounts, compareVariants]);
@@ -91,13 +99,13 @@ export function AmountVariantsTab() {
         const combined = Array.from(new Set([...presentKeys, ...extraKeys]));
         return combined
             .filter((k) => {
-                const { variant, suspicious } = fromKey(k);
-                return extraKeys.includes(k) || getVariantAmount(liveAmounts ?? amounts, variant, suspicious) > 0;
+                const { variant, suspicious, home } = fromKey(k);
+                return extraKeys.includes(k) || getVariantAmount(liveAmounts ?? amounts, variant, suspicious, home) > 0;
             })
             .sort((a, b) => {
                 const ka = fromKey(a);
                 const kb = fromKey(b);
-                return compareVariants(ka.variant, kb.variant) || (ka.suspicious ? 1 : -1);
+                return compareVariants(ka.variant, kb.variant) || (ka.home ? 1 : ka.suspicious ? 1 : -1);
             });
     }, [compareVariants, extraKeys, presentKeys, liveAmounts, amounts]);
 
@@ -135,6 +143,12 @@ export function AmountVariantsTab() {
         setExpandedKey(key);
     }, []);
 
+    const handleAddHome = useCallback((variant: string) => {
+        const key = toKey(variant, false, true);
+        setExtraKeys((prev) => (prev.includes(key) ? prev : [...prev, key]));
+        setExpandedKey(key);
+    }, []);
+
     const handleDeltaChange = useCallback(
         (type: keyof VariantDelta, value: number) => {
             setAllDeltas((prev) => ({
@@ -160,25 +174,16 @@ export function AmountVariantsTab() {
     const handleUpdate = useCallback(async () => {
         const changes: VariantAmount[] = [];
         for (const [key, deltas] of Object.entries(allDeltas)) {
-            const { variant, suspicious } = fromKey(key);
+            const { variant, suspicious, home } = fromKey(key);
+            const flags = { ...(suspicious ? { suspicious } : {}), ...(home ? { home } : {}) };
             if (deltas.updated !== 0) {
-                changes.push(
-                    suspicious ? { variant, amount: deltas.updated, suspicious } : { variant, amount: deltas.updated }
-                );
+                changes.push({ variant, amount: deltas.updated, ...flags });
             }
             if (deltas.consumed !== 0) {
-                changes.push(
-                    suspicious
-                        ? { variant, amount: deltas.consumed, recycled: false, suspicious }
-                        : { variant, amount: deltas.consumed, recycled: false }
-                );
+                changes.push({ variant, amount: deltas.consumed, recycled: false, ...flags });
             }
             if (deltas.recycled !== 0) {
-                changes.push(
-                    suspicious
-                        ? { variant, amount: deltas.recycled, recycled: true, suspicious }
-                        : { variant, amount: deltas.recycled, recycled: true }
-                );
+                changes.push({ variant, amount: deltas.recycled, recycled: true, ...flags });
             }
         }
         if (activeData) {
@@ -218,31 +223,48 @@ export function AmountVariantsTab() {
             <Stack gap="sm">
                 <Accordion value={expandedKey} onChange={setExpandedKey} variant="contained" radius="md" chevron={null}>
                     {visibleKeys.map((key) => {
-                        const { variant, suspicious } = fromKey(key);
+                        const { variant, suspicious, home } = fromKey(key);
                         const variantDelta = allDeltas[key] ?? ZERO_DELTA;
                         const totalDelta = variantDelta.updated + variantDelta.consumed + variantDelta.recycled;
                         const totalChanges =
                             !!variantDelta.updated || !!variantDelta.consumed || !!variantDelta.recycled;
-                        const baseAmount = getVariantAmount(liveAmounts, variant, suspicious);
+                        const baseAmount = getVariantAmount(liveAmounts, variant, suspicious, home);
                         const displayAmount = baseAmount + totalDelta;
                         const hasSuspicious = visibleKeys.includes(toKey(variant, true));
+                        const hasHome = visibleKeys.includes(toKey(variant, false, true));
 
                         return (
-                            <Accordion.Item key={key} value={key} data-suspicious={suspicious || undefined}>
+                            <Accordion.Item
+                                key={key}
+                                value={key}
+                                data-suspicious={suspicious || undefined}
+                                data-home={home || undefined}
+                            >
                                 <Accordion.Control>
                                     <Group justify="space-between">
                                         <Group gap={4}>
                                             {suspicious && (
-                                                <Text fz="sm" c="moderate" component="span">
-                                                    <IconAlertTriangle size={14} style={{ verticalAlign: 'middle' }} />
-                                                </Text>
+                                                <IconAlertTriangle
+                                                    size={14}
+                                                    color="var(--mantine-color-moderate-text)"
+                                                />
                                             )}
-                                            <Text fz="md" fw={500} c={suspicious ? 'moderate' : undefined}>
+                                            {home && <IconHome size={14} color="var(--mantine-color-blue-text)" />}
+                                            <Text
+                                                fz="md"
+                                                fw={500}
+                                                c={suspicious ? 'moderate' : home ? 'blue' : undefined}
+                                            >
                                                 <VariantTitle group={group} variant={variant} />
                                             </Text>
                                         </Group>
                                         <Group gap="xs">
-                                            <Text fz="md" component="span" c={suspicious ? 'moderate' : undefined}>
+                                            <Text
+                                                fz="md"
+                                                component="span"
+                                                c={suspicious ? 'moderate' : home ? 'blue' : undefined}
+                                            >
+                                                {home && <IconTilde size={12} style={{ verticalAlign: 'middle' }} />}
                                                 {displayAmount}
                                             </Text>
                                             <ChangeBadge change={totalDelta || totalChanges} />
@@ -257,9 +279,12 @@ export function AmountVariantsTab() {
                                         onChange={handleDeltaChange}
                                         onCommentChange={setComment}
                                         onAddSuspicious={
-                                            !suspicious && !hasSuspicious
+                                            !suspicious && !home && !hasSuspicious
                                                 ? () => handleAddSuspicious(variant)
                                                 : undefined
+                                        }
+                                        onAddHome={
+                                            !suspicious && !home && !hasHome ? () => handleAddHome(variant) : undefined
                                         }
                                     />
                                 </Accordion.Panel>
