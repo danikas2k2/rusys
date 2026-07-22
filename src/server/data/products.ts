@@ -111,8 +111,11 @@ export async function addProduct(group: string, name: string): Promise<boolean> 
     return (await db()).collection('products').insertOne({ group, name }).then(hasEffect);
 }
 
-export const cleanupRecycled = ({ recycled, ...v }: VariantAmount): VariantAmount =>
-    recycled != null ? { ...v, recycled } : v;
+export const cleanupRecycled = ({ recycled, suspicious, ...v }: VariantAmount): VariantAmount => ({
+    ...v,
+    ...(recycled != null ? { recycled } : {}),
+    ...(suspicious ? { suspicious } : {}),
+});
 
 export const hasAmount = (a: VariantAmount) => a.amount > 0;
 

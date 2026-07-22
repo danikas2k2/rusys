@@ -135,6 +135,7 @@ export function buildHistoryPipeline(
                     year: '$year',
                     variant: '$amounts.variant',
                     recycledKey: { $ifNull: ['$amounts.recycled', null] },
+                    suspiciousKey: { $ifNull: ['$amounts.suspicious', null] },
                 },
                 group: { $first: '$group' },
                 name: { $first: '$name' },
@@ -157,6 +158,13 @@ export function buildHistoryPipeline(
                         $mergeObjects: [
                             { variant: '$_id.variant', amount: '$amount' },
                             { $cond: [{ $ne: ['$_id.recycledKey', null] }, { recycled: '$_id.recycledKey' }, {}] },
+                            {
+                                $cond: [
+                                    { $ne: ['$_id.suspiciousKey', null] },
+                                    { suspicious: '$_id.suspiciousKey' },
+                                    {},
+                                ],
+                            },
                         ],
                     },
                 },

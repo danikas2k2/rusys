@@ -322,5 +322,14 @@
   },
   "What": {
     "lt-LT": "Kiek"
+  },
+  "Add suspicious": {
+    "lt-LT": "Pridėti įtartiną"
+  },
+  "Suspicious": {
+    "lt-LT": "Įtartinas"
+  },
+  "Something suspicious?": {
+    "lt-LT": "Kažkas įtartino?"
   }
 }

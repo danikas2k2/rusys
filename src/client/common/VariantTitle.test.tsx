@@ -38,7 +38,13 @@ describe('<VariantTitle>', () => {
     });
 
     it('renders VariantLabel with count and units when no name but has count', () => {
-        vi.mocked(useVariant).mockReturnValue({ group: 'Uogienės', variant: '500ml', order: 0, count: 500, units: 'ml' });
+        vi.mocked(useVariant).mockReturnValue({
+            group: 'Uogienės',
+            variant: '500ml',
+            order: 0,
+            count: 500,
+            units: 'ml',
+        });
 
         render(
             <MockTheme>
@@ -63,7 +69,14 @@ describe('<VariantTitle>', () => {
     });
 
     it('renders name when both name and count are set', () => {
-        vi.mocked(useVariant).mockReturnValue({ group: 'Uogienės', variant: 'd', name: 'Didelė', order: 0, count: 500, units: 'ml' });
+        vi.mocked(useVariant).mockReturnValue({
+            group: 'Uogienės',
+            variant: 'd',
+            name: 'Didelė',
+            order: 0,
+            count: 500,
+            units: 'ml',
+        });
 
         render(
             <MockTheme>

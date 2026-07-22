@@ -47,7 +47,9 @@ function resolveInitialName(
     count: number | undefined,
     units: VariantUnits
 ): string {
-    if (name !== undefined) return name;
+    if (name !== undefined) {
+        return name;
+    }
     return count && variant === deriveVariantKey(count, units) ? '' : variant;
 }
 

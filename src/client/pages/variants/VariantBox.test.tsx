@@ -469,9 +469,7 @@ describe('<VariantBox>', () => {
                     target: { value: 'New Variant' },
                 })
             );
-            act(() =>
-                fireEvent.change(screen.getByRole('textbox', { name: 'Amount' }), { target: { value: '500' } })
-            );
+            act(() => fireEvent.change(screen.getByRole('textbox', { name: 'Amount' }), { target: { value: '500' } }));
 
             const addButton = screen.getByRole('button', { name: 'Add' });
             act(() => fireEvent.click(addButton));
@@ -515,9 +513,7 @@ describe('<VariantBox>', () => {
                     target: { value: 'Fast Variant' },
                 })
             );
-            act(() =>
-                fireEvent.change(screen.getByRole('textbox', { name: 'Amount' }), { target: { value: '500' } })
-            );
+            act(() => fireEvent.change(screen.getByRole('textbox', { name: 'Amount' }), { target: { value: '500' } }));
 
             const addButton = screen.getByRole('button', { name: 'Add' });
             act(() => fireEvent.click(addButton));

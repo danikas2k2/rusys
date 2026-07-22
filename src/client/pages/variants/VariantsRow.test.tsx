@@ -44,7 +44,11 @@ describe('<VariantsRow>', () => {
 
     it('renders count and units when no name is set', () => {
         vi.mocked(useVariant).mockReturnValue({
-            group: 'Uogienės', variant: '500ml', order: 0, count: 500, units: 'ml',
+            group: 'Uogienės',
+            variant: '500ml',
+            order: 0,
+            count: 500,
+            units: 'ml',
         });
 
         renderRow({
@@ -59,7 +63,12 @@ describe('<VariantsRow>', () => {
 
     it('renders name with count as dimmed sub-text when name is provided', () => {
         vi.mocked(useVariant).mockReturnValue({
-            group: 'Uogienės', variant: '500ml', name: 'Litriukas', order: 0, count: 500, units: 'ml',
+            group: 'Uogienės',
+            variant: '500ml',
+            name: 'Litriukas',
+            order: 0,
+            count: 500,
+            units: 'ml',
         });
 
         renderRow({

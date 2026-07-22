@@ -38,7 +38,13 @@ describe('<VariantAmount>', () => {
     });
 
     it('renders VariantLabel with count and units when variant has count', () => {
-        vi.mocked(useVariant).mockReturnValue({ group: 'Uogienės', variant: '500ml', order: 0, count: 500, units: 'ml' });
+        vi.mocked(useVariant).mockReturnValue({
+            group: 'Uogienės',
+            variant: '500ml',
+            order: 0,
+            count: 500,
+            units: 'ml',
+        });
 
         render(
             <MockTheme>

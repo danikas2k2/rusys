@@ -1,4 +1,5 @@
-import { Stack, Textarea } from '@mantine/core';
+import { Button, Stack, Textarea } from '@mantine/core';
+import { IconAlertTriangle } from '@tabler/icons-react';
 import React from 'react';
 
 import { useLabels } from '~/client/hooks/useLabels';
@@ -16,9 +17,17 @@ interface VariantExpandedRowsProps {
     comment: string;
     onChange: (type: VariantEditType, value: number) => void;
     onCommentChange: (value: string) => void;
+    onAddSuspicious?: () => void;
 }
 
-export function AmountExpanded({ delta, baseAmount, comment, onChange, onCommentChange }: VariantExpandedRowsProps) {
+export function AmountExpanded({
+    delta,
+    baseAmount,
+    comment,
+    onChange,
+    onCommentChange,
+    onAddSuspicious,
+}: VariantExpandedRowsProps) {
     const _ = useLabels();
     const minUpdated = -(baseAmount + delta.consumed + delta.recycled);
     const minConsumed = -(baseAmount + delta.updated + delta.recycled);
@@ -34,6 +43,17 @@ export function AmountExpanded({ delta, baseAmount, comment, onChange, onComment
                 onChange={(e) => onCommentChange(e.target.value)}
                 rows={2}
             />
+            {onAddSuspicious && (
+                <Button
+                    variant="subtle"
+                    color="moderate"
+                    size="xs"
+                    leftSection={<IconAlertTriangle size={14} />}
+                    onClick={onAddSuspicious}
+                >
+                    {_('Something suspicious?')}
+                </Button>
+            )}
         </Stack>
     );
 }
