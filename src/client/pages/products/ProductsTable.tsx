@@ -1,6 +1,7 @@
-import { Table } from '@mantine/core';
+import { Group, Table } from '@mantine/core';
 import React from 'react';
 
+import { AmountViewToggle } from '~/client/common/AmountViewToggle';
 import { LoadableContent } from '~/client/common/LoadableContent';
 import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
 import { useProductsHasData } from '~/client/pages/products/hooks/useProductsHasData';
@@ -22,7 +23,10 @@ export function ProductsTable() {
                 <Table.Thead>
                     <Table.Tr h="3rem">
                         <Table.Th w={`${headingWidth}%`}>
-                            <MissingOnlyCheckbox />
+                            <Group gap="xs" wrap="nowrap">
+                                <MissingOnlyCheckbox />
+                                <AmountViewToggle />
+                            </Group>
                         </Table.Th>
                         {years.map((year) => (
                             <Table.Th key={year} ta="center">

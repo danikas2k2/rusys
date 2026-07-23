@@ -4,8 +4,11 @@ import React, { useCallback, useMemo } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { AmountSuffix } from '~/client/common/AmountSuffix';
+import { useAmountView } from '~/client/common/AmountViewContext';
 import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
+import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
+import { formatVolume, formatWeight, getAmountTotals } from '~/common/utils/amounts';
 import type { ProductAmounts as ProductAmountsData, VariantAmount } from '~/types/data';
 
 interface HomeAmountsProps {
@@ -13,20 +16,61 @@ interface HomeAmountsProps {
     homeBalance: readonly VariantAmount[];
 }
 
+function HomeAmountLine({ children }: React.PropsWithChildren) {
+    return (
+        <Text c="blue">
+            <IconTilde size={12} />
+            {children}
+            <sub>
+                <IconHome size={10} style={{ selfAlign: 'end' }} />
+            </sub>
+        </Text>
+    );
+}
+
 function HomeAmounts({ group, homeBalance }: HomeAmountsProps) {
+    const [amountView] = useAmountView();
     const compareVariants = useGroupVariantComparator(group);
+    const variants = useVariantsByGroup(group);
+
+    if (amountView === 'total') {
+        const { volume, weight, count, unitless } = getAmountTotals(homeBalance, variants);
+        const formattedVolume = volume != null ? formatVolume(volume) : undefined;
+        const formattedWeight = weight != null ? formatWeight(weight) : undefined;
+        const sorted = [...unitless].sort((a, b) => compareVariants(a.variant, b.variant));
+        return (
+            <span data-type="consumed">
+                {formattedVolume && (
+                    <HomeAmountLine>
+                        {formattedVolume.value}
+                        <sub>{formattedVolume.unit}</sub>
+                    </HomeAmountLine>
+                )}
+                {formattedWeight && (
+                    <HomeAmountLine>
+                        {formattedWeight.value}
+                        <sub>{formattedWeight.unit}</sub>
+                    </HomeAmountLine>
+                )}
+                {count != null && <HomeAmountLine>{count}</HomeAmountLine>}
+                {sorted.map(({ variant, amount }) => (
+                    <HomeAmountLine key={variant}>
+                        {amount}
+                        <AmountSuffix group={group} variant={variant} />
+                    </HomeAmountLine>
+                ))}
+            </span>
+        );
+    }
+
     const sorted = [...homeBalance].sort((a, b) => compareVariants(a.variant, b.variant));
     return (
         <span data-type="consumed">
             {sorted.map(({ variant, amount }) => (
-                <Text key={variant} c="blue">
-                    <IconTilde size={12} />
+                <HomeAmountLine key={variant}>
                     {amount}
                     <AmountSuffix group={group} variant={variant} />
-                    <sub>
-                        <IconHome size={10} style={{ selfAlign: 'end' }} />
-                    </sub>
-                </Text>
+                </HomeAmountLine>
             ))}
         </span>
     );

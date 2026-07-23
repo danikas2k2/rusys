@@ -12,6 +12,7 @@ import { useRenameVariant } from '~/client/state/variants/useRenameVariant';
 import { useUpdateVariant } from '~/client/state/variants/useUpdateVariant';
 import { useVariants } from '~/client/state/variants/useVariants';
 import { compareNames } from '~/client/utils/compareNames';
+import { DEFAULT_UNITS, deriveVariantKey } from '~/client/utils/deriveVariantKey';
 import { getErrorMessage } from '~/client/utils/errors';
 import type { VariantUnits } from '~/types/data';
 
@@ -22,12 +23,6 @@ const UNITS_OPTIONS: { value: VariantUnits; label: string }[] = [
     { value: 'g', label: 'g' },
     { value: 'kg', label: 'kg' },
 ];
-
-const DEFAULT_UNITS: VariantUnits = 'vnt';
-
-function deriveVariantKey(count: number | undefined | null | '', units: VariantUnits): string {
-    return count ? `${count}${units}` : '';
-}
 
 interface VariantBoxProps {
     opened?: boolean;

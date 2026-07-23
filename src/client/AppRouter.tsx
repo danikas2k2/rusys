@@ -1,6 +1,7 @@
 import React from 'react';
 import { HashRouter, Outlet, Route, Routes } from 'react-router-dom';
 
+import { AmountViewWrapper } from '~/client/common/AmountViewContext';
 import { GroupFilterWrapper } from '~/client/filters/GroupFilterContext';
 import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
 import { Links } from '~/client/Links';
@@ -12,7 +13,9 @@ import { VariantsPage } from '~/client/pages/variants/VariantsPage';
 function QuickFilterLayout() {
     return (
         <QuickFilterWrapper>
-            <Outlet />
+            <AmountViewWrapper>
+                <Outlet />
+            </AmountViewWrapper>
         </QuickFilterWrapper>
     );
 }

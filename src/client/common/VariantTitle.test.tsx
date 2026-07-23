@@ -68,6 +68,25 @@ describe('<VariantTitle>', () => {
         expect(screen.getByText('Didelė')).toBeInTheDocument();
     });
 
+    it('renders the custom variant key directly when count/units are set but the key was not auto-derived from them', () => {
+        vi.mocked(useVariant).mockReturnValue({
+            group: 'Uogienės',
+            variant: 'Stiklainis',
+            order: 0,
+            count: 500,
+            units: 'ml',
+        });
+
+        render(
+            <MockTheme>
+                <VariantTitle group="Uogienės" variant="Stiklainis" />
+            </MockTheme>
+        );
+
+        expect(screen.getByText('Stiklainis')).toBeInTheDocument();
+        expect(screen.queryByText('500')).not.toBeInTheDocument();
+    });
+
     it('renders name when both name and count are set', () => {
         vi.mocked(useVariant).mockReturnValue({
             group: 'Uogienės',

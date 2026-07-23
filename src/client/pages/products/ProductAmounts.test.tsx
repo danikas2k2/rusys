@@ -3,14 +3,22 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { AmountSuffix } from '~/client/common/AmountSuffix';
+import { useAmountView } from '~/client/common/AmountViewContext';
 import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
+import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
 
 vi.mock(import('~/client/state/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn().mockReturnValue(() => 0),
 }));
 vi.mock(import('~/client/common/AmountSuffix'), () => ({
     AmountSuffix: vi.fn().mockReturnValue(null),
+}));
+vi.mock(import('~/client/common/AmountViewContext'), () => ({
+    useAmountView: vi.fn().mockReturnValue(['detailed', vi.fn()]),
+}));
+vi.mock(import('~/client/state/variants/useVariantsByGroup'), () => ({
+    useVariantsByGroup: vi.fn().mockReturnValue([]),
 }));
 
 describe('<ProductAmounts>', () => {
@@ -375,6 +383,62 @@ describe('<ProductAmounts>', () => {
 
             expect(allArgs).toContain('p');
             expect(allArgs).toContain('d');
+        });
+    });
+
+    describe('total view', () => {
+        beforeEach(() => {
+            vi.mocked(useAmountView).mockReturnValue(['total', vi.fn()]);
+        });
+
+        it('sums variants sharing a units family into a single value', () => {
+            vi.mocked(useVariantsByGroup).mockReturnValue([
+                { group, variant: 'p', order: 0, units: 'ml', count: 500 },
+                { group, variant: 'd', order: 1, units: 'l', count: 1 },
+            ]);
+
+            const { container } = render(
+                <ProductAmounts
+                    group={group}
+                    amounts={[
+                        { variant: 'p', amount: 5 },
+                        { variant: 'd', amount: 2 },
+                    ]}
+                />
+            );
+
+            expect(container.querySelector('[data-total="volume"]')).toHaveTextContent('4½l');
+            expect(container.querySelector('[data-total="volume"] sub')).toHaveTextContent('l');
+        });
+
+        it('renders variants without units individually, like the detailed view', () => {
+            vi.mocked(useVariantsByGroup).mockReturnValue([]);
+
+            render(<ProductAmounts group={group} amounts={[{ variant: 'p', amount: 3 }]} />);
+
+            expect(screen.getByText('3')).toBeInTheDocument();
+            expect(AmountSuffix).toHaveBeenCalledWith(expect.objectContaining({ group, variant: 'p' }), undefined);
+        });
+
+        it("renders separate totals for 'vnt' units variants alongside volume totals", () => {
+            vi.mocked(useVariantsByGroup).mockReturnValue([
+                { group, variant: 'p', order: 0, units: 'ml', count: 500 },
+                { group, variant: 'd', order: 1, units: 'vnt' },
+            ]);
+
+            const { container } = render(
+                <ProductAmounts
+                    group={group}
+                    amounts={[
+                        { variant: 'p', amount: 2 },
+                        { variant: 'd', amount: 4 },
+                    ]}
+                />
+            );
+
+            expect(container.querySelector('[data-total="volume"]')).toHaveTextContent('1l');
+            expect(container.querySelector('[data-total="count"]')).toHaveTextContent('4');
+            expect(container.querySelector('[data-total="count"] sub')).not.toBeInTheDocument();
         });
     });
 });

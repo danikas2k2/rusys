@@ -1,4 +1,4 @@
-import type { VariantAmount, YearAmounts } from '~/types/data';
+import type { Variant, VariantAmount, YearAmounts } from '~/types/data';
 
 export function getVariantAmount(
     amounts: readonly VariantAmount[] | undefined,
@@ -24,6 +24,76 @@ export function getCombinedAmounts(years: readonly YearAmounts[] | undefined): r
         (acc, { amounts }) => (amounts ? amounts.reduce(addVariantAmount, acc) : acc),
         []
     );
+}
+
+export interface AmountTotals {
+    volume?: number;
+    weight?: number;
+    count?: number;
+    unitless: readonly VariantAmount[];
+}
+
+const BASE_ML_PER_UNIT: Record<'l' | 'ml', number> = { l: 1000, ml: 1 };
+const BASE_G_PER_UNIT: Record<'kg' | 'g', number> = { kg: 1000, g: 1 };
+
+export function getAmountTotals(
+    amounts: readonly VariantAmount[] | undefined,
+    variants: readonly Variant[]
+): AmountTotals {
+    const totals: AmountTotals = { unitless: [] };
+
+    for (const a of amounts ?? []) {
+        const variant = variants.find((v) => v.variant === a.variant);
+        const units = variant?.units;
+        const perUnit = variant?.count ?? 1;
+
+        if (units === 'l' || units === 'ml') {
+            totals.volume = (totals.volume ?? 0) + a.amount * perUnit * BASE_ML_PER_UNIT[units];
+        } else if (units === 'kg' || units === 'g') {
+            totals.weight = (totals.weight ?? 0) + a.amount * perUnit * BASE_G_PER_UNIT[units];
+        } else if (units === 'vnt') {
+            totals.count = (totals.count ?? 0) + a.amount * perUnit;
+        } else {
+            totals.unitless = [...totals.unitless, a];
+        }
+    }
+
+    return totals;
+}
+
+export interface FormattedQuantity {
+    value: string;
+    unit: string;
+}
+
+const FRACTION_SYMBOLS: Record<number, string> = {
+    0.25: '¼',
+    0.5: '½',
+    0.75: '¾',
+};
+
+function formatQuantity(base: number, small: 'ml' | 'g', big: 'l' | 'kg'): FormattedQuantity {
+    const useBig = base >= 100;
+    const raw = useBig ? base / 1000 : base;
+    const rounded = Math.round(raw * 4) / 4;
+    const unit = useBig ? big : small;
+
+    if (rounded === 0 && raw > 0) {
+        return { value: '<½', unit };
+    }
+
+    const whole = Math.trunc(rounded);
+    const fractionSymbol = FRACTION_SYMBOLS[rounded - whole] ?? '';
+    const value = whole === 0 && fractionSymbol ? fractionSymbol : `${whole}${fractionSymbol}`;
+    return { value, unit };
+}
+
+export function formatVolume(totalMl: number): FormattedQuantity {
+    return formatQuantity(totalMl, 'ml', 'l');
+}
+
+export function formatWeight(totalG: number): FormattedQuantity {
+    return formatQuantity(totalG, 'g', 'kg');
 }
 
 export function addVariantAmount(

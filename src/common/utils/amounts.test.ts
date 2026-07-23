@@ -1,4 +1,13 @@
-import { addVariantAmount, getChangedAmount, getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
+import {
+    addVariantAmount,
+    formatVolume,
+    formatWeight,
+    getAmountTotals,
+    getChangedAmount,
+    getCombinedAmounts,
+    getVariantAmount,
+} from '~/common/utils/amounts';
+import type { Variant } from '~/types/data';
 
 vi.mock(import('~/client/state/groups/useGetGroups'));
 vi.mock(import('~/client/state/variants/useGetVariants'));
@@ -413,6 +422,153 @@ describe('amounts', () => {
             expect(result).toHaveLength(2);
             expect(result).toContainEqual({ variant: 'p', amount: 7 });
             expect(result).toContainEqual({ variant: 'd', amount: 4 });
+        });
+    });
+
+    describe('getAmountTotals', () => {
+        const variant = (name: string, units?: Variant['units'], count?: number): Variant => ({
+            group: 'g',
+            variant: name,
+            order: 0,
+            ...(units ? { units } : {}),
+            ...(count != null ? { count } : {}),
+        });
+
+        it('returns empty totals for undefined amounts', () => {
+            expect(getAmountTotals(undefined, [])).toStrictEqual({ unitless: [] });
+        });
+
+        it('converts the example from the request: 5x500ml + 6x750ml + 1x250ml = 7250ml', () => {
+            const variants = [variant('a', 'ml', 500), variant('b', 'ml', 750), variant('c', 'ml', 250)];
+            const amounts = [
+                { variant: 'a', amount: 5 },
+                { variant: 'b', amount: 6 },
+                { variant: 'c', amount: 1 },
+            ];
+
+            expect(getAmountTotals(amounts, variants).volume).toBe(7250);
+        });
+
+        it('sums l and ml variants together into a single ml-based volume total', () => {
+            const variants = [variant('a', 'l', 1), variant('b', 'ml', 500)];
+            const amounts = [
+                { variant: 'a', amount: 2 },
+                { variant: 'b', amount: 3 },
+            ];
+
+            expect(getAmountTotals(amounts, variants).volume).toBe(3500);
+        });
+
+        it('sums kg and g variants together into a single g-based weight total', () => {
+            const variants = [variant('a', 'kg', 1), variant('b', 'g', 500)];
+            const amounts = [
+                { variant: 'a', amount: 2 },
+                { variant: 'b', amount: 3 },
+            ];
+
+            expect(getAmountTotals(amounts, variants).weight).toBe(3500);
+        });
+
+        it("sums 'vnt' units variants into the count total using the variant count multiplier", () => {
+            const variants = [variant('a', 'vnt', 6)];
+            const amounts = [{ variant: 'a', amount: 2 }];
+
+            expect(getAmountTotals(amounts, variants).count).toBe(12);
+        });
+
+        it('defaults the count multiplier to 1 when the variant has no count', () => {
+            const variants = [variant('a', 'l')];
+            const amounts = [{ variant: 'a', amount: 3 }];
+
+            expect(getAmountTotals(amounts, variants).volume).toBe(3000);
+        });
+
+        it('puts amounts for variants without units into unitless, unchanged', () => {
+            const variants = [variant('a')];
+            const amounts = [{ variant: 'a', amount: 4 }];
+
+            const totals = getAmountTotals(amounts, variants);
+
+            expect(totals.volume).toBeUndefined();
+            expect(totals.weight).toBeUndefined();
+            expect(totals.count).toBeUndefined();
+            expect(totals.unitless).toStrictEqual([{ variant: 'a', amount: 4 }]);
+        });
+
+        it('treats an amount for an unknown variant as unitless', () => {
+            const amounts = [{ variant: 'missing', amount: 4 }];
+
+            expect(getAmountTotals(amounts, [])).toStrictEqual({ unitless: [{ variant: 'missing', amount: 4 }] });
+        });
+
+        it('splits mixed-unit amounts into separate volume/weight/count/unitless buckets', () => {
+            const variants = [variant('a', 'ml', 500), variant('b', 'g', 200), variant('c', 'vnt'), variant('d')];
+            const amounts = [
+                { variant: 'a', amount: 2 },
+                { variant: 'b', amount: 3 },
+                { variant: 'c', amount: 4 },
+                { variant: 'd', amount: 5 },
+            ];
+
+            expect(getAmountTotals(amounts, variants)).toStrictEqual({
+                volume: 1000,
+                weight: 600,
+                count: 4,
+                unitless: [{ variant: 'd', amount: 5 }],
+            });
+        });
+    });
+
+    describe('formatVolume', () => {
+        it('renders totals below the 100ml threshold in ml', () => {
+            expect(formatVolume(99)).toStrictEqual({ value: '99', unit: 'ml' });
+        });
+
+        it('renders a whole number in l with no fraction symbol when exact', () => {
+            expect(formatVolume(2000)).toStrictEqual({ value: '2', unit: 'l' });
+        });
+
+        it("appends '¼' for a quarter, matching the request example: 5x500ml+6x750ml+1x250ml=7250ml", () => {
+            expect(formatVolume(7250)).toStrictEqual({ value: '7¼', unit: 'l' });
+        });
+
+        it("appends '½' for a half", () => {
+            expect(formatVolume(4500)).toStrictEqual({ value: '4½', unit: 'l' });
+        });
+
+        it("appends '¾' for three quarters", () => {
+            expect(formatVolume(1750)).toStrictEqual({ value: '1¾', unit: 'l' });
+        });
+
+        it('omits the leading 0 when the whole part is zero', () => {
+            expect(formatVolume(150)).toStrictEqual({ value: '¼', unit: 'l' });
+        });
+
+        it('rounds to the nearest quarter', () => {
+            expect(formatVolume(7100)).toStrictEqual({ value: '7', unit: 'l' });
+            expect(formatVolume(7150)).toStrictEqual({ value: '7¼', unit: 'l' });
+        });
+
+        it("renders '<½' instead of a misleading 0 when a non-zero amount rounds down to 0", () => {
+            expect(formatVolume(100)).toStrictEqual({ value: '<½', unit: 'l' });
+        });
+    });
+
+    describe('formatWeight', () => {
+        it('renders totals below the 100g threshold in g', () => {
+            expect(formatWeight(99)).toStrictEqual({ value: '99', unit: 'g' });
+        });
+
+        it("appends '¼' for a quarter", () => {
+            expect(formatWeight(1250)).toStrictEqual({ value: '1¼', unit: 'kg' });
+        });
+
+        it("appends '¾' for three quarters", () => {
+            expect(formatWeight(1750)).toStrictEqual({ value: '1¾', unit: 'kg' });
+        });
+
+        it("renders '<½' instead of a misleading 0 when a non-zero amount rounds down to 0", () => {
+            expect(formatWeight(100)).toStrictEqual({ value: '<½', unit: 'kg' });
         });
     });
 });
