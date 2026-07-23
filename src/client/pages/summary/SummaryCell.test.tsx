@@ -80,7 +80,7 @@ describe('<SummaryCell>', () => {
                                 group="Uogienės"
                                 name="Avietės"
                                 year={2023}
-                                amounts={[{ variant: 'p', amount: 5 }]}
+                                amounts={[{ variant: 'p', amount: 5, recycled: false }]}
                             />
                         </Table.Tr>
                     </Table.Tbody>
@@ -107,9 +107,9 @@ describe('<SummaryCell>', () => {
                     name="Avietės"
                     year={2023}
                     amounts={[
-                        { variant: 'm', amount: 15 },
-                        { variant: 'p', amount: 5 },
-                        { variant: 'd', amount: 10 },
+                        { variant: 'm', amount: 15, recycled: false },
+                        { variant: 'p', amount: 5, recycled: false },
+                        { variant: 'd', amount: 10, recycled: false },
                     ]}
                 />
             </MockTableRow>
@@ -195,5 +195,140 @@ describe('<SummaryCell>', () => {
                 data: expect.objectContaining({ amounts: [] }),
             })
         );
+    });
+
+    describe('home balance', () => {
+        beforeEach(() => {
+            vi.mocked(useGroupVariantComparator).mockReturnValue(mockCompareVariants);
+        });
+
+        it('shows no home section when no home amounts in amounts prop', () => {
+            render(
+                <MockTableRow>
+                    <SummaryCell
+                        group="Uogienės"
+                        name="Avietės"
+                        year={2023}
+                        amounts={[{ variant: 'p', amount: 5, recycled: false }]}
+                    />
+                </MockTableRow>
+            );
+            const cell = screen.getByRole('cell');
+
+            expect(cell).not.toHaveTextContent('~');
+        });
+
+        it('shows tilde icon and amount for home balance amounts (recycled == null, home: true)', () => {
+            const { container } = render(
+                <MockTableRow>
+                    <SummaryCell
+                        group="Uogienės"
+                        name="Avietės"
+                        year={2023}
+                        amounts={[{ variant: 'p', amount: 7, home: true }]}
+                    />
+                </MockTableRow>
+            );
+            const cell = screen.getByRole('cell');
+
+            expect(container.querySelector('.tabler-icon-tilde')).toBeInTheDocument();
+            expect(cell).toHaveTextContent('7');
+        });
+
+        it('shows multiple home variants sorted by comparator', () => {
+            mockCompareVariants.mockImplementation((a: string, b: string) => {
+                const order: Record<string, number> = { p: 1, d: 2, m: 3 };
+                return (order[a] ?? 99) - (order[b] ?? 99);
+            });
+            const { container } = render(
+                <MockTableRow>
+                    <SummaryCell
+                        group="Uogienės"
+                        name="Avietės"
+                        year={2023}
+                        amounts={[
+                            { variant: 'm', amount: 8, home: true },
+                            { variant: 'p', amount: 3, home: true },
+                        ]}
+                    />
+                </MockTableRow>
+            );
+            const cell = screen.getByRole('cell');
+
+            expect(container.querySelectorAll('.tabler-icon-tilde')).toHaveLength(2);
+            expect(cell).toHaveTextContent('3');
+            expect(cell).toHaveTextContent('8');
+        });
+
+        it('cell is empty when home amounts prop is empty', () => {
+            render(
+                <MockTableRow>
+                    <SummaryCell group="Uogienės" name="Avietės" year={2023} />
+                </MockTableRow>
+            );
+            const cell = screen.getByRole('cell');
+
+            expect(cell).toHaveTextContent('.');
+            expect(cell).toHaveAttribute('data-empty', 'true');
+        });
+
+        it('cell is not empty when only home balance amounts provided', () => {
+            render(
+                <MockTableRow>
+                    <SummaryCell
+                        group="Uogienės"
+                        name="Avietės"
+                        year={2023}
+                        amounts={[{ variant: 'p', amount: 6, home: true }]}
+                    />
+                </MockTableRow>
+            );
+            const cell = screen.getByRole('cell');
+
+            expect(cell).toHaveAttribute('data-empty', 'false');
+            expect(cell).not.toHaveTextContent('.');
+        });
+
+        it('consumed and home balance shown together', () => {
+            const { container } = render(
+                <MockTableRow>
+                    <SummaryCell
+                        group="Uogienės"
+                        name="Avietės"
+                        year={2023}
+                        amounts={[
+                            { variant: 'p', amount: 3, recycled: false },
+                            { variant: 'p', amount: 4, home: true },
+                        ]}
+                    />
+                </MockTableRow>
+            );
+            const cell = screen.getByRole('cell');
+
+            expect(cell).toHaveTextContent('3');
+            expect(container.querySelector('.tabler-icon-tilde')).toBeInTheDocument();
+            expect(cell).toHaveTextContent('4');
+        });
+
+        it('recycled amounts are shown separately and do not affect home section', () => {
+            const { container } = render(
+                <MockTableRow>
+                    <SummaryCell
+                        group="Uogienės"
+                        name="Avietės"
+                        year={2023}
+                        amounts={[
+                            { variant: 'p', amount: 10, recycled: true },
+                            { variant: 'p', amount: 5, home: true },
+                        ]}
+                    />
+                </MockTableRow>
+            );
+            const cell = screen.getByRole('cell');
+
+            expect(cell).toHaveTextContent('10');
+            expect(container.querySelector('.tabler-icon-tilde')).toBeInTheDocument();
+            expect(cell).toHaveTextContent('5');
+        });
     });
 });

@@ -17,6 +17,9 @@
   "All groups": {
     "lt-LT": "Visos grupės"
   },
+  "Amount": {
+    "lt-LT": "Kiekis"
+  },
   "Annual": {
     "lt-LT": "Metiniai"
   },
@@ -83,6 +86,9 @@
   "Decrease": {
     "lt-LT": "Mažinti"
   },
+  "Detailed": {
+    "lt-LT": "Detaliai"
+  },
   "Drag JSON file here or click to select": {
     "lt-LT": "Vilkite JSON failą čia arba spustelėkite ir pasirinkite"
   },
@@ -100,6 +106,9 @@
   },
   "Edit variant": {
     "lt-LT": "Taisyti variantą"
+  },
+  "e.g. 500": {
+    "lt-LT": "pvz. 500"
   },
   "Enter group name": {
     "lt-LT": "Įveskite grupės pavadinimą"
@@ -243,7 +252,7 @@
     "lt-LT": "Rugsėjo"
   },
   "Suffix": {
-    "lt-LT": "Žymėjimas"
+    "lt-LT": "Žyma"
   },
   "Summary": {
     "lt-LT": "Suvestinė"
@@ -266,8 +275,14 @@
   "Title": {
     "lt-LT": "Pavadinimas"
   },
+  "Total quantity": {
+    "lt-LT": "Bendrai"
+  },
   "Tuesday": {
     "lt-LT": "Antradienis"
+  },
+  "Units": {
+    "lt-LT": "Vienetai"
   },
   "Update": {
     "lt-LT": "Naujinti"
@@ -319,5 +334,20 @@
   },
   "What": {
     "lt-LT": "Kiek"
+  },
+  "Add suspicious": {
+    "lt-LT": "Pridėti įtartiną"
+  },
+  "Suspicious": {
+    "lt-LT": "Įtartinas"
+  },
+  "Something suspicious?": {
+    "lt-LT": "Kažkas įtartino?"
+  },
+  "Home amounts?": {
+    "lt-LT": "Liko namie?"
+  },
+  "Home": {
+    "lt-LT": "Namie"
   }
 }

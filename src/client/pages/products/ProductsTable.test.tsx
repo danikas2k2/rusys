@@ -32,6 +32,9 @@ vi.mock(import('~/client/filters/QuickFilterContext'), () => ({
 vi.mock(import('~/client/pages/products/MissingOnlyCheckbox'), () => ({
     MissingOnlyCheckbox: vi.fn(() => <input type="checkbox" />),
 }));
+vi.mock(import('~/client/common/AmountViewToggle'), () => ({
+    AmountViewToggle: vi.fn().mockReturnValue(null),
+}));
 vi.mock(import('~/client/pages/products/ProductsGroup'), () => ({
     ProductsGroup: vi.fn().mockReturnValue(null),
 }));

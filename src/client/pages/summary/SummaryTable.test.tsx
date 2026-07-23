@@ -32,6 +32,9 @@ vi.mock(import('~/client/hooks/useLockingLoader'), async () => ({
 vi.mock(import('~/client/pages/summary/SummaryGroup'), () => ({
     SummaryGroup: vi.fn().mockReturnValue(null),
 }));
+vi.mock(import('~/client/common/AmountViewToggle'), () => ({
+    AmountViewToggle: vi.fn().mockReturnValue(null),
+}));
 
 describe('<SummaryTable>', () => {
     const summary = getSummaryFixture();

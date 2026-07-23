@@ -5,10 +5,15 @@ import { Table } from '@mantine/core';
 import React from 'react';
 
 import { VariantsRow } from '~/client/pages/variants/VariantsRow';
+import { useVariant } from '~/client/state/variants/useVariant';
 import { SortableRow } from '~/client/table/SortableRow';
 
 vi.mock(import('~/client/table/SortableRow'), () => ({
     SortableRow: vi.fn(({ children }: { children: React.ReactNode }) => <tr>{children}</tr>),
+}));
+
+vi.mock(import('~/client/state/variants/useVariant'), () => ({
+    useVariant: vi.fn().mockReturnValue(undefined),
 }));
 
 describe('<VariantsRow>', () => {
@@ -35,6 +40,45 @@ describe('<VariantsRow>', () => {
         renderRow({ variant: { group: 'Uogienės', variant: 'd', suffix: 'D.', order: 0 }, reordering: false });
 
         expect(screen.getByText('D.')).toBeInTheDocument();
+    });
+
+    it('renders count and units when no name is set', () => {
+        vi.mocked(useVariant).mockReturnValue({
+            group: 'Uogienės',
+            variant: '500ml',
+            order: 0,
+            count: 500,
+            units: 'ml',
+        });
+
+        renderRow({
+            variant: { group: 'Uogienės', variant: '500ml', order: 0, count: 500, units: 'ml' },
+            reordering: false,
+        });
+
+        expect(screen.getByText('500')).toBeInTheDocument();
+        expect(screen.getByText(/ml\./)).toBeInTheDocument();
+        expect(screen.queryByText('500ml')).not.toBeInTheDocument();
+    });
+
+    it('renders name with count as dimmed sub-text when name is provided', () => {
+        vi.mocked(useVariant).mockReturnValue({
+            group: 'Uogienės',
+            variant: '500ml',
+            name: 'Litriukas',
+            order: 0,
+            count: 500,
+            units: 'ml',
+        });
+
+        renderRow({
+            variant: { group: 'Uogienės', variant: '500ml', name: 'Litriukas', order: 0, count: 500, units: 'ml' },
+            reordering: false,
+        });
+
+        expect(screen.getByText('Litriukas')).toBeInTheDocument();
+        expect(screen.getByText('500')).toBeInTheDocument();
+        expect(screen.queryByText('500ml')).not.toBeInTheDocument();
     });
 
     it('renders empty string when suffix is undefined', () => {

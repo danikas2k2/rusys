@@ -68,8 +68,8 @@ describe('<SummaryRow>', () => {
 
     it('renders amounts for matching years', () => {
         const amounts = [
-            { year: 23, amounts: [{ variant: 'p', amount: 5 }] },
-            { year: 21, amounts: [{ variant: 'd', amount: 3 }] },
+            { year: 23, amounts: [{ variant: 'p', amount: 5, recycled: false }] },
+            { year: 21, amounts: [{ variant: 'd', amount: 3, recycled: false }] },
         ];
 
         render(

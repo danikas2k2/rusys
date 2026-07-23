@@ -40,6 +40,28 @@
         border-end-start-radius: var(--mantine-radius-md);
         border-end-end-radius: var(--mantine-radius-md);
     }
+
+    .ui-Accordion-item[data-suspicious="true"] {
+        border-inline-start: 2px solid var(--mantine-color-moderate-filled);
+        border-start-start-radius: 0;
+        border-end-start-radius: 0;
+        opacity: 0.85;
+    }
+
+    .ui-Accordion-item[data-suspicious="true"][data-active] {
+        opacity: 1;
+    }
+
+    .ui-Accordion-item[data-home="true"] {
+        border-inline-start: 2px solid var(--mantine-color-blue-filled);
+        border-start-start-radius: 0;
+        border-end-start-radius: 0;
+        opacity: 0.85;
+    }
+
+    .ui-Accordion-item[data-home="true"][data-active] {
+        opacity: 1;
+    }
 }
 
 .ui-Select-option:has([data-separator="true"]) {

@@ -4,6 +4,8 @@ export interface VariantAmount {
     variant: string;
     amount: number;
     recycled?: boolean;
+    suspicious?: boolean;
+    home?: boolean;
 }
 
 export interface YearAmounts {
@@ -73,12 +75,17 @@ export interface Group {
     annual?: boolean;
 }
 
+export type VariantUnits = 'g' | 'kg' | 'l' | 'ml' | 'vnt';
+
 export interface Variant {
     group: string;
     variant: string;
+    name?: string;
     order: number;
     suffix?: string;
+    count?: number;
+    units?: VariantUnits;
     used?: boolean;
 }
 
-export type UpdateVariant = Partial<Pick<Variant, 'order' | 'suffix'>>;
+export type UpdateVariant = Partial<Pick<Variant, 'order' | 'name' | 'suffix' | 'count' | 'units'>>;

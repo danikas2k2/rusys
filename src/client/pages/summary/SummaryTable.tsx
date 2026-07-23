@@ -1,6 +1,7 @@
 import { Table } from '@mantine/core';
 import React from 'react';
 
+import { AmountViewToggle } from '~/client/common/AmountViewToggle';
 import { LoadableContent } from '~/client/common/LoadableContent';
 import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
 import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasData';
@@ -22,7 +23,9 @@ export function SummaryTable() {
             <Table layout="fixed" data-table="summary">
                 <Table.Thead>
                     <Table.Tr h="3rem" bd={0}>
-                        <Table.Th w={`${headingWidth}%`} py={0} />
+                        <Table.Th w={`${headingWidth}%`} py={0}>
+                            <AmountViewToggle />
+                        </Table.Th>
                         {summaryYears.map((year) => (
                             <Table.Th key={year}>
                                 <SummaryYear year={year} />

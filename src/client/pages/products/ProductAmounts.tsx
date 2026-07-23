@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { AmountSuffix } from '~/client/common/AmountSuffix';
-import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
+import { useAmountView } from '~/client/common/AmountViewContext';
+import { DetailedAmounts } from '~/client/pages/products/DetailedAmounts';
+import { TotalAmounts } from '~/client/pages/products/TotalAmounts';
 import type { VariantAmount } from '~/types/data';
 
 import './ProductAmounts.pcss';
@@ -13,17 +14,19 @@ export interface ProductAmountsProps {
 }
 
 export function ProductAmounts({ group, amounts, type = 'common' }: ProductAmountsProps) {
-    const compareVariants = useGroupVariantComparator(group);
-    return amounts?.length ? (
+    const [amountView] = useAmountView();
+
+    if (!amounts?.length) {
+        return null;
+    }
+
+    return (
         <span data-type={type}>
-            {[...amounts]
-                .sort((a, b) => compareVariants(a.variant, b.variant))
-                .map((v) => (
-                    <span key={v.variant} data-value>
-                        {v.amount}
-                        <AmountSuffix group={group} variant={v.variant} />
-                    </span>
-                ))}
+            {amountView === 'total' ? (
+                <TotalAmounts group={group} amounts={amounts} />
+            ) : (
+                <DetailedAmounts group={group} amounts={amounts} />
+            )}
         </span>
-    ) : null;
+    );
 }

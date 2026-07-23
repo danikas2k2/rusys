@@ -101,4 +101,54 @@ describe('buildHistoryPipeline', () => {
 
         expect(groupStages).toHaveLength(2);
     });
+
+    it('first $group stage _id includes suspiciousKey using $ifNull on $amounts.suspicious', () => {
+        const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
+        const groupStages = pipeline.filter((stage) => '$group' in stage) as { $group: Record<string, unknown> }[];
+        const firstGroup = groupStages[0]!.$group as Record<string, unknown>;
+        const id = firstGroup._id as Record<string, unknown>;
+
+        expect(id).toMatchObject({
+            suspiciousKey: { $ifNull: ['$amounts.suspicious', null] },
+        });
+    });
+
+    it('first $group stage _id includes homeKey using $ifNull on $amounts.home', () => {
+        const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
+        const groupStages = pipeline.filter((stage) => '$group' in stage) as { $group: Record<string, unknown> }[];
+        const firstGroup = groupStages[0]!.$group as Record<string, unknown>;
+        const id = firstGroup._id as Record<string, unknown>;
+
+        expect(id).toMatchObject({
+            homeKey: { $ifNull: ['$amounts.home', null] },
+        });
+    });
+
+    it('second $group amounts $push includes suspicious reconstruction via $cond', () => {
+        const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
+        const pipelineStr = JSON.stringify(pipeline);
+
+        expect(pipelineStr).toContain(JSON.stringify({ suspicious: '$_id.suspiciousKey' }));
+    });
+
+    it('second $group amounts $push includes home reconstruction via $cond', () => {
+        const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
+        const pipelineStr = JSON.stringify(pipeline);
+
+        expect(pipelineStr).toContain(JSON.stringify({ home: '$_id.homeKey' }));
+    });
+
+    it('suspicious $cond uses { $ne: ["$_id.suspiciousKey", null] } as its condition', () => {
+        const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
+        const pipelineStr = JSON.stringify(pipeline);
+
+        expect(pipelineStr).toContain(JSON.stringify({ $ne: ['$_id.suspiciousKey', null] }));
+    });
+
+    it('home $cond uses { $ne: ["$_id.homeKey", null] } as its condition', () => {
+        const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
+        const pipelineStr = JSON.stringify(pipeline);
+
+        expect(pipelineStr).toContain(JSON.stringify({ $ne: ['$_id.homeKey', null] }));
+    });
 });

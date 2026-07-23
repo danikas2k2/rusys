@@ -28,4 +28,16 @@ describe('<AmountSuffix>', () => {
 
         expect(screen.getByText('unknown')).toBeInTheDocument();
     });
+
+    it('renders no suffix when count/units are set but no manual suffix was given (e.g. the default-size variant in a group)', () => {
+        const { container } = render(
+            <MockRedux
+                state={{ variants: [{ group: 'Uogienės', variant: '500ml', order: 0, count: 500, units: 'ml' }] }}
+            >
+                <AmountSuffix group="Uogienės" variant="500ml" />
+            </MockRedux>
+        );
+
+        expect(container.querySelector('sub')).toBeEmptyDOMElement();
+    });
 });
