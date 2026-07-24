@@ -72,20 +72,14 @@ describe('<SummaryCell>', () => {
 
     it('renders single variant amount', () => {
         render(
-            <MockTheme>
-                <Table>
-                    <Table.Tbody>
-                        <Table.Tr>
-                            <SummaryCell
-                                group="Uogienės"
-                                name="Avietės"
-                                year={2023}
-                                amounts={[{ variant: 'p', amount: 5, recycled: false }]}
-                            />
-                        </Table.Tr>
-                    </Table.Tbody>
-                </Table>
-            </MockTheme>
+            <MockTableRow>
+                <SummaryCell
+                    group="Uogienės"
+                    name="Avietės"
+                    year={2023}
+                    amounts={[{ variant: 'p', amount: 5, recycled: false }]}
+                />
+            </MockTableRow>
         );
 
         const cell = screen.getByRole('cell');

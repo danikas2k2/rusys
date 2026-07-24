@@ -6,10 +6,10 @@ export type AmountView = 'detailed' | 'total';
 const STORAGE_KEY = 'amountView';
 
 function readInitialAmountView(): AmountView {
-    return localStorage.getItem(STORAGE_KEY) === 'total' ? 'total' : 'detailed';
+    return localStorage.getItem(STORAGE_KEY) === 'detailed' ? 'detailed' : 'total';
 }
 
-export const AmountViewContext = createContext<[AmountView, (v: AmountView) => void]>(['detailed', noop]);
+export const AmountViewContext = createContext<[AmountView, (v: AmountView) => void]>(['total', noop]);
 
 export function AmountViewWrapper({ children }: React.PropsWithChildren) {
     const [amountView, setAmountView] = useState<AmountView>(readInitialAmountView);

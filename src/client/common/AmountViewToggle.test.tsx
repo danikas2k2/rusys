@@ -21,7 +21,7 @@ describe('<AmountViewToggle>', () => {
         expect(screen.getByRole('radio', { name: 'Total quantity' })).toBeInTheDocument();
     });
 
-    it('renders Detailed as checked by default', () => {
+    it('renders Total quantity as checked by default', () => {
         render(
             <MockApp>
                 <AmountViewWrapper>
@@ -30,8 +30,8 @@ describe('<AmountViewToggle>', () => {
             </MockApp>
         );
 
-        expect(screen.getByRole('radio', { name: 'Detailed' })).toBeChecked();
-        expect(screen.getByRole('radio', { name: 'Total quantity' })).not.toBeChecked();
+        expect(screen.getByRole('radio', { name: 'Total quantity' })).toBeChecked();
+        expect(screen.getByRole('radio', { name: 'Detailed' })).not.toBeChecked();
     });
 
     it('toggles to total view by click', async () => {

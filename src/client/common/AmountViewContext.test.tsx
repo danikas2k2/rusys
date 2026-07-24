@@ -9,15 +9,15 @@ describe('<AmountViewContext>', () => {
     it('uses context with default value', () => {
         const { result } = renderHook(() => use(AmountViewContext));
 
-        expect(result.current).toStrictEqual(['detailed', expect.any(Function)]);
+        expect(result.current).toStrictEqual(['total', expect.any(Function)]);
     });
 });
 
 describe('useAmountView', () => {
-    it('returns detailed view by default', () => {
+    it('returns total view by default', () => {
         const { result } = renderHook(() => useAmountView());
 
-        expect(result.current).toStrictEqual(['detailed', expect.any(Function)]);
+        expect(result.current).toStrictEqual(['total', expect.any(Function)]);
     });
 
     it('returns total view when provided', () => {
@@ -40,7 +40,19 @@ describe('<AmountViewWrapper>', () => {
 
     afterEach(() => localStorage.clear());
 
-    it('defaults to detailed when localStorage is empty', () => {
+    it('defaults to total when localStorage is empty', () => {
+        render(
+            <AmountViewWrapper>
+                <Test />
+            </AmountViewWrapper>
+        );
+
+        expect(screen.getByRole('button')).toHaveTextContent('total');
+    });
+
+    it('reads the initial value from localStorage', () => {
+        localStorage.setItem('amountView', 'detailed');
+
         render(
             <AmountViewWrapper>
                 <Test />
@@ -50,8 +62,8 @@ describe('<AmountViewWrapper>', () => {
         expect(screen.getByRole('button')).toHaveTextContent('detailed');
     });
 
-    it('reads the initial value from localStorage', () => {
-        localStorage.setItem('amountView', 'total');
+    it('ignores an unknown localStorage value and defaults to total', () => {
+        localStorage.setItem('amountView', 'nonsense');
 
         render(
             <AmountViewWrapper>
@@ -62,19 +74,9 @@ describe('<AmountViewWrapper>', () => {
         expect(screen.getByRole('button')).toHaveTextContent('total');
     });
 
-    it('ignores an unknown localStorage value and defaults to detailed', () => {
-        localStorage.setItem('amountView', 'nonsense');
-
-        render(
-            <AmountViewWrapper>
-                <Test />
-            </AmountViewWrapper>
-        );
-
-        expect(screen.getByRole('button')).toHaveTextContent('detailed');
-    });
-
     it('changes context and persists the new value to localStorage', async () => {
+        localStorage.setItem('amountView', 'detailed');
+
         render(
             <AmountViewWrapper>
                 <Test />
