@@ -24,6 +24,19 @@ const UNITS_OPTIONS: { value: VariantUnits; label: string }[] = [
     { value: 'kg', label: 'kg' },
 ];
 
+const WHOLE_NUMBER_UNITS: VariantUnits[] = ['vnt', 'g', 'ml'];
+
+function getMinCount(units: VariantUnits): number {
+    return WHOLE_NUMBER_UNITS.includes(units) ? 1 : 0.001;
+}
+
+function roundCountForUnits(count: number | undefined, units: VariantUnits): number | undefined {
+    if (count === undefined || !WHOLE_NUMBER_UNITS.includes(units)) {
+        return count;
+    }
+    return Math.ceil(count);
+}
+
 interface VariantBoxProps {
     opened?: boolean;
     group?: string;
@@ -112,8 +125,8 @@ export function VariantBox({
                 }
                 return null;
             },
-            count: (value) => {
-                if (!value || value <= 0) {
+            count: (value, values) => {
+                if (!value || value < getMinCount(values.units)) {
                     return _('Amount is required');
                 }
                 return null;
@@ -177,8 +190,18 @@ export function VariantBox({
     const renameVariant = useRenameVariant();
     const copyVariant = useCopyVariant();
 
+    const roundCount = (units?: VariantUnits) => {
+        const roundedCount = roundCountForUnits(form.values.count, units ?? form.values.units);
+        if (roundedCount !== form.values.count) {
+            form.setFieldValue('count', roundedCount);
+        }
+        return roundedCount;
+    };
+
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
+
+        const roundedCount = roundCount();
 
         const validation = form.validate();
         if (validation.hasErrors) {
@@ -197,7 +220,7 @@ export function VariantBox({
         }, 300);
 
         try {
-            const values = form.values;
+            const values = { ...form.values, count: roundedCount };
             const trimmedName = values.name?.trim() ?? '';
             const effectiveVariant = trimmedName || deriveVariantKey(values.count, values.units);
             const groupChanged = isEditing && values.group !== initialGroup;
@@ -294,7 +317,7 @@ export function VariantBox({
                         <NumberInput
                             label={_('Amount')}
                             placeholder={_('e.g. 500')}
-                            min={1}
+                            min={0.001}
                             disabled={loading}
                             withAsterisk
                             {...form.getInputProps('count')}
@@ -307,6 +330,13 @@ export function VariantBox({
                             checkIconPosition="left"
                             searchable
                             {...form.getInputProps('units')}
+                            onChange={(value) => {
+                                const units = value as VariantUnits;
+                                form.setFieldValue('units', units);
+                                if (units) {
+                                    roundCount(units);
+                                }
+                            }}
                         />
                     </Group>
                     <TextInput
