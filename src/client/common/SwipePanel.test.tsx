@@ -9,6 +9,7 @@ const mockSetControlsWidth = vi.fn();
 
 vi.mock(import('~/client/common/SwipeControlsContext'), () => ({
     useSwipePanelWidth: vi.fn(() => [120, mockSetControlsWidth]),
+    useSwipePanelDragApi: vi.fn(() => ({ current: { setOffset: vi.fn() } })),
 }));
 
 describe('<SwipePanel>', () => {
@@ -63,8 +64,11 @@ describe('<SwipePanel>', () => {
         expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
     });
 
-    it('applies correct transform based on offset', () => {
+    it('applies correct transform based on offset', async () => {
         render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        // A freshly-mounted panel starts hidden and animates open on the next frame
+        await act(async () => vi.advanceTimersByTime(50));
 
         expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
     });
@@ -80,6 +84,8 @@ describe('<SwipePanel>', () => {
 
     it('updates panel when offset changes', async () => {
         const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        await act(async () => vi.advanceTimersByTime(50));
 
         expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
 
@@ -177,6 +183,8 @@ describe('<SwipePanel>', () => {
     it('updates existing panel when same id is active', async () => {
         const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
 
+        await act(async () => vi.advanceTimersByTime(50));
+
         expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
 
         await act(async () =>
@@ -204,6 +212,8 @@ describe('<SwipePanel>', () => {
     it('updates panel when reactivating with same id after closing', async () => {
         const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
 
+        await act(async () => vi.advanceTimersByTime(50));
+
         expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
 
         // Close panel
@@ -226,6 +236,8 @@ describe('<SwipePanel>', () => {
 
     it('updates existing panel with same id even when it is closing', async () => {
         const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        await act(async () => vi.advanceTimersByTime(50));
 
         expect(screen.queryAllByRole('group')).toHaveLength(1);
         expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
@@ -383,6 +395,7 @@ describe('<SwipePanel>', () => {
         await act(async () =>
             rerender(<TestWrapper active={{ id: 'panel-1', data: { name: 'First' }, offset: -100 }} />)
         );
+        await act(async () => vi.advanceTimersByTime(50));
 
         expect(screen.queryAllByRole('group')).toHaveLength(1);
         expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
@@ -391,6 +404,8 @@ describe('<SwipePanel>', () => {
     it('updates existing panel when panel with same id exists', async () => {
         // Test linija 68-69: prev.some((p) => p.id === active.id) === true branch
         const { rerender } = render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+        await act(async () => vi.advanceTimersByTime(50));
 
         expect(screen.queryAllByRole('group')).toHaveLength(1);
         expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
@@ -634,8 +649,10 @@ describe('<SwipePanel>', () => {
                 active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: false as any },
                 expectedTransform: 'translateX(-100px)',
             },
-        ])('renders panel when $name', ({ active, expectedTransform }: { active: any; expectedTransform: string }) => {
+        ])('renders panel when $name', async ({ active, expectedTransform }: { active: any; expectedTransform: string }) => {
             render(<TestWrapper active={active} />);
+
+            await act(async () => vi.advanceTimersByTime(50));
 
             expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
 

@@ -23,6 +23,12 @@
         pointer-events: none;
     }
 
+    /* While the finger is actively dragging, track it 1:1 with no easing;
+       the transition is only for the settle animation after release */
+    &[data-dragging="true"] {
+        transition: none;
+    }
+
     .ui-Button-root {
         box-shadow: var(--mantine-shadow-lg);
     }

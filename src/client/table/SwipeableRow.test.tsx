@@ -13,6 +13,7 @@ import { dispatchNativeCancelEvents } from '~/client/utils/pointEvents';
 
 vi.mock(import('~/client/common/SwipeControlsContext'), () => ({
     useSwipePanelWidth: vi.fn(() => [120, vi.fn()]),
+    useSwipePanelDragApi: vi.fn(() => ({ current: { setOffset: vi.fn() } })),
 }));
 
 vi.mock(import('~/client/utils/pointEvents'), async () => ({

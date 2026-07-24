@@ -9,6 +9,9 @@ export interface ActiveContent<D = ActiveContentData, A = ActiveContentAction> {
     id?: string;
     ref?: React.RefObject<HTMLDivElement | null>;
     offset?: number;
+    // true when a live drag is driving the panel imperatively (see SwipeControlsContext) -
+    // tells SwipePanel to skip its own mount-reveal animation, since the drag already owns it
+    instant?: boolean;
     action?: A; // skirtas dialogams ar kitoms interaktyvioms operacijoms
     data?: D;
 
