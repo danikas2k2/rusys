@@ -20,6 +20,9 @@
   "Amount": {
     "lt-LT": "Kiekis"
   },
+  "Amount is required": {
+    "lt-LT": "Kiekis yra privalomas"
+  },
   "Annual": {
     "lt-LT": "Metiniai"
   },
@@ -111,7 +114,7 @@
     "lt-LT": "pvz. 500"
   },
   "Enter group name": {
-    "lt-LT": "Įveskite grupės pavadinimą"
+    "lt-LT": "Įveskite pavadinimą"
   },
   "Enter name": {
     "lt-LT": "Įveskite pavadinimą"
@@ -120,7 +123,7 @@
     "lt-LT": "Įveskite žymėjimą"
   },
   "Enter variant name": {
-    "lt-LT": "Įveskite varianto pavadinimą"
+    "lt-LT": "Įveskite pavadinimą"
   },
   "Error": {
     "lt-LT": "Klaida"
@@ -159,7 +162,7 @@
     "lt-LT": "Grupė yra privaloma"
   },
   "Group name": {
-    "lt-LT": "Grupės pavadinimas"
+    "lt-LT": "Pavadinimas"
   },
   "Groups": {
     "lt-LT": "Grupės"
@@ -306,10 +309,10 @@
     "lt-LT": "Toks variantas jau yra šioje grupėje"
   },
   "Variant name": {
-    "lt-LT": "Varianto pavadinimas"
+    "lt-LT": "Pavadinimas"
   },
-  "Variant name is required": {
-    "lt-LT": "Varianto pavadinimas yra privalomas"
+  "Variant name or amount is required": {
+    "lt-LT": "Reikia įvesti pavadinimą arba kiekį"
   },
   "Variants": {
     "lt-LT": "Variantai"

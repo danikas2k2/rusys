@@ -184,7 +184,15 @@ export function VariantBox({
         if (formRef.current.isTouched('name') || formRef.current.isTouched('group')) {
             formRef.current.validateField('name');
         }
+        if (formRef.current.isTouched('count')) {
+            formRef.current.validateField('count');
+        }
     }, [groupValue, nameValue, countValue, unitsValue]);
+
+    const nameHasValue = !!nameValue?.trim();
+    const countHasValue = !!countValue;
+    const showNameAsterisk = nameHasValue || !countHasValue;
+    const showCountAsterisk = countHasValue || !nameHasValue;
 
     const updateVariant = useUpdateVariant();
     const renameVariant = useRenameVariant();
@@ -311,6 +319,7 @@ export function VariantBox({
                         label={_('Variant name')}
                         placeholder={_('Enter variant name')}
                         disabled={loading}
+                        withAsterisk={showNameAsterisk}
                         {...form.getInputProps('name')}
                     />
                     <Group align="flex-start" grow>
@@ -319,8 +328,9 @@ export function VariantBox({
                             placeholder={_('e.g. 500')}
                             min={0.001}
                             disabled={loading}
-                            withAsterisk
+                            withAsterisk={showCountAsterisk}
                             {...form.getInputProps('count')}
+                            error={!!form.errors.count}
                         />
                         <Select
                             label={_('Units')}
@@ -329,6 +339,7 @@ export function VariantBox({
                             withAlignedLabels
                             checkIconPosition="left"
                             searchable
+                            allowDeselect={false}
                             {...form.getInputProps('units')}
                             onChange={(value) => {
                                 const units = value as VariantUnits;
