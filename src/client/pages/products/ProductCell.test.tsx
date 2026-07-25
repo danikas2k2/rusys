@@ -4,7 +4,7 @@ import { MockApp } from '@tests/MockApp';
 import { Table } from '@mantine/core';
 import React from 'react';
 
-import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';
 import { isPreferred, ProductCell, type ProductCellProps } from '~/client/pages/products/ProductCell';
 import { useProductUpdating } from '~/client/pages/products/UpdatingProductsContext';
@@ -15,7 +15,7 @@ vi.mock(import('~/client/state/products/useSetProductRemoving'), () => ({
 }));
 vi.mock(import('~/client/common/ActiveContentContext'), async () => ({
     ...(await vi.importActual('~/client/common/ActiveContentContext')),
-    useActiveContent: vi.fn(),
+    useSetActiveContent: vi.fn(),
 }));
 vi.mock(import('~/client/pages/products/UpdatingProductsContext'), () => ({
     useProductUpdating: vi.fn(),
@@ -38,7 +38,7 @@ describe('<ProductCell>', () => {
 
     beforeEach(() => {
         vi.mocked(useSetProductRemoving).mockReturnValue(setRemoving);
-        vi.mocked(useActiveContent).mockReturnValue([undefined, setActive]);
+        vi.mocked(useSetActiveContent).mockReturnValue(setActive);
         vi.mocked(useSwipeVisible).mockReturnValue(false);
         vi.mocked(useProductUpdating).mockReturnValue(false);
         vi.useFakeTimers();

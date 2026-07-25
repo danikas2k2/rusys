@@ -649,19 +649,22 @@ describe('<SwipePanel>', () => {
                 active: { id: 'test-id', data: { name: 'Test' }, offset: -100, action: false as any },
                 expectedTransform: 'translateX(-100px)',
             },
-        ])('renders panel when $name', async ({ active, expectedTransform }: { active: any; expectedTransform: string }) => {
-            render(<TestWrapper active={active} />);
+        ])(
+            'renders panel when $name',
+            async ({ active, expectedTransform }: { active: any; expectedTransform: string }) => {
+                render(<TestWrapper active={active} />);
 
-            await act(async () => vi.advanceTimersByTime(50));
+                await act(async () => vi.advanceTimersByTime(50));
 
-            expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+                expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
 
-            const group = screen.getByRole('group');
+                const group = screen.getByRole('group');
 
-            expect(group).toBeInTheDocument();
-            expect(group).toHaveStyle({ transform: expectedTransform });
-            expect(group).not.toHaveAttribute('data-closing');
-        });
+                expect(group).toBeInTheDocument();
+                expect(group).toHaveStyle({ transform: expectedTransform });
+                expect(group).not.toHaveAttribute('data-closing');
+            }
+        );
 
         it('does not render panel when active.ref.current is null', () => {
             function TestWrapperWithNullRef() {

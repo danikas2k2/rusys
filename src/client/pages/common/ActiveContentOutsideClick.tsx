@@ -1,10 +1,10 @@
 import { useCallback, useEffect } from 'react';
 
-import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';
 
 export function ActiveContentOutsideClick() {
-    const [, setActive] = useActiveContent();
+    const setActive = useSetActiveContent();
 
     const handleClick = useCallback(
         (e: MouseEvent) => {

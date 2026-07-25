@@ -2,7 +2,7 @@ import type { UniqueIdentifier } from '@dnd-kit/core';
 import { Table, Title } from '@mantine/core';
 import React from 'react';
 
-import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { DraggableContent } from '~/client/common/DraggableContent';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { Label } from '~/client/common/Label';
@@ -20,7 +20,7 @@ import { mapOrder } from '~/client/utils/mapOrder';
 import type { Group } from '~/types/data';
 
 export function GroupsTable() {
-    const [, setActive] = useActiveContent();
+    const setActive = useSetActiveContent();
     const handleDragStart = () => setActive();
 
     const reorderGroups = useReorderGroups();

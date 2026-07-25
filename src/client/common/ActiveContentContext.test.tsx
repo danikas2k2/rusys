@@ -2,11 +2,16 @@ import { act, renderHook } from '@testing-library/react';
 
 import React, { useState } from 'react';
 
-import { ActiveContentContext, useActiveContent, type ActiveContent } from '~/client/common/ActiveContentContext';
+import {
+    ActiveContentContext,
+    createActiveContentStore,
+    useActiveContent,
+    type ActiveContent,
+} from '~/client/common/ActiveContentContext';
 
 function Test({ activeValue, children }: React.PropsWithChildren<{ activeValue?: ActiveContent }>) {
-    const [active, setActive] = useState<ActiveContent | undefined>(activeValue);
-    return <ActiveContentContext value={[active, setActive]}>{children}</ActiveContentContext>;
+    const [store] = useState(() => createActiveContentStore(activeValue));
+    return <ActiveContentContext value={store}>{children}</ActiveContentContext>;
 }
 
 describe('<ActiveContentContext>', () => {

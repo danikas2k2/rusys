@@ -2,7 +2,7 @@ import { Center, Stack, Table, Text } from '@mantine/core';
 import { IconHome, IconTilde } from '@tabler/icons-react';
 import React, { useCallback, useMemo } from 'react';
 
-import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { useAmountView } from '~/client/common/AmountViewContext';
 import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
@@ -86,7 +86,7 @@ interface SummaryCellProps {
 export type SummaryHistoryData = ProductAmountsData;
 
 export function SummaryCell({ group, name, year, amounts }: SummaryCellProps) {
-    const [, setActive] = useActiveContent<SummaryHistoryData>();
+    const setActive = useSetActiveContent<SummaryHistoryData>();
 
     const consumed = useMemo(() => amounts?.filter((a) => a.recycled === false) ?? [], [amounts]);
     const recycled = useMemo(() => amounts?.filter((a) => a.recycled === true) ?? [], [amounts]);

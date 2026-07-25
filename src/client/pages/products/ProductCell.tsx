@@ -1,7 +1,7 @@
 import { Center, Loader, Table } from '@mantine/core';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';
 import { useLongPress } from '~/client/hooks/useLongPress';
 import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
@@ -52,7 +52,7 @@ export function ProductCell({ product, year = 0, last = false, span }: ProductCe
         [amounts?.length, removing, year, years]
     );
 
-    const [, setActive] = useActiveContent<ProductAmountsType>();
+    const setActive = useSetActiveContent<ProductAmountsType>();
     const setRemoving = useSetProductRemoving();
     const updating = useProductUpdating({ group, name, year });
     const swipeActive = useSwipeVisible();

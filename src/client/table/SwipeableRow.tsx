@@ -1,7 +1,7 @@
 import { Table } from '@mantine/core';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { useActiveContent, type ActiveContentData } from '~/client/common/ActiveContentContext';
+import { useActiveRow, type ActiveContentData } from '~/client/common/ActiveContentContext';
 import { useSwipePanelDragApi, useSwipePanelWidth } from '~/client/common/SwipeControlsContext';
 import { type DraggableRowProps } from '~/client/table/DraggableRow';
 import { POINTER_MOVE_THRESHOLD } from '~/client/utils/pointer';
@@ -13,6 +13,15 @@ interface SwipeableTableRowProps<D = ActiveContentData, T = HTMLTableRowElement>
 }
 
 const SWIPE_THRESHOLD_PERCENT = 0.2;
+// Ceiling on how long the one-time "unfold" reveal transition (see SwipePanel.pcss) is given
+// to play out undisturbed. Mounting is now fast (~15-40ms typically), so this only needs to
+// cover a couple of frames - NOT the whole gesture, or a fast swipe would visually "stick" at
+// the reveal position while the finger keeps moving (see REVEAL_ABANDON_DISTANCE below).
+const REVEAL_DURATION_MS = 70;
+// The freeze also aborts early, the moment the finger has moved this many px past where it
+// was when the reveal was armed - i.e. "the finger clearly kept going, stop waiting on the
+// animation and track it live" - so a fast, long swipe never sits frozen at a small offset.
+const REVEAL_ABANDON_DISTANCE = 20;
 
 export function SwipeableRow<D = ActiveContentData>({
     id,
@@ -21,7 +30,11 @@ export function SwipeableRow<D = ActiveContentData>({
     avoidSwipeSelectors = '[data-drag-handle]',
     ...props
 }: SwipeableTableRowProps<D>): React.ReactElement {
-    const [active, setActive] = useActiveContent<D>();
+    // useActiveRow (not useActiveContent) only re-renders this row when ITS OWN relevant
+    // slice changes - not on every swipe interaction elsewhere in the table. That distinction
+    // is the whole point: with plain context+useState, every row re-rendered on every active
+    // change, which made mounting a fresh swipe panel take 50-250ms in a table with many rows.
+    const [{ visible, offset: activeOffset }, setActive] = useActiveRow<D>(id);
     const activeRef = useRef<HTMLTableRowElement>(null);
     const [controlsWidth] = useSwipePanelWidth();
     const dragApiRef = useSwipePanelDragApi();
@@ -47,28 +60,37 @@ export function SwipeableRow<D = ActiveContentData>({
     // True once the panel has had its first imperative write since mounting - that first
     // write is allowed to animate (the "unfold" reveal); every write after tracks 1:1
     const revealedRef = useRef(false);
+    // While performance.now() is before this, skip imperative writes entirely so the
+    // one-time reveal transition (see revealedRef) isn't restarted/interrupted every frame -
+    // which would cut it short and make it look like it never animated at all
+    const revealDeadlineRef = useRef(0);
+    // The dx the reveal was armed at - used to detect "finger kept moving a lot" and abort
+    // the freeze early (see REVEAL_ABANDON_DISTANCE)
+    const revealArmedDxRef = useRef(0);
     // Track initial and last clientX/clientY to calculate deltaX even if sliding never started
     const initialClientXRef = useRef<number | null>(null);
     const lastClientXRef = useRef<number | null>(null);
     const lastClientYRef = useRef<number | null>(null);
 
     // Latest-value refs so the (stable) pointer handlers below always see current props/state
-    // without needing to be recreated - see note on slidingRef et al. above
+    // without needing to be recreated - see note on slidingRef et al. above. Updated via
+    // useLayoutEffect (not directly during render) so the writes stay outside React's render
+    // phase - it still runs synchronously before the browser paints or any event can fire.
     const xRef = useRef(x);
-    xRef.current = x;
     const latestRef = useRef({ id, data, controlsWidth, avoidSwipeSelectors, setActive });
-    latestRef.current = { id, data, controlsWidth, avoidSwipeSelectors, setActive };
-
-    const visible = active?.id === id && !active?.action;
+    useLayoutEffect(() => {
+        xRef.current = x;
+        latestRef.current = { id, data, controlsWidth, avoidSwipeSelectors, setActive };
+    });
 
     // Initialize x from active.offset when row becomes visible
     useEffect(() => {
-        if (visible && active?.offset !== undefined && x === undefined) {
+        if (visible && activeOffset !== undefined && x === undefined) {
             // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync state from active.offset
-            setX(active.offset);
-            initialXRef.current = active.offset;
+            setX(activeOffset);
+            initialXRef.current = activeOffset;
         }
-    }, [visible, active?.offset, x]);
+    }, [visible, activeOffset, x]);
 
     // Update active with transform when x changes
     useEffect(() => {
@@ -122,6 +144,7 @@ export function SwipeableRow<D = ActiveContentData>({
             // Already open (adjusting further) needs no reveal - it's already visible.
             // Starting from closed does, once the panel below actually mounts.
             revealedRef.current = initialXValue !== 0;
+            revealDeadlineRef.current = 0;
             initialClientXRef.current = clientX;
             lastClientXRef.current = clientX;
             lastClientYRef.current = clientY;
@@ -162,9 +185,14 @@ export function SwipeableRow<D = ActiveContentData>({
                 slidingRef.current = true;
             }
 
-            const { id, data, controlsWidth, setActive } = latestRef.current;
-            if (controlsWidth > 0 && -dx > controlsWidth) {
-                dx = -controlsWidth;
+            const {
+                id: latestId,
+                data: latestData,
+                controlsWidth: latestControlsWidth,
+                setActive: latestSetActive,
+            } = latestRef.current;
+            if (latestControlsWidth > 0 && -dx > latestControlsWidth) {
+                dx = -latestControlsWidth;
             } else if (dx > 0) {
                 dx = 0;
             }
@@ -175,12 +203,12 @@ export function SwipeableRow<D = ActiveContentData>({
                 if (revealedRef.current) {
                     // Already open, just adjusting further - the DOM node exists already,
                     // so keep tracking the finger immediately, no reveal needed
-                    dragApiRef.current.setOffset(id, dx, true);
+                    dragApiRef.current.setOffset(latestId, dx, true);
                 } else {
                     // Starting from fully closed: mount the panel hidden. Once the node
                     // exists, the next successful write below animates it into view instead
                     // of it appearing there instantly
-                    setActive({ id, data, ref: activeRef, offset: 0, instant: true });
+                    latestSetActive({ id: latestId, data: latestData, ref: activeRef, offset: 0, instant: true });
                 }
 
                 // Cancel any active longpress timers when swipe starts
@@ -190,12 +218,25 @@ export function SwipeableRow<D = ActiveContentData>({
             } else if (!revealedRef.current) {
                 // First write since the panel mounted hidden: let the CSS transition
                 // animate the reveal (quick, but visible) instead of snapping instantly
-                if (dragApiRef.current.setOffset(id, dx, false)) {
+                if (dragApiRef.current.setOffset(latestId, dx, false)) {
                     revealedRef.current = true;
+                    revealArmedDxRef.current = dx;
+                    revealDeadlineRef.current = performance.now() + REVEAL_DURATION_MS;
                 }
+            } else if (
+                performance.now() < revealDeadlineRef.current &&
+                Math.abs(dx - revealArmedDxRef.current) < REVEAL_ABANDON_DISTANCE
+            ) {
+                // The reveal transition just started - skip writes for its short duration.
+                // Writing again here would restart/interrupt it mid-flight (CSS transitions
+                // re-target from wherever they currently are), which is exactly what makes a
+                // reveal look like it never animated. But abort early (see the distance check
+                // above) the moment the finger has clearly kept moving - otherwise a fast, long
+                // swipe would visually stick at the small reveal offset for the whole freeze
+                // window while the finger is already much further along
             } else {
                 // Every write after: track the finger 1:1, no easing, no render in the loop
-                dragApiRef.current.setOffset(id, dx, true);
+                dragApiRef.current.setOffset(latestId, dx, true);
             }
 
             e.preventDefault();
@@ -242,11 +283,16 @@ export function SwipeableRow<D = ActiveContentData>({
                 deltaX = lastClientXRef.current! - initialClientXRef.current!;
             }
 
-            const { id, data, controlsWidth, setActive } = latestRef.current;
+            const {
+                id: latestId,
+                data: latestData,
+                controlsWidth: latestControlsWidth,
+                setActive: latestSetActive,
+            } = latestRef.current;
             const initialX = initialXRef.current;
-            const openPosition = controlsWidth > 0 ? -Math.round(controlsWidth) : 0;
+            const openPosition = latestControlsWidth > 0 ? -Math.round(latestControlsWidth) : 0;
             const swipeThreshold =
-                controlsWidth > 0 ? Math.abs(openPosition) * SWIPE_THRESHOLD_PERCENT : POINTER_MOVE_THRESHOLD;
+                latestControlsWidth > 0 ? Math.abs(openPosition) * SWIPE_THRESHOLD_PERCENT : POINTER_MOVE_THRESHOLD;
 
             if (slidingRef.current) {
                 let targetX: number;
@@ -254,7 +300,7 @@ export function SwipeableRow<D = ActiveContentData>({
                     // Starting from closed - decide open or stay closed
                     // If swiped more than 20% of controlsWidth, open fully, otherwise close
                     const shouldOpen = Math.abs(deltaX) >= swipeThreshold;
-                    targetX = shouldOpen && controlsWidth > 0 ? openPosition : 0;
+                    targetX = shouldOpen && latestControlsWidth > 0 ? openPosition : 0;
                 } else {
                     const shouldClose = deltaX >= swipeThreshold;
                     targetX = shouldClose ? 0 : openPosition;
@@ -265,14 +311,14 @@ export function SwipeableRow<D = ActiveContentData>({
                 // Push the settle position and re-enable the CSS transition right away, so
                 // the snap-open/snap-closed animation starts the instant the finger lifts
                 // instead of waiting for React's render to catch up
-                dragApiRef.current.setOffset(id, targetX, false);
+                dragApiRef.current.setOffset(latestId, targetX, false);
 
                 if (!targetX) {
                     setX(undefined);
-                    setActive();
+                    latestSetActive();
                 } else {
                     setX(targetX);
-                    setActive({ id, data, ref: activeRef, offset: targetX });
+                    latestSetActive({ id: latestId, data: latestData, ref: activeRef, offset: targetX });
                 }
             } else if (deltaX) {
                 if (!initialX && Math.abs(deltaX) >= POINTER_MOVE_THRESHOLD) {
@@ -281,9 +327,9 @@ export function SwipeableRow<D = ActiveContentData>({
                     const swipedAmount = Math.abs(deltaX);
                     const shouldOpen = swipedAmount >= swipeThreshold;
 
-                    if (shouldOpen && controlsWidth > 0) {
+                    if (shouldOpen && latestControlsWidth > 0) {
                         setX(openPosition);
-                        setActive({ id, data, ref: activeRef, offset: openPosition });
+                        latestSetActive({ id: latestId, data: latestData, ref: activeRef, offset: openPosition });
                     }
                 }
             }

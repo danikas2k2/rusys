@@ -34,6 +34,11 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
     // so SwipeableRow can track the finger without waiting on React renders
     useEffect(() => {
         const nodes = nodesRef.current;
+        // dragApiRef is created by SwipeControlsWrapper (see SwipeControlsContext.tsx) and
+        // shared via context specifically so SwipePanel can publish this imperative API into
+        // it - mutating .current here is the intended design (a cross-component escape hatch
+        // for zero-render-latency writes), not an accidental mutation of a hook's return value
+        // eslint-disable-next-line react-compiler/react-compiler
         dragApiRef.current = {
             setOffset: (id, offset, dragging) => {
                 const node = nodes.get(id);
@@ -57,7 +62,17 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
     }, [dragApiRef]);
 
     const closeAllPanels = useCallback(() => {
-        setPanels((prev) => prev.map((p) => ({ ...p, closing: true, offset: 0 })));
+        setPanels((prev) => {
+            const closingIds = prev.map((p) => p.id);
+            // Safety net: if a panel was already at offset 0 (e.g. it was mounted hidden for
+            // a live-drag reveal that never got to land before the row was abandoned), marking
+            // it closing here doesn't actually change its transform - no CSS transition starts,
+            // so the transitionend below never fires and the panel would otherwise leak forever
+            window.setTimeout(() => {
+                setPanels((current) => current.filter((p) => !closingIds.includes(p.id) || !p.closing));
+            }, 300);
+            return prev.map((p) => ({ ...p, closing: true, offset: 0 }));
+        });
     }, []);
 
     useEffect(() => {

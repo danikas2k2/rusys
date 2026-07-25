@@ -2,7 +2,7 @@ import { NavLink } from '@mantine/core';
 import { IconCloudDownload } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
 
-import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';
 import { ToolbarMenuIcon } from '~/client/toolbar/ToolbarMenuIcon';
 
@@ -11,7 +11,7 @@ interface ExportMenuItemProps {
 }
 
 export function ExportMenuItem({ onClick }: ExportMenuItemProps) {
-    const [, setActive] = useActiveContent();
+    const setActive = useSetActiveContent();
 
     const handleExportClick = useCallback(
         (e: React.MouseEvent) => {
