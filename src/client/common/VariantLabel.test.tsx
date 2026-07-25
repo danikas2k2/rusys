@@ -61,4 +61,48 @@ describe('<VariantLabel>', () => {
 
         expect(container).toBeEmptyDOMElement();
     });
+
+    it('converts liters below 0.1 to milliliters', () => {
+        render(
+            <MockTheme>
+                <VariantLabel count={0.05} units="l" />
+            </MockTheme>
+        );
+
+        expect(screen.getByText('50')).toBeInTheDocument();
+        expect(screen.getByText('ml.')).toBeInTheDocument();
+    });
+
+    it('converts kilograms below 0.1 to grams', () => {
+        render(
+            <MockTheme>
+                <VariantLabel count={0.025} units="kg" />
+            </MockTheme>
+        );
+
+        expect(screen.getByText('25')).toBeInTheDocument();
+        expect(screen.getByText('g.')).toBeInTheDocument();
+    });
+
+    it('keeps liters as-is when 0.1 or above', () => {
+        render(
+            <MockTheme>
+                <VariantLabel count={0.1} units="l" />
+            </MockTheme>
+        );
+
+        expect(screen.getByText('0.1')).toBeInTheDocument();
+        expect(screen.getByText('l.')).toBeInTheDocument();
+    });
+
+    it('keeps non-numeric count unconverted regardless of units', () => {
+        render(
+            <MockTheme>
+                <VariantLabel count="0.05" units="l" />
+            </MockTheme>
+        );
+
+        expect(screen.getByText('0.05')).toBeInTheDocument();
+        expect(screen.getByText('l.')).toBeInTheDocument();
+    });
 });

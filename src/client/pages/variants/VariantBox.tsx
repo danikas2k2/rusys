@@ -18,30 +18,16 @@ import type { VariantUnits } from '~/types/data';
 
 const UNITS_OPTIONS: { value: VariantUnits; label: string }[] = [
     { value: 'vnt', label: 'vnt' },
-    { value: 'ml', label: 'ml' },
     { value: 'l', label: 'l' },
-    { value: 'g', label: 'g' },
     { value: 'kg', label: 'kg' },
 ];
 
-const WHOLE_NUMBER_UNITS: VariantUnits[] = ['vnt', 'g', 'ml'];
-
-function getMinCount(units: VariantUnits): number {
-    return WHOLE_NUMBER_UNITS.includes(units) ? 1 : 0.001;
-}
-
-function roundCountForUnits(count: number | undefined, units: VariantUnits): number | undefined {
-    if (count === undefined || !WHOLE_NUMBER_UNITS.includes(units)) {
-        return count;
-    }
-    return Math.ceil(count);
-}
+const MIN_COUNT = 0.001;
 
 interface VariantBoxProps {
     opened?: boolean;
     group?: string;
     variant?: string;
-    name?: string;
     suffix?: string;
     count?: number;
     units?: VariantUnits;
@@ -49,22 +35,13 @@ interface VariantBoxProps {
     onAfterClose?: () => void;
 }
 
-function resolveInitialName(
-    name: string | undefined,
-    variant: string,
-    count: number | undefined,
-    units: VariantUnits
-): string {
-    if (name !== undefined) {
-        return name;
-    }
+function resolveInitialName(variant: string, count: number | undefined, units: VariantUnits): string {
     return count && variant === deriveVariantKey(count, units) ? '' : variant;
 }
 
 export function VariantBox({
     group: initialGroup = '',
     variant: initialVariant = '',
-    name: initialNameProp,
     suffix: initialSuffix = '',
     count: initialCount,
     units: initialUnits,
@@ -81,7 +58,7 @@ export function VariantBox({
     const variants = useVariants();
 
     const initialUnitsResolved = initialUnits ?? DEFAULT_UNITS;
-    const initialName = resolveInitialName(initialNameProp, initialVariant, initialCount, initialUnitsResolved);
+    const initialName = resolveInitialName(initialVariant, initialCount, initialUnitsResolved);
 
     const form = useForm({
         initialValues: {
@@ -125,8 +102,8 @@ export function VariantBox({
                 }
                 return null;
             },
-            count: (value, values) => {
-                if (!value || value < getMinCount(values.units)) {
+            count: (value) => {
+                if (!value || value < MIN_COUNT) {
                     return _('Amount is required');
                 }
                 return null;
@@ -146,7 +123,7 @@ export function VariantBox({
     useEffect(() => {
         if (opened) {
             const unitsResolved = initialUnits ?? DEFAULT_UNITS;
-            const nameValue = resolveInitialName(initialNameProp, initialVariant, initialCount, unitsResolved);
+            const nameValue = resolveInitialName(initialVariant, initialCount, unitsResolved);
             formRef.current.setValues({
                 group: initialGroup || filterGroup || '',
                 name: nameValue,
@@ -164,17 +141,7 @@ export function VariantBox({
             }, 100);
             return () => clearTimeout(timer);
         }
-    }, [
-        opened,
-        initialGroup,
-        initialVariant,
-        initialNameProp,
-        initialSuffix,
-        initialCount,
-        initialUnits,
-        filterGroup,
-        isEditing,
-    ]);
+    }, [opened, initialGroup, initialVariant, initialSuffix, initialCount, initialUnits, filterGroup, isEditing]);
 
     const groupValue = form.values.group;
     const nameValue = form.values.name;
@@ -198,18 +165,8 @@ export function VariantBox({
     const renameVariant = useRenameVariant();
     const copyVariant = useCopyVariant();
 
-    const roundCount = (units?: VariantUnits) => {
-        const roundedCount = roundCountForUnits(form.values.count, units ?? form.values.units);
-        if (roundedCount !== form.values.count) {
-            form.setFieldValue('count', roundedCount);
-        }
-        return roundedCount;
-    };
-
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
-
-        const roundedCount = roundCount();
 
         const validation = form.validate();
         if (validation.hasErrors) {
@@ -228,7 +185,7 @@ export function VariantBox({
         }, 300);
 
         try {
-            const values = { ...form.values, count: roundedCount };
+            const values = form.values;
             const trimmedName = values.name?.trim() ?? '';
             const effectiveVariant = trimmedName || deriveVariantKey(values.count, values.units);
             const groupChanged = isEditing && values.group !== initialGroup;
@@ -238,8 +195,7 @@ export function VariantBox({
             const unitsChanged = values.units !== initialUnitsResolved;
             const nameChanged = trimmedName !== initialName;
 
-            const update: { name?: string; suffix: string; count?: number; units?: VariantUnits } = {
-                name: trimmedName !== effectiveVariant ? trimmedName || undefined : undefined,
+            const update: { suffix: string; count?: number; units?: VariantUnits } = {
                 suffix: values.suffix,
             };
             if (values.count) {
@@ -326,7 +282,7 @@ export function VariantBox({
                         <NumberInput
                             label={_('Amount')}
                             placeholder={_('e.g. 500')}
-                            min={0.001}
+                            min={MIN_COUNT}
                             disabled={loading}
                             withAsterisk={showCountAsterisk}
                             {...form.getInputProps('count')}
@@ -341,13 +297,6 @@ export function VariantBox({
                             searchable
                             allowDeselect={false}
                             {...form.getInputProps('units')}
-                            onChange={(value) => {
-                                const units = value as VariantUnits;
-                                form.setFieldValue('units', units);
-                                if (units) {
-                                    roundCount(units);
-                                }
-                            }}
                         />
                     </Group>
                     <TextInput

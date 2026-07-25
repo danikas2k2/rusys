@@ -42,7 +42,7 @@ describe('<VariantsRow>', () => {
         expect(screen.getByText('D.')).toBeInTheDocument();
     });
 
-    it('renders count and units when no name is set', () => {
+    it('renders count and units when key was auto-derived from them', () => {
         vi.mocked(useVariant).mockReturnValue({
             group: 'Uogienės',
             variant: '500ml',
@@ -61,24 +61,22 @@ describe('<VariantsRow>', () => {
         expect(screen.queryByText('500ml')).not.toBeInTheDocument();
     });
 
-    it('renders name with count as dimmed sub-text when name is provided', () => {
+    it('renders custom key with count as dimmed sub-text when key was not auto-derived from count/units', () => {
         vi.mocked(useVariant).mockReturnValue({
             group: 'Uogienės',
-            variant: '500ml',
-            name: 'Litriukas',
+            variant: 'Litriukas',
             order: 0,
             count: 500,
             units: 'ml',
         });
 
         renderRow({
-            variant: { group: 'Uogienės', variant: '500ml', name: 'Litriukas', order: 0, count: 500, units: 'ml' },
+            variant: { group: 'Uogienės', variant: 'Litriukas', order: 0, count: 500, units: 'ml' },
             reordering: false,
         });
 
         expect(screen.getByText('Litriukas')).toBeInTheDocument();
         expect(screen.getByText('500')).toBeInTheDocument();
-        expect(screen.queryByText('500ml')).not.toBeInTheDocument();
     });
 
     it('renders empty string when suffix is undefined', () => {

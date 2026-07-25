@@ -1,3 +1,4 @@
+import { Text } from '@mantine/core';
 import React from 'react';
 
 import { VariantLabel } from '~/client/common/VariantLabel';
@@ -14,11 +15,23 @@ export function VariantTitle({ group, variant }: VariantTitleProps) {
     const isAutoKey =
         !!variantData?.count && variant === deriveVariantKey(variantData.count, variantData.units ?? DEFAULT_UNITS);
 
-    if (!variantData?.name && isAutoKey) {
+    if (isAutoKey) {
         return <VariantLabel count={variantData?.count} units={variantData?.units} />;
     }
 
-    const label = variantData?.name || variantData?.variant || variant;
+    const label = variantData?.variant || variant;
+
+    if (variantData?.count) {
+        return (
+            <>
+                {label}
+                <Text size="sm" c="dimmed">
+                    <VariantLabel count={variantData.count} units={variantData.units} />
+                </Text>
+            </>
+        );
+    }
+
     const index = label.trim().indexOf(' ');
     if (index < 0) {
         return <>{label}</>;

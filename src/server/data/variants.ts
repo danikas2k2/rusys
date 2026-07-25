@@ -31,7 +31,7 @@ export async function getVariants(): Promise<readonly Variant[]> {
             },
             { $addFields: { used: { $gt: [{ $size: '$used' }, 0] } } },
             { $project: { _id: 0 } },
-            { $sort: { group: 1, order: 1, name: 1 } },
+            { $sort: { group: 1, order: 1 } },
         ])
         .toArray();
 }
@@ -42,13 +42,12 @@ export async function updateVariant(group: string, variant: string, update: Upda
     }
     const col = (await db()).collection<Variant>('variants');
     const found = await col.findOne({ group, variant }, { projection: { _id: 0, order: 1 } });
-    const { order, name, suffix, count, units } = update;
+    const { order, suffix, count, units } = update;
     const $set: UpdateVariant = {};
     if (order != null) {
         $set.order = order;
     }
     const $unset: Omit<UpdateVariant, 'order'> = {};
-    (name ? $set : $unset).name = name;
     (suffix ? $set : $unset).suffix = suffix;
     (count != null ? $set : $unset).count = count;
     (units ? $set : $unset).units = units;
@@ -75,8 +74,7 @@ export async function renameVariant(
     const $set: Omit<UpdateVariant, 'order'> = {};
     const $unset: Omit<UpdateVariant, 'order'> = {};
     if (update) {
-        const { name, suffix, count, units } = update;
-        (name ? $set : $unset).name = name;
+        const { suffix, count, units } = update;
         (suffix ? $set : $unset).suffix = suffix;
         (count != null ? $set : $unset).count = count;
         (units ? $set : $unset).units = units;
@@ -121,14 +119,9 @@ export async function copyVariant(
         variant: newVariant ?? variant,
     };
     if (update) {
-        const { order, name, suffix, count, units } = update;
+        const { order, suffix, count, units } = update;
         if (order != null) {
             copied.order = order;
-        }
-        if (name) {
-            copied.name = name;
-        } else {
-            delete copied.name;
         }
         if (suffix) {
             copied.suffix = suffix;

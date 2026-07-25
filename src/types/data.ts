@@ -80,7 +80,6 @@ export type VariantUnits = 'g' | 'kg' | 'l' | 'ml' | 'vnt';
 export interface Variant {
     group: string;
     variant: string;
-    name?: string;
     order: number;
     suffix?: string;
     count?: number;
@@ -88,4 +87,4 @@ export interface Variant {
     used?: boolean;
 }
 
-export type UpdateVariant = Partial<Pick<Variant, 'order' | 'name' | 'suffix' | 'count' | 'units'>>;
+export type UpdateVariant = Partial<Pick<Variant, 'order' | 'suffix' | 'count' | 'units'>>;
