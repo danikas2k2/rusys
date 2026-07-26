@@ -54,7 +54,7 @@ export function GroupBox({
                 const groupRenamed = !!initialGroup && value !== initialGroup;
 
                 if (groupExists && (groupAdded || groupRenamed)) {
-                    return _('Group already exists');
+                    return _('Category already exists');
                 }
                 return null;
             },
@@ -142,7 +142,7 @@ export function GroupBox({
         <ConfirmableModal
             centered
             opened={!!opened}
-            title={_(isEditing ? 'Edit group' : 'Add new group')}
+            title={_(isEditing ? 'Edit category' : 'Add new category')}
             withCloseButton
             isDirty={() => formRef.current.isDirty()}
             onClose={() => onClose()}
@@ -156,8 +156,8 @@ export function GroupBox({
                     <Stack>
                         <TextInput
                             ref={inputRef}
-                            label={_('Group name')}
-                            placeholder={_('Enter group name')}
+                            label={_('Category name')}
+                            placeholder={_('Enter category name')}
                             withAsterisk
                             disabled={loading}
                             {...form.getInputProps('group')}

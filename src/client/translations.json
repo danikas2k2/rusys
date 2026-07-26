@@ -5,8 +5,8 @@
   "Add new entry": {
     "lt-LT": "Pridėti naują produktą"
   },
-  "Add new group": {
-    "lt-LT": "Pridėti naują grupę"
+  "Add new category": {
+    "lt-LT": "Pridėti naują kategoriją"
   },
   "Add new variant": {
     "lt-LT": "Pridėti naują variantą"
@@ -14,8 +14,8 @@
   "New variant": {
     "lt-LT": "Naujas variantas"
   },
-  "All groups": {
-    "lt-LT": "Visos grupės"
+  "All categories": {
+    "lt-LT": "Visos kategorijos"
   },
   "Amount": {
     "lt-LT": "Kiekis"
@@ -113,8 +113,8 @@
   "Edit entry": {
     "lt-LT": "Taisyti produktą"
   },
-  "Edit group": {
-    "lt-LT": "Taisyti grupę"
+  "Edit category": {
+    "lt-LT": "Taisyti kategoriją"
   },
   "Edit variant": {
     "lt-LT": "Taisyti variantą"
@@ -122,7 +122,7 @@
   "e.g. 500": {
     "lt-LT": "pvz. 500"
   },
-  "Enter group name": {
+  "Enter category name": {
     "lt-LT": "Įveskite pavadinimą"
   },
   "Enter name": {
@@ -161,20 +161,20 @@
   "Friday": {
     "lt-LT": "Penktadienis"
   },
-  "Group": {
-    "lt-LT": "Grupė"
+  "Category": {
+    "lt-LT": "Kategorija"
   },
-  "Group already exists": {
-    "lt-LT": "Tokia grupė jau yra"
+  "Category already exists": {
+    "lt-LT": "Tokia kategorija jau yra"
   },
-  "Group is required": {
-    "lt-LT": "Grupė yra privaloma"
+  "Category is required": {
+    "lt-LT": "Kategorija yra privaloma"
   },
-  "Group name": {
+  "Category name": {
     "lt-LT": "Pavadinimas"
   },
-  "Groups": {
-    "lt-LT": "Grupės"
+  "Categories": {
+    "lt-LT": "Kategorijos"
   },
   "History": {
     "lt-LT": "Istorija"
@@ -233,8 +233,8 @@
   "Name already exists": {
     "lt-LT": "Toks pavadinimas jau yra"
   },
-  "Name already exists in this group": {
-    "lt-LT": "Toks pavadinimas jau yra šioje grupėje"
+  "Name already exists in this category": {
+    "lt-LT": "Toks pavadinimas jau yra šioje kategorijoje"
   },
   "Name is required": {
     "lt-LT": "Pavadinimas yra privalomas"
@@ -260,8 +260,8 @@
   "Saturday": {
     "lt-LT": "Šeštadienis"
   },
-  "Select group": {
-    "lt-LT": "Pasirinkite grupę"
+  "Select category": {
+    "lt-LT": "Pasirinkite kategoriją"
   },
   "September": {
     "lt-LT": "Rugsėjo"
@@ -317,8 +317,8 @@
   "Variant already exists": {
     "lt-LT": "Toks variantas jau yra"
   },
-  "Variant already exists in this group": {
-    "lt-LT": "Toks variantas jau yra šioje grupėje"
+  "Variant already exists in this category": {
+    "lt-LT": "Toks variantas jau yra šioje kategorijoje"
   },
   "Variant name": {
     "lt-LT": "Pavadinimas"

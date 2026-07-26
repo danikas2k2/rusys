@@ -17,7 +17,7 @@ vi.mock(import('~/client/state/products/useRenameProduct'));
 vi.mock(import('~/client/common/Label'));
 
 function selectOption(name: string) {
-    const combobox = screen.getByRole('combobox', { name: 'Group' });
+    const combobox = screen.getByRole('combobox', { name: 'Category' });
     act(() => fireEvent.click(combobox));
     act(() => fireEvent.change(combobox, { target: { value: name } }));
     act(() => fireEvent.click(screen.getByRole('option', { name })));
@@ -80,7 +80,7 @@ describe('<ProductBox>', () => {
             </MockThemeRedux>
         );
 
-        expect(screen.getByRole('combobox', { name: 'Group' })).toHaveDisplayValue('Uogienės');
+        expect(screen.getByRole('combobox', { name: 'Category' })).toHaveDisplayValue('Uogienės');
     });
 
     it('calls onClose when close button is clicked', async () => {
@@ -405,12 +405,12 @@ describe('<ProductBox>', () => {
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Test');
-            await user.clear(screen.getByRole('combobox', { name: 'Group' }));
+            await user.clear(screen.getByRole('combobox', { name: 'Category' }));
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(addProduct).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('combobox', { name: 'Group' })).toHaveAttribute('aria-invalid', 'true');
+            expect(screen.getByRole('combobox', { name: 'Category' })).toHaveAttribute('aria-invalid', 'true');
         });
 
         it('displays error when name contains colon', async () => {
@@ -455,9 +455,9 @@ describe('<ProductBox>', () => {
             );
 
             // Use fireEvent to avoid userEvent incompatibility with fake timers
-            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Group' })));
+            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
             act(() =>
-                fireEvent.change(screen.getByRole('combobox', { name: 'Group' }), { target: { value: 'Daržovės' } })
+                fireEvent.change(screen.getByRole('combobox', { name: 'Category' }), { target: { value: 'Daržovės' } })
             );
             act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
             act(() =>
@@ -497,9 +497,9 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Group' })));
+            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
             act(() =>
-                fireEvent.change(screen.getByRole('combobox', { name: 'Group' }), { target: { value: 'Daržovės' } })
+                fireEvent.change(screen.getByRole('combobox', { name: 'Category' }), { target: { value: 'Daržovės' } })
             );
             act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
             act(() =>

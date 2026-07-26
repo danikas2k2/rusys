@@ -39,8 +39,8 @@ describe('<GroupBox>', () => {
             </MockApp>
         );
 
-        expect(screen.getByText('Add new group')).toBeInTheDocument();
-        expect(screen.getByRole('textbox', { name: 'Group name' })).toHaveValue('');
+        expect(screen.getByText('Add new category')).toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: 'Category name' })).toHaveValue('');
         expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
     });
 
@@ -51,8 +51,8 @@ describe('<GroupBox>', () => {
             </MockApp>
         );
 
-        expect(screen.getByText('Edit group')).toBeInTheDocument();
-        expect(screen.getByRole('textbox', { name: 'Group name' })).toHaveValue('Initial Group');
+        expect(screen.getByText('Edit category')).toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: 'Category name' })).toHaveValue('Initial Group');
         expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
     });
 
@@ -99,7 +99,7 @@ describe('<GroupBox>', () => {
                 </MockApp>
             );
 
-            await user.type(screen.getByRole('textbox', { name: 'Group name' }), 'test');
+            await user.type(screen.getByRole('textbox', { name: 'Category name' }), 'test');
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
             expect(onClose).not.toHaveBeenCalled();
@@ -113,7 +113,7 @@ describe('<GroupBox>', () => {
                 </MockApp>
             );
 
-            await user.type(screen.getByRole('textbox', { name: 'Group name' }), 'test');
+            await user.type(screen.getByRole('textbox', { name: 'Category name' }), 'test');
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
             await user.click(screen.getByRole('button', { name: 'Discard' }));
 
@@ -127,12 +127,12 @@ describe('<GroupBox>', () => {
                 </MockApp>
             );
 
-            await user.type(screen.getByRole('textbox', { name: 'Group name' }), 'test');
+            await user.type(screen.getByRole('textbox', { name: 'Category name' }), 'test');
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
             await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }));
 
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('textbox', { name: 'Group name' })).toHaveValue('test');
+            expect(screen.getByRole('textbox', { name: 'Category name' })).toHaveValue('test');
         });
     });
 
@@ -190,7 +190,7 @@ describe('<GroupBox>', () => {
                     <GroupBox opened onClose={onClose} />
                 </MockApp>
             );
-            await user.type(screen.getByRole('textbox', { name: 'Group name' }), 'Buitinė chemija');
+            await user.type(screen.getByRole('textbox', { name: 'Category name' }), 'Buitinė chemija');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(addGroup).toHaveBeenCalledWith('Buitinė chemija', true, false);
@@ -229,7 +229,7 @@ describe('<GroupBox>', () => {
             expect(addGroup).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox')).toHaveFocus();
-            expect(screen.getByRole('alert')).toHaveTextContent('Group already exists');
+            expect(screen.getByRole('alert')).toHaveTextContent('Category already exists');
         });
 
         it('displays error without closing dialog when name contains colon', async () => {
@@ -323,7 +323,7 @@ describe('<GroupBox>', () => {
             expect(renameGroup).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox')).toHaveFocus();
-            expect(screen.getByRole('alert')).toHaveTextContent('Group already exists');
+            expect(screen.getByRole('alert')).toHaveTextContent('Category already exists');
         });
 
         it('displays error without closing dialog when name contains colon', async () => {
@@ -385,7 +385,7 @@ describe('<GroupBox>', () => {
             );
 
             act(() =>
-                fireEvent.change(screen.getByRole('textbox', { name: 'Group name' }), {
+                fireEvent.change(screen.getByRole('textbox', { name: 'Category name' }), {
                     target: { value: 'New Group' },
                 })
             );
@@ -423,7 +423,7 @@ describe('<GroupBox>', () => {
             );
 
             act(() =>
-                fireEvent.change(screen.getByRole('textbox', { name: 'Group name' }), {
+                fireEvent.change(screen.getByRole('textbox', { name: 'Category name' }), {
                     target: { value: 'Fast Group' },
                 })
             );

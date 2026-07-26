@@ -35,7 +35,7 @@ describe('<ToolbarGroupFilter>', () => {
             </MockApp>
         );
 
-        expect(screen.getByPlaceholderText('All groups')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('All categories')).toBeInTheDocument();
     });
 
     it('updates group value when some group selected', async () => {
@@ -45,7 +45,7 @@ describe('<ToolbarGroupFilter>', () => {
             </MockApp>
         );
 
-        await user.click(screen.getByPlaceholderText('All groups'));
+        await user.click(screen.getByPlaceholderText('All categories'));
         await user.click(screen.getByText('Uogienės'));
 
         expect(setGroup).toHaveBeenCalledWith('Uogienės');
@@ -60,7 +60,7 @@ describe('<ToolbarGroupFilter>', () => {
             </MockApp>
         );
 
-        const select = screen.getByPlaceholderText('All groups');
+        const select = screen.getByPlaceholderText('All categories');
         await user.click(select);
 
         // Find and click the clear button (X icon)
@@ -79,7 +79,7 @@ describe('<ToolbarGroupFilter>', () => {
             </MockApp>
         );
 
-        expect(screen.getByPlaceholderText('All groups')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('All categories')).toBeInTheDocument();
     });
 
     it('uses correct rightSectionWidth when group is empty', () => {
@@ -91,7 +91,7 @@ describe('<ToolbarGroupFilter>', () => {
             </MockApp>
         );
 
-        expect(screen.getByPlaceholderText('All groups')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('All categories')).toBeInTheDocument();
     });
 
     it('handles null value in onChange by converting to empty string', async () => {
@@ -103,7 +103,7 @@ describe('<ToolbarGroupFilter>', () => {
             </MockApp>
         );
 
-        await user.click(screen.getByPlaceholderText('All groups'));
+        await user.click(screen.getByPlaceholderText('All categories'));
         await user.click(screen.getByText('Uogienės'));
 
         expect(setGroup).toHaveBeenCalledWith('');

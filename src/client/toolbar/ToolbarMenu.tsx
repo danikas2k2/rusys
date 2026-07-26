@@ -81,15 +81,15 @@ export function ToolbarMenu() {
                         <Divider m="xs" />
 
                         <NavLink
-                            label={<Label>Groups</Label>}
+                            label={<Label>Categories</Label>}
                             leftSection={
                                 <ToolbarMenuIcon>
                                     <IconTriangleSquareCircle />
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
-                            to={to(Links.GROUPS)}
-                            active={!!useMatch(Links.GROUPS)}
+                            to={to(Links.CATEGORIES)}
+                            active={!!useMatch(Links.CATEGORIES)}
                             onClick={close}
                         />
                         <NavLink

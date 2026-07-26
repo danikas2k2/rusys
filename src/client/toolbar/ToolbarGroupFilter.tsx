@@ -17,7 +17,7 @@ export function ToolbarGroupFilter() {
 
     return (
         <Select
-            placeholder={useLabel('All groups')}
+            placeholder={useLabel('All categories')}
             value={group || null}
             onChange={(value) => setGroup(value || '')}
             data={groupOptions}

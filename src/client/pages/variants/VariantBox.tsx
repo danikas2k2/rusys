@@ -72,7 +72,7 @@ export function VariantBox({
         validate: {
             group: (value) => {
                 if (!value?.trim()) {
-                    return _('Group is required');
+                    return _('Category is required');
                 }
                 return null;
             },
@@ -98,7 +98,7 @@ export function VariantBox({
                         (v) => !compareNames(v.group, values.group) && !compareNames(v.variant, effectiveVariant)
                     );
                     if (variantExists) {
-                        return _('Variant already exists in this group');
+                        return _('Variant already exists in this category');
                     }
                 }
                 return null;
@@ -264,8 +264,8 @@ export function VariantBox({
                     <Stack>
                         <Select
                             ref={groupRef}
-                            label={_('Group')}
-                            placeholder={_('Select group')}
+                            label={_('Category')}
+                            placeholder={_('Select category')}
                             data={groups}
                             withAsterisk
                             withAlignedLabels

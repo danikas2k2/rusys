@@ -46,7 +46,7 @@ export function ProductBox({
         validate: {
             group: (value) => {
                 if (!value?.trim()) {
-                    return _('Group is required');
+                    return _('Category is required');
                 }
                 return null;
             },
@@ -66,7 +66,7 @@ export function ProductBox({
                 const nameRenamed = isEditing && value !== initialName && values.group === initialGroup;
 
                 if (nameExists && (nameAdded || nameCopied || nameRenamed)) {
-                    return _('Name already exists in this group');
+                    return _('Name already exists in this category');
                 }
                 return null;
             },
@@ -201,8 +201,8 @@ export function ProductBox({
                     <Stack>
                         <Select
                             ref={groupRef}
-                            label={_('Group')}
-                            placeholder={_('Select group')}
+                            label={_('Category')}
+                            placeholder={_('Select category')}
                             data={groups}
                             withAsterisk
                             withAlignedLabels

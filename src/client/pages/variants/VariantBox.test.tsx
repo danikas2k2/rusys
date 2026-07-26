@@ -20,7 +20,7 @@ vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
 }));
 
 function selectOption(name: string) {
-    const combobox = screen.getByRole('combobox', { name: 'Group' });
+    const combobox = screen.getByRole('combobox', { name: 'Category' });
     act(() => fireEvent.click(combobox));
     act(() => fireEvent.change(combobox, { target: { value: name } }));
     act(() => fireEvent.click(screen.getByRole('option', { name })));
@@ -64,7 +64,7 @@ describe('<VariantBox>', () => {
 
         expect(screen.getByRole('heading', { name: 'Add new variant' })).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveValue('');
-        expect(screen.getByRole('combobox', { name: 'Group' })).toHaveValue('');
+        expect(screen.getByRole('combobox', { name: 'Category' })).toHaveValue('');
         expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
     });
 
@@ -77,7 +77,7 @@ describe('<VariantBox>', () => {
             </MockApp>
         );
 
-        expect(screen.getByRole('combobox', { name: 'Group' })).toHaveValue('Daržovės');
+        expect(screen.getByRole('combobox', { name: 'Category' })).toHaveValue('Daržovės');
     });
 
     it('shows Duplicate button when editing and filterGroup differs from initialGroup', () => {
@@ -101,7 +101,7 @@ describe('<VariantBox>', () => {
 
         expect(screen.getByRole('heading', { name: 'Edit variant' })).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveValue('Litriukas');
-        expect(screen.getByRole('combobox', { name: 'Group' })).toHaveValue('Daržovės');
+        expect(screen.getByRole('combobox', { name: 'Category' })).toHaveValue('Daržovės');
         expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
     });
 
@@ -456,8 +456,8 @@ describe('<VariantBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('combobox', { name: 'Group' })).toHaveAttribute('aria-invalid', 'true');
-            expect(screen.getByRole('alert')).toHaveTextContent('Group is required');
+            expect(screen.getByRole('combobox', { name: 'Category' })).toHaveAttribute('aria-invalid', 'true');
+            expect(screen.getByRole('alert')).toHaveTextContent('Category is required');
         });
 
         it('displays error when variant contains colon', async () => {
@@ -606,9 +606,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Group' })));
+            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
             act(() =>
-                fireEvent.change(screen.getByRole('combobox', { name: 'Group' }), { target: { value: 'Daržovės' } })
+                fireEvent.change(screen.getByRole('combobox', { name: 'Category' }), { target: { value: 'Daržovės' } })
             );
             act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
             act(() =>
@@ -650,9 +650,9 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Group' })));
+            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
             act(() =>
-                fireEvent.change(screen.getByRole('combobox', { name: 'Group' }), { target: { value: 'Daržovės' } })
+                fireEvent.change(screen.getByRole('combobox', { name: 'Category' }), { target: { value: 'Daržovės' } })
             );
             act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
             act(() =>
