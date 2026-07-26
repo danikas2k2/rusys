@@ -18,6 +18,7 @@ import {
     renameProductsGroup,
     renameProductsVariant,
     setMissing,
+    setMissingBulk,
     setRemoving,
     undoProduct,
     updateProduct,
@@ -1044,6 +1045,35 @@ describe('products', () => {
                 await expect($all('products')).resolves.toStrictEqual(products);
             }
         );
+    });
+
+    describe('setMissingBulk', () => {
+        it('sets and unsets missing for multiple products in one call', async () => {
+            await expect(
+                setMissingBulk([
+                    { group: 'Uogienės', name: 'Avietės', missing: true },
+                    { group: 'Uogienės', name: 'Braškės', missing: false },
+                ])
+            ).resolves.toBe(true);
+            await expect($all('products')).resolves.toStrictEqual(
+                bulk(products, { $set: { '0.missing': true } }, { $unset: '1.missing' })
+            );
+        });
+
+        it('does nothing for an empty list', async () => {
+            await expect(setMissingBulk([])).resolves.toBe(false);
+            await expect($all('products')).resolves.toStrictEqual(products);
+        });
+
+        it('does nothing when nothing actually changes', async () => {
+            await expect(
+                setMissingBulk([
+                    { group: 'Uogienės', name: 'Avietės', missing: false },
+                    { group: 'Uogienės', name: 'Braškės', missing: true },
+                ])
+            ).resolves.toBe(false);
+            await expect($all('products')).resolves.toStrictEqual(products);
+        });
     });
 
     describe('cleanupRecycled', () => {

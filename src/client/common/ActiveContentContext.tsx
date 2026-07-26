@@ -3,7 +3,7 @@ import React, { createContext, use, useCallback, useRef, useState, useSyncExtern
 
 export type ActiveContentData = object;
 
-export type ActiveContentAction = 'update' | 'remove' | 'values' | 'history' | 'export' | 'import';
+export type ActiveContentAction = 'update' | 'remove' | 'values' | 'history' | 'export' | 'import' | 'review';
 
 export interface ActiveContent<D = ActiveContentData, A = ActiveContentAction> {
     id?: string;

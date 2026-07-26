@@ -31,6 +31,7 @@ export const enum ApiUrl {
     ProductsRedo = '/products/redo',
     ProductsSetRemoving = '/products/removing',
     ProductsSetMissing = '/products/missing',
+    ProductsSetMissingBulk = '/products/missing/bulk',
     ProductsRename = '/products/rename',
     ProductsMove = '/products/move',
     ProductsDelete = '/products/delete',
@@ -109,6 +110,10 @@ export interface ApiSetMissing extends ApiRequestProduct {
     missing: boolean;
 }
 
+export interface ApiSetMissingBulk {
+    updates: readonly { group: string; name: string; missing: boolean }[];
+}
+
 export interface ApiRequestYear {
     year: number;
 }
@@ -144,6 +149,7 @@ export interface ApiRequestGroup {
 
 export interface ApiUpdateGroup extends ApiRequestGroup {
     annual?: boolean;
+    review?: boolean;
 }
 
 export interface ApiRenameGroup extends ApiUpdateGroup {

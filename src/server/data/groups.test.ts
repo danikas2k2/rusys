@@ -27,47 +27,79 @@ describe('groups', () => {
     describe('updateGroup', () => {
         it('updates a group with annual field = false', async () => {
             await expect(updateGroup('Daržovės', false)).resolves.toBe(true);
-            await expect(getGroups()).resolves.toStrictEqual([groups[0], { ...groups[1], annual: false }]);
+            await expect(getGroups()).resolves.toStrictEqual([
+                groups[0],
+                { ...groups[1], annual: false, review: false },
+            ]);
         });
 
         it('updates a group with annual field = true', async () => {
             await expect(updateGroup('Daržovės', true)).resolves.toBe(true);
-            await expect(getGroups()).resolves.toStrictEqual([groups[0], { ...groups[1], annual: true }]);
+            await expect(getGroups()).resolves.toStrictEqual([
+                groups[0],
+                { ...groups[1], annual: true, review: false },
+            ]);
         });
 
         it('updates a group without annual field', async () => {
             await expect(updateGroup('Daržovės')).resolves.toBe(true);
-            await expect(getGroups()).resolves.toStrictEqual([groups[0], { ...groups[1], annual: true }]);
+            await expect(getGroups()).resolves.toStrictEqual([
+                groups[0],
+                { ...groups[1], annual: true, review: false },
+            ]);
+        });
+
+        it('updates a group with review = true', async () => {
+            await expect(updateGroup('Daržovės', true, true)).resolves.toBe(true);
+            await expect(getGroups()).resolves.toStrictEqual([groups[0], { ...groups[1], annual: true, review: true }]);
         });
 
         it('adds a new group to empty collection without order field', async () => {
             await (await db()).collection('groups').deleteMany({});
 
             await expect(updateGroup('Šaldyti')).resolves.toBe(true);
-            await expect(getGroups()).resolves.toStrictEqual([{ group: 'Šaldyti', order: 0, annual: true }]);
+            await expect(getGroups()).resolves.toStrictEqual([
+                { group: 'Šaldyti', order: 0, annual: true, review: false },
+            ]);
         });
 
         it('adds a group', async () => {
             await expect(updateGroup('Šaldyti')).resolves.toBe(true);
-            await expect(getGroups()).resolves.toStrictEqual([...groups, { group: 'Šaldyti', order: 3, annual: true }]);
+            await expect(getGroups()).resolves.toStrictEqual([
+                ...groups,
+                { group: 'Šaldyti', order: 3, annual: true, review: false },
+            ]);
         });
 
         it('adds a group with annual = true', async () => {
             await expect(updateGroup('Grybai', true)).resolves.toBe(true);
-            await expect(getGroups()).resolves.toStrictEqual([...groups, { group: 'Grybai', order: 3, annual: true }]);
+            await expect(getGroups()).resolves.toStrictEqual([
+                ...groups,
+                { group: 'Grybai', order: 3, annual: true, review: false },
+            ]);
         });
 
         it('adds a group with annual = false', async () => {
             await expect(updateGroup('Kruopos', false)).resolves.toBe(true);
             await expect(getGroups()).resolves.toStrictEqual([
                 ...groups,
-                { group: 'Kruopos', order: 3, annual: false },
+                { group: 'Kruopos', order: 3, annual: false, review: false },
+            ]);
+        });
+
+        it('adds a group with review = true', async () => {
+            await expect(updateGroup('Grybai', true, true)).resolves.toBe(true);
+            await expect(getGroups()).resolves.toStrictEqual([
+                ...groups,
+                { group: 'Grybai', order: 3, annual: true, review: true },
             ]);
         });
 
         it('does nothing if group is not updated', async () => {
-            await expect(updateGroup('Uogienės', true)).resolves.toBe(false);
-            await expect(getGroups()).resolves.toStrictEqual(groups);
+            await updateGroup('Uogienės', true, false);
+
+            await expect(updateGroup('Uogienės', true, false)).resolves.toBe(false);
+            await expect(getGroups()).resolves.toStrictEqual([{ ...groups[0], review: false }, groups[1]]);
         });
 
         it('does nothing for empty group', async () => {
@@ -112,7 +144,18 @@ describe('groups', () => {
     describe('renameGroup', () => {
         it('renames a group', async () => {
             await expect(renameGroup('Uogienės', 'Grybai')).resolves.toBe(true);
-            await expect(getGroups()).resolves.toStrictEqual([{ group: 'Grybai', order: 1, annual: true }, groups[1]]);
+            await expect(getGroups()).resolves.toStrictEqual([
+                { group: 'Grybai', order: 1, annual: true, review: false },
+                groups[1],
+            ]);
+        });
+
+        it('renames a group with review = true', async () => {
+            await expect(renameGroup('Uogienės', 'Grybai', true, true)).resolves.toBe(true);
+            await expect(getGroups()).resolves.toStrictEqual([
+                { group: 'Grybai', order: 1, annual: true, review: true },
+                groups[1],
+            ]);
         });
 
         it('does nothing if new name is the same as old name', async () => {

@@ -26,6 +26,18 @@ describe('useRenameGroup', () => {
         });
     });
 
+    it('calls rename action with annual and review parameters', async () => {
+        const { result } = renderHook(() => useRenameGroup(), { wrapper: MockRedux });
+        await result.current('Uogienės', 'Daržovės', true, true);
+
+        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsRename, {
+            group: 'Uogienės',
+            newGroup: 'Daržovės',
+            annual: true,
+            review: true,
+        });
+    });
+
     it.each`
         title                | group         | newGroup
         ${'same group'}      | ${'Uogienės'} | ${'Uogienės'}

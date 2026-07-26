@@ -1,6 +1,6 @@
 import { Button, Checkbox, Group, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconCalendarClock, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
+import { IconCalendarClock, IconCheck, IconClipboardList, IconPlus, IconX } from '@tabler/icons-react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
@@ -16,6 +16,7 @@ interface GroupBoxProps {
     opened?: boolean;
     group?: string;
     annual?: boolean;
+    review?: boolean;
     onClose: (group?: string) => void;
     onAfterClose?: () => void;
 }
@@ -23,6 +24,7 @@ interface GroupBoxProps {
 export function GroupBox({
     group: initialGroup = '',
     annual: initialAnnual = true,
+    review: initialReview = false,
     opened,
     onClose,
     onAfterClose,
@@ -36,6 +38,7 @@ export function GroupBox({
         initialValues: {
             group: initialGroup,
             annual: initialAnnual,
+            review: initialReview,
         },
         validate: {
             group: (value) => {
@@ -72,6 +75,7 @@ export function GroupBox({
             formRef.current.setValues({
                 group: initialGroup,
                 annual: initialAnnual,
+                review: initialReview,
             });
             formRef.current.resetTouched();
             formRef.current.resetDirty();
@@ -84,7 +88,7 @@ export function GroupBox({
             }, 100);
             return () => clearTimeout(timer);
         }
-    }, [opened, initialGroup, initialAnnual]);
+    }, [opened, initialGroup, initialAnnual, initialReview]);
 
     // Revalidate when group name changes to show duplicate errors in real-time
     const groupValue = form.values.group;
@@ -116,11 +120,12 @@ export function GroupBox({
             const values = form.values;
             const groupRenamed = isEditing && values.group !== initialGroup;
             const annualChanged = values.annual !== initialAnnual;
+            const reviewChanged = values.review !== initialReview;
 
             if (groupRenamed) {
-                await renameGroup(initialGroup, values.group, values.annual);
-            } else if (!isEditing || annualChanged) {
-                await updateGroup(values.group, values.annual);
+                await renameGroup(initialGroup, values.group, values.annual, values.review);
+            } else if (!isEditing || annualChanged || reviewChanged) {
+                await updateGroup(values.group, values.annual, values.review);
             }
             onClose(values.group);
         } catch (error) {
@@ -167,6 +172,17 @@ export function GroupBox({
                             }
                             disabled={loading}
                             {...form.getInputProps('annual', { type: 'checkbox' })}
+                        />
+                        <Checkbox
+                            variant="outline"
+                            label={
+                                <Group gap="xs">
+                                    <IconClipboardList size={18} />
+                                    <Label>Review</Label>
+                                </Group>
+                            }
+                            disabled={loading}
+                            {...form.getInputProps('review', { type: 'checkbox' })}
                         />
                         <Group justify="flex-end" mt="md">
                             <Button

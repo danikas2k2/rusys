@@ -50,6 +50,7 @@ vi.mock(import('~/client/pages/groups/GroupsRow'), () => ({
             <td />
             <td>{group.group}</td>
             <td />
+            <td />
         </tr>
     )),
 }));
@@ -89,7 +90,12 @@ describe('<GroupsTable>', () => {
         const rows = screen.getAllByRole('row');
 
         expect(rows).toHaveLength(3);
-        expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent(['', 'Group', 'Annual']);
+        expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent([
+            '',
+            'Group',
+            'Annual',
+            'Review',
+        ]);
 
         const uogienesRow = rows.find((row) => within(row).queryByText('Uogienės'));
         const darzovesRow = rows.find((row) => within(row).queryByText('Daržovės'));
@@ -97,8 +103,8 @@ describe('<GroupsTable>', () => {
         expect(uogienesRow).toBeInTheDocument();
         expect(darzovesRow).toBeInTheDocument();
 
-        expect(within(uogienesRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'Uogienės', '']);
-        expect(within(darzovesRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'Daržovės', '']);
+        expect(within(uogienesRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'Uogienės', '', '']);
+        expect(within(darzovesRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'Daržovės', '', '']);
     });
 
     describe('renders loader', () => {

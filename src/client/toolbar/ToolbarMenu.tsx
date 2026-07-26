@@ -16,6 +16,7 @@ import { useLabel } from '~/client/hooks/useLabel';
 import { Links } from '~/client/Links';
 import { ExportMenuItem } from '~/client/toolbar/items/ExportMenuItem';
 import { ImportMenuItem } from '~/client/toolbar/items/ImportMenuItem';
+import { ReviewMenuItem } from '~/client/toolbar/items/ReviewMenuItem';
 import { ToolbarMenuIcon } from '~/client/toolbar/ToolbarMenuIcon';
 
 import './ToolbarMenu.pcss';
@@ -76,6 +77,7 @@ export function ToolbarMenu() {
                             active={!!useMatch(Links.SUMMARY)}
                             onClick={close}
                         />
+                        <ReviewMenuItem onClick={close} />
                         <Divider m="xs" />
 
                         <NavLink

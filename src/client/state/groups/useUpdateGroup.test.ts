@@ -30,6 +30,17 @@ describe('useUpdateGroup', () => {
         expect(request).toHaveBeenCalledWith(ApiUrl.GroupsUpdate, { group: 'Uogienės', annual: true });
     });
 
+    it('calls update action with review parameter', async () => {
+        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });
+        await result.current('Uogienės', true, true);
+
+        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsUpdate, {
+            group: 'Uogienės',
+            annual: true,
+            review: true,
+        });
+    });
+
     it('does not call update action with empty group', async () => {
         const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });
         await result.current('');

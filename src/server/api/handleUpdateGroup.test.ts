@@ -19,7 +19,7 @@ describe('handleUpdateGroup', () => {
 
         await handleUpdateGroup(request, response);
 
-        expect(updateGroup).toHaveBeenCalledWith('Uogienės', undefined);
+        expect(updateGroup).toHaveBeenCalledWith('Uogienės', undefined, undefined);
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
@@ -29,7 +29,7 @@ describe('handleUpdateGroup', () => {
 
         await handleUpdateGroup(request, response);
 
-        expect(updateGroup).toHaveBeenCalledWith('Uogienės', undefined);
+        expect(updateGroup).toHaveBeenCalledWith('Uogienės', undefined, undefined);
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true });
     });
@@ -39,7 +39,7 @@ describe('handleUpdateGroup', () => {
 
         await handleUpdateGroup(request, response);
 
-        expect(updateGroup).toHaveBeenCalledWith('Uogienės', undefined);
+        expect(updateGroup).toHaveBeenCalledWith('Uogienės', undefined, undefined);
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to update group' });
     });

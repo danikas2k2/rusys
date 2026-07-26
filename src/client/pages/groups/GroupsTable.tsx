@@ -65,8 +65,11 @@ export function GroupsTable() {
                                     <Label>Group</Label>
                                 </Title>
                             </Table.Th>
-                            <Table.Th w="40%" ta="center">
+                            <Table.Th w="25%" ta="center">
                                 <Label>Annual</Label>
+                            </Table.Th>
+                            <Table.Th w="25%" ta="center">
+                                <Label>Review</Label>
                             </Table.Th>
                         </Table.Tr>
                     </Table.Thead>

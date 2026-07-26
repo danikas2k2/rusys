@@ -159,6 +159,9 @@
           },
           "annual": {
             "type": "boolean"
+          },
+          "review": {
+            "type": "boolean"
           }
         },
         "required": ["group", "order"],

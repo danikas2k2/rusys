@@ -70,6 +70,71 @@ describe('<GroupsRow>', () => {
         expect(document.querySelector('svg')).not.toBeInTheDocument();
     });
 
+    it('renders clipboard icon when review is true', () => {
+        render(
+            <MockTheme>
+                <Table>
+                    <Table.Tbody>
+                        <GroupsRow
+                            group={{ group: 'Uogienės', order: 0, annual: false, review: true }}
+                            reordering={false}
+                        />
+                    </Table.Tbody>
+                </Table>
+            </MockTheme>
+        );
+
+        expect(document.querySelector('svg')).toBeInTheDocument();
+    });
+
+    it('does not render clipboard icon when review is false', () => {
+        render(
+            <MockTheme>
+                <Table>
+                    <Table.Tbody>
+                        <GroupsRow
+                            group={{ group: 'Daržovės', order: 0, annual: false, review: false }}
+                            reordering={false}
+                        />
+                    </Table.Tbody>
+                </Table>
+            </MockTheme>
+        );
+
+        expect(document.querySelector('svg')).not.toBeInTheDocument();
+    });
+
+    it('does not render clipboard icon when review is undefined', () => {
+        render(
+            <MockTheme>
+                <Table>
+                    <Table.Tbody>
+                        <GroupsRow group={{ group: 'Daržovės', order: 0, annual: false }} reordering={false} />
+                    </Table.Tbody>
+                </Table>
+            </MockTheme>
+        );
+
+        expect(document.querySelector('svg')).not.toBeInTheDocument();
+    });
+
+    it('renders both icons when annual and review are true', () => {
+        render(
+            <MockTheme>
+                <Table>
+                    <Table.Tbody>
+                        <GroupsRow
+                            group={{ group: 'Uogienės', order: 0, annual: true, review: true }}
+                            reordering={false}
+                        />
+                    </Table.Tbody>
+                </Table>
+            </MockTheme>
+        );
+
+        expect(document.querySelectorAll('svg')).toHaveLength(2);
+    });
+
     it('passes disabled=true when reordering=true', () => {
         render(
             <MockTheme>

@@ -22,18 +22,18 @@ export const getGroups = async (): Promise<readonly Group[]> =>
         .find({}, { projection: { _id: 0 }, sort: { order: 1, group: 1 } })
         .toArray();
 
-export async function updateGroup(group: string, annual: boolean = true): Promise<boolean> {
+export async function updateGroup(group: string, annual: boolean = true, review: boolean = false): Promise<boolean> {
     if (!group) {
         return false;
     }
     const col = (await db()).collection('groups');
     const order = (await col.findOne<Group>({ group }))?.order;
     return order != null
-        ? col.updateOne({ group }, { $set: { annual } }).then(hasEffect)
+        ? col.updateOne({ group }, { $set: { annual, review } }).then(hasEffect)
         : col
               .aggregate([{ $group: { _id: null, order: { $max: '$order' } } }])
               .next()
-              .then((found) => col.insertOne({ group, order: found ? found.order + 1 : 0, annual }))
+              .then((found) => col.insertOne({ group, order: found ? found.order + 1 : 0, annual, review }))
               .then(hasEffect)
               .catch(hasDuplicates);
 }
@@ -42,12 +42,13 @@ export const renameGroup = async (
     group: string,
     newGroup: string,
     annual: boolean = true,
+    review: boolean = false,
     session?: ClientSession
 ): Promise<boolean> =>
     group && newGroup && group !== newGroup
         ? (await db())
               .collection('groups')
-              .updateOne({ group }, { $set: { group: newGroup, annual } }, { session })
+              .updateOne({ group }, { $set: { group: newGroup, annual, review } }, { session })
               .then(hasEffect)
               .catch(hasDuplicates)
         : false;

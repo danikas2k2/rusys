@@ -73,6 +73,7 @@ export interface Group {
     group: string;
     order: number;
     annual?: boolean;
+    review?: boolean;
 }
 
 export type VariantUnits = 'g' | 'kg' | 'l' | 'ml' | 'vnt';

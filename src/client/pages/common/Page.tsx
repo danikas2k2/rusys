@@ -9,6 +9,7 @@ import { ActiveImportBox } from '~/client/dialogs/ActiveImportBox';
 import { ActiveContentOutsideClick } from '~/client/pages/common/ActiveContentOutsideClick';
 import { ActiveRemoveConfirmation } from '~/client/pages/common/ActiveRemoveConfirmation';
 import { AddAction } from '~/client/pages/common/AddAction';
+import { ActiveReviewBox } from '~/client/pages/review/ActiveReviewBox';
 import { Toolbar } from '~/client/toolbar/Toolbar';
 
 import './Page.pcss';
@@ -41,6 +42,7 @@ export function Page<D = ActiveContentData>({
             {onDelete && <ActiveRemoveConfirmation onConfirm={onDelete} />}
             <ActiveExportBox />
             <ActiveImportBox />
+            <ActiveReviewBox />
         </AppShell>
     );
 }

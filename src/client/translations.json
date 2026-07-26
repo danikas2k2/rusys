@@ -26,6 +26,9 @@
   "Annual": {
     "lt-LT": "Metiniai"
   },
+  "Apply": {
+    "lt-LT": "Taikyti"
+  },
   "April": {
     "lt-LT": "Balandžio"
   },
@@ -181,6 +184,9 @@
   },
   "Increase": {
     "lt-LT": "Didinti"
+  },
+  "Review": {
+    "lt-LT": "Peržiūra"
   },
   "Invalid Client ID": {
     "lt-LT": "Netinkamas kliento ID"

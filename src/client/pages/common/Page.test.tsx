@@ -30,6 +30,10 @@ vi.mock(import('~/client/common/hooks/useSwipeVisible'), () => ({
     useSwipeVisible: vi.fn(() => false),
 }));
 
+vi.mock(import('~/client/pages/review/ActiveReviewBox'), () => ({
+    ActiveReviewBox: vi.fn(() => null),
+}));
+
 describe('<Page>', () => {
     it('renders content and default toolbar', () => {
         render(

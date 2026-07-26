@@ -56,6 +56,16 @@ describe('<GroupBox>', () => {
         expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
     });
 
+    it('renders with the review checkbox checked when initially true', () => {
+        render(
+            <MockApp state={state}>
+                <GroupBox opened group="Initial Group" review onClose={onClose} />
+            </MockApp>
+        );
+
+        expect(screen.getByRole('checkbox', { name: /Review/ })).toBeChecked();
+    });
+
     it('calls onClose when close button is clicked', async () => {
         render(
             <MockApp state={state}>
@@ -141,9 +151,36 @@ describe('<GroupBox>', () => {
             await user.type(screen.getByRole('textbox'), 'Buitinė chemija');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addGroup).toHaveBeenCalledWith('Buitinė chemija', true);
+            expect(addGroup).toHaveBeenCalledWith('Buitinė chemija', true, false);
             expect(onClose).toHaveBeenCalledWith('Buitinė chemija');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
+
+        it('renders with the review checkbox unchecked by default', async () => {
+            render(
+                <MockApp state={state}>
+                    <GroupBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            expect(screen.getByRole('checkbox', { name: /Review/ })).not.toBeChecked();
+        });
+
+        it('sends review = true when the checkbox is checked', async () => {
+            vi.mocked(useUpdateGroup).mockReturnValue(addGroup.mockResolvedValue(true));
+
+            render(
+                <MockApp state={state}>
+                    <GroupBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            await user.type(screen.getByRole('textbox'), 'Buitinė chemija');
+            await user.click(screen.getByRole('checkbox', { name: /Review/ }));
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(addGroup).toHaveBeenCalledWith('Buitinė chemija', true, true);
+            expect(onClose).toHaveBeenCalledWith('Buitinė chemija');
         });
 
         it('displays error without closing dialog when adding fails', async () => {
@@ -156,7 +193,7 @@ describe('<GroupBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Group name' }), 'Buitinė chemija');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addGroup).toHaveBeenCalledWith('Buitinė chemija', true);
+            expect(addGroup).toHaveBeenCalledWith('Buitinė chemija', true, false);
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('alert')).toHaveTextContent('Failed to add');
         });
@@ -230,7 +267,7 @@ describe('<GroupBox>', () => {
             await user.type(screen.getByRole('textbox'), 'Konservai');
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Konservai', true);
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Konservai', true, false);
             expect(onClose).toHaveBeenCalledWith('Konservai');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -248,7 +285,7 @@ describe('<GroupBox>', () => {
             await user.type(screen.getByRole('textbox'), 'Konservai');
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Konservai', true);
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Konservai', true, false);
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('alert')).toHaveTextContent('Failed to rename');
         });

@@ -625,6 +625,22 @@ export async function setMissing(
         .then(hasEffect);
 }
 
+export async function setMissingBulk(
+    updates: readonly { group: string; name: string; missing: boolean }[],
+    session?: ClientSession
+): Promise<boolean> {
+    if (!updates?.length) {
+        return false;
+    }
+    const operations: AnyBulkWriteOperation<Product>[] = updates.map(({ group, name, missing }) => ({
+        updateOne: {
+            filter: { group, name },
+            update: missing ? { $set: { missing: true } } : { $unset: { missing: 1 } },
+        },
+    }));
+    return (await db()).collection('products').bulkWrite(operations, { session }).then(hasEffect);
+}
+
 async function getProductHistory(
     group: string,
     name: string,

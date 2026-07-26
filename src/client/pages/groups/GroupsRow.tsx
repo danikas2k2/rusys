@@ -1,5 +1,5 @@
 import { Table, Title } from '@mantine/core';
-import { IconCalendarClock } from '@tabler/icons-react';
+import { IconCalendarClock, IconClipboardList } from '@tabler/icons-react';
 import React from 'react';
 
 import { Label } from '~/client/common/Label';
@@ -21,6 +21,7 @@ export function GroupsRow({ group, reordering, hidden = false }: GroupsRowProps)
                 </Title>
             </Table.Td>
             <Table.Td ta="center">{(group.annual ?? true) && <IconCalendarClock size={18} />}</Table.Td>
+            <Table.Td ta="center">{group.review && <IconClipboardList size={18} />}</Table.Td>
         </SortableRow>
     );
 }
