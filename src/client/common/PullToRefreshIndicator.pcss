@@ -1,0 +1,36 @@
+.pull-to-refresh {
+    --indicator-size: 36px;
+
+    position: relative;
+
+    .pull-to-refresh-indicator {
+        position: absolute;
+        top: calc(-1 * var(--indicator-size));
+        left: 0;
+        right: 0;
+        height: var(--indicator-size);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--mantine-color-dimmed);
+        pointer-events: none;
+
+        svg {
+            transform: rotate(calc(var(--pull-distance, 0px) * 2deg));
+        }
+    }
+
+    &[data-pulling="true"] {
+        .pull-to-refresh-indicator,
+        .pull-to-refresh-content {
+            transform: translateY(var(--pull-distance, 0px));
+        }
+    }
+
+    &:not([data-dragging="true"]) {
+        .pull-to-refresh-indicator,
+        .pull-to-refresh-content {
+            transition: transform 200ms ease;
+        }
+    }
+}

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Label } from '~/client/common/Label';
+import { useRegisterRefresh } from '~/client/common/RefreshContext';
 import { ScreenError } from '~/client/common/ScreenError';
 import { ScreenLoader } from '~/client/common/ScreenLoader';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
@@ -14,6 +15,7 @@ interface LoadableContentProps {
 
 export function LoadableContent({ loader, hasData, children }: React.PropsWithChildren<LoadableContentProps>) {
     const loading = useLockingLoader(loader);
+    useRegisterRefresh(loader);
 
     if (loading === LoadingState.INITIAL || loading === LoadingState.LOADING) {
         return <ScreenLoader />;

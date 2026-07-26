@@ -1,12 +1,8 @@
 .ui-Flex-root[data-loading="true"] {
-    position: absolute;
-    inset: var(--safe-block-start) var(--safe-inline-end) var(--safe-block-end) var(--safe-inline-start);
-    margin-block-start: 25vh;
-
-    &[data-loading="true"] {
-        position: fixed;
-        margin: auto;
-        width: fit-content;
-        height: fit-content;
-    }
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
+    z-index: var(--mantine-z-index-max);
 }
