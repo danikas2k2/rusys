@@ -6,9 +6,11 @@ import { Error } from '~/client/common/Error';
 import { Label } from '~/client/common/Label';
 import { ScreenLoader } from '~/client/common/ScreenLoader';
 import { useUnderDevelopment } from '~/client/hooks/useUnderDevelopment';
+import { useVisualViewportHeight } from '~/client/hooks/useVisualViewportHeight';
 import { useGoogleClientId } from '~/client/state/google/useGoogleClientId';
 
 export function App() {
+    useVisualViewportHeight();
     const isUnderDevelopment = useUnderDevelopment();
     const clientId = useGoogleClientId();
     const [error, setError] = useState(false);

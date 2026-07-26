@@ -102,6 +102,56 @@ describe('<ConfirmableModal>', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
+    it('scrolls a focused input into view after the keyboard has time to animate in', async () => {
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        const scrollIntoView = vi.fn();
+        HTMLElement.prototype.scrollIntoView = scrollIntoView;
+
+        try {
+            render(
+                <MockTheme>
+                    <ConfirmableModal opened isDirty={() => false} onClose={onClose}>
+                        {() => <input aria-label="Name" />}
+                    </ConfirmableModal>
+                </MockTheme>
+            );
+
+            const input = screen.getByRole('textbox', { name: 'Name' });
+            await user.click(input);
+
+            expect(scrollIntoView).not.toHaveBeenCalled();
+
+            vi.advanceTimersByTime(300);
+
+            expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', behavior: 'smooth' });
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it('does not scroll on focus for non-input elements', async () => {
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        const scrollIntoView = vi.fn();
+        HTMLElement.prototype.scrollIntoView = scrollIntoView;
+
+        try {
+            render(
+                <MockTheme>
+                    <ConfirmableModal opened isDirty={() => false} onClose={onClose}>
+                        {() => <button type="button">Focus me</button>}
+                    </ConfirmableModal>
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Focus me' }));
+            vi.advanceTimersByTime(300);
+
+            expect(scrollIntoView).not.toHaveBeenCalled();
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
     it('guards escape/click-outside/header-close through the same handleClose', async () => {
         render(
             <MockTheme>

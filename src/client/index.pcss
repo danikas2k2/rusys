@@ -153,6 +153,17 @@ select,
     backdrop-filter: blur(2px);
 }
 
+// Keep modals sized to the space actually left on screen once the mobile keyboard opens.
+// window.visualViewport (see useVisualViewportHeight) tracks this more reliably across
+// browsers than the dvh unit, which some mobile browsers don't shrink for the keyboard.
+.ui-Modal-root {
+    --modal-content-max-height: calc(var(--visual-viewport-height, 100dvh) - var(--modal-y-offset) * 2);
+}
+
+.ui-Modal-root[data-full-screen="true"] .ui-Modal-content {
+    --modal-content-height: var(--visual-viewport-height, 100dvh);
+}
+
 .ui-Modal-title {
     font-size: var(--mantine-font-size-xl);
     font-weight: var(--mantine-font-weight-lg);

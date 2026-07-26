@@ -13,7 +13,7 @@ export function AmountViewToggle() {
         {
             value: 'total',
             label: (
-                <ThemeIcon color="text" variant={amountView === 'total' ? 'filled' : 'subtle'}>
+                <ThemeIcon color="text" c="text" variant="subtle">
                     <IconWeight size={22} aria-label={_('Total quantity')} />
                 </ThemeIcon>
             ),
@@ -21,7 +21,7 @@ export function AmountViewToggle() {
         {
             value: 'detailed',
             label: (
-                <ThemeIcon color="text" variant={amountView === 'detailed' ? 'filled' : 'subtle'}>
+                <ThemeIcon color="text" c="text" variant="subtle">
                     <IconIcons size={22} aria-label={_('Detailed')} />
                 </ThemeIcon>
             ),
