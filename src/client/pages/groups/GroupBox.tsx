@@ -1,11 +1,10 @@
-import { Button, Checkbox, Group, Modal, Stack, TextInput } from '@mantine/core';
+import { Button, Checkbox, Group, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconCalendarClock, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { DiscardChangesDialog } from '~/client/common/DiscardChangesDialog';
+import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { Label } from '~/client/common/Label';
-import { useConfirmClose } from '~/client/hooks/useConfirmClose';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useRenameGroup } from '~/client/state/groups/useRenameGroup';
@@ -134,24 +133,20 @@ export function GroupBox({
         }
     };
 
-    const { handleClose, confirming, handleConfirmDiscard, handleCancelDiscard } = useConfirmClose(
-        () => formRef.current.isDirty(),
-        () => onClose()
-    );
-
     return (
-        <>
-            <Modal
-                centered
-                opened={!!opened}
-                title={_(isEditing ? 'Edit group' : 'Add new group')}
-                withCloseButton
-                onClose={handleClose}
-                onExitTransitionEnd={onAfterClose}
-                closeOnEscape={!loading}
-                closeOnClickOutside={!loading}
-                closeButtonProps={{ 'aria-label': _('Close') }}
-            >
+        <ConfirmableModal
+            centered
+            opened={!!opened}
+            title={_(isEditing ? 'Edit group' : 'Add new group')}
+            withCloseButton
+            isDirty={() => formRef.current.isDirty()}
+            onClose={() => onClose()}
+            onExitTransitionEnd={onAfterClose}
+            closeOnEscape={!loading}
+            closeOnClickOutside={!loading}
+            closeButtonProps={{ 'aria-label': _('Close') }}
+        >
+            {(handleClose) => (
                 <form onSubmit={handleSubmit}>
                     <Stack>
                         <TextInput
@@ -194,8 +189,7 @@ export function GroupBox({
                         </Group>
                     </Stack>
                 </form>
-            </Modal>
-            <DiscardChangesDialog opened={confirming} onConfirm={handleConfirmDiscard} onClose={handleCancelDiscard} />
-        </>
+            )}
+        </ConfirmableModal>
     );
 }

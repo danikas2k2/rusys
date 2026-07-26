@@ -1,12 +1,11 @@
-import { Button, Group, Modal, NumberInput, Select, Stack, TextInput } from '@mantine/core';
+import { Button, Group, NumberInput, Select, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconCheck, IconCopy, IconPlus, IconX } from '@tabler/icons-react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { DiscardChangesDialog } from '~/client/common/DiscardChangesDialog';
+import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { Label } from '~/client/common/Label';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
-import { useConfirmClose } from '~/client/hooks/useConfirmClose';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useCopyVariant } from '~/client/state/variants/useCopyVariant';
@@ -223,11 +222,6 @@ export function VariantBox({
         }
     };
 
-    const { handleClose, confirming, handleConfirmDiscard, handleCancelDiscard } = useConfirmClose(
-        () => formRef.current.isDirty(),
-        () => onClose()
-    );
-
     const getButtonContent = () => {
         if (isCopying || (isEditing && form.values.group !== initialGroup)) {
             return {
@@ -250,18 +244,19 @@ export function VariantBox({
     const buttonContent = getButtonContent();
 
     return (
-        <>
-            <Modal
-                centered
-                opened={!!opened}
-                title={_(isEditing ? 'Edit variant' : 'Add new variant')}
-                withCloseButton
-                onClose={handleClose}
-                onExitTransitionEnd={onAfterClose}
-                closeOnEscape={!loading}
-                closeOnClickOutside={!loading}
-                closeButtonProps={{ 'aria-label': _('Close') }}
-            >
+        <ConfirmableModal
+            centered
+            opened={!!opened}
+            title={_(isEditing ? 'Edit variant' : 'Add new variant')}
+            withCloseButton
+            isDirty={() => formRef.current.isDirty()}
+            onClose={() => onClose()}
+            onExitTransitionEnd={onAfterClose}
+            closeOnEscape={!loading}
+            closeOnClickOutside={!loading}
+            closeButtonProps={{ 'aria-label': _('Close') }}
+        >
+            {(handleClose) => (
                 <form onSubmit={handleSubmit}>
                     <Stack>
                         <Select
@@ -332,8 +327,7 @@ export function VariantBox({
                         </Group>
                     </Stack>
                 </form>
-            </Modal>
-            <DiscardChangesDialog opened={confirming} onConfirm={handleConfirmDiscard} onClose={handleCancelDiscard} />
-        </>
+            )}
+        </ConfirmableModal>
     );
 }

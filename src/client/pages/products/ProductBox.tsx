@@ -1,12 +1,11 @@
-import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core';
+import { Button, Group, Select, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconArrowRight, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { DiscardChangesDialog } from '~/client/common/DiscardChangesDialog';
+import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { Label } from '~/client/common/Label';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
-import { useConfirmClose } from '~/client/hooks/useConfirmClose';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useAddProduct } from '~/client/state/products/useAddProduct';
@@ -162,11 +161,6 @@ export function ProductBox({
         }
     };
 
-    const { handleClose, confirming, handleConfirmDiscard, handleCancelDiscard } = useConfirmClose(
-        () => formRef.current.isDirty(),
-        () => onClose()
-    );
-
     // Determine button content
     const getButtonContent = () => {
         if (isMoving || (isEditing && form.values.group !== initialGroup)) {
@@ -190,18 +184,19 @@ export function ProductBox({
     const buttonContent = getButtonContent();
 
     return (
-        <>
-            <Modal
-                centered
-                opened={opened}
-                title={_(isEditing ? 'Edit entry' : 'Add new entry')}
-                withCloseButton
-                onClose={handleClose}
-                closeOnEscape={!loading}
-                closeOnClickOutside={!loading}
-                closeButtonProps={{ 'aria-label': _('Close') }}
-                onExitTransitionEnd={onAfterClose}
-            >
+        <ConfirmableModal
+            centered
+            opened={opened}
+            title={_(isEditing ? 'Edit entry' : 'Add new entry')}
+            withCloseButton
+            isDirty={() => formRef.current.isDirty()}
+            onClose={() => onClose()}
+            closeOnEscape={!loading}
+            closeOnClickOutside={!loading}
+            closeButtonProps={{ 'aria-label': _('Close') }}
+            onExitTransitionEnd={onAfterClose}
+        >
+            {(handleClose) => (
                 <form onSubmit={handleSubmit}>
                     <Stack>
                         <Select
@@ -245,8 +240,7 @@ export function ProductBox({
                         </Group>
                     </Stack>
                 </form>
-            </Modal>
-            <DiscardChangesDialog opened={confirming} onConfirm={handleConfirmDiscard} onClose={handleCancelDiscard} />
-        </>
+            )}
+        </ConfirmableModal>
     );
 }

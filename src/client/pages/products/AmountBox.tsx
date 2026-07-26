@@ -1,10 +1,9 @@
-import { Modal, Tabs, type ModalProps } from '@mantine/core';
+import { Tabs, type ModalProps } from '@mantine/core';
 import { IconHistory, IconStack2 } from '@tabler/icons-react';
 import React, { useCallback, useState } from 'react';
 
-import { DiscardChangesDialog } from '~/client/common/DiscardChangesDialog';
+import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { Label } from '~/client/common/Label';
-import { useConfirmClose } from '~/client/hooks/useConfirmClose';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AmountHistoryTab } from '~/client/pages/products/AmountHistoryTab';
 import { AmountVariantsTab } from '~/client/pages/products/AmountVariantsTab';
@@ -21,27 +20,23 @@ export function AmountBox({ opened = false, title, onClose, onAfterClose }: Valu
     const _ = useLabels();
     const [hasChanges, setHasChanges] = useState(false);
 
-    const { handleClose, confirming, handleConfirmDiscard, handleCancelDiscard } = useConfirmClose(
-        () => hasChanges,
-        () => onClose?.()
-    );
-
     const handleExitTransitionEnd = useCallback(() => {
         onAfterClose?.();
     }, [onAfterClose]);
 
     return (
-        <>
-            <Modal
-                fullScreen
-                opened={opened}
-                withCloseButton
-                onClose={handleClose}
-                closeButtonProps={{ 'aria-label': _('Close') }}
-                onExitTransitionEnd={handleExitTransitionEnd}
-                title={title}
-                data-dialog="product"
-            >
+        <ConfirmableModal
+            fullScreen
+            opened={opened}
+            withCloseButton
+            isDirty={() => hasChanges}
+            onClose={() => onClose?.()}
+            closeButtonProps={{ 'aria-label': _('Close') }}
+            onExitTransitionEnd={handleExitTransitionEnd}
+            title={title}
+            data-dialog="product"
+        >
+            {() => (
                 <Tabs
                     variant="outline"
                     radius="sm"
@@ -65,8 +60,7 @@ export function AmountBox({ opened = false, title, onClose, onAfterClose }: Valu
                         <AmountHistoryTab />
                     </Tabs.Panel>
                 </Tabs>
-            </Modal>
-            <DiscardChangesDialog opened={confirming} onConfirm={handleConfirmDiscard} onClose={handleCancelDiscard} />
-        </>
+            )}
+        </ConfirmableModal>
     );
 }
