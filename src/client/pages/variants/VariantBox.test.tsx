@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
@@ -115,6 +115,64 @@ describe('<VariantBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onClose).toHaveBeenCalledWith();
+    });
+
+    describe('discard confirmation', () => {
+        it('closes without confirmation when the form is untouched', async () => {
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+            expect(onClose).toHaveBeenCalledWith();
+            expect(screen.queryByRole('button', { name: 'Discard' })).not.toBeInTheDocument();
+        });
+
+        it('asks for confirmation instead of closing when the form was changed', async () => {
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test');
+            await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('button', { name: 'Discard' })).toBeInTheDocument();
+        });
+
+        it('closes after confirming discard', async () => {
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test');
+            await user.click(screen.getByRole('button', { name: 'Cancel' }));
+            await user.click(screen.getByRole('button', { name: 'Discard' }));
+
+            expect(onClose).toHaveBeenCalledWith();
+        });
+
+        it('keeps the dialog open when cancelling the discard confirmation', async () => {
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test');
+            await user.click(screen.getByRole('button', { name: 'Cancel' }));
+            await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }));
+
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveValue('test');
+        });
     });
 
     describe('calls update variant handler when adding a new entry', () => {

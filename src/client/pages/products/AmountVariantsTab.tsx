@@ -9,7 +9,7 @@ import {
     IconTilde,
     IconX,
 } from '@tabler/icons-react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { ChangeBadge } from '~/client/common/ChangeBadge';
@@ -47,7 +47,11 @@ function fromKey(key: string): { variant: string; suspicious: boolean; home: boo
     return { variant: suspicious ? key.slice(0, -SUSPICIOUS_SUFFIX.length) : key, suspicious, home: false };
 }
 
-export function AmountVariantsTab() {
+interface AmountVariantsTabProps {
+    onChangesUpdate?: (hasChanges: boolean) => void;
+}
+
+export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = {}) {
     const _ = useLabels();
     const [active] = useActiveContent<ProductAmounts>();
     const [, setUpdating] = useUpdatingProducts();
@@ -163,6 +167,10 @@ export function AmountVariantsTab() {
         () => Object.values(allDeltas).some((d) => d.updated !== 0 || d.consumed !== 0 || d.recycled !== 0),
         [allDeltas]
     );
+
+    useEffect(() => {
+        onChangesUpdate?.(hasChanges);
+    }, [hasChanges, onChangesUpdate]);
 
     const handleCancel = useCallback(() => {
         setAllDeltas({});

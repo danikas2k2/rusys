@@ -3,7 +3,9 @@ import { useForm } from '@mantine/form';
 import { IconCalendarClock, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
+import { DiscardChangesDialog } from '~/client/common/DiscardChangesDialog';
 import { Label } from '~/client/common/Label';
+import { useConfirmClose } from '~/client/hooks/useConfirmClose';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useRenameGroup } from '~/client/state/groups/useRenameGroup';
@@ -132,62 +134,68 @@ export function GroupBox({
         }
     };
 
-    const handleClose = () => onClose();
+    const { handleClose, confirming, handleConfirmDiscard, handleCancelDiscard } = useConfirmClose(
+        () => formRef.current.isDirty(),
+        () => onClose()
+    );
 
     return (
-        <Modal
-            centered
-            opened={!!opened}
-            title={_(isEditing ? 'Edit group' : 'Add new group')}
-            withCloseButton
-            onClose={handleClose}
-            onExitTransitionEnd={onAfterClose}
-            closeOnEscape={!loading}
-            closeOnClickOutside={!loading}
-            closeButtonProps={{ 'aria-label': _('Close') }}
-        >
-            <form onSubmit={handleSubmit}>
-                <Stack>
-                    <TextInput
-                        ref={inputRef}
-                        label={_('Group name')}
-                        placeholder={_('Enter group name')}
-                        withAsterisk
-                        disabled={loading}
-                        {...form.getInputProps('group')}
-                    />
-                    <Checkbox
-                        variant="outline"
-                        label={
-                            <Group gap="xs">
-                                <IconCalendarClock size={18} />
-                                <Label>Annual</Label>
-                            </Group>
-                        }
-                        disabled={loading}
-                        {...form.getInputProps('annual', { type: 'checkbox' })}
-                    />
-                    <Group justify="flex-end" mt="md">
-                        <Button
-                            variant="outline"
-                            color="gray"
+        <>
+            <Modal
+                centered
+                opened={!!opened}
+                title={_(isEditing ? 'Edit group' : 'Add new group')}
+                withCloseButton
+                onClose={handleClose}
+                onExitTransitionEnd={onAfterClose}
+                closeOnEscape={!loading}
+                closeOnClickOutside={!loading}
+                closeButtonProps={{ 'aria-label': _('Close') }}
+            >
+                <form onSubmit={handleSubmit}>
+                    <Stack>
+                        <TextInput
+                            ref={inputRef}
+                            label={_('Group name')}
+                            placeholder={_('Enter group name')}
+                            withAsterisk
                             disabled={loading}
-                            leftSection={<IconX size={18} />}
-                            onClick={handleClose}
-                        >
-                            <Label>Cancel</Label>
-                        </Button>
-                        <Button
-                            type="submit"
-                            loading={loading}
-                            leftSection={isEditing ? <IconCheck size={18} /> : <IconPlus size={18} />}
-                            color={!isEditing ? 'positive' : undefined}
-                        >
-                            <Label>{isEditing ? 'Update' : 'Add'}</Label>
-                        </Button>
-                    </Group>
-                </Stack>
-            </form>
-        </Modal>
+                            {...form.getInputProps('group')}
+                        />
+                        <Checkbox
+                            variant="outline"
+                            label={
+                                <Group gap="xs">
+                                    <IconCalendarClock size={18} />
+                                    <Label>Annual</Label>
+                                </Group>
+                            }
+                            disabled={loading}
+                            {...form.getInputProps('annual', { type: 'checkbox' })}
+                        />
+                        <Group justify="flex-end" mt="md">
+                            <Button
+                                variant="outline"
+                                color="gray"
+                                disabled={loading}
+                                leftSection={<IconX size={18} />}
+                                onClick={handleClose}
+                            >
+                                <Label>Cancel</Label>
+                            </Button>
+                            <Button
+                                type="submit"
+                                loading={loading}
+                                leftSection={isEditing ? <IconCheck size={18} /> : <IconPlus size={18} />}
+                                color={!isEditing ? 'positive' : undefined}
+                            >
+                                <Label>{isEditing ? 'Update' : 'Add'}</Label>
+                            </Button>
+                        </Group>
+                    </Stack>
+                </form>
+            </Modal>
+            <DiscardChangesDialog opened={confirming} onConfirm={handleConfirmDiscard} onClose={handleCancelDiscard} />
+        </>
     );
 }

@@ -1,10 +1,11 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { AmountBox } from '~/client/pages/products/AmountBox';
+import { AmountVariantsTab } from '~/client/pages/products/AmountVariantsTab';
 
 vi.mock(import('~/client/pages/products/AmountHistoryTab'), () => ({
     AmountHistoryTab: vi.fn().mockReturnValue(null),
@@ -49,6 +50,84 @@ describe('<AmountBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    describe('discard confirmation', () => {
+        function mockHasChanges(hasChanges: boolean) {
+            vi.mocked(AmountVariantsTab).mockImplementation(
+                ({ onChangesUpdate }: { onChangesUpdate?: (hasChanges: boolean) => void }) => {
+                    useEffect(() => {
+                        onChangesUpdate?.(hasChanges);
+                    }, [onChangesUpdate]);
+                    return null;
+                }
+            );
+        }
+
+        it('closes without confirmation when there are no unsaved changes', async () => {
+            mockHasChanges(false);
+            const onClose = vi.fn();
+
+            render(
+                <MockTheme>
+                    <AmountBox opened onClose={onClose} />
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Close' }));
+
+            expect(onClose).toHaveBeenCalledTimes(1);
+            expect(screen.queryByRole('button', { name: 'Discard' })).not.toBeInTheDocument();
+        });
+
+        it('asks for confirmation instead of closing when there are unsaved changes', async () => {
+            mockHasChanges(true);
+            const onClose = vi.fn();
+
+            render(
+                <MockTheme>
+                    <AmountBox opened onClose={onClose} />
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Close' }));
+
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('button', { name: 'Discard' })).toBeInTheDocument();
+        });
+
+        it('closes after confirming discard', async () => {
+            mockHasChanges(true);
+            const onClose = vi.fn();
+
+            render(
+                <MockTheme>
+                    <AmountBox opened onClose={onClose} />
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Close' }));
+            await user.click(screen.getByRole('button', { name: 'Discard' }));
+
+            expect(onClose).toHaveBeenCalledTimes(1);
+        });
+
+        it('keeps the dialog open when cancelling the discard confirmation', async () => {
+            mockHasChanges(true);
+            const onClose = vi.fn();
+
+            render(
+                <MockTheme>
+                    <AmountBox opened onClose={onClose} />
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Close' }));
+            await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }));
+
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('dialog')).toBeInTheDocument();
+        });
     });
 
     it('calls onAfterClose after exit transition ends', async () => {

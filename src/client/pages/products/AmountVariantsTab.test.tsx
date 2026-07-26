@@ -141,13 +141,29 @@ describe('<AmountVariantsTab>', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    function renderTab(active: ProductAmounts = baseActive) {
+    function renderTab(active: ProductAmounts = baseActive, onChangesUpdate?: (hasChanges: boolean) => void) {
         return render(
             <MockThemeActive active={{ action: 'values', data: active }}>
-                <AmountVariantsTab />
+                <AmountVariantsTab onChangesUpdate={onChangesUpdate} />
             </MockThemeActive>
         );
     }
+
+    it('reports changes via onChangesUpdate as deltas are entered and cleared', async () => {
+        const onChangesUpdate = vi.fn();
+        renderTab(baseActive, onChangesUpdate);
+
+        expect(onChangesUpdate).toHaveBeenLastCalledWith(false);
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('decrease-updated')[0]);
+
+        expect(onChangesUpdate).toHaveBeenLastCalledWith(true);
+
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+        expect(onChangesUpdate).toHaveBeenLastCalledWith(false);
+    });
 
     it('shows only variants with amount > 0', () => {
         renderTab({

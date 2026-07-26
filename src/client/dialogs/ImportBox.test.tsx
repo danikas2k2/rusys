@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockPage } from '@tests/MockPage';
@@ -112,6 +112,73 @@ describe('<ImportBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onClose).toHaveBeenCalledWith();
+    });
+
+    describe('discard confirmation', () => {
+        it('closes without confirmation when no file is selected', async () => {
+            render(
+                <MockPage state={state}>
+                    <ImportBox opened onClose={onClose} />
+                </MockPage>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+            expect(onClose).toHaveBeenCalledWith();
+            expect(screen.queryByRole('button', { name: 'Discard' })).not.toBeInTheDocument();
+        });
+
+        it('asks for confirmation instead of closing when a file is selected', async () => {
+            render(
+                <MockPage state={state}>
+                    <ImportBox opened onClose={onClose} />
+                </MockPage>
+            );
+
+            const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
+            const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+            await user.upload(fileInput, file);
+
+            await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('button', { name: 'Discard' })).toBeInTheDocument();
+        });
+
+        it('closes after confirming discard', async () => {
+            render(
+                <MockPage state={state}>
+                    <ImportBox opened onClose={onClose} />
+                </MockPage>
+            );
+
+            const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
+            const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+            await user.upload(fileInput, file);
+
+            await user.click(screen.getByRole('button', { name: 'Cancel' }));
+            await user.click(screen.getByRole('button', { name: 'Discard' }));
+
+            expect(onClose).toHaveBeenCalledWith();
+        });
+
+        it('keeps the dialog open when cancelling the discard confirmation', async () => {
+            render(
+                <MockPage state={state}>
+                    <ImportBox opened onClose={onClose} />
+                </MockPage>
+            );
+
+            const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
+            const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+            await user.upload(fileInput, file);
+
+            await user.click(screen.getByRole('button', { name: 'Cancel' }));
+            await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }));
+
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByText('test.json')).toBeInTheDocument();
+        });
     });
 
     describe('calls import handler when importing a file', () => {

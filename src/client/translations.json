@@ -92,6 +92,12 @@
   "Detailed": {
     "lt-LT": "Detaliai"
   },
+  "Discard": {
+    "lt-LT": "Atmesti"
+  },
+  "Discard unsaved changes?": {
+    "lt-LT": "Atmesti neišsaugotus pakeitimus?"
+  },
   "Drag JSON file here or click to select": {
     "lt-LT": "Vilkite JSON failą čia arba spustelėkite ir pasirinkite"
   },

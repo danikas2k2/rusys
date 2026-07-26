@@ -3,8 +3,10 @@ import { useForm } from '@mantine/form';
 import { IconCheck, IconCopy, IconPlus, IconX } from '@tabler/icons-react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
+import { DiscardChangesDialog } from '~/client/common/DiscardChangesDialog';
 import { Label } from '~/client/common/Label';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
+import { useConfirmClose } from '~/client/hooks/useConfirmClose';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useCopyVariant } from '~/client/state/variants/useCopyVariant';
@@ -221,7 +223,10 @@ export function VariantBox({
         }
     };
 
-    const handleClose = () => onClose();
+    const { handleClose, confirming, handleConfirmDiscard, handleCancelDiscard } = useConfirmClose(
+        () => formRef.current.isDirty(),
+        () => onClose()
+    );
 
     const getButtonContent = () => {
         if (isCopying || (isEditing && form.values.group !== initialGroup)) {
@@ -245,87 +250,90 @@ export function VariantBox({
     const buttonContent = getButtonContent();
 
     return (
-        <Modal
-            centered
-            opened={!!opened}
-            title={_(isEditing ? 'Edit variant' : 'Add new variant')}
-            withCloseButton
-            onClose={handleClose}
-            onExitTransitionEnd={onAfterClose}
-            closeOnEscape={!loading}
-            closeOnClickOutside={!loading}
-            closeButtonProps={{ 'aria-label': _('Close') }}
-        >
-            <form onSubmit={handleSubmit}>
-                <Stack>
-                    <Select
-                        ref={groupRef}
-                        label={_('Group')}
-                        placeholder={_('Select group')}
-                        data={groups}
-                        withAsterisk
-                        withAlignedLabels
-                        checkIconPosition="left"
-                        disabled={loading}
-                        searchable
-                        {...form.getInputProps('group')}
-                    />
-                    <TextInput
-                        ref={nameRef}
-                        label={_('Variant name')}
-                        placeholder={_('Enter variant name')}
-                        disabled={loading}
-                        withAsterisk={showNameAsterisk}
-                        {...form.getInputProps('name')}
-                    />
-                    <Group align="flex-start" grow>
-                        <NumberInput
-                            label={_('Amount')}
-                            placeholder={_('e.g. 500')}
-                            min={MIN_COUNT}
-                            disabled={loading}
-                            withAsterisk={showCountAsterisk}
-                            {...form.getInputProps('count')}
-                            error={!!form.errors.count}
-                        />
+        <>
+            <Modal
+                centered
+                opened={!!opened}
+                title={_(isEditing ? 'Edit variant' : 'Add new variant')}
+                withCloseButton
+                onClose={handleClose}
+                onExitTransitionEnd={onAfterClose}
+                closeOnEscape={!loading}
+                closeOnClickOutside={!loading}
+                closeButtonProps={{ 'aria-label': _('Close') }}
+            >
+                <form onSubmit={handleSubmit}>
+                    <Stack>
                         <Select
-                            label={_('Units')}
-                            data={UNITS_OPTIONS}
-                            disabled={loading}
+                            ref={groupRef}
+                            label={_('Group')}
+                            placeholder={_('Select group')}
+                            data={groups}
+                            withAsterisk
                             withAlignedLabels
                             checkIconPosition="left"
-                            searchable
-                            allowDeselect={false}
-                            {...form.getInputProps('units')}
-                        />
-                    </Group>
-                    <TextInput
-                        label={_('Suffix')}
-                        placeholder={_('Enter suffix')}
-                        disabled={loading}
-                        {...form.getInputProps('suffix')}
-                    />
-                    <Group justify="flex-end" mt="md">
-                        <Button
-                            variant="outline"
-                            color="gray"
                             disabled={loading}
-                            leftSection={<IconX size={18} />}
-                            onClick={handleClose}
-                        >
-                            <Label>Cancel</Label>
-                        </Button>
-                        <Button
-                            type="submit"
-                            loading={loading}
-                            leftSection={buttonContent.icon}
-                            color={!isEditing ? 'positive' : undefined}
-                        >
-                            <Label>{buttonContent.label}</Label>
-                        </Button>
-                    </Group>
-                </Stack>
-            </form>
-        </Modal>
+                            searchable
+                            {...form.getInputProps('group')}
+                        />
+                        <TextInput
+                            ref={nameRef}
+                            label={_('Variant name')}
+                            placeholder={_('Enter variant name')}
+                            disabled={loading}
+                            withAsterisk={showNameAsterisk}
+                            {...form.getInputProps('name')}
+                        />
+                        <Group align="flex-start" grow>
+                            <NumberInput
+                                label={_('Amount')}
+                                placeholder={_('e.g. 500')}
+                                min={MIN_COUNT}
+                                disabled={loading}
+                                withAsterisk={showCountAsterisk}
+                                {...form.getInputProps('count')}
+                                error={!!form.errors.count}
+                            />
+                            <Select
+                                label={_('Units')}
+                                data={UNITS_OPTIONS}
+                                disabled={loading}
+                                withAlignedLabels
+                                checkIconPosition="left"
+                                searchable
+                                allowDeselect={false}
+                                {...form.getInputProps('units')}
+                            />
+                        </Group>
+                        <TextInput
+                            label={_('Suffix')}
+                            placeholder={_('Enter suffix')}
+                            disabled={loading}
+                            {...form.getInputProps('suffix')}
+                        />
+                        <Group justify="flex-end" mt="md">
+                            <Button
+                                variant="outline"
+                                color="gray"
+                                disabled={loading}
+                                leftSection={<IconX size={18} />}
+                                onClick={handleClose}
+                            >
+                                <Label>Cancel</Label>
+                            </Button>
+                            <Button
+                                type="submit"
+                                loading={loading}
+                                leftSection={buttonContent.icon}
+                                color={!isEditing ? 'positive' : undefined}
+                            >
+                                <Label>{buttonContent.label}</Label>
+                            </Button>
+                        </Group>
+                    </Stack>
+                </form>
+            </Modal>
+            <DiscardChangesDialog opened={confirming} onConfirm={handleConfirmDiscard} onClose={handleCancelDiscard} />
+        </>
     );
 }

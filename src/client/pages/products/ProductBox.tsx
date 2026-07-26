@@ -3,8 +3,10 @@ import { useForm } from '@mantine/form';
 import { IconArrowRight, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
+import { DiscardChangesDialog } from '~/client/common/DiscardChangesDialog';
 import { Label } from '~/client/common/Label';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
+import { useConfirmClose } from '~/client/hooks/useConfirmClose';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useAddProduct } from '~/client/state/products/useAddProduct';
@@ -160,7 +162,10 @@ export function ProductBox({
         }
     };
 
-    const handleClose = () => onClose();
+    const { handleClose, confirming, handleConfirmDiscard, handleCancelDiscard } = useConfirmClose(
+        () => formRef.current.isDirty(),
+        () => onClose()
+    );
 
     // Determine button content
     const getButtonContent = () => {
@@ -185,60 +190,63 @@ export function ProductBox({
     const buttonContent = getButtonContent();
 
     return (
-        <Modal
-            centered
-            opened={opened}
-            title={_(isEditing ? 'Edit entry' : 'Add new entry')}
-            withCloseButton
-            onClose={handleClose}
-            closeOnEscape={!loading}
-            closeOnClickOutside={!loading}
-            closeButtonProps={{ 'aria-label': _('Close') }}
-            onExitTransitionEnd={onAfterClose}
-        >
-            <form onSubmit={handleSubmit}>
-                <Stack>
-                    <Select
-                        ref={groupRef}
-                        label={_('Group')}
-                        placeholder={_('Select group')}
-                        data={groups}
-                        withAsterisk
-                        withAlignedLabels
-                        checkIconPosition="left"
-                        disabled={loading}
-                        searchable
-                        {...form.getInputProps('group')}
-                    />
-                    <TextInput
-                        ref={nameRef}
-                        label={_('Title')}
-                        placeholder={_('Enter name')}
-                        withAsterisk
-                        disabled={loading}
-                        {...form.getInputProps('name')}
-                    />
-                    <Group justify="flex-end" mt="md">
-                        <Button
-                            variant="outline"
-                            color="gray"
+        <>
+            <Modal
+                centered
+                opened={opened}
+                title={_(isEditing ? 'Edit entry' : 'Add new entry')}
+                withCloseButton
+                onClose={handleClose}
+                closeOnEscape={!loading}
+                closeOnClickOutside={!loading}
+                closeButtonProps={{ 'aria-label': _('Close') }}
+                onExitTransitionEnd={onAfterClose}
+            >
+                <form onSubmit={handleSubmit}>
+                    <Stack>
+                        <Select
+                            ref={groupRef}
+                            label={_('Group')}
+                            placeholder={_('Select group')}
+                            data={groups}
+                            withAsterisk
+                            withAlignedLabels
+                            checkIconPosition="left"
                             disabled={loading}
-                            leftSection={<IconX size={18} />}
-                            onClick={handleClose}
-                        >
-                            <Label>Cancel</Label>
-                        </Button>
-                        <Button
-                            type="submit"
-                            loading={loading}
-                            leftSection={buttonContent.icon}
-                            color={!isEditing ? 'positive' : undefined}
-                        >
-                            <Label>{buttonContent.label}</Label>
-                        </Button>
-                    </Group>
-                </Stack>
-            </form>
-        </Modal>
+                            searchable
+                            {...form.getInputProps('group')}
+                        />
+                        <TextInput
+                            ref={nameRef}
+                            label={_('Title')}
+                            placeholder={_('Enter name')}
+                            withAsterisk
+                            disabled={loading}
+                            {...form.getInputProps('name')}
+                        />
+                        <Group justify="flex-end" mt="md">
+                            <Button
+                                variant="outline"
+                                color="gray"
+                                disabled={loading}
+                                leftSection={<IconX size={18} />}
+                                onClick={handleClose}
+                            >
+                                <Label>Cancel</Label>
+                            </Button>
+                            <Button
+                                type="submit"
+                                loading={loading}
+                                leftSection={buttonContent.icon}
+                                color={!isEditing ? 'positive' : undefined}
+                            >
+                                <Label>{buttonContent.label}</Label>
+                            </Button>
+                        </Group>
+                    </Stack>
+                </form>
+            </Modal>
+            <DiscardChangesDialog opened={confirming} onConfirm={handleConfirmDiscard} onClose={handleCancelDiscard} />
+        </>
     );
 }

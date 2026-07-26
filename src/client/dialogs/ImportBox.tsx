@@ -4,7 +4,9 @@ import { IconAlertCircle, IconCloudUpload, IconFileCode, IconFileShredder, IconX
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { DiscardChangesDialog } from '~/client/common/DiscardChangesDialog';
 import { Label } from '~/client/common/Label';
+import { useConfirmClose } from '~/client/hooks/useConfirmClose';
 import { useImportHandler } from '~/client/hooks/useImportHandler';
 import { useLabel } from '~/client/hooks/useLabel';
 
@@ -66,76 +68,84 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
         }
     }, [opened]);
 
+    const { handleClose, confirming, handleConfirmDiscard, handleCancelDiscard } = useConfirmClose(
+        () => !!file,
+        onClose
+    );
+
     const maxSize = MAX_FILE_SIZE * 1024 ** 2;
     return (
-        <Modal
-            opened={opened}
-            onClose={onClose}
-            title={<Label>Import</Label>}
-            closeButtonProps={{ 'aria-label': useLabel('Close') }}
-            size="lg"
-            centered
-        >
-            <Dropzone
-                onDrop={handleDrop}
-                onReject={handleReject}
-                maxSize={maxSize}
-                accept={{ 'application/json': ['.json'] }}
-                multiple={false}
-                disabled={loading}
+        <>
+            <Modal
+                opened={opened}
+                onClose={handleClose}
+                title={<Label>Import</Label>}
+                closeButtonProps={{ 'aria-label': useLabel('Close') }}
+                size="lg"
+                centered
             >
-                <Group justify="center" gap="xl" style={{ minHeight: rem(120), pointerEvents: 'none' }}>
-                    <Dropzone.Accept>
-                        <IconFileCode size={52} stroke={1.5} />
-                    </Dropzone.Accept>
-                    <Dropzone.Reject>
-                        <IconFileShredder size={52} stroke={1.5} />
-                    </Dropzone.Reject>
-                    <Dropzone.Idle>
-                        <IconCloudUpload size={52} stroke={1.5} />
-                    </Dropzone.Idle>
-
-                    <div>
-                        <Text size="xl" inline>
-                            {file ? file.name : <Label>Drag JSON file here or click to select</Label>}
-                        </Text>
-                        {(!file || file.length > maxSize) && (
-                            <Text size="sm" c="dimmed" inline mt="xs">
-                                <Label>File should not exceed</Label>
-                                {` ${MAX_FILE_SIZE}MB`}
-                            </Text>
-                        )}
-                    </div>
-                </Group>
-            </Dropzone>
-
-            {error && (
-                <Alert variant="light" color="negative" icon={<IconAlertCircle size={18} />} mt="md">
-                    {error}
-                </Alert>
-            )}
-
-            <Group justify="center" mt="md">
-                <Button
-                    variant="outline"
-                    color="gray"
-                    leftSection={<IconX size={18} />}
-                    onClick={onClose}
+                <Dropzone
+                    onDrop={handleDrop}
+                    onReject={handleReject}
+                    maxSize={maxSize}
+                    accept={{ 'application/json': ['.json'] }}
+                    multiple={false}
                     disabled={loading}
                 >
-                    <Label>Cancel</Label>
-                </Button>
-                <Button
-                    variant="filled"
-                    color="primary"
-                    leftSection={<IconCloudUpload size={18} />}
-                    loading={loading}
-                    onClick={handleSubmit}
-                    disabled={!file}
-                >
-                    <Label>Import</Label>
-                </Button>
-            </Group>
-        </Modal>
+                    <Group justify="center" gap="xl" style={{ minHeight: rem(120), pointerEvents: 'none' }}>
+                        <Dropzone.Accept>
+                            <IconFileCode size={52} stroke={1.5} />
+                        </Dropzone.Accept>
+                        <Dropzone.Reject>
+                            <IconFileShredder size={52} stroke={1.5} />
+                        </Dropzone.Reject>
+                        <Dropzone.Idle>
+                            <IconCloudUpload size={52} stroke={1.5} />
+                        </Dropzone.Idle>
+
+                        <div>
+                            <Text size="xl" inline>
+                                {file ? file.name : <Label>Drag JSON file here or click to select</Label>}
+                            </Text>
+                            {(!file || file.length > maxSize) && (
+                                <Text size="sm" c="dimmed" inline mt="xs">
+                                    <Label>File should not exceed</Label>
+                                    {` ${MAX_FILE_SIZE}MB`}
+                                </Text>
+                            )}
+                        </div>
+                    </Group>
+                </Dropzone>
+
+                {error && (
+                    <Alert variant="light" color="negative" icon={<IconAlertCircle size={18} />} mt="md">
+                        {error}
+                    </Alert>
+                )}
+
+                <Group justify="center" mt="md">
+                    <Button
+                        variant="outline"
+                        color="gray"
+                        leftSection={<IconX size={18} />}
+                        onClick={handleClose}
+                        disabled={loading}
+                    >
+                        <Label>Cancel</Label>
+                    </Button>
+                    <Button
+                        variant="filled"
+                        color="primary"
+                        leftSection={<IconCloudUpload size={18} />}
+                        loading={loading}
+                        onClick={handleSubmit}
+                        disabled={!file}
+                    >
+                        <Label>Import</Label>
+                    </Button>
+                </Group>
+            </Modal>
+            <DiscardChangesDialog opened={confirming} onConfirm={handleConfirmDiscard} onClose={handleCancelDiscard} />
+        </>
     );
 }
