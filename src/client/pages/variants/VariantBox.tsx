@@ -103,7 +103,10 @@ export function VariantBox({
                 }
                 return null;
             },
-            count: (value) => {
+            count: (value, values) => {
+                if (values.name?.trim()) {
+                    return null;
+                }
                 if (!value || value < MIN_COUNT) {
                     return _('Amount is required');
                 }

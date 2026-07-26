@@ -232,6 +232,7 @@ describe('<VariantBox>', () => {
             expect(updateVariant).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveAttribute('aria-invalid', 'true');
+            expect(screen.getByRole('textbox', { name: 'Amount' })).toHaveAttribute('aria-invalid', 'true');
         });
 
         it('displays error without closing dialog when name already exists', async () => {
@@ -473,6 +474,94 @@ describe('<VariantBox>', () => {
 
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('alert')).toHaveTextContent('Cannot contain ":" character');
+        });
+
+        it('does not mark amount as invalid when it is cleared after being filled while name is present', async () => {
+            const updateVariant = vi.fn().mockResolvedValue(true);
+            vi.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            selectOption('Daržovės');
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewOne');
+            await user.type(screen.getByRole('textbox', { name: 'Amount' }), '500');
+            await user.clear(screen.getByRole('textbox', { name: 'Amount' }));
+
+            expect(screen.getByRole('textbox', { name: 'Amount' })).not.toHaveAttribute('aria-invalid', 'true');
+
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(updateVariant).toHaveBeenCalledWith('Daržovės', 'NewOne', { suffix: '' });
+            expect(onClose).toHaveBeenCalledWith('Daržovės', 'NewOne');
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
+
+        it('does not mark name as invalid when amount is provided without a name', async () => {
+            const updateVariant = vi.fn().mockResolvedValue(true);
+            vi.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            selectOption('Daržovės');
+            await user.type(screen.getByRole('textbox', { name: 'Amount' }), '750');
+
+            expect(screen.getByRole('textbox', { name: 'Variant name' })).not.toHaveAttribute('aria-invalid', 'true');
+
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(updateVariant).toHaveBeenCalledWith('Daržovės', '750vnt', { suffix: '', count: 750, units: 'vnt' });
+            expect(onClose).toHaveBeenCalledWith('Daržovės', '750vnt');
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
+
+        it('displays errors on both fields when both name and amount are left empty', async () => {
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            selectOption('Daržovės');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveAttribute('aria-invalid', 'true');
+            expect(screen.getByRole('textbox', { name: 'Amount' })).toHaveAttribute('aria-invalid', 'true');
+        });
+
+        it('accepts submission when both name and amount are filled in', async () => {
+            const updateVariant = vi.fn().mockResolvedValue(true);
+            vi.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            selectOption('Daržovės');
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'BothFilled');
+            await user.type(screen.getByRole('textbox', { name: 'Amount' }), '500');
+
+            expect(screen.getByRole('textbox', { name: 'Variant name' })).not.toHaveAttribute('aria-invalid', 'true');
+            expect(screen.getByRole('textbox', { name: 'Amount' })).not.toHaveAttribute('aria-invalid', 'true');
+
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(updateVariant).toHaveBeenCalledWith('Daržovės', 'BothFilled', {
+                suffix: '',
+                count: 500,
+                units: 'vnt',
+            });
+            expect(onClose).toHaveBeenCalledWith('Daržovės', 'BothFilled');
         });
     });
 
