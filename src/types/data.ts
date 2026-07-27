@@ -74,6 +74,7 @@ export interface Group {
     order: number;
     annual?: boolean;
     review?: boolean;
+    image?: string;
 }
 
 export type VariantUnits = 'g' | 'kg' | 'l' | 'ml' | 'vnt';

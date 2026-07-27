@@ -65,10 +65,11 @@ export const renameGroupOccurrences = (
     group: string,
     newGroup: string,
     annual: boolean = true,
-    review: boolean = false
+    review: boolean = false,
+    image?: string
 ): Promise<boolean> =>
     withTransaction(async (session) => {
-        if (await renameGroup(group, newGroup, annual, review, session)) {
+        if (await renameGroup(group, newGroup, annual, review, image, session)) {
             await renameVariantsGroup(group, newGroup, session);
             await renameProductsGroup(group, newGroup, session);
             return true;

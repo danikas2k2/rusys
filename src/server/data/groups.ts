@@ -1,8 +1,23 @@
 import type { ClientSession } from 'mongodb';
 
+import { deleteImage, saveImage } from '~/server/data/images';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
 import type { Group } from '~/types/data';
+
+// Resolves the image value to persist: uploads a new file for a freshly-dropped data URL
+// (deleting the old one it replaces), or deletes the old file when the image was removed.
+async function resolveImage(image: string, previousImage?: string): Promise<string> {
+    if (image.startsWith('data:')) {
+        const saved = await saveImage(image);
+        await deleteImage(previousImage);
+        return saved;
+    }
+    if (image !== previousImage) {
+        await deleteImage(previousImage);
+    }
+    return image;
+}
 
 // Daržovės: 0.5l, 0.75l, 0.25l, 0.01l, x
 // Uogienės: 0.5l, 0.75l, 0.25l, 0.01l, x
@@ -22,39 +37,64 @@ export const getGroups = async (): Promise<readonly Group[]> =>
         .find({}, { projection: { _id: 0 }, sort: { order: 1, group: 1 } })
         .toArray();
 
-export async function updateGroup(group: string, annual: boolean = true, review: boolean = false): Promise<boolean> {
+export async function updateGroup(
+    group: string,
+    annual: boolean = true,
+    review: boolean = false,
+    image?: string
+): Promise<boolean> {
     if (!group) {
         return false;
     }
     const col = (await db()).collection('groups');
-    const order = (await col.findOne<Group>({ group }))?.order;
-    return order != null
-        ? col.updateOne({ group }, { $set: { annual, review } }).then(hasEffect)
+    const existing = await col.findOne<Group>({ group });
+    const imageUpdate = image !== undefined ? { image: await resolveImage(image, existing?.image) } : {};
+    return existing?.order != null
+        ? col.updateOne({ group }, { $set: { annual, review, ...imageUpdate } }).then(hasEffect)
         : col
               .aggregate([{ $group: { _id: null, order: { $max: '$order' } } }])
               .next()
-              .then((found) => col.insertOne({ group, order: found ? found.order + 1 : 0, annual, review }))
+              .then((found) =>
+                  col.insertOne({ group, order: found ? found.order + 1 : 0, annual, review, ...imageUpdate })
+              )
               .then(hasEffect)
               .catch(hasDuplicates);
 }
 
-export const renameGroup = async (
+export async function renameGroup(
     group: string,
     newGroup: string,
     annual: boolean = true,
     review: boolean = false,
+    image?: string,
     session?: ClientSession
-): Promise<boolean> =>
-    group && newGroup && group !== newGroup
-        ? (await db())
-              .collection('groups')
-              .updateOne({ group }, { $set: { group: newGroup, annual, review } }, { session })
-              .then(hasEffect)
-              .catch(hasDuplicates)
-        : false;
+): Promise<boolean> {
+    if (!group || !newGroup || group === newGroup) {
+        return false;
+    }
+    const col = (await db()).collection('groups');
+    const imageUpdate =
+        image !== undefined
+            ? { image: await resolveImage(image, (await col.findOne<Group>({ group }, { session }))?.image) }
+            : {};
+    return col
+        .updateOne({ group }, { $set: { group: newGroup, annual, review, ...imageUpdate } }, { session })
+        .then(hasEffect)
+        .catch(hasDuplicates);
+}
 
-export const deleteGroup = async (group: string, session?: ClientSession): Promise<boolean> =>
-    group ? (await db()).collection('groups').deleteOne({ group }, { session }).then(hasEffect) : false;
+export async function deleteGroup(group: string, session?: ClientSession): Promise<boolean> {
+    if (!group) {
+        return false;
+    }
+    const col = (await db()).collection('groups');
+    const existing = await col.findOne<Group>({ group }, { session });
+    const deleted = await col.deleteOne({ group }, { session }).then(hasEffect);
+    if (deleted) {
+        await deleteImage(existing?.image);
+    }
+    return deleted;
+}
 
 export async function reorderGroups(update?: Readonly<Record<string, number>>): Promise<boolean> {
     if (!update) {

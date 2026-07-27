@@ -2,9 +2,11 @@
 import { getGroupsFixture } from '@tests/fixtures';
 
 import { deleteGroup, getGroups, renameGroup, reorderGroups, updateGroup } from '~/server/data/groups';
+import { deleteImage, saveImage } from '~/server/data/images';
 import { db } from '~/server/db';
 
 vi.mock(import('~/server/db'));
+vi.mock(import('~/server/data/images'));
 
 describe('groups', () => {
     const groups = getGroupsFixture().sort((a, b) => a.order - b.order);
@@ -106,6 +108,61 @@ describe('groups', () => {
             await expect(updateGroup('', true)).resolves.toBe(false);
             await expect(getGroups()).resolves.toStrictEqual(groups);
         });
+
+        describe('image handling', () => {
+            it('uploads a new image and stores the returned url', async () => {
+                vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
+
+                await expect(updateGroup('Daržovės', true, false, 'data:image/png;base64,AAA')).resolves.toBe(true);
+
+                expect(saveImage).toHaveBeenCalledWith('data:image/png;base64,AAA');
+                expect(deleteImage).toHaveBeenCalledWith(undefined);
+                await expect(getGroups()).resolves.toStrictEqual([
+                    groups[0],
+                    { ...groups[1], annual: true, review: false, image: '/images/ab/cd/new-image.png' },
+                ]);
+            });
+
+            it('deletes the previous image file when replacing it', async () => {
+                await updateGroup('Daržovės', true, false, '/images/old/old.png');
+                vi.clearAllMocks();
+                vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
+
+                await updateGroup('Daržovės', true, false, 'data:image/png;base64,AAA');
+
+                expect(deleteImage).toHaveBeenCalledWith('/images/old/old.png');
+            });
+
+            it('deletes the image file when the image is removed', async () => {
+                await updateGroup('Daržovės', true, false, '/images/old/old.png');
+                vi.clearAllMocks();
+
+                await updateGroup('Daržovės', true, false, '');
+
+                expect(deleteImage).toHaveBeenCalledWith('/images/old/old.png');
+                await expect(getGroups()).resolves.toStrictEqual([
+                    groups[0],
+                    { ...groups[1], annual: true, review: false, image: '' },
+                ]);
+            });
+
+            it('does not touch image files when the image is unchanged', async () => {
+                await updateGroup('Daržovės', true, false, '/images/same/same.png');
+                vi.clearAllMocks();
+
+                await updateGroup('Daržovės', true, false, '/images/same/same.png');
+
+                expect(saveImage).not.toHaveBeenCalled();
+                expect(deleteImage).not.toHaveBeenCalled();
+            });
+
+            it('does not touch image files when image is not provided', async () => {
+                await updateGroup('Daržovės', true, false);
+
+                expect(saveImage).not.toHaveBeenCalled();
+                expect(deleteImage).not.toHaveBeenCalled();
+            });
+        });
     });
 
     describe('updateGroupOrders', () => {
@@ -182,6 +239,38 @@ describe('groups', () => {
             await expect(renameGroup('Daržovės', '')).resolves.toBe(false);
             await expect(getGroups()).resolves.toStrictEqual(groups);
         });
+
+        describe('image handling', () => {
+            it('uploads a new image and stores the returned url', async () => {
+                vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
+
+                await expect(renameGroup('Uogienės', 'Grybai', true, false, 'data:image/png;base64,AAA')).resolves.toBe(
+                    true
+                );
+
+                expect(saveImage).toHaveBeenCalledWith('data:image/png;base64,AAA');
+                await expect(getGroups()).resolves.toStrictEqual([
+                    { group: 'Grybai', order: 1, annual: true, review: false, image: '/images/ab/cd/new-image.png' },
+                    groups[1],
+                ]);
+            });
+
+            it('deletes the previous image file when the image is removed', async () => {
+                await updateGroup('Uogienės', true, false, '/images/old/old.png');
+                vi.clearAllMocks();
+
+                await renameGroup('Uogienės', 'Grybai', true, false, '');
+
+                expect(deleteImage).toHaveBeenCalledWith('/images/old/old.png');
+            });
+
+            it('does not touch image files when image is not provided', async () => {
+                await renameGroup('Uogienės', 'Grybai');
+
+                expect(saveImage).not.toHaveBeenCalled();
+                expect(deleteImage).not.toHaveBeenCalled();
+            });
+        });
     });
 
     describe('deleteGroup', () => {
@@ -198,6 +287,21 @@ describe('groups', () => {
         it('does nothing if group does not exists', async () => {
             await expect(deleteGroup('Šaldyti')).resolves.toBe(false);
             await expect(getGroups()).resolves.toStrictEqual(groups);
+        });
+
+        it('deletes the image file for the deleted group', async () => {
+            await updateGroup('Uogienės', true, false, '/images/old/old.png');
+            vi.clearAllMocks();
+
+            await expect(deleteGroup('Uogienės')).resolves.toBe(true);
+
+            expect(deleteImage).toHaveBeenCalledWith('/images/old/old.png');
+        });
+
+        it('calls deleteImage with undefined when the group has no image', async () => {
+            await expect(deleteGroup('Uogienės')).resolves.toBe(true);
+
+            expect(deleteImage).toHaveBeenCalledWith(undefined);
         });
     });
 });

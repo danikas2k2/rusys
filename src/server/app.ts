@@ -9,6 +9,7 @@ import helmet from 'helmet';
 
 import { isDevMode } from '~/common/utils/dev';
 import { debug } from '~/server/api/debug';
+import { IMAGES_DIR, IMAGES_URL_PATH } from '~/server/data/images';
 import { ApiUrlHandlers } from '~/server/handlers';
 import helmetOptions from '~/server/helmetOptions';
 
@@ -44,7 +45,7 @@ export function setupHelmet(app: Express): Express {
     }
 
     app.use(bodyParser.urlencoded({ extended: false }));
-    app.use(bodyParser.json({ inflate: true }));
+    app.use(bodyParser.json({ inflate: true, limit: '2mb' }));
     app.use(
         fileUpload({
             abortOnLimit: true,
@@ -77,6 +78,8 @@ export function setupHandlers(app: Express): Express {
 export function setupStatic(app: Express): Express {
     // Serve static files
     app.use(express.static('public'));
+    // Serve uploaded images (category icons, product photos, ...) from the persistent volume
+    app.use(IMAGES_URL_PATH, express.static(IMAGES_DIR));
 
     return app;
 }

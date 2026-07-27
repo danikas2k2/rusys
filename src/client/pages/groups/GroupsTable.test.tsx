@@ -92,6 +92,7 @@ describe('<GroupsTable>', () => {
         expect(rows).toHaveLength(3);
         expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent([
             '',
+            '',
             'Category',
             'Annual',
             'Review',

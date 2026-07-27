@@ -76,6 +76,7 @@ services:
       - rusys-net
     volumes:
       - /volume1/docker/rusys-app/certs:/app/certs:ro
+      - /volume1/docker/rusys-app/images:/app/data/images
 
 networks:
   rusys-net:

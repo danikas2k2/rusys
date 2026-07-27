@@ -7,10 +7,10 @@ import type { ApiGroups, ApiRequest, ApiResponse, ApiUpdateGroup } from '~/types
 export async function handleUpdateGroup(req: ApiRequest<ApiUpdateGroup>, res: ApiResponse<ApiGroups>): Promise<void> {
     debugRequest(req);
     headerNoCache(res);
-    const { group, annual, review } = req.body;
+    const { group, annual, review, image } = req.body;
     res.json(
         await run(
-            () => updateGroup(group, annual, review),
+            () => updateGroup(group, annual, review, image),
             () => getGroupsResponse()
         )
     );
