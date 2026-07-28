@@ -9,7 +9,7 @@ import React from 'react';
 
 import { DraggableContent } from '~/client/common/DraggableContent';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
-import { useQuickFilter } from '~/client/filters/QuickFilterContext';
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useVariantsHasData } from '~/client/pages/variants/hooks/useVariantsHasData';
 import { VariantsTable } from '~/client/pages/variants/VariantsTable';
@@ -27,8 +27,8 @@ vi.mock(import('~/client/common/hooks/useReorderHandler'));
 vi.mock(import('~/client/pages/variants/hooks/useVariantsHasData'));
 vi.mock(import('~/client/state/variants/useGetVariants'));
 vi.mock(import('~/client/hooks/useLockingLoader'));
-vi.mock(import('~/client/filters/QuickFilterContext'), () => ({
-    useQuickFilter: vi.fn().mockReturnValue(['', vi.fn()]),
+vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
+    useGroupFilter: vi.fn(),
 }));
 
 vi.mock(import('~/client/common/DraggableContent'), () => ({
@@ -59,18 +59,20 @@ vi.mock(import('~/client/pages/variants/VariantsRow'), () => ({
 }));
 
 describe('<VariantsTable>', () => {
-    const mockItems: Variant[] = getVariantsFixture();
+    const allVariants: Variant[] = getVariantsFixture();
+    const uogienesVariants = allVariants.filter((v) => v.group === 'Uogienės');
     const mockOnDragEnd = vi.fn();
     const mockGetVariants = vi.fn().mockResolvedValue(undefined);
 
     beforeEach(() => {
         vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
-        vi.mocked(useVariants).mockReturnValue(getVariantsFixture());
+        vi.mocked(useVariants).mockReturnValue(allVariants);
         vi.mocked(useGroups).mockReturnValue(getGroupsFixture());
+        vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
         vi.mocked(useVariantsHasData).mockReturnValue(true);
         vi.mocked(useGetVariants).mockReturnValue(mockGetVariants);
         vi.mocked(useReorderHandler).mockReturnValue({
-            items: mockItems,
+            items: uogienesVariants,
             reordering: false,
             onDragEnd: mockOnDragEnd,
         });
@@ -78,7 +80,7 @@ describe('<VariantsTable>', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    it('renders table structure', () => {
+    it('renders only the selected group variants, without group headings', () => {
         render(
             <MockTheme>
                 <MockRedux>
@@ -91,37 +93,54 @@ describe('<VariantsTable>', () => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         expect(screen.getByRole('table')).toBeInTheDocument();
 
-        const rowData = {
-            Uogienės: [
-                ['', 'p', ''],
-                ['', 'd', 'D.'],
-                ['', 'm', 'M.'],
-                ['', 'e', 'E.'],
-                ['', 'x', 'B.'],
-            ],
-            Daržovės: [
-                ['', 'd', ''],
-                ['', 'p', ''],
-                ['', 'm', ''],
-                ['', '1', ''],
-                ['', 'x', 'B.'],
-            ],
-        };
-
         const rows = screen.getAllByRole('row');
-        let count = 0;
 
-        expect(within(rows[count++]).getAllByRole('columnheader')).toHaveListWithTextContent(['', 'Variant', 'Suffix']);
+        expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent(['', 'Variant', 'Suffix']);
 
-        for (const [group, cells] of Object.entries(rowData)) {
-            expect(within(rows[count++]).getAllByRole('columnheader')).toHaveListWithTextContent([group]);
+        const dataRows = rows.slice(1);
 
-            for (const cell of cells) {
-                expect(within(rows[count++]).getAllByRole('cell')).toHaveListWithTextContent(cell);
-            }
-        }
+        expect(dataRows).toHaveLength(uogienesVariants.length);
 
-        expect(rows).toHaveLength(count);
+        dataRows.forEach((row, index) => {
+            expect(within(row).getAllByRole('cell')).toHaveListWithTextContent([
+                '',
+                uogienesVariants[index]!.variant,
+                uogienesVariants[index]!.suffix ?? '',
+            ]);
+        });
+    });
+
+    it('passes only the selected group variants to useReorderHandler', () => {
+        render(
+            <MockTheme>
+                <MockRedux>
+                    <VariantsTable />
+                </MockRedux>
+            </MockTheme>
+        );
+
+        const callArgs = vi.mocked(useReorderHandler).mock.calls[0]![0];
+
+        expect(callArgs.items).toHaveLength(uogienesVariants.length);
+        expect(callArgs.items.every((v: Variant) => v.group === 'Uogienės')).toBe(true);
+    });
+
+    it('re-filters when the selected group changes', () => {
+        const darzovesVariants = allVariants.filter((v) => v.group === 'Daržovės');
+        vi.mocked(useGroupFilter).mockReturnValue(['Daržovės', vi.fn()]);
+
+        render(
+            <MockTheme>
+                <MockRedux>
+                    <VariantsTable />
+                </MockRedux>
+            </MockTheme>
+        );
+
+        const callArgs = vi.mocked(useReorderHandler).mock.calls[0]![0];
+
+        expect(callArgs.items).toHaveLength(darzovesVariants.length);
+        expect(callArgs.items.every((v: Variant) => v.group === 'Daržovės')).toBe(true);
     });
 
     describe('renders loader', () => {
@@ -202,52 +221,6 @@ describe('<VariantsTable>', () => {
             expect(screen.getByRole('alert')).toHaveTextContent('No data');
             expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
             expect(screen.queryByRole('table')).not.toBeInTheDocument();
-        });
-    });
-
-    describe('handles filter state', () => {
-        it('renders filtered data', () => {
-            vi.mocked(useQuickFilter).mockReturnValue(['e', vi.fn()]);
-            vi.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0 }]);
-
-            render(
-                <MockTheme>
-                    <MockRedux>
-                        <VariantsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            const rows = screen.getAllByRole('row');
-
-            const headerRow = rows.find((row) => within(row).queryByText('Uogienės'));
-            const eRow = rows.find((row) => within(row).queryByText('e'));
-            const dRow = rows.find((row) => within(row).queryByText('d'));
-
-            expect(headerRow).toBeInTheDocument();
-            expect(eRow).toBeInTheDocument();
-            expect(dRow).toHaveAttribute('data-hidden', 'true');
-        });
-
-        it('renders filtered out data', () => {
-            vi.mocked(useQuickFilter).mockReturnValue(['zzz', vi.fn()]);
-            vi.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0 }]);
-
-            render(
-                <MockTheme>
-                    <MockRedux>
-                        <VariantsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            const rows = screen.getAllByRole('row');
-
-            expect(rows.length).toBeGreaterThanOrEqual(2);
-
-            const header = rows[0];
-
-            expect(within(header).getAllByRole('columnheader')).toHaveListWithTextContent(['', 'Variant', 'Suffix']);
         });
     });
 
