@@ -5,13 +5,14 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { Label } from '~/client/common/Label';
+import { CategoryRailLayout } from '~/client/filters/CategoryRailLayout';
 import { useLabels } from '~/client/hooks/useLabels';
+import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
+import { useGroupsWithReviewProducts } from '~/client/pages/review/hooks/useGroupsWithReviewProducts';
 import { ReviewTable } from '~/client/pages/review/ReviewTable';
-import { useGroups } from '~/client/state/groups/useGroups';
 import { useApplyReview } from '~/client/state/products/useApplyReview';
 import { useProducts } from '~/client/state/products/useProducts';
 import { ToolbarFilter } from '~/client/toolbar/ToolbarFilter';
-import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
 import { getId } from '~/client/utils/id';
 
 export interface ReviewBoxProps {
@@ -22,16 +23,20 @@ export interface ReviewBoxProps {
 
 export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxProps) {
     const _ = useLabels();
-    const groups = useGroups();
+    const reviewGroups = useSortedGroups().filter((g) => g.review);
+    const groupsWithReviewProducts = useGroupsWithReviewProducts();
     const products = useProducts();
     const applyReview = useApplyReview();
 
+    const [selectedGroup, setSelectedGroup] = useState('');
     const [checkedKeys, setCheckedKeys] = useState<ReadonlySet<string>>(new Set());
 
     useEffect(() => {
         if (opened) {
             // eslint-disable-next-line react-hooks/set-state-in-effect -- reset draft state when dialog opens
             setCheckedKeys(new Set());
+
+            setSelectedGroup('');
         }
     }, [opened]);
 
@@ -48,9 +53,9 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
     }, []);
 
     const handleApply = useCallback(async () => {
-        const reviewGroups = new Set(groups.filter((g) => g.review).map((g) => g.group));
+        const reviewGroupNames = new Set(reviewGroups.map((g) => g.group));
         const updates = products
-            .filter((p) => reviewGroups.has(p.group) && !isEmpty(p.years))
+            .filter((p) => reviewGroupNames.has(p.group) && !isEmpty(p.years))
             .reduce<{ group: string; name: string; missing: boolean }[]>((acc, p) => {
                 const missing = !checkedKeys.has(getId(p.group, p.name));
                 if (missing !== !!p.missing) {
@@ -60,7 +65,7 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
             }, []);
         await applyReview(updates);
         onClose?.();
-    }, [groups, products, checkedKeys, applyReview, onClose]);
+    }, [reviewGroups, products, checkedKeys, applyReview, onClose]);
 
     return (
         <ConfirmableModal
@@ -73,7 +78,6 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
             title={
                 <Group gap="xs" wrap="nowrap" style={{ flex: 1 }}>
                     <ToolbarFilter />
-                    <ToolbarGroupFilter />
                 </Group>
             }
             closeButtonProps={{ 'aria-label': _('Close'), ms: 8 }}
@@ -85,7 +89,14 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
             {(handleClose) => (
                 <>
                     <div style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto' }}>
-                        <ReviewTable checkedKeys={checkedKeys} onToggle={handleToggle} />
+                        <CategoryRailLayout
+                            groups={reviewGroups}
+                            selected={selectedGroup}
+                            onSelect={setSelectedGroup}
+                            groupsWithContent={groupsWithReviewProducts}
+                        >
+                            <ReviewTable group={selectedGroup} checkedKeys={checkedKeys} onToggle={handleToggle} />
+                        </CategoryRailLayout>
                     </div>
                     <Group
                         justify="flex-end"

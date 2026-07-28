@@ -11,12 +11,21 @@ vi.mock(import('~/client/filters/CategoryRail'), () => ({
 }));
 
 describe('<CategoryRailLayout>', () => {
+    const groups = [{ group: 'Uogienės', order: 0 }];
+
     afterEach(() => vi.clearAllMocks());
 
     it('renders the category rail', () => {
         render(
             <MockTheme>
-                <CategoryRailLayout groupsWithContent={new Set()}>content</CategoryRailLayout>
+                <CategoryRailLayout
+                    groups={groups}
+                    selected="Uogienės"
+                    onSelect={vi.fn()}
+                    groupsWithContent={new Set()}
+                >
+                    content
+                </CategoryRailLayout>
             </MockTheme>
         );
 
@@ -26,7 +35,12 @@ describe('<CategoryRailLayout>', () => {
     it('renders the children content', () => {
         render(
             <MockTheme>
-                <CategoryRailLayout groupsWithContent={new Set()}>
+                <CategoryRailLayout
+                    groups={groups}
+                    selected="Uogienės"
+                    onSelect={vi.fn()}
+                    groupsWithContent={new Set()}
+                >
                     <div>page content</div>
                 </CategoryRailLayout>
             </MockTheme>
@@ -35,15 +49,28 @@ describe('<CategoryRailLayout>', () => {
         expect(screen.getByText('page content')).toBeInTheDocument();
     });
 
-    it('passes groupsWithContent through to the rail', () => {
+    it('passes groups, selected, onSelect and groupsWithContent through to the rail', () => {
         const groupsWithContent = new Set(['Uogienės']);
+        const onSelect = vi.fn();
 
         render(
             <MockTheme>
-                <CategoryRailLayout groupsWithContent={groupsWithContent}>content</CategoryRailLayout>
+                <CategoryRailLayout
+                    groups={groups}
+                    selected="Uogienės"
+                    onSelect={onSelect}
+                    groupsWithContent={groupsWithContent}
+                >
+                    content
+                </CategoryRailLayout>
             </MockTheme>
         );
 
-        expect(vi.mocked(CategoryRail).mock.calls[0]?.[0]).toStrictEqual({ groupsWithContent });
+        expect(vi.mocked(CategoryRail).mock.calls[0]?.[0]).toStrictEqual({
+            groups,
+            selected: 'Uogienės',
+            onSelect,
+            groupsWithContent,
+        });
     });
 });

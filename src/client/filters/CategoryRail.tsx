@@ -1,25 +1,29 @@
 import { Avatar, Tabs, Tooltip } from '@mantine/core';
 import React, { useEffect } from 'react';
 
-import { useGroupFilter } from '~/client/filters/GroupFilterContext';
-import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
-
 import './CategoryRail.pcss';
 
+import type { Group } from '~/types/data';
+
 interface CategoryRailProps {
+    groups: readonly Group[];
+    selected: string;
+    onSelect: (group: string) => void;
     groupsWithContent: ReadonlySet<string>;
 }
 
-export function CategoryRail({ groupsWithContent }: CategoryRailProps): React.ReactElement | null {
-    const groups = useSortedGroups();
-    const [selected, setSelected] = useGroupFilter();
-
+export function CategoryRail({
+    groups,
+    selected,
+    onSelect,
+    groupsWithContent,
+}: CategoryRailProps): React.ReactElement | null {
     // Default to the first category when none is selected yet, or the selected one no longer exists
     useEffect(() => {
         if (groups.length && !groups.some(({ group }) => group === selected)) {
-            setSelected(groups[0]!.group);
+            onSelect(groups[0]!.group);
         }
-    }, [groups, selected, setSelected]);
+    }, [groups, selected, onSelect]);
 
     if (!groups.length) {
         return null;
@@ -28,7 +32,7 @@ export function CategoryRail({ groupsWithContent }: CategoryRailProps): React.Re
     return (
         <Tabs
             value={selected}
-            onChange={(value) => value && setSelected(value)}
+            onChange={(value) => value && onSelect(value)}
             orientation="vertical"
             variant="outline"
             data-tabs="category-rail"

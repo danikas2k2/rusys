@@ -5,40 +5,30 @@ import { MockTheme } from '@tests/MockTheme';
 import React from 'react';
 
 import { CategoryRail } from '~/client/filters/CategoryRail';
-import { useGroupFilter } from '~/client/filters/GroupFilterContext';
-import { useGroups } from '~/client/state/groups/useGroups';
-
-vi.mock(import('~/client/state/groups/useGroups'));
-vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
-    useGroupFilter: vi.fn(),
-}));
 
 describe('<CategoryRail>', () => {
-    afterEach(() => vi.clearAllMocks());
-
     it('renders nothing when there are no categories', () => {
-        vi.mocked(useGroups).mockReturnValue([]);
-        vi.mocked(useGroupFilter).mockReturnValue(['', vi.fn()]);
-
         const { container } = render(
             <MockTheme>
-                <CategoryRail groupsWithContent={new Set()} />
+                <CategoryRail groups={[]} selected="" onSelect={vi.fn()} groupsWithContent={new Set()} />
             </MockTheme>
         );
 
         expect(container).toBeEmptyDOMElement();
     });
 
-    it('renders a control per category sorted by order', () => {
-        vi.mocked(useGroups).mockReturnValue([
-            { group: 'Daržovės', order: 1 },
-            { group: 'Uogienės', order: 0 },
-        ]);
-        vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
-
+    it('renders a control per category in the given order', () => {
         render(
             <MockTheme>
-                <CategoryRail groupsWithContent={new Set(['Uogienės', 'Daržovės'])} />
+                <CategoryRail
+                    groups={[
+                        { group: 'Uogienės', order: 0 },
+                        { group: 'Daržovės', order: 1 },
+                    ]}
+                    selected="Uogienės"
+                    onSelect={vi.fn()}
+                    groupsWithContent={new Set(['Uogienės', 'Daržovės'])}
+                />
             </MockTheme>
         );
 
@@ -50,15 +40,17 @@ describe('<CategoryRail>', () => {
     });
 
     it('marks the selected category as checked', () => {
-        vi.mocked(useGroups).mockReturnValue([
-            { group: 'Daržovės', order: 0 },
-            { group: 'Uogienės', order: 1 },
-        ]);
-        vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
-
         render(
             <MockTheme>
-                <CategoryRail groupsWithContent={new Set(['Uogienės', 'Daržovės'])} />
+                <CategoryRail
+                    groups={[
+                        { group: 'Daržovės', order: 0 },
+                        { group: 'Uogienės', order: 1 },
+                    ]}
+                    selected="Uogienės"
+                    onSelect={vi.fn()}
+                    groupsWithContent={new Set(['Uogienės', 'Daržovės'])}
+                />
             </MockTheme>
         );
 
@@ -67,79 +59,93 @@ describe('<CategoryRail>', () => {
     });
 
     it('selects the first category by order when none is selected yet', () => {
-        const setSelected = vi.fn();
-        vi.mocked(useGroups).mockReturnValue([
-            { group: 'Daržovės', order: 1 },
-            { group: 'Uogienės', order: 0 },
-        ]);
-        vi.mocked(useGroupFilter).mockReturnValue(['', setSelected]);
+        const onSelect = vi.fn();
 
         render(
             <MockTheme>
-                <CategoryRail groupsWithContent={new Set()} />
+                <CategoryRail
+                    groups={[
+                        { group: 'Uogienės', order: 0 },
+                        { group: 'Daržovės', order: 1 },
+                    ]}
+                    selected=""
+                    onSelect={onSelect}
+                    groupsWithContent={new Set()}
+                />
             </MockTheme>
         );
 
-        expect(setSelected).toHaveBeenCalledWith('Uogienės');
+        expect(onSelect).toHaveBeenCalledWith('Uogienės');
     });
 
     it('selects the first category by order when the selected one no longer exists', () => {
-        const setSelected = vi.fn();
-        vi.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0 }]);
-        vi.mocked(useGroupFilter).mockReturnValue(['Deleted category', setSelected]);
+        const onSelect = vi.fn();
 
         render(
             <MockTheme>
-                <CategoryRail groupsWithContent={new Set()} />
+                <CategoryRail
+                    groups={[{ group: 'Uogienės', order: 0 }]}
+                    selected="Deleted category"
+                    onSelect={onSelect}
+                    groupsWithContent={new Set()}
+                />
             </MockTheme>
         );
 
-        expect(setSelected).toHaveBeenCalledWith('Uogienės');
+        expect(onSelect).toHaveBeenCalledWith('Uogienės');
     });
 
     it('does not change the selection when the selected category still exists', () => {
-        const setSelected = vi.fn();
-        vi.mocked(useGroups).mockReturnValue([
-            { group: 'Daržovės', order: 0 },
-            { group: 'Uogienės', order: 1 },
-        ]);
-        vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', setSelected]);
+        const onSelect = vi.fn();
 
         render(
             <MockTheme>
-                <CategoryRail groupsWithContent={new Set()} />
+                <CategoryRail
+                    groups={[
+                        { group: 'Daržovės', order: 0 },
+                        { group: 'Uogienės', order: 1 },
+                    ]}
+                    selected="Uogienės"
+                    onSelect={onSelect}
+                    groupsWithContent={new Set()}
+                />
             </MockTheme>
         );
 
-        expect(setSelected).not.toHaveBeenCalled();
+        expect(onSelect).not.toHaveBeenCalled();
     });
 
-    it('calls setSelected with the clicked category', async () => {
-        const setSelected = vi.fn();
-        vi.mocked(useGroups).mockReturnValue([
-            { group: 'Daržovės', order: 0 },
-            { group: 'Uogienės', order: 1 },
-        ]);
-        vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', setSelected]);
+    it('calls onSelect with the clicked category', async () => {
+        const onSelect = vi.fn();
 
         render(
             <MockTheme>
-                <CategoryRail groupsWithContent={new Set(['Uogienės', 'Daržovės'])} />
+                <CategoryRail
+                    groups={[
+                        { group: 'Daržovės', order: 0 },
+                        { group: 'Uogienės', order: 1 },
+                    ]}
+                    selected="Uogienės"
+                    onSelect={onSelect}
+                    groupsWithContent={new Set(['Uogienės', 'Daržovės'])}
+                />
             </MockTheme>
         );
 
         await user.click(screen.getByRole('tab', { name: 'Daržovės' }));
 
-        expect(setSelected).toHaveBeenCalledWith('Daržovės');
+        expect(onSelect).toHaveBeenCalledWith('Daržovės');
     });
 
     it('renders an avatar with the category image when set', () => {
-        vi.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0, image: '/images/ab/cd/uogienes.png' }]);
-        vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
-
         render(
             <MockTheme>
-                <CategoryRail groupsWithContent={new Set(['Uogienės'])} />
+                <CategoryRail
+                    groups={[{ group: 'Uogienės', order: 0, image: '/images/ab/cd/uogienes.png' }]}
+                    selected="Uogienės"
+                    onSelect={vi.fn()}
+                    groupsWithContent={new Set(['Uogienės'])}
+                />
             </MockTheme>
         );
 
@@ -149,12 +155,14 @@ describe('<CategoryRail>', () => {
     });
 
     it('renders a first-letter fallback when the category has no image', () => {
-        vi.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0 }]);
-        vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
-
         render(
             <MockTheme>
-                <CategoryRail groupsWithContent={new Set(['Uogienės'])} />
+                <CategoryRail
+                    groups={[{ group: 'Uogienės', order: 0 }]}
+                    selected="Uogienės"
+                    onSelect={vi.fn()}
+                    groupsWithContent={new Set(['Uogienės'])}
+                />
             </MockTheme>
         );
 
@@ -162,12 +170,14 @@ describe('<CategoryRail>', () => {
     });
 
     it('greys out the avatar for a category with no content', () => {
-        vi.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0 }]);
-        vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
-
         render(
             <MockTheme>
-                <CategoryRail groupsWithContent={new Set()} />
+                <CategoryRail
+                    groups={[{ group: 'Uogienės', order: 0 }]}
+                    selected="Uogienės"
+                    onSelect={vi.fn()}
+                    groupsWithContent={new Set()}
+                />
             </MockTheme>
         );
 
@@ -177,12 +187,14 @@ describe('<CategoryRail>', () => {
     });
 
     it('does not grey out the avatar for a category with content', () => {
-        vi.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0 }]);
-        vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
-
         render(
             <MockTheme>
-                <CategoryRail groupsWithContent={new Set(['Uogienės'])} />
+                <CategoryRail
+                    groups={[{ group: 'Uogienės', order: 0 }]}
+                    selected="Uogienės"
+                    onSelect={vi.fn()}
+                    groupsWithContent={new Set(['Uogienės'])}
+                />
             </MockTheme>
         );
 

@@ -1,30 +1,37 @@
 import { Table } from '@mantine/core';
+import { isEmpty } from 'lodash';
 import React from 'react';
 
-import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
-import { ReviewGroup } from '~/client/pages/review/ReviewGroup';
+import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
+import { ReviewProductRow } from '~/client/pages/review/ReviewProductRow';
 import { useProducts } from '~/client/state/products/useProducts';
+import { getId } from '~/client/utils/id';
 
 interface ReviewTableProps {
+    group: string;
     checkedKeys: ReadonlySet<string>;
     onToggle: (key: string, checked: boolean) => void;
 }
 
-export function ReviewTable({ checkedKeys, onToggle }: ReviewTableProps) {
-    const groups = useSortedGroups().filter((g) => g.review);
-    const products = useProducts();
+export function ReviewTable({ group, checkedKeys, onToggle }: ReviewTableProps) {
+    const quickFilter = useQuickFilterPredicate();
+
+    // Nothing to physically confirm for a product with no recorded stock at all.
+    const products = useProducts().filter((p) => p.group === group && !isEmpty(p.years));
 
     return (
         <Table layout="fixed" data-table="review">
-            {groups.map((g) => (
-                <ReviewGroup
-                    key={g.group}
-                    group={g}
-                    products={products}
-                    checkedKeys={checkedKeys}
-                    onToggle={onToggle}
-                />
-            ))}
+            <Table.Tbody>
+                {products.map((p) => (
+                    <ReviewProductRow
+                        key={getId(p.group, p.name)}
+                        product={p}
+                        checked={checkedKeys.has(getId(p.group, p.name))}
+                        onToggle={onToggle}
+                        hidden={!quickFilter(p.name)}
+                    />
+                ))}
+            </Table.Tbody>
         </Table>
     );
 }

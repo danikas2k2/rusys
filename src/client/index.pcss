@@ -193,12 +193,6 @@ select,
     }
 }
 
-@property --mantine-color-group-title {
-    syntax: '<color>';
-    inherits: true;
-    initial-value: #000;
-}
-
 .ui-Table-table {
     --table-border-color: var(--mantine-color-neutral-1);
 
@@ -211,42 +205,10 @@ select,
         background-color: var(--mantine-color-body);
         box-shadow: var(--mantine-shadow-md);
     }
-
-    --mantine-color-group-title: var(--mantine-color-neutral-filled);
-
-    &[data-table="products"] {
-        --mantine-color-group-title: var(--mantine-color-primary-filled);
-    }
-
-    &[data-table="summary"] {
-        --mantine-color-group-title: var(--mantine-color-secondary-filled);
-    }
 }
 
 .ui-Table-th {
     font-weight: var(--mantine-font-weight-sm);
-
-    &[data-group-title='true'] {
-        font-size: var(--mantine-h2-font-size);
-        font-weight: var(--mantine-font-weight-lg);
-        padding: 1.5rem 0.75rem 0.5rem;
-        position: sticky;
-        inset-block-start: 2rem;
-        z-index: 1;
-        border-block-end: 1px solid var(--table-border-color);
-        //background-color: var(--mantine-color-body);
-
-        transition: var(--mantine-color-group-title) 200ms ease-in-out;
-        background: var(--mantine-color-body) linear-gradient(
-                150deg,
-                color(from var(--mantine-color-group-title) srgb r g b / 0%) 40%,
-                color(from var(--mantine-color-group-title) srgb r g b / 30%)
-        );
-    }
-}
-
-.ui-Table-table[data-table='review'] .ui-Table-th[data-group-title='true'] {
-    inset-block-start: 0;
 }
 
 .ui-Table-thead {
