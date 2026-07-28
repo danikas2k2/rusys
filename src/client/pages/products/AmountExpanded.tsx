@@ -1,6 +1,7 @@
 import { Button, Group, Stack, Textarea } from '@mantine/core';
-import { IconAlertTriangle, IconHome } from '@tabler/icons-react';
 import React from 'react';
+
+import { HomeIcon, SuspiciousIcon } from '@icons';
 
 import { useLabels } from '~/client/hooks/useLabels';
 import { AmountVariantRow, type VariantEditType } from '~/client/pages/products/AmountVariantRow';
@@ -52,7 +53,7 @@ export function AmountExpanded({
                             variant="light"
                             color="moderate"
                             size="sm"
-                            leftSection={<IconAlertTriangle size={14} />}
+                            leftSection={<SuspiciousIcon size={14} />}
                             onClick={onAddSuspicious}
                         >
                             {_('Suspicious')}
@@ -63,7 +64,7 @@ export function AmountExpanded({
                             variant="light"
                             color="blue"
                             size="sm"
-                            leftSection={<IconHome size={14} />}
+                            leftSection={<HomeIcon size={14} />}
                             onClick={onAddHome}
                         >
                             {_('Home')}

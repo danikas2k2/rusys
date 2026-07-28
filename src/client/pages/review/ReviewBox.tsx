@@ -1,7 +1,8 @@
 import { Button, Group } from '@mantine/core';
-import { IconCheck, IconX } from '@tabler/icons-react';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
+
+import { ApplyIcon, CancelIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { Label } from '~/client/common/Label';
@@ -152,10 +153,15 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
                             borderTop: '1px solid var(--mantine-color-default-border)',
                         }}
                     >
-                        <Button variant="outline" color="gray" leftSection={<IconX size={18} />} onClick={handleClose}>
+                        <Button
+                            variant="outline"
+                            color="gray"
+                            leftSection={<CancelIcon size={18} />}
+                            onClick={handleClose}
+                        >
                             <Label>Cancel</Label>
                         </Button>
-                        <Button leftSection={<IconCheck size={18} />} onClick={handleApply}>
+                        <Button leftSection={<ApplyIcon size={18} />} onClick={handleApply}>
                             <Label>Apply</Label>
                         </Button>
                     </Group>

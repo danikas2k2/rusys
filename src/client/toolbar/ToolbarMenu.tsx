@@ -1,14 +1,9 @@
 import { Box, Burger, Divider, Drawer, Flex, NavLink, Portal } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import {
-    IconAdjustmentsUp,
-    IconChartBubble,
-    IconChartColumn,
-    IconList,
-    IconTriangleSquareCircle,
-} from '@tabler/icons-react';
 import React, { useCallback, useState } from 'react';
 import { Link, useLocation, useMatch } from 'react-router-dom';
+
+import { CategoriesNavIcon, ProductsNavIcon, SummaryNavIcon, UtilitiesNavIcon, VariantsNavIcon } from '@icons';
 
 import { ColorSchemeToggle } from '~/client/common/ColorSchemeToggle';
 import { Label } from '~/client/common/Label';
@@ -57,7 +52,7 @@ export function ToolbarMenu() {
                             label={<Label>Products</Label>}
                             leftSection={
                                 <ToolbarMenuIcon>
-                                    <IconList />
+                                    <ProductsNavIcon />
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
@@ -69,7 +64,7 @@ export function ToolbarMenu() {
                             label={<Label>Summary</Label>}
                             leftSection={
                                 <ToolbarMenuIcon>
-                                    <IconChartColumn />
+                                    <SummaryNavIcon />
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
@@ -84,7 +79,7 @@ export function ToolbarMenu() {
                             label={<Label>Variants</Label>}
                             leftSection={
                                 <ToolbarMenuIcon>
-                                    <IconChartBubble />
+                                    <VariantsNavIcon />
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
@@ -96,7 +91,7 @@ export function ToolbarMenu() {
                             label={<Label>Categories</Label>}
                             leftSection={
                                 <ToolbarMenuIcon>
-                                    <IconTriangleSquareCircle />
+                                    <CategoriesNavIcon />
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
@@ -111,7 +106,7 @@ export function ToolbarMenu() {
                             label={<Label>Utilities</Label>}
                             leftSection={
                                 <ToolbarMenuIcon>
-                                    <IconAdjustmentsUp />
+                                    <UtilitiesNavIcon />
                                 </ToolbarMenuIcon>
                             }
                             childrenOffset={32}

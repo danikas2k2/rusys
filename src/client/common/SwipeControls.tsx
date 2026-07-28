@@ -1,6 +1,7 @@
 import { Button } from '@mantine/core';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
+
+import { DeleteIcon, EditIcon } from '@icons';
 
 import { useActiveContent, type ActiveContentData } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';
@@ -50,7 +51,7 @@ export function SwipeControls<D = object>({
                     variant="filled"
                     color="primary"
                     size="sm"
-                    leftSection={<IconEdit size={18} />}
+                    leftSection={<EditIcon size={18} />}
                     onClick={handleEdit}
                 >
                     <Label>Edit</Label>
@@ -61,7 +62,7 @@ export function SwipeControls<D = object>({
                     variant="filled"
                     color="negative"
                     size="sm"
-                    leftSection={<IconTrash size={18} />}
+                    leftSection={<DeleteIcon size={18} />}
                     onClick={handleDelete}
                 >
                     <Label>Remove</Label>

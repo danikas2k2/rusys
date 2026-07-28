@@ -1,7 +1,8 @@
 import { Button } from '@mantine/core';
 import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
-import { IconBrandGoogleFilled } from '@tabler/icons-react';
 import React, { useCallback, useMemo } from 'react';
+
+import { GoogleLoginIcon } from '@icons';
 
 import { Label } from '~/client/common/Label';
 import { useLoginError } from '~/client/user/hooks/useLoginError';
@@ -29,7 +30,7 @@ export function LoginButton() {
 
     return (
         <Button size="lg" color="primary" variant="outline" onClick={handleClick} data-action="login">
-            <IconBrandGoogleFilled />
+            <GoogleLoginIcon />
             <Label>Login with Google</Label>
         </Button>
     );

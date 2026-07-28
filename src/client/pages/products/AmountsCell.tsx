@@ -1,6 +1,7 @@
 import { Group, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconAlertTriangle, IconEdit, IconHome, IconToolsKitchen2, IconTrash } from '@tabler/icons-react';
 import React from 'react';
+
+import { ConsumedIcon, HomeIcon, RecycledIcon, SuspiciousIcon, UpdatedIcon } from '@icons';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { VariantTitle } from '~/client/common/VariantTitle';
@@ -33,7 +34,7 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
                 const isUpdated = a.recycled == null;
                 const typeLabel = isUpdated ? 'Updated' : a.recycled ? 'Recycled' : 'Consumed';
                 const color = isUpdated ? 'blue' : a.recycled ? 'negative' : 'positive';
-                const Icon = isUpdated ? IconEdit : a.recycled ? IconTrash : IconToolsKitchen2;
+                const Icon = isUpdated ? UpdatedIcon : a.recycled ? RecycledIcon : ConsumedIcon;
                 const key = `${a.variant}-${a.amount}-${a.recycled == null ? 'u' : a.recycled ? 'r' : 'c'}${a.suspicious ? '-s' : ''}${a.home ? '-h' : ''}`;
                 const labelColor = a.suspicious ? 'moderate' : a.home ? 'blue' : undefined;
 
@@ -53,7 +54,7 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
                                         display="inline-flex"
                                         ms={4}
                                     >
-                                        <IconAlertTriangle size={12} />
+                                        <SuspiciousIcon size={12} />
                                     </ThemeIcon>
                                 )}
                                 {a.home && (
@@ -64,7 +65,7 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
                                         display="inline-flex"
                                         ms={4}
                                     >
-                                        <IconHome size={12} />
+                                        <HomeIcon size={12} />
                                     </ThemeIcon>
                                 )}
                             </Text>

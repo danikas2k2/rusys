@@ -33,6 +33,8 @@ module.exports = {
           '',
           '<THIRD_PARTY_MODULES>',
           '',
+          '^@icons$',
+          '',
           '^~/',
           '^(?!.*[.]p?css$)[./].*$',
           '[.]p?css$',

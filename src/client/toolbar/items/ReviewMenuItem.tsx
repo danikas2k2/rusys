@@ -1,6 +1,7 @@
 import { NavLink } from '@mantine/core';
-import { IconClipboardList } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
+
+import { ReviewIcon } from '@icons';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';
@@ -28,7 +29,7 @@ export function ReviewMenuItem({ onClick }: ReviewMenuItemProps) {
             label={<Label>Review</Label>}
             leftSection={
                 <ToolbarMenuIcon>
-                    <IconClipboardList />
+                    <ReviewIcon />
                 </ToolbarMenuIcon>
             }
             disabled={!hasReviewGroups}

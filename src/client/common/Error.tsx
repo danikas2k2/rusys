@@ -1,6 +1,7 @@
 import { Alert, Center } from '@mantine/core';
-import { IconAlertOctagon } from '@tabler/icons-react';
 import React from 'react';
+
+import { PageErrorIcon } from '@icons';
 
 import { Label } from '~/client/common/Label';
 
@@ -14,7 +15,7 @@ export function Error({ children, size = 48, color = 'negative' }: ErrorProps): 
                 color={color}
                 radius="md"
                 title={<Label>Error</Label>}
-                icon={<IconAlertOctagon size={size} />}
+                icon={<PageErrorIcon size={size} />}
                 styles={{ icon: { width: size, height: size } }}
             >
                 {children}

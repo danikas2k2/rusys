@@ -1,6 +1,7 @@
 import { ActionIcon, Flex, NumberInput } from '@mantine/core';
-import { IconEdit, IconMinus, IconPlus, IconToolsKitchen2, IconTrash } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
+
+import { ConsumedIcon, DecreaseIcon, IncreaseIcon, RecycledIcon, UpdatedIcon } from '@icons';
 
 import { useLabels } from '~/client/hooks/useLabels';
 
@@ -16,9 +17,9 @@ interface VariantEditRowProps {
 }
 
 const ICONS: Record<VariantEditType, React.ReactNode> = {
-    updated: <IconEdit size={18} />,
-    consumed: <IconToolsKitchen2 size={18} />,
-    recycled: <IconTrash size={18} />,
+    updated: <UpdatedIcon size={18} />,
+    consumed: <ConsumedIcon size={18} />,
+    recycled: <RecycledIcon size={18} />,
 };
 
 export function AmountVariantRow({ type, delta, minDelta, onChange }: VariantEditRowProps) {
@@ -91,7 +92,7 @@ export function AmountVariantRow({ type, delta, minDelta, onChange }: VariantEdi
                         onClick={canDecrease ? decrease : undefined}
                         aria-label={canDecrease ? _('Decrease') : undefined}
                     >
-                        {canDecrease ? <IconMinus size={14} /> : undefined}
+                        {canDecrease ? <DecreaseIcon size={14} /> : undefined}
                     </ActionIcon>
                 }
                 rightSection={
@@ -102,7 +103,7 @@ export function AmountVariantRow({ type, delta, minDelta, onChange }: VariantEdi
                         onClick={canIncrease ? increase : undefined}
                         aria-label={canIncrease ? _('Increase') : undefined}
                     >
-                        {canIncrease ? <IconPlus size={14} /> : undefined}
+                        {canIncrease ? <IncreaseIcon size={14} /> : undefined}
                     </ActionIcon>
                 }
             />

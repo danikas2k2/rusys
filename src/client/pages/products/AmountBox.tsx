@@ -1,6 +1,7 @@
 import { Tabs, type ModalProps } from '@mantine/core';
-import { IconHistory, IconStack2 } from '@tabler/icons-react';
 import React, { useCallback, useState } from 'react';
+
+import { HistoryTabIcon, QuantitiesTabIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { Label } from '~/client/common/Label';
@@ -44,10 +45,10 @@ export function AmountBox({ opened = false, title, onClose, onAfterClose }: Valu
                     style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
                 >
                     <Tabs.List>
-                        <Tabs.Tab fz="md" value="quantities" leftSection={<IconStack2 size={18} />}>
+                        <Tabs.Tab fz="md" value="quantities" leftSection={<QuantitiesTabIcon size={18} />}>
                             <Label>Quantities</Label>
                         </Tabs.Tab>
-                        <Tabs.Tab fz="md" value="history" leftSection={<IconHistory size={18} />}>
+                        <Tabs.Tab fz="md" value="history" leftSection={<HistoryTabIcon size={18} />}>
                             <Label>History</Label>
                         </Tabs.Tab>
                     </Tabs.List>

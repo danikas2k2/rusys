@@ -1,8 +1,9 @@
 import { ActionIcon, Button, Group, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { googleLogout } from '@react-oauth/google';
-import { IconLogout } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
+
+import { LogoutIcon } from '@icons';
 
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
 import { Label } from '~/client/common/Label';
@@ -31,7 +32,7 @@ export function LogoutButton({ children }: React.PropsWithChildren): React.React
                 opened={opened}
                 title={<Label>Are you sure to logout?</Label>}
                 confirmButton={
-                    <Button leftSection={<IconLogout />}>
+                    <Button leftSection={<LogoutIcon />}>
                         <Label>Logout</Label>
                     </Button>
                 }

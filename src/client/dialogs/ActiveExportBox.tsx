@@ -1,6 +1,7 @@
 import { Button } from '@mantine/core';
-import { IconCloudDownload } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
+
+import { ExportIcon } from '@icons';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
@@ -27,7 +28,7 @@ export function ActiveExportBox() {
             onConfirm={handleConfirm}
             title={<Label>Export data?</Label>}
             confirmButton={
-                <Button variant="filled" color="primary" leftSection={<IconCloudDownload size={18} />}>
+                <Button variant="filled" color="primary" leftSection={<ExportIcon size={18} />}>
                     <Label>Export</Label>
                 </Button>
             }

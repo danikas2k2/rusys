@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
         resolve: {
             alias: {
                 '~': path.resolve(__dirname, './src'),
+                '@icons': path.resolve(__dirname, './src/client/common/icons'),
                 '@tests': path.resolve(__dirname, './src/tests'),
                 'package.json': path.resolve(__dirname, './package.json'),
             },

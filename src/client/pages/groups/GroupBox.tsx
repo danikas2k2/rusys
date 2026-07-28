@@ -1,17 +1,20 @@
 import { Alert, Avatar, Button, Checkbox, Group, rem, Stack, Text, TextInput } from '@mantine/core';
 import { Dropzone, type FileWithPath } from '@mantine/dropzone';
 import { useForm } from '@mantine/form';
-import {
-    IconAlertCircle,
-    IconCalendarClock,
-    IconCheck,
-    IconClipboardList,
-    IconCloudUpload,
-    IconPhoto,
-    IconPlus,
-    IconX,
-} from '@tabler/icons-react';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+
+import {
+    AddIcon,
+    AnnualIcon,
+    CancelIcon,
+    ErrorAlertIcon,
+    ImageAcceptIcon,
+    ImageDropzoneIdleIcon,
+    ImageRejectIcon,
+    RemoveImageIcon,
+    ReviewIcon,
+    UpdateIcon,
+} from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { Label } from '~/client/common/Label';
@@ -204,7 +207,7 @@ export function GroupBox({
                             variant="outline"
                             label={
                                 <Group gap="xs">
-                                    <IconCalendarClock size={18} />
+                                    <AnnualIcon size={18} />
                                     <Label>Annual</Label>
                                 </Group>
                             }
@@ -215,7 +218,7 @@ export function GroupBox({
                             variant="outline"
                             label={
                                 <Group gap="xs">
-                                    <IconClipboardList size={18} />
+                                    <ReviewIcon size={18} />
                                     <Label>Review</Label>
                                 </Group>
                             }
@@ -241,13 +244,13 @@ export function GroupBox({
                                 ) : (
                                     <>
                                         <Dropzone.Accept>
-                                            <IconPhoto size={32} stroke={1.5} />
+                                            <ImageAcceptIcon size={32} stroke={1.5} />
                                         </Dropzone.Accept>
                                         <Dropzone.Reject>
-                                            <IconX size={32} stroke={1.5} />
+                                            <ImageRejectIcon size={32} stroke={1.5} />
                                         </Dropzone.Reject>
                                         <Dropzone.Idle>
-                                            <IconCloudUpload size={32} stroke={1.5} />
+                                            <ImageDropzoneIdleIcon size={32} stroke={1.5} />
                                         </Dropzone.Idle>
                                     </>
                                 )}
@@ -261,7 +264,7 @@ export function GroupBox({
                                 variant="subtle"
                                 color="gray"
                                 size="xs"
-                                leftSection={<IconX size={16} />}
+                                leftSection={<RemoveImageIcon size={16} />}
                                 onClick={handleImageRemove}
                                 disabled={loading}
                                 style={{ alignSelf: 'flex-start' }}
@@ -270,7 +273,7 @@ export function GroupBox({
                             </Button>
                         )}
                         {imageError && (
-                            <Alert variant="light" color="negative" icon={<IconAlertCircle size={18} />}>
+                            <Alert variant="light" color="negative" icon={<ErrorAlertIcon size={18} />}>
                                 {imageError}
                             </Alert>
                         )}
@@ -279,7 +282,7 @@ export function GroupBox({
                                 variant="outline"
                                 color="gray"
                                 disabled={loading}
-                                leftSection={<IconX size={18} />}
+                                leftSection={<CancelIcon size={18} />}
                                 onClick={handleClose}
                             >
                                 <Label>Cancel</Label>
@@ -287,7 +290,7 @@ export function GroupBox({
                             <Button
                                 type="submit"
                                 loading={loading}
-                                leftSection={isEditing ? <IconCheck size={18} /> : <IconPlus size={18} />}
+                                leftSection={isEditing ? <UpdateIcon size={18} /> : <AddIcon size={18} />}
                                 color={!isEditing ? 'positive' : undefined}
                             >
                                 <Label>{isEditing ? 'Update' : 'Add'}</Label>

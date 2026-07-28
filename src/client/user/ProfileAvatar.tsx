@@ -1,6 +1,7 @@
 import { Avatar, type AvatarProps } from '@mantine/core';
-import { IconRobotFace } from '@tabler/icons-react';
 import React from 'react';
+
+import { DevUserIcon } from '@icons';
 
 import { DEV_MODE_SUB } from '~/client/state/profile/dev';
 import { useProfile } from '~/client/state/profile/useProfile';
@@ -39,7 +40,7 @@ export function ProfileAvatar({ size = 'md', radius = '50%', variant }: ProfileA
                 radius={radius}
                 data-robot="true"
             >
-                <IconRobotFace size="60%" />
+                <DevUserIcon size="60%" />
             </Avatar>
         );
     }

@@ -1,6 +1,7 @@
 import { Select } from '@mantine/core';
-import { IconSelector } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
+
+import { SelectDropdownIcon } from '@icons';
 
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabel } from '~/client/hooks/useLabel';
@@ -42,7 +43,7 @@ export function ToolbarGroupFilter() {
                     }}
                 >
                     {group && <ClearFilterIcon onClick={handleClear} />}
-                    <IconSelector size={16} style={{ pointerEvents: 'none' }} />
+                    <SelectDropdownIcon size={16} style={{ pointerEvents: 'none' }} />
                 </div>
             }
         />

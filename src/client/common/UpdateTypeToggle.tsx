@@ -1,6 +1,7 @@
 import { SegmentedControl, ThemeIcon, type MantineColor } from '@mantine/core';
-import { IconEdit, IconToolsKitchen2, IconTrash } from '@tabler/icons-react';
 import React, { useMemo } from 'react';
+
+import { ConsumedIcon, RecycledIcon, UpdatedIcon } from '@icons';
 
 import { ChangeBadge } from '~/client/common/ChangeBadge';
 import { useUpdateType, type UpdateTypes } from '~/client/common/UpdateTypeContext';
@@ -37,7 +38,7 @@ export function UpdateTypeToggle({ changes, updated = true }: Readonly<UpdateTyp
                 label: (
                     <>
                         <ThemeIcon color="text" variant={updateType === 'consumed' ? 'filled' : 'subtle'}>
-                            <IconToolsKitchen2 aria-label={_('Consumed')} />
+                            <ConsumedIcon aria-label={_('Consumed')} />
                         </ThemeIcon>
                         {consumedAmount && <ChangeBadge position="left" change={consumedAmount} />}
                     </>
@@ -50,7 +51,7 @@ export function UpdateTypeToggle({ changes, updated = true }: Readonly<UpdateTyp
                           label: (
                               <>
                                   <ThemeIcon color="text" variant={updateType === 'updated' ? 'filled' : 'subtle'}>
-                                      <IconEdit aria-label={_('Updated')} />
+                                      <UpdatedIcon aria-label={_('Updated')} />
                                   </ThemeIcon>
                                   {updatedAmount && <ChangeBadge position="top" change={updatedAmount} />}
                               </>
@@ -63,7 +64,7 @@ export function UpdateTypeToggle({ changes, updated = true }: Readonly<UpdateTyp
                 label: (
                     <>
                         <ThemeIcon color="text" variant={updateType === 'recycled' ? 'filled' : 'subtle'}>
-                            <IconTrash aria-label={_('Recycled')} />
+                            <RecycledIcon aria-label={_('Recycled')} />
                         </ThemeIcon>
                         {recycledAmount && <ChangeBadge position="right" change={recycledAmount} />}
                     </>

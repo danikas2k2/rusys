@@ -1,6 +1,7 @@
 import { Avatar, Table, Title } from '@mantine/core';
-import { IconCalendarClock, IconClipboardList } from '@tabler/icons-react';
 import React from 'react';
+
+import { AnnualIcon, ReviewIcon } from '@icons';
 
 import { Label } from '~/client/common/Label';
 import { SortableRow } from '~/client/table/SortableRow';
@@ -25,10 +26,10 @@ export function GroupsRow({ group, reordering, hidden = false }: GroupsRowProps)
             </Table.Td>
             {annual && (
                 <Table.Td ta="center">
-                    <IconCalendarClock size={18} />
+                    <AnnualIcon size={18} />
                 </Table.Td>
             )}
-            {(annual || review) && <Table.Td ta="center">{review && <IconClipboardList size={18} />}</Table.Td>}
+            {(annual || review) && <Table.Td ta="center">{review && <ReviewIcon size={18} />}</Table.Td>}
         </SortableRow>
     );
 }

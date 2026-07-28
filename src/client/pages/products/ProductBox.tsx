@@ -1,7 +1,8 @@
 import { Button, Group, Select, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconArrowRight, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+
+import { AddIcon, CancelIcon, MoveIcon, UpdateIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { Label } from '~/client/common/Label';
@@ -165,18 +166,18 @@ export function ProductBox({
     const getButtonContent = () => {
         if (isMoving || (isEditing && form.values.group !== initialGroup)) {
             return {
-                icon: <IconArrowRight size={18} />,
+                icon: <MoveIcon size={18} />,
                 label: 'Move',
             };
         }
         if (isEditing) {
             return {
-                icon: <IconCheck size={18} />,
+                icon: <UpdateIcon size={18} />,
                 label: 'Update',
             };
         }
         return {
-            icon: <IconPlus size={18} />,
+            icon: <AddIcon size={18} />,
             label: 'Add',
         };
     };
@@ -224,7 +225,7 @@ export function ProductBox({
                                 variant="outline"
                                 color="gray"
                                 disabled={loading}
-                                leftSection={<IconX size={18} />}
+                                leftSection={<CancelIcon size={18} />}
                                 onClick={handleClose}
                             >
                                 <Label>Cancel</Label>

@@ -1,6 +1,7 @@
 import { Center, Stack, Table, Text } from '@mantine/core';
-import { IconHome, IconTilde } from '@tabler/icons-react';
 import React, { useCallback, useMemo } from 'react';
+
+import { ApproxAmountIcon, HomeIcon } from '@icons';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { AmountSuffix } from '~/client/common/AmountSuffix';
@@ -19,10 +20,10 @@ interface HomeAmountsProps {
 function HomeAmountLine({ children }: React.PropsWithChildren) {
     return (
         <Text c="blue">
-            <IconTilde size={12} />
+            <ApproxAmountIcon size={12} />
             {children}
             <sub>
-                <IconHome size={10} style={{ selfAlign: 'end' }} />
+                <HomeIcon size={10} style={{ selfAlign: 'end' }} />
             </sub>
         </Text>
     );

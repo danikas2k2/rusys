@@ -6,6 +6,7 @@
     "compilerOptions": {
         "paths": {
             "package.json": ["./package.json"],
+            "@icons": ["./src/client/common/icons"],
             "@tests/*": ["./src/tests/*"],
             "~/*": ["./src/*"]
         },
