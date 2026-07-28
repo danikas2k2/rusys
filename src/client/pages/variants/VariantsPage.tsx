@@ -1,11 +1,11 @@
-import { Group } from '@mantine/core';
 import React from 'react';
 
 import { SwipeControls } from '~/client/common/SwipeControls';
 import { SwipeControlsWrapper } from '~/client/common/SwipeControlsContext';
+import { CategoryRailLayout } from '~/client/filters/CategoryRailLayout';
 import { Page } from '~/client/pages/common/Page';
 import { ActiveVariantBox } from '~/client/pages/variants/ActiveVariantBox';
-import { VariantsCategoryRail } from '~/client/pages/variants/VariantsCategoryRail';
+import { useGroupsWithVariants } from '~/client/pages/variants/hooks/useGroupsWithVariants';
 import { VariantsTable } from '~/client/pages/variants/VariantsTable';
 import { useDeleteVariant } from '~/client/state/variants/useDeleteVariant';
 import type { Variant } from '~/types/data';
@@ -13,18 +13,16 @@ import type { Variant } from '~/types/data';
 export function VariantsPage() {
     const deleteVariant = useDeleteVariant();
     const handleDelete = ({ group, variant }: Variant) => deleteVariant(group, variant);
+    const groupsWithVariants = useGroupsWithVariants();
 
     return (
         <Page withAdd onDelete={handleDelete}>
-            <Group align="flex-start" gap="xs" wrap="nowrap">
-                <VariantsCategoryRail />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <SwipeControlsWrapper>
-                        <VariantsTable />
-                        <SwipeControls />
-                    </SwipeControlsWrapper>
-                </div>
-            </Group>
+            <CategoryRailLayout groupsWithContent={groupsWithVariants}>
+                <SwipeControlsWrapper>
+                    <VariantsTable />
+                    <SwipeControls />
+                </SwipeControlsWrapper>
+            </CategoryRailLayout>
             <ActiveVariantBox />
         </Page>
     );

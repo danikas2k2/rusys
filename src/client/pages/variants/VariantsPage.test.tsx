@@ -14,8 +14,13 @@ vi.mock(import('~/client/common/SwipeControlsContext'));
 vi.mock(import('~/client/pages/variants/VariantsTable'), () => ({
     VariantsTable: () => <div>VariantsTable</div>,
 }));
-vi.mock(import('~/client/pages/variants/VariantsCategoryRail'), () => ({
-    VariantsCategoryRail: () => <div>VariantsCategoryRail</div>,
+vi.mock(import('~/client/filters/CategoryRailLayout'), () => ({
+    CategoryRailLayout: ({ children }: React.PropsWithChildren) => (
+        <div>
+            CategoryRailLayout
+            {children}
+        </div>
+    ),
 }));
 vi.mock(import('~/client/pages/variants/ActiveVariantBox'), () => ({
     ActiveVariantBox: () => <div>ActiveVariantBox</div>,
@@ -52,7 +57,7 @@ describe('<VariantsPage>', () => {
         expect(screen.getByText('VariantsTable')).toBeInTheDocument();
     });
 
-    it('renders category rail', () => {
+    it('renders category rail layout', () => {
         render(
             <MockTheme>
                 <MockRedux>
@@ -61,7 +66,7 @@ describe('<VariantsPage>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByText('VariantsCategoryRail')).toBeInTheDocument();
+        expect(screen.getByText('CategoryRailLayout')).toBeInTheDocument();
     });
 
     it('calls deleteVariant with group and variant when onDelete is triggered', () => {

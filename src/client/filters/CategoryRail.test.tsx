@@ -4,22 +4,16 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
+import { CategoryRail } from '~/client/filters/CategoryRail';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
-import { VariantsCategoryRail } from '~/client/pages/variants/VariantsCategoryRail';
 import { useGroups } from '~/client/state/groups/useGroups';
-import { useVariants } from '~/client/state/variants/useVariants';
 
 vi.mock(import('~/client/state/groups/useGroups'));
-vi.mock(import('~/client/state/variants/useVariants'));
 vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
     useGroupFilter: vi.fn(),
 }));
 
-describe('<VariantsCategoryRail>', () => {
-    beforeEach(() => {
-        vi.mocked(useVariants).mockReturnValue([]);
-    });
-
+describe('<CategoryRail>', () => {
     afterEach(() => vi.clearAllMocks());
 
     it('renders nothing when there are no categories', () => {
@@ -28,7 +22,7 @@ describe('<VariantsCategoryRail>', () => {
 
         const { container } = render(
             <MockTheme>
-                <VariantsCategoryRail />
+                <CategoryRail groupsWithContent={new Set()} />
             </MockTheme>
         );
 
@@ -44,7 +38,7 @@ describe('<VariantsCategoryRail>', () => {
 
         render(
             <MockTheme>
-                <VariantsCategoryRail />
+                <CategoryRail groupsWithContent={new Set(['Uogienės', 'Daržovės'])} />
             </MockTheme>
         );
 
@@ -64,7 +58,7 @@ describe('<VariantsCategoryRail>', () => {
 
         render(
             <MockTheme>
-                <VariantsCategoryRail />
+                <CategoryRail groupsWithContent={new Set(['Uogienės', 'Daržovės'])} />
             </MockTheme>
         );
 
@@ -82,7 +76,7 @@ describe('<VariantsCategoryRail>', () => {
 
         render(
             <MockTheme>
-                <VariantsCategoryRail />
+                <CategoryRail groupsWithContent={new Set()} />
             </MockTheme>
         );
 
@@ -96,7 +90,7 @@ describe('<VariantsCategoryRail>', () => {
 
         render(
             <MockTheme>
-                <VariantsCategoryRail />
+                <CategoryRail groupsWithContent={new Set()} />
             </MockTheme>
         );
 
@@ -113,7 +107,7 @@ describe('<VariantsCategoryRail>', () => {
 
         render(
             <MockTheme>
-                <VariantsCategoryRail />
+                <CategoryRail groupsWithContent={new Set()} />
             </MockTheme>
         );
 
@@ -130,7 +124,7 @@ describe('<VariantsCategoryRail>', () => {
 
         render(
             <MockTheme>
-                <VariantsCategoryRail />
+                <CategoryRail groupsWithContent={new Set(['Uogienės', 'Daržovės'])} />
             </MockTheme>
         );
 
@@ -145,7 +139,7 @@ describe('<VariantsCategoryRail>', () => {
 
         render(
             <MockTheme>
-                <VariantsCategoryRail />
+                <CategoryRail groupsWithContent={new Set(['Uogienės'])} />
             </MockTheme>
         );
 
@@ -160,42 +154,40 @@ describe('<VariantsCategoryRail>', () => {
 
         render(
             <MockTheme>
-                <VariantsCategoryRail />
+                <CategoryRail groupsWithContent={new Set(['Uogienės'])} />
             </MockTheme>
         );
 
         expect(screen.getByText('U')).toBeInTheDocument();
     });
 
-    it('greys out the avatar for a category with no variants', () => {
+    it('greys out the avatar for a category with no content', () => {
         vi.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0 }]);
         vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
-        vi.mocked(useVariants).mockReturnValue([]);
 
         render(
             <MockTheme>
-                <VariantsCategoryRail />
+                <CategoryRail groupsWithContent={new Set()} />
             </MockTheme>
         );
 
         const avatar = screen.getByText('U').closest('.mantine-Avatar-root');
 
-        expect(avatar).toHaveStyle({ filter: 'grayscale(1)', opacity: '0.4' });
+        expect(avatar).toHaveAttribute('data-grayed', 'true');
     });
 
-    it('does not grey out the avatar for a category with variants', () => {
+    it('does not grey out the avatar for a category with content', () => {
         vi.mocked(useGroups).mockReturnValue([{ group: 'Uogienės', order: 0 }]);
         vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
-        vi.mocked(useVariants).mockReturnValue([{ group: 'Uogienės', variant: 'p', order: 0 }]);
 
         render(
             <MockTheme>
-                <VariantsCategoryRail />
+                <CategoryRail groupsWithContent={new Set(['Uogienės'])} />
             </MockTheme>
         );
 
         const avatar = screen.getByText('U').closest('.mantine-Avatar-root');
 
-        expect(avatar).not.toHaveStyle({ filter: 'grayscale(1)' });
+        expect(avatar).toHaveAttribute('data-grayed', 'false');
     });
 });

@@ -1,16 +1,18 @@
 import { Avatar, Tabs, Tooltip } from '@mantine/core';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
-import { useVariants } from '~/client/state/variants/useVariants';
 
-export function VariantsCategoryRail(): React.ReactElement | null {
+import './CategoryRail.pcss';
+
+interface CategoryRailProps {
+    groupsWithContent: ReadonlySet<string>;
+}
+
+export function CategoryRail({ groupsWithContent }: CategoryRailProps): React.ReactElement | null {
     const groups = useSortedGroups();
     const [selected, setSelected] = useGroupFilter();
-
-    const variants = useVariants();
-    const groupsWithVariants = useMemo(() => new Set(variants.map(({ group }) => group)), [variants]);
 
     // Default to the first category when none is selected yet, or the selected one no longer exists
     useEffect(() => {
@@ -29,7 +31,7 @@ export function VariantsCategoryRail(): React.ReactElement | null {
             onChange={(value) => value && setSelected(value)}
             orientation="vertical"
             variant="outline"
-            style={{ position: 'sticky', top: 0, maxHeight: '100dvh', overflowY: 'auto' }}
+            data-tabs="category-rail"
         >
             <Tabs.List>
                 {groups.map(({ group, image }) => (
@@ -40,9 +42,7 @@ export function VariantsCategoryRail(): React.ReactElement | null {
                                 radius="sm"
                                 size="sm"
                                 p={0}
-                                style={
-                                    groupsWithVariants.has(group) ? undefined : { filter: 'grayscale(1)', opacity: 0.4 }
-                                }
+                                data-grayed={!groupsWithContent.has(group)}
                             >
                                 {group.trim().charAt(0).toUpperCase()}
                             </Avatar>

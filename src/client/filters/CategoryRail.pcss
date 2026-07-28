@@ -1,0 +1,16 @@
+.ui-Tabs-root[data-tabs='category-rail'] {
+    position: sticky;
+    top: 0;
+    max-height: 100dvh;
+    overflow-y: auto;
+
+    .ui-Tabs-tab:not([data-active='true']) {
+        background-color: var(--mantine-color-mantle);
+        border-inline-end: 1px solid var(--tab-border-color);
+    }
+}
+
+.ui-Avatar-root[data-grayed='true'] {
+    filter: grayscale(1);
+    opacity: 0.4;
+}
