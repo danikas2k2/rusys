@@ -81,18 +81,6 @@ export function ToolbarMenu() {
                         <Divider m="xs" />
 
                         <NavLink
-                            label={<Label>Categories</Label>}
-                            leftSection={
-                                <ToolbarMenuIcon>
-                                    <IconTriangleSquareCircle />
-                                </ToolbarMenuIcon>
-                            }
-                            component={Link}
-                            to={to(Links.CATEGORIES)}
-                            active={!!useMatch(Links.CATEGORIES)}
-                            onClick={close}
-                        />
-                        <NavLink
                             label={<Label>Variants</Label>}
                             leftSection={
                                 <ToolbarMenuIcon>
@@ -102,6 +90,18 @@ export function ToolbarMenu() {
                             component={Link}
                             to={to(Links.VARIANTS)}
                             active={!!useMatch(Links.VARIANTS)}
+                            onClick={close}
+                        />
+                        <NavLink
+                            label={<Label>Categories</Label>}
+                            leftSection={
+                                <ToolbarMenuIcon>
+                                    <IconTriangleSquareCircle />
+                                </ToolbarMenuIcon>
+                            }
+                            component={Link}
+                            to={to(Links.CATEGORIES)}
+                            active={!!useMatch(Links.CATEGORIES)}
                             onClick={close}
                         />
 

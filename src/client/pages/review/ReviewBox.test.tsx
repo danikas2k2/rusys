@@ -174,7 +174,7 @@ describe('<ReviewBox>', () => {
     });
 
     describe('apply', () => {
-        it('sends missing=true for a previously-present product left unchecked, closes without confirmation', async () => {
+        it('sends no updates for a category that was never touched', async () => {
             const onClose = vi.fn();
 
             render(
@@ -185,9 +185,26 @@ describe('<ReviewBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Apply' }));
 
-            expect(applyReview).toHaveBeenCalledWith([{ group: 'Uogienės', name: 'Avietės', missing: true }]);
+            expect(applyReview).toHaveBeenCalledWith([]);
             expect(onClose).toHaveBeenCalledTimes(1);
             expect(screen.queryByRole('button', { name: 'Discard' })).not.toBeInTheDocument();
+        });
+
+        it('sends missing=true for an unchecked product once its group is touched', async () => {
+            render(
+                <MockApp state={state}>
+                    <ReviewBox opened />
+                </MockApp>
+            );
+
+            // Touching any checkbox in the group brings every one of its products into the changeset
+            await user.click(screen.getByRole('button', { name: 'check-braskes' }));
+            await user.click(screen.getByRole('button', { name: 'Apply' }));
+
+            expect(applyReview).toHaveBeenCalledWith([
+                { group: 'Uogienės', name: 'Avietės', missing: true },
+                { group: 'Uogienės', name: 'Braškės', missing: false },
+            ]);
         });
 
         it('sends missing=false for a previously-missing product that gets checked', async () => {
@@ -217,13 +234,14 @@ describe('<ReviewBox>', () => {
             expect(applyReview).toHaveBeenCalledWith([]);
         });
 
-        it('excludes products with no years from updates regardless of state', async () => {
+        it('excludes products with no years from updates even once the group is touched', async () => {
             render(
                 <MockApp state={state}>
                     <ReviewBox opened />
                 </MockApp>
             );
 
+            await user.click(screen.getByRole('button', { name: 'check-avietes' }));
             await user.click(screen.getByRole('button', { name: 'Apply' }));
 
             const updates = applyReview.mock.calls[0][0];
@@ -231,13 +249,14 @@ describe('<ReviewBox>', () => {
             expect(updates.some((u: any) => u.name === 'Serbentai')).toBe(false);
         });
 
-        it('excludes products from groups not flagged for review', async () => {
+        it('excludes products from groups not flagged for review even once another group is touched', async () => {
             render(
                 <MockApp state={state}>
                     <ReviewBox opened />
                 </MockApp>
             );
 
+            await user.click(screen.getByRole('button', { name: 'check-avietes' }));
             await user.click(screen.getByRole('button', { name: 'Apply' }));
 
             const updates = applyReview.mock.calls[0][0];

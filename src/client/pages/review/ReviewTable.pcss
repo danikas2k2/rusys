@@ -1,0 +1,8 @@
+/* Mantine hides the checkbox icon (via a shrink+shift transform) unless the *input* is
+   :checked or [data-indeterminate] (sibling selector - unknown props land on the <input>,
+   not the root). Mirror that here so the "untouched" middle-dot mark is revealed too. */
+.ui-Checkbox-input[data-untouched='true'] + .ui-Checkbox-icon {
+    opacity: 1 !important;
+    transform: none !important;
+    color: var(--mantine-color-dimmed);
+}

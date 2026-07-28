@@ -80,8 +80,8 @@ describe('<ToolbarMenu>', () => {
         expect(menu.getAllByRole('link')).toHaveListWithTextContent([
             'Products',
             'Summary',
-            'Categories',
             'Variants',
+            'Categories',
             'Utilities',
         ]);
 

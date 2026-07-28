@@ -1,4 +1,5 @@
-import { Checkbox, Table, Title } from '@mantine/core';
+import { Checkbox, Table } from '@mantine/core';
+import { IconPointFilled } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
 
 import { getId } from '~/client/utils/id';
@@ -7,11 +8,12 @@ import type { Product } from '~/types/data';
 interface ReviewProductRowProps {
     product: Product;
     checked: boolean;
+    touched: boolean;
     onToggle: (key: string, checked: boolean) => void;
     hidden?: boolean;
 }
 
-export function ReviewProductRow({ product, checked, onToggle, hidden = false }: ReviewProductRowProps) {
+export function ReviewProductRow({ product, checked, touched, onToggle, hidden = false }: ReviewProductRowProps) {
     const handleChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
             onToggle(getId(product.group, product.name), e.currentTarget.checked);
@@ -25,8 +27,10 @@ export function ReviewProductRow({ product, checked, onToggle, hidden = false }:
                 <Checkbox
                     variant="outline"
                     checked={checked}
+                    icon={touched ? undefined : IconPointFilled}
                     onChange={handleChange}
-                    label={<Title order={5}>{product.name}</Title>}
+                    data-untouched={!touched}
+                    label={product.name}
                 />
             </Table.Td>
         </Table.Tr>
