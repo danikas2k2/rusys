@@ -2,6 +2,7 @@ import React from 'react';
 
 import { ToolbarFilter } from '~/client/toolbar/ToolbarFilter';
 import { ToolbarMenu } from '~/client/toolbar/ToolbarMenu';
+import { ToolbarReviewButton } from '~/client/toolbar/ToolbarReviewButton';
 import { LogoutButton } from '~/client/user/LogoutButton';
 
 import './Toolbar.pcss';
@@ -15,6 +16,9 @@ export function Toolbar({ children }: React.PropsWithChildren) {
             <div className="filter">
                 <ToolbarFilter />
                 {children}
+            </div>
+            <div>
+                <ToolbarReviewButton />
             </div>
             <div>
                 <LogoutButton />

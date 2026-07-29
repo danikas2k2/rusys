@@ -10,9 +10,9 @@ import { useGroupsWithSummary } from '~/client/pages/summary/hooks/useGroupsWith
 import { SummaryTable } from '~/client/pages/summary/SummaryTable';
 
 export function SummaryPage() {
-    const groups = useSortedGroups();
-    const [selectedGroup, setSelectedGroup] = useGroupFilter();
     const groupsWithSummary = useGroupsWithSummary();
+    const groups = useSortedGroups().filter((g) => groupsWithSummary.has(g.group));
+    const [selectedGroup, setSelectedGroup] = useGroupFilter();
 
     return (
         <Page>

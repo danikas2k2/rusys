@@ -1,4 +1,4 @@
-import { Avatar, Tabs, Tooltip } from '@mantine/core';
+import { Avatar, Tabs } from '@mantine/core';
 import React, { useEffect } from 'react';
 
 import './CategoryRail.pcss';
@@ -38,9 +38,10 @@ export function CategoryRail({
             data-tabs="category-rail"
         >
             <Tabs.List>
-                {groups.map(({ group, image }) => (
-                    <Tabs.Tab key={group} value={group} aria-label={group} p={8}>
-                        <Tooltip label={group} position="right" withArrow>
+                {groups.map(({ group, image }) => {
+                    const isActive = group === selected;
+                    return (
+                        <Tabs.Tab key={group} value={group} aria-label={group} px={8} py={isActive ? 12 : 8}>
                             <Avatar
                                 src={image || undefined}
                                 radius="sm"
@@ -50,9 +51,9 @@ export function CategoryRail({
                             >
                                 {group.trim().charAt(0).toUpperCase()}
                             </Avatar>
-                        </Tooltip>
-                    </Tabs.Tab>
-                ))}
+                        </Tabs.Tab>
+                    );
+                })}
             </Tabs.List>
         </Tabs>
     );
