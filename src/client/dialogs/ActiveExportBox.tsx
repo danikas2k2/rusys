@@ -5,6 +5,7 @@ import { ExportIcon } from '@icons';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { useExportHandler } from '~/client/hooks/useExportHandler';
 
@@ -26,7 +27,14 @@ export function ActiveExportBox() {
             opened={opened}
             onClose={handleClose}
             onConfirm={handleConfirm}
-            title={<Label>Export data?</Label>}
+            title={
+                <>
+                    <DialogIcon>
+                        <ExportIcon />
+                    </DialogIcon>
+                    <Label>Export data?</Label>
+                </>
+            }
             confirmButton={
                 <Button variant="filled" color="primary" leftSection={<ExportIcon size={18} />}>
                     <Label>Export</Label>

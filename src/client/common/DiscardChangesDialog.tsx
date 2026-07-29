@@ -1,9 +1,10 @@
 import { Button } from '@mantine/core';
 import React from 'react';
 
-import { DiscardIcon } from '@icons';
+import { ConfirmationDialogIcon, DiscardIcon } from '@icons';
 
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 
 interface DiscardChangesDialogProps {
@@ -18,7 +19,14 @@ export function DiscardChangesDialog({ opened, onConfirm, onClose }: DiscardChan
             opened={opened}
             onClose={onClose}
             onConfirm={onConfirm}
-            title={<Label>Discard unsaved changes?</Label>}
+            title={
+                <>
+                    <DialogIcon>
+                        <ConfirmationDialogIcon />
+                    </DialogIcon>
+                    <Label>Discard unsaved changes?</Label>
+                </>
+            }
             confirmButton={
                 <Button variant="filled" color="negative" leftSection={<DiscardIcon size={18} />}>
                     <Label>Discard</Label>

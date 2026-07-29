@@ -13,6 +13,7 @@ import {
 } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { useImportHandler } from '~/client/hooks/useImportHandler';
 import { useLabel } from '~/client/hooks/useLabel';
@@ -81,7 +82,11 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
             opened={opened}
             isDirty={() => !!file}
             onClose={onClose}
-            title={<Label>Import</Label>}
+            title={
+                <DialogIcon aria-label={useLabel('Import')}>
+                    <ImportIcon />
+                </DialogIcon>
+            }
             closeButtonProps={{ 'aria-label': useLabel('Close') }}
             size="lg"
             centered

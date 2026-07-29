@@ -2,9 +2,10 @@ import { Button, Group, Select, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { AddIcon, CancelIcon, MoveIcon, UpdateIcon } from '@icons';
+import { AddIcon, CancelIcon, MoveIcon, ProductsNavIcon, UpdateIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabels } from '~/client/hooks/useLabels';
@@ -188,7 +189,11 @@ export function ProductBox({
         <ConfirmableModal
             centered
             opened={opened}
-            title={_(isEditing ? 'Edit entry' : 'Add new entry')}
+            title={
+                <DialogIcon aria-label={_(isEditing ? 'Edit entry' : 'Add new entry')}>
+                    <ProductsNavIcon />
+                </DialogIcon>
+            }
             withCloseButton
             isDirty={() => formRef.current.isDirty()}
             onClose={() => onClose()}

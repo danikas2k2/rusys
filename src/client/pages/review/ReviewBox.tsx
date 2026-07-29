@@ -2,9 +2,10 @@ import { Button, Group } from '@mantine/core';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { ApplyIcon, CancelIcon } from '@icons';
+import { ApplyIcon, CancelIcon, ReviewIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { CategoryRailLayout } from '~/client/filters/CategoryRailLayout';
 import { useLabels } from '~/client/hooks/useLabels';
@@ -114,11 +115,16 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
             onClose={() => onClose?.()}
             onExitTransitionEnd={onAfterClose}
             title={
-                <Group gap="xs" wrap="nowrap" style={{ flex: 1 }}>
-                    {/* Balances the close button on the other side, so the filter sits roughly centered like on other pages */}
-                    <div style={{ width: 42 }} />
-                    <ToolbarFilter />
-                </Group>
+                <>
+                    <DialogIcon>
+                        <ReviewIcon />
+                    </DialogIcon>
+                    <Group gap="xs" wrap="nowrap" style={{ flex: 1 }}>
+                        {/* Balances the close button on the other side, so the filter sits roughly centered like on other pages */}
+                        <div style={{ width: 42 }} />
+                        <ToolbarFilter />
+                    </Group>
+                </>
             }
             closeButtonProps={{ 'aria-label': _('Close'), ms: 8 }}
             styles={{

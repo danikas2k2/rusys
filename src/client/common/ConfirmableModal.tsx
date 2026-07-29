@@ -1,12 +1,13 @@
-import { Modal, type ModalProps } from '@mantine/core';
+import { Modal, type ModalProps, type ModalStylesNames } from '@mantine/core';
 import React from 'react';
 
 import { DiscardChangesDialog } from '~/client/common/DiscardChangesDialog';
 import { useConfirmClose } from '~/client/hooks/useConfirmClose';
 
-export interface ConfirmableModalProps extends Omit<ModalProps, 'children'> {
+export interface ConfirmableModalProps extends Omit<ModalProps, 'children' | 'classNames'> {
     isDirty: () => boolean;
     children: (handleClose: () => void) => React.ReactNode;
+    classNames?: Partial<Record<ModalStylesNames, string>>;
 }
 
 // Give the on-screen keyboard time to finish animating in before scrolling, so the target
@@ -21,12 +22,12 @@ function handleFocusCapture(event: React.FocusEvent<HTMLDivElement>): void {
     }
 }
 
-export function ConfirmableModal({ isDirty, onClose, children, ...modalProps }: ConfirmableModalProps) {
+export function ConfirmableModal({ isDirty, onClose, children, ...props }: ConfirmableModalProps) {
     const { handleClose, confirming, handleConfirmDiscard, handleCancelDiscard } = useConfirmClose(isDirty, onClose);
 
     return (
         <>
-            <Modal {...modalProps} onClose={handleClose} onFocusCapture={handleFocusCapture}>
+            <Modal {...props} onClose={handleClose} onFocusCapture={handleFocusCapture}>
                 {children(handleClose)}
             </Modal>
             <DiscardChangesDialog opened={confirming} onConfirm={handleConfirmDiscard} onClose={handleCancelDiscard} />

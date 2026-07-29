@@ -1,9 +1,10 @@
 import { Tabs, type ModalProps } from '@mantine/core';
 import React, { useCallback, useState } from 'react';
 
-import { HistoryTabIcon, QuantitiesTabIcon } from '@icons';
+import { HistoryTabIcon, ProductsNavIcon, QuantitiesTabIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AmountHistoryTab } from '~/client/pages/products/AmountHistoryTab';
@@ -34,7 +35,14 @@ export function AmountBox({ opened = false, title, onClose, onAfterClose }: Valu
             onClose={() => onClose?.()}
             closeButtonProps={{ 'aria-label': _('Close') }}
             onExitTransitionEnd={handleExitTransitionEnd}
-            title={title}
+            title={
+                <>
+                    <DialogIcon>
+                        <ProductsNavIcon />
+                    </DialogIcon>
+                    {title}
+                </>
+            }
             data-dialog="product"
         >
             {() => (

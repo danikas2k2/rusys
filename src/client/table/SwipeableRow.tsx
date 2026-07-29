@@ -148,15 +148,6 @@ export function SwipeableRow<D = ActiveContentData>({
             initialClientXRef.current = clientX;
             lastClientXRef.current = clientX;
             lastClientYRef.current = clientY;
-
-            // Keep receiving move/up events for this pointer even if the finger drifts
-            // outside the row's bounds mid-gesture (common on a fast swipe) - without this,
-            // a stray pointerleave would end the drag early, snapping to a premature position
-            try {
-                currentTarget?.setPointerCapture?.(e.pointerId);
-            } catch {
-                // Not supported in every environment - safe to ignore
-            }
         }
     }, []);
 
@@ -183,6 +174,18 @@ export function SwipeableRow<D = ActiveContentData>({
 
                 movingRef.current = true;
                 slidingRef.current = true;
+
+                // Only capture once an actual swipe is confirmed (not on every tap) - keeps
+                // receiving move/up events for this pointer even if the finger drifts outside
+                // the row's bounds mid-gesture (common on a fast swipe), without this a stray
+                // pointerleave would end the drag early, snapping to a premature position.
+                // Capturing unconditionally on pointerdown would retarget the matching pointerup
+                // to the row for every plain tap too, so it would never reach the cell below it.
+                try {
+                    (e.currentTarget as HTMLTableRowElement)?.setPointerCapture?.(e.pointerId);
+                } catch {
+                    // Not supported in every environment - safe to ignore
+                }
             }
 
             const {

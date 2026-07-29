@@ -2,9 +2,10 @@ import { Button, Group, NumberInput, Select, Stack, TextInput } from '@mantine/c
 import { useForm } from '@mantine/form';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { AddIcon, CancelIcon, DuplicateIcon, UpdateIcon } from '@icons';
+import { AddIcon, CancelIcon, DuplicateIcon, UpdateIcon, VariantsNavIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabels } from '~/client/hooks/useLabels';
@@ -251,7 +252,11 @@ export function VariantBox({
         <ConfirmableModal
             centered
             opened={!!opened}
-            title={_(isEditing ? 'Edit variant' : 'Add new variant')}
+            title={
+                <DialogIcon aria-label={_(isEditing ? 'Edit variant' : 'Add new variant')}>
+                    <VariantsNavIcon />
+                </DialogIcon>
+            }
             withCloseButton
             isDirty={() => formRef.current.isDirty()}
             onClose={() => onClose()}

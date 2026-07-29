@@ -57,7 +57,7 @@ describe('<ProductBox>', () => {
             </MockThemeRedux>
         );
 
-        expect(screen.getByText('Add new entry')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'Add new entry' })).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('');
         expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
     });
@@ -69,7 +69,7 @@ describe('<ProductBox>', () => {
             </MockThemeRedux>
         );
 
-        expect(screen.getByRole('heading')).toHaveTextContent('Edit entry');
+        expect(screen.getByRole('heading', { name: 'Edit entry' })).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Title' })).toHaveDisplayValue('Avietės');
     });
 

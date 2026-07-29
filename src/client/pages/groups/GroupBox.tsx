@@ -7,6 +7,7 @@ import {
     AddIcon,
     AnnualIcon,
     CancelIcon,
+    CategoriesNavIcon,
     ErrorAlertIcon,
     ImageAcceptIcon,
     ImageDropzoneIdleIcon,
@@ -17,6 +18,7 @@ import {
 } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
@@ -183,7 +185,11 @@ export function GroupBox({
         <ConfirmableModal
             centered
             opened={!!opened}
-            title={_(isEditing ? 'Edit category' : 'Add new category')}
+            title={
+                <DialogIcon aria-label={_(isEditing ? 'Edit category' : 'Add new category')}>
+                    <CategoriesNavIcon />
+                </DialogIcon>
+            }
             withCloseButton
             isDirty={() => formRef.current.isDirty()}
             onClose={() => onClose()}

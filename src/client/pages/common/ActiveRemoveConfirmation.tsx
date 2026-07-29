@@ -1,10 +1,11 @@
 import { Button } from '@mantine/core';
 import React, { useCallback } from 'react';
 
-import { DeleteIcon } from '@icons';
+import { ConfirmationDialogIcon, DeleteIcon } from '@icons';
 
 import { useActiveContent, type ActiveContentData } from '~/client/common/ActiveContentContext';
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 
 interface ActiveRemoveConfirmationProps<D = ActiveContentData> {
@@ -30,7 +31,14 @@ export function ActiveRemoveConfirmation<D = ActiveContentData>({
             opened={opened}
             onClose={handleClose}
             onConfirm={handleConfirm}
-            title={<Label>Are you sure to remove?</Label>}
+            title={
+                <>
+                    <DialogIcon>
+                        <ConfirmationDialogIcon />
+                    </DialogIcon>
+                    <Label>Are you sure to remove?</Label>
+                </>
+            }
             confirmButton={
                 <Button variant="filled" color="negative" leftSection={<DeleteIcon size={18} />}>
                     <Label>Remove</Label>

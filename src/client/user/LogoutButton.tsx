@@ -3,9 +3,10 @@ import { useDisclosure } from '@mantine/hooks';
 import { googleLogout } from '@react-oauth/google';
 import React, { useCallback } from 'react';
 
-import { LogoutIcon } from '@icons';
+import { ConfirmationDialogIcon, LogoutIcon } from '@icons';
 
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useResetProfile } from '~/client/state/profile/useResetProfile';
@@ -30,7 +31,14 @@ export function LogoutButton({ children }: React.PropsWithChildren): React.React
 
             <ConfirmationDialog
                 opened={opened}
-                title={<Label>Are you sure to logout?</Label>}
+                title={
+                    <>
+                        <DialogIcon>
+                            <ConfirmationDialogIcon />
+                        </DialogIcon>
+                        <Label>Are you sure to logout?</Label>
+                    </>
+                }
                 confirmButton={
                     <Button leftSection={<LogoutIcon />}>
                         <Label>Logout</Label>

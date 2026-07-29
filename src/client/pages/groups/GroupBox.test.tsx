@@ -74,7 +74,7 @@ describe('<GroupBox>', () => {
             </MockApp>
         );
 
-        expect(screen.getByText('Add new category')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'Add new category' })).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Category name' })).toHaveValue('');
         expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
     });
@@ -86,7 +86,7 @@ describe('<GroupBox>', () => {
             </MockApp>
         );
 
-        expect(screen.getByText('Edit category')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'Edit category' })).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Category name' })).toHaveValue('Initial Group');
         expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
     });

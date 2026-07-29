@@ -1,8 +1,9 @@
-import { Alert, Button, Group, Modal, type ButtonProps, type ModalProps } from '@mantine/core';
+import { Alert, Button, Group, Modal, type ButtonProps, type ModalProps, type ModalStylesNames } from '@mantine/core';
 import React, { cloneElement, useCallback, useState } from 'react';
 
-import { CancelIcon, ConfirmIcon, ErrorAlertIcon } from '@icons';
+import { CancelIcon, ConfirmationDialogIcon, ConfirmIcon, ErrorAlertIcon } from '@icons';
 
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { getErrorMessage } from '~/client/utils/errors';
 
@@ -13,7 +14,7 @@ export type ButtonElementProps = ButtonProps &
     };
 export type ButtonElement = React.ReactElement<ButtonElementProps>;
 
-export interface ConfirmationDialogProps extends Omit<ModalProps, 'onClose'> {
+export interface ConfirmationDialogProps extends Omit<ModalProps, 'onClose' | 'classNames'> {
     actions?: React.ReactElement;
     confirmButton?: ButtonElement;
     cancelButton?: ButtonElement;
@@ -21,10 +22,11 @@ export interface ConfirmationDialogProps extends Omit<ModalProps, 'onClose'> {
     /** Called with the click event from Cancel; without args from Modal chrome / after confirm */
     onClose?: (event?: React.SyntheticEvent) => void;
     closeLabel?: string;
+    classNames?: Partial<Record<ModalStylesNames, string>>;
 }
 
 export const confirmButtonProps: ButtonProps = {
-    variant: 'solid',
+    variant: 'filled',
     color: 'primary',
     leftSection: <ConfirmIcon size={18} />,
     children: <Label>Confirm</Label>,
@@ -32,13 +34,20 @@ export const confirmButtonProps: ButtonProps = {
 
 export const cancelButtonProps: ButtonProps = {
     variant: 'outline',
-    color: 'gray',
+    color: 'neutral',
     leftSection: <CancelIcon size={18} />,
     children: <Label>Cancel</Label>,
 };
 
 export function ConfirmationDialog({
-    title = <Label>Are you sure?</Label>,
+    title = (
+        <>
+            <DialogIcon>
+                <ConfirmationDialogIcon />
+            </DialogIcon>
+            <Label>Are you sure?</Label>
+        </>
+    ),
     actions,
     confirmButton,
     cancelButton,
@@ -103,6 +112,7 @@ export function ConfirmationDialog({
                 ...closeButtonProps,
             }}
             title={title}
+            data-type="confirm"
             {...props}
         >
             {children}

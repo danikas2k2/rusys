@@ -9,6 +9,7 @@ export {
     IconTriangleSquareCircle as CategoriesNavIcon,
     IconCircleX as ClearIcon,
     IconCheck as ConfirmIcon,
+    IconHelpCircle as ConfirmationDialogIcon,
     IconToolsKitchen2 as ConsumedIcon,
     IconMoon as DarkModeIcon,
     IconMinus as DecreaseIcon,

@@ -2,8 +2,11 @@ import { Modal } from '@mantine/core';
 import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { PageErrorIcon } from '@icons';
+
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Error } from '~/client/common/Error';
-import { Label } from '~/client/common/Label';
+import { useLabel } from '~/client/hooks/useLabel';
 import { clearErrorAction } from '~/client/state/error/actions';
 import type { WithErrorState } from '~/client/state/error/types';
 
@@ -12,7 +15,16 @@ export function ErrorDialog(): React.ReactElement | null {
     const error = useSelector((state: WithErrorState) => state.error?.error);
     const handleClose = useCallback(() => dispatch(clearErrorAction()), [dispatch]);
     return (
-        <Modal opened={!!error} onClose={handleClose} title={<Label>Error</Label>} centered>
+        <Modal
+            opened={!!error}
+            onClose={handleClose}
+            title={
+                <DialogIcon aria-label={useLabel('Error')}>
+                    <PageErrorIcon />
+                </DialogIcon>
+            }
+            centered
+        >
             <Error>{error}</Error>
         </Modal>
     );
