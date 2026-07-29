@@ -1,4 +1,4 @@
-import { Alert, Button, Group, Modal, type ButtonProps, type ModalProps, type ModalStylesNames } from '@mantine/core';
+import { Alert, Button, Group, Modal, type ButtonProps, type ModalProps } from '@mantine/core';
 import React, { cloneElement, useCallback, useState } from 'react';
 
 import { CancelIcon, ConfirmationDialogIcon, ConfirmIcon, ErrorAlertIcon } from '@icons';
@@ -14,7 +14,7 @@ export type ButtonElementProps = ButtonProps &
     };
 export type ButtonElement = React.ReactElement<ButtonElementProps>;
 
-export interface ConfirmationDialogProps extends Omit<ModalProps, 'onClose' | 'classNames'> {
+export interface ConfirmationDialogProps extends Omit<ModalProps, 'onClose'> {
     actions?: React.ReactElement;
     confirmButton?: ButtonElement;
     cancelButton?: ButtonElement;
@@ -22,7 +22,6 @@ export interface ConfirmationDialogProps extends Omit<ModalProps, 'onClose' | 'c
     /** Called with the click event from Cancel; without args from Modal chrome / after confirm */
     onClose?: (event?: React.SyntheticEvent) => void;
     closeLabel?: string;
-    classNames?: Partial<Record<ModalStylesNames, string>>;
 }
 
 export const confirmButtonProps: ButtonProps = {

@@ -1,13 +1,12 @@
-import { Modal, type ModalProps, type ModalStylesNames } from '@mantine/core';
+import { Modal, type ModalProps } from '@mantine/core';
 import React from 'react';
 
 import { DiscardChangesDialog } from '~/client/common/DiscardChangesDialog';
 import { useConfirmClose } from '~/client/hooks/useConfirmClose';
 
-export interface ConfirmableModalProps extends Omit<ModalProps, 'children' | 'classNames'> {
+export interface ConfirmableModalProps extends Omit<ModalProps, 'children'> {
     isDirty: () => boolean;
     children: (handleClose: () => void) => React.ReactNode;
-    classNames?: Partial<Record<ModalStylesNames, string>>;
 }
 
 // Give the on-screen keyboard time to finish animating in before scrolling, so the target
