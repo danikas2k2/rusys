@@ -58,7 +58,12 @@ describe('download', () => {
 
     it('sets anchor download with default filename', () => {
         const mockDate = new Date('2024-01-15T10:30:00.000Z');
-        const dateSpy = vi.spyOn(globalThis, 'Date').mockImplementation(() => mockDate as unknown as typeof Date);
+        class MockDate {
+            constructor() {
+                return mockDate;
+            }
+        }
+        const dateSpy = vi.spyOn(globalThis, 'Date').mockImplementation(MockDate as unknown as typeof Date);
 
         download({ test: 'data' });
 
