@@ -22,7 +22,7 @@ export function CategoryRailLayout({
     children,
 }: React.PropsWithChildren<CategoryRailLayoutProps>): React.ReactElement {
     return (
-        <Group align="flex-start" gap="0" wrap="nowrap">
+        <Group align="flex-start" gap="4" wrap="nowrap">
             <CategoryRail
                 groups={groups}
                 selected={selected}

@@ -1,4 +1,6 @@
 .ui-Tabs-root[data-tabs='category-rail'] {
+    --tab-border-color: var(--mantine-color-default-border);
+
     position: sticky;
     top: 0;
     max-height: 100dvh;
@@ -11,18 +13,19 @@
             display: block;
             position: sticky;
             inset-inline: 0;
-            height: 1rem;
             pointer-events: none;
             z-index: 2;
         }
 
         &::before {
             top: 0;
+            height: 1.5rem;
             background: linear-gradient(to top, var(--mantine-color-mantle), transparent);
         }
 
         &::after {
             bottom: 0;
+            height: 2.5rem;
             background: linear-gradient(to bottom, var(--mantine-color-mantle), transparent);
             border-inline-end: 1px solid var(--tab-border-color);
         }
