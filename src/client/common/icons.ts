@@ -49,7 +49,7 @@ export {
     IconAlertTriangle as SuspiciousIcon,
     IconWeight as TotalAmountViewIcon,
     IconArrowBackUp as UndoIcon,
-    IconPointFilled as UntouchedCheckIcon,
+    IconX as UntouchedCheckIcon,
     IconCheck as UpdateIcon,
     IconEdit as UpdatedIcon,
     IconAdjustmentsUp as UtilitiesNavIcon,

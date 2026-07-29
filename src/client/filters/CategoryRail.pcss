@@ -18,12 +18,13 @@
 
         &::before {
             top: 0;
-            background: linear-gradient(to top, var(--mantine-color-mantle), var(--mantine-color-body));
+            background: linear-gradient(to top, var(--mantine-color-mantle), transparent);
         }
 
         &::after {
             bottom: 0;
-            background: linear-gradient(to bottom, var(--mantine-color-mantle), var(--mantine-color-body));
+            background: linear-gradient(to bottom, var(--mantine-color-mantle), transparent);
+            border-inline-end: 1px solid var(--tab-border-color);
         }
     }
 
