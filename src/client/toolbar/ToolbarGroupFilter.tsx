@@ -1,18 +1,21 @@
-import { Select } from '@mantine/core';
+import { Select, type ComboboxItem } from '@mantine/core';
 import React, { useCallback } from 'react';
 
 import { SelectDropdownIcon } from '@icons';
 
+import { CategoryAvatar } from '~/client/filters/CategoryAvatar';
+import { CategoryOption } from '~/client/filters/CategoryOption';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabel } from '~/client/hooks/useLabel';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { ClearFilterIcon } from '~/client/toolbar/ClearFilterIcon';
 
 export function ToolbarGroupFilter() {
-    const groups = useGroups().map((v) => v.group);
+    const allGroups = useGroups();
     const [group, setGroup] = useGroupFilter();
 
-    const groupOptions = groups.map((g) => ({ value: g, label: g }));
+    const groupOptions = allGroups.map((g) => ({ value: g.group, label: g.group }));
+    const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image]));
 
     const handleClear = useCallback(() => setGroup(''), [setGroup]);
 
@@ -22,6 +25,10 @@ export function ToolbarGroupFilter() {
             value={group || null}
             onChange={(value) => setGroup(value || '')}
             data={groupOptions}
+            renderOption={({ option }: { option: ComboboxItem }) => (
+                <CategoryOption option={option} image={imageByGroup.get(option.value)} />
+            )}
+            leftSection={group ? <CategoryAvatar image={imageByGroup.get(group)} label={group} /> : undefined}
             style={{ width: '100%' }}
             allowDeselect
             withAlignedLabels

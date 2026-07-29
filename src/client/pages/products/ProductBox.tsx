@@ -1,4 +1,4 @@
-import { Button, Group, Select, Stack, TextInput } from '@mantine/core';
+import { Button, Group, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
@@ -7,6 +7,8 @@ import { AddIcon, CancelIcon, MoveIcon, ProductsNavIcon, UpdateIcon } from '@ico
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
+import { CategoryAvatar } from '~/client/filters/CategoryAvatar';
+import { CategoryOption } from '~/client/filters/CategoryOption';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
@@ -37,7 +39,9 @@ export function ProductBox({
     const isMoving = isEditing && filterGroup && filterGroup !== initialGroup;
 
     const _ = useLabels();
-    const groups = useGroups()?.map((g) => g.group) ?? [];
+    const allGroups = useGroups() ?? [];
+    const groups = allGroups.map((g) => g.group);
+    const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image]));
     const products = useProducts();
 
     const form = useForm({
@@ -210,6 +214,17 @@ export function ProductBox({
                             label={_('Category')}
                             placeholder={_('Select category')}
                             data={groups}
+                            renderOption={({ option }: { option: ComboboxItem }) => (
+                                <CategoryOption option={option} image={imageByGroup.get(option.value)} />
+                            )}
+                            leftSection={
+                                form.values.group ? (
+                                    <CategoryAvatar
+                                        image={imageByGroup.get(form.values.group)}
+                                        label={form.values.group}
+                                    />
+                                ) : undefined
+                            }
                             withAsterisk
                             withAlignedLabels
                             checkIconPosition="left"
