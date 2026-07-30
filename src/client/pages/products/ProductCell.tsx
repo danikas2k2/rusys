@@ -73,8 +73,8 @@ export function ProductCell({ product, year = 0, old = false, span }: ProductCel
     }, [updating]);
 
     const handleClick = useCallback(
-        () => setActive({ action: 'values', data: { group, name, year, amounts } }),
-        [setActive, group, name, year, amounts]
+        () => setActive({ action: 'values', data: { group, name, year, amounts, image: product.image } }),
+        [setActive, group, name, year, amounts, product.image]
     );
 
     // TODO add setRemoving to edit dialog

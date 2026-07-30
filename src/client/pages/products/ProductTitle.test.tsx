@@ -123,4 +123,16 @@ describe('<ProductTitle>', () => {
 
         expect(setMissing).not.toHaveBeenCalled();
     });
+
+    it('renders an avatar when product has an image', () => {
+        renderTitle({ ...products[0], image: '/images/ab/cd/product.png' });
+
+        expect(document.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/product.png');
+    });
+
+    it('does not render an avatar when product has no image', () => {
+        renderTitle({ ...products[0], image: undefined });
+
+        expect(document.querySelector('img')).not.toBeInTheDocument();
+    });
 });

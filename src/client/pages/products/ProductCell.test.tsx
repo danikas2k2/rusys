@@ -180,9 +180,44 @@ describe('<ProductCell>', () => {
                     name: props.product.name,
                     year: props.year,
                     amounts: props.product.years?.[0]?.amounts,
+                    image: props.product.image,
                 },
             });
             expect(setRemoving).not.toHaveBeenCalled();
+        });
+
+        it('includes the product image when calling setActive', () => {
+            const productWithImage = { ...defaultProduct, image: '/images/ab/cd/product.png' };
+            const propsWithImage: ProductCellProps = { product: productWithImage, year: 22 };
+
+            render(
+                <MockApp state={{ variants }}>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell {...propsWithImage} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            act(() => {
+                fireEvent.pointerDown(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerUp(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+            });
+            act(() => vi.advanceTimersByTime(100));
+
+            expect(setActive).toHaveBeenCalledWith({
+                action: 'values',
+                data: {
+                    group: propsWithImage.product.group,
+                    name: propsWithImage.product.name,
+                    year: propsWithImage.year,
+                    amounts: propsWithImage.product.years?.[0]?.amounts,
+                    image: '/images/ab/cd/product.png',
+                },
+            });
         });
     });
 
@@ -279,6 +314,7 @@ describe('<ProductCell>', () => {
                     name: props.product.name,
                     year: props.year,
                     amounts: props.product.years?.[0]?.amounts,
+                    image: props.product.image,
                 },
             });
             expect(setRemoving).not.toHaveBeenCalled();
@@ -433,6 +469,7 @@ describe('<ProductCell>', () => {
                     name: props.product.name,
                     year: props.year,
                     amounts: props.product.years?.[0]?.amounts,
+                    image: props.product.image,
                 },
             });
         });

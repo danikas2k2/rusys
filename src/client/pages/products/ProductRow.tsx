@@ -16,7 +16,7 @@ export function ProductRow({ product, annual = true, hidden = false }: ProductRo
     return (
         <SwipeableRow
             id={getId(product.group, product.name)}
-            data={{ group: product.group, name: product.name }}
+            data={{ group: product.group, name: product.name, image: product.image }}
             data-group={product.group}
             data-hidden={hidden}
         >

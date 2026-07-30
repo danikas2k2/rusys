@@ -2,6 +2,8 @@ import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter, WithId
 
 import { addVariantAmount, getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { buildHistoryPipeline } from '~/server/data/history';
+import { deleteImage } from '~/server/data/images';
+import { resolveImage } from '~/server/data/resolveImage';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
 import type { History, Product, Update, VariantAmount } from '~/types/data';
@@ -27,6 +29,7 @@ export async function getProducts(years: readonly number[] = []): Promise<Produc
                     name: 1,
                     years: 1,
                     missing: 1,
+                    image: 1,
                     updates: {
                         $cond: [
                             { $gt: [{ $size: { $ifNull: ['$updates', []] } }, 0] },
@@ -381,6 +384,16 @@ export async function redoProduct(group: string, name: string, year: number): Pr
     });
 }
 
+export async function setImage(group: string, name: string, image: string): Promise<boolean> {
+    if (!group || !name) {
+        return false;
+    }
+    const col = (await db()).collection<Product>('products');
+    const existing = await col.findOne({ group, name });
+    const resolved = await resolveImage(image, existing?.image);
+    return col.updateOne({ group, name }, { $set: { image: resolved } }).then(hasEffect);
+}
+
 export async function renameProduct(group: string, name: string, newName: string): Promise<boolean> {
     if (!group || !name || !newName || name === newName) {
         return false;
@@ -524,7 +537,13 @@ export async function deleteProduct(group: string, name: string): Promise<boolea
     if (!group || !name) {
         return false;
     }
-    return (await db()).collection('products').deleteOne({ group, name }).then(hasEffect);
+    const col = (await db()).collection<Product>('products');
+    const existing = await col.findOne({ group, name });
+    const deleted = await col.deleteOne({ group, name }).then(hasEffect);
+    if (deleted) {
+        await deleteImage(existing?.image);
+    }
+    return deleted;
 }
 
 export async function deleteProductsVariant(group: string, variant: string, session?: ClientSession): Promise<boolean> {

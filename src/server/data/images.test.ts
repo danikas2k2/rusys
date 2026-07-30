@@ -87,5 +87,34 @@ describe('images', () => {
         it('does nothing for a missing file', async () => {
             await expect(deleteImage('/images/aa/bb/aabbccddeeff00112233445566778899.png')).resolves.toBeUndefined();
         });
+
+        it('removes the now-empty shard directory after deleting the file', async () => {
+            const dataUrl = `data:image/png;base64,${Buffer.from('to-delete').toString('base64')}`;
+            const url = await saveImage(dataUrl);
+            const relativePath = url.slice('/images/'.length);
+            const [shard1, shard2] = relativePath.split('/');
+
+            await deleteImage(url);
+
+            // The leaf (256*256-way sharded) directory is deleted; the outer, more heavily
+            // shared xx directory is left alone since concurrent tests may still use it.
+            await expect(fs.access(path.join(IMAGES_DIR, shard1!, shard2!))).rejects.toThrow(/ENOENT/);
+        });
+
+        it('keeps shard directories that still contain other files', async () => {
+            const dataUrl = `data:image/png;base64,${Buffer.from('to-delete').toString('base64')}`;
+            const url = await saveImage(dataUrl);
+            const relativePath = url.slice('/images/'.length);
+            const [shard1, shard2] = relativePath.split('/');
+            const shardDir = path.join(IMAGES_DIR, shard1!, shard2!);
+            const otherFilePath = path.join(shardDir, 'other.png');
+            await fs.writeFile(otherFilePath, Buffer.from('other-bytes'));
+
+            await deleteImage(url);
+
+            await expect(fs.access(otherFilePath)).resolves.toBeUndefined();
+
+            await fs.rm(shardDir, { recursive: true, force: true });
+        });
     });
 });

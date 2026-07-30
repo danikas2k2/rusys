@@ -1,8 +1,20 @@
-import { Button, Group, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
+import { Alert, Avatar, Button, Group, rem, Select, Stack, Text, TextInput, type ComboboxItem } from '@mantine/core';
+import { Dropzone, type FileWithPath } from '@mantine/dropzone';
 import { useForm } from '@mantine/form';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { AddIcon, CancelIcon, MoveIcon, ProductsNavIcon, UpdateIcon } from '@icons';
+import {
+    AddIcon,
+    CancelIcon,
+    ErrorAlertIcon,
+    ImageAcceptIcon,
+    ImageDropzoneIdleIcon,
+    ImageRejectIcon,
+    MoveIcon,
+    ProductsNavIcon,
+    RemoveImageIcon,
+    UpdateIcon,
+} from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { DialogIcon } from '~/client/common/DialogIcon';
@@ -16,13 +28,17 @@ import { useAddProduct } from '~/client/state/products/useAddProduct';
 import { useMoveProduct } from '~/client/state/products/useMoveProduct';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useRenameProduct } from '~/client/state/products/useRenameProduct';
+import { useSetProductImage } from '~/client/state/products/useSetProductImage';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
+import { readFileAsDataUrl } from '~/client/utils/readFileAsDataUrl';
+import { IMAGE_MIME_TYPES, MAX_IMAGE_FILE_SIZE } from '~/common/utils/images';
 
 interface ProductBoxProps {
     opened?: boolean;
     group?: string;
     name?: string;
+    image?: string;
     onClose: (group?: string, name?: string) => void;
     onAfterClose?: () => void;
 }
@@ -30,6 +46,7 @@ interface ProductBoxProps {
 export function ProductBox({
     group: initialGroup = '',
     name: initialName = '',
+    image: initialImage = '',
     opened = false,
     onClose,
     onAfterClose,
@@ -48,6 +65,7 @@ export function ProductBox({
         initialValues: {
             group: initialGroup || filterGroup || '',
             name: initialName,
+            image: initialImage,
         },
         validate: {
             group: (value) => {
@@ -85,6 +103,7 @@ export function ProductBox({
     });
 
     const [loading, setLoading] = useState(false);
+    const [imageError, setImageError] = useState<string>();
     const groupRef = useRef<HTMLInputElement>(null);
     const nameRef = useRef<HTMLInputElement>(null);
 
@@ -94,18 +113,37 @@ export function ProductBox({
             formRef.current.setValues({
                 group: initialGroup || filterGroup || '',
                 name: initialName,
+                image: initialImage,
             });
             formRef.current.resetTouched();
             formRef.current.resetDirty();
             // eslint-disable-next-line react-hooks/set-state-in-effect -- loading reset when modal opens
             setLoading(false);
 
+            setImageError(undefined);
+
             const timer = setTimeout(() => {
                 nameRef.current?.focus();
             }, 100);
             return () => clearTimeout(timer);
         }
-    }, [opened, initialGroup, initialName, filterGroup]);
+    }, [opened, initialGroup, initialName, initialImage, filterGroup]);
+
+    const handleImageDrop = useCallback(async (files: FileWithPath[]) => {
+        if (files.length > 0) {
+            setImageError(undefined);
+            formRef.current.setFieldValue('image', await readFileAsDataUrl(files[0]!));
+        }
+    }, []);
+
+    const handleImageReject = useCallback(() => {
+        setImageError(_('Choose a valid image file'));
+    }, [_]);
+
+    const handleImageRemove = useCallback(() => {
+        setImageError(undefined);
+        formRef.current.setFieldValue('image', '');
+    }, []);
 
     // Revalidate when group or name changes to show duplicate errors in real-time
     const groupValue = form.values.group;
@@ -119,6 +157,7 @@ export function ProductBox({
     const addProduct = useAddProduct();
     const moveProduct = useMoveProduct();
     const renameProduct = useRenameProduct();
+    const setProductImage = useSetProductImage();
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
@@ -145,6 +184,7 @@ export function ProductBox({
             const values = form.values;
             const groupChanged = isEditing && values.group !== initialGroup;
             const nameRenamed = isEditing && values.name !== initialName && !groupChanged;
+            const imageChanged = values.image !== initialImage;
 
             if (groupChanged) {
                 // Move to different group
@@ -155,6 +195,9 @@ export function ProductBox({
             } else if (!isEditing) {
                 // Add new
                 await addProduct(values.group, values.name);
+            }
+            if (imageChanged) {
+                await setProductImage(values.group, values.name, values.image);
             }
             onClose(values.group, values.name);
         } catch (error) {
@@ -240,6 +283,58 @@ export function ProductBox({
                             disabled={loading}
                             {...form.getInputProps('name')}
                         />
+                        <Dropzone
+                            onDrop={handleImageDrop}
+                            onReject={handleImageReject}
+                            maxSize={MAX_IMAGE_FILE_SIZE}
+                            accept={IMAGE_MIME_TYPES}
+                            multiple={false}
+                            disabled={loading}
+                        >
+                            <Group justify="center" gap="md" style={{ minHeight: rem(80), pointerEvents: 'none' }}>
+                                {form.values.image ? (
+                                    <Avatar
+                                        src={form.values.image}
+                                        radius="md"
+                                        size={48}
+                                        aria-label={_('Product image')}
+                                    />
+                                ) : (
+                                    <>
+                                        <Dropzone.Accept>
+                                            <ImageAcceptIcon size={32} stroke={1.5} />
+                                        </Dropzone.Accept>
+                                        <Dropzone.Reject>
+                                            <ImageRejectIcon size={32} stroke={1.5} />
+                                        </Dropzone.Reject>
+                                        <Dropzone.Idle>
+                                            <ImageDropzoneIdleIcon size={32} stroke={1.5} />
+                                        </Dropzone.Idle>
+                                    </>
+                                )}
+                                <Text size="sm" c="dimmed" inline>
+                                    <Label>Upload image</Label>
+                                </Text>
+                            </Group>
+                        </Dropzone>
+                        {!!form.values.image && (
+                            <Button
+                                variant="subtle"
+                                color="gray"
+                                size="xs"
+                                leftSection={<RemoveImageIcon size={16} />}
+                                onClick={handleImageRemove}
+                                disabled={loading}
+                                style={{ alignSelf: 'flex-start' }}
+                            >
+                                <Label>Remove image</Label>
+                            </Button>
+                        )}
+                        {imageError && (
+                            <Alert variant="light" color="negative" icon={<ErrorAlertIcon size={18} />}>
+                                {imageError}
+                            </Alert>
+                        )}
                         <Group justify="flex-end" mt="md">
                             <Button
                                 variant="outline"
