@@ -8,7 +8,7 @@
     --value-cell-background: inherit;
     --value-cell-font-weight: inherit;
 
-    &[data-last="true"] {
+    &[data-old="true"] {
         --value-cell-color: var(--mantine-color-negative-text);
     }
 
@@ -32,7 +32,7 @@
         --value-cell-font-weight: var(--mantine-font-weight-xl);
     }
 
-    &[data-last="true"],
+    &[data-old="true"],
     &[data-preferred="true"],
     &[data-removing="true"] {
         --value-sub-color: color-mix(in srgb, var(--value-cell-color) 80%, transparent 20%);

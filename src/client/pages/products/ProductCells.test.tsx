@@ -32,13 +32,12 @@ describe('<ProductCells>', () => {
 
         expect(screen.getAllByRole('cell')).toHaveLength(years.length);
         expect(ProductCell).toHaveBeenCalledTimes(years.length);
-        expect(ProductCell).toHaveBeenLastCalledWith(
-            expect.objectContaining({ last: true, year: years.at(-1) }),
-            undefined
-        );
+        expect(ProductCell).toHaveBeenLastCalledWith(expect.objectContaining({ year: years.at(-1) }), undefined);
     });
 
-    it('passes last=false for non-last years and last=true for the last year', () => {
+    it('passes old=true only for years 4 or more years before the current year', () => {
+        const thisYear = new Date().getFullYear() % 100;
+
         render(
             <MockTableRow>
                 <ProductCells product={product} annual />
@@ -46,12 +45,9 @@ describe('<ProductCells>', () => {
         );
 
         const calls = vi.mocked(ProductCell).mock.calls;
-        const nonLastCalls = calls.slice(0, calls.length - 1);
-        nonLastCalls.forEach(([props]: [React.ComponentProps<typeof ProductCell>, ...unknown[]]) => {
-            expect(props).toMatchObject({ last: false });
+        calls.forEach(([props]: [React.ComponentProps<typeof ProductCell>, ...unknown[]]) => {
+            expect(props).toMatchObject({ old: props.year! <= thisYear - 4 });
         });
-
-        expect(calls.at(-1)![0]).toMatchObject({ last: true });
     });
 
     it('renders single ProductCell with span when annual is false', () => {

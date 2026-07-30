@@ -2,10 +2,9 @@ import { Checkbox, Table, Title } from '@mantine/core';
 import { isEmpty } from 'lodash';
 import React from 'react';
 
-import { UntouchedCheckIcon } from '@icons';
-
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { ReviewProductRow } from '~/client/pages/review/ReviewProductRow';
+import { UntouchedCheckboxIcon } from '~/client/pages/review/UntouchedCheckboxIcon';
 import { useProducts } from '~/client/state/products/useProducts';
 import { getId } from '~/client/utils/id';
 
@@ -53,7 +52,7 @@ export function ReviewTable({ group, touched, checkedKeys, onToggle, onSelectAll
                             variant="outline"
                             checked={allChecked}
                             indeterminate={mixed}
-                            icon={touched ? undefined : UntouchedCheckIcon}
+                            icon={touched ? undefined : UntouchedCheckboxIcon}
                             onChange={handleMasterToggle}
                             data-untouched={!touched}
                             label={<Title order={3}>{group}</Title>}

@@ -1,8 +1,7 @@
 import { Checkbox, Table } from '@mantine/core';
 import React, { useCallback } from 'react';
 
-import { UntouchedCheckIcon } from '@icons';
-
+import { UntouchedCheckboxIcon } from '~/client/pages/review/UntouchedCheckboxIcon';
 import { getId } from '~/client/utils/id';
 import type { Product } from '~/types/data';
 
@@ -28,7 +27,7 @@ export function ReviewProductRow({ product, checked, touched, onToggle, hidden =
                 <Checkbox
                     variant="outline"
                     checked={checked}
-                    icon={touched ? undefined : UntouchedCheckIcon}
+                    icon={touched ? undefined : UntouchedCheckboxIcon}
                     onChange={handleChange}
                     data-untouched={!touched}
                     label={product.name}

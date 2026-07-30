@@ -15,7 +15,7 @@ import './ProductCell.pcss';
 export interface ProductCellProps {
     product: Product;
     year?: number;
-    last?: boolean;
+    old?: boolean;
     span?: number;
 }
 
@@ -37,7 +37,7 @@ export function isPreferred(year: number, years: readonly RemovingYearAmounts[])
     return maxOlderYear !== -1 ? year === maxOlderYear : year === thisYear && hasThisYear;
 }
 
-export function ProductCell({ product, year = 0, last = false, span }: ProductCellProps) {
+export function ProductCell({ product, year = 0, old = false, span }: ProductCellProps) {
     const { group, name, years } = product;
     const { amounts, removing = false } = useMemo(
         (): RemovingYearAmounts =>
@@ -93,7 +93,7 @@ export function ProductCell({ product, year = 0, last = false, span }: ProductCe
         <Table.Td
             data-cell
             data-empty={empty}
-            data-last={last}
+            data-old={old}
             data-preferred={preferred}
             data-updating={updating}
             data-removing={removing}
