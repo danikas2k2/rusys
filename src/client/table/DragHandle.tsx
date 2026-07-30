@@ -1,6 +1,7 @@
 import { Table, ThemeIcon } from '@mantine/core';
-import { IconEqual } from '@tabler/icons-react';
 import React from 'react';
+
+import { DragHandleIcon } from '@icons';
 
 import { useLabel } from '~/client/hooks/useLabel';
 
@@ -21,7 +22,7 @@ export function DragHandle({ ref, style, ...props }: React.ComponentPropsWithRef
                 {...props}
             >
                 <ThemeIcon color="gray" variant="transparent">
-                    <IconEqual />
+                    <DragHandleIcon />
                 </ThemeIcon>
             </div>
         </Table.Td>

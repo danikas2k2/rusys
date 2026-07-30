@@ -3,18 +3,27 @@ import React from 'react';
 
 import { AmountViewToggle } from '~/client/common/AmountViewToggle';
 import { LoadableContent } from '~/client/common/LoadableContent';
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
+import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
 import { useProductsHasData } from '~/client/pages/products/hooks/useProductsHasData';
 import { MissingOnlyCheckbox } from '~/client/pages/products/MissingOnlyCheckbox';
-import { ProductsGroup } from '~/client/pages/products/ProductsGroup';
+import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
+import { ProductRow } from '~/client/pages/products/ProductRow';
 import { useGetProducts } from '~/client/state/products/useGetProducts';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useYears } from '~/client/state/years/useYears';
+import { getId } from '~/client/utils/id';
 
 export function ProductsTable() {
     const years = useYears();
     const groups = useSortedGroups();
-    const products = useProducts();
+    const [selectedGroup] = useGroupFilter();
+    const products = useProducts().filter((p) => p.group === selectedGroup);
+    const quickFilter = useQuickFilterPredicate();
+    const [missingOnly] = useMissingOnly();
+
+    const annual = groups.find((g) => g.group === selectedGroup)?.annual;
     const headingWidth = 300 / (years.length + 3);
 
     return (
@@ -35,9 +44,16 @@ export function ProductsTable() {
                         ))}
                     </Table.Tr>
                 </Table.Thead>
-                {groups.map((g) => (
-                    <ProductsGroup key={g.group} group={g} products={products} />
-                ))}
+                <Table.Tbody>
+                    {products.map((p) => (
+                        <ProductRow
+                            key={getId(p.group, p.name)}
+                            product={p}
+                            annual={annual}
+                            hidden={(missingOnly && !p.missing) || !quickFilter(p.name)}
+                        />
+                    ))}
+                </Table.Tbody>
             </Table>
         </LoadableContent>
     );

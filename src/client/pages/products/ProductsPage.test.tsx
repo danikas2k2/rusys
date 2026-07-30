@@ -29,8 +29,8 @@ vi.mock(import('~/client/pages/products/ActiveProductBox'), (): any => ({
 vi.mock(import('~/client/pages/products/ActiveAmountBox'), (): any => ({
     ActiveAmountBox: () => null,
 }));
-vi.mock(import('~/client/toolbar/ToolbarGroupFilter'), (): any => ({
-    ToolbarGroupFilter: () => null,
+vi.mock(import('~/client/filters/CategoryRailLayout'), (): any => ({
+    CategoryRailLayout: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 vi.mock(import('~/client/pages/products/MissingOnlyContext'), (): any => ({
     MissingOnlyWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,

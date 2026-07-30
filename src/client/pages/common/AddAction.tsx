@@ -1,6 +1,7 @@
 import { ActionIcon } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
+
+import { AddIcon } from '@icons';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 
@@ -29,7 +30,7 @@ export function AddAction({ onClick }: { onClick?: React.MouseEventHandler }) {
             data-hidden={hidden}
             data-action="add"
         >
-            <IconPlus size={24} />
+            <AddIcon size={24} />
         </ActionIcon>
     );
 }

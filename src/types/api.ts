@@ -150,6 +150,7 @@ export interface ApiRequestGroup {
 export interface ApiUpdateGroup extends ApiRequestGroup {
     annual?: boolean;
     review?: boolean;
+    image?: string;
 }
 
 export interface ApiRenameGroup extends ApiUpdateGroup {

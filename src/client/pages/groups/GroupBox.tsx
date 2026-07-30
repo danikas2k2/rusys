@@ -1,9 +1,24 @@
-import { Button, Checkbox, Group, Stack, TextInput } from '@mantine/core';
+import { Alert, Avatar, Button, Checkbox, Group, rem, Stack, Text, TextInput } from '@mantine/core';
+import { Dropzone, type FileWithPath } from '@mantine/dropzone';
 import { useForm } from '@mantine/form';
-import { IconCalendarClock, IconCheck, IconClipboardList, IconPlus, IconX } from '@tabler/icons-react';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+
+import {
+    AddIcon,
+    AnnualIcon,
+    CancelIcon,
+    CategoriesNavIcon,
+    ErrorAlertIcon,
+    ImageAcceptIcon,
+    ImageDropzoneIdleIcon,
+    ImageRejectIcon,
+    RemoveImageIcon,
+    ReviewIcon,
+    UpdateIcon,
+} from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
@@ -11,12 +26,17 @@ import { useRenameGroup } from '~/client/state/groups/useRenameGroup';
 import { useUpdateGroup } from '~/client/state/groups/useUpdateGroup';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
+import { readFileAsDataUrl } from '~/client/utils/readFileAsDataUrl';
+import { IMAGE_MIME_TYPES } from '~/common/utils/images';
+
+const MAX_IMAGE_FILE_SIZE = 512 * 1024;
 
 interface GroupBoxProps {
     opened?: boolean;
     group?: string;
     annual?: boolean;
     review?: boolean;
+    image?: string;
     onClose: (group?: string) => void;
     onAfterClose?: () => void;
 }
@@ -25,6 +45,7 @@ export function GroupBox({
     group: initialGroup = '',
     annual: initialAnnual = true,
     review: initialReview = false,
+    image: initialImage = '',
     opened,
     onClose,
     onAfterClose,
@@ -39,6 +60,7 @@ export function GroupBox({
             group: initialGroup,
             annual: initialAnnual,
             review: initialReview,
+            image: initialImage,
         },
         validate: {
             group: (value) => {
@@ -54,7 +76,7 @@ export function GroupBox({
                 const groupRenamed = !!initialGroup && value !== initialGroup;
 
                 if (groupExists && (groupAdded || groupRenamed)) {
-                    return _('Group already exists');
+                    return _('Category already exists');
                 }
                 return null;
             },
@@ -67,6 +89,7 @@ export function GroupBox({
     });
 
     const [loading, setLoading] = useState(false);
+    const [imageError, setImageError] = useState<string>();
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Reset form and focus input when modal opens
@@ -76,11 +99,14 @@ export function GroupBox({
                 group: initialGroup,
                 annual: initialAnnual,
                 review: initialReview,
+                image: initialImage,
             });
             formRef.current.resetTouched();
             formRef.current.resetDirty();
             // eslint-disable-next-line react-hooks/set-state-in-effect -- loading reset when modal opens
             setLoading(false);
+
+            setImageError(undefined);
 
             const timer = setTimeout(() => {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
@@ -88,7 +114,23 @@ export function GroupBox({
             }, 100);
             return () => clearTimeout(timer);
         }
-    }, [opened, initialGroup, initialAnnual, initialReview]);
+    }, [opened, initialGroup, initialAnnual, initialReview, initialImage]);
+
+    const handleImageDrop = useCallback(async (files: FileWithPath[]) => {
+        if (files.length > 0) {
+            setImageError(undefined);
+            formRef.current.setFieldValue('image', await readFileAsDataUrl(files[0]!));
+        }
+    }, []);
+
+    const handleImageReject = useCallback(() => {
+        setImageError(_('Choose a valid image file'));
+    }, [_]);
+
+    const handleImageRemove = useCallback(() => {
+        setImageError(undefined);
+        formRef.current.setFieldValue('image', '');
+    }, []);
 
     // Revalidate when group name changes to show duplicate errors in real-time
     const groupValue = form.values.group;
@@ -121,11 +163,12 @@ export function GroupBox({
             const groupRenamed = isEditing && values.group !== initialGroup;
             const annualChanged = values.annual !== initialAnnual;
             const reviewChanged = values.review !== initialReview;
+            const imageChanged = values.image !== initialImage;
 
             if (groupRenamed) {
-                await renameGroup(initialGroup, values.group, values.annual, values.review);
-            } else if (!isEditing || annualChanged || reviewChanged) {
-                await updateGroup(values.group, values.annual, values.review);
+                await renameGroup(initialGroup, values.group, values.annual, values.review, values.image);
+            } else if (!isEditing || annualChanged || reviewChanged || imageChanged) {
+                await updateGroup(values.group, values.annual, values.review, values.image);
             }
             onClose(values.group);
         } catch (error) {
@@ -142,7 +185,11 @@ export function GroupBox({
         <ConfirmableModal
             centered
             opened={!!opened}
-            title={_(isEditing ? 'Edit group' : 'Add new group')}
+            title={
+                <DialogIcon aria-label={_(isEditing ? 'Edit category' : 'Add new category')}>
+                    <CategoriesNavIcon />
+                </DialogIcon>
+            }
             withCloseButton
             isDirty={() => formRef.current.isDirty()}
             onClose={() => onClose()}
@@ -156,8 +203,8 @@ export function GroupBox({
                     <Stack>
                         <TextInput
                             ref={inputRef}
-                            label={_('Group name')}
-                            placeholder={_('Enter group name')}
+                            label={_('Category name')}
+                            placeholder={_('Enter category name')}
                             withAsterisk
                             disabled={loading}
                             {...form.getInputProps('group')}
@@ -166,7 +213,7 @@ export function GroupBox({
                             variant="outline"
                             label={
                                 <Group gap="xs">
-                                    <IconCalendarClock size={18} />
+                                    <AnnualIcon size={18} />
                                     <Label>Annual</Label>
                                 </Group>
                             }
@@ -177,19 +224,71 @@ export function GroupBox({
                             variant="outline"
                             label={
                                 <Group gap="xs">
-                                    <IconClipboardList size={18} />
+                                    <ReviewIcon size={18} />
                                     <Label>Review</Label>
                                 </Group>
                             }
                             disabled={loading}
                             {...form.getInputProps('review', { type: 'checkbox' })}
                         />
+                        <Dropzone
+                            onDrop={handleImageDrop}
+                            onReject={handleImageReject}
+                            maxSize={MAX_IMAGE_FILE_SIZE}
+                            accept={IMAGE_MIME_TYPES}
+                            multiple={false}
+                            disabled={loading}
+                        >
+                            <Group justify="center" gap="md" style={{ minHeight: rem(80), pointerEvents: 'none' }}>
+                                {form.values.image ? (
+                                    <Avatar
+                                        src={form.values.image}
+                                        radius="md"
+                                        size={48}
+                                        aria-label={_('Category image')}
+                                    />
+                                ) : (
+                                    <>
+                                        <Dropzone.Accept>
+                                            <ImageAcceptIcon size={32} stroke={1.5} />
+                                        </Dropzone.Accept>
+                                        <Dropzone.Reject>
+                                            <ImageRejectIcon size={32} stroke={1.5} />
+                                        </Dropzone.Reject>
+                                        <Dropzone.Idle>
+                                            <ImageDropzoneIdleIcon size={32} stroke={1.5} />
+                                        </Dropzone.Idle>
+                                    </>
+                                )}
+                                <Text size="sm" c="dimmed" inline>
+                                    <Label>Upload image</Label>
+                                </Text>
+                            </Group>
+                        </Dropzone>
+                        {!!form.values.image && (
+                            <Button
+                                variant="subtle"
+                                color="gray"
+                                size="xs"
+                                leftSection={<RemoveImageIcon size={16} />}
+                                onClick={handleImageRemove}
+                                disabled={loading}
+                                style={{ alignSelf: 'flex-start' }}
+                            >
+                                <Label>Remove image</Label>
+                            </Button>
+                        )}
+                        {imageError && (
+                            <Alert variant="light" color="negative" icon={<ErrorAlertIcon size={18} />}>
+                                {imageError}
+                            </Alert>
+                        )}
                         <Group justify="flex-end" mt="md">
                             <Button
                                 variant="outline"
                                 color="gray"
                                 disabled={loading}
-                                leftSection={<IconX size={18} />}
+                                leftSection={<CancelIcon size={18} />}
                                 onClick={handleClose}
                             >
                                 <Label>Cancel</Label>
@@ -197,7 +296,7 @@ export function GroupBox({
                             <Button
                                 type="submit"
                                 loading={loading}
-                                leftSection={isEditing ? <IconCheck size={18} /> : <IconPlus size={18} />}
+                                leftSection={isEditing ? <UpdateIcon size={18} /> : <AddIcon size={18} />}
                                 color={!isEditing ? 'positive' : undefined}
                             >
                                 <Label>{isEditing ? 'Update' : 'Add'}</Label>

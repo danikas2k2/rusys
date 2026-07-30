@@ -11,6 +11,7 @@ const mocks = path.resolve(root, 'vitest/__mocks__');
  */
 const alias = [
     { find: /^~\/(.*)$/, replacement: `${src}/$1` },
+    { find: '@icons', replacement: `${src}/client/common/icons` },
     { find: /^@tests\/(.*)$/, replacement: `${src}/tests/$1` },
     { find: 'package.json', replacement: path.resolve(root, 'package.json') },
 ];

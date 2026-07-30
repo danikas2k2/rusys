@@ -1,10 +1,14 @@
-import { Button, Group, Select, Stack, TextInput } from '@mantine/core';
+import { Button, Group, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconArrowRight, IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
+import { AddIcon, CancelIcon, MoveIcon, ProductsNavIcon, UpdateIcon } from '@icons';
+
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
+import { CategoryAvatar } from '~/client/filters/CategoryAvatar';
+import { CategoryOption } from '~/client/filters/CategoryOption';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
@@ -35,7 +39,9 @@ export function ProductBox({
     const isMoving = isEditing && filterGroup && filterGroup !== initialGroup;
 
     const _ = useLabels();
-    const groups = useGroups()?.map((g) => g.group) ?? [];
+    const allGroups = useGroups() ?? [];
+    const groups = allGroups.map((g) => g.group);
+    const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image]));
     const products = useProducts();
 
     const form = useForm({
@@ -46,7 +52,7 @@ export function ProductBox({
         validate: {
             group: (value) => {
                 if (!value?.trim()) {
-                    return _('Group is required');
+                    return _('Category is required');
                 }
                 return null;
             },
@@ -66,7 +72,7 @@ export function ProductBox({
                 const nameRenamed = isEditing && value !== initialName && values.group === initialGroup;
 
                 if (nameExists && (nameAdded || nameCopied || nameRenamed)) {
-                    return _('Name already exists in this group');
+                    return _('Name already exists in this category');
                 }
                 return null;
             },
@@ -165,18 +171,18 @@ export function ProductBox({
     const getButtonContent = () => {
         if (isMoving || (isEditing && form.values.group !== initialGroup)) {
             return {
-                icon: <IconArrowRight size={18} />,
+                icon: <MoveIcon size={18} />,
                 label: 'Move',
             };
         }
         if (isEditing) {
             return {
-                icon: <IconCheck size={18} />,
+                icon: <UpdateIcon size={18} />,
                 label: 'Update',
             };
         }
         return {
-            icon: <IconPlus size={18} />,
+            icon: <AddIcon size={18} />,
             label: 'Add',
         };
     };
@@ -187,7 +193,11 @@ export function ProductBox({
         <ConfirmableModal
             centered
             opened={opened}
-            title={_(isEditing ? 'Edit entry' : 'Add new entry')}
+            title={
+                <DialogIcon aria-label={_(isEditing ? 'Edit entry' : 'Add new entry')}>
+                    <ProductsNavIcon />
+                </DialogIcon>
+            }
             withCloseButton
             isDirty={() => formRef.current.isDirty()}
             onClose={() => onClose()}
@@ -201,9 +211,20 @@ export function ProductBox({
                     <Stack>
                         <Select
                             ref={groupRef}
-                            label={_('Group')}
-                            placeholder={_('Select group')}
+                            label={_('Category')}
+                            placeholder={_('Select category')}
                             data={groups}
+                            renderOption={({ option }: { option: ComboboxItem }) => (
+                                <CategoryOption option={option} image={imageByGroup.get(option.value)} />
+                            )}
+                            leftSection={
+                                form.values.group ? (
+                                    <CategoryAvatar
+                                        image={imageByGroup.get(form.values.group)}
+                                        label={form.values.group}
+                                    />
+                                ) : undefined
+                            }
                             withAsterisk
                             withAlignedLabels
                             checkIconPosition="left"
@@ -224,7 +245,7 @@ export function ProductBox({
                                 variant="outline"
                                 color="gray"
                                 disabled={loading}
-                                leftSection={<IconX size={18} />}
+                                leftSection={<CancelIcon size={18} />}
                                 onClick={handleClose}
                             >
                                 <Label>Cancel</Label>

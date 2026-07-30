@@ -1,10 +1,14 @@
-import { Button, Group, NumberInput, Select, Stack, TextInput } from '@mantine/core';
+import { Button, Group, NumberInput, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconCheck, IconCopy, IconPlus, IconX } from '@tabler/icons-react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
+import { AddIcon, CancelIcon, DuplicateIcon, UpdateIcon, VariantsNavIcon } from '@icons';
+
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
+import { CategoryAvatar } from '~/client/filters/CategoryAvatar';
+import { CategoryOption } from '~/client/filters/CategoryOption';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
@@ -55,7 +59,9 @@ export function VariantBox({
     const isCopying = isEditing && filterGroup && filterGroup !== initialGroup;
 
     const _ = useLabels();
-    const groups = useGroups()?.map((g) => g.group) ?? [];
+    const allGroups = useGroups() ?? [];
+    const groups = allGroups.map((g) => g.group);
+    const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image]));
     const variants = useVariants();
 
     const initialUnitsResolved = initialUnits ?? DEFAULT_UNITS;
@@ -72,7 +78,7 @@ export function VariantBox({
         validate: {
             group: (value) => {
                 if (!value?.trim()) {
-                    return _('Group is required');
+                    return _('Category is required');
                 }
                 return null;
             },
@@ -98,7 +104,7 @@ export function VariantBox({
                         (v) => !compareNames(v.group, values.group) && !compareNames(v.variant, effectiveVariant)
                     );
                     if (variantExists) {
-                        return _('Variant already exists in this group');
+                        return _('Variant already exists in this category');
                     }
                 }
                 return null;
@@ -228,18 +234,18 @@ export function VariantBox({
     const getButtonContent = () => {
         if (isCopying || (isEditing && form.values.group !== initialGroup)) {
             return {
-                icon: <IconCopy size={18} />,
+                icon: <DuplicateIcon size={18} />,
                 label: 'Duplicate',
             };
         }
         if (isEditing) {
             return {
-                icon: <IconCheck size={18} />,
+                icon: <UpdateIcon size={18} />,
                 label: 'Update',
             };
         }
         return {
-            icon: <IconPlus size={18} />,
+            icon: <AddIcon size={18} />,
             label: 'Add',
         };
     };
@@ -250,7 +256,11 @@ export function VariantBox({
         <ConfirmableModal
             centered
             opened={!!opened}
-            title={_(isEditing ? 'Edit variant' : 'Add new variant')}
+            title={
+                <DialogIcon aria-label={_(isEditing ? 'Edit variant' : 'Add new variant')}>
+                    <VariantsNavIcon />
+                </DialogIcon>
+            }
             withCloseButton
             isDirty={() => formRef.current.isDirty()}
             onClose={() => onClose()}
@@ -264,9 +274,20 @@ export function VariantBox({
                     <Stack>
                         <Select
                             ref={groupRef}
-                            label={_('Group')}
-                            placeholder={_('Select group')}
+                            label={_('Category')}
+                            placeholder={_('Select category')}
                             data={groups}
+                            renderOption={({ option }: { option: ComboboxItem }) => (
+                                <CategoryOption option={option} image={imageByGroup.get(option.value)} />
+                            )}
+                            leftSection={
+                                form.values.group ? (
+                                    <CategoryAvatar
+                                        image={imageByGroup.get(form.values.group)}
+                                        label={form.values.group}
+                                    />
+                                ) : undefined
+                            }
                             withAsterisk
                             withAlignedLabels
                             checkIconPosition="left"
@@ -314,7 +335,7 @@ export function VariantBox({
                                 variant="outline"
                                 color="gray"
                                 disabled={loading}
-                                leftSection={<IconX size={18} />}
+                                leftSection={<CancelIcon size={18} />}
                                 onClick={handleClose}
                             >
                                 <Label>Cancel</Label>

@@ -16,12 +16,18 @@ describe('<ReviewProductRow>', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    function renderRow(product = products[0], checked = false, hidden = false) {
+    function renderRow(product = products[0], checked = false, touched = true, hidden = false) {
         render(
             <MockTheme>
                 <Table>
                     <Table.Tbody>
-                        <ReviewProductRow product={product} checked={checked} onToggle={onToggle} hidden={hidden} />
+                        <ReviewProductRow
+                            product={product}
+                            checked={checked}
+                            touched={touched}
+                            onToggle={onToggle}
+                            hidden={hidden}
+                        />
                     </Table.Tbody>
                 </Table>
             </MockTheme>
@@ -61,8 +67,20 @@ describe('<ReviewProductRow>', () => {
     });
 
     it('sets data-hidden on the row when hidden', () => {
-        renderRow(products[0], false, true);
+        renderRow(products[0], false, true, true);
 
         expect(screen.getByRole('row')).toHaveAttribute('data-hidden', 'true');
+    });
+
+    it('marks the checkbox as untouched when the group has not been touched', () => {
+        renderRow(products[0], false, false);
+
+        expect(screen.getByRole('checkbox')).toHaveAttribute('data-untouched', 'true');
+    });
+
+    it('marks the checkbox as touched when the group has been touched', () => {
+        renderRow(products[0], false, true);
+
+        expect(screen.getByRole('checkbox')).toHaveAttribute('data-untouched', 'false');
     });
 });

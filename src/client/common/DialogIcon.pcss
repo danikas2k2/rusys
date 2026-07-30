@@ -1,0 +1,19 @@
+/* Anchored to the header (its nearest positioned ancestor), so it starts at the dialog's
+   true top-left regardless of the header's actual height, and overflows down past it */
+.dialog-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    color: var(--mantine-color-gray-3);
+    opacity: 0.75;
+    filter: blur(2px);
+    pointer-events: none;
+
+    svg {
+        display: block;
+        width: 12rem;
+        height: 12rem;
+        stroke-width: 2;
+    }
+}

@@ -4,17 +4,17 @@ import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
-import { useGroupFilterPredicate } from '~/client/filters/hooks/useGroupFilterPredicate';
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasData';
-import { SummaryGroup } from '~/client/pages/summary/SummaryGroup';
+import { SummaryRow } from '~/client/pages/summary/SummaryRow';
 import { SummaryTable } from '~/client/pages/summary/SummaryTable';
 import { useSummary } from '~/client/state/summary/useSummary';
 
 vi.mock(import('~/client/state/years/useYears'));
-vi.mock(import('~/client/filters/hooks/useGroupFilterPredicate'), () => ({
-    useGroupFilterPredicate: vi.fn(),
+vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
+    useGroupFilter: vi.fn(),
 }));
 vi.mock(import('~/client/filters/hooks/useQuickFilterPredicate'), () => ({
     useQuickFilterPredicate: vi.fn(),
@@ -29,8 +29,8 @@ vi.mock(import('~/client/hooks/useLockingLoader'), async () => ({
     ...(await vi.importActual('~/client/hooks/useLockingLoader')),
     useLockingLoader: vi.fn(),
 }));
-vi.mock(import('~/client/pages/summary/SummaryGroup'), () => ({
-    SummaryGroup: vi.fn().mockReturnValue(null),
+vi.mock(import('~/client/pages/summary/SummaryRow'), () => ({
+    SummaryRow: vi.fn().mockReturnValue(null),
 }));
 vi.mock(import('~/client/common/AmountViewToggle'), () => ({
     AmountViewToggle: vi.fn().mockReturnValue(null),
@@ -48,7 +48,7 @@ describe('<SummaryTable>', () => {
     beforeAll(() => {
         vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
         vi.mocked(useSummary).mockReturnValue(summary);
-        vi.mocked(useGroupFilterPredicate).mockReturnValue(() => true);
+        vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
         vi.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
     });
 
@@ -68,11 +68,12 @@ describe('<SummaryTable>', () => {
 
             expect(within(row).getAllByRole('columnheader')).toHaveListWithTextContent(['', '23/24', '22/23', '21/22']);
 
-            expect(SummaryGroup).toHaveBeenCalledTimes(2);
+            // Only rows for the selected group ('Uogienės': Avietės, Braškės) are rendered
+            expect(SummaryRow).toHaveBeenCalledTimes(2);
         });
 
-        it('renders table for complete state with data filtered-out', () => {
-            vi.mocked(useSummary).mockReturnValueOnce([]);
+        it('renders only the rows for the selected group', () => {
+            vi.mocked(useGroupFilter).mockReturnValueOnce(['Daržovės', vi.fn()]);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -80,21 +81,21 @@ describe('<SummaryTable>', () => {
             );
 
             expect(screen.getByRole('table')).toBeInTheDocument();
-            // SummaryGroup is still rendered for all groups, even with empty summary
-            expect(SummaryGroup).toHaveBeenNthCalledWith(
+            expect(SummaryRow).toHaveBeenCalledTimes(2);
+            expect(SummaryRow).toHaveBeenNthCalledWith(
                 1,
-                expect.objectContaining({ group: 'Uogienės', summary: [] }),
+                expect.objectContaining({ group: 'Daržovės', name: 'Agurkai' }),
                 undefined
             );
-            expect(SummaryGroup).toHaveBeenNthCalledWith(
+            expect(SummaryRow).toHaveBeenNthCalledWith(
                 2,
-                expect.objectContaining({ group: 'Daržovės', summary: [] }),
+                expect.objectContaining({ group: 'Daržovės', name: 'Kopūstai' }),
                 undefined
             );
         });
 
-        it('renders table with group selected', () => {
-            vi.mocked(useGroupFilterPredicate).mockReturnValueOnce((g: string) => g === 'Uogienės');
+        it('renders no rows when the selected group has no summary data', () => {
+            vi.mocked(useGroupFilter).mockReturnValueOnce(['Šaldyti', vi.fn()]);
             render(
                 <MockApp state={state}>
                     <SummaryTable />
@@ -102,7 +103,7 @@ describe('<SummaryTable>', () => {
             );
 
             expect(screen.getByRole('table')).toBeInTheDocument();
-            expect(SummaryGroup).toHaveBeenCalledTimes(2);
+            expect(SummaryRow).not.toHaveBeenCalled();
         });
 
         it('does not render table for initial state', () => {

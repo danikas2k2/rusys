@@ -1,30 +1,77 @@
-import { Table } from '@mantine/core';
+import { Checkbox, Table, Title } from '@mantine/core';
+import { isEmpty } from 'lodash';
 import React from 'react';
 
-import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
-import { ReviewGroup } from '~/client/pages/review/ReviewGroup';
+import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
+import { ReviewProductRow } from '~/client/pages/review/ReviewProductRow';
+import { UntouchedCheckboxIcon } from '~/client/pages/review/UntouchedCheckboxIcon';
 import { useProducts } from '~/client/state/products/useProducts';
+import { getId } from '~/client/utils/id';
+
+import './ReviewTable.pcss';
 
 interface ReviewTableProps {
+    group: string;
+    touched: boolean;
     checkedKeys: ReadonlySet<string>;
     onToggle: (key: string, checked: boolean) => void;
+    onSelectAll: (keys: readonly string[], checked: boolean) => void;
+    onReset: (keys: readonly string[]) => void;
 }
 
-export function ReviewTable({ checkedKeys, onToggle }: ReviewTableProps) {
-    const groups = useSortedGroups().filter((g) => g.review);
-    const products = useProducts();
+export function ReviewTable({ group, touched, checkedKeys, onToggle, onSelectAll, onReset }: ReviewTableProps) {
+    const quickFilter = useQuickFilterPredicate();
+
+    // Nothing to physically confirm for a product with no recorded stock at all.
+    const products = useProducts().filter((p) => p.group === group && !isEmpty(p.years));
+    const keys = products.map((p) => getId(p.group, p.name));
+
+    const checkedCount = keys.filter((key) => checkedKeys.has(key)).length;
+    const allChecked = touched && keys.length > 0 && checkedCount === keys.length;
+    const mixed = touched && checkedCount > 0 && checkedCount < keys.length;
+
+    const handleMasterToggle = () => {
+        if (touched && allChecked) {
+            // all checked -> untouched
+            onReset(keys);
+        } else if (touched && !mixed) {
+            // all unchecked -> all checked
+            onSelectAll(keys, true);
+        } else {
+            // untouched -> all unchecked, or mixed -> all unchecked
+            onSelectAll(keys, false);
+        }
+    };
 
     return (
         <Table layout="fixed" data-table="review">
-            {groups.map((g) => (
-                <ReviewGroup
-                    key={g.group}
-                    group={g}
-                    products={products}
-                    checkedKeys={checkedKeys}
-                    onToggle={onToggle}
-                />
-            ))}
+            <Table.Thead>
+                <Table.Tr>
+                    <Table.Th>
+                        <Checkbox
+                            variant="outline"
+                            checked={allChecked}
+                            indeterminate={mixed}
+                            icon={touched ? undefined : UntouchedCheckboxIcon}
+                            onChange={handleMasterToggle}
+                            data-untouched={!touched}
+                            label={<Title order={3}>{group}</Title>}
+                        />
+                    </Table.Th>
+                </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+                {products.map((p) => (
+                    <ReviewProductRow
+                        key={getId(p.group, p.name)}
+                        product={p}
+                        checked={checkedKeys.has(getId(p.group, p.name))}
+                        touched={touched}
+                        onToggle={onToggle}
+                        hidden={!quickFilter(p.name)}
+                    />
+                ))}
+            </Table.Tbody>
         </Table>
     );
 }

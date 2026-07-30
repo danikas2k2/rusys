@@ -1,5 +1,6 @@
-import { IconAlertTriangle, IconHome, IconTilde } from '@tabler/icons-react';
 import React from 'react';
+
+import { ApproxAmountIcon, HomeIcon, SuspiciousIcon } from '@icons';
 
 import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/client/pages/products/utils/variantKeys';
@@ -32,11 +33,11 @@ export function DetailedAmounts({ group, amounts }: DetailedAmountsProps) {
                         data-suspicious={v.suspicious || undefined}
                         data-home={v.home || undefined}
                     >
-                        {v.home && <IconTilde size=".75rem" style={{ alignSelf: 'center' }} />}
+                        {v.home && <ApproxAmountIcon size=".75rem" style={{ alignSelf: 'center' }} />}
                         {v.amount}
                         <AmountSuffix group={group} variant={v.variant} />
-                        {v.suspicious && <IconAlertTriangle size={12} />}
-                        {v.home && <IconHome size={12} />}
+                        {v.suspicious && <SuspiciousIcon size={12} />}
+                        {v.home && <HomeIcon size={12} />}
                     </span>
                 ))}
         </>

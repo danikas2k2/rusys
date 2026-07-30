@@ -1,7 +1,9 @@
 import { Alert, Button, Group, Modal, type ButtonProps, type ModalProps } from '@mantine/core';
-import { IconAlertCircle, IconCheck, IconX } from '@tabler/icons-react';
 import React, { cloneElement, useCallback, useState } from 'react';
 
+import { CancelIcon, ConfirmationDialogIcon, ConfirmIcon, ErrorAlertIcon } from '@icons';
+
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { getErrorMessage } from '~/client/utils/errors';
 
@@ -23,21 +25,28 @@ export interface ConfirmationDialogProps extends Omit<ModalProps, 'onClose'> {
 }
 
 export const confirmButtonProps: ButtonProps = {
-    variant: 'solid',
+    variant: 'filled',
     color: 'primary',
-    leftSection: <IconCheck size={18} />,
+    leftSection: <ConfirmIcon size={18} />,
     children: <Label>Confirm</Label>,
 };
 
 export const cancelButtonProps: ButtonProps = {
     variant: 'outline',
-    color: 'gray',
-    leftSection: <IconX size={18} />,
+    color: 'neutral',
+    leftSection: <CancelIcon size={18} />,
     children: <Label>Cancel</Label>,
 };
 
 export function ConfirmationDialog({
-    title = <Label>Are you sure?</Label>,
+    title = (
+        <>
+            <DialogIcon>
+                <ConfirmationDialogIcon />
+            </DialogIcon>
+            <Label>Are you sure?</Label>
+        </>
+    ),
     actions,
     confirmButton,
     cancelButton,
@@ -102,11 +111,12 @@ export function ConfirmationDialog({
                 ...closeButtonProps,
             }}
             title={title}
+            data-type="confirm"
             {...props}
         >
             {children}
             {opened && error && (
-                <Alert variant="light" color="negative" icon={<IconAlertCircle size={18} />} mt="md">
+                <Alert variant="light" color="negative" icon={<ErrorAlertIcon size={18} />} mt="md">
                     {error}
                 </Alert>
             )}

@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
         resolve: {
             alias: {
                 '~': path.resolve(__dirname, './src'),
+                '@icons': path.resolve(__dirname, './src/client/common/icons'),
                 '@tests': path.resolve(__dirname, './src/tests'),
                 'package.json': path.resolve(__dirname, './package.json'),
             },
@@ -195,7 +196,7 @@ export default defineConfig(({ mode }) => {
             // Proxy API requests to Express server
             proxy: {
                 // Proxy all API endpoints to Express server
-                '^/(products|groups|variants|export|import|clientId|checkUser|summary|history|userProfiles|userProfile)':
+                '^/(products|groups|variants|export|import|clientId|checkUser|summary|history|userProfiles|userProfile|images)':
                     {
                         target: 'http://localhost:3000',
                         changeOrigin: true,

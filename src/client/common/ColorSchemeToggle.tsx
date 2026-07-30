@@ -1,6 +1,7 @@
 import { Center, SegmentedControl, useMantineColorScheme, type MantineColorScheme } from '@mantine/core';
-import { IconMoon, IconSun, IconSunMoon } from '@tabler/icons-react';
 import React, { useEffect, useMemo, useState } from 'react';
+
+import { AutoModeIcon, DarkModeIcon, LightModeIcon } from '@icons';
 
 import { useLabels } from '~/client/hooks/useLabels';
 
@@ -25,7 +26,7 @@ export function ColorSchemeToggle({ auto = true }: ColorSchemeToggleProps) {
                 value: 'light',
                 label: (
                     <Center>
-                        <IconSun aria-label={_('Light mode')} />
+                        <LightModeIcon aria-label={_('Light mode')} />
                     </Center>
                 ),
             },
@@ -35,7 +36,7 @@ export function ColorSchemeToggle({ auto = true }: ColorSchemeToggleProps) {
                           value: 'auto',
                           label: (
                               <Center>
-                                  <IconSunMoon aria-label={_('System preferred mode')} />
+                                  <AutoModeIcon aria-label={_('System preferred mode')} />
                               </Center>
                           ),
                       },
@@ -45,7 +46,7 @@ export function ColorSchemeToggle({ auto = true }: ColorSchemeToggleProps) {
                 value: 'dark',
                 label: (
                     <Center>
-                        <IconMoon aria-label={_('Dark mode')} />
+                        <DarkModeIcon aria-label={_('Dark mode')} />
                     </Center>
                 ),
             },

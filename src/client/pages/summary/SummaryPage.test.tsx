@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { MockRoute } from '@tests/MockRoute';
-import { MockTheme } from '@tests/MockTheme';
+import { MockPage } from '@tests/MockPage';
 
 import React from 'react';
 
@@ -19,11 +18,9 @@ vi.mock(import('~/client/pages/review/ActiveReviewBox'), () => ({
 describe('<SummaryPage>', () => {
     it('renders into the document', () => {
         render(
-            <MockTheme>
-                <MockRoute>
-                    <SummaryPage />
-                </MockRoute>
-            </MockTheme>
+            <MockPage state={{ groups: [] }}>
+                <SummaryPage />
+            </MockPage>
         );
 
         expect(screen.getByText('SummaryTable')).toBeInTheDocument();

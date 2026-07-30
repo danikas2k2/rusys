@@ -21,12 +21,12 @@ function handleFocusCapture(event: React.FocusEvent<HTMLDivElement>): void {
     }
 }
 
-export function ConfirmableModal({ isDirty, onClose, children, ...modalProps }: ConfirmableModalProps) {
+export function ConfirmableModal({ isDirty, onClose, children, ...props }: ConfirmableModalProps) {
     const { handleClose, confirming, handleConfirmDiscard, handleCancelDiscard } = useConfirmClose(isDirty, onClose);
 
     return (
         <>
-            <Modal {...modalProps} onClose={handleClose} onFocusCapture={handleFocusCapture}>
+            <Modal {...props} onClose={handleClose} onFocusCapture={handleFocusCapture}>
                 {children(handleClose)}
             </Modal>
             <DiscardChangesDialog opened={confirming} onConfirm={handleConfirmDiscard} onClose={handleCancelDiscard} />

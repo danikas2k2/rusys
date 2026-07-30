@@ -1,10 +1,12 @@
 import { ActionIcon, Button, Group, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { googleLogout } from '@react-oauth/google';
-import { IconLogout } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
 
+import { ConfirmationDialogIcon, LogoutIcon } from '@icons';
+
 import { ConfirmationDialog } from '~/client/common/ConfirmationDialog';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useResetProfile } from '~/client/state/profile/useResetProfile';
@@ -29,9 +31,16 @@ export function LogoutButton({ children }: React.PropsWithChildren): React.React
 
             <ConfirmationDialog
                 opened={opened}
-                title={<Label>Are you sure to logout?</Label>}
+                title={
+                    <>
+                        <DialogIcon>
+                            <ConfirmationDialogIcon />
+                        </DialogIcon>
+                        <Label>Are you sure to logout?</Label>
+                    </>
+                }
                 confirmButton={
-                    <Button leftSection={<IconLogout />}>
+                    <Button leftSection={<LogoutIcon />}>
                         <Label>Logout</Label>
                     </Button>
                 }

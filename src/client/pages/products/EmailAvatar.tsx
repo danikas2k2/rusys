@@ -1,6 +1,7 @@
 import { Avatar } from '@mantine/core';
-import { IconRobotFace, IconUserQuestion } from '@tabler/icons-react';
 import React from 'react';
+
+import { AnonymousUserIcon, DevUserIcon } from '@icons';
 
 import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
 import { gravatarUrl } from '~/client/utils/gravatar';
@@ -18,7 +19,7 @@ export function EmailAvatar({
     if (!email) {
         return (
             <Avatar color="gray" variant="outline" radius="50%" size="sm" data-anonymous="true">
-                <IconUserQuestion size="60%" />
+                <AnonymousUserIcon size="60%" />
             </Avatar>
         );
     }
@@ -34,7 +35,7 @@ export function EmailAvatar({
     if (email.toLowerCase() === DEV_MODE_EMAIL.toLowerCase()) {
         return (
             <Avatar color="cyan.9" variant="outline" radius="50%" size="sm" data-robot="true">
-                <IconRobotFace size="60%" />
+                <DevUserIcon size="60%" />
             </Avatar>
         );
     }

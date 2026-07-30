@@ -32,7 +32,7 @@ export function AppRouter() {
     return (
         <HashRouter>
             <Routes>
-                <Route path={Links.GROUPS} element={<GroupsPage />} />
+                <Route path={Links.CATEGORIES} element={<GroupsPage />} />
                 <Route element={<GroupFilterLayout />}>
                     <Route path={Links.VARIANTS} element={<VariantsPage />} />
                     <Route element={<QuickFilterLayout />}>

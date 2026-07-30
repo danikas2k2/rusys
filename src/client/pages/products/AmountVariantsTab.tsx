@@ -1,15 +1,16 @@
 import { Accordion, Badge, Button, Flex, Group, Select, Stack, Text, type ComboboxItem } from '@mantine/core';
-import {
-    IconAlertTriangle,
-    IconArrowBackUp,
-    IconArrowForwardUp,
-    IconCheck,
-    IconHome,
-    IconPlus,
-    IconTilde,
-    IconX,
-} from '@tabler/icons-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import {
+    AddIcon,
+    ApproxAmountIcon,
+    CancelIcon,
+    HomeIcon,
+    RedoIcon,
+    SuspiciousIcon,
+    UndoIcon,
+    UpdateIcon,
+} from '@icons';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { ChangeBadge } from '~/client/common/ChangeBadge';
@@ -252,12 +253,9 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                                     <Group justify="space-between">
                                         <Group gap={4}>
                                             {suspicious && (
-                                                <IconAlertTriangle
-                                                    size={14}
-                                                    color="var(--mantine-color-moderate-text)"
-                                                />
+                                                <SuspiciousIcon size={14} color="var(--mantine-color-moderate-text)" />
                                             )}
-                                            {home && <IconHome size={14} color="var(--mantine-color-blue-text)" />}
+                                            {home && <HomeIcon size={14} color="var(--mantine-color-blue-text)" />}
                                             <Text
                                                 fz="md"
                                                 fw={500}
@@ -272,7 +270,9 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                                                 component="span"
                                                 c={suspicious ? 'moderate' : home ? 'blue' : undefined}
                                             >
-                                                {home && <IconTilde size={12} style={{ verticalAlign: 'middle' }} />}
+                                                {home && (
+                                                    <ApproxAmountIcon size={12} style={{ verticalAlign: 'middle' }} />
+                                                )}
                                                 {displayAmount}
                                             </Text>
                                             <ChangeBadge change={totalDelta || totalChanges} />
@@ -312,7 +312,7 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                     renderOption={({ option }: { option: ComboboxItem }) =>
                         option.value === '' ? (
                             <Group gap="xs" data-separator={!!unusedVariants.length}>
-                                <IconPlus size={14} />
+                                <AddIcon size={14} />
                                 {option.label}
                             </Group>
                         ) : (
@@ -332,7 +332,7 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                         <Button
                             variant="default"
                             size="sm"
-                            leftSection={<IconArrowBackUp size={16} />}
+                            leftSection={<UndoIcon size={16} />}
                             rightSection={
                                 undoCount > 0 ? (
                                     <Badge size="sm" variant="filled" circle>
@@ -348,7 +348,7 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                         <Button
                             variant="default"
                             size="sm"
-                            leftSection={<IconArrowForwardUp size={16} />}
+                            leftSection={<RedoIcon size={16} />}
                             rightSection={
                                 redoCount > 0 ? (
                                     <Badge size="sm" variant="filled" circle>
@@ -366,12 +366,17 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
 
                 {(expandedKey || hasChanges) && (
                     <Group justify="center" gap="xs">
-                        <Button variant="default" size="sm" leftSection={<IconX size={16} />} onClick={handleCancel}>
+                        <Button
+                            variant="default"
+                            size="sm"
+                            leftSection={<CancelIcon size={16} />}
+                            onClick={handleCancel}
+                        >
                             <Label>Cancel</Label>
                         </Button>
                         <Button
                             size="sm"
-                            leftSection={<IconCheck size={16} />}
+                            leftSection={<UpdateIcon size={16} />}
                             onClick={handleUpdate}
                             disabled={!hasChanges}
                         >

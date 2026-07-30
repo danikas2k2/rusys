@@ -1,10 +1,19 @@
 import { Alert, Button, Group, rem, Text } from '@mantine/core';
 import { Dropzone, type FileWithPath } from '@mantine/dropzone';
-import { IconAlertCircle, IconCloudUpload, IconFileCode, IconFileShredder, IconX } from '@tabler/icons-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import {
+    CancelIcon,
+    ErrorAlertIcon,
+    ImportAcceptIcon,
+    ImportDropzoneIdleIcon,
+    ImportIcon,
+    ImportRejectIcon,
+} from '@icons';
+
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { useImportHandler } from '~/client/hooks/useImportHandler';
 import { useLabel } from '~/client/hooks/useLabel';
@@ -73,7 +82,11 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
             opened={opened}
             isDirty={() => !!file}
             onClose={onClose}
-            title={<Label>Import</Label>}
+            title={
+                <DialogIcon aria-label={useLabel('Import')}>
+                    <ImportIcon />
+                </DialogIcon>
+            }
             closeButtonProps={{ 'aria-label': useLabel('Close') }}
             size="lg"
             centered
@@ -90,13 +103,13 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
                     >
                         <Group justify="center" gap="xl" style={{ minHeight: rem(120), pointerEvents: 'none' }}>
                             <Dropzone.Accept>
-                                <IconFileCode size={52} stroke={1.5} />
+                                <ImportAcceptIcon size={52} stroke={1.5} />
                             </Dropzone.Accept>
                             <Dropzone.Reject>
-                                <IconFileShredder size={52} stroke={1.5} />
+                                <ImportRejectIcon size={52} stroke={1.5} />
                             </Dropzone.Reject>
                             <Dropzone.Idle>
-                                <IconCloudUpload size={52} stroke={1.5} />
+                                <ImportDropzoneIdleIcon size={52} stroke={1.5} />
                             </Dropzone.Idle>
 
                             <div>
@@ -114,7 +127,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
                     </Dropzone>
 
                     {error && (
-                        <Alert variant="light" color="negative" icon={<IconAlertCircle size={18} />} mt="md">
+                        <Alert variant="light" color="negative" icon={<ErrorAlertIcon size={18} />} mt="md">
                             {error}
                         </Alert>
                     )}
@@ -123,7 +136,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
                         <Button
                             variant="outline"
                             color="gray"
-                            leftSection={<IconX size={18} />}
+                            leftSection={<CancelIcon size={18} />}
                             onClick={handleClose}
                             disabled={loading}
                         >
@@ -132,7 +145,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
                         <Button
                             variant="filled"
                             color="primary"
-                            leftSection={<IconCloudUpload size={18} />}
+                            leftSection={<ImportIcon size={18} />}
                             loading={loading}
                             onClick={handleSubmit}
                             disabled={!file}

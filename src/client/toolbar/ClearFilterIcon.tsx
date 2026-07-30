@@ -1,6 +1,7 @@
 import { ActionIcon } from '@mantine/core';
-import { IconCircleX } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
+
+import { ClearIcon } from '@icons';
 
 import { useLabel } from '~/client/hooks/useLabel';
 
@@ -23,7 +24,7 @@ export function ClearFilterIcon({ onClick }: { onClick: React.MouseEventHandler 
             size={16}
             style={{ pointerEvents: 'auto' }}
         >
-            <IconCircleX size={16} />
+            <ClearIcon size={16} />
         </ActionIcon>
     );
 }

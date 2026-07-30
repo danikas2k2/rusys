@@ -13,6 +13,9 @@ vi.mock(import('~/client/toolbar/ToolbarFilter'), () => ({
 vi.mock(import('~/client/user/LogoutButton'), () => ({
     LogoutButton: () => <div>LogoutButton</div>,
 }));
+vi.mock(import('~/client/toolbar/ToolbarReviewButton'), () => ({
+    ToolbarReviewButton: () => <div>ToolbarReviewButton</div>,
+}));
 
 describe('<Toolbar>', () => {
     it('renders ToolbarFilter', () => {
@@ -31,6 +34,12 @@ describe('<Toolbar>', () => {
         render(<Toolbar />);
 
         expect(screen.getByText('LogoutButton')).toBeInTheDocument();
+    });
+
+    it('renders ToolbarReviewButton', () => {
+        render(<Toolbar />);
+
+        expect(screen.getByText('ToolbarReviewButton')).toBeInTheDocument();
     });
 
     it('renders passed children', () => {

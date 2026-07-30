@@ -220,7 +220,7 @@ describe('common', () => {
     describe('renameGroupOccurrences', () => {
         it('renames all group occurrences, returns true', async () => {
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).resolves.toBe(true);
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, session);
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, undefined, session);
             expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameProductsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             await expect($all('groups')).resolves.toStrictEqual([
@@ -241,7 +241,7 @@ describe('common', () => {
             vi.mocked(renameGroup).mockResolvedValueOnce(false);
 
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).resolves.toBe(false);
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, session);
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, undefined, session);
             expect(renameVariantsGroup).not.toHaveBeenCalled();
             expect(renameProductsGroup).not.toHaveBeenCalled();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -253,7 +253,7 @@ describe('common', () => {
             vi.mocked(renameGroup).mockRejectedValueOnce('Failed to rename group');
 
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).rejects.toBe('Failed to rename group');
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, session);
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, undefined, session);
             expect(renameVariantsGroup).not.toHaveBeenCalled();
             expect(renameProductsGroup).not.toHaveBeenCalled();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -265,7 +265,7 @@ describe('common', () => {
             vi.mocked(renameVariantsGroup).mockRejectedValueOnce('Failed to rename variants group');
 
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).rejects.toBe('Failed to rename variants group');
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, session);
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, undefined, session);
             expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameProductsGroup).not.toHaveBeenCalled();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -277,7 +277,7 @@ describe('common', () => {
             vi.mocked(renameProductsGroup).mockRejectedValueOnce('Failed to rename products group');
 
             await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).rejects.toBe('Failed to rename products group');
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, session);
+            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, undefined, session);
             expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameProductsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             await expect($all('groups')).resolves.toStrictEqual(groups);

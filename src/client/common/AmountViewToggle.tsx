@@ -1,6 +1,7 @@
-import { SegmentedControl, ThemeIcon } from '@mantine/core';
-import { IconIcons, IconWeight } from '@tabler/icons-react';
+import { Center, SegmentedControl } from '@mantine/core';
 import React from 'react';
+
+import { DetailedAmountViewIcon, TotalAmountViewIcon } from '@icons';
 
 import { useAmountView, type AmountView } from '~/client/common/AmountViewContext';
 import { useLabels } from '~/client/hooks/useLabels';
@@ -13,17 +14,17 @@ export function AmountViewToggle() {
         {
             value: 'total',
             label: (
-                <ThemeIcon color="text" c="text" variant="subtle">
-                    <IconWeight size={22} aria-label={_('Total quantity')} />
-                </ThemeIcon>
+                <Center>
+                    <TotalAmountViewIcon size={20} aria-label={_('Total quantity')} />
+                </Center>
             ),
         },
         {
             value: 'detailed',
             label: (
-                <ThemeIcon color="text" c="text" variant="subtle">
-                    <IconIcons size={22} aria-label={_('Detailed')} />
-                </ThemeIcon>
+                <Center>
+                    <DetailedAmountViewIcon size={20} aria-label={_('Detailed')} />
+                </Center>
             ),
         },
     ];
@@ -34,7 +35,8 @@ export function AmountViewToggle() {
         <SegmentedControl
             data-toggle="amount-view"
             size="xs"
-            p={0}
+            color="primary"
+            p="4 1"
             data={data}
             value={amountView}
             onChange={handleChange}

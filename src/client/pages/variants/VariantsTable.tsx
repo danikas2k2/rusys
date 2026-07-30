@@ -7,10 +7,10 @@ import { DraggableContent } from '~/client/common/DraggableContent';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { Label } from '~/client/common/Label';
 import { LoadableContent } from '~/client/common/LoadableContent';
-import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
+import { SortableContent } from '~/client/common/SortableContent';
+import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useSortedVariants } from '~/client/pages/variants/hooks/useSortedVariants';
 import { useVariantsHasData } from '~/client/pages/variants/hooks/useVariantsHasData';
-import { VariantsGroup } from '~/client/pages/variants/VariantsGroup';
 import { VariantsRow } from '~/client/pages/variants/VariantsRow';
 import { useGetVariants } from '~/client/state/variants/useGetVariants';
 import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
@@ -20,7 +20,7 @@ import { mapOrder } from '~/client/utils/mapOrder';
 import type { Variant } from '~/types/data';
 
 export function VariantsTable() {
-    const groups = useSortedGroups();
+    const [selectedGroup] = useGroupFilter();
 
     const setActive = useSetActiveContent();
     const handleDragStart = () => setActive();
@@ -31,15 +31,12 @@ export function VariantsTable() {
         reordering,
         onDragEnd: handleDragEnd,
     } = useReorderHandler<Variant, Pick<Variant, 'group' | 'variant'>>({
-        items: useSortedVariants(),
+        items: useSortedVariants().filter((v) => v.group === selectedGroup),
 
         onReorder: (reordered, { group }) =>
             reorderVariants(
                 group,
-                mapOrder(
-                    reordered.filter((v) => v.group === group),
-                    ({ variant }) => variant
-                )
+                mapOrder(reordered, ({ variant }) => variant)
             ),
 
         equals: (a, b) => a.group === b.group && a.variant === b.variant,
@@ -80,9 +77,17 @@ export function VariantsTable() {
                             </Table.Th>
                         </Table.Tr>
                     </Table.Thead>
-                    {groups.map(({ group }) => (
-                        <VariantsGroup key={group} group={group} variants={variants} reordering={reordering} />
-                    ))}
+                    <Table.Tbody>
+                        <SortableContent items={variants.map(({ variant }) => getId(selectedGroup, variant))}>
+                            {variants.map((variant) => (
+                                <VariantsRow
+                                    key={getId(variant.group, variant.variant)}
+                                    variant={variant}
+                                    reordering={reordering}
+                                />
+                            ))}
+                        </SortableContent>
+                    </Table.Tbody>
                 </Table>
             </DraggableContent>
         </LoadableContent>

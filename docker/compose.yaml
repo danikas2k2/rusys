@@ -47,7 +47,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        APP_VERSION: "3.7.1"
+        APP_VERSION: "3.8.1"
     platform: linux/amd64
     restart: unless-stopped
     environment:
@@ -76,6 +76,7 @@ services:
       - rusys-net
     volumes:
       - /volume1/docker/rusys-app/certs:/app/certs:ro
+      - /volume1/docker/rusys-app/images:/app/data/images
 
 networks:
   rusys-net:

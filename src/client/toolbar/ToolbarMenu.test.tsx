@@ -80,8 +80,8 @@ describe('<ToolbarMenu>', () => {
         expect(menu.getAllByRole('link')).toHaveListWithTextContent([
             'Products',
             'Summary',
-            'Groups',
             'Variants',
+            'Categories',
             'Utilities',
         ]);
 
@@ -113,11 +113,11 @@ describe('<ToolbarMenu>', () => {
     });
 
     it.each`
-        link              | item
-        ${Links.PRODUCTS} | ${'Products'}
-        ${Links.SUMMARY}  | ${'Summary'}
-        ${Links.GROUPS}   | ${'Groups'}
-        ${Links.VARIANTS} | ${'Variants'}
+        link                | item
+        ${Links.PRODUCTS}   | ${'Products'}
+        ${Links.SUMMARY}    | ${'Summary'}
+        ${Links.CATEGORIES} | ${'Categories'}
+        ${Links.VARIANTS}   | ${'Variants'}
     `('renders $item menu item being active', async ({ link, item }: { link: string; item: string }) => {
         render(
             <MockThemeRedux>

@@ -1,6 +1,7 @@
 import { NavLink } from '@mantine/core';
-import { IconCloudUpload } from '@tabler/icons-react';
 import React, { useCallback } from 'react';
+
+import { ImportIcon } from '@icons';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';
@@ -26,7 +27,7 @@ export function ImportMenuItem({ onClick }: ImportMenuItemProps) {
             label={<Label>Import</Label>}
             leftSection={
                 <ToolbarMenuIcon>
-                    <IconCloudUpload />
+                    <ImportIcon />
                 </ToolbarMenuIcon>
             }
             onClick={handleImportClick}

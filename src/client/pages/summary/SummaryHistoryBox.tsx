@@ -1,6 +1,9 @@
 import { Modal, type ModalProps } from '@mantine/core';
 import React, { useCallback } from 'react';
 
+import { SummaryNavIcon } from '@icons';
+
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { useLabels } from '~/client/hooks/useLabels';
 import { SummaryHistoryTab } from '~/client/pages/summary/SummaryHistoryTab';
 
@@ -26,7 +29,14 @@ export function SummaryHistoryBox({ opened = false, title, onClose, onAfterClose
             onClose={handleClose}
             closeButtonProps={{ 'aria-label': _('Close') }}
             onExitTransitionEnd={handleExitTransitionEnd}
-            title={title}
+            title={
+                <>
+                    <DialogIcon>
+                        <SummaryNavIcon />
+                    </DialogIcon>
+                    {title}
+                </>
+            }
             data-dialog="summary"
         >
             <SummaryHistoryTab />

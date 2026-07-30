@@ -1,12 +1,13 @@
 .ui-Table-table[data-table="history"] {
-    --table-border-color: var(--mantine-color-crust);
+    --table-border-color: var(--mantine-color-default-border);
 
-    .ui-Table-thead {
-        background-color: var(--table-border-color);
+    .ui-Table-thead,
+    .ui-Table-tbody {
+        background-color: transparent;
     }
 
-    .ui-Table-tbody {
-        background-color: var(--mantine-color-base);
+    .ui-Table-th {
+        font-weight: var(--mantine-font-weight-xl);
     }
 
     .ui-Table-td {
