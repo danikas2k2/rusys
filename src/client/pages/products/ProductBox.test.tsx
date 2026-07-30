@@ -9,12 +9,49 @@ import { ProductBox } from '~/client/pages/products/ProductBox';
 import { useAddProduct } from '~/client/state/products/useAddProduct';
 import { useMoveProduct } from '~/client/state/products/useMoveProduct';
 import { useRenameProduct } from '~/client/state/products/useRenameProduct';
+import { useSetProductImage } from '~/client/state/products/useSetProductImage';
 
 vi.mock(import('~/client/state/products/useAddProduct'));
 vi.mock(import('~/client/state/products/useDeleteProduct'));
 vi.mock(import('~/client/state/products/useMoveProduct'));
 vi.mock(import('~/client/state/products/useRenameProduct'));
+vi.mock(import('~/client/state/products/useSetProductImage'));
 vi.mock(import('~/client/common/Label'));
+vi.mock(import('@mantine/dropzone'), (): any => {
+    const DropzoneComponent = ({
+        onDrop,
+        onReject,
+        children,
+    }: {
+        onDrop: (files: File[]) => void;
+        onReject?: () => void;
+        children: React.ReactNode;
+    }) => {
+        const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            if (e.target.files) {
+                onDrop(Array.from(e.target.files));
+            }
+        };
+        const handleReject = () => {
+            onReject?.();
+        };
+        return (
+            <div>
+                <input type="file" placeholder="Please choose an image" onChange={handleChange} />
+                <button type="button" onClick={handleReject} aria-label="Reject image">
+                    Reject
+                </button>
+                {children}
+            </div>
+        );
+    };
+
+    DropzoneComponent.Accept = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
+    DropzoneComponent.Reject = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
+    DropzoneComponent.Idle = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
+
+    return { Dropzone: DropzoneComponent };
+});
 
 function selectOption(name: string) {
     const combobox = screen.getByRole('combobox', { name: 'Category' });
@@ -93,6 +130,140 @@ describe('<ProductBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onClose).toHaveBeenCalledWith();
+    });
+
+    describe('image upload', () => {
+        it('does not render a remove button when no image is set', () => {
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            expect(screen.queryByRole('button', { name: 'Remove image' })).not.toBeInTheDocument();
+        });
+
+        it('shows a preview and remove button after dropping a valid image', async () => {
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            const imageInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose an image');
+            const file = new File(['image-data'], 'image.png', { type: 'image/png' });
+            await user.upload(imageInput, file);
+
+            await expect(screen.findByRole('button', { name: 'Remove image' })).resolves.toBeInTheDocument();
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
+
+        it('shows an error when the dropped file is rejected', async () => {
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Reject image' }));
+
+            expect(screen.getByRole('alert')).toHaveTextContent('Choose a valid image file');
+        });
+
+        it('removes the image when the remove button is clicked', async () => {
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            const imageInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose an image');
+            const file = new File(['image-data'], 'image.png', { type: 'image/png' });
+            await user.upload(imageInput, file);
+
+            await user.click(await screen.findByRole('button', { name: 'Remove image' }));
+
+            expect(screen.queryByRole('button', { name: 'Remove image' })).not.toBeInTheDocument();
+        });
+
+        it('sends the uploaded image via setProductImage when adding a new entry', async () => {
+            const addProduct = vi.fn().mockResolvedValue(true);
+            const setProductImage = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
+            vi.mocked(useSetProductImage).mockReturnValue(setProductImage);
+
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened group="Uogienės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
+
+            const imageInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose an image');
+            const file = new File(['image-data'], 'image.png', { type: 'image/png' });
+            await user.upload(imageInput, file);
+            await screen.findByRole('button', { name: 'Remove image' });
+
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai');
+            expect(setProductImage).toHaveBeenCalledWith(
+                'Uogienės',
+                'Agrastai',
+                expect.stringMatching(/^data:image\/png;base64,/)
+            );
+            expect(onClose).toHaveBeenCalledWith('Uogienės', 'Agrastai');
+        });
+
+        it('sends the final identity to setProductImage after renaming', async () => {
+            const renameProduct = vi.fn().mockResolvedValue(true);
+            const setProductImage = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useRenameProduct).mockReturnValue(renameProduct);
+            vi.mocked(useSetProductImage).mockReturnValue(setProductImage);
+
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            await user.clear(screen.getByRole('textbox', { name: 'Title' }));
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
+
+            const imageInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose an image');
+            const file = new File(['image-data'], 'image.png', { type: 'image/png' });
+            await user.upload(imageInput, file);
+            await screen.findByRole('button', { name: 'Remove image' });
+
+            await user.click(screen.getByRole('button', { name: 'Update' }));
+
+            expect(renameProduct).toHaveBeenCalledWith('Uogienės', 'Avietės', 'Agrastai');
+            expect(setProductImage).toHaveBeenCalledWith(
+                'Uogienės',
+                'Agrastai',
+                expect.stringMatching(/^data:image\/png;base64,/)
+            );
+        });
+
+        it('does not call setProductImage when the image is unchanged', async () => {
+            const addProduct = vi.fn().mockResolvedValue(true);
+            const setProductImage = vi.fn();
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
+            vi.mocked(useSetProductImage).mockReturnValue(setProductImage);
+
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened group="Uogienės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai');
+            expect(setProductImage).not.toHaveBeenCalled();
+        });
     });
 
     describe('discard confirmation', () => {

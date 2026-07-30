@@ -32,6 +32,7 @@ export const enum ApiUrl {
     ProductsSetRemoving = '/products/removing',
     ProductsSetMissing = '/products/missing',
     ProductsSetMissingBulk = '/products/missing/bulk',
+    ProductsSetImage = '/products/image',
     ProductsRename = '/products/rename',
     ProductsMove = '/products/move',
     ProductsDelete = '/products/delete',
@@ -108,6 +109,10 @@ export interface ApiRenameProduct extends ApiRequestProduct {
 
 export interface ApiSetMissing extends ApiRequestProduct {
     missing: boolean;
+}
+
+export interface ApiSetImage extends ApiRequestProduct {
+    image: string;
 }
 
 export interface ApiSetMissingBulk {

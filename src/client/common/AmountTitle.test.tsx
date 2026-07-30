@@ -37,4 +37,24 @@ describe('<AmountTitle>', () => {
 
         expect(screen.getByText(/Uogienės, 2024/)).toBeInTheDocument();
     });
+
+    it('renders an avatar when image is provided', () => {
+        render(
+            <MockTheme>
+                <AmountTitle group="Uogienės" name="Braškės" image="/images/ab/cd/product.png" />
+            </MockTheme>
+        );
+
+        expect(document.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/product.png');
+    });
+
+    it('does not render an avatar when image is not provided', () => {
+        render(
+            <MockTheme>
+                <AmountTitle group="Uogienės" name="Braškės" />
+            </MockTheme>
+        );
+
+        expect(document.querySelector('img')).not.toBeInTheDocument();
+    });
 });

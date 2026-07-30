@@ -17,6 +17,7 @@ import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
 import { handleReorderGroups } from '~/server/api/handleReorderGroups';
 import { handleReorderVariants } from '~/server/api/handleReorderVariants';
+import { handleSetImage } from '~/server/api/handleSetImage';
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { handleSetMissingBulk } from '~/server/api/handleSetMissingBulk';
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
@@ -49,6 +50,7 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.ProductsSetRemoving]: handleSetRemoving,
     [ApiUrl.ProductsSetMissing]: handleSetMissing,
     [ApiUrl.ProductsSetMissingBulk]: handleSetMissingBulk,
+    [ApiUrl.ProductsSetImage]: handleSetImage,
     [ApiUrl.ProductsRename]: handleRename,
     [ApiUrl.ProductsMove]: handleMove,
     [ApiUrl.ProductsDelete]: handleDelete,

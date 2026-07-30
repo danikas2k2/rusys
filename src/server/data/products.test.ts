@@ -4,6 +4,7 @@ import { getProductsFixture } from '@tests/fixtures';
 
 import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
 import { addVariantAmount } from '~/common/utils/amounts';
+import { deleteImage, saveImage } from '~/server/data/images';
 import {
     addProduct,
     cleanupRecycled,
@@ -17,6 +18,7 @@ import {
     renameProduct,
     renameProductsGroup,
     renameProductsVariant,
+    setImage,
     setMissing,
     setMissingBulk,
     setRemoving,
@@ -30,6 +32,7 @@ vi.mock(import('~/server/db'));
 vi.mock(import('~/server/data/years'));
 vi.mock(import('~/server/data/groups'));
 vi.mock(import('~/server/data/variants'));
+vi.mock(import('~/server/data/images'));
 
 describe('products', () => {
     vi.setConfig({ testTimeout: 30_000 });
@@ -121,6 +124,18 @@ describe('products', () => {
 
         it('returns no products for invalid years', async () => {
             await expect(getProducts([23, 24])).resolves.toStrictEqual([]);
+        });
+
+        it('includes the image field when set', async () => {
+            await (
+                await db()
+            )
+                .collection('products')
+                .updateOne({ group: 'Daržovės', name: 'Agurkai' }, { $set: { image: '/images/ab/cd/agurkai.png' } });
+
+            const agurkai = (await getProducts([22])).find((p) => p.name === 'Agurkai');
+
+            expect(agurkai?.image).toBe('/images/ab/cd/agurkai.png');
         });
     });
 
@@ -853,6 +868,8 @@ describe('products', () => {
     });
 
     describe('deleteProduct', () => {
+        afterEach(() => vi.clearAllMocks());
+
         it('deletes products', async () => {
             await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(bulk(products, { $remove: 2 }));
@@ -871,6 +888,78 @@ describe('products', () => {
             ${'empty name'}    | ${'Daržovės'} | ${''}
         `('does not delete products for $title', async ({ group, name }: { group: string; name: string }) => {
             await expect(deleteProduct(group, name)).resolves.toBe(false);
+            await expect($all('products')).resolves.toStrictEqual(products);
+        });
+
+        it('deletes the image file for the deleted product', async () => {
+            await setImage('Daržovės', 'Agurkai', '/images/old/old.png');
+            vi.clearAllMocks();
+
+            await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(true);
+
+            expect(deleteImage).toHaveBeenCalledWith('/images/old/old.png');
+        });
+
+        it('calls deleteImage with undefined when the product has no image', async () => {
+            await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(true);
+
+            expect(deleteImage).toHaveBeenCalledWith(undefined);
+        });
+    });
+
+    describe('setImage', () => {
+        afterEach(() => vi.clearAllMocks());
+
+        it('uploads a new image and stores the returned url', async () => {
+            vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
+
+            await expect(setImage('Daržovės', 'Agurkai', 'data:image/png;base64,AAA')).resolves.toBe(true);
+
+            expect(saveImage).toHaveBeenCalledWith('data:image/png;base64,AAA');
+            expect(deleteImage).toHaveBeenCalledWith(undefined);
+            await expect($all('products')).resolves.toStrictEqual(
+                bulk(products, { $set: { '2.image': '/images/ab/cd/new-image.png' } })
+            );
+        });
+
+        it('deletes the previous image file when replacing it', async () => {
+            await setImage('Daržovės', 'Agurkai', '/images/old/old.png');
+            vi.clearAllMocks();
+            vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
+
+            await setImage('Daržovės', 'Agurkai', 'data:image/png;base64,AAA');
+
+            expect(deleteImage).toHaveBeenCalledWith('/images/old/old.png');
+        });
+
+        it('deletes the image file when the image is removed', async () => {
+            await setImage('Daržovės', 'Agurkai', '/images/old/old.png');
+            vi.clearAllMocks();
+
+            await setImage('Daržovės', 'Agurkai', '');
+
+            expect(deleteImage).toHaveBeenCalledWith('/images/old/old.png');
+            await expect($all('products')).resolves.toStrictEqual(bulk(products, { $set: { '2.image': '' } }));
+        });
+
+        it('does not touch image files when the image is unchanged', async () => {
+            await setImage('Daržovės', 'Agurkai', '/images/same/same.png');
+            vi.clearAllMocks();
+
+            await setImage('Daržovės', 'Agurkai', '/images/same/same.png');
+
+            expect(saveImage).not.toHaveBeenCalled();
+            expect(deleteImage).not.toHaveBeenCalled();
+        });
+
+        it.each`
+            title              | group         | name
+            ${'invalid group'} | ${'Šaldyti'}  | ${'Agurkai'}
+            ${'invalid name'}  | ${'Daržovės'} | ${'Braškės'}
+            ${'empty group'}   | ${''}         | ${'Agurkai'}
+            ${'empty name'}    | ${'Daržovės'} | ${''}
+        `('does nothing for $title', async ({ group, name }: { group: string; name: string }) => {
+            await expect(setImage(group, name, 'data:image/png;base64,AAA')).resolves.toBe(false);
             await expect($all('products')).resolves.toStrictEqual(products);
         });
     });

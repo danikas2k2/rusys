@@ -56,11 +56,13 @@ export interface Product {
     missing?: boolean;
     updates?: readonly Update[] | readonly ProductHistoryMeta[];
     undates?: readonly Update[] | readonly ProductHistoryMeta[];
+    image?: string;
 }
 
 export interface ProductAmounts extends GroupAmounts {
     name: string;
     year: number;
+    image?: string;
 }
 
 export interface Summary {

@@ -36,10 +36,25 @@ export async function saveImage(dataUrl: string): Promise<string> {
     return `${IMAGES_URL_PATH}/${relativePath}`;
 }
 
+// Removes now-empty shard directories left behind after deleting a file, up to (but not including) IMAGES_DIR.
+async function removeEmptyDirs(dir: string): Promise<void> {
+    if (dir === IMAGES_DIR) {
+        return;
+    }
+    const entries = await fs.readdir(dir).catch(() => undefined);
+    if (!entries || entries.length > 0) {
+        return;
+    }
+    await fs.rmdir(dir).catch(() => undefined);
+    await removeEmptyDirs(path.dirname(dir));
+}
+
 export async function deleteImage(url?: string): Promise<void> {
     if (!url?.startsWith(`${IMAGES_URL_PATH}/`)) {
         return;
     }
     const relativePath = url.slice(IMAGES_URL_PATH.length + 1);
-    await fs.unlink(path.join(IMAGES_DIR, relativePath)).catch(() => undefined);
+    const filePath = path.join(IMAGES_DIR, relativePath);
+    await fs.unlink(filePath).catch(() => undefined);
+    await removeEmptyDirs(path.dirname(filePath));
 }

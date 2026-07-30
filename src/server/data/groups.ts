@@ -1,23 +1,10 @@
 import type { ClientSession } from 'mongodb';
 
-import { deleteImage, saveImage } from '~/server/data/images';
+import { deleteImage } from '~/server/data/images';
+import { resolveImage } from '~/server/data/resolveImage';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
 import type { Group } from '~/types/data';
-
-// Resolves the image value to persist: uploads a new file for a freshly-dropped data URL
-// (deleting the old one it replaces), or deletes the old file when the image was removed.
-async function resolveImage(image: string, previousImage?: string): Promise<string> {
-    if (image.startsWith('data:')) {
-        const saved = await saveImage(image);
-        await deleteImage(previousImage);
-        return saved;
-    }
-    if (image !== previousImage) {
-        await deleteImage(previousImage);
-    }
-    return image;
-}
 
 // Daržovės: 0.5l, 0.75l, 0.25l, 0.01l, x
 // Uogienės: 0.5l, 0.75l, 0.25l, 0.01l, x
