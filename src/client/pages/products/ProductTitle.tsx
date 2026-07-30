@@ -1,4 +1,4 @@
-import { /*Avatar,*/ Checkbox, Group, Table, Title } from '@mantine/core';
+import { Checkbox, Group, Table, Title } from '@mantine/core';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 
@@ -37,7 +37,6 @@ export function ProductTitle({ product }: ProductTitleProps): React.ReactElement
                 label={
                     <Group gap="xs">
                         <Title order={5} data-available={available} data-removing={available && hasRemoving}>
-                            {/*{product.image && <Avatar src={product.image} radius="sm" size="sm" alt={product.name} />}*/}
                             {product.name}
                         </Title>
                     </Group>
