@@ -2,8 +2,9 @@ import { debugRequest } from '~/server/api/debug';
 import { getProductsWithGroups } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { importEverything } from '~/server/data/common';
+import { readImportArchive, writeImportImages, type ImportArchive } from '~/server/data/exportArchive';
 import { getValidator } from '~/server/data/schema/getValidator';
-import type { ApiExport, ApiProductsWithGroups, ApiRequest, ApiResponse } from '~/types/api';
+import type { ApiProductsWithGroups, ApiRequest, ApiResponse } from '~/types/api';
 import type { Update } from '~/types/data';
 
 export async function handleImport(req: ApiRequest, res: ApiResponse<ApiProductsWithGroups>): Promise<void> {
@@ -11,7 +12,7 @@ export async function handleImport(req: ApiRequest, res: ApiResponse<ApiProducts
     headerNoCache(res);
     res.json(
         await run<boolean, ApiProductsWithGroups>(
-            () => {
+            async () => {
                 const filesReceived = req.files?.import;
                 if (!filesReceived) {
                     throw new Error('File required to import');
@@ -29,19 +30,22 @@ export async function handleImport(req: ApiRequest, res: ApiResponse<ApiProducts
 
                 const { error } = console;
                 const file = Array.isArray(filesReceived) ? filesReceived[0] : filesReceived;
-                let data: ApiExport;
+                let archive: ImportArchive;
                 try {
-                    data = JSON.parse(file.data.toString());
+                    archive = await readImportArchive(file.data);
                 } catch (_e) {
                     error(_e);
                     throw new Error('Invalid file content');
                 }
 
                 const validate = getValidator();
-                if (!validate(data)) {
+                if (!validate(archive.data)) {
                     error(validate.errors);
                     throw new Error('Invalid file content');
                 }
+                const { data } = archive;
+
+                await writeImportImages(archive.images);
 
                 return importEverything(
                     data.products.map((d) => ({

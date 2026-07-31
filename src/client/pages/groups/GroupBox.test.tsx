@@ -127,6 +127,23 @@ describe('<GroupBox>', () => {
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
 
+        it('falls back to a photo icon when the preview image fails to load', async () => {
+            const { container } = render(
+                <MockApp state={state}>
+                    <GroupBox opened group="Daržovės" onClose={onClose} />
+                </MockApp>
+            );
+
+            const imageInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose an image');
+            const file = new File(['image-data'], 'image.png', { type: 'image/png' });
+            await user.upload(imageInput, file);
+            await screen.findByRole('button', { name: 'Remove image' });
+
+            fireEvent.error(container.querySelector('img')!);
+
+            expect(container.querySelector('.tabler-icon-photo')).toBeInTheDocument();
+        });
+
         it('shows an error when the dropped file is rejected', async () => {
             render(
                 <MockApp state={state}>

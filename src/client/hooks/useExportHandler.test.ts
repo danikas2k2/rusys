@@ -10,36 +10,32 @@ vi.mock(import('~/client/state/common/useExport'));
 describe('useExportHandler', () => {
     afterEach(() => vi.clearAllMocks());
 
-    it('calls download with correct data when handle returns ok: true', async () => {
-        const mockHandle = vi.fn().mockResolvedValue({ ok: true, data: { key: 'value' } });
+    it('downloads the returned blob with a dated zip filename', async () => {
+        const blob = new Blob(['zip-bytes'], { type: 'application/zip' });
+        const mockHandle = vi.fn().mockResolvedValue(blob);
         vi.mocked(useExport).mockReturnValue(mockHandle);
+
+        const mockDate = new Date('2024-01-15T10:30:00.000Z');
+        const dateSpy = vi.spyOn(globalThis, 'Date').mockImplementation(function () {
+            return mockDate;
+        } as unknown as typeof Date);
 
         const { result } = renderHook(() => useExportHandler());
         await result.current();
 
+        dateSpy.mockRestore();
+
         expect(mockHandle).toHaveBeenCalledWith();
-        expect(download).toHaveBeenCalledWith({ data: { key: 'value' } });
+        expect(download).toHaveBeenCalledWith(blob, '2024-01-15.zip');
     });
 
-    it('does not call download when handle returns ok: false', async () => {
-        const mockHandle = vi.fn().mockResolvedValue({ ok: false });
+    it('propagates the error when the request fails', async () => {
+        const mockHandle = vi.fn().mockRejectedValue(new Error('Request failed'));
         vi.mocked(useExport).mockReturnValue(mockHandle);
 
         const { result } = renderHook(() => useExportHandler());
-        await result.current();
 
-        expect(mockHandle).toHaveBeenCalledWith();
-        expect(download).not.toHaveBeenCalled();
-    });
-
-    it('does not call download when handle returns null or undefined', async () => {
-        const mockHandle = vi.fn().mockResolvedValue(null);
-        vi.mocked(useExport).mockReturnValue(mockHandle);
-
-        const { result } = renderHook(() => useExportHandler());
-        await result.current();
-
-        expect(mockHandle).toHaveBeenCalledWith();
+        await expect(result.current()).rejects.toThrow('Request failed');
         expect(download).not.toHaveBeenCalled();
     });
 });

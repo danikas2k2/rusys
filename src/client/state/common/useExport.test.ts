@@ -15,10 +15,10 @@ describe('useExport', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    it('calls export action', async () => {
+    it('calls export action requesting a blob response', async () => {
         const { result } = renderHook(() => useExport());
         await result.current();
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.Export);
+        expect(request).toHaveBeenCalledWith(ApiUrl.Export, undefined, undefined, 'blob');
     });
 });

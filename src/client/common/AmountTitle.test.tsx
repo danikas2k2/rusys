@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -56,5 +56,17 @@ describe('<AmountTitle>', () => {
         );
 
         expect(document.querySelector('img')).not.toBeInTheDocument();
+    });
+
+    it('falls back to the first letter of the name when the image fails to load', () => {
+        const { container } = render(
+            <MockTheme>
+                <AmountTitle group="Uogienės" name="Braškės" image="/images/ab/cd/product.png" />
+            </MockTheme>
+        );
+
+        fireEvent.error(container.querySelector('img')!);
+
+        expect(screen.getByText('B')).toBeInTheDocument();
     });
 });

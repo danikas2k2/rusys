@@ -65,8 +65,8 @@
   "Choose a valid image file": {
     "lt-LT": "Pasirinkite tinkamą paveikslėlio failą"
   },
-  "Choose a valid JSON file": {
-    "lt-LT": "Pasirinkite tinkamą JSON failą"
+  "Choose a valid ZIP file": {
+    "lt-LT": "Pasirinkite tinkamą ZIP failą"
   },
   "Choose file": {
     "lt-LT": "Pasirinkite failą"
@@ -104,8 +104,8 @@
   "Discard unsaved changes?": {
     "lt-LT": "Atmesti neišsaugotus pakeitimus?"
   },
-  "Drag JSON file here or click to select": {
-    "lt-LT": "Vilkite JSON failą čia arba spustelėkite ir pasirinkite"
+  "Drag ZIP file here or click to select": {
+    "lt-LT": "Vilkite ZIP failą čia arba spustelėkite ir pasirinkite"
   },
   "Duplicate": {
     "lt-LT": "Kopijuoti"
@@ -177,7 +177,7 @@
     "lt-LT": "Kategorijos paveikslėlis"
   },
   "Category name": {
-    "lt-LT": "Pavadinimas"
+    "lt-LT": "Kategorija"
   },
   "Categories": {
     "lt-LT": "Kategorijos"
@@ -297,7 +297,7 @@
     "lt-LT": "Ketvirtadienis"
   },
   "Title": {
-    "lt-LT": "Pavadinimas"
+    "lt-LT": "Produktas"
   },
   "Total quantity": {
     "lt-LT": "Bendrai"
@@ -336,7 +336,7 @@
     "lt-LT": "Varianto paveikslėlis"
   },
   "Variant name": {
-    "lt-LT": "Pavadinimas"
+    "lt-LT": "Variantas"
   },
   "Variant name or amount is required": {
     "lt-LT": "Reikia įvesti pavadinimą arba kiekį"

@@ -32,26 +32,23 @@ describe('download', () => {
 
     afterEach(() => vi.clearAllMocks());
 
+    const blob = new Blob(['zip-bytes'], { type: 'application/zip' });
+
     it('creates anchor element', () => {
-        download({ test: 'data' });
+        download(blob);
 
         expect(createElementSpy).toHaveBeenCalledWith('a');
     });
 
-    it('creates blob with JSON data', () => {
-        const data = { test: 'data', number: 123 };
-
-        download(data);
-
-        const blob = (createObjectURLSpy.mock.calls[0] as unknown[])[0] as Blob;
+    it('passes the blob straight to createObjectURL', () => {
+        download(blob);
 
         expect(createObjectURLSpy).toHaveBeenCalledTimes(1);
-        expect(blob).toBeInstanceOf(Blob);
-        expect(blob).toHaveProperty('type', '');
+        expect(createObjectURLSpy).toHaveBeenCalledWith(blob);
     });
 
     it('sets anchor href to blob URL', () => {
-        download({ test: 'data' });
+        download(blob);
 
         expect(mockAnchor.href).toBe('blob:mock-url');
     });
@@ -62,45 +59,45 @@ describe('download', () => {
             return mockDate;
         } as unknown as typeof Date);
 
-        download({ test: 'data' });
+        download(blob);
 
         dateSpy.mockRestore();
 
-        expect(mockAnchor.download).toBe('data-2024-01-15.json');
+        expect(mockAnchor.download).toBe('2024-01-15.zip');
     });
 
     it('sets anchor download with custom filename', () => {
-        download({ test: 'data' }, 'custom-export.json');
+        download(blob, 'custom-export.zip');
 
-        expect(mockAnchor.download).toBe('custom-export.json');
+        expect(mockAnchor.download).toBe('custom-export.zip');
     });
 
     it('appends anchor to document body', () => {
-        download({ test: 'data' });
+        download(blob);
 
         expect(appendChildSpy).toHaveBeenCalledWith(mockAnchor);
     });
 
     it('clicks anchor element', () => {
-        download({ test: 'data' });
+        download(blob);
 
         expect(clickSpy).toHaveBeenCalledTimes(1);
     });
 
     it('removes anchor from document body', () => {
-        download({ test: 'data' });
+        download(blob);
 
         expect(removeChildSpy).toHaveBeenCalledWith(mockAnchor);
     });
 
     it('revokes object URL', () => {
-        download({ test: 'data' });
+        download(blob);
 
         expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:mock-url');
     });
 
     it('performs operations in correct order', () => {
-        download({ test: 'data' });
+        download(blob);
 
         expect(createElementSpy.mock.invocationCallOrder[0]).toBeLessThan(
             createObjectURLSpy.mock.invocationCallOrder[0]
@@ -109,16 +106,5 @@ describe('download', () => {
         expect(appendChildSpy.mock.invocationCallOrder[0]).toBeLessThan(clickSpy.mock.invocationCallOrder[0]);
         expect(clickSpy.mock.invocationCallOrder[0]).toBeLessThan(removeChildSpy.mock.invocationCallOrder[0]);
         expect(removeChildSpy.mock.invocationCallOrder[0]).toBeLessThan(revokeObjectURLSpy.mock.invocationCallOrder[0]);
-    });
-
-    it('serializes data to JSON and passes to Blob', () => {
-        const data = { test: 'value', number: 123, nested: { key: 'val' } };
-
-        download(data);
-
-        const blob = (createObjectURLSpy.mock.calls[0] as unknown[])[0] as Blob;
-
-        expect(createObjectURLSpy).toHaveBeenCalledTimes(1);
-        expect(blob).toBeInstanceOf(Blob);
     });
 });

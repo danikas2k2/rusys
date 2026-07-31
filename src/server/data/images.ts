@@ -49,12 +49,19 @@ async function removeEmptyDirs(dir: string): Promise<void> {
     await removeEmptyDirs(path.dirname(dir));
 }
 
-export async function deleteImage(url?: string): Promise<void> {
+// Resolves an /images/... URL to its on-disk path, or undefined if the url isn't a local image.
+export function resolveImagePath(url?: string): string | undefined {
     if (!url?.startsWith(`${IMAGES_URL_PATH}/`)) {
+        return undefined;
+    }
+    return path.join(IMAGES_DIR, url.slice(IMAGES_URL_PATH.length + 1));
+}
+
+export async function deleteImage(url?: string): Promise<void> {
+    const filePath = resolveImagePath(url);
+    if (!filePath) {
         return;
     }
-    const relativePath = url.slice(IMAGES_URL_PATH.length + 1);
-    const filePath = path.join(IMAGES_DIR, relativePath);
     await fs.unlink(filePath).catch(() => undefined);
     await removeEmptyDirs(path.dirname(filePath));
 }

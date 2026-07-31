@@ -18,7 +18,13 @@ export function GroupsRow({ group, reordering, hidden = false }: GroupsRowProps)
     const review = group.review;
     return (
         <SortableRow id={group.group} data={group} disabled={reordering || hidden} data-hidden={hidden}>
-            <Table.Td>{group.image && <Avatar src={group.image} radius="sm" size="sm" alt="" />}</Table.Td>
+            <Table.Td>
+                {group.image && (
+                    <Avatar src={group.image} radius="sm" size="sm" alt={group.group}>
+                        {group.group.trim().charAt(0).toUpperCase()}
+                    </Avatar>
+                )}
+            </Table.Td>
             <Table.Td colSpan={annual ? undefined : review ? 2 : 3}>
                 <Title order={5}>
                     <Label>{group.group}</Label>

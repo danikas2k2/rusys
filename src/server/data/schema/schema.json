@@ -140,6 +140,15 @@
           },
           "missing": {
             "type": "boolean"
+          },
+          "image": {
+            "type": "string"
+          },
+          "variantImages": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
           }
         },
         "required": ["group", "name"],

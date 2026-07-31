@@ -2,7 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import { deleteImage, IMAGES_DIR, saveImage } from '~/server/data/images';
+import { deleteImage, IMAGES_DIR, resolveImagePath, saveImage } from '~/server/data/images';
 
 describe('images', () => {
     const savedUrls: string[] = [];
@@ -115,6 +115,24 @@ describe('images', () => {
             await expect(fs.access(otherFilePath)).resolves.toBeUndefined();
 
             await fs.rm(shardDir, { recursive: true, force: true });
+        });
+    });
+
+    describe('resolveImagePath', () => {
+        it('resolves an /images/ url to its on-disk path', () => {
+            expect(resolveImagePath('/images/ab/cd/uuid.png')).toBe(path.join(IMAGES_DIR, 'ab/cd/uuid.png'));
+        });
+
+        it('returns undefined for a data url', () => {
+            expect(resolveImagePath('data:image/png;base64,AAA')).toBeUndefined();
+        });
+
+        it('returns undefined for undefined', () => {
+            expect(resolveImagePath(undefined)).toBeUndefined();
+        });
+
+        it('returns undefined for an empty string', () => {
+            expect(resolveImagePath('')).toBeUndefined();
         });
     });
 });

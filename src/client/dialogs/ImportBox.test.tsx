@@ -136,7 +136,7 @@ describe('<ImportBox>', () => {
             );
 
             const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
-            const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+            const file = new File(['zip-bytes'], 'test.zip', { type: 'application/zip' });
             await user.upload(fileInput, file);
 
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -153,7 +153,7 @@ describe('<ImportBox>', () => {
             );
 
             const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
-            const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+            const file = new File(['zip-bytes'], 'test.zip', { type: 'application/zip' });
             await user.upload(fileInput, file);
 
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -170,14 +170,14 @@ describe('<ImportBox>', () => {
             );
 
             const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
-            const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+            const file = new File(['zip-bytes'], 'test.zip', { type: 'application/zip' });
             await user.upload(fileInput, file);
 
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
             await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }));
 
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByText('test.json')).toBeInTheDocument();
+            expect(screen.getByText('test.zip')).toBeInTheDocument();
         });
     });
 
@@ -193,7 +193,7 @@ describe('<ImportBox>', () => {
             );
 
             const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
-            const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+            const file = new File(['zip-bytes'], 'test.zip', { type: 'application/zip' });
 
             await user.upload(fileInput, file);
 
@@ -219,7 +219,7 @@ describe('<ImportBox>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Reject file' }));
 
-        expect(screen.getByRole('alert')).toHaveTextContent('Choose a valid JSON file');
+        expect(screen.getByRole('alert')).toHaveTextContent('Choose a valid ZIP file');
     });
 
     it('disables import button when no file is selected', () => {
@@ -245,7 +245,7 @@ describe('<ImportBox>', () => {
         );
 
         const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
-        const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+        const file = new File(['zip-bytes'], 'test.zip', { type: 'application/zip' });
 
         await user.upload(fileInput, file);
         await user.click(screen.getByRole('button', { name: 'Import' }));
@@ -264,7 +264,7 @@ describe('<ImportBox>', () => {
         );
 
         const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
-        const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+        const file = new File(['zip-bytes'], 'test.zip', { type: 'application/zip' });
 
         await user.upload(fileInput, file);
         await user.click(screen.getByRole('button', { name: 'Import' }));
@@ -280,11 +280,11 @@ describe('<ImportBox>', () => {
         );
 
         const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
-        const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+        const file = new File(['zip-bytes'], 'test.zip', { type: 'application/zip' });
 
         await user.upload(fileInput, file);
 
-        const fileItem = screen.getByText('test.json');
+        const fileItem = screen.getByText('test.zip');
 
         expect(fileItem).toBeInTheDocument();
 
@@ -295,8 +295,12 @@ describe('<ImportBox>', () => {
     });
 
     it('shows file size warning when file exceeds max size', async () => {
-        const largeFile = new File(['x'.repeat(11 * 1024 * 1024)], 'large.json', { type: 'application/json' });
-        Object.defineProperty(largeFile, 'length', { value: 11 * 1024 * 1024, writable: false, configurable: true });
+        const largeFile = new File(['zip-bytes'], 'large.zip', { type: 'application/zip' });
+        Object.defineProperty(largeFile, 'length', {
+            value: 201 * 1024 * 1024,
+            writable: false,
+            configurable: true,
+        });
 
         render(
             <MockPage state={state}>
@@ -329,16 +333,16 @@ describe('<ImportBox>', () => {
         );
 
         const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
-        const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+        const file = new File(['zip-bytes'], 'test.zip', { type: 'application/zip' });
 
         await user.upload(fileInput, file);
 
-        expect(screen.getByText('test.json')).toBeInTheDocument();
-        expect(screen.queryByText(/Drag JSON file here/)).not.toBeInTheDocument();
+        expect(screen.getByText('test.zip')).toBeInTheDocument();
+        expect(screen.queryByText(/Drag ZIP file here/)).not.toBeInTheDocument();
     });
 
     it('does not show file size warning when file is within size limit', async () => {
-        const smallFile = new File(['{"data":[]}'], 'small.json', { type: 'application/json' });
+        const smallFile = new File(['zip-bytes'], 'small.zip', { type: 'application/zip' });
         Object.defineProperty(smallFile, 'length', { value: 5 * 1024 * 1024, writable: false, configurable: true });
 
         render(
@@ -378,11 +382,11 @@ describe('<ImportBox>', () => {
         );
 
         const fileInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose a file');
-        const file = new File(['{"data":[]}'], 'test.json', { type: 'application/json' });
+        const file = new File(['zip-bytes'], 'test.zip', { type: 'application/zip' });
 
         await user.upload(fileInput, file);
 
-        expect(screen.getByText('test.json')).toBeInTheDocument();
+        expect(screen.getByText('test.zip')).toBeInTheDocument();
 
         rerender(
             <MockPage state={state}>
@@ -390,6 +394,6 @@ describe('<ImportBox>', () => {
             </MockPage>
         );
 
-        expect(screen.getByText('test.json')).toBeInTheDocument();
+        expect(screen.getByText('test.zip')).toBeInTheDocument();
     });
 });

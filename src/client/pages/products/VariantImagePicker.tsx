@@ -70,7 +70,10 @@ export function VariantImagePicker({ group, name, variant, image }: VariantImage
             >
                 <Group gap="sm" style={{ pointerEvents: 'none' }}>
                     {image ? (
-                        <Avatar src={image} radius="md" size={40} aria-label={_('Variant image')} />
+                        // If the image fails to load, Mantine will render children as fallback.
+                        <Avatar src={image} radius="md" size={40} aria-label={_('Variant image')}>
+                            <ImageAcceptIcon size={20} stroke={1.5} />
+                        </Avatar>
                     ) : (
                         <>
                             <Dropzone.Accept>
