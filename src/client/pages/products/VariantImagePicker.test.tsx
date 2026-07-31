@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
@@ -65,6 +65,18 @@ describe('<VariantImagePicker>', () => {
         );
 
         expect(screen.getByRole('button', { name: 'Remove image' })).toBeInTheDocument();
+    });
+
+    it('falls back to a photo icon when the image fails to load', () => {
+        const { container } = render(
+            <MockApp>
+                <VariantImagePicker group="Uogienės" name="Braškės" variant="0.5l" image="/images/ab/cd/v.png" />
+            </MockApp>
+        );
+
+        fireEvent.error(container.querySelector('img')!);
+
+        expect(container.querySelector('.tabler-icon-photo')).toBeInTheDocument();
     });
 
     it('uploads a dropped image', async () => {

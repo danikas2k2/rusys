@@ -74,4 +74,11 @@ describe('useApiRequest', () => {
             responseType: 'json',
         });
     });
+
+    it('sends the request with a blob responseType when explicitly requested', async () => {
+        const { result } = renderHook(() => useApiRequest());
+
+        await expect(result.current('/export', undefined, undefined, 'blob')).resolves.toBeUndefined();
+        expect(axios).toHaveBeenCalledWith({ url: '/export', method: 'POST', responseType: 'blob' });
+    });
 });

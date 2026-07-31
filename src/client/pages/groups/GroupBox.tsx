@@ -239,12 +239,15 @@ export function GroupBox({
                         >
                             <Group justify="center" gap="md" style={{ minHeight: rem(80), pointerEvents: 'none' }}>
                                 {form.values.image ? (
+                                    // If the image fails to load, Mantine will render children as fallback.
                                     <Avatar
                                         src={form.values.image}
                                         radius="md"
                                         size={48}
                                         aria-label={_('Category image')}
-                                    />
+                                    >
+                                        <ImageAcceptIcon size={24} stroke={1.5} />
+                                    </Avatar>
                                 ) : (
                                     <>
                                         <Dropzone.Accept>

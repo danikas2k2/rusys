@@ -18,7 +18,7 @@ import { Label } from '~/client/common/Label';
 import { useImportHandler } from '~/client/hooks/useImportHandler';
 import { useLabel } from '~/client/hooks/useLabel';
 
-const MAX_FILE_SIZE = 10; // in MB
+const MAX_FILE_SIZE = 200; // in MB - the archive can bundle many product/category images
 
 interface ImportBoxProps {
     opened?: boolean;
@@ -41,7 +41,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
     }, []);
 
     const handleReject = useCallback(() => {
-        setError('Choose a valid JSON file');
+        setError('Choose a valid ZIP file');
     }, []);
 
     const handleSubmit = useCallback(async () => {
@@ -97,7 +97,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
                         onDrop={handleDrop}
                         onReject={handleReject}
                         maxSize={maxSize}
-                        accept={{ 'application/json': ['.json'] }}
+                        accept={{ 'application/zip': ['.zip'] }}
                         multiple={false}
                         disabled={loading}
                     >
@@ -114,7 +114,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
 
                             <div>
                                 <Text size="xl" inline>
-                                    {file ? file.name : <Label>Drag JSON file here or click to select</Label>}
+                                    {file ? file.name : <Label>Drag ZIP file here or click to select</Label>}
                                 </Text>
                                 {(!file || file.length > maxSize) && (
                                     <Text size="sm" c="dimmed" inline mt="xs">

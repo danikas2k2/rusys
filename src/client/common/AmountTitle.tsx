@@ -11,7 +11,12 @@ interface AmountTitleProps {
 export function AmountTitle({ group, name, year, image }: AmountTitleProps): React.JSX.Element {
     return (
         <Group gap="sm" wrap="nowrap">
-            {image && <Avatar src={image} radius="md" size="lg" alt={name} />}
+            {image && (
+                // If the image fails to load, Mantine will render children as fallback.
+                <Avatar src={image} radius="md" size="lg" alt={name}>
+                    {name?.trim().charAt(0).toUpperCase()}
+                </Avatar>
+            )}
             <Stack gap={2} align="start">
                 <Title order={4} fz="h2">
                     {name}

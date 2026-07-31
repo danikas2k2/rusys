@@ -50,7 +50,7 @@ export function setupHelmet(app: Express): Express {
         fileUpload({
             abortOnLimit: true,
             safeFileNames: true,
-            limits: { fileSize: 1 << 20 }, // 1MB
+            limits: { fileSize: 200 << 20 }, // 200MB - import archives can bundle many product/category images
         })
     );
     app.use(cors());

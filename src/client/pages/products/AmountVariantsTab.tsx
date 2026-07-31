@@ -254,7 +254,12 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                                 <Accordion.Control>
                                     <Group justify="space-between">
                                         <Group gap={4}>
-                                            {variantImage && <Avatar src={variantImage} radius="sm" size={20} alt="" />}
+                                            {variantImage && (
+                                                // If the image fails to load, Mantine will render children as fallback.
+                                                <Avatar src={variantImage} radius="sm" size={20} alt="">
+                                                    {variant.trim().charAt(0).toUpperCase()}
+                                                </Avatar>
+                                            )}
                                             {suspicious && (
                                                 <SuspiciousIcon size={14} color="var(--mantine-color-moderate-text)" />
                                             )}

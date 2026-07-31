@@ -1,10 +1,22 @@
-import { debugRequest } from '~/server/api/debug';
-import { headerNoCache, run } from '~/server/api/utils';
-import { exportEverything } from '~/server/data/common';
-import type { ApiExport, ApiRequest, ApiResponse } from '~/types/api';
+import type { Response } from 'express';
 
-export async function handleExport(req: ApiRequest, res: ApiResponse<ApiExport>): Promise<void> {
+import { debugRequest } from '~/server/api/debug';
+import { headerNoCache } from '~/server/api/utils';
+import { buildExportArchive } from '~/server/data/exportArchive';
+import type { ApiRequest } from '~/types/api';
+
+export async function handleExport(req: ApiRequest, res: Response): Promise<void> {
     debugRequest(req);
     headerNoCache(res);
-    res.json(await run(() => exportEverything()));
+    try {
+        const archive = await buildExportArchive();
+        const filename = `${new Date().toISOString().slice(0, 10)}.zip`;
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(archive);
+    } catch (e) {
+        const { error } = console;
+        error(e);
+        res.status(500).json({ ok: false, error: `${e}` });
+    }
 }
