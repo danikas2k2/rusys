@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import { IMAGE_EXTENSION_BY_MIME_TYPE } from '~/common/utils/images';
+import { IMAGE_EXTENSION_BY_MIME_TYPE } from '~/common/utils/files';
 
 // Mounted as a persistent Docker volume in production - see docker/compose.yaml
 export const IMAGES_DIR = path.resolve('data/images');

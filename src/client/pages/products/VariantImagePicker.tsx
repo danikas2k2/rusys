@@ -9,7 +9,7 @@ import { useLabels } from '~/client/hooks/useLabels';
 import { useSetVariantImage } from '~/client/state/products/useSetVariantImage';
 import { getErrorMessage } from '~/client/utils/errors';
 import { readFileAsDataUrl } from '~/client/utils/readFileAsDataUrl';
-import { IMAGE_MIME_TYPES, MAX_IMAGE_FILE_SIZE } from '~/common/utils/images';
+import { IMAGE_MIME_TYPES, MAX_IMAGE_FILE_SIZE } from '~/common/utils/files';
 
 interface VariantImagePickerProps {
     group: string;

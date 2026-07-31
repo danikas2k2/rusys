@@ -27,7 +27,7 @@ import { useUpdateGroup } from '~/client/state/groups/useUpdateGroup';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
 import { readFileAsDataUrl } from '~/client/utils/readFileAsDataUrl';
-import { IMAGE_MIME_TYPES, MAX_IMAGE_FILE_SIZE } from '~/common/utils/images';
+import { IMAGE_MIME_TYPES, MAX_IMAGE_FILE_SIZE } from '~/common/utils/files';
 
 interface GroupBoxProps {
     opened?: boolean;

@@ -10,7 +10,6 @@ import type { Group, Product } from '~/types/data';
 
 const DATA_ENTRY = 'data.json';
 const IMAGES_ENTRY_PREFIX = 'images/';
-// Matches exactly the sharded paths produced by saveImage() - see shardedPath() in images.ts.
 const IMAGE_ENTRY_PATTERN = /^images\/[0-9a-f]{2}\/[0-9a-f]{2}\/[0-9a-f]{32}\.[a-z0-9]+$/;
 
 function collectImageUrls(products: readonly Product[], groups: readonly Group[]): string[] {

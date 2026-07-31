@@ -17,8 +17,7 @@ import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { useImportHandler } from '~/client/hooks/useImportHandler';
 import { useLabel } from '~/client/hooks/useLabel';
-
-const MAX_FILE_SIZE = 200; // in MB - the archive can bundle many product/category images
+import { MAX_IMPORT_FILE_MB, MAX_IMPORT_FILE_SIZE } from '~/common/utils/files';
 
 interface ImportBoxProps {
     opened?: boolean;
@@ -76,7 +75,6 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
         }
     }, [opened]);
 
-    const maxSize = MAX_FILE_SIZE * 1024 ** 2;
     return (
         <ConfirmableModal
             opened={opened}
@@ -96,7 +94,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
                     <Dropzone
                         onDrop={handleDrop}
                         onReject={handleReject}
-                        maxSize={maxSize}
+                        maxSize={MAX_IMPORT_FILE_SIZE}
                         accept={{ 'application/zip': ['.zip'] }}
                         multiple={false}
                         disabled={loading}
@@ -116,10 +114,10 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
                                 <Text size="xl" inline>
                                     {file ? file.name : <Label>Drag ZIP file here or click to select</Label>}
                                 </Text>
-                                {(!file || file.length > maxSize) && (
+                                {(!file || file.length > MAX_IMPORT_FILE_SIZE) && (
                                     <Text size="sm" c="dimmed" inline mt="xs">
                                         <Label>File should not exceed</Label>
-                                        {` ${MAX_FILE_SIZE}MB`}
+                                        {` ${MAX_IMPORT_FILE_MB}MB`}
                                     </Text>
                                 )}
                             </div>
