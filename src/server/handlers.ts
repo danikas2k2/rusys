@@ -21,6 +21,7 @@ import { handleSetImage } from '~/server/api/handleSetImage';
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { handleSetMissingBulk } from '~/server/api/handleSetMissingBulk';
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
+import { handleSetVariantImage } from '~/server/api/handleSetVariantImage';
 import { handleSummary } from '~/server/api/handleSummary';
 import { handleSummaryHistory } from '~/server/api/handleSummaryHistory';
 import { handleUndoProduct } from '~/server/api/handleUndoProduct';
@@ -51,6 +52,7 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.ProductsSetMissing]: handleSetMissing,
     [ApiUrl.ProductsSetMissingBulk]: handleSetMissingBulk,
     [ApiUrl.ProductsSetImage]: handleSetImage,
+    [ApiUrl.ProductsSetVariantImage]: handleSetVariantImage,
     [ApiUrl.ProductsRename]: handleRename,
     [ApiUrl.ProductsMove]: handleMove,
     [ApiUrl.ProductsDelete]: handleDelete,

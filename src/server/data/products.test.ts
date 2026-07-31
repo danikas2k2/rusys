@@ -22,6 +22,7 @@ import {
     setMissing,
     setMissingBulk,
     setRemoving,
+    setVariantImage,
     undoProduct,
     updateProduct,
 } from '~/server/data/products';
@@ -905,6 +906,17 @@ describe('products', () => {
 
             expect(deleteImage).toHaveBeenCalledWith(undefined);
         });
+
+        it('deletes all variant image files for the deleted product', async () => {
+            await setVariantImage('Daržovės', 'Agurkai', 'd', '/images/old/d.png');
+            await setVariantImage('Daržovės', 'Agurkai', 'p', '/images/old/p.png');
+            vi.clearAllMocks();
+
+            await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(true);
+
+            expect(deleteImage).toHaveBeenCalledWith('/images/old/d.png');
+            expect(deleteImage).toHaveBeenCalledWith('/images/old/p.png');
+        });
     });
 
     describe('setImage', () => {
@@ -962,6 +974,84 @@ describe('products', () => {
             await expect(setImage(group, name, 'data:image/png;base64,AAA')).resolves.toBe(false);
             await expect($all('products')).resolves.toStrictEqual(products);
         });
+    });
+
+    describe('setVariantImage', () => {
+        afterEach(() => vi.clearAllMocks());
+
+        it('uploads a new image and stores it under the variant key', async () => {
+            vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
+
+            await expect(setVariantImage('Daržovės', 'Agurkai', 'd', 'data:image/png;base64,AAA')).resolves.toBe(true);
+
+            expect(saveImage).toHaveBeenCalledWith('data:image/png;base64,AAA');
+            expect(deleteImage).toHaveBeenCalledWith(undefined);
+            await expect($all('products')).resolves.toStrictEqual(
+                bulk(products, { $set: { '2.variantImages.d': '/images/ab/cd/new-image.png' } })
+            );
+        });
+
+        it('deletes the previous image file when replacing it', async () => {
+            await setVariantImage('Daržovės', 'Agurkai', 'd', '/images/old/old.png');
+            vi.clearAllMocks();
+            vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
+
+            await setVariantImage('Daržovės', 'Agurkai', 'd', 'data:image/png;base64,AAA');
+
+            expect(deleteImage).toHaveBeenCalledWith('/images/old/old.png');
+        });
+
+        it('deletes the image file when the image is removed', async () => {
+            await setVariantImage('Daržovės', 'Agurkai', 'd', '/images/old/old.png');
+            vi.clearAllMocks();
+
+            await setVariantImage('Daržovės', 'Agurkai', 'd', '');
+
+            expect(deleteImage).toHaveBeenCalledWith('/images/old/old.png');
+            await expect($all('products')).resolves.toStrictEqual(
+                bulk(products, { $set: { '2.variantImages.d': '' } })
+            );
+        });
+
+        it('does not touch image files when the image is unchanged', async () => {
+            await setVariantImage('Daržovės', 'Agurkai', 'd', '/images/same/same.png');
+            vi.clearAllMocks();
+
+            await setVariantImage('Daržovės', 'Agurkai', 'd', '/images/same/same.png');
+
+            expect(saveImage).not.toHaveBeenCalled();
+            expect(deleteImage).not.toHaveBeenCalled();
+        });
+
+        it('keeps images for different variants of the same product independent', async () => {
+            await setVariantImage('Daržovės', 'Agurkai', 'd', '/images/old/d.png');
+            vi.clearAllMocks();
+            vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/p.png');
+
+            await setVariantImage('Daržovės', 'Agurkai', 'p', 'data:image/png;base64,AAA');
+
+            expect(deleteImage).toHaveBeenCalledWith(undefined);
+            await expect($all('products')).resolves.toStrictEqual(
+                bulk(products, {
+                    $set: { '2.variantImages.d': '/images/old/d.png', '2.variantImages.p': '/images/ab/cd/p.png' },
+                })
+            );
+        });
+
+        it.each`
+            title              | group         | name         | variant
+            ${'invalid group'} | ${'Šaldyti'}  | ${'Agurkai'} | ${'d'}
+            ${'invalid name'}  | ${'Daržovės'} | ${'Braškės'} | ${'d'}
+            ${'empty group'}   | ${''}         | ${'Agurkai'} | ${'d'}
+            ${'empty name'}    | ${'Daržovės'} | ${''}        | ${'d'}
+            ${'empty variant'} | ${'Daržovės'} | ${'Agurkai'} | ${''}
+        `(
+            'does nothing for $title',
+            async ({ group, name, variant }: { group: string; name: string; variant: string }) => {
+                await expect(setVariantImage(group, name, variant, 'data:image/png;base64,AAA')).resolves.toBe(false);
+                await expect($all('products')).resolves.toStrictEqual(products);
+            }
+        );
     });
 
     describe('deleteProductVariant', () => {

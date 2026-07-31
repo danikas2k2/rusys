@@ -57,6 +57,7 @@ export interface Product {
     updates?: readonly Update[] | readonly ProductHistoryMeta[];
     undates?: readonly Update[] | readonly ProductHistoryMeta[];
     image?: string;
+    variantImages?: Readonly<Record<string, string>>;
 }
 
 export interface ProductAmounts extends GroupAmounts {

@@ -332,6 +332,9 @@
   "Variant already exists in this category": {
     "lt-LT": "Toks variantas jau yra šioje kategorijoje"
   },
+  "Variant image": {
+    "lt-LT": "Varianto paveikslėlis"
+  },
   "Variant name": {
     "lt-LT": "Pavadinimas"
   },

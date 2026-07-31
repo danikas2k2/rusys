@@ -1,4 +1,4 @@
-import { Accordion, Badge, Button, Flex, Group, Select, Stack, Text, type ComboboxItem } from '@mantine/core';
+import { Accordion, Avatar, Badge, Button, Flex, Group, Select, Stack, Text, type ComboboxItem } from '@mantine/core';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
@@ -20,6 +20,7 @@ import { useLabels } from '~/client/hooks/useLabels';
 import { AmountExpanded, type VariantDelta } from '~/client/pages/products/AmountExpanded';
 import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
 import { HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/client/pages/products/utils/variantKeys';
+import { VariantImagePicker } from '~/client/pages/products/VariantImagePicker';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useRedoProduct } from '~/client/state/products/useRedoProduct';
@@ -241,6 +242,7 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                         const displayAmount = baseAmount + totalDelta;
                         const hasSuspicious = visibleKeys.includes(toKey(variant, true));
                         const hasHome = visibleKeys.includes(toKey(variant, false, true));
+                        const variantImage = activeProduct?.variantImages?.[variant];
 
                         return (
                             <Accordion.Item
@@ -252,6 +254,7 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                                 <Accordion.Control>
                                     <Group justify="space-between">
                                         <Group gap={4}>
+                                            {variantImage && <Avatar src={variantImage} radius="sm" size={20} alt="" />}
                                             {suspicious && (
                                                 <SuspiciousIcon size={14} color="var(--mantine-color-moderate-text)" />
                                             )}
@@ -294,7 +297,14 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                                         onAddHome={
                                             !suspicious && !home && !hasHome ? () => handleAddHome(variant) : undefined
                                         }
-                                    />
+                                    >
+                                        <VariantImagePicker
+                                            group={group}
+                                            name={name}
+                                            variant={variant}
+                                            image={variantImage}
+                                        />
+                                    </AmountExpanded>
                                 </Accordion.Panel>
                             </Accordion.Item>
                         );
