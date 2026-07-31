@@ -8,7 +8,7 @@ import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 
 import { isDevMode } from '~/common/utils/dev';
-import { MAX_IMAGE_FILE_SIZE, MAX_IMPORT_FILE_SIZE } from '~/common/utils/files';
+import { MAX_IMPORT_FILE_SIZE } from '~/common/utils/files';
 import { debug } from '~/server/api/debug';
 import { IMAGES_DIR, IMAGES_URL_PATH } from '~/server/data/images';
 import { ApiUrlHandlers } from '~/server/handlers';
