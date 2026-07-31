@@ -82,6 +82,9 @@
                     "user": {
                       "type": "string"
                     },
+                    "comment": {
+                      "type": "string"
+                    },
                     "years": {
                       "anyOf": [
                         {
@@ -195,6 +198,12 @@
             "type": "integer"
           },
           "suffix": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          },
+          "units": {
             "type": "string"
           }
         },
