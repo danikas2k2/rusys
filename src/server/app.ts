@@ -8,6 +8,7 @@ import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 
 import { isDevMode } from '~/common/utils/dev';
+import { MAX_IMAGE_FILE_SIZE, MAX_IMPORT_FILE_SIZE } from '~/common/utils/files';
 import { debug } from '~/server/api/debug';
 import { IMAGES_DIR, IMAGES_URL_PATH } from '~/server/data/images';
 import { ApiUrlHandlers } from '~/server/handlers';
@@ -44,13 +45,13 @@ export function setupHelmet(app: Express): Express {
         });
     }
 
-    app.use(bodyParser.urlencoded({ extended: false }));
-    app.use(bodyParser.json({ inflate: true, limit: '2mb' }));
+    app.use(bodyParser.urlencoded({ extended: false, limit: '20mb' }));
+    app.use(bodyParser.json({ inflate: true, limit: '20mb' }));
     app.use(
         fileUpload({
             abortOnLimit: true,
             safeFileNames: true,
-            limits: { fileSize: 200 << 20 }, // 200MB - import archives can bundle many product/category images
+            limits: { fileSize: MAX_IMPORT_FILE_SIZE }, // 200MB - import archives can bundle many product/category images
         })
     );
     app.use(cors());
