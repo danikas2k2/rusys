@@ -50,7 +50,7 @@ vi.mock(import('@mantine/core'), async () => {
 });
 
 vi.mock(import('~/client/pages/products/AmountExpanded'), () => ({
-    AmountExpanded: vi.fn(({ delta, onChange, onAddSuspicious, onAddHome }: any) => (
+    AmountExpanded: vi.fn(({ delta, onChange, onAddSuspicious, onAddHome, children }: any) => (
         <div>
             <button type="button" onClick={() => onChange('updated', delta.updated - 1)}>
                 decrease-updated
@@ -61,6 +61,7 @@ vi.mock(import('~/client/pages/products/AmountExpanded'), () => ({
             <button type="button" onClick={() => onChange('recycled', delta.recycled - 1)}>
                 decrease-recycled
             </button>
+            {children}
             {onAddSuspicious && (
                 <button type="button" onClick={onAddSuspicious}>
                     Something suspicious?
@@ -123,6 +124,10 @@ vi.mock(import('~/client/state/products/useRedoProduct'), () => ({
 
 vi.mock(import('~/client/state/profile/useProfile'), () => ({
     useProfile: vi.fn(() => ({ email: 'test@example.com' })),
+}));
+
+vi.mock(import('~/client/state/products/useSetVariantImage'), () => ({
+    useSetVariantImage: vi.fn(() => vi.fn()),
 }));
 
 describe('<AmountVariantsTab>', () => {
@@ -507,6 +512,44 @@ describe('<AmountVariantsTab>', () => {
 
         // liveAmounts from product.years[0].amounts has p=99
         expect(screen.getByText('99')).toBeInTheDocument();
+    });
+
+    it('shows the variant image avatar in the row control when set', () => {
+        vi.mocked(useProducts).mockReturnValue([
+            {
+                group: baseActive.group,
+                name: baseActive.name,
+                years: [{ year: baseActive.year, amounts: baseActive.amounts }],
+                variantImages: { d: '/images/ab/cd/d.png' },
+            },
+        ]);
+
+        renderTab();
+
+        expect(document.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/d.png');
+    });
+
+    it('does not show a variant image avatar in the row control when unset', () => {
+        renderTab();
+
+        expect(document.querySelector('img')).not.toBeInTheDocument();
+    });
+
+    it('shows the remove image button in the expanded panel when a variant image is set', async () => {
+        vi.mocked(useProducts).mockReturnValue([
+            {
+                group: baseActive.group,
+                name: baseActive.name,
+                years: [{ year: baseActive.year, amounts: baseActive.amounts }],
+                variantImages: { d: '/images/ab/cd/d.png' },
+            },
+        ]);
+
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+
+        expect(screen.getByText('Remove image')).toBeInTheDocument();
     });
 
     it('cancel also clears expandedVariant', async () => {

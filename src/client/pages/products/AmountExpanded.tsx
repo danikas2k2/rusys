@@ -20,6 +20,7 @@ interface VariantExpandedRowsProps {
     onCommentChange: (value: string) => void;
     onAddSuspicious?: () => void;
     onAddHome?: () => void;
+    children?: React.ReactNode;
 }
 
 export function AmountExpanded({
@@ -30,6 +31,7 @@ export function AmountExpanded({
     onCommentChange,
     onAddSuspicious,
     onAddHome,
+    children,
 }: VariantExpandedRowsProps) {
     const _ = useLabels();
     const minUpdated = -(baseAmount + delta.consumed + delta.recycled);
@@ -44,8 +46,11 @@ export function AmountExpanded({
                 placeholder={_('Comment')}
                 value={comment}
                 onChange={(e) => onCommentChange(e.target.value)}
-                rows={2}
+                autosize
+                minRows={1}
+                maxRows={3}
             />
+            {children}
             {(onAddSuspicious || onAddHome) && (
                 <Group gap="xs" justify="center" pt="sm">
                     {onAddSuspicious && (

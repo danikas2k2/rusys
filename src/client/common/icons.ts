@@ -26,7 +26,7 @@ export {
     IconHistory as HistoryTabIcon,
     IconHome as HomeIcon,
     IconPhoto as ImageAcceptIcon,
-    IconCloudUpload as ImageDropzoneIdleIcon,
+    IconPhoto as ImageDropzoneIdleIcon,
     IconX as ImageRejectIcon,
     IconFileCode as ImportAcceptIcon,
     IconCloudUpload as ImportDropzoneIdleIcon,

@@ -30,6 +30,7 @@ export async function getProducts(years: readonly number[] = []): Promise<Produc
                     years: 1,
                     missing: 1,
                     image: 1,
+                    variantImages: 1,
                     updates: {
                         $cond: [
                             { $gt: [{ $size: { $ifNull: ['$updates', []] } }, 0] },
@@ -394,6 +395,16 @@ export async function setImage(group: string, name: string, image: string): Prom
     return col.updateOne({ group, name }, { $set: { image: resolved } }).then(hasEffect);
 }
 
+export async function setVariantImage(group: string, name: string, variant: string, image: string): Promise<boolean> {
+    if (!group || !name || !variant) {
+        return false;
+    }
+    const col = (await db()).collection<Product>('products');
+    const existing = await col.findOne({ group, name });
+    const resolved = await resolveImage(image, existing?.variantImages?.[variant]);
+    return col.updateOne({ group, name }, { $set: { [`variantImages.${variant}`]: resolved } }).then(hasEffect);
+}
+
 export async function renameProduct(group: string, name: string, newName: string): Promise<boolean> {
     if (!group || !name || !newName || name === newName) {
         return false;
@@ -542,6 +553,7 @@ export async function deleteProduct(group: string, name: string): Promise<boolea
     const deleted = await col.deleteOne({ group, name }).then(hasEffect);
     if (deleted) {
         await deleteImage(existing?.image);
+        await Promise.all(Object.values(existing?.variantImages ?? {}).map((image) => deleteImage(image)));
     }
     return deleted;
 }
