@@ -170,10 +170,30 @@ describe('<ProductTitle>', () => {
             expect(screen.getByRole('cell').firstChild).toHaveStyle({ paddingInlineStart: '0px' });
         });
 
-        it('applies proportional left padding for a non-zero depth', () => {
+        it('applies exactly one indent step (chevron size + gap) of left padding for a depth-1 child', () => {
+            // A depth-0 parent's own visible chevron (22px) + gap (4px) pushes its checkbox to 26px.
+            // A depth-1 leaf child has no chevron of its own, so its padding alone must reproduce
+            // that same 26px for their checkboxes to line up.
+            renderTitle(products[0], { depth: 1 });
+
+            expect(screen.getByRole('cell').firstChild).toHaveStyle({ paddingInlineStart: '26px' });
+        });
+
+        it('applies proportional left padding for a deeper level', () => {
             renderTitle(products[0], { depth: 2 });
 
-            expect(screen.getByRole('cell').firstChild).toHaveStyle({ paddingInlineStart: '32px' });
+            expect(screen.getByRole('cell').firstChild).toHaveStyle({ paddingInlineStart: '52px' });
+        });
+    });
+
+    describe('plain top-level product (no tree)', () => {
+        it('renders no chevron and no extra padding for a product with no children and depth 0', () => {
+            renderTitle(products[0], { hasChildren: false, depth: 0 });
+
+            const group = screen.getByRole('cell').firstChild as HTMLElement;
+
+            expect(group.children).toHaveLength(1); // just the checkbox, no chevron
+            expect(group).toHaveStyle({ paddingInlineStart: '0px' });
         });
     });
 });

@@ -17,6 +17,14 @@ interface ProductTitleProps {
     onToggleExpand?: () => void;
 }
 
+// Each depth level is indented by exactly the chevron's own footprint (ActionIcon size="sm",
+// --ai-size-sm, plus the row's gap), so a leaf child's checkbox lands exactly under its parent's:
+// the parent's own chevron (always shown, since it must have a child) contributes that same
+// offset directly, while the child's depth-based padding reproduces it without needing a chevron.
+const CHEVRON_GAP = 4;
+const CHEVRON_SIZE = 22;
+const INDENT_STEP = CHEVRON_SIZE + CHEVRON_GAP;
+
 export function ProductTitle({
     product,
     depth = 0,
@@ -42,7 +50,7 @@ export function ProductTitle({
 
     return (
         <Table.Td>
-            <Group gap={4} wrap="nowrap" style={{ paddingInlineStart: depth * 16 }}>
+            <Group gap={CHEVRON_GAP} wrap="nowrap" style={{ paddingInlineStart: depth * INDENT_STEP }}>
                 {hasChildren && (
                     <ActionIcon
                         variant="subtle"
