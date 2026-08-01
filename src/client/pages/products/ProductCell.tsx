@@ -8,7 +8,7 @@ import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
 import { useProductUpdating } from '~/client/pages/products/UpdatingProductsContext';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 import { getCombinedAmounts } from '~/common/utils/amounts';
-import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts } from '~/types/data';
+import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts, VariantAmount } from '~/types/data';
 
 import './ProductCell.pcss';
 
@@ -16,6 +16,7 @@ export interface ProductCellProps {
     product: Product;
     year?: number;
     old?: boolean;
+    displayAmounts?: readonly VariantAmount[];
 }
 
 export function isPreferred(year: number, years: readonly RemovingYearAmounts[]): boolean {
@@ -36,7 +37,7 @@ export function isPreferred(year: number, years: readonly RemovingYearAmounts[])
     return maxOlderYear !== -1 ? year === maxOlderYear : year === thisYear && hasThisYear;
 }
 
-export function ProductCell({ product, year = 0, old = false }: ProductCellProps) {
+export function ProductCell({ product, year = 0, old = false, displayAmounts }: ProductCellProps) {
     const { group, name, years } = product;
     const { amounts, removing = false } = useMemo(
         (): RemovingYearAmounts =>
@@ -45,6 +46,10 @@ export function ProductCell({ product, year = 0, old = false }: ProductCellProps
                 : ({ amounts: getCombinedAmounts(years) } as RemovingYearAmounts)) ?? ({} as RemovingYearAmounts),
         [year, years]
     );
+
+    // Shown value can be a rolled-up total (own + all descendants); clicking to edit, long-press,
+    // and the preferred/old/removing styling below always stay based on this product's own amounts.
+    const shown = displayAmounts ?? amounts;
 
     const preferred = useMemo(
         () => (!year || removing || !amounts?.length || !years?.length ? false : isPreferred(year, years)),
@@ -82,7 +87,10 @@ export function ProductCell({ product, year = 0, old = false }: ProductCellProps
         [setRemoving, group, name, year, removing]
     );
 
+    // Long-press-to-remove always acts on this product's own amounts, even when a rolled-up
+    // total (with no own amounts of its own) is what's being displayed in the cell.
     const empty = !amounts?.length;
+    const displayEmpty = !shown?.length;
     const longPress = useLongPress<HTMLTableCellElement>({
         onClick: handleClick,
         onLongPress: empty ? undefined : handleLongPress,
@@ -91,14 +99,14 @@ export function ProductCell({ product, year = 0, old = false }: ProductCellProps
     return (
         <Table.Td
             data-cell
-            data-empty={empty}
+            data-empty={displayEmpty}
             data-old={old}
             data-preferred={preferred}
             data-updating={updating}
             data-removing={removing}
             {...eventHandlers}
         >
-            <Center>{empty ? '.' : <ProductAmounts group={group} amounts={amounts} />}</Center>
+            <Center>{displayEmpty ? '.' : <ProductAmounts group={group} amounts={shown} />}</Center>
             {loaderVisible && <Loader data-visible={updating} size="sm" onTransitionEnd={handleTransitionEnd} />}
         </Table.Td>
     );

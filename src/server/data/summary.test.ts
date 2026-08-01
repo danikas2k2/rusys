@@ -137,6 +137,70 @@ describe('updates', () => {
                 ],
             });
         });
+
+        it('rolls a child product into its parent, dropping the separate child row', async () => {
+            const d = await db();
+            await d
+                .collection('products')
+                .updateOne({ group: 'Uogienės', name: 'Braškės' }, { $set: { parent: 'Avietės' } });
+
+            const result = await getFullSummary();
+
+            expect(result.summary).toStrictEqual([
+                {
+                    group: 'Uogienės',
+                    name: 'Avietės',
+                    years: [
+                        {
+                            year: 22,
+                            amounts: [
+                                { variant: 'p', amount: 2, recycled: false },
+                                { variant: 'm', amount: 3, recycled: true },
+                            ],
+                        },
+                        {
+                            year: 21,
+                            amounts: [
+                                { variant: 'p', amount: 3, recycled: false },
+                                { variant: 'p', amount: 1, recycled: true },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    group: 'Daržovės',
+                    name: 'Agurkai',
+                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 3, recycled: false }] }],
+                },
+            ]);
+        });
+
+        it('rolls up through a grandchild (arbitrary depth) into the topmost ancestor', async () => {
+            const d = await db();
+            await d
+                .collection('products')
+                .updateOne({ group: 'Uogienės', name: 'Braškės' }, { $set: { parent: 'Avietės' } });
+            await d.collection('products').insertOne({
+                group: 'Uogienės',
+                name: 'Braškės (Zewa)',
+                parent: 'Braškės',
+                years: [{ year: 22, amounts: [{ variant: 'p', amount: 5 }] }],
+                updates: [
+                    {
+                        time: Date.parse('2023-01-10T12:00:00.000Z'),
+                        years: [{ year: 22, amounts: [{ variant: 'p', amount: -5, recycled: false }] }],
+                    },
+                ],
+            });
+
+            const result = await getFullSummary();
+
+            const avietes = result.summary.find((s) => s.name === 'Avietės');
+            const year22 = avietes?.years?.find((y) => y.year === 22);
+
+            expect(year22?.amounts).toContainEqual({ variant: 'p', amount: 7, recycled: false });
+            expect(result.summary.some((s) => s.name === 'Braškės' || s.name === 'Braškės (Zewa)')).toBe(false);
+        });
     });
 
     describe('getSummaryUpdates', () => {

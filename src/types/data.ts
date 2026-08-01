@@ -52,6 +52,7 @@ export interface ProductHistoryMeta {
 export interface Product {
     group: string;
     name: string;
+    parent?: string;
     years?: readonly RemovingYearAmounts[];
     missing?: boolean;
     updates?: readonly Update[] | readonly ProductHistoryMeta[];

@@ -1,5 +1,5 @@
 import { Group, Table } from '@mantine/core';
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import { AmountViewToggle } from '~/client/common/AmountViewToggle';
 import { LoadableContent } from '~/client/common/LoadableContent';
@@ -14,6 +14,65 @@ import { useGetProducts } from '~/client/state/products/useGetProducts';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useYears } from '~/client/state/years/useYears';
 import { getId } from '~/client/utils/id';
+import { combineProductYears } from '~/common/utils/amounts';
+import type { Product, YearAmounts } from '~/types/data';
+
+interface ProductTreeNode {
+    product: Product;
+    depth: number;
+    hasChildren: boolean;
+    expanded: boolean;
+    rolledUpYears?: readonly YearAmounts[];
+}
+
+function collectDescendants(name: string, childrenByParent: ReadonlyMap<string, readonly Product[]>): Product[] {
+    const descendants: Product[] = [];
+    const stack = [name];
+    while (stack.length) {
+        for (const child of childrenByParent.get(stack.pop()!) ?? []) {
+            descendants.push(child);
+            stack.push(child.name);
+        }
+    }
+    return descendants;
+}
+
+// Builds the visible (depth-first, respecting collapse) row list from the flat, already
+// alphabetically-sorted `products` array, grouping by `parent`. A collapsed node with children
+// gets a rolled-up total (its own amounts plus every descendant's, at any depth) for display.
+function buildProductTree(products: readonly Product[], expandedIds: ReadonlySet<string>): ProductTreeNode[] {
+    const childrenByParent = new Map<string, Product[]>();
+    const roots: Product[] = [];
+    for (const p of products) {
+        if (p.parent) {
+            childrenByParent.set(p.parent, [...(childrenByParent.get(p.parent) ?? []), p]);
+        } else {
+            roots.push(p);
+        }
+    }
+
+    const nodes: ProductTreeNode[] = [];
+    const walk = (list: readonly Product[], depth: number) => {
+        for (const p of list) {
+            const children = childrenByParent.get(p.name) ?? [];
+            const hasChildren = children.length > 0;
+            const expanded = expandedIds.has(getId(p.group, p.name));
+            const rolledUpYears =
+                hasChildren && !expanded
+                    ? combineProductYears([
+                          p.years,
+                          ...collectDescendants(p.name, childrenByParent).map((d) => d.years),
+                      ])
+                    : undefined;
+            nodes.push({ product: p, depth, hasChildren, expanded, rolledUpYears });
+            if (hasChildren && expanded) {
+                walk(children, depth + 1);
+            }
+        }
+    };
+    walk(roots, 0);
+    return nodes;
+}
 
 export function ProductsTable() {
     const years = useYears();
@@ -22,9 +81,24 @@ export function ProductsTable() {
     const products = useProducts().filter((p) => p.group === selectedGroup);
     const quickFilter = useQuickFilterPredicate();
     const [missingOnly] = useMissingOnly();
+    const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(new Set());
 
     const annual = groups.find((g) => g.group === selectedGroup)?.annual;
     const headingWidth = annual ? 300 / (years.length + 3) : 50;
+
+    const nodes = useMemo(() => buildProductTree(products, expandedIds), [products, expandedIds]);
+
+    const handleToggleExpand = useCallback((id: string) => {
+        setExpandedIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
+    }, []);
 
     return (
         <LoadableContent loader={useGetProducts()} hasData={useProductsHasData()}>
@@ -49,14 +123,22 @@ export function ProductsTable() {
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                    {products.map((p) => (
-                        <ProductRow
-                            key={getId(p.group, p.name)}
-                            product={p}
-                            annual={annual}
-                            hidden={(missingOnly && !p.missing) || !quickFilter(p.name)}
-                        />
-                    ))}
+                    {nodes.map(({ product: p, depth, hasChildren, expanded, rolledUpYears }) => {
+                        const id = getId(p.group, p.name);
+                        return (
+                            <ProductRow
+                                key={id}
+                                product={p}
+                                annual={annual}
+                                hidden={(missingOnly && !p.missing) || !quickFilter(p.name)}
+                                depth={depth}
+                                hasChildren={hasChildren}
+                                expanded={expanded}
+                                onToggleExpand={() => handleToggleExpand(id)}
+                                rolledUpYears={rolledUpYears}
+                            />
+                        );
+                    })}
                 </Table.Tbody>
             </Table>
         </LoadableContent>

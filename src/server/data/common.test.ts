@@ -15,6 +15,7 @@ import {
 } from '~/server/data/common';
 import { deleteGroup, renameGroup } from '~/server/data/groups';
 import {
+    addProduct,
     deleteProductsGroup,
     deleteProductsVariant,
     getProductVariants,
@@ -214,6 +215,20 @@ describe('common', () => {
             await expect($all('groups')).resolves.toStrictEqual(groups);
             await expect($all('variants')).resolves.toStrictEqual(variants);
             await expect($all('products')).resolves.toStrictEqual(products);
+        });
+
+        it('blocks the move and does not touch anything when the product has children', async () => {
+            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+
+            await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBe(false);
+
+            expect(moveProduct).not.toHaveBeenCalled();
+            expect(getProductVariants).not.toHaveBeenCalled();
+            expect(copyVariants).not.toHaveBeenCalled();
+
+            const all = (await $all('products')) as { group: string; name: string }[];
+
+            expect(all.some((p) => p.group === 'Daržovės' && p.name === 'Agurkai')).toBe(true);
         });
     });
 

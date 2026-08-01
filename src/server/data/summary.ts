@@ -1,11 +1,12 @@
 import type { WithId } from 'mongodb';
 
+import { addTypedVariantAmount } from '~/common/utils/amounts';
 import { getGroups } from '~/server/data/groups';
 import { buildHistoryPipeline } from '~/server/data/history';
 import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
-import type { Group, History, Summary, Variant, VariantAmount } from '~/types/data';
+import type { Group, History, Product, Summary, Variant, VariantAmount } from '~/types/data';
 
 const MAX_YEARS = 3;
 const START_MONTH = 9; // September
@@ -242,6 +243,71 @@ function mergeSummaries(main: readonly Summary[], home: readonly Summary[]): rea
     return result as unknown as readonly Summary[];
 }
 
+async function getProductParentMap(): Promise<ReadonlyMap<string, string | undefined>> {
+    const products = await (
+        await db()
+    )
+        .collection<Product>('products')
+        .find({}, { projection: { _id: 0, group: 1, name: 1, parent: 1 } })
+        .toArray();
+    return new Map(products.map((p) => [`${p.group}/${p.name}`, p.parent]));
+}
+
+function resolveRootName(group: string, name: string, parentByKey: ReadonlyMap<string, string | undefined>): string {
+    const visited = new Set<string>();
+    let current = name;
+    while (!visited.has(current)) {
+        visited.add(current);
+        const parent = parentByKey.get(`${group}/${current}`);
+        if (!parent) {
+            return current;
+        }
+        current = parent;
+    }
+    // Inconsistent/cyclic data — fall back to the original name rather than looping forever.
+    return name;
+}
+
+// Folds every product's summary into its topmost ancestor's, so a parent with sub-products
+// (e.g. different manufacturers of the same item) shows one combined row instead of one per
+// sub-product. Rolled-up amounts keep `recycled` as part of the combine key (addTypedVariantAmount,
+// not addVariantAmount) since these are consumed/recycled history totals, not a current balance.
+export function rollUpSummaries(
+    summaries: readonly Summary[],
+    parentByKey: ReadonlyMap<string, string | undefined>
+): readonly Summary[] {
+    type MutableYearAmounts = { year: number; amounts: VariantAmount[] };
+    type MutableSummary = { group: string; name: string; years: MutableYearAmounts[] };
+
+    const result: MutableSummary[] = [];
+    const index = new Map<string, number>();
+
+    for (const s of summaries) {
+        const rootName = resolveRootName(s.group, s.name, parentByKey);
+        const key = `${s.group}/${rootName}`;
+        let idx = index.get(key);
+        if (idx === undefined) {
+            idx = result.length;
+            index.set(key, idx);
+            result.push({ group: s.group, name: rootName, years: [] });
+        }
+
+        const entry = result[idx];
+        for (const y of s.years ?? []) {
+            const existingYear = entry.years.find((ey) => ey.year === y.year);
+            const merged = (y.amounts ?? []).reduce(addTypedVariantAmount, existingYear?.amounts ?? []);
+            if (existingYear) {
+                existingYear.amounts = merged as VariantAmount[];
+            } else {
+                entry.years.push({ year: y.year, amounts: merged as VariantAmount[] });
+            }
+        }
+        entry.years.sort((a, b) => b.year - a.year);
+    }
+
+    return result as unknown as readonly Summary[];
+}
+
 export const getFullSummary = async (): Promise<
     Readonly<{
         years: readonly number[];
@@ -251,12 +317,16 @@ export const getFullSummary = async (): Promise<
     }>
 > => {
     const years = getYears(MAX_YEARS);
-    const [main, home] = await Promise.all([getSummary(years), getSummaryHomeBalance()]);
+    const [main, home, parentByKey] = await Promise.all([
+        getSummary(years),
+        getSummaryHomeBalance(),
+        getProductParentMap(),
+    ]);
     return {
         years,
         groups: await getGroups(),
         variants: await getVariants(),
-        summary: mergeSummaries(main, home),
+        summary: rollUpSummaries(mergeSummaries(main, home), parentByKey),
     };
 };
 

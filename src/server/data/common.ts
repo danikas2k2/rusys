@@ -28,6 +28,16 @@ export const moveProductOccurrences = (
     newName?: string
 ): Promise<boolean> =>
     withTransaction(async (session) => {
+        // A product's parent link is scoped to its own group, so moving it to another group
+        // while it has children would orphan them across groups — block it instead.
+        const hasChildren = await (
+            await db()
+        )
+            .collection<Product>('products')
+            .countDocuments({ group, parent: name }, { session });
+        if (hasChildren) {
+            return false;
+        }
         if (!(await moveProduct(group, name, newGroup, newName, session))) {
             return false;
         }

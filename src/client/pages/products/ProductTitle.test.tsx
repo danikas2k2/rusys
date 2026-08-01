@@ -32,13 +32,13 @@ describe('<ProductTitle>', () => {
         vi.clearAllMocks();
     });
 
-    function renderTitle(product = products[0]) {
+    function renderTitle(product = products[0], props: Partial<React.ComponentProps<typeof ProductTitle>> = {}) {
         render(
             <MockApp>
                 <Table>
                     <Table.Tbody>
                         <Table.Tr>
-                            <ProductTitle product={product} />
+                            <ProductTitle product={product} {...props} />
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>
@@ -122,5 +122,58 @@ describe('<ProductTitle>', () => {
         fireEvent.click(input);
 
         expect(setMissing).not.toHaveBeenCalled();
+    });
+
+    describe('expand/collapse chevron', () => {
+        it('does not render a chevron when hasChildren is false', () => {
+            renderTitle(products[0], { hasChildren: false });
+
+            expect(screen.queryByRole('button', { name: 'Expand' })).not.toBeInTheDocument();
+            expect(screen.queryByRole('button', { name: 'Collapse' })).not.toBeInTheDocument();
+        });
+
+        it('renders an expand button when hasChildren is true and not expanded', () => {
+            renderTitle(products[0], { hasChildren: true, expanded: false });
+
+            expect(screen.getByRole('button', { name: 'Expand' })).toBeInTheDocument();
+        });
+
+        it('renders a collapse button when hasChildren is true and expanded', () => {
+            renderTitle(products[0], { hasChildren: true, expanded: true });
+
+            expect(screen.getByRole('button', { name: 'Collapse' })).toBeInTheDocument();
+        });
+
+        it('calls onToggleExpand when the chevron is clicked', async () => {
+            const onToggleExpand = vi.fn();
+            renderTitle(products[0], { hasChildren: true, expanded: false, onToggleExpand });
+
+            await user.click(screen.getByRole('button', { name: 'Expand' }));
+
+            expect(onToggleExpand).toHaveBeenCalledWith();
+        });
+
+        it('clicking the chevron does not toggle the missing checkbox', async () => {
+            const onToggleExpand = vi.fn();
+            renderTitle({ ...products[0], missing: false }, { hasChildren: true, onToggleExpand });
+
+            await user.click(screen.getByRole('button', { name: 'Expand' }));
+
+            expect(setMissing).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('depth indentation', () => {
+        it('applies no left padding at depth 0', () => {
+            renderTitle(products[0], { depth: 0 });
+
+            expect(screen.getByRole('cell').firstChild).toHaveStyle({ paddingInlineStart: '0px' });
+        });
+
+        it('applies proportional left padding for a non-zero depth', () => {
+            renderTitle(products[0], { depth: 2 });
+
+            expect(screen.getByRole('cell').firstChild).toHaveStyle({ paddingInlineStart: '32px' });
+        });
     });
 });

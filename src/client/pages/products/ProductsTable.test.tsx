@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { getGroupsFixture, getProductsFixture, getVariantsFixture, getYearsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
 import { MockTheme } from '@tests/MockTheme';
@@ -190,6 +190,125 @@ describe('<ProductsTable>', () => {
             );
 
             expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('tree', () => {
+        const parentProduct = {
+            group: 'Uogienės',
+            name: 'Avietės',
+            years: [{ year: 22, amounts: [{ variant: 'p', amount: 2 }] }],
+        };
+        const childProduct = {
+            group: 'Uogienės',
+            name: 'Avietės (Zewa)',
+            parent: 'Avietės',
+            years: [{ year: 22, amounts: [{ variant: 'p', amount: 3 }] }],
+        };
+
+        beforeEach(() => {
+            vi.mocked(useProducts).mockReturnValue([parentProduct, childProduct]);
+        });
+
+        it('renders only the parent row by default, collapsed', () => {
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(ProductRow).toHaveBeenCalledTimes(1);
+            expect(ProductRow).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    product: parentProduct,
+                    depth: 0,
+                    hasChildren: true,
+                    expanded: false,
+                }),
+                undefined
+            );
+        });
+
+        it('rolls the child amounts up into the collapsed parent row', () => {
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(ProductRow).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    rolledUpYears: [{ year: 22, amounts: [{ variant: 'p', amount: 5 }] }],
+                }),
+                undefined
+            );
+        });
+
+        it('reveals the child row and stops rolling up once expanded', () => {
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            const { onToggleExpand } = vi.mocked(ProductRow).mock.calls[0][0];
+            vi.mocked(ProductRow).mockClear();
+
+            act(() => onToggleExpand());
+
+            expect(ProductRow).toHaveBeenCalledTimes(2);
+            expect(ProductRow).toHaveBeenNthCalledWith(
+                1,
+                expect.objectContaining({ product: parentProduct, expanded: true, rolledUpYears: undefined }),
+                undefined
+            );
+            expect(ProductRow).toHaveBeenNthCalledWith(
+                2,
+                expect.objectContaining({ product: childProduct, depth: 1, hasChildren: false }),
+                undefined
+            );
+        });
+
+        it('collapses back to a single rolled-up row on a second toggle', () => {
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            const { onToggleExpand } = vi.mocked(ProductRow).mock.calls[0][0];
+            act(() => onToggleExpand());
+            vi.mocked(ProductRow).mockClear();
+
+            act(() => onToggleExpand());
+
+            expect(ProductRow).toHaveBeenCalledTimes(1);
+            expect(ProductRow).toHaveBeenCalledWith(expect.objectContaining({ expanded: false }), undefined);
+        });
+
+        it('renders a leaf product (no parent, no children) exactly as before', () => {
+            vi.mocked(useProducts).mockReturnValue([parentProduct]);
+
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(ProductRow).toHaveBeenCalledWith(
+                expect.objectContaining({ hasChildren: false, rolledUpYears: undefined }),
+                undefined
+            );
         });
     });
 

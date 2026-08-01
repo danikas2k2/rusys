@@ -143,6 +143,9 @@
   "Expand": {
     "lt-LT": "Išplėsti"
   },
+  "Collapse": {
+    "lt-LT": "Suskleisti"
+  },
   "Export": {
     "lt-LT": "Eksportuoti"
   },
@@ -178,6 +181,15 @@
   },
   "Category name": {
     "lt-LT": "Kategorija"
+  },
+  "Parent product": {
+    "lt-LT": "Tėvinis produktas"
+  },
+  "No parent": {
+    "lt-LT": "Nėra"
+  },
+  "Cannot move a product with sub-products to another category": {
+    "lt-LT": "Negalima perkelti produkto, turinčio poproduktų, į kitą kategoriją"
   },
   "Categories": {
     "lt-LT": "Kategorijos"

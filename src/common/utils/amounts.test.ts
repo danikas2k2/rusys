@@ -1,5 +1,7 @@
 import {
+    addTypedVariantAmount,
     addVariantAmount,
+    combineProductYears,
     formatVolume,
     formatWeight,
     getAmountTotals,
@@ -307,6 +309,85 @@ describe('amounts', () => {
             expect(result).toHaveLength(2);
             expect(result).toContainEqual({ variant: 'p', amount: 5 });
             expect(result).toContainEqual({ variant: 'd', amount: 3 });
+        });
+    });
+
+    describe('addTypedVariantAmount', () => {
+        it('keeps consumed and recycled totals separate for the same variant', () => {
+            let acc: readonly ReturnType<typeof addTypedVariantAmount>[number][] = [];
+            acc = addTypedVariantAmount(acc, { variant: 'p', amount: -2, recycled: false });
+            acc = addTypedVariantAmount(acc, { variant: 'p', amount: -3, recycled: true });
+
+            expect(acc).toHaveLength(2);
+            expect(acc).toContainEqual({ variant: 'p', amount: -2, recycled: false });
+            expect(acc).toContainEqual({ variant: 'p', amount: -3, recycled: true });
+        });
+
+        it('keeps an "updated" (no recycled field) entry separate from consumed/recycled', () => {
+            let acc: readonly ReturnType<typeof addTypedVariantAmount>[number][] = [];
+            acc = addTypedVariantAmount(acc, { variant: 'p', amount: 5 });
+            acc = addTypedVariantAmount(acc, { variant: 'p', amount: -2, recycled: false });
+
+            expect(acc).toHaveLength(2);
+            expect(acc).toContainEqual({ variant: 'p', amount: 5 });
+            expect(acc).toContainEqual({ variant: 'p', amount: -2, recycled: false });
+        });
+
+        it('merges amounts with the same (variant, recycled) composite key', () => {
+            const acc = [{ variant: 'p', amount: -2, recycled: false }];
+
+            expect(addTypedVariantAmount(acc, { variant: 'p', amount: -3, recycled: false })).toStrictEqual([
+                { variant: 'p', amount: -5, recycled: false },
+            ]);
+        });
+
+        it('still respects suspicious/home as independent dimensions', () => {
+            let acc: readonly ReturnType<typeof addTypedVariantAmount>[number][] = [];
+            acc = addTypedVariantAmount(acc, { variant: 'p', amount: -2, recycled: false });
+            acc = addTypedVariantAmount(acc, { variant: 'p', amount: -1, recycled: false, home: true });
+
+            expect(acc).toHaveLength(2);
+            expect(acc).toContainEqual({ variant: 'p', amount: -2, recycled: false });
+            expect(acc).toContainEqual({ variant: 'p', amount: -1, recycled: false, home: true });
+        });
+    });
+
+    describe('combineProductYears', () => {
+        it('returns an empty array for no products', () => {
+            expect(combineProductYears([])).toStrictEqual([]);
+        });
+
+        it('returns a single product unchanged (as YearAmounts)', () => {
+            const result = combineProductYears([[{ year: 2020, amounts: [{ variant: 'p', amount: 3 }] }]]);
+
+            expect(result).toStrictEqual([{ year: 2020, amounts: [{ variant: 'p', amount: 3 }] }]);
+        });
+
+        it('sums amounts for matching years across multiple products', () => {
+            const result = combineProductYears([
+                [{ year: 2020, amounts: [{ variant: 'p', amount: 3 }] }],
+                [{ year: 2020, amounts: [{ variant: 'p', amount: 2 }] }],
+            ]);
+
+            expect(result).toStrictEqual([{ year: 2020, amounts: [{ variant: 'p', amount: 5 }] }]);
+        });
+
+        it('keeps non-overlapping years from different products, sorted ascending', () => {
+            const result = combineProductYears([
+                [{ year: 2021, amounts: [{ variant: 'p', amount: 2 }] }],
+                [{ year: 2020, amounts: [{ variant: 'd', amount: 1 }] }],
+            ]);
+
+            expect(result).toStrictEqual([
+                { year: 2020, amounts: [{ variant: 'd', amount: 1 }] },
+                { year: 2021, amounts: [{ variant: 'p', amount: 2 }] },
+            ]);
+        });
+
+        it('ignores undefined years entries (products with no years yet)', () => {
+            const result = combineProductYears([undefined, [{ year: 2020, amounts: [{ variant: 'p', amount: 4 }] }]]);
+
+            expect(result).toStrictEqual([{ year: 2020, amounts: [{ variant: 'p', amount: 4 }] }]);
         });
     });
 

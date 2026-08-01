@@ -5,14 +5,14 @@ import { mockResponse } from '@tests/mockResponse';
 import { handleAdd } from '~/server/api/handleAdd';
 import { getProductsWithYears } from '~/server/api/response';
 import { addProduct } from '~/server/data/products';
-import type { ApiProductsWithYears, ApiRequestProduct } from '~/types/api';
+import type { ApiAddProduct, ApiProductsWithYears } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));
 vi.mock(import('~/server/data/products'));
 
 describe('handleAdd', () => {
-    const request = mockRequest<ApiRequestProduct>({ group: 'Uogienės', name: 'Braškės' });
+    const request = mockRequest<ApiAddProduct>({ group: 'Uogienės', name: 'Braškės' });
     const response = mockResponse<ApiProductsWithYears>();
     const years = getYearsFixture();
     const products = getProductsFixture();
@@ -25,10 +25,22 @@ describe('handleAdd', () => {
 
         await handleAdd(request, response);
 
-        expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Braškės');
+        expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Braškės', undefined);
         expect(getProductsWithYears).toHaveBeenCalledWith();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true, years, products });
+    });
+
+    it('passes parent through to addProduct when given', async () => {
+        vi.mocked(addProduct).mockResolvedValueOnce(true);
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ years, products });
+
+        await handleAdd(
+            mockRequest<ApiAddProduct>({ group: 'Uogienės', name: 'Braškės', parent: 'Avietės' }),
+            response
+        );
+
+        expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Braškės', 'Avietės');
     });
 
     it('returns empty response on failure', async () => {
@@ -36,7 +48,7 @@ describe('handleAdd', () => {
 
         await handleAdd(request, response);
 
-        expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Braškės');
+        expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Braškės', undefined);
         expect(getProductsWithYears).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: true });
@@ -47,7 +59,7 @@ describe('handleAdd', () => {
 
         await handleAdd(request, response);
 
-        expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Braškės');
+        expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Braškės', undefined);
         expect(getProductsWithYears).not.toHaveBeenCalled();
         expect(response.header).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
         expect(response.json).toHaveBeenCalledWith({ ok: false, error: 'Failed to add' });

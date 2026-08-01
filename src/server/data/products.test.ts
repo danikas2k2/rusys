@@ -22,6 +22,7 @@ import {
     setImage,
     setMissing,
     setMissingBulk,
+    setProductParent,
     setRemoving,
     setVariantImage,
     undoProduct,
@@ -176,6 +177,87 @@ describe('products', () => {
         `('does not add products for $title', async ({ group, name }: { group: string; name: string }) => {
             await expect(addProduct(group, name)).resolves.toBe(false);
             await expect($all('products')).resolves.toStrictEqual(products);
+        });
+
+        it('adds a product with a parent that exists in the same group', async () => {
+            await expect(addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai')).resolves.toBe(true);
+            await expect($all('products')).resolves.toStrictEqual([
+                ...products,
+                { group: 'Daržovės', name: 'Agurkai (Zewa)', parent: 'Agurkai' },
+            ]);
+        });
+
+        it('does not add a product whose parent does not exist in the same group', async () => {
+            await expect(addProduct('Daržovės', 'Agurkai (Zewa)', 'Neegzistuoja')).resolves.toBe(false);
+            await expect($all('products')).resolves.toStrictEqual(products);
+        });
+
+        it('does not add a product whose parent exists but in a different group', async () => {
+            await expect(addProduct('Uogienės', 'Braškės (Zewa)', 'Agurkai')).resolves.toBe(false);
+            await expect($all('products')).resolves.toStrictEqual(products);
+        });
+
+        it('does not add a product that is its own parent', async () => {
+            await expect(addProduct('Daržovės', 'Agurkai', 'Agurkai')).resolves.toBe(false);
+            await expect($all('products')).resolves.toStrictEqual(products);
+        });
+    });
+
+    describe('setProductParent', () => {
+        type ProductRow = { group: string; name: string; parent?: string };
+
+        beforeEach(async () => {
+            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+        });
+
+        it('sets the parent for a root-level product', async () => {
+            await expect(setProductParent('Daržovės', 'Kopūstai', 'Agurkai')).resolves.toBe(true);
+
+            const all = (await $all('products')) as ProductRow[];
+
+            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Kopūstai')?.parent).toBe('Agurkai');
+        });
+
+        it('clears the parent when no parent is given', async () => {
+            await expect(setProductParent('Daržovės', 'Agurkai (Zewa)', undefined)).resolves.toBe(true);
+
+            const all = (await $all('products')) as ProductRow[];
+
+            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai (Zewa)')?.parent).toBeUndefined();
+        });
+
+        it('rejects setting a product as its own parent', async () => {
+            await expect(setProductParent('Daržovės', 'Agurkai', 'Agurkai')).resolves.toBe(false);
+        });
+
+        it('rejects setting a direct child as the parent (would create a cycle)', async () => {
+            await expect(setProductParent('Daržovės', 'Agurkai', 'Agurkai (Zewa)')).resolves.toBe(false);
+
+            const all = (await $all('products')) as ProductRow[];
+
+            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')?.parent).toBeUndefined();
+        });
+
+        it('rejects setting a grandchild as the parent (cycle at any depth)', async () => {
+            await addProduct('Daržovės', 'Agurkai (Zewa) 3sl.', 'Agurkai (Zewa)');
+
+            await expect(setProductParent('Daržovės', 'Agurkai', 'Agurkai (Zewa) 3sl.')).resolves.toBe(false);
+        });
+
+        it('rejects a parent from a different group', async () => {
+            await expect(setProductParent('Uogienės', 'Braškės', 'Agurkai')).resolves.toBe(false);
+        });
+
+        it('rejects a nonexistent parent', async () => {
+            await expect(setProductParent('Daržovės', 'Kopūstai', 'Neegzistuoja')).resolves.toBe(false);
+        });
+
+        it.each`
+            title            | group         | name
+            ${'empty group'} | ${''}         | ${'Agurkai'}
+            ${'empty name'}  | ${'Daržovės'} | ${''}
+        `('returns false for $title', async ({ group, name }: { group: string; name: string }) => {
+            await expect(setProductParent(group, name, 'Agurkai')).resolves.toBe(false);
         });
     });
 
@@ -832,6 +914,26 @@ describe('products', () => {
                 await expect($all('products')).resolves.toStrictEqual(products);
             }
         );
+
+        it("cascades the rename to children's parent field", async () => {
+            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+
+            await expect(renameProduct('Daržovės', 'Agurkai', 'Agurkėliai')).resolves.toBe(true);
+
+            const all = (await $all('products')) as { group: string; name: string; parent?: string }[];
+
+            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai (Zewa)')?.parent).toBe('Agurkėliai');
+        });
+
+        it("does not affect other groups' or products' parent fields", async () => {
+            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+
+            await expect(renameProduct('Uogienės', 'Avietės', 'Agrastai')).resolves.toBe(true);
+
+            const all = (await $all('products')) as { group: string; name: string; parent?: string }[];
+
+            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai (Zewa)')?.parent).toBe('Agurkai');
+        });
     });
 
     describe('renameProductVariant', () => {
@@ -1032,6 +1134,17 @@ describe('products', () => {
                 await expect($all('products')).resolves.toStrictEqual(products);
             }
         );
+
+        it('clears the parent field when moving to a different group', async () => {
+            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+
+            await expect(moveProduct('Daržovės', 'Agurkai (Zewa)', 'Šaldyti')).resolves.toBe(true);
+
+            const all = (await $all('products')) as { group: string; name: string; parent?: string }[];
+            const moved = all.find((p) => p.group === 'Šaldyti' && p.name === 'Agurkai (Zewa)');
+
+            expect(moved?.parent).toBeUndefined();
+        });
     });
 
     describe('deleteProduct', () => {
@@ -1082,6 +1195,29 @@ describe('products', () => {
 
             expect(deleteImage).toHaveBeenCalledWith('/images/old/d.png');
             expect(deleteImage).toHaveBeenCalledWith('/images/old/p.png');
+        });
+
+        it('does not delete a product that has children', async () => {
+            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+            vi.clearAllMocks();
+
+            await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(false);
+
+            expect(deleteImage).not.toHaveBeenCalled();
+
+            const all = (await $all('products')) as { group: string; name: string }[];
+
+            expect(all.some((p) => p.group === 'Daržovės' && p.name === 'Agurkai')).toBe(true);
+        });
+
+        it('still deletes a childless product even when other unrelated products have children', async () => {
+            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+
+            await expect(deleteProduct('Daržovės', 'Kopūstai')).resolves.toBe(true);
+
+            const all = (await $all('products')) as { group: string; name: string }[];
+
+            expect(all.some((p) => p.group === 'Daržovės' && p.name === 'Kopūstai')).toBe(false);
         });
     });
 

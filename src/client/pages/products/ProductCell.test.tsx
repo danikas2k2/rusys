@@ -602,6 +602,133 @@ describe('<ProductCell>', () => {
         });
     });
 
+    describe('displayAmounts prop', () => {
+        it('renders displayAmounts instead of the product own amounts when given', () => {
+            const props: ProductCellProps = {
+                ...defaultProps,
+                displayAmounts: [{ variant: 'p', amount: 99 }],
+            };
+
+            render(
+                <MockApp state={{ variants }}>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            expect(screen.getByRole('cell')).toHaveTextContent('99');
+            expect(screen.queryByRole('cell', { name: /^2/ })).not.toBeInTheDocument();
+        });
+
+        it('shows the empty dot when displayAmounts is empty, even if the product has its own amounts', () => {
+            const props: ProductCellProps = {
+                ...defaultProps,
+                displayAmounts: [],
+            };
+
+            render(
+                <MockApp state={{ variants }}>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            expect(screen.getByRole('cell', { name: '.' })).toBeInTheDocument();
+            expect(screen.getByRole('cell')).toHaveAttribute('data-empty', 'true');
+        });
+
+        it('falls back to the product own amounts when displayAmounts is not given', () => {
+            render(
+                <MockApp state={{ variants }}>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell {...defaultProps} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            expect(screen.getByRole('cell')).not.toHaveTextContent('99');
+        });
+
+        it('clicking still opens the edit dialog with the product own amounts, not displayAmounts', async () => {
+            const props: ProductCellProps = {
+                ...defaultProps,
+                displayAmounts: [{ variant: 'p', amount: 99 }],
+            };
+
+            render(
+                <MockApp state={{ variants }}>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            act(() => {
+                fireEvent.pointerDown(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerUp(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+            });
+            act(() => vi.advanceTimersByTime(100));
+
+            expect(setActive).toHaveBeenCalledWith({
+                action: 'values',
+                data: {
+                    group,
+                    name,
+                    year: 22,
+                    amounts: defaultProduct.years[0].amounts,
+                    image: undefined,
+                },
+            });
+        });
+
+        it('long-press-to-remove is disabled when the product has no own amounts, even if displayAmounts is non-empty', () => {
+            const emptyOwnProduct = { group, name, years: [{ year: 22, amounts: [] }] };
+            const props: ProductCellProps = {
+                product: emptyOwnProduct,
+                year: 22,
+                displayAmounts: [{ variant: 'p', amount: 99 }],
+            };
+
+            render(
+                <MockApp state={{ variants }}>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            act(() => {
+                fireEvent.pointerDown(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+                act(() => vi.advanceTimersByTime(1000));
+                fireEvent.pointerUp(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+            });
+
+            expect(setRemoving).not.toHaveBeenCalled();
+        });
+    });
+
     describe('isPreferred', () => {
         const thisYear = new Date().getFullYear() % 100;
         const prevYear = thisYear - 1;

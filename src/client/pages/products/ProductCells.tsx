@@ -2,17 +2,19 @@ import React from 'react';
 
 import { ProductCell } from '~/client/pages/products/ProductCell';
 import { useYears } from '~/client/state/years/useYears';
-import type { Product } from '~/types/data';
+import { getCombinedAmounts } from '~/common/utils/amounts';
+import type { Product, YearAmounts } from '~/types/data';
 
 interface ProductCellsProps {
     product: Product;
     annual?: boolean;
+    rolledUpYears?: readonly YearAmounts[];
 }
 
 // Columns for years this old (or older) are marked as old/stale
 const OLD_YEARS_THRESHOLD = 4;
 
-export function ProductCells({ product, annual = false }: ProductCellsProps) {
+export function ProductCells({ product, annual = false, rolledUpYears }: ProductCellsProps) {
     const allYears = useYears();
     const thisYear = new Date().getFullYear() % 100;
 
@@ -25,10 +27,11 @@ export function ProductCells({ product, annual = false }: ProductCellsProps) {
                         product={product}
                         year={year}
                         old={year <= thisYear - OLD_YEARS_THRESHOLD}
+                        displayAmounts={rolledUpYears?.find((y) => y.year === year)?.amounts}
                     />
                 ))
             ) : (
-                <ProductCell product={product} />
+                <ProductCell product={product} displayAmounts={rolledUpYears && getCombinedAmounts(rolledUpYears)} />
             )}
         </>
     );

@@ -1,6 +1,6 @@
 import { Button, Group, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { AddIcon, CancelIcon, MoveIcon, ProductsNavIcon, UpdateIcon } from '@icons';
 
@@ -18,6 +18,7 @@ import { useMoveProduct } from '~/client/state/products/useMoveProduct';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useRenameProduct } from '~/client/state/products/useRenameProduct';
 import { useSetProductImage } from '~/client/state/products/useSetProductImage';
+import { useSetProductParent } from '~/client/state/products/useSetProductParent';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
 
@@ -25,14 +26,70 @@ interface ProductBoxProps {
     opened?: boolean;
     group?: string;
     name?: string;
+    parent?: string;
     image?: string;
     onClose: (group?: string, name?: string) => void;
     onAfterClose?: () => void;
 }
 
+type ParentCandidate = { group: string; name: string; parent?: string };
+
+// A product's own descendants (at any depth) can't be picked as its parent - that would create a cycle.
+function getDescendantNames(products: readonly ParentCandidate[], group: string, name: string): Set<string> {
+    const childrenByParent = new Map<string, string[]>();
+    for (const p of products) {
+        if (p.group === group && p.parent) {
+            childrenByParent.set(p.parent, [...(childrenByParent.get(p.parent) ?? []), p.name]);
+        }
+    }
+    const descendants = new Set<string>();
+    const stack = [name];
+    while (stack.length) {
+        for (const child of childrenByParent.get(stack.pop()!) ?? []) {
+            if (!descendants.has(child)) {
+                descendants.add(child);
+                stack.push(child);
+            }
+        }
+    }
+    return descendants;
+}
+
+// Lists the group's products in the same parent -> children order as the products tree (rather
+// than a flat alphabetical list), with a depth for indenting the option to match that structure.
+function buildParentOptionNodes(
+    products: readonly ParentCandidate[],
+    group: string,
+    excluded: ReadonlySet<string>
+): { name: string; depth: number }[] {
+    const allowed = products.filter((p) => p.group === group && !excluded.has(p.name));
+    const allowedNames = new Set(allowed.map((p) => p.name));
+
+    const childrenByParent = new Map<string, ParentCandidate[]>();
+    const roots: ParentCandidate[] = [];
+    for (const p of allowed) {
+        if (p.parent && allowedNames.has(p.parent)) {
+            childrenByParent.set(p.parent, [...(childrenByParent.get(p.parent) ?? []), p]);
+        } else {
+            roots.push(p);
+        }
+    }
+
+    const nodes: { name: string; depth: number }[] = [];
+    const walk = (list: readonly ParentCandidate[], depth: number) => {
+        for (const p of list) {
+            nodes.push({ name: p.name, depth });
+            walk(childrenByParent.get(p.name) ?? [], depth + 1);
+        }
+    };
+    walk(roots, 0);
+    return nodes;
+}
+
 export function ProductBox({
     group: initialGroup = '',
     name: initialName = '',
+    parent: initialParent = '',
     image: initialImage = '',
     opened = false,
     onClose,
@@ -52,12 +109,20 @@ export function ProductBox({
         initialValues: {
             group: initialGroup || filterGroup || '',
             name: initialName,
+            parent: initialParent,
             image: initialImage,
         },
         validate: {
             group: (value) => {
                 if (!value?.trim()) {
                     return _('Category is required');
+                }
+                if (
+                    isEditing &&
+                    value !== initialGroup &&
+                    products.some((p) => p.group === initialGroup && p.parent === initialName)
+                ) {
+                    return _('Cannot move a product with sub-products to another category');
                 }
                 return null;
             },
@@ -99,6 +164,7 @@ export function ProductBox({
             formRef.current.setValues({
                 group: initialGroup || filterGroup || '',
                 name: initialName,
+                parent: initialParent,
                 image: initialImage,
             });
             formRef.current.resetTouched();
@@ -111,7 +177,7 @@ export function ProductBox({
             }, 100);
             return () => clearTimeout(timer);
         }
-    }, [opened, initialGroup, initialName, initialImage, filterGroup]);
+    }, [opened, initialGroup, initialName, initialParent, initialImage, filterGroup]);
 
     const handleImageDrop = useCallback((dataUrl: string) => {
         formRef.current.setFieldValue('image', dataUrl);
@@ -130,10 +196,35 @@ export function ProductBox({
         }
     }, [groupValue, nameValue]);
 
+    // Products in the selected category that can be picked as a parent - excludes the product
+    // itself and any of its own descendants (picking one would create a cycle), ordered and
+    // depth-annotated to mirror the products tree structure shown in the table.
+    const parentOptionNodes = useMemo(() => {
+        const excluded = getDescendantNames(products, groupValue, initialName);
+        excluded.add(initialName);
+        return buildParentOptionNodes(products, groupValue, excluded);
+    }, [products, groupValue, initialName]);
+
+    const parentDepthByName = useMemo(
+        () => new Map(parentOptionNodes.map((n) => [n.name, n.depth])),
+        [parentOptionNodes]
+    );
+
+    const parentOptions = useMemo(() => parentOptionNodes.map((n) => n.name), [parentOptionNodes]);
+
+    // Clear a parent selection that's no longer valid for the currently selected category
+    // (e.g. after switching category, or if it somehow became a descendant).
+    useEffect(() => {
+        if (formRef.current.values.parent && !parentOptions.includes(formRef.current.values.parent)) {
+            formRef.current.setFieldValue('parent', '');
+        }
+    }, [parentOptions]);
+
     const addProduct = useAddProduct();
     const moveProduct = useMoveProduct();
     const renameProduct = useRenameProduct();
     const setProductImage = useSetProductImage();
+    const setProductParent = useSetProductParent();
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
@@ -161,19 +252,24 @@ export function ProductBox({
             const groupChanged = isEditing && values.group !== initialGroup;
             const nameRenamed = isEditing && values.name !== initialName && !groupChanged;
             const imageChanged = values.image !== initialImage;
+            const parentChanged = values.parent !== initialParent;
 
             if (groupChanged) {
-                // Move to different group
+                // Move to different group - this also clears any parent link server-side,
+                // since a product's parent must be in the same category.
                 await moveProduct(initialGroup, initialName, values.group, values.name);
             } else if (nameRenamed) {
                 // Rename in same group
                 await renameProduct(initialGroup, initialName, values.name);
             } else if (!isEditing) {
                 // Add new
-                await addProduct(values.group, values.name);
+                await addProduct(values.group, values.name, values.parent || undefined);
             }
             if (imageChanged) {
                 await setProductImage(values.group, values.name, values.image);
+            }
+            if (isEditing && !groupChanged && parentChanged) {
+                await setProductParent(values.group, values.name, values.parent || undefined);
             }
             onClose(values.group, values.name);
         } catch (error) {
@@ -258,6 +354,21 @@ export function ProductBox({
                             withAsterisk
                             disabled={loading}
                             {...form.getInputProps('name')}
+                        />
+                        <Select
+                            label={_('Parent product')}
+                            placeholder={_('No parent')}
+                            data={parentOptions}
+                            renderOption={({ option }: { option: ComboboxItem }) => (
+                                <div style={{ paddingInlineStart: (parentDepthByName.get(option.value) ?? 0) * 16 }}>
+                                    {option.label}
+                                </div>
+                            )}
+                            withAlignedLabels
+                            clearable
+                            searchable
+                            disabled={loading}
+                            {...form.getInputProps('parent')}
                         />
                         <ImageDropzone
                             image={form.values.image}

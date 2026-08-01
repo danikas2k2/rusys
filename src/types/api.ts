@@ -39,6 +39,7 @@ export const enum ApiUrl {
     ProductsDelete = '/products/delete',
     ProductsHistory = '/products/history',
     ProductsMoveToRecycled = '/products/moveToRecycled',
+    ProductsSetParent = '/products/setParent',
 
     // Groups
     Groups = '/groups',
@@ -100,6 +101,10 @@ export interface ApiRequestProductWithYear extends ApiRequestProduct {
     year: number;
 }
 
+export interface ApiAddProduct extends ApiRequestProduct {
+    parent?: string;
+}
+
 export interface ApiMoveProduct extends ApiRequestProduct {
     newGroup: string;
     newName?: string;
@@ -107,6 +112,10 @@ export interface ApiMoveProduct extends ApiRequestProduct {
 
 export interface ApiRenameProduct extends ApiRequestProduct {
     newName: string;
+}
+
+export interface ApiSetParent extends ApiRequestProduct {
+    parent?: string;
 }
 
 export interface ApiSetMissing extends ApiRequestProduct {

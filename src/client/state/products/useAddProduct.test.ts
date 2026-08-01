@@ -27,6 +27,18 @@ describe('useAddProduct', () => {
         expect(request).toHaveBeenCalledWith(ApiUrl.ProductsAdd, {
             group: 'Uogienės',
             name: 'Avietės',
+            parent: undefined,
+        });
+    });
+
+    it('passes parent through when given', async () => {
+        const { result } = renderHook(() => useAddProduct(), { wrapper: MockRedux });
+        await result.current('Uogienės', 'Avietės (Zewa)', 'Avietės');
+
+        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsAdd, {
+            group: 'Uogienės',
+            name: 'Avietės (Zewa)',
+            parent: 'Avietės',
         });
     });
 

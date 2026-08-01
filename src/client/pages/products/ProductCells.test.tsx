@@ -73,4 +73,66 @@ describe('<ProductCells>', () => {
         expect(ProductCell).toHaveBeenCalledTimes(1);
         expect(ProductCell).toHaveBeenCalledWith(expect.objectContaining({ product }), undefined);
     });
+
+    describe('rolledUpYears prop', () => {
+        it('passes the matching year amounts as displayAmounts when annual', () => {
+            const rolledUpYears = [{ year: years.at(-1)!, amounts: [{ variant: 'x', amount: 42 }] }];
+
+            render(
+                <MockTableRow>
+                    <ProductCells product={product} annual rolledUpYears={rolledUpYears} />
+                </MockTableRow>
+            );
+
+            expect(ProductCell).toHaveBeenLastCalledWith(
+                expect.objectContaining({ year: years.at(-1), displayAmounts: [{ variant: 'x', amount: 42 }] }),
+                undefined
+            );
+        });
+
+        it('passes undefined displayAmounts for a year missing from rolledUpYears', () => {
+            expect(years[0]).not.toBe(years.at(-1));
+
+            const rolledUpYears = [{ year: years.at(-1)!, amounts: [{ variant: 'x', amount: 42 }] }];
+
+            render(
+                <MockTableRow>
+                    <ProductCells product={product} annual rolledUpYears={rolledUpYears} />
+                </MockTableRow>
+            );
+
+            expect(ProductCell).toHaveBeenCalledWith(
+                expect.objectContaining({ year: years[0], displayAmounts: undefined }),
+                undefined
+            );
+        });
+
+        it('passes the combined amounts across all rolledUpYears as displayAmounts when not annual', () => {
+            const rolledUpYears = [
+                { year: 22, amounts: [{ variant: 'x', amount: 3 }] },
+                { year: 21, amounts: [{ variant: 'x', amount: 2 }] },
+            ];
+
+            render(
+                <MockTableRow>
+                    <ProductCells product={product} annual={false} rolledUpYears={rolledUpYears} />
+                </MockTableRow>
+            );
+
+            expect(ProductCell).toHaveBeenCalledWith(
+                expect.objectContaining({ displayAmounts: [{ variant: 'x', amount: 5 }] }),
+                undefined
+            );
+        });
+
+        it('does not pass displayAmounts when rolledUpYears is not given', () => {
+            render(
+                <MockTableRow>
+                    <ProductCells product={product} annual={false} />
+                </MockTableRow>
+            );
+
+            expect(ProductCell).toHaveBeenCalledWith(expect.objectContaining({ displayAmounts: undefined }), undefined);
+        });
+    });
 });

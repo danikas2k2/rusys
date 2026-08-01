@@ -10,12 +10,14 @@ import { useAddProduct } from '~/client/state/products/useAddProduct';
 import { useMoveProduct } from '~/client/state/products/useMoveProduct';
 import { useRenameProduct } from '~/client/state/products/useRenameProduct';
 import { useSetProductImage } from '~/client/state/products/useSetProductImage';
+import { useSetProductParent } from '~/client/state/products/useSetProductParent';
 
 vi.mock(import('~/client/state/products/useAddProduct'));
 vi.mock(import('~/client/state/products/useDeleteProduct'));
 vi.mock(import('~/client/state/products/useMoveProduct'));
 vi.mock(import('~/client/state/products/useRenameProduct'));
 vi.mock(import('~/client/state/products/useSetProductImage'));
+vi.mock(import('~/client/state/products/useSetProductParent'));
 vi.mock(import('~/client/common/Label'));
 vi.mock(import('@mantine/dropzone'), (): any => {
     const DropzoneComponent = ({
@@ -55,6 +57,13 @@ vi.mock(import('@mantine/dropzone'), (): any => {
 
 function selectOption(name: string) {
     const combobox = screen.getByRole('combobox', { name: 'Category' });
+    act(() => fireEvent.click(combobox));
+    act(() => fireEvent.change(combobox, { target: { value: name } }));
+    act(() => fireEvent.click(screen.getByRole('option', { name })));
+}
+
+function selectParentOption(name: string) {
+    const combobox = screen.getByRole('combobox', { name: 'Parent product' });
     act(() => fireEvent.click(combobox));
     act(() => fireEvent.change(combobox, { target: { value: name } }));
     act(() => fireEvent.click(screen.getByRole('option', { name })));
@@ -224,7 +233,7 @@ describe('<ProductBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai');
+            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai', undefined);
             expect(setProductImage).toHaveBeenCalledWith(
                 'Uogienės',
                 'Agrastai',
@@ -278,7 +287,7 @@ describe('<ProductBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai');
+            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai', undefined);
             expect(setProductImage).not.toHaveBeenCalled();
         });
     });
@@ -355,7 +364,7 @@ describe('<ProductBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai');
+            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai', undefined);
             expect(onClose).toHaveBeenCalledWith('Uogienės', 'Agrastai');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -371,7 +380,7 @@ describe('<ProductBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai');
+            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai', undefined);
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('alert')).toHaveTextContent('Failed to add');
         });
@@ -578,6 +587,169 @@ describe('<ProductBox>', () => {
 
             expect(moveProduct).not.toHaveBeenCalled();
             expect(onClose).toHaveBeenCalledWith('Uogienės', 'Avietės');
+        });
+    });
+
+    describe('parent product', () => {
+        const stateWithChild = {
+            ...state,
+            products: [...getProductsFixture(), { group: 'Daržovės', name: 'Agurkai (Zewa)', parent: 'Agurkai' }],
+        };
+
+        it('offers products from the currently selected category as parent options', () => {
+            render(
+                <MockThemeRedux state={stateWithChild}>
+                    <ProductBox opened group="Daržovės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            act(() => fireEvent.click(combobox));
+
+            expect(screen.getByRole('option', { name: 'Agurkai' })).toBeInTheDocument();
+            expect(screen.getByRole('option', { name: 'Kopūstai' })).toBeInTheDocument();
+            expect(screen.getByRole('option', { name: 'Agurkai (Zewa)' })).toBeInTheDocument();
+        });
+
+        it('orders parent options by tree structure (children directly under their parent), not alphabetically', () => {
+            const treeState = {
+                ...state,
+                products: [
+                    { group: 'Daržovės', name: 'Agurkai' },
+                    { group: 'Daržovės', name: 'Beta' },
+                    { group: 'Daržovės', name: 'Zewa', parent: 'Agurkai' },
+                    { group: 'Daržovės', name: 'Kopūstai' },
+                ],
+            };
+
+            render(
+                <MockThemeRedux state={treeState}>
+                    <ProductBox opened group="Daržovės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            act(() => fireEvent.click(combobox));
+
+            const options = screen.getAllByRole('option').map((o) => o.textContent);
+
+            expect(options).toStrictEqual(['Agurkai', 'Zewa', 'Beta', 'Kopūstai']);
+        });
+
+        it('indents child options to reflect their depth in the tree', () => {
+            const treeState = {
+                ...state,
+                products: [
+                    { group: 'Daržovės', name: 'Agurkai' },
+                    { group: 'Daržovės', name: 'Zewa', parent: 'Agurkai' },
+                ],
+            };
+
+            render(
+                <MockThemeRedux state={treeState}>
+                    <ProductBox opened group="Daržovės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            act(() => fireEvent.click(combobox));
+
+            expect(screen.getByRole('option', { name: 'Agurkai' }).querySelector('div')).toHaveStyle({
+                paddingInlineStart: '0px',
+            });
+            expect(screen.getByRole('option', { name: 'Zewa' }).querySelector('div')).toHaveStyle({
+                paddingInlineStart: '16px',
+            });
+        });
+
+        it('does not offer products from a different category', () => {
+            render(
+                <MockThemeRedux state={stateWithChild}>
+                    <ProductBox opened group="Daržovės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            act(() => fireEvent.click(combobox));
+
+            expect(screen.queryByRole('option', { name: 'Avietės' })).not.toBeInTheDocument();
+        });
+
+        it('excludes the product itself and its descendants (would create a cycle)', () => {
+            render(
+                <MockThemeRedux state={stateWithChild}>
+                    <ProductBox opened group="Daržovės" name="Agurkai" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            act(() => fireEvent.click(combobox));
+
+            expect(screen.queryByRole('option', { name: 'Agurkai' })).not.toBeInTheDocument();
+            expect(screen.queryByRole('option', { name: 'Agurkai (Zewa)' })).not.toBeInTheDocument();
+            expect(screen.getByRole('option', { name: 'Kopūstai' })).toBeInTheDocument();
+        });
+
+        it('passes the selected parent when adding a new product', async () => {
+            const addProduct = vi.fn().mockResolvedValueOnce(true);
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
+            render(
+                <MockThemeRedux state={stateWithChild}>
+                    <ProductBox opened group="Daržovės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agurkai (Perlan)');
+            selectParentOption('Agurkai');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(addProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai (Perlan)', 'Agurkai');
+        });
+
+        it('calls setProductParent when the parent changes on an existing product', async () => {
+            const setProductParent = vi.fn().mockResolvedValueOnce(true);
+            vi.mocked(useSetProductParent).mockReturnValue(setProductParent);
+            render(
+                <MockThemeRedux state={stateWithChild}>
+                    <ProductBox opened group="Daržovės" name="Kopūstai" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            selectParentOption('Agurkai');
+            await user.click(screen.getByRole('button', { name: 'Update' }));
+
+            expect(setProductParent).toHaveBeenCalledWith('Daržovės', 'Kopūstai', 'Agurkai');
+        });
+
+        it('does not call setProductParent when the parent is unchanged', async () => {
+            const setProductParent = vi.fn();
+            vi.mocked(useSetProductParent).mockReturnValue(setProductParent);
+            render(
+                <MockThemeRedux state={stateWithChild}>
+                    <ProductBox opened group="Daržovės" name="Kopūstai" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Update' }));
+
+            expect(setProductParent).not.toHaveBeenCalled();
+        });
+
+        it('blocks a category change for a product that has children', async () => {
+            const moveProduct = vi.fn();
+            vi.mocked(useMoveProduct).mockReturnValue(moveProduct);
+            render(
+                <MockThemeRedux state={stateWithChild}>
+                    <ProductBox opened group="Daržovės" name="Agurkai" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            selectOption('Uogienės');
+            await user.click(screen.getByRole('button', { name: 'Move' }));
+
+            expect(moveProduct).not.toHaveBeenCalled();
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('combobox', { name: 'Category' })).toHaveAttribute('aria-invalid', 'true');
         });
     });
 

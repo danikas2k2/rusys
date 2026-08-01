@@ -4,24 +4,44 @@ import { ProductCells } from '~/client/pages/products/ProductCells';
 import { ProductTitle } from '~/client/pages/products/ProductTitle';
 import { SwipeableRow } from '~/client/table/SwipeableRow';
 import { getId } from '~/client/utils/id';
-import type { Product } from '~/types/data';
+import type { Product, YearAmounts } from '~/types/data';
 
 export interface ProductRowProps {
     product: Product;
     annual?: boolean;
     hidden?: boolean;
+    depth?: number;
+    hasChildren?: boolean;
+    expanded?: boolean;
+    onToggleExpand?: () => void;
+    rolledUpYears?: readonly YearAmounts[];
 }
 
-export function ProductRow({ product, annual = true, hidden = false }: ProductRowProps) {
+export function ProductRow({
+    product,
+    annual = true,
+    hidden = false,
+    depth = 0,
+    hasChildren = false,
+    expanded = false,
+    onToggleExpand,
+    rolledUpYears,
+}: ProductRowProps) {
     return (
         <SwipeableRow
             id={getId(product.group, product.name)}
-            data={{ group: product.group, name: product.name, image: product.image }}
+            data={product}
             data-group={product.group}
             data-hidden={hidden}
         >
-            <ProductTitle product={product} />
-            <ProductCells product={product} annual={annual} />
+            <ProductTitle
+                product={product}
+                depth={depth}
+                hasChildren={hasChildren}
+                expanded={expanded}
+                onToggleExpand={onToggleExpand}
+            />
+            <ProductCells product={product} annual={annual} rolledUpYears={rolledUpYears} />
         </SwipeableRow>
     );
 }

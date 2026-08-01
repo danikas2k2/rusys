@@ -26,6 +26,23 @@ export function getCombinedAmounts(years: readonly YearAmounts[] | undefined): r
     );
 }
 
+// Merges several products' `years` (e.g. a parent's own years plus all of its descendants') into
+// one, summing per year via addVariantAmount — the same current-balance combine used within a
+// single product's own years, just folded across multiple products as well.
+export function combineProductYears(
+    yearsList: readonly (readonly YearAmounts[] | undefined)[]
+): readonly YearAmounts[] {
+    const byYear = new Map<number, readonly VariantAmount[]>();
+    for (const years of yearsList) {
+        for (const { year, amounts } of years ?? []) {
+            byYear.set(year, (amounts ?? []).reduce(addVariantAmount, byYear.get(year) ?? []));
+        }
+    }
+    return Array.from(byYear.entries())
+        .map(([year, amounts]) => ({ year, amounts }))
+        .sort((a, b) => a.year - b.year);
+}
+
 export interface AmountTotals {
     volume?: number;
     weight?: number;
@@ -108,6 +125,34 @@ export function addVariantAmount(
               {
                   variant,
                   amount,
+                  ...(suspicious ? { suspicious } : {}),
+                  ...(home ? { home } : {}),
+              },
+          ];
+}
+
+// Like addVariantAmount, but keeps `recycled` as part of the combine key instead of dropping it.
+// addVariantAmount intentionally collapses consumed/recycled into one running "current balance"
+// total; history/summary rollups need consumed and recycled kept as separate totals.
+export function addTypedVariantAmount(
+    acc: readonly VariantAmount[],
+    { variant, amount, recycled, suspicious, home }: VariantAmount
+): typeof acc {
+    const i = acc.findIndex(
+        (a) =>
+            a.variant === variant &&
+            (a.recycled ?? null) === (recycled ?? null) &&
+            !!a.suspicious === !!suspicious &&
+            !!a.home === !!home
+    );
+    return i >= 0
+        ? [...acc.slice(0, i), { ...acc[i], amount: acc[i].amount + amount }, ...acc.slice(i + 1)]
+        : [
+              ...acc,
+              {
+                  variant,
+                  amount,
+                  ...(recycled != null ? { recycled } : {}),
                   ...(suspicious ? { suspicious } : {}),
                   ...(home ? { home } : {}),
               },
