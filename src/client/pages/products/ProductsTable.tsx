@@ -24,7 +24,7 @@ export function ProductsTable() {
     const [missingOnly] = useMissingOnly();
 
     const annual = groups.find((g) => g.group === selectedGroup)?.annual;
-    const headingWidth = 300 / (years.length + 3);
+    const headingWidth = annual ? 300 / (years.length + 3) : 50;
 
     return (
         <LoadableContent loader={useGetProducts()} hasData={useProductsHasData()}>
@@ -37,11 +37,15 @@ export function ProductsTable() {
                                 <AmountViewToggle />
                             </Group>
                         </Table.Th>
-                        {years.map((year) => (
-                            <Table.Th key={year} ta="center">
-                                {year}
-                            </Table.Th>
-                        ))}
+                        {annual ? (
+                            years.map((year) => (
+                                <Table.Th key={year} ta="center">
+                                    {year}
+                                </Table.Th>
+                            ))
+                        ) : (
+                            <Table.Th ta="center" />
+                        )}
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>

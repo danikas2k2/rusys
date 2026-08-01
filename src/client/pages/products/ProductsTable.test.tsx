@@ -90,6 +90,22 @@ describe('<ProductsTable>', () => {
             expect(ProductRow).toHaveBeenCalledTimes(uogienesProducts.length);
         });
 
+        it('renders a single unlabeled column header for a non-annual group', () => {
+            vi.mocked(useGroupFilter).mockReturnValueOnce(['Daržovės', vi.fn()]);
+
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            const row = within(screen.getByRole('row'));
+
+            expect(row.getAllByRole('columnheader')).toHaveListWithTextContent(['', '']);
+        });
+
         it('renders only the rows for the selected group', () => {
             vi.mocked(useGroupFilter).mockReturnValueOnce(['Daržovės', vi.fn()]);
             const darzovesProducts = products.filter((p) => p.group === 'Daržovės');

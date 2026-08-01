@@ -28,7 +28,7 @@ export function ProductCells({ product, annual = false }: ProductCellsProps) {
                     />
                 ))
             ) : (
-                <ProductCell product={product} span={allYears.length} />
+                <ProductCell product={product} />
             )}
         </>
     );

@@ -50,7 +50,7 @@ describe('<ProductCells>', () => {
         });
     });
 
-    it('renders single ProductCell with span when annual is false', () => {
+    it('renders a single ProductCell when annual is false', () => {
         render(
             <MockTableRow>
                 <ProductCells product={product} annual={false} />
@@ -59,7 +59,7 @@ describe('<ProductCells>', () => {
 
         expect(screen.getAllByRole('cell')).toHaveLength(1);
         expect(ProductCell).toHaveBeenCalledTimes(1);
-        expect(ProductCell).toHaveBeenCalledWith(expect.objectContaining({ span: years.length }), undefined);
+        expect(ProductCell).toHaveBeenCalledWith(expect.objectContaining({ product }), undefined);
     });
 
     it('defaults annual to false when prop is omitted', () => {
@@ -71,6 +71,6 @@ describe('<ProductCells>', () => {
 
         expect(screen.getAllByRole('cell')).toHaveLength(1);
         expect(ProductCell).toHaveBeenCalledTimes(1);
-        expect(ProductCell).toHaveBeenCalledWith(expect.objectContaining({ span: years.length }), undefined);
+        expect(ProductCell).toHaveBeenCalledWith(expect.objectContaining({ product }), undefined);
     });
 });
