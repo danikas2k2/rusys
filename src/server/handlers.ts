@@ -9,6 +9,7 @@ import { handleExport } from '~/server/api/handleExport';
 import { handleGroups } from '~/server/api/handleGroups';
 import { handleImport } from '~/server/api/handleImport';
 import { handleMove } from '~/server/api/handleMove';
+import { handleMoveConsumedToRecycled } from '~/server/api/handleMoveConsumedToRecycled';
 import { handleProductHistory } from '~/server/api/handleProductHistory';
 import { handleProducts } from '~/server/api/handleProducts';
 import { handleRedoProduct } from '~/server/api/handleRedoProduct';
@@ -48,6 +49,7 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.ProductsUndo]: handleUndoProduct,
     [ApiUrl.ProductsRedo]: handleRedoProduct,
     [ApiUrl.ProductsHistory]: handleProductHistory,
+    [ApiUrl.ProductsMoveToRecycled]: handleMoveConsumedToRecycled,
     [ApiUrl.ProductsSetRemoving]: handleSetRemoving,
     [ApiUrl.ProductsSetMissing]: handleSetMissing,
     [ApiUrl.ProductsSetMissingBulk]: handleSetMissingBulk,

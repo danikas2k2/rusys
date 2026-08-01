@@ -38,6 +38,7 @@ export const enum ApiUrl {
     ProductsMove = '/products/move',
     ProductsDelete = '/products/delete',
     ProductsHistory = '/products/history',
+    ProductsMoveToRecycled = '/products/moveToRecycled',
 
     // Groups
     Groups = '/groups',
@@ -119,6 +120,15 @@ export interface ApiSetImage extends ApiRequestProduct {
 export interface ApiSetVariantImage extends ApiRequestProduct {
     variant: string;
     image: string;
+}
+
+export interface ApiMoveConsumedToRecycled extends ApiRequestProductWithYear {
+    time: number;
+    variant: string;
+    amount: number;
+    suspicious?: boolean;
+    home?: boolean;
+    user?: string;
 }
 
 export interface ApiSetMissingBulk {

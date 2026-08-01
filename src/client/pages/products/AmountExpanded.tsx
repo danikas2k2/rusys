@@ -37,6 +37,7 @@ export function AmountExpanded({
     const minUpdated = -(baseAmount + delta.consumed + delta.recycled);
     const minConsumed = -(baseAmount + delta.updated + delta.recycled);
     const minRecycled = -(baseAmount + delta.updated + delta.consumed);
+
     return (
         <Stack gap="xs" py="xs">
             <AmountVariantRow type="updated" delta={delta.updated} minDelta={minUpdated} onChange={onChange} />

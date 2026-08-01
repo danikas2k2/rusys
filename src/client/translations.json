@@ -233,6 +233,9 @@
   "Move": {
     "lt-LT": "Perkelti"
   },
+  "Move to discarded": {
+    "lt-LT": "Perkelti į išmesta"
+  },
   "Name": {
     "lt-LT": "Pavadinimas"
   },

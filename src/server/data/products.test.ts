@@ -13,6 +13,7 @@ import {
     deleteProductsVariant,
     getProducts,
     getProductVariants,
+    moveConsumedToRecycled,
     moveProduct,
     redoProduct,
     renameProduct,
@@ -360,6 +361,171 @@ describe('products', () => {
                 })
             );
         });
+    });
+
+    describe('moveConsumedToRecycled', () => {
+        // Agurkai's fixture entry has no `user` — matches when the caller also passes no user.
+        const entryTime = Date.parse('2023-02-03T12:00:00.000Z');
+
+        it('reduces the stored consumed amount in place and adds a recycled line, leaving current balance unchanged', async () => {
+            await expect(
+                moveConsumedToRecycled('Daržovės', 'Agurkai', 22, entryTime, 'd', 2, {}, undefined)
+            ).resolves.toBe(true);
+
+            // Current balance ('2.years') is untouched — the total removed from stock (3) is
+            // unchanged, only how it's attributed (consumed vs recycled) shifts within the entry.
+            await expect($all('products')).resolves.toStrictEqual(
+                bulk(products, {
+                    $set: {
+                        '2.updates.0.years.0.amounts': [
+                            { variant: 'p', amount: 2, recycled: false },
+                            { variant: 'd', amount: -1, recycled: false },
+                            { variant: 'd', amount: -2, recycled: true },
+                        ],
+                    },
+                })
+            );
+        });
+
+        it('carries suspicious/home flags through and matches only the flagged line', async () => {
+            await expect(
+                moveConsumedToRecycled('Daržovės', 'Agurkai', 22, entryTime, 'd', 1, { home: true }, undefined)
+            ).resolves.toBe(false); // fixture's 'd' line has no home flag — nothing matches
+
+            await expect($all('products')).resolves.toStrictEqual(products);
+        });
+
+        it('does not touch entries outside the same session (different day, large time gap)', async () => {
+            // Agurkai has a second, unrelated entry 4 days later for variant 'm' — outside the session.
+            await moveConsumedToRecycled('Daržovės', 'Agurkai', 22, entryTime, 'd', 2, {}, undefined);
+
+            const all = (await $all('products')) as { updates?: { years: { amounts: unknown[] }[] }[] }[];
+
+            expect(all[2].updates?.[1].years[0].amounts).toStrictEqual([{ variant: 'm', amount: -1 }]);
+        });
+
+        it('clears undates so a stale redo cannot be applied afterwards', async () => {
+            await undoProduct('Daržovės', 'Agurkai', 22);
+
+            await expect(
+                moveConsumedToRecycled('Daržovės', 'Agurkai', 22, entryTime, 'd', 1, {}, undefined)
+            ).resolves.toBe(true);
+
+            const all = (await $all('products')) as { undates?: unknown[] }[];
+
+            expect(all[2].undates).toBeUndefined();
+        });
+
+        it('returns false and makes no changes when no matching consumed line is found for that user', async () => {
+            await expect(moveConsumedToRecycled('Daržovės', 'Agurkai', 22, entryTime, 'd', 2, {}, user)).resolves.toBe(
+                false
+            );
+            await expect($all('products')).resolves.toStrictEqual(products);
+        });
+
+        it('redistributes the move across multiple entries within the same session', async () => {
+            const now = Date.now();
+            const sameUser = 'multi@example.com';
+            const testProduct = {
+                group: 'Šaldyti',
+                name: 'Testinis',
+                updates: [
+                    {
+                        time: now - 10 * 60_000,
+                        user: sameUser,
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                    },
+                    {
+                        time: now - 5 * 60_000,
+                        user: sameUser,
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: -1, recycled: false }] }],
+                    },
+                ],
+            };
+            await (await db()).collection('products').insertOne(testProduct, { forceServerObjectId: true });
+
+            await expect(
+                moveConsumedToRecycled('Šaldyti', 'Testinis', 22, now - 10 * 60_000, 'd', 3, {}, sameUser)
+            ).resolves.toBe(true);
+
+            const all = (await $all('products')) as {
+                group: string;
+                updates: { time: number; years: { amounts: unknown[] }[] }[];
+            }[];
+            const testinis = all.find((p) => p.group === 'Šaldyti')!;
+
+            expect(testinis.updates[0].years[0].amounts).toStrictEqual([
+                { variant: 'd', amount: 0, recycled: false },
+                { variant: 'd', amount: -3, recycled: true },
+            ]);
+            expect(testinis.updates[1].years[0].amounts).toStrictEqual([{ variant: 'd', amount: 0, recycled: false }]);
+
+            await (await db()).collection('products').deleteMany({ group: 'Šaldyti' });
+        });
+
+        it('does not redistribute into an entry from a different user, even at the same time', async () => {
+            const now = Date.now();
+            const testProduct = {
+                group: 'Šaldyti',
+                name: 'Kitas',
+                updates: [
+                    {
+                        time: now,
+                        user: 'someone@example.com',
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                    },
+                    {
+                        time: now,
+                        user: 'other@example.com',
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: -5, recycled: false }] }],
+                    },
+                ],
+            };
+            await (await db()).collection('products').insertOne(testProduct, { forceServerObjectId: true });
+
+            await expect(
+                moveConsumedToRecycled('Šaldyti', 'Kitas', 22, now, 'd', 2, {}, 'someone@example.com')
+            ).resolves.toBe(true);
+
+            const all = (await $all('products')) as {
+                group: string;
+                updates: { user: string; years: { amounts: unknown[] }[] }[];
+            }[];
+            const kitas = all.find((p) => p.group === 'Šaldyti')!;
+
+            const otherEntry = kitas.updates.find((u) => u.user === 'other@example.com')!;
+
+            expect(otherEntry.years[0].amounts).toStrictEqual([{ variant: 'd', amount: -5, recycled: false }]);
+
+            await (await db()).collection('products').deleteMany({ group: 'Šaldyti' });
+        });
+
+        it.each`
+            title                | group         | name         | variant | amount
+            ${'empty group'}     | ${''}         | ${'Agurkai'} | ${'d'}  | ${1}
+            ${'empty name'}      | ${'Daržovės'} | ${''}        | ${'d'}  | ${1}
+            ${'empty variant'}   | ${'Daržovės'} | ${'Agurkai'} | ${''}   | ${1}
+            ${'zero amount'}     | ${'Daržovės'} | ${'Agurkai'} | ${'d'}  | ${0}
+            ${'negative amount'} | ${'Daržovės'} | ${'Agurkai'} | ${'d'}  | ${-1}
+        `(
+            'returns false and makes no changes for $title',
+            async ({
+                group,
+                name,
+                variant,
+                amount,
+            }: {
+                group: string;
+                name: string;
+                variant: string;
+                amount: number;
+            }) => {
+                await expect(
+                    moveConsumedToRecycled(group, name, 22, entryTime, variant, amount, {}, undefined)
+                ).resolves.toBe(false);
+                await expect($all('products')).resolves.toStrictEqual(products);
+            }
+        );
     });
 
     describe('undoProduct', () => {

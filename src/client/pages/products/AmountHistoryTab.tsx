@@ -48,7 +48,7 @@ export function AmountHistoryTab() {
                         </Table.Tr>
                     )}
                     {updates.map((h) => (
-                        <AmountHistoryRow key={`${h.time}:${h.year}`} h={h} />
+                        <AmountHistoryRow key={`${h.time}:${h.year}`} h={h} onMoved={loader} />
                     ))}
                 </Table.Tbody>
             </Table>

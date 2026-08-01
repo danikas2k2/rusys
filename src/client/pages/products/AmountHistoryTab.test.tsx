@@ -13,6 +13,10 @@ vi.mock(import('~/client/state/history/useGetProductHistory'), (): any => ({
     useGetProductHistory: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
+vi.mock(import('~/client/state/products/useMoveConsumedToRecycled'), (): any => ({
+    useMoveConsumedToRecycled: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
+}));
+
 vi.mock(import('~/client/hooks/useLockingLoader'), (): any => ({
     useLockingLoader: vi.fn(() => 'complete'),
     LoadingState: { INITIAL: 'initial', LOADING: 'loading', COMPLETE: 'complete', FAILED: 'failed' },
