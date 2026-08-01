@@ -1,24 +1,12 @@
-import { Alert, Avatar, Button, Checkbox, Group, rem, Stack, Text, TextInput } from '@mantine/core';
-import { Dropzone, type FileWithPath } from '@mantine/dropzone';
+import { Button, Checkbox, Group, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import {
-    AddIcon,
-    AnnualIcon,
-    CancelIcon,
-    CategoriesNavIcon,
-    ErrorAlertIcon,
-    ImageAcceptIcon,
-    ImageDropzoneIdleIcon,
-    ImageRejectIcon,
-    RemoveImageIcon,
-    ReviewIcon,
-    UpdateIcon,
-} from '@icons';
+import { AddIcon, AnnualIcon, CancelIcon, CategoriesNavIcon, ReviewIcon, UpdateIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { DialogIcon } from '~/client/common/DialogIcon';
+import { ImageDropzone } from '~/client/common/ImageDropzone';
 import { Label } from '~/client/common/Label';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroups } from '~/client/state/groups/useGroups';
@@ -26,8 +14,6 @@ import { useRenameGroup } from '~/client/state/groups/useRenameGroup';
 import { useUpdateGroup } from '~/client/state/groups/useUpdateGroup';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
-import { readFileAsDataUrl } from '~/client/utils/readFileAsDataUrl';
-import { IMAGE_MIME_TYPES, MAX_IMAGE_FILE_SIZE } from '~/common/utils/files';
 
 interface GroupBoxProps {
     opened?: boolean;
@@ -87,7 +73,6 @@ export function GroupBox({
     });
 
     const [loading, setLoading] = useState(false);
-    const [imageError, setImageError] = useState<string>();
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Reset form and focus input when modal opens
@@ -104,8 +89,6 @@ export function GroupBox({
             // eslint-disable-next-line react-hooks/set-state-in-effect -- loading reset when modal opens
             setLoading(false);
 
-            setImageError(undefined);
-
             const timer = setTimeout(() => {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
                 inputRef.current?.focus();
@@ -114,19 +97,11 @@ export function GroupBox({
         }
     }, [opened, initialGroup, initialAnnual, initialReview, initialImage]);
 
-    const handleImageDrop = useCallback(async (files: FileWithPath[]) => {
-        if (files.length > 0) {
-            setImageError(undefined);
-            formRef.current.setFieldValue('image', await readFileAsDataUrl(files[0]!));
-        }
+    const handleImageDrop = useCallback((dataUrl: string) => {
+        formRef.current.setFieldValue('image', dataUrl);
     }, []);
 
-    const handleImageReject = useCallback(() => {
-        setImageError(_('Choose a valid image file'));
-    }, [_]);
-
     const handleImageRemove = useCallback(() => {
-        setImageError(undefined);
         formRef.current.setFieldValue('image', '');
     }, []);
 
@@ -229,61 +204,13 @@ export function GroupBox({
                             disabled={loading}
                             {...form.getInputProps('review', { type: 'checkbox' })}
                         />
-                        <Dropzone
+                        <ImageDropzone
+                            image={form.values.image}
+                            label={_('Category image')}
                             onDrop={handleImageDrop}
-                            onReject={handleImageReject}
-                            maxSize={MAX_IMAGE_FILE_SIZE}
-                            accept={IMAGE_MIME_TYPES}
-                            multiple={false}
+                            onRemove={handleImageRemove}
                             disabled={loading}
-                        >
-                            <Group justify="center" gap="md" style={{ minHeight: rem(80), pointerEvents: 'none' }}>
-                                {form.values.image ? (
-                                    // If the image fails to load, Mantine will render children as fallback.
-                                    <Avatar
-                                        src={form.values.image}
-                                        radius="md"
-                                        size={48}
-                                        aria-label={_('Category image')}
-                                    >
-                                        <ImageAcceptIcon size={24} stroke={1.5} />
-                                    </Avatar>
-                                ) : (
-                                    <>
-                                        <Dropzone.Accept>
-                                            <ImageAcceptIcon size={32} stroke={1.5} />
-                                        </Dropzone.Accept>
-                                        <Dropzone.Reject>
-                                            <ImageRejectIcon size={32} stroke={1.5} />
-                                        </Dropzone.Reject>
-                                        <Dropzone.Idle>
-                                            <ImageDropzoneIdleIcon size={32} stroke={1.5} />
-                                        </Dropzone.Idle>
-                                    </>
-                                )}
-                                <Text size="sm" c="dimmed" inline>
-                                    <Label>Upload image</Label>
-                                </Text>
-                            </Group>
-                        </Dropzone>
-                        {!!form.values.image && (
-                            <Button
-                                variant="subtle"
-                                color="gray"
-                                size="xs"
-                                leftSection={<RemoveImageIcon size={16} />}
-                                onClick={handleImageRemove}
-                                disabled={loading}
-                                style={{ alignSelf: 'flex-start' }}
-                            >
-                                <Label>Remove image</Label>
-                            </Button>
-                        )}
-                        {imageError && (
-                            <Alert variant="light" color="negative" icon={<ErrorAlertIcon size={18} />}>
-                                {imageError}
-                            </Alert>
-                        )}
+                        />
                         <Group justify="flex-end" mt="md">
                             <Button
                                 variant="outline"

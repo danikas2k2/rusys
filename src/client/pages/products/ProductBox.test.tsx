@@ -24,7 +24,7 @@ vi.mock(import('@mantine/dropzone'), (): any => {
         children,
     }: {
         onDrop: (files: File[]) => void;
-        onReject?: () => void;
+        onReject?: (fileRejections: unknown[]) => void;
         children: React.ReactNode;
     }) => {
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,7 +33,7 @@ vi.mock(import('@mantine/dropzone'), (): any => {
             }
         };
         const handleReject = () => {
-            onReject?.();
+            onReject?.([{ file: new File([], 'x'), errors: [{ code: 'file-invalid-type', message: 'Invalid type' }] }]);
         };
         return (
             <div>

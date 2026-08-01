@@ -1,23 +1,12 @@
-import { Alert, Avatar, Button, Group, rem, Select, Stack, Text, TextInput, type ComboboxItem } from '@mantine/core';
-import { Dropzone, type FileWithPath } from '@mantine/dropzone';
+import { Button, Group, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import {
-    AddIcon,
-    CancelIcon,
-    ErrorAlertIcon,
-    ImageAcceptIcon,
-    ImageDropzoneIdleIcon,
-    ImageRejectIcon,
-    MoveIcon,
-    ProductsNavIcon,
-    RemoveImageIcon,
-    UpdateIcon,
-} from '@icons';
+import { AddIcon, CancelIcon, MoveIcon, ProductsNavIcon, UpdateIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { DialogIcon } from '~/client/common/DialogIcon';
+import { ImageDropzone } from '~/client/common/ImageDropzone';
 import { Label } from '~/client/common/Label';
 import { CategoryAvatar } from '~/client/filters/CategoryAvatar';
 import { CategoryOption } from '~/client/filters/CategoryOption';
@@ -31,8 +20,6 @@ import { useRenameProduct } from '~/client/state/products/useRenameProduct';
 import { useSetProductImage } from '~/client/state/products/useSetProductImage';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
-import { readFileAsDataUrl } from '~/client/utils/readFileAsDataUrl';
-import { IMAGE_MIME_TYPES, MAX_IMAGE_FILE_SIZE } from '~/common/utils/files';
 
 interface ProductBoxProps {
     opened?: boolean;
@@ -103,7 +90,6 @@ export function ProductBox({
     });
 
     const [loading, setLoading] = useState(false);
-    const [imageError, setImageError] = useState<string>();
     const groupRef = useRef<HTMLInputElement>(null);
     const nameRef = useRef<HTMLInputElement>(null);
 
@@ -120,8 +106,6 @@ export function ProductBox({
             // eslint-disable-next-line react-hooks/set-state-in-effect -- loading reset when modal opens
             setLoading(false);
 
-            setImageError(undefined);
-
             const timer = setTimeout(() => {
                 nameRef.current?.focus();
             }, 100);
@@ -129,19 +113,11 @@ export function ProductBox({
         }
     }, [opened, initialGroup, initialName, initialImage, filterGroup]);
 
-    const handleImageDrop = useCallback(async (files: FileWithPath[]) => {
-        if (files.length > 0) {
-            setImageError(undefined);
-            formRef.current.setFieldValue('image', await readFileAsDataUrl(files[0]!));
-        }
+    const handleImageDrop = useCallback((dataUrl: string) => {
+        formRef.current.setFieldValue('image', dataUrl);
     }, []);
 
-    const handleImageReject = useCallback(() => {
-        setImageError(_('Choose a valid image file'));
-    }, [_]);
-
     const handleImageRemove = useCallback(() => {
-        setImageError(undefined);
         formRef.current.setFieldValue('image', '');
     }, []);
 
@@ -283,61 +259,13 @@ export function ProductBox({
                             disabled={loading}
                             {...form.getInputProps('name')}
                         />
-                        <Dropzone
+                        <ImageDropzone
+                            image={form.values.image}
+                            label={_('Product image')}
                             onDrop={handleImageDrop}
-                            onReject={handleImageReject}
-                            maxSize={MAX_IMAGE_FILE_SIZE}
-                            accept={IMAGE_MIME_TYPES}
-                            multiple={false}
+                            onRemove={handleImageRemove}
                             disabled={loading}
-                        >
-                            <Group justify="center" gap="md" style={{ minHeight: rem(80), pointerEvents: 'none' }}>
-                                {form.values.image ? (
-                                    // If the image fails to load, Mantine will render children as fallback.
-                                    <Avatar
-                                        src={form.values.image}
-                                        radius="md"
-                                        size={48}
-                                        aria-label={_('Product image')}
-                                    >
-                                        <ImageAcceptIcon size={24} stroke={1.5} />
-                                    </Avatar>
-                                ) : (
-                                    <>
-                                        <Dropzone.Accept>
-                                            <ImageAcceptIcon size={32} stroke={1.5} />
-                                        </Dropzone.Accept>
-                                        <Dropzone.Reject>
-                                            <ImageRejectIcon size={32} stroke={1.5} />
-                                        </Dropzone.Reject>
-                                        <Dropzone.Idle>
-                                            <ImageDropzoneIdleIcon size={32} stroke={1.5} />
-                                        </Dropzone.Idle>
-                                    </>
-                                )}
-                                <Text size="sm" c="dimmed" inline>
-                                    <Label>Upload image</Label>
-                                </Text>
-                            </Group>
-                        </Dropzone>
-                        {!!form.values.image && (
-                            <Button
-                                variant="subtle"
-                                color="gray"
-                                size="xs"
-                                leftSection={<RemoveImageIcon size={16} />}
-                                onClick={handleImageRemove}
-                                disabled={loading}
-                                style={{ alignSelf: 'flex-start' }}
-                            >
-                                <Label>Remove image</Label>
-                            </Button>
-                        )}
-                        {imageError && (
-                            <Alert variant="light" color="negative" icon={<ErrorAlertIcon size={18} />}>
-                                {imageError}
-                            </Alert>
-                        )}
+                        />
                         <Group justify="flex-end" mt="md">
                             <Button
                                 variant="outline"
