@@ -1,0 +1,25 @@
+.ui-Accordion-item {
+    &[data-suspicious="true"] {
+        --row-color: var(--mantine-color-moderate-text);
+    }
+
+    &[data-home="true"] {
+        --row-color: var(--mantine-color-blue-text);
+    }
+
+    &[data-expires="soon"] {
+        --row-color: var(--mantine-color-orange-text);
+    }
+
+    &[data-expires="expired"] {
+        --row-color: var(--mantine-color-negative-text);
+    }
+
+    .ui-Accordion-control {
+        color: var(--row-color);
+    }
+
+    [data-expiry-date="true"] {
+        color: var(--row-color, var(--mantine-color-dimmed));
+    }
+}

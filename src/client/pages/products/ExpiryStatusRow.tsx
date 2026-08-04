@@ -13,7 +13,7 @@ export interface ExpiryStatusRowProps {
 // the whole row, rather than repeated next to every individual value.
 export function ExpiryStatusRow({ status, children }: ExpiryStatusRowProps) {
     return (
-        <span data-amounts-row data-expiry-status={status}>
+        <span data-amounts-row data-expires={status}>
             {status === 'soon' && <ExpiringSoonIcon size={12} />}
             {status === 'expired' && <ExpiredIcon size={12} />}
             {children}

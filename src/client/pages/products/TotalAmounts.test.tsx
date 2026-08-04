@@ -44,7 +44,7 @@ describe('<TotalAmounts>', () => {
         const rows = container.querySelectorAll('[data-amounts-row]');
 
         expect(rows).toHaveLength(1);
-        expect(rows[0]).not.toHaveAttribute('data-expiry-status');
+        expect(rows[0]).not.toHaveAttribute('data-expires');
         expect(rows[0]).toHaveTextContent('1½l');
     });
 
@@ -64,11 +64,11 @@ describe('<TotalAmounts>', () => {
         const rows = container.querySelectorAll('[data-amounts-row]');
 
         expect(rows).toHaveLength(1);
-        expect(rows[0]).not.toHaveAttribute('data-expiry-status');
+        expect(rows[0]).not.toHaveAttribute('data-expires');
         expect(rows[0]).toHaveTextContent('1½l');
     });
 
-    it('renders soon-expiring amounts as a separate row with data-expiry-status="soon", before the valid row', () => {
+    it('renders soon-expiring amounts as a separate row with data-expires="soon", before the valid row', () => {
         vi.mocked(useVariantsByGroup).mockReturnValue([{ group, variant: 'p', order: 0, units: 'ml', count: 500 }]);
 
         const { container } = render(
@@ -84,13 +84,13 @@ describe('<TotalAmounts>', () => {
         const rows = container.querySelectorAll('[data-amounts-row]');
 
         expect(rows).toHaveLength(2);
-        expect(rows[0]).toHaveAttribute('data-expiry-status', 'soon');
+        expect(rows[0]).toHaveAttribute('data-expires', 'soon');
         expect(rows[0]).toHaveTextContent('½l');
-        expect(rows[1]).not.toHaveAttribute('data-expiry-status');
+        expect(rows[1]).not.toHaveAttribute('data-expires');
         expect(rows[1]).toHaveTextContent('1l');
     });
 
-    it('renders expired amounts as a separate row with data-expiry-status="expired", after the valid row', () => {
+    it('renders expired amounts as a separate row with data-expires="expired", after the valid row', () => {
         vi.mocked(useVariantsByGroup).mockReturnValue([{ group, variant: 'p', order: 0, units: 'ml', count: 500 }]);
 
         const { container } = render(
@@ -106,9 +106,9 @@ describe('<TotalAmounts>', () => {
         const rows = container.querySelectorAll('[data-amounts-row]');
 
         expect(rows).toHaveLength(2);
-        expect(rows[0]).not.toHaveAttribute('data-expiry-status');
+        expect(rows[0]).not.toHaveAttribute('data-expires');
         expect(rows[0]).toHaveTextContent('1l');
-        expect(rows[1]).toHaveAttribute('data-expiry-status', 'expired');
+        expect(rows[1]).toHaveAttribute('data-expires', 'expired');
         expect(rows[1]).toHaveTextContent('½l');
     });
 
@@ -129,11 +129,11 @@ describe('<TotalAmounts>', () => {
         const rows = container.querySelectorAll('[data-amounts-row]');
 
         expect(rows).toHaveLength(3);
-        expect(rows[0]).toHaveAttribute('data-expiry-status', 'soon');
+        expect(rows[0]).toHaveAttribute('data-expires', 'soon');
         expect(rows[0]).toHaveTextContent('½l');
-        expect(rows[1]).not.toHaveAttribute('data-expiry-status');
+        expect(rows[1]).not.toHaveAttribute('data-expires');
         expect(rows[1]).toHaveTextContent('1l');
-        expect(rows[2]).toHaveAttribute('data-expiry-status', 'expired');
+        expect(rows[2]).toHaveAttribute('data-expires', 'expired');
         expect(rows[2]).toHaveTextContent('1½l');
     });
 
@@ -218,7 +218,7 @@ describe('<TotalAmounts>', () => {
             const rows = container.querySelectorAll('[data-amounts-row]');
 
             expect(rows).toHaveLength(1);
-            expect(rows[0]).not.toHaveAttribute('data-expiry-status');
+            expect(rows[0]).not.toHaveAttribute('data-expires');
             expect(rows[0]).toHaveTextContent('7');
         });
 
@@ -238,7 +238,7 @@ describe('<TotalAmounts>', () => {
             const rows = container.querySelectorAll('[data-amounts-row]');
 
             expect(rows).toHaveLength(1);
-            expect(rows[0]).toHaveAttribute('data-expiry-status', 'soon');
+            expect(rows[0]).toHaveAttribute('data-expires', 'soon');
             expect(rows[0]).toHaveTextContent('2');
         });
 
@@ -261,11 +261,11 @@ describe('<TotalAmounts>', () => {
             const rows = container.querySelectorAll('[data-amounts-row]');
 
             expect(rows).toHaveLength(3);
-            expect(rows[0]).toHaveAttribute('data-expiry-status', 'soon');
+            expect(rows[0]).toHaveAttribute('data-expires', 'soon');
             expect(rows[0]).toHaveTextContent('2');
-            expect(rows[1]).not.toHaveAttribute('data-expiry-status');
+            expect(rows[1]).not.toHaveAttribute('data-expires');
             expect(rows[1]).toHaveTextContent('7');
-            expect(rows[2]).toHaveAttribute('data-expiry-status', 'expired');
+            expect(rows[2]).toHaveAttribute('data-expires', 'expired');
             expect(rows[2]).toHaveTextContent('1');
         });
 
@@ -282,7 +282,7 @@ describe('<TotalAmounts>', () => {
                 />
             );
 
-            const rows = container.querySelectorAll('[data-amounts-row][data-expiry-status="soon"]');
+            const rows = container.querySelectorAll('[data-amounts-row][data-expires="soon"]');
 
             expect(rows).toHaveLength(1);
             expect(rows[0].querySelectorAll('[data-value]')).toHaveLength(2);

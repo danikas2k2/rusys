@@ -19,17 +19,17 @@ describe('<DetailedAmounts>', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    it('renders a single row with no data-expiry-status when there is no dated entry', () => {
+    it('renders a single row with no data-expires when there is no dated entry', () => {
         const { container } = render(<DetailedAmounts group={group} amounts={[{ variant: 'p', amount: 3 }]} />);
 
         const rows = container.querySelectorAll('[data-amounts-row]');
 
         expect(rows).toHaveLength(1);
-        expect(rows[0]).not.toHaveAttribute('data-expiry-status');
+        expect(rows[0]).not.toHaveAttribute('data-expires');
         expect(screen.getByText('3')).toBeInTheDocument();
     });
 
-    it('renders a single row with no data-expiry-status when the date is well in the future', () => {
+    it('renders a single row with no data-expires when the date is well in the future', () => {
         const { container } = render(
             <DetailedAmounts group={group} amounts={[{ variant: 'p', amount: 3, expiresAt: NOW + 60 * DAY_MS }]} />
         );
@@ -37,10 +37,10 @@ describe('<DetailedAmounts>', () => {
         const rows = container.querySelectorAll('[data-amounts-row]');
 
         expect(rows).toHaveLength(1);
-        expect(rows[0]).not.toHaveAttribute('data-expiry-status');
+        expect(rows[0]).not.toHaveAttribute('data-expires');
     });
 
-    it('renders one row with data-expiry-status="soon" for a soon-expiring entry', () => {
+    it('renders one row with data-expires="soon" for a soon-expiring entry', () => {
         const { container } = render(
             <DetailedAmounts group={group} amounts={[{ variant: 'p', amount: 3, expiresAt: NOW + 5 * DAY_MS }]} />
         );
@@ -48,10 +48,10 @@ describe('<DetailedAmounts>', () => {
         const rows = container.querySelectorAll('[data-amounts-row]');
 
         expect(rows).toHaveLength(1);
-        expect(rows[0]).toHaveAttribute('data-expiry-status', 'soon');
+        expect(rows[0]).toHaveAttribute('data-expires', 'soon');
     });
 
-    it('renders one row with data-expiry-status="expired" for an already-expired entry', () => {
+    it('renders one row with data-expires="expired" for an already-expired entry', () => {
         const { container } = render(
             <DetailedAmounts group={group} amounts={[{ variant: 'p', amount: 3, expiresAt: NOW - 5 * DAY_MS }]} />
         );
@@ -59,7 +59,7 @@ describe('<DetailedAmounts>', () => {
         const rows = container.querySelectorAll('[data-amounts-row]');
 
         expect(rows).toHaveLength(1);
-        expect(rows[0]).toHaveAttribute('data-expiry-status', 'expired');
+        expect(rows[0]).toHaveAttribute('data-expires', 'expired');
     });
 
     it('merges differently-dated entries of the same variant that share the same resulting status', () => {
@@ -76,7 +76,7 @@ describe('<DetailedAmounts>', () => {
         const rows = container.querySelectorAll('[data-amounts-row]');
 
         expect(rows).toHaveLength(1);
-        expect(rows[0]).toHaveAttribute('data-expiry-status', 'soon');
+        expect(rows[0]).toHaveAttribute('data-expires', 'soon');
         expect(rows[0]).toHaveTextContent('3');
     });
 
@@ -97,11 +97,11 @@ describe('<DetailedAmounts>', () => {
         const rows = container.querySelectorAll('[data-amounts-row]');
 
         expect(rows).toHaveLength(3);
-        expect(rows[0]).toHaveAttribute('data-expiry-status', 'soon');
+        expect(rows[0]).toHaveAttribute('data-expires', 'soon');
         expect(rows[0]).toHaveTextContent('2');
-        expect(rows[1]).not.toHaveAttribute('data-expiry-status');
+        expect(rows[1]).not.toHaveAttribute('data-expires');
         expect(rows[1]).toHaveTextContent('7');
-        expect(rows[2]).toHaveAttribute('data-expiry-status', 'expired');
+        expect(rows[2]).toHaveAttribute('data-expires', 'expired');
         expect(rows[2]).toHaveTextContent('1');
     });
 
@@ -121,9 +121,9 @@ describe('<DetailedAmounts>', () => {
             const rows = container.querySelectorAll('[data-amounts-row]');
 
             expect(rows).toHaveLength(3);
-            expect(rows[0]).toHaveAttribute('data-expiry-status', 'soon');
-            expect(rows[1]).not.toHaveAttribute('data-expiry-status');
-            expect(rows[2]).toHaveAttribute('data-expiry-status', 'expired');
+            expect(rows[0]).toHaveAttribute('data-expires', 'soon');
+            expect(rows[1]).not.toHaveAttribute('data-expires');
+            expect(rows[2]).toHaveAttribute('data-expires', 'expired');
         });
 
         it('omits a row entirely when its bucket has no entries', () => {
@@ -134,7 +134,7 @@ describe('<DetailedAmounts>', () => {
             const rows = container.querySelectorAll('[data-amounts-row]');
 
             expect(rows).toHaveLength(1);
-            expect(rows[0]).toHaveAttribute('data-expiry-status', 'soon');
+            expect(rows[0]).toHaveAttribute('data-expires', 'soon');
         });
     });
 

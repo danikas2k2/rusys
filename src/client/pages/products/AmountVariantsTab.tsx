@@ -36,6 +36,8 @@ import { getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { formatDateOnly, getExpiryStatus, parseDateOnly } from '~/common/utils/expiry';
 import type { ProductAmounts, VariantAmount } from '~/types/data';
 
+import './AmountVariantsTab.pcss';
+
 const ZERO_DELTA: VariantDelta = { updated: 0, consumed: 0, recycled: 0 };
 
 // A row is plain, suspicious, home, or dated - mutually exclusive. `VariantAmount`'s type shape
@@ -322,27 +324,12 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                         const expiryStatus = expiresAt ? getExpiryStatus(expiresAt, now) : undefined;
                         // Suspicious/home/expiry may only be added from the plain row.
                         const isPlain = !suspicious && !home && !expiresAt;
-                        const rowColor = suspicious
-                            ? 'moderate'
-                            : home
-                              ? 'blue'
-                              : expiryStatus === 'expired'
-                                ? 'negative'
-                                : expiryStatus === 'soon'
-                                  ? 'orange'
-                                  : undefined;
                         const ExpiryRowIcon =
                             expiryStatus === 'expired'
                                 ? ExpiredIcon
                                 : expiryStatus === 'soon'
                                   ? ExpiringSoonIcon
                                   : DatedIcon;
-                        const expiryIconColorVar =
-                            expiryStatus === 'expired'
-                                ? 'var(--mantine-color-negative-text)'
-                                : expiryStatus === 'soon'
-                                  ? 'var(--mantine-color-orange-text)'
-                                  : undefined;
                         const datedCount = datedCountByVariant.get(variant) ?? 0;
 
                         return (
@@ -351,8 +338,7 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                                 value={key}
                                 data-suspicious={suspicious || undefined}
                                 data-home={home || undefined}
-                                data-expired={expiryStatus === 'expired' || undefined}
-                                data-expiry-soon={expiryStatus === 'soon' || undefined}
+                                data-expires={expiryStatus || undefined}
                             >
                                 <Accordion.Control>
                                     <Group justify="space-between">
@@ -362,16 +348,14 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                                                     {variant.trim().charAt(0).toUpperCase()}
                                                 </Avatar>
                                             )}
-                                            {suspicious && (
-                                                <SuspiciousIcon size={14} color="var(--mantine-color-moderate-text)" />
-                                            )}
-                                            {home && <HomeIcon size={14} color="var(--mantine-color-blue-text)" />}
-                                            {expiresAt && <ExpiryRowIcon size={14} color={expiryIconColorVar} />}
-                                            <Text fz="md" fw={500} c={rowColor}>
+                                            {suspicious && <SuspiciousIcon size={14} />}
+                                            {home && <HomeIcon size={14} />}
+                                            {expiresAt && <ExpiryRowIcon size={14} />}
+                                            <Text fz="md" fw={500}>
                                                 <VariantTitle group={group} variant={variant} />
                                             </Text>
                                             {expiresAt && (
-                                                <Text size="xs" c={rowColor ?? 'dimmed'}>
+                                                <Text size="xs" data-expiry-date>
                                                     {formatDateOnly(expiresAt)}
                                                 </Text>
                                             )}
@@ -382,7 +366,7 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                                             )}
                                         </Group>
                                         <Group gap="xs">
-                                            <Text fz="md" component="span" c={rowColor}>
+                                            <Text fz="md" component="span">
                                                 {home && (
                                                     <ApproxAmountIcon size={12} style={{ verticalAlign: 'middle' }} />
                                                 )}
