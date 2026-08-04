@@ -99,9 +99,7 @@ describe('<ImageDropzone>', () => {
         const file = new File(['image-data'], 'image.png', { type: 'image/png' });
         await user.upload(imageInput, file);
 
-        await waitFor(() =>
-            expect(onDrop).toHaveBeenCalledWith(expect.stringMatching(/^data:image\/png;base64,/))
-        );
+        await waitFor(() => expect(onDrop).toHaveBeenCalledWith(expect.stringMatching(/^data:image\/png;base64,/)));
     });
 
     it('shows the maximum file size when no image is set', () => {
