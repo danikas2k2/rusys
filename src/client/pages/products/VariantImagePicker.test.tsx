@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
@@ -93,11 +93,13 @@ describe('<VariantImagePicker>', () => {
         const file = new File(['image-data'], 'image.png', { type: 'image/png' });
         await user.upload(imageInput, file);
 
-        expect(setVariantImage).toHaveBeenCalledWith(
-            'Uogienės',
-            'Braškės',
-            '0.5l',
-            expect.stringMatching(/^data:image\/png;base64,/)
+        await waitFor(() =>
+            expect(setVariantImage).toHaveBeenCalledWith(
+                'Uogienės',
+                'Braškės',
+                '0.5l',
+                expect.stringMatching(/^data:image\/png;base64,/)
+            )
         );
     });
 
