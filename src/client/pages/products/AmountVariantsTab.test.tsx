@@ -992,7 +992,7 @@ describe('expiry amounts', () => {
         expect(screen.getAllByRole('button', { name: /\bd\b/ })).toHaveLength(1);
     });
 
-    it('an expired dated row gets the data-expired attribute', () => {
+    it('an expired dated row gets the data-expires="expired" attribute', () => {
         const { container } = renderTab({
             ...baseActive,
             amounts: [
@@ -1002,10 +1002,10 @@ describe('expiry amounts', () => {
             ],
         });
 
-        expect(container.querySelector('[data-expired]')).toBeInTheDocument();
+        expect(container.querySelector('[data-expires="expired"]')).toBeInTheDocument();
     });
 
-    it('a soon-expiring dated row gets the data-expiry-soon attribute', () => {
+    it('a soon-expiring dated row gets the data-expires="soon" attribute', () => {
         const { container } = renderTab({
             ...baseActive,
             amounts: [
@@ -1015,7 +1015,7 @@ describe('expiry amounts', () => {
             ],
         });
 
-        expect(container.querySelector('[data-expiry-soon]')).toBeInTheDocument();
+        expect(container.querySelector('[data-expires="soon"]')).toBeInTheDocument();
     });
 
     it('does not offer Add Suspicious/Add Home on a dated row', async () => {
