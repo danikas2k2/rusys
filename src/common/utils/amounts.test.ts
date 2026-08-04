@@ -8,6 +8,7 @@ import {
     getChangedAmount,
     getCombinedAmounts,
     getVariantAmount,
+    mergeAmountsIgnoringExpiry,
 } from '~/common/utils/amounts';
 import type { Variant } from '~/types/data';
 
@@ -135,6 +136,35 @@ describe('amounts', () => {
 
         it('returns 0 for an empty array', () => {
             expect(getVariantAmount([], 'p')).toBe(0);
+        });
+
+        it('does not sum different expiresAt dates as the same variant', () => {
+            const amounts = [
+                { variant: 'p', amount: 5, expiresAt: 100 },
+                { variant: 'p', amount: 6, expiresAt: 200 },
+            ];
+
+            expect(getVariantAmount(amounts, 'p', undefined, undefined, 100)).toBe(5);
+            expect(getVariantAmount(amounts, 'p', undefined, undefined, 200)).toBe(6);
+        });
+
+        it('treats a dated entry as distinct from a plain (undated) entry', () => {
+            const amounts = [
+                { variant: 'p', amount: 3 },
+                { variant: 'p', amount: 4, expiresAt: 100 },
+            ];
+
+            expect(getVariantAmount(amounts, 'p')).toBe(3);
+            expect(getVariantAmount(amounts, 'p', undefined, undefined, 100)).toBe(4);
+        });
+
+        it('sums multiple entries with the same expiresAt date', () => {
+            const amounts = [
+                { variant: 'p', amount: 2, expiresAt: 100 },
+                { variant: 'p', amount: 3, expiresAt: 100 },
+            ];
+
+            expect(getVariantAmount(amounts, 'p', undefined, undefined, 100)).toBe(5);
         });
     });
 
@@ -310,6 +340,87 @@ describe('amounts', () => {
             expect(result).toContainEqual({ variant: 'p', amount: 5 });
             expect(result).toContainEqual({ variant: 'd', amount: 3 });
         });
+
+        it('adds a new dated entry and does not merge with a plain entry', () => {
+            const acc = [{ variant: 'p', amount: 5 }];
+            const result = addVariantAmount(acc, { variant: 'p', amount: 3, expiresAt: 100 });
+
+            expect(result).toHaveLength(2);
+            expect(result).toContainEqual({ variant: 'p', amount: 5 });
+            expect(result).toContainEqual({ variant: 'p', amount: 3, expiresAt: 100 });
+        });
+
+        it('does not merge two entries with different expiresAt dates', () => {
+            const acc = [{ variant: 'p', amount: 5, expiresAt: 100 }];
+            const result = addVariantAmount(acc, { variant: 'p', amount: 3, expiresAt: 200 });
+
+            expect(result).toHaveLength(2);
+            expect(result).toContainEqual({ variant: 'p', amount: 5, expiresAt: 100 });
+            expect(result).toContainEqual({ variant: 'p', amount: 3, expiresAt: 200 });
+        });
+
+        it('merges amounts for matching expiresAt composite key', () => {
+            const acc = [{ variant: 'p', amount: 5, expiresAt: 100 }];
+
+            expect(addVariantAmount(acc, { variant: 'p', amount: 3, expiresAt: 100 })).toStrictEqual([
+                { variant: 'p', amount: 8, expiresAt: 100 },
+            ]);
+        });
+
+        it('does not store expiresAt:0 on a new entry (falsy)', () => {
+            const result = addVariantAmount([], { variant: 'p', amount: 1, expiresAt: 0 });
+
+            expect(result[0]).not.toHaveProperty('expiresAt');
+        });
+    });
+
+    describe('mergeAmountsIgnoringExpiry', () => {
+        it('returns an empty array for an empty input', () => {
+            expect(mergeAmountsIgnoringExpiry([])).toStrictEqual([]);
+        });
+
+        it('sums differently-dated entries of the same variant into one, dropping expiresAt', () => {
+            const result = mergeAmountsIgnoringExpiry([
+                { variant: 'p', amount: 6 },
+                { variant: 'p', amount: 1, expiresAt: 100 },
+                { variant: 'p', amount: 2, expiresAt: 200 },
+            ]);
+
+            expect(result).toStrictEqual([{ variant: 'p', amount: 9 }]);
+        });
+
+        it('keeps different variants separate', () => {
+            const result = mergeAmountsIgnoringExpiry([
+                { variant: 'p', amount: 6 },
+                { variant: 'd', amount: 1, expiresAt: 100 },
+            ]);
+
+            expect(result).toHaveLength(2);
+            expect(result).toContainEqual({ variant: 'p', amount: 6 });
+            expect(result).toContainEqual({ variant: 'd', amount: 1 });
+        });
+
+        it('keeps suspicious and home entries separate from plain entries of the same variant', () => {
+            const result = mergeAmountsIgnoringExpiry([
+                { variant: 'p', amount: 1 },
+                { variant: 'p', amount: 2, suspicious: true },
+                { variant: 'p', amount: 3, home: true },
+            ]);
+
+            expect(result).toHaveLength(3);
+            expect(result).toContainEqual({ variant: 'p', amount: 1 });
+            expect(result).toContainEqual({ variant: 'p', amount: 2, suspicious: true });
+            expect(result).toContainEqual({ variant: 'p', amount: 3, home: true });
+        });
+
+        it('merges two dated suspicious entries of the same variant into one suspicious total', () => {
+            const result = mergeAmountsIgnoringExpiry([
+                { variant: 'p', amount: 2, suspicious: true, expiresAt: 100 },
+                { variant: 'p', amount: 3, suspicious: true, expiresAt: 200 },
+            ]);
+
+            expect(result).toStrictEqual([{ variant: 'p', amount: 5, suspicious: true }]);
+        });
     });
 
     describe('addTypedVariantAmount', () => {
@@ -349,6 +460,24 @@ describe('amounts', () => {
             expect(acc).toHaveLength(2);
             expect(acc).toContainEqual({ variant: 'p', amount: -2, recycled: false });
             expect(acc).toContainEqual({ variant: 'p', amount: -1, recycled: false, home: true });
+        });
+
+        it('keeps differently-dated consumed lines for the same variant separate', () => {
+            let acc: readonly ReturnType<typeof addTypedVariantAmount>[number][] = [];
+            acc = addTypedVariantAmount(acc, { variant: 'p', amount: -2, recycled: false, expiresAt: 100 });
+            acc = addTypedVariantAmount(acc, { variant: 'p', amount: -3, recycled: false, expiresAt: 200 });
+
+            expect(acc).toHaveLength(2);
+            expect(acc).toContainEqual({ variant: 'p', amount: -2, recycled: false, expiresAt: 100 });
+            expect(acc).toContainEqual({ variant: 'p', amount: -3, recycled: false, expiresAt: 200 });
+        });
+
+        it('merges consumed lines with the same (variant, recycled, expiresAt) composite key', () => {
+            const acc = [{ variant: 'p', amount: -2, recycled: false, expiresAt: 100 }];
+
+            expect(
+                addTypedVariantAmount(acc, { variant: 'p', amount: -3, recycled: false, expiresAt: 100 })
+            ).toStrictEqual([{ variant: 'p', amount: -5, recycled: false, expiresAt: 100 }]);
         });
     });
 

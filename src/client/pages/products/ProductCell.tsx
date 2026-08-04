@@ -17,6 +17,9 @@ export interface ProductCellProps {
     year?: number;
     old?: boolean;
     displayAmounts?: readonly VariantAmount[];
+    hasChildren?: boolean;
+    expanded?: boolean;
+    onToggleExpand?: () => void;
 }
 
 export function isPreferred(year: number, years: readonly RemovingYearAmounts[]): boolean {
@@ -37,7 +40,15 @@ export function isPreferred(year: number, years: readonly RemovingYearAmounts[])
     return maxOlderYear !== -1 ? year === maxOlderYear : year === thisYear && hasThisYear;
 }
 
-export function ProductCell({ product, year = 0, old = false, displayAmounts }: ProductCellProps) {
+export function ProductCell({
+    product,
+    year = 0,
+    old = false,
+    displayAmounts,
+    hasChildren = false,
+    expanded = false,
+    onToggleExpand,
+}: ProductCellProps) {
     const { group, name, years } = product;
     const { amounts, removing = false } = useMemo(
         (): RemovingYearAmounts =>
@@ -76,21 +87,28 @@ export function ProductCell({ product, year = 0, old = false, displayAmounts }: 
         }
     }, [updating]);
 
-    const handleClick = useCallback(
-        () => setActive({ action: 'values', data: { group, name, year, amounts, image: product.image } }),
-        [setActive, group, name, year, amounts, product.image]
-    );
+    // Long-press-to-remove always acts on this product's own amounts, even when a rolled-up
+    // total (with no own amounts of its own) is what's being displayed in the cell.
+    const empty = !amounts?.length;
+    const displayEmpty = !shown?.length;
+
+    // A collapsed parent with no own amount shows only its children's total - opening the edit
+    // dialog here would show nothing to edit, so the click expands the row instead.
+    const redirectToExpand = empty && hasChildren && !expanded;
+
+    const handleClick = useCallback(() => {
+        if (redirectToExpand) {
+            onToggleExpand?.();
+            return;
+        }
+        setActive({ action: 'values', data: { group, name, year, amounts, image: product.image } });
+    }, [redirectToExpand, onToggleExpand, setActive, group, name, year, amounts, product.image]);
 
     // TODO add setRemoving to edit dialog
     const handleLongPress = useCallback(
         () => setRemoving(group, name, year, !removing),
         [setRemoving, group, name, year, removing]
     );
-
-    // Long-press-to-remove always acts on this product's own amounts, even when a rolled-up
-    // total (with no own amounts of its own) is what's being displayed in the cell.
-    const empty = !amounts?.length;
-    const displayEmpty = !shown?.length;
     const longPress = useLongPress<HTMLTableCellElement>({
         onClick: handleClick,
         onLongPress: empty ? undefined : handleLongPress,

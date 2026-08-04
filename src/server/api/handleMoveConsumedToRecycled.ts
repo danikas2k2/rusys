@@ -9,8 +9,10 @@ export async function handleMoveConsumedToRecycled(
 ): Promise<void> {
     debugRequest(req);
     headerNoCache(res);
-    const { group, name, year, time, variant, amount, suspicious, home, user } = req.body;
+    const { group, name, year, time, variant, amount, suspicious, home, expiresAt, user } = req.body;
     res.json(
-        await run(() => moveConsumedToRecycled(group, name, year, time, variant, amount, { suspicious, home }, user))
+        await run(() =>
+            moveConsumedToRecycled(group, name, year, time, variant, amount, { suspicious, home, expiresAt }, user)
+        )
     );
 }

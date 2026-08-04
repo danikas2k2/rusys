@@ -151,4 +151,29 @@ describe('buildHistoryPipeline', () => {
 
         expect(pipelineStr).toContain(JSON.stringify({ $ne: ['$_id.homeKey', null] }));
     });
+
+    it('first $group stage _id includes expiresAtKey using $ifNull on $amounts.expiresAt', () => {
+        const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
+        const groupStages = pipeline.filter((stage) => '$group' in stage) as { $group: Record<string, unknown> }[];
+        const firstGroup = groupStages[0]!.$group as Record<string, unknown>;
+        const id = firstGroup._id as Record<string, unknown>;
+
+        expect(id).toMatchObject({
+            expiresAtKey: { $ifNull: ['$amounts.expiresAt', null] },
+        });
+    });
+
+    it('second $group amounts $push includes expiresAt reconstruction via $cond', () => {
+        const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
+        const pipelineStr = JSON.stringify(pipeline);
+
+        expect(pipelineStr).toContain(JSON.stringify({ expiresAt: '$_id.expiresAtKey' }));
+    });
+
+    it('expiresAt $cond uses { $ne: ["$_id.expiresAtKey", null] } as its condition', () => {
+        const pipeline = buildHistoryPipeline('GroupA', 'NameA', 'updates', yearFilter);
+        const pipelineStr = JSON.stringify(pipeline);
+
+        expect(pipelineStr).toContain(JSON.stringify({ $ne: ['$_id.expiresAtKey', null] }));
+    });
 });

@@ -4,12 +4,19 @@ export function getVariantAmount(
     amounts: readonly VariantAmount[] | undefined,
     variant: string,
     suspicious?: boolean,
-    home?: boolean
+    home?: boolean,
+    expiresAt?: number
 ): number {
     return (
         amounts?.reduce(
             (a, v) =>
-                a + (v.variant === variant && !!v.suspicious === !!suspicious && !!v.home === !!home ? v.amount : 0),
+                a +
+                (v.variant === variant &&
+                !!v.suspicious === !!suspicious &&
+                !!v.home === !!home &&
+                v.expiresAt === expiresAt
+                    ? v.amount
+                    : 0),
             0
         ) ?? 0
     );
@@ -115,9 +122,14 @@ export function formatWeight(totalG: number): FormattedQuantity {
 
 export function addVariantAmount(
     acc: readonly VariantAmount[],
-    { variant, amount, suspicious, home }: VariantAmount
+    { variant, amount, suspicious, home, expiresAt }: VariantAmount
 ): typeof acc {
-    const i = acc.findIndex((a) => a.variant === variant && !!a.suspicious === !!suspicious && !!a.home === !!home);
+    // expiresAt is kept in the combine key (exact match, not !!-coerced like the boolean flags) so
+    // differently-dated batches of the same variant never merge into one total.
+    const i = acc.findIndex(
+        (a) =>
+            a.variant === variant && !!a.suspicious === !!suspicious && !!a.home === !!home && a.expiresAt === expiresAt
+    );
     return i >= 0
         ? [...acc.slice(0, i), { ...acc[i], amount: acc[i].amount + amount }, ...acc.slice(i + 1)]
         : [
@@ -127,23 +139,45 @@ export function addVariantAmount(
                   amount,
                   ...(suspicious ? { suspicious } : {}),
                   ...(home ? { home } : {}),
+                  ...(expiresAt ? { expiresAt } : {}),
               },
           ];
 }
 
+// Merges entries that only differ by expiresAt - for contexts where the caller has already
+// grouped amounts by expiry status (e.g. the products table's "total" view, which sums each
+// status bucket into one number instead of listing every distinct dated batch like the
+// "detailed" view does).
+export function mergeAmountsIgnoringExpiry(amounts: readonly VariantAmount[]): readonly VariantAmount[] {
+    const merged: VariantAmount[] = [];
+    for (const { variant, amount, suspicious, home } of amounts) {
+        const i = merged.findIndex(
+            (a) => a.variant === variant && !!a.suspicious === !!suspicious && !!a.home === !!home
+        );
+        if (i >= 0) {
+            merged[i] = { ...merged[i], amount: merged[i].amount + amount };
+        } else {
+            merged.push({ variant, amount, ...(suspicious ? { suspicious } : {}), ...(home ? { home } : {}) });
+        }
+    }
+    return merged;
+}
+
 // Like addVariantAmount, but keeps `recycled` as part of the combine key instead of dropping it.
 // addVariantAmount intentionally collapses consumed/recycled into one running "current balance"
-// total; history/summary rollups need consumed and recycled kept as separate totals.
+// total; history/summary rollups need consumed and recycled kept as separate totals. expiresAt is
+// kept in the key for the same reason as addVariantAmount - distinct batches must never merge.
 export function addTypedVariantAmount(
     acc: readonly VariantAmount[],
-    { variant, amount, recycled, suspicious, home }: VariantAmount
+    { variant, amount, recycled, suspicious, home, expiresAt }: VariantAmount
 ): typeof acc {
     const i = acc.findIndex(
         (a) =>
             a.variant === variant &&
             (a.recycled ?? null) === (recycled ?? null) &&
             !!a.suspicious === !!suspicious &&
-            !!a.home === !!home
+            !!a.home === !!home &&
+            a.expiresAt === expiresAt
     );
     return i >= 0
         ? [...acc.slice(0, i), { ...acc[i], amount: acc[i].amount + amount }, ...acc.slice(i + 1)]
@@ -155,6 +189,7 @@ export function addTypedVariantAmount(
                   ...(recycled != null ? { recycled } : {}),
                   ...(suspicious ? { suspicious } : {}),
                   ...(home ? { home } : {}),
+                  ...(expiresAt ? { expiresAt } : {}),
               },
           ];
 }

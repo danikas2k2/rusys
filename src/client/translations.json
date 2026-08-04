@@ -188,6 +188,18 @@
   "No parent": {
     "lt-LT": "Nėra"
   },
+  "Valid until": {
+    "lt-LT": "Galioja iki"
+  },
+  "No date": {
+    "lt-LT": "Data nenurodyta"
+  },
+  "Expired": {
+    "lt-LT": "Pasibaigusi galiojimo data"
+  },
+  "Expiring soon": {
+    "lt-LT": "Greitai baigsis galiojimo data"
+  },
   "Cannot move a product with sub-products to another category": {
     "lt-LT": "Negalima perkelti produkto, turinčio poproduktų, į kitą kategoriją"
   },

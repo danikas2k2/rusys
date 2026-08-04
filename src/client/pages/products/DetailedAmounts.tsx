@@ -1,10 +1,8 @@
 import React from 'react';
 
-import { ApproxAmountIcon, HomeIcon, SuspiciousIcon } from '@icons';
-
-import { AmountSuffix } from '~/client/common/AmountSuffix';
-import { HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/client/pages/products/utils/variantKeys';
-import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
+import { ExpiryStatusRow } from '~/client/pages/products/ExpiryStatusRow';
+import { VariantValueSpans } from '~/client/pages/products/VariantValueSpans';
+import { orderedExpiryBuckets, partitionByExpiryStatus } from '~/common/utils/expiry';
 import type { VariantAmount } from '~/types/data';
 
 export interface DetailedAmountsProps {
@@ -13,33 +11,19 @@ export interface DetailedAmountsProps {
 }
 
 export function DetailedAmounts({ group, amounts }: DetailedAmountsProps) {
-    const compareVariants = useGroupVariantComparator(group);
+    const now = new Date().getTime();
+    const buckets = partitionByExpiryStatus(amounts, now);
+
     return (
-        <>
-            {[...amounts]
-                .sort(
-                    (a, b) =>
-                        compareVariants(a.variant, b.variant) ||
-                        (!!a.suspicious === !!b.suspicious && !!a.home === !!b.home
-                            ? 0
-                            : a.suspicious || a.home
-                              ? 1
-                              : -1)
-                )
-                .map((v) => (
-                    <span
-                        key={`${v.variant}${v.suspicious ? SUSPICIOUS_SUFFIX : ''}${v.home ? HOME_SUFFIX : ''}`}
-                        data-value
-                        data-suspicious={v.suspicious || undefined}
-                        data-home={v.home || undefined}
-                    >
-                        {v.home && <ApproxAmountIcon size=".75rem" style={{ alignSelf: 'center' }} />}
-                        {v.amount}
-                        <AmountSuffix group={group} variant={v.variant} />
-                        {v.suspicious && <SuspiciousIcon size={12} />}
-                        {v.home && <HomeIcon size={12} />}
-                    </span>
-                ))}
-        </>
+        <span data-amounts-rows>
+            {orderedExpiryBuckets(buckets).map(
+                ([status, bucketAmounts]) =>
+                    bucketAmounts.length > 0 && (
+                        <ExpiryStatusRow key={status ?? 'valid'} status={status}>
+                            <VariantValueSpans group={group} amounts={bucketAmounts} />
+                        </ExpiryStatusRow>
+                    )
+            )}
+        </span>
     );
 }

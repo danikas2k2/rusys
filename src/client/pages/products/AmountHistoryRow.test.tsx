@@ -143,6 +143,31 @@ describe('<AmountHistoryRow>', () => {
         expect(screen.queryByText('move')).not.toBeInTheDocument();
     });
 
+    it('passes the line expiresAt through to moveConsumedToRecycled', async () => {
+        renderRow({
+            group: 'Daržovės',
+            name: 'Agurkai',
+            time: 1000,
+            year: 22,
+            user: 'author@example.com',
+            amounts: [{ variant: 'd', amount: -3, recycled: false, expiresAt: 1_700_000_000_000 }],
+        });
+
+        await user.click(screen.getAllByRole('row')[0]);
+        await user.click(screen.getByText('move'));
+
+        expect(moveConsumedToRecycled).toHaveBeenCalledWith(
+            'Daržovės',
+            'Agurkai',
+            22,
+            1000,
+            'd',
+            1,
+            { suspicious: undefined, home: undefined, expiresAt: 1_700_000_000_000 },
+            'author@example.com'
+        );
+    });
+
     it('passes the entry author even when it differs from whoever is performing the correction', async () => {
         renderRow({
             group: 'Daržovės',

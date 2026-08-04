@@ -69,11 +69,9 @@ export function ProductTitle({
                     indeterminate={!available}
                     onChange={handleClick}
                     label={
-                        <Group gap="xs">
-                            <Title order={5} data-available={available} data-removing={available && hasRemoving}>
-                                {product.name}
-                            </Title>
-                        </Group>
+                        <Title order={5} data-available={available} data-removing={available && hasRemoving}>
+                            {product.name}
+                        </Title>
                     }
                 />
             </Group>

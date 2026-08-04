@@ -729,6 +729,140 @@ describe('<ProductCell>', () => {
         });
     });
 
+    describe('redirect click to expand for an empty collapsed parent', () => {
+        const emptyOwnProduct = { group, name, years: [{ year: 22, amounts: [] }] };
+
+        // When the product's own amounts are empty, useLongPress disables long-press entirely and
+        // wires up a plain onClick handler (not pointer events) - see useLongPress.ts.
+        function clickCell() {
+            act(() => fireEvent.click(screen.getByRole('cell')));
+            act(() => vi.advanceTimersByTime(100));
+        }
+
+        it('calls onToggleExpand instead of opening the dialog when own amounts are empty, collapsed, with children', () => {
+            const onToggleExpand = vi.fn();
+            const props: ProductCellProps = {
+                product: emptyOwnProduct,
+                year: 22,
+                displayAmounts: [{ variant: 'p', amount: 99 }],
+                hasChildren: true,
+                expanded: false,
+                onToggleExpand,
+            };
+
+            render(
+                <MockApp state={{ variants }}>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            clickCell();
+
+            expect(onToggleExpand).toHaveBeenCalledWith();
+            expect(setActive).not.toHaveBeenCalled();
+        });
+
+        it('opens the dialog (does not expand) once already expanded, even with empty own amounts', () => {
+            const onToggleExpand = vi.fn();
+            const props: ProductCellProps = {
+                product: emptyOwnProduct,
+                year: 22,
+                hasChildren: true,
+                expanded: true,
+                onToggleExpand,
+            };
+
+            render(
+                <MockApp state={{ variants }}>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            clickCell();
+
+            expect(onToggleExpand).not.toHaveBeenCalled();
+            expect(setActive).toHaveBeenCalledWith({
+                action: 'values',
+                data: { group, name, year: 22, amounts: [], image: undefined },
+            });
+        });
+
+        it('opens the dialog normally when own amounts are non-empty, even if collapsed with children', () => {
+            const onToggleExpand = vi.fn();
+            const props: ProductCellProps = {
+                ...defaultProps,
+                hasChildren: true,
+                expanded: false,
+                onToggleExpand,
+            };
+
+            render(
+                <MockApp state={{ variants }}>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            act(() => {
+                fireEvent.pointerDown(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+                fireEvent.pointerUp(screen.getByRole('cell'), { pointerId: 1, pointerType: 'touch' });
+            });
+            act(() => vi.advanceTimersByTime(100));
+
+            expect(onToggleExpand).not.toHaveBeenCalled();
+            expect(setActive).toHaveBeenCalledWith({
+                action: 'values',
+                data: { group, name, year: 22, amounts: defaultProduct.years[0].amounts, image: undefined },
+            });
+        });
+
+        it('opens the dialog with empty amounts as before when hasChildren is false', () => {
+            const onToggleExpand = vi.fn();
+            const props: ProductCellProps = {
+                product: emptyOwnProduct,
+                year: 22,
+                onToggleExpand,
+            };
+
+            render(
+                <MockApp state={{ variants }}>
+                    <Table>
+                        <Table.Tbody>
+                            <Table.Tr>
+                                <ProductCell {...props} />
+                            </Table.Tr>
+                        </Table.Tbody>
+                    </Table>
+                </MockApp>
+            );
+
+            clickCell();
+
+            expect(onToggleExpand).not.toHaveBeenCalled();
+            expect(setActive).toHaveBeenCalledWith({
+                action: 'values',
+                data: { group, name, year: 22, amounts: [], image: undefined },
+            });
+        });
+    });
+
     describe('isPreferred', () => {
         const thisYear = new Date().getFullYear() % 100;
         const prevYear = thisYear - 1;

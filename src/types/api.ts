@@ -137,6 +137,7 @@ export interface ApiMoveConsumedToRecycled extends ApiRequestProductWithYear {
     amount: number;
     suspicious?: boolean;
     home?: boolean;
+    expiresAt?: number;
     user?: string;
 }
 

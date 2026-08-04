@@ -545,6 +545,47 @@ describe('products', () => {
             await (await db()).collection('products').deleteMany({ group: 'Šaldyti' });
         });
 
+        it('carries expiresAt through and matches only the same-dated line among several dated lines', async () => {
+            const now = Date.now();
+            const testProduct = {
+                group: 'Šaldyti',
+                name: 'Datuotas',
+                updates: [
+                    {
+                        time: now,
+                        years: [
+                            {
+                                year: 22,
+                                amounts: [
+                                    { variant: 'd', amount: -2, recycled: false, expiresAt: 100 },
+                                    { variant: 'd', amount: -5, recycled: false, expiresAt: 200 },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            };
+            await (await db()).collection('products').insertOne(testProduct, { forceServerObjectId: true });
+
+            await expect(
+                moveConsumedToRecycled('Šaldyti', 'Datuotas', 22, now, 'd', 2, { expiresAt: 100 }, undefined)
+            ).resolves.toBe(true);
+
+            const all = (await $all('products')) as {
+                group: string;
+                updates: { years: { amounts: unknown[] }[] }[];
+            }[];
+            const datuotas = all.find((p) => p.group === 'Šaldyti')!;
+
+            expect(datuotas.updates[0].years[0].amounts).toStrictEqual([
+                { variant: 'd', amount: 0, recycled: false, expiresAt: 100 },
+                { variant: 'd', amount: -5, recycled: false, expiresAt: 200 },
+                { variant: 'd', amount: -2, recycled: true, expiresAt: 100 },
+            ]);
+
+            await (await db()).collection('products').deleteMany({ group: 'Šaldyti' });
+        });
+
         it('does not redistribute into an entry from a different user, even at the same time', async () => {
             const now = Date.now();
             const testProduct = {
@@ -1612,6 +1653,21 @@ describe('products', () => {
                 recycled: true,
                 suspicious: true,
                 home: true,
+            });
+        });
+
+        it('preserves expiresAt when present', () => {
+            expect(cleanupRecycled({ variant: 'p', amount: 1, expiresAt: 1_700_000_000_000 })).toStrictEqual({
+                variant: 'p',
+                amount: 1,
+                expiresAt: 1_700_000_000_000,
+            });
+        });
+
+        it('does not include expiresAt when undefined', () => {
+            expect(cleanupRecycled({ variant: 'p', amount: 1, expiresAt: undefined })).toStrictEqual({
+                variant: 'p',
+                amount: 1,
             });
         });
     });

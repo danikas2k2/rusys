@@ -105,7 +105,9 @@ describe('bootstrap', () => {
                 children: expectElement({
                     children: expectElement({
                         children: expectElement({
-                            children: expectElement(App),
+                            children: expectElement({
+                                children: expectElement(App),
+                            }),
                         }),
                     }),
                 }),

@@ -1,4 +1,8 @@
 import { MantineProvider } from '@mantine/core';
+import { DatesProvider } from '@mantine/dates';
+
+import 'dayjs/locale/lt';
+
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -42,7 +46,9 @@ export function bootstrap(): void {
                 >
                     <ErrorBoundary>
                         <LocaleContext value={process.env.LOCALE}>
-                            <App />
+                            <DatesProvider settings={{ locale: 'lt' }}>
+                                <App />
+                            </DatesProvider>
                         </LocaleContext>
                     </ErrorBoundary>
                 </MantineProvider>

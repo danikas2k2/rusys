@@ -41,7 +41,14 @@ export function ProductRow({
                 expanded={expanded}
                 onToggleExpand={onToggleExpand}
             />
-            <ProductCells product={product} annual={annual} rolledUpYears={rolledUpYears} />
+            <ProductCells
+                product={product}
+                annual={annual}
+                rolledUpYears={rolledUpYears}
+                hasChildren={hasChildren}
+                expanded={expanded}
+                onToggleExpand={onToggleExpand}
+            />
         </SwipeableRow>
     );
 }

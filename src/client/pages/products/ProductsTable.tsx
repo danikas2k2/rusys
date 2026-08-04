@@ -57,13 +57,10 @@ function buildProductTree(products: readonly Product[], expandedIds: ReadonlySet
             const children = childrenByParent.get(p.name) ?? [];
             const hasChildren = children.length > 0;
             const expanded = expandedIds.has(getId(p.group, p.name));
-            const rolledUpYears =
-                hasChildren && !expanded
-                    ? combineProductYears([
-                          p.years,
-                          ...collectDescendants(p.name, childrenByParent).map((d) => d.years),
-                      ])
-                    : undefined;
+            const descendants = hasChildren && !expanded ? collectDescendants(p.name, childrenByParent) : undefined;
+            const rolledUpYears = descendants
+                ? combineProductYears([p.years, ...descendants.map((d) => d.years)])
+                : undefined;
             nodes.push({ product: p, depth, hasChildren, expanded, rolledUpYears });
             if (hasChildren && expanded) {
                 walk(children, depth + 1);

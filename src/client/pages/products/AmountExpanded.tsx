@@ -1,8 +1,10 @@
-import { Button, Group, Stack, Textarea } from '@mantine/core';
-import React from 'react';
+import { ActionIcon, Button, Flex, Group, Modal, Stack, Textarea } from '@mantine/core';
+import { DatePicker } from '@mantine/dates';
+import React, { useState } from 'react';
 
-import { HomeIcon, SuspiciousIcon } from '@icons';
+import { AddExpiryIcon, HomeIcon, SuspiciousIcon } from '@icons';
 
+import { DialogIcon } from '~/client/common/DialogIcon';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AmountVariantRow, type VariantEditType } from '~/client/pages/products/AmountVariantRow';
 
@@ -20,6 +22,7 @@ interface VariantExpandedRowsProps {
     onCommentChange: (value: string) => void;
     onAddSuspicious?: () => void;
     onAddHome?: () => void;
+    onAddExpiry?: (value: string | null) => void;
     children?: React.ReactNode;
 }
 
@@ -31,9 +34,18 @@ export function AmountExpanded({
     onCommentChange,
     onAddSuspicious,
     onAddHome,
+    onAddExpiry,
     children,
 }: VariantExpandedRowsProps) {
     const _ = useLabels();
+    const [expiryPickerOpened, setExpiryPickerOpened] = useState(false);
+    const handlePickExpiry = (value: string | null) => {
+        setExpiryPickerOpened(false);
+        onAddExpiry?.(value);
+    };
+    // No point picking a date for an already-expired product - disable everything before today.
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
     const minUpdated = -(baseAmount + delta.consumed + delta.recycled);
     const minConsumed = -(baseAmount + delta.updated + delta.recycled);
     const minRecycled = -(baseAmount + delta.updated + delta.consumed);
@@ -52,7 +64,7 @@ export function AmountExpanded({
                 maxRows={3}
             />
             {children}
-            {(onAddSuspicious || onAddHome) && (
+            {(onAddSuspicious || onAddHome || onAddExpiry) && (
                 <Group gap="xs" justify="center" pt="sm">
                     {onAddSuspicious && (
                         <Button
@@ -75,6 +87,35 @@ export function AmountExpanded({
                         >
                             {_('Home')}
                         </Button>
+                    )}
+                    {onAddExpiry && (
+                        <>
+                            <ActionIcon
+                                variant="light"
+                                color="gray"
+                                size="lg"
+                                aria-label={_('Valid until')}
+                                onClick={() => setExpiryPickerOpened(true)}
+                            >
+                                <AddExpiryIcon size={16} />
+                            </ActionIcon>
+                            <Modal
+                                opened={expiryPickerOpened}
+                                onClose={() => setExpiryPickerOpened(false)}
+                                centered
+                                withCloseButton
+                                size="sm"
+                                title={
+                                    <DialogIcon aria-label={_('Valid until')}>
+                                        <AddExpiryIcon />
+                                    </DialogIcon>
+                                }
+                            >
+                                <Flex justify="center" align="flex-start" mih="20rem">
+                                    <DatePicker onChange={handlePickExpiry} minDate={startOfToday} />
+                                </Flex>
+                            </Modal>
+                        </>
                     )}
                 </Group>
             )}

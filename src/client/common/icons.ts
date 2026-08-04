@@ -1,4 +1,5 @@
 export {
+    IconCalendarPlus as AddExpiryIcon,
     IconPlus as AddIcon,
     IconCalendarClock as AnnualIcon,
     IconUserQuestion as AnonymousUserIcon,
@@ -13,6 +14,7 @@ export {
     IconHelpCircle as ConfirmationDialogIcon,
     IconToolsKitchen2 as ConsumedIcon,
     IconMoon as DarkModeIcon,
+    IconCalendarEvent as DatedIcon,
     IconMinus as DecreaseIcon,
     IconTrash as DeleteIcon,
     IconIcons as DetailedAmountViewIcon,
@@ -23,6 +25,8 @@ export {
     IconEdit as EditIcon,
     IconAlertCircle as ErrorAlertIcon,
     IconChevronRight as ExpandIcon,
+    IconCalendarX as ExpiredIcon,
+    IconClock as ExpiringSoonIcon,
     IconCloudDownload as ExportIcon,
     IconBrandGoogleFilled as GoogleLoginIcon,
     IconHistory as HistoryTabIcon,

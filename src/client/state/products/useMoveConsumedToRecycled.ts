@@ -10,7 +10,7 @@ export function useMoveConsumedToRecycled(): (
     time: number,
     variant: string,
     amount: number,
-    flags?: { suspicious?: boolean; home?: boolean },
+    flags?: { suspicious?: boolean; home?: boolean; expiresAt?: number },
     user?: string
 ) => Promise<void> {
     const request = useUpdatingApiRequest<ApiMoveConsumedToRecycled>();

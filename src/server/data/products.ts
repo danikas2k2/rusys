@@ -121,11 +121,12 @@ export async function addProduct(group: string, name: string, parent?: string): 
     return col.insertOne({ group, name, ...(parent ? { parent } : {}) }).then(hasEffect);
 }
 
-export const cleanupRecycled = ({ recycled, suspicious, home, ...v }: VariantAmount): VariantAmount => ({
+export const cleanupRecycled = ({ recycled, suspicious, home, expiresAt, ...v }: VariantAmount): VariantAmount => ({
     ...v,
     ...(recycled != null ? { recycled } : {}),
     ...(suspicious ? { suspicious } : {}),
     ...(home ? { home } : {}),
+    ...(expiresAt ? { expiresAt } : {}),
 });
 
 export const hasAmount = (a: VariantAmount) => a.amount > 0;
@@ -266,8 +267,8 @@ function findSessionEntries(sortedSameUser: readonly Update[], anchorTime: numbe
     return sortedSameUser.slice(start, end + 1);
 }
 
-function sameFlags(a: VariantAmount, flags: Pick<VariantAmount, 'suspicious' | 'home'>): boolean {
-    return !!a.suspicious === !!flags.suspicious && !!a.home === !!flags.home;
+function sameFlags(a: VariantAmount, flags: Pick<VariantAmount, 'suspicious' | 'home' | 'expiresAt'>): boolean {
+    return !!a.suspicious === !!flags.suspicious && !!a.home === !!flags.home && a.expiresAt === flags.expiresAt;
 }
 
 export async function moveConsumedToRecycled(
@@ -277,7 +278,7 @@ export async function moveConsumedToRecycled(
     time: number,
     variant: string,
     amount: number,
-    flags: Pick<VariantAmount, 'suspicious' | 'home'> = {},
+    flags: Pick<VariantAmount, 'suspicious' | 'home' | 'expiresAt'> = {},
     user?: string
 ): Promise<boolean> {
     if (!group || !name || !variant || !(amount > 0)) {

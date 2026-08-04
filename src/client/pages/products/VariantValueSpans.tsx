@@ -1,0 +1,50 @@
+import React from 'react';
+
+import { ApproxAmountIcon, HomeIcon, SuspiciousIcon } from '@icons';
+
+import { AmountSuffix } from '~/client/common/AmountSuffix';
+import { HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/client/pages/products/utils/variantKeys';
+import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
+import { mergeAmountsIgnoringExpiry } from '~/common/utils/amounts';
+import type { VariantAmount } from '~/types/data';
+
+export interface VariantValueSpansProps {
+    group: string;
+    // May contain several differently-dated entries of the same variant - the caller has already
+    // decided these all belong together (e.g. one expiry-status row), so they're merged into one
+    // number per variant here rather than shown as separate batches.
+    amounts: readonly VariantAmount[];
+}
+
+export function VariantValueSpans({ group, amounts }: VariantValueSpansProps) {
+    const compareVariants = useGroupVariantComparator(group);
+    return (
+        <>
+            {mergeAmountsIgnoringExpiry(amounts)
+                .slice()
+                .sort(
+                    (a, b) =>
+                        compareVariants(a.variant, b.variant) ||
+                        (!!a.suspicious === !!b.suspicious && !!a.home === !!b.home
+                            ? 0
+                            : a.suspicious || a.home
+                              ? 1
+                              : -1)
+                )
+                .map((v) => (
+                    <span
+                        key={`${v.variant}${v.suspicious ? SUSPICIOUS_SUFFIX : ''}${v.home ? HOME_SUFFIX : ''}`}
+                        data-value
+                        data-suspicious={v.suspicious || undefined}
+                        data-home={v.home || undefined}
+                    >
+                        {v.home && <ApproxAmountIcon size=".75rem" style={{ alignSelf: 'center' }} />}
+                        {v.amount}
+                        <AmountSuffix group={group} variant={v.variant} />
+                        {v.suspicious && <SuspiciousIcon size={12} />}
+                        {v.home && <HomeIcon size={12} />}
+                    </span>
+                ))}
+        </>
+    );
+}

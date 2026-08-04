@@ -8,6 +8,22 @@
         justify-content: center;
     }
 
+    [data-amounts-rows] {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        row-gap: 0;
+    }
+
+    [data-amounts-row] {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        justify-content: center;
+        column-gap: 0.15rem;
+        color: var(--value-cell-color);
+    }
+
     [data-type="consumed"] {
         --value-cell-color: var(--mantine-color-positive-text);
     }
@@ -22,6 +38,14 @@
 
     [data-home="true"] {
         --value-cell-color: var(--mantine-color-blue-text);
+    }
+
+    [data-expiry-status="soon"] {
+        --value-cell-color: var(--mantine-color-orange-text);
+    }
+
+    [data-expiry-status="expired"] {
+        --value-cell-color: var(--mantine-color-negative-text);
     }
 
     [data-value="true"] {

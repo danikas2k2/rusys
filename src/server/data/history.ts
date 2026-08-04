@@ -137,6 +137,7 @@ export function buildHistoryPipeline(
                     recycledKey: { $ifNull: ['$amounts.recycled', null] },
                     suspiciousKey: { $ifNull: ['$amounts.suspicious', null] },
                     homeKey: { $ifNull: ['$amounts.home', null] },
+                    expiresAtKey: { $ifNull: ['$amounts.expiresAt', null] },
                 },
                 group: { $first: '$group' },
                 name: { $first: '$name' },
@@ -168,6 +169,9 @@ export function buildHistoryPipeline(
                             },
                             {
                                 $cond: [{ $ne: ['$_id.homeKey', null] }, { home: '$_id.homeKey' }, {}],
+                            },
+                            {
+                                $cond: [{ $ne: ['$_id.expiresAtKey', null] }, { expiresAt: '$_id.expiresAtKey' }, {}],
                             },
                         ],
                     },

@@ -49,8 +49,11 @@ vi.mock(import('@mantine/core'), async () => {
     };
 });
 
+// The real AmountExpanded now owns its own Popover+DatePicker for expiry, reporting a picked date
+// value directly (no separate confirm step) - the mock exposes two fixed-date trigger buttons so
+// tests can pick two distinct dates deterministically without driving a real calendar widget.
 vi.mock(import('~/client/pages/products/AmountExpanded'), () => ({
-    AmountExpanded: vi.fn(({ delta, onChange, onAddSuspicious, onAddHome, children }: any) => (
+    AmountExpanded: vi.fn(({ delta, onChange, onAddSuspicious, onAddHome, onAddExpiry, children }: any) => (
         <div>
             <button type="button" onClick={() => onChange('updated', delta.updated - 1)}>
                 decrease-updated
@@ -71,6 +74,16 @@ vi.mock(import('~/client/pages/products/AmountExpanded'), () => ({
                 <button type="button" onClick={onAddHome}>
                     Home amounts?
                 </button>
+            )}
+            {onAddExpiry && (
+                <>
+                    <button type="button" onClick={() => onAddExpiry('2026-08-15')}>
+                        Pick 2026-08-15
+                    </button>
+                    <button type="button" onClick={() => onAddExpiry('2026-09-01')}>
+                        Pick 2026-09-01
+                    </button>
+                </>
             )}
         </div>
     )),
@@ -514,6 +527,29 @@ describe('<AmountVariantsTab>', () => {
         expect(screen.getByText('99')).toBeInTheDocument();
     });
 
+    it('combines amounts across legacy per-year entries for a non-annual product (year 0)', () => {
+        const nonAnnualActive: ProductAmounts = {
+            group: baseActive.group,
+            name: baseActive.name,
+            year: 0,
+            amounts: [{ variant: 'p', amount: 3 }],
+        };
+        vi.mocked(useProducts).mockReturnValue([
+            {
+                group: baseActive.group,
+                name: baseActive.name,
+                years: [
+                    { year: 2022, amounts: [{ variant: 'p', amount: 2 }] },
+                    { year: 2023, amounts: [{ variant: 'p', amount: 1 }] },
+                ],
+            },
+        ]);
+
+        renderTab(nonAnnualActive);
+
+        expect(screen.getByText('3')).toBeInTheDocument();
+    });
+
     it('shows the variant image avatar in the row control when set', () => {
         vi.mocked(useProducts).mockReturnValue([
             {
@@ -828,5 +864,175 @@ describe('home amounts', () => {
 
         // d and d|home no longer show the button; only p's panel does → 1 remaining
         expect(screen.getAllByText('Home amounts?')).toHaveLength(1);
+    });
+});
+
+describe('expiry amounts', () => {
+    const group = 'Uogienės';
+    const baseActive: ProductAmounts = {
+        group,
+        name: 'Avietės',
+        year: 2023,
+        amounts: [
+            { variant: 'p', amount: 3 },
+            { variant: 'd', amount: 1 },
+        ],
+    };
+
+    beforeEach(() => {
+        vi.mocked(useProducts).mockReturnValue([]);
+    });
+
+    afterEach(() => vi.clearAllMocks());
+
+    function renderTab(active: ProductAmounts = baseActive) {
+        return render(
+            <MockThemeActive active={{ action: 'values', data: active }}>
+                <AmountVariantsTab />
+            </MockThemeActive>
+        );
+    }
+
+    it('expanding a variant shows the expiry date picker trigger when no dated entry exists', async () => {
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+
+        expect(screen.getAllByText('Pick 2026-08-15').length).toBeGreaterThan(0);
+    });
+
+    it('picking a date adds a dated accordion item for the variant, expanded', async () => {
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('Pick 2026-08-15')[0]);
+
+        const dButtons = screen.getAllByRole('button', { name: /\bd\b/ });
+
+        expect(dButtons).toHaveLength(2);
+        expect(dButtons[1]).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByText('2026-08-15')).toBeInTheDocument();
+    });
+
+    it('picking a second different date adds another distinct dated row for the same variant', async () => {
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('Pick 2026-08-15')[0]);
+
+        // Re-expand the plain d row and add a second, different date
+        await user.click(screen.getAllByRole('button', { name: /\bd\b/ })[0]);
+        await user.click(screen.getAllByText('Pick 2026-09-01')[0]);
+
+        expect(screen.getAllByRole('button', { name: /\bd\b/ })).toHaveLength(3);
+        expect(screen.getByText('2026-08-15')).toBeInTheDocument();
+        expect(screen.getByText('2026-09-01')).toBeInTheDocument();
+    });
+
+    it('shows a "+N" badge on the plain row once dated rows exist for that variant', async () => {
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('Pick 2026-08-15')[0]);
+        await user.click(screen.getAllByRole('button', { name: /\bd\b/ })[0]);
+        await user.click(screen.getAllByText('Pick 2026-09-01')[0]);
+
+        expect(screen.getByText('+2')).toBeInTheDocument();
+    });
+
+    it('expiry item passes expiresAt in changes when Update is clicked', async () => {
+        const mockUpdate = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
+
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('Pick 2026-08-15')[0]);
+
+        // The new dated row (index 1) is now the expanded one.
+        await user.click(screen.getAllByText('decrease-updated')[1]);
+        await user.click(screen.getByRole('button', { name: /^update$/i }));
+
+        expect(mockUpdate).toHaveBeenCalledWith(
+            group,
+            'Avietės',
+            2023,
+            expect.arrayContaining([
+                expect.objectContaining({ variant: 'd', expiresAt: new Date(2026, 7, 15).getTime() }),
+            ]),
+            'test@example.com',
+            undefined
+        );
+    });
+
+    it('already-present dated amount from amounts prop shows in the list', () => {
+        renderTab({
+            ...baseActive,
+            amounts: [
+                { variant: 'p', amount: 3 },
+                { variant: 'd', amount: 1 },
+                { variant: 'd', amount: 2, expiresAt: new Date(2026, 7, 15).getTime() },
+            ],
+        });
+
+        expect(screen.getAllByRole('button', { name: /\bd\b/ })).toHaveLength(2);
+        expect(screen.getByText('2026-08-15')).toBeInTheDocument();
+    });
+
+    it('dated amounts with zero balance are not shown in the list', () => {
+        renderTab({
+            ...baseActive,
+            amounts: [
+                { variant: 'p', amount: 3 },
+                { variant: 'd', amount: 1 },
+                { variant: 'd', amount: 0, expiresAt: new Date(2026, 7, 15).getTime() },
+            ],
+        });
+
+        expect(screen.getAllByRole('button', { name: /\bd\b/ })).toHaveLength(1);
+    });
+
+    it('an expired dated row gets the data-expired attribute', () => {
+        const { container } = renderTab({
+            ...baseActive,
+            amounts: [
+                { variant: 'p', amount: 3 },
+                { variant: 'd', amount: 1 },
+                { variant: 'd', amount: 2, expiresAt: Date.now() - 24 * 60 * 60 * 1000 },
+            ],
+        });
+
+        expect(container.querySelector('[data-expired]')).toBeInTheDocument();
+    });
+
+    it('a soon-expiring dated row gets the data-expiry-soon attribute', () => {
+        const { container } = renderTab({
+            ...baseActive,
+            amounts: [
+                { variant: 'p', amount: 3 },
+                { variant: 'd', amount: 1 },
+                { variant: 'd', amount: 2, expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000 },
+            ],
+        });
+
+        expect(container.querySelector('[data-expiry-soon]')).toBeInTheDocument();
+    });
+
+    it('does not offer Add Suspicious/Add Home on a dated row', async () => {
+        renderTab({
+            ...baseActive,
+            amounts: [
+                { variant: 'p', amount: 3 },
+                { variant: 'd', amount: 1 },
+                { variant: 'd', amount: 2, expiresAt: new Date(2026, 7, 15).getTime() },
+            ],
+        });
+
+        const dButtons = screen.getAllByRole('button', { name: /\bd\b/ });
+        await user.click(dButtons[1]);
+
+        // p's plain row and d's plain row each offer them; the dated d row must not add a third.
+        expect(screen.getAllByText('Something suspicious?')).toHaveLength(2);
+        expect(screen.getAllByText('Home amounts?')).toHaveLength(2);
     });
 });

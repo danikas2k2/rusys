@@ -46,7 +46,7 @@ export function AmountHistoryRow({
                     h.time,
                     line.variant,
                     amount,
-                    { suspicious: line.suspicious, home: line.home },
+                    { suspicious: line.suspicious, home: line.home, expiresAt: line.expiresAt },
                     h.user
                 );
                 setExpanded(false);

@@ -5,6 +5,9 @@ import {
     AddIcon,
     ApproxAmountIcon,
     CancelIcon,
+    DatedIcon,
+    ExpiredIcon,
+    ExpiringSoonIcon,
     HomeIcon,
     RedoIcon,
     SuspiciousIcon,
@@ -19,7 +22,7 @@ import { VariantTitle } from '~/client/common/VariantTitle';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AmountExpanded, type VariantDelta } from '~/client/pages/products/AmountExpanded';
 import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
-import { HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/client/pages/products/utils/variantKeys';
+import { EXPIRY_INFIX, HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/client/pages/products/utils/variantKeys';
 import { VariantImagePicker } from '~/client/pages/products/VariantImagePicker';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useProducts } from '~/client/state/products/useProducts';
@@ -29,24 +32,55 @@ import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
-import { getVariantAmount } from '~/common/utils/amounts';
+import { getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
+import { formatDateOnly, getExpiryStatus, parseDateOnly } from '~/common/utils/expiry';
 import type { ProductAmounts, VariantAmount } from '~/types/data';
 
 const ZERO_DELTA: VariantDelta = { updated: 0, consumed: 0, recycled: 0 };
 
-function toKey(variant: string, suspicious: boolean, home?: boolean) {
+// A row is plain, suspicious, home, or dated - mutually exclusive. `VariantAmount`'s type shape
+// doesn't enforce this itself; toKey/fromKey simply never emit more than one suffix per row.
+function toKey(variant: string, suspicious: boolean, home?: boolean, expiresAt?: number) {
+    if (expiresAt) {
+        return `${variant}${EXPIRY_INFIX}${expiresAt}`;
+    }
     if (home) {
         return `${variant}${HOME_SUFFIX}`;
     }
     return suspicious ? `${variant}${SUSPICIOUS_SUFFIX}` : variant;
 }
 
-function fromKey(key: string): { variant: string; suspicious: boolean; home: boolean } {
+function fromKey(key: string): { variant: string; suspicious: boolean; home: boolean; expiresAt?: number } {
+    const expiryIndex = key.indexOf(EXPIRY_INFIX);
+    if (expiryIndex !== -1) {
+        return {
+            variant: key.slice(0, expiryIndex),
+            suspicious: false,
+            home: false,
+            expiresAt: Number(key.slice(expiryIndex + EXPIRY_INFIX.length)),
+        };
+    }
     if (key.endsWith(HOME_SUFFIX)) {
         return { variant: key.slice(0, -HOME_SUFFIX.length), suspicious: false, home: true };
     }
     const suspicious = key.endsWith(SUSPICIOUS_SUFFIX);
     return { variant: suspicious ? key.slice(0, -SUSPICIOUS_SUFFIX.length) : key, suspicious, home: false };
+}
+
+function compareKeys(a: string, b: string, compareVariants: (x: string, y: string) => number): number {
+    const ka = fromKey(a);
+    const kb = fromKey(b);
+    const variantOrder = compareVariants(ka.variant, kb.variant);
+    if (variantOrder) {
+        return variantOrder;
+    }
+    const rank = (k: { suspicious: boolean; home: boolean; expiresAt?: number }) =>
+        k.expiresAt ? 2 : k.home || k.suspicious ? 1 : 0;
+    const rankOrder = rank(ka) - rank(kb);
+    if (rankOrder) {
+        return rankOrder;
+    }
+    return (ka.expiresAt ?? 0) - (kb.expiresAt ?? 0);
 }
 
 interface AmountVariantsTabProps {
@@ -62,6 +96,7 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
     const undoProduct = useUndoProduct();
     const redoProduct = useRedoProduct();
     const products = useProducts();
+    const now = new Date().getTime();
 
     const activeData = active?.data;
     const group = activeData?.group ?? '';
@@ -76,7 +111,12 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
     );
 
     const liveAmounts = useMemo(
-        () => (activeProduct ? (activeProduct.years?.find((y) => y.year === year)?.amounts ?? []) : amounts),
+        () =>
+            activeProduct
+                ? ((year
+                      ? activeProduct.years?.find((y) => y.year === year)?.amounts
+                      : getCombinedAmounts(activeProduct.years)) ?? [])
+                : amounts,
         [activeProduct, year, amounts]
     );
 
@@ -90,13 +130,10 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
 
     const presentKeys = useMemo(() => {
         const current = liveAmounts ?? amounts;
-        return (current?.filter((a) => a.amount > 0).map((a) => toKey(a.variant, !!a.suspicious, !!a.home)) ?? []).sort(
-            (a, b) => {
-                const ka = fromKey(a);
-                const kb = fromKey(b);
-                return compareVariants(ka.variant, kb.variant) || (ka.home ? 1 : ka.suspicious ? 1 : -1);
-            }
-        );
+        return (
+            current?.filter((a) => a.amount > 0).map((a) => toKey(a.variant, !!a.suspicious, !!a.home, a.expiresAt)) ??
+            []
+        ).sort((a, b) => compareKeys(a, b, compareVariants));
     }, [liveAmounts, amounts, compareVariants]);
 
     const [extraKeys, setExtraKeys] = useState<string[]>([]);
@@ -105,15 +142,25 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
         const combined = Array.from(new Set([...presentKeys, ...extraKeys]));
         return combined
             .filter((k) => {
-                const { variant, suspicious, home } = fromKey(k);
-                return extraKeys.includes(k) || getVariantAmount(liveAmounts ?? amounts, variant, suspicious, home) > 0;
+                const { variant, suspicious, home, expiresAt } = fromKey(k);
+                return (
+                    extraKeys.includes(k) ||
+                    getVariantAmount(liveAmounts ?? amounts, variant, suspicious, home, expiresAt) > 0
+                );
             })
-            .sort((a, b) => {
-                const ka = fromKey(a);
-                const kb = fromKey(b);
-                return compareVariants(ka.variant, kb.variant) || (ka.home ? 1 : ka.suspicious ? 1 : -1);
-            });
+            .sort((a, b) => compareKeys(a, b, compareVariants));
     }, [compareVariants, extraKeys, presentKeys, liveAmounts, amounts]);
+
+    const datedCountByVariant = useMemo(() => {
+        const counts = new Map<string, number>();
+        for (const key of visibleKeys) {
+            const { variant, expiresAt } = fromKey(key);
+            if (expiresAt) {
+                counts.set(variant, (counts.get(variant) ?? 0) + 1);
+            }
+        }
+        return counts;
+    }, [visibleKeys]);
 
     const unusedVariants = useMemo(
         () => allVariants.filter((v) => !visibleKeys.includes(v)),
@@ -126,34 +173,59 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
 
     const [addingVariant, setAddingVariant] = useState(false);
     const handleAddVariantOpen = useCallback(() => setAddingVariant(true), []);
-    const handleAddVariantClose = useCallback((_newGroup?: string, newVariant?: string) => {
-        setAddingVariant(false);
-        if (newVariant) {
-            setExtraKeys((prev) => [...prev, newVariant]);
-            setExpandedKey(newVariant);
-        }
-    }, []);
+    const handleAddVariantClose = useCallback(
+        (_newGroup?: string, newVariant?: string) => {
+            setAddingVariant(false);
+            if (newVariant) {
+                setExtraKeys((prev) => [...prev, newVariant]);
+                setExpandedKey(newVariant);
+            }
+        },
+        [setExpandedKey]
+    );
     const handleAddVariantAfterClose = useCallback(() => setAddingVariant(false), []);
 
-    const handleSelectVariant = useCallback((variant: string | null) => {
-        if (!variant) {
-            return;
-        }
-        setExtraKeys((prev) => [...prev, variant]);
-        setExpandedKey(variant);
-    }, []);
+    const handleSelectVariant = useCallback(
+        (variant: string | null) => {
+            if (!variant) {
+                return;
+            }
+            setExtraKeys((prev) => [...prev, variant]);
+            setExpandedKey(variant);
+        },
+        [setExpandedKey]
+    );
 
-    const handleAddSuspicious = useCallback((variant: string) => {
-        const key = toKey(variant, true);
-        setExtraKeys((prev) => (prev.includes(key) ? prev : [...prev, key]));
-        setExpandedKey(key);
-    }, []);
+    const handleAddSuspicious = useCallback(
+        (variant: string) => {
+            const key = toKey(variant, true);
+            setExtraKeys((prev) => (prev.includes(key) ? prev : [...prev, key]));
+            setExpandedKey(key);
+        },
+        [setExpandedKey]
+    );
 
-    const handleAddHome = useCallback((variant: string) => {
-        const key = toKey(variant, false, true);
-        setExtraKeys((prev) => (prev.includes(key) ? prev : [...prev, key]));
-        setExpandedKey(key);
-    }, []);
+    const handleAddHome = useCallback(
+        (variant: string) => {
+            const key = toKey(variant, false, true);
+            setExtraKeys((prev) => (prev.includes(key) ? prev : [...prev, key]));
+            setExpandedKey(key);
+        },
+        [setExpandedKey]
+    );
+
+    const handlePickExpiry = useCallback(
+        (variant: string, value: string | null) => {
+            if (!value) {
+                return;
+            }
+            const expiresAt = parseDateOnly(value);
+            const key = toKey(variant, false, false, expiresAt);
+            setExtraKeys((prev) => (prev.includes(key) ? prev : [...prev, key]));
+            setExpandedKey(key);
+        },
+        [setExpandedKey]
+    );
 
     const handleDeltaChange = useCallback(
         (type: keyof VariantDelta, value: number) => {
@@ -179,13 +251,17 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
         setComment('');
         setExpandedKey(null);
         setExtraKeys([]);
-    }, []);
+    }, [setExpandedKey]);
 
     const handleUpdate = useCallback(async () => {
         const changes: VariantAmount[] = [];
         for (const [key, deltas] of Object.entries(allDeltas)) {
-            const { variant, suspicious, home } = fromKey(key);
-            const flags = { ...(suspicious ? { suspicious } : {}), ...(home ? { home } : {}) };
+            const { variant, suspicious, home, expiresAt } = fromKey(key);
+            const flags = {
+                ...(suspicious ? { suspicious } : {}),
+                ...(home ? { home } : {}),
+                ...(expiresAt ? { expiresAt } : {}),
+            };
             if (deltas.updated !== 0) {
                 changes.push({ variant, amount: deltas.updated, ...flags });
             }
@@ -206,7 +282,7 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
             setExpandedKey(null);
             setExtraKeys([]);
         }
-    }, [allDeltas, activeData, group, name, year, profile.email, comment, setUpdating, updateProduct]);
+    }, [allDeltas, activeData, group, name, year, profile.email, comment, setUpdating, updateProduct, setExpandedKey]);
 
     const handleUndo = useCallback(async (): Promise<void> => {
         if (!activeData) {
@@ -216,7 +292,7 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
         setExpandedKey(null);
         setUpdating(activeData, true);
         await undoProduct(group, name, year).finally(() => setUpdating(activeData, false));
-    }, [activeData, group, name, year, setUpdating, undoProduct]);
+    }, [activeData, group, name, year, setUpdating, undoProduct, setExpandedKey]);
 
     const handleRedo = useCallback(async (): Promise<void> => {
         if (!activeData) {
@@ -226,23 +302,48 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
         setExpandedKey(null);
         setUpdating(activeData, true);
         await redoProduct(group, name, year).finally(() => setUpdating(activeData, false));
-    }, [activeData, group, name, year, setUpdating, redoProduct]);
+    }, [activeData, group, name, year, setUpdating, redoProduct, setExpandedKey]);
 
     return (
         <>
             <Stack gap="sm">
                 <Accordion value={expandedKey} onChange={setExpandedKey} variant="contained" radius="md" chevron={null}>
                     {visibleKeys.map((key) => {
-                        const { variant, suspicious, home } = fromKey(key);
+                        const { variant, suspicious, home, expiresAt } = fromKey(key);
                         const variantDelta = allDeltas[key] ?? ZERO_DELTA;
                         const totalDelta = variantDelta.updated + variantDelta.consumed + variantDelta.recycled;
                         const totalChanges =
                             !!variantDelta.updated || !!variantDelta.consumed || !!variantDelta.recycled;
-                        const baseAmount = getVariantAmount(liveAmounts, variant, suspicious, home);
+                        const baseAmount = getVariantAmount(liveAmounts, variant, suspicious, home, expiresAt);
                         const displayAmount = baseAmount + totalDelta;
                         const hasSuspicious = visibleKeys.includes(toKey(variant, true));
                         const hasHome = visibleKeys.includes(toKey(variant, false, true));
                         const variantImage = activeProduct?.variantImages?.[variant];
+                        const expiryStatus = expiresAt ? getExpiryStatus(expiresAt, now) : undefined;
+                        // Suspicious/home/expiry may only be added from the plain row.
+                        const isPlain = !suspicious && !home && !expiresAt;
+                        const rowColor = suspicious
+                            ? 'moderate'
+                            : home
+                              ? 'blue'
+                              : expiryStatus === 'expired'
+                                ? 'negative'
+                                : expiryStatus === 'soon'
+                                  ? 'orange'
+                                  : undefined;
+                        const ExpiryRowIcon =
+                            expiryStatus === 'expired'
+                                ? ExpiredIcon
+                                : expiryStatus === 'soon'
+                                  ? ExpiringSoonIcon
+                                  : DatedIcon;
+                        const expiryIconColorVar =
+                            expiryStatus === 'expired'
+                                ? 'var(--mantine-color-negative-text)'
+                                : expiryStatus === 'soon'
+                                  ? 'var(--mantine-color-orange-text)'
+                                  : undefined;
+                        const datedCount = datedCountByVariant.get(variant) ?? 0;
 
                         return (
                             <Accordion.Item
@@ -250,12 +351,13 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                                 value={key}
                                 data-suspicious={suspicious || undefined}
                                 data-home={home || undefined}
+                                data-expired={expiryStatus === 'expired' || undefined}
+                                data-expiry-soon={expiryStatus === 'soon' || undefined}
                             >
                                 <Accordion.Control>
                                     <Group justify="space-between">
                                         <Group gap={4}>
                                             {variantImage && (
-                                                // If the image fails to load, Mantine will render children as fallback.
                                                 <Avatar src={variantImage} radius="sm" size={20} alt="">
                                                     {variant.trim().charAt(0).toUpperCase()}
                                                 </Avatar>
@@ -264,20 +366,23 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                                                 <SuspiciousIcon size={14} color="var(--mantine-color-moderate-text)" />
                                             )}
                                             {home && <HomeIcon size={14} color="var(--mantine-color-blue-text)" />}
-                                            <Text
-                                                fz="md"
-                                                fw={500}
-                                                c={suspicious ? 'moderate' : home ? 'blue' : undefined}
-                                            >
+                                            {expiresAt && <ExpiryRowIcon size={14} color={expiryIconColorVar} />}
+                                            <Text fz="md" fw={500} c={rowColor}>
                                                 <VariantTitle group={group} variant={variant} />
                                             </Text>
+                                            {expiresAt && (
+                                                <Text size="xs" c={rowColor ?? 'dimmed'}>
+                                                    {formatDateOnly(expiresAt)}
+                                                </Text>
+                                            )}
+                                            {isPlain && datedCount > 0 && (
+                                                <Badge size="xs" variant="light" color="gray">
+                                                    +{datedCount}
+                                                </Badge>
+                                            )}
                                         </Group>
                                         <Group gap="xs">
-                                            <Text
-                                                fz="md"
-                                                component="span"
-                                                c={suspicious ? 'moderate' : home ? 'blue' : undefined}
-                                            >
+                                            <Text fz="md" component="span" c={rowColor}>
                                                 {home && (
                                                     <ApproxAmountIcon size={12} style={{ verticalAlign: 'middle' }} />
                                                 )}
@@ -295,13 +400,10 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
                                         onChange={handleDeltaChange}
                                         onCommentChange={setComment}
                                         onAddSuspicious={
-                                            !suspicious && !home && !hasSuspicious
-                                                ? () => handleAddSuspicious(variant)
-                                                : undefined
+                                            isPlain && !hasSuspicious ? () => handleAddSuspicious(variant) : undefined
                                         }
-                                        onAddHome={
-                                            !suspicious && !home && !hasHome ? () => handleAddHome(variant) : undefined
-                                        }
+                                        onAddHome={isPlain && !hasHome ? () => handleAddHome(variant) : undefined}
+                                        onAddExpiry={isPlain ? (value) => handlePickExpiry(variant, value) : undefined}
                                     >
                                         <VariantImagePicker
                                             group={group}

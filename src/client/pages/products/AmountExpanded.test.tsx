@@ -17,6 +17,25 @@ vi.mock(import('@mantine/core'), async () => {
     };
 });
 
+// Mantine's DatePicker labels each day button as e.g. "15 August 2026" (English, default locale
+// in this test's MantineProvider-only tree) and reports the picked value as "2026-08-15".
+function todayCalendarLabel(): string {
+    const today = new Date();
+    return `${today.getDate()} ${today.toLocaleDateString('en-US', { month: 'long' })} ${today.getFullYear()}`;
+}
+
+function todayIsoDate(): string {
+    const today = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+}
+
+function yesterdayCalendarLabel(): string {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return `${yesterday.getDate()} ${yesterday.toLocaleDateString('en-US', { month: 'long' })} ${yesterday.getFullYear()}`;
+}
+
 describe('<AmountExpanded>', () => {
     const onChange = vi.fn();
     const onCommentChange = vi.fn();
@@ -61,7 +80,7 @@ describe('<AmountExpanded>', () => {
         expect(onCommentChange).toHaveBeenCalledWith('x');
     });
 
-    it('does not render suspicious/home buttons when the callbacks are not provided', () => {
+    it('does not render suspicious/home/expiry buttons when the callbacks are not provided', () => {
         render(
             <MockTheme>
                 <AmountExpanded
@@ -76,5 +95,107 @@ describe('<AmountExpanded>', () => {
 
         expect(screen.queryByRole('button', { name: 'Suspicious' })).not.toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Home' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Valid until' })).not.toBeInTheDocument();
+    });
+
+    it('renders the add expiry icon button when onAddExpiry is provided', () => {
+        render(
+            <MockTheme>
+                <AmountExpanded
+                    delta={zeroDelta}
+                    baseAmount={5}
+                    comment=""
+                    onChange={onChange}
+                    onCommentChange={onCommentChange}
+                    onAddExpiry={vi.fn()}
+                />
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('button', { name: 'Valid until' })).toBeInTheDocument();
+    });
+
+    it('clicking the icon opens a calendar directly, with no confirm step', async () => {
+        render(
+            <MockTheme>
+                <AmountExpanded
+                    delta={zeroDelta}
+                    baseAmount={5}
+                    comment=""
+                    onChange={onChange}
+                    onCommentChange={onCommentChange}
+                    onAddExpiry={vi.fn()}
+                />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Valid until' }));
+
+        expect(screen.getByRole('button', { name: todayCalendarLabel() })).toBeInTheDocument();
+    });
+
+    it('shows the decorative dialog icon in the calendar header, matching other dialogs', async () => {
+        render(
+            <MockTheme>
+                <AmountExpanded
+                    delta={zeroDelta}
+                    baseAmount={5}
+                    comment=""
+                    onChange={onChange}
+                    onCommentChange={onCommentChange}
+                    onAddExpiry={vi.fn()}
+                />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Valid until' }));
+
+        expect(screen.getByRole('img', { name: 'Valid until' })).toBeInTheDocument();
+    });
+
+    it('picking a day calls onAddExpiry with that date and closes the calendar', async () => {
+        const onAddExpiry = vi.fn();
+        render(
+            <MockTheme>
+                <AmountExpanded
+                    delta={zeroDelta}
+                    baseAmount={5}
+                    comment=""
+                    onChange={onChange}
+                    onCommentChange={onCommentChange}
+                    onAddExpiry={onAddExpiry}
+                />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Valid until' }));
+        await user.click(screen.getByRole('button', { name: todayCalendarLabel() }));
+
+        expect(onAddExpiry).toHaveBeenCalledWith(todayIsoDate());
+        expect(screen.queryByRole('button', { name: todayCalendarLabel() })).not.toBeInTheDocument();
+    });
+
+    it('disables days before today - there is no point dating an already-expired batch', async () => {
+        const onAddExpiry = vi.fn();
+        render(
+            <MockTheme>
+                <AmountExpanded
+                    delta={zeroDelta}
+                    baseAmount={5}
+                    comment=""
+                    onChange={onChange}
+                    onCommentChange={onCommentChange}
+                    onAddExpiry={onAddExpiry}
+                />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Valid until' }));
+
+        expect(screen.getByRole('button', { name: yesterdayCalendarLabel() })).toBeDisabled();
+
+        await user.click(screen.getByRole('button', { name: yesterdayCalendarLabel() }));
+
+        expect(onAddExpiry).not.toHaveBeenCalled();
     });
 });
