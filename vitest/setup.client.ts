@@ -1,4 +1,5 @@
 import { TextDecoder as NodeTextDecoder, TextEncoder as NodeTextEncoder } from 'node:util';
+import { configure } from '@testing-library/dom';
 
 import { afterEach, beforeEach, vi } from 'vitest';
 
@@ -6,6 +7,16 @@ import { afterEach, beforeEach, vi } from 'vitest';
 if (process.env.NODE_ENV === 'production') {
     process.env.NODE_ENV = 'test';
 }
+
+// waitFor's default 1000ms timeout is tight enough that gesture/timer-driven assertions
+// (e.g. SwipeableRow's requestAnimationFrame-based updates) can spuriously time out when the
+// whole suite is running under heavy CPU contention (many worker threads + jsdom + Mongo at
+// once), even though the assertion itself is correct and would pass given a bit more wall-clock
+// time. A generous ceiling only matters on the slow/failing path — passing assertions resolve as
+// soon as they're true, so this doesn't slow down normal runs. Kept below vitest's 5000ms default
+// testTimeout so a genuinely failing assertion still surfaces as a normal failure, not a test
+// timeout with a less useful error.
+configure({ asyncUtilTimeout: 3000 });
 
 // ---------------------------------------------------------------------------
 // localStorage mock — define unconditionally to avoid Node.js ExperimentalWarning
