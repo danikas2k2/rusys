@@ -62,7 +62,7 @@ export function AmountBox({ opened = false, title, onClose, onAfterClose }: Valu
                     </Tabs.List>
 
                     <Tabs.Panel value="quantities" pt="sm">
-                        <AmountVariantsTab onChangesUpdate={setHasChanges} />
+                        <AmountVariantsTab onChangesUpdate={setHasChanges} onClose={onClose} />
                     </Tabs.Panel>
 
                     <Tabs.Panel value="history" pt="sm">

@@ -38,6 +38,18 @@ describe('<AmountBox>', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
+    it('passes onClose through to AmountVariantsTab so a successful update can close the dialog', () => {
+        const onClose = vi.fn();
+
+        render(
+            <MockTheme>
+                <AmountBox opened onClose={onClose} />
+            </MockTheme>
+        );
+
+        expect(AmountVariantsTab).toHaveBeenCalledWith(expect.objectContaining({ onClose }), undefined);
+    });
+
     it('closing the modal calls onClose', async () => {
         const onClose = vi.fn();
 

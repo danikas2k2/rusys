@@ -87,9 +87,10 @@ function compareKeys(a: string, b: string, compareVariants: (x: string, y: strin
 
 interface AmountVariantsTabProps {
     onChangesUpdate?: (hasChanges: boolean) => void;
+    onClose?: () => void;
 }
 
-export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = {}) {
+export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTabProps = {}) {
     const _ = useLabels();
     const [active] = useActiveContent<ProductAmounts>();
     const [, setUpdating] = useUpdatingProducts();
@@ -295,8 +296,21 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
             setComment('');
             setExpandedKey(null);
             setExtraKeys([]);
+            onClose?.();
         }
-    }, [allDeltas, activeData, group, name, year, profile.email, comment, setUpdating, updateProduct, setExpandedKey]);
+    }, [
+        allDeltas,
+        activeData,
+        group,
+        name,
+        year,
+        profile.email,
+        comment,
+        setUpdating,
+        updateProduct,
+        setExpandedKey,
+        onClose,
+    ]);
 
     const handleUndo = useCallback(async (): Promise<void> => {
         if (!activeData) {

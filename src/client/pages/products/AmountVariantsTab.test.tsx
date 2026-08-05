@@ -160,10 +160,14 @@ describe('<AmountVariantsTab>', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    function renderTab(active: ProductAmounts = baseActive, onChangesUpdate?: (hasChanges: boolean) => void) {
+    function renderTab(
+        active: ProductAmounts = baseActive,
+        onChangesUpdate?: (hasChanges: boolean) => void,
+        onClose?: () => void
+    ) {
         return render(
             <MockThemeActive active={{ action: 'values', data: active }}>
-                <AmountVariantsTab onChangesUpdate={onChangesUpdate} />
+                <AmountVariantsTab onChangesUpdate={onChangesUpdate} onClose={onClose} />
             </MockThemeActive>
         );
     }
@@ -281,6 +285,19 @@ describe('<AmountVariantsTab>', () => {
             'test@example.com',
             undefined
         );
+    });
+
+    it('calls onClose after a successful update', async () => {
+        const onClose = vi.fn();
+        vi.mocked(useUpdateProduct).mockReturnValue(vi.fn().mockResolvedValue(undefined));
+
+        renderTab(baseActive, undefined, onClose);
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('decrease-updated')[0]);
+        await user.click(screen.getByRole('button', { name: /^update$/i }));
+
+        expect(onClose).toHaveBeenCalledTimes(1);
     });
 
     it('does not show Update/Cancel buttons before any delta change', () => {
