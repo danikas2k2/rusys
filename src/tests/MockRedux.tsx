@@ -34,6 +34,11 @@ export function MockRedux<S, A extends Action<never>>({
     const store = configureStore({
         reducer,
         preloadedState: state as never,
+        // RTK's default dev middleware deep-clones/deep-compares the whole state tree on every
+        // store creation and dispatch to catch mutations/non-serializable values. Every render()
+        // in every test creates a fresh store, so this tax is paid constantly; it doesn't guard
+        // against anything these tests need, so skip it for speed.
+        middleware: (getDefaultMiddleware) => getDefaultMiddleware({ immutableCheck: false, serializableCheck: false }),
     });
     return <Provider store={store}>{children}</Provider>;
 }
