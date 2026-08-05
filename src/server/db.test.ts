@@ -1,12 +1,10 @@
 /** @vitest-environment node */
 import { readFile } from 'node:fs/promises';
-
 import { mockEnv } from '@tests/mockEnv';
 
 import { Db, MongoClient } from 'mongodb';
 
 import { $clients, db, getClient, withTransaction } from '~/server/db';
-
 import { mongoUriFile } from '../../vitest/mongoUri';
 
 vi.setConfig({ testTimeout: 30_000 });

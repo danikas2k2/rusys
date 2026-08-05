@@ -5,7 +5,6 @@ import { MongoClient } from 'mongodb';
 import { vi } from 'vitest';
 
 import type * as DbModule from '~/server/db';
-
 import { mongoUriFile } from '../../../vitest/mongoUri';
 
 // Every test file gets its own database on the single shared replica set
