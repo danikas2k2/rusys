@@ -1,5 +1,5 @@
 import { Accordion, Avatar, Badge, Button, Flex, Group, Select, Stack, Text, type ComboboxItem } from '@mantine/core';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
     AddIcon,
@@ -197,6 +197,18 @@ export function AmountVariantsTab({ onChangesUpdate }: AmountVariantsTabProps = 
         },
         [setExpandedKey]
     );
+
+    // When nothing is entered yet and there's only one variant to pick from, there's no real
+    // choice to make - select it right away instead of making the user open a single-item dropdown.
+    // Guarded by a ref (not just the conditions below) so cancelling the auto-picked row doesn't
+    // make it reappear immediately, since that would make Cancel look like it did nothing.
+    const autoSelectedRef = useRef(false);
+    useEffect(() => {
+        if (!autoSelectedRef.current && visibleKeys.length === 0 && unusedVariants.length === 1) {
+            autoSelectedRef.current = true;
+            handleSelectVariant(unusedVariants[0]);
+        }
+    }, [visibleKeys.length, unusedVariants, handleSelectVariant]);
 
     const handleAddSuspicious = useCallback(
         (variant: string) => {

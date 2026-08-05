@@ -11,6 +11,7 @@ import { useProducts } from '~/client/state/products/useProducts';
 import { useRedoProduct } from '~/client/state/products/useRedoProduct';
 import { useUndoProduct } from '~/client/state/products/useUndoProduct';
 import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
+import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import type { ProductAmounts } from '~/types/data';
 
 vi.mock(import('~/client/pages/variants/VariantBox'), () => ({
@@ -586,6 +587,44 @@ describe('<AmountVariantsTab>', () => {
         await user.click(screen.getByRole('button', { name: /\bd\b/ }));
 
         expect(screen.getByText('Remove image')).toBeInTheDocument();
+    });
+
+    it('auto-selects the sole variant when nothing is entered yet', () => {
+        vi.mocked(useAllVariants).mockReturnValue(['x']);
+
+        renderTab({ group, name: 'Avietės', year: 2023, amounts: [] });
+
+        expect(screen.getByRole('button', { name: /\bx\b/ })).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('does not auto-select when more than one variant is available', () => {
+        vi.mocked(useAllVariants).mockReturnValue(['x', 'y']);
+
+        renderTab({ group, name: 'Avietės', year: 2023, amounts: [] });
+
+        expect(screen.queryByRole('button', { name: /\bx\b/ })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /\by\b/ })).not.toBeInTheDocument();
+    });
+
+    it('does not auto-select the remaining variant when others are already entered', () => {
+        vi.mocked(useAllVariants).mockReturnValue(['p', 'd', 'm']);
+
+        renderTab();
+
+        expect(screen.queryByRole('button', { name: /\bm\b/ })).not.toBeInTheDocument();
+    });
+
+    it('re-selecting the sole variant after cancelling does not immediately reappear', async () => {
+        vi.mocked(useAllVariants).mockReturnValue(['x']);
+
+        renderTab({ group, name: 'Avietės', year: 2023, amounts: [] });
+
+        const control = screen.getByRole('button', { name: /\bx\b/ });
+        await user.click(screen.getAllByText('decrease-updated')[0]);
+        await user.click(screen.getByRole('button', { name: /^cancel$/i }));
+
+        expect(control).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /\bx\b/ })).not.toBeInTheDocument();
     });
 
     it('cancel also clears expandedVariant', async () => {

@@ -13,6 +13,7 @@ vi.mock(import('~/client/pages/products/ProductBox'), (): any => ({
         opened ? (
             <dialog open>
                 <button onClick={() => onClose?.()}>Close</button>
+                <button onClick={() => onClose?.('Uogienės', 'Avietės')}>Close With New Product</button>
                 <button onClick={() => onAfterClose?.()}>After Close</button>
                 <div>{props.group}</div>
                 <div>{props.name}</div>
@@ -62,6 +63,42 @@ describe('<ActiveProductBox>', () => {
         );
 
         await user.click(screen.getByRole('button', { name: 'Close' }));
+
+        expect(setActive).toHaveBeenCalledWith({ data: { group: 'Uogienės', name: 'Avietės' } });
+    });
+
+    it('opens the amounts dialog with the initial year when a new product is added', async () => {
+        render(
+            <MockThemeRedux state={{ groups: getGroupsFixture() }}>
+                <MockActiveContent active={{ action: 'update' as const }} setActive={setActive}>
+                    <ActiveProductBox />
+                </MockActiveContent>
+            </MockThemeRedux>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Close With New Product' }));
+
+        expect(setActive).toHaveBeenCalledWith({
+            action: 'values',
+            data: {
+                group: 'Uogienės',
+                name: 'Avietės',
+                year: new Date().getFullYear() % 100,
+                amounts: [],
+            },
+        });
+    });
+
+    it('does not open the amounts dialog when an existing product is edited', async () => {
+        render(
+            <MockThemeRedux state={{ groups: getGroupsFixture() }}>
+                <MockActiveContent active={active} setActive={setActive}>
+                    <ActiveProductBox />
+                </MockActiveContent>
+            </MockThemeRedux>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Close With New Product' }));
 
         expect(setActive).toHaveBeenCalledWith({ data: { group: 'Uogienės', name: 'Avietės' } });
     });
