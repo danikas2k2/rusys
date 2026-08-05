@@ -89,6 +89,22 @@ describe('<ActiveProductBox>', () => {
         });
     });
 
+    it('does not clear the active state after close when a new product opened the amounts dialog', async () => {
+        render(
+            <MockThemeRedux state={{ groups: getGroupsFixture() }}>
+                <MockActiveContent active={{ action: 'update' as const }} setActive={setActive}>
+                    <ActiveProductBox />
+                </MockActiveContent>
+            </MockThemeRedux>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Close With New Product' }));
+        await user.click(screen.getByRole('button', { name: 'After Close' }));
+
+        expect(setActive).toHaveBeenCalledTimes(1);
+        expect(setActive).not.toHaveBeenCalledWith();
+    });
+
     it('does not open the amounts dialog when an existing product is edited', async () => {
         render(
             <MockThemeRedux state={{ groups: getGroupsFixture() }}>
