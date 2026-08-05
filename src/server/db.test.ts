@@ -1,29 +1,29 @@
 /** @vitest-environment node */
+import { readFile } from 'node:fs/promises';
+
 import { mockEnv } from '@tests/mockEnv';
 
 import { Db, MongoClient } from 'mongodb';
-import { MongoMemoryReplSet } from 'mongodb-memory-server';
 
 import { $clients, db, getClient, withTransaction } from '~/server/db';
+
+import { mongoUriFile } from '../../vitest/mongoUri';
 
 vi.setConfig({ testTimeout: 30_000 });
 
 describe('db.ts', () => {
     mockEnv();
 
-    let server: MongoMemoryReplSet;
     let uri: string;
 
     beforeAll(async () => {
-        server = await MongoMemoryReplSet.create({ replSet: { count: 1, storageEngine: 'wiredTiger' } });
-        uri = server.getUri();
+        uri = await readFile(mongoUriFile, 'utf-8');
     });
 
     afterAll(async () => {
         for (const c of $clients.values()) {
             await c.close(true);
         }
-        await server.stop({ force: true });
     });
 
     describe('getClient', () => {
