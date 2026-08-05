@@ -1,9 +1,14 @@
 import { renderHook } from '@testing-library/react';
 
+import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useGroupsWithReviewProducts } from './useGroupsWithReviewProducts';
 
 vi.mock(import('~/client/state/products/useProducts'));
+
+vi.mock(import('~/client/filters/hooks/useQuickFilterPredicate'), () => ({
+    useQuickFilterPredicate: vi.fn(() => () => true),
+}));
 
 describe('useGroupsWithReviewProducts', () => {
     afterEach(() => vi.clearAllMocks());
@@ -34,5 +39,17 @@ describe('useGroupsWithReviewProducts', () => {
         const { result } = renderHook(() => useGroupsWithReviewProducts());
 
         expect(result.current).toStrictEqual(new Set());
+    });
+
+    it('excludes groups whose products are all hidden by the quick filter', () => {
+        vi.mocked(useProducts).mockReturnValue([
+            { group: 'Uogienės', name: 'Avietės', years: [{ year: 23, amounts: [] }] },
+            { group: 'Daržovės', name: 'Agurkai', years: [{ year: 22, amounts: [] }] },
+        ]);
+        vi.mocked(useQuickFilterPredicate).mockReturnValue((name: string) => name === 'Agurkai');
+
+        const { result } = renderHook(() => useGroupsWithReviewProducts());
+
+        expect(result.current).toStrictEqual(new Set(['Daržovės']));
     });
 });

@@ -34,6 +34,7 @@ vi.mock(import('~/client/filters/CategoryRailLayout'), (): any => ({
 }));
 vi.mock(import('~/client/pages/products/MissingOnlyContext'), (): any => ({
     MissingOnlyWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    useMissingOnly: vi.fn(() => [false, vi.fn()]),
 }));
 vi.mock(import('~/client/pages/products/UpdatingProductsContext'), (): any => ({
     UpdatingProductsWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,

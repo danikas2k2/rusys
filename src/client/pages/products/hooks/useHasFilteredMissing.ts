@@ -1,9 +1,9 @@
-import { useGroupFilterPredicate } from '~/client/filters/hooks/useGroupFilterPredicate';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { useProducts } from '~/client/state/products/useProducts';
 
+// Checked across every category, not just the selected one - the checkbox should only
+// auto-revert once nothing anywhere still matches, not as soon as the current tab empties out.
 export function useHasFilteredMissing() {
-    const groupFilter = useGroupFilterPredicate();
     const quickFilter = useQuickFilterPredicate();
-    return useProducts().some((product) => groupFilter(product.group) && quickFilter(product.name) && product.missing);
+    return useProducts().some((product) => quickFilter(product.name) && product.missing);
 }

@@ -19,30 +19,39 @@ import type { Product } from '~/types/data';
 export function ProductsPage() {
     const deleteProduct = useDeleteProduct();
     const handleDelete = ({ group, name }: Product) => deleteProduct(group, name);
+
+    return (
+        <UpdatingProductsWrapper>
+            <MissingOnlyWrapper>
+                <ProductsPageContent onDelete={handleDelete} />
+            </MissingOnlyWrapper>
+        </UpdatingProductsWrapper>
+    );
+}
+
+// Split out so useGroupsWithProducts (which reads missingOnly) resolves against a real
+// MissingOnlyWrapper - a hook call in ProductsPage itself would run above that provider.
+function ProductsPageContent({ onDelete }: { onDelete: (product: Product) => void | Promise<void> }) {
     const groups = useSortedGroups();
     const [selectedGroup, setSelectedGroup] = useGroupFilter();
     const groupsWithProducts = useGroupsWithProducts();
 
     return (
-        <UpdatingProductsWrapper>
-            <Page withAdd onDelete={handleDelete}>
-                <CategoryRailLayout
-                    groups={groups}
-                    selected={selectedGroup}
-                    onSelect={setSelectedGroup}
-                    groupsWithContent={groupsWithProducts}
-                >
-                    <SwipeControlsWrapper>
-                        <MissingOnlyWrapper>
-                            <MissingOnlyEffects />
-                            <ProductsTable />
-                        </MissingOnlyWrapper>
-                        <SwipeControls />
-                    </SwipeControlsWrapper>
-                </CategoryRailLayout>
-                <ActiveProductBox />
-                <ActiveAmountBox />
-            </Page>
-        </UpdatingProductsWrapper>
+        <Page withAdd onDelete={onDelete}>
+            <CategoryRailLayout
+                groups={groups}
+                selected={selectedGroup}
+                onSelect={setSelectedGroup}
+                groupsWithContent={groupsWithProducts}
+            >
+                <SwipeControlsWrapper>
+                    <MissingOnlyEffects />
+                    <ProductsTable />
+                    <SwipeControls />
+                </SwipeControlsWrapper>
+            </CategoryRailLayout>
+            <ActiveProductBox />
+            <ActiveAmountBox />
+        </Page>
     );
 }

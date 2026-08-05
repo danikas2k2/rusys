@@ -1,14 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import { getProductsFixture } from '@tests/fixtures';
 
-import { useGroupFilterPredicate } from '~/client/filters/hooks/useGroupFilterPredicate';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { useHasFilteredMissing } from '~/client/pages/products/hooks/useHasFilteredMissing';
 import { useProducts } from '~/client/state/products/useProducts';
-
-vi.mock(import('~/client/filters/hooks/useGroupFilterPredicate'), () => ({
-    useGroupFilterPredicate: vi.fn(),
-}));
 
 vi.mock(import('~/client/filters/hooks/useQuickFilterPredicate'), () => ({
     useQuickFilterPredicate: vi.fn(),
@@ -23,24 +18,26 @@ describe('useHasFilteredMissing', () => {
 
     beforeEach(() => {
         vi.mocked(useProducts).mockReturnValue(products);
-        vi.mocked(useGroupFilterPredicate).mockReturnValue(() => true);
         vi.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
     });
 
     afterEach(() => vi.clearAllMocks());
 
-    it('returns true when a missing product passes both filters', () => {
+    it('returns true when a missing product passes the filter', () => {
         const { result } = renderHook(() => useHasFilteredMissing());
 
         expect(result.current).toBe(true);
     });
 
-    it('returns false when group filter hides missing products', () => {
-        vi.mocked(useGroupFilterPredicate).mockReturnValue((group: string) => group !== 'Uogienės');
+    it('returns true when a missing product exists in a category other than the selected one', () => {
+        vi.mocked(useProducts).mockReturnValue([
+            ...products,
+            { group: 'Kita kategorija', name: 'Kažkas', missing: true },
+        ]);
 
         const { result } = renderHook(() => useHasFilteredMissing());
 
-        expect(result.current).toBe(false);
+        expect(result.current).toBe(true);
     });
 
     it('returns false when quick filter hides missing products', () => {
