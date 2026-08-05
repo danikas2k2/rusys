@@ -1,6 +1,6 @@
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import { Table, Title } from '@mantine/core';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { DraggableContent } from '~/client/common/DraggableContent';
@@ -26,12 +26,17 @@ export function VariantsTable() {
     const handleDragStart = () => setActive();
 
     const reorderVariants = useReorderVariants();
+    const allVariants = useSortedVariants();
+    const variantsInGroup = useMemo(
+        () => allVariants.filter((v) => v.group === selectedGroup),
+        [allVariants, selectedGroup]
+    );
     const {
         items: variants,
         reordering,
         onDragEnd: handleDragEnd,
     } = useReorderHandler<Variant, Pick<Variant, 'group' | 'variant'>>({
-        items: useSortedVariants().filter((v) => v.group === selectedGroup),
+        items: variantsInGroup,
 
         onReorder: (reordered, { group }) =>
             reorderVariants(

@@ -13,7 +13,7 @@ interface VariantsRowProps {
     hidden?: boolean;
 }
 
-export function VariantsRow({ variant, reordering, hidden = false }: VariantsRowProps): React.ReactElement {
+function VariantsRowComponent({ variant, reordering, hidden = false }: VariantsRowProps): React.ReactElement {
     return (
         <SortableRow
             id={getId(variant.group, variant.variant)}
@@ -33,3 +33,5 @@ export function VariantsRow({ variant, reordering, hidden = false }: VariantsRow
         </SortableRow>
     );
 }
+
+export const VariantsRow = React.memo(VariantsRowComponent);

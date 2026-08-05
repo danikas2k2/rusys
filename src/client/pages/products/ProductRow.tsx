@@ -17,7 +17,7 @@ export interface ProductRowProps {
     rolledUpYears?: readonly YearAmounts[];
 }
 
-export function ProductRow({
+function ProductRowComponent({
     product,
     annual = true,
     hidden = false,
@@ -52,3 +52,5 @@ export function ProductRow({
         </SwipeableRow>
     );
 }
+
+export const ProductRow = React.memo(ProductRowComponent);

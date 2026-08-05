@@ -1,14 +1,24 @@
-import equal from 'fast-deep-equal/es6/react';
+import { createSelector } from '@reduxjs/toolkit';
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import type { WithVariantsState } from '~/client/state/variants/types';
+import type { Variant } from '~/types/data';
 
-export const useAllVariants = (group: string): string[] =>
-    useSelector(
-        (state: WithVariantsState) =>
-            state.variants
-                ?.filter((v) => v.group === group)
-                .sort((a, b) => a.order - b.order)
-                .map((v) => v.variant) ?? [],
-        equal
+export const useAllVariants = (group: string): string[] => {
+    // A dedicated selector instance per (component, group) — createSelector's cache is a single
+    // slot, so sharing one instance across many components/groups would thrash on every render.
+    const selectVariantsForGroup = useMemo(
+        () =>
+            createSelector(
+                (state: WithVariantsState) => state.variants,
+                (variants: readonly Variant[] | undefined) =>
+                    variants
+                        ?.filter((v) => v.group === group)
+                        .sort((a, b) => a.order - b.order)
+                        .map((v) => v.variant) ?? []
+            ),
+        [group]
     );
+    return useSelector(selectVariantsForGroup);
+};

@@ -75,7 +75,8 @@ export function ProductsTable() {
     const years = useYears();
     const groups = useSortedGroups();
     const [selectedGroup] = useGroupFilter();
-    const products = useProducts().filter((p) => p.group === selectedGroup);
+    const allProducts = useProducts();
+    const products = useMemo(() => allProducts.filter((p) => p.group === selectedGroup), [allProducts, selectedGroup]);
     const quickFilter = useQuickFilterPredicate();
     const [missingOnly] = useMissingOnly();
     const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(new Set());
@@ -96,6 +97,20 @@ export function ProductsTable() {
             return next;
         });
     }, []);
+
+    // ProductRow is memoized, so each row needs a stable (same-reference-across-renders)
+    // onToggleExpand — an inline `() => handleToggleExpand(id)` per row would recreate that prop
+    // on every render and defeat the memo for every row, every time. Rebuilding this map only
+    // when `nodes` itself changes keeps it stable across unrelated re-renders (e.g. quick-filter
+    // keystrokes), just like the ids it covers.
+    const toggleHandlers = useMemo(() => {
+        const map = new Map<string, () => void>();
+        for (const { product: p } of nodes) {
+            const id = getId(p.group, p.name);
+            map.set(id, () => handleToggleExpand(id));
+        }
+        return map;
+    }, [nodes, handleToggleExpand]);
 
     return (
         <LoadableContent loader={useGetProducts()} hasData={useProductsHasData()}>
@@ -131,7 +146,7 @@ export function ProductsTable() {
                                 depth={depth}
                                 hasChildren={hasChildren}
                                 expanded={expanded}
-                                onToggleExpand={() => handleToggleExpand(id)}
+                                onToggleExpand={toggleHandlers.get(id)}
                                 rolledUpYears={rolledUpYears}
                             />
                         );

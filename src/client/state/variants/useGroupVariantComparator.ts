@@ -1,18 +1,31 @@
-import equal from 'fast-deep-equal/es6/react';
-import { useCallback } from 'react';
+import { createSelector } from '@reduxjs/toolkit';
+import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import type { WithVariantsState } from '~/client/state/variants/types';
 import { compareNames } from '~/client/utils/compareNames';
+import type { Variant } from '~/types/data';
 
 export function useGroupVariantComparator(group: string): (a: string, b: string) => number {
-    const variantOrders: Record<string, number> = useSelector(
-        (state: WithVariantsState) =>
-            state.variants
-                ?.filter((v) => v.group === group)
-                .reduce((r, { variant, order }) => ({ ...r, [variant]: order }), {}) ?? {},
-        equal
+    // A dedicated selector instance per (component, group) — createSelector's cache is a single
+    // slot, so sharing one instance across many components/groups would thrash on every render.
+    const selectVariantOrders = useMemo(
+        () =>
+            createSelector(
+                (state: WithVariantsState) => state.variants,
+                (variants: readonly Variant[] | undefined): Record<string, number> => {
+                    const orders: Record<string, number> = {};
+                    for (const { variant, order, group: variantGroup } of variants ?? []) {
+                        if (variantGroup === group) {
+                            orders[variant] = order;
+                        }
+                    }
+                    return orders;
+                }
+            ),
+        [group]
     );
+    const variantOrders = useSelector<WithVariantsState, Record<string, number>>(selectVariantOrders);
     return useCallback(
         (a: string, b: string): number =>
             (variantOrders[a] ?? Number.POSITIVE_INFINITY) - (variantOrders[b] ?? Number.POSITIVE_INFINITY) ||
