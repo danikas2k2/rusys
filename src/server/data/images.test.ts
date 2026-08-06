@@ -101,6 +101,20 @@ describe('images', () => {
             await expect(fs.access(path.join(IMAGES_DIR, shard1!, shard2!))).rejects.toThrow(/ENOENT/);
         });
 
+        it('swallows an error removing the shard directory instead of throwing', async () => {
+            const dataUrl = `data:image/png;base64,${Buffer.from('to-delete').toString('base64')}`;
+            const url = await saveImage(dataUrl);
+            const relativePath = url.slice('/images/'.length);
+            const [shard1, shard2] = relativePath.split('/');
+
+            const rmdirSpy = vi.spyOn(fs, 'rmdir').mockRejectedValueOnce(new Error('EACCES'));
+
+            await expect(deleteImage(url)).resolves.toBeUndefined();
+
+            rmdirSpy.mockRestore();
+            await fs.rm(path.join(IMAGES_DIR, shard1!, shard2!), { recursive: true, force: true });
+        });
+
         it('keeps shard directories that still contain other files', async () => {
             const dataUrl = `data:image/png;base64,${Buffer.from('to-delete').toString('base64')}`;
             const url = await saveImage(dataUrl);

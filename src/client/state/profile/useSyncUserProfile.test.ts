@@ -239,6 +239,35 @@ describe('useSyncUserProfile', () => {
         });
     });
 
+    it('treats a response with no profiles field as empty and upserts', async () => {
+        const request1 = vi.fn().mockResolvedValue({ ok: true });
+        // Server response omits `profiles` entirely (malformed/legacy response shape)
+        const request2 = vi.fn().mockResolvedValue({ ok: true });
+
+        vi.mocked(useApiRequest).mockReturnValueOnce(request1).mockReturnValueOnce(request2);
+
+        vi.mocked(useProfile).mockReturnValue({
+            email: 'noprofiles@example.com',
+            name: 'Noah',
+            picture: undefined,
+        } as any);
+
+        const { rerender } = renderHook(() => useSyncUserProfile(), { wrapper: MockRedux });
+        await act(flushPromises);
+
+        await act(async () => {
+            rerender();
+        });
+        await act(flushPromises);
+
+        await waitFor(() => {
+            expect(request2).toHaveBeenCalledWith(
+                ApiUrl.UserProfileUpsert,
+                expect.objectContaining({ email: 'noprofiles@example.com' })
+            );
+        });
+    });
+
     it('dOES upsert if existing found but updatedAt is 0 (falsy)', async () => {
         const request1 = vi.fn().mockResolvedValue({ ok: true });
         const request2 = vi.fn().mockResolvedValue({

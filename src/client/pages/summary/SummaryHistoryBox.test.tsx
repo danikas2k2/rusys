@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -86,6 +86,50 @@ describe('<SummaryHistoryBox>', () => {
         );
 
         expect(screen.getByTestId('summary-history-tab')).toBeInTheDocument();
+    });
+
+    it('calls onAfterClose after exit transition ends', async () => {
+        const onAfterClose = vi.fn();
+
+        const { rerender } = render(
+            <MockTheme>
+                <SummaryHistoryBox opened onAfterClose={onAfterClose} />
+            </MockTheme>
+        );
+
+        const dialog = await screen.findByRole('dialog');
+
+        rerender(
+            <MockTheme>
+                <SummaryHistoryBox opened={false} onAfterClose={onAfterClose} />
+            </MockTheme>
+        );
+
+        act(() => fireEvent.transitionEnd(dialog));
+
+        await waitFor(() => {
+            expect(onAfterClose).toHaveBeenCalledWith();
+        });
+    });
+
+    it('does not throw when the exit transition ends without onAfterClose', async () => {
+        const { rerender } = render(
+            <MockTheme>
+                <SummaryHistoryBox opened />
+            </MockTheme>
+        );
+
+        const dialog = await screen.findByRole('dialog');
+
+        rerender(
+            <MockTheme>
+                <SummaryHistoryBox opened={false} />
+            </MockTheme>
+        );
+
+        expect(() => {
+            act(() => fireEvent.transitionEnd(dialog));
+        }).not.toThrow();
     });
 
     it('renders title when provided', () => {

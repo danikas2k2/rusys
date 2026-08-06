@@ -6,10 +6,13 @@ import React, { useRef } from 'react';
 import { SwipePanel } from '~/client/common/SwipePanel';
 
 const mockSetControlsWidth = vi.fn();
+const mockDragApiRef: { current: { setOffset: (id: string, offset: number, dragging: boolean) => boolean } } = {
+    current: { setOffset: () => false },
+};
 
 vi.mock(import('~/client/common/SwipeControlsContext'), () => ({
     useSwipePanelWidth: vi.fn(() => [120, mockSetControlsWidth]),
-    useSwipePanelDragApi: vi.fn(() => ({ current: { setOffset: vi.fn() } })),
+    useSwipePanelDragApi: vi.fn(() => mockDragApiRef),
 }));
 
 describe('<SwipePanel>', () => {
@@ -560,6 +563,13 @@ describe('<SwipePanel>', () => {
         expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
     });
 
+    it('mounts a brand new panel at its real offset immediately when active.instant is set', () => {
+        render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100, instant: true }} />);
+
+        // No animation frame needed - the panel should already be at its target offset
+        expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
+    });
+
     it('renders panel when active.offset is 0 (not undefined)', () => {
         // Test linija 59: if (active?.offset !== undefined && !active?.action)
         // Branch: active?.offset === 0 (not undefined, but falsy)
@@ -835,6 +845,58 @@ describe('<SwipePanel>', () => {
             });
 
             expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
+        });
+    });
+
+    describe('imperative drag API (setOffset)', () => {
+        it('writes the transform and dragging attribute straight to the DOM node', () => {
+            render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+            const group = screen.getByRole('group');
+
+            act(() => {
+                expect(mockDragApiRef.current.setOffset('test-id', -30, true)).toBe(true);
+            });
+
+            expect(group).toHaveStyle({ transform: 'translateX(-30px)' });
+            expect(group).toHaveAttribute('data-dragging', 'true');
+        });
+
+        it('removes the dragging attribute once dragging stops', () => {
+            render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+            const group = screen.getByRole('group');
+
+            act(() => {
+                mockDragApiRef.current.setOffset('test-id', -30, true);
+            });
+
+            expect(group).toHaveAttribute('data-dragging', 'true');
+
+            act(() => {
+                expect(mockDragApiRef.current.setOffset('test-id', -10, false)).toBe(true);
+            });
+
+            expect(group).toHaveStyle({ transform: 'translateX(-10px)' });
+            expect(group).not.toHaveAttribute('data-dragging');
+        });
+
+        it('returns false without throwing for an id with no registered node', () => {
+            render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
+
+            act(() => {
+                expect(mockDragApiRef.current.setOffset('unknown-id', -30, true)).toBe(false);
+            });
+        });
+
+        it('resets the drag API to a no-op after the panel unmounts', () => {
+            const { unmount } = render(
+                <TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />
+            );
+
+            unmount();
+
+            expect(mockDragApiRef.current.setOffset('test-id', -30, true)).toBe(false);
         });
     });
 

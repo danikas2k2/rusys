@@ -12,6 +12,8 @@ import {
     deleteProductsGroup,
     deleteProductsVariant,
     getProducts,
+    getProductUndates,
+    getProductUpdates,
     getProductVariants,
     moveConsumedToRecycled,
     moveProduct,
@@ -244,6 +246,24 @@ describe('products', () => {
             await expect(setProductParent('Daržovės', 'Agurkai', 'Agurkai (Zewa) 3sl.')).resolves.toBe(false);
         });
 
+        it('does not hang when walking a pre-existing cyclic parent chain in the data', async () => {
+            // Corrupted data: A and B already point at each other. Walking A's descendants must
+            // terminate (via the visited-set guard) instead of looping forever.
+            await (await db()).collection('products').insertMany(
+                [
+                    { group: 'Daržovės', name: 'CiklinisA', parent: 'CiklinisB' },
+                    { group: 'Daržovės', name: 'CiklinisB', parent: 'CiklinisA' },
+                ],
+                { forceServerObjectId: true }
+            );
+
+            await expect(setProductParent('Daržovės', 'CiklinisA', 'Kopūstai')).resolves.toBe(true);
+
+            const all = (await $all('products')) as ProductRow[];
+
+            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'CiklinisA')?.parent).toBe('Kopūstai');
+        });
+
         it('rejects a parent from a different group', async () => {
             await expect(setProductParent('Uogienės', 'Braškės', 'Agurkai')).resolves.toBe(false);
         });
@@ -354,6 +374,28 @@ describe('products', () => {
             );
         });
 
+        it('stores the given comment on the new update entry', async () => {
+            await expect(updateProduct('Daržovės', 'Agurkai', 22, amounts, user, 'Pirktas kitas kiekis')).resolves.toBe(
+                true
+            );
+
+            const all = (await $all('products')) as { group: string; name: string; updates?: { comment?: string }[] }[];
+            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
+
+            expect(agurkai.updates?.at(-1)?.comment).toBe('Pirktas kitas kiekis');
+        });
+
+        it('unsets years entirely when a non-annual (year 0) update brings combined stock to zero', async () => {
+            await expect(
+                updateProduct('Daržovės', 'Agurkai', 0, [{ variant: 'd', amount: -3 }], user)
+            ).resolves.toBe(true);
+
+            const all = (await $all('products')) as { group: string; name: string; years?: unknown }[];
+            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
+
+            expect(agurkai.years).toBeUndefined();
+        });
+
         it('does not update products if no updates made', async () => {
             const bruknes = { group: 'Uogienės', name: 'Bruknės', years: [{ year: 21, amounts: [] }] };
             await (await db()).collection('products').insertOne(bruknes, { forceServerObjectId: true });
@@ -448,6 +490,14 @@ describe('products', () => {
     describe('moveConsumedToRecycled', () => {
         // Agurkai's fixture entry has no `user` — matches when the caller also passes no user.
         const entryTime = Date.parse('2023-02-03T12:00:00.000Z');
+
+        it('returns false without crashing for a product that has no history at all', async () => {
+            await addProduct('Daržovės', 'Be istorijos');
+
+            await expect(
+                moveConsumedToRecycled('Daržovės', 'Be istorijos', 22, entryTime, 'd', 2, {}, undefined)
+            ).resolves.toBe(false);
+        });
 
         it('reduces the stored consumed amount in place and adds a recycled line, leaving current balance unchanged', async () => {
             await expect(
@@ -623,6 +673,62 @@ describe('products', () => {
             await (await db()).collection('products').deleteMany({ group: 'Šaldyti' });
         });
 
+        it('walks backward across an older (weeks-to-months-old) session, skipping a non-matching year and stopping once satisfied', async () => {
+            const HOUR = 60 * 60_000;
+            const now = Date.now();
+            // ~40 days old: past the 1-week cutoff (15-min buckets) but within 3 months (1-hour buckets)
+            const baseAge = 40 * 24 * HOUR;
+            const entry0Time = now - baseAge;
+            const entry1Time = entry0Time + 20 * 60_000;
+            const entry2Time = entry1Time + 20 * 60_000;
+            const sameUser = 'session-old@example.com';
+            const testProduct = {
+                group: 'Šaldyti',
+                name: 'SenaSesija',
+                updates: [
+                    {
+                        time: entry0Time,
+                        user: sameUser,
+                        // Different year - must be skipped (continue) without touching remaining
+                        years: [{ year: 21, amounts: [{ variant: 'd', amount: -5, recycled: false }] }],
+                    },
+                    {
+                        time: entry1Time,
+                        user: sameUser,
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                    },
+                    {
+                        time: entry2Time,
+                        user: sameUser,
+                        // Reached only after remaining hits 0 - must stay untouched (break)
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: -3, recycled: false }] }],
+                    },
+                ],
+            };
+            await (await db()).collection('products').insertOne(testProduct, { forceServerObjectId: true });
+
+            // Anchor on the last entry so findSessionEntries must walk backward to pick up the earlier two
+            await expect(
+                moveConsumedToRecycled('Šaldyti', 'SenaSesija', 22, entry2Time, 'd', 2, {}, sameUser)
+            ).resolves.toBe(true);
+
+            const all = (await $all('products')) as {
+                group: string;
+                name: string;
+                updates: { years: { amounts: unknown[] }[] }[];
+            }[];
+            const p = all.find((product) => product.group === 'Šaldyti' && product.name === 'SenaSesija')!;
+
+            expect(p.updates[0].years[0].amounts).toStrictEqual([{ variant: 'd', amount: -5, recycled: false }]);
+            expect(p.updates[1].years[0].amounts).toStrictEqual([
+                { variant: 'd', amount: 0, recycled: false },
+                { variant: 'd', amount: -2, recycled: true },
+            ]);
+            expect(p.updates[2].years[0].amounts).toStrictEqual([{ variant: 'd', amount: -3, recycled: false }]);
+
+            await (await db()).collection('products').deleteMany({ group: 'Šaldyti' });
+        });
+
         it.each`
             title                | group         | name         | variant | amount
             ${'empty group'}     | ${''}         | ${'Agurkai'} | ${'d'}  | ${1}
@@ -770,6 +876,92 @@ describe('products', () => {
             expect(afterUpdate).toBe(5);
             expect(afterUndo).toBe(3);
         });
+
+        it('pulls just that year out of years when undo zeroes out an annual product that also has other years', async () => {
+            await (await db())
+                .collection('products')
+                .updateOne(
+                    { group: 'Daržovės', name: 'Agurkai' },
+                    {
+                        $set: {
+                            years: [
+                                { year: 21, amounts: [{ variant: 'd', amount: 9 }] },
+                                { year: 22, amounts: [{ variant: 'd', amount: 2 }] },
+                            ],
+                            updates: [
+                                {
+                                    time: Date.now(),
+                                    user,
+                                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 2 }] }],
+                                },
+                            ],
+                        },
+                        $unset: { undates: 1 },
+                    }
+                );
+
+            await expect(undoProduct('Daržovės', 'Agurkai', 22)).resolves.toBe(true);
+
+            const all = (await $all('products')) as { years?: { year: number; amounts: unknown[] }[] }[];
+
+            expect(all[2].years).toStrictEqual([{ year: 21, amounts: [{ variant: 'd', amount: 9 }] }]);
+        });
+
+        describe('non-annual item (year 0, combined amounts)', () => {
+            it('replaces the whole combined years entry when stock remains after undo', async () => {
+                await (await db())
+                    .collection('products')
+                    .updateOne(
+                        { group: 'Daržovės', name: 'Agurkai' },
+                        {
+                            $set: {
+                                years: [{ year: 0, amounts: [{ variant: 'd', amount: 5 }] }],
+                                updates: [
+                                    {
+                                        time: Date.now(),
+                                        user,
+                                        years: [{ year: 0, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                                    },
+                                ],
+                            },
+                            $unset: { undates: 1 },
+                        }
+                    );
+
+                await expect(undoProduct('Daržovės', 'Agurkai', 0)).resolves.toBe(true);
+
+                const all = (await $all('products')) as { years?: { year: number; amounts: unknown[] }[] }[];
+
+                expect(all[2].years).toStrictEqual([{ year: 0, amounts: [{ variant: 'd', amount: 7 }] }]);
+            });
+
+            it('unsets years entirely when undo brings combined stock to zero', async () => {
+                await (await db())
+                    .collection('products')
+                    .updateOne(
+                        { group: 'Daržovės', name: 'Agurkai' },
+                        {
+                            $set: {
+                                years: [{ year: 0, amounts: [{ variant: 'd', amount: 2 }] }],
+                                updates: [
+                                    {
+                                        time: Date.now(),
+                                        user,
+                                        years: [{ year: 0, amounts: [{ variant: 'd', amount: 2 }] }],
+                                    },
+                                ],
+                            },
+                            $unset: { undates: 1 },
+                        }
+                    );
+
+                await expect(undoProduct('Daržovės', 'Agurkai', 0)).resolves.toBe(true);
+
+                const all = (await $all('products')) as { years?: unknown }[];
+
+                expect(all[2].years).toBeUndefined();
+            });
+        });
     });
 
     describe('redoProduct', () => {
@@ -861,6 +1053,115 @@ describe('products', () => {
 
             expect(all[2].updates).toHaveLength(1);
             expect(all[2].undates).toHaveLength(1);
+        });
+
+        it('pulls just that year out of years when redo zeroes out an annual product that also has other years', async () => {
+            await (await db())
+                .collection('products')
+                .updateOne(
+                    { group: 'Daržovės', name: 'Agurkai' },
+                    {
+                        $set: {
+                            years: [
+                                { year: 21, amounts: [{ variant: 'd', amount: 9 }] },
+                                { year: 22, amounts: [{ variant: 'd', amount: 2 }] },
+                            ],
+                            undates: [
+                                {
+                                    time: Date.now(),
+                                    user,
+                                    years: [{ year: 22, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                                },
+                            ],
+                        },
+                    }
+                );
+
+            await expect(redoProduct('Daržovės', 'Agurkai', 22)).resolves.toBe(true);
+
+            const all = (await $all('products')) as { years?: { year: number; amounts: unknown[] }[] }[];
+
+            expect(all[2].years).toStrictEqual([{ year: 21, amounts: [{ variant: 'd', amount: 9 }] }]);
+        });
+
+        it('pushes a new year entry when redo applies to a year currently missing from years', async () => {
+            await (await db())
+                .collection('products')
+                .updateOne(
+                    { group: 'Daržovės', name: 'Agurkai' },
+                    {
+                        $unset: { years: 1 },
+                        $set: {
+                            undates: [
+                                {
+                                    time: Date.now(),
+                                    user,
+                                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
+                                },
+                            ],
+                        },
+                    }
+                );
+
+            await expect(redoProduct('Daržovės', 'Agurkai', 22)).resolves.toBe(true);
+
+            const all = (await $all('products')) as { years?: { year: number; amounts: unknown[] }[] }[];
+
+            expect(all[2].years).toStrictEqual([{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }]);
+        });
+
+        describe('non-annual item (year 0, combined amounts)', () => {
+            it('replaces the whole combined years entry when stock remains after redo', async () => {
+                await (await db())
+                    .collection('products')
+                    .updateOne(
+                        { group: 'Daržovės', name: 'Agurkai' },
+                        {
+                            $set: {
+                                years: [{ year: 0, amounts: [{ variant: 'd', amount: 5 }] }],
+                                undates: [
+                                    {
+                                        time: Date.now(),
+                                        user,
+                                        years: [{ year: 0, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                                    },
+                                ],
+                            },
+                        }
+                    );
+
+                await expect(redoProduct('Daržovės', 'Agurkai', 0)).resolves.toBe(true);
+
+                const all = (await $all('products')) as { years?: { year: number; amounts: unknown[] }[] }[];
+
+                expect(all[2].years).toStrictEqual([{ year: 0, amounts: [{ variant: 'd', amount: 3 }] }]);
+            });
+
+            it('unsets years entirely when redo brings combined stock to zero', async () => {
+                await (await db())
+                    .collection('products')
+                    .updateOne(
+                        { group: 'Daržovės', name: 'Agurkai' },
+                        {
+                            $set: {
+                                years: [{ year: 0, amounts: [{ variant: 'd', amount: 2 }] }],
+                                undates: [
+                                    {
+                                        time: Date.now(),
+                                        user,
+                                        years: [{ year: 0, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                                    },
+                                ],
+                            },
+                        }
+                    );
+
+                await expect(redoProduct('Daržovės', 'Agurkai', 0)).resolves.toBe(true);
+
+                const all = (await $all('products')) as { years?: unknown }[];
+
+                expect(all[2].years).toBeUndefined();
+            });
         });
     });
 
@@ -1923,6 +2224,32 @@ describe('products', () => {
 
             expect(amounts.find((a) => a.variant === 'p' && !a.home)?.amount).toBe(3);
             expect(amounts.find((a) => a.variant === 'p' && a.home)?.amount).toBe(5);
+        });
+    });
+
+    describe('getProductUpdates and getProductUndates', () => {
+        it('returns update history entries for the given product and year', async () => {
+            const result = await getProductUpdates('Daržovės', 'Agurkai', 22);
+
+            expect(result.length).toBeGreaterThan(0);
+            expect(result.every((e) => e.group === 'Daržovės' && e.name === 'Agurkai' && e.year === 22)).toBe(true);
+        });
+
+        it('returns empty array when product has no updates for that year', async () => {
+            await expect(getProductUpdates('Daržovės', 'Kopūstai', 22)).resolves.toStrictEqual([]);
+        });
+
+        it('returns empty array for undates when none recorded', async () => {
+            await expect(getProductUndates('Daržovės', 'Agurkai', 22)).resolves.toStrictEqual([]);
+        });
+
+        it('returns undate history entries after an undo', async () => {
+            await undoProduct('Daržovės', 'Agurkai', 22);
+
+            const result = await getProductUndates('Daržovės', 'Agurkai', 22);
+
+            expect(result.length).toBeGreaterThan(0);
+            expect(result.every((e) => e.group === 'Daržovės' && e.name === 'Agurkai' && e.year === 22)).toBe(true);
         });
     });
 });

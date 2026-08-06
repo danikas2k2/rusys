@@ -175,6 +175,74 @@ describe('updates', () => {
             ]);
         });
 
+        it('merges a home balance into a year that already has consumed-history amounts', async () => {
+            const d = await db();
+            await d
+                .collection('products')
+                .updateOne(
+                    { group: 'Uogienės', name: 'Avietės' },
+                    { $push: { years: { year: 22, amounts: [{ variant: 'p', amount: 5, home: true }] } } }
+                );
+
+            const result = await getFullSummary();
+
+            const avietes = result.summary.find((s) => s.name === 'Avietės');
+            const year22 = avietes?.years?.find((y) => y.year === 22);
+
+            expect(year22?.amounts).toContainEqual({ variant: 'p', amount: 5, home: true });
+            expect(year22?.amounts).toContainEqual({ variant: 'p', amount: 1, recycled: false });
+        });
+
+        it('adds a brand new entry for a product that only has a home balance and no consumed history', async () => {
+            const d = await db();
+            await d.collection('products').insertOne({
+                group: 'Uogienės',
+                name: 'Namų likutis',
+                years: [{ year: 23, amounts: [{ variant: 'p', amount: 4, home: true }] }],
+            });
+
+            const result = await getFullSummary();
+
+            const entry = result.summary.find((s) => s.name === 'Namų likutis');
+
+            expect(entry?.years).toStrictEqual([{ year: 23, amounts: [{ variant: 'p', amount: 4, home: true }] }]);
+        });
+
+        it('does not collapse products whose parent chains form a cycle', async () => {
+            const d = await db();
+            await d.collection('products').insertMany([
+                {
+                    group: 'Uogienės',
+                    name: 'Ciklinis A',
+                    parent: 'Ciklinis B',
+                    years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }],
+                    updates: [
+                        {
+                            time: Date.parse('2023-01-01T12:00:00.000Z'),
+                            years: [{ year: 22, amounts: [{ variant: 'p', amount: -1, recycled: false }] }],
+                        },
+                    ],
+                },
+                {
+                    group: 'Uogienės',
+                    name: 'Ciklinis B',
+                    parent: 'Ciklinis A',
+                    years: [{ year: 22, amounts: [{ variant: 'p', amount: 1 }] }],
+                    updates: [
+                        {
+                            time: Date.parse('2023-01-01T12:00:00.000Z'),
+                            years: [{ year: 22, amounts: [{ variant: 'p', amount: -1, recycled: false }] }],
+                        },
+                    ],
+                },
+            ]);
+
+            const result = await getFullSummary();
+
+            expect(result.summary.some((s) => s.name === 'Ciklinis A')).toBe(true);
+            expect(result.summary.some((s) => s.name === 'Ciklinis B')).toBe(true);
+        });
+
         it('rolls up through a grandchild (arbitrary depth) into the topmost ancestor', async () => {
             const d = await db();
             await d

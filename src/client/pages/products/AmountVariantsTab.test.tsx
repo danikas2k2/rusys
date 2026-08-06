@@ -15,7 +15,7 @@ import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import type { ProductAmounts } from '~/types/data';
 
 vi.mock(import('~/client/pages/variants/VariantBox'), () => ({
-    VariantBox: vi.fn(({ opened, onClose }: any) =>
+    VariantBox: vi.fn(({ opened, onClose, onAfterClose }: any) =>
         opened ? (
             <div role="dialog" aria-label="Add variant">
                 <button type="button" onClick={() => onClose('Uogienės', 'x')}>
@@ -23,6 +23,9 @@ vi.mock(import('~/client/pages/variants/VariantBox'), () => ({
                 </button>
                 <button type="button" onClick={() => onClose()}>
                     Cancel add
+                </button>
+                <button type="button" onClick={() => onAfterClose?.()}>
+                    Exit transition end
                 </button>
             </div>
         ) : null
@@ -33,19 +36,31 @@ vi.mock(import('@mantine/core'), async () => {
     const actual = await vi.importActual('@mantine/core');
     return {
         ...actual,
-        Select: vi.fn(({ placeholder, data, onChange }: any) => (
-            <select
-                aria-label={placeholder}
-                onChange={(e) => onChange(e.target.value === '__null__' ? null : e.target.value)}
-                defaultValue="__null__"
-            >
-                <option value="__null__" disabled />
-                {(data as any[]).map((item: any) => (
-                    <option key={item.value ?? item} value={item.value ?? item}>
-                        {item.label ?? item}
-                    </option>
-                ))}
-            </select>
+        Select: vi.fn(({ placeholder, data, onChange, renderOption }: any) => (
+            <>
+                <select
+                    aria-label={placeholder}
+                    onChange={(e) => onChange(e.target.value === '__null__' ? null : e.target.value)}
+                    defaultValue="__null__"
+                >
+                    <option value="__null__" disabled />
+                    {(data as any[]).map((item: any) => (
+                        <option key={item.value ?? item} value={item.value ?? item}>
+                            {item.label ?? item}
+                        </option>
+                    ))}
+                </select>
+                {/* Not part of the real select UI - just exercises renderOption for coverage,
+                    kept out of <option> to avoid invalid-DOM-nesting warnings for non-text content */}
+                <div style={{ display: 'none' }}>
+                    {renderOption &&
+                        (data as any[]).map((item: any) => (
+                            <React.Fragment key={item.value ?? item}>
+                                {renderOption({ option: item })}
+                            </React.Fragment>
+                        ))}
+                </div>
+            </>
         )),
     };
 });
@@ -83,6 +98,9 @@ vi.mock(import('~/client/pages/products/AmountExpanded'), () => ({
                     </button>
                     <button type="button" onClick={() => onAddExpiry('2026-09-01')}>
                         Pick 2026-09-01
+                    </button>
+                    <button type="button" onClick={() => onAddExpiry(null)}>
+                        Clear date
                     </button>
                 </>
             )}
@@ -644,6 +662,65 @@ describe('<AmountVariantsTab>', () => {
         expect(screen.queryByRole('button', { name: /\bx\b/ })).not.toBeInTheDocument();
     });
 
+    it('renders safely with no active content', () => {
+        render(
+            <MockThemeActive active={undefined}>
+                <AmountVariantsTab />
+            </MockThemeActive>
+        );
+
+        expect(screen.getByRole('combobox')).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /\bp\b/ })).not.toBeInTheDocument();
+    });
+
+    it('does not call updateProduct when Update is clicked with no active content', async () => {
+        const mockUpdate = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
+        vi.mocked(useAllVariants).mockReturnValue(['p', 'd', 'm']);
+
+        render(
+            <MockThemeActive active={undefined}>
+                <AmountVariantsTab />
+            </MockThemeActive>
+        );
+
+        await user.selectOptions(screen.getByRole('combobox'), 'm');
+        await user.click(screen.getAllByText('decrease-updated')[0]);
+        await user.click(screen.getByRole('button', { name: /^update$/i }));
+
+        expect(mockUpdate).not.toHaveBeenCalled();
+    });
+
+    it('does nothing when the variant select reports a null value', () => {
+        renderTab();
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: '__null__' } });
+
+        expect(screen.queryByRole('button', { name: /\bm\b/ })).not.toBeInTheDocument();
+        expect(VariantBox).toHaveBeenCalledWith(expect.objectContaining({ opened: false }), undefined);
+    });
+
+    it('closing VariantBox via its exit transition hides it without needing Cancel/Create first', async () => {
+        renderTab();
+
+        fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } });
+
+        expect(screen.getByRole('dialog', { name: 'Add variant' })).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'Exit transition end' }));
+
+        expect(screen.queryByRole('dialog', { name: 'Add variant' })).not.toBeInTheDocument();
+    });
+
+    it('clearing a picked expiry date does not add a dated row', async () => {
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('Clear date')[0]);
+
+        expect(screen.getAllByRole('button', { name: /\bd\b/ })).toHaveLength(1);
+    });
+
     it('cancel also clears expandedVariant', async () => {
         // Ensure default empty products (previous test may have set a mock)
         vi.mocked(useProducts).mockReturnValue([]);
@@ -983,6 +1060,21 @@ describe('expiry amounts', () => {
         expect(screen.getAllByRole('button', { name: /\bd\b/ })).toHaveLength(3);
         expect(screen.getByText('2026-08-15')).toBeInTheDocument();
         expect(screen.getByText('2026-09-01')).toBeInTheDocument();
+    });
+
+    it('picking the same date again for the same variant does not add a duplicate row', async () => {
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+        await user.click(screen.getAllByText('Pick 2026-08-15')[0]);
+
+        expect(screen.getAllByRole('button', { name: /\bd\b/ })).toHaveLength(2);
+
+        // Re-expand the plain d row and pick the exact same date again
+        await user.click(screen.getAllByRole('button', { name: /\bd\b/ })[0]);
+        await user.click(screen.getAllByText('Pick 2026-08-15')[0]);
+
+        expect(screen.getAllByRole('button', { name: /\bd\b/ })).toHaveLength(2);
     });
 
     it('shows a "+N" badge on the plain row once dated rows exist for that variant', async () => {

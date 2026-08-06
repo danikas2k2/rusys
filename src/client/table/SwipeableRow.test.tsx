@@ -11,9 +11,12 @@ import { SwipeableRow } from '~/client/table/SwipeableRow';
 import { POINTER_MOVE_THRESHOLD } from '~/client/utils/pointer';
 import { dispatchNativeCancelEvents } from '~/client/utils/pointEvents';
 
+const mockSetOffset = vi.fn(() => false);
+const mockDragApiRef = { current: { setOffset: mockSetOffset } };
+
 vi.mock(import('~/client/common/SwipeControlsContext'), () => ({
     useSwipePanelWidth: vi.fn(() => [120, vi.fn()]),
-    useSwipePanelDragApi: vi.fn(() => ({ current: { setOffset: vi.fn() } })),
+    useSwipePanelDragApi: vi.fn(() => mockDragApiRef),
 }));
 
 vi.mock(import('~/client/utils/pointEvents'), async () => ({
@@ -29,7 +32,10 @@ describe('<SwipeableRow>', () => {
     // Capture original PointerEvent before any tests modify it
     const originalPointerEvent = (window as any).PointerEvent;
 
-    afterEach(() => vi.clearAllMocks());
+    afterEach(() => {
+        vi.clearAllMocks();
+        mockSetOffset.mockImplementation(() => false);
+    });
 
     describe('rendering', () => {
         it('renders table row with children', () => {
@@ -2186,4 +2192,159 @@ describe('<SwipeableRow>', () => {
             });
         });
     });
+
+    describe('reveal transition (dragApiRef.setOffset succeeds)', () => {
+        it('arms the reveal freeze once the panel node is found, and does not re-write while still within it', async () => {
+            mockSetOffset.mockReturnValue(true);
+
+            render(
+                <MockTheme>
+                    <MockActiveContent setActive={setActive}>
+                        <Table>
+                            <Table.Tbody>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
+                                    <Table.Td>Cell</Table.Td>
+                                </SwipeableRow>
+                            </Table.Tbody>
+                        </Table>
+                    </MockActiveContent>
+                </MockTheme>
+            );
+
+            const row = screen.getByRole('row');
+
+            // Pointer down from closed (offset 0) - the first move just mounts the panel hidden,
+            // it does not call setOffset at all yet.
+            fireEvent.pointerDown(row, { clientX: 200, clientY: 50, isPrimary: true });
+            fireEvent.pointerMove(row, {
+                clientX: 200 - POINTER_MOVE_THRESHOLD - 5,
+                clientY: 50,
+                isPrimary: true,
+            });
+
+            expect(mockSetOffset).not.toHaveBeenCalled();
+
+            // Second move: panel now exists in the DOM registry (setOffset succeeds) - this is
+            // the one-time reveal write, and arms the freeze window.
+            fireEvent.pointerMove(row, {
+                clientX: 200 - POINTER_MOVE_THRESHOLD - 8,
+                clientY: 50,
+                isPrimary: true,
+            });
+
+            expect(mockSetOffset).toHaveBeenCalledTimes(1);
+            expect(mockSetOffset).toHaveBeenLastCalledWith('test-1', expect.any(Number), false);
+
+            // Third move, fired essentially instantly and only a few px further - within both the
+            // freeze deadline (70ms) and the abandon distance (20px), so it's skipped entirely.
+            fireEvent.pointerMove(row, {
+                clientX: 200 - POINTER_MOVE_THRESHOLD - 10,
+                clientY: 50,
+                isPrimary: true,
+            });
+
+            expect(mockSetOffset).toHaveBeenCalledTimes(1);
+
+            fireEvent.pointerUp(row, {
+                clientX: 200 - POINTER_MOVE_THRESHOLD - 10,
+                clientY: 50,
+                isPrimary: true,
+            });
+        });
+
+        it('abandons the freeze early once the finger has clearly kept moving past the abandon distance', async () => {
+            mockSetOffset.mockReturnValue(true);
+
+            render(
+                <MockTheme>
+                    <MockActiveContent setActive={setActive}>
+                        <Table>
+                            <Table.Tbody>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
+                                    <Table.Td>Cell</Table.Td>
+                                </SwipeableRow>
+                            </Table.Tbody>
+                        </Table>
+                    </MockActiveContent>
+                </MockTheme>
+            );
+
+            const row = screen.getByRole('row');
+
+            fireEvent.pointerDown(row, { clientX: 500, clientY: 50, isPrimary: true });
+            fireEvent.pointerMove(row, { clientX: 500 - POINTER_MOVE_THRESHOLD - 5, clientY: 50, isPrimary: true });
+            fireEvent.pointerMove(row, { clientX: 500 - POINTER_MOVE_THRESHOLD - 8, clientY: 50, isPrimary: true });
+
+            expect(mockSetOffset).toHaveBeenCalledTimes(1);
+
+            // Big jump, far past REVEAL_ABANDON_DISTANCE (20px) from where the reveal was armed -
+            // tracks the finger live instead of staying frozen.
+            fireEvent.pointerMove(row, { clientX: 500 - 200, clientY: 50, isPrimary: true });
+
+            expect(mockSetOffset).toHaveBeenCalledTimes(2);
+            expect(mockSetOffset).toHaveBeenLastCalledWith('test-1', expect.any(Number), true);
+
+            fireEvent.pointerUp(row, { clientX: 500 - 200, clientY: 50, isPrimary: true });
+        });
+    });
+
+    describe('diagonal swipe that never engages sliding', () => {
+        it('does not open when the horizontal delta stays below the open threshold', async () => {
+            render(
+                <MockTheme>
+                    <MockActiveContent setActive={setActive}>
+                        <Table>
+                            <Table.Tbody>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
+                                    <Table.Td>Cell</Table.Td>
+                                </SwipeableRow>
+                            </Table.Tbody>
+                        </Table>
+                    </MockActiveContent>
+                </MockTheme>
+            );
+
+            const row = screen.getByRole('row');
+
+            fireEvent.pointerDown(row, { clientX: 300, clientY: 50, isPrimary: true });
+            // ax=12, ay=15: past POINTER_MOVE_THRESHOLD but more vertical than horizontal, so
+            // sliding never starts (this is treated as a vertical scroll, not a swipe).
+            fireEvent.pointerMove(row, { clientX: 288, clientY: 65, isPrimary: true });
+            fireEvent.pointerUp(row, { clientX: 288, clientY: 65, isPrimary: true });
+
+            expect(setActive).not.toHaveBeenCalled();
+        });
+
+        it('opens fully when the horizontal delta clears the open threshold, even though sliding never engaged', async () => {
+            render(
+                <MockTheme>
+                    <MockActiveContent setActive={setActive}>
+                        <Table>
+                            <Table.Tbody>
+                                <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
+                                    <Table.Td>Cell</Table.Td>
+                                </SwipeableRow>
+                            </Table.Tbody>
+                        </Table>
+                    </MockActiveContent>
+                </MockTheme>
+            );
+
+            const row = screen.getByRole('row');
+
+            fireEvent.pointerDown(row, { clientX: 300, clientY: 50, isPrimary: true });
+            // ax=30, ay=40: still more vertical than horizontal throughout (never triggers
+            // sliding), but the horizontal component alone clears the 20%-of-controlsWidth
+            // open threshold (120 * 0.2 = 24) once the finger lifts.
+            fireEvent.pointerMove(row, { clientX: 270, clientY: 90, isPrimary: true });
+            fireEvent.pointerUp(row, { clientX: 270, clientY: 90, isPrimary: true });
+
+            await waitFor(() => {
+                expect(setActive).toHaveBeenCalledWith(
+                    expect.objectContaining({ id: 'test-1', data: mockData, offset: -120 })
+                );
+            });
+        });
+    });
+
 });

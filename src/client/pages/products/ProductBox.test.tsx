@@ -1,10 +1,11 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockThemeRedux } from '@tests/MockThemeRedux';
 
 import React from 'react';
 
+import { GroupFilterWrapper } from '~/client/filters/GroupFilterContext';
 import { ProductBox } from '~/client/pages/products/ProductBox';
 import { useAddProduct } from '~/client/state/products/useAddProduct';
 import { useMoveProduct } from '~/client/state/products/useMoveProduct';
@@ -85,6 +86,16 @@ describe('<ProductBox>', () => {
     };
 
     const onClose = vi.fn();
+
+    it('does not render when opened=false', () => {
+        render(
+            <MockThemeRedux state={state}>
+                <ProductBox onClose={onClose} />
+            </MockThemeRedux>
+        );
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
 
     it('renders with cancel button', () => {
         render(
@@ -588,6 +599,18 @@ describe('<ProductBox>', () => {
             expect(moveProduct).not.toHaveBeenCalled();
             expect(onClose).toHaveBeenCalledWith('Uogienės', 'Avietės');
         });
+
+        it('shows the Move button purely from an active category filter differing from the product, without touching the form', () => {
+            render(
+                <MockThemeRedux state={state}>
+                    <GroupFilterWrapper initialState="Daržovės">
+                        <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
+                    </GroupFilterWrapper>
+                </MockThemeRedux>
+            );
+
+            expect(screen.getByRole('button', { name: 'Move' })).toBeInTheDocument();
+        });
     });
 
     describe('parent product', () => {
@@ -690,6 +713,32 @@ describe('<ProductBox>', () => {
             expect(screen.getByRole('option', { name: 'Kopūstai' })).toBeInTheDocument();
         });
 
+        it('does not hang when walking a pre-existing cyclic parent chain in the data', () => {
+            const cyclicState = {
+                ...state,
+                products: [
+                    ...getProductsFixture(),
+                    { group: 'Daržovės', name: 'CiklinisA', parent: 'CiklinisB' },
+                    { group: 'Daržovės', name: 'CiklinisB', parent: 'CiklinisA' },
+                ],
+            };
+
+            render(
+                <MockThemeRedux state={cyclicState}>
+                    <ProductBox opened group="Daržovės" name="CiklinisA" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            act(() => fireEvent.click(combobox));
+
+            // CiklinisA is excluded as its own parent option; CiklinisB (its cyclic "descendant"
+            // per the corrupted data) is also excluded, but unrelated products remain offered.
+            expect(screen.queryByRole('option', { name: 'CiklinisA' })).not.toBeInTheDocument();
+            expect(screen.queryByRole('option', { name: 'CiklinisB' })).not.toBeInTheDocument();
+            expect(screen.getByRole('option', { name: 'Kopūstai' })).toBeInTheDocument();
+        });
+
         it('passes the selected parent when adding a new product', async () => {
             const addProduct = vi.fn().mockResolvedValueOnce(true);
             vi.mocked(useAddProduct).mockReturnValue(addProduct);
@@ -733,6 +782,48 @@ describe('<ProductBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
             expect(setProductParent).not.toHaveBeenCalled();
+        });
+
+        it('clears the selected parent when it is no longer valid for the newly selected category', async () => {
+            const setProductParent = vi.fn().mockResolvedValueOnce(true);
+            vi.mocked(useSetProductParent).mockReturnValue(setProductParent);
+            render(
+                <MockThemeRedux state={stateWithChild}>
+                    <ProductBox opened group="Daržovės" name="Kopūstai" parent="Agurkai" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            expect(screen.getByRole('combobox', { name: 'Parent product' })).toHaveValue('Agurkai');
+
+            // Switching away then back to the original category: parentOptions no longer contains
+            // 'Agurkai' at the intermediate step, so the field is cleared - and it stays cleared
+            // (not restored) once we're back, since the clearing effect only ever moves value -> ''.
+            selectOption('Uogienės');
+            selectOption('Daržovės');
+
+            await user.click(screen.getByRole('button', { name: 'Update' }));
+
+            expect(setProductParent).toHaveBeenCalledWith('Daržovės', 'Kopūstai', undefined);
+        });
+
+        it('clears the parent when the selection is removed and Update is clicked', async () => {
+            const setProductParent = vi.fn().mockResolvedValueOnce(true);
+            vi.mocked(useSetProductParent).mockReturnValue(setProductParent);
+            render(
+                <MockThemeRedux state={stateWithChild}>
+                    <ProductBox opened group="Daržovės" name="Kopūstai" parent="Agurkai" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            const wrapper = combobox.closest('.mantine-InputWrapper-root') as HTMLElement;
+            const clearButton = wrapper.querySelector('.mantine-InputClearButton-root') as HTMLElement;
+
+            await user.click(clearButton);
+
+            await user.click(screen.getByRole('button', { name: 'Update' }));
+
+            expect(setProductParent).toHaveBeenCalledWith('Daržovės', 'Kopūstai', undefined);
         });
 
         it('blocks a category change for a product that has children', async () => {

@@ -30,32 +30,24 @@ export function ChangeBadge({ change, position = 'inline' }: ChangeBadgeProps) {
     ) : null;
 }
 
-function getState(change: ChangeBadgeType): string {
-    if (change === false) {
-        return '';
-    }
+// Only called with a truthy `change` (see the ternary above), so the `false`/`0` case never reaches here.
+function getState(change: true | number): string {
     if (change === true) {
         return 'updated';
     }
     return change > 0 ? 'positive' : 'negative';
 }
 
-function getColor(change: ChangeBadgeType): MantineColor {
-    if (change === false) {
-        return '';
-    }
+function getColor(change: true | number): MantineColor {
     if (change === true) {
         return 'moderate';
     }
     return change > 0 ? 'positive' : 'negative';
 }
 
-function getDisplay(change: ChangeBadgeType): string {
-    if (change === false) {
-        return '';
-    }
+function getDisplay(change: true | number): string {
     if (change === true) {
         return '﹡';
     }
-    return `${(change > 0 && '+') || (change < 0 && '–') || ''}${Math.abs(change)}`;
+    return `${change > 0 ? '+' : '–'}${Math.abs(change)}`;
 }

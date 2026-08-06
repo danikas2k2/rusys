@@ -86,6 +86,14 @@ describe('<SummaryHistoryTab>', () => {
         expect(screen.getAllByRole('row')).toHaveLength(3);
     });
 
+    it('treats a missing amounts field as empty instead of crashing', () => {
+        vi.mocked(useUpdates).mockReturnValue([{ group: 'Vaisiai', name: 'Obuoliai', time: 1000, year: 2026 }]);
+
+        renderTab();
+
+        expect(screen.getByTestId('amounts')).toHaveTextContent('0');
+    });
+
     it('renders amounts for each update row', () => {
         vi.mocked(useUpdates).mockReturnValue([
             {
@@ -263,6 +271,16 @@ describe('<SummaryHistoryTab>', () => {
         renderTab();
 
         expect(screen.queryByText('Test comment text')).not.toBeInTheDocument();
+    });
+
+    it('uses empty group/name and year=0 when there is no active content', () => {
+        render(
+            <MockThemeActive active={undefined}>
+                <SummaryHistoryTab />
+            </MockThemeActive>
+        );
+
+        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith(0, '', '');
     });
 
     it('uses year=0 when active context has no year', () => {

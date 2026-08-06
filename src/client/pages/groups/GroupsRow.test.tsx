@@ -214,4 +214,21 @@ describe('<GroupsRow>', () => {
 
         expect(props['data-hidden']).toBe(false);
     });
+
+    it('renders an avatar with the group image when set', () => {
+        render(
+            <MockTheme>
+                <Table>
+                    <Table.Tbody>
+                        <GroupsRow
+                            group={{ group: 'Uogienės', order: 0, image: '/images/ab/cd/uogienes.png' }}
+                            reordering={false}
+                        />
+                    </Table.Tbody>
+                </Table>
+            </MockTheme>
+        );
+
+        expect(document.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/uogienes.png');
+    });
 });

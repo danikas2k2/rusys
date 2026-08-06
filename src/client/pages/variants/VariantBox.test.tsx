@@ -45,6 +45,26 @@ describe('<VariantBox>', () => {
 
     const onClose = vi.fn();
 
+    it('does not render when opened=false', () => {
+        render(
+            <MockApp state={state}>
+                <VariantBox onClose={onClose} />
+            </MockApp>
+        );
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('leaves the name field blank when the variant name is just the auto-derived count+units key', () => {
+        render(
+            <MockApp state={state}>
+                <VariantBox opened group="Daržovės" variant="500ml" count={500} units="ml" onClose={onClose} />
+            </MockApp>
+        );
+
+        expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveValue('');
+    });
+
     it('renders with cancel button', () => {
         render(
             <MockApp state={state}>

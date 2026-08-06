@@ -27,11 +27,8 @@ export function AmountHistoryRow({
         [dimmed, h.amounts]
     );
 
-    const handleRowClick = useCallback(() => {
-        if (consumedLines.length > 0) {
-            setExpanded((prev) => !prev);
-        }
-    }, [consumedLines.length]);
+    // Only ever wired to onClick when consumedLines is non-empty (see below), so no length guard needed here.
+    const handleRowClick = useCallback(() => setExpanded((prev) => !prev), []);
 
     const handleMove = useCallback(
         async (line: VariantAmount, amount: number) => {

@@ -26,4 +26,23 @@ describe('<SummaryPage>', () => {
         expect(screen.getByText('SummaryTable')).toBeInTheDocument();
         expect(screen.getByText('Toolbar')).toBeInTheDocument();
     });
+
+    it('only shows categories that have summary data', () => {
+        render(
+            <MockPage
+                state={{
+                    groups: [
+                        { group: 'Uogienės', order: 0 },
+                        { group: 'Daržovės', order: 1 },
+                    ],
+                    summary: [{ group: 'Uogienės', name: 'Avietės', years: [] }],
+                }}
+            >
+                <SummaryPage />
+            </MockPage>
+        );
+
+        expect(screen.getByRole('tab', { name: 'Uogienės' })).toBeInTheDocument();
+        expect(screen.queryByRole('tab', { name: 'Daržovės' })).not.toBeInTheDocument();
+    });
 });

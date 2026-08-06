@@ -10,7 +10,7 @@ import {
     getVariantAmount,
     mergeAmountsIgnoringExpiry,
 } from '~/common/utils/amounts';
-import type { Variant } from '~/types/data';
+import type { Variant, YearAmounts } from '~/types/data';
 
 vi.mock(import('~/client/state/groups/useGetGroups'));
 vi.mock(import('~/client/state/variants/useGetVariants'));
@@ -462,6 +462,16 @@ describe('amounts', () => {
             expect(acc).toContainEqual({ variant: 'p', amount: -1, recycled: false, home: true });
         });
 
+        it('keeps a suspicious entry separate from a non-suspicious one for the same variant', () => {
+            let acc: readonly ReturnType<typeof addTypedVariantAmount>[number][] = [];
+            acc = addTypedVariantAmount(acc, { variant: 'p', amount: -2, recycled: false });
+            acc = addTypedVariantAmount(acc, { variant: 'p', amount: -1, recycled: false, suspicious: true });
+
+            expect(acc).toHaveLength(2);
+            expect(acc).toContainEqual({ variant: 'p', amount: -2, recycled: false });
+            expect(acc).toContainEqual({ variant: 'p', amount: -1, recycled: false, suspicious: true });
+        });
+
         it('keeps differently-dated consumed lines for the same variant separate', () => {
             let acc: readonly ReturnType<typeof addTypedVariantAmount>[number][] = [];
             acc = addTypedVariantAmount(acc, { variant: 'p', amount: -2, recycled: false, expiresAt: 100 });
@@ -518,6 +528,15 @@ describe('amounts', () => {
 
             expect(result).toStrictEqual([{ year: 2020, amounts: [{ variant: 'p', amount: 4 }] }]);
         });
+
+        it('treats a year entry with a missing amounts field (malformed/legacy document) as empty', () => {
+            const result = combineProductYears([
+                [{ year: 2020, amounts: undefined } as unknown as YearAmounts],
+                [{ year: 2020, amounts: [{ variant: 'p', amount: 4 }] }],
+            ]);
+
+            expect(result).toStrictEqual([{ year: 2020, amounts: [{ variant: 'p', amount: 4 }] }]);
+        });
     });
 
     describe('getCombinedAmounts', () => {
@@ -527,6 +546,15 @@ describe('amounts', () => {
 
         it('returns an empty array for an empty years array', () => {
             expect(getCombinedAmounts([])).toStrictEqual([]);
+        });
+
+        it('treats a year entry with a missing amounts field (malformed/legacy document) as empty', () => {
+            const result = getCombinedAmounts([
+                { year: 2020, amounts: undefined } as unknown as YearAmounts,
+                { year: 2021, amounts: [{ variant: 'p', amount: 4 }] },
+            ]);
+
+            expect(result).toStrictEqual([{ variant: 'p', amount: 4 }]);
         });
 
         it('combines amounts from a single year', () => {

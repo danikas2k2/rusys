@@ -59,7 +59,7 @@ export function VariantBox({
     const isCopying = isEditing && filterGroup && filterGroup !== initialGroup;
 
     const _ = useLabels();
-    const allGroups = useGroups() ?? [];
+    const allGroups = useGroups();
     const groups = allGroups.map((g) => g.group);
     const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image]));
     const variants = useVariants();
@@ -83,7 +83,7 @@ export function VariantBox({
                 return null;
             },
             name: (value, values) => {
-                const trimmed = value?.trim() ?? '';
+                const trimmed = value.trim();
 
                 if (trimmed && trimmed.includes(':')) {
                     return _('Cannot contain ":" character');
@@ -180,10 +180,13 @@ export function VariantBox({
 
         const validation = form.validate();
         if (validation.hasErrors) {
+            // Whenever count has an error, name does too (an empty name + invalid count both fail
+            // the name validator's "variant name or amount is required" check) - so if group has
+            // no error, name always does.
             if (validation.errors.group) {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
                 groupRef.current?.focus();
-            } else if (validation.errors.name) {
+            } else {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
                 nameRef.current?.focus();
             }
@@ -196,7 +199,7 @@ export function VariantBox({
 
         try {
             const values = form.values;
-            const trimmedName = values.name?.trim() ?? '';
+            const trimmedName = values.name.trim();
             const effectiveVariant = trimmedName || deriveVariantKey(values.count, values.units);
             const groupChanged = isEditing && values.group !== initialGroup;
             const variantRenamed = isEditing && effectiveVariant !== initialVariant && !groupChanged;

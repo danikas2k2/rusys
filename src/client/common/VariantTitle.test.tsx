@@ -56,6 +56,20 @@ describe('<VariantTitle>', () => {
         expect(screen.getByText('ml.')).toBeInTheDocument();
     });
 
+    it('falls back to default units when checking for an auto-derived key with no units set', () => {
+        vi.mocked(useVariant).mockReturnValue({ group: 'Uogienės', variant: 'Stiklainis', order: 0, count: 3 });
+
+        render(
+            <MockTheme>
+                <VariantTitle group="Uogienės" variant="Stiklainis" />
+            </MockTheme>
+        );
+
+        // Not auto-derived (key would've been "3vnt"), so shows the custom name plus dimmed count
+        expect(screen.getByText('Stiklainis')).toBeInTheDocument();
+        expect(screen.getByText('3')).toBeInTheDocument();
+    });
+
     it('renders the custom variant key directly when no count is set', () => {
         vi.mocked(useVariant).mockReturnValue({ group: 'Uogienės', variant: 'Didelė', order: 0 });
 

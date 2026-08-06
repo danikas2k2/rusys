@@ -57,6 +57,16 @@ describe('<GroupBox>', () => {
 
     const onClose = vi.fn();
 
+    it('does not render when opened=false', () => {
+        render(
+            <MockApp state={state}>
+                <GroupBox onClose={onClose} />
+            </MockApp>
+        );
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
     it('renders with cancel button', () => {
         render(
             <MockApp state={state}>

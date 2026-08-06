@@ -134,6 +134,34 @@ describe('<DraggableContent>', () => {
         expect(onDragEnd).not.toHaveBeenCalled();
     });
 
+    it('onDragStart: still shows the overlay (with empty widths) when no element matches the dragged id', () => {
+        const renderDragOverlay = vi.fn((activeId: UniqueIdentifier, columnWidths: number[]) => (
+            <div>
+                Overlay: {activeId} / widths: {columnWidths.join(',')}
+            </div>
+        ));
+
+        render(
+            <MockTheme>
+                <DraggableContent renderDragOverlay={renderDragOverlay}>
+                    <table>
+                        <tbody>
+                            <tr data-id="item-1">
+                                <td>Cell 1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </DraggableContent>
+            </MockTheme>
+        );
+
+        // Drag started for an id that has no matching [data-id] element in the DOM
+        act(() => (lastDndContextProps as any).onDragStart({ active: { id: 'missing-item' } }));
+
+        expect(screen.getByTestId('drag-overlay')).toBeInTheDocument();
+        expect(renderDragOverlay).toHaveBeenCalledWith('missing-item', []);
+    });
+
     it('onDragEnd: calls callback and hides DragOverlay', () => {
         const renderDragOverlay = vi.fn((activeId: UniqueIdentifier) => <div>Overlay: {activeId}</div>);
 

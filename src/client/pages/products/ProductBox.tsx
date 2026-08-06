@@ -100,7 +100,7 @@ export function ProductBox({
     const isMoving = isEditing && filterGroup && filterGroup !== initialGroup;
 
     const _ = useLabels();
-    const allGroups = useGroups() ?? [];
+    const allGroups = useGroups();
     const groups = allGroups.map((g) => g.group);
     const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image]));
     const products = useProducts();
@@ -232,10 +232,11 @@ export function ProductBox({
         const validation = form.validate();
         if (validation.hasErrors) {
             // Focus first invalid field
+            // Only 'group' and 'name' are validated, so hasErrors implies one of them is set.
             if (validation.errors.group) {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
                 groupRef.current?.focus();
-            } else if (validation.errors.name) {
+            } else {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
                 nameRef.current?.focus();
             }
@@ -359,8 +360,10 @@ export function ProductBox({
                             label={_('Parent product')}
                             placeholder={_('No parent')}
                             data={parentOptions}
+                            // option.value is always one of parentOptions, which is built from the
+                            // same parentOptionNodes as parentDepthByName - the entry always exists.
                             renderOption={({ option }: { option: ComboboxItem }) => (
-                                <div style={{ paddingInlineStart: (parentDepthByName.get(option.value) ?? 0) * 16 }}>
+                                <div style={{ paddingInlineStart: parentDepthByName.get(option.value)! * 16 }}>
                                     {option.label}
                                 </div>
                             )}

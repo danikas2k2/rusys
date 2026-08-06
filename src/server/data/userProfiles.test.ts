@@ -24,6 +24,10 @@ describe('userProfiles', () => {
             await expect(upsertUserProfile('\t\n')).resolves.toBe(false);
         });
 
+        it('returns false when email is null (malformed API request body)', async () => {
+            await expect(upsertUserProfile(null as unknown as string)).resolves.toBe(false);
+        });
+
         it('returns true on first insert (upsertedCount > 0)', async () => {
             await expect(upsertUserProfile('user@example.com')).resolves.toBe(true);
         });
@@ -95,6 +99,17 @@ describe('userProfiles', () => {
 
         it('returns empty array when emails array is empty', async () => {
             await expect(getUserProfiles([])).resolves.toStrictEqual([]);
+        });
+
+        it('returns empty array when emails is null (malformed API request body)', async () => {
+            await expect(getUserProfiles(null as unknown as string[])).resolves.toStrictEqual([]);
+        });
+
+        it('filters out a null entry in the emails array (malformed API request body)', async () => {
+            const profiles = await getUserProfiles([null as unknown as string, 'alice@example.com']);
+
+            expect(profiles).toHaveLength(1);
+            expect(profiles[0]).toMatchObject({ email: 'alice@example.com' });
         });
 
         it('returns profiles for known emails', async () => {

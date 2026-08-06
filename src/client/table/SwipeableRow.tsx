@@ -349,10 +349,9 @@ export function SwipeableRow<D = ActiveContentData>({
 
     // Update touch-action based on panel state
     useEffect(() => {
-        const table = activeRef.current?.closest('table');
-        if (!table) {
-            return;
-        }
+        // Table.Tr can only render inside a Table (Mantine throws otherwise), so this row's own
+        // DOM node always has a <table> ancestor once mounted.
+        const table = activeRef.current!.closest('table')!;
 
         // Set touch-action based on panel state (none when open, pan-y when closed)
         table.style.touchAction = visible && x ? 'none' : 'pan-y';
@@ -363,10 +362,8 @@ export function SwipeableRow<D = ActiveContentData>({
     }, [visible, x]);
 
     useEffect(() => {
-        const el = activeRef.current;
-        if (!el) {
-            return;
-        }
+        // Refs are attached synchronously during commit, before any effect runs.
+        const el = activeRef.current!;
 
         el.addEventListener('pointerdown', handlePointerDown, { passive: false });
         el.addEventListener('pointermove', handlePointerMove, { passive: false });

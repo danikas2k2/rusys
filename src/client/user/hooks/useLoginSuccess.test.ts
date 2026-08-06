@@ -117,6 +117,22 @@ describe('useLoginSuccess', () => {
         expect(onError).not.toHaveBeenCalled();
     });
 
+    it('calls onError when the Google userinfo request fails', async () => {
+        vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+            ok: false,
+            status: 401,
+            json: async () => ({}),
+        } as any);
+
+        const onError = vi.fn();
+        const { result } = renderHook(() => useLoginSuccess(onError));
+        await act(() => result.current({ access_token: 'test-token' } as any));
+
+        expect(setProfile).not.toHaveBeenCalled();
+        expect(emailCheck).not.toHaveBeenCalled();
+        expect(onError).toHaveBeenCalledWith();
+    });
+
     it('uses access_token when credential is null', async () => {
         vi.spyOn(globalThis, 'fetch').mockResolvedValue({
             ok: true,

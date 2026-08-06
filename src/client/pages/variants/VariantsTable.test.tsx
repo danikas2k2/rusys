@@ -225,7 +225,7 @@ describe('<VariantsTable>', () => {
     });
 
     describe('handles drag and reorder', () => {
-        it('calls setActive when drag starts', () => {
+        it('does not call setActive before a drag starts', () => {
             const mockSetActive = vi.fn();
             const state = {
                 groups: getGroupsFixture(),
@@ -243,6 +243,26 @@ describe('<VariantsTable>', () => {
             const table = screen.getByRole('table');
 
             expect(table).toBeInTheDocument();
+        });
+
+        it('clears the active content once a drag starts', () => {
+            const mockSetActive = vi.fn();
+            const state = {
+                groups: getGroupsFixture(),
+                variants: getVariantsFixture(),
+            };
+
+            render(
+                <MockApp state={state} setActive={mockSetActive}>
+                    <VariantsTable />
+                </MockApp>
+            );
+
+            const { onDragStart } = vi.mocked(DraggableContent).mock.calls.at(-1)![0] as { onDragStart: () => void };
+
+            onDragStart();
+
+            expect(mockSetActive).toHaveBeenCalledWith();
         });
 
         it('configures useReorderHandler with correct callbacks', () => {

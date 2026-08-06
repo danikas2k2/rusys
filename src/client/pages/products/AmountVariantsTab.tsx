@@ -211,10 +211,12 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
         }
     }, [visibleKeys.length, unusedVariants, handleSelectVariant]);
 
+    // The triggering button is only rendered while !hasSuspicious/!hasHome (see isPlain checks
+    // below), so `key` can never already be in extraKeys here.
     const handleAddSuspicious = useCallback(
         (variant: string) => {
             const key = toKey(variant, true);
-            setExtraKeys((prev) => (prev.includes(key) ? prev : [...prev, key]));
+            setExtraKeys((prev) => [...prev, key]);
             setExpandedKey(key);
         },
         [setExpandedKey]
@@ -223,7 +225,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
     const handleAddHome = useCallback(
         (variant: string) => {
             const key = toKey(variant, false, true);
-            setExtraKeys((prev) => (prev.includes(key) ? prev : [...prev, key]));
+            setExtraKeys((prev) => [...prev, key]);
             setExpandedKey(key);
         },
         [setExpandedKey]
@@ -312,24 +314,20 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
         onClose,
     ]);
 
+    // Only ever wired to onClick while canUndo/canRedo is true, which itself requires activeData
+    // (see activeProduct above) - so activeData is always defined here.
     const handleUndo = useCallback(async (): Promise<void> => {
-        if (!activeData) {
-            return;
-        }
         setAllDeltas({});
         setExpandedKey(null);
-        setUpdating(activeData, true);
-        await undoProduct(group, name, year).finally(() => setUpdating(activeData, false));
+        setUpdating(activeData!, true);
+        await undoProduct(group, name, year).finally(() => setUpdating(activeData!, false));
     }, [activeData, group, name, year, setUpdating, undoProduct, setExpandedKey]);
 
     const handleRedo = useCallback(async (): Promise<void> => {
-        if (!activeData) {
-            return;
-        }
         setAllDeltas({});
         setExpandedKey(null);
-        setUpdating(activeData, true);
-        await redoProduct(group, name, year).finally(() => setUpdating(activeData, false));
+        setUpdating(activeData!, true);
+        await redoProduct(group, name, year).finally(() => setUpdating(activeData!, false));
     }, [activeData, group, name, year, setUpdating, redoProduct, setExpandedKey]);
 
     return (

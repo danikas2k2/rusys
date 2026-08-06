@@ -9,7 +9,7 @@ import { useApplyReview } from '~/client/state/products/useApplyReview';
 import type { Group, Product } from '~/types/data';
 
 vi.mock(import('~/client/pages/review/ReviewTable'), () => ({
-    ReviewTable: vi.fn(({ checkedKeys, onToggle }: any) => (
+    ReviewTable: vi.fn(({ checkedKeys, onToggle, onSelectAll, onReset }: any) => (
         <div data-testid="review-table">
             <span data-testid="checked-keys">{[...checkedKeys].join(',')}</span>
             <button type="button" onClick={() => onToggle('Uogienės:Avietės', true)}>
@@ -17,6 +17,24 @@ vi.mock(import('~/client/pages/review/ReviewTable'), () => ({
             </button>
             <button type="button" onClick={() => onToggle('Uogienės:Braškės', true)}>
                 check-braskes
+            </button>
+            <button type="button" onClick={() => onToggle('Uogienės:Avietės', false)}>
+                uncheck-avietes
+            </button>
+            <button
+                type="button"
+                onClick={() => onSelectAll(['Uogienės:Avietės', 'Uogienės:Braškės'], true)}
+            >
+                select-all
+            </button>
+            <button
+                type="button"
+                onClick={() => onSelectAll(['Uogienės:Avietės', 'Uogienės:Braškės'], false)}
+            >
+                unselect-all
+            </button>
+            <button type="button" onClick={() => onReset(['Uogienės:Avietės', 'Uogienės:Braškės'])}>
+                reset
             </button>
         </div>
     )),
@@ -144,6 +162,78 @@ describe('<ReviewBox>', () => {
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByTestId('checked-keys')).toHaveTextContent('Uogienės:Avietės');
         });
+    });
+
+    it('unchecking a checked item removes it from checkedKeys', async () => {
+        render(
+            <MockApp state={state}>
+                <ReviewBox opened />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'check-avietes' }));
+        await user.click(screen.getByRole('button', { name: 'uncheck-avietes' }));
+
+        expect(screen.getByTestId('checked-keys')).toHaveTextContent('');
+    });
+
+    it('select-all checks every given key and marks the group as touched', async () => {
+        const onClose = vi.fn();
+
+        render(
+            <MockApp state={state}>
+                <ReviewBox opened onClose={onClose} />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'select-all' }));
+
+        expect(screen.getByTestId('checked-keys')).toHaveTextContent('Uogienės:Avietės,Uogienės:Braškės');
+
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+        expect(onClose).not.toHaveBeenCalled();
+        expect(screen.getByRole('button', { name: 'Discard' })).toBeInTheDocument();
+    });
+
+    it('select-all with checked=false unchecks every given key without leaving the group untouched', async () => {
+        const onClose = vi.fn();
+
+        render(
+            <MockApp state={state}>
+                <ReviewBox opened onClose={onClose} />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'select-all' }));
+        await user.click(screen.getByRole('button', { name: 'unselect-all' }));
+
+        expect(screen.getByTestId('checked-keys')).toHaveTextContent('');
+
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+        expect(onClose).not.toHaveBeenCalled();
+        expect(screen.getByRole('button', { name: 'Discard' })).toBeInTheDocument();
+    });
+
+    it('reset returns the group to untouched and removes the given keys from checkedKeys', async () => {
+        const onClose = vi.fn();
+
+        render(
+            <MockApp state={state}>
+                <ReviewBox opened onClose={onClose} />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'select-all' }));
+        await user.click(screen.getByRole('button', { name: 'reset' }));
+
+        expect(screen.getByTestId('checked-keys')).toHaveTextContent('');
+
+        await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+        expect(onClose).toHaveBeenCalledTimes(1);
+        expect(screen.queryByRole('button', { name: 'Discard' })).not.toBeInTheDocument();
     });
 
     it('resets checked items when the dialog is reopened', async () => {

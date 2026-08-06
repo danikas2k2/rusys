@@ -105,6 +105,41 @@ describe('exportArchive', () => {
             expect(zip.file('images/aa/bb/missing.png')).toBeNull();
         });
 
+        it('skips a falsy variantImages entry without crashing', async () => {
+            await writeTestImage('ab/cd/product.png', 'product-bytes');
+
+            await (await db()).collection('products').insertMany(
+                [
+                    {
+                        group: 'Daržovės',
+                        name: 'Agurkai',
+                        variantImages: { p: '/images/ab/cd/product.png', d: undefined },
+                    },
+                ],
+                { forceServerObjectId: true }
+            );
+
+            const buffer = await buildExportArchive();
+            const zip = await JSZip.loadAsync(buffer);
+
+            await expect(zip.file('images/ab/cd/product.png')!.async('string')).resolves.toBe('product-bytes');
+        });
+
+        it('does not add an entry for an externally-hosted image url', async () => {
+            await (
+                await db()
+            )
+                .collection('products')
+                .insertMany([{ group: 'Daržovės', name: 'Agurkai', image: 'https://example.com/photo.png' }], {
+                    forceServerObjectId: true,
+                });
+
+            const buffer = await buildExportArchive();
+            const zip = await JSZip.loadAsync(buffer);
+
+            expect(Object.keys(zip.files).filter((f) => f.startsWith('images/'))).toHaveLength(0);
+        });
+
         it('does not duplicate an image referenced by multiple products', async () => {
             await writeTestImage('ab/cd/shared.png', 'shared-bytes');
 

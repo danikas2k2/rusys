@@ -32,28 +32,23 @@ export function useLongPress<T = HTMLElement>({
 }: LongPressOptions<T>): LongPressEvents<T> {
     const timerRef = useRef<NodeJS.Timeout>(undefined);
     const longPressRef = useRef(false);
-    const shortPressRef = useRef(false);
     const xRef = useRef(0);
     const yRef = useRef(0);
 
     const handleCancel = useCallback(() => {
         clearTimeout(timerRef.current);
-        shortPressRef.current = false;
         longPressRef.current = false;
     }, []);
 
     const handleDown = useCallback(
         (e: React.PointerEvent<T>) => {
             longPressRef.current = false;
-            shortPressRef.current = false;
             xRef.current = e.clientX;
             yRef.current = e.clientY;
             clearTimeout(timerRef.current);
             timerRef.current = setTimeout(() => {
-                if (!shortPressRef.current && !longPressRef.current) {
-                    longPressRef.current = true;
-                    onLongPress?.(e);
-                }
+                longPressRef.current = true;
+                onLongPress?.(e);
             }, delay);
         },
         [delay, onLongPress]
@@ -63,18 +58,15 @@ export function useLongPress<T = HTMLElement>({
         (e: React.PointerEvent<T>) => {
             if (!longPressRef.current && onClick && inBounds(e)) {
                 clearTimeout(timerRef.current);
-                if (!shortPressRef.current) {
-                    shortPressRef.current = true;
-                    onClick(e);
-                    handleCancel();
-                    if (e.pointerType === 'touch') {
-                        const absorb = (ev: MouseEvent) => {
-                            ev.stopPropagation();
-                            ev.preventDefault();
-                        };
-                        document.addEventListener('click', absorb, { capture: true, once: true });
-                        setTimeout(() => document.removeEventListener('click', absorb, true), 600);
-                    }
+                onClick(e);
+                handleCancel();
+                if (e.pointerType === 'touch') {
+                    const absorb = (ev: MouseEvent) => {
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                    };
+                    document.addEventListener('click', absorb, { capture: true, once: true });
+                    setTimeout(() => document.removeEventListener('click', absorb, true), 600);
                 }
             } else {
                 handleCancel();

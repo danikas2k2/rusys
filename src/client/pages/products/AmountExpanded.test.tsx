@@ -98,6 +98,46 @@ describe('<AmountExpanded>', () => {
         expect(screen.queryByRole('button', { name: 'Valid until' })).not.toBeInTheDocument();
     });
 
+    it('renders the Suspicious button when onAddSuspicious is provided and calls it on click', async () => {
+        const onAddSuspicious = vi.fn();
+        render(
+            <MockTheme>
+                <AmountExpanded
+                    delta={zeroDelta}
+                    baseAmount={5}
+                    comment=""
+                    onChange={onChange}
+                    onCommentChange={onCommentChange}
+                    onAddSuspicious={onAddSuspicious}
+                />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Suspicious' }));
+
+        expect(onAddSuspicious).toHaveBeenCalledTimes(1);
+    });
+
+    it('renders the Home button when onAddHome is provided and calls it on click', async () => {
+        const onAddHome = vi.fn();
+        render(
+            <MockTheme>
+                <AmountExpanded
+                    delta={zeroDelta}
+                    baseAmount={5}
+                    comment=""
+                    onChange={onChange}
+                    onCommentChange={onCommentChange}
+                    onAddHome={onAddHome}
+                />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Home' }));
+
+        expect(onAddHome).toHaveBeenCalledTimes(1);
+    });
+
     it('renders the add expiry icon button when onAddExpiry is provided', () => {
         render(
             <MockTheme>
@@ -173,6 +213,31 @@ describe('<AmountExpanded>', () => {
 
         expect(onAddExpiry).toHaveBeenCalledWith(todayIsoDate());
         expect(screen.queryByRole('button', { name: todayCalendarLabel() })).not.toBeInTheDocument();
+    });
+
+    it('closes the calendar via the modal close button without calling onAddExpiry', async () => {
+        const onAddExpiry = vi.fn();
+        render(
+            <MockTheme>
+                <AmountExpanded
+                    delta={zeroDelta}
+                    baseAmount={5}
+                    comment=""
+                    onChange={onChange}
+                    onCommentChange={onCommentChange}
+                    onAddExpiry={onAddExpiry}
+                />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Valid until' }));
+
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+        await user.keyboard('{Escape}');
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        expect(onAddExpiry).not.toHaveBeenCalled();
     });
 
     it('disables days before today - there is no point dating an already-expired batch', async () => {

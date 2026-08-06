@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockActiveContent } from '@tests/MockActiveContent';
 import { MockRoute } from '@tests/MockRoute';
@@ -60,6 +60,32 @@ describe('<ToolbarMenu>', () => {
         await user.click(screen.getByRole('button', { name: 'Menu' }));
 
         expect(screen.getByRole('menu')).toBeEmptyDOMElement();
+    });
+
+    it('lowers the burger back below the drawer once the close transition ends', async () => {
+        render(
+            <MockThemeRedux>
+                <MockRoute initialEntries={[Links.PRODUCTS]}>
+                    <ToolbarMenu />
+                </MockRoute>
+            </MockThemeRedux>
+        );
+
+        const burgerBox = document.querySelector('.burger') as HTMLElement;
+
+        expect(burgerBox).toHaveStyle({ zIndex: '100' });
+
+        await user.click(screen.getByRole('button', { name: 'Menu' }));
+
+        expect(burgerBox).toHaveStyle({ zIndex: '300' });
+
+        await user.click(screen.getByRole('button', { name: 'Menu' }));
+
+        act(() => fireEvent.transitionEnd(screen.getByRole('menu')));
+
+        await waitFor(() => {
+            expect(burgerBox).toHaveStyle({ zIndex: '100' });
+        });
     });
 
     it('renders required menu items', async () => {

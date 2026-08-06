@@ -139,6 +139,69 @@ describe('usePullToRefresh', () => {
         expect(screen.getByTestId('distance')).toHaveTextContent('0');
     });
 
+    it('stops tracking and resets distance if the viewport starts scrolling mid-drag', () => {
+        render(<Harness />);
+        const viewport = screen.getByTestId('viewport');
+        viewport.scrollTop = 0;
+
+        act(() => {
+            fireEvent.touchStart(viewport, touch(0));
+            fireEvent.touchMove(viewport, touch(40));
+        });
+
+        expect(screen.getByTestId('distance')).toHaveTextContent('20');
+
+        viewport.scrollTop = 5;
+
+        act(() => {
+            fireEvent.touchMove(viewport, touch(80));
+        });
+
+        expect(screen.getByTestId('distance')).toHaveTextContent('0');
+
+        // Further movement is ignored since pullingRef was cleared
+        act(() => {
+            fireEvent.touchMove(viewport, touch(120));
+        });
+
+        expect(screen.getByTestId('distance')).toHaveTextContent('0');
+    });
+
+    it('does nothing on touchend when no pull was in progress (e.g. a plain tap)', () => {
+        render(<Harness />);
+        const viewport = screen.getByTestId('viewport');
+        viewport.scrollTop = 0;
+
+        act(() => fireEvent.touchEnd(viewport, touch(0)));
+
+        expect(refreshAll).not.toHaveBeenCalled();
+        expect(screen.getByTestId('distance')).toHaveTextContent('0');
+    });
+
+    it('does not attach touch listeners when the scroll-area viewport marker is missing', () => {
+        function HarnessWithoutViewport() {
+            const { mainRef, distance } = usePullToRefresh();
+            return (
+                <div ref={mainRef as React.RefObject<HTMLDivElement>}>
+                    <div data-testid="body" />
+                    <div data-testid="distance">{distance}</div>
+                </div>
+            );
+        }
+
+        render(<HarnessWithoutViewport />);
+        const body = screen.getByTestId('body');
+
+        expect(() => {
+            act(() => {
+                fireEvent.touchStart(body, touch(0));
+                fireEvent.touchMove(body, touch(100));
+            });
+        }).not.toThrow();
+
+        expect(screen.getByTestId('distance')).toHaveTextContent('0');
+    });
+
     it('ignores multi-touch gestures', () => {
         render(<Harness />);
         const viewport = screen.getByTestId('viewport');

@@ -7,11 +7,21 @@ import { Table } from '@mantine/core';
 import React from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { useAmountView } from '~/client/common/AmountViewContext';
 import { SummaryCell } from '~/client/pages/summary/SummaryCell';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
+import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
 
 vi.mock(import('~/client/state/variants/useGroupVariantComparator'), (): any => ({
     useGroupVariantComparator: vi.fn(),
+}));
+
+vi.mock(import('~/client/common/AmountViewContext'), (): any => ({
+    useAmountView: vi.fn(() => ['total', vi.fn()]),
+}));
+
+vi.mock(import('~/client/state/variants/useVariantsByGroup'), (): any => ({
+    useVariantsByGroup: vi.fn(() => []),
 }));
 
 vi.mock(import('~/client/common/ActiveContentContext'), async (): Promise<any> => ({
@@ -194,6 +204,8 @@ describe('<SummaryCell>', () => {
     describe('home balance', () => {
         beforeEach(() => {
             vi.mocked(useGroupVariantComparator).mockReturnValue(mockCompareVariants);
+            vi.mocked(useAmountView).mockReturnValue(['total', vi.fn()]);
+            vi.mocked(useVariantsByGroup).mockReturnValue([]);
         });
 
         it('shows no home section when no home amounts in amounts prop', () => {
@@ -254,6 +266,35 @@ describe('<SummaryCell>', () => {
             expect(cell).toHaveTextContent('8');
         });
 
+        it('aggregates home amounts by units into volume/weight/count totals in the total view', () => {
+            vi.mocked(useVariantsByGroup).mockReturnValue([
+                { group: 'Uogienės', variant: 'p', order: 0, units: 'ml', count: 500 },
+                { group: 'Uogienės', variant: 'd', order: 1, units: 'g', count: 250 },
+                { group: 'Uogienės', variant: 'm', order: 2, units: 'vnt', count: 1 },
+            ]);
+
+            const { container } = render(
+                <MockTableRow>
+                    <SummaryCell
+                        group="Uogienės"
+                        name="Avietės"
+                        year={2023}
+                        amounts={[
+                            { variant: 'p', amount: 2, home: true },
+                            { variant: 'd', amount: 4, home: true },
+                            { variant: 'm', amount: 3, home: true },
+                        ]}
+                    />
+                </MockTableRow>
+            );
+            const cell = screen.getByRole('cell');
+
+            expect(container.querySelectorAll('.tabler-icon-tilde')).toHaveLength(3);
+            expect(cell).toHaveTextContent('1l'); // 2*500ml = 1000ml = 1l
+            expect(cell).toHaveTextContent('1kg'); // 4*250g = 1000g = 1kg
+            expect(cell).toHaveTextContent('3'); // 3*1 = 3 count
+        });
+
         it('cell is empty when home amounts prop is empty', () => {
             render(
                 <MockTableRow>
@@ -302,6 +343,52 @@ describe('<SummaryCell>', () => {
             expect(cell).toHaveTextContent('3');
             expect(container.querySelector('.tabler-icon-tilde')).toBeInTheDocument();
             expect(cell).toHaveTextContent('4');
+        });
+
+        it('shows home amounts as a plain per-variant list in detailed view', () => {
+            vi.mocked(useAmountView).mockReturnValue(['detailed', vi.fn()]);
+
+            const { container } = render(
+                <MockTableRow>
+                    <SummaryCell
+                        group="Uogienės"
+                        name="Avietės"
+                        year={2023}
+                        amounts={[{ variant: 'p', amount: 7, home: true }]}
+                    />
+                </MockTableRow>
+            );
+            const cell = screen.getByRole('cell');
+
+            expect(container.querySelector('.tabler-icon-tilde')).toBeInTheDocument();
+            expect(cell).toHaveTextContent('7');
+        });
+
+        it('sorts multiple home amounts by comparator in detailed view', () => {
+            vi.mocked(useAmountView).mockReturnValue(['detailed', vi.fn()]);
+            mockCompareVariants.mockImplementation((a: string, b: string) => {
+                const order: Record<string, number> = { p: 1, d: 2, m: 3 };
+                return (order[a] ?? 99) - (order[b] ?? 99);
+            });
+
+            const { container } = render(
+                <MockTableRow>
+                    <SummaryCell
+                        group="Uogienės"
+                        name="Avietės"
+                        year={2023}
+                        amounts={[
+                            { variant: 'm', amount: 8, home: true },
+                            { variant: 'p', amount: 3, home: true },
+                        ]}
+                    />
+                </MockTableRow>
+            );
+            const cell = screen.getByRole('cell');
+
+            expect(container.querySelectorAll('.tabler-icon-tilde')).toHaveLength(2);
+            expect(cell).toHaveTextContent('3');
+            expect(cell).toHaveTextContent('8');
         });
 
         it('recycled amounts are shown separately and do not affect home section', () => {

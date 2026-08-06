@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
+import { Select } from '@mantine/core';
 import React from 'react';
 
 import { MoveConsumedForm } from '~/client/pages/products/MoveConsumedForm';
@@ -15,11 +16,11 @@ vi.mock(import('@mantine/core'), async () => {
     const actual = await vi.importActual('@mantine/core');
     return {
         ...actual,
-        Select: vi.fn(({ data, value, onChange }: any) => (
+        Select: vi.fn(({ data, value, onChange, renderOption }: any) => (
             <select role="combobox" value={value} onChange={(e) => onChange(e.target.value)}>
                 {(data as any[]).map((item: any) => (
                     <option key={item.value} value={item.value}>
-                        {item.label}
+                        {renderOption ? renderOption({ option: item }) : item.label}
                     </option>
                 ))}
             </select>
@@ -86,6 +87,56 @@ describe('<MoveConsumedForm>', () => {
 
         expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('2');
         expect(screen.queryByRole('button', { name: 'Increase' })).not.toBeInTheDocument();
+    });
+
+    it('decreases the amount by one when Decrease is clicked, hiding it again at zero', async () => {
+        const lines: VariantAmount[] = [{ variant: 'd', amount: -2, recycled: false }];
+
+        render(
+            <MockApp>
+                <MoveConsumedForm group="Daržovės" lines={lines} onMove={onMove} />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Increase' }));
+        await user.click(screen.getByRole('button', { name: 'Increase' }));
+
+        expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('2');
+
+        await user.click(screen.getByRole('button', { name: 'Decrease' }));
+
+        expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('1');
+
+        await user.click(screen.getByRole('button', { name: 'Decrease' }));
+
+        expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('0');
+        expect(screen.queryByRole('button', { name: 'Decrease' })).not.toBeInTheDocument();
+    });
+
+    it('renders nothing when there are no lines', () => {
+        const { container } = render(
+            <MockApp>
+                <MoveConsumedForm group="Daržovės" lines={[]} onMove={onMove} />
+            </MockApp>
+        );
+
+        expect(container).toBeEmptyDOMElement();
+    });
+
+    it('ignores non-numeric input, keeping the last valid amount', async () => {
+        const lines: VariantAmount[] = [{ variant: 'd', amount: -3, recycled: false }];
+
+        render(
+            <MockApp>
+                <MoveConsumedForm group="Daržovės" lines={lines} onMove={onMove} />
+            </MockApp>
+        );
+
+        fireEvent.change(screen.getByRole('textbox', { name: 'amount' }), { target: { value: '2' } });
+        fireEvent.change(screen.getByRole('textbox', { name: 'amount' }), { target: { value: 'abc' } });
+        await user.click(screen.getByRole('button', { name: 'Move to discarded' }));
+
+        expect(onMove).toHaveBeenCalledWith(lines[0], 2);
     });
 
     it('clamps typed input to the line max', () => {
@@ -176,5 +227,24 @@ describe('<MoveConsumedForm>', () => {
         fireEvent.change(screen.getByRole('textbox', { name: 'amount' }), { target: { value: '5' } });
 
         expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('1');
+    });
+
+    it('resets to the first line when the Select reports a null value', () => {
+        const lines: VariantAmount[] = [
+            { variant: 'd', amount: -3, recycled: false },
+            { variant: 'p', amount: -1, recycled: false },
+        ];
+
+        render(
+            <MockApp>
+                <MoveConsumedForm group="Daržovės" lines={lines} onMove={onMove} />
+            </MockApp>
+        );
+
+        const { onChange } = vi.mocked(Select).mock.calls.at(-1)![0] as { onChange: (v: string | null) => void };
+
+        onChange(null);
+
+        expect(screen.getByRole('combobox')).toHaveValue('0');
     });
 });

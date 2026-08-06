@@ -102,6 +102,22 @@ describe('<ImageDropzone>', () => {
         await waitFor(() => expect(onDrop).toHaveBeenCalledWith(expect.stringMatching(/^data:image\/png;base64,/)));
     });
 
+    it('does nothing when the drop event reports no files', async () => {
+        const onDrop = vi.fn();
+
+        render(
+            <MockApp>
+                <ImageDropzone label="Category image" onDrop={onDrop} onRemove={vi.fn()} />
+            </MockApp>
+        );
+
+        const imageInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose an image');
+
+        fireEvent.change(imageInput, { target: { files: [] } });
+
+        expect(onDrop).not.toHaveBeenCalled();
+    });
+
     it('shows the maximum file size when no image is set', () => {
         render(
             <MockApp>

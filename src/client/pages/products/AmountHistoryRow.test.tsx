@@ -48,6 +48,17 @@ describe('<AmountHistoryRow>', () => {
         );
     }
 
+    it('treats a missing amounts field as empty instead of crashing', () => {
+        renderRow({
+            group: 'Daržovės',
+            name: 'Agurkai',
+            time: 1000,
+        });
+
+        expect(screen.getByTestId('amounts')).toHaveTextContent('0');
+        expect(screen.queryByTestId('lines-count')).not.toBeInTheDocument();
+    });
+
     it('does not expand when the entry has no consumed lines', async () => {
         renderRow({
             group: 'Daržovės',

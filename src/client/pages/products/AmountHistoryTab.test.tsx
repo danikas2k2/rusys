@@ -111,6 +111,18 @@ describe('<AmountHistoryTab>', () => {
         expect(useGetHistory).toHaveBeenCalledWith(0, 'G', 'N');
     });
 
+    it('uses empty group/name and year=0 when there is no active content', () => {
+        const useGetHistory = vi.mocked(useGetProductHistory);
+
+        render(
+            <MockThemeActive active={undefined}>
+                <AmountHistoryTab />
+            </MockThemeActive>
+        );
+
+        expect(useGetHistory).toHaveBeenCalledWith(0, '', '');
+    });
+
     it('renders undates rows reversed before the divider', () => {
         vi.mocked(useUpdates).mockReturnValue([]);
         const undates: History[] = [

@@ -373,5 +373,40 @@ describe('<AmountsCell>', () => {
             expect(amountEls[1]).toHaveTextContent('+8');
             expect(amountEls[2]).toHaveTextContent('+7');
         });
+
+        it('keeps the original relative order for two rows of the same variant that share the same suspicious/home flags', () => {
+            const amounts: VariantAmount[] = [
+                { variant: 'Kiwi', amount: 5, recycled: false, suspicious: true },
+                { variant: 'Kiwi', amount: 9, recycled: false, suspicious: true },
+            ];
+
+            render(
+                <MockTheme>
+                    <AmountsCell amounts={amounts} />
+                </MockTheme>
+            );
+
+            const amountEls = screen.getAllByText(/^\+[59]$/);
+
+            expect(amountEls[0]).toHaveTextContent('+5');
+            expect(amountEls[1]).toHaveTextContent('+9');
+        });
+    });
+
+    describe('active content group', () => {
+        it('uses an empty group when there is no active content', async () => {
+            const { useActiveContent } = await import('~/client/common/ActiveContentContext');
+            vi.mocked(useActiveContent).mockReturnValueOnce([undefined, vi.fn()]);
+
+            const amounts: VariantAmount[] = [{ variant: 'Nectarine', amount: 1, recycled: false }];
+
+            render(
+                <MockTheme>
+                    <AmountsCell amounts={amounts} />
+                </MockTheme>
+            );
+
+            expect(screen.getByText('Nectarine')).toBeInTheDocument();
+        });
     });
 });

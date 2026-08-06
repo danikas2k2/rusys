@@ -77,6 +77,24 @@ describe('variants', () => {
             ]);
         });
 
+        it('updates variant by setting count and units', async () => {
+            await expect(updateVariant('Uogienės', 'p', { count: 500, units: 'ml' })).resolves.toBe(true);
+            await expect($all('variants')).resolves.toStrictEqual([
+                { ...variants[0], count: 500, units: 'ml' },
+                ...variants.slice(1),
+            ]);
+        });
+
+        it('removes count and units when not given in the update', async () => {
+            await updateVariant('Uogienės', 'p', { count: 500, units: 'ml' });
+
+            await expect(updateVariant('Uogienės', 'p', { order: 0 })).resolves.toBe(true);
+            await expect($all('variants')).resolves.toStrictEqual([
+                { ...variants[0], order: 0 },
+                ...variants.slice(1),
+            ]);
+        });
+
         it.each`
             title                | group         | variant | update
             ${'nothing changes'} | ${'Uogienės'} | ${'m'}  | ${{ order: 2, suffix: 'M.' }}
@@ -142,6 +160,17 @@ describe('variants', () => {
             await expect($all('variants')).resolves.toStrictEqual([
                 ...variants.slice(0, 6),
                 { ...variants[6], variant: '1/2', suffix: '½' },
+                ...variants.slice(7),
+            ]);
+        });
+
+        it('renames variant and sets count and units', async () => {
+            await expect(
+                renameVariant('Daržovės', 'p', '1/2', { count: 500, units: 'ml' })
+            ).resolves.toBe(true);
+            await expect($all('variants')).resolves.toStrictEqual([
+                ...variants.slice(0, 6),
+                { group: 'Daržovės', variant: '1/2', order: 1, count: 500, units: 'ml' },
                 ...variants.slice(7),
             ]);
         });
@@ -259,6 +288,29 @@ describe('variants', () => {
                 ...variants,
                 { group: 'Šaldyti', variant: 'p', order: 7, suffix: '1/2' },
             ]);
+        });
+
+        it('copies variant with count and units', async () => {
+            await expect(
+                copyVariant('Uogienės', 'p', 'Šaldyti', undefined, { count: 500, units: 'ml' })
+            ).resolves.toBe(true);
+            await expect($all('variants')).resolves.toStrictEqual([
+                ...variants,
+                { group: 'Šaldyti', variant: 'p', order: 0, count: 500, units: 'ml' },
+            ]);
+        });
+
+        it('drops count and units from the copied variant when not given in the update', async () => {
+            await expect(
+                db().then((d) =>
+                    d
+                        .collection('variants')
+                        .updateOne({ group: 'Uogienės', variant: 'p' }, { $set: { count: 500, units: 'ml' } })
+                )
+            ).resolves.toBeDefined();
+
+            await expect(copyVariant('Uogienės', 'p', 'Šaldyti', undefined, { order: 7 })).resolves.toBe(true);
+            await expect($all('variants')).resolves.toContainEqual({ group: 'Šaldyti', variant: 'p', order: 7 });
         });
 
         it.each`

@@ -351,6 +351,16 @@ describe('app (prod mode)', () => {
             expect(response.status).toBe(200);
         });
 
+        it('redirects 308 to https when x-forwarded-proto header is absent entirely', async () => {
+            const app = express();
+            setupHelmetProd(app);
+
+            const response = await request(app).get('/path?q=1').set('Host', 'example.com');
+
+            expect(response.status).toBe(308);
+            expect(response.headers.location).toBe('https://example.com/path?q=1');
+        });
+
         it('redirects 308 to https when request is plain http with a host header', async () => {
             const app = express();
             setupHelmetProd(app);

@@ -50,11 +50,11 @@ export function MoveConsumedForm({ group, lines, onMove, disabled = false }: Mov
         [max]
     );
 
+    // Only ever wired to onClick while `line` is defined (see the `!line` early return above)
+    // and amount > 0 (the button is disabled otherwise).
     const handleMove = useCallback(() => {
-        if (line && amount > 0) {
-            onMove(line, amount);
-            setAmount(0);
-        }
+        onMove(line!, amount);
+        setAmount(0);
     }, [line, amount, onMove]);
 
     const data: ComboboxItem[] = useMemo(

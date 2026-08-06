@@ -48,6 +48,17 @@ describe('<TotalAmounts>', () => {
         expect(rows[0]).toHaveTextContent('1½l');
     });
 
+    it('sums weight-based (g/kg) amounts and formats them like formatWeight', () => {
+        vi.mocked(useVariantsByGroup).mockReturnValue([{ group, variant: 'p', order: 0, units: 'g', count: 500 }]);
+
+        const { container } = render(<TotalAmounts group={group} amounts={[{ variant: 'p', amount: 2 }]} />);
+
+        const rows = container.querySelectorAll('[data-amounts-row]');
+
+        expect(rows).toHaveLength(1);
+        expect(rows[0]).toHaveTextContent('1kg');
+    });
+
     it('sums a no-expiry entry together with a not-yet-soon dated entry into the same row', () => {
         vi.mocked(useVariantsByGroup).mockReturnValue([{ group, variant: 'p', order: 0, units: 'ml', count: 500 }]);
 

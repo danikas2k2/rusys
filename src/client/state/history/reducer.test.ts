@@ -1,5 +1,5 @@
 import { HistoryActionType, type HistoryAction } from '~/client/state/history/actions';
-import { updates as reducer } from '~/client/state/history/reducer';
+import { undates as undatesReducer, updates as reducer } from '~/client/state/history/reducer';
 import type { History } from '~/types/data';
 
 describe('history', () => {
@@ -67,6 +67,25 @@ describe('history', () => {
 
         it('return deep clone of history', () => {
             const result = reducer([], { type: HistoryActionType.SET_UPDATES, updates: history });
+
+            expect(result).toStrictEqual(history);
+            expect(result).not.toBe(history);
+        });
+    });
+
+    describe('undates', () => {
+        const unknownAction = { type: 'unknown' as HistoryActionType } as HistoryAction;
+
+        it('leaves state unchanged for an unrelated action', () => {
+            expect(undatesReducer(history, unknownAction)).toStrictEqual(history);
+        });
+
+        it('returns default state for undefined', () => {
+            expect(undatesReducer(undefined, unknownAction)).toStrictEqual([]);
+        });
+
+        it('replaces state with a deep clone on SET_UNDATES', () => {
+            const result = undatesReducer([], { type: HistoryActionType.SET_UNDATES, undates: history });
 
             expect(result).toStrictEqual(history);
             expect(result).not.toBe(history);

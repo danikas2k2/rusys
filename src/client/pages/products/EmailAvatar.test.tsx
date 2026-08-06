@@ -118,4 +118,16 @@ describe('<EmailAvatar>', () => {
 
         expect(screen.getByText('A')).toBeInTheDocument();
     });
+
+    it('falls back to the first character of the email when the local-part has no initials (all separators)', () => {
+        const { container } = render(
+            <MockTheme>
+                <EmailAvatar email="...@example.com" />
+            </MockTheme>
+        );
+
+        fireEvent.error(container.querySelector('img')!);
+
+        expect(screen.getByText('.')).toBeInTheDocument();
+    });
 });
