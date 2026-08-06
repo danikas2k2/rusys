@@ -89,10 +89,7 @@ describe('variants', () => {
             await updateVariant('Uogienės', 'p', { count: 500, units: 'ml' });
 
             await expect(updateVariant('Uogienės', 'p', { order: 0 })).resolves.toBe(true);
-            await expect($all('variants')).resolves.toStrictEqual([
-                { ...variants[0], order: 0 },
-                ...variants.slice(1),
-            ]);
+            await expect($all('variants')).resolves.toStrictEqual([{ ...variants[0], order: 0 }, ...variants.slice(1)]);
         });
 
         it.each`
@@ -165,9 +162,7 @@ describe('variants', () => {
         });
 
         it('renames variant and sets count and units', async () => {
-            await expect(
-                renameVariant('Daržovės', 'p', '1/2', { count: 500, units: 'ml' })
-            ).resolves.toBe(true);
+            await expect(renameVariant('Daržovės', 'p', '1/2', { count: 500, units: 'ml' })).resolves.toBe(true);
             await expect($all('variants')).resolves.toStrictEqual([
                 ...variants.slice(0, 6),
                 { group: 'Daržovės', variant: '1/2', order: 1, count: 500, units: 'ml' },
@@ -291,9 +286,9 @@ describe('variants', () => {
         });
 
         it('copies variant with count and units', async () => {
-            await expect(
-                copyVariant('Uogienės', 'p', 'Šaldyti', undefined, { count: 500, units: 'ml' })
-            ).resolves.toBe(true);
+            await expect(copyVariant('Uogienės', 'p', 'Šaldyti', undefined, { count: 500, units: 'ml' })).resolves.toBe(
+                true
+            );
             await expect($all('variants')).resolves.toStrictEqual([
                 ...variants,
                 { group: 'Šaldyti', variant: 'p', order: 0, count: 500, units: 'ml' },

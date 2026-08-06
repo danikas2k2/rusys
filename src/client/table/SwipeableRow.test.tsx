@@ -2346,5 +2346,4 @@ describe('<SwipeableRow>', () => {
             });
         });
     });
-
 });

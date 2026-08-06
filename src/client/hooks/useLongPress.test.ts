@@ -173,7 +173,7 @@ describe('useLongPress', () => {
 
         act(() => handlers.onContextMenu(event));
 
-        expect(event.preventDefault).toHaveBeenCalled();
-        expect(event.stopPropagation).toHaveBeenCalled();
+        expect(event.preventDefault).toHaveBeenCalledWith();
+        expect(event.stopPropagation).toHaveBeenCalledWith();
     });
 });

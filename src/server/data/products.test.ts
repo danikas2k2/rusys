@@ -386,9 +386,9 @@ describe('products', () => {
         });
 
         it('unsets years entirely when a non-annual (year 0) update brings combined stock to zero', async () => {
-            await expect(
-                updateProduct('Daržovės', 'Agurkai', 0, [{ variant: 'd', amount: -3 }], user)
-            ).resolves.toBe(true);
+            await expect(updateProduct('Daržovės', 'Agurkai', 0, [{ variant: 'd', amount: -3 }], user)).resolves.toBe(
+                true
+            );
 
             const all = (await $all('products')) as { group: string; name: string; years?: unknown }[];
             const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
@@ -878,27 +878,25 @@ describe('products', () => {
         });
 
         it('pulls just that year out of years when undo zeroes out an annual product that also has other years', async () => {
-            await (await db())
-                .collection('products')
-                .updateOne(
-                    { group: 'Daržovės', name: 'Agurkai' },
-                    {
-                        $set: {
-                            years: [
-                                { year: 21, amounts: [{ variant: 'd', amount: 9 }] },
-                                { year: 22, amounts: [{ variant: 'd', amount: 2 }] },
-                            ],
-                            updates: [
-                                {
-                                    time: Date.now(),
-                                    user,
-                                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 2 }] }],
-                                },
-                            ],
-                        },
-                        $unset: { undates: 1 },
-                    }
-                );
+            await (await db()).collection('products').updateOne(
+                { group: 'Daržovės', name: 'Agurkai' },
+                {
+                    $set: {
+                        years: [
+                            { year: 21, amounts: [{ variant: 'd', amount: 9 }] },
+                            { year: 22, amounts: [{ variant: 'd', amount: 2 }] },
+                        ],
+                        updates: [
+                            {
+                                time: Date.now(),
+                                user,
+                                years: [{ year: 22, amounts: [{ variant: 'd', amount: 2 }] }],
+                            },
+                        ],
+                    },
+                    $unset: { undates: 1 },
+                }
+            );
 
             await expect(undoProduct('Daržovės', 'Agurkai', 22)).resolves.toBe(true);
 
@@ -909,24 +907,22 @@ describe('products', () => {
 
         describe('non-annual item (year 0, combined amounts)', () => {
             it('replaces the whole combined years entry when stock remains after undo', async () => {
-                await (await db())
-                    .collection('products')
-                    .updateOne(
-                        { group: 'Daržovės', name: 'Agurkai' },
-                        {
-                            $set: {
-                                years: [{ year: 0, amounts: [{ variant: 'd', amount: 5 }] }],
-                                updates: [
-                                    {
-                                        time: Date.now(),
-                                        user,
-                                        years: [{ year: 0, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
-                                    },
-                                ],
-                            },
-                            $unset: { undates: 1 },
-                        }
-                    );
+                await (await db()).collection('products').updateOne(
+                    { group: 'Daržovės', name: 'Agurkai' },
+                    {
+                        $set: {
+                            years: [{ year: 0, amounts: [{ variant: 'd', amount: 5 }] }],
+                            updates: [
+                                {
+                                    time: Date.now(),
+                                    user,
+                                    years: [{ year: 0, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                                },
+                            ],
+                        },
+                        $unset: { undates: 1 },
+                    }
+                );
 
                 await expect(undoProduct('Daržovės', 'Agurkai', 0)).resolves.toBe(true);
 
@@ -936,24 +932,22 @@ describe('products', () => {
             });
 
             it('unsets years entirely when undo brings combined stock to zero', async () => {
-                await (await db())
-                    .collection('products')
-                    .updateOne(
-                        { group: 'Daržovės', name: 'Agurkai' },
-                        {
-                            $set: {
-                                years: [{ year: 0, amounts: [{ variant: 'd', amount: 2 }] }],
-                                updates: [
-                                    {
-                                        time: Date.now(),
-                                        user,
-                                        years: [{ year: 0, amounts: [{ variant: 'd', amount: 2 }] }],
-                                    },
-                                ],
-                            },
-                            $unset: { undates: 1 },
-                        }
-                    );
+                await (await db()).collection('products').updateOne(
+                    { group: 'Daržovės', name: 'Agurkai' },
+                    {
+                        $set: {
+                            years: [{ year: 0, amounts: [{ variant: 'd', amount: 2 }] }],
+                            updates: [
+                                {
+                                    time: Date.now(),
+                                    user,
+                                    years: [{ year: 0, amounts: [{ variant: 'd', amount: 2 }] }],
+                                },
+                            ],
+                        },
+                        $unset: { undates: 1 },
+                    }
+                );
 
                 await expect(undoProduct('Daržovės', 'Agurkai', 0)).resolves.toBe(true);
 
@@ -1056,26 +1050,24 @@ describe('products', () => {
         });
 
         it('pulls just that year out of years when redo zeroes out an annual product that also has other years', async () => {
-            await (await db())
-                .collection('products')
-                .updateOne(
-                    { group: 'Daržovės', name: 'Agurkai' },
-                    {
-                        $set: {
-                            years: [
-                                { year: 21, amounts: [{ variant: 'd', amount: 9 }] },
-                                { year: 22, amounts: [{ variant: 'd', amount: 2 }] },
-                            ],
-                            undates: [
-                                {
-                                    time: Date.now(),
-                                    user,
-                                    years: [{ year: 22, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
-                                },
-                            ],
-                        },
-                    }
-                );
+            await (await db()).collection('products').updateOne(
+                { group: 'Daržovės', name: 'Agurkai' },
+                {
+                    $set: {
+                        years: [
+                            { year: 21, amounts: [{ variant: 'd', amount: 9 }] },
+                            { year: 22, amounts: [{ variant: 'd', amount: 2 }] },
+                        ],
+                        undates: [
+                            {
+                                time: Date.now(),
+                                user,
+                                years: [{ year: 22, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                            },
+                        ],
+                    },
+                }
+            );
 
             await expect(redoProduct('Daržovės', 'Agurkai', 22)).resolves.toBe(true);
 
@@ -1085,23 +1077,21 @@ describe('products', () => {
         });
 
         it('pushes a new year entry when redo applies to a year currently missing from years', async () => {
-            await (await db())
-                .collection('products')
-                .updateOne(
-                    { group: 'Daržovės', name: 'Agurkai' },
-                    {
-                        $unset: { years: 1 },
-                        $set: {
-                            undates: [
-                                {
-                                    time: Date.now(),
-                                    user,
-                                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
-                                },
-                            ],
-                        },
-                    }
-                );
+            await (await db()).collection('products').updateOne(
+                { group: 'Daržovės', name: 'Agurkai' },
+                {
+                    $unset: { years: 1 },
+                    $set: {
+                        undates: [
+                            {
+                                time: Date.now(),
+                                user,
+                                years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
+                            },
+                        ],
+                    },
+                }
+            );
 
             await expect(redoProduct('Daržovės', 'Agurkai', 22)).resolves.toBe(true);
 
@@ -1112,23 +1102,21 @@ describe('products', () => {
 
         describe('non-annual item (year 0, combined amounts)', () => {
             it('replaces the whole combined years entry when stock remains after redo', async () => {
-                await (await db())
-                    .collection('products')
-                    .updateOne(
-                        { group: 'Daržovės', name: 'Agurkai' },
-                        {
-                            $set: {
-                                years: [{ year: 0, amounts: [{ variant: 'd', amount: 5 }] }],
-                                undates: [
-                                    {
-                                        time: Date.now(),
-                                        user,
-                                        years: [{ year: 0, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
-                                    },
-                                ],
-                            },
-                        }
-                    );
+                await (await db()).collection('products').updateOne(
+                    { group: 'Daržovės', name: 'Agurkai' },
+                    {
+                        $set: {
+                            years: [{ year: 0, amounts: [{ variant: 'd', amount: 5 }] }],
+                            undates: [
+                                {
+                                    time: Date.now(),
+                                    user,
+                                    years: [{ year: 0, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                                },
+                            ],
+                        },
+                    }
+                );
 
                 await expect(redoProduct('Daržovės', 'Agurkai', 0)).resolves.toBe(true);
 
@@ -1138,23 +1126,21 @@ describe('products', () => {
             });
 
             it('unsets years entirely when redo brings combined stock to zero', async () => {
-                await (await db())
-                    .collection('products')
-                    .updateOne(
-                        { group: 'Daržovės', name: 'Agurkai' },
-                        {
-                            $set: {
-                                years: [{ year: 0, amounts: [{ variant: 'd', amount: 2 }] }],
-                                undates: [
-                                    {
-                                        time: Date.now(),
-                                        user,
-                                        years: [{ year: 0, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
-                                    },
-                                ],
-                            },
-                        }
-                    );
+                await (await db()).collection('products').updateOne(
+                    { group: 'Daržovės', name: 'Agurkai' },
+                    {
+                        $set: {
+                            years: [{ year: 0, amounts: [{ variant: 'd', amount: 2 }] }],
+                            undates: [
+                                {
+                                    time: Date.now(),
+                                    user,
+                                    years: [{ year: 0, amounts: [{ variant: 'd', amount: -2, recycled: false }] }],
+                                },
+                            ],
+                        },
+                    }
+                );
 
                 await expect(redoProduct('Daržovės', 'Agurkai', 0)).resolves.toBe(true);
 

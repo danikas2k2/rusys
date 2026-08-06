@@ -9,5 +9,10 @@ export async function handleClientId(req: ApiRequest, res: ApiResponse<ApiClient
 
     const clientId = process.env.GOOGLE_CLIENT_ID ?? (isDevMode() ? DEV_CLIENT_ID : undefined);
     // The response mapper only runs when run() has already confirmed clientId is truthy.
-    res.json(await run(() => clientId, () => ({ clientId: clientId! })));
+    res.json(
+        await run(
+            () => clientId,
+            () => ({ clientId: clientId! })
+        )
+    );
 }

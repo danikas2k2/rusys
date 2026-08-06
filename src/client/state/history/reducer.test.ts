@@ -1,5 +1,5 @@
 import { HistoryActionType, type HistoryAction } from '~/client/state/history/actions';
-import { undates as undatesReducer, updates as reducer } from '~/client/state/history/reducer';
+import { updates as reducer, undates as undatesReducer } from '~/client/state/history/reducer';
 import type { History } from '~/types/data';
 
 describe('history', () => {

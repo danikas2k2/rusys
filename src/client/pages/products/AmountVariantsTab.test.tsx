@@ -55,9 +55,7 @@ vi.mock(import('@mantine/core'), async () => {
                 <div style={{ display: 'none' }}>
                     {renderOption &&
                         (data as any[]).map((item: any) => (
-                            <React.Fragment key={item.value ?? item}>
-                                {renderOption({ option: item })}
-                            </React.Fragment>
+                            <React.Fragment key={item.value ?? item}>{renderOption({ option: item })}</React.Fragment>
                         ))}
                 </div>
             </>

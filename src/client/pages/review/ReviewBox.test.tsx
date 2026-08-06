@@ -21,16 +21,10 @@ vi.mock(import('~/client/pages/review/ReviewTable'), () => ({
             <button type="button" onClick={() => onToggle('Uogienės:Avietės', false)}>
                 uncheck-avietes
             </button>
-            <button
-                type="button"
-                onClick={() => onSelectAll(['Uogienės:Avietės', 'Uogienės:Braškės'], true)}
-            >
+            <button type="button" onClick={() => onSelectAll(['Uogienės:Avietės', 'Uogienės:Braškės'], true)}>
                 select-all
             </button>
-            <button
-                type="button"
-                onClick={() => onSelectAll(['Uogienės:Avietės', 'Uogienės:Braškės'], false)}
-            >
+            <button type="button" onClick={() => onSelectAll(['Uogienės:Avietės', 'Uogienės:Braškės'], false)}>
                 unselect-all
             </button>
             <button type="button" onClick={() => onReset(['Uogienės:Avietės', 'Uogienės:Braškės'])}>
