@@ -9,13 +9,13 @@ import { ProductDialogIcon } from '~/client/common/ProductDialogIcon';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AmountHistoryTab } from '~/client/pages/products/AmountHistoryTab';
 import { AmountVariantsTab } from '~/client/pages/products/AmountVariantsTab';
-import type { ImageRef } from '~/types/data';
 
 import './AmountBox.pcss';
 
 export interface ValueListBoxProps extends Pick<ModalProps, 'title'> {
     opened?: boolean;
-    image?: ImageRef;
+    image?: string;
+    photo?: string;
     onClose?: () => void;
     onAfterClose?: () => void;
     onEdit?: () => void;
@@ -26,6 +26,7 @@ export function AmountBox({
     opened = false,
     title,
     image,
+    photo,
     onClose,
     onAfterClose,
     onEdit,
@@ -50,7 +51,7 @@ export function AmountBox({
             title={
                 <Group justify="space-between" wrap="nowrap" flex={1}>
                     <Group wrap="nowrap" gap="sm">
-                        <ProductDialogIcon image={image} />
+                        <ProductDialogIcon image={image} photo={photo} />
                         {title}
                     </Group>
                     <Group gap={4} wrap="nowrap">

@@ -1,4 +1,4 @@
-import { ActionIcon, Avatar, Card, Center, Checkbox, Group, Stack, Text } from '@mantine/core';
+import { ActionIcon, Avatar, Card, Checkbox, Group, Stack, Text } from '@mantine/core';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 
@@ -45,7 +45,7 @@ function ProductTileComponent({
 
     // A near-square, icon-sized image sits next to the title; anything bigger/wider is a photo
     // and becomes the tile's background instead - classified server-side, see classifyImage.
-    const isPhoto = !!product.image?.photoUrl;
+    const isPhoto = !!product.photo;
     const isIcon = !!product.image && !isPhoto;
 
     // Annual groups have no single "current" amounts field - the same year isPreferred() would
@@ -64,8 +64,11 @@ function ProductTileComponent({
             onToggleExpand?.();
             return;
         }
-        setActive({ action: 'values', data: { group, name, year, amounts: ownAmounts, image: product.image } });
-    }, [isSummaryTile, onToggleExpand, setActive, group, name, year, ownAmounts, product.image]);
+        setActive({
+            action: 'values',
+            data: { group, name, year, amounts: ownAmounts, image: product.image, photo: product.photo },
+        });
+    }, [isSummaryTile, onToggleExpand, setActive, group, name, year, ownAmounts, product.image, product.photo]);
 
     const handleToggleExpand = useCallback(
         (e: React.MouseEvent) => {
@@ -91,12 +94,13 @@ function ProductTileComponent({
             data-hidden={hidden}
             data-summary={isSummaryTile}
             data-photo={isPhoto}
-            style={isPhoto ? { backgroundImage: `url(${product.image!.photoUrl})` } : undefined}
+            data-empty={!totalAmounts.length}
+            style={isPhoto ? { backgroundImage: `url(${product.photo})` } : undefined}
         >
             {isPhoto && <div data-scrim />}
-            <Stack gap={6} data-content>
-                <Group justify="space-between" wrap="nowrap" gap={6}>
-                    <Group gap={6} wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
+            <Stack gap={6} data-content h="100%" justify="space-between">
+                <Group justify="space-between" wrap="nowrap" gap={6} align="flex-start">
+                    <Stack gap={4} align="center" style={{ flexShrink: 0 }}>
                         <Group gap={4} wrap="nowrap" onClick={(e) => e.stopPropagation()}>
                             <Checkbox
                                 variant="outline"
@@ -109,14 +113,14 @@ function ProductTileComponent({
                             />
                         </Group>
                         {isIcon && (
-                            <Avatar src={product.image!.url} radius="sm" size={24} alt="">
+                            <Avatar src={product.image} radius="sm" size={24} alt="">
                                 {name.trim().charAt(0).toUpperCase()}
                             </Avatar>
                         )}
-                        <Text fw={600} lineClamp={2} style={{ flex: 1, minWidth: 0 }}>
-                            {name}
-                        </Text>
-                    </Group>
+                    </Stack>
+                    <Text fw={600} lineClamp={2} style={{ flex: 1, minWidth: 0 }}>
+                        {name}
+                    </Text>
                     {hasChildren && (
                         <ActionIcon
                             variant="subtle"
@@ -130,7 +134,7 @@ function ProductTileComponent({
                         </ActionIcon>
                     )}
                 </Group>
-                <Center>
+                <Group justify="flex-end">
                     {totalAmounts.length ? (
                         <ProductAmounts group={group} amounts={totalAmounts} />
                     ) : (
@@ -138,7 +142,7 @@ function ProductTileComponent({
                             —
                         </Text>
                     )}
-                </Center>
+                </Group>
             </Stack>
         </Card>
     );

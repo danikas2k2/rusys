@@ -4,7 +4,7 @@ import path from 'node:path';
 import JSZip from 'jszip';
 
 import { exportEverything } from '~/server/data/common';
-import { imageRefUrls, IMAGES_DIR, resolveImagePath } from '~/server/data/images';
+import { IMAGES_DIR, resolveImagePath } from '~/server/data/images';
 import type { ApiExport } from '~/types/api';
 import type { Group, Product } from '~/types/data';
 
@@ -15,13 +15,28 @@ const IMAGE_ENTRY_PATTERN = /^images\/[0-9a-f]{2}\/[0-9a-f]{2}\/[0-9a-f]{32}\.[a
 function collectImageUrls(products: readonly Product[], groups: readonly Group[]): string[] {
     const urls = new Set<string>();
     for (const product of products) {
-        imageRefUrls(product.image).forEach((url) => urls.add(url));
-        for (const image of Object.values(product.variantImages ?? {})) {
-            imageRefUrls(image).forEach((url) => urls.add(url));
+        if (product.image) {
+            urls.add(product.image);
+        }
+        if (product.photo) {
+            urls.add(product.photo);
+        }
+        for (const image of [
+            ...Object.values(product.variantImages ?? {}),
+            ...Object.values(product.variantPhotos ?? {}),
+        ]) {
+            if (image) {
+                urls.add(image);
+            }
         }
     }
     for (const group of groups) {
-        imageRefUrls(group.image).forEach((url) => urls.add(url));
+        if (group.image) {
+            urls.add(group.image);
+        }
+        if (group.photo) {
+            urls.add(group.photo);
+        }
     }
     return [...urls];
 }

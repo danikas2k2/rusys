@@ -141,7 +141,7 @@ describe('<CategoryRail>', () => {
         render(
             <MockTheme>
                 <CategoryRail
-                    groups={[{ group: 'Uogienės', order: 0, image: { url: '/images/ab/cd/uogienes.png' } }]}
+                    groups={[{ group: 'Uogienės', order: 0, image: '/images/ab/cd/uogienes.png' }]}
                     selected="Uogienės"
                     onSelect={vi.fn()}
                     groupsWithContent={new Set(['Uogienės'])}

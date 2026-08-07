@@ -141,7 +141,7 @@ describe('<VariantsCategoryTabs>', () => {
 
     it('renders an avatar with the category image when set', () => {
         vi.mocked(useSortedGroups).mockReturnValue([
-            { group: 'Uogienės', order: 0, image: { url: '/images/ab/cd/uogienes.png' } },
+            { group: 'Uogienės', order: 0, image: '/images/ab/cd/uogienes.png' },
         ]);
         vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
 

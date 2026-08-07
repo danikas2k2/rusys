@@ -187,7 +187,7 @@ describe('<ProductCell>', () => {
         });
 
         it('includes the product image when calling setActive', () => {
-            const productWithImage = { ...defaultProduct, image: { url: '/images/ab/cd/product.png' } };
+            const productWithImage = { ...defaultProduct, image: '/images/ab/cd/product.png' };
             const propsWithImage: ProductCellProps = { product: productWithImage, year: 22 };
 
             render(
@@ -215,7 +215,7 @@ describe('<ProductCell>', () => {
                     name: propsWithImage.product.name,
                     year: propsWithImage.year,
                     amounts: propsWithImage.product.years?.[0]?.amounts,
-                    image: { url: '/images/ab/cd/product.png' },
+                    image: '/images/ab/cd/product.png',
                 },
             });
         });

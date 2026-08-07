@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import { getGroupsFixture, getProductsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
 import { MockTheme } from '@tests/MockTheme';
@@ -10,7 +10,7 @@ import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPr
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
 import { ProductsGrid } from '~/client/pages/products/ProductsGrid';
-import { ProductTile } from '~/client/pages/products/ProductTile';
+import { ProductTile, type ProductTileProps } from '~/client/pages/products/ProductTile';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useProducts } from '~/client/state/products/useProducts';
 
@@ -29,9 +29,6 @@ vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
 }));
 vi.mock(import('~/client/filters/hooks/useQuickFilterPredicate'), () => ({
     useQuickFilterPredicate: vi.fn(),
-}));
-vi.mock(import('~/client/pages/products/MissingOnlyCheckbox'), () => ({
-    MissingOnlyCheckbox: vi.fn(() => <input type="checkbox" />),
 }));
 vi.mock(import('~/client/pages/products/ProductTile'), () => ({
     ProductTile: vi.fn().mockReturnValue(null),
@@ -124,7 +121,7 @@ describe('<ProductsGrid>', () => {
             </MockTheme>
         );
 
-        expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+        expect(ProductTile).not.toHaveBeenCalled();
     });
 
     describe('tree', () => {
@@ -225,7 +222,7 @@ describe('<ProductsGrid>', () => {
 
         afterEach(() => vi.clearAllMocks());
 
-        it('renders checkbox in header', () => {
+        it('hides non-missing products when missing-only is active', () => {
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -234,7 +231,15 @@ describe('<ProductsGrid>', () => {
                 </MockTheme>
             );
 
-            expect(screen.getByRole('checkbox')).toBeInTheDocument();
+            const avietesCall = vi
+                .mocked(ProductTile)
+                .mock.calls.find(([props]: [ProductTileProps]) => props.product.name === 'Avietės');
+            const braskesCall = vi
+                .mocked(ProductTile)
+                .mock.calls.find(([props]: [ProductTileProps]) => props.product.name === 'Braškės');
+
+            expect(avietesCall?.[0].hidden).toBe(true);
+            expect(braskesCall?.[0].hidden).toBe(false);
         });
     });
 });

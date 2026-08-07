@@ -7,8 +7,7 @@ import sharp from 'sharp';
 import {
     classifyImage,
     deleteImage,
-    deleteImageRef,
-    imageRefUrls,
+    deleteImages,
     IMAGES_DIR,
     resolveImagePath,
     saveImage,
@@ -168,11 +167,11 @@ describe('images', () => {
     });
 
     describe('classifyImage', () => {
-        it('classifies a small square image as an icon, with no photoUrl', async () => {
+        it('classifies a small square image as an icon, with no photo', async () => {
             const url = await saveImage(await pngDataUrl(200, 200));
             savedUrls.push(url);
 
-            await expect(classifyImage(url)).resolves.toStrictEqual({ url });
+            await expect(classifyImage(url)).resolves.toStrictEqual({ image: url });
         });
 
         it('classifies an oversized image as a photo, generating an icon-sized thumbnail', async () => {
@@ -180,12 +179,12 @@ describe('images', () => {
             savedUrls.push(url);
 
             const result = await classifyImage(url);
-            savedUrls.push(result.url);
+            savedUrls.push(result.image);
 
-            expect(result.photoUrl).toBe(url);
-            expect(result.url).not.toBe(url);
+            expect(result.photo).toBe(url);
+            expect(result.image).not.toBe(url);
 
-            const metadata = await sharp(resolveImagePath(result.url)!).metadata();
+            const metadata = await sharp(resolveImagePath(result.image)!).metadata();
 
             expect(metadata.width).toBeLessThanOrEqual(512);
             expect(metadata.height).toBeLessThanOrEqual(512);
@@ -196,51 +195,31 @@ describe('images', () => {
             savedUrls.push(url);
 
             const result = await classifyImage(url);
-            savedUrls.push(result.url);
+            savedUrls.push(result.image);
 
-            expect(result.photoUrl).toBe(url);
+            expect(result.photo).toBe(url);
         });
 
         it('treats a non-local url as an icon, since there is nothing to inspect', async () => {
             await expect(classifyImage('https://example.com/photo.png')).resolves.toStrictEqual({
-                url: 'https://example.com/photo.png',
+                image: 'https://example.com/photo.png',
             });
         });
     });
 
-    describe('imageRefUrls', () => {
-        it('returns undefined as an empty array', () => {
-            expect(imageRefUrls(undefined)).toStrictEqual([]);
+    describe('deleteImages', () => {
+        it('deletes both the thumbnail and the original file for an image/photo pair', async () => {
+            const photo = await saveImage(await pngDataUrl(1600, 900));
+            const image = await saveImage(await pngDataUrl(200, 200));
+
+            await deleteImages(image, photo);
+
+            await expect(fs.access(resolveImagePath(image)!)).rejects.toThrow(/ENOENT/);
+            await expect(fs.access(resolveImagePath(photo)!)).rejects.toThrow(/ENOENT/);
         });
 
-        it('wraps a legacy plain-string image in an array', () => {
-            expect(imageRefUrls('/images/aa/bb/legacy.png')).toStrictEqual(['/images/aa/bb/legacy.png']);
-        });
-
-        it('returns just the url for an icon ImageRef', () => {
-            expect(imageRefUrls({ url: '/images/aa/bb/icon.png' })).toStrictEqual(['/images/aa/bb/icon.png']);
-        });
-
-        it('returns both url and photoUrl for a photo ImageRef', () => {
-            expect(imageRefUrls({ url: '/images/aa/bb/thumb.png', photoUrl: '/images/aa/bb/photo.png' })).toStrictEqual(
-                ['/images/aa/bb/thumb.png', '/images/aa/bb/photo.png']
-            );
-        });
-    });
-
-    describe('deleteImageRef', () => {
-        it('deletes both the thumbnail and the original file for a photo ImageRef', async () => {
-            const photoUrl = await saveImage(await pngDataUrl(1600, 900));
-            const url = await saveImage(await pngDataUrl(200, 200));
-
-            await deleteImageRef({ url, photoUrl });
-
-            await expect(fs.access(resolveImagePath(url)!)).rejects.toThrow(/ENOENT/);
-            await expect(fs.access(resolveImagePath(photoUrl)!)).rejects.toThrow(/ENOENT/);
-        });
-
-        it('does nothing for undefined', async () => {
-            await expect(deleteImageRef(undefined)).resolves.toBeUndefined();
+        it('does nothing for undefined arguments', async () => {
+            await expect(deleteImages(undefined, undefined)).resolves.toBeUndefined();
         });
     });
 });

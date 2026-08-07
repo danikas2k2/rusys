@@ -2,7 +2,7 @@
 import { getGroupsFixture } from '@tests/fixtures';
 
 import { deleteGroup, getGroups, renameGroup, reorderGroups, updateGroup } from '~/server/data/groups';
-import { classifyImage, deleteImageRef, saveImage } from '~/server/data/images';
+import { classifyImage, deleteImages, saveImage } from '~/server/data/images';
 import { db } from '~/server/db';
 
 vi.mock(import('~/server/db'));
@@ -13,9 +13,9 @@ describe('groups', () => {
 
     beforeEach(async () => {
         await (await db()).collection('groups').insertMany(getGroupsFixture());
-        // Echoes the url with no photoUrl by default - matches how a non-photo-sized upload
+        // Echoes the image with no photo by default - matches how a non-photo-sized upload
         // classifies; individual tests override this when photo classification itself matters.
-        vi.mocked(classifyImage).mockImplementation(async (url: string) => ({ url }));
+        vi.mocked(classifyImage).mockImplementation(async (image: string) => ({ image }));
     });
 
     afterEach(async () => {
@@ -113,17 +113,38 @@ describe('groups', () => {
         });
 
         describe('image handling', () => {
-            it('uploads a new image, classifies it, and stores the returned ImageRef', async () => {
+            it('uploads a new image, classifies it, and stores it', async () => {
                 vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
 
                 await expect(updateGroup('Daržovės', true, false, 'data:image/png;base64,AAA')).resolves.toBe(true);
 
                 expect(saveImage).toHaveBeenCalledWith('data:image/png;base64,AAA');
                 expect(classifyImage).toHaveBeenCalledWith('/images/ab/cd/new-image.png');
-                expect(deleteImageRef).toHaveBeenCalledWith(undefined);
+                expect(deleteImages).toHaveBeenCalledWith(undefined, undefined);
                 await expect(getGroups()).resolves.toStrictEqual([
                     groups[0],
-                    { ...groups[1], annual: true, review: false, image: { url: '/images/ab/cd/new-image.png' } },
+                    { ...groups[1], annual: true, review: false, image: '/images/ab/cd/new-image.png' },
+                ]);
+            });
+
+            it('classifies a photo-sized upload, storing both the thumbnail and the photo', async () => {
+                vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/saved.png');
+                vi.mocked(classifyImage).mockResolvedValueOnce({
+                    image: '/images/ab/cd/thumb.png',
+                    photo: '/images/ab/cd/saved.png',
+                });
+
+                await expect(updateGroup('Daržovės', true, false, 'data:image/png;base64,AAA')).resolves.toBe(true);
+
+                await expect(getGroups()).resolves.toStrictEqual([
+                    groups[0],
+                    {
+                        ...groups[1],
+                        annual: true,
+                        review: false,
+                        image: '/images/ab/cd/thumb.png',
+                        photo: '/images/ab/cd/saved.png',
+                    },
                 ]);
             });
 
@@ -135,7 +156,7 @@ describe('groups', () => {
 
                 await updateGroup('Daržovės', true, false, 'data:image/png;base64,AAA');
 
-                expect(deleteImageRef).toHaveBeenCalledWith({ url: '/images/old/old.png' });
+                expect(deleteImages).toHaveBeenCalledWith('/images/old/old.png', undefined);
             });
 
             it('deletes the image file when the image is removed', async () => {
@@ -145,7 +166,7 @@ describe('groups', () => {
 
                 await updateGroup('Daržovės', true, false, '');
 
-                expect(deleteImageRef).toHaveBeenCalledWith({ url: '/images/old/old.png' });
+                expect(deleteImages).toHaveBeenCalledWith('/images/old/old.png', undefined);
                 await expect(getGroups()).resolves.toStrictEqual([
                     groups[0],
                     { ...groups[1], annual: true, review: false },
@@ -160,14 +181,14 @@ describe('groups', () => {
                 await updateGroup('Daržovės', true, false, '/images/same/same.png');
 
                 expect(saveImage).not.toHaveBeenCalled();
-                expect(deleteImageRef).not.toHaveBeenCalled();
+                expect(deleteImages).not.toHaveBeenCalled();
             });
 
             it('does not touch image files when image is not provided', async () => {
                 await updateGroup('Daržovės', true, false);
 
                 expect(saveImage).not.toHaveBeenCalled();
-                expect(deleteImageRef).not.toHaveBeenCalled();
+                expect(deleteImages).not.toHaveBeenCalled();
             });
         });
     });
@@ -248,7 +269,7 @@ describe('groups', () => {
         });
 
         describe('image handling', () => {
-            it('uploads a new image and stores the returned ImageRef', async () => {
+            it('uploads a new image and stores it', async () => {
                 vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
 
                 await expect(renameGroup('Uogienės', 'Grybai', true, false, 'data:image/png;base64,AAA')).resolves.toBe(
@@ -262,7 +283,7 @@ describe('groups', () => {
                         order: 1,
                         annual: true,
                         review: false,
-                        image: { url: '/images/ab/cd/new-image.png' },
+                        image: '/images/ab/cd/new-image.png',
                     },
                     groups[1],
                 ]);
@@ -275,14 +296,14 @@ describe('groups', () => {
 
                 await renameGroup('Uogienės', 'Grybai', true, false, '');
 
-                expect(deleteImageRef).toHaveBeenCalledWith({ url: '/images/old/old.png' });
+                expect(deleteImages).toHaveBeenCalledWith('/images/old/old.png', undefined);
             });
 
             it('does not touch image files when image is not provided', async () => {
                 await renameGroup('Uogienės', 'Grybai');
 
                 expect(saveImage).not.toHaveBeenCalled();
-                expect(deleteImageRef).not.toHaveBeenCalled();
+                expect(deleteImages).not.toHaveBeenCalled();
             });
         });
     });
@@ -310,13 +331,13 @@ describe('groups', () => {
 
             await expect(deleteGroup('Uogienės')).resolves.toBe(true);
 
-            expect(deleteImageRef).toHaveBeenCalledWith({ url: '/images/old/old.png' });
+            expect(deleteImages).toHaveBeenCalledWith('/images/old/old.png', undefined);
         });
 
-        it('calls deleteImageRef with undefined when the group has no image', async () => {
+        it('calls deleteImages with undefined when the group has no image', async () => {
             await expect(deleteGroup('Uogienės')).resolves.toBe(true);
 
-            expect(deleteImageRef).toHaveBeenCalledWith(undefined);
+            expect(deleteImages).toHaveBeenCalledWith(undefined, undefined);
         });
     });
 });

@@ -1,21 +1,47 @@
-import { classifyImage, deleteImageRef, saveImage } from '~/server/data/images';
-import type { ImageRef } from '~/types/data';
+import { classifyImage, deleteImages, saveImage, type ClassifiedImage } from '~/server/data/images';
 
-// Resolves the image value to persist: uploads and classifies a freshly-dropped data URL
-// (deleting the file(s) it replaces), deletes the old file(s) when the image was removed, or
-// keeps the previous value as-is when unchanged - a legacy plain-string value left untouched here
-// is backfilled later by the read path (getProducts/getGroups), not by this write path.
-export async function resolveImage(image: string, previousImage?: ImageRef | string): Promise<ImageRef | undefined> {
+// Resolves the image/photo pair to persist: uploads and classifies a freshly-dropped data URL
+// (deleting the file(s) it replaces), deletes the file(s) when the image was removed, or keeps
+// the previous image/photo pair as-is when unchanged - a legacy `image` with no `photo` is left
+// untouched here (the read path lazily backfills `photo` for those), since a plain non-data: url
+// only ever reaches this function unchanged (the client only ever sends a fresh upload, the
+// existing url as-is, or an empty string).
+export async function resolveImage(
+    image: string,
+    previousImage?: string,
+    previousPhoto?: string
+): Promise<Partial<ClassifiedImage>> {
     if (image.startsWith('data:')) {
         const saved = await saveImage(image);
         const classified = await classifyImage(saved);
-        await deleteImageRef(previousImage);
+        await deleteImages(previousImage, previousPhoto);
         return classified;
     }
-    const previousUrl = typeof previousImage === 'string' ? previousImage : previousImage?.url;
-    if (image !== previousUrl) {
-        await deleteImageRef(previousImage);
-        return undefined;
+    if (image !== previousImage) {
+        await deleteImages(previousImage, previousPhoto);
+        return {};
     }
-    return typeof previousImage === 'string' ? { url: previousImage } : previousImage;
+    return { image: previousImage, ...(previousPhoto ? { photo: previousPhoto } : {}) };
+}
+
+// Turns a resolved image/photo pair into the update to apply for a given pair of field names -
+// each field is $set when present, $unset when not, so a removed image/photo doesn't linger.
+export function imageFieldUpdate(
+    resolved: Partial<ClassifiedImage>,
+    imageField: string,
+    photoField: string
+): { $set: Record<string, string>; $unset: Record<string, 1> } {
+    const $set: Record<string, string> = {};
+    const $unset: Record<string, 1> = {};
+    if (resolved.image) {
+        $set[imageField] = resolved.image;
+    } else {
+        $unset[imageField] = 1;
+    }
+    if (resolved.photo) {
+        $set[photoField] = resolved.photo;
+    } else {
+        $unset[photoField] = 1;
+    }
+    return { $set, $unset };
 }

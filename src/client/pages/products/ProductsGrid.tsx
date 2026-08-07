@@ -1,13 +1,11 @@
-import { Group, SimpleGrid } from '@mantine/core';
+import { SimpleGrid } from '@mantine/core';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { AmountViewToggle } from '~/client/common/AmountViewToggle';
 import { LoadableContent } from '~/client/common/LoadableContent';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
 import { useProductsHasData } from '~/client/pages/products/hooks/useProductsHasData';
-import { MissingOnlyCheckbox } from '~/client/pages/products/MissingOnlyCheckbox';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
 import { ProductTile } from '~/client/pages/products/ProductTile';
 import { buildProductGridTree, type ProductGridNode } from '~/client/pages/products/utils/buildProductGridTree';
@@ -111,10 +109,6 @@ export function ProductsGrid() {
     return (
         <LoadableContent loader={useGetProducts()} hasData={useProductsHasData()}>
             <div data-grid="products">
-                <Group gap="xs" wrap="nowrap" mb="sm">
-                    <MissingOnlyCheckbox />
-                    <AmountViewToggle />
-                </Group>
                 <ProductGridSection nodes={nodes} annual={annual} isHidden={isHidden} toggleHandlers={toggleHandlers} />
             </div>
         </LoadableContent>

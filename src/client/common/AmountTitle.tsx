@@ -1,13 +1,11 @@
 import { Avatar, Group, Stack, Title } from '@mantine/core';
 import React, { type ReactNode } from 'react';
 
-import type { ImageRef } from '~/types/data';
-
 interface AmountTitleProps {
     group?: string;
     name?: string;
     year?: ReactNode;
-    image?: ImageRef;
+    image?: string;
 }
 
 export function AmountTitle({ group, name, year, image }: AmountTitleProps): React.JSX.Element {
@@ -15,7 +13,7 @@ export function AmountTitle({ group, name, year, image }: AmountTitleProps): Rea
         <Group gap="sm" wrap="nowrap">
             {image && (
                 // If the image fails to load, Mantine will render children as fallback.
-                <Avatar src={image.url} radius="md" size="lg" alt={name}>
+                <Avatar src={image} radius="md" size="lg" alt={name}>
                     {name?.trim().charAt(0).toUpperCase()}
                 </Avatar>
             )}

@@ -475,7 +475,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
                                     <Group justify="space-between">
                                         <Group gap={4}>
                                             {variantImage && (
-                                                <Avatar src={variantImage.url} radius="sm" size={20} alt="">
+                                                <Avatar src={variantImage} radius="sm" size={20} alt="">
                                                     {variant.trim().charAt(0).toUpperCase()}
                                                 </Avatar>
                                             )}
@@ -525,7 +525,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
                                                 group={group}
                                                 name={name}
                                                 variant={variant}
-                                                image={variantImage?.url}
+                                                image={variantImage}
                                             />
                                             {isPlain && (
                                                 <ActionIcon

@@ -17,6 +17,18 @@
         background-color: var(--mantine-color-neutral-0);
     }
 
+    // A zero quantity has nothing to act on beyond opening the dialog to add a first amount -
+    // dimmed to read as disabled, same as the table's own greyed-out empty cells.
+    &[data-empty='true'] {
+        opacity: 0.55;
+    }
+
+    // Pulls the icon avatar's own footprint out of the flow so it overlaps rather than pushing
+    // the checkbox column (and so the card) taller than it needs to be.
+    .ui-Avatar-root {
+        margin-block-end: -100%;
+    }
+
     // A background photo isn't part of the app's own light/dark chrome, so it needs its own
     // fixed (not scheme-reactive) scrim + light text rather than the usual theme variables -
     // the photo's colors don't change with the theme toggle, so neither should its contrast fix.

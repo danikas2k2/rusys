@@ -608,7 +608,7 @@ describe('<AmountVariantsTab>', () => {
                 group: baseActive.group,
                 name: baseActive.name,
                 years: [{ year: baseActive.year, amounts: baseActive.amounts }],
-                variantImages: { d: { url: '/images/ab/cd/d.png' } },
+                variantImages: { d: '/images/ab/cd/d.png' },
             },
         ]);
 
@@ -629,7 +629,7 @@ describe('<AmountVariantsTab>', () => {
                 group: baseActive.group,
                 name: baseActive.name,
                 years: [{ year: baseActive.year, amounts: baseActive.amounts }],
-                variantImages: { d: { url: '/images/ab/cd/d.png' } },
+                variantImages: { d: '/images/ab/cd/d.png' },
             },
         ]);
 

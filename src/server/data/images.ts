@@ -5,7 +5,6 @@ import path from 'node:path';
 import sharp from 'sharp';
 
 import { IMAGE_EXTENSION_BY_MIME_TYPE } from '~/common/utils/files';
-import type { ImageRef } from '~/types/data';
 
 // Mounted as a persistent Docker volume in production - see docker/compose.yaml
 export const IMAGES_DIR = path.resolve('data/images');
@@ -75,17 +74,9 @@ export async function deleteImage(url?: string): Promise<void> {
     await removeEmptyDirs(path.dirname(filePath));
 }
 
-// Lists the file(s) an ImageRef (or a legacy plain-string image, kept for backward compatibility
-// with un-migrated documents) actually occupies on disk.
-export function imageRefUrls(image?: ImageRef | string): string[] {
-    if (!image) {
-        return [];
-    }
-    return typeof image === 'string' ? [image] : [image.url, ...(image.photoUrl ? [image.photoUrl] : [])];
-}
-
-export async function deleteImageRef(image?: ImageRef | string): Promise<void> {
-    await Promise.all(imageRefUrls(image).map(deleteImage));
+// Deletes an image/photo pair together - the two are always replaced or removed as a unit.
+export async function deleteImages(image?: string, photo?: string): Promise<void> {
+    await Promise.all([deleteImage(image), deleteImage(photo)]);
 }
 
 async function isPhotoSized(filePath: string): Promise<boolean> {
@@ -112,13 +103,18 @@ async function saveThumbnail(sourcePath: string): Promise<string> {
     return `${IMAGES_URL_PATH}/${relativePath}`;
 }
 
+export interface ClassifiedImage {
+    image: string;
+    photo?: string;
+}
+
 // Classifies an already-saved local image by its real pixel dimensions, generating an icon-sized
-// thumbnail when it's a photo. Used both right after a fresh upload and to lazily migrate an old
-// plain-string image field on read.
-export async function classifyImage(url: string): Promise<ImageRef> {
+// thumbnail (returned as `image`) when it's a photo (kept in full as `photo`). Used both right
+// after a fresh upload and to lazily backfill an old, pre-classification `image` field on read.
+export async function classifyImage(url: string): Promise<ClassifiedImage> {
     const filePath = resolveImagePath(url);
     if (!filePath || !(await isPhotoSized(filePath))) {
-        return { url };
+        return { image: url };
     }
-    return { url: await saveThumbnail(filePath), photoUrl: url };
+    return { image: await saveThumbnail(filePath), photo: url };
 }

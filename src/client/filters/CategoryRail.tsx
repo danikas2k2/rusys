@@ -44,7 +44,7 @@ export function CategoryRail({
                         <Tabs.Tab key={group} value={group} aria-label={group} px={8} py={isActive ? 12 : 8}>
                             <MantineGroup gap="xs" wrap="nowrap">
                                 <Avatar
-                                    src={image?.url}
+                                    src={image || undefined}
                                     radius="sm"
                                     size="sm"
                                     p={0}

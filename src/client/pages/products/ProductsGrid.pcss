@@ -3,4 +3,10 @@
 // instead of tiles running flush to the container edge while huge gaps separate them.
 [data-grid='products'] {
     padding-inline: var(--mantine-spacing-xs);
+
+    // Matches the table's own margin-block-end (see .ui-Table-table in index.pcss) - only the
+    // top-level grid, not a nested one shown for an expanded group's children.
+    > .ui-SimpleGrid-root {
+        margin-block-end: 1rem;
+    }
 }
