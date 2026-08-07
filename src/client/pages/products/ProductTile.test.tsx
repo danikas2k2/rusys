@@ -197,6 +197,29 @@ describe('<ProductTile>', () => {
         expect(screen.queryByRole('button', { name: 'Expand' })).not.toBeInTheDocument();
     });
 
+    it('marks the tile as an expanded parent when hasChildren and expanded, to match its children panel', () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} hasChildren expanded />
+            </MockApp>
+        );
+
+        expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-expanded-parent', 'true');
+    });
+
+    it('does not mark the tile as an expanded parent while collapsed', () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} hasChildren expanded={false} />
+            </MockApp>
+        );
+
+        expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute(
+            'data-expanded-parent',
+            'false'
+        );
+    });
+
     it('hides the tile when hidden is set', () => {
         render(
             <MockApp>

@@ -193,6 +193,23 @@ describe('<ProductsGrid>', () => {
             );
         });
 
+        it('frames the expanded children in a panel, absent while collapsed', () => {
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsGrid />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(document.querySelector('[data-children-panel]')).not.toBeInTheDocument();
+
+            const { onToggleExpand } = vi.mocked(ProductTile).mock.calls[0][0];
+            act(() => onToggleExpand());
+
+            expect(document.querySelector('[data-children-panel]')).toBeInTheDocument();
+        });
+
         it('collapses back to a single rolled-up tile on a second toggle', () => {
             render(
                 <MockTheme>

@@ -17,6 +17,39 @@
         background-color: var(--mantine-color-neutral-0);
     }
 
+    // Matches the background of the children panel rendered right below it (see
+    // [data-children-panel] in ProductsGrid.pcss, at its normal position/radius, no shift). The
+    // ::after bridges the grid gap between this tile and that panel with the same background and
+    // side borders, its height covering the gap plus this tile's own bottom padding so it fully
+    // overlaps (and so hides) this tile's bottom border and rounded bottom corners. Needs
+    // overflow visible so that bridge isn't clipped by the tile's own bounds - the one tradeoff is
+    // a parent that's also in photo mode (rare: a product with children rarely has its own image)
+    // loses the scrim's rounded-corner clipping while expanded.
+    &[data-expanded-parent='true'] {
+        overflow: visible;
+        background-color: var(--mantine-color-neutral-0);
+        border-color: var(--mantine-color-primary-filled);
+
+        &::before {
+            content: '';
+            position: absolute;
+            z-index: -1;
+            inset-inline: -1px;
+            bottom: calc(var(--mantine-spacing-xs) * -1.5);
+            height: calc(var(--mantine-spacing-xs) * 2);
+            border-inline: 1px solid var(--mantine-color-primary-filled);
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset-inline: 0;
+            bottom: calc(var(--mantine-spacing-xs) * -1.5);
+            height: calc(var(--mantine-spacing-xs) * 2);
+            background-color: var(--mantine-color-neutral-0);
+        }
+    }
+
     // A zero quantity has nothing to act on beyond opening the dialog to add a first amount -
     // dimmed to read as disabled, same as the table's own greyed-out empty cells.
     &[data-empty='true'] {
