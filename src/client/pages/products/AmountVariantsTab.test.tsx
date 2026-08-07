@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
@@ -7,11 +7,14 @@ import React from 'react';
 import { AmountVariantRow } from '~/client/pages/products/AmountVariantRow';
 import { AmountVariantsTab } from '~/client/pages/products/AmountVariantsTab';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
+import { useGroups } from '~/client/state/groups/useGroups';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useRedoProduct } from '~/client/state/products/useRedoProduct';
+import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 import { useUndoProduct } from '~/client/state/products/useUndoProduct';
 import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
+import { useVariants } from '~/client/state/variants/useVariants';
 import type { ProductAmounts } from '~/types/data';
 
 vi.mock(import('~/client/pages/variants/VariantBox'), () => ({
@@ -124,6 +127,10 @@ vi.mock(import('~/client/state/variants/useVariant'), () => ({
     useVariant: vi.fn().mockReturnValue(undefined),
 }));
 
+vi.mock(import('~/client/state/variants/useVariants'), () => ({
+    useVariants: vi.fn(() => []),
+}));
+
 vi.mock(import('~/client/state/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn(() => (a: string, b: string) => a.localeCompare(b)),
 }));
@@ -138,6 +145,10 @@ vi.mock(import('~/client/pages/products/UpdatingProductsContext'), () => ({
 
 vi.mock(import('~/client/state/products/useProducts'), () => ({
     useProducts: vi.fn(() => []),
+}));
+
+vi.mock(import('~/client/state/groups/useGroups'), () => ({
+    useGroups: vi.fn(() => []),
 }));
 
 vi.mock(import('~/client/state/products/useUpdateProduct'), () => ({
@@ -160,6 +171,10 @@ vi.mock(import('~/client/state/products/useSetVariantImage'), () => ({
     useSetVariantImage: vi.fn(() => vi.fn()),
 }));
 
+vi.mock(import('~/client/state/products/useSetProductRemoving'), () => ({
+    useSetProductRemoving: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
+}));
+
 describe('<AmountVariantsTab>', () => {
     const group = 'Uogienės';
     const baseActive: ProductAmounts = {
@@ -172,7 +187,10 @@ describe('<AmountVariantsTab>', () => {
         ],
     };
 
-    beforeEach(() => vi.mocked(useProducts).mockReturnValue([]));
+    beforeEach(() => {
+        vi.mocked(useProducts).mockReturnValue([]);
+        vi.mocked(useGroups).mockReturnValue([]);
+    });
 
     afterEach(() => vi.clearAllMocks());
 
@@ -590,7 +608,7 @@ describe('<AmountVariantsTab>', () => {
                 group: baseActive.group,
                 name: baseActive.name,
                 years: [{ year: baseActive.year, amounts: baseActive.amounts }],
-                variantImages: { d: '/images/ab/cd/d.png' },
+                variantImages: { d: { url: '/images/ab/cd/d.png' } },
             },
         ]);
 
@@ -611,7 +629,7 @@ describe('<AmountVariantsTab>', () => {
                 group: baseActive.group,
                 name: baseActive.name,
                 years: [{ year: baseActive.year, amounts: baseActive.amounts }],
-                variantImages: { d: '/images/ab/cd/d.png' },
+                variantImages: { d: { url: '/images/ab/cd/d.png' } },
             },
         ]);
 
@@ -1180,5 +1198,234 @@ describe('expiry amounts', () => {
         // p's plain row and d's plain row each offer them; the dated d row must not add a third.
         expect(screen.getAllByText('Something suspicious?')).toHaveLength(2);
         expect(screen.getAllByText('Home amounts?')).toHaveLength(2);
+    });
+
+    describe('year switcher', () => {
+        it('does not render when the group is not annual', () => {
+            vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: false }]);
+            renderTab();
+
+            expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+        });
+
+        it('renders year options including the active and current years when the group is annual', () => {
+            vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
+            vi.mocked(useProducts).mockReturnValue([
+                {
+                    group,
+                    name: baseActive.name,
+                    years: [
+                        { year: 2022, amounts: [] },
+                        { year: 2023, amounts: [] },
+                    ],
+                },
+            ]);
+            renderTab();
+
+            expect(screen.getByRole('radio', { name: '2023' })).toBeInTheDocument();
+            expect(screen.getByRole('radio', { name: '2022' })).toBeInTheDocument();
+        });
+
+        it('switches to the picked year and resets pending state', async () => {
+            const setActive = vi.fn();
+            vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
+            vi.mocked(useProducts).mockReturnValue([
+                {
+                    group,
+                    name: baseActive.name,
+                    years: [
+                        { year: 2022, amounts: [{ variant: 'p', amount: 1 }] },
+                        { year: 2023, amounts: baseActive.amounts },
+                    ],
+                },
+            ]);
+
+            render(
+                <MockThemeActive active={{ action: 'values', data: baseActive }} setActive={setActive}>
+                    <AmountVariantsTab />
+                </MockThemeActive>
+            );
+
+            await user.click(screen.getByRole('radio', { name: '2022' }));
+
+            expect(setActive).toHaveBeenCalledWith({ action: 'values', data: { ...baseActive, year: 2022 } });
+        });
+
+        it('disables the switcher while there are unsaved changes', async () => {
+            vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
+            vi.mocked(useProducts).mockReturnValue([
+                { group, name: baseActive.name, years: [{ year: 2023, amounts: baseActive.amounts }] },
+            ]);
+            renderTab();
+
+            await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+            await user.click(screen.getAllByText('decrease-updated')[0]);
+
+            expect(screen.getByRole('radio', { name: '2023' })).toBeDisabled();
+        });
+    });
+
+    describe('removing toggle', () => {
+        it('does not render for a non-annual (year 0) product', () => {
+            renderTab({ ...baseActive, year: 0 });
+
+            expect(screen.queryByRole('checkbox', { name: 'Removing this year?' })).not.toBeInTheDocument();
+        });
+
+        it('renders unchecked when the year has no removing flag', () => {
+            vi.mocked(useProducts).mockReturnValue([
+                { group, name: baseActive.name, years: [{ year: baseActive.year, amounts: baseActive.amounts }] },
+            ]);
+            renderTab();
+
+            expect(screen.getByRole('checkbox', { name: 'Removing this year?' })).not.toBeChecked();
+        });
+
+        it('renders checked when the year is marked as removing', () => {
+            vi.mocked(useProducts).mockReturnValue([
+                {
+                    group,
+                    name: baseActive.name,
+                    years: [{ year: baseActive.year, amounts: baseActive.amounts, removing: true }],
+                },
+            ]);
+            renderTab();
+
+            expect(screen.getByRole('checkbox', { name: 'Removing this year?' })).toBeChecked();
+        });
+
+        it('toggles removing to true when clicked from unset', async () => {
+            const setProductRemoving = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useSetProductRemoving).mockReturnValue(setProductRemoving);
+            vi.mocked(useProducts).mockReturnValue([
+                { group, name: baseActive.name, years: [{ year: baseActive.year, amounts: baseActive.amounts }] },
+            ]);
+            renderTab();
+
+            await user.click(screen.getByRole('checkbox', { name: 'Removing this year?' }));
+
+            expect(setProductRemoving).toHaveBeenCalledWith(group, baseActive.name, baseActive.year, true);
+        });
+
+        it('toggles removing to false when clicked from set', async () => {
+            const setProductRemoving = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useSetProductRemoving).mockReturnValue(setProductRemoving);
+            vi.mocked(useProducts).mockReturnValue([
+                {
+                    group,
+                    name: baseActive.name,
+                    years: [{ year: baseActive.year, amounts: baseActive.amounts, removing: true }],
+                },
+            ]);
+            renderTab();
+
+            await user.click(screen.getByRole('checkbox', { name: 'Removing this year?' }));
+
+            expect(setProductRemoving).toHaveBeenCalledWith(group, baseActive.name, baseActive.year, false);
+        });
+
+        it('disables the checkbox while there are unsaved changes', async () => {
+            vi.mocked(useProducts).mockReturnValue([
+                { group, name: baseActive.name, years: [{ year: baseActive.year, amounts: baseActive.amounts }] },
+            ]);
+            renderTab();
+
+            await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+            await user.click(screen.getAllByText('decrease-updated')[0]);
+
+            expect(screen.getByRole('checkbox', { name: 'Removing this year?' })).toBeDisabled();
+        });
+    });
+
+    describe('inline variant edit', () => {
+        beforeEach(() => vi.mocked(useVariants).mockReturnValue([]));
+
+        // jsdom never runs Mantine's Collapse transition, so an expanded panel's content stays
+        // display:none-per-computed-style - getByRole excludes that unless {hidden: true}, which
+        // in turn surfaces every OTHER plain row's (collapsed) Edit button too. Scoping to the
+        // one row's own panel (via its control's aria-controls) avoids that ambiguity either way.
+        function getEditButton(rowControl: HTMLElement) {
+            const panelId = rowControl.getAttribute('aria-controls')!;
+            return within(document.getElementById(panelId)!).getByRole('button', {
+                name: 'Edit variant',
+                hidden: true,
+            });
+        }
+
+        function queryEditButton(rowControl: HTMLElement) {
+            const panelId = rowControl.getAttribute('aria-controls')!;
+            return within(document.getElementById(panelId)!).queryByRole('button', {
+                name: 'Edit variant',
+                hidden: true,
+            });
+        }
+
+        it('renders an edit button on a plain row once expanded', async () => {
+            renderTab();
+
+            const dControl = screen.getByRole('button', { name: /\bd\b/ });
+            await user.click(dControl);
+
+            expect(getEditButton(dControl)).toBeInTheDocument();
+        });
+
+        it('does not render an edit button on a suspicious row', async () => {
+            renderTab({
+                ...baseActive,
+                amounts: [...(baseActive.amounts ?? []), { variant: 'd', amount: 2, suspicious: true }],
+            });
+
+            const suspiciousControl = screen.getAllByRole('button', { name: /\bd\b/ })[1]!;
+            await user.click(suspiciousControl);
+
+            expect(queryEditButton(suspiciousControl)).not.toBeInTheDocument();
+        });
+
+        it('opens VariantBox with the variant group, suffix, count and units pre-filled', async () => {
+            vi.mocked(useVariants).mockReturnValue([
+                { group, variant: 'd', order: 1, suffix: 'D.', count: 2, units: 'kg' },
+            ]);
+            renderTab();
+
+            const dControl = screen.getByRole('button', { name: /\bd\b/ });
+            await user.click(dControl);
+            await user.click(getEditButton(dControl));
+
+            expect(VariantBox).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    opened: true,
+                    group,
+                    variant: 'd',
+                    suffix: 'D.',
+                    count: 2,
+                    units: 'kg',
+                }),
+                undefined
+            );
+        });
+
+        it('keeps the row expanded when the edit is cancelled', async () => {
+            renderTab();
+
+            const dControl = screen.getByRole('button', { name: /\bd\b/ });
+            await user.click(dControl);
+            await user.click(getEditButton(dControl));
+            await user.click(screen.getByRole('button', { name: 'Cancel add' }));
+
+            expect(dControl).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        it('collapses the row and resets pending state after a rename', async () => {
+            renderTab();
+
+            const dControl = screen.getByRole('button', { name: /\bd\b/ });
+            await user.click(dControl);
+            await user.click(screen.getAllByText('decrease-updated')[0]);
+            await user.click(getEditButton(dControl));
+            await user.click(screen.getByRole('button', { name: 'Create variant x' }));
+
+            expect(screen.queryByRole('button', { name: 'Update' })).not.toBeInTheDocument();
+            expect(dControl).toHaveAttribute('aria-expanded', 'false');
+        });
     });
 });

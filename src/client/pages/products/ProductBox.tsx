@@ -2,16 +2,17 @@ import { Button, Group, Select, Stack, TextInput, type ComboboxItem } from '@man
 import { useForm } from '@mantine/form';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
-import { AddIcon, CancelIcon, MoveIcon, ProductsNavIcon, UpdateIcon } from '@icons';
+import { AddIcon, CancelIcon, MoveIcon, UpdateIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
-import { DialogIcon } from '~/client/common/DialogIcon';
 import { ImageDropzone } from '~/client/common/ImageDropzone';
 import { Label } from '~/client/common/Label';
+import { ProductDialogIcon } from '~/client/common/ProductDialogIcon';
 import { CategoryAvatar } from '~/client/filters/CategoryAvatar';
 import { CategoryOption } from '~/client/filters/CategoryOption';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabels } from '~/client/hooks/useLabels';
+import { GroupBox } from '~/client/pages/groups/GroupBox';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useAddProduct } from '~/client/state/products/useAddProduct';
 import { useMoveProduct } from '~/client/state/products/useMoveProduct';
@@ -21,16 +22,19 @@ import { useSetProductImage } from '~/client/state/products/useSetProductImage';
 import { useSetProductParent } from '~/client/state/products/useSetProductParent';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
+import type { ImageRef } from '~/types/data';
 
 interface ProductBoxProps {
     opened?: boolean;
     group?: string;
     name?: string;
     parent?: string;
-    image?: string;
+    image?: ImageRef;
     onClose: (group?: string, name?: string) => void;
     onAfterClose?: () => void;
 }
+
+const NEW_CATEGORY_VALUE = '__new_category__';
 
 type ParentCandidate = { group: string; name: string; parent?: string };
 
@@ -90,11 +94,14 @@ export function ProductBox({
     group: initialGroup = '',
     name: initialName = '',
     parent: initialParent = '',
-    image: initialImage = '',
+    image,
     opened = false,
     onClose,
     onAfterClose,
 }: Readonly<ProductBoxProps>) {
+    // The form only ever deals with a plain string - the url to preview, or a fresh data: URL
+    // pending upload; server-side classification (photoUrl) happens only after saving.
+    const initialImage = image?.url ?? '';
     const [filterGroup] = useGroupFilter();
     const isEditing = !!initialGroup && !!initialName;
     const isMoving = isEditing && filterGroup && filterGroup !== initialGroup;
@@ -102,7 +109,16 @@ export function ProductBox({
     const _ = useLabels();
     const allGroups = useGroups();
     const groups = allGroups.map((g) => g.group);
-    const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image]));
+    const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image?.url]));
+    // Mirrors AmountVariantsTab's "New variant" option, opening GroupBox inline instead of
+    // requiring a trip to the Groups page first. Uses a distinct sentinel rather than an empty
+    // string - unlike AmountVariantsTab's Select (always controlled to value={null}), this one is
+    // bound to the current category, and Mantine normalizes selecting an empty-string option to
+    // onChange(null) rather than onChange(''), which would be indistinguishable from clearing.
+    const categoryOptions = useMemo(
+        () => [...groups.map((g) => ({ value: g, label: g })), { value: NEW_CATEGORY_VALUE, label: _('New category') }],
+        [groups, _]
+    );
     const products = useProducts();
 
     const form = useForm({
@@ -226,6 +242,20 @@ export function ProductBox({
     const setProductImage = useSetProductImage();
     const setProductParent = useSetProductParent();
 
+    const [addingCategory, setAddingCategory] = useState(false);
+    const handleAddCategoryOpen = useCallback(() => setAddingCategory(true), []);
+    // Mantine's Select keeps showing the clicked option's label as its search text regardless of
+    // what `value` does afterwards, so the field visually shows "New category" (or blanks out)
+    // for a moment here even though `form.values.group` is genuinely updated underneath - it
+    // fully corrects itself the next time the dropdown is opened. Cosmetic only; TODO polish.
+    const handleAddCategoryClose = useCallback((newGroup?: string) => {
+        setAddingCategory(false);
+        if (newGroup) {
+            formRef.current.setFieldValue('group', newGroup);
+        }
+    }, []);
+    const handleAddCategoryAfterClose = useCallback(() => setAddingCategory(false), []);
+
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
 
@@ -306,102 +336,122 @@ export function ProductBox({
     const buttonContent = getButtonContent();
 
     return (
-        <ConfirmableModal
-            centered
-            opened={opened}
-            title={
-                <DialogIcon aria-label={_(isEditing ? 'Edit entry' : 'Add new entry')}>
-                    <ProductsNavIcon />
-                </DialogIcon>
-            }
-            withCloseButton
-            isDirty={() => formRef.current.isDirty()}
-            onClose={() => onClose()}
-            closeOnEscape={!loading}
-            closeOnClickOutside={!loading}
-            closeButtonProps={{ 'aria-label': _('Close') }}
-            onExitTransitionEnd={onAfterClose}
-        >
-            {(handleClose) => (
-                <form onSubmit={handleSubmit}>
-                    <Stack>
-                        <Select
-                            ref={groupRef}
-                            label={_('Category')}
-                            placeholder={_('Select category')}
-                            data={groups}
-                            renderOption={({ option }: { option: ComboboxItem }) => (
-                                <CategoryOption option={option} image={imageByGroup.get(option.value)} />
-                            )}
-                            leftSection={
-                                form.values.group ? (
-                                    <CategoryAvatar
-                                        image={imageByGroup.get(form.values.group)}
-                                        label={form.values.group}
-                                    />
-                                ) : undefined
-                            }
-                            withAsterisk
-                            withAlignedLabels
-                            checkIconPosition="left"
-                            disabled={loading}
-                            searchable
-                            {...form.getInputProps('group')}
-                        />
-                        <TextInput
-                            ref={nameRef}
-                            label={_('Title')}
-                            placeholder={_('Enter name')}
-                            withAsterisk
-                            disabled={loading}
-                            {...form.getInputProps('name')}
-                        />
-                        <Select
-                            label={_('Parent product')}
-                            placeholder={_('No parent')}
-                            data={parentOptions}
-                            // option.value is always one of parentOptions, which is built from the
-                            // same parentOptionNodes as parentDepthByName - the entry always exists.
-                            renderOption={({ option }: { option: ComboboxItem }) => (
-                                <div style={{ paddingInlineStart: parentDepthByName.get(option.value)! * 16 }}>
-                                    {option.label}
-                                </div>
-                            )}
-                            withAlignedLabels
-                            clearable
-                            searchable
-                            disabled={loading}
-                            {...form.getInputProps('parent')}
-                        />
-                        <ImageDropzone
-                            image={form.values.image}
-                            label={_('Product image')}
-                            onDrop={handleImageDrop}
-                            onRemove={handleImageRemove}
-                            disabled={loading}
-                        />
-                        <Group justify="flex-end" mt="md">
-                            <Button
-                                variant="outline"
-                                color="gray"
+        <>
+            <ConfirmableModal
+                centered
+                opened={opened}
+                title={
+                    <ProductDialogIcon
+                        image={form.values.image}
+                        aria-label={_(isEditing ? 'Edit entry' : 'Add new entry')}
+                    />
+                }
+                withCloseButton
+                isDirty={() => formRef.current.isDirty()}
+                onClose={() => onClose()}
+                closeOnEscape={!loading}
+                closeOnClickOutside={!loading}
+                closeButtonProps={{ 'aria-label': _('Close') }}
+                onExitTransitionEnd={onAfterClose}
+            >
+                {(handleClose) => (
+                    <form onSubmit={handleSubmit}>
+                        <Stack>
+                            <Select
+                                ref={groupRef}
+                                label={_('Category')}
+                                placeholder={_('Select category')}
+                                data={categoryOptions}
+                                renderOption={({ option }: { option: ComboboxItem }) =>
+                                    option.value === NEW_CATEGORY_VALUE ? (
+                                        <Group gap="xs">
+                                            <AddIcon size={14} />
+                                            {option.label}
+                                        </Group>
+                                    ) : (
+                                        <CategoryOption option={option} image={imageByGroup.get(option.value)} />
+                                    )
+                                }
+                                leftSection={
+                                    form.values.group ? (
+                                        <CategoryAvatar
+                                            image={imageByGroup.get(form.values.group)}
+                                            label={form.values.group}
+                                        />
+                                    ) : undefined
+                                }
+                                withAsterisk
+                                withAlignedLabels
+                                checkIconPosition="left"
                                 disabled={loading}
-                                leftSection={<CancelIcon size={18} />}
-                                onClick={handleClose}
-                            >
-                                <Label>Cancel</Label>
-                            </Button>
-                            <Button
-                                type="submit"
-                                loading={loading}
-                                leftSection={buttonContent.icon}
-                                color={!isEditing ? 'positive' : undefined}
-                            >
-                                <Label>{buttonContent.label}</Label>
-                            </Button>
-                        </Group>
-                    </Stack>
-                </form>
-            )}
-        </ConfirmableModal>
+                                searchable
+                                {...form.getInputProps('group')}
+                                onChange={(value) =>
+                                    value === NEW_CATEGORY_VALUE
+                                        ? handleAddCategoryOpen()
+                                        : form.getInputProps('group').onChange(value)
+                                }
+                            />
+                            <TextInput
+                                ref={nameRef}
+                                label={_('Title')}
+                                placeholder={_('Enter name')}
+                                withAsterisk
+                                disabled={loading}
+                                {...form.getInputProps('name')}
+                            />
+                            <Select
+                                label={_('Parent product')}
+                                placeholder={_('No parent')}
+                                data={parentOptions}
+                                // option.value is always one of parentOptions, which is built from the
+                                // same parentOptionNodes as parentDepthByName - the entry always exists.
+                                renderOption={({ option }: { option: ComboboxItem }) => (
+                                    <div style={{ paddingInlineStart: parentDepthByName.get(option.value)! * 16 }}>
+                                        {option.label}
+                                    </div>
+                                )}
+                                withAlignedLabels
+                                clearable
+                                searchable
+                                disabled={loading}
+                                {...form.getInputProps('parent')}
+                            />
+                            <ImageDropzone
+                                image={form.values.image}
+                                label={_('Product image')}
+                                onDrop={handleImageDrop}
+                                onRemove={handleImageRemove}
+                                disabled={loading}
+                            />
+                            <Group justify="flex-end" mt="md">
+                                <Button
+                                    variant="outline"
+                                    color="gray"
+                                    disabled={loading}
+                                    leftSection={<CancelIcon size={18} />}
+                                    onClick={handleClose}
+                                >
+                                    <Label>Cancel</Label>
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    loading={loading}
+                                    leftSection={buttonContent.icon}
+                                    color={!isEditing ? 'positive' : undefined}
+                                >
+                                    <Label>{buttonContent.label}</Label>
+                                </Button>
+                            </Group>
+                        </Stack>
+                    </form>
+                )}
+            </ConfirmableModal>
+            <GroupBox
+                opened={addingCategory}
+                onClose={handleAddCategoryClose}
+                onAfterClose={handleAddCategoryAfterClose}
+            />
+        </>
     );
 }

@@ -90,6 +90,28 @@ describe('exportArchive', () => {
             await expect(zip.file('images/11/22/group.png')!.async('string')).resolves.toBe('group-bytes');
         });
 
+        it('bundles both the thumbnail and the original file for an ImageRef-shaped image', async () => {
+            await writeTestImage('ab/cd/thumb.png', 'thumb-bytes');
+            await writeTestImage('ef/00/photo.png', 'photo-bytes');
+
+            await (await db()).collection('products').insertMany(
+                [
+                    {
+                        group: 'Daržovės',
+                        name: 'Agurkai',
+                        image: { url: '/images/ab/cd/thumb.png', photoUrl: '/images/ef/00/photo.png' },
+                    },
+                ],
+                { forceServerObjectId: true }
+            );
+
+            const buffer = await buildExportArchive();
+            const zip = await JSZip.loadAsync(buffer);
+
+            await expect(zip.file('images/ab/cd/thumb.png')!.async('string')).resolves.toBe('thumb-bytes');
+            await expect(zip.file('images/ef/00/photo.png')!.async('string')).resolves.toBe('photo-bytes');
+        });
+
         it('does not add an entry for an image url with a missing file', async () => {
             await (
                 await db()
@@ -226,6 +248,26 @@ describe('exportArchive', () => {
                         name: 'Agurkai',
                         image: '/images/ab/cd/product.png',
                         variantImages: { p: '/images/ab/cd/product.png' },
+                    },
+                ],
+                { forceServerObjectId: true }
+            );
+
+            const buffer = await buildExportArchive();
+            const { data } = await readImportArchive(buffer);
+
+            expect(getValidator()(data)).toBe(true);
+        });
+
+        it('the real schema accepts a product with an ImageRef-shaped image', async () => {
+            await writeTestImage('ab/cd/thumb.png', 'thumb-bytes');
+            await (await db()).collection('products').insertMany(
+                [
+                    {
+                        group: 'Daržovės',
+                        name: 'Agurkai',
+                        image: { url: '/images/ab/cd/thumb.png', photoUrl: '/images/ef/00/photo.png' },
+                        variantImages: { p: { url: '/images/ab/cd/thumb.png' } },
                     },
                 ],
                 { forceServerObjectId: true }

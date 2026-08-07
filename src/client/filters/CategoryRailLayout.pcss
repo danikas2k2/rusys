@@ -1,4 +1,10 @@
 .CategoryRailLayout-content {
     flex: 1;
     min-width: 0;
+
+    // Past Mantine's `lg` breakpoint (desktop), an unconstrained table/grid stretches across the
+    // whole remaining width with large empty gutters between sparse content - cap it instead.
+    @media (width >= 75em) {
+        max-width: 90rem;
+    }
 }

@@ -15,4 +15,12 @@
     > *:has(+ *) {
         flex: 0 1 50%;
     }
+
+    // The search/category filter sits in the grid's "auto" column, which on a wide desktop
+    // viewport can be well over 1000px - capping it keeps the input from stretching edge to
+    // edge. No media query needed: max-width simply has no effect below this width.
+    .filter {
+        max-width: 40rem;
+        margin-inline: auto;
+    }
 }

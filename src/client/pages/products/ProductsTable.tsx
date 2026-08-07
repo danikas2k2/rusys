@@ -10,6 +10,7 @@ import { useProductsHasData } from '~/client/pages/products/hooks/useProductsHas
 import { MissingOnlyCheckbox } from '~/client/pages/products/MissingOnlyCheckbox';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
 import { ProductRow } from '~/client/pages/products/ProductRow';
+import { collectDescendants } from '~/client/pages/products/utils/collectDescendants';
 import { useGetProducts } from '~/client/state/products/useGetProducts';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useYears } from '~/client/state/years/useYears';
@@ -23,18 +24,6 @@ interface ProductTreeNode {
     hasChildren: boolean;
     expanded: boolean;
     rolledUpYears?: readonly YearAmounts[];
-}
-
-function collectDescendants(name: string, childrenByParent: ReadonlyMap<string, readonly Product[]>): Product[] {
-    const descendants: Product[] = [];
-    const stack = [name];
-    while (stack.length) {
-        for (const child of childrenByParent.get(stack.pop()!) ?? []) {
-            descendants.push(child);
-            stack.push(child.name);
-        }
-    }
-    return descendants;
 }
 
 // Builds the visible (depth-first, respecting collapse) row list from the flat, already
@@ -83,6 +72,10 @@ export function ProductsTable() {
 
     const annual = groups.find((g) => g.group === selectedGroup)?.annual;
     const headingWidth = annual ? 300 / (years.length + 3) : 50;
+    // layout="fixed" percentage columns squeeze down to nothing on a narrow viewport once there
+    // are enough year columns - a min-width (roughly the original ~100px-per-slot the percentages
+    // above assume) plus ScrollContainer lets it scroll horizontally past that instead of clipping.
+    const minTableWidth = annual ? 100 * (years.length + 3) : 400;
 
     const nodes = useMemo(() => buildProductTree(products, expandedIds), [products, expandedIds]);
 
@@ -114,45 +107,47 @@ export function ProductsTable() {
 
     return (
         <LoadableContent loader={useGetProducts()} hasData={useProductsHasData()}>
-            <Table layout="fixed" data-table="products">
-                <Table.Thead>
-                    <Table.Tr h="3rem">
-                        <Table.Th w={`${headingWidth}%`}>
-                            <Group gap="xs" wrap="nowrap">
-                                <MissingOnlyCheckbox />
-                                <AmountViewToggle />
-                            </Group>
-                        </Table.Th>
-                        {annual ? (
-                            years.map((year) => (
-                                <Table.Th key={year} ta="center">
-                                    {year}
-                                </Table.Th>
-                            ))
-                        ) : (
-                            <Table.Th ta="center" />
-                        )}
-                    </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                    {nodes.map(({ product: p, depth, hasChildren, expanded, rolledUpYears }) => {
-                        const id = getId(p.group, p.name);
-                        return (
-                            <ProductRow
-                                key={id}
-                                product={p}
-                                annual={annual}
-                                hidden={(missingOnly && !p.missing) || !quickFilter(p.name)}
-                                depth={depth}
-                                hasChildren={hasChildren}
-                                expanded={expanded}
-                                onToggleExpand={toggleHandlers.get(id)}
-                                rolledUpYears={rolledUpYears}
-                            />
-                        );
-                    })}
-                </Table.Tbody>
-            </Table>
+            <Table.ScrollContainer minWidth={minTableWidth}>
+                <Table layout="fixed" data-table="products">
+                    <Table.Thead>
+                        <Table.Tr h="3rem">
+                            <Table.Th w={`${headingWidth}%`}>
+                                <Group gap="xs" wrap="nowrap">
+                                    <MissingOnlyCheckbox />
+                                    <AmountViewToggle />
+                                </Group>
+                            </Table.Th>
+                            {annual ? (
+                                years.map((year) => (
+                                    <Table.Th key={year} ta="center">
+                                        {year}
+                                    </Table.Th>
+                                ))
+                            ) : (
+                                <Table.Th ta="center" />
+                            )}
+                        </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                        {nodes.map(({ product: p, depth, hasChildren, expanded, rolledUpYears }) => {
+                            const id = getId(p.group, p.name);
+                            return (
+                                <ProductRow
+                                    key={id}
+                                    product={p}
+                                    annual={annual}
+                                    hidden={(missingOnly && !p.missing) || !quickFilter(p.name)}
+                                    depth={depth}
+                                    hasChildren={hasChildren}
+                                    expanded={expanded}
+                                    onToggleExpand={toggleHandlers.get(id)}
+                                    rolledUpYears={rolledUpYears}
+                                />
+                            );
+                        })}
+                    </Table.Tbody>
+                </Table>
+            </Table.ScrollContainer>
         </LoadableContent>
     );
 }

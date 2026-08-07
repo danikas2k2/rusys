@@ -4,7 +4,7 @@ import path from 'node:path';
 import JSZip from 'jszip';
 
 import { exportEverything } from '~/server/data/common';
-import { IMAGES_DIR, resolveImagePath } from '~/server/data/images';
+import { imageRefUrls, IMAGES_DIR, resolveImagePath } from '~/server/data/images';
 import type { ApiExport } from '~/types/api';
 import type { Group, Product } from '~/types/data';
 
@@ -15,19 +15,13 @@ const IMAGE_ENTRY_PATTERN = /^images\/[0-9a-f]{2}\/[0-9a-f]{2}\/[0-9a-f]{32}\.[a
 function collectImageUrls(products: readonly Product[], groups: readonly Group[]): string[] {
     const urls = new Set<string>();
     for (const product of products) {
-        if (product.image) {
-            urls.add(product.image);
-        }
+        imageRefUrls(product.image).forEach((url) => urls.add(url));
         for (const image of Object.values(product.variantImages ?? {})) {
-            if (image) {
-                urls.add(image);
-            }
+            imageRefUrls(image).forEach((url) => urls.add(url));
         }
     }
     for (const group of groups) {
-        if (group.image) {
-            urls.add(group.image);
-        }
+        imageRefUrls(group.image).forEach((url) => urls.add(url));
     }
     return [...urls];
 }

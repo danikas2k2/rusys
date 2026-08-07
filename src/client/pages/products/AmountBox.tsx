@@ -1,24 +1,36 @@
-import { Tabs, type ModalProps } from '@mantine/core';
+import { ActionIcon, Group, Tabs, type ModalProps } from '@mantine/core';
 import React, { useCallback, useState } from 'react';
 
-import { HistoryTabIcon, ProductsNavIcon, QuantitiesTabIcon } from '@icons';
+import { DeleteIcon, EditIcon, HistoryTabIcon, QuantitiesTabIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
-import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
+import { ProductDialogIcon } from '~/client/common/ProductDialogIcon';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AmountHistoryTab } from '~/client/pages/products/AmountHistoryTab';
 import { AmountVariantsTab } from '~/client/pages/products/AmountVariantsTab';
+import type { ImageRef } from '~/types/data';
 
 import './AmountBox.pcss';
 
 export interface ValueListBoxProps extends Pick<ModalProps, 'title'> {
     opened?: boolean;
+    image?: ImageRef;
     onClose?: () => void;
     onAfterClose?: () => void;
+    onEdit?: () => void;
+    onDelete?: () => void;
 }
 
-export function AmountBox({ opened = false, title, onClose, onAfterClose }: ValueListBoxProps) {
+export function AmountBox({
+    opened = false,
+    title,
+    image,
+    onClose,
+    onAfterClose,
+    onEdit,
+    onDelete,
+}: ValueListBoxProps) {
     const _ = useLabels();
     const [hasChanges, setHasChanges] = useState(false);
 
@@ -36,12 +48,24 @@ export function AmountBox({ opened = false, title, onClose, onAfterClose }: Valu
             closeButtonProps={{ 'aria-label': _('Close') }}
             onExitTransitionEnd={handleExitTransitionEnd}
             title={
-                <>
-                    <DialogIcon>
-                        <ProductsNavIcon />
-                    </DialogIcon>
-                    {title}
-                </>
+                <Group justify="space-between" wrap="nowrap" flex={1}>
+                    <Group wrap="nowrap" gap="sm">
+                        <ProductDialogIcon image={image} />
+                        {title}
+                    </Group>
+                    <Group gap={4} wrap="nowrap">
+                        {onEdit && (
+                            <ActionIcon variant="subtle" color="gray" onClick={onEdit} aria-label={_('Edit')}>
+                                <EditIcon size={18} />
+                            </ActionIcon>
+                        )}
+                        {onDelete && (
+                            <ActionIcon variant="subtle" color="negative" onClick={onDelete} aria-label={_('Remove')}>
+                                <DeleteIcon size={18} />
+                            </ActionIcon>
+                        )}
+                    </Group>
+                </Group>
             }
             data-dialog="product"
         >

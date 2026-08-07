@@ -141,7 +141,7 @@ describe('<CategoryRail>', () => {
         render(
             <MockTheme>
                 <CategoryRail
-                    groups={[{ group: 'Uogienės', order: 0, image: '/images/ab/cd/uogienes.png' }]}
+                    groups={[{ group: 'Uogienės', order: 0, image: { url: '/images/ab/cd/uogienes.png' } }]}
                     selected="Uogienės"
                     onSelect={vi.fn()}
                     groupsWithContent={new Set(['Uogienės'])}
@@ -152,6 +152,21 @@ describe('<CategoryRail>', () => {
         const img = document.querySelector('img');
 
         expect(img).toHaveAttribute('src', '/images/ab/cd/uogienes.png');
+    });
+
+    it('renders the category name as a label for wider screens', () => {
+        render(
+            <MockTheme>
+                <CategoryRail
+                    groups={[{ group: 'Uogienės', order: 0 }]}
+                    selected="Uogienės"
+                    onSelect={vi.fn()}
+                    groupsWithContent={new Set(['Uogienės'])}
+                />
+            </MockTheme>
+        );
+
+        expect(screen.getByText('Uogienės')).toBeInTheDocument();
     });
 
     it('renders a first-letter fallback when the category has no image', () => {

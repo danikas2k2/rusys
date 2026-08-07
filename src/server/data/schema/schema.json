@@ -145,12 +145,34 @@
             "type": "boolean"
           },
           "image": {
-            "type": "string"
+            "anyOf": [
+              { "type": "string" },
+              {
+                "type": "object",
+                "properties": {
+                  "url": { "type": "string" },
+                  "photoUrl": { "type": "string" }
+                },
+                "required": ["url"],
+                "additionalProperties": false
+              }
+            ]
           },
           "variantImages": {
             "type": "object",
             "additionalProperties": {
-              "type": "string"
+              "anyOf": [
+                { "type": "string" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "url": { "type": "string" },
+                    "photoUrl": { "type": "string" }
+                  },
+                  "required": ["url"],
+                  "additionalProperties": false
+                }
+              ]
             }
           }
         },
@@ -176,7 +198,18 @@
             "type": "boolean"
           },
           "image": {
-            "type": "string"
+            "anyOf": [
+              { "type": "string" },
+              {
+                "type": "object",
+                "properties": {
+                  "url": { "type": "string" },
+                  "photoUrl": { "type": "string" }
+                },
+                "required": ["url"],
+                "additionalProperties": false
+              }
+            ]
           }
         },
         "required": ["group", "order"],

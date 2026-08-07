@@ -61,7 +61,7 @@ export function VariantBox({
     const _ = useLabels();
     const allGroups = useGroups();
     const groups = allGroups.map((g) => g.group);
-    const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image]));
+    const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image?.url]));
     const variants = useVariants();
 
     const initialUnitsResolved = initialUnits ?? DEFAULT_UNITS;

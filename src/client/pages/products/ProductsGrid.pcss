@@ -1,0 +1,6 @@
+// The outer edge padding matches SimpleGrid's own inter-tile spacing (see GRID_SPACING in
+// ProductsGrid.tsx) so the gap around the grid is the same size as the gap between tiles,
+// instead of tiles running flush to the container edge while huge gaps separate them.
+[data-grid='products'] {
+    padding-inline: var(--mantine-spacing-xs);
+}

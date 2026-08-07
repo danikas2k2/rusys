@@ -1,4 +1,18 @@
-import { Accordion, Avatar, Badge, Button, Flex, Group, Select, Stack, Text, type ComboboxItem } from '@mantine/core';
+import {
+    Accordion,
+    ActionIcon,
+    Avatar,
+    Badge,
+    Button,
+    Checkbox,
+    Flex,
+    Group,
+    SegmentedControl,
+    Select,
+    Stack,
+    Text,
+    type ComboboxItem,
+} from '@mantine/core';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
@@ -6,6 +20,7 @@ import {
     ApproxAmountIcon,
     CancelIcon,
     DatedIcon,
+    EditIcon,
     ExpiredIcon,
     ExpiringSoonIcon,
     HomeIcon,
@@ -25,13 +40,16 @@ import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsCon
 import { EXPIRY_INFIX, HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/client/pages/products/utils/variantKeys';
 import { VariantImagePicker } from '~/client/pages/products/VariantImagePicker';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
+import { useGroups } from '~/client/state/groups/useGroups';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useRedoProduct } from '~/client/state/products/useRedoProduct';
+import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 import { useUndoProduct } from '~/client/state/products/useUndoProduct';
 import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
+import { useVariants } from '~/client/state/variants/useVariants';
 import { getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { formatDateOnly, getExpiryStatus, parseDateOnly } from '~/common/utils/expiry';
 import type { ProductAmounts, VariantAmount } from '~/types/data';
@@ -92,14 +110,17 @@ interface AmountVariantsTabProps {
 
 export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTabProps = {}) {
     const _ = useLabels();
-    const [active] = useActiveContent<ProductAmounts>();
+    const [active, setActive] = useActiveContent<ProductAmounts>();
     const [, setUpdating] = useUpdatingProducts();
     const profile = useProfile();
     const updateProduct = useUpdateProduct();
     const undoProduct = useUndoProduct();
     const redoProduct = useRedoProduct();
+    const setProductRemoving = useSetProductRemoving();
     const products = useProducts();
+    const groups = useGroups();
     const now = new Date().getTime();
+    const thisYear = new Date().getFullYear() % 100;
 
     const activeData = active?.data;
     const group = activeData?.group ?? '';
@@ -112,6 +133,16 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
             activeData ? products.find((p) => p.group === activeData.group && p.name === activeData.name) : undefined,
         [activeData, products]
     );
+
+    // Only annual groups have a meaningful set of distinct years to switch between - a
+    // non-annual product's year is always 0 (its whole history combined), so there's nothing
+    // to pick. thisYear and the currently active year are always included, even if neither has
+    // an entry yet, so switching to a brand new year (or back to one just left) is possible.
+    const isAnnual = groups.find((g) => g.group === group)?.annual;
+    const yearOptions = useMemo(() => {
+        const set = new Set([...(activeProduct?.years?.map((y) => y.year) ?? []), thisYear, year]);
+        return Array.from(set).sort((a, b) => b - a);
+    }, [activeProduct, thisYear, year]);
 
     const liveAmounts = useMemo(
         () =>
@@ -128,7 +159,13 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
     const canUndo = undoCount > 0;
     const canRedo = redoCount > 0;
 
+    // useSetProductRemoving itself no-ops for a falsy year, so this only ever has an effect for
+    // annual groups - matching the year switcher above, which is the only place a real year gets
+    // selected.
+    const removingYear = !!activeProduct?.years?.find((y) => y.year === year)?.removing;
+
     const allVariants = useAllVariants(group);
+    const allVariantRecords = useVariants();
     const compareVariants = useGroupVariantComparator(group);
 
     const presentKeys = useMemo(() => {
@@ -187,6 +224,34 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
         [setExpandedKey]
     );
     const handleAddVariantAfterClose = useCallback(() => setAddingVariant(false), []);
+
+    // Edit and add share one VariantBox instance below (mutually exclusive - only one of
+    // addingVariant/editingVariant is ever set), rather than mounting a second modal for it.
+    const [editingVariant, setEditingVariant] = useState<string | null>(null);
+    const handleEditVariantOpen = useCallback((v: string) => setEditingVariant(v), []);
+    const handleEditVariantClose = useCallback(
+        (_newGroup?: string, newVariant?: string) => {
+            setEditingVariant(null);
+            // A rename may have invalidated any locally-tracked key referencing the old name -
+            // resetting is simplest, and matches what Cancel already does elsewhere in this file.
+            if (newVariant) {
+                setAllDeltas({});
+                setComment('');
+                setExpandedKey(null);
+                setExtraKeys([]);
+            }
+        },
+        [setExpandedKey]
+    );
+    const handleEditVariantAfterClose = useCallback(() => setEditingVariant(null), []);
+
+    const editingVariantRecord = useMemo(
+        () =>
+            editingVariant
+                ? allVariantRecords.find((v) => v.group === group && v.variant === editingVariant)
+                : undefined,
+        [editingVariant, allVariantRecords, group]
+    );
 
     const handleSelectVariant = useCallback(
         (variant: string | null) => {
@@ -270,6 +335,23 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
         setExtraKeys([]);
     }, [setExpandedKey]);
 
+    // Guarded by hasChanges at the call site (see the SegmentedControl below) - switching years
+    // with unsaved deltas pending would silently discard them, so the control disables itself
+    // instead of switching underneath an in-progress edit.
+    const handleYearChange = useCallback(
+        (newYear: number) => {
+            if (!activeData) {
+                return;
+            }
+            setAllDeltas({});
+            setComment('');
+            setExpandedKey(null);
+            setExtraKeys([]);
+            setActive({ action: 'values', data: { ...activeData, year: newYear } });
+        },
+        [activeData, setActive, setExpandedKey]
+    );
+
     const handleUpdate = useCallback(async () => {
         const changes: VariantAmount[] = [];
         for (const [key, deltas] of Object.entries(allDeltas)) {
@@ -330,9 +412,34 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
         await redoProduct(group, name, year).finally(() => setUpdating(activeData!, false));
     }, [activeData, group, name, year, setUpdating, redoProduct, setExpandedKey]);
 
+    // Only ever wired to onChange while year is truthy (see the checkbox below) - activeData is
+    // always defined here for the same reason as handleUndo/handleRedo above.
+    const handleToggleRemoving = useCallback(async (): Promise<void> => {
+        setUpdating(activeData!, true);
+        await setProductRemoving(group, name, year, !removingYear).finally(() => setUpdating(activeData!, false));
+    }, [activeData, group, name, year, removingYear, setUpdating, setProductRemoving]);
+
     return (
         <>
             <Stack gap="sm">
+                {isAnnual && (
+                    <SegmentedControl
+                        size="xs"
+                        fullWidth
+                        data={yearOptions.map((y) => ({ value: String(y), label: String(y) }))}
+                        value={String(year)}
+                        onChange={(v) => handleYearChange(Number(v))}
+                        disabled={hasChanges}
+                    />
+                )}
+                {!!year && (
+                    <Checkbox
+                        label={_('Removing this year?')}
+                        checked={removingYear}
+                        onChange={handleToggleRemoving}
+                        disabled={hasChanges}
+                    />
+                )}
                 <Accordion value={expandedKey} onChange={setExpandedKey} variant="contained" radius="md" chevron={null}>
                     {visibleKeys.map((key) => {
                         const { variant, suspicious, home, expiresAt } = fromKey(key);
@@ -368,7 +475,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
                                     <Group justify="space-between">
                                         <Group gap={4}>
                                             {variantImage && (
-                                                <Avatar src={variantImage} radius="sm" size={20} alt="">
+                                                <Avatar src={variantImage.url} radius="sm" size={20} alt="">
                                                     {variant.trim().charAt(0).toUpperCase()}
                                                 </Avatar>
                                             )}
@@ -413,12 +520,24 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
                                         onAddHome={isPlain && !hasHome ? () => handleAddHome(variant) : undefined}
                                         onAddExpiry={isPlain ? (value) => handlePickExpiry(variant, value) : undefined}
                                     >
-                                        <VariantImagePicker
-                                            group={group}
-                                            name={name}
-                                            variant={variant}
-                                            image={variantImage}
-                                        />
+                                        <Group justify="space-between" wrap="nowrap" align="flex-start">
+                                            <VariantImagePicker
+                                                group={group}
+                                                name={name}
+                                                variant={variant}
+                                                image={variantImage?.url}
+                                            />
+                                            {isPlain && (
+                                                <ActionIcon
+                                                    variant="subtle"
+                                                    color="gray"
+                                                    onClick={() => handleEditVariantOpen(variant)}
+                                                    aria-label={_('Edit variant')}
+                                                >
+                                                    <EditIcon size={16} />
+                                                </ActionIcon>
+                                            )}
+                                        </Group>
                                     </AmountExpanded>
                                 </Accordion.Panel>
                             </Accordion.Item>
@@ -512,10 +631,14 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
             </Stack>
 
             <VariantBox
-                opened={addingVariant}
+                opened={addingVariant || !!editingVariant}
                 group={group}
-                onClose={handleAddVariantClose}
-                onAfterClose={handleAddVariantAfterClose}
+                variant={editingVariant ?? undefined}
+                suffix={editingVariantRecord?.suffix}
+                count={editingVariantRecord?.count}
+                units={editingVariantRecord?.units}
+                onClose={editingVariant ? handleEditVariantClose : handleAddVariantClose}
+                onAfterClose={editingVariant ? handleEditVariantAfterClose : handleAddVariantAfterClose}
             />
         </>
     );
