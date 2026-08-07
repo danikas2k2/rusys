@@ -11,6 +11,10 @@ export interface ProductGridNode {
     // The tile's own amounts when a leaf, or its own + every descendant's (at any depth) when
     // collapsed with children - undefined once expanded, since children are shown separately.
     totalAmounts: readonly VariantAmount[];
+    // Whether any descendant (at any depth) has a non-empty amount - lets an expanded parent tile
+    // with none of its own amounts avoid reading as "empty" when its children (shown separately,
+    // not rolled into totalAmounts) actually have some.
+    hasNonEmptyDescendant: boolean;
 }
 
 // A product being phased out ("removing") shouldn't count toward the tile's summary total -
@@ -48,15 +52,17 @@ export function buildProductGridTree(
             const childProducts = childrenByParent.get(p.name) ?? [];
             const hasChildren = childProducts.length > 0;
             const expanded = !hasChildren || expandedIds.has(getId(p.group, p.name));
+            const descendants = hasChildren ? collectDescendants(p.name, childrenByParent) : [];
+            const hasNonEmptyDescendant = getCleanTotal(descendants.map((d) => d.years)).length > 0;
 
             if (hasChildren && !expanded) {
-                const descendants = collectDescendants(p.name, childrenByParent);
                 return {
                     product: p,
                     hasChildren,
                     expanded,
                     children: [],
                     totalAmounts: getCleanTotal([p.years, ...descendants.map((d) => d.years)]),
+                    hasNonEmptyDescendant,
                 };
             }
 
@@ -66,6 +72,7 @@ export function buildProductGridTree(
                 expanded,
                 children: hasChildren ? build(childProducts) : [],
                 totalAmounts: getCleanTotal([p.years]),
+                hasNonEmptyDescendant,
             };
         });
 

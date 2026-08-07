@@ -49,14 +49,14 @@ describe('<ProductTile>', () => {
         expect(screen.getByText(name)).toBeInTheDocument();
     });
 
-    it('renders a dash when totalAmounts is empty', () => {
+    it('renders no amounts when totalAmounts is empty', () => {
         render(
             <MockApp>
                 <ProductTile {...defaultProps} totalAmounts={[]} />
             </MockApp>
         );
 
-        expect(screen.getByText('—')).toBeInTheDocument();
+        expect(screen.queryByText('—')).not.toBeInTheDocument();
     });
 
     it('marks the tile as empty (greyed out) when totalAmounts is empty', () => {
@@ -77,6 +77,26 @@ describe('<ProductTile>', () => {
         );
 
         expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-empty', 'false');
+    });
+
+    it('does not mark an expanded parent as empty when a child has an amount, even with no own amounts', () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} totalAmounts={[]} hasChildren expanded hasNonEmptyDescendant />
+            </MockApp>
+        );
+
+        expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-empty', 'false');
+    });
+
+    it('marks an expanded parent as empty when it has no own amounts and no child has one either', () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} totalAmounts={[]} hasChildren expanded hasNonEmptyDescendant={false} />
+            </MockApp>
+        );
+
+        expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-empty', 'true');
     });
 
     it('opens the amounts dialog with year 0 and the product own combined amounts for a leaf tile', async () => {

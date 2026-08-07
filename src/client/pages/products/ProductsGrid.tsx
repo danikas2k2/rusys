@@ -41,6 +41,7 @@ function ProductGridSection({ nodes, annual, isHidden, toggleHandlers }: Product
                             expanded={node.expanded}
                             onToggleExpand={toggleHandlers.get(id)}
                             totalAmounts={node.totalAmounts}
+                            hasNonEmptyDescendant={node.hasNonEmptyDescendant}
                         />
                         {node.expanded && node.hasChildren && (
                             // Bordered so it's visually obvious which tiles belong to the parent
