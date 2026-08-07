@@ -117,8 +117,11 @@ export function ProductCell({
             onToggleExpand?.();
             return;
         }
-        setActive({ action: 'values', data: { group, name, year, amounts, image: product.image } });
-    }, [redirectToExpand, onToggleExpand, setActive, group, name, year, amounts, product.image]);
+        setActive({
+            action: 'values',
+            data: { group, name, year, amounts, image: product.image, photo: product.photo },
+        });
+    }, [redirectToExpand, onToggleExpand, setActive, group, name, year, amounts, product.image, product.photo]);
 
     // TODO add setRemoving to edit dialog
     const handleLongPress = useCallback(

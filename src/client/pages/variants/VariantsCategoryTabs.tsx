@@ -25,7 +25,7 @@ export function VariantsCategoryTabs(): React.ReactElement | null {
                 {groups.map(({ group, image }) => (
                     <Tabs.Tab key={group} value={group} aria-label={group}>
                         <Tooltip label={group} position="right" withArrow>
-                            <Avatar src={image?.url} radius="xl" size="md">
+                            <Avatar src={image || undefined} radius="xl" size="md">
                                 {group.trim().charAt(0).toUpperCase()}
                             </Avatar>
                         </Tooltip>

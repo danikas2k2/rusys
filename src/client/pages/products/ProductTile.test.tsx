@@ -59,6 +59,26 @@ describe('<ProductTile>', () => {
         expect(screen.getByText('—')).toBeInTheDocument();
     });
 
+    it('marks the tile as empty (greyed out) when totalAmounts is empty', () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} totalAmounts={[]} />
+            </MockApp>
+        );
+
+        expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-empty', 'true');
+    });
+
+    it('does not mark the tile as empty when totalAmounts has values', () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} />
+            </MockApp>
+        );
+
+        expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-empty', 'false');
+    });
+
     it('opens the amounts dialog with year 0 and the product own combined amounts for a leaf tile', async () => {
         render(
             <MockApp state={{ variants: [{ group, variant: 'p', order: 0 }] }}>
@@ -70,7 +90,7 @@ describe('<ProductTile>', () => {
 
         expect(setActive).toHaveBeenCalledWith({
             action: 'values',
-            data: { group, name, year: 0, amounts: [{ variant: 'p', amount: 2 }], image: undefined },
+            data: { group, name, year: 0, amounts: [{ variant: 'p', amount: 2 }], image: undefined, photo: undefined },
         });
     });
 
@@ -98,12 +118,13 @@ describe('<ProductTile>', () => {
                 year: thisYear - 1,
                 amounts: [{ variant: 'p', amount: 5 }],
                 image: undefined,
+                photo: undefined,
             },
         });
     });
 
     it('includes the product image when opening the dialog', async () => {
-        const productWithImage = { ...product, image: { url: '/images/ab/cd/product.png' } };
+        const productWithImage = { ...product, image: '/images/ab/cd/product.png' };
 
         render(
             <MockApp state={{ variants: [{ group, variant: 'p', order: 0 }] }}>
@@ -114,7 +135,7 @@ describe('<ProductTile>', () => {
         await user.click(screen.getByText(name));
 
         expect(setActive).toHaveBeenCalledWith(
-            expect.objectContaining({ data: expect.objectContaining({ image: { url: '/images/ab/cd/product.png' } }) })
+            expect.objectContaining({ data: expect.objectContaining({ image: '/images/ab/cd/product.png' }) })
         );
     });
 
@@ -147,7 +168,7 @@ describe('<ProductTile>', () => {
         expect(onToggleExpand).not.toHaveBeenCalled();
         expect(setActive).toHaveBeenCalledWith({
             action: 'values',
-            data: { group, name, year: 0, amounts: [{ variant: 'p', amount: 2 }], image: undefined },
+            data: { group, name, year: 0, amounts: [{ variant: 'p', amount: 2 }], image: undefined, photo: undefined },
         });
     });
 
@@ -221,8 +242,8 @@ describe('<ProductTile>', () => {
             expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-photo', 'false');
         });
 
-        it('shows the image as a small avatar next to the title when icon-sized (no photoUrl)', () => {
-            const productWithImage = { ...product, image: { url: '/images/ab/cd/product.png' } };
+        it('shows the image as a small avatar next to the title when icon-sized (no photo)', () => {
+            const productWithImage = { ...product, image: '/images/ab/cd/product.png' };
 
             const { container } = render(
                 <MockApp>
@@ -234,10 +255,11 @@ describe('<ProductTile>', () => {
             expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-photo', 'false');
         });
 
-        it('shows the image as a tile background with a scrim when photo-sized (photoUrl present)', () => {
+        it('shows the photo as a tile background with a scrim when photo-sized (photo present)', () => {
             const productWithImage = {
                 ...product,
-                image: { url: '/images/ab/cd/thumb.png', photoUrl: '/images/ab/cd/product.png' },
+                image: '/images/ab/cd/thumb.png',
+                photo: '/images/ab/cd/product.png',
             };
 
             const { container } = render(

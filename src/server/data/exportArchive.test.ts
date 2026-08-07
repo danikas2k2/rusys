@@ -90,7 +90,7 @@ describe('exportArchive', () => {
             await expect(zip.file('images/11/22/group.png')!.async('string')).resolves.toBe('group-bytes');
         });
 
-        it('bundles both the thumbnail and the original file for an ImageRef-shaped image', async () => {
+        it('bundles both the thumbnail and the original photo when both are set', async () => {
             await writeTestImage('ab/cd/thumb.png', 'thumb-bytes');
             await writeTestImage('ef/00/photo.png', 'photo-bytes');
 
@@ -99,7 +99,8 @@ describe('exportArchive', () => {
                     {
                         group: 'Daržovės',
                         name: 'Agurkai',
-                        image: { url: '/images/ab/cd/thumb.png', photoUrl: '/images/ef/00/photo.png' },
+                        image: '/images/ab/cd/thumb.png',
+                        photo: '/images/ef/00/photo.png',
                     },
                 ],
                 { forceServerObjectId: true }
@@ -259,16 +260,108 @@ describe('exportArchive', () => {
             expect(getValidator()(data)).toBe(true);
         });
 
-        it('the real schema accepts a product with an ImageRef-shaped image', async () => {
+        it('the real schema accepts a product with image, photo, and variantPhotos fields', async () => {
             await writeTestImage('ab/cd/thumb.png', 'thumb-bytes');
             await (await db()).collection('products').insertMany(
                 [
                     {
                         group: 'Daržovės',
                         name: 'Agurkai',
-                        image: { url: '/images/ab/cd/thumb.png', photoUrl: '/images/ef/00/photo.png' },
-                        variantImages: { p: { url: '/images/ab/cd/thumb.png' } },
+                        image: '/images/ab/cd/thumb.png',
+                        photo: '/images/ef/00/photo.png',
+                        variantImages: { p: '/images/ab/cd/thumb.png' },
+                        variantPhotos: { p: '/images/ef/00/photo.png' },
                     },
+                ],
+                { forceServerObjectId: true }
+            );
+
+            const buffer = await buildExportArchive();
+            const { data } = await readImportArchive(buffer);
+
+            expect(getValidator()(data)).toBe(true);
+        });
+
+        it('the real schema accepts updates/undates amounts with suspicious, home, and expiresAt flags', async () => {
+            await (await db()).collection('products').insertMany(
+                [
+                    {
+                        group: 'Daržovės',
+                        name: 'Agurkai',
+                        updates: [
+                            {
+                                time: Date.now(),
+                                years: [
+                                    {
+                                        year: 22,
+                                        amounts: [
+                                            { variant: 'p', amount: -1, recycled: false, suspicious: true },
+                                            { variant: 'p', amount: -1, recycled: false, home: true },
+                                            { variant: 'p', amount: -1, recycled: false, expiresAt: Date.now() },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                        undates: [
+                            {
+                                time: Date.now(),
+                                years: [{ year: 22, amounts: [{ variant: 'p', amount: 1, suspicious: true }] }],
+                            },
+                        ],
+                    },
+                ],
+                { forceServerObjectId: true }
+            );
+
+            const buffer = await buildExportArchive();
+            const { data } = await readImportArchive(buffer);
+
+            expect(getValidator()(data)).toBe(true);
+        });
+
+        it('the real schema accepts explicit null suspicious/home/expiresAt left by an older app version', async () => {
+            await (await db()).collection('products').insertMany(
+                [
+                    {
+                        group: 'Daržovės',
+                        name: 'Agurkai',
+                        updates: [
+                            {
+                                time: Date.now(),
+                                years: [
+                                    {
+                                        year: 22,
+                                        amounts: [
+                                            {
+                                                variant: 'p',
+                                                amount: -1,
+                                                recycled: true,
+                                                suspicious: null,
+                                                home: null,
+                                                expiresAt: null,
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+                { forceServerObjectId: true }
+            );
+
+            const buffer = await buildExportArchive();
+            const { data } = await readImportArchive(buffer);
+
+            expect(getValidator()(data)).toBe(true);
+        });
+
+        it('the real schema accepts a sub-product with a parent field', async () => {
+            await (await db()).collection('products').insertMany(
+                [
+                    { group: 'Daržovės', name: 'Agurkai' },
+                    { group: 'Daržovės', name: 'Agurkai (Zewa)', parent: 'Agurkai' },
                 ],
                 { forceServerObjectId: true }
             );

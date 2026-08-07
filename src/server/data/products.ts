@@ -2,36 +2,51 @@ import type { AnyBulkWriteOperation, ClientSession, Collection, Filter, UpdateFi
 
 import { addVariantAmount, getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { buildHistoryPipeline } from '~/server/data/history';
-import { classifyImage, deleteImageRef } from '~/server/data/images';
-import { resolveImage } from '~/server/data/resolveImage';
+import { classifyImage, deleteImages } from '~/server/data/images';
+import { imageFieldUpdate, resolveImage } from '~/server/data/resolveImage';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
-import type { History, ImageRef, Product, Update, VariantAmount } from '~/types/data';
+import type { History, Product, Update, VariantAmount } from '~/types/data';
 
-// Backfills any plain-string image/variantImages left by a pre-classification version of the app,
-// persisting the computed ImageRef so future reads skip this recomputation.
+// Backfills `photo` for any `image`/`variantImages` entry left by a pre-classification version of
+// the app that turns out to actually be a photo, persisting the result so future reads skip this
+// recomputation. An `image` with no `photo` that's genuinely icon-sized is left alone (nothing to
+// persist), and gets re-checked - cheaply - on every read, since there's no separate marker for
+// "confirmed icon" vs "never checked".
 async function migrateProductImages(col: Collection<Product>, product: Product): Promise<Product> {
-    const staleImage = typeof product.image === 'string' ? (product.image as unknown as string) : undefined;
     const staleVariants = Object.entries(product.variantImages ?? {}).filter(
-        ([, v]) => typeof v === 'string'
-    ) as unknown as [string, string][];
-    if (!staleImage && !staleVariants.length) {
+        ([variant, url]) => url && !product.variantPhotos?.[variant]
+    );
+    if (!product.image && !staleVariants.length) {
         return product;
     }
 
-    const $set: Record<string, ImageRef> = {};
-    const image = staleImage ? await classifyImage(staleImage) : product.image;
-    if (staleImage) {
-        $set.image = image!;
+    const $set: Record<string, string> = {};
+    let { image, photo } = product;
+    if (image && !photo) {
+        const classified = await classifyImage(image);
+        if (classified.photo) {
+            image = classified.image;
+            photo = classified.photo;
+            $set.image = classified.image;
+            $set.photo = classified.photo;
+        }
     }
     const variantImages = { ...product.variantImages };
+    const variantPhotos = { ...product.variantPhotos };
     for (const [variant, url] of staleVariants) {
-        const ref = await classifyImage(url);
-        variantImages[variant] = ref;
-        $set[`variantImages.${variant}`] = ref;
+        const classified = await classifyImage(url);
+        if (classified.photo) {
+            variantImages[variant] = classified.image;
+            variantPhotos[variant] = classified.photo;
+            $set[`variantImages.${variant}`] = classified.image;
+            $set[`variantPhotos.${variant}`] = classified.photo;
+        }
     }
-    await col.updateOne({ group: product.group, name: product.name }, { $set });
-    return { ...product, image, variantImages };
+    if (Object.keys($set).length) {
+        await col.updateOne({ group: product.group, name: product.name }, { $set });
+    }
+    return { ...product, image, photo, variantImages, variantPhotos };
 }
 
 export async function getProducts(years: readonly number[] = []): Promise<Product[]> {
@@ -57,7 +72,9 @@ export async function getProducts(years: readonly number[] = []): Promise<Produc
                     years: 1,
                     missing: 1,
                     image: 1,
+                    photo: 1,
                     variantImages: 1,
+                    variantPhotos: 1,
                     updates: {
                         $cond: [
                             { $gt: [{ $size: { $ifNull: ['$updates', []] } }, 0] },
@@ -457,9 +474,13 @@ export async function setImage(group: string, name: string, image: string): Prom
     }
     const col = (await db()).collection<Product>('products');
     const existing = await col.findOne({ group, name });
-    const resolved = await resolveImage(image, existing?.image);
+    const resolved = await resolveImage(image, existing?.image, existing?.photo);
+    const { $set, $unset } = imageFieldUpdate(resolved, 'image', 'photo');
     return col
-        .updateOne({ group, name }, resolved ? { $set: { image: resolved } } : { $unset: { image: 1 } })
+        .updateOne(
+            { group, name },
+            { ...(Object.keys($set).length ? { $set } : {}), ...(Object.keys($unset).length ? { $unset } : {}) }
+        )
         .then(hasEffect);
 }
 
@@ -469,13 +490,12 @@ export async function setVariantImage(group: string, name: string, variant: stri
     }
     const col = (await db()).collection<Product>('products');
     const existing = await col.findOne({ group, name });
-    const resolved = await resolveImage(image, existing?.variantImages?.[variant]);
+    const resolved = await resolveImage(image, existing?.variantImages?.[variant], existing?.variantPhotos?.[variant]);
+    const { $set, $unset } = imageFieldUpdate(resolved, `variantImages.${variant}`, `variantPhotos.${variant}`);
     return col
         .updateOne(
             { group, name },
-            resolved
-                ? { $set: { [`variantImages.${variant}`]: resolved } }
-                : { $unset: { [`variantImages.${variant}`]: 1 } }
+            { ...(Object.keys($set).length ? { $set } : {}), ...(Object.keys($unset).length ? { $unset } : {}) }
         )
         .then(hasEffect);
 }
@@ -688,8 +708,14 @@ export async function deleteProduct(group: string, name: string): Promise<boolea
     const existing = await col.findOne({ group, name });
     const deleted = await col.deleteOne({ group, name }).then(hasEffect);
     if (deleted) {
-        await deleteImageRef(existing?.image);
-        await Promise.all(Object.values(existing?.variantImages ?? {}).map((image) => deleteImageRef(image)));
+        await deleteImages(existing?.image, existing?.photo);
+        const variants = new Set([
+            ...Object.keys(existing?.variantImages ?? {}),
+            ...Object.keys(existing?.variantPhotos ?? {}),
+        ]);
+        await Promise.all(
+            [...variants].map((v) => deleteImages(existing?.variantImages?.[v], existing?.variantPhotos?.[v]))
+        );
     }
     return deleted;
 }

@@ -20,7 +20,7 @@ export function GroupsRow({ group, reordering, hidden = false }: GroupsRowProps)
         <SortableRow id={group.group} data={group} disabled={reordering || hidden} data-hidden={hidden}>
             <Table.Td>
                 {group.image && (
-                    <Avatar src={group.image.url} radius="sm" size="sm" alt={group.group}>
+                    <Avatar src={group.image} radius="sm" size="sm" alt={group.group}>
                         {group.group.trim().charAt(0).toUpperCase()}
                     </Avatar>
                 )}

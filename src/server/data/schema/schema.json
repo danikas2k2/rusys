@@ -12,6 +12,9 @@
           "name": {
             "type": "string"
           },
+          "parent": {
+            "type": "string"
+          },
           "years": {
             "anyOf": [
               {
@@ -37,6 +40,15 @@
                               },
                               "recycled": {
                                 "type": "boolean"
+                              },
+                              "suspicious": {
+                                "type": ["boolean", "null"]
+                              },
+                              "home": {
+                                "type": ["boolean", "null"]
+                              },
+                              "expiresAt": {
+                                "type": ["integer", "null"]
                               }
                             },
                             "required": ["variant", "amount"],
@@ -110,6 +122,104 @@
                                         },
                                         "recycled": {
                                           "type": "boolean"
+                                        },
+                                        "suspicious": {
+                                          "type": ["boolean", "null"]
+                                        },
+                                        "home": {
+                                          "type": ["boolean", "null"]
+                                        },
+                                        "expiresAt": {
+                                          "type": ["integer", "null"]
+                                        }
+                                      },
+                                      "required": ["variant", "amount"],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": ["year"],
+                            "additionalProperties": false
+                          }
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["time", "years"],
+                  "additionalProperties": false
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "undates": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "time": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "integer"
+                        }
+                      ]
+                    },
+                    "user": {
+                      "type": "string"
+                    },
+                    "comment": {
+                      "type": "string"
+                    },
+                    "years": {
+                      "anyOf": [
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "year": {
+                                "type": "integer"
+                              },
+                              "amounts": {
+                                "anyOf": [
+                                  {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "variant": {
+                                          "type": "string"
+                                        },
+                                        "amount": {
+                                          "type": "integer"
+                                        },
+                                        "recycled": {
+                                          "type": "boolean"
+                                        },
+                                        "suspicious": {
+                                          "type": ["boolean", "null"]
+                                        },
+                                        "home": {
+                                          "type": ["boolean", "null"]
+                                        },
+                                        "expiresAt": {
+                                          "type": ["integer", "null"]
                                         }
                                       },
                                       "required": ["variant", "amount"],
@@ -145,34 +255,21 @@
             "type": "boolean"
           },
           "image": {
-            "anyOf": [
-              { "type": "string" },
-              {
-                "type": "object",
-                "properties": {
-                  "url": { "type": "string" },
-                  "photoUrl": { "type": "string" }
-                },
-                "required": ["url"],
-                "additionalProperties": false
-              }
-            ]
+            "type": "string"
+          },
+          "photo": {
+            "type": "string"
           },
           "variantImages": {
             "type": "object",
             "additionalProperties": {
-              "anyOf": [
-                { "type": "string" },
-                {
-                  "type": "object",
-                  "properties": {
-                    "url": { "type": "string" },
-                    "photoUrl": { "type": "string" }
-                  },
-                  "required": ["url"],
-                  "additionalProperties": false
-                }
-              ]
+              "type": "string"
+            }
+          },
+          "variantPhotos": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
             }
           }
         },
@@ -198,18 +295,10 @@
             "type": "boolean"
           },
           "image": {
-            "anyOf": [
-              { "type": "string" },
-              {
-                "type": "object",
-                "properties": {
-                  "url": { "type": "string" },
-                  "photoUrl": { "type": "string" }
-                },
-                "required": ["url"],
-                "additionalProperties": false
-              }
-            ]
+            "type": "string"
+          },
+          "photo": {
+            "type": "string"
           }
         },
         "required": ["group", "order"],

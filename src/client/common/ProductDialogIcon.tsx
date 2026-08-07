@@ -3,12 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { ProductsNavIcon } from '@icons';
 
 import { DialogIcon } from '~/client/common/DialogIcon';
-import type { ImageRef } from '~/types/data';
 
 export interface ProductDialogIconProps {
-    // A plain string covers a form's in-progress image (a data: URL not yet classified, or an
-    // existing url kept as-is) - an ImageRef is the already-classified, stored shape.
-    image?: ImageRef | string;
+    image?: string;
+    // The original, larger photo - present only when `image` (the icon-sized derivative) has one.
+    // A form's in-progress edit never has this (it only ever tracks the one pending `image` url/
+    // data: URL), so it's omitted there.
+    photo?: string;
     'aria-label'?: string;
 }
 
@@ -16,10 +17,14 @@ export interface ProductDialogIconProps {
 // instead of the generic icon, once it has one. Deliberately not distinguishing icon vs photo
 // mode here (unlike the grid tile): the watermark crops and blurs everything the same way
 // regardless of the source image's own aspect ratio, so there's nothing to tell apart. Prefers
-// the bigger photoUrl over the icon-sized url when both exist.
-export function ProductDialogIcon({ image, 'aria-label': ariaLabel }: ProductDialogIconProps): React.ReactElement {
+// the bigger photo over the icon-sized image when both exist.
+export function ProductDialogIcon({
+    image,
+    photo,
+    'aria-label': ariaLabel,
+}: ProductDialogIconProps): React.ReactElement {
     const [failed, setFailed] = useState(false);
-    const src = typeof image === 'string' ? image : (image?.photoUrl ?? image?.url);
+    const src = photo ?? image;
 
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reset the fallback when a new image is given
     useEffect(() => setFailed(false), [src]);

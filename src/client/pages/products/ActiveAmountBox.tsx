@@ -53,6 +53,7 @@ export function ActiveAmountBox(): React.ReactElement {
         <AmountBox
             opened={opened}
             image={activeData?.image}
+            photo={activeData?.photo}
             onClose={handleClose}
             onAfterClose={handleAfterClose}
             onEdit={handleEdit}

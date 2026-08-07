@@ -22,14 +22,13 @@ import { useSetProductImage } from '~/client/state/products/useSetProductImage';
 import { useSetProductParent } from '~/client/state/products/useSetProductParent';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
-import type { ImageRef } from '~/types/data';
 
 interface ProductBoxProps {
     opened?: boolean;
     group?: string;
     name?: string;
     parent?: string;
-    image?: ImageRef;
+    image?: string;
     onClose: (group?: string, name?: string) => void;
     onAfterClose?: () => void;
 }
@@ -94,14 +93,11 @@ export function ProductBox({
     group: initialGroup = '',
     name: initialName = '',
     parent: initialParent = '',
-    image,
+    image: initialImage = '',
     opened = false,
     onClose,
     onAfterClose,
 }: Readonly<ProductBoxProps>) {
-    // The form only ever deals with a plain string - the url to preview, or a fresh data: URL
-    // pending upload; server-side classification (photoUrl) happens only after saving.
-    const initialImage = image?.url ?? '';
     const [filterGroup] = useGroupFilter();
     const isEditing = !!initialGroup && !!initialName;
     const isMoving = isEditing && filterGroup && filterGroup !== initialGroup;
@@ -109,7 +105,7 @@ export function ProductBox({
     const _ = useLabels();
     const allGroups = useGroups();
     const groups = allGroups.map((g) => g.group);
-    const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image?.url]));
+    const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image]));
     // Mirrors AmountVariantsTab's "New variant" option, opening GroupBox inline instead of
     // requiring a trip to the Groups page first. Uses a distinct sentinel rather than an empty
     // string - unlike AmountVariantsTab's Select (always controlled to value={null}), this one is

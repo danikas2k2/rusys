@@ -221,7 +221,7 @@ describe('<GroupsRow>', () => {
                 <Table>
                     <Table.Tbody>
                         <GroupsRow
-                            group={{ group: 'Uogienės', order: 0, image: { url: '/images/ab/cd/uogienes.png' } }}
+                            group={{ group: 'Uogienės', order: 0, image: '/images/ab/cd/uogienes.png' }}
                             reordering={false}
                         />
                     </Table.Tbody>

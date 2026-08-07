@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
@@ -82,6 +82,34 @@ describe('<ProductsPage>', () => {
         expect(screen.getByText('ProductsTable')).toBeInTheDocument();
         expect(ProductsTable).toHaveBeenCalledWith({}, undefined);
         expect(ProductsGrid).not.toHaveBeenCalled();
+    });
+
+    it('shows the missing-only checkbox and amount view toggle in the sticky header for grid view', () => {
+        render(
+            <MockApp>
+                <ProductsPage />
+            </MockApp>
+        );
+
+        const header = document.querySelector('[data-products-header]');
+
+        expect(header).toHaveAttribute('data-view', 'grid');
+        expect(within(header as HTMLElement).getByRole('checkbox')).toBeInTheDocument();
+    });
+
+    it('does not show the missing-only checkbox and amount view toggle in the header for table view', () => {
+        localStorage.setItem('productsView', 'table');
+
+        render(
+            <MockApp>
+                <ProductsPage />
+            </MockApp>
+        );
+
+        const header = document.querySelector('[data-products-header]');
+
+        expect(header).toHaveAttribute('data-view', 'table');
+        expect(within(header as HTMLElement).queryByRole('checkbox')).not.toBeInTheDocument();
     });
 
     it('calls deleteProduct when handleDelete is called', async () => {

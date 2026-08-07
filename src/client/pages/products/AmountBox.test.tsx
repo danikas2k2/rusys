@@ -41,7 +41,7 @@ describe('<AmountBox>', () => {
     it('renders the product image in the dialog header watermark when given', () => {
         const { container } = render(
             <MockTheme>
-                <AmountBox opened image={{ url: '/images/ab/cd/product.png' }} />
+                <AmountBox opened image="/images/ab/cd/product.png" />
             </MockTheme>
         );
 

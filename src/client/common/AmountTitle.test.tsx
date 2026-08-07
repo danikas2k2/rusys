@@ -41,7 +41,7 @@ describe('<AmountTitle>', () => {
     it('renders an avatar when image is provided', () => {
         render(
             <MockTheme>
-                <AmountTitle group="Uogienės" name="Braškės" image={{ url: '/images/ab/cd/product.png' }} />
+                <AmountTitle group="Uogienės" name="Braškės" image="/images/ab/cd/product.png" />
             </MockTheme>
         );
 
@@ -61,7 +61,7 @@ describe('<AmountTitle>', () => {
     it('falls back to the first letter of the name when the image fails to load', () => {
         const { container } = render(
             <MockTheme>
-                <AmountTitle group="Uogienės" name="Braškės" image={{ url: '/images/ab/cd/product.png' }} />
+                <AmountTitle group="Uogienės" name="Braškės" image="/images/ab/cd/product.png" />
             </MockTheme>
         );
 

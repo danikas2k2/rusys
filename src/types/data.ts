@@ -50,14 +50,6 @@ export interface ProductHistoryMeta {
     year: number;
 }
 
-// `url` is always icon-sized (<=512x512, roughly square) - a generated thumbnail when the source
-// is a photo. `photoUrl` is present only when the source qualifies as a photo, and holds the
-// original (larger/non-square) image.
-export interface ImageRef {
-    url: string;
-    photoUrl?: string;
-}
-
 export interface Product {
     group: string;
     name: string;
@@ -66,14 +58,21 @@ export interface Product {
     missing?: boolean;
     updates?: readonly Update[] | readonly ProductHistoryMeta[];
     undates?: readonly Update[] | readonly ProductHistoryMeta[];
-    image?: ImageRef;
-    variantImages?: Readonly<Record<string, ImageRef>>;
+    // Always icon-sized (<=512x512, roughly square) - a generated thumbnail when the source is a
+    // photo, or the original upload as-is when it already qualifies as an icon.
+    image?: string;
+    // Present only when the source for `image` qualifies as a photo - the original (larger/
+    // non-square) image.
+    photo?: string;
+    variantImages?: Readonly<Record<string, string>>;
+    variantPhotos?: Readonly<Record<string, string>>;
 }
 
 export interface ProductAmounts extends GroupAmounts {
     name: string;
     year: number;
-    image?: ImageRef;
+    image?: string;
+    photo?: string;
 }
 
 export interface Summary {
@@ -87,7 +86,8 @@ export interface Group {
     order: number;
     annual?: boolean;
     review?: boolean;
-    image?: ImageRef;
+    image?: string;
+    photo?: string;
 }
 
 export type VariantUnits = 'g' | 'kg' | 'l' | 'ml' | 'vnt';
