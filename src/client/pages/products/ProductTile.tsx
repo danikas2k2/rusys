@@ -24,6 +24,10 @@ export interface ProductTileProps {
     // The tile's own amounts when a leaf or expanded, or a rolled-up total (own + every
     // descendant's) while collapsed with children - display-only, never the edit target.
     totalAmounts: readonly VariantAmount[];
+    // Whether any descendant has a non-empty amount - an expanded parent with none of its own
+    // amounts (totalAmounts excludes children once expanded) still isn't really "empty" when this
+    // is true, since its children (shown separately below) do have something.
+    hasNonEmptyDescendant?: boolean;
 }
 
 function ProductTileComponent({
@@ -34,6 +38,7 @@ function ProductTileComponent({
     expanded = false,
     onToggleExpand,
     totalAmounts,
+    hasNonEmptyDescendant = false,
 }: ProductTileProps) {
     const _ = useLabels();
     const { group, name, years } = product;
@@ -42,6 +47,8 @@ function ProductTileComponent({
     // A collapsed parent's tile only ever shows the rolled-up total (see totalAmounts) - opening
     // an edit dialog for it doesn't apply until it's expanded down to an individual product.
     const isSummaryTile = hasChildren && !expanded;
+
+    const isEmptyTile = !totalAmounts.length && !(hasChildren && hasNonEmptyDescendant);
 
     // A near-square, icon-sized image sits next to the title; anything bigger/wider is a photo
     // and becomes the tile's background instead - classified server-side, see classifyImage.
@@ -95,7 +102,7 @@ function ProductTileComponent({
             data-summary={isSummaryTile}
             data-expanded-parent={hasChildren && expanded}
             data-photo={isPhoto}
-            data-empty={!totalAmounts.length}
+            data-empty={isEmptyTile}
             style={isPhoto ? { backgroundImage: `url(${product.photo})` } : undefined}
         >
             {isPhoto && <div data-scrim />}
@@ -136,13 +143,7 @@ function ProductTileComponent({
                     )}
                 </Group>
                 <Group justify="flex-end">
-                    {totalAmounts.length ? (
-                        <ProductAmounts group={group} amounts={totalAmounts} />
-                    ) : (
-                        <Text size="sm" c="dimmed">
-                            —
-                        </Text>
-                    )}
+                    {totalAmounts.length > 0 && <ProductAmounts group={group} amounts={totalAmounts} />}
                 </Group>
             </Stack>
         </Card>

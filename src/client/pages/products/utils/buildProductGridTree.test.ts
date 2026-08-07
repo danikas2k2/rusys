@@ -77,6 +77,38 @@ describe('buildProductGridTree', () => {
         );
     });
 
+    it('flags hasNonEmptyDescendant when an expanded child has an amount', () => {
+        const parent: Product = { group: 'Uogienės', name: 'Avietės', years: [] };
+        const child: Product = {
+            group: 'Uogienės',
+            name: 'Avietės (Zewa)',
+            parent: 'Avietės',
+            years: [{ year: 22, amounts: [{ variant: 'p', amount: 3 }] }],
+        };
+
+        const [node] = buildProductGridTree([parent, child], new Set(['Uogienės:Avietės']));
+
+        expect(node.totalAmounts).toStrictEqual([]);
+        expect(node.hasNonEmptyDescendant).toBe(true);
+    });
+
+    it('does not flag hasNonEmptyDescendant when every child is empty', () => {
+        const parent: Product = { group: 'Uogienės', name: 'Avietės', years: [] };
+        const child: Product = { group: 'Uogienės', name: 'Avietės (Zewa)', parent: 'Avietės', years: [] };
+
+        const [node] = buildProductGridTree([parent, child], new Set(['Uogienės:Avietės']));
+
+        expect(node.hasNonEmptyDescendant).toBe(false);
+    });
+
+    it('does not flag hasNonEmptyDescendant for a leaf with no children', () => {
+        const product: Product = { group: 'Uogienės', name: 'Avietės', years: [] };
+
+        const [node] = buildProductGridTree([product], new Set());
+
+        expect(node.hasNonEmptyDescendant).toBe(false);
+    });
+
     it('excludes removing years from the leaf total', () => {
         const product: Product = {
             group: 'Uogienės',
