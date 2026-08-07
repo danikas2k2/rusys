@@ -4,10 +4,12 @@
         flex-shrink: 0;
     }
 
+    // The title now lays itself out as a space-between Group (name/icon on the left, edit/delete
+    // actions on the right, next to the modal's own close button) - centering it as plain text
+    // no longer makes sense once it has its own internal flex layout to manage.
     .ui-Modal-title {
         flex: 1;
-        text-align: center;
-        padding-left: 2.5rem;
+        min-width: 0;
     }
 
     .ui-Accordion-item {

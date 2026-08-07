@@ -1,4 +1,4 @@
-import { Avatar, Tabs } from '@mantine/core';
+import { Avatar, Group as MantineGroup, Tabs, Text } from '@mantine/core';
 import React, { useEffect } from 'react';
 
 import './CategoryRail.pcss';
@@ -42,15 +42,23 @@ export function CategoryRail({
                     const isActive = group === selected;
                     return (
                         <Tabs.Tab key={group} value={group} aria-label={group} px={8} py={isActive ? 12 : 8}>
-                            <Avatar
-                                src={image || undefined}
-                                radius="sm"
-                                size="sm"
-                                p={0}
-                                data-grayed={!groupsWithContent.has(group)}
-                            >
-                                {group.trim().charAt(0).toUpperCase()}
-                            </Avatar>
+                            <MantineGroup gap="xs" wrap="nowrap">
+                                <Avatar
+                                    src={image?.url}
+                                    radius="sm"
+                                    size="sm"
+                                    p={0}
+                                    data-grayed={!groupsWithContent.has(group)}
+                                >
+                                    {group.trim().charAt(0).toUpperCase()}
+                                </Avatar>
+                                {/* Only the avatar is meaningful below `sm` - there's no room for
+                                    a label next to a narrow vertical rail on a phone; wider
+                                    screens (landscape phone, tablet, desktop) have space to spare. */}
+                                <Text size="sm" visibleFrom="sm" lineClamp={1}>
+                                    {group}
+                                </Text>
+                            </MantineGroup>
                         </Tabs.Tab>
                     );
                 })}

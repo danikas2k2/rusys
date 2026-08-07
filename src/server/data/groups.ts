@@ -1,10 +1,21 @@
-import type { ClientSession } from 'mongodb';
+import type { ClientSession, Collection } from 'mongodb';
 
-import { deleteImage } from '~/server/data/images';
+import { classifyImage, deleteImageRef } from '~/server/data/images';
 import { resolveImage } from '~/server/data/resolveImage';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
 import type { Group } from '~/types/data';
+
+// Backfills a plain-string image left by a pre-classification version of the app, persisting the
+// computed ImageRef so future reads skip this recomputation.
+async function migrateGroupImage(col: Collection<Group>, group: Group): Promise<Group> {
+    if (typeof group.image !== 'string') {
+        return group;
+    }
+    const image = await classifyImage(group.image as unknown as string);
+    await col.updateOne({ group: group.group }, { $set: { image } });
+    return { ...group, image };
+}
 
 // Daržovės: 0.5l, 0.75l, 0.25l, 0.01l, x
 // Uogienės: 0.5l, 0.75l, 0.25l, 0.01l, x
@@ -18,11 +29,11 @@ import type { Group } from '~/types/data';
 // Šaldytuve: vnt.
 // Priemonės (skalbimo, valymo): ...
 
-export const getGroups = async (): Promise<readonly Group[]> =>
-    (await db())
-        .collection('groups')
-        .find({}, { projection: { _id: 0 }, sort: { order: 1, group: 1 } })
-        .toArray();
+export const getGroups = async (): Promise<readonly Group[]> => {
+    const col = (await db()).collection<Group>('groups');
+    const groups = await col.find({}, { projection: { _id: 0 }, sort: { order: 1, group: 1 } }).toArray();
+    return Promise.all(groups.map((g) => migrateGroupImage(col, g)));
+};
 
 export async function updateGroup(
     group: string,
@@ -33,11 +44,18 @@ export async function updateGroup(
     if (!group) {
         return false;
     }
-    const col = (await db()).collection('groups');
-    const existing = await col.findOne<Group>({ group });
-    const imageUpdate = image !== undefined ? { image: await resolveImage(image, existing?.image) } : {};
+    const col = (await db()).collection<Group>('groups');
+    const existing = await col.findOne({ group });
+    const resolved = image !== undefined ? await resolveImage(image, existing?.image) : undefined;
+    const imageUpdate = resolved ? { image: resolved } : {};
+    const unsetImage = image !== undefined && !resolved;
     return existing?.order != null
-        ? col.updateOne({ group }, { $set: { annual, review, ...imageUpdate } }).then(hasEffect)
+        ? col
+              .updateOne(
+                  { group },
+                  { $set: { annual, review, ...imageUpdate }, ...(unsetImage ? { $unset: { image: 1 } } : {}) }
+              )
+              .then(hasEffect)
         : col
               .aggregate([{ $group: { _id: null, order: { $max: '$order' } } }])
               .next()
@@ -59,13 +77,20 @@ export async function renameGroup(
     if (!group || !newGroup || group === newGroup) {
         return false;
     }
-    const col = (await db()).collection('groups');
-    const imageUpdate =
-        image !== undefined
-            ? { image: await resolveImage(image, (await col.findOne<Group>({ group }, { session }))?.image) }
-            : {};
+    const col = (await db()).collection<Group>('groups');
+    const existing = await col.findOne({ group }, { session });
+    const resolved = image !== undefined ? await resolveImage(image, existing?.image) : undefined;
+    const imageUpdate = resolved ? { image: resolved } : {};
+    const unsetImage = image !== undefined && !resolved;
     return col
-        .updateOne({ group }, { $set: { group: newGroup, annual, review, ...imageUpdate } }, { session })
+        .updateOne(
+            { group },
+            {
+                $set: { group: newGroup, annual, review, ...imageUpdate },
+                ...(unsetImage ? { $unset: { image: 1 } } : {}),
+            },
+            { session }
+        )
         .then(hasEffect)
         .catch(hasDuplicates);
 }
@@ -74,11 +99,11 @@ export async function deleteGroup(group: string, session?: ClientSession): Promi
     if (!group) {
         return false;
     }
-    const col = (await db()).collection('groups');
-    const existing = await col.findOne<Group>({ group }, { session });
+    const col = (await db()).collection<Group>('groups');
+    const existing = await col.findOne({ group }, { session });
     const deleted = await col.deleteOne({ group }, { session }).then(hasEffect);
     if (deleted) {
-        await deleteImage(existing?.image);
+        await deleteImageRef(existing?.image);
     }
     return deleted;
 }

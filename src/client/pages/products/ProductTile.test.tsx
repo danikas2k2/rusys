@@ -1,0 +1,256 @@
+import { render, screen } from '@testing-library/react';
+import user from '@testing-library/user-event';
+import { MockApp } from '@tests/MockApp';
+
+import React from 'react';
+
+import { useSetActiveContent } from '~/client/common/ActiveContentContext';
+import { ProductTile, type ProductTileProps } from '~/client/pages/products/ProductTile';
+import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
+import type { Product } from '~/types/data';
+
+vi.mock(import('~/client/common/ActiveContentContext'), async () => ({
+    ...(await vi.importActual('~/client/common/ActiveContentContext')),
+    useSetActiveContent: vi.fn(),
+}));
+vi.mock(import('~/client/state/products/useSetProductMissing'), () => ({
+    useSetProductMissing: vi.fn(),
+}));
+
+describe('<ProductTile>', () => {
+    const group = 'Daržovės';
+    const name = 'Kopūstai';
+
+    const setActive = vi.fn();
+    const setMissing = vi.fn();
+
+    beforeEach(() => {
+        vi.mocked(useSetActiveContent).mockReturnValue(setActive);
+        vi.mocked(useSetProductMissing).mockReturnValue(setMissing);
+    });
+
+    afterEach(() => vi.clearAllMocks());
+
+    const product: Product = {
+        group,
+        name,
+        years: [{ year: 22, amounts: [{ variant: 'p', amount: 2 }] }],
+    };
+
+    const defaultProps: ProductTileProps = { product, totalAmounts: [{ variant: 'p', amount: 2 }] };
+
+    it('renders the product name', () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} />
+            </MockApp>
+        );
+
+        expect(screen.getByText(name)).toBeInTheDocument();
+    });
+
+    it('renders a dash when totalAmounts is empty', () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} totalAmounts={[]} />
+            </MockApp>
+        );
+
+        expect(screen.getByText('—')).toBeInTheDocument();
+    });
+
+    it('opens the amounts dialog with year 0 and the product own combined amounts for a leaf tile', async () => {
+        render(
+            <MockApp state={{ variants: [{ group, variant: 'p', order: 0 }] }}>
+                <ProductTile {...defaultProps} />
+            </MockApp>
+        );
+
+        await user.click(screen.getByText(name));
+
+        expect(setActive).toHaveBeenCalledWith({
+            action: 'values',
+            data: { group, name, year: 0, amounts: [{ variant: 'p', amount: 2 }], image: undefined },
+        });
+    });
+
+    it('opens the amounts dialog at the preferred year for an annual product', async () => {
+        const thisYear = new Date().getFullYear() % 100;
+        const annualProduct: Product = {
+            group,
+            name,
+            years: [{ year: thisYear - 1, amounts: [{ variant: 'p', amount: 5 }] }],
+        };
+
+        render(
+            <MockApp state={{ variants: [{ group, variant: 'p', order: 0 }] }}>
+                <ProductTile product={annualProduct} annual totalAmounts={[{ variant: 'p', amount: 5 }]} />
+            </MockApp>
+        );
+
+        await user.click(screen.getByText(name));
+
+        expect(setActive).toHaveBeenCalledWith({
+            action: 'values',
+            data: {
+                group,
+                name,
+                year: thisYear - 1,
+                amounts: [{ variant: 'p', amount: 5 }],
+                image: undefined,
+            },
+        });
+    });
+
+    it('includes the product image when opening the dialog', async () => {
+        const productWithImage = { ...product, image: { url: '/images/ab/cd/product.png' } };
+
+        render(
+            <MockApp state={{ variants: [{ group, variant: 'p', order: 0 }] }}>
+                <ProductTile {...defaultProps} product={productWithImage} />
+            </MockApp>
+        );
+
+        await user.click(screen.getByText(name));
+
+        expect(setActive).toHaveBeenCalledWith(
+            expect.objectContaining({ data: expect.objectContaining({ image: { url: '/images/ab/cd/product.png' } }) })
+        );
+    });
+
+    it('toggles expand instead of opening the dialog when collapsed with children', async () => {
+        const onToggleExpand = vi.fn();
+
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} hasChildren expanded={false} onToggleExpand={onToggleExpand} />
+            </MockApp>
+        );
+
+        await user.click(screen.getByText(name));
+
+        expect(onToggleExpand).toHaveBeenCalledWith();
+        expect(setActive).not.toHaveBeenCalled();
+    });
+
+    it('opens the dialog (does not toggle) once expanded, even with children', async () => {
+        const onToggleExpand = vi.fn();
+
+        render(
+            <MockApp state={{ variants: [{ group, variant: 'p', order: 0 }] }}>
+                <ProductTile {...defaultProps} hasChildren expanded onToggleExpand={onToggleExpand} />
+            </MockApp>
+        );
+
+        await user.click(screen.getByText(name));
+
+        expect(onToggleExpand).not.toHaveBeenCalled();
+        expect(setActive).toHaveBeenCalledWith({
+            action: 'values',
+            data: { group, name, year: 0, amounts: [{ variant: 'p', amount: 2 }], image: undefined },
+        });
+    });
+
+    it('renders an expand chevron when hasChildren is true and toggles on click without opening the dialog', async () => {
+        const onToggleExpand = vi.fn();
+
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} hasChildren expanded={false} onToggleExpand={onToggleExpand} />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Expand' }));
+
+        expect(onToggleExpand).toHaveBeenCalledTimes(1);
+        expect(setActive).not.toHaveBeenCalled();
+    });
+
+    it('does not render an expand chevron when hasChildren is false', () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} />
+            </MockApp>
+        );
+
+        expect(screen.queryByRole('button', { name: 'Expand' })).not.toBeInTheDocument();
+    });
+
+    it('hides the tile when hidden is set', () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} hidden />
+            </MockApp>
+        );
+
+        expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-hidden', 'true');
+    });
+
+    it('toggles missing on checkbox click without opening the dialog', async () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} product={{ ...product, missing: false }} />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('checkbox'));
+
+        expect(setMissing).toHaveBeenCalledWith(group, name, true);
+        expect(setActive).not.toHaveBeenCalled();
+    });
+
+    it('disables the missing checkbox when the product has no years at all', () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} product={{ group, name }} totalAmounts={[]} />
+            </MockApp>
+        );
+
+        expect(screen.getByRole('checkbox')).toBeDisabled();
+    });
+
+    describe('image mode', () => {
+        it('renders no avatar and no photo background when the product has no image', () => {
+            const { container } = render(
+                <MockApp>
+                    <ProductTile {...defaultProps} />
+                </MockApp>
+            );
+
+            expect(container.querySelector('img')).not.toBeInTheDocument();
+            expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-photo', 'false');
+        });
+
+        it('shows the image as a small avatar next to the title when icon-sized (no photoUrl)', () => {
+            const productWithImage = { ...product, image: { url: '/images/ab/cd/product.png' } };
+
+            const { container } = render(
+                <MockApp>
+                    <ProductTile {...defaultProps} product={productWithImage} />
+                </MockApp>
+            );
+
+            expect(container.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/product.png');
+            expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-photo', 'false');
+        });
+
+        it('shows the image as a tile background with a scrim when photo-sized (photoUrl present)', () => {
+            const productWithImage = {
+                ...product,
+                image: { url: '/images/ab/cd/thumb.png', photoUrl: '/images/ab/cd/product.png' },
+            };
+
+            const { container } = render(
+                <MockApp>
+                    <ProductTile {...defaultProps} product={productWithImage} />
+                </MockApp>
+            );
+
+            const tile = screen.getByText(name).closest('[data-tile="product"]');
+
+            expect(tile).toHaveAttribute('data-photo', 'true');
+            expect(tile).toHaveStyle({ backgroundImage: 'url(/images/ab/cd/product.png)' });
+            expect(container.querySelector('img')).not.toBeInTheDocument();
+        });
+    });
+});

@@ -7,6 +7,7 @@ import React from 'react';
 
 import { GroupFilterWrapper } from '~/client/filters/GroupFilterContext';
 import { ProductBox } from '~/client/pages/products/ProductBox';
+import { useUpdateGroup } from '~/client/state/groups/useUpdateGroup';
 import { useAddProduct } from '~/client/state/products/useAddProduct';
 import { useMoveProduct } from '~/client/state/products/useMoveProduct';
 import { useRenameProduct } from '~/client/state/products/useRenameProduct';
@@ -19,6 +20,8 @@ vi.mock(import('~/client/state/products/useMoveProduct'));
 vi.mock(import('~/client/state/products/useRenameProduct'));
 vi.mock(import('~/client/state/products/useSetProductImage'));
 vi.mock(import('~/client/state/products/useSetProductParent'));
+vi.mock(import('~/client/state/groups/useUpdateGroup'));
+vi.mock(import('~/client/state/groups/useRenameGroup'));
 vi.mock(import('~/client/common/Label'));
 vi.mock(import('@mantine/dropzone'), (): any => {
     const DropzoneComponent = ({
@@ -188,9 +191,12 @@ describe('<ProductBox>', () => {
             const imageInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose an image');
             const file = new File(['image-data'], 'image.png', { type: 'image/png' });
             await user.upload(imageInput, file);
-            await screen.findByRole('button', { name: 'Remove image' });
+            const removeButton = await screen.findByRole('button', { name: 'Remove image' });
 
-            fireEvent.error(container.querySelector('img')!);
+            // Erroring the dropzone's own preview image, not the (also now image-backed) dialog
+            // header watermark - scope via the dropzone's Stack, which the remove button is a
+            // direct child of, rather than the first <img> in the whole document.
+            fireEvent.error(removeButton.parentElement!.querySelector('img')!);
 
             expect(container.querySelector('.tabler-icon-photo')).toBeInTheDocument();
         });
@@ -354,7 +360,12 @@ describe('<ProductBox>', () => {
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'test');
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
-            await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }));
+
+            // ProductBox now also always mounts a (closed) GroupBox for inline category creation,
+            // and Mantine's Modal keeps an empty root div with role="alertdialog" in the DOM even
+            // while closed - so the open one (with actual content) has to be picked out explicitly.
+            const openAlertDialog = screen.getAllByRole('alertdialog').find((el) => el.textContent)!;
+            await user.click(within(openAlertDialog).getByRole('button', { name: 'Cancel' }));
 
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('test');
@@ -970,6 +981,85 @@ describe('<ProductBox>', () => {
 
             expect(addButton).not.toBeDisabled();
             expect(onClose).toHaveBeenCalledWith('Daržovės', 'Fast Entry');
+        });
+    });
+
+    describe('inline category creation', () => {
+        it('"New category" option is present in the dropdown', () => {
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
+
+            expect(screen.getByRole('option', { name: 'New category' })).toBeInTheDocument();
+        });
+
+        it('selecting "New category" opens GroupBox instead of setting the field', async () => {
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            selectOption('New category');
+
+            expect(screen.getByRole('heading', { name: 'Add new category' })).toBeInTheDocument();
+        });
+
+        // Mantine's Select keeps showing the clicked sentinel option's own label as its search
+        // text regardless of what `value` does afterwards (a known Select limitation, not
+        // specific to this flow) - these check the functional outcome (the group a submission
+        // actually uses) rather than the field's transient displayed text.
+        it('uses the newly created category on submit', async () => {
+            const updateGroup = vi.fn().mockResolvedValue(true);
+            vi.mocked(useUpdateGroup).mockReturnValue(updateGroup);
+            const addProduct = vi.fn().mockResolvedValue(true);
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
+
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            selectOption('New category');
+            const groupDialog = screen
+                .getByRole('textbox', { name: 'Category name' })
+                .closest('[role="dialog"]') as HTMLElement;
+            await user.type(within(groupDialog).getByRole('textbox', { name: 'Category name' }), 'Konservai');
+            await user.click(within(groupDialog).getByRole('button', { name: 'Add' }));
+
+            expect(updateGroup).toHaveBeenCalledWith('Konservai', true, false, '');
+
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Uogienė');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(addProduct).toHaveBeenCalledWith('Konservai', 'Uogienė', undefined);
+        });
+
+        it('does not change the category used on submit when GroupBox is cancelled', async () => {
+            const addProduct = vi.fn().mockResolvedValue(true);
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
+
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened group="Uogienės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            selectOption('New category');
+            const groupDialog = screen
+                .getByRole('textbox', { name: 'Category name' })
+                .closest('[role="dialog"]') as HTMLElement;
+            await user.click(within(groupDialog).getByRole('button', { name: 'Cancel' }));
+
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Serbentai');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Serbentai', undefined);
         });
     });
 });

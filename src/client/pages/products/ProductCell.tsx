@@ -40,6 +40,22 @@ export function isPreferred(year: number, years: readonly RemovingYearAmounts[])
     return maxOlderYear !== -1 ? year === maxOlderYear : year === thisYear && hasThisYear;
 }
 
+// The single year isPreferred() would pick out of `years` - falls back to the current year (with
+// no own amounts yet) when nothing qualifies, same as starting a brand new annual product.
+export function getPreferredYear(years: readonly RemovingYearAmounts[] | undefined): number {
+    const thisYear = new Date().getFullYear() % 100;
+    let maxOlderYear = -1;
+    for (const y of years ?? []) {
+        if (!y.amounts?.length || y.removing) {
+            continue;
+        }
+        if (y.year < thisYear && y.year > maxOlderYear) {
+            maxOlderYear = y.year;
+        }
+    }
+    return maxOlderYear !== -1 ? maxOlderYear : thisYear;
+}
+
 export function ProductCell({
     product,
     year = 0,

@@ -6,7 +6,7 @@ import React from 'react';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { useSwipeVisible } from '~/client/common/hooks/useSwipeVisible';
-import { isPreferred, ProductCell, type ProductCellProps } from '~/client/pages/products/ProductCell';
+import { getPreferredYear, isPreferred, ProductCell, type ProductCellProps } from '~/client/pages/products/ProductCell';
 import { useProductUpdating } from '~/client/pages/products/UpdatingProductsContext';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 
@@ -187,7 +187,7 @@ describe('<ProductCell>', () => {
         });
 
         it('includes the product image when calling setActive', () => {
-            const productWithImage = { ...defaultProduct, image: '/images/ab/cd/product.png' };
+            const productWithImage = { ...defaultProduct, image: { url: '/images/ab/cd/product.png' } };
             const propsWithImage: ProductCellProps = { product: productWithImage, year: 22 };
 
             render(
@@ -215,7 +215,7 @@ describe('<ProductCell>', () => {
                     name: propsWithImage.product.name,
                     year: propsWithImage.year,
                     amounts: propsWithImage.product.years?.[0]?.amounts,
-                    image: '/images/ab/cd/product.png',
+                    image: { url: '/images/ab/cd/product.png' },
                 },
             });
         });
@@ -920,6 +920,43 @@ describe('<ProductCell>', () => {
             ];
 
             expect(isPreferred(nextYear, years)).toBe(false);
+        });
+    });
+
+    describe('getPreferredYear', () => {
+        const thisYear = new Date().getFullYear() % 100;
+        const prevYear = thisYear - 1;
+        const defaultAmounts = [{ variant: 'p', amount: 1 }];
+
+        it('returns the previous year if it exists and not removing', () => {
+            const years = [
+                { year: thisYear, amounts: defaultAmounts, removing: false },
+                { year: prevYear, amounts: defaultAmounts, removing: false },
+            ];
+
+            expect(getPreferredYear(years)).toBe(prevYear);
+        });
+
+        it('returns the current year if the previous year is missing or all removing', () => {
+            const years = [
+                { year: thisYear, amounts: defaultAmounts, removing: false },
+                { year: prevYear, amounts: defaultAmounts, removing: true },
+            ];
+
+            expect(getPreferredYear(years)).toBe(thisYear);
+        });
+
+        it('falls back to the current year if nothing qualifies', () => {
+            const years = [
+                { year: thisYear, amounts: [], removing: false },
+                { year: prevYear, amounts: [], removing: false },
+            ];
+
+            expect(getPreferredYear(years)).toBe(thisYear);
+        });
+
+        it('falls back to the current year when years is undefined', () => {
+            expect(getPreferredYear(undefined)).toBe(thisYear);
         });
     });
 });

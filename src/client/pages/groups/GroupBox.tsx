@@ -14,13 +14,14 @@ import { useRenameGroup } from '~/client/state/groups/useRenameGroup';
 import { useUpdateGroup } from '~/client/state/groups/useUpdateGroup';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
+import type { ImageRef } from '~/types/data';
 
 interface GroupBoxProps {
     opened?: boolean;
     group?: string;
     annual?: boolean;
     review?: boolean;
-    image?: string;
+    image?: ImageRef;
     onClose: (group?: string) => void;
     onAfterClose?: () => void;
 }
@@ -29,11 +30,14 @@ export function GroupBox({
     group: initialGroup = '',
     annual: initialAnnual = true,
     review: initialReview = false,
-    image: initialImage = '',
+    image,
     opened,
     onClose,
     onAfterClose,
 }: GroupBoxProps) {
+    // The form only ever deals with a plain string - the url to preview, or a fresh data: URL
+    // pending upload; server-side classification (photoUrl) happens only after saving.
+    const initialImage = image?.url ?? '';
     const isEditing = !!initialGroup;
 
     const _ = useLabels();

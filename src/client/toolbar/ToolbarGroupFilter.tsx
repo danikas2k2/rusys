@@ -15,7 +15,7 @@ export function ToolbarGroupFilter() {
     const [group, setGroup] = useGroupFilter();
 
     const groupOptions = allGroups.map((g) => ({ value: g.group, label: g.group }));
-    const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image]));
+    const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image?.url]));
 
     const handleClear = useCallback(() => setGroup(''), [setGroup]);
 

@@ -1,0 +1,51 @@
+.ui-Card-root[data-tile='product'] {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 150ms ease-in-out;
+
+    // Mantine's Card (unlike Paper) fills itself via --mantine-color-dark-6 in dark mode, which
+    // this app's theme maps to a text shade (subtext0), not a surface shade - overriding with
+    // the same body variable every other surface in the app already uses avoids that mismatch.
+    background-color: var(--mantine-color-body);
+
+    &[data-hidden='true'] {
+        display: none;
+    }
+
+    &[data-summary='true'] {
+        background-color: var(--mantine-color-neutral-0);
+    }
+
+    // A background photo isn't part of the app's own light/dark chrome, so it needs its own
+    // fixed (not scheme-reactive) scrim + light text rather than the usual theme variables -
+    // the photo's colors don't change with the theme toggle, so neither should its contrast fix.
+    &[data-photo='true'] {
+        background-size: cover;
+        background-position: center;
+
+        --mantine-color-text: #fff;
+        --mantine-color-dimmed: rgb(255 255 255 / 75%);
+
+        [data-scrim] {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgb(0 0 0 / 10%), rgb(0 0 0 / 65%));
+        }
+
+        [data-content] {
+            position: relative;
+            z-index: 1;
+        }
+
+        .ui-Text-root {
+            text-shadow: 0 1px 3px rgb(0 0 0 / 85%);
+        }
+    }
+
+    @media (hover: hover) {
+        &:hover {
+            border-color: var(--mantine-color-primary-filled);
+        }
+    }
+}

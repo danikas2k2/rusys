@@ -3,13 +3,13 @@ import { mockResponse } from '@tests/mockResponse';
 
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { updateGroup } from '~/server/data/groups';
-import type { Group } from '~/types/data';
+import type { ApiUpdateGroup } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/data/groups'));
 
 describe('handleUpdateGroup', () => {
-    const request = mockRequest<Group>({ group: 'Uogienės', order: 3 });
+    const request = mockRequest<ApiUpdateGroup>({ group: 'Uogienės' });
     const response = mockResponse();
 
     afterEach(() => vi.clearAllMocks());

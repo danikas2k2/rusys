@@ -188,6 +188,35 @@ select,
     }
 }
 
+// Above this width AND height, a fullscreen dialog (AmountBox, ReviewBox, SummaryHistoryBox) no
+// longer needs to cover the whole viewport - windowing it avoids wasting space around a
+// comparatively small form/table on a wide desktop screen. Both conditions must hold, not just
+// width: phone landscape has the width but not the height, and stays fullscreen there instead,
+// reflowing its own content internally rather than trying to fit a shrunken dialog chrome too.
+@media (width >= 48em) and (height >= 37.5em) {
+    .ui-Modal-root[data-full-screen="true"] {
+        .ui-Modal-content {
+            --modal-content-flex: 0 0 min(48rem, 90vw);
+            --modal-content-height: auto;
+            --modal-content-max-height: 85dvh;
+
+            border-radius: var(--mantine-radius-default);
+        }
+
+        .ui-Modal-header {
+            border-start-start-radius: var(--mantine-radius-default);
+            border-start-end-radius: var(--mantine-radius-default);
+        }
+
+        .ui-Modal-inner {
+            --modal-inner-y-offset: 5dvh;
+            --modal-inner-x-offset: 5vw;
+
+            align-items: center;
+        }
+    }
+}
+
 .ui-Modal-root[data-type="confirm"] {
     .ui-Modal-header {
         align-items: flex-start;

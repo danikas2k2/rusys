@@ -245,6 +245,12 @@
   "March": {
     "lt-LT": "Kovo"
   },
+  "Mark as available": {
+    "lt-LT": "Pažymėti kaip turimą"
+  },
+  "Mark as missing": {
+    "lt-LT": "Pažymėti kaip trūkstamą"
+  },
   "May": {
     "lt-LT": "Gegužės"
   },
@@ -293,6 +299,9 @@
   "Remove image": {
     "lt-LT": "Pašalinti paveikslėlį"
   },
+  "Removing this year?": {
+    "lt-LT": "Šie metai naikinami?"
+  },
   "Saturday": {
     "lt-LT": "Šeštadienis"
   },
@@ -317,11 +326,17 @@
   "System preferred mode": {
     "lt-LT": "Sistemos tema"
   },
+  "Table": {
+    "lt-LT": "Lentelė"
+  },
   "This will download all your data as a file.": {
     "lt-LT": "Bus atsisiųsti visi jūsų duomenys kaip failas."
   },
   "Thursday": {
     "lt-LT": "Ketvirtadienis"
+  },
+  "Tiles": {
+    "lt-LT": "Plytelės"
   },
   "Title": {
     "lt-LT": "Produktas"

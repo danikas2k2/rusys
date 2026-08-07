@@ -1,15 +1,41 @@
-import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter, WithId } from 'mongodb';
+import type { AnyBulkWriteOperation, ClientSession, Collection, Filter, UpdateFilter, WithId } from 'mongodb';
 
 import { addVariantAmount, getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { buildHistoryPipeline } from '~/server/data/history';
-import { deleteImage } from '~/server/data/images';
+import { classifyImage, deleteImageRef } from '~/server/data/images';
 import { resolveImage } from '~/server/data/resolveImage';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
-import type { History, Product, Update, VariantAmount } from '~/types/data';
+import type { History, ImageRef, Product, Update, VariantAmount } from '~/types/data';
+
+// Backfills any plain-string image/variantImages left by a pre-classification version of the app,
+// persisting the computed ImageRef so future reads skip this recomputation.
+async function migrateProductImages(col: Collection<Product>, product: Product): Promise<Product> {
+    const staleImage = typeof product.image === 'string' ? (product.image as unknown as string) : undefined;
+    const staleVariants = Object.entries(product.variantImages ?? {}).filter(
+        ([, v]) => typeof v === 'string'
+    ) as unknown as [string, string][];
+    if (!staleImage && !staleVariants.length) {
+        return product;
+    }
+
+    const $set: Record<string, ImageRef> = {};
+    const image = staleImage ? await classifyImage(staleImage) : product.image;
+    if (staleImage) {
+        $set.image = image!;
+    }
+    const variantImages = { ...product.variantImages };
+    for (const [variant, url] of staleVariants) {
+        const ref = await classifyImage(url);
+        variantImages[variant] = ref;
+        $set[`variantImages.${variant}`] = ref;
+    }
+    await col.updateOne({ group: product.group, name: product.name }, { $set });
+    return { ...product, image, variantImages };
+}
 
 export async function getProducts(years: readonly number[] = []): Promise<Product[]> {
-    const col = (await db()).collection('products');
+    const col = (await db()).collection<Product>('products');
     const match: Filter<Product> = years.length
         ? {
               $or: [
@@ -72,7 +98,8 @@ export async function getProducts(years: readonly number[] = []): Promise<Produc
             },
             { $sort: { group: 1, name: 1, 'years.year': 1 } },
         ])
-        .toArray();
+        .toArray()
+        .then((products) => Promise.all(products.map((p) => migrateProductImages(col, p))));
 }
 
 export async function getProductVariants(
@@ -431,7 +458,9 @@ export async function setImage(group: string, name: string, image: string): Prom
     const col = (await db()).collection<Product>('products');
     const existing = await col.findOne({ group, name });
     const resolved = await resolveImage(image, existing?.image);
-    return col.updateOne({ group, name }, { $set: { image: resolved } }).then(hasEffect);
+    return col
+        .updateOne({ group, name }, resolved ? { $set: { image: resolved } } : { $unset: { image: 1 } })
+        .then(hasEffect);
 }
 
 export async function setVariantImage(group: string, name: string, variant: string, image: string): Promise<boolean> {
@@ -441,7 +470,14 @@ export async function setVariantImage(group: string, name: string, variant: stri
     const col = (await db()).collection<Product>('products');
     const existing = await col.findOne({ group, name });
     const resolved = await resolveImage(image, existing?.variantImages?.[variant]);
-    return col.updateOne({ group, name }, { $set: { [`variantImages.${variant}`]: resolved } }).then(hasEffect);
+    return col
+        .updateOne(
+            { group, name },
+            resolved
+                ? { $set: { [`variantImages.${variant}`]: resolved } }
+                : { $unset: { [`variantImages.${variant}`]: 1 } }
+        )
+        .then(hasEffect);
 }
 
 export async function renameProduct(
@@ -652,8 +688,8 @@ export async function deleteProduct(group: string, name: string): Promise<boolea
     const existing = await col.findOne({ group, name });
     const deleted = await col.deleteOne({ group, name }).then(hasEffect);
     if (deleted) {
-        await deleteImage(existing?.image);
-        await Promise.all(Object.values(existing?.variantImages ?? {}).map((image) => deleteImage(image)));
+        await deleteImageRef(existing?.image);
+        await Promise.all(Object.values(existing?.variantImages ?? {}).map((image) => deleteImageRef(image)));
     }
     return deleted;
 }

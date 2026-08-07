@@ -38,6 +38,26 @@ describe('<AmountBox>', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
+    it('renders the product image in the dialog header watermark when given', () => {
+        const { container } = render(
+            <MockTheme>
+                <AmountBox opened image={{ url: '/images/ab/cd/product.png' }} />
+            </MockTheme>
+        );
+
+        expect(container.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/product.png');
+    });
+
+    it('falls back to the generic icon in the dialog header when no image is given', () => {
+        const { container } = render(
+            <MockTheme>
+                <AmountBox opened />
+            </MockTheme>
+        );
+
+        expect(container.querySelector('img')).not.toBeInTheDocument();
+    });
+
     it('passes onClose through to AmountVariantsTab so a successful update can close the dialog', () => {
         const onClose = vi.fn();
 

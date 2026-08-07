@@ -1,5 +1,8 @@
+import { Group } from '@mantine/core';
 import React from 'react';
 
+import { ProductsViewWrapper, useProductsView } from '~/client/common/ProductsViewContext';
+import { ProductsViewToggle } from '~/client/common/ProductsViewToggle';
 import { SwipeControls } from '~/client/common/SwipeControls';
 import { SwipeControlsWrapper } from '~/client/common/SwipeControlsContext';
 import { CategoryRailLayout } from '~/client/filters/CategoryRailLayout';
@@ -11,6 +14,7 @@ import { ActiveProductBox } from '~/client/pages/products/ActiveProductBox';
 import { useGroupsWithProducts } from '~/client/pages/products/hooks/useGroupsWithProducts';
 import { MissingOnlyWrapper } from '~/client/pages/products/MissingOnlyContext';
 import { MissingOnlyEffects } from '~/client/pages/products/MissingOnlyEffects';
+import { ProductsGrid } from '~/client/pages/products/ProductsGrid';
 import { ProductsTable } from '~/client/pages/products/ProductsTable';
 import { UpdatingProductsWrapper } from '~/client/pages/products/UpdatingProductsContext';
 import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
@@ -23,7 +27,9 @@ export function ProductsPage() {
     return (
         <UpdatingProductsWrapper>
             <MissingOnlyWrapper>
-                <ProductsPageContent onDelete={handleDelete} />
+                <ProductsViewWrapper>
+                    <ProductsPageContent onDelete={handleDelete} />
+                </ProductsViewWrapper>
             </MissingOnlyWrapper>
         </UpdatingProductsWrapper>
     );
@@ -35,6 +41,7 @@ function ProductsPageContent({ onDelete }: { onDelete: (product: Product) => voi
     const groups = useSortedGroups();
     const [selectedGroup, setSelectedGroup] = useGroupFilter();
     const groupsWithProducts = useGroupsWithProducts();
+    const [productsView] = useProductsView();
 
     return (
         <Page withAdd onDelete={onDelete}>
@@ -44,9 +51,12 @@ function ProductsPageContent({ onDelete }: { onDelete: (product: Product) => voi
                 onSelect={setSelectedGroup}
                 groupsWithContent={groupsWithProducts}
             >
+                <Group justify="flex-end" mb="xs">
+                    <ProductsViewToggle />
+                </Group>
                 <SwipeControlsWrapper>
                     <MissingOnlyEffects />
-                    <ProductsTable />
+                    {productsView === 'grid' ? <ProductsGrid /> : <ProductsTable />}
                     <SwipeControls />
                 </SwipeControlsWrapper>
             </CategoryRailLayout>

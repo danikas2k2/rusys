@@ -2,7 +2,24 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import { deleteImage, IMAGES_DIR, resolveImagePath, saveImage } from '~/server/data/images';
+import sharp from 'sharp';
+
+import {
+    classifyImage,
+    deleteImage,
+    deleteImageRef,
+    imageRefUrls,
+    IMAGES_DIR,
+    resolveImagePath,
+    saveImage,
+} from '~/server/data/images';
+
+async function pngDataUrl(width: number, height: number): Promise<string> {
+    const buffer = await sharp({ create: { width, height, channels: 3, background: { r: 200, g: 0, b: 0 } } })
+        .png()
+        .toBuffer();
+    return `data:image/png;base64,${buffer.toString('base64')}`;
+}
 
 describe('images', () => {
     const savedUrls: string[] = [];
@@ -147,6 +164,83 @@ describe('images', () => {
 
         it('returns undefined for an empty string', () => {
             expect(resolveImagePath('')).toBeUndefined();
+        });
+    });
+
+    describe('classifyImage', () => {
+        it('classifies a small square image as an icon, with no photoUrl', async () => {
+            const url = await saveImage(await pngDataUrl(200, 200));
+            savedUrls.push(url);
+
+            await expect(classifyImage(url)).resolves.toStrictEqual({ url });
+        });
+
+        it('classifies an oversized image as a photo, generating an icon-sized thumbnail', async () => {
+            const url = await saveImage(await pngDataUrl(1600, 900));
+            savedUrls.push(url);
+
+            const result = await classifyImage(url);
+            savedUrls.push(result.url);
+
+            expect(result.photoUrl).toBe(url);
+            expect(result.url).not.toBe(url);
+
+            const metadata = await sharp(resolveImagePath(result.url)!).metadata();
+
+            expect(metadata.width).toBeLessThanOrEqual(512);
+            expect(metadata.height).toBeLessThanOrEqual(512);
+        });
+
+        it('classifies an icon-sized but elongated image as a photo', async () => {
+            const url = await saveImage(await pngDataUrl(500, 100));
+            savedUrls.push(url);
+
+            const result = await classifyImage(url);
+            savedUrls.push(result.url);
+
+            expect(result.photoUrl).toBe(url);
+        });
+
+        it('treats a non-local url as an icon, since there is nothing to inspect', async () => {
+            await expect(classifyImage('https://example.com/photo.png')).resolves.toStrictEqual({
+                url: 'https://example.com/photo.png',
+            });
+        });
+    });
+
+    describe('imageRefUrls', () => {
+        it('returns undefined as an empty array', () => {
+            expect(imageRefUrls(undefined)).toStrictEqual([]);
+        });
+
+        it('wraps a legacy plain-string image in an array', () => {
+            expect(imageRefUrls('/images/aa/bb/legacy.png')).toStrictEqual(['/images/aa/bb/legacy.png']);
+        });
+
+        it('returns just the url for an icon ImageRef', () => {
+            expect(imageRefUrls({ url: '/images/aa/bb/icon.png' })).toStrictEqual(['/images/aa/bb/icon.png']);
+        });
+
+        it('returns both url and photoUrl for a photo ImageRef', () => {
+            expect(imageRefUrls({ url: '/images/aa/bb/thumb.png', photoUrl: '/images/aa/bb/photo.png' })).toStrictEqual(
+                ['/images/aa/bb/thumb.png', '/images/aa/bb/photo.png']
+            );
+        });
+    });
+
+    describe('deleteImageRef', () => {
+        it('deletes both the thumbnail and the original file for a photo ImageRef', async () => {
+            const photoUrl = await saveImage(await pngDataUrl(1600, 900));
+            const url = await saveImage(await pngDataUrl(200, 200));
+
+            await deleteImageRef({ url, photoUrl });
+
+            await expect(fs.access(resolveImagePath(url)!)).rejects.toThrow(/ENOENT/);
+            await expect(fs.access(resolveImagePath(photoUrl)!)).rejects.toThrow(/ENOENT/);
+        });
+
+        it('does nothing for undefined', async () => {
+            await expect(deleteImageRef(undefined)).resolves.toBeUndefined();
         });
     });
 });
