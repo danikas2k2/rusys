@@ -63,6 +63,69 @@ describe('updates', () => {
             ]);
         });
 
+        it('counts a positive consumed correction dated on/after 2026-08-01 against the consumed total', async () => {
+            const d = await db();
+            await d.collection('products').insertOne({
+                group: 'Daržovės',
+                name: 'Konservai',
+                updates: [
+                    {
+                        time: Date.parse('2025-09-10T12:00:00.000Z'),
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: -10, recycled: false }] }],
+                    },
+                    {
+                        // moveConsumedToRecycled's correction pair, dated on/after the cutoff
+                        time: Date.parse('2026-08-05T12:00:00.000Z'),
+                        years: [
+                            {
+                                year: 22,
+                                amounts: [
+                                    { variant: 'd', amount: 3, recycled: false },
+                                    { variant: 'd', amount: -3, recycled: true },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            const result = await getSummary();
+
+            expect(result.find((s) => s.name === 'Konservai')?.years).toStrictEqual([
+                {
+                    year: 25,
+                    amounts: [
+                        { variant: 'd', amount: 3, recycled: true },
+                        { variant: 'd', amount: 7, recycled: false },
+                    ],
+                },
+            ]);
+        });
+
+        it('ignores a positive consumed correction dated before 2026-08-01', async () => {
+            const d = await db();
+            await d.collection('products').insertOne({
+                group: 'Daržovės',
+                name: 'Konservai2',
+                updates: [
+                    {
+                        time: Date.parse('2025-09-10T12:00:00.000Z'),
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: -10, recycled: false }] }],
+                    },
+                    {
+                        time: Date.parse('2026-07-31T12:00:00.000Z'),
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: 3, recycled: false }] }],
+                    },
+                ],
+            });
+
+            const result = await getSummary();
+
+            expect(result.find((s) => s.name === 'Konservai2')?.years).toStrictEqual([
+                { year: 25, amounts: [{ variant: 'd', amount: 10, recycled: false }] },
+            ]);
+        });
+
         it('returns summary for specified years', async () => {
             await expect(getSummary([22, 23])).resolves.toStrictEqual([
                 {
@@ -312,6 +375,57 @@ describe('updates', () => {
             const sorted = [...times].sort((a, b) => b - a);
 
             expect(times).toStrictEqual(sorted);
+        });
+
+        it('includes a positive consumed correction dated on/after the cutoff, alongside its matching recycled line', async () => {
+            const d = await db();
+            await d.collection('products').insertOne({
+                group: 'Daržovės',
+                name: 'Konservai',
+                updates: [
+                    {
+                        time: Date.parse('2026-08-05T12:00:00.000Z'),
+                        years: [
+                            {
+                                year: 22,
+                                amounts: [
+                                    { variant: 'd', amount: 3, recycled: false },
+                                    { variant: 'd', amount: -3, recycled: true },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            const result = await getSummaryUpdates('Daržovės', 'Konservai', 25);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].amounts).toStrictEqual(
+                expect.arrayContaining([
+                    { variant: 'd', amount: 3, recycled: false },
+                    { variant: 'd', amount: -3, recycled: true },
+                ])
+            );
+            expect(result[0].amounts).toHaveLength(2);
+        });
+
+        it('excludes a positive consumed correction dated before the cutoff from the drill-down list', async () => {
+            const d = await db();
+            await d.collection('products').insertOne({
+                group: 'Daržovės',
+                name: 'Konservai2',
+                updates: [
+                    {
+                        time: Date.parse('2026-07-31T12:00:00.000Z'),
+                        years: [{ year: 22, amounts: [{ variant: 'd', amount: 3, recycled: false }] }],
+                    },
+                ],
+            });
+
+            const result = await getSummaryUpdates('Daržovės', 'Konservai2', 25);
+
+            expect(result).toStrictEqual([]);
         });
 
         it('returns entries with sessionId field', async () => {

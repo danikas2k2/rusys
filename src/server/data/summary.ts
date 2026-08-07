@@ -11,6 +11,12 @@ import type { Group, History, Product, Summary, Variant, VariantAmount } from '~
 const MAX_YEARS = 3;
 const START_MONTH = 9; // September
 
+// Corrections that move a consumed line back to discarded are recorded as a fresh update entry
+// with a positive amount (see moveConsumedToRecycled) instead of editing old history in place.
+// Only entries from this date onward count positive amounts against the consumed total — older
+// corrections predate that change and mutated history directly, so there's nothing to add here.
+const POSITIVE_CONSUMPTION_CUTOFF = new Date('2026-08-01T00:00:00.000Z');
+
 export const getSummary = async (years: number[] = getYears()): Promise<readonly Summary[]> =>
     await (
         await db()
@@ -34,7 +40,12 @@ export const getSummary = async (years: number[] = getYears()): Promise<readonly
             {
                 $match: {
                     'updates.years.amounts.recycled': { $exists: true },
-                    'updates.years.amounts.amount': { $lt: 0 },
+                    $expr: {
+                        $or: [
+                            { $lt: ['$updates.years.amounts.amount', 0] },
+                            { $gte: [{ $toDate: '$updates.time' }, POSITIVE_CONSUMPTION_CUTOFF] },
+                        ],
+                    },
                 },
             },
 
@@ -364,7 +375,15 @@ export async function getSummaryHistory(
                     },
                 },
                 {
-                    $and: [{ $ne: [{ $ifNull: ['$$a.recycled', null] }, null] }, { $lt: ['$$a.amount', 0] }],
+                    $and: [
+                        { $ne: [{ $ifNull: ['$$a.recycled', null] }, null] },
+                        {
+                            $or: [
+                                { $lt: ['$$a.amount', 0] },
+                                { $gte: [{ $toDate: `$${field}.time` }, POSITIVE_CONSUMPTION_CUTOFF] },
+                            ],
+                        },
+                    ],
                 }
             )
         )

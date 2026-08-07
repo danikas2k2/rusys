@@ -132,7 +132,6 @@ export interface ApiSetVariantImage extends ApiRequestProduct {
 }
 
 export interface ApiMoveConsumedToRecycled extends ApiRequestProductWithYear {
-    time: number;
     variant: string;
     amount: number;
     suspicious?: boolean;

@@ -34,13 +34,12 @@ export function AmountHistoryRow({
         async (line: VariantAmount, amount: number) => {
             setSaving(true);
             try {
-                // The server locates the raw entries to edit by (user, time) session — pass the
-                // entry's own author, not the current viewer, regardless of who is correcting it.
+                // The correction is recorded under the entry's own author, not the current
+                // viewer, regardless of who is now correcting it.
                 await moveConsumedToRecycled(
                     h.group,
                     h.name,
                     h.year ?? 0,
-                    h.time,
                     line.variant,
                     amount,
                     { suspicious: line.suspicious, home: line.home, expiresAt: line.expiresAt },
@@ -52,7 +51,7 @@ export function AmountHistoryRow({
                 setSaving(false);
             }
         },
-        [h.group, h.name, h.year, h.time, h.user, moveConsumedToRecycled, onMoved]
+        [h.group, h.name, h.year, h.user, moveConsumedToRecycled, onMoved]
     );
 
     return (

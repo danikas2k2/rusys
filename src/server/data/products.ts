@@ -1,13 +1,12 @@
 import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter, WithId } from 'mongodb';
 
 import { addVariantAmount, getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
-import { DAY_MS, HOUR_MS, QUARTER_HOUR_MS, THREE_MONTHS_MS, WEEK_MS } from '~/common/utils/time';
 import { buildHistoryPipeline } from '~/server/data/history';
 import { deleteImage } from '~/server/data/images';
 import { resolveImage } from '~/server/data/resolveImage';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
-import type { History, Product, Update, VariantAmount, YearAmounts } from '~/types/data';
+import type { History, Product, Update, VariantAmount } from '~/types/data';
 
 export async function getProducts(years: readonly number[] = []): Promise<Product[]> {
     const col = (await db()).collection('products');
@@ -231,51 +230,10 @@ export async function updateProduct(
     });
 }
 
-// Mirrors the dynamic session-gap logic in buildHistoryPipeline's sessionGap: recent activity is
-// grouped into tight 15-minute sessions, older activity into progressively coarser buckets.
-function sessionGapMs(entryTime: number, now: number): number {
-    const age = now - entryTime;
-    if (age < WEEK_MS) {
-        return QUARTER_HOUR_MS;
-    }
-    return age < THREE_MONTHS_MS ? HOUR_MS : DAY_MS;
-}
-
-function inSameSession(prevTime: number, nextTime: number, now: number): boolean {
-    return nextTime - prevTime <= sessionGapMs(prevTime, now);
-}
-
-// Replicates buildHistoryPipeline's per-user session grouping in JS: walks outward from the
-// clicked history row's own time (a real, exact entry time) to the full contiguous run of that
-// user's entries, so the edit lands on exactly the raw entries the displayed row was summed from.
-function findSessionEntries(sortedSameUser: readonly Update[], anchorTime: number, now: number): Update[] {
-    const anchorIndex = sortedSameUser.findIndex((u) => u.time === anchorTime);
-    if (anchorIndex === -1) {
-        return [];
-    }
-    let start = anchorIndex;
-    while (start > 0 && inSameSession(sortedSameUser[start - 1].time, sortedSameUser[start].time, now)) {
-        start--;
-    }
-    let end = anchorIndex;
-    while (
-        end < sortedSameUser.length - 1 &&
-        inSameSession(sortedSameUser[end].time, sortedSameUser[end + 1].time, now)
-    ) {
-        end++;
-    }
-    return sortedSameUser.slice(start, end + 1);
-}
-
-function sameFlags(a: VariantAmount, flags: Pick<VariantAmount, 'suspicious' | 'home' | 'expiresAt'>): boolean {
-    return !!a.suspicious === !!flags.suspicious && !!a.home === !!flags.home && a.expiresAt === flags.expiresAt;
-}
-
 export async function moveConsumedToRecycled(
     group: string,
     name: string,
     year: number,
-    time: number,
     variant: string,
     amount: number,
     flags: Pick<VariantAmount, 'suspicious' | 'home' | 'expiresAt'> = {},
@@ -285,58 +243,24 @@ export async function moveConsumedToRecycled(
         return false;
     }
 
-    return withTransaction(async (session) => {
-        const filter: UpdateFilter<Product> = { group, name };
-        const col = (await db()).collection<Product>('products');
-        const product = await col.findOne(filter, { projection: { updates: 1 }, session });
-        const updates = (product?.updates ?? []) as Update[];
+    const col = (await db()).collection<Product>('products');
+    // Leaves old history untouched and records the correction as its own update entry (net
+    // effect on current stock is zero) so it plays nicely with undo/redo like any other update.
+    const newEntry: Update = {
+        time: Date.now(),
+        user,
+        years: [
+            {
+                year,
+                amounts: [
+                    cleanupRecycled({ variant, amount, recycled: false, ...flags }),
+                    cleanupRecycled({ variant, amount: -amount, recycled: true, ...flags }),
+                ],
+            },
+        ],
+    };
 
-        // Locate entries by the row's own author, not the current viewer — the amount may have
-        // been consumed by one person and correctly belongs to that person's history session
-        // regardless of who is now reclassifying it as discarded.
-        const userKey = (user ?? '').toLowerCase();
-        const sameUserSorted = updates
-            .filter((u) => (u.user ?? '').toLowerCase() === userKey)
-            .sort((a, b) => a.time - b.time);
-        const sessionEntries = findSessionEntries(sameUserSorted, time, Date.now());
-
-        // Reduce the magnitude of the actual stored consumed amount(s) rather than adding a
-        // compensating positive entry — summary totals only accumulate negative amounts, so a
-        // "+X consumed" correction would silently vanish from consumed totals instead of
-        // reducing them.
-        let remaining = amount;
-        let target: { year: YearAmounts } | undefined;
-
-        for (const entry of sessionEntries) {
-            if (remaining <= 0) {
-                break;
-            }
-            const yearEntry = entry.years.find((y) => y.year === year);
-            if (!yearEntry) {
-                continue;
-            }
-            for (const a of yearEntry.amounts) {
-                if (remaining <= 0) {
-                    break;
-                }
-                if (a.variant === variant && a.recycled === false && a.amount < 0 && sameFlags(a, flags)) {
-                    const take = Math.min(remaining, -a.amount);
-                    a.amount += take;
-                    remaining -= take;
-                    target ??= { year: yearEntry };
-                }
-            }
-        }
-
-        const moved = amount - remaining;
-        if (!target || moved <= 0) {
-            return false;
-        }
-
-        target.year.amounts = [...target.year.amounts, { variant, amount: -moved, recycled: true, ...flags }];
-
-        return col.updateOne(filter, { $set: { updates }, $unset: { undates: 1 } }, { session }).then(hasEffect);
-    });
+    return col.updateOne({ group, name }, { $push: { updates: newEntry }, $unset: { undates: 1 } }).then(hasEffect);
 }
 
 function invertAmounts(amounts: readonly VariantAmount[]): VariantAmount[] {
