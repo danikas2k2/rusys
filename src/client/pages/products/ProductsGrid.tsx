@@ -43,7 +43,9 @@ function ProductGridSection({ nodes, annual, isHidden, toggleHandlers }: Product
                             totalAmounts={node.totalAmounts}
                         />
                         {node.expanded && node.hasChildren && (
-                            <div style={{ gridColumn: '1 / -1' }}>
+                            // Bordered so it's visually obvious which tiles belong to the parent
+                            // just expanded above, rather than reading as an unrelated next row.
+                            <div data-children-panel style={{ gridColumn: '1 / -1' }}>
                                 <ProductGridSection
                                     nodes={node.children}
                                     annual={annual}

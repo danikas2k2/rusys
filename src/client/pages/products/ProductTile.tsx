@@ -93,6 +93,7 @@ function ProductTileComponent({
             data-tile="product"
             data-hidden={hidden}
             data-summary={isSummaryTile}
+            data-expanded-parent={hasChildren && expanded}
             data-photo={isPhoto}
             data-empty={!totalAmounts.length}
             style={isPhoto ? { backgroundImage: `url(${product.photo})` } : undefined}
