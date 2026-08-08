@@ -141,7 +141,7 @@ describe('<ProductsGrid>', () => {
             vi.mocked(useProducts).mockReturnValue([parentProduct, childProduct]);
         });
 
-        it('renders only the parent tile by default, collapsed with a rolled-up total', () => {
+        it('renders the parent collapsed with a rolled-up total, and its child kept mounted (but hidden)', () => {
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -150,14 +150,23 @@ describe('<ProductsGrid>', () => {
                 </MockTheme>
             );
 
-            expect(ProductTile).toHaveBeenCalledTimes(1);
-            expect(ProductTile).toHaveBeenCalledWith(
+            // Children stay mounted while collapsed (see ProductGridNode.children) so expanding
+            // can animate smoothly instead of the panel just appearing - see the 'frames the
+            // expanded children' test below for the actual hidden-vs-visible check.
+            expect(ProductTile).toHaveBeenCalledTimes(2);
+            expect(ProductTile).toHaveBeenNthCalledWith(
+                1,
                 expect.objectContaining({
                     product: parentProduct,
                     hasChildren: true,
                     expanded: false,
                     totalAmounts: [{ variant: 'p', amount: 5 }],
                 }),
+                undefined
+            );
+            expect(ProductTile).toHaveBeenNthCalledWith(
+                2,
+                expect.objectContaining({ product: childProduct, hasChildren: false }),
                 undefined
             );
         });
@@ -193,7 +202,7 @@ describe('<ProductsGrid>', () => {
             );
         });
 
-        it('frames the expanded children in a panel, absent while collapsed', () => {
+        it('frames the expanded children in a panel, hidden (not removed) while collapsed', () => {
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -202,12 +211,17 @@ describe('<ProductsGrid>', () => {
                 </MockTheme>
             );
 
-            expect(document.querySelector('[data-children-panel]')).not.toBeInTheDocument();
+            // Kept in the DOM rather than unmounted, so the expand/collapse can animate - Mantine's
+            // Collapse marks the hidden state via aria-hidden on its own wrapper (the panel's
+            // direct parent) rather than actually running the height transition in jsdom.
+            const getWrapper = () => document.querySelector('[data-children-panel]')!.parentElement;
+
+            expect(getWrapper()).toHaveAttribute('aria-hidden', 'true');
 
             const { onToggleExpand } = vi.mocked(ProductTile).mock.calls[0][0];
             act(() => onToggleExpand());
 
-            expect(document.querySelector('[data-children-panel]')).toBeInTheDocument();
+            expect(getWrapper()).toHaveAttribute('aria-hidden', 'false');
         });
 
         it('collapses back to a single rolled-up tile on a second toggle', () => {
@@ -225,8 +239,8 @@ describe('<ProductsGrid>', () => {
 
             act(() => onToggleExpand());
 
-            expect(ProductTile).toHaveBeenCalledTimes(1);
-            expect(ProductTile).toHaveBeenCalledWith(expect.objectContaining({ expanded: false }), undefined);
+            expect(ProductTile).toHaveBeenCalledTimes(2);
+            expect(ProductTile).toHaveBeenNthCalledWith(1, expect.objectContaining({ expanded: false }), undefined);
         });
     });
 

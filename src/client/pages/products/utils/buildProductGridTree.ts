@@ -7,9 +7,12 @@ export interface ProductGridNode {
     product: Product;
     hasChildren: boolean;
     expanded: boolean;
+    // Always built, even while collapsed - the grid keeps a collapsed parent's children mounted
+    // (just visually hidden via an animated Collapse) so expanding/collapsing can animate smoothly
+    // instead of the subtree mounting and unmounting on every toggle.
     children: readonly ProductGridNode[];
-    // The tile's own amounts when a leaf, or its own + every descendant's (at any depth) when
-    // collapsed with children - undefined once expanded, since children are shown separately.
+    // The tile's own amounts when a leaf or expanded, or its own + every descendant's (at any
+    // depth) while collapsed with children.
     totalAmounts: readonly VariantAmount[];
     // Whether any descendant (at any depth) has a non-empty amount - lets an expanded parent tile
     // with none of its own amounts avoid reading as "empty" when its children (shown separately,
@@ -55,23 +58,14 @@ export function buildProductGridTree(
             const descendants = hasChildren ? collectDescendants(p.name, childrenByParent) : [];
             const hasNonEmptyDescendant = getCleanTotal(descendants.map((d) => d.years)).length > 0;
 
-            if (hasChildren && !expanded) {
-                return {
-                    product: p,
-                    hasChildren,
-                    expanded,
-                    children: [],
-                    totalAmounts: getCleanTotal([p.years, ...descendants.map((d) => d.years)]),
-                    hasNonEmptyDescendant,
-                };
-            }
-
             return {
                 product: p,
                 hasChildren,
                 expanded,
                 children: hasChildren ? build(childProducts) : [],
-                totalAmounts: getCleanTotal([p.years]),
+                totalAmounts: expanded
+                    ? getCleanTotal([p.years])
+                    : getCleanTotal([p.years, ...descendants.map((d) => d.years)]),
                 hasNonEmptyDescendant,
             };
         });
