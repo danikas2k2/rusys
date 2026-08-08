@@ -9,5 +9,6 @@ interface AmountSuffixProps {
 
 export function AmountSuffix({ group, variant }: AmountSuffixProps) {
     const value = useVariant(group, variant);
-    return <sub>{value ? value.suffix : variant}</sub>;
+    const suffix = value ? value.suffix : variant;
+    return suffix && <sub>{suffix}</sub>;
 }

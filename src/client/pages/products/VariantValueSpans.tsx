@@ -10,9 +10,6 @@ import type { VariantAmount } from '~/types/data';
 
 export interface VariantValueSpansProps {
     group: string;
-    // May contain several differently-dated entries of the same variant - the caller has already
-    // decided these all belong together (e.g. one expiry-status row), so they're merged into one
-    // number per variant here rather than shown as separate batches.
     amounts: readonly VariantAmount[];
 }
 

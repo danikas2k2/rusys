@@ -1,0 +1,13 @@
+// [data-value] normally lays out just a number + unit (justify-content: space-between, sized
+// for two children) - here it also carries the parenthesized source breakdown, so it needs its
+// own start-aligned, gapped layout instead.
+[data-annotated="true"] {
+    [data-value="true"] {
+        justify-content: flex-start;
+        gap: 0.2rem;
+    }
+
+    [data-sources] {
+        display: inline-flex;
+    }
+}

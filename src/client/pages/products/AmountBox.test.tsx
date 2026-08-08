@@ -6,6 +6,7 @@ import React, { useEffect } from 'react';
 
 import { AmountBox } from '~/client/pages/products/AmountBox';
 import { AmountVariantsTab } from '~/client/pages/products/AmountVariantsTab';
+import { ProductYearBar } from '~/client/pages/products/ProductYearBar';
 
 vi.mock(import('~/client/pages/products/AmountHistoryTab'), () => ({
     AmountHistoryTab: vi.fn().mockReturnValue(null),
@@ -13,6 +14,10 @@ vi.mock(import('~/client/pages/products/AmountHistoryTab'), () => ({
 
 vi.mock(import('~/client/pages/products/AmountVariantsTab'), () => ({
     AmountVariantsTab: vi.fn().mockReturnValue(null),
+}));
+
+vi.mock(import('~/client/pages/products/ProductYearBar'), () => ({
+    ProductYearBar: vi.fn().mockReturnValue(null),
 }));
 
 describe('<AmountBox>', () => {
@@ -95,6 +100,18 @@ describe('<AmountBox>', () => {
                 }
             );
         }
+
+        it('passes hasChanges through to ProductYearBar as disabled', () => {
+            mockHasChanges(true);
+
+            render(
+                <MockTheme>
+                    <AmountBox opened />
+                </MockTheme>
+            );
+
+            expect(ProductYearBar).toHaveBeenCalledWith(expect.objectContaining({ disabled: true }), undefined);
+        });
 
         it('closes without confirmation when there are no unsaved changes', async () => {
             mockHasChanges(false);
