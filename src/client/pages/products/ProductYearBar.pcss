@@ -1,0 +1,35 @@
+[data-year-bar] {
+    --sc-label-color: var(--mantine-color-text);
+    --sc-color: var(--mantine-color-default-hover);
+
+    //.ui-SegmentedControl-indicator {
+    //}
+
+    [data-year-option] {
+        --year-color: inherit;
+        --year-background: transparent;
+        --year-border: none;
+
+        color: var(--year-color);
+        background-color: var(--year-background);
+        border: var(--year-border);
+        border-radius: var(--mantine-radius-xl);
+        padding: .15rem .75rem;
+
+        &[data-old] {
+            --year-color: var(--mantine-color-negative-text);
+        }
+
+        &[data-preferred] {
+            --year-color: var(--mantine-color-positive-light-color);
+            --year-background: color-mix(in srgb, var(--mantine-color-positive-light), transparent);
+            --year-border: 1px dotted var(--mantine-color-positive-light-color);
+        }
+
+        &[data-removing] {
+            --year-color: var(--mantine-color-negative-light-color);
+            --year-background: color-mix(in srgb, var(--mantine-color-negative-light), transparent);
+            --year-border: 1px dotted var(--mantine-color-negative-light-color);
+        }
+    }
+}

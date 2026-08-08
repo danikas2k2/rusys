@@ -1,4 +1,4 @@
-import { ActionIcon, Group, Tabs, type ModalProps } from '@mantine/core';
+import { ActionIcon, Group, Stack, Tabs, type ModalProps } from '@mantine/core';
 import React, { useCallback, useState } from 'react';
 
 import { DeleteIcon, EditIcon, HistoryTabIcon, QuantitiesTabIcon } from '@icons';
@@ -9,6 +9,7 @@ import { ProductDialogIcon } from '~/client/common/ProductDialogIcon';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AmountHistoryTab } from '~/client/pages/products/AmountHistoryTab';
 import { AmountVariantsTab } from '~/client/pages/products/AmountVariantsTab';
+import { ProductYearBar } from '~/client/pages/products/ProductYearBar';
 
 import './AmountBox.pcss';
 
@@ -71,29 +72,32 @@ export function AmountBox({
             data-dialog="product"
         >
             {() => (
-                <Tabs
-                    variant="outline"
-                    radius="sm"
-                    defaultValue="quantities"
-                    style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-                >
-                    <Tabs.List>
-                        <Tabs.Tab fz="md" value="quantities" leftSection={<QuantitiesTabIcon size={18} />}>
-                            <Label>Quantities</Label>
-                        </Tabs.Tab>
-                        <Tabs.Tab fz="md" value="history" leftSection={<HistoryTabIcon size={18} />}>
-                            <Label>History</Label>
-                        </Tabs.Tab>
-                    </Tabs.List>
+                <Stack gap="sm" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                    <ProductYearBar disabled={hasChanges} />
+                    <Tabs
+                        variant="outline"
+                        radius="sm"
+                        defaultValue="quantities"
+                        style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+                    >
+                        <Tabs.List>
+                            <Tabs.Tab fz="md" value="quantities" leftSection={<QuantitiesTabIcon size={18} />}>
+                                <Label>Quantities</Label>
+                            </Tabs.Tab>
+                            <Tabs.Tab fz="md" value="history" leftSection={<HistoryTabIcon size={18} />}>
+                                <Label>History</Label>
+                            </Tabs.Tab>
+                        </Tabs.List>
 
-                    <Tabs.Panel value="quantities" pt="sm">
-                        <AmountVariantsTab onChangesUpdate={setHasChanges} onClose={onClose} />
-                    </Tabs.Panel>
+                        <Tabs.Panel value="quantities" pt="sm">
+                            <AmountVariantsTab onChangesUpdate={setHasChanges} onClose={onClose} />
+                        </Tabs.Panel>
 
-                    <Tabs.Panel value="history" pt="sm">
-                        <AmountHistoryTab />
-                    </Tabs.Panel>
-                </Tabs>
+                        <Tabs.Panel value="history" pt="sm">
+                            <AmountHistoryTab />
+                        </Tabs.Panel>
+                    </Tabs>
+                </Stack>
             )}
         </ConfirmableModal>
     );

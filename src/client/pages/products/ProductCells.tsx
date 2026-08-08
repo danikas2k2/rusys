@@ -15,7 +15,7 @@ interface ProductCellsProps {
 }
 
 // Columns for years this old (or older) are marked as old/stale
-const OLD_YEARS_THRESHOLD = 4;
+export const OLD_YEARS_THRESHOLD = 4;
 
 export function ProductCells({
     product,

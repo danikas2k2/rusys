@@ -57,14 +57,36 @@ export interface AmountTotals {
     unitless: readonly VariantAmount[];
 }
 
+// Like a single AmountTotals bucket, but keeps the raw entries that were merged into `total` -
+// for contexts that want to show the total alongside the individual variants it came from.
+export interface AmountTotalWithSources {
+    total: number;
+    sources: readonly VariantAmount[];
+}
+
+export interface AmountTotalsDetailed {
+    volume?: AmountTotalWithSources;
+    weight?: AmountTotalWithSources;
+    count?: AmountTotalWithSources;
+    unitless: readonly VariantAmount[];
+}
+
 const BASE_ML_PER_UNIT: Record<'l' | 'ml', number> = { l: 1000, ml: 1 };
 const BASE_G_PER_UNIT: Record<'kg' | 'g', number> = { kg: 1000, g: 1 };
 
-export function getAmountTotals(
+function addToBucket(
+    bucket: AmountTotalWithSources | undefined,
+    add: number,
+    source: VariantAmount
+): AmountTotalWithSources {
+    return { total: (bucket?.total ?? 0) + add, sources: [...(bucket?.sources ?? []), source] };
+}
+
+export function getAmountTotalsDetailed(
     amounts: readonly VariantAmount[] | undefined,
     variants: readonly Variant[]
-): AmountTotals {
-    const totals: AmountTotals = { unitless: [] };
+): AmountTotalsDetailed {
+    const totals: AmountTotalsDetailed = { unitless: [] };
 
     for (const a of amounts ?? []) {
         const variant = variants.find((v) => v.variant === a.variant);
@@ -72,17 +94,30 @@ export function getAmountTotals(
         const perUnit = variant?.count ?? 1;
 
         if (units === 'l' || units === 'ml') {
-            totals.volume = (totals.volume ?? 0) + a.amount * perUnit * BASE_ML_PER_UNIT[units];
+            totals.volume = addToBucket(totals.volume, a.amount * perUnit * BASE_ML_PER_UNIT[units], a);
         } else if (units === 'kg' || units === 'g') {
-            totals.weight = (totals.weight ?? 0) + a.amount * perUnit * BASE_G_PER_UNIT[units];
+            totals.weight = addToBucket(totals.weight, a.amount * perUnit * BASE_G_PER_UNIT[units], a);
         } else if (units === 'vnt') {
-            totals.count = (totals.count ?? 0) + a.amount * perUnit;
+            totals.count = addToBucket(totals.count, a.amount * perUnit, a);
         } else {
             totals.unitless = [...totals.unitless, a];
         }
     }
 
     return totals;
+}
+
+export function getAmountTotals(
+    amounts: readonly VariantAmount[] | undefined,
+    variants: readonly Variant[]
+): AmountTotals {
+    const { volume, weight, count, unitless } = getAmountTotalsDetailed(amounts, variants);
+    return {
+        ...(volume ? { volume: volume.total } : {}),
+        ...(weight ? { weight: weight.total } : {}),
+        ...(count ? { count: count.total } : {}),
+        unitless,
+    };
 }
 
 export interface FormattedQuantity {
