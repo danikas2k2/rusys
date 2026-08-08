@@ -1,4 +1,4 @@
-import { SimpleGrid } from '@mantine/core';
+import { Collapse, SimpleGrid } from '@mantine/core';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { LoadableContent } from '~/client/common/LoadableContent';
@@ -43,17 +43,21 @@ function ProductGridSection({ nodes, annual, isHidden, toggleHandlers }: Product
                             totalAmounts={node.totalAmounts}
                             hasNonEmptyDescendant={node.hasNonEmptyDescendant}
                         />
-                        {node.expanded && node.hasChildren && (
-                            // Bordered so it's visually obvious which tiles belong to the parent
-                            // just expanded above, rather than reading as an unrelated next row.
-                            <div data-children-panel style={{ gridColumn: '1 / -1' }}>
-                                <ProductGridSection
-                                    nodes={node.children}
-                                    annual={annual}
-                                    isHidden={isHidden}
-                                    toggleHandlers={toggleHandlers}
-                                />
-                            </div>
+                        {node.hasChildren && (
+                            // Children stay mounted (see ProductGridNode.children) so this can
+                            // animate the height smoothly instead of the panel just appearing/
+                            // disappearing. Bordered so it's visually obvious which tiles belong
+                            // to the parent above, rather than reading as an unrelated next row.
+                            <Collapse expanded={node.expanded} style={{ gridColumn: '1 / -1' }}>
+                                <div data-children-panel>
+                                    <ProductGridSection
+                                        nodes={node.children}
+                                        annual={annual}
+                                        isHidden={isHidden}
+                                        toggleHandlers={toggleHandlers}
+                                    />
+                                </div>
+                            </Collapse>
                         )}
                     </React.Fragment>
                 );
@@ -95,9 +99,7 @@ export function ProductsGrid() {
             for (const n of list) {
                 const id = getId(n.product.group, n.product.name);
                 map.set(id, () => handleToggleExpand(id));
-                if (n.expanded) {
-                    walk(n.children);
-                }
+                walk(n.children);
             }
         };
         walk(nodes);

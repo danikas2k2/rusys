@@ -22,7 +22,7 @@ describe('buildProductGridTree', () => {
         );
     });
 
-    it('collapses a parent with children into a single node with a rolled-up total', () => {
+    it('collapses a parent with children into a single node with a rolled-up total, children still built', () => {
         const parent: Product = {
             group: 'Uogienės',
             name: 'Avietės',
@@ -42,10 +42,14 @@ describe('buildProductGridTree', () => {
                 product: parent,
                 hasChildren: true,
                 expanded: false,
-                children: [],
                 totalAmounts: [{ variant: 'p', amount: 5 }],
             })
         );
+        // Not rendered while collapsed (ProductTile ignores a parent's own `children` prop, using
+        // totalAmounts instead), but still built so expanding can animate instead of the child
+        // tile just appearing.
+        expect(node.children).toHaveLength(1);
+        expect(node.children[0]).toStrictEqual(expect.objectContaining({ product: child }));
     });
 
     it('reveals the child as its own node once expanded, and stops rolling up the parent', () => {
