@@ -25,7 +25,9 @@ export function VariantTitle({ group, variant }: VariantTitleProps) {
         return (
             <>
                 {label}
-                <Text size="sm" c="dimmed">
+                {/* component="span" - this sits inline right after `label` (and is itself often
+                    rendered inside another Text/<p>), so it can't be Text's own default <p>. */}
+                <Text size="sm" c="dimmed" component="span">
                     <VariantLabel count={variantData.count} units={variantData.units} />
                 </Text>
             </>

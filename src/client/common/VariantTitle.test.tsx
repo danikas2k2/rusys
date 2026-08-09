@@ -56,6 +56,25 @@ describe('<VariantTitle>', () => {
         expect(screen.getByText('ml.')).toBeInTheDocument();
     });
 
+    it('renders the dimmed count/units sub-text as a span, not a <p> - callers often nest this inside their own <Text>', () => {
+        vi.mocked(useVariant).mockReturnValue({
+            group: 'Uogienės',
+            variant: 'Stiklainis',
+            order: 0,
+            count: 500,
+            units: 'ml',
+        });
+
+        render(
+            <MockTheme>
+                <VariantTitle group="Uogienės" variant="Stiklainis" />
+            </MockTheme>
+        );
+
+        expect(screen.getByText('500').closest('span')).toBeInTheDocument();
+        expect(screen.queryByText('500')?.closest('p')).not.toBeInTheDocument();
+    });
+
     it('falls back to default units when checking for an auto-derived key with no units set', () => {
         vi.mocked(useVariant).mockReturnValue({ group: 'Uogienės', variant: 'Stiklainis', order: 0, count: 3 });
 

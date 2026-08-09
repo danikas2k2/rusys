@@ -336,12 +336,7 @@ export function ProductBox({
             <ConfirmableModal
                 centered
                 opened={opened}
-                title={
-                    <ProductDialogIcon
-                        image={form.values.image}
-                        aria-label={_(isEditing ? 'Edit entry' : 'Add new entry')}
-                    />
-                }
+                title={<ProductDialogIcon aria-label={_(isEditing ? 'Edit entry' : 'Add new entry')} />}
                 withCloseButton
                 isDirty={() => formRef.current.isDirty()}
                 onClose={() => onClose()}

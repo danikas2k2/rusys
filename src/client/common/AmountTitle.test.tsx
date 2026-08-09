@@ -69,4 +69,19 @@ describe('<AmountTitle>', () => {
 
         expect(screen.getByText('B')).toBeInTheDocument();
     });
+
+    it('does not render the avatar when photo is set - the dialog watermark already shows it', () => {
+        render(
+            <MockTheme>
+                <AmountTitle
+                    group="Uogienės"
+                    name="Braškės"
+                    image="/images/ab/cd/product.png"
+                    photo="/images/ab/cd/photo.png"
+                />
+            </MockTheme>
+        );
+
+        expect(document.querySelector('img')).not.toBeInTheDocument();
+    });
 });

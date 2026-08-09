@@ -84,7 +84,7 @@ describe('<ProductsPage>', () => {
         expect(ProductsGrid).not.toHaveBeenCalled();
     });
 
-    it('shows the missing-only checkbox and amount view toggle in the sticky header for grid view', () => {
+    it('shows the missing-only checkbox in the sticky header for grid view', () => {
         render(
             <MockApp>
                 <ProductsPage />
@@ -97,7 +97,7 @@ describe('<ProductsPage>', () => {
         expect(within(header as HTMLElement).getByRole('checkbox')).toBeInTheDocument();
     });
 
-    it('does not show the missing-only checkbox and amount view toggle in the header for table view', () => {
+    it('does not show the missing-only checkbox in the header for table view', () => {
         localStorage.setItem('productsView', 'table');
 
         render(

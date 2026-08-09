@@ -6,7 +6,7 @@ import React from 'react';
 import { ProductDialogIcon } from '~/client/common/ProductDialogIcon';
 
 describe('<ProductDialogIcon>', () => {
-    it('renders the generic icon when there is no image', () => {
+    it('renders the generic icon when there is no photo', () => {
         const { container } = render(
             <MockTheme>
                 <ProductDialogIcon />
@@ -17,20 +17,20 @@ describe('<ProductDialogIcon>', () => {
         expect(container.querySelector('.tabler-icon-list')).toBeInTheDocument();
     });
 
-    it('renders the product image when given', () => {
+    it('renders the product photo when given', () => {
         const { container } = render(
             <MockTheme>
-                <ProductDialogIcon image="/images/ab/cd/product.png" />
+                <ProductDialogIcon photo="/images/ab/cd/product.png" />
             </MockTheme>
         );
 
         expect(container.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/product.png');
     });
 
-    it('falls back to the generic icon when the image fails to load', () => {
+    it('falls back to the generic icon when the photo fails to load', () => {
         const { container } = render(
             <MockTheme>
-                <ProductDialogIcon image="/images/ab/cd/product.png" />
+                <ProductDialogIcon photo="/images/ab/cd/product.png" />
             </MockTheme>
         );
 
@@ -40,10 +40,10 @@ describe('<ProductDialogIcon>', () => {
         expect(container.querySelector('.tabler-icon-list')).toBeInTheDocument();
     });
 
-    it('retries the new image after a failure once the image prop changes', () => {
+    it('retries the new photo after a failure once the photo prop changes', () => {
         const { container, rerender } = render(
             <MockTheme>
-                <ProductDialogIcon image="/images/ab/cd/product.png" />
+                <ProductDialogIcon photo="/images/ab/cd/product.png" />
             </MockTheme>
         );
 
@@ -53,7 +53,7 @@ describe('<ProductDialogIcon>', () => {
 
         rerender(
             <MockTheme>
-                <ProductDialogIcon image="/images/ef/gh/other.png" />
+                <ProductDialogIcon photo="/images/ef/gh/other.png" />
             </MockTheme>
         );
 

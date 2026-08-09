@@ -15,8 +15,13 @@ import './AmountBox.pcss';
 
 export interface ValueListBoxProps extends Pick<ModalProps, 'title'> {
     opened?: boolean;
-    image?: string;
     photo?: string;
+    // Mantine's own Escape/click-outside handling is per-instance and unaware of other open
+    // modals - when Edit/Delete opens right on top of this one (see ActiveAmountBox), both would
+    // otherwise close together on a single Escape press. Default true (Mantine's own default);
+    // callers stacking another dialog on top pass false for as long as that dialog is open.
+    closeOnEscape?: boolean;
+    closeOnClickOutside?: boolean;
     onClose?: () => void;
     onAfterClose?: () => void;
     onEdit?: () => void;
@@ -26,8 +31,9 @@ export interface ValueListBoxProps extends Pick<ModalProps, 'title'> {
 export function AmountBox({
     opened = false,
     title,
-    image,
     photo,
+    closeOnEscape = true,
+    closeOnClickOutside = true,
     onClose,
     onAfterClose,
     onEdit,
@@ -47,12 +53,14 @@ export function AmountBox({
             withCloseButton
             isDirty={() => hasChanges}
             onClose={() => onClose?.()}
+            closeOnEscape={closeOnEscape}
+            closeOnClickOutside={closeOnClickOutside}
             closeButtonProps={{ 'aria-label': _('Close') }}
             onExitTransitionEnd={handleExitTransitionEnd}
             title={
                 <Group justify="space-between" wrap="nowrap" flex={1}>
                     <Group wrap="nowrap" gap="sm">
-                        <ProductDialogIcon image={image} photo={photo} />
+                        <ProductDialogIcon photo={photo} />
                         {title}
                     </Group>
                     <Group gap={4} wrap="nowrap">

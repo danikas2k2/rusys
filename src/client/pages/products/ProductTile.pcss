@@ -56,10 +56,62 @@
         opacity: 0.55;
     }
 
+    // Grid (not flex) so the title and the amounts row below it share exactly the same column -
+    // the amounts wrap at the title's own width instead of spilling under the icon column, and
+    // there's no icon-column width to duplicate in CSS to keep the two in sync.
+    [data-content] {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto 1fr;
+    }
+
+    [data-tile-icon] {
+        grid-column: 1;
+        grid-row: 1;
+        align-self: start;
+    }
+
+    [data-tile-title] {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: start;
+    }
+
+    // Full width, with each wrapped line right-aligned within it - a shrink-to-fit box (the
+    // Group's own default) would only line its right edge up with the tile's when the widest
+    // wrapped line happens to be the last one, leaving any shorter line hanging off to the left.
+    [data-tile-amounts] {
+        grid-column: 2;
+        grid-row: 2;
+        align-self: end;
+        width: 100%;
+
+        [data-amounts-rows] {
+            width: 100%;
+        }
+
+        [data-amounts-row] {
+            justify-content: flex-end;
+        }
+    }
+
     // Pulls the icon avatar's own footprint out of the flow so it overlaps rather than pushing
     // the checkbox column (and so the card) taller than it needs to be.
     .ui-Avatar-root {
         margin-block-end: -100%;
+    }
+
+    // The outline variant's checked/indeterminate state is otherwise a transparent box with just
+    // a coloured checkmark - fine on the app's own chrome, but it lets a photo tile's background
+    // bleed through behind it. Body-colour keeps the outline look (no filled box) while staying
+    // legible against any background. Mantine's own rule for this targets a raw, unprefixed
+    // CSS-module class (no `[data-variant]` attribute exists to hook into), so this instead wins
+    // on specificity via the tile ancestor - the only checkbox rendered inside a tile is this one.
+    .ui-Checkbox-input {
+        &:checked,
+        &[data-indeterminate] {
+            background-color: var(--mantine-color-body);
+        }
     }
 
     // A background photo isn't part of the app's own light/dark chrome, so it needs its own
