@@ -31,7 +31,7 @@ describe('<AmountTitle>', () => {
     it('renders year when year is provided', () => {
         render(
             <MockTheme>
-                <AmountTitle group="Uogienės" name="Braškės" year={2024} />
+                <AmountTitle group="Uogienės" name="Braškės" />
             </MockTheme>
         );
 
