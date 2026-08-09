@@ -52,7 +52,7 @@
     margin-inline: 0.1rem;
     color: var(--value-cell-color, inherit);
 
-    &:has(+ *) {
+    &:has(+ [data-value="true"]) {
         &::after {
             content: ",";
             font-size: var(--mantine-font-size-sm);

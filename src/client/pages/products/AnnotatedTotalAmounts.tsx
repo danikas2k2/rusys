@@ -1,3 +1,4 @@
+import { Text } from '@mantine/core';
 import React from 'react';
 
 import { ExpiryStatusRow } from '~/client/pages/products/ExpiryStatusRow';
@@ -22,7 +23,13 @@ export interface AnnotatedTotalAmountsProps {
 function Sources({ group, bucket }: { group: string; bucket: AmountTotalWithSources }) {
     return (
         <span data-sources>
-            (<VariantValueSpans group={group} amounts={bucket.sources} />)
+            <Text c="dark" fz="sm" lh="xl">
+                (
+            </Text>
+            <VariantValueSpans group={group} amounts={bucket.sources} />
+            <Text c="dark" fz="sm" lh="xl">
+                )
+            </Text>
         </span>
     );
 }

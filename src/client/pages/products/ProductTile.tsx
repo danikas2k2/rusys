@@ -1,4 +1,4 @@
-import { ActionIcon, Avatar, Card, Checkbox, Group, Stack, Text } from '@mantine/core';
+import { ActionIcon, Card, Checkbox, Group, Stack, Text } from '@mantine/core';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 
@@ -103,9 +103,14 @@ function ProductTileComponent({
             data-expanded-parent={hasChildren && expanded}
             data-photo={isPhoto}
             data-empty={isEmptyTile}
-            style={isPhoto ? { backgroundImage: `url(${product.photo})` } : undefined}
         >
-            {isPhoto && <div data-scrim />}
+            {isPhoto && (
+                <>
+                    <div data-photo-bg style={{ backgroundImage: `url(${product.photo})` }} />
+                    <div data-scrim />
+                </>
+            )}
+            {isIcon && <div data-icon-bg style={{ backgroundImage: `url(${product.image})` }} />}
             <Stack gap={6} data-content h="100%">
                 <Stack data-tile-icon gap={4} align="center">
                     <Group gap={4} wrap="nowrap" onClick={(e) => e.stopPropagation()}>
@@ -119,14 +124,9 @@ function ProductTileComponent({
                             aria-label={_(product.missing ? 'Mark as available' : 'Mark as missing')}
                         />
                     </Group>
-                    {isIcon && (
-                        <Avatar src={product.image} radius="sm" size={24} alt="">
-                            {name.trim().charAt(0).toUpperCase()}
-                        </Avatar>
-                    )}
                 </Stack>
                 <Group data-tile-title justify="space-between" wrap="nowrap" gap={6} align="flex-start">
-                    <Text fw={600} lineClamp={2} style={{ flex: 1, minWidth: 0 }}>
+                    <Text lh="xs" lineClamp={2} style={{ flex: 1, minWidth: 0 }}>
                         {name}
                     </Text>
                     {hasChildren && (
@@ -136,15 +136,12 @@ function ProductTileComponent({
                             size="sm"
                             onClick={handleToggleExpand}
                             aria-label={_(expanded ? 'Collapse' : 'Expand')}
-                            style={isPhoto ? { color: '#fff' } : undefined}
                         >
                             {expanded ? <CollapseIcon size={16} /> : <ExpandIcon size={16} />}
                         </ActionIcon>
                     )}
                 </Group>
-                {/* Shares the title's own column (see [data-content] grid in ProductTile.pcss) so it
-                    wraps at the title's width instead of sprawling under the icon column on the left. */}
-                <Group data-tile-amounts justify="flex-end">
+                <Group data-tile-amounts justify="flex-end" lh="xs">
                     {totalAmounts.length > 0 && <AnnotatedTotalAmounts group={group} amounts={totalAmounts} />}
                 </Group>
             </Stack>
