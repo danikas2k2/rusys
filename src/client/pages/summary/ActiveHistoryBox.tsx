@@ -21,12 +21,7 @@ export function ActiveHistoryBox(): React.ReactElement {
             opened={opened}
             onClose={handleClose}
             onAfterClose={handleAfterClose}
-            title={
-                <AmountTitle
-                    {...activeData}
-                    year={activeData?.year ? <SummaryYear year={activeData.year} /> : undefined}
-                />
-            }
+            title={<AmountTitle {...activeData} />}
         />
     );
 }

@@ -58,8 +58,12 @@
 
     // Grid (not flex) so the title and the amounts row below it share exactly the same column -
     // the amounts wrap at the title's own width instead of spilling under the icon column, and
-    // there's no icon-column width to duplicate in CSS to keep the two in sync.
+    // there's no icon-column width to duplicate in CSS to keep the two in sync. Positioned (not
+    // just display: grid) so it paints above [data-scrim]/[data-icon-bg], which are both
+    // position: absolute and would otherwise paint on top of static content regardless of DOM order.
     [data-content] {
+        position: relative;
+        z-index: 1;
         display: grid;
         grid-template-columns: auto 1fr;
         grid-template-rows: auto 1fr;
@@ -95,10 +99,47 @@
         }
     }
 
-    // Pulls the icon avatar's own footprint out of the flow so it overlaps rather than pushing
-    // the checkbox column (and so the card) taller than it needs to be.
-    .ui-Avatar-root {
-        margin-block-end: -100%;
+    // The icon-sized image, shown as a corner watermark instead of inline next to the checkbox -
+    // capped at 80x80 (not full tile width, unlike [data-photo]) so it reads as a small badge, not
+    // a background. The card's own overflow: hidden clips it to the top-left corner's radius.
+    // Blurred and dimmed so it stays a decorative backdrop, never competing with the checkbox/
+    // title/amounts stacked on top of it (see the shared :has() block below for how those stay
+    // legible over it, exactly the same way they do over a full [data-photo-bg]).
+    [data-icon-bg] {
+        position: absolute;
+        inset-inline-start: 4px;
+        inset-block-start: 4px;
+        width: 76px;
+        height: 76px;
+        background-size: cover;
+        background-position: center;
+        filter: blur(2px) opacity(0.5);
+        pointer-events: none;
+    }
+
+    // Text/checkbox shadow is one recipe, shared by icon and photo mode alike - only the glow
+    // colour differs (--tile-glow, set per mode below), because icon mode leaves the theme's own
+    // text colour in place (small corner image, most of the tile is still the normal background)
+    // while photo mode forces white text (see --mantine-color-text below) against a full backdrop.
+    --tile-glow: var(--mantine-color-white);
+    --tile-color: var(--mantine-color-crust);
+
+    &:has([data-icon-bg], [data-photo-bg]) {
+        [data-tile-icon] {
+            filter: drop-shadow(0 0 1px var(--mantine-color-shadow))
+                drop-shadow(0 0 2px var(--mantine-color-shadow))
+                drop-shadow(0 0 4px var(--mantine-color-shadow));
+        }
+
+        [data-content] {
+            text-shadow:
+                0 0 1px var(--mantine-color-shadow),
+                0 0 2px var(--mantine-color-shadow),
+                0 0 4px var(--mantine-color-shadow),
+                0 0 8px var(--mantine-color-shadow),
+                0 0 12px var(--mantine-color-shadow),
+                0 0 16px var(--mantine-color-shadow);
+        }
     }
 
     // The outline variant's checked/indeterminate state is otherwise a transparent box with just
@@ -117,26 +158,24 @@
     // A background photo isn't part of the app's own light/dark chrome, so it needs its own
     // fixed (not scheme-reactive) scrim + light text rather than the usual theme variables -
     // the photo's colors don't change with the theme toggle, so neither should its contrast fix.
+    // Text/checkbox shadow itself is the shared recipe above - this only points --tile-glow at a
+    // dark colour instead of the (light-on-dark-mode-adapting) theme one, since text here is
+    // forced white against a full backdrop rather than left at the theme's normal colour.
     &[data-photo='true'] {
-        background-size: cover;
-        background-position: center;
+        // --mantine-color-dimmed: rgb(255 255 255 / 75%);
 
-        --mantine-color-text: #fff;
-        --mantine-color-dimmed: rgb(255 255 255 / 75%);
+        [data-photo-bg] {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            filter: blur(1px);
+        }
 
         [data-scrim] {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to bottom, rgb(0 0 0 / 10%), rgb(0 0 0 / 65%));
-        }
-
-        [data-content] {
-            position: relative;
-            z-index: 1;
-        }
-
-        .ui-Text-root {
-            text-shadow: 0 1px 3px rgb(0 0 0 / 85%);
+            background: linear-gradient(to right bottom, color-mix(in srgb, var(--mantine-color-base) 30%, transparent), color-mix(in srgb, var(--mantine-color-crust) 70%, transparent));
         }
     }
 

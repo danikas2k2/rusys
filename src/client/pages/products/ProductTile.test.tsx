@@ -274,7 +274,7 @@ describe('<ProductTile>', () => {
     });
 
     describe('image mode', () => {
-        it('renders no avatar and no photo background when the product has no image', () => {
+        it('renders no icon watermark and no photo background when the product has no image', () => {
             const { container } = render(
                 <MockApp>
                     <ProductTile {...defaultProps} />
@@ -282,10 +282,11 @@ describe('<ProductTile>', () => {
             );
 
             expect(container.querySelector('img')).not.toBeInTheDocument();
+            expect(container.querySelector('[data-icon-bg]')).not.toBeInTheDocument();
             expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-photo', 'false');
         });
 
-        it('shows the image as a small avatar next to the title when icon-sized (no photo)', () => {
+        it('shows the image as an 80x80 corner watermark when icon-sized (no photo)', () => {
             const productWithImage = { ...product, image: '/images/ab/cd/product.png' };
 
             const { container } = render(
@@ -294,7 +295,10 @@ describe('<ProductTile>', () => {
                 </MockApp>
             );
 
-            expect(container.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/product.png');
+            expect(container.querySelector('[data-icon-bg]')).toHaveStyle({
+                backgroundImage: 'url(/images/ab/cd/product.png)',
+            });
+            expect(container.querySelector('img')).not.toBeInTheDocument();
             expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-photo', 'false');
         });
 
@@ -314,7 +318,9 @@ describe('<ProductTile>', () => {
             const tile = screen.getByText(name).closest('[data-tile="product"]');
 
             expect(tile).toHaveAttribute('data-photo', 'true');
-            expect(tile).toHaveStyle({ backgroundImage: 'url(/images/ab/cd/product.png)' });
+            expect(container.querySelector('[data-photo-bg]')).toHaveStyle({
+                backgroundImage: 'url(/images/ab/cd/product.png)',
+            });
             expect(container.querySelector('img')).not.toBeInTheDocument();
         });
     });
