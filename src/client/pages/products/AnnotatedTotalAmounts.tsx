@@ -27,6 +27,13 @@ function Sources({ group, bucket }: { group: string; bucket: AmountTotalWithSour
     );
 }
 
+// A single source that already reads exactly like the total (e.g. one 2l bottle summing to "2l")
+// would only show "2l (2)" - the same number twice for zero extra information. Worth showing only
+// once a second source, or a unit conversion, actually makes the two numbers diverge.
+function isRedundantBreakdown(bucket: AmountTotalWithSources, displayedValue: string): boolean {
+    return bucket.sources.length === 1 && String(bucket.sources[0].amount) === displayedValue;
+}
+
 function renderRow(
     group: string,
     amounts: readonly VariantAmount[],
@@ -46,20 +53,20 @@ function renderRow(
                 <span data-value data-total="volume">
                     <span data-number>{formattedVolume.value}</span>
                     <sub>{formattedVolume.unit}</sub>
-                    <Sources group={group} bucket={volume} />
+                    {!isRedundantBreakdown(volume, formattedVolume.value) && <Sources group={group} bucket={volume} />}
                 </span>
             )}
             {formattedWeight && weight && (
                 <span data-value data-total="weight">
                     <span data-number>{formattedWeight.value}</span>
                     <sub>{formattedWeight.unit}</sub>
-                    <Sources group={group} bucket={weight} />
+                    {!isRedundantBreakdown(weight, formattedWeight.value) && <Sources group={group} bucket={weight} />}
                 </span>
             )}
             {count && (
                 <span data-value data-total="count">
                     <span data-number>{count.total}</span>
-                    <Sources group={group} bucket={count} />
+                    {!isRedundantBreakdown(count, String(count.total)) && <Sources group={group} bucket={count} />}
                 </span>
             )}
             {unitless.length > 0 && <VariantValueSpans group={group} amounts={unitless} />}

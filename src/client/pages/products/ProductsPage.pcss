@@ -6,4 +6,8 @@
     top: 0;
     z-index: 2;
     background-color: var(--mantine-color-body);
+
+    // Matches [data-grid='products']'s own padding-inline (ProductsGrid.pcss), so the checkbox
+    // and view toggle line up with the tile edges below instead of running flush to the screen.
+    padding-inline: var(--mantine-spacing-xs);
 }

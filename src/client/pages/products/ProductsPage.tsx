@@ -1,7 +1,6 @@
 import { Group } from '@mantine/core';
 import React from 'react';
 
-import { AmountViewToggle } from '~/client/common/AmountViewToggle';
 import { ProductsViewWrapper, useProductsView } from '~/client/common/ProductsViewContext';
 import { ProductsViewToggle } from '~/client/common/ProductsViewToggle';
 import { SwipeControls } from '~/client/common/SwipeControls';
@@ -56,15 +55,13 @@ function ProductsPageContent({ onDelete }: { onDelete: (product: Product) => voi
                 groupsWithContent={groupsWithProducts}
             >
                 <div data-products-header data-view={productsView}>
-                    <Group justify="flex-end" mb="xs">
+                    {/* Always two slots (left/right), even when the left one has nothing to show -
+                        otherwise `space-between` would collapse to a single item and the toggle
+                        would jump to the left instead of staying pinned to the right. */}
+                    <Group justify="space-between" wrap="nowrap" mb="sm">
+                        <div>{productsView === 'grid' && <MissingOnlyCheckbox />}</div>
                         <ProductsViewToggle />
                     </Group>
-                    {productsView === 'grid' && (
-                        <Group gap="xs" wrap="nowrap" mb="sm">
-                            <MissingOnlyCheckbox />
-                            <AmountViewToggle />
-                        </Group>
-                    )}
                 </div>
                 <SwipeControlsWrapper>
                     <MissingOnlyEffects />

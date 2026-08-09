@@ -6,7 +6,7 @@ import { CollapseIcon, ExpandIcon } from '@icons';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { useLabels } from '~/client/hooks/useLabels';
-import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
+import { AnnotatedTotalAmounts } from '~/client/pages/products/AnnotatedTotalAmounts';
 import { getPreferredYear } from '~/client/pages/products/ProductCell';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
 import { getCombinedAmounts } from '~/common/utils/amounts';
@@ -106,26 +106,26 @@ function ProductTileComponent({
             style={isPhoto ? { backgroundImage: `url(${product.photo})` } : undefined}
         >
             {isPhoto && <div data-scrim />}
-            <Stack gap={6} data-content h="100%" justify="space-between">
-                <Group justify="space-between" wrap="nowrap" gap={6} align="flex-start">
-                    <Stack gap={4} align="center" style={{ flexShrink: 0 }}>
-                        <Group gap={4} wrap="nowrap" onClick={(e) => e.stopPropagation()}>
-                            <Checkbox
-                                variant="outline"
-                                size="sm"
-                                checked={!product.missing}
-                                disabled={!available}
-                                indeterminate={!available}
-                                onChange={handleMissingChange}
-                                aria-label={_(product.missing ? 'Mark as available' : 'Mark as missing')}
-                            />
-                        </Group>
-                        {isIcon && (
-                            <Avatar src={product.image} radius="sm" size={24} alt="">
-                                {name.trim().charAt(0).toUpperCase()}
-                            </Avatar>
-                        )}
-                    </Stack>
+            <Stack gap={6} data-content h="100%">
+                <Stack data-tile-icon gap={4} align="center">
+                    <Group gap={4} wrap="nowrap" onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                            variant="outline"
+                            size="sm"
+                            checked={!product.missing}
+                            disabled={!available}
+                            indeterminate={!available}
+                            onChange={handleMissingChange}
+                            aria-label={_(product.missing ? 'Mark as available' : 'Mark as missing')}
+                        />
+                    </Group>
+                    {isIcon && (
+                        <Avatar src={product.image} radius="sm" size={24} alt="">
+                            {name.trim().charAt(0).toUpperCase()}
+                        </Avatar>
+                    )}
+                </Stack>
+                <Group data-tile-title justify="space-between" wrap="nowrap" gap={6} align="flex-start">
                     <Text fw={600} lineClamp={2} style={{ flex: 1, minWidth: 0 }}>
                         {name}
                     </Text>
@@ -142,8 +142,10 @@ function ProductTileComponent({
                         </ActionIcon>
                     )}
                 </Group>
-                <Group justify="flex-end">
-                    {totalAmounts.length > 0 && <ProductAmounts group={group} amounts={totalAmounts} />}
+                {/* Shares the title's own column (see [data-content] grid in ProductTile.pcss) so it
+                    wraps at the title's width instead of sprawling under the icon column on the left. */}
+                <Group data-tile-amounts justify="flex-end">
+                    {totalAmounts.length > 0 && <AnnotatedTotalAmounts group={group} amounts={totalAmounts} />}
                 </Group>
             </Stack>
         </Card>

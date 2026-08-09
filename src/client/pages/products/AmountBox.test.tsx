@@ -43,17 +43,17 @@ describe('<AmountBox>', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    it('renders the product image in the dialog header watermark when given', () => {
+    it('renders the product photo in the dialog header watermark when given', () => {
         const { container } = render(
             <MockTheme>
-                <AmountBox opened image="/images/ab/cd/product.png" />
+                <AmountBox opened photo="/images/ab/cd/photo.png" />
             </MockTheme>
         );
 
-        expect(container.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/product.png');
+        expect(container.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/photo.png');
     });
 
-    it('falls back to the generic icon in the dialog header when no image is given', () => {
+    it('falls back to the generic icon in the dialog header when no photo is given', () => {
         const { container } = render(
             <MockTheme>
                 <AmountBox opened />
@@ -87,6 +87,40 @@ describe('<AmountBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    describe('closeOnEscape/closeOnClickOutside', () => {
+        // Mantine's own Escape handling is a window-level listener per modal instance, unaware of
+        // any other modal stacked on top - a caller opening one there (see ActiveAmountBox) needs
+        // to be able to disable this one's own handling for as long as that one is open, or a
+        // single Escape press would close both at once.
+        it('closes on Escape by default', () => {
+            const onClose = vi.fn();
+
+            render(
+                <MockTheme>
+                    <AmountBox opened onClose={onClose} />
+                </MockTheme>
+            );
+
+            fireEvent.keyDown(document.body, { key: 'Escape' });
+
+            expect(onClose).toHaveBeenCalledTimes(1);
+        });
+
+        it('does not close on Escape when closeOnEscape is false', () => {
+            const onClose = vi.fn();
+
+            render(
+                <MockTheme>
+                    <AmountBox opened onClose={onClose} closeOnEscape={false} />
+                </MockTheme>
+            );
+
+            fireEvent.keyDown(document.body, { key: 'Escape' });
+
+            expect(onClose).not.toHaveBeenCalled();
+        });
     });
 
     describe('discard confirmation', () => {

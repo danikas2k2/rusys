@@ -5,12 +5,13 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 import React from 'react';
 
 import { ActiveAmountBox } from '~/client/pages/products/ActiveAmountBox';
+import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
 import { useProducts } from '~/client/state/products/useProducts';
 
 vi.mock(import('~/client/pages/products/AmountBox'), (): any => ({
-    AmountBox: ({ opened, image, onClose, onAfterClose, onEdit, onDelete }: any) =>
+    AmountBox: ({ opened, photo, onClose, onAfterClose, onEdit, onDelete }: any) =>
         opened ? (
-            <div role="dialog" aria-label="Value box" data-image={image}>
+            <div role="dialog" aria-label="Value box" data-photo={photo}>
                 <button type="button" onClick={() => onClose()}>
                     Close
                 </button>
@@ -26,8 +27,28 @@ vi.mock(import('~/client/pages/products/AmountBox'), (): any => ({
             </div>
         ) : null,
 }));
+vi.mock(import('~/client/pages/products/ProductBox'), (): any => ({
+    ProductBox: ({ opened, group, name, parent, image, onClose }: any) =>
+        opened ? (
+            <div role="dialog" aria-label="Product box" data-group={group} data-name={name} data-parent={parent}>
+                {image}
+                <button type="button" onClick={() => onClose()}>
+                    Cancel edit
+                </button>
+                <button type="button" onClick={() => onClose('Uogienės', 'Serbentai')}>
+                    Save renamed
+                </button>
+                <button type="button" onClick={() => onClose(group, name)}>
+                    Save unchanged
+                </button>
+            </div>
+        ) : null,
+}));
 vi.mock(import('~/client/state/products/useProducts'), () => ({
     useProducts: vi.fn().mockReturnValue([]),
+}));
+vi.mock(import('~/client/state/products/useDeleteProduct'), () => ({
+    useDeleteProduct: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
 describe('<ActiveAmountBox>', () => {
@@ -69,16 +90,16 @@ describe('<ActiveAmountBox>', () => {
         expect(screen.getByRole('dialog', { name: 'Value box' })).toBeInTheDocument();
     });
 
-    it('passes the active data image through to AmountBox', () => {
+    it('passes the active data photo through to AmountBox', () => {
         render(
-            <MockThemeActive active={{ action: 'values', data: { ...data, image: '/images/ab/cd/product.png' } }}>
+            <MockThemeActive active={{ action: 'values', data: { ...data, photo: '/images/ab/cd/photo.png' } }}>
                 <ActiveAmountBox />
             </MockThemeActive>
         );
 
         expect(screen.getByRole('dialog', { name: 'Value box' })).toHaveAttribute(
-            'data-image',
-            '/images/ab/cd/product.png'
+            'data-photo',
+            '/images/ab/cd/photo.png'
         );
     });
 
@@ -107,7 +128,7 @@ describe('<ActiveAmountBox>', () => {
     });
 
     describe('edit', () => {
-        it('switches to the update action with group, name and image', async () => {
+        it('opens ProductBox with group, name and image, without closing the amounts card', async () => {
             render(
                 <MockThemeActive
                     active={{ action: 'values', data: { ...data, image: '/images/ab/cd/product.png' } }}
@@ -119,15 +140,14 @@ describe('<ActiveAmountBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Edit' }));
 
-            expect(mockSetActive).toHaveBeenCalledWith({
-                action: 'update',
-                data: {
-                    group: data.group,
-                    name: data.name,
-                    parent: undefined,
-                    image: '/images/ab/cd/product.png',
-                },
-            });
+            const productDialog = screen.getByRole('dialog', { name: 'Product box' });
+
+            expect(productDialog).toHaveAttribute('data-group', data.group);
+            expect(productDialog).toHaveAttribute('data-name', data.name);
+            expect(productDialog).toHaveTextContent('/images/ab/cd/product.png');
+            // The amounts card itself never closed - both dialogs are open at once.
+            expect(screen.getByRole('dialog', { name: 'Value box' })).toBeInTheDocument();
+            expect(mockSetActive).not.toHaveBeenCalled();
         });
 
         it('includes the product parent looked up from the products list', async () => {
@@ -141,14 +161,58 @@ describe('<ActiveAmountBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Edit' }));
 
-            expect(mockSetActive).toHaveBeenCalledWith(
-                expect.objectContaining({ data: expect.objectContaining({ parent: 'Parent product' }) })
+            expect(screen.getByRole('dialog', { name: 'Product box' })).toHaveAttribute(
+                'data-parent',
+                'Parent product'
             );
+        });
+
+        it('closes ProductBox without touching the shared active store when cancelled', async () => {
+            render(
+                <MockThemeActive active={{ action: 'values', data }} setActive={mockSetActive}>
+                    <ActiveAmountBox />
+                </MockThemeActive>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Edit' }));
+            await user.click(screen.getByRole('button', { name: 'Cancel edit' }));
+
+            expect(screen.queryByRole('dialog', { name: 'Product box' })).not.toBeInTheDocument();
+            expect(screen.getByRole('dialog', { name: 'Value box' })).toBeInTheDocument();
+            expect(mockSetActive).not.toHaveBeenCalled();
+        });
+
+        it('does not touch the shared active store when saved with the same group/name', async () => {
+            render(
+                <MockThemeActive active={{ action: 'values', data }} setActive={mockSetActive}>
+                    <ActiveAmountBox />
+                </MockThemeActive>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Edit' }));
+            await user.click(screen.getByRole('button', { name: 'Save unchanged' }));
+
+            expect(mockSetActive).not.toHaveBeenCalled();
+        });
+
+        it('points the amounts card at the new group/name after a rename', async () => {
+            render(
+                <MockThemeActive active={{ action: 'values', data }} setActive={mockSetActive}>
+                    <ActiveAmountBox />
+                </MockThemeActive>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Edit' }));
+            await user.click(screen.getByRole('button', { name: 'Save renamed' }));
+
+            expect(mockSetActive).toHaveBeenCalledWith({
+                data: { ...data, group: 'Uogienės', name: 'Serbentai' },
+            });
         });
     });
 
     describe('delete', () => {
-        it('switches to the remove action with just group and name', async () => {
+        it('opens the remove confirmation without closing the amounts card', async () => {
             render(
                 <MockThemeActive active={{ action: 'values', data }} setActive={mockSetActive}>
                     <ActiveAmountBox />
@@ -157,10 +221,45 @@ describe('<ActiveAmountBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Delete' }));
 
-            expect(mockSetActive).toHaveBeenCalledWith({
-                action: 'remove',
-                data: { group: data.group, name: data.name },
-            });
+            expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+            expect(screen.getByRole('dialog', { name: 'Value box' })).toBeInTheDocument();
+            expect(mockSetActive).not.toHaveBeenCalled();
+        });
+
+        it('closes the confirmation without deleting or touching active state when cancelled', async () => {
+            const deleteProduct = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useDeleteProduct).mockReturnValue(deleteProduct);
+
+            render(
+                <MockThemeActive active={{ action: 'values', data }} setActive={mockSetActive}>
+                    <ActiveAmountBox />
+                </MockThemeActive>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Delete' }));
+            await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+            expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
+            expect(screen.getByRole('dialog', { name: 'Value box' })).toBeInTheDocument();
+            expect(deleteProduct).not.toHaveBeenCalled();
+            expect(mockSetActive).not.toHaveBeenCalled();
+        });
+
+        it('deletes the product and closes the amounts card when confirmed', async () => {
+            const deleteProduct = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useDeleteProduct).mockReturnValue(deleteProduct);
+
+            render(
+                <MockThemeActive active={{ action: 'values', data }} setActive={mockSetActive}>
+                    <ActiveAmountBox />
+                </MockThemeActive>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Delete' }));
+            await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+            expect(deleteProduct).toHaveBeenCalledWith(data.group, data.name);
+            expect(mockSetActive).toHaveBeenCalledWith({ data });
         });
     });
 });
