@@ -75,6 +75,26 @@ describe('<VariantTitle>', () => {
         expect(screen.queryByText('500')?.closest('p')).not.toBeInTheDocument();
     });
 
+    it('renders the dimmed count/units sub-text on its own line below the name', () => {
+        vi.mocked(useVariant).mockReturnValue({
+            group: 'Uogienės',
+            variant: 'Stiklainis',
+            order: 0,
+            count: 500,
+            units: 'ml',
+        });
+
+        render(
+            <MockTheme>
+                <VariantTitle group="Uogienės" variant="Stiklainis" />
+            </MockTheme>
+        );
+
+        // A plain inline <span> would sit on the same line as the name - display: block puts it
+        // on its own line below, same as the <p> this replaced (see the test above) used to.
+        expect(screen.getByText('500').closest('span')).toHaveStyle({ display: 'block' });
+    });
+
     it('falls back to default units when checking for an auto-derived key with no units set', () => {
         vi.mocked(useVariant).mockReturnValue({ group: 'Uogienės', variant: 'Stiklainis', order: 0, count: 3 });
 

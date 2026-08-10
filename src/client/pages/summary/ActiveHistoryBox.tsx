@@ -4,7 +4,6 @@ import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { AmountTitle } from '~/client/common/AmountTitle';
 import { type SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
 import { SummaryHistoryBox } from '~/client/pages/summary/SummaryHistoryBox';
-import { SummaryYear } from '~/client/pages/summary/SummaryYear';
 
 export function ActiveHistoryBox(): React.ReactElement {
     const [active, setActive] = useActiveContent<SummaryHistoryData>();

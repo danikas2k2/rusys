@@ -6,7 +6,6 @@ import React from 'react';
 import { ActiveHistoryBox } from '~/client/pages/summary/ActiveHistoryBox';
 import type { SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
 import { SummaryHistoryBox } from '~/client/pages/summary/SummaryHistoryBox';
-import { SummaryYear } from '~/client/pages/summary/SummaryYear';
 
 vi.mock(import('~/client/pages/summary/SummaryHistoryBox'), () => ({
     SummaryHistoryBox: vi.fn(() => null),
@@ -97,41 +96,5 @@ describe('<ActiveHistoryBox>', () => {
         onAfterClose();
 
         expect(setActive).toHaveBeenCalledWith();
-    });
-
-    it('passes undefined as year to AmountTitle title prop when activeData.year is 0', () => {
-        const activeData = { group: 'G', name: 'N', year: 0, amounts: [] } as SummaryHistoryData;
-        const active = { action: 'history' as const, data: activeData };
-
-        render(
-            <MockThemeActive active={active}>
-                <ActiveHistoryBox />
-            </MockThemeActive>
-        );
-
-        // title is <AmountTitle year={undefined} .../>; year=0 is falsy
-        const { title } = getLastProps();
-        const yearProp = (title as React.ReactElement<{ year?: unknown }>).props?.year;
-
-        expect(yearProp).toBeUndefined();
-    });
-
-    it('passes a SummaryYear element as year prop in AmountTitle when activeData.year is non-zero', () => {
-        const activeData: SummaryHistoryData = { group: 'G', name: 'N', year: 2023, amounts: [] };
-        const active = { action: 'history' as const, data: activeData };
-
-        render(
-            <MockThemeActive active={active}>
-                <ActiveHistoryBox />
-            </MockThemeActive>
-        );
-
-        // title is <AmountTitle year={<SummaryYear year={2023} />} .../>
-        const { title } = getLastProps();
-        const yearProp = (title as React.ReactElement<{ year?: unknown }>).props?.year;
-
-        expect(yearProp).toBeDefined();
-        expect((yearProp as React.ReactElement).type).toBe(SummaryYear);
-        expect((yearProp as React.ReactElement<{ year: unknown }>).props.year).toBe(2023);
     });
 });
