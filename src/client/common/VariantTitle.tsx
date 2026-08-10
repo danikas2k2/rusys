@@ -25,9 +25,10 @@ export function VariantTitle({ group, variant }: VariantTitleProps) {
         return (
             <>
                 {label}
-                {/* component="span" - this sits inline right after `label` (and is itself often
-                    rendered inside another Text/<p>), so it can't be Text's own default <p>. */}
-                <Text size="sm" c="dimmed" component="span">
+                {/* component="span" - this is itself often rendered inside another Text/<p>, so it
+                    can't be Text's own default <p> (invalid nested-<p> HTML). display="block"
+                    still puts it on its own line below `label`, same as a real <p> would have. */}
+                <Text size="sm" c="dimmed" component="span" display="block">
                     <VariantLabel count={variantData.count} units={variantData.units} />
                 </Text>
             </>

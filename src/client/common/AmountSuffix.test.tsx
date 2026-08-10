@@ -38,6 +38,6 @@ describe('<AmountSuffix>', () => {
             </MockRedux>
         );
 
-        expect(container.querySelector('sub')).toBeEmptyDOMElement();
+        expect(container.querySelector('sub')).toBeNull();
     });
 });

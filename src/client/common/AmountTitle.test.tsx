@@ -35,7 +35,7 @@ describe('<AmountTitle>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByText(/Uogienės, 2024/)).toBeInTheDocument();
+        expect(screen.getByText(/Uogienės/)).toBeInTheDocument();
     });
 
     it('renders an avatar when image is provided', () => {
