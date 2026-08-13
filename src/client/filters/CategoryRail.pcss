@@ -1,3 +1,11 @@
+:root {
+    --category-rail-width: 12rem;
+
+    @media (width >= 54em) {
+        --category-rail-width: 14rem;
+    }
+}
+
 .ui-Tabs-root[data-tabs='category-rail'] {
     --tab-border-color: var(--mantine-color-default-border);
 
@@ -8,16 +16,10 @@
     box-sizing: border-box;
 
     @media (width >= 48em) {
-        --rail-width: 12rem;
-
-        width: var(--rail-width);
-        min-width: var(--rail-width);
-        max-width: var(--rail-width);
-        flex: 0 0 var(--rail-width);
-    }
-
-    @media (width >= 54em) {
-        --rail-width: 14rem;
+        width: var(--category-rail-width);
+        min-width: var(--category-rail-width);
+        max-width: var(--category-rail-width);
+        flex: 0 0 var(--category-rail-width);
     }
 
     .ui-Tabs-list {
