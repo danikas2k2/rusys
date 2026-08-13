@@ -30,9 +30,9 @@
 
     &[data-align-category-rail='true'] .filter {
         @media (width >= 48em) {
-            // Main content begins after the 12rem category rail, its 4px layout gap and the
-            // grid's xs padding. The filter column itself already begins after the 42px menu.
-            margin-inline-start: calc(12rem + 4px + var(--mantine-spacing-xs) - 42px);
+            // Main content begins after the responsive category rail, its 4px layout gap and
+            // the grid's xs padding. The filter column already begins after the 42px menu.
+            margin-inline-start: calc(var(--category-rail-width) + 4px + var(--mantine-spacing-xs) - 42px);
         }
     }
 }
