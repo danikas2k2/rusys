@@ -222,7 +222,7 @@ export default [
         },
     },
     {
-        files: ['*.config.{js,ts}', 'vite/**/*.{js,ts}'],
+        files: ['*.config.{js,ts,mts}', 'vite/**/*.{js,ts,mts}'],
         languageOptions: {
             parser,
             parserOptions: {

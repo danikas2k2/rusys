@@ -6,15 +6,16 @@ import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
-import { cssFallback } from './vite/plugins/css-fallback';
-import { injectTags, parseTemplate } from './vite/plugins/parse-template';
+import { cssFallback } from './vite/plugins/css-fallback.ts';
+import { injectTags, parseTemplate } from './vite/plugins/parse-template.ts';
 
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
+    const root = import.meta.dirname;
 
     return {
-        root: path.resolve(__dirname),
-        publicDir: path.resolve(__dirname, 'public'),
+        root,
+        publicDir: path.resolve(root, 'public'),
         define: {
             'process.env.LOCALE': JSON.stringify('lt-LT'),
             'process.env.DEBUG': JSON.stringify(development),
@@ -22,10 +23,10 @@ export default defineConfig(({ mode }) => {
         },
         resolve: {
             alias: {
-                '~': path.resolve(__dirname, './src'),
-                '@icons': path.resolve(__dirname, './src/client/common/icons'),
-                '@tests': path.resolve(__dirname, './src/tests'),
-                'package.json': path.resolve(__dirname, './package.json'),
+                '~': path.resolve(root, './src'),
+                '@icons': path.resolve(root, './src/client/common/icons'),
+                '@tests': path.resolve(root, './src/tests'),
+                'package.json': path.resolve(root, './package.json'),
             },
             dedupe: ['react', 'react-dom'],
             extensions: ['.jsx', '.js', '.tsx', '.ts', '.pcss', '.css', '.svg'],
@@ -34,7 +35,7 @@ export default defineConfig(({ mode }) => {
             postcss: './postcss.config.mjs',
         },
         build: {
-            outDir: path.resolve(__dirname, 'dist/public'),
+            outDir: path.resolve(root, 'dist/public'),
             emptyOutDir: true,
             sourcemap: false,
             minify: 'terser',
@@ -48,7 +49,7 @@ export default defineConfig(({ mode }) => {
             } satisfies MinifyOptions,
             cssCodeSplit: true, // emit CSS as real style assets, not JS-injected
             rollupOptions: {
-                input: path.resolve(__dirname, 'index.html'),
+                input: path.resolve(root, 'index.html'),
                 output: {
                     entryFileNames: 'assets/[name].js',
                     chunkFileNames: 'assets/[name].js',
@@ -159,9 +160,9 @@ export default defineConfig(({ mode }) => {
                 entry: 'src/client/index.tsx',
                 inject: {
                     tags: injectTags(
-                        parseTemplate(path.resolve(__dirname, 'templates/icons.html')),
-                        parseTemplate(path.resolve(__dirname, 'templates/splash.html')),
-                        parseTemplate(path.resolve(__dirname, 'templates/loader.html'))
+                        parseTemplate(path.resolve(root, 'templates/icons.html')),
+                        parseTemplate(path.resolve(root, 'templates/splash.html')),
+                        parseTemplate(path.resolve(root, 'templates/loader.html'))
                     ),
                 },
                 minify: !development && {
@@ -178,7 +179,7 @@ export default defineConfig(({ mode }) => {
             }),
             svgr({ svgrOptions: {} }),
             cssFallback({
-                outDir: path.resolve(__dirname, 'dist/public'),
+                outDir: path.resolve(root, 'dist/public'),
                 sourceFile: 'assets/index.css',
                 outputFile: 'assets/fallback.css',
             }),
@@ -191,7 +192,7 @@ export default defineConfig(({ mode }) => {
                 port: 5173,
             },
             fs: {
-                allow: [path.resolve(__dirname)],
+                allow: [root],
             },
             // Proxy API requests to Express server
             proxy: {

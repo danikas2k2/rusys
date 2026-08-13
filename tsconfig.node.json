@@ -1,18 +1,24 @@
 {
     "extends": "@tsconfig/node26",
     "include": [
-        "vite.config.ts",
-        "vite.client.config.ts",
+        "vite.config.mts",
+        "vite.client.config.mts",
+        "vite.server.config.mts",
+        "vite.deploy.config.mts",
         "vite/*.ts",
         "vite/plugins/*.ts",
-        "vitest.config.ts"
+        "vite/**/*.d.ts",
+        "vitest.config.mts"
     ],
     "compilerOptions": {
         "composite": true,
+        "noEmit": true,
+        "tsBuildInfoFile": "./node_modules/.cache/tsconfig.node.tsbuildinfo",
+        "allowImportingTsExtensions": true,
         "moduleResolution": "Bundler",
         "module": "ESNext",
         "target": "ESNext",
-        "lib": ["ESNext"],
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
         "types": ["node"],
         "strict": true,
         "esModuleInterop": true,

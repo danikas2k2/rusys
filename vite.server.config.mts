@@ -3,16 +3,18 @@ import path from 'node:path';
 import type { MinifyOptions } from 'terser';
 import { defineConfig, type BuildEnvironmentOptions, type UserConfigExport } from 'vite';
 
-import { cspInlineScriptHashes } from './vite/plugins/csp-inline-scripts';
-import { generatePackageJson } from './vite/plugins/generate-package-json';
+import { cspInlineScriptHashes } from './vite/plugins/csp-inline-scripts.ts';
+import { generatePackageJson } from './vite/plugins/generate-package-json.ts';
 
 export default defineConfig(() => {
+    const root = import.meta.dirname;
+
     return {
         publicDir: false,
         plugins: [
             cspInlineScriptHashes({
-                input: path.resolve(__dirname, 'dist/public/index.html'),
-                output: path.resolve(__dirname, 'src/server/helmetOptions.ts'),
+                input: path.resolve(root, 'dist/public/index.html'),
+                output: path.resolve(root, 'src/server/helmetOptions.ts'),
                 placeholder: /\["'unsafe-inline'"]; \/\/ Replace with actual hashes.*?$/im,
             }),
             generatePackageJson(),
@@ -21,11 +23,11 @@ export default defineConfig(() => {
             // Important: do NOT delete dist/public that was produced by the client build.
             emptyOutDir: false,
             lib: {
-                entry: path.resolve(__dirname, 'src/server/index.ts'),
+                entry: path.resolve(root, 'src/server/index.ts'),
                 formats: ['es'],
                 fileName: () => 'server.js',
             },
-            outDir: path.resolve(__dirname, 'dist'),
+            outDir: path.resolve(root, 'dist'),
             sourcemap: false,
             minify: 'terser',
             terserOptions: {
@@ -66,8 +68,8 @@ export default defineConfig(() => {
         },
         resolve: {
             alias: {
-                '~': path.resolve(__dirname, './src'),
-                '@tests': path.resolve(__dirname, './src/tests'),
+                '~': path.resolve(root, './src'),
+                '@tests': path.resolve(root, './src/tests'),
             },
             extensions: ['.jsx', '.js', '.tsx', '.ts'],
         },

@@ -2,7 +2,7 @@ import path from 'node:path';
 
 import { defineConfig, type UserConfigExport } from 'vite';
 
-import { deploy } from './vite/plugins/deploy';
+import { deploy } from './vite/plugins/deploy.ts';
 
 /**
  * Deploy-only Vite config.
@@ -17,18 +17,20 @@ import { deploy } from './vite/plugins/deploy';
  * - The `deploy()` plugin runs in `closeBundle()` and uploads existing `dist/` + docker files.
  */
 export default defineConfig(() => {
+    const root = import.meta.dirname;
+
     return {
-        root: path.resolve(__dirname),
-        publicDir: path.resolve(__dirname, 'public'),
+        root,
+        publicDir: path.resolve(root, 'public'),
         plugins: [deploy()],
         build: {
             // Do not touch the existing `dist/` output (we just want to run deploy hook).
-            outDir: path.resolve(__dirname, 'dist'),
+            outDir: path.resolve(root, 'dist'),
             emptyOutDir: false,
             write: false,
             // Minimal input so Vite can run a build lifecycle and reach closeBundle().
             rollupOptions: {
-                input: path.resolve(__dirname, 'index.html'),
+                input: path.resolve(root, 'index.html'),
             },
         },
     } satisfies UserConfigExport;
