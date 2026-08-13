@@ -2,7 +2,6 @@ import { Group } from '@mantine/core';
 import React from 'react';
 
 import { ActiveContentWrapper } from '~/client/common/ActiveContentContext';
-import { AmountViewToggle } from '~/client/common/AmountViewToggle';
 import { ProductsViewWrapper, useProductsView } from '~/client/common/ProductsViewContext';
 import { ProductsViewToggle } from '~/client/common/ProductsViewToggle';
 import { CategoryRailLayout } from '~/client/filters/CategoryRailLayout';
@@ -41,8 +40,7 @@ function SummaryPageContent() {
                 groupsWithContent={groupsWithFilteredSummary}
             >
                 <ActiveContentWrapper>
-                    <Group data-summary-header data-view={view} justify="space-between" wrap="nowrap" mb="sm">
-                        <div>{view === 'grid' && <AmountViewToggle />}</div>
+                    <Group data-summary-header data-view={view} justify="flex-end" wrap="nowrap" mb="sm">
                         <ProductsViewToggle />
                     </Group>
                     {view === 'grid' ? <SummaryGrid /> : <SummaryTable />}
