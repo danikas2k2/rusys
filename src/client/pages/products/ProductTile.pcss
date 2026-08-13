@@ -65,7 +65,9 @@
         position: relative;
         z-index: 1;
         display: grid;
-        grid-template-columns: auto 1fr;
+        // minmax(0, 1fr) lets the amounts column shrink to the tile width. A plain 1fr keeps
+        // the column's intrinsic content width, so a long amounts block can slide past the card.
+        grid-template-columns: auto minmax(0, 1fr);
         grid-template-rows: auto 1fr;
     }
 
@@ -89,9 +91,11 @@
         grid-row: 2;
         align-self: end;
         width: 100%;
+        min-width: 0;
 
         [data-amounts-rows] {
             width: 100%;
+            min-width: 0;
         }
 
         [data-amounts-row] {
