@@ -16,6 +16,28 @@ vi.mock(import('~/client/pages/summary/SummaryCell'), async () => ({
 describe('<SummaryYearBar>', () => {
     afterEach(() => vi.clearAllMocks());
 
+    it('shows the accounting period when only one year is available', () => {
+        vi.mocked(useSummary).mockReturnValue([
+            {
+                group: 'Uogienės',
+                name: 'Avietės',
+                years: [{ year: 23, amounts: [{ variant: 'p', amount: 5 }] }],
+            },
+        ]);
+        render(
+            <MockThemeActive
+                active={{
+                    action: 'history',
+                    data: { group: 'Uogienės', name: 'Avietės', year: 23, amounts: [{ variant: 'p', amount: 5 }] },
+                }}
+            >
+                <SummaryYearBar />
+            </MockThemeActive>
+        );
+
+        expect(screen.getByLabelText('23/24')).toBeChecked();
+    });
+
     it('changes the active year, total and history context', () => {
         const setActive = vi.fn();
         vi.mocked(useSummary).mockReturnValue([

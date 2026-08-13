@@ -35,7 +35,7 @@ export function SummaryYearBar() {
 
     return (
         <Stack gap="xs" data-summary-year-bar>
-            {years.length > 1 && (
+            {years.length > 0 && (
                 <SegmentedControl
                     fullWidth
                     size="sm"
