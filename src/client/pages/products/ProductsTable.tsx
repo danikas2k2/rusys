@@ -72,10 +72,6 @@ export function ProductsTable() {
 
     const annual = groups.find((g) => g.group === selectedGroup)?.annual;
     const headingWidth = annual ? 300 / (years.length + 3) : 50;
-    // layout="fixed" percentage columns squeeze down to nothing on a narrow viewport once there
-    // are enough year columns - a min-width (roughly the original ~100px-per-slot the percentages
-    // above assume) plus ScrollContainer lets it scroll horizontally past that instead of clipping.
-    const minTableWidth = annual ? 100 * (years.length + 3) : 400;
 
     const nodes = useMemo(() => buildProductTree(products, expandedIds), [products, expandedIds]);
 
@@ -107,47 +103,45 @@ export function ProductsTable() {
 
     return (
         <LoadableContent loader={useGetProducts()} hasData={useProductsHasData()}>
-            <Table.ScrollContainer minWidth={minTableWidth}>
-                <Table layout="fixed" data-table="products">
-                    <Table.Thead>
-                        <Table.Tr h="3rem">
-                            <Table.Th w={`${headingWidth}%`}>
-                                <Group gap="xs" wrap="nowrap">
-                                    <MissingOnlyCheckbox />
-                                    <AmountViewToggle />
-                                </Group>
-                            </Table.Th>
-                            {annual ? (
-                                years.map((year) => (
-                                    <Table.Th key={year} ta="center">
-                                        {year}
-                                    </Table.Th>
-                                ))
-                            ) : (
-                                <Table.Th ta="center" />
-                            )}
-                        </Table.Tr>
-                    </Table.Thead>
-                    <Table.Tbody>
-                        {nodes.map(({ product: p, depth, hasChildren, expanded, rolledUpYears }) => {
-                            const id = getId(p.group, p.name);
-                            return (
-                                <ProductRow
-                                    key={id}
-                                    product={p}
-                                    annual={annual}
-                                    hidden={(missingOnly && !p.missing) || !quickFilter(p.name)}
-                                    depth={depth}
-                                    hasChildren={hasChildren}
-                                    expanded={expanded}
-                                    onToggleExpand={toggleHandlers.get(id)}
-                                    rolledUpYears={rolledUpYears}
-                                />
-                            );
-                        })}
-                    </Table.Tbody>
-                </Table>
-            </Table.ScrollContainer>
+            <Table layout="fixed" data-table="products">
+                <Table.Thead>
+                    <Table.Tr h="3rem">
+                        <Table.Th w={`${headingWidth}%`}>
+                            <Group gap="xs" wrap="nowrap">
+                                <MissingOnlyCheckbox />
+                                <AmountViewToggle />
+                            </Group>
+                        </Table.Th>
+                        {annual ? (
+                            years.map((year) => (
+                                <Table.Th key={year} ta="center">
+                                    {year}
+                                </Table.Th>
+                            ))
+                        ) : (
+                            <Table.Th ta="center" />
+                        )}
+                    </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                    {nodes.map(({ product: p, depth, hasChildren, expanded, rolledUpYears }) => {
+                        const id = getId(p.group, p.name);
+                        return (
+                            <ProductRow
+                                key={id}
+                                product={p}
+                                annual={annual}
+                                hidden={(missingOnly && !p.missing) || !quickFilter(p.name)}
+                                depth={depth}
+                                hasChildren={hasChildren}
+                                expanded={expanded}
+                                onToggleExpand={toggleHandlers.get(id)}
+                                rolledUpYears={rolledUpYears}
+                            />
+                        );
+                    })}
+                </Table.Tbody>
+            </Table>
         </LoadableContent>
     );
 }

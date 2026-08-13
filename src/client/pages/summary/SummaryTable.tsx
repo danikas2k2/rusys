@@ -20,43 +20,37 @@ export function SummaryTable() {
 
     const summaryYears = useSummaryYears();
     const headingWidth = 200 / (summaryYears.length + 2);
-    // Same squeeze-vs-scroll concern as ProductsTable: layout="fixed" percentage columns need a
-    // min-width to fall back to horizontal scrolling instead of clipping once there are enough
-    // year columns for a narrow viewport.
-    const minTableWidth = 100 * (summaryYears.length + 2);
 
     return (
         <LoadableContent loader={useGetSummary()} hasData={useSummaryHasData()}>
-            <Table.ScrollContainer minWidth={minTableWidth}>
-                <Table layout="fixed" data-table="summary">
-                    <Table.Thead>
-                        <Table.Tr h="3rem" bd={0}>
-                            <Table.Th w={`${headingWidth}%`} py={0}>
-                                <AmountViewToggle />
+            <Table layout="fixed" data-table="summary">
+                <Table.Thead>
+                    <Table.Tr h="3rem" bd={0}>
+                        <Table.Th w={`${headingWidth}%`} py={0}>
+                            <AmountViewToggle />
+                        </Table.Th>
+                        {summaryYears.map((year) => (
+                            <Table.Th key={year}>
+                                <SummaryYear year={year} />
                             </Table.Th>
-                            {summaryYears.map((year) => (
-                                <Table.Th key={year}>
-                                    <SummaryYear year={year} />
-                                </Table.Th>
-                            ))}
-                        </Table.Tr>
-                        <Table.Tr data-shadow>
-                            <Table.Th colSpan={summaryYears.length + 1} data-shadow />
-                        </Table.Tr>
-                    </Table.Thead>
-                    <Table.Tbody>
-                        {summary.map(({ name, years }) => (
-                            <SummaryRow
-                                key={getId(selectedGroup, name)}
-                                group={selectedGroup}
-                                name={name}
-                                amounts={years}
-                                hidden={!quickFilter(name)}
-                            />
                         ))}
-                    </Table.Tbody>
-                </Table>
-            </Table.ScrollContainer>
+                    </Table.Tr>
+                    <Table.Tr data-shadow>
+                        <Table.Th colSpan={summaryYears.length + 1} data-shadow />
+                    </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                    {summary.map(({ name, years }) => (
+                        <SummaryRow
+                            key={getId(selectedGroup, name)}
+                            group={selectedGroup}
+                            name={name}
+                            amounts={years}
+                            hidden={!quickFilter(name)}
+                        />
+                    ))}
+                </Table.Tbody>
+            </Table>
         </LoadableContent>
     );
 }

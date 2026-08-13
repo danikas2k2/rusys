@@ -42,7 +42,7 @@ export function CategoryRail({
                     const isActive = group === selected;
                     return (
                         <Tabs.Tab key={group} value={group} aria-label={group} px={8} py={isActive ? 12 : 8}>
-                            <MantineGroup gap="xs" wrap="nowrap" w="100%" justify="flex-start" style={{ minWidth: 0 }}>
+                            <MantineGroup gap="xs" wrap="nowrap" justify="flex-start">
                                 <Avatar
                                     src={image || undefined}
                                     radius="sm"
