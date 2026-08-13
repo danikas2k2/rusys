@@ -195,10 +195,12 @@ select,
 // reflowing its own content internally rather than trying to fit a shrunken dialog chrome too.
 @media (width >= 48em) and (height >= 37.5em) {
     .ui-Modal-root[data-full-screen="true"] {
+        --windowed-modal-top: clamp(3rem, 10dvh, 7rem);
+
         .ui-Modal-content {
             --modal-content-flex: 0 0 min(48rem, 90vw);
             --modal-content-height: auto;
-            --modal-content-max-height: 85dvh;
+            --modal-content-max-height: calc(var(--visual-viewport-height, 100dvh) - var(--windowed-modal-top) - 5dvh);
 
             border-radius: var(--mantine-radius-default);
         }
@@ -209,10 +211,10 @@ select,
         }
 
         .ui-Modal-inner {
-            --modal-inner-y-offset: 5dvh;
+            --modal-inner-y-offset: var(--windowed-modal-top);
             --modal-inner-x-offset: 5vw;
 
-            align-items: center;
+            align-items: flex-start;
         }
     }
 }
