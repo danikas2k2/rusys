@@ -1,5 +1,50 @@
 .ui-Card-root[data-summary-tile] {
+    // Summary tiles do not render the product checkbox, but keep its column width so wrapped
+    // totals stay under the title instead of expanding leftward all the way to the card border.
+    [data-tile-icon] {
+        width: 1.25rem;
+    }
+
+    [data-tile-title] {
+        grid-column: 1 / -1;
+    }
+
     [data-tile-amounts] {
+        max-width: 100%;
         text-align: end;
+
+        > .ui-Stack-root,
+        [data-type] {
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        [data-amounts-rows],
+        [data-amounts-row] {
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        [data-amounts-row] {
+            justify-content: flex-end;
+        }
+
+        // A row can wrap only when its children are allowed to shrink below their intrinsic
+        // text width. Annotated totals also contain a source breakdown, so both levels need the
+        // same constraint to stay inside the card's padded content box.
+        [data-value],
+        [data-sources] {
+            min-width: 0;
+            max-width: 100%;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            overflow-wrap: anywhere;
+        }
+
+        [data-sources] {
+            row-gap: 0;
+        }
     }
 }
