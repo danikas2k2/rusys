@@ -1,7 +1,9 @@
+import { Group } from '@mantine/core';
 import React, { useCallback } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { AmountTitle } from '~/client/common/AmountTitle';
+import { ProductDialogIcon } from '~/client/common/ProductDialogIcon';
 import { type SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
 import { SummaryHistoryBox } from '~/client/pages/summary/SummaryHistoryBox';
 
@@ -20,7 +22,12 @@ export function ActiveHistoryBox(): React.ReactElement {
             opened={opened}
             onClose={handleClose}
             onAfterClose={handleAfterClose}
-            title={<AmountTitle {...activeData} />}
+            title={
+                <Group wrap="nowrap" gap="sm">
+                    <ProductDialogIcon photo={activeData?.photo} />
+                    <AmountTitle {...activeData} />
+                </Group>
+            }
         />
     );
 }

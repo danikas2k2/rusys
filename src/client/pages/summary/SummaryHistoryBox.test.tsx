@@ -10,6 +10,9 @@ vi.mock(import('~/client/pages/summary/SummaryHistoryBox.pcss'), () => ({}));
 vi.mock(import('~/client/pages/summary/SummaryHistoryTab'), () => ({
     SummaryHistoryTab: () => <div data-testid="summary-history-tab" />,
 }));
+vi.mock(import('~/client/pages/summary/SummaryYearBar'), () => ({
+    SummaryYearBar: () => <div data-testid="summary-year-bar" />,
+}));
 
 vi.mock(import('~/client/hooks/useLocale'), () => ({
     useLocale: vi.fn(() => 'en'),

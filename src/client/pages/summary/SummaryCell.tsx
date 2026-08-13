@@ -1,4 +1,4 @@
-import { Center, Stack, Table, Text } from '@mantine/core';
+import { Center, Group, Stack, Table, Text } from '@mantine/core';
 import React, { useCallback, useMemo } from 'react';
 
 import { ApproxAmountIcon, HomeIcon } from '@icons';
@@ -77,7 +77,7 @@ function HomeAmounts({ group, homeBalance }: HomeAmountsProps) {
     );
 }
 
-interface SummaryCellProps {
+export interface SummaryCellProps {
     group: string;
     name: string;
     year: number;
@@ -86,32 +86,60 @@ interface SummaryCellProps {
 
 export type SummaryHistoryData = ProductAmountsData;
 
-export function SummaryCell({ group, name, year, amounts }: SummaryCellProps) {
-    const setActive = useSetActiveContent<SummaryHistoryData>();
-
+export function SummaryAmounts({
+    group,
+    amounts,
+    inline = false,
+}: Pick<SummaryCellProps, 'group' | 'amounts'> & { inline?: boolean }) {
     const consumed = useMemo(() => amounts?.filter((a) => a.recycled === false) ?? [], [amounts]);
     const recycled = useMemo(() => amounts?.filter((a) => a.recycled === true) ?? [], [amounts]);
     const homeBalance = useMemo(() => amounts?.filter((a) => a.recycled == null && a.home) ?? [], [amounts]);
+
+    const showHome = homeBalance.length > 0;
+    const isEmpty = !consumed.length && !recycled.length && !showHome;
+
+    if (isEmpty) {
+        return '.';
+    }
+
+    const sections = [
+        consumed.length ? <ProductAmounts key="consumed" group={group} amounts={consumed} type="consumed" /> : null,
+        recycled.length ? <ProductAmounts key="recycled" group={group} amounts={recycled} type="recycled" /> : null,
+        showHome ? <HomeAmounts key="home" group={group} homeBalance={homeBalance} /> : null,
+    ].filter((section) => section != null);
+
+    if (inline) {
+        return (
+            <Group gap="xs" wrap="nowrap" data-summary-amounts-inline>
+                {sections.map((section, index) => (
+                    <React.Fragment key={section.key}>
+                        {index > 0 && <Text c="dimmed">/</Text>}
+                        {section}
+                    </React.Fragment>
+                ))}
+            </Group>
+        );
+    }
+
+    return (
+        <Stack gap={2} align="center">
+            {sections}
+        </Stack>
+    );
+}
+
+export function SummaryCell({ group, name, year, amounts }: SummaryCellProps) {
+    const setActive = useSetActiveContent<SummaryHistoryData>();
+    const isEmpty = !amounts?.some((amount) => amount.recycled != null || amount.home);
 
     const handleClick = useCallback(() => {
         setActive({ action: 'history', data: { group, name, year, amounts: amounts ?? [] } });
     }, [setActive, group, name, year, amounts]);
 
-    const showHome = homeBalance.length > 0;
-    const isEmpty = !consumed.length && !recycled.length && !showHome;
-
     return (
         <Table.Td data-cell data-empty={isEmpty} onClick={handleClick} style={{ cursor: 'pointer' }}>
             <Center>
-                {isEmpty ? (
-                    '.'
-                ) : (
-                    <Stack gap={2} align="center">
-                        {consumed.length ? <ProductAmounts group={group} amounts={consumed} type="consumed" /> : null}
-                        {recycled.length ? <ProductAmounts group={group} amounts={recycled} type="recycled" /> : null}
-                        {showHome && <HomeAmounts group={group} homeBalance={homeBalance} />}
-                    </Stack>
-                )}
+                <SummaryAmounts group={group} amounts={amounts} />
             </Center>
         </Table.Td>
     );

@@ -4,10 +4,15 @@ import { MockPage } from '@tests/MockPage';
 import React from 'react';
 
 import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
+import { SummaryGrid } from '~/client/pages/summary/SummaryGrid';
 import { SummaryPage } from '~/client/pages/summary/SummaryPage';
+import { SummaryTable } from '~/client/pages/summary/SummaryTable';
 
 vi.mock(import('~/client/pages/summary/SummaryTable'), () => ({
-    SummaryTable: () => <div>SummaryTable</div>,
+    SummaryTable: vi.fn(() => <div>SummaryTable</div>),
+}));
+vi.mock(import('~/client/pages/summary/SummaryGrid'), () => ({
+    SummaryGrid: vi.fn(() => <div>SummaryGrid</div>),
 }));
 vi.mock(import('~/client/toolbar/Toolbar'), () => ({
     Toolbar: () => <div>Toolbar</div>,
@@ -17,7 +22,27 @@ vi.mock(import('~/client/pages/review/ActiveReviewBox'), () => ({
 }));
 
 describe('<SummaryPage>', () => {
-    it('renders into the document', () => {
+    afterEach(() => {
+        localStorage.clear();
+        vi.clearAllMocks();
+    });
+
+    it('renders the responsive tile view by default', () => {
+        render(
+            <MockPage state={{ groups: [] }}>
+                <SummaryPage />
+            </MockPage>
+        );
+
+        expect(screen.getByText('SummaryGrid')).toBeInTheDocument();
+        expect(SummaryGrid).toHaveBeenCalledWith({}, undefined);
+        expect(SummaryTable).not.toHaveBeenCalled();
+        expect(screen.getByText('Toolbar')).toBeInTheDocument();
+    });
+
+    it('renders the table view when previously selected', () => {
+        localStorage.setItem('productsView', 'table');
+
         render(
             <MockPage state={{ groups: [] }}>
                 <SummaryPage />
@@ -25,7 +50,8 @@ describe('<SummaryPage>', () => {
         );
 
         expect(screen.getByText('SummaryTable')).toBeInTheDocument();
-        expect(screen.getByText('Toolbar')).toBeInTheDocument();
+        expect(SummaryTable).toHaveBeenCalledWith({}, undefined);
+        expect(SummaryGrid).not.toHaveBeenCalled();
     });
 
     it('only shows categories that have summary data', () => {
