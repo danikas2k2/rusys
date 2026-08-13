@@ -47,7 +47,7 @@ function ProductsPageContent({ onDelete }: { onDelete: (product: Product) => voi
     const [productsView] = useProductsView();
 
     return (
-        <Page withAdd onDelete={onDelete}>
+        <Page withAdd onDelete={onDelete} alignToolbarWithCategoryRail>
             <CategoryRailLayout
                 groups={groups}
                 selected={selectedGroup}

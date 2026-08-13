@@ -22,9 +22,11 @@ function PageContent<D = ActiveContentData>({
     onAdd,
     onDelete,
     toolbar,
+    alignToolbarWithCategoryRail,
     children,
 }: React.PropsWithChildren<{
     toolbar?: React.ReactNode;
+    alignToolbarWithCategoryRail?: boolean;
     withAdd?: boolean;
     onAdd?: React.MouseEventHandler;
     onDelete?: (data: D) => void | Promise<void>;
@@ -34,7 +36,7 @@ function PageContent<D = ActiveContentData>({
     return (
         <AppShell>
             <AppShell.Header>
-                <Toolbar>{toolbar}</Toolbar>
+                <Toolbar alignWithCategoryRail={alignToolbarWithCategoryRail}>{toolbar}</Toolbar>
             </AppShell.Header>
             <AppShell.Main ref={mainRef} data-no-scroll={useSwipeVisible()} component={ScrollArea}>
                 <PullToRefreshIndicator distance={distance} refreshing={refreshing} dragging={dragging}>
@@ -57,6 +59,7 @@ function PageContent<D = ActiveContentData>({
 export function Page<D = ActiveContentData>(
     props: React.PropsWithChildren<{
         toolbar?: React.ReactNode;
+        alignToolbarWithCategoryRail?: boolean;
         withAdd?: boolean;
         onAdd?: React.MouseEventHandler;
         onDelete?: (data: D) => void | Promise<void>;

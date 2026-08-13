@@ -33,7 +33,7 @@ function SummaryPageContent() {
     const [view] = useProductsView();
 
     return (
-        <Page>
+        <Page alignToolbarWithCategoryRail>
             <CategoryRailLayout
                 groups={groups}
                 selected={selectedGroup}
