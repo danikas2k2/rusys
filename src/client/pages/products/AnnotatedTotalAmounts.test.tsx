@@ -1,6 +1,7 @@
-import { render } from '@testing-library/react';
+import { render as testingLibraryRender } from '@testing-library/react';
 
-import React from 'react';
+import { MantineProvider } from '@mantine/core';
+import React, { type ReactNode } from 'react';
 
 import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { AnnotatedTotalAmounts } from '~/client/pages/products/AnnotatedTotalAmounts';
@@ -16,6 +17,10 @@ vi.mock(import('~/client/common/AmountSuffix'), () => ({
 vi.mock(import('~/client/state/variants/useVariantsByGroup'), () => ({
     useVariantsByGroup: vi.fn().mockReturnValue([]),
 }));
+
+function render(ui: ReactNode) {
+    return testingLibraryRender(<MantineProvider>{ui}</MantineProvider>);
+}
 
 describe('<AnnotatedTotalAmounts>', () => {
     const group = 'Uogienės';
