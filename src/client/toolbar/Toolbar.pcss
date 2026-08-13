@@ -16,11 +16,23 @@
         flex: 0 1 50%;
     }
 
-    // The search/category filter sits in the grid's "auto" column, which on a wide desktop
-    // viewport can be well over 1000px - capping it keeps the input from stretching edge to
-    // edge. No media query needed: max-width simply has no effect below this width.
     .filter {
-        max-width: 40rem;
-        margin-inline: auto;
+        width: 100%;
+
+        // On wider screens the filter stays a compact, left-anchored control instead of
+        // floating in the middle of a very wide toolbar or stretching across all available space.
+        @media (width >= 48em) {
+            max-width: 28rem;
+            justify-self: start;
+            justify-content: flex-start;
+        }
+    }
+
+    &[data-align-category-rail='true'] .filter {
+        @media (width >= 48em) {
+            // Main content begins after the 10rem category rail, its 4px layout gap and the
+            // grid's xs padding. The filter column itself already begins after the 42px menu.
+            margin-inline-start: calc(10rem + 4px + var(--mantine-spacing-xs) - 42px);
+        }
     }
 }

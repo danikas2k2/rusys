@@ -20,7 +20,7 @@ export function VariantsPage() {
     const groupsWithVariants = useGroupsWithVariants();
 
     return (
-        <Page withAdd onDelete={handleDelete}>
+        <Page withAdd onDelete={handleDelete} alignToolbarWithCategoryRail>
             <CategoryRailLayout
                 groups={groups}
                 selected={selectedGroup}

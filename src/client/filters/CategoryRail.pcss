@@ -6,6 +6,15 @@
     max-height: 100dvh;
     overflow-y: auto;
 
+    @media (width >= 48em) {
+        width: 10rem;
+        flex: 0 0 10rem;
+
+        .ui-Tabs-tab {
+            width: 100%;
+        }
+    }
+
     .ui-Tabs-list {
         &::before,
         &::after {
