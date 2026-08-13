@@ -4,6 +4,7 @@ import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests
 import { getGroups } from '~/server/data/groups';
 import { getFullSummary, getSummary, getSummaryUndates, getSummaryUpdates } from '~/server/data/summary';
 import { getVariants } from '~/server/data/variants';
+import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
 
 vi.mock(import('~/server/db'));
@@ -61,6 +62,7 @@ describe('updates', () => {
                     years: [{ year: 22, amounts: [{ variant: 'd', amount: 3, recycled: false }] }],
                 },
             ]);
+            expect(getYears).toHaveBeenCalledWith(undefined, 8);
         });
 
         it('counts a positive consumed correction dated on/after 2026-08-01 against the consumed total', async () => {
@@ -199,6 +201,7 @@ describe('updates', () => {
                     },
                 ],
             });
+            expect(getYears).toHaveBeenCalledWith(3, 8);
         });
 
         it('rolls a child product into its parent, dropping the separate child row', async () => {

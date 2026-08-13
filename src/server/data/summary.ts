@@ -10,6 +10,7 @@ import type { Group, History, Product, Summary, Variant, VariantAmount } from '~
 
 const MAX_YEARS = 3;
 const START_MONTH = 9; // September
+const SWITCH_MONTH = START_MONTH - 1; // Date#getMonth is zero-based
 
 // Corrections that move a consumed line back to discarded are recorded as a fresh update entry
 // with a positive amount (see moveConsumedToRecycled) instead of editing old history in place.
@@ -17,7 +18,7 @@ const START_MONTH = 9; // September
 // corrections predate that change and mutated history directly, so there's nothing to add here.
 const POSITIVE_CONSUMPTION_CUTOFF = new Date('2026-08-01T00:00:00.000Z');
 
-export const getSummary = async (years: number[] = getYears()): Promise<readonly Summary[]> =>
+export const getSummary = async (years: number[] = getYears(undefined, SWITCH_MONTH)): Promise<readonly Summary[]> =>
     await (
         await db()
     )
@@ -255,13 +256,12 @@ function mergeSummaries(main: readonly Summary[], home: readonly Summary[]): rea
 }
 
 async function getProductMetadata(): Promise<readonly Product[]> {
-    const products = await (
+    return await (
         await db()
     )
         .collection<Product>('products')
         .find({}, { projection: { _id: 0, group: 1, name: 1, parent: 1, image: 1, photo: 1 } })
         .toArray();
-    return products;
 }
 
 function resolveRootName(group: string, name: string, parentByKey: ReadonlyMap<string, string | undefined>): string {
@@ -327,7 +327,7 @@ export const getFullSummary = async (): Promise<
         summary: readonly Summary[];
     }>
 > => {
-    const years = getYears(MAX_YEARS);
+    const years = getYears(MAX_YEARS, SWITCH_MONTH);
     const [main, home, products] = await Promise.all([
         getSummary(years),
         getSummaryHomeBalance(),
