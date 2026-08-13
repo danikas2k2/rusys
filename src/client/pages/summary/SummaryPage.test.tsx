@@ -3,6 +3,7 @@ import { MockPage } from '@tests/MockPage';
 
 import React from 'react';
 
+import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
 import { SummaryPage } from '~/client/pages/summary/SummaryPage';
 
 vi.mock(import('~/client/pages/summary/SummaryTable'), () => ({
@@ -44,5 +45,32 @@ describe('<SummaryPage>', () => {
 
         expect(screen.getByRole('tab', { name: 'Uogienės' })).toBeInTheDocument();
         expect(screen.queryByRole('tab', { name: 'Daržovės' })).not.toBeInTheDocument();
+    });
+
+    it('greys out categories whose summary entries are all filtered out', () => {
+        render(
+            <MockPage
+                state={{
+                    groups: [
+                        { group: 'Uogienės', order: 0 },
+                        { group: 'Daržovės', order: 1 },
+                    ],
+                    summary: [
+                        { group: 'Uogienės', name: 'Avietės', years: [] },
+                        { group: 'Daržovės', name: 'Agurkai', years: [] },
+                    ],
+                }}
+            >
+                <QuickFilterWrapper initialState="avietes">
+                    <SummaryPage />
+                </QuickFilterWrapper>
+            </MockPage>
+        );
+
+        const visibleAvatar = screen.getByRole('tab', { name: 'Uogienės' }).querySelector('.mantine-Avatar-root');
+        const filteredAvatar = screen.getByRole('tab', { name: 'Daržovės' }).querySelector('.mantine-Avatar-root');
+
+        expect(visibleAvatar).toHaveAttribute('data-grayed', 'false');
+        expect(filteredAvatar).toHaveAttribute('data-grayed', 'true');
     });
 });
