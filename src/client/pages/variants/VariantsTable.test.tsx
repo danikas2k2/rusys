@@ -149,7 +149,7 @@ describe('<VariantsTable>', () => {
     });
 
     it('hides variants that do not match the quick filter', () => {
-        vi.mocked(useQuickFilterPredicate).mockReturnValue((variant) => variant === 'p');
+        vi.mocked(useQuickFilterPredicate).mockReturnValue((variant: string) => variant === 'p');
 
         render(
             <MockTheme>
