@@ -10,6 +10,7 @@ import React from 'react';
 import { DraggableContent } from '~/client/common/DraggableContent';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
+import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useVariantsHasData } from '~/client/pages/variants/hooks/useVariantsHasData';
 import { VariantsTable } from '~/client/pages/variants/VariantsTable';
@@ -29,6 +30,9 @@ vi.mock(import('~/client/state/variants/useGetVariants'));
 vi.mock(import('~/client/hooks/useLockingLoader'));
 vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
     useGroupFilter: vi.fn(),
+}));
+vi.mock(import('~/client/filters/hooks/useQuickFilterPredicate'), () => ({
+    useQuickFilterPredicate: vi.fn(),
 }));
 
 vi.mock(import('~/client/common/DraggableContent'), () => ({
@@ -69,6 +73,7 @@ describe('<VariantsTable>', () => {
         vi.mocked(useVariants).mockReturnValue(allVariants);
         vi.mocked(useGroups).mockReturnValue(getGroupsFixture());
         vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
+        vi.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
         vi.mocked(useVariantsHasData).mockReturnValue(true);
         vi.mocked(useGetVariants).mockReturnValue(mockGetVariants);
         vi.mocked(useReorderHandler).mockReturnValue({
@@ -141,6 +146,25 @@ describe('<VariantsTable>', () => {
 
         expect(callArgs.items).toHaveLength(darzovesVariants.length);
         expect(callArgs.items.every((v: Variant) => v.group === 'Daržovės')).toBe(true);
+    });
+
+    it('hides variants that do not match the quick filter', () => {
+        vi.mocked(useQuickFilterPredicate).mockReturnValue((variant) => variant === 'p');
+
+        render(
+            <MockTheme>
+                <MockRedux>
+                    <VariantsTable />
+                </MockRedux>
+            </MockTheme>
+        );
+
+        const rows = screen.getAllByTestId('variants-row');
+
+        expect(rows.find((row) => row.dataset.variant === 'p')).toHaveAttribute('data-hidden', 'false');
+        expect(rows.filter((row) => row.dataset.variant !== 'p').every((row) => row.dataset.hidden === 'true')).toBe(
+            true
+        );
     });
 
     describe('renders loader', () => {
