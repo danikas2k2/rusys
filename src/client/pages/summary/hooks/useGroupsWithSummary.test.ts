@@ -27,4 +27,15 @@ describe('useGroupsWithSummary', () => {
 
         expect(result.current).toStrictEqual(new Set());
     });
+
+    it('only includes groups with summary entries matching the predicate', () => {
+        vi.mocked(useSummary).mockReturnValue([
+            { group: 'Uogienės', name: 'Braškių' },
+            { group: 'Daržovės', name: 'Agurkai' },
+        ]);
+
+        const { result } = renderHook(() => useGroupsWithSummary((name) => name.includes('Agurkai')));
+
+        expect(result.current).toStrictEqual(new Set(['Daržovės']));
+    });
 });

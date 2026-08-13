@@ -3,6 +3,7 @@ import React from 'react';
 import { ActiveContentWrapper } from '~/client/common/ActiveContentContext';
 import { CategoryRailLayout } from '~/client/filters/CategoryRailLayout';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
+import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { Page } from '~/client/pages/common/Page';
 import { useSortedGroups } from '~/client/pages/groups/hooks/useSortedGroups';
 import { ActiveHistoryBox } from '~/client/pages/summary/ActiveHistoryBox';
@@ -11,6 +12,7 @@ import { SummaryTable } from '~/client/pages/summary/SummaryTable';
 
 export function SummaryPage() {
     const groupsWithSummary = useGroupsWithSummary();
+    const groupsWithFilteredSummary = useGroupsWithSummary(useQuickFilterPredicate());
     const groups = useSortedGroups().filter((g) => groupsWithSummary.has(g.group));
     const [selectedGroup, setSelectedGroup] = useGroupFilter();
 
@@ -20,7 +22,7 @@ export function SummaryPage() {
                 groups={groups}
                 selected={selectedGroup}
                 onSelect={setSelectedGroup}
-                groupsWithContent={groupsWithSummary}
+                groupsWithContent={groupsWithFilteredSummary}
             >
                 <ActiveContentWrapper>
                     <SummaryTable />
