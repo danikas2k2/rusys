@@ -2,7 +2,7 @@ import path from 'node:path';
 
 import { defineConfig, type Plugin } from 'vitest/config';
 
-const root = path.resolve(__dirname);
+const root = import.meta.dirname;
 const src = path.resolve(root, 'src');
 const mocks = path.resolve(root, 'vitest/__mocks__');
 

@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import type { Plugin } from 'vite';
 
-import Package from '../../package.json';
+import Package from '../../package.json' with { type: 'json' };
 
 export function generatePackageJson(): Plugin {
     return {
