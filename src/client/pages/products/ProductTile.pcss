@@ -50,6 +50,32 @@
         }
     }
 
+    // Border makes the state visible at a glance; the matching delete icon in the tile explains
+    // what the color means and keeps the status understandable without relying on color alone.
+    &[data-removing='true'] {
+        border: 2px solid var(--mantine-color-negative-filled);
+
+        [data-tile-title] {
+            padding-inline-end: 1.5rem;
+        }
+    }
+
+    [data-removing-icon] {
+        position: absolute;
+        z-index: 2;
+        inset-block-start: 0.35rem;
+        inset-inline-end: 0.35rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.35rem;
+        height: 1.35rem;
+        border-radius: 50%;
+        color: var(--mantine-color-negative-text);
+        background-color: var(--mantine-color-body);
+        box-shadow: 0 0 4px var(--mantine-color-shadow);
+    }
+
     // A zero quantity has nothing to act on beyond opening the dialog to add a first amount -
     // dimmed to read as disabled, same as the table's own greyed-out empty cells.
     &[data-empty='true'] {

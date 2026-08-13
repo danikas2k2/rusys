@@ -79,6 +79,37 @@ describe('<ProductTile>', () => {
         expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-empty', 'false');
     });
 
+    it('marks the tile and shows an icon when any product year is marked for removal', () => {
+        render(
+            <MockApp>
+                <ProductTile
+                    {...defaultProps}
+                    product={{
+                        ...product,
+                        years: [
+                            { year: 22, amounts: [{ variant: 'p', amount: 2 }] },
+                            { year: 21, amounts: [], removing: true },
+                        ],
+                    }}
+                />
+            </MockApp>
+        );
+
+        expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-removing', 'true');
+        expect(screen.getByLabelText('Marked for removal')).toBeInTheDocument();
+    });
+
+    it('does not mark the tile when no product year is marked for removal', () => {
+        render(
+            <MockApp>
+                <ProductTile {...defaultProps} />
+            </MockApp>
+        );
+
+        expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-removing', 'false');
+        expect(screen.queryByLabelText('Marked for removal')).not.toBeInTheDocument();
+    });
+
     it('does not mark an expanded parent as empty when a child has an amount, even with no own amounts', () => {
         render(
             <MockApp>

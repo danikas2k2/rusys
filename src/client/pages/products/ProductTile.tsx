@@ -2,7 +2,7 @@ import { ActionIcon, Card, Checkbox, Group, Stack, Text } from '@mantine/core';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 
-import { CollapseIcon, ExpandIcon } from '@icons';
+import { CollapseIcon, DeleteIcon, ExpandIcon } from '@icons';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { useLabels } from '~/client/hooks/useLabels';
@@ -43,6 +43,7 @@ function ProductTileComponent({
     const _ = useLabels();
     const { group, name, years } = product;
     const available = !isEmpty(years);
+    const hasRemovingYear = years?.some(({ removing }) => removing) ?? false;
 
     // A collapsed parent's tile only ever shows the rolled-up total (see totalAmounts) - opening
     // an edit dialog for it doesn't apply until it's expanded down to an individual product.
@@ -103,6 +104,7 @@ function ProductTileComponent({
             data-expanded-parent={hasChildren && expanded}
             data-photo={isPhoto}
             data-empty={isEmptyTile}
+            data-removing={hasRemovingYear}
         >
             {isPhoto && (
                 <>
@@ -145,6 +147,11 @@ function ProductTileComponent({
                     {totalAmounts.length > 0 && <AnnotatedTotalAmounts group={group} amounts={totalAmounts} />}
                 </Group>
             </Stack>
+            {hasRemovingYear && (
+                <span data-removing-icon aria-label={_('Marked for removal')} title={_('Marked for removal')}>
+                    <DeleteIcon size={16} />
+                </span>
+            )}
         </Card>
     );
 }
