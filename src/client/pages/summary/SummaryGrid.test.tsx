@@ -26,7 +26,7 @@ describe('<SummaryGrid>', () => {
         vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
         vi.mocked(useSummaryHasData).mockReturnValue(true);
         vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
-        vi.mocked(useQuickFilterPredicate).mockReturnValue((name) => name === 'Avietės');
+        vi.mocked(useQuickFilterPredicate).mockReturnValue((name: string) => name === 'Avietės');
         vi.mocked(useYears).mockReturnValue([23]);
         vi.mocked(useSummary).mockReturnValue([
             {
