@@ -42,7 +42,7 @@ export function CategoryRail({
                     const isActive = group === selected;
                     return (
                         <Tabs.Tab key={group} value={group} aria-label={group} px={8} py={isActive ? 12 : 8}>
-                            <MantineGroup gap="xs" wrap="nowrap">
+                            <MantineGroup gap="xs" wrap="nowrap" w="100%" justify="flex-start" style={{ minWidth: 0 }}>
                                 <Avatar
                                     src={image || undefined}
                                     radius="sm"
@@ -55,7 +55,14 @@ export function CategoryRail({
                                 {/* Only the avatar is meaningful below `sm` - there's no room for
                                     a label next to a narrow vertical rail on a phone; wider
                                     screens (landscape phone, tablet, desktop) have space to spare. */}
-                                <Text size="sm" visibleFrom="sm" lineClamp={1}>
+                                <Text
+                                    size="sm"
+                                    visibleFrom="sm"
+                                    lineClamp={1}
+                                    ta="start"
+                                    data-category-label
+                                    title={group}
+                                >
                                     {group}
                                 </Text>
                             </MantineGroup>

@@ -166,7 +166,11 @@ describe('<CategoryRail>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByText('Uogienės')).toBeInTheDocument();
+        const label = screen.getByText('Uogienės');
+
+        expect(label).toBeInTheDocument();
+        expect(label).toHaveAttribute('data-category-label');
+        expect(label).toHaveAttribute('title', 'Uogienės');
     });
 
     it('renders a first-letter fallback when the category has no image', () => {
