@@ -34,8 +34,8 @@ export function AppRouter() {
             <Routes>
                 <Route path={Links.CATEGORIES} element={<GroupsPage />} />
                 <Route element={<GroupFilterLayout />}>
-                    <Route path={Links.VARIANTS} element={<VariantsPage />} />
                     <Route element={<QuickFilterLayout />}>
+                        <Route path={Links.VARIANTS} element={<VariantsPage />} />
                         <Route path={Links.SUMMARY} element={<SummaryPage />} />
                         <Route path={Links.PRODUCTS} element={<ProductsPage />} />
                         <Route path="*" element={<ProductsPage />} />

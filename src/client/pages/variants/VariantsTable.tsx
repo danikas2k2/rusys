@@ -9,6 +9,7 @@ import { Label } from '~/client/common/Label';
 import { LoadableContent } from '~/client/common/LoadableContent';
 import { SortableContent } from '~/client/common/SortableContent';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
+import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { useSortedVariants } from '~/client/pages/variants/hooks/useSortedVariants';
 import { useVariantsHasData } from '~/client/pages/variants/hooks/useVariantsHasData';
 import { VariantsRow } from '~/client/pages/variants/VariantsRow';
@@ -21,6 +22,7 @@ import type { Variant } from '~/types/data';
 
 export function VariantsTable() {
     const [selectedGroup] = useGroupFilter();
+    const quickFilter = useQuickFilterPredicate();
 
     const setActive = useSetActiveContent();
     const handleDragStart = () => setActive();
@@ -89,6 +91,7 @@ export function VariantsTable() {
                                     key={getId(variant.group, variant.variant)}
                                     variant={variant}
                                     reordering={reordering}
+                                    hidden={!quickFilter(variant.variant)}
                                 />
                             ))}
                         </SortableContent>

@@ -27,4 +27,15 @@ describe('useGroupsWithVariants', () => {
 
         expect(result.current).toStrictEqual(new Set());
     });
+
+    it('only includes groups with variants matching the filter', () => {
+        vi.mocked(useVariants).mockReturnValue([
+            { variant: 'p', group: 'Uogienės', order: 0 },
+            { variant: 'x', group: 'Daržovės', order: 0 },
+        ]);
+
+        const { result } = renderHook(() => useGroupsWithVariants((variant) => variant === 'x'));
+
+        expect(result.current).toStrictEqual(new Set(['Daržovės']));
+    });
 });
