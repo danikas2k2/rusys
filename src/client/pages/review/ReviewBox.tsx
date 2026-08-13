@@ -17,6 +17,8 @@ import { useProducts } from '~/client/state/products/useProducts';
 import { ToolbarFilter } from '~/client/toolbar/ToolbarFilter';
 import { getId } from '~/client/utils/id';
 
+import './ReviewBox.pcss';
+
 export interface ReviewBoxProps {
     opened?: boolean;
     onClose?: () => void;
@@ -119,9 +121,7 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
                     <DialogIcon>
                         <ReviewIcon />
                     </DialogIcon>
-                    <Group gap="xs" wrap="nowrap" style={{ flex: 1 }}>
-                        {/* Balances the close button on the other side, so the filter sits roughly centered like on other pages */}
-                        <div style={{ width: 42 }} />
+                    <Group className="ReviewBox-filter" gap="xs" wrap="nowrap">
                         <ToolbarFilter />
                     </Group>
                 </>
