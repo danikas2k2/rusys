@@ -254,14 +254,14 @@ function mergeSummaries(main: readonly Summary[], home: readonly Summary[]): rea
     return result as unknown as readonly Summary[];
 }
 
-async function getProductParentMap(): Promise<ReadonlyMap<string, string | undefined>> {
+async function getProductMetadata(): Promise<readonly Product[]> {
     const products = await (
         await db()
     )
         .collection<Product>('products')
-        .find({}, { projection: { _id: 0, group: 1, name: 1, parent: 1 } })
+        .find({}, { projection: { _id: 0, group: 1, name: 1, parent: 1, image: 1, photo: 1 } })
         .toArray();
-    return new Map(products.map((p) => [`${p.group}/${p.name}`, p.parent]));
+    return products;
 }
 
 function resolveRootName(group: string, name: string, parentByKey: ReadonlyMap<string, string | undefined>): string {
@@ -328,16 +328,27 @@ export const getFullSummary = async (): Promise<
     }>
 > => {
     const years = getYears(MAX_YEARS);
-    const [main, home, parentByKey] = await Promise.all([
+    const [main, home, products] = await Promise.all([
         getSummary(years),
         getSummaryHomeBalance(),
-        getProductParentMap(),
+        getProductMetadata(),
     ]);
+    const parentByKey = new Map(products.map((p) => [`${p.group}/${p.name}`, p.parent]));
+    const mediaByKey = new Map(
+        products.map((p) => [
+            `${p.group}/${p.name}`,
+            { ...(p.image && { image: p.image }), ...(p.photo && { photo: p.photo }) },
+        ])
+    );
+    const summary = rollUpSummaries(mergeSummaries(main, home), parentByKey).map((item) => {
+        const media = mediaByKey.get(`${item.group}/${item.name}`);
+        return media ? { ...item, ...media } : item;
+    });
     return {
         years,
         groups: await getGroups(),
         variants: await getVariants(),
-        summary: rollUpSummaries(mergeSummaries(main, home), parentByKey),
+        summary,
     };
 };
 

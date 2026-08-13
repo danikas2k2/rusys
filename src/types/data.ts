@@ -79,6 +79,8 @@ export interface Summary {
     group: string;
     name: string;
     years?: readonly YearAmounts[];
+    image?: string;
+    photo?: string;
 }
 
 export interface Group {
