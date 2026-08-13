@@ -20,6 +20,11 @@
         min-width: var(--category-rail-width);
         max-width: var(--category-rail-width);
         flex: 0 0 var(--category-rail-width);
+
+        .ui-Tabs-tab {
+            width: 100%;
+            min-width: 0;
+        }
     }
 
     .ui-Tabs-list {
@@ -56,9 +61,7 @@
     }
 
     .ui-Tabs-tab {
-        width: 100%;
         min-width: 0;
-        max-width: 100%;
         overflow: hidden;
         box-sizing: border-box;
         text-align: start;
