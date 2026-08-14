@@ -45,7 +45,7 @@ vi.mock(import('~/client/common/DraggableContent'), () => ({
 
 vi.mock(import('~/client/table/DragOverlayTable'), () => ({
     DragOverlayTable: vi.fn(({ children }: any) => (
-        <table data-testid="drag-overlay-table">
+        <table aria-label="Drag overlay">
             <tbody>{children}</tbody>
         </table>
     )),
@@ -54,11 +54,10 @@ vi.mock(import('~/client/table/DragOverlayTable'), () => ({
 vi.mock(import('~/client/pages/variants/VariantsRow'), () => ({
     VariantsRow: vi.fn(({ variant, hidden, dragDisabled }: any) => (
         <tr
-            data-testid="variants-row"
             data-group={variant.group}
             data-variant={variant.variant}
             data-hidden={String(hidden ?? false)}
-            data-drag-disabled={String(dragDisabled ?? false)}
+            aria-disabled={dragDisabled ?? false}
         >
             <td />
             <td>{variant.variant}</td>
@@ -165,7 +164,7 @@ describe('<VariantsTable>', () => {
             </MockTheme>
         );
 
-        const rows = screen.getAllByTestId('variants-row');
+        const rows = screen.getAllByRole('row').slice(1);
 
         expect(rows.find((row) => row.dataset.variant === 'p')).toHaveAttribute('data-hidden', 'false');
         expect(rows.filter((row) => row.dataset.variant !== 'p').every((row) => row.dataset.hidden === 'true')).toBe(
@@ -184,7 +183,9 @@ describe('<VariantsTable>', () => {
             </MockTheme>
         );
 
-        expect(screen.getAllByTestId('variants-row').every((row) => row.dataset.dragDisabled === 'true')).toBe(true);
+        const rows = screen.getAllByRole('row').slice(1);
+
+        expect(rows.every((row) => row.getAttribute('aria-disabled') === 'true')).toBe(true);
     });
 
     describe('renders loader', () => {
@@ -398,9 +399,9 @@ describe('<VariantsTable>', () => {
             const result = capturedRenderDragOverlay!('Uogienės:p', [100, 200, 300]);
             const { container } = render(<MockTheme>{result as React.ReactElement}</MockTheme>);
 
-            expect(container.querySelector('[data-testid="drag-overlay-table"]')).toBeInTheDocument();
-            expect(container.querySelector('[data-testid="variants-row"]')).toBeInTheDocument();
-            expect(container.querySelector('[data-group="Uogienės"][data-variant="p"]')).toBeInTheDocument();
+            const overlay = within(container).getByRole('table', { name: 'Drag overlay' });
+
+            expect(within(overlay).getByRole('row', { name: 'p' })).toBeInTheDocument();
         });
 
         it('returns null when no variant matches the activeId', () => {

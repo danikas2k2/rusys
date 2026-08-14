@@ -12,13 +12,13 @@ import type { History } from '~/types/data';
 vi.mock(import('~/client/state/products/useMoveConsumedToRecycled'));
 
 vi.mock(import('~/client/pages/products/AmountsCell'), (): any => ({
-    AmountsCell: vi.fn(({ amounts }: any) => <span data-testid="amounts">{amounts.length}</span>),
+    AmountsCell: vi.fn(({ amounts }: any) => <span aria-label="Amount count">{amounts.length}</span>),
 }));
 
 vi.mock(import('~/client/pages/products/MoveConsumedForm'), (): any => ({
     MoveConsumedForm: vi.fn(({ lines, onMove, disabled }: any) => (
         <div>
-            <span data-testid="lines-count">{lines.length}</span>
+            <span aria-label="History line count">{lines.length}</span>
             <button type="button" disabled={disabled} onClick={() => onMove(lines[0], 1)}>
                 move
             </button>
@@ -55,8 +55,8 @@ describe('<AmountHistoryRow>', () => {
             time: 1000,
         });
 
-        expect(screen.getByTestId('amounts')).toHaveTextContent('0');
-        expect(screen.queryByTestId('lines-count')).not.toBeInTheDocument();
+        expect(screen.getByLabelText('Amount count')).toHaveTextContent('0');
+        expect(screen.queryByLabelText('History line count')).not.toBeInTheDocument();
     });
 
     it('does not expand when the entry has no consumed lines', async () => {
@@ -105,7 +105,7 @@ describe('<AmountHistoryRow>', () => {
 
         await user.click(screen.getAllByRole('row')[0]);
 
-        expect(screen.getByTestId('lines-count')).toHaveTextContent('1');
+        expect(screen.getByLabelText('History line count')).toHaveTextContent('1');
     });
 
     it('collapses the form when the row is clicked again', async () => {

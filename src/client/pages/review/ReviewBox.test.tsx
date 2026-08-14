@@ -10,8 +10,8 @@ import type { Group, Product } from '~/types/data';
 
 vi.mock(import('~/client/pages/review/ReviewTable'), () => ({
     ReviewTable: vi.fn(({ checkedKeys, onToggle, onSelectAll, onReset }: any) => (
-        <div data-testid="review-table">
-            <span data-testid="checked-keys">{[...checkedKeys].join(',')}</span>
+        <section aria-label="Product review">
+            <span aria-label="Checked products">{[...checkedKeys].join(',')}</span>
             <button type="button" onClick={() => onToggle('Uogienės:Avietės', true)}>
                 check-avietes
             </button>
@@ -30,7 +30,7 @@ vi.mock(import('~/client/pages/review/ReviewTable'), () => ({
             <button type="button" onClick={() => onReset(['Uogienės:Avietės', 'Uogienės:Braškės'])}>
                 reset
             </button>
-        </div>
+        </section>
     )),
 }));
 
@@ -154,7 +154,7 @@ describe('<ReviewBox>', () => {
             await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }));
 
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByTestId('checked-keys')).toHaveTextContent('Uogienės:Avietės');
+            expect(screen.getByLabelText('Checked products')).toHaveTextContent('Uogienės:Avietės');
         });
     });
 
@@ -168,7 +168,7 @@ describe('<ReviewBox>', () => {
         await user.click(screen.getByRole('button', { name: 'check-avietes' }));
         await user.click(screen.getByRole('button', { name: 'uncheck-avietes' }));
 
-        expect(screen.getByTestId('checked-keys')).toHaveTextContent('');
+        expect(screen.getByLabelText('Checked products')).toHaveTextContent('');
     });
 
     it('select-all checks every given key and marks the group as touched', async () => {
@@ -182,7 +182,7 @@ describe('<ReviewBox>', () => {
 
         await user.click(screen.getByRole('button', { name: 'select-all' }));
 
-        expect(screen.getByTestId('checked-keys')).toHaveTextContent('Uogienės:Avietės,Uogienės:Braškės');
+        expect(screen.getByLabelText('Checked products')).toHaveTextContent('Uogienės:Avietės,Uogienės:Braškės');
 
         await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
@@ -202,7 +202,7 @@ describe('<ReviewBox>', () => {
         await user.click(screen.getByRole('button', { name: 'select-all' }));
         await user.click(screen.getByRole('button', { name: 'unselect-all' }));
 
-        expect(screen.getByTestId('checked-keys')).toHaveTextContent('');
+        expect(screen.getByLabelText('Checked products')).toHaveTextContent('');
 
         await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
@@ -222,7 +222,7 @@ describe('<ReviewBox>', () => {
         await user.click(screen.getByRole('button', { name: 'select-all' }));
         await user.click(screen.getByRole('button', { name: 'reset' }));
 
-        expect(screen.getByTestId('checked-keys')).toHaveTextContent('');
+        expect(screen.getByLabelText('Checked products')).toHaveTextContent('');
 
         await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
@@ -241,7 +241,7 @@ describe('<ReviewBox>', () => {
 
         await user.click(screen.getByRole('button', { name: 'check-avietes' }));
 
-        expect(screen.getByTestId('checked-keys')).toHaveTextContent('Uogienės:Avietės');
+        expect(screen.getByLabelText('Checked products')).toHaveTextContent('Uogienės:Avietės');
 
         rerender(
             <MockApp state={state}>
@@ -254,7 +254,7 @@ describe('<ReviewBox>', () => {
             </MockApp>
         );
 
-        expect(screen.getByTestId('checked-keys')).toHaveTextContent('');
+        expect(screen.getByLabelText('Checked products')).toHaveTextContent('');
     });
 
     describe('apply', () => {

@@ -8,10 +8,10 @@ import { SummaryHistoryBox } from '~/client/pages/summary/SummaryHistoryBox';
 vi.mock(import('~/client/pages/summary/SummaryHistoryBox.pcss'), () => ({}));
 
 vi.mock(import('~/client/pages/summary/SummaryHistoryTab'), () => ({
-    SummaryHistoryTab: () => <div data-testid="summary-history-tab" />,
+    SummaryHistoryTab: () => <section aria-label="Summary history" />,
 }));
 vi.mock(import('~/client/pages/summary/SummaryYearBar'), () => ({
-    SummaryYearBar: () => <div data-testid="summary-year-bar" />,
+    SummaryYearBar: () => <nav aria-label="Summary years" />,
 }));
 
 vi.mock(import('~/client/hooks/useLocale'), () => ({
@@ -28,7 +28,7 @@ describe('<SummaryHistoryBox>', () => {
             </MockTheme>
         );
 
-        expect(screen.queryByTestId('summary-history-tab')).not.toBeInTheDocument();
+        expect(screen.queryByRole('region', { name: 'Summary history' })).not.toBeInTheDocument();
     });
 
     it('is open when opened=true', () => {
@@ -38,7 +38,7 @@ describe('<SummaryHistoryBox>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByTestId('summary-history-tab')).toBeInTheDocument();
+        expect(screen.getByRole('region', { name: 'Summary history' })).toBeInTheDocument();
     });
 
     it('calls onClose when the close button is clicked', () => {
@@ -88,7 +88,7 @@ describe('<SummaryHistoryBox>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByTestId('summary-history-tab')).toBeInTheDocument();
+        expect(screen.getByRole('region', { name: 'Summary history' })).toBeInTheDocument();
     });
 
     it('calls onAfterClose after exit transition ends', async () => {

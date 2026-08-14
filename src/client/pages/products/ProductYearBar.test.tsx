@@ -13,9 +13,7 @@ import { useSetProductRemoving } from '~/client/state/products/useSetProductRemo
 import type { ProductAmounts as ProductAmountsType } from '~/types/data';
 
 vi.mock(import('~/client/pages/products/AnnotatedTotalAmounts'), () => ({
-    AnnotatedTotalAmounts: vi.fn(({ amounts }: any) =>
-        amounts?.length ? <div data-testid="annotated-total">annotated-total</div> : null
-    ),
+    AnnotatedTotalAmounts: vi.fn(({ amounts }: any) => (amounts?.length ? <div>Annotated total</div> : null)),
 }));
 
 vi.mock(import('~/client/pages/products/UpdatingProductsContext'), () => ({
@@ -270,7 +268,7 @@ describe('<ProductYearBar>', () => {
             ]);
             renderBar();
 
-            expect(screen.getByTestId('annotated-total')).toBeInTheDocument();
+            expect(screen.getByText('Annotated total')).toBeInTheDocument();
             expect(AnnotatedTotalAmounts).toHaveBeenCalledWith(
                 expect.objectContaining({ group, amounts: baseActive.amounts }),
                 undefined
@@ -280,7 +278,7 @@ describe('<ProductYearBar>', () => {
         it('shows nothing when there are no amounts for the selected context', () => {
             renderBar({ ...baseActive, amounts: [] });
 
-            expect(screen.queryByTestId('annotated-total')).not.toBeInTheDocument();
+            expect(screen.queryByText('Annotated total')).not.toBeInTheDocument();
         });
 
         it('combines amounts across years for a non-annual product (year 0)', () => {
