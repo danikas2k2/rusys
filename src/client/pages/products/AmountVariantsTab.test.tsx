@@ -108,7 +108,7 @@ vi.mock(import('~/client/pages/products/AmountExpanded'), () => ({
 
 vi.mock(import('~/client/pages/products/AmountVariantRow'), () => ({
     AmountVariantRow: vi.fn(({ type, delta, onChange }: any) => (
-        <div data-testid={`edit-row-${type}`}>
+        <div>
             <button type="button" onClick={() => onChange(type, delta - 1)}>
                 {`decrease-${type}`}
             </button>
@@ -500,7 +500,7 @@ describe('<AmountVariantsTab>', () => {
         // AmountExpanded is already mocked but we need to expose the onCommentChange —
         // re-mock to also trigger comment change
         vi.mocked(AmountVariantRow).mockImplementation(({ type, delta, onChange }: any) => (
-            <div data-testid={`edit-row-${type}`}>
+            <div>
                 <button type="button" onClick={() => onChange(type, delta - 1)}>
                     {`decrease-${type}`}
                 </button>
@@ -529,7 +529,7 @@ describe('<AmountVariantsTab>', () => {
         vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
 
         vi.mocked(AmountVariantRow).mockImplementation(({ type, delta, onChange }: any) => (
-            <div data-testid={`edit-row-${type}`}>
+            <div>
                 <button type="button" onClick={() => onChange(type, delta - 1)}>
                     {`decrease-${type}`}
                 </button>
@@ -557,7 +557,7 @@ describe('<AmountVariantsTab>', () => {
         vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
 
         vi.mocked(AmountVariantRow).mockImplementation(({ type, delta, onChange }: any) => (
-            <div data-testid={`edit-row-${type}`}>
+            <div>
                 <button type="button" onClick={() => onChange(type, delta - 1)}>
                     {`decrease-${type}`}
                 </button>

@@ -33,7 +33,7 @@ vi.mock(import('~/client/pages/products/EmailAvatar'), (): any => ({
 }));
 
 vi.mock(import('~/client/pages/products/AmountsCell'), (): any => ({
-    AmountsCell: vi.fn(({ amounts }: any) => <span data-testid="amounts">{amounts.length}</span>),
+    AmountsCell: vi.fn(({ amounts }: any) => <span aria-label="Amount count">{amounts.length}</span>),
 }));
 
 describe('<SummaryHistoryTab>', () => {
@@ -91,7 +91,7 @@ describe('<SummaryHistoryTab>', () => {
 
         renderTab();
 
-        expect(screen.getByTestId('amounts')).toHaveTextContent('0');
+        expect(screen.getByLabelText('Amount count')).toHaveTextContent('0');
     });
 
     it('renders amounts for each update row', () => {
@@ -110,7 +110,7 @@ describe('<SummaryHistoryTab>', () => {
 
         renderTab();
 
-        expect(screen.getByTestId('amounts')).toHaveTextContent('2');
+        expect(screen.getByLabelText('Amount count')).toHaveTextContent('2');
     });
 
     it('renders all amounts regardless of recycled flag', () => {
@@ -130,7 +130,7 @@ describe('<SummaryHistoryTab>', () => {
         renderTab();
 
         // Both amounts passed through — AmountsCell receives 2 amounts
-        expect(screen.getByTestId('amounts')).toHaveTextContent('2');
+        expect(screen.getByLabelText('Amount count')).toHaveTextContent('2');
     });
 
     it('renders undate rows with dimmed opacity (before update rows)', () => {
@@ -231,7 +231,7 @@ describe('<SummaryHistoryTab>', () => {
         const renderOrder: number[] = [];
         vi.mocked(AmountsCell).mockImplementation(({ amounts }: any) => {
             renderOrder.push(amounts[0].amount);
-            return <span data-testid="amounts">{amounts.length}</span>;
+            return <span aria-label="Amount count">{amounts.length}</span>;
         });
 
         renderTab();

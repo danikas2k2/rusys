@@ -10,12 +10,12 @@ describe('<PullToRefreshIndicator>', () => {
         render(
             <MockTheme>
                 <PullToRefreshIndicator distance={0} refreshing={false} dragging={false}>
-                    <div data-testid="content">Content</div>
+                    <div>Content</div>
                 </PullToRefreshIndicator>
             </MockTheme>
         );
 
-        expect(screen.getByTestId('content')).toBeInTheDocument();
+        expect(screen.getByText('Content')).toBeInTheDocument();
     });
 
     it('exposes the pull distance as a CSS variable', () => {

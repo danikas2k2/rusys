@@ -38,7 +38,7 @@ vi.mock(import('~/client/common/SortableContent'), () => ({
 
 vi.mock(import('~/client/table/DragOverlayTable'), () => ({
     DragOverlayTable: vi.fn(({ children }: any) => (
-        <table data-testid="drag-overlay-table">
+        <table aria-label="Drag overlay">
             <tbody>{children}</tbody>
         </table>
     )),
@@ -46,12 +46,7 @@ vi.mock(import('~/client/table/DragOverlayTable'), () => ({
 
 vi.mock(import('~/client/pages/groups/GroupsRow'), () => ({
     GroupsRow: vi.fn(({ group, hidden, dragDisabled }: any) => (
-        <tr
-            data-testid="groups-row"
-            data-group={group.group}
-            data-hidden={String(hidden ?? false)}
-            data-drag-disabled={String(dragDisabled ?? false)}
-        >
+        <tr data-group={group.group} data-hidden={String(hidden ?? false)} aria-disabled={dragDisabled ?? false}>
             <td />
             <td>{group.group}</td>
             <td />
@@ -210,7 +205,9 @@ describe('<GroupsTable>', () => {
                 </MockTheme>
             );
 
-            expect(screen.getAllByTestId('groups-row').every((row) => row.dataset.dragDisabled === 'true')).toBe(true);
+            const rows = screen.getAllByRole('row').slice(1);
+
+            expect(rows.every((row) => row.getAttribute('aria-disabled') === 'true')).toBe(true);
         });
     });
 
@@ -338,9 +335,9 @@ describe('<GroupsTable>', () => {
             const result = capturedRenderDragOverlay!('Uogienės', [100, 200, 300]);
             const { container } = render(<MockTheme>{result as React.ReactElement}</MockTheme>);
 
-            expect(container.querySelector('[data-testid="drag-overlay-table"]')).toBeInTheDocument();
-            expect(container.querySelector('[data-testid="groups-row"]')).toBeInTheDocument();
-            expect(container.querySelector('[data-group="Uogienės"]')).toBeInTheDocument();
+            const overlay = within(container).getByRole('table', { name: 'Drag overlay' });
+
+            expect(within(overlay).getByRole('row', { name: 'Uogienės' })).toBeInTheDocument();
         });
 
         it('returns null when no group matches the activeId', () => {

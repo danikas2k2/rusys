@@ -31,10 +31,10 @@ vi.mock(import('@dnd-kit/core'), async (): Promise<any> => {
         useSensors: (...sensors: unknown[]) => sensors,
         DndContext: (props: any) => {
             lastDndContextProps = props;
-            return ReactActual.createElement('div', { 'data-testid': 'dnd-context' }, props.children);
+            return ReactActual.createElement(ReactActual.Fragment, null, props.children);
         },
         DragOverlay: (props: any) =>
-            ReactActual.createElement('div', { 'data-testid': 'drag-overlay' }, props.children),
+            ReactActual.createElement('aside', { 'aria-label': 'Drag overlay' }, props.children),
     };
 });
 
@@ -107,7 +107,7 @@ describe('<DraggableContent>', () => {
             </MockTheme>
         );
 
-        expect(screen.queryByTestId('drag-overlay')).not.toBeInTheDocument();
+        expect(screen.queryByRole('complementary', { name: 'Drag overlay' })).not.toBeInTheDocument();
 
         const row = document.querySelector('[data-id="item-1"]');
 
@@ -126,7 +126,7 @@ describe('<DraggableContent>', () => {
         expect(onDragStart).toHaveBeenCalledWith(expect.objectContaining({ active: { id: 'item-1' } }));
 
         // overlay rendered + renderDragOverlay receives activeId + measured widths
-        expect(screen.getByTestId('drag-overlay')).toBeInTheDocument();
+        expect(screen.getByRole('complementary', { name: 'Drag overlay' })).toBeInTheDocument();
 
         expect(renderDragOverlay).toHaveBeenCalledWith('item-1', [100, 200]);
         expect(screen.getByText(/Overlay: item-1/)).toBeInTheDocument();
@@ -158,7 +158,7 @@ describe('<DraggableContent>', () => {
         // Drag started for an id that has no matching [data-id] element in the DOM
         act(() => (lastDndContextProps as any).onDragStart({ active: { id: 'missing-item' } }));
 
-        expect(screen.getByTestId('drag-overlay')).toBeInTheDocument();
+        expect(screen.getByRole('complementary', { name: 'Drag overlay' })).toBeInTheDocument();
         expect(renderDragOverlay).toHaveBeenCalledWith('missing-item', []);
     });
 
@@ -178,12 +178,12 @@ describe('<DraggableContent>', () => {
 
         act(() => (lastDndContextProps as any).onDragStart({ active: { id: 'item-1' } }));
 
-        expect(screen.getByTestId('drag-overlay')).toBeInTheDocument();
+        expect(screen.getByRole('complementary', { name: 'Drag overlay' })).toBeInTheDocument();
 
         act(() => (lastDndContextProps as any).onDragEnd({ active: { id: 'item-1' } }));
 
         expect(onDragEnd).toHaveBeenCalledWith(expect.objectContaining({ active: { id: 'item-1' } }));
-        expect(screen.queryByTestId('drag-overlay')).not.toBeInTheDocument();
+        expect(screen.queryByRole('complementary', { name: 'Drag overlay' })).not.toBeInTheDocument();
     });
 
     it('does not render DragOverlay when renderDragOverlay is not provided', () => {
@@ -197,6 +197,6 @@ describe('<DraggableContent>', () => {
 
         act(() => (lastDndContextProps as any).onDragStart({ active: { id: 'item-1' } }));
 
-        expect(screen.queryByTestId('drag-overlay')).not.toBeInTheDocument();
+        expect(screen.queryByRole('complementary', { name: 'Drag overlay' })).not.toBeInTheDocument();
     });
 });

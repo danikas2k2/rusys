@@ -35,7 +35,7 @@ vi.mock(import('~/client/pages/products/EmailAvatar'), (): any => ({
 }));
 
 vi.mock(import('~/client/pages/products/AmountsCell'), (): any => ({
-    AmountsCell: vi.fn(({ amounts }: any) => <span data-testid="amounts">{amounts.length}</span>),
+    AmountsCell: vi.fn(({ amounts }: any) => <span aria-label="Amount count">{amounts.length}</span>),
 }));
 
 describe('<AmountHistoryTab>', () => {
@@ -96,7 +96,7 @@ describe('<AmountHistoryTab>', () => {
 
         renderTab();
 
-        expect(screen.getByTestId('amounts')).toHaveTextContent('2');
+        expect(screen.getByLabelText('Amount count')).toHaveTextContent('2');
     });
 
     it('uses year=0 when active context has no year', () => {
