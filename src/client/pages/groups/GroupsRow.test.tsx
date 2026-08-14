@@ -4,14 +4,28 @@ import { MockTheme } from '@tests/MockTheme';
 import { Table } from '@mantine/core';
 import React from 'react';
 
+import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { GroupsRow } from '~/client/pages/groups/GroupsRow';
 import { SortableRow } from '~/client/table/SortableRow';
 
 vi.mock(import('~/client/table/SortableRow'), () => ({
-    SortableRow: vi.fn(({ children }: { children: React.ReactNode }) => <tr>{children}</tr>),
+    SortableRow: vi.fn(({ children, onClick, onKeyDown, tabIndex }: any) => (
+        <tr onClick={onClick} onKeyDown={onKeyDown} tabIndex={tabIndex}>
+            {children}
+        </tr>
+    )),
+}));
+
+vi.mock(import('~/client/common/ActiveContentContext'), async () => ({
+    ...(await vi.importActual('~/client/common/ActiveContentContext')),
+    useSetActiveContent: vi.fn(),
 }));
 
 describe('<GroupsRow>', () => {
+    const setActive = vi.fn();
+
+    beforeEach(() => vi.mocked(useSetActiveContent).mockReturnValue(setActive));
+
     afterEach(() => vi.clearAllMocks());
 
     it('renders group name', () => {
@@ -167,6 +181,22 @@ describe('<GroupsRow>', () => {
         expect(props.disabled).toBe(true);
     });
 
+    it('passes disabled=true when filtering disables dragging', () => {
+        render(
+            <MockTheme>
+                <Table>
+                    <Table.Tbody>
+                        <GroupsRow group={{ group: 'Uogienės', order: 0 }} reordering={false} dragDisabled />
+                    </Table.Tbody>
+                </Table>
+            </MockTheme>
+        );
+
+        const props = vi.mocked(SortableRow).mock.calls[0][0];
+
+        expect(props.disabled).toBe(true);
+    });
+
     it('passes disabled=false when both reordering and hidden are false', () => {
         render(
             <MockTheme>
@@ -213,6 +243,23 @@ describe('<GroupsRow>', () => {
         const props = vi.mocked(SortableRow).mock.calls[0][0] as unknown as Record<string, unknown>;
 
         expect(props['data-hidden']).toBe(false);
+    });
+
+    it('opens the edit dialog when the row is clicked', () => {
+        const group = { group: 'Uogienės', order: 0 };
+        render(
+            <MockTheme>
+                <Table>
+                    <Table.Tbody>
+                        <GroupsRow group={group} reordering={false} />
+                    </Table.Tbody>
+                </Table>
+            </MockTheme>
+        );
+
+        screen.getByRole('row').click();
+
+        expect(setActive).toHaveBeenCalledWith({ action: 'update', data: group });
     });
 
     it('renders an avatar with the group image when set', () => {
