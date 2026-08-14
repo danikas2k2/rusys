@@ -561,10 +561,13 @@ describe('<GroupBox>', () => {
             const addButton = screen.getByRole('button', { name: 'Add' });
             act(() => fireEvent.click(addButton));
 
+            expect(addButton).toBeDisabled();
+            expect(within(addButton).queryByRole('progressbar', { hidden: true })).not.toBeInTheDocument();
+
             // Advance timers by 300ms to trigger loading state
             await act(() => vi.advanceTimersByTimeAsync(300));
 
-            expect(addButton).toBeInTheDocument();
+            expect(within(addButton).getByRole('progressbar', { hidden: true })).toBeInTheDocument();
 
             // Complete the async operation and flush microtasks
             await act(async () => {

@@ -166,6 +166,7 @@ export function ProductBox({
         formRef.current = form;
     });
 
+    const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(false);
     const groupRef = useRef<HTMLInputElement>(null);
     const nameRef = useRef<HTMLInputElement>(null);
@@ -181,7 +182,8 @@ export function ProductBox({
             });
             formRef.current.resetTouched();
             formRef.current.resetDirty();
-            // eslint-disable-next-line react-hooks/set-state-in-effect -- loading reset when modal opens
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- submission state reset when modal opens
+            setSubmitting(false);
             setLoading(false);
 
             const timer = setTimeout(() => {
@@ -269,7 +271,9 @@ export function ProductBox({
             return;
         }
 
-        // Delay loading state to avoid showing it for fast operations
+        setSubmitting(true);
+        // Delay the loader to avoid flashing it for fast operations. The submit button is
+        // disabled immediately via `submitting`, so the request cannot be started twice.
         const loadingTimeout = setTimeout(() => {
             setLoading(true);
         }, 300);
@@ -305,6 +309,7 @@ export function ProductBox({
             nameRef.current?.focus();
         } finally {
             clearTimeout(loadingTimeout);
+            setSubmitting(false);
             setLoading(false);
         }
     };
@@ -427,6 +432,7 @@ export function ProductBox({
                                 </Button>
                                 <Button
                                     type="submit"
+                                    disabled={submitting}
                                     loading={loading}
                                     leftSection={buttonContent.icon}
                                     color={!isEditing ? 'positive' : undefined}
