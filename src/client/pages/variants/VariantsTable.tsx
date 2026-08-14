@@ -10,6 +10,7 @@ import { LoadableContent } from '~/client/common/LoadableContent';
 import { SortableContent } from '~/client/common/SortableContent';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { useSortedVariants } from '~/client/pages/variants/hooks/useSortedVariants';
 import { useVariantsHasData } from '~/client/pages/variants/hooks/useVariantsHasData';
 import { VariantsRow } from '~/client/pages/variants/VariantsRow';
@@ -20,9 +21,13 @@ import { getId, parseId } from '~/client/utils/id';
 import { mapOrder } from '~/client/utils/mapOrder';
 import type { Variant } from '~/types/data';
 
+import './VariantsTable.pcss';
+
 export function VariantsTable() {
     const [selectedGroup] = useGroupFilter();
+    const [filter] = useQuickFilter();
     const quickFilter = useQuickFilterPredicate();
+    const dragDisabled = !!filter.trim();
 
     const setActive = useSetActiveContent();
     const handleDragStart = () => setActive();
@@ -58,7 +63,7 @@ export function VariantsTable() {
         const variant = variants.find((v) => getId(v.group, v.variant) === activeId);
         return variant ? (
             <DragOverlayTable columns={columns}>
-                <VariantsRow variant={variant} reordering={reordering} />
+                <VariantsRow variant={variant} reordering={reordering} dragDisabled={dragDisabled} />
             </DragOverlayTable>
         ) : null;
     };
@@ -73,7 +78,7 @@ export function VariantsTable() {
                 <Table layout="fixed" data-table="variants">
                     <Table.Thead>
                         <Table.Tr h="3rem">
-                            <Table.Th w="10%" />
+                            <Table.Th w="2rem" />
                             <Table.Th>
                                 <Title order={5}>
                                     <Label>Variant</Label>
@@ -91,6 +96,7 @@ export function VariantsTable() {
                                     key={getId(variant.group, variant.variant)}
                                     variant={variant}
                                     reordering={reordering}
+                                    dragDisabled={dragDisabled}
                                     hidden={!quickFilter(variant.variant)}
                                 />
                             ))}

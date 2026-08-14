@@ -6,13 +6,17 @@ import React from 'react';
 
 import type { ActiveContent } from '~/client/common/ActiveContentContext';
 import { ActiveVariantBox } from '~/client/pages/variants/ActiveVariantBox';
+import { useDeleteVariant } from '~/client/state/variants/useDeleteVariant';
+
+vi.mock(import('~/client/state/variants/useDeleteVariant'));
 
 vi.mock(import('~/client/pages/variants/VariantBox'), (): any => ({
-    VariantBox: ({ opened, onClose, onAfterClose, ...props }: any) =>
+    VariantBox: ({ opened, onClose, onAfterClose, onDelete, ...props }: any) =>
         opened ? (
             <dialog open>
                 <button onClick={() => onClose?.()}>Close</button>
                 <button onClick={() => onAfterClose?.()}>After Close</button>
+                <button onClick={() => onDelete?.()}>Remove variant</button>
                 <div>{props.group}</div>
                 <div>{props.variant}</div>
             </dialog>
@@ -22,6 +26,9 @@ vi.mock(import('~/client/pages/variants/VariantBox'), (): any => ({
 describe('<ActiveVariantBox>', () => {
     const active: ActiveContent = { action: 'update', data: { group: 'Uogienės', variant: 'p' } };
     const setActive = vi.fn();
+    const deleteVariant = vi.fn().mockResolvedValue(undefined);
+
+    beforeEach(() => vi.mocked(useDeleteVariant).mockReturnValue(deleteVariant));
 
     afterEach(() => vi.clearAllMocks());
 
@@ -69,5 +76,19 @@ describe('<ActiveVariantBox>', () => {
         await user.click(screen.getByRole('button', { name: 'After Close' }));
 
         expect(setActive).toHaveBeenCalledWith();
+    });
+
+    it('deletes the active variant after confirmation', async () => {
+        render(
+            <MockApp active={active} setActive={setActive}>
+                <ActiveVariantBox />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Remove variant' }));
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        expect(deleteVariant).toHaveBeenCalledWith('Uogienės', 'p');
+        expect(setActive).toHaveBeenCalledWith({ data: { group: 'Uogienės', variant: 'p' } });
     });
 });

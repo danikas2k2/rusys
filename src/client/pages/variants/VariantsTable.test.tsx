@@ -11,6 +11,7 @@ import { DraggableContent } from '~/client/common/DraggableContent';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useVariantsHasData } from '~/client/pages/variants/hooks/useVariantsHasData';
 import { VariantsTable } from '~/client/pages/variants/VariantsTable';
@@ -34,6 +35,9 @@ vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
 vi.mock(import('~/client/filters/hooks/useQuickFilterPredicate'), () => ({
     useQuickFilterPredicate: vi.fn(),
 }));
+vi.mock(import('~/client/filters/QuickFilterContext'), () => ({
+    useQuickFilter: vi.fn(),
+}));
 
 vi.mock(import('~/client/common/DraggableContent'), () => ({
     DraggableContent: vi.fn(({ children }: any) => <>{children}</>),
@@ -48,12 +52,13 @@ vi.mock(import('~/client/table/DragOverlayTable'), () => ({
 }));
 
 vi.mock(import('~/client/pages/variants/VariantsRow'), () => ({
-    VariantsRow: vi.fn(({ variant, hidden }: any) => (
+    VariantsRow: vi.fn(({ variant, hidden, dragDisabled }: any) => (
         <tr
             data-testid="variants-row"
             data-group={variant.group}
             data-variant={variant.variant}
             data-hidden={String(hidden ?? false)}
+            data-drag-disabled={String(dragDisabled ?? false)}
         >
             <td />
             <td>{variant.variant}</td>
@@ -73,6 +78,7 @@ describe('<VariantsTable>', () => {
         vi.mocked(useVariants).mockReturnValue(allVariants);
         vi.mocked(useGroups).mockReturnValue(getGroupsFixture());
         vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
+        vi.mocked(useQuickFilter).mockReturnValue(['', vi.fn()]);
         vi.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
         vi.mocked(useVariantsHasData).mockReturnValue(true);
         vi.mocked(useGetVariants).mockReturnValue(mockGetVariants);
@@ -165,6 +171,20 @@ describe('<VariantsTable>', () => {
         expect(rows.filter((row) => row.dataset.variant !== 'p').every((row) => row.dataset.hidden === 'true')).toBe(
             true
         );
+    });
+
+    it('disables every drag handle while the quick filter is active', () => {
+        vi.mocked(useQuickFilter).mockReturnValue(['p', vi.fn()]);
+
+        render(
+            <MockTheme>
+                <MockRedux>
+                    <VariantsTable />
+                </MockRedux>
+            </MockTheme>
+        );
+
+        expect(screen.getAllByTestId('variants-row').every((row) => row.dataset.dragDisabled === 'true')).toBe(true);
     });
 
     describe('renders loader', () => {

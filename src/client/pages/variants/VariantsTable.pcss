@@ -1,0 +1,32 @@
+.ui-Table-table[data-table="variants"] {
+    width: 100%;
+
+    @media (width >= 36em) {
+        max-width: 36rem;
+    }
+
+    .ui-Table-th:first-child,
+    .ui-Table-td:first-child {
+        width: 2rem;
+        padding-inline: 0;
+    }
+
+    .ui-Table-tr[data-editable] {
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            background-color: var(--mantine-color-neutral-1);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--mantine-primary-color-filled);
+            outline-offset: -2px;
+        }
+    }
+
+    [data-drag-handle][data-disabled="true"] {
+        cursor: not-allowed;
+        opacity: 0.35;
+    }
+}
