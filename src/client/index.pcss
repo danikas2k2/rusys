@@ -119,6 +119,14 @@ select,
     box-shadow: var(--mantine-shadow-md);
 }
 
+// Match the navigation menu hover contrast: the default dark-theme Select hover resolves to a
+// surface that is too light for the dropdown text.
+@media (hover: hover) {
+    .ui-Select-option:hover:not([data-combobox-selected], [data-combobox-disabled]) {
+        background-color: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
+    }
+}
+
 .ui-Input-input,
 .ui-Checkbox-input,
 .ui-Select-input {
@@ -242,6 +250,12 @@ select,
         color: var(--mantine-color-text);
         background-color: color-mix(in srgb, transparent, var(--mantine-color-neutral-3));
         border-color: var(--mantine-color-default-border);
+    }
+
+    @media (hover: hover) {
+        &:hover:where([data-idle][data-activate-on-click]:not([data-loading])) {
+            background-color: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
+        }
     }
 
     &:where([data-accept]) {

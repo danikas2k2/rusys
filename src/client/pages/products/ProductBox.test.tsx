@@ -627,6 +627,19 @@ describe('<ProductBox>', () => {
             products: [...getProductsFixture(), { group: 'Daržovės', name: 'Agurkai (Zewa)', parent: 'Agurkai' }],
         };
 
+        it('does not show the clear button when no parent is selected', () => {
+            render(
+                <MockThemeRedux state={stateWithChild}>
+                    <ProductBox opened group="Daržovės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            const wrapper = combobox.closest('.mantine-InputWrapper-root') as HTMLElement;
+
+            expect(wrapper.querySelector('.mantine-InputClearButton-root')).not.toBeInTheDocument();
+        });
+
         it('offers products from the currently selected category as parent options', () => {
             render(
                 <MockThemeRedux state={stateWithChild}>
@@ -994,7 +1007,9 @@ describe('<ProductBox>', () => {
 
             act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
 
-            expect(screen.getByRole('option', { name: 'New category' })).toBeInTheDocument();
+            expect(screen.getByRole('option', { name: 'New category' })).toContainElement(
+                screen.getByText('New category').closest('[data-separator="true"]')
+            );
         });
 
         it('selecting "New category" opens GroupBox instead of setting the field', async () => {
