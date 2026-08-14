@@ -1,16 +1,4 @@
-import {
-    Accordion,
-    ActionIcon,
-    Avatar,
-    Badge,
-    Button,
-    Flex,
-    Group,
-    Select,
-    Stack,
-    Text,
-    type ComboboxItem,
-} from '@mantine/core';
+import { Accordion, Avatar, Badge, Button, Flex, Group, Select, Stack, Text, type ComboboxItem } from '@mantine/core';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
@@ -18,7 +6,6 @@ import {
     ApproxAmountIcon,
     CancelIcon,
     DatedIcon,
-    EditIcon,
     ExpiredIcon,
     ExpiringSoonIcon,
     HomeIcon,
@@ -45,7 +32,6 @@ import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
-import { useVariants } from '~/client/state/variants/useVariants';
 import { getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { formatDateOnly, getExpiryStatus, parseDateOnly } from '~/common/utils/expiry';
 import type { ProductAmounts, VariantAmount } from '~/types/data';
@@ -145,7 +131,6 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
     const canRedo = redoCount > 0;
 
     const allVariants = useAllVariants(group);
-    const allVariantRecords = useVariants();
     const compareVariants = useGroupVariantComparator(group);
 
     const presentKeys = useMemo(() => {
@@ -204,34 +189,6 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
         [setExpandedKey]
     );
     const handleAddVariantAfterClose = useCallback(() => setAddingVariant(false), []);
-
-    // Edit and add share one VariantBox instance below (mutually exclusive - only one of
-    // addingVariant/editingVariant is ever set), rather than mounting a second modal for it.
-    const [editingVariant, setEditingVariant] = useState<string | null>(null);
-    const handleEditVariantOpen = useCallback((v: string) => setEditingVariant(v), []);
-    const handleEditVariantClose = useCallback(
-        (_newGroup?: string, newVariant?: string) => {
-            setEditingVariant(null);
-            // A rename may have invalidated any locally-tracked key referencing the old name -
-            // resetting is simplest, and matches what Cancel already does elsewhere in this file.
-            if (newVariant) {
-                setAllDeltas({});
-                setComment('');
-                setExpandedKey(null);
-                setExtraKeys([]);
-            }
-        },
-        [setExpandedKey]
-    );
-    const handleEditVariantAfterClose = useCallback(() => setEditingVariant(null), []);
-
-    const editingVariantRecord = useMemo(
-        () =>
-            editingVariant
-                ? allVariantRecords.find((v) => v.group === group && v.variant === editingVariant)
-                : undefined,
-        [editingVariant, allVariantRecords, group]
-    );
 
     const handleSelectVariant = useCallback(
         (variant: string | null) => {
@@ -480,24 +437,12 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
                                         onAddHome={isPlain && !hasHome ? () => handleAddHome(variant) : undefined}
                                         onAddExpiry={isPlain ? (value) => handlePickExpiry(variant, value) : undefined}
                                     >
-                                        <Group justify="space-between" wrap="nowrap" align="flex-start">
-                                            <VariantImagePicker
-                                                group={group}
-                                                name={name}
-                                                variant={variant}
-                                                image={variantImage}
-                                            />
-                                            {isPlain && (
-                                                <ActionIcon
-                                                    variant="subtle"
-                                                    color="gray"
-                                                    onClick={() => handleEditVariantOpen(variant)}
-                                                    aria-label={_('Edit variant')}
-                                                >
-                                                    <EditIcon size={16} />
-                                                </ActionIcon>
-                                            )}
-                                        </Group>
+                                        <VariantImagePicker
+                                            group={group}
+                                            name={name}
+                                            variant={variant}
+                                            image={variantImage}
+                                        />
                                     </AmountExpanded>
                                 </Accordion.Panel>
                             </Accordion.Item>
@@ -592,14 +537,10 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
             </Stack>
 
             <VariantBox
-                opened={addingVariant || !!editingVariant}
+                opened={addingVariant}
                 group={group}
-                variant={editingVariant ?? undefined}
-                suffix={editingVariantRecord?.suffix}
-                count={editingVariantRecord?.count}
-                units={editingVariantRecord?.units}
-                onClose={editingVariant ? handleEditVariantClose : handleAddVariantClose}
-                onAfterClose={editingVariant ? handleEditVariantAfterClose : handleAddVariantAfterClose}
+                onClose={handleAddVariantClose}
+                onAfterClose={handleAddVariantAfterClose}
             />
         </>
     );

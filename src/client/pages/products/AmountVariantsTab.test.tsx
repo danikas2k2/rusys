@@ -12,7 +12,6 @@ import { useRedoProduct } from '~/client/state/products/useRedoProduct';
 import { useUndoProduct } from '~/client/state/products/useUndoProduct';
 import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
-import { useVariants } from '~/client/state/variants/useVariants';
 import type { ProductAmounts } from '~/types/data';
 
 vi.mock(import('~/client/pages/variants/VariantBox'), () => ({
@@ -123,10 +122,6 @@ vi.mock(import('~/client/state/variants/useAllVariants'), () => ({
 
 vi.mock(import('~/client/state/variants/useVariant'), () => ({
     useVariant: vi.fn().mockReturnValue(undefined),
-}));
-
-vi.mock(import('~/client/state/variants/useVariants'), () => ({
-    useVariants: vi.fn(() => []),
 }));
 
 vi.mock(import('~/client/state/variants/useGroupVariantComparator'), () => ({
@@ -1221,95 +1216,11 @@ describe('expiry amounts', () => {
         expect(screen.getAllByText('Home amounts?')).toHaveLength(2);
     });
 
-    describe('inline variant edit', () => {
-        beforeEach(() => vi.mocked(useVariants).mockReturnValue([]));
+    it('does not render a variant edit button in an amount card', async () => {
+        renderTab();
 
-        // jsdom never runs Mantine's Collapse transition, so an expanded panel's content stays
-        // display:none-per-computed-style - getByRole excludes that unless {hidden: true}, which
-        // in turn surfaces every OTHER plain row's (collapsed) Edit button too. Scoping to the
-        // one row's own panel (via its control's aria-controls) avoids that ambiguity either way.
-        function getEditButton(rowControl: HTMLElement) {
-            const panelId = rowControl.getAttribute('aria-controls')!;
-            return within(document.getElementById(panelId)!).getByRole('button', {
-                name: 'Edit variant',
-                hidden: true,
-            });
-        }
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
 
-        function queryEditButton(rowControl: HTMLElement) {
-            const panelId = rowControl.getAttribute('aria-controls')!;
-            return within(document.getElementById(panelId)!).queryByRole('button', {
-                name: 'Edit variant',
-                hidden: true,
-            });
-        }
-
-        it('renders an edit button on a plain row once expanded', async () => {
-            renderTab();
-
-            const dControl = screen.getByRole('button', { name: /\bd\b/ });
-            await user.click(dControl);
-
-            expect(getEditButton(dControl)).toBeInTheDocument();
-        });
-
-        it('does not render an edit button on a suspicious row', async () => {
-            renderTab({
-                ...baseActive,
-                amounts: [...(baseActive.amounts ?? []), { variant: 'd', amount: 2, suspicious: true }],
-            });
-
-            const suspiciousControl = screen.getAllByRole('button', { name: /\bd\b/ })[1]!;
-            await user.click(suspiciousControl);
-
-            expect(queryEditButton(suspiciousControl)).not.toBeInTheDocument();
-        });
-
-        it('opens VariantBox with the variant group, suffix, count and units pre-filled', async () => {
-            vi.mocked(useVariants).mockReturnValue([
-                { group, variant: 'd', order: 1, suffix: 'D.', count: 2, units: 'kg' },
-            ]);
-            renderTab();
-
-            const dControl = screen.getByRole('button', { name: /\bd\b/ });
-            await user.click(dControl);
-            await user.click(getEditButton(dControl));
-
-            expect(VariantBox).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    opened: true,
-                    group,
-                    variant: 'd',
-                    suffix: 'D.',
-                    count: 2,
-                    units: 'kg',
-                }),
-                undefined
-            );
-        });
-
-        it('keeps the row expanded when the edit is cancelled', async () => {
-            renderTab();
-
-            const dControl = screen.getByRole('button', { name: /\bd\b/ });
-            await user.click(dControl);
-            await user.click(getEditButton(dControl));
-            await user.click(screen.getByRole('button', { name: 'Cancel add' }));
-
-            expect(dControl).toHaveAttribute('aria-expanded', 'true');
-        });
-
-        it('collapses the row and resets pending state after a rename', async () => {
-            renderTab();
-
-            const dControl = screen.getByRole('button', { name: /\bd\b/ });
-            await user.click(dControl);
-            await user.click(screen.getAllByText('decrease-updated')[0]);
-            await user.click(getEditButton(dControl));
-            await user.click(screen.getByRole('button', { name: 'Create variant x' }));
-
-            expect(screen.queryByRole('button', { name: 'Update' })).not.toBeInTheDocument();
-            expect(dControl).toHaveAttribute('aria-expanded', 'false');
-        });
+        expect(screen.queryByRole('button', { name: 'Edit variant', hidden: true })).not.toBeInTheDocument();
     });
 });
