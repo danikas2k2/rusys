@@ -9,9 +9,10 @@ import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
 import { useProducts } from '~/client/state/products/useProducts';
 
 vi.mock(import('~/client/pages/products/AmountBox'), (): any => ({
-    AmountBox: ({ opened, photo, onClose, onAfterClose, onEdit, onDelete }: any) =>
+    AmountBox: ({ opened, photo, title, onClose, onAfterClose, onEdit, onDelete }: any) =>
         opened ? (
             <div role="dialog" aria-label="Value box" data-photo={photo}>
+                {title}
                 <button type="button" onClick={() => onClose()}>
                     Close
                 </button>
@@ -192,7 +193,7 @@ describe('<ActiveAmountBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Edit' }));
             await user.click(screen.getByRole('button', { name: 'Save unchanged' }));
 
-            expect(mockSetActive).not.toHaveBeenCalled();
+            expect(mockSetActive).toHaveBeenCalledWith({ action: 'values', data });
         });
 
         it('points the amounts card at the new group/name after a rename', async () => {
@@ -206,8 +207,41 @@ describe('<ActiveAmountBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Save renamed' }));
 
             expect(mockSetActive).toHaveBeenCalledWith({
+                action: 'values',
                 data: { ...data, group: 'Uogienės', name: 'Serbentai' },
             });
+        });
+
+        it('renders refreshed product name and images from the products list', async () => {
+            vi.mocked(useProducts).mockReturnValue([
+                {
+                    group: data.group,
+                    name: data.name,
+                    image: '/images/new-icon.png',
+                    photo: '/images/new-photo.png',
+                },
+            ]);
+
+            render(
+                <MockThemeActive
+                    active={{
+                        action: 'values',
+                        data: { ...data, image: '/images/old-icon.png', photo: '/images/old-photo.png' },
+                    }}
+                    setActive={mockSetActive}
+                >
+                    <ActiveAmountBox />
+                </MockThemeActive>
+            );
+
+            const amountsDialog = screen.getByRole('dialog', { name: 'Value box' });
+
+            expect(amountsDialog).toHaveAttribute('data-photo', '/images/new-photo.png');
+            expect(screen.queryByRole('img', { name: data.name })).not.toBeInTheDocument();
+
+            await user.click(screen.getByRole('button', { name: 'Edit' }));
+
+            expect(screen.getByRole('dialog', { name: 'Product box' })).toHaveTextContent('/images/new-icon.png');
         });
     });
 

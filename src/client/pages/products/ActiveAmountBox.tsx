@@ -30,6 +30,24 @@ export function ActiveAmountBox(): React.ReactElement {
         [activeData, products]
     );
 
+    // Product identity/image data in active content is only the snapshot captured when the
+    // amounts dialog was opened. Keep the year/amount context from that snapshot, but render
+    // mutable product metadata from Redux so an edit underneath this dialog is reflected as
+    // soon as its API response updates the products list.
+    const currentData = useMemo(
+        () =>
+            activeData && activeProduct
+                ? {
+                      ...activeData,
+                      group: activeProduct.group,
+                      name: activeProduct.name,
+                      image: activeProduct.image,
+                      photo: activeProduct.photo,
+                  }
+                : activeData,
+        [activeData, activeProduct]
+    );
+
     const handleClose = useCallback(() => setActive({ data: activeData }), [activeData, setActive]);
 
     // Edit opens right on top of this card (see the second ProductBox instance below), rather
@@ -43,13 +61,14 @@ export function ActiveAmountBox(): React.ReactElement {
         setEditing(true);
     }, [activeData]);
 
-    // A rename or move changes the product's identity - point this card at the new one instead
-    // of leaving it referencing a group/name that no longer exists.
+    // A successful save may change both identity and visual metadata. Keep this amounts dialog
+    // active while pointing it at the saved identity; currentData above will then pick up the
+    // freshly returned image/photo from Redux as well.
     const handleEditClose = useCallback(
         (newGroup?: string, newName?: string) => {
             setEditing(false);
-            if (newGroup && newName && activeData && (newGroup !== activeData.group || newName !== activeData.name)) {
-                setActive({ data: { ...activeData, group: newGroup, name: newName } });
+            if (newGroup && newName && activeData) {
+                setActive({ action: 'values', data: { ...activeData, group: newGroup, name: newName } });
             }
         },
         [activeData, setActive]
@@ -83,21 +102,21 @@ export function ActiveAmountBox(): React.ReactElement {
         <>
             <AmountBox
                 opened={opened}
-                photo={activeData?.photo}
+                photo={currentData?.photo}
                 closeOnEscape={!editing && !removing}
                 closeOnClickOutside={!editing && !removing}
                 onClose={handleClose}
                 onAfterClose={handleAfterClose}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
-                title={<AmountTitle {...activeData} />}
+                title={<AmountTitle {...currentData} />}
             />
             <ProductBox
                 opened={editing}
                 group={activeData?.group}
                 name={activeData?.name}
                 parent={activeProduct?.parent}
-                image={activeData?.image}
+                image={currentData?.image}
                 onClose={handleEditClose}
             />
             <ConfirmationDialog
