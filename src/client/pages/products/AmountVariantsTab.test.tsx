@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
@@ -308,6 +308,38 @@ describe('<AmountVariantsTab>', () => {
             'test@example.com',
             undefined
         );
+    });
+
+    it('disables Update immediately and delays its loader', async () => {
+        vi.useFakeTimers();
+        let resolveUpdate!: () => void;
+        const mockUpdate = vi.fn(
+            () =>
+                new Promise<void>((resolve) => {
+                    resolveUpdate = resolve;
+                })
+        );
+        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
+
+        try {
+            renderTab();
+            fireEvent.click(screen.getByRole('button', { name: /\bd\b/ }));
+            fireEvent.click(screen.getAllByText('decrease-updated')[0]);
+
+            const updateButton = screen.getByRole('button', { name: /^update$/i });
+            fireEvent.click(updateButton);
+
+            expect(updateButton).toBeDisabled();
+            expect(within(updateButton).queryByRole('progressbar', { hidden: true })).not.toBeInTheDocument();
+
+            await act(() => vi.advanceTimersByTimeAsync(300));
+
+            expect(within(updateButton).getByRole('progressbar', { hidden: true })).toBeInTheDocument();
+
+            await act(async () => resolveUpdate());
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it('calls onClose after a successful update', async () => {

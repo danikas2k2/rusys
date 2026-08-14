@@ -114,6 +114,8 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
     const redoProduct = useRedoProduct();
     const products = useProducts();
     const now = new Date().getTime();
+    const [submitting, setSubmitting] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const activeData = active?.data;
     const group = activeData?.group ?? '';
@@ -348,15 +350,22 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
             }
         }
         if (activeData) {
+            setSubmitting(true);
+            const loadingTimeout = setTimeout(() => setLoading(true), 300);
             setUpdating(activeData, true);
-            await updateProduct(group, name, year, changes, profile.email, comment || undefined).finally(() =>
-                setUpdating(activeData, false)
-            );
-            setAllDeltas({});
-            setComment('');
-            setExpandedKey(null);
-            setExtraKeys([]);
-            onClose?.();
+            try {
+                await updateProduct(group, name, year, changes, profile.email, comment || undefined);
+                setAllDeltas({});
+                setComment('');
+                setExpandedKey(null);
+                setExtraKeys([]);
+                onClose?.();
+            } finally {
+                clearTimeout(loadingTimeout);
+                setUpdating(activeData, false);
+                setSubmitting(false);
+                setLoading(false);
+            }
         }
     }, [
         allDeltas,
@@ -573,7 +582,8 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
                             size="sm"
                             leftSection={<UpdateIcon size={16} />}
                             onClick={handleUpdate}
-                            disabled={!hasChanges}
+                            disabled={!hasChanges || submitting}
+                            loading={loading}
                         >
                             <Label>Update</Label>
                         </Button>
