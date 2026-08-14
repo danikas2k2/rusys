@@ -6,6 +6,7 @@ import React from 'react';
 
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useGroups } from '~/client/state/groups/useGroups';
+import { useUpdateGroup } from '~/client/state/groups/useUpdateGroup';
 import { ToolbarGroupFilter } from '~/client/toolbar/ToolbarGroupFilter';
 
 vi.mock(import('~/client/state/groups/useGroups'), () => ({
@@ -14,6 +15,7 @@ vi.mock(import('~/client/state/groups/useGroups'), () => ({
 vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
     useGroupFilter: vi.fn(),
 }));
+vi.mock(import('~/client/state/groups/useUpdateGroup'));
 
 describe('<ToolbarGroupFilter>', () => {
     const setGroup = vi.fn();
@@ -49,6 +51,25 @@ describe('<ToolbarGroupFilter>', () => {
         await user.click(screen.getByText('Uogienės'));
 
         expect(setGroup).toHaveBeenCalledWith('Uogienės');
+    });
+
+    it('creates and selects a new category', async () => {
+        const updateGroup = vi.fn().mockResolvedValue(true);
+        vi.mocked(useUpdateGroup).mockReturnValue(updateGroup);
+
+        render(
+            <MockApp>
+                <ToolbarGroupFilter />
+            </MockApp>
+        );
+
+        await user.click(screen.getByPlaceholderText('All categories'));
+        await user.click(screen.getByText('New category'));
+        await user.type(screen.getByRole('textbox', { name: 'Category name' }), 'Konservai');
+        await user.click(screen.getByRole('button', { name: 'Add' }));
+
+        expect(updateGroup).toHaveBeenCalledWith('Konservai', true, false, '');
+        expect(setGroup).toHaveBeenCalledWith('Konservai');
     });
 
     it('clears group value when clear button is clicked', async () => {

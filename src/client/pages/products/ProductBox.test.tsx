@@ -361,9 +361,6 @@ describe('<ProductBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'test');
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
-            // ProductBox now also always mounts a (closed) GroupBox for inline category creation,
-            // and Mantine's Modal keeps an empty root div with role="alertdialog" in the DOM even
-            // while closed - so the open one (with actual content) has to be picked out explicitly.
             const openAlertDialog = screen.getAllByRole('alertdialog').find((el) => el.textContent)!;
             await user.click(within(openAlertDialog).getByRole('button', { name: 'Cancel' }));
 

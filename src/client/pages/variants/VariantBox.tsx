@@ -1,6 +1,6 @@
 import { ActionIcon, Button, Group, NumberInput, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { AddIcon, CancelIcon, DeleteIcon, DuplicateIcon, UpdateIcon, VariantsNavIcon } from '@icons';
 
@@ -11,6 +11,7 @@ import { CategoryAvatar } from '~/client/filters/CategoryAvatar';
 import { CategoryOption } from '~/client/filters/CategoryOption';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabels } from '~/client/hooks/useLabels';
+import { GroupBox } from '~/client/pages/groups/GroupBox';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useCopyVariant } from '~/client/state/variants/useCopyVariant';
 import { useRenameVariant } from '~/client/state/variants/useRenameVariant';
@@ -28,6 +29,7 @@ const UNITS_OPTIONS: { value: VariantUnits; label: string }[] = [
 ];
 
 const MIN_COUNT = 0.001;
+const NEW_CATEGORY_VALUE = ':new-category';
 
 interface VariantBoxProps {
     opened?: boolean;
@@ -68,6 +70,10 @@ export function VariantBox({
     const allGroups = useGroups();
     const groups = allGroups.map((g) => g.group);
     const imageByGroup = new Map(allGroups.map((g) => [g.group, g.image]));
+    const categoryOptions = useMemo(
+        () => [...groups.map((g) => ({ value: g, label: g })), { value: NEW_CATEGORY_VALUE, label: _('New category') }],
+        [groups, _]
+    );
     const variants = useVariants();
 
     const initialUnitsResolved = initialUnits ?? DEFAULT_UNITS;
@@ -183,6 +189,15 @@ export function VariantBox({
     const renameVariant = useRenameVariant();
     const copyVariant = useCopyVariant();
 
+    const [addingCategory, setAddingCategory] = useState(false);
+    const handleAddCategoryOpen = useCallback(() => setAddingCategory(true), []);
+    const handleAddCategoryClose = useCallback((newGroup?: string) => {
+        setAddingCategory(false);
+        if (newGroup) {
+            formRef.current.setFieldValue('group', newGroup);
+        }
+    }, []);
+
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
 
@@ -268,120 +283,135 @@ export function VariantBox({
     const buttonContent = getButtonContent();
 
     return (
-        <ConfirmableModal
-            centered
-            opened={!!opened}
-            title={
-                <DialogIcon aria-label={_(isEditing ? 'Edit variant' : 'Add new variant')}>
-                    <VariantsNavIcon />
-                </DialogIcon>
-            }
-            withCloseButton
-            isDirty={() => formRef.current.isDirty()}
-            onClose={() => onClose()}
-            onExitTransitionEnd={onAfterClose}
-            closeOnEscape={!loading && closeOnEscape}
-            closeOnClickOutside={!loading && closeOnClickOutside}
-            closeButtonProps={{ 'aria-label': _('Close') }}
-        >
-            {(handleClose) => (
-                <form onSubmit={handleSubmit}>
-                    <Stack>
-                        <Select
-                            ref={groupRef}
-                            label={_('Category')}
-                            placeholder={_('Select category')}
-                            data={groups}
-                            renderOption={({ option }: { option: ComboboxItem }) => (
-                                <CategoryOption option={option} image={imageByGroup.get(option.value)} />
-                            )}
-                            leftSection={
-                                form.values.group ? (
-                                    <CategoryAvatar
-                                        image={imageByGroup.get(form.values.group)}
-                                        label={form.values.group}
-                                    />
-                                ) : undefined
-                            }
-                            withAsterisk
-                            withAlignedLabels
-                            checkIconPosition="left"
-                            disabled={loading}
-                            searchable
-                            {...form.getInputProps('group')}
-                        />
-                        <TextInput
-                            ref={nameRef}
-                            label={_('Variant name')}
-                            placeholder={_('Enter variant name')}
-                            disabled={loading}
-                            withAsterisk={showNameAsterisk}
-                            {...form.getInputProps('name')}
-                        />
-                        <Group align="flex-start" grow>
-                            <NumberInput
-                                label={_('Amount')}
-                                placeholder={_('e.g. 500')}
-                                min={MIN_COUNT}
-                                disabled={loading}
-                                withAsterisk={showCountAsterisk}
-                                {...form.getInputProps('count')}
-                                error={!!form.errors.count}
-                            />
+        <>
+            <ConfirmableModal
+                centered
+                opened={!!opened}
+                title={
+                    <DialogIcon aria-label={_(isEditing ? 'Edit variant' : 'Add new variant')}>
+                        <VariantsNavIcon />
+                    </DialogIcon>
+                }
+                withCloseButton
+                isDirty={() => formRef.current.isDirty()}
+                onClose={() => onClose()}
+                onExitTransitionEnd={onAfterClose}
+                closeOnEscape={!loading && closeOnEscape}
+                closeOnClickOutside={!loading && closeOnClickOutside}
+                closeButtonProps={{ 'aria-label': _('Close') }}
+            >
+                {(handleClose) => (
+                    <form onSubmit={handleSubmit}>
+                        <Stack>
                             <Select
-                                label={_('Units')}
-                                data={UNITS_OPTIONS}
-                                disabled={loading}
+                                ref={groupRef}
+                                label={_('Category')}
+                                placeholder={_('Select category')}
+                                data={categoryOptions}
+                                renderOption={({ option }: { option: ComboboxItem }) =>
+                                    option.value === NEW_CATEGORY_VALUE ? (
+                                        <Group gap="xs">
+                                            <AddIcon size={14} />
+                                            {option.label}
+                                        </Group>
+                                    ) : (
+                                        <CategoryOption option={option} image={imageByGroup.get(option.value)} />
+                                    )
+                                }
+                                leftSection={
+                                    form.values.group ? (
+                                        <CategoryAvatar
+                                            image={imageByGroup.get(form.values.group)}
+                                            label={form.values.group}
+                                        />
+                                    ) : undefined
+                                }
+                                withAsterisk
                                 withAlignedLabels
                                 checkIconPosition="left"
+                                disabled={loading}
                                 searchable
-                                allowDeselect={false}
-                                {...form.getInputProps('units')}
+                                {...form.getInputProps('group')}
+                                onChange={(value) =>
+                                    value === NEW_CATEGORY_VALUE
+                                        ? handleAddCategoryOpen()
+                                        : form.getInputProps('group').onChange(value)
+                                }
                             />
-                        </Group>
-                        <TextInput
-                            label={_('Suffix')}
-                            placeholder={_('Enter suffix')}
-                            disabled={loading}
-                            {...form.getInputProps('suffix')}
-                        />
-                        <Group justify={isEditing && onDelete ? 'space-between' : 'flex-end'} mt="md" wrap="nowrap">
-                            {isEditing && onDelete && (
-                                <ActionIcon
-                                    variant="outline"
-                                    color="negative"
-                                    size="lg"
+                            <TextInput
+                                ref={nameRef}
+                                label={_('Variant name')}
+                                placeholder={_('Enter variant name')}
+                                disabled={loading}
+                                withAsterisk={showNameAsterisk}
+                                {...form.getInputProps('name')}
+                            />
+                            <Group align="flex-start" grow>
+                                <NumberInput
+                                    label={_('Amount')}
+                                    placeholder={_('e.g. 500')}
+                                    min={MIN_COUNT}
                                     disabled={loading}
-                                    onClick={onDelete}
-                                    aria-label={_('Remove')}
-                                >
-                                    <DeleteIcon size={18} />
-                                </ActionIcon>
-                            )}
-                            <Group gap="sm" wrap="nowrap">
-                                <Button
-                                    variant="outline"
-                                    color="gray"
+                                    withAsterisk={showCountAsterisk}
+                                    {...form.getInputProps('count')}
+                                    error={!!form.errors.count}
+                                />
+                                <Select
+                                    label={_('Units')}
+                                    data={UNITS_OPTIONS}
                                     disabled={loading}
-                                    leftSection={<CancelIcon size={18} />}
-                                    onClick={handleClose}
-                                >
-                                    <Label>Cancel</Label>
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    disabled={submitting}
-                                    loading={loading}
-                                    leftSection={buttonContent.icon}
-                                    color={!isEditing ? 'positive' : undefined}
-                                >
-                                    <Label>{buttonContent.label}</Label>
-                                </Button>
+                                    withAlignedLabels
+                                    checkIconPosition="left"
+                                    searchable
+                                    allowDeselect={false}
+                                    {...form.getInputProps('units')}
+                                />
                             </Group>
-                        </Group>
-                    </Stack>
-                </form>
-            )}
-        </ConfirmableModal>
+                            <TextInput
+                                label={_('Suffix')}
+                                placeholder={_('Enter suffix')}
+                                disabled={loading}
+                                {...form.getInputProps('suffix')}
+                            />
+                            <Group justify={isEditing && onDelete ? 'space-between' : 'flex-end'} mt="md" wrap="nowrap">
+                                {isEditing && onDelete && (
+                                    <ActionIcon
+                                        variant="outline"
+                                        color="negative"
+                                        size="lg"
+                                        disabled={loading}
+                                        onClick={onDelete}
+                                        aria-label={_('Remove')}
+                                    >
+                                        <DeleteIcon size={18} />
+                                    </ActionIcon>
+                                )}
+                                <Group gap="sm" wrap="nowrap">
+                                    <Button
+                                        variant="outline"
+                                        color="gray"
+                                        disabled={loading}
+                                        leftSection={<CancelIcon size={18} />}
+                                        onClick={handleClose}
+                                    >
+                                        <Label>Cancel</Label>
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={submitting}
+                                        loading={loading}
+                                        leftSection={buttonContent.icon}
+                                        color={!isEditing ? 'positive' : undefined}
+                                    >
+                                        <Label>{buttonContent.label}</Label>
+                                    </Button>
+                                </Group>
+                            </Group>
+                        </Stack>
+                    </form>
+                )}
+            </ConfirmableModal>
+            {addingCategory && <GroupBox opened onClose={handleAddCategoryClose} />}
+        </>
     );
 }
