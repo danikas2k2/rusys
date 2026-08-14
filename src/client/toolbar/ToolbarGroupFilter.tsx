@@ -54,7 +54,7 @@ export function ToolbarGroupFilter() {
                 data={groupOptions}
                 renderOption={({ option }: { option: ComboboxItem }) =>
                     option.value === NEW_CATEGORY_VALUE ? (
-                        <Group gap="xs">
+                        <Group gap="xs" data-separator={!!allGroups.length}>
                             <AddIcon size={14} />
                             {option.label}
                         </Group>

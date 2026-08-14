@@ -310,7 +310,7 @@ export function VariantBox({
                                 data={categoryOptions}
                                 renderOption={({ option }: { option: ComboboxItem }) =>
                                     option.value === NEW_CATEGORY_VALUE ? (
-                                        <Group gap="xs">
+                                        <Group gap="xs" data-separator={!!groups.length}>
                                             <AddIcon size={14} />
                                             {option.label}
                                         </Group>
