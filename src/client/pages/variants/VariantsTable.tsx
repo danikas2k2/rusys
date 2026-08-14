@@ -78,7 +78,7 @@ export function VariantsTable() {
                 <Table layout="fixed" data-table="variants">
                     <Table.Thead>
                         <Table.Tr h="3rem">
-                            <Table.Th w="2rem" />
+                            <Table.Th w="2.2rem" />
                             <Table.Th>
                                 <Title order={5}>
                                     <Label>Variant</Label>

@@ -6,13 +6,17 @@ import React from 'react';
 
 import type { ActiveContent } from '~/client/common/ActiveContentContext';
 import { ActiveGroupBox } from '~/client/pages/groups/ActiveGroupBox';
+import { useDeleteGroup } from '~/client/state/groups/useDeleteGroup';
+
+vi.mock(import('~/client/state/groups/useDeleteGroup'));
 
 vi.mock(import('~/client/pages/groups/GroupBox'), (): any => ({
-    GroupBox: ({ opened, onClose, onAfterClose, ...props }: any) =>
+    GroupBox: ({ opened, onClose, onAfterClose, onDelete, ...props }: any) =>
         opened ? (
             <dialog open>
                 <button onClick={() => onClose?.()}>Close</button>
                 <button onClick={() => onAfterClose?.()}>After Close</button>
+                <button onClick={() => onDelete?.()}>Remove category</button>
                 <div>{props.group}</div>
             </dialog>
         ) : null,
@@ -21,6 +25,9 @@ vi.mock(import('~/client/pages/groups/GroupBox'), (): any => ({
 describe('<ActiveGroupBox>', () => {
     const active: ActiveContent = { action: 'update', data: { group: 'Uogienės' } };
     const setActive = vi.fn();
+    const deleteGroup = vi.fn().mockResolvedValue(undefined);
+
+    beforeEach(() => vi.mocked(useDeleteGroup).mockReturnValue(deleteGroup));
 
     afterEach(() => vi.clearAllMocks());
 
@@ -67,5 +74,19 @@ describe('<ActiveGroupBox>', () => {
         await user.click(screen.getByRole('button', { name: 'After Close' }));
 
         expect(setActive).toHaveBeenCalledWith();
+    });
+
+    it('deletes the active category after confirmation', async () => {
+        render(
+            <MockApp active={active} setActive={setActive}>
+                <ActiveGroupBox />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Remove category' }));
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        expect(deleteGroup).toHaveBeenCalledWith('Uogienės');
+        expect(setActive).toHaveBeenCalledWith({ data: { group: 'Uogienės' } });
     });
 });

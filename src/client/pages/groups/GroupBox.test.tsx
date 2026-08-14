@@ -101,6 +101,30 @@ describe('<GroupBox>', () => {
         expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
     });
 
+    it('shows icon-only removal only while editing and calls its handler', async () => {
+        const onDelete = vi.fn();
+        const { rerender } = render(
+            <MockApp state={state}>
+                <GroupBox opened onClose={onClose} onDelete={onDelete} />
+            </MockApp>
+        );
+
+        expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
+
+        rerender(
+            <MockApp state={state}>
+                <GroupBox opened group="Daržovės" onClose={onClose} onDelete={onDelete} />
+            </MockApp>
+        );
+        const remove = screen.getByRole('button', { name: 'Remove' });
+
+        expect(remove).not.toHaveTextContent('Remove');
+
+        await user.click(remove);
+
+        expect(onDelete).toHaveBeenCalledTimes(1);
+    });
+
     it('renders with the review checkbox checked when initially true', () => {
         render(
             <MockApp state={state}>

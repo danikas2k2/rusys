@@ -45,8 +45,13 @@ vi.mock(import('~/client/table/DragOverlayTable'), () => ({
 }));
 
 vi.mock(import('~/client/pages/groups/GroupsRow'), () => ({
-    GroupsRow: vi.fn(({ group, hidden }: any) => (
-        <tr data-testid="groups-row" data-group={group.group} data-hidden={String(hidden ?? false)}>
+    GroupsRow: vi.fn(({ group, hidden, dragDisabled }: any) => (
+        <tr
+            data-testid="groups-row"
+            data-group={group.group}
+            data-hidden={String(hidden ?? false)}
+            data-drag-disabled={String(dragDisabled ?? false)}
+        >
             <td />
             <td>{group.group}</td>
             <td />
@@ -62,6 +67,7 @@ describe('<GroupsTable>', () => {
 
     beforeEach(() => {
         vi.mocked(useGroups).mockReturnValue(getGroupsFixture());
+        vi.mocked(useQuickFilter).mockReturnValue(['', vi.fn()]);
         vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
         vi.mocked(useGroupsHasData).mockReturnValue(true);
         vi.mocked(useGetGroups).mockReturnValue(mockGetGroups);
@@ -191,6 +197,20 @@ describe('<GroupsTable>', () => {
 
             expect(uogienesRow).toBeInTheDocument();
             expect(darzovesRow).toHaveAttribute('data-hidden', 'true');
+        });
+
+        it('disables every drag handle while the quick filter is active', () => {
+            vi.mocked(useQuickFilter).mockReturnValue(['Uog', vi.fn()]);
+
+            render(
+                <MockTheme>
+                    <MockRedux>
+                        <GroupsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(screen.getAllByTestId('groups-row').every((row) => row.dataset.dragDisabled === 'true')).toBe(true);
         });
     });
 

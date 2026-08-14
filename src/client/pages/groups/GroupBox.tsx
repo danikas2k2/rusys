@@ -1,8 +1,8 @@
-import { Button, Checkbox, Group, Stack, TextInput } from '@mantine/core';
+import { ActionIcon, Button, Checkbox, Group, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { AddIcon, AnnualIcon, CancelIcon, CategoriesNavIcon, ReviewIcon, UpdateIcon } from '@icons';
+import { AddIcon, AnnualIcon, CancelIcon, CategoriesNavIcon, DeleteIcon, ReviewIcon, UpdateIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { DialogIcon } from '~/client/common/DialogIcon';
@@ -23,6 +23,9 @@ interface GroupBoxProps {
     image?: string;
     onClose: (group?: string) => void;
     onAfterClose?: () => void;
+    onDelete?: () => void;
+    closeOnEscape?: boolean;
+    closeOnClickOutside?: boolean;
 }
 
 export function GroupBox({
@@ -33,6 +36,9 @@ export function GroupBox({
     opened,
     onClose,
     onAfterClose,
+    onDelete,
+    closeOnEscape = true,
+    closeOnClickOutside = true,
 }: GroupBoxProps) {
     const isEditing = !!initialGroup;
 
@@ -167,8 +173,8 @@ export function GroupBox({
             isDirty={() => formRef.current.isDirty()}
             onClose={() => onClose()}
             onExitTransitionEnd={onAfterClose}
-            closeOnEscape={!loading}
-            closeOnClickOutside={!loading}
+            closeOnEscape={!loading && closeOnEscape}
+            closeOnClickOutside={!loading && closeOnClickOutside}
             closeButtonProps={{ 'aria-label': _('Close') }}
         >
             {(handleClose) => (
@@ -211,24 +217,38 @@ export function GroupBox({
                             onRemove={handleImageRemove}
                             disabled={loading}
                         />
-                        <Group justify="flex-end" mt="md">
-                            <Button
-                                variant="outline"
-                                color="gray"
-                                disabled={loading}
-                                leftSection={<CancelIcon size={18} />}
-                                onClick={handleClose}
-                            >
-                                <Label>Cancel</Label>
-                            </Button>
-                            <Button
-                                type="submit"
-                                loading={loading}
-                                leftSection={isEditing ? <UpdateIcon size={18} /> : <AddIcon size={18} />}
-                                color={!isEditing ? 'positive' : undefined}
-                            >
-                                <Label>{isEditing ? 'Update' : 'Add'}</Label>
-                            </Button>
+                        <Group justify={isEditing && onDelete ? 'space-between' : 'flex-end'} mt="md" wrap="nowrap">
+                            {isEditing && onDelete && (
+                                <ActionIcon
+                                    variant="outline"
+                                    color="negative"
+                                    size="lg"
+                                    disabled={loading}
+                                    onClick={onDelete}
+                                    aria-label={_('Remove')}
+                                >
+                                    <DeleteIcon size={18} />
+                                </ActionIcon>
+                            )}
+                            <Group gap="sm" wrap="nowrap">
+                                <Button
+                                    variant="outline"
+                                    color="gray"
+                                    disabled={loading}
+                                    leftSection={<CancelIcon size={18} />}
+                                    onClick={handleClose}
+                                >
+                                    <Label>Cancel</Label>
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    loading={loading}
+                                    leftSection={isEditing ? <UpdateIcon size={18} /> : <AddIcon size={18} />}
+                                    color={!isEditing ? 'positive' : undefined}
+                                >
+                                    <Label>{isEditing ? 'Update' : 'Add'}</Label>
+                                </Button>
+                            </Group>
                         </Group>
                     </Stack>
                 </form>

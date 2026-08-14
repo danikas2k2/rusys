@@ -3,6 +3,7 @@ import React from 'react';
 
 import { AnnualIcon, ReviewIcon } from '@icons';
 
+import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';
 import { SortableRow } from '~/client/table/SortableRow';
 import type { Group } from '~/types/data';
@@ -10,14 +11,42 @@ import type { Group } from '~/types/data';
 interface GroupsRowProps {
     group: Group;
     reordering: boolean;
+    dragDisabled?: boolean;
     hidden?: boolean;
 }
 
-export function GroupsRow({ group, reordering, hidden = false }: GroupsRowProps): React.ReactElement {
+export function GroupsRow({
+    group,
+    reordering,
+    dragDisabled = false,
+    hidden = false,
+}: GroupsRowProps): React.ReactElement {
     const annual = group.annual ?? true;
     const review = group.review;
+    const setActive = useSetActiveContent<Group>();
+    const handleEdit = (event: React.MouseEvent | React.KeyboardEvent) => {
+        if ((event.target as HTMLElement).closest('[data-drag-handle]')) {
+            return;
+        }
+        if ('key' in event && event.key !== 'Enter' && event.key !== ' ') {
+            return;
+        }
+        event.preventDefault();
+        setActive({ action: 'update', data: group });
+    };
+
     return (
-        <SortableRow id={group.group} data={group} disabled={reordering || hidden} data-hidden={hidden}>
+        <SortableRow
+            id={group.group}
+            data={group}
+            disabled={reordering || dragDisabled || hidden}
+            swipeable={false}
+            data-hidden={hidden}
+            data-editable
+            tabIndex={hidden ? -1 : 0}
+            onClick={handleEdit}
+            onKeyDown={handleEdit}
+        >
             <Table.Td>
                 {group.image && (
                     <Avatar src={group.image} radius="sm" size="sm" alt={group.group}>
