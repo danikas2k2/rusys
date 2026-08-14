@@ -193,9 +193,8 @@ describe('<ProductBox>', () => {
             await user.upload(imageInput, file);
             const removeButton = await screen.findByRole('button', { name: 'Remove image' });
 
-            // Erroring the dropzone's own preview image, not the (also now image-backed) dialog
-            // header watermark - scope via the dropzone's Stack, which the remove button is a
-            // direct child of, rather than the first <img> in the whole document.
+            // Erroring the dropzone's own preview image, not the image-backed dialog header
+            // watermark - the remove button shares a positioned wrapper with the preview.
             fireEvent.error(removeButton.parentElement!.querySelector('img')!);
 
             expect(container.querySelector('.tabler-icon-photo')).toBeInTheDocument();

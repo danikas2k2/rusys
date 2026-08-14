@@ -653,7 +653,7 @@ describe('<AmountVariantsTab>', () => {
 
         await user.click(screen.getByRole('button', { name: /\bd\b/ }));
 
-        expect(screen.getByText('Remove image')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Remove image' })).toBeInTheDocument();
     });
 
     it('auto-selects the sole variant when nothing is entered yet', () => {

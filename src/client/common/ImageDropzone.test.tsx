@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
+import { rem } from '@mantine/core';
 import React from 'react';
 
 import { ImageDropzone } from '~/client/common/ImageDropzone';
@@ -71,7 +72,13 @@ describe('<ImageDropzone>', () => {
             </MockApp>
         );
 
-        expect(screen.getByRole('button', { name: 'Remove image' })).toBeInTheDocument();
+        const removeButton = screen.getByRole('button', { name: 'Remove image' });
+
+        expect(removeButton).toHaveAttribute('data-variant', 'filled');
+        expect(removeButton).toHaveStyle({ position: 'absolute' });
+        expect(removeButton.style.insetInlineEnd).toBe(rem(8));
+        expect(removeButton.style.bottom).toBe(rem(8));
+        expect(removeButton.querySelector('.tabler-icon-trash')).toBeInTheDocument();
     });
 
     it('falls back to a photo icon when the image fails to load', () => {

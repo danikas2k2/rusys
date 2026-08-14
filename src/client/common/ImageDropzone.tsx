@@ -1,8 +1,8 @@
-import { Alert, Avatar, Button, Group, rem, Stack, Text } from '@mantine/core';
+import { ActionIcon, Alert, Avatar, Box, Group, rem, Stack, Text } from '@mantine/core';
 import { Dropzone, type FileRejection, type FileWithPath } from '@mantine/dropzone';
 import React, { useCallback, useState } from 'react';
 
-import { ErrorAlertIcon, ImageAcceptIcon, ImageDropzoneIdleIcon, ImageRejectIcon, RemoveImageIcon } from '@icons';
+import { DeleteIcon, ErrorAlertIcon, ImageAcceptIcon, ImageDropzoneIdleIcon, ImageRejectIcon } from '@icons';
 
 import { Label } from '~/client/common/Label';
 import { useLabels } from '~/client/hooks/useLabels';
@@ -73,62 +73,68 @@ export function ImageDropzone({ image, label, onDrop, onRemove, disabled, compac
 
     return (
         <Stack gap={compact ? 4 : undefined}>
-            <Dropzone
-                onDrop={handleDrop}
-                onReject={handleReject}
-                maxSize={MAX_IMAGE_FILE_SIZE}
-                accept={IMAGE_MIME_TYPES}
-                multiple={false}
-                disabled={disabled || saving}
-            >
-                <Group
-                    justify={compact ? undefined : 'center'}
-                    gap={compact ? 'sm' : 'md'}
-                    style={{ minHeight: compact ? undefined : rem(80), pointerEvents: 'none' }}
-                >
-                    {image ? (
-                        // If the image fails to load, Mantine will render children as fallback.
-                        <Avatar src={image} radius="md" size={avatarSize} aria-label={label}>
-                            <ImageAcceptIcon size={previewIconSize} stroke={1.5} />
-                        </Avatar>
-                    ) : (
-                        <>
-                            <Dropzone.Accept>
-                                <ImageAcceptIcon size={idleIconSize} stroke={1.5} />
-                            </Dropzone.Accept>
-                            <Dropzone.Reject>
-                                <ImageRejectIcon size={idleIconSize} stroke={1.5} />
-                            </Dropzone.Reject>
-                            <Dropzone.Idle>
-                                <ImageDropzoneIdleIcon size={idleIconSize} stroke={1.5} />
-                            </Dropzone.Idle>
-                        </>
-                    )}
-                    <div>
-                        <Text size="sm" c="dimmed" inline={!compact}>
-                            <Label>Upload image</Label>
-                        </Text>
-                        {!image && (
-                            <Text size="xs" c="dimmed" inline={!compact}>
-                                {_('File should not exceed')} {MAX_IMAGE_FILE_MB}MB
-                            </Text>
-                        )}
-                    </div>
-                </Group>
-            </Dropzone>
-            {!!image && (
-                <Button
-                    variant="subtle"
-                    color="gray"
-                    size="xs"
-                    leftSection={<RemoveImageIcon size={removeIconSize} />}
-                    onClick={handleRemove}
+            <Box pos="relative">
+                <Dropzone
+                    onDrop={handleDrop}
+                    onReject={handleReject}
+                    maxSize={MAX_IMAGE_FILE_SIZE}
+                    accept={IMAGE_MIME_TYPES}
+                    multiple={false}
                     disabled={disabled || saving}
-                    style={{ alignSelf: 'flex-start' }}
                 >
-                    <Label>Remove image</Label>
-                </Button>
-            )}
+                    <Group
+                        justify={compact ? undefined : 'center'}
+                        gap={compact ? 'sm' : 'md'}
+                        style={{ minHeight: compact ? undefined : rem(80), pointerEvents: 'none' }}
+                    >
+                        {image ? (
+                            // If the image fails to load, Mantine will render children as fallback.
+                            <Avatar src={image} radius="md" size={avatarSize} aria-label={label}>
+                                <ImageAcceptIcon size={previewIconSize} stroke={1.5} />
+                            </Avatar>
+                        ) : (
+                            <>
+                                <Dropzone.Accept>
+                                    <ImageAcceptIcon size={idleIconSize} stroke={1.5} />
+                                </Dropzone.Accept>
+                                <Dropzone.Reject>
+                                    <ImageRejectIcon size={idleIconSize} stroke={1.5} />
+                                </Dropzone.Reject>
+                                <Dropzone.Idle>
+                                    <ImageDropzoneIdleIcon size={idleIconSize} stroke={1.5} />
+                                </Dropzone.Idle>
+                            </>
+                        )}
+                        <div>
+                            <Text size="sm" c="dimmed" inline={!compact}>
+                                <Label>Upload image</Label>
+                            </Text>
+                            {!image && (
+                                <Text size="xs" c="dimmed" inline={!compact}>
+                                    {_('File should not exceed')} {MAX_IMAGE_FILE_MB}MB
+                                </Text>
+                            )}
+                        </div>
+                    </Group>
+                </Dropzone>
+                {!!image && (
+                    <ActionIcon
+                        variant="filled"
+                        color="negative"
+                        size={compact ? 'sm' : 'md'}
+                        onClick={handleRemove}
+                        disabled={disabled || saving}
+                        aria-label={_('Remove image')}
+                        style={{
+                            position: 'absolute',
+                            insetInlineEnd: rem(compact ? 6 : 8),
+                            bottom: rem(compact ? 6 : 8),
+                        }}
+                    >
+                        <DeleteIcon size={removeIconSize} />
+                    </ActionIcon>
+                )}
+            </Box>
             {error && (
                 <Alert variant="light" color="negative" icon={<ErrorAlertIcon size={errorIconSize} />}>
                     {error}
