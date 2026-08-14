@@ -639,6 +639,32 @@ describe('<ProductBox>', () => {
             expect(wrapper.querySelector('.mantine-InputClearButton-root')).not.toBeInTheDocument();
         });
 
+        it('shows the product image in parent options and the selected field', () => {
+            const stateWithProductImage = {
+                ...stateWithChild,
+                products: stateWithChild.products.map((product) =>
+                    product.name === 'Agurkai' ? { ...product, image: '/images/ab/cd/agurkai.png' } : product
+                ),
+            };
+            render(
+                <MockThemeRedux state={stateWithProductImage}>
+                    <ProductBox opened group="Daržovės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            act(() => fireEvent.click(combobox));
+
+            expect(screen.getByRole('option', { name: 'Agurkai' }).querySelector('img')).toHaveAttribute(
+                'src',
+                '/images/ab/cd/agurkai.png'
+            );
+
+            selectParentOption('Agurkai');
+
+            expect(combobox.parentElement!.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/agurkai.png');
+        });
+
         it('offers products from the currently selected category as parent options', () => {
             render(
                 <MockThemeRedux state={stateWithChild}>
@@ -674,7 +700,9 @@ describe('<ProductBox>', () => {
             const combobox = screen.getByRole('combobox', { name: 'Parent product' });
             act(() => fireEvent.click(combobox));
 
-            const options = screen.getAllByRole('option').map((o) => o.textContent);
+            const options = screen
+                .getAllByRole('option')
+                .map((o) => o.querySelector('[data-product-label]')?.textContent);
 
             expect(options).toStrictEqual(['Agurkai', 'Zewa', 'Beta', 'Kopūstai']);
         });

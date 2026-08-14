@@ -13,6 +13,8 @@ import { CategoryOption } from '~/client/filters/CategoryOption';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useLabels } from '~/client/hooks/useLabels';
 import { GroupBox } from '~/client/pages/groups/GroupBox';
+import { ProductAvatar } from '~/client/pages/products/ProductAvatar';
+import { ProductOption } from '~/client/pages/products/ProductOption';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useAddProduct } from '~/client/state/products/useAddProduct';
 import { useMoveProduct } from '~/client/state/products/useMoveProduct';
@@ -225,6 +227,10 @@ export function ProductBox({
     );
 
     const parentOptions = useMemo(() => parentOptionNodes.map((n) => n.name), [parentOptionNodes]);
+    const parentImageByName = useMemo(
+        () => new Map(products.filter((p) => p.group === groupValue).map((p) => [p.name, p.image])),
+        [products, groupValue]
+    );
 
     // Clear a parent selection that's no longer valid for the currently selected category
     // (e.g. after switching category, or if it somehow became a descendant).
@@ -402,10 +408,20 @@ export function ProductBox({
                                 // option.value is always one of parentOptions, which is built from the
                                 // same parentOptionNodes as parentDepthByName - the entry always exists.
                                 renderOption={({ option }: { option: ComboboxItem }) => (
-                                    <div style={{ paddingInlineStart: parentDepthByName.get(option.value)! * 16 }}>
-                                        {option.label}
-                                    </div>
+                                    <ProductOption
+                                        option={option}
+                                        image={parentImageByName.get(option.value)}
+                                        depth={parentDepthByName.get(option.value)!}
+                                    />
                                 )}
+                                leftSection={
+                                    form.values.parent ? (
+                                        <ProductAvatar
+                                            image={parentImageByName.get(form.values.parent)}
+                                            label={form.values.parent}
+                                        />
+                                    ) : undefined
+                                }
                                 withAlignedLabels
                                 clearable={!!form.values.parent}
                                 searchable
