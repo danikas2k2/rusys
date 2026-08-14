@@ -7,6 +7,7 @@ import React from 'react';
 
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
+import { useUpdateGroup } from '~/client/state/groups/useUpdateGroup';
 import { useCopyVariant } from '~/client/state/variants/useCopyVariant';
 import { useRenameVariant } from '~/client/state/variants/useRenameVariant';
 import { useUpdateVariant } from '~/client/state/variants/useUpdateVariant';
@@ -15,6 +16,7 @@ vi.mock(import('~/client/common/Label'));
 vi.mock(import('~/client/state/variants/useCopyVariant'));
 vi.mock(import('~/client/state/variants/useRenameVariant'));
 vi.mock(import('~/client/state/variants/useUpdateVariant'));
+vi.mock(import('~/client/state/groups/useUpdateGroup'));
 vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
     useGroupFilter: vi.fn(),
 }));
@@ -86,6 +88,34 @@ describe('<VariantBox>', () => {
         expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveValue('');
         expect(screen.getByRole('combobox', { name: 'Category' })).toHaveValue('');
         expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
+    });
+
+    describe('inline category creation', () => {
+        it('creates and selects a new category', async () => {
+            const updateGroup = vi.fn().mockResolvedValue(true);
+            const updateVariant = vi.fn().mockResolvedValue(true);
+            vi.mocked(useUpdateGroup).mockReturnValue(updateGroup);
+            vi.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            selectOption('New category');
+            const categoryDialog = screen
+                .getByRole('textbox', { name: 'Category name' })
+                .closest('[role="dialog"]') as HTMLElement;
+            await user.type(within(categoryDialog).getByRole('textbox', { name: 'Category name' }), 'Konservai');
+            await user.click(within(categoryDialog).getByRole('button', { name: 'Add' }));
+
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'Didelis');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(updateGroup).toHaveBeenCalledWith('Konservai', true, false, '');
+            expect(updateVariant).toHaveBeenCalledWith('Konservai', 'Didelis', { suffix: '' });
+        });
     });
 
     it('uses filterGroup when no initial group is provided', () => {

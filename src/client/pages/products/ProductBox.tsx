@@ -33,7 +33,7 @@ interface ProductBoxProps {
     onAfterClose?: () => void;
 }
 
-const NEW_CATEGORY_VALUE = '__new_category__';
+const NEW_CATEGORY_VALUE = ':new-category';
 
 type ParentCandidate = { group: string; name: string; parent?: string };
 
@@ -252,7 +252,6 @@ export function ProductBox({
             formRef.current.setFieldValue('group', newGroup);
         }
     }, []);
-    const handleAddCategoryAfterClose = useCallback(() => setAddingCategory(false), []);
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
@@ -444,11 +443,7 @@ export function ProductBox({
                     </form>
                 )}
             </ConfirmableModal>
-            <GroupBox
-                opened={addingCategory}
-                onClose={handleAddCategoryClose}
-                onAfterClose={handleAddCategoryAfterClose}
-            />
+            {addingCategory && <GroupBox opened onClose={handleAddCategoryClose} />}
         </>
     );
 }
