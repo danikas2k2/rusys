@@ -1,8 +1,8 @@
-import { Button, Group, NumberInput, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
+import { ActionIcon, Button, Group, NumberInput, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { AddIcon, CancelIcon, DuplicateIcon, UpdateIcon, VariantsNavIcon } from '@icons';
+import { AddIcon, CancelIcon, DeleteIcon, DuplicateIcon, UpdateIcon, VariantsNavIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { DialogIcon } from '~/client/common/DialogIcon';
@@ -38,6 +38,9 @@ interface VariantBoxProps {
     units?: VariantUnits;
     onClose: (group?: string, variant?: string) => void;
     onAfterClose?: () => void;
+    onDelete?: () => void;
+    closeOnEscape?: boolean;
+    closeOnClickOutside?: boolean;
 }
 
 function resolveInitialName(variant: string, count: number | undefined, units: VariantUnits): string {
@@ -53,6 +56,9 @@ export function VariantBox({
     opened,
     onClose,
     onAfterClose,
+    onDelete,
+    closeOnEscape = true,
+    closeOnClickOutside = true,
 }: Readonly<VariantBoxProps>) {
     const [filterGroup] = useGroupFilter();
     const isEditing = !!initialGroup && !!initialVariant;
@@ -268,8 +274,8 @@ export function VariantBox({
             isDirty={() => formRef.current.isDirty()}
             onClose={() => onClose()}
             onExitTransitionEnd={onAfterClose}
-            closeOnEscape={!loading}
-            closeOnClickOutside={!loading}
+            closeOnEscape={!loading && closeOnEscape}
+            closeOnClickOutside={!loading && closeOnClickOutside}
             closeButtonProps={{ 'aria-label': _('Close') }}
         >
             {(handleClose) => (
@@ -333,24 +339,38 @@ export function VariantBox({
                             disabled={loading}
                             {...form.getInputProps('suffix')}
                         />
-                        <Group justify="flex-end" mt="md">
-                            <Button
-                                variant="outline"
-                                color="gray"
-                                disabled={loading}
-                                leftSection={<CancelIcon size={18} />}
-                                onClick={handleClose}
-                            >
-                                <Label>Cancel</Label>
-                            </Button>
-                            <Button
-                                type="submit"
-                                loading={loading}
-                                leftSection={buttonContent.icon}
-                                color={!isEditing ? 'positive' : undefined}
-                            >
-                                <Label>{buttonContent.label}</Label>
-                            </Button>
+                        <Group justify={isEditing && onDelete ? 'space-between' : 'flex-end'} mt="md" wrap="nowrap">
+                            {isEditing && onDelete && (
+                                <ActionIcon
+                                    variant="outline"
+                                    color="negative"
+                                    size="lg"
+                                    disabled={loading}
+                                    onClick={onDelete}
+                                    aria-label={_('Remove')}
+                                >
+                                    <DeleteIcon size={18} />
+                                </ActionIcon>
+                            )}
+                            <Group gap="sm" wrap="nowrap">
+                                <Button
+                                    variant="outline"
+                                    color="gray"
+                                    disabled={loading}
+                                    leftSection={<CancelIcon size={18} />}
+                                    onClick={handleClose}
+                                >
+                                    <Label>Cancel</Label>
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    loading={loading}
+                                    leftSection={buttonContent.icon}
+                                    color={!isEditing ? 'positive' : undefined}
+                                >
+                                    <Label>{buttonContent.label}</Label>
+                                </Button>
+                            </Group>
                         </Group>
                     </Stack>
                 </form>

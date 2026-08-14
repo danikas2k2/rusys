@@ -4,12 +4,22 @@ import { MockTheme } from '@tests/MockTheme';
 import { Table } from '@mantine/core';
 import React from 'react';
 
+import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { VariantsRow } from '~/client/pages/variants/VariantsRow';
 import { useVariant } from '~/client/state/variants/useVariant';
 import { SortableRow } from '~/client/table/SortableRow';
 
 vi.mock(import('~/client/table/SortableRow'), () => ({
-    SortableRow: vi.fn(({ children }: { children: React.ReactNode }) => <tr>{children}</tr>),
+    SortableRow: vi.fn(({ children, onClick, onKeyDown, tabIndex }: any) => (
+        <tr onClick={onClick} onKeyDown={onKeyDown} tabIndex={tabIndex}>
+            {children}
+        </tr>
+    )),
+}));
+
+vi.mock(import('~/client/common/ActiveContentContext'), async () => ({
+    ...(await vi.importActual('~/client/common/ActiveContentContext')),
+    useSetActiveContent: vi.fn(),
 }));
 
 vi.mock(import('~/client/state/variants/useVariant'), () => ({
@@ -17,6 +27,10 @@ vi.mock(import('~/client/state/variants/useVariant'), () => ({
 }));
 
 describe('<VariantsRow>', () => {
+    const setActive = vi.fn();
+
+    beforeEach(() => vi.mocked(useSetActiveContent).mockReturnValue(setActive));
+
     afterEach(() => vi.clearAllMocks());
 
     const renderRow = (props: React.ComponentProps<typeof VariantsRow>) =>
@@ -127,11 +141,41 @@ describe('<VariantsRow>', () => {
         expect(props.disabled).toBe(true);
     });
 
+    it('passes disabled=true when filtering disables dragging', () => {
+        renderRow({
+            variant: { group: 'Uogienės', variant: 'p', order: 0 },
+            reordering: false,
+            dragDisabled: true,
+        });
+
+        const props = vi.mocked(SortableRow).mock.calls[0][0];
+
+        expect(props.disabled).toBe(true);
+    });
+
     it('passes disabled=false when both reordering and hidden are false', () => {
         renderRow({ variant: { group: 'Uogienės', variant: 'p', order: 0 }, reordering: false, hidden: false });
 
         const props = vi.mocked(SortableRow).mock.calls[0][0];
 
         expect(props.disabled).toBe(false);
+    });
+
+    it('opens the edit dialog when the row is clicked', () => {
+        const variant = { group: 'Uogienės', variant: 'p', order: 0 };
+        renderRow({ variant, reordering: false });
+
+        screen.getByRole('row').click();
+
+        expect(setActive).toHaveBeenCalledWith({ action: 'update', data: variant });
+    });
+
+    it('opens the edit dialog with the Enter key', () => {
+        const variant = { group: 'Uogienės', variant: 'p', order: 0 };
+        renderRow({ variant, reordering: false });
+
+        screen.getByRole('row').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+        expect(setActive).toHaveBeenCalledWith({ action: 'update', data: variant });
     });
 });

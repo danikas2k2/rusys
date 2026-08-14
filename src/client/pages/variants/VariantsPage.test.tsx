@@ -5,10 +5,7 @@ import { MockTheme } from '@tests/MockTheme';
 import React from 'react';
 
 import { Page } from '~/client/pages/common/Page';
-import { useDeleteVariant } from '~/client/state/variants/useDeleteVariant';
 import { VariantsPage } from './VariantsPage';
-
-vi.mock(import('~/client/common/SwipeControlsContext'));
 
 // Mock the components
 vi.mock(import('~/client/pages/variants/VariantsTable'), () => ({
@@ -25,22 +22,12 @@ vi.mock(import('~/client/filters/CategoryRailLayout'), () => ({
 vi.mock(import('~/client/pages/variants/ActiveVariantBox'), () => ({
     ActiveVariantBox: () => <div>ActiveVariantBox</div>,
 }));
-vi.mock(import('~/client/common/SwipeControls'), () => ({
-    SwipeControls: () => <div>SwipeControls</div>,
-}));
 vi.mock(import('~/client/pages/common/ActiveContentOutsideClick'), () => ({
     ActiveContentOutsideClick: () => null,
 }));
 vi.mock(import('~/client/pages/common/Page'));
-vi.mock(import('~/client/state/variants/useDeleteVariant'));
 
 describe('<VariantsPage>', () => {
-    const deleteVariant = vi.fn();
-
-    beforeEach(() => {
-        vi.mocked(useDeleteVariant).mockReturnValue(deleteVariant);
-    });
-
     afterEach(() => {
         vi.clearAllMocks();
     });
@@ -69,7 +56,7 @@ describe('<VariantsPage>', () => {
         expect(screen.getByText('CategoryRailLayout')).toBeInTheDocument();
     });
 
-    it('calls deleteVariant with group and variant when onDelete is triggered', () => {
+    it('does not configure swipe-based deletion on the page', () => {
         render(
             <MockTheme>
                 <MockRedux>
@@ -78,11 +65,8 @@ describe('<VariantsPage>', () => {
             </MockTheme>
         );
 
-        const [{ onDelete }] = vi.mocked(Page).mock.calls[0] as [
-            { onDelete?: (v: { group: string; variant: string }) => void },
-        ];
-        onDelete!({ group: 'G', variant: 'V' });
+        const [props] = vi.mocked(Page).mock.calls[0]!;
 
-        expect(deleteVariant).toHaveBeenCalledWith('G', 'V');
+        expect(props.onDelete).toBeUndefined();
     });
 });

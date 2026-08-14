@@ -1,5 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Table } from '@mantine/core';
 import React, { cloneElement } from 'react';
 
 import type { ActiveContentData } from '~/client/common/ActiveContentContext';
@@ -9,6 +10,7 @@ import { SwipeableRow } from '~/client/table/SwipeableRow';
 
 interface SortableRowProps<D = ActiveContentData, T = HTMLTableRowElement> extends DraggableRowProps<D, T> {
     disabled?: boolean;
+    swipeable?: boolean;
     handle?: React.ReactElement<React.ComponentPropsWithRef<typeof DragHandle>>;
 }
 
@@ -16,6 +18,7 @@ export function SortableRow<D = ActiveContentData>({
     id,
     data,
     disabled,
+    swipeable = true,
     handle = <DragHandle />,
     children,
     ...props
@@ -26,27 +29,37 @@ export function SortableRow<D = ActiveContentData>({
             disabled,
         });
 
-    return (
-        <SwipeableRow<D>
-            id={id}
-            data={data}
-            style={{
-                transform: CSS.Transform.toString(transform),
-                transition,
-                ...(isDragging && { opacity: 0 }),
-            }}
-            ref={setNodeRef}
-            {...props}
-            data-dragging={isDragging}
-            data-sorting={isSorting}
-        >
+    const rowProps = {
+        style: {
+            transform: CSS.Transform.toString(transform),
+            transition,
+            ...(isDragging && { opacity: 0 }),
+        },
+        ...props,
+        'data-dragging': isDragging,
+        'data-sorting': isSorting,
+    };
+    const content = (
+        <>
             {cloneElement(handle, {
                 ref: setActivatorNodeRef,
                 ...attributes,
                 ...listeners,
-                ...(disabled ? {} : { style: { cursor: 'grab' } }),
+                ...(disabled
+                    ? { 'aria-disabled': true, 'data-disabled': true }
+                    : { style: { cursor: 'grab' }, 'data-disabled': undefined }),
             })}
             {children}
+        </>
+    );
+
+    return swipeable ? (
+        <SwipeableRow<D> id={id} data={data} ref={setNodeRef} {...rowProps}>
+            {content}
         </SwipeableRow>
+    ) : (
+        <Table.Tr ref={setNodeRef} data-id={id} {...rowProps}>
+            {content}
+        </Table.Tr>
     );
 }

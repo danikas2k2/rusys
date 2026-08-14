@@ -125,6 +125,26 @@ describe('<VariantBox>', () => {
         expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
     });
 
+    it('shows removal only while editing and calls its handler', async () => {
+        const onDelete = vi.fn();
+        const { rerender } = render(
+            <MockApp state={state}>
+                <VariantBox opened onClose={onClose} onDelete={onDelete} />
+            </MockApp>
+        );
+
+        expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
+
+        rerender(
+            <MockApp state={state}>
+                <VariantBox opened group="Daržovės" variant="d" onClose={onClose} onDelete={onDelete} />
+            </MockApp>
+        );
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        expect(onDelete).toHaveBeenCalledTimes(1);
+    });
+
     it('calls onClose when close button is clicked', async () => {
         render(
             <MockApp state={state}>
