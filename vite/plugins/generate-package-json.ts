@@ -47,6 +47,7 @@ export function generatePackageJson(): Plugin {
                     'react-dom',
                     'react-redux',
                     'redux',
+                    'sharp',
                 ]),
             };
 

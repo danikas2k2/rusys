@@ -47,6 +47,7 @@ export default defineConfig(() => {
                     'helmet',
                     'express-fileupload',
                     // Node.js built-in modules
+                    'sharp',
                     'node:crypto',
                     'node:fs',
                     'node:fs/promises',
