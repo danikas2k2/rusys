@@ -42,6 +42,14 @@ describe('<ReviewProductRow>', () => {
         expect(checkbox).toBeEnabled();
         expect(checkbox).not.toBeChecked();
         expect(screen.getByText(products[0].name)).toBeInTheDocument();
+        expect(screen.getByText(products[0].name.charAt(0))).toBeInTheDocument();
+    });
+
+    it('renders the product image beside its title when one is available', () => {
+        const product = { ...products[0], image: '/images/products/avietes.png' };
+        renderRow(product);
+
+        expect(document.querySelector('img')).toHaveAttribute('src', product.image);
     });
 
     it('renders checkbox as checked when checked=true', () => {
