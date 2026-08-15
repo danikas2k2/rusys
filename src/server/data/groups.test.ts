@@ -324,20 +324,20 @@ describe('groups', () => {
             await expect(getGroups()).resolves.toStrictEqual(groups);
         });
 
-        it('deletes the image file for the deleted group', async () => {
+        it('keeps the image file for the archived group', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/old/old.png');
             await updateGroup('Uogienės', true, false, 'data:image/png;base64,AAA');
             vi.clearAllMocks();
 
             await expect(deleteGroup('Uogienės')).resolves.toBe(true);
 
-            expect(deleteImages).toHaveBeenCalledWith('/images/old/old.png', undefined);
+            expect(deleteImages).not.toHaveBeenCalled();
         });
 
-        it('calls deleteImages with undefined when the group has no image', async () => {
+        it('does not touch image files when the group has no image', async () => {
             await expect(deleteGroup('Uogienės')).resolves.toBe(true);
 
-            expect(deleteImages).toHaveBeenCalledWith(undefined, undefined);
+            expect(deleteImages).not.toHaveBeenCalled();
         });
     });
 });

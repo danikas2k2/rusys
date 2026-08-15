@@ -1,6 +1,6 @@
 import type { ClientSession, Collection } from 'mongodb';
 
-import { classifyImage, deleteImages } from '~/server/data/images';
+import { classifyImage } from '~/server/data/images';
 import { imageFieldUpdate, resolveImage } from '~/server/data/resolveImage';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
@@ -35,7 +35,9 @@ async function migrateGroupImage(col: Collection<Group>, group: Group): Promise<
 
 export const getGroups = async (): Promise<readonly Group[]> => {
     const col = (await db()).collection<Group>('groups');
-    const groups = await col.find({}, { projection: { _id: 0 }, sort: { order: 1, group: 1 } }).toArray();
+    const groups = await col
+        .find({ archivedAt: { $exists: false } }, { projection: { _id: 0 }, sort: { order: 1, group: 1 } })
+        .toArray();
     return Promise.all(groups.map((g) => migrateGroupImage(col, g)));
 };
 
@@ -58,7 +60,7 @@ export async function updateGroup(
                   { group },
                   {
                       $set: { annual, review, ...(fieldUpdate?.$set ?? {}) },
-                      ...(fieldUpdate && Object.keys(fieldUpdate.$unset).length ? { $unset: fieldUpdate.$unset } : {}),
+                      $unset: { archivedAt: 1, ...(fieldUpdate?.$unset ?? {}) },
                   }
               )
               .then(hasEffect)
@@ -111,12 +113,9 @@ export async function deleteGroup(group: string, session?: ClientSession): Promi
         return false;
     }
     const col = (await db()).collection<Group>('groups');
-    const existing = await col.findOne({ group }, { session });
-    const deleted = await col.deleteOne({ group }, { session }).then(hasEffect);
-    if (deleted) {
-        await deleteImages(existing?.image, existing?.photo);
-    }
-    return deleted;
+    return col
+        .updateOne({ group, archivedAt: { $exists: false } }, { $set: { archivedAt: Date.now() } }, { session })
+        .then(hasEffect);
 }
 
 export async function reorderGroups(update?: Readonly<Record<string, number>>): Promise<boolean> {

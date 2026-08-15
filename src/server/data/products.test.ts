@@ -1361,14 +1361,22 @@ describe('products', () => {
     describe('deleteProduct', () => {
         afterEach(() => vi.clearAllMocks());
 
-        it('deletes products', async () => {
+        it('archives products without removing their history', async () => {
             await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(bulk(products, { $remove: 2 }));
+            expect((await $all('products')).find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')).toMatchObject({
+                archivedAt: expect.any(Number),
+                years: products[2]?.years,
+                updates: products[2]?.updates,
+            });
         });
 
-        it('deletes products from different group', async () => {
+        it('archives products from a different group', async () => {
             await expect(deleteProduct('Uogienės', 'Avietės')).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(products.slice(1));
+            expect((await $all('products')).find((p) => p.group === 'Uogienės' && p.name === 'Avietės')).toMatchObject({
+                archivedAt: expect.any(Number),
+                years: products[0]?.years,
+                updates: products[0]?.updates,
+            });
         });
 
         it.each`
@@ -1382,23 +1390,23 @@ describe('products', () => {
             await expect($all('products')).resolves.toStrictEqual(products);
         });
 
-        it('deletes the image file for the deleted product', async () => {
+        it('keeps the image file for an archived product', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/old/old.png');
             await setImage('Daržovės', 'Agurkai', 'data:image/png;base64,AAA');
             vi.clearAllMocks();
 
             await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(true);
 
-            expect(deleteImages).toHaveBeenCalledWith('/images/old/old.png', undefined);
+            expect(deleteImages).not.toHaveBeenCalled();
         });
 
-        it('calls deleteImages with undefined when the product has no image', async () => {
+        it('does not touch image files when the product has no image', async () => {
             await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(true);
 
-            expect(deleteImages).toHaveBeenCalledWith(undefined, undefined);
+            expect(deleteImages).not.toHaveBeenCalled();
         });
 
-        it('deletes all variant image files for the deleted product', async () => {
+        it('keeps all variant image files for an archived product', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/old/d.png');
             await setVariantImage('Daržovės', 'Agurkai', 'd', 'data:image/png;base64,AAA');
             vi.mocked(saveImage).mockResolvedValueOnce('/images/old/p.png');
@@ -1407,8 +1415,7 @@ describe('products', () => {
 
             await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(true);
 
-            expect(deleteImages).toHaveBeenCalledWith('/images/old/d.png', undefined);
-            expect(deleteImages).toHaveBeenCalledWith('/images/old/p.png', undefined);
+            expect(deleteImages).not.toHaveBeenCalled();
         });
 
         it('does not delete a product that has children', async () => {
@@ -1424,14 +1431,16 @@ describe('products', () => {
             expect(all.some((p) => p.group === 'Daržovės' && p.name === 'Agurkai')).toBe(true);
         });
 
-        it('still deletes a childless product even when other unrelated products have children', async () => {
+        it('archives a childless product even when other unrelated products have children', async () => {
             await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
 
             await expect(deleteProduct('Daržovės', 'Kopūstai')).resolves.toBe(true);
 
             const all = (await $all('products')) as { group: string; name: string }[];
 
-            expect(all.some((p) => p.group === 'Daržovės' && p.name === 'Kopūstai')).toBe(false);
+            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Kopūstai')).toMatchObject({
+                archivedAt: expect.any(Number),
+            });
         });
     });
 
@@ -1615,65 +1624,9 @@ describe('products', () => {
     });
 
     describe('deleteProductVariant', () => {
-        it('deletes products variant', async () => {
-            await expect(deleteProductsVariant('Daržovės', 'p')).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $unset: ['3.years', '3.updates'],
-                    $set: { '2.updates.0.years.0.amounts': [{ variant: 'd', amount: -3, recycled: false }] },
-                })
-            );
-        });
-
-        it('deletes products variant for different group', async () => {
-            await expect(deleteProductsVariant('Uogienės', 'p')).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(
-                bulk(
-                    products,
-                    { $unset: ['0.years', '0.updates', '1.years'] },
-                    { $shift: ['1.updates', '1.updates.0.years', '1.updates.1.years.0.amounts'] }
-                )
-            );
-        });
-
-        it('deletes products variant for second year', async () => {
-            await updateProduct(
-                'Daržovės',
-                'Kopūstai',
-                22,
-                [
-                    { variant: 'm', amount: 2, recycled: false },
-                    { variant: 'd', amount: 1, recycled: false },
-                ],
-                user
-            );
-
-            await expect(deleteProductsVariant('Daržovės', 'd')).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(
-                bulk(products, {
-                    $unset: ['2.years'],
-                    $set: {
-                        '2.updates': [
-                            {
-                                time: 1675425600000,
-                                years: [{ year: 22, amounts: [{ variant: 'p', amount: 2, recycled: false }] }],
-                            },
-                            {
-                                time: 1675771200000,
-                                years: [{ year: 22, amounts: [{ variant: 'm', amount: -1 }] }],
-                            },
-                        ],
-                    },
-                    $push: {
-                        '3.years': { year: 22, amounts: [{ variant: 'm', amount: 2 }] },
-                        '3.updates': {
-                            time,
-                            user,
-                            years: [{ year: 22, amounts: [{ variant: 'm', amount: 2, recycled: false }] }],
-                        },
-                    },
-                })
-            );
+        it('does not remove embedded variant history', async () => {
+            await expect(deleteProductsVariant('Daržovės', 'p')).resolves.toBe(false);
+            await expect($all('products')).resolves.toStrictEqual(products);
         });
 
         it.each`
@@ -1689,14 +1642,9 @@ describe('products', () => {
     });
 
     describe('deleteProductGroup', () => {
-        it('deletes products by group', async () => {
-            await expect(deleteProductsGroup('Daržovės')).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(products.slice(0, 2));
-        });
-
-        it('deletes products by different group', async () => {
-            await expect(deleteProductsGroup('Uogienės')).resolves.toBe(true);
-            await expect($all('products')).resolves.toStrictEqual(products.slice(2));
+        it('does not remove products when a category is archived', async () => {
+            await expect(deleteProductsGroup('Daržovės')).resolves.toBe(false);
+            await expect($all('products')).resolves.toStrictEqual(products);
         });
 
         it.each`

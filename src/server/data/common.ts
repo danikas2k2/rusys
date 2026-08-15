@@ -1,22 +1,9 @@
 import type { Db } from 'mongodb';
 
 import { deleteGroup, renameGroup } from '~/server/data/groups';
-import {
-    deleteProductsGroup,
-    deleteProductsVariant,
-    getProductVariants,
-    moveProduct,
-    renameProductsGroup,
-    renameProductsVariant,
-} from '~/server/data/products';
+import { getProductVariants, moveProduct, renameProductsGroup, renameProductsVariant } from '~/server/data/products';
 import { hasEffect } from '~/server/data/utils';
-import {
-    copyVariants,
-    deleteVariant,
-    deleteVariantsGroup,
-    renameVariant,
-    renameVariantsGroup,
-} from '~/server/data/variants';
+import { copyVariants, deleteVariant, renameVariant, renameVariantsGroup } from '~/server/data/variants';
 import { db, withTransaction } from '~/server/db';
 import type { ApiExport } from '~/types/api';
 import type { Group, Product, UpdateVariant, Variant } from '~/types/data';
@@ -65,7 +52,6 @@ export const renameVariantOccurrences = (
 export const deleteVariantOccurrences = (group: string, variant: string): Promise<boolean> =>
     withTransaction(async (session) => {
         if (await deleteVariant(group, variant, session)) {
-            await deleteProductsVariant(group, variant, session);
             return true;
         }
         return false;
@@ -90,8 +76,6 @@ export const renameGroupOccurrences = (
 export const deleteGroupOccurrences = (group: string): Promise<boolean> =>
     withTransaction(async (session) => {
         if (await deleteGroup(group, session)) {
-            await deleteVariantsGroup(group, session);
-            await deleteProductsGroup(group, session);
             return true;
         }
         return false;
