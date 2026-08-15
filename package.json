@@ -1,6 +1,6 @@
 {
     "name": "rusys",
-    "version": "3.10.1",
+    "version": "3.10.2",
     "private": true,
     "main": "index.js",
     "description": "",
