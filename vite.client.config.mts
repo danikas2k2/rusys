@@ -101,7 +101,8 @@ export default defineConfig(({ mode }) => {
                         if (
                             pkg.startsWith('@mantine/') ||
                             pkg.startsWith('@tabler/') ||
-                            pkg.startsWith('@floating-ui/')
+                            pkg.startsWith('@floating-ui/') ||
+                            pkg === 'dayjs'
                         ) {
                             return 'mantine';
                         }
@@ -124,6 +125,7 @@ export default defineConfig(({ mode }) => {
                             pkg === 'attr-accept' ||
                             pkg === 'clsx' ||
                             pkg === 'detect-node-es' ||
+                            pkg === 'blueimp-md5' ||
                             pkg === 'fast-deep-equal' ||
                             pkg === 'file-selector' ||
                             pkg === 'get-nonce' ||
