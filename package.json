@@ -32,6 +32,7 @@
         "deploy": "pnpm check && pnpm deploy:nocheck",
         "deploy:nocheck": "pnpm build && pnpm deploy:production",
         "deploy:production": "dotenv -e .env.deploy.local -- vite build --config vite.deploy.config.mts --mode production",
+        "deploy:rollback": "dotenv -e .env.deploy.local -- vite build --config vite.rollback.config.mts --mode production",
         "dev": "dotenv -e .env.local -- npm-run-all --parallel dev:server dev:client",
         "dev:server": "ts-node --transpile-only --require tsconfig-paths/register --project tsconfig.server.json src/server/dev.ts",
         "dev:client": "vite",
