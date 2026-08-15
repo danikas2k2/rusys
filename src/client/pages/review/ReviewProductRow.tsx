@@ -1,8 +1,8 @@
 import { Checkbox, Group, Table, Title } from '@mantine/core';
 import React, { useCallback } from 'react';
 
-import { UntouchedCheckboxIcon } from '~/client/pages/review/UntouchedCheckboxIcon';
 import { ProductAvatar } from '~/client/pages/products/ProductAvatar';
+import { UntouchedCheckboxIcon } from '~/client/pages/review/UntouchedCheckboxIcon';
 import { getId } from '~/client/utils/id';
 import type { Product } from '~/types/data';
 
