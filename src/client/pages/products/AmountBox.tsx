@@ -83,12 +83,7 @@ export function AmountBox({
             {() => (
                 <Stack className="amount-box-content" gap="sm">
                     <ProductYearBar disabled={hasChanges} />
-                    <Tabs
-                        className="amount-box-tabs"
-                        variant="outline"
-                        radius="sm"
-                        defaultValue="quantities"
-                    >
+                    <Tabs className="amount-box-tabs" variant="outline" radius="sm" defaultValue="quantities">
                         <Tabs.List>
                             <Tabs.Tab fz="md" value="quantities" leftSection={<QuantitiesTabIcon size={18} />}>
                                 <Label>Quantities</Label>
@@ -98,7 +93,12 @@ export function AmountBox({
                             </Tabs.Tab>
                         </Tabs.List>
 
-                        <Tabs.Panel className="amount-box-tab-panel" value="quantities" pt="sm" ref={quantitiesPanelRef}>
+                        <Tabs.Panel
+                            className="amount-box-tab-panel"
+                            value="quantities"
+                            pt="sm"
+                            ref={quantitiesPanelRef}
+                        >
                             <AmountVariantsTab
                                 onChangesUpdate={setHasChanges}
                                 onClose={onClose}
