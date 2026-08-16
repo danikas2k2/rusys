@@ -302,14 +302,16 @@ describe('common', () => {
     });
 
     describe('deleteGroupOccurrences', () => {
-        it('deletes all group occurrences, returns true', async () => {
+        it('archives only the category and keeps its occurrences', async () => {
             await expect(deleteGroupOccurrences('Daržovės')).resolves.toBe(true);
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
-            expect(deleteVariantsGroup).toHaveBeenCalledWith('Daržovės', session);
-            expect(deleteProductsGroup).toHaveBeenCalledWith('Daržovės', session);
-            await expect($all('groups')).resolves.toStrictEqual(groups.slice(1));
-            await expect($all('variants')).resolves.toStrictEqual(variants.slice(0, 5));
-            await expect($all('products')).resolves.toStrictEqual(products.slice(0, 2));
+            expect(deleteVariantsGroup).not.toHaveBeenCalled();
+            expect(deleteProductsGroup).not.toHaveBeenCalled();
+            expect((await $all('groups')).find((g) => g.group === 'Daržovės')).toMatchObject({
+                archivedAt: expect.any(Number),
+            });
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('products')).resolves.toStrictEqual(products);
         });
 
         it('returns false if deleteGroup returns false', async () => {
@@ -336,26 +338,30 @@ describe('common', () => {
             await expect($all('products')).resolves.toStrictEqual(products);
         });
 
-        it('rejects if deleteVariantsGroup fails', async () => {
+        it('does not invoke the old variant-removal path', async () => {
             vi.mocked(deleteVariantsGroup).mockRejectedValueOnce('Failed to delete variants group');
 
-            await expect(deleteGroupOccurrences('Daržovės')).rejects.toBe('Failed to delete variants group');
+            await expect(deleteGroupOccurrences('Daržovės')).resolves.toBe(true);
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
-            expect(deleteVariantsGroup).toHaveBeenCalledWith('Daržovės', session);
+            expect(deleteVariantsGroup).not.toHaveBeenCalled();
             expect(deleteProductsGroup).not.toHaveBeenCalled();
-            await expect($all('groups')).resolves.toStrictEqual(groups);
+            expect((await $all('groups')).find((g) => g.group === 'Daržovės')).toMatchObject({
+                archivedAt: expect.any(Number),
+            });
             await expect($all('variants')).resolves.toStrictEqual(variants);
             await expect($all('products')).resolves.toStrictEqual(products);
         });
 
-        it('rejects if deleteProductsGroup fails', async () => {
+        it('does not invoke the old product-removal path', async () => {
             vi.mocked(deleteProductsGroup).mockRejectedValueOnce('Failed to delete products group');
 
-            await expect(deleteGroupOccurrences('Daržovės')).rejects.toBe('Failed to delete products group');
+            await expect(deleteGroupOccurrences('Daržovės')).resolves.toBe(true);
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
-            expect(deleteVariantsGroup).toHaveBeenCalledWith('Daržovės', session);
-            expect(deleteProductsGroup).toHaveBeenCalledWith('Daržovės', session);
-            await expect($all('groups')).resolves.toStrictEqual(groups);
+            expect(deleteVariantsGroup).not.toHaveBeenCalled();
+            expect(deleteProductsGroup).not.toHaveBeenCalled();
+            expect((await $all('groups')).find((g) => g.group === 'Daržovės')).toMatchObject({
+                archivedAt: expect.any(Number),
+            });
             await expect($all('variants')).resolves.toStrictEqual(variants);
             await expect($all('products')).resolves.toStrictEqual(products);
         });
@@ -436,22 +442,14 @@ describe('common', () => {
     });
 
     describe('deleteVariantOccurrences', () => {
-        it('removes all variant occurrences, returns true', async () => {
+        it('archives only the variant and keeps its occurrences', async () => {
             await expect(deleteVariantOccurrences('Daržovės', 'p')).resolves.toBe(true);
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
-            expect(deleteProductsVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
-            await expect($all('variants')).resolves.toStrictEqual([...variants.slice(0, 6), ...variants.slice(7)]);
-            await expect($all('products')).resolves.toStrictEqual([
-                ...products.slice(0, 2),
-                bulk(products[2], {
-                    $set: { 'updates.0.years.0.amounts': [{ variant: 'd', amount: -3, recycled: false }] },
-                }),
-                {
-                    group: 'Daržovės',
-                    name: 'Kopūstai',
-                },
-                ...products.slice(4),
-            ]);
+            expect(deleteProductsVariant).not.toHaveBeenCalled();
+            expect((await $all('variants')).find((v) => v.group === 'Daržovės' && v.variant === 'p')).toMatchObject({
+                archivedAt: expect.any(Number),
+            });
+            await expect($all('products')).resolves.toStrictEqual(products);
         });
 
         it('returns false if deleteVariant returns false', async () => {
@@ -474,13 +472,15 @@ describe('common', () => {
             await expect($all('products')).resolves.toStrictEqual(products);
         });
 
-        it('rejects if deleteProductsVariant fails', async () => {
+        it('does not invoke the old product-history removal path', async () => {
             vi.mocked(deleteProductsVariant).mockRejectedValueOnce('Failed to delete products variant');
 
-            await expect(deleteVariantOccurrences('Daržovės', 'p')).rejects.toBe('Failed to delete products variant');
+            await expect(deleteVariantOccurrences('Daržovės', 'p')).resolves.toBe(true);
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
-            expect(deleteProductsVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
-            await expect($all('variants')).resolves.toStrictEqual(variants);
+            expect(deleteProductsVariant).not.toHaveBeenCalled();
+            expect((await $all('variants')).find((v) => v.group === 'Daržovės' && v.variant === 'p')).toMatchObject({
+                archivedAt: expect.any(Number),
+            });
             await expect($all('products')).resolves.toStrictEqual(products);
         });
     });

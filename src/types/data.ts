@@ -66,6 +66,8 @@ export interface Product {
     photo?: string;
     variantImages?: Readonly<Record<string, string>>;
     variantPhotos?: Readonly<Record<string, string>>;
+    /** Set instead of deleting so balances and change history remain auditable. */
+    archivedAt?: number;
 }
 
 export interface ProductAmounts extends GroupAmounts {
@@ -90,6 +92,8 @@ export interface Group {
     review?: boolean;
     image?: string;
     photo?: string;
+    /** An archived category also makes its products and variants unavailable for new work. */
+    archivedAt?: number;
 }
 
 export type VariantUnits = 'g' | 'kg' | 'l' | 'ml' | 'vnt';
@@ -102,6 +106,7 @@ export interface Variant {
     count?: number;
     units?: VariantUnits;
     used?: boolean;
+    archivedAt?: number;
 }
 
 export type UpdateVariant = Partial<Pick<Variant, 'order' | 'suffix' | 'count' | 'units'>>;

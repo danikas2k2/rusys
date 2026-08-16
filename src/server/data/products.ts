@@ -2,7 +2,7 @@ import type { AnyBulkWriteOperation, ClientSession, Collection, Filter, UpdateFi
 
 import { addVariantAmount, getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { buildHistoryPipeline } from '~/server/data/history';
-import { classifyImage, deleteImages } from '~/server/data/images';
+import { classifyImage } from '~/server/data/images';
 import { imageFieldUpdate, resolveImage } from '~/server/data/resolveImage';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
@@ -50,16 +50,27 @@ async function migrateProductImages(col: Collection<Product>, product: Product):
 }
 
 export async function getProducts(years: readonly number[] = []): Promise<Product[]> {
-    const col = (await db()).collection<Product>('products');
-    const match: Filter<Product> = years.length
-        ? {
-              $or: [
-                  { years: { $exists: false } },
-                  { years: { $size: 0 } },
-                  { 'years.year': { $in: years } } as Filter<Product>,
-              ],
-          }
-        : {};
+    const database = await db();
+    const col = database.collection<Product>('products');
+    // A category archive is inherited by its products.  We deliberately keep the product
+    // document itself intact: historical summary queries read it independently of this list.
+    const archivedGroups = await database
+        .collection('groups')
+        .find({ archivedAt: { $exists: true } }, { projection: { _id: 0, group: 1 } })
+        .toArray();
+    const match: Filter<Product> = {
+        archivedAt: { $exists: false },
+        group: { $nin: archivedGroups.map(({ group }) => group) },
+        ...(years.length
+            ? {
+                  $or: [
+                      { years: { $exists: false } },
+                      { years: { $size: 0 } },
+                      { 'years.year': { $in: years } } as Filter<Product>,
+                  ],
+              }
+            : {}),
+    };
     return col
         .aggregate<Product>([
             { $match: match },
@@ -158,8 +169,16 @@ export async function addProduct(group: string, name: string, parent?: string): 
         return false;
     }
     const col = (await db()).collection<Product>('products');
-    if (parent && !(await col.findOne({ group, name: parent }))) {
+    if (parent && !(await col.findOne({ group, name: parent, archivedAt: { $exists: false } }))) {
         return false;
+    }
+    // Names are still the current identity key.  Re-adding an archived name therefore means
+    // restoring its original record rather than silently creating a second, ambiguous history.
+    const archived = await col.findOne({ group, name, archivedAt: { $exists: true } });
+    if (archived) {
+        return col
+            .updateOne({ group, name }, { $unset: { archivedAt: 1 }, ...(parent ? { $set: { parent } } : {}) })
+            .then(hasEffect);
     }
     return col.insertOne({ group, name, ...(parent ? { parent } : {}) }).then(hasEffect);
 }
@@ -702,85 +721,27 @@ export async function deleteProduct(group: string, name: string): Promise<boolea
         return false;
     }
     const col = (await db()).collection<Product>('products');
-    if (await col.countDocuments({ group, parent: name })) {
+    if (await col.countDocuments({ group, parent: name, archivedAt: { $exists: false } })) {
         return false;
     }
-    const existing = await col.findOne({ group, name });
-    const deleted = await col.deleteOne({ group, name }).then(hasEffect);
-    if (deleted) {
-        await deleteImages(existing?.image, existing?.photo);
-        const variants = new Set([
-            ...Object.keys(existing?.variantImages ?? {}),
-            ...Object.keys(existing?.variantPhotos ?? {}),
-        ]);
-        await Promise.all(
-            [...variants].map((v) => deleteImages(existing?.variantImages?.[v], existing?.variantPhotos?.[v]))
-        );
-    }
-    return deleted;
-}
-
-export async function deleteProductsVariant(group: string, variant: string, session?: ClientSession): Promise<boolean> {
-    if (!group || !variant) {
-        return false;
-    }
-    return (await db())
-        .collection('products')
-        .bulkWrite(
-            [
-                {
-                    updateMany: {
-                        filter: { group, 'years.amounts.variant': variant } as UpdateFilter<Product>,
-                        update: { $pull: { 'years.$[].amounts': { variant } } },
-                    },
-                },
-                {
-                    updateMany: {
-                        filter: { group, 'years.amounts': { $size: 0 } } as UpdateFilter<Product>,
-                        update: { $pull: { years: { amounts: { $size: 0 } } } },
-                    },
-                },
-                {
-                    updateMany: {
-                        filter: { group, years: { $size: 0 } },
-                        update: { $unset: { years: 1 } },
-                    },
-                },
-                {
-                    updateMany: {
-                        filter: { group, 'updates.years.amounts.variant': variant } as UpdateFilter<Product>,
-                        update: { $pull: { 'updates.$[].years.$[].amounts': { variant } } },
-                    },
-                },
-                {
-                    updateMany: {
-                        filter: { group, 'updates.years.amounts': { $size: 0 } } as UpdateFilter<Product>,
-                        update: { $pull: { 'updates.$[].years': { amounts: { $size: 0 } } } },
-                    },
-                },
-                {
-                    updateMany: {
-                        filter: { group, 'updates.years': { $size: 0 } } as UpdateFilter<Product>,
-                        update: { $pull: { updates: { years: { $size: 0 } } } },
-                    },
-                },
-                {
-                    updateMany: {
-                        filter: { group, updates: { $size: 0 } },
-                        update: { $unset: { updates: 1 } },
-                    },
-                },
-            ],
-            { session }
-        )
+    return col
+        .updateOne({ group, name, archivedAt: { $exists: false } }, { $set: { archivedAt: Date.now() } })
         .then(hasEffect);
 }
 
-export async function deleteProductsGroup(group: string, session?: ClientSession): Promise<boolean> {
-    if (!group) {
-        return false;
-    }
-    return (await db()).collection('products').deleteMany({ group }, { session }).then(hasEffect);
+export async function deleteProductsVariant(
+    _group: string,
+    _variant: string,
+    _session?: ClientSession
+): Promise<boolean> {
+    // Kept only as a compatibility boundary for old callers. Variant history is embedded in
+    // products, so there is intentionally nothing to erase here.
+    return false;
+}
+
+export async function deleteProductsGroup(_group: string, _session?: ClientSession): Promise<boolean> {
+    // Category archiving is inherited by products; do not mark each child or erase its history.
+    return false;
 }
 
 export async function setRemoving(

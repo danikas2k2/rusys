@@ -366,14 +366,18 @@ describe('variants', () => {
     });
 
     describe('deleteVariant', () => {
-        it('deletes variant', async () => {
+        it('archives variant', async () => {
             await expect(deleteVariant('Daržovės', 'p')).resolves.toBe(true);
-            await expect($all('variants')).resolves.toStrictEqual([...variants.slice(0, 6), ...variants.slice(7)]);
+            expect((await $all('variants')).find((v) => v.group === 'Daržovės' && v.variant === 'p')).toMatchObject({
+                archivedAt: expect.any(Number),
+            });
         });
 
-        it('deletes variant of different group', async () => {
+        it('archives variant of different group', async () => {
             await expect(deleteVariant('Uogienės', 'p')).resolves.toBe(true);
-            await expect($all('variants')).resolves.toStrictEqual([...variants.slice(1)]);
+            expect((await $all('variants')).find((v) => v.group === 'Uogienės' && v.variant === 'p')).toMatchObject({
+                archivedAt: expect.any(Number),
+            });
         });
 
         it.each`
@@ -389,14 +393,9 @@ describe('variants', () => {
     });
 
     describe('deleteVariantsGroup', () => {
-        it('deletes group', async () => {
-            await expect(deleteVariantsGroup('Daržovės')).resolves.toBe(true);
-            await expect($all('variants')).resolves.toStrictEqual(variants.slice(0, 5));
-        });
-
-        it('deletes different group', async () => {
-            await expect(deleteVariantsGroup('Uogienės')).resolves.toBe(true);
-            await expect($all('variants')).resolves.toStrictEqual(variants.slice(5));
+        it('does not remove variants when a category is archived', async () => {
+            await expect(deleteVariantsGroup('Daržovės')).resolves.toBe(false);
+            await expect($all('variants')).resolves.toStrictEqual(variants);
         });
 
         it.each`
