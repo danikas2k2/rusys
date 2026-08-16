@@ -144,7 +144,7 @@
         height: 76px;
         background-size: cover;
         background-position: center;
-        filter: blur(2px) opacity(0.5);
+        filter: blur(3px) opacity(0.5);
         pointer-events: none;
     }
 
@@ -157,19 +157,20 @@
 
     &:has([data-icon-bg], [data-photo-bg]) {
         [data-tile-icon] {
-            filter: drop-shadow(0 0 1px var(--mantine-color-shadow))
-                drop-shadow(0 0 2px var(--mantine-color-shadow))
-                drop-shadow(0 0 4px var(--mantine-color-shadow));
+            filter: drop-shadow(0 0 1px var(--mantine-color-crust))
+                drop-shadow(0 0 2px var(--mantine-color-crust))
+                drop-shadow(0 0 4px var(--mantine-color-crust));
         }
 
         [data-content] {
+            --text-shadow: var(--mantine-color-neutral-text);
+
             text-shadow:
-                0 0 1px var(--mantine-color-shadow),
-                0 0 2px var(--mantine-color-shadow),
-                0 0 4px var(--mantine-color-shadow),
-                0 0 8px var(--mantine-color-shadow),
-                0 0 12px var(--mantine-color-shadow),
-                0 0 16px var(--mantine-color-shadow);
+                1px 0 1px var(--text-shadow),
+                0 1px 2px var(--mantine-color-crust),
+                1px 0 4px var(--mantine-color-crust),
+                0 1px 8px var(--mantine-color-crust),
+                1px 0 12px var(--mantine-color-crust);
         }
     }
 

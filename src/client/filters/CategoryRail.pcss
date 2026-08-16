@@ -95,5 +95,13 @@
             transform: scale(1.35);
             margin-inline: 3px -3px;
         }
+
+        &[data-active='true'] {
+            overflow: visible;
+
+            .ui-Tabs-tabLabel {
+                overflow: visible;
+            }
+        }
     }
 }
