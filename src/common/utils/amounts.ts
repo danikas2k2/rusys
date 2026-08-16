@@ -131,20 +131,23 @@ const FRACTION_SYMBOLS: Record<number, string> = {
     0.75: '¾',
 };
 
+/** Formats a number to the nearest quarter using compact fraction glyphs (e.g. `1½`). */
+export function formatQuarter(value: number): string {
+    const rounded = Math.round(value * 4) / 4;
+    if (rounded === 0 && value > 0) {
+        return '<½';
+    }
+    const whole = Math.trunc(rounded);
+    const fractionSymbol = FRACTION_SYMBOLS[rounded - whole] ?? '';
+    return whole === 0 && fractionSymbol ? fractionSymbol : `${whole}${fractionSymbol}`;
+}
+
 function formatQuantity(base: number, small: 'ml' | 'g', big: 'l' | 'kg'): FormattedQuantity {
     const useBig = base >= 100;
     const raw = useBig ? base / 1000 : base;
-    const rounded = Math.round(raw * 4) / 4;
     const unit = useBig ? big : small;
 
-    if (rounded === 0 && raw > 0) {
-        return { value: '<½', unit };
-    }
-
-    const whole = Math.trunc(rounded);
-    const fractionSymbol = FRACTION_SYMBOLS[rounded - whole] ?? '';
-    const value = whole === 0 && fractionSymbol ? fractionSymbol : `${whole}${fractionSymbol}`;
-    return { value, unit };
+    return { value: formatQuarter(raw), unit };
 }
 
 export function formatVolume(totalMl: number): FormattedQuantity {

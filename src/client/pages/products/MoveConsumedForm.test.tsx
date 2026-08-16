@@ -16,11 +16,11 @@ vi.mock(import('@mantine/core'), async () => {
     const actual = await vi.importActual('@mantine/core');
     return {
         ...actual,
-        Select: vi.fn(({ data, value, onChange, renderOption }: any) => (
+        Select: vi.fn(({ data, value, onChange }: any) => (
             <select role="combobox" value={value} onChange={(e) => onChange(e.target.value)}>
                 {(data as any[]).map((item: any) => (
                     <option key={item.value} value={item.value}>
-                        {renderOption ? renderOption({ option: item }) : item.label}
+                        {item.label}
                     </option>
                 ))}
             </select>

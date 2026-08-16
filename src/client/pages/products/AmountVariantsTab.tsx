@@ -18,6 +18,7 @@ import {
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { ChangeBadge } from '~/client/common/ChangeBadge';
 import { Label } from '~/client/common/Label';
+import { VariantAvatar } from '~/client/common/VariantAvatar';
 import { VariantTitle } from '~/client/common/VariantTitle';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AmountExpanded, type VariantDelta } from '~/client/pages/products/AmountExpanded';
@@ -465,9 +466,12 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
                                 {option.label}
                             </Group>
                         ) : (
-                            <Text>
-                                <VariantTitle group={group} variant={option.label} />
-                            </Text>
+                            <Group gap={6} wrap="nowrap">
+                                <VariantAvatar group={group} variant={option.value} />
+                                <Text>
+                                    <VariantTitle group={group} variant={option.label} />
+                                </Text>
+                            </Group>
                         )
                     }
                     withScrollArea={false}

@@ -3,6 +3,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 
 import { DecreaseIcon, IncreaseIcon, RecycledIcon } from '@icons';
 
+import { VariantAvatar } from '~/client/common/VariantAvatar';
 import { VariantTitle } from '~/client/common/VariantTitle';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
@@ -74,7 +75,10 @@ export function MoveConsumedForm({ group, lines, onMove, disabled = false }: Mov
                     value={String(selectedIndex)}
                     onChange={handleSelectChange}
                     renderOption={({ option }: { option: ComboboxItem }) => (
-                        <VariantTitle group={group} variant={option.label} />
+                        <Flex align="center" gap={6}>
+                            <VariantAvatar group={group} variant={option.label} />
+                            <VariantTitle group={group} variant={option.label} />
+                        </Flex>
                     )}
                     allowDeselect={false}
                     size="sm"
