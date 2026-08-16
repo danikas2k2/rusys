@@ -183,7 +183,7 @@ export default defineConfig(({ mode }) => {
             cssFallback({
                 outDir: path.resolve(root, 'dist/public'),
                 sourceFile: 'assets/index.css',
-                outputFile: 'assets/fallback.css',
+                outputFile: 'assets/legacy.css',
             }),
         ],
         server: {
