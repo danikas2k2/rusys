@@ -271,6 +271,9 @@
             "additionalProperties": {
               "type": "string"
             }
+          },
+          "archivedAt": {
+            "type": "integer"
           }
         },
         "required": ["group", "name"],
@@ -299,6 +302,9 @@
           },
           "photo": {
             "type": "string"
+          },
+          "archivedAt": {
+            "type": "integer"
           }
         },
         "required": ["group", "order"],
@@ -327,6 +333,9 @@
           },
           "units": {
             "type": "string"
+          },
+          "archivedAt": {
+            "type": "integer"
           }
         },
         "required": ["group", "variant", "order"],
