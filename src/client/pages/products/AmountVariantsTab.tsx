@@ -1,5 +1,5 @@
 import { Accordion, Avatar, Badge, Button, Flex, Group, Select, Stack, Text, type ComboboxItem } from '@mantine/core';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 
 import {
     AddIcon,
@@ -89,9 +89,10 @@ function compareKeys(a: string, b: string, compareVariants: (x: string, y: strin
 interface AmountVariantsTabProps {
     onChangesUpdate?: (hasChanges: boolean) => void;
     onClose?: () => void;
+    scrollContainerRef?: RefObject<HTMLElement | null>;
 }
 
-export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTabProps = {}) {
+export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef }: AmountVariantsTabProps = {}) {
     const _ = useLabels();
     const [active] = useActiveContent<ProductAmounts>();
     const [, setUpdating] = useUpdatingProducts();
@@ -176,6 +177,38 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
     const [expandedKey, setExpandedKey] = useState<string | null>(null);
     const [allDeltas, setAllDeltas] = useState<Record<string, VariantDelta>>({});
     const [comment, setComment] = useState('');
+
+    useEffect(() => {
+        if (!expandedKey || !scrollContainerRef?.current) {
+            return;
+        }
+
+        const container = scrollContainerRef.current;
+        const scrollExpandedVariantIntoView = () => {
+            const item = container.querySelector<HTMLElement>(`[data-amount-variant-key="${CSS.escape(expandedKey)}"]`);
+            if (!item) {
+                return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            const itemRect = item.getBoundingClientRect();
+            const margin = 8;
+            const availableHeight = containerRect.height - margin * 2;
+            const offset =
+                itemRect.height > availableHeight || itemRect.top < containerRect.top + margin
+                    ? itemRect.top - containerRect.top - margin
+                    : Math.max(0, itemRect.bottom - containerRect.bottom + margin);
+            if (offset) {
+                container.scrollBy({ top: offset, behavior: 'smooth' });
+            }
+        };
+
+        const frame = requestAnimationFrame(() => requestAnimationFrame(scrollExpandedVariantIntoView));
+        const timeout = window.setTimeout(scrollExpandedVariantIntoView, 250);
+        return () => {
+            cancelAnimationFrame(frame);
+            window.clearTimeout(timeout);
+        };
+    }, [expandedKey, scrollContainerRef, visibleKeys]);
 
     const [addingVariant, setAddingVariant] = useState(false);
     const handleAddVariantOpen = useCallback(() => setAddingVariant(true), []);
@@ -385,6 +418,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose }: AmountVariantsTa
                             <Accordion.Item
                                 key={key}
                                 value={key}
+                                data-amount-variant-key={key}
                                 data-suspicious={suspicious || undefined}
                                 data-home={home || undefined}
                                 data-expires={expiryStatus || undefined}

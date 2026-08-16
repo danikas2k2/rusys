@@ -1,4 +1,10 @@
 .ui-Modal-root[data-dialog="product"] {
+    .ui-Modal-content {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
     .ui-Modal-header {
         align-items: flex-start;
         flex-shrink: 0;
@@ -10,6 +16,39 @@
     .ui-Modal-title {
         flex: 1;
         min-width: 0;
+    }
+
+    .ui-Modal-body {
+        display: flex;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .ui-Stack-root.amount-box-content {
+        display: flex;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .ui-Tabs-root.amount-box-tabs {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .amount-box-tabs > .ui-Tabs-list {
+        z-index: 1;
+        flex: 0 0 auto;
+        background-color: var(--mantine-color-body);
+    }
+
+    .ui-Tabs-panel.amount-box-tab-panel {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
 
     .ui-Accordion-item {

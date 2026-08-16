@@ -1,5 +1,5 @@
 import { ActionIcon, Group, Stack, Tabs, type ModalProps } from '@mantine/core';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 
 import { DeleteIcon, EditIcon, HistoryTabIcon, QuantitiesTabIcon } from '@icons';
 
@@ -41,6 +41,7 @@ export function AmountBox({
 }: ValueListBoxProps) {
     const _ = useLabels();
     const [hasChanges, setHasChanges] = useState(false);
+    const quantitiesPanelRef = useRef<HTMLDivElement>(null);
 
     const handleExitTransitionEnd = useCallback(() => {
         onAfterClose?.();
@@ -80,13 +81,13 @@ export function AmountBox({
             data-dialog="product"
         >
             {() => (
-                <Stack gap="sm" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <Stack className="amount-box-content" gap="sm">
                     <ProductYearBar disabled={hasChanges} />
                     <Tabs
+                        className="amount-box-tabs"
                         variant="outline"
                         radius="sm"
                         defaultValue="quantities"
-                        style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
                     >
                         <Tabs.List>
                             <Tabs.Tab fz="md" value="quantities" leftSection={<QuantitiesTabIcon size={18} />}>
@@ -97,11 +98,15 @@ export function AmountBox({
                             </Tabs.Tab>
                         </Tabs.List>
 
-                        <Tabs.Panel value="quantities" pt="sm">
-                            <AmountVariantsTab onChangesUpdate={setHasChanges} onClose={onClose} />
+                        <Tabs.Panel className="amount-box-tab-panel" value="quantities" pt="sm" ref={quantitiesPanelRef}>
+                            <AmountVariantsTab
+                                onChangesUpdate={setHasChanges}
+                                onClose={onClose}
+                                scrollContainerRef={quantitiesPanelRef}
+                            />
                         </Tabs.Panel>
 
-                        <Tabs.Panel value="history" pt="sm">
+                        <Tabs.Panel className="amount-box-tab-panel" value="history" pt="sm">
                             <AmountHistoryTab />
                         </Tabs.Panel>
                     </Tabs>
