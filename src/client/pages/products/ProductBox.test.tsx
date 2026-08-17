@@ -133,6 +133,26 @@ describe('<ProductBox>', () => {
         expect(screen.getByRole('textbox', { name: 'Title' })).toHaveDisplayValue('Avietės');
     });
 
+    it('shows removal only when editing and a removal handler is supplied', () => {
+        const onDelete = vi.fn();
+
+        const { rerender } = render(
+            <MockThemeRedux state={state}>
+                <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} onDelete={onDelete} />
+            </MockThemeRedux>
+        );
+
+        expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
+
+        rerender(
+            <MockThemeRedux state={state}>
+                <ProductBox opened onClose={onClose} onDelete={onDelete} />
+            </MockThemeRedux>
+        );
+
+        expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
+    });
+
     it('renders with group name', () => {
         render(
             <MockThemeRedux state={state}>

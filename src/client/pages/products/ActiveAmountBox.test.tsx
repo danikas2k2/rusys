@@ -9,7 +9,7 @@ import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
 import { useProducts } from '~/client/state/products/useProducts';
 
 vi.mock(import('~/client/pages/products/AmountBox'), (): any => ({
-    AmountBox: ({ opened, photo, title, onClose, onAfterClose, onEdit, onDelete }: any) =>
+    AmountBox: ({ opened, photo, title, onClose, onAfterClose, onEdit }: any) =>
         opened ? (
             <div role="dialog" aria-label="Value box" data-photo={photo}>
                 {title}
@@ -22,14 +22,11 @@ vi.mock(import('~/client/pages/products/AmountBox'), (): any => ({
                 <button type="button" onClick={onEdit}>
                     Edit
                 </button>
-                <button type="button" onClick={onDelete}>
-                    Delete
-                </button>
             </div>
         ) : null,
 }));
 vi.mock(import('~/client/pages/products/ProductBox'), (): any => ({
-    ProductBox: ({ opened, group, name, parent, image, onClose }: any) =>
+    ProductBox: ({ opened, group, name, parent, image, onClose, onDelete }: any) =>
         opened ? (
             <div role="dialog" aria-label="Product box" data-group={group} data-name={name} data-parent={parent}>
                 {image}
@@ -41,6 +38,9 @@ vi.mock(import('~/client/pages/products/ProductBox'), (): any => ({
                 </button>
                 <button type="button" onClick={() => onClose(group, name)}>
                     Save unchanged
+                </button>
+                <button type="button" onClick={onDelete}>
+                    Delete
                 </button>
             </div>
         ) : null,
@@ -253,6 +253,7 @@ describe('<ActiveAmountBox>', () => {
                 </MockThemeActive>
             );
 
+            await user.click(screen.getByRole('button', { name: 'Edit' }));
             await user.click(screen.getByRole('button', { name: 'Delete' }));
 
             expect(screen.getByRole('alertdialog')).toBeInTheDocument();
@@ -270,6 +271,7 @@ describe('<ActiveAmountBox>', () => {
                 </MockThemeActive>
             );
 
+            await user.click(screen.getByRole('button', { name: 'Edit' }));
             await user.click(screen.getByRole('button', { name: 'Delete' }));
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
@@ -289,6 +291,7 @@ describe('<ActiveAmountBox>', () => {
                 </MockThemeActive>
             );
 
+            await user.click(screen.getByRole('button', { name: 'Edit' }));
             await user.click(screen.getByRole('button', { name: 'Delete' }));
             await user.click(screen.getByRole('button', { name: 'Remove' }));
 

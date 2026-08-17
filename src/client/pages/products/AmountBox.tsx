@@ -1,7 +1,7 @@
 import { ActionIcon, Group, Stack, Tabs, type ModalProps } from '@mantine/core';
 import React, { useCallback, useRef, useState } from 'react';
 
-import { DeleteIcon, EditIcon, HistoryTabIcon, QuantitiesTabIcon } from '@icons';
+import { EditIcon, HistoryTabIcon, QuantitiesTabIcon } from '@icons';
 
 import { ConfirmableModal } from '~/client/common/ConfirmableModal';
 import { Label } from '~/client/common/Label';
@@ -25,7 +25,6 @@ export interface ValueListBoxProps extends Pick<ModalProps, 'title'> {
     onClose?: () => void;
     onAfterClose?: () => void;
     onEdit?: () => void;
-    onDelete?: () => void;
 }
 
 export function AmountBox({
@@ -37,7 +36,6 @@ export function AmountBox({
     onClose,
     onAfterClose,
     onEdit,
-    onDelete,
 }: ValueListBoxProps) {
     const _ = useLabels();
     const [hasChanges, setHasChanges] = useState(false);
@@ -59,30 +57,25 @@ export function AmountBox({
             closeButtonProps={{ 'aria-label': _('Close') }}
             onExitTransitionEnd={handleExitTransitionEnd}
             title={
-                <Group justify="space-between" wrap="nowrap" flex={1}>
-                    <Group wrap="nowrap" gap="sm">
-                        <ProductDialogIcon photo={photo} />
-                        {title}
-                    </Group>
-                    <Group gap={4} wrap="nowrap">
-                        {onEdit && (
-                            <ActionIcon variant="subtle" color="gray" onClick={onEdit} aria-label={_('Edit')}>
-                                <EditIcon size={18} />
-                            </ActionIcon>
-                        )}
-                        {onDelete && (
-                            <ActionIcon variant="subtle" color="negative" onClick={onDelete} aria-label={_('Remove')}>
-                                <DeleteIcon size={18} />
-                            </ActionIcon>
-                        )}
-                    </Group>
+                <Group wrap="nowrap" gap="sm">
+                    <ProductDialogIcon photo={photo} />
+                    {title}
                 </Group>
             }
             data-dialog="product"
         >
             {() => (
                 <Stack className="amount-box-content" gap="sm">
-                    <ProductYearBar disabled={hasChanges} />
+                    <Group wrap="nowrap" gap="xs" align="flex-start">
+                        {onEdit && (
+                            <ActionIcon variant="subtle" color="gray" onClick={onEdit} aria-label={_('Edit')}>
+                                <EditIcon size={18} />
+                            </ActionIcon>
+                        )}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <ProductYearBar disabled={hasChanges} />
+                        </div>
+                    </Group>
                     <Tabs className="amount-box-tabs" variant="outline" radius="sm" defaultValue="quantities">
                         <Tabs.List>
                             <Tabs.Tab fz="md" value="quantities" leftSection={<QuantitiesTabIcon size={18} />}>

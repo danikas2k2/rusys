@@ -21,9 +21,8 @@ export function ActiveAmountBox(): React.ReactElement {
 
     const activeData = active?.data;
 
-    // Grid tiles are tap-to-open only (no swipe), so Edit/Delete need a way in from here -
-    // looked up fresh rather than carried on ProductAmounts, since that type only has the
-    // group/name/image an amounts edit needs, not the parent an identity edit also needs.
+    // Grid tiles are tap-to-open only (no swipe), so product editing is entered from the amount
+    // dialog. Look the product up fresh because ProductAmounts does not carry its parent.
     const activeProduct = useMemo(
         () =>
             activeData ? products.find((p) => p.group === activeData.group && p.name === activeData.name) : undefined,
@@ -74,9 +73,8 @@ export function ActiveAmountBox(): React.ReactElement {
         [activeData, setActive]
     );
 
-    // Delete opens right on top of this card too, same as Edit - the amounts card stays open
-    // underneath while the confirmation shows, rather than going through Page's shared
-    // ActiveRemoveConfirmation (which would close this card first, the same problem Edit had).
+    // Delete is initiated by ProductBox's footer, matching category and variant dialogs. The
+    // confirmation still stacks above both dialogs so cancelling returns to the edit form.
     const [removing, setRemoving] = useState(false);
     const handleDelete = useCallback(() => {
         if (!activeData) {
@@ -91,6 +89,7 @@ export function ActiveAmountBox(): React.ReactElement {
         }
         await deleteProduct(activeData.group, activeData.name);
         setRemoving(false);
+        setEditing(false);
         handleClose();
     }, [activeData, deleteProduct, handleClose]);
 
@@ -108,7 +107,6 @@ export function ActiveAmountBox(): React.ReactElement {
                 onClose={handleClose}
                 onAfterClose={handleAfterClose}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
                 title={<AmountTitle {...currentData} />}
             />
             <ProductBox
@@ -118,6 +116,9 @@ export function ActiveAmountBox(): React.ReactElement {
                 parent={activeProduct?.parent}
                 image={currentData?.image}
                 onClose={handleEditClose}
+                onDelete={handleDelete}
+                closeOnEscape={!removing}
+                closeOnClickOutside={!removing}
             />
             <ConfirmationDialog
                 opened={removing}

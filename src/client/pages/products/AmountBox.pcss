@@ -10,9 +10,8 @@
         flex-shrink: 0;
     }
 
-    // The title now lays itself out as a space-between Group (name/icon on the left, edit/delete
-    // actions on the right, next to the modal's own close button) - centering it as plain text
-    // no longer makes sense once it has its own internal flex layout to manage.
+    // The title holds only the product identity. Product actions live with the year controls,
+    // safely away from the modal's own close button.
     .ui-Modal-title {
         flex: 1;
         min-width: 0;
