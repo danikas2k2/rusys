@@ -130,12 +130,8 @@
         }
     }
 
-    // The icon-sized image, shown as a corner watermark instead of inline next to the checkbox -
-    // capped at 80x80 (not full tile width, unlike [data-photo]) so it reads as a small badge, not
-    // a background. The card's own overflow: hidden clips it to the top-left corner's radius.
-    // Blurred and dimmed so it stays a decorative backdrop, never competing with the checkbox/
-    // title/amounts stacked on top of it (see the shared :has() block below for how those stay
-    // legible over it, exactly the same way they do over a full [data-photo-bg]).
+    // The icon-sized image is a corner watermark rather than inline tile content. It is blurred
+    // and dimmed so it stays decorative; text contrast is handled separately with a crisp outline.
     [data-icon-bg] {
         position: absolute;
         inset-inline-start: 4px;
@@ -148,29 +144,15 @@
         pointer-events: none;
     }
 
-    // Text/checkbox shadow is one recipe, shared by icon and photo mode alike - only the glow
-    // colour differs (--tile-glow, set per mode below), because icon mode leaves the theme's own
-    // text colour in place (small corner image, most of the tile is still the normal background)
-    // while photo mode forces white text (see --mantine-color-text below) against a full backdrop.
-    --tile-glow: var(--mantine-color-white);
-    --tile-color: var(--mantine-color-crust);
-
-    &:has([data-icon-bg], [data-photo-bg]) {
-        [data-tile-icon] {
-            filter: drop-shadow(0 0 1px var(--mantine-color-crust))
-                drop-shadow(0 0 2px var(--mantine-color-crust))
-                drop-shadow(0 0 4px var(--mantine-color-crust));
-        }
-
+    &:has([data-icon-bg]) {
         [data-content] {
-            --text-shadow: var(--mantine-color-neutral-text);
-
+            // Four zero-blur shadows form a sharp 1px outline. Unlike the old broad shadow,
+            // this preserves glyph edges while separating every text colour from the image.
             text-shadow:
-                1px 0 1px var(--text-shadow),
-                0 1px 2px var(--mantine-color-crust),
-                1px 0 4px var(--mantine-color-crust),
-                0 1px 8px var(--mantine-color-crust),
-                1px 0 12px var(--mantine-color-crust);
+                -1px -1px 0 var(--mantine-color-body),
+                1px -1px 0 var(--mantine-color-body),
+                -1px 1px 0 var(--mantine-color-body),
+                1px 1px 0 var(--mantine-color-body);
         }
     }
 
@@ -187,14 +169,17 @@
         }
     }
 
-    // A background photo isn't part of the app's own light/dark chrome, so it needs its own
-    // fixed (not scheme-reactive) scrim + light text rather than the usual theme variables -
-    // the photo's colors don't change with the theme toggle, so neither should its contrast fix.
-    // Text/checkbox shadow itself is the shared recipe above - this only points --tile-glow at a
-    // dark colour instead of the (light-on-dark-mode-adapting) theme one, since text here is
-    // forced white against a full backdrop rather than left at the theme's normal colour.
+    // A background photo isn't part of the app's own light/dark chrome. Use a reliable dark
+    // scrim with white foreground content instead of blurred text shadows: the image remains
+    // visible while glyph edges stay sharp and meet a consistent contrast level.
     &[data-photo='true'] {
-        // --mantine-color-dimmed: rgb(255 255 255 / 75%);
+        --mantine-color-text: #fff;
+        --mantine-color-dimmed: rgb(255 255 255 / 85%);
+
+        [data-content],
+        .ui-ActionIcon-root {
+            color: #fff;
+        }
 
         [data-photo-bg] {
             position: absolute;
@@ -207,7 +192,7 @@
         [data-scrim] {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to right bottom, color-mix(in srgb, var(--mantine-color-base) 30%, transparent), color-mix(in srgb, var(--mantine-color-crust) 70%, transparent));
+            background: rgb(0 0 0 / 68%);
         }
     }
 
