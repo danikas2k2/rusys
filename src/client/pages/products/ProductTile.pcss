@@ -4,35 +4,23 @@
     overflow: hidden;
     cursor: pointer;
     transition: border-color 150ms ease-in-out;
-
-    // Mantine's Card (unlike Paper) fills itself via --mantine-color-dark-6 in dark mode, which
-    // this app's theme maps to a text shade (subtext0), not a surface shade - overriding with
-    // the same body variable every other surface in the app already uses avoids that mismatch.
     background-color: var(--mantine-color-body);
 
-    &[data-hidden='true'] {
+    &[data-hidden="true"] {
         display: none;
     }
 
-    &[data-summary='true'] {
+    &[data-summary="true"] {
         background-color: var(--mantine-color-neutral-0);
     }
 
-    // Matches the background of the children panel rendered right below it (see
-    // [data-children-panel] in ProductsGrid.pcss, at its normal position/radius, no shift). The
-    // ::after bridges the grid gap between this tile and that panel with the same background and
-    // side borders, its height covering the gap plus this tile's own bottom padding so it fully
-    // overlaps (and so hides) this tile's bottom border and rounded bottom corners. Needs
-    // overflow visible so that bridge isn't clipped by the tile's own bounds - the one tradeoff is
-    // a parent that's also in photo mode (rare: a product with children rarely has its own image)
-    // loses the scrim's rounded-corner clipping while expanded.
-    &[data-expanded-parent='true'] {
+    &[data-expanded-parent="true"] {
         overflow: visible;
         background-color: var(--mantine-color-neutral-0);
         border-color: var(--mantine-color-primary-filled);
 
         &::before {
-            content: '';
+            content: "";
             position: absolute;
             z-index: -1;
             inset-inline: -1px;
@@ -42,7 +30,7 @@
         }
 
         &::after {
-            content: '';
+            content: "";
             position: absolute;
             inset-inline: 0;
             bottom: calc(var(--mantine-spacing-xs) * -1.5);
@@ -51,12 +39,10 @@
         }
     }
 
-    // Border makes the state visible at a glance; the matching delete icon in the tile explains
-    // what the color means and keeps the status understandable without relying on color alone.
-    &[data-removing='true'] {
+    &[data-removing="true"] {
         border: 2px solid var(--mantine-color-negative-filled);
 
-        [data-tile-title] {
+        [data-tile-heading] {
             padding-inline-end: 1.5rem;
         }
     }
@@ -77,23 +63,14 @@
         box-shadow: 0 0 4px var(--mantine-color-shadow);
     }
 
-    // A zero quantity has nothing to act on beyond opening the dialog to add a first amount -
-    // dimmed to read as disabled, same as the table's own greyed-out empty cells.
-    &[data-empty='true'] {
+    &[data-empty="true"] {
         opacity: 0.55;
     }
 
-    // Grid (not flex) so the title and the amounts row below it share exactly the same column -
-    // the amounts wrap at the title's own width instead of spilling under the icon column, and
-    // there's no icon-column width to duplicate in CSS to keep the two in sync. Positioned (not
-    // just display: grid) so it paints above [data-scrim]/[data-icon-bg], which are both
-    // position: absolute and would otherwise paint on top of static content regardless of DOM order.
     [data-content] {
         position: relative;
         z-index: 1;
         display: grid;
-        // minmax(0, 1fr) lets the amounts column shrink to the tile width. A plain 1fr keeps
-        // the column's intrinsic content width, so a long amounts block can slide past the card.
         grid-template-columns: auto minmax(0, 1fr);
         grid-template-rows: auto 1fr;
     }
@@ -104,15 +81,12 @@
         align-self: start;
     }
 
-    [data-tile-title] {
+    [data-tile-heading] {
         grid-column: 2;
         grid-row: 1;
         align-self: start;
     }
 
-    // Full width, with each wrapped line right-aligned within it - a shrink-to-fit box (the
-    // Group's own default) would only line its right edge up with the tile's when the widest
-    // wrapped line happens to be the last one, leaving any shorter line hanging off to the left.
     [data-tile-amounts] {
         grid-column: 2;
         grid-row: 2;
@@ -130,8 +104,6 @@
         }
     }
 
-    // The icon-sized image is a corner watermark rather than inline tile content. It is blurred
-    // and dimmed so it stays decorative; text contrast is handled separately with a crisp outline.
     [data-icon-bg] {
         position: absolute;
         inset-inline-start: 4px;
@@ -144,24 +116,6 @@
         pointer-events: none;
     }
 
-    &:has([data-icon-bg]) {
-        [data-content] {
-            // Four zero-blur shadows form a sharp 1px outline. Unlike the old broad shadow,
-            // this preserves glyph edges while separating every text colour from the image.
-            text-shadow:
-                -1px -1px 0 var(--mantine-color-body),
-                1px -1px 0 var(--mantine-color-body),
-                -1px 1px 0 var(--mantine-color-body),
-                1px 1px 0 var(--mantine-color-body);
-        }
-    }
-
-    // The outline variant's checked/indeterminate state is otherwise a transparent box with just
-    // a coloured checkmark - fine on the app's own chrome, but it lets a photo tile's background
-    // bleed through behind it. Body-colour keeps the outline look (no filled box) while staying
-    // legible against any background. Mantine's own rule for this targets a raw, unprefixed
-    // CSS-module class (no `[data-variant]` attribute exists to hook into), so this instead wins
-    // on specificity via the tile ancestor - the only checkbox rendered inside a tile is this one.
     .ui-Checkbox-input {
         &:checked,
         &[data-indeterminate] {
@@ -169,30 +123,20 @@
         }
     }
 
-    // A background photo isn't part of the app's own light/dark chrome. Use a reliable dark
-    // scrim with white foreground content instead of blurred text shadows: the image remains
-    // visible while glyph edges stay sharp and meet a consistent contrast level.
-    &[data-photo='true'] {
-        --mantine-color-text: #fff;
-        --mantine-color-dimmed: rgb(255 255 255 / 85%);
-
-        [data-content],
-        .ui-ActionIcon-root {
-            color: #fff;
-        }
-
+    &[data-photo="true"] {
         [data-photo-bg] {
             position: absolute;
             inset: 0;
             background-size: cover;
             background-position: center;
-            filter: blur(1px);
+            filter: blur(2px);
         }
 
         [data-scrim] {
             position: absolute;
             inset: 0;
-            background: rgb(0 0 0 / 68%);
+            background: var(--mantine-color-crust);
+            opacity: 0.375;
         }
     }
 

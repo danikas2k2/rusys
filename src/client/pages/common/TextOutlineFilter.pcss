@@ -1,0 +1,5 @@
+[data-text-outline-filter="true"] {
+    // The SVG filter dilates the alpha channel of the whole rendered block. Nested spans
+    // and subs therefore produce one shared backdrop instead of overlapping outlines.
+    filter: url('#text-outline-filter');
+}

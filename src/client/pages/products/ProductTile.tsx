@@ -114,21 +114,24 @@ function ProductTileComponent({
             )}
             {isIcon && <div data-icon-bg style={{ backgroundImage: `url(${product.image})` }} />}
             <Stack gap={6} data-content h="100%">
-                <Stack data-tile-icon gap={4} align="center">
-                    <Group gap={4} wrap="nowrap" onClick={(e) => e.stopPropagation()}>
-                        <Checkbox
-                            variant="outline"
-                            size="sm"
-                            checked={!product.missing}
-                            disabled={!available}
-                            indeterminate={!available}
-                            onChange={handleMissingChange}
-                            aria-label={_(product.missing ? 'Mark as available' : 'Mark as missing')}
-                        />
-                    </Group>
-                </Stack>
-                <Group data-tile-title justify="space-between" wrap="nowrap" gap={6} align="flex-start">
-                    <Text lh="xs" lineClamp={2} style={{ flex: 1, minWidth: 0 }}>
+                <Group gap={4} wrap="nowrap" onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                        variant="outline"
+                        size="sm"
+                        checked={!product.missing}
+                        disabled={!available}
+                        indeterminate={!available}
+                        onChange={handleMissingChange}
+                        aria-label={_(product.missing ? 'Mark as available' : 'Mark as missing')}
+                    />
+                </Group>
+                <Group data-tile-heading justify="space-between" wrap="nowrap" gap={6} align="flex-start">
+                    <Text
+                        data-text-outline-filter={isIcon || isPhoto}
+                        lh="xs"
+                        lineClamp={2}
+                        style={{ flex: 1, minWidth: 0 }}
+                    >
                         {name}
                     </Text>
                     {hasChildren && (
@@ -143,7 +146,7 @@ function ProductTileComponent({
                         </ActionIcon>
                     )}
                 </Group>
-                <Group data-tile-amounts justify="flex-end" lh="xs">
+                <Group data-tile-amounts data-text-outline-filter={isIcon || isPhoto} justify="flex-end" lh="xs">
                     {totalAmounts.length > 0 && <AnnotatedTotalAmounts group={group} amounts={totalAmounts} />}
                 </Group>
             </Stack>

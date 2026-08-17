@@ -28,7 +28,7 @@ export function SummaryTile({ group, name, year, amounts, image, photo, hidden =
     const recycled = useMemo(() => yearAmounts?.filter((amount) => amount.recycled === true) ?? [], [yearAmounts]);
     const isEmpty = !consumed.length && !recycled.length;
 
-    const openHistory = useCallback(() => {
+    const handleClick = useCallback(() => {
         setActive({
             action: 'history',
             data: { group, name, year, amounts: yearAmounts ?? [], image, photo },
@@ -40,7 +40,7 @@ export function SummaryTile({ group, name, year, amounts, image, photo, hidden =
             withBorder
             padding="sm"
             radius="md"
-            onClick={openHistory}
+            onClick={handleClick}
             data-tile="product"
             data-summary-tile
             data-year={year}
@@ -57,12 +57,12 @@ export function SummaryTile({ group, name, year, amounts, image, photo, hidden =
             {isIcon && <div data-icon-bg style={{ backgroundImage: `url(${image})` }} />}
             <Stack gap={6} data-content h="100%">
                 <span data-tile-icon />
-                <Group data-tile-title justify="space-between" wrap="nowrap" gap={6} align="flex-start">
-                    <Text lh="xs" lineClamp={2} style={{ flex: 1, minWidth: 0 }}>
+                <Group data-tile-heading justify="space-between" wrap="nowrap" gap={6} align="flex-start">
+                    <Text data-text-outline-filter={isIcon} lh="xs" lineClamp={2} style={{ flex: 1, minWidth: 0 }}>
                         {name}
                     </Text>
                 </Group>
-                <Group data-tile-amounts justify="flex-end" lh="xs">
+                <Group data-tile-amounts data-text-outline-filter={isIcon} justify="flex-end" lh="xs">
                     <Stack gap={2} align="flex-end">
                         {consumed.length > 0 && (
                             <span data-type="consumed">
