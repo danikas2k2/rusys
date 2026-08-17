@@ -11,16 +11,6 @@
     --safe-inline-start: 0;
     --safe-inline-end: 0;
 
-    // Safari's browser chrome is not part of safe-area-inset-*. Start from the
-    // smallest viewport so content is never obscured, then let visualViewport
-    // (set by useVisualViewportHeight) track the visible height precisely.
-    --minimum-viewport-height: 100vh;
-    --app-viewport-height: var(--visual-viewport-height, var(--minimum-viewport-height));
-
-    @supports (height: 100svh) {
-        --minimum-viewport-height: 100svh;
-    }
-
     @supports (top: constant(safe-area-inset-top)) {
         --safe-block-start: constant(safe-area-inset-top);
         --safe-block-end: constant(safe-area-inset-bottom);
@@ -148,15 +138,8 @@ select,
     backdrop-filter: blur(2px);
 }
 
-// Keep modals sized to the space actually left on screen once the mobile keyboard opens.
-// window.visualViewport (see useVisualViewportHeight) tracks this more reliably across
-// browsers than the dvh unit, which some mobile browsers don't shrink for the keyboard.
-.ui-Modal-root {
-    --modal-content-max-height: calc(var(--app-viewport-height) - var(--modal-y-offset) * 2);
-
-    .ui-Modal-close {
-        color: var(--mantine-color-text);
-    }
+.ui-Modal-close {
+    color: var(--mantine-color-text);
 }
 
 .ui-Modal-header {
@@ -181,7 +164,6 @@ select,
 
     .ui-Modal-content {
         --modal-content-max-height: none;
-        --modal-content-height: var(--app-viewport-height);
     }
 }
 
@@ -192,12 +174,12 @@ select,
 // reflowing its own content internally rather than trying to fit a shrunken dialog chrome too.
 @media (width >= 48em) and (height >= 37.5em) {
     .ui-Modal-root[data-full-screen="true"] {
-        --windowed-modal-top: clamp(3rem, 10svh, 7rem);
+        --windowed-modal-top: clamp(3rem, 10dvh, 7rem);
 
         .ui-Modal-content {
             --modal-content-flex: 0 0 min(48rem, 90vw);
             --modal-content-height: auto;
-            --modal-content-max-height: calc(var(--app-viewport-height) - var(--windowed-modal-top) - 5svh);
+            --modal-content-max-height: calc(100dvh - var(--windowed-modal-top) - 5dvh);
 
             border-radius: var(--mantine-radius-default);
         }
