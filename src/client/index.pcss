@@ -363,3 +363,14 @@ time[data-date]:has(+ time[data-time])::after {
     content: ", ";
     text-wrap: wrap;
 }
+
+[data-text-outline-filter="true"] {
+    text-shadow: -2px -2px 0 var(--mantine-color-body),
+    0 -2px 0 var(--mantine-color-body),
+    2px -2px 0 var(--mantine-color-body),
+    -2px 0 0 var(--mantine-color-body),
+    2px 0 0 var(--mantine-color-body),
+    -2px 2px 0 var(--mantine-color-body),
+    0 2px 0 var(--mantine-color-body),
+    2px 2px 0 var(--mantine-color-body);
+}
