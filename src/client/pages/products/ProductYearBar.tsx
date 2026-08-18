@@ -15,6 +15,7 @@ import { useSetProductRemoving } from '~/client/state/products/useSetProductRemo
 import { getCombinedAmounts } from '~/common/utils/amounts';
 import type { Product, ProductAmounts as ProductAmountsType } from '~/types/data';
 
+import '../common/YearTotal.pcss';
 import './ProductYearBar.pcss';
 
 export interface ProductYearBarProps {
@@ -187,7 +188,7 @@ export function ProductYearBar({ disabled = false, onHistoryYearChange }: Produc
                 </Group>
             )}
             {liveAmounts.length > 0 && (
-                <Group justify="center" data-year-total>
+                <Group justify="center" data-year-total data-dialog-year-total>
                     <AnnotatedTotalAmounts group={group} amounts={liveAmounts} />
                 </Group>
             )}

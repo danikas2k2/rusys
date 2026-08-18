@@ -6,6 +6,8 @@ import { SummaryAmounts, type SummaryHistoryData } from '~/client/pages/summary/
 import { SummaryYear } from '~/client/pages/summary/SummaryYear';
 import { useSummary } from '~/client/state/summary/useSummary';
 
+import '../common/YearTotal.pcss';
+
 export function SummaryYearBar() {
     const [active, setActive] = useActiveContent<SummaryHistoryData>();
     const summary = useSummary();
@@ -47,7 +49,7 @@ export function SummaryYearBar() {
                     onChange={handleYearChange}
                 />
             )}
-            <Group justify="center" data-year-total>
+            <Group justify="center" data-year-total data-dialog-year-total>
                 <SummaryAmounts group={activeData.group} amounts={activeData.amounts} inline />
             </Group>
         </Stack>

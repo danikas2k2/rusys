@@ -143,7 +143,7 @@ describe('<ProductYearBar>', () => {
         });
 
         it('marks each newly selected history year as current', async () => {
-            const store = createActiveContentStore({ action: 'values', data: baseActive });
+            const store = createActiveContentStore<object>({ action: 'values', data: baseActive });
             vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
             vi.mocked(useProducts).mockReturnValue([
                 {
