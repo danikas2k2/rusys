@@ -64,8 +64,10 @@ export function ProductYearBar({ disabled = false, onHistoryYearChange }: Produc
     // years can be discovered without loading each year's history. Keep them in a menu rather
     // than expanding the always-visible year control with a potentially long archive.
     const historyOnlyYears = useMemo(() => {
-        const amountYears = new Set(activeProduct?.years?.map(({ year }) => year) ?? []);
-        return Array.from(new Set([...getHistoryYears(activeProduct?.updates), ...getHistoryYears(activeProduct?.undates)]))
+        const amountYears = new Set(activeProduct?.years?.map(({ year: amountYear }) => amountYear) ?? []);
+        return Array.from(
+            new Set([...getHistoryYears(activeProduct?.updates), ...getHistoryYears(activeProduct?.undates)])
+        )
             .filter((historyYear) => historyYear > 0 && !amountYears.has(historyYear))
             .sort((a, b) => b - a);
     }, [activeProduct]);
