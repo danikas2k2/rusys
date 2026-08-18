@@ -127,6 +127,18 @@ interface ColorSchemeRule {
     dark: postcss.Declaration[];
 }
 
+function withExplicitColorScheme(rule: postcss.Rule, scheme: 'light' | 'dark'): postcss.Rule {
+    const attribute = `[data-mantine-color-scheme="${scheme}"]`;
+    return rule.clone({
+        selectors: rule.selectors.map((selector) => {
+            if (selector.includes('[data-mantine-color-scheme]')) {
+                return selector.replaceAll('[data-mantine-color-scheme]', attribute);
+            }
+            return `:root${attribute} ${selector}`;
+        }),
+    });
+}
+
 function appendColorSchemeRules(supports: postcss.AtRule, rules: ColorSchemeRule[], pc: typeof postcss): void {
     for (const { rule, light, dark } of rules) {
         const lightMedia = pc.atRule({ name: 'media', params: '(prefers-color-scheme: light)' });
@@ -136,6 +148,14 @@ function appendColorSchemeRules(supports: postcss.AtRule, rules: ColorSchemeRule
             const darkMedia = pc.atRule({ name: 'media', params: '(prefers-color-scheme: dark)' });
             darkMedia.append(rule.clone({ nodes: dark }));
             supports.append(darkMedia);
+        }
+
+        // `light-dark()` follows the element's `color-scheme`, which Mantine changes through
+        // data-mantine-color-scheme. A media-query-only fallback would instead always follow
+        // the device setting, so an explicit in-app light/dark choice could never override it.
+        supports.append(withExplicitColorScheme(rule.clone({ nodes: light }), 'light'));
+        if (dark.some((decl, index) => decl.value !== light[index]?.value)) {
+            supports.append(withExplicitColorScheme(rule.clone({ nodes: dark }), 'dark'));
         }
     }
 }
