@@ -5,36 +5,56 @@
     //.ui-SegmentedControl-indicator {
     //}
 
-    [data-year-option] {
+    .ui-SegmentedControl-control:has([data-year-option]) {
         --year-color: inherit;
         --year-background: transparent;
         --year-border: none;
 
-        color: var(--year-color);
         background-color: var(--year-background);
-        border: var(--year-border);
-        border-radius: var(--mantine-radius-xl);
-        padding: .15rem .4rem;
+        border-radius: max(
+                calc(var(--sc-radius, var(--mantine-radius-default)) - 4px),
+                calc(var(--sc-radius, var(--mantine-radius-default)) / 4)
+        );
 
-        &[data-old] {
+        &:has([data-year-option][data-old]) {
             --year-color: var(--mantine-color-negative-text);
         }
 
-        &[data-current] {
-            --year-background: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
-        }
-
-        &[data-preferred] {
+        &:has([data-year-option][data-preferred]) {
             --year-color: var(--mantine-color-positive-light-color);
-            --year-background: color-mix(in srgb, var(--mantine-color-positive-light), transparent);
+            --year-background: var(--mantine-color-positive-light);
             --year-border: 1px dotted var(--mantine-color-positive-light-color);
         }
 
-        &[data-removing] {
+        &:has([data-year-option][data-removing]) {
             --year-color: var(--mantine-color-negative-light-color);
-            --year-background: color-mix(in srgb, var(--mantine-color-negative-light), transparent);
+            --year-background: var(--mantine-color-negative-light);
             --year-border: 1px dotted var(--mantine-color-negative-light-color);
         }
+
+        &[data-active]:has([data-year-option][data-preferred]) {
+            --year-color: var(--mantine-color-body);
+            --year-background: var(--mantine-color-positive-filled);
+            --year-border: none;
+        }
+
+        &[data-active]:has([data-year-option][data-removing]) {
+            --year-color: var(--mantine-color-body);
+            --year-background: var(--mantine-color-negative-filled);
+            --year-border: none;
+        }
+    }
+
+    .ui-SegmentedControl-label:has([data-year-option]) {
+        color: var(--year-color);
+        background-color: transparent;
+        border: var(--year-border);
+        border-radius: max(
+                calc(var(--sc-radius, var(--mantine-radius-default)) - 4px),
+                calc(var(--sc-radius, var(--mantine-radius-default)) / 4)
+        );
+        box-sizing: border-box;
+        padding: .15rem .4rem;
     }
 }
 

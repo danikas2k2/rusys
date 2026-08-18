@@ -118,6 +118,7 @@ export function ProductYearBar({ disabled = false, onHistoryYearChange }: Produc
                     <SegmentedControl
                         key={year}
                         size="sm"
+                        withItemsBorders={false}
                         style={{ flex: 1 }}
                         data={yearOptions.map((y) => {
                             const old = y <= thisYear - OLD_YEARS_THRESHOLD;
