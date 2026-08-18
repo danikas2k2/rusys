@@ -127,9 +127,10 @@ function ProductTileComponent({
                 </Group>
                 <Group data-tile-heading justify="space-between" wrap="nowrap" gap={6} align="flex-start">
                     <Text
-                        data-text-outline-filter={isIcon || isPhoto}
-                        lh="xs"
+                        data-text-shaddow={isIcon || isPhoto}
+                        lh={1}
                         lineClamp={2}
+                        p="4 2"
                         style={{ flex: 1, minWidth: 0 }}
                     >
                         {name}
@@ -146,7 +147,7 @@ function ProductTileComponent({
                         </ActionIcon>
                     )}
                 </Group>
-                <Group data-tile-amounts data-text-outline-filter={isIcon || isPhoto} justify="flex-end" lh="xs">
+                <Group data-tile-amounts data-text-shaddow={isIcon || isPhoto} justify="flex-end" lh="xs">
                     {totalAmounts.length > 0 && <AnnotatedTotalAmounts group={group} amounts={totalAmounts} />}
                 </Group>
             </Stack>

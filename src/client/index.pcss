@@ -364,13 +364,39 @@ time[data-date]:has(+ time[data-time])::after {
     text-wrap: wrap;
 }
 
-[data-text-outline-filter="true"] {
-    text-shadow: -2px -2px 0 var(--mantine-color-body),
-    0 -2px 0 var(--mantine-color-body),
-    2px -2px 0 var(--mantine-color-body),
-    -2px 0 0 var(--mantine-color-body),
-    2px 0 0 var(--mantine-color-body),
-    -2px 2px 0 var(--mantine-color-body),
-    0 2px 0 var(--mantine-color-body),
-    2px 2px 0 var(--mantine-color-body);
+[data-text-shaddow="true"] {
+    --shadow-color: var(--mantine-color-body);
+    --shadow-offset: 2px;
+    --shadow-nefset: calc(var(--shadow-offset) * -1);
+    --shadow-xs: 0;
+    --shadow-sm: 2px;
+    --shadow-md: 4px;
+
+    text-shadow:
+            var(--shadow-nefset) var(--shadow-nefset) var(--shadow-xs) var(--shadow-color),
+            0 var(--shadow-nefset) var(--shadow-xs) var(--shadow-color),
+            var(--shadow-offset) var(--shadow-nefset) var(--shadow-xs) var(--shadow-color),
+            var(--shadow-nefset) 0 var(--shadow-xs) var(--shadow-color),
+            var(--shadow-offset) 0 var(--shadow-xs) var(--shadow-color),
+            var(--shadow-nefset) var(--shadow-offset) var(--shadow-xs) var(--shadow-color),
+            0 var(--shadow-offset) var(--shadow-xs) var(--shadow-color),
+            var(--shadow-offset) var(--shadow-offset) var(--shadow-xs) var(--shadow-color),
+
+            var(--shadow-nefset) var(--shadow-nefset) var(--shadow-sm) var(--shadow-color),
+            0 var(--shadow-nefset) var(--shadow-sm) var(--shadow-color),
+            var(--shadow-offset) var(--shadow-nefset) var(--shadow-sm) var(--shadow-color),
+            var(--shadow-nefset) 0 var(--shadow-sm) var(--shadow-color),
+            var(--shadow-offset) 0 var(--shadow-sm) var(--shadow-color),
+            var(--shadow-nefset) var(--shadow-offset) var(--shadow-sm) var(--shadow-color),
+            0 var(--shadow-offset) var(--shadow-sm) var(--shadow-color),
+            var(--shadow-offset) var(--shadow-offset) var(--shadow-sm) var(--shadow-color),
+
+            var(--shadow-nefset) var(--shadow-nefset) var(--shadow-md) var(--shadow-color),
+            0 var(--shadow-nefset) var(--shadow-md) var(--shadow-color),
+            var(--shadow-offset) var(--shadow-nefset) var(--shadow-md) var(--shadow-color),
+            var(--shadow-nefset) 0 var(--shadow-md) var(--shadow-color),
+            var(--shadow-offset) 0 var(--shadow-md) var(--shadow-color),
+            var(--shadow-nefset) var(--shadow-offset) var(--shadow-md) var(--shadow-color),
+            0 var(--shadow-offset) var(--shadow-md) var(--shadow-color),
+            var(--shadow-offset) var(--shadow-offset) var(--shadow-md) var(--shadow-color);
 }

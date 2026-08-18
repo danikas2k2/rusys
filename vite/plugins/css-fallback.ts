@@ -504,16 +504,23 @@ export function cssFallback(options: { outDir: string; sourceFile: string; outpu
                     .catch(next);
             });
         },
-        handleHotUpdate(context) {
-            if (!/\.p?css$/i.test(context.file)) {
+        hotUpdate({ file, timestamp, modules }) {
+            if (!/\.p?css$/i.test(file)) {
                 return;
             }
             invalidateDevCss();
-            context.server.ws.send({
+            this.environment.hot.send({
                 type: 'custom',
                 event: 'css-fallback:update',
-                data: { timestamp: Date.now() },
+                data: { timestamp },
             });
+
+            // createDevLegacyCss reads each stylesheet through Vite's `?inline` transform.
+            // Those generated, importer-less modules cannot accept HMR and make Vite fall back
+            // to a page reload. They are only inputs for the separately refreshed legacy sheet;
+            // leave the real CSS module in the update so normal style HMR still applies.
+            const browserModules = modules.filter((module) => !module.url.includes('?inline'));
+            return browserModules.length ? browserModules : undefined;
         },
         async closeBundle(this: PluginContext) {
             const srcPath = path.resolve(options.outDir, options.sourceFile);

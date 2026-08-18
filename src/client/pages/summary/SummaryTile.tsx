@@ -58,11 +58,11 @@ export function SummaryTile({ group, name, year, amounts, image, photo, hidden =
             <Stack gap={6} data-content h="100%">
                 <span data-tile-icon />
                 <Group data-tile-heading justify="space-between" wrap="nowrap" gap={6} align="flex-start">
-                    <Text data-text-outline-filter={isIcon} lh="xs" lineClamp={2} style={{ flex: 1, minWidth: 0 }}>
+                    <Text data-text-shaddow={isIcon} lh="xs" lineClamp={2} style={{ flex: 1, minWidth: 0 }}>
                         {name}
                     </Text>
                 </Group>
-                <Group data-tile-amounts data-text-outline-filter={isIcon} justify="flex-end" lh="xs">
+                <Group data-tile-amounts data-text-shaddow={isIcon} justify="flex-end" lh="xs">
                     <Stack gap={2} align="flex-end">
                         {consumed.length > 0 && (
                             <span data-type="consumed">
