@@ -4,6 +4,7 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
+import { ActiveContentContext, createActiveContentStore } from '~/client/common/ActiveContentContext';
 import { AnnotatedTotalAmounts } from '~/client/pages/products/AnnotatedTotalAmounts';
 import { OLD_YEARS_THRESHOLD } from '~/client/pages/products/ProductCells';
 import { ProductYearBar } from '~/client/pages/products/ProductYearBar';
@@ -48,10 +49,14 @@ describe('<ProductYearBar>', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    function renderBar(active: ProductAmountsType = baseActive, setActive?: (v?: any) => void) {
+    function renderBar(
+        active: ProductAmountsType = baseActive,
+        setActive?: (v?: any) => void,
+        onHistoryYearChange?: () => void
+    ) {
         return render(
             <MockThemeActive active={{ action: 'values', data: active }} setActive={setActive}>
-                <ProductYearBar />
+                <ProductYearBar onHistoryYearChange={onHistoryYearChange} />
             </MockThemeActive>
         );
     }
@@ -113,6 +118,59 @@ describe('<ProductYearBar>', () => {
             expect(setActive).toHaveBeenCalledWith({ action: 'values', data: { ...baseActive, year: 2022 } });
         });
 
+        it('offers history-only years in a menu and opens their history', async () => {
+            const setActive = vi.fn();
+            const onHistoryYearChange = vi.fn();
+            vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
+            vi.mocked(useProducts).mockReturnValue([
+                {
+                    group,
+                    name: baseActive.name,
+                    years: [{ year: 2023, amounts: baseActive.amounts }],
+                    updates: [{ year: 2020 }],
+                    undates: [{ year: 2019 }],
+                },
+            ]);
+
+            renderBar(baseActive, setActive, onHistoryYearChange);
+
+            await user.click(screen.getByRole('button', { name: 'History years' }));
+            await user.click(screen.getByRole('menuitem', { name: '2020' }));
+
+            expect(setActive).toHaveBeenCalledWith({ action: 'values', data: { ...baseActive, year: 2020 } });
+            expect(onHistoryYearChange).toHaveBeenCalledOnce();
+            expect(screen.queryByRole('menuitem', { name: '2023' })).not.toBeInTheDocument();
+        });
+
+        it('marks each newly selected history year as current', async () => {
+            const store = createActiveContentStore({ action: 'values', data: baseActive });
+            vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
+            vi.mocked(useProducts).mockReturnValue([
+                {
+                    group,
+                    name: baseActive.name,
+                    years: [{ year: 2023, amounts: baseActive.amounts }],
+                    updates: [{ year: 2020 }],
+                    undates: [{ year: 2019 }],
+                },
+            ]);
+            render(
+                <MockThemeActive>
+                    <ActiveContentContext value={store}>
+                        <ProductYearBar />
+                    </ActiveContentContext>
+                </MockThemeActive>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'History years' }));
+            await user.click(screen.getByRole('menuitem', { name: '2020' }));
+            expect(screen.getByText('2020')).toHaveAttribute('data-current');
+
+            await user.click(screen.getByRole('button', { name: 'History years' }));
+            await user.click(screen.getByRole('menuitem', { name: '2019' }));
+            expect(screen.getByText('2019')).toHaveAttribute('data-current');
+        });
+
         it('disables the switcher when disabled prop is set', () => {
             vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
             vi.mocked(useProducts).mockReturnValue([
@@ -161,6 +219,15 @@ describe('<ProductYearBar>', () => {
             const { container } = renderBar({ ...baseActive, year: thisYear });
 
             expect(container.querySelector('[data-year-option][data-preferred]')).toHaveTextContent(String(thisYear));
+        });
+
+        it('marks the selected year as current', () => {
+            vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
+            const { container } = renderBar();
+
+            expect(container.querySelector('[data-year-option][data-current]')).toHaveTextContent(
+                String(baseActive.year)
+            );
         });
 
         it('marks a year flagged as removing distinctly', () => {

@@ -39,6 +39,7 @@ export function AmountBox({
 }: ValueListBoxProps) {
     const _ = useLabels();
     const [hasChanges, setHasChanges] = useState(false);
+    const [activeTab, setActiveTab] = useState<string | null>('quantities');
     const quantitiesPanelRef = useRef<HTMLDivElement>(null);
 
     const handleExitTransitionEnd = useCallback(() => {
@@ -73,10 +74,16 @@ export function AmountBox({
                             </ActionIcon>
                         )}
                         <div style={{ flex: 1, minWidth: 0 }}>
-                            <ProductYearBar disabled={hasChanges} />
+                            <ProductYearBar disabled={hasChanges} onHistoryYearChange={() => setActiveTab('history')} />
                         </div>
                     </Group>
-                    <Tabs className="amount-box-tabs" variant="outline" radius="sm" defaultValue="quantities">
+                    <Tabs
+                        className="amount-box-tabs"
+                        variant="outline"
+                        radius="sm"
+                        value={activeTab}
+                        onChange={setActiveTab}
+                    >
                         <Tabs.List>
                             <Tabs.Tab fz="md" value="quantities" leftSection={<QuantitiesTabIcon size={18} />}>
                                 <Label>Quantities</Label>

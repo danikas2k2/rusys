@@ -14,10 +14,14 @@
         background-color: var(--year-background);
         border: var(--year-border);
         border-radius: var(--mantine-radius-xl);
-        padding: .15rem .75rem;
+        padding: .15rem .4rem;
 
         &[data-old] {
             --year-color: var(--mantine-color-negative-text);
+        }
+
+        &[data-current] {
+            --year-background: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
         }
 
         &[data-preferred] {
@@ -30,6 +34,33 @@
             --year-color: var(--mantine-color-negative-light-color);
             --year-background: color-mix(in srgb, var(--mantine-color-negative-light), transparent);
             --year-border: 1px dotted var(--mantine-color-negative-light-color);
+        }
+    }
+}
+
+// Mantine's default menu surface does not follow the app's custom body surface in all themes.
+.history-years-menu-dropdown {
+    background: var(--mantine-color-body);
+    border-color: var(--mantine-color-default-border);
+    color: var(--mantine-color-text);
+}
+
+// Keep historical-year selection and hover aligned with the navigation menu: the regular
+// default hover surface in the dark scheme is too light for its text.
+.history-years-menu-item {
+    &[data-current] {
+        background-color: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
+    }
+
+    @media (hover: hover) {
+        &:hover:not([data-disabled]) {
+            background-color: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
+        }
+    }
+
+    @media (hover: none) {
+        &:active:not([data-disabled]) {
+            background-color: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
         }
     }
 }
