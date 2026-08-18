@@ -24,3 +24,5 @@ declare module '*.pcss?module' {
     const classes: { readonly [key: string]: string };
     export default classes;
 }
+
+declare module 'virtual:css-fallback-client';

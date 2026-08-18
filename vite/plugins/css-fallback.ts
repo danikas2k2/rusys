@@ -2,25 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import postcss from 'postcss';
+import type { PluginContext } from 'rollup';
+import type { ModuleNode, Plugin, ViteDevServer } from 'vite';
 
 interface Hsl {
     h: number;
     s: number;
     l: number;
-}
-
-interface CssFallbackPluginContext {
-    warn(message: string): void;
-    error(message: string): void;
-    info(message: string): void;
-}
-
-/** The subset of the Vite plugin contract this plugin implements. */
-interface CssFallbackVitePlugin {
-    name: string;
-    apply: 'build';
-    enforce: 'post';
-    closeBundle(this: CssFallbackPluginContext): Promise<void>;
 }
 
 const SUPPORTS_RELATIVE_COLOR = '(background: hsl(from red h s l))';
@@ -356,17 +344,158 @@ function buildLegacyCss(css: string): string {
     );
 }
 
-export function cssFallback(
-    options: { outDir: string; sourceFile: string; outputFile: string }
-): CssFallbackVitePlugin {
+const DEV_ENTRY = '/src/client/index.tsx';
+const DEV_LEGACY_CSS_PATH = '/@css-fallback/legacy.css';
+const VIRTUAL_CLIENT_ID = 'virtual:css-fallback-client';
+const RESOLVED_DEV_CLIENT_ID = '\0css-fallback:client';
+
+function isCssModule(module: ModuleNode): boolean {
+    return /\.p?css(?:$|\?)/i.test(module.url);
+}
+
+function collectCssModuleUrls(module: ModuleNode, visited: Set<ModuleNode>, urls: string[]): void {
+    if (visited.has(module)) {
+        return;
+    }
+    visited.add(module);
+
+    if (isCssModule(module)) {
+        urls.push(module.url);
+        return;
+    }
+
+    for (const dependency of module.importedModules) {
+        collectCssModuleUrls(dependency, visited, urls);
+    }
+}
+
+function getInlineCss(transformResult: { code: string } | null, url: string): string {
+    const match = transformResult?.code.match(/^export default\s+([\s\S]*?);?\s*$/);
+    if (!match) {
+        throw new Error(`[css-fallback] Could not read transformed CSS from ${url}`);
+    }
+    return JSON.parse(match[1]!);
+}
+
+function addInlineQuery(url: string): string {
+    return `${url}${url.includes('?') ? '&' : '?'}inline`;
+}
+
+async function createDevLegacyCss(server: ViteDevServer): Promise<string> {
+    // Make the entry graph available before collecting its CSS leaves. This also makes the
+    // legacy stylesheet work on the very first dev-server page load.
+    await server.warmupRequest(DEV_ENTRY);
+    const entry = await server.moduleGraph.getModuleByUrl(DEV_ENTRY);
+    const urls: string[] = [];
+
+    if (entry) {
+        collectCssModuleUrls(entry, new Set(), urls);
+    } else {
+        for (const module of server.moduleGraph.urlToModuleMap.values()) {
+            if (isCssModule(module)) {
+                urls.push(module.url);
+            }
+        }
+    }
+
+    const css = (
+        await Promise.all(
+            [...new Set(urls)].map(async (url) => getInlineCss(await server.transformRequest(addInlineQuery(url)), url))
+        )
+    ).join('\n');
+    const fallback = await postcss([buildFallback()]).process(css, { from: undefined });
+    return `${buildLegacyCss(css)}\n${fallback.css}`;
+}
+
+const devClientCode = `
+const legacyCssPath = ${JSON.stringify(DEV_LEGACY_CSS_PATH)};
+const supportsModernCss = () =>
+    window.CSS &&
+    window.CSS.supports &&
+    window.CSS.supports('color', 'light-dark(white, black)') &&
+    window.CSS.supports('background', 'hsl(from red h s l)') &&
+    window.CSS.supports('color', 'color-mix(in srgb, red, blue)');
+
+let legacyLink;
+const loadLegacyCss = (timestamp = Date.now()) => {
+    if (!legacyLink) {
+        legacyLink = document.createElement('link');
+        legacyLink.rel = 'stylesheet';
+        document.head.append(legacyLink);
+    }
+    legacyLink.href = legacyCssPath + '?t=' + timestamp;
+};
+
+if (!supportsModernCss()) {
+    loadLegacyCss();
+    if (import.meta.hot) {
+        import.meta.hot.on('css-fallback:update', ({ timestamp }) => loadLegacyCss(timestamp));
+    }
+}
+`;
+
+export function cssFallback(options: { outDir: string; sourceFile: string; outputFile: string }): Plugin {
     const outputBasename = path.basename(options.outputFile);
     const sourceBasename = path.basename(options.sourceFile);
+    let devMode = false;
+    let devCss: string | undefined;
+    let devCssPromise: Promise<string> | undefined;
+
+    const invalidateDevCss = () => {
+        devCss = undefined;
+        devCssPromise = undefined;
+    };
+
+    const getDevCss = (server: ViteDevServer) => {
+        if (devCss) {
+            return Promise.resolve(devCss);
+        }
+        devCssPromise ??= createDevLegacyCss(server).then((css) => {
+            devCss = css;
+            return css;
+        });
+        return devCssPromise;
+    };
 
     return {
         name: 'css-fallback',
-        apply: 'build',
         enforce: 'post',
-        async closeBundle(this: CssFallbackPluginContext) {
+        configResolved(config) {
+            devMode = config.command === 'serve';
+        },
+        resolveId(id) {
+            return id === VIRTUAL_CLIENT_ID ? RESOLVED_DEV_CLIENT_ID : undefined;
+        },
+        load(id) {
+            if (id !== RESOLVED_DEV_CLIENT_ID) {
+                return undefined;
+            }
+            return devMode ? devClientCode : 'export {};';
+        },
+        configureServer(server) {
+            server.middlewares.use(DEV_LEGACY_CSS_PATH, (_request, response, next) => {
+                void getDevCss(server)
+                    .then((css) => {
+                        response.statusCode = 200;
+                        response.setHeader('Content-Type', 'text/css; charset=utf-8');
+                        response.setHeader('Cache-Control', 'no-store');
+                        response.end(css);
+                    })
+                    .catch(next);
+            });
+        },
+        handleHotUpdate(context) {
+            if (!/\.p?css$/i.test(context.file)) {
+                return;
+            }
+            invalidateDevCss();
+            context.server.ws.send({
+                type: 'custom',
+                event: 'css-fallback:update',
+                data: { timestamp: Date.now() },
+            });
+        },
+        async closeBundle(this: PluginContext) {
             const srcPath = path.resolve(options.outDir, options.sourceFile);
             if (!fs.existsSync(srcPath)) {
                 this.warn(`[css-fallback] Source file not found: ${srcPath}`);
