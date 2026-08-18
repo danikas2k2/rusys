@@ -7,8 +7,8 @@ import { SummaryYearBar } from '~/client/pages/summary/SummaryYearBar';
 import { useSummary } from '~/client/state/summary/useSummary';
 
 vi.mock(import('~/client/state/summary/useSummary'), () => ({ useSummary: vi.fn() }));
-vi.mock(import('~/client/pages/summary/SummaryCell'), async () => ({
-    ...(await vi.importActual('~/client/pages/summary/SummaryCell')),
+vi.mock(import('~/client/pages/summary/SummaryAmounts'), async () => ({
+    ...(await vi.importActual('~/client/pages/summary/SummaryAmounts')),
     SummaryAmounts: ({ amounts, inline }: { amounts?: readonly { amount: number }[]; inline?: boolean }) =>
         amounts?.length ? <span data-inline={inline}>{amounts[0]!.amount}</span> : '.',
 }));

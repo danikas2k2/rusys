@@ -6,14 +6,12 @@ import { HistoryTabIcon, RecycledIcon } from '@icons';
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AnnotatedTotalAmounts } from '~/client/pages/products/AnnotatedTotalAmounts';
-import { isPreferred } from '~/client/pages/products/ProductCell';
-import { OLD_YEARS_THRESHOLD } from '~/client/pages/products/ProductCells';
 import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 import { getCombinedAmounts } from '~/common/utils/amounts';
-import type { Product, ProductAmounts as ProductAmountsType } from '~/types/data';
+import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts } from '~/types/data';
 
 import '../common/YearTotal.pcss';
 import './ProductYearBar.pcss';
@@ -23,8 +21,28 @@ export interface ProductYearBarProps {
     onHistoryYearChange?: () => void;
 }
 
-function getHistoryYears(history: Product['updates'] | Product['undates']): number[] {
+export function getHistoryYears(history: Product['updates'] | Product['undates']): number[] {
     return history?.flatMap((entry) => ('year' in entry ? [entry.year] : entry.years.map(({ year }) => year))) ?? [];
+}
+
+export const OLD_YEARS_THRESHOLD = 4;
+
+export function isPreferred(year: number, years: readonly RemovingYearAmounts[]): boolean {
+    const thisYear = new Date().getFullYear() % 100;
+    let maxOlderYear = -1;
+    let hasThisYear = false;
+    for (const y of years) {
+        if (!y.amounts?.length || y.removing) {
+            continue;
+        }
+        if (y.year < thisYear && y.year > maxOlderYear) {
+            maxOlderYear = y.year;
+        }
+        if (y.year === thisYear) {
+            hasThisYear = true;
+        }
+    }
+    return maxOlderYear !== -1 ? year === maxOlderYear : year === thisYear && hasThisYear;
 }
 
 // Shared between the Quantities and History tabs (rendered once, above both, in AmountBox) so

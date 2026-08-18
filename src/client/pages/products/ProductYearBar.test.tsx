@@ -6,8 +6,7 @@ import React from 'react';
 
 import { ActiveContentContext, createActiveContentStore } from '~/client/common/ActiveContentContext';
 import { AnnotatedTotalAmounts } from '~/client/pages/products/AnnotatedTotalAmounts';
-import { OLD_YEARS_THRESHOLD } from '~/client/pages/products/ProductCells';
-import { ProductYearBar } from '~/client/pages/products/ProductYearBar';
+import { OLD_YEARS_THRESHOLD, ProductYearBar } from '~/client/pages/products/ProductYearBar';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';

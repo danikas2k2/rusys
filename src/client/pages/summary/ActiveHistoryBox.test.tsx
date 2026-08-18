@@ -4,7 +4,7 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 import React from 'react';
 
 import { ActiveHistoryBox } from '~/client/pages/summary/ActiveHistoryBox';
-import type { SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
+import type { SummaryHistoryData } from '~/client/pages/summary/SummaryAmounts';
 import { SummaryHistoryBox } from '~/client/pages/summary/SummaryHistoryBox';
 
 vi.mock(import('~/client/pages/summary/SummaryHistoryBox'), () => ({

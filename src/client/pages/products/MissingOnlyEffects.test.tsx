@@ -6,9 +6,6 @@ import { MissingOnlyContext } from '~/client/pages/products/MissingOnlyContext';
 import { MissingOnlyEffects } from '~/client/pages/products/MissingOnlyEffects';
 import { useHasMissing } from '~/client/state/products/useHasMissing';
 
-vi.mock(import('~/client/pages/products/ProductsTable'), () => ({
-    ProductsTable: vi.fn(),
-}));
 vi.mock(import('~/client/state/products/useHasMissing'), () => ({
     useHasMissing: vi.fn().mockReturnValue(true),
 }));

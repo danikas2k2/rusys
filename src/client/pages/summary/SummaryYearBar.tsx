@@ -2,7 +2,7 @@ import { Group, SegmentedControl, Stack } from '@mantine/core';
 import React, { useCallback, useMemo } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
-import { SummaryAmounts, type SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
+import { SummaryAmounts, type SummaryHistoryData } from '~/client/pages/summary/SummaryAmounts';
 import { SummaryYear } from '~/client/pages/summary/SummaryYear';
 import { useSummary } from '~/client/state/summary/useSummary';
 

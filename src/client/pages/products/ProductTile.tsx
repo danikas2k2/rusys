@@ -7,10 +7,9 @@ import { CollapseIcon, ExpandIcon, RecycledIcon } from '@icons';
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AnnotatedTotalAmounts } from '~/client/pages/products/AnnotatedTotalAmounts';
-import { getPreferredYear } from '~/client/pages/products/ProductCell';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
 import { getCombinedAmounts } from '~/common/utils/amounts';
-import type { Product, ProductAmounts as ProductAmountsType, VariantAmount } from '~/types/data';
+import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts, VariantAmount } from '~/types/data';
 
 import './ProductTile.pcss';
 
@@ -28,6 +27,22 @@ export interface ProductTileProps {
     // amounts (totalAmounts excludes children once expanded) still isn't really "empty" when this
     // is true, since its children (shown separately below) do have something.
     hasNonEmptyDescendant?: boolean;
+}
+
+// The single year isPreferred() would pick out of `years` - falls back to the current year (with
+// no own amounts yet) when nothing qualifies, same as starting a brand new annual product.
+export function getPreferredYear(years: readonly RemovingYearAmounts[] | undefined): number {
+    const thisYear = new Date().getFullYear() % 100;
+    let maxOlderYear = -1;
+    for (const y of years ?? []) {
+        if (!y.amounts?.length || y.removing) {
+            continue;
+        }
+        if (y.year < thisYear && y.year > maxOlderYear) {
+            maxOlderYear = y.year;
+        }
+    }
+    return maxOlderYear !== -1 ? maxOlderYear : thisYear;
 }
 
 function ProductTileComponent({

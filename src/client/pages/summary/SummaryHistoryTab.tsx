@@ -4,7 +4,7 @@ import React from 'react';
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';
 import { LoadableContent } from '~/client/common/LoadableContent';
-import { type SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
+import { type SummaryHistoryData } from '~/client/pages/summary/SummaryAmounts';
 import { SummaryHistoryRow } from '~/client/pages/summary/SummaryHistoryRow';
 import { useGetSummaryHistory } from '~/client/state/history/useGetSummaryHistory';
 import { useUndates } from '~/client/state/history/useUndates';

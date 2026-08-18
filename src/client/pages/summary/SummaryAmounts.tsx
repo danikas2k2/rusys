@@ -1,9 +1,8 @@
-import { Center, Group, Stack, Table, Text } from '@mantine/core';
-import React, { useCallback, useMemo } from 'react';
+import { Group, Stack, Text } from '@mantine/core';
+import React, { useMemo } from 'react';
 
 import { ApproxAmountIcon, HomeIcon } from '@icons';
 
-import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { useAmountView } from '~/client/common/AmountViewContext';
 import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
@@ -77,20 +76,17 @@ function HomeAmounts({ group, homeBalance }: HomeAmountsProps) {
     );
 }
 
-export interface SummaryCellProps {
-    group: string;
-    name: string;
-    year: number;
-    amounts?: readonly VariantAmount[];
-}
-
 export type SummaryHistoryData = ProductAmountsData;
 
 export function SummaryAmounts({
     group,
     amounts,
     inline = false,
-}: Pick<SummaryCellProps, 'group' | 'amounts'> & { inline?: boolean }) {
+}: {
+    group: string;
+    amounts?: readonly VariantAmount[];
+    inline?: boolean;
+}) {
     const consumed = useMemo(() => amounts?.filter((a) => a.recycled === false) ?? [], [amounts]);
     const recycled = useMemo(() => amounts?.filter((a) => a.recycled === true) ?? [], [amounts]);
     const homeBalance = useMemo(() => amounts?.filter((a) => a.recycled == null && a.home) ?? [], [amounts]);
@@ -121,26 +117,5 @@ export function SummaryAmounts({
         );
     }
 
-    return (
-        <Stack gap={2} align="center">
-            {sections}
-        </Stack>
-    );
-}
-
-export function SummaryCell({ group, name, year, amounts }: SummaryCellProps) {
-    const setActive = useSetActiveContent<SummaryHistoryData>();
-    const isEmpty = !amounts?.some((amount) => amount.recycled != null || amount.home);
-
-    const handleClick = useCallback(() => {
-        setActive({ action: 'history', data: { group, name, year, amounts: amounts ?? [] } });
-    }, [setActive, group, name, year, amounts]);
-
-    return (
-        <Table.Td data-cell data-empty={isEmpty} onClick={handleClick} style={{ cursor: 'pointer' }}>
-            <Center>
-                <SummaryAmounts group={group} amounts={amounts} />
-            </Center>
-        </Table.Td>
-    );
+    return <Stack gap={2} align="center">{sections}</Stack>;
 }

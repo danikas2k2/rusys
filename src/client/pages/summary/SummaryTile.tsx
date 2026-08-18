@@ -3,7 +3,7 @@ import React, { useCallback, useMemo } from 'react';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { AnnotatedTotalAmounts } from '~/client/pages/products/AnnotatedTotalAmounts';
-import { type SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
+import { type SummaryHistoryData } from '~/client/pages/summary/SummaryAmounts';
 import type { YearAmounts } from '~/types/data';
 
 import '~/client/pages/products/ProductTile.pcss';

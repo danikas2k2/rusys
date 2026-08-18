@@ -4,7 +4,7 @@ import React, { useCallback, useState } from 'react';
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { AmountTitle } from '~/client/common/AmountTitle';
 import { ProductDialogIcon } from '~/client/common/ProductDialogIcon';
-import { type SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
+import { type SummaryHistoryData } from '~/client/pages/summary/SummaryAmounts';
 import { SummaryHistoryBox } from '~/client/pages/summary/SummaryHistoryBox';
 
 export function ActiveHistoryBox(): React.ReactElement {

@@ -4,7 +4,7 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 import React from 'react';
 
 import { AmountsCell } from '~/client/pages/products/AmountsCell';
-import type { SummaryHistoryData } from '~/client/pages/summary/SummaryCell';
+import type { SummaryHistoryData } from '~/client/pages/summary/SummaryAmounts';
 import { SummaryHistoryTab } from '~/client/pages/summary/SummaryHistoryTab';
 import { useGetSummaryHistory } from '~/client/state/history/useGetSummaryHistory';
 import { useUndates } from '~/client/state/history/useUndates';

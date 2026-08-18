@@ -509,7 +509,6 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
                         )
                     }
                     withScrollArea={false}
-                    comboboxProps={{ middlewares: { flip: false, shift: false } }}
                     size="sm"
                     clearable={false}
                 />

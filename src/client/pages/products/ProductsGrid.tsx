@@ -91,7 +91,7 @@ export function ProductsGrid() {
         });
     }, []);
 
-    // See ProductsTable's identical comment: ProductTile is memoized, so every tile needs a
+    // ProductTile is memoized, so every tile needs a
     // stable, same-reference-across-renders onToggleExpand handler.
     const toggleHandlers = useMemo(() => {
         const map = new Map<string, () => void>();
