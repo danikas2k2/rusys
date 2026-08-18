@@ -29,5 +29,11 @@
 
     .ui-NumberInput-section {
         width: auto;
+
+        // Do not rely on Mantine's inline `color="text"` ActionIcon variable here. On legacy
+        // WebKit it can retain the system theme after the app selects the opposite one.
+        .ui-ActionIcon-root {
+            color: var(--row-color);
+        }
     }
 }
