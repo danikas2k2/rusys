@@ -9,11 +9,18 @@ import './SummaryHistoryBox.pcss';
 
 export interface SummaryHistoryBoxProps extends Pick<ModalProps, 'title'> {
     opened?: boolean;
+    closeOnEscape?: boolean;
     onClose?: () => void;
     onAfterClose?: () => void;
 }
 
-export function SummaryHistoryBox({ opened = false, title, onClose, onAfterClose }: SummaryHistoryBoxProps) {
+export function SummaryHistoryBox({
+    opened = false,
+    title,
+    closeOnEscape = true,
+    onClose,
+    onAfterClose,
+}: SummaryHistoryBoxProps) {
     const _ = useLabels();
 
     const handleClose = useCallback(() => onClose?.(), [onClose]);
@@ -25,6 +32,7 @@ export function SummaryHistoryBox({ opened = false, title, onClose, onAfterClose
             opened={opened}
             withCloseButton
             onClose={handleClose}
+            closeOnEscape={closeOnEscape}
             closeButtonProps={{ 'aria-label': _('Close') }}
             onExitTransitionEnd={handleExitTransitionEnd}
             title={title}

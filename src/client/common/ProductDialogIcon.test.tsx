@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -25,6 +26,40 @@ describe('<ProductDialogIcon>', () => {
         );
 
         expect(container.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/product.png');
+        expect(screen.getByRole('button', { name: 'View image' })).toBeInTheDocument();
+    });
+
+    it('opens the photo viewer and toggles between fitting and original-size modes', async () => {
+        const user = userEvent.setup();
+        render(
+            <MockTheme>
+                <ProductDialogIcon photo="/images/ab/cd/product.png" />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'View image' }));
+        const viewer = screen.getByRole('button', { name: '' });
+
+        expect(viewer).not.toHaveAttribute('data-zoomed');
+
+        await user.click(viewer);
+
+        expect(viewer).toHaveAttribute('data-zoomed', 'true');
+
+        fireEvent.pointerDown(viewer, { pointerId: 1, clientX: 10, clientY: 20 });
+        fireEvent.pointerMove(viewer, { pointerId: 1, clientX: 35, clientY: 50 });
+        fireEvent.pointerUp(viewer, { pointerId: 1 });
+
+        expect(viewer.querySelector('img')).toHaveStyle({ transform: 'translate(25px, 30px)' });
+
+        await user.click(viewer);
+
+        // The click that ends a drag must not collapse the image; the next click does.
+        expect(viewer).toHaveAttribute('data-zoomed', 'true');
+
+        await user.click(viewer);
+
+        expect(viewer).not.toHaveAttribute('data-zoomed');
     });
 
     it('falls back to the generic icon when the photo fails to load', () => {

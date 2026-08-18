@@ -1,5 +1,5 @@
 import { Group } from '@mantine/core';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { AmountTitle } from '~/client/common/AmountTitle';
@@ -9,6 +9,7 @@ import { SummaryHistoryBox } from '~/client/pages/summary/SummaryHistoryBox';
 
 export function ActiveHistoryBox(): React.ReactElement {
     const [active, setActive] = useActiveContent<SummaryHistoryData>();
+    const [photoPreviewOpen, setPhotoPreviewOpen] = useState(false);
 
     const activeData = active?.data;
 
@@ -22,9 +23,10 @@ export function ActiveHistoryBox(): React.ReactElement {
             opened={opened}
             onClose={handleClose}
             onAfterClose={handleAfterClose}
+            closeOnEscape={!photoPreviewOpen}
             title={
                 <Group wrap="nowrap" gap="sm">
-                    <ProductDialogIcon photo={activeData?.photo} />
+                    <ProductDialogIcon photo={activeData?.photo} onPhotoPreviewOpenChange={setPhotoPreviewOpen} />
                     <AmountTitle {...activeData} />
                 </Group>
             }

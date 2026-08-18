@@ -40,11 +40,10 @@ export function AmountBox({
     const _ = useLabels();
     const [hasChanges, setHasChanges] = useState(false);
     const [activeTab, setActiveTab] = useState<string | null>('quantities');
+    const [photoPreviewOpen, setPhotoPreviewOpen] = useState(false);
     const quantitiesPanelRef = useRef<HTMLDivElement>(null);
 
-    const handleExitTransitionEnd = useCallback(() => {
-        onAfterClose?.();
-    }, [onAfterClose]);
+    const handleExitTransitionEnd = useCallback(() => onAfterClose?.(), [onAfterClose]);
 
     return (
         <ConfirmableModal
@@ -53,13 +52,13 @@ export function AmountBox({
             withCloseButton
             isDirty={() => hasChanges}
             onClose={() => onClose?.()}
-            closeOnEscape={closeOnEscape}
+            closeOnEscape={closeOnEscape && !photoPreviewOpen}
             closeOnClickOutside={closeOnClickOutside}
             closeButtonProps={{ 'aria-label': _('Close') }}
             onExitTransitionEnd={handleExitTransitionEnd}
             title={
                 <Group wrap="nowrap" gap="sm">
-                    <ProductDialogIcon photo={photo} />
+                    <ProductDialogIcon photo={photo} onPhotoPreviewOpenChange={setPhotoPreviewOpen} />
                     {title}
                 </Group>
             }

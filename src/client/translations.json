@@ -54,7 +54,7 @@
     "lt-LT": "Pakartoti"
   },
   "Undo": {
-    "lt-LT": "Atšaukti"
+    "lt-LT": "Grąžinti"
   },
   "Select variant": {
     "lt-LT": "Pasirinkite variantą"
@@ -304,6 +304,9 @@
   },
   "Remove image": {
     "lt-LT": "Pašalinti paveikslėlį"
+  },
+  "View image": {
+    "lt-LT": "Peržiūrėti paveikslėlį"
   },
   "Removing this year?": {
     "lt-LT": "Šie metai naikinami?"

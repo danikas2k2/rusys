@@ -43,7 +43,7 @@ describe('<AmountBox>', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    it('renders the product photo in the dialog header watermark when given', () => {
+    it('renders the product photo thumbnail in the dialog header when given', () => {
         const { container } = render(
             <MockTheme>
                 <AmountBox opened photo="/images/ab/cd/photo.png" />
@@ -87,6 +87,22 @@ describe('<AmountBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('closes only the photo viewer when Escape is pressed over it', async () => {
+        const onClose = vi.fn();
+
+        render(
+            <MockTheme>
+                <AmountBox opened photo="/images/ab/cd/photo.png" onClose={onClose} />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'View image' }));
+        fireEvent.keyDown(document.body, { key: 'Escape' });
+
+        expect(onClose).not.toHaveBeenCalled();
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
     describe('closeOnEscape/closeOnClickOutside', () => {

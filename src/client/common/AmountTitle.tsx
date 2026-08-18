@@ -16,9 +16,13 @@ export function AmountTitle({ group, name, image, photo }: AmountTitleProps): Re
                     {name?.trim().charAt(0).toUpperCase()}
                 </Avatar>
             )}
-            <Stack gap={2} align="start">
-                <Title order={1}>{name}</Title>
-                <Title order={4}>{group}</Title>
+            <Stack gap={8} align="start">
+                <Title order={1} lh={1}>
+                    {name}
+                </Title>
+                <Title order={4} lh={1}>
+                    {group}
+                </Title>
             </Stack>
         </Group>
     );
