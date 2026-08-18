@@ -117,4 +117,45 @@ describe('<CategoryRailLayout>', () => {
 
         expect(screen.getByLabelText('selected-category')).toHaveTextContent('Uogienės');
     });
+
+    it('does the same for an additional active filter', async () => {
+        function Fixture() {
+            const [selected, setSelected] = useState('Uogienės');
+            const [missingOnly, setMissingOnly] = useState(false);
+            return (
+                <>
+                    <button onClick={() => setMissingOnly(true)}>Missing only</button>
+                    <button onClick={() => setMissingOnly(false)}>All products</button>
+                    <span aria-label="selected-category">{selected}</span>
+                    <CategoryRailLayout
+                        groups={[
+                            { group: 'Uogienės', order: 0 },
+                            { group: 'Uogos', order: 1 },
+                        ]}
+                        selected={selected}
+                        onSelect={setSelected}
+                        groupsWithContent={new Set(['Uogos'])}
+                        filterActive={missingOnly}
+                    >
+                        content
+                    </CategoryRailLayout>
+                </>
+            );
+        }
+
+        const user = userEvent.setup();
+        render(
+            <MockTheme>
+                <Fixture />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Missing only' }));
+
+        expect(screen.getByLabelText('selected-category')).toHaveTextContent('Uogos');
+
+        await user.click(screen.getByRole('button', { name: 'All products' }));
+
+        expect(screen.getByLabelText('selected-category')).toHaveTextContent('Uogienės');
+    });
 });

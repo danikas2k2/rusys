@@ -254,6 +254,15 @@
   "Mark as missing": {
     "lt-LT": "Pažymėti kaip trūkstamą"
   },
+  "Missing {count} product": {
+    "lt-LT": "Trūksta {count} produkto"
+  },
+  "Missing {count} products": {
+    "lt-LT": "Trūksta {count} produktų"
+  },
+  "No products missing": {
+    "lt-LT": "Produktų netrūksta"
+  },
   "Marked for removal": {
     "lt-LT": "Pažymėta šalinimui"
   },

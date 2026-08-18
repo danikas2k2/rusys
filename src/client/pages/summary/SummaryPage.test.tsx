@@ -6,11 +6,7 @@ import React from 'react';
 import { QuickFilterWrapper } from '~/client/filters/QuickFilterContext';
 import { SummaryGrid } from '~/client/pages/summary/SummaryGrid';
 import { SummaryPage } from '~/client/pages/summary/SummaryPage';
-import { SummaryTable } from '~/client/pages/summary/SummaryTable';
 
-vi.mock(import('~/client/pages/summary/SummaryTable'), () => ({
-    SummaryTable: vi.fn(() => <div>SummaryTable</div>),
-}));
 vi.mock(import('~/client/pages/summary/SummaryGrid'), () => ({
     SummaryGrid: vi.fn(() => <div>SummaryGrid</div>),
 }));
@@ -36,11 +32,10 @@ describe('<SummaryPage>', () => {
 
         expect(screen.getByText('SummaryGrid')).toBeInTheDocument();
         expect(SummaryGrid).toHaveBeenCalledWith({}, undefined);
-        expect(SummaryTable).not.toHaveBeenCalled();
         expect(screen.getByText('Toolbar')).toBeInTheDocument();
     });
 
-    it('renders the table view when previously selected', () => {
+    it('keeps rendering the grid when the removed table preference is stored', () => {
         localStorage.setItem('productsView', 'table');
 
         render(
@@ -49,9 +44,7 @@ describe('<SummaryPage>', () => {
             </MockPage>
         );
 
-        expect(screen.getByText('SummaryTable')).toBeInTheDocument();
-        expect(SummaryTable).toHaveBeenCalledWith({}, undefined);
-        expect(SummaryGrid).not.toHaveBeenCalled();
+        expect(screen.getByText('SummaryGrid')).toBeInTheDocument();
     });
 
     it('only shows categories that have summary data', () => {

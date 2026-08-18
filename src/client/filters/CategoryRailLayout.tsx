@@ -13,6 +13,8 @@ interface CategoryRailLayoutProps {
     selected: string;
     onSelect: (group: string) => void;
     groupsWithContent: ReadonlySet<string>;
+    /** Additional active filter (e.g. products' missing-only checkbox). */
+    filterActive?: boolean;
 }
 
 export function CategoryRailLayout({
@@ -20,16 +22,18 @@ export function CategoryRailLayout({
     selected,
     onSelect,
     groupsWithContent,
+    filterActive = false,
     children,
 }: React.PropsWithChildren<CategoryRailLayoutProps>): React.ReactElement {
     const [quickFilter] = useQuickFilter();
     const groupBeforeFiltering = useRef<string>();
+    const hasActiveFilter = !!quickFilter.trim() || filterActive;
 
     // A text filter can leave the selected category empty while results are available elsewhere.
     // Keep the user's category in a ref, temporarily show the first category with a match, then
     // restore their context as soon as the filter is cleared.
     useEffect(() => {
-        if (!quickFilter.trim()) {
+        if (!hasActiveFilter) {
             const previousGroup = groupBeforeFiltering.current;
             groupBeforeFiltering.current = undefined;
             if (previousGroup && groups.some(({ group }) => group === previousGroup) && previousGroup !== selected) {
@@ -53,7 +57,7 @@ export function CategoryRailLayout({
         if (matchingGroup !== selected) {
             onSelect(matchingGroup);
         }
-    }, [quickFilter, groups, groupsWithContent, selected, onSelect]);
+    }, [hasActiveFilter, groups, groupsWithContent, selected, onSelect]);
 
     return (
         <Group align="flex-start" gap="4" wrap="nowrap">

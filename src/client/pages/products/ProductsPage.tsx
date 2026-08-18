@@ -1,8 +1,5 @@
-import { Group } from '@mantine/core';
 import React from 'react';
 
-import { ProductsViewWrapper, useProductsView } from '~/client/common/ProductsViewContext';
-import { ProductsViewToggle } from '~/client/common/ProductsViewToggle';
 import { SwipeControls } from '~/client/common/SwipeControls';
 import { SwipeControlsWrapper } from '~/client/common/SwipeControlsContext';
 import { CategoryRailLayout } from '~/client/filters/CategoryRailLayout';
@@ -13,10 +10,9 @@ import { ActiveAmountBox } from '~/client/pages/products/ActiveAmountBox';
 import { ActiveProductBox } from '~/client/pages/products/ActiveProductBox';
 import { useGroupsWithProducts } from '~/client/pages/products/hooks/useGroupsWithProducts';
 import { MissingOnlyCheckbox } from '~/client/pages/products/MissingOnlyCheckbox';
-import { MissingOnlyWrapper } from '~/client/pages/products/MissingOnlyContext';
+import { MissingOnlyWrapper, useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
 import { MissingOnlyEffects } from '~/client/pages/products/MissingOnlyEffects';
 import { ProductsGrid } from '~/client/pages/products/ProductsGrid';
-import { ProductsTable } from '~/client/pages/products/ProductsTable';
 import { UpdatingProductsWrapper } from '~/client/pages/products/UpdatingProductsContext';
 import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
 import type { Product } from '~/types/data';
@@ -30,9 +26,7 @@ export function ProductsPage() {
     return (
         <UpdatingProductsWrapper>
             <MissingOnlyWrapper>
-                <ProductsViewWrapper>
-                    <ProductsPageContent onDelete={handleDelete} />
-                </ProductsViewWrapper>
+                <ProductsPageContent onDelete={handleDelete} />
             </MissingOnlyWrapper>
         </UpdatingProductsWrapper>
     );
@@ -44,7 +38,7 @@ function ProductsPageContent({ onDelete }: { onDelete: (product: Product) => voi
     const groups = useSortedGroups();
     const [selectedGroup, setSelectedGroup] = useGroupFilter();
     const groupsWithProducts = useGroupsWithProducts();
-    const [productsView] = useProductsView();
+    const [missingOnly] = useMissingOnly();
 
     return (
         <Page withAdd onDelete={onDelete} alignToolbarWithCategoryRail>
@@ -53,19 +47,14 @@ function ProductsPageContent({ onDelete }: { onDelete: (product: Product) => voi
                 selected={selectedGroup}
                 onSelect={setSelectedGroup}
                 groupsWithContent={groupsWithProducts}
+                filterActive={missingOnly}
             >
-                <div data-products-header data-view={productsView}>
-                    {/* Always two slots (left/right), even when the left one has nothing to show -
-                        otherwise `space-between` would collapse to a single item and the toggle
-                        would jump to the left instead of staying pinned to the right. */}
-                    <Group justify="space-between" wrap="nowrap" mb="sm">
-                        <div>{productsView === 'grid' && <MissingOnlyCheckbox />}</div>
-                        <ProductsViewToggle />
-                    </Group>
+                <div data-products-header>
+                    <MissingOnlyCheckbox />
                 </div>
                 <SwipeControlsWrapper>
                     <MissingOnlyEffects />
-                    {productsView === 'grid' ? <ProductsGrid /> : <ProductsTable />}
+                    <ProductsGrid />
                     <SwipeControls />
                 </SwipeControlsWrapper>
             </CategoryRailLayout>

@@ -8,14 +8,10 @@ import { Page } from '~/client/pages/common/Page';
 import { MissingOnlyEffects } from '~/client/pages/products/MissingOnlyEffects';
 import { ProductsGrid } from '~/client/pages/products/ProductsGrid';
 import { ProductsPage } from '~/client/pages/products/ProductsPage';
-import { ProductsTable } from '~/client/pages/products/ProductsTable';
 import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
 
 vi.mock(import('~/client/pages/products/ProductsGrid'), (): any => ({
     ProductsGrid: vi.fn(() => <div>ProductsGrid</div>),
-}));
-vi.mock(import('~/client/pages/products/ProductsTable'), (): any => ({
-    ProductsTable: vi.fn(() => <div>ProductsTable</div>),
 }));
 vi.mock(import('~/client/pages/products/MissingOnlyEffects'), (): any => ({
     MissingOnlyEffects: vi.fn(() => null),
@@ -66,11 +62,10 @@ describe('<ProductsPage>', () => {
 
         expect(screen.getByText('ProductsGrid')).toBeInTheDocument();
         expect(ProductsGrid).toHaveBeenCalledWith({}, undefined);
-        expect(ProductsTable).not.toHaveBeenCalled();
         expect(MissingOnlyEffects).toHaveBeenCalledWith({}, undefined);
     });
 
-    it('renders the table view when previously selected', () => {
+    it('keeps rendering the grid when the removed table preference is stored', () => {
         localStorage.setItem('productsView', 'table');
 
         render(
@@ -79,9 +74,7 @@ describe('<ProductsPage>', () => {
             </MockApp>
         );
 
-        expect(screen.getByText('ProductsTable')).toBeInTheDocument();
-        expect(ProductsTable).toHaveBeenCalledWith({}, undefined);
-        expect(ProductsGrid).not.toHaveBeenCalled();
+        expect(screen.getByText('ProductsGrid')).toBeInTheDocument();
     });
 
     it('shows the missing-only checkbox in the sticky header for grid view', () => {
@@ -93,23 +86,7 @@ describe('<ProductsPage>', () => {
 
         const header = document.querySelector('[data-products-header]');
 
-        expect(header).toHaveAttribute('data-view', 'grid');
         expect(within(header as HTMLElement).getByRole('checkbox')).toBeInTheDocument();
-    });
-
-    it('does not show the missing-only checkbox in the header for table view', () => {
-        localStorage.setItem('productsView', 'table');
-
-        render(
-            <MockApp>
-                <ProductsPage />
-            </MockApp>
-        );
-
-        const header = document.querySelector('[data-products-header]');
-
-        expect(header).toHaveAttribute('data-view', 'table');
-        expect(within(header as HTMLElement).queryByRole('checkbox')).not.toBeInTheDocument();
     });
 
     it('calls deleteProduct when handleDelete is called', async () => {

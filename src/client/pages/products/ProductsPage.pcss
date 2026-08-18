@@ -1,13 +1,8 @@
-// Only the grid ("plytelės") view needs this - the table view already has its own sticky
-// thead (see .ui-Table-thead in index.pcss) covering the same view-toggle/checkbox row, and
-// stacking two independently sticky headers here would make them overlap at scroll time.
-[data-products-header][data-view='grid'] {
+[data-products-header] {
     position: sticky;
     top: 0;
     z-index: 2;
     background-color: var(--mantine-color-body);
-
-    // Matches [data-grid='products']'s own padding-inline (ProductsGrid.pcss), so the checkbox
-    // and view toggle line up with the tile edges below instead of running flush to the screen.
+    padding-block: var(--mantine-spacing-xs);
     padding-inline: var(--mantine-spacing-xs);
 }

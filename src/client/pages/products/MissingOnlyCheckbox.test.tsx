@@ -9,6 +9,7 @@ import { useHasFilteredMissing } from '~/client/pages/products/hooks/useHasFilte
 import { MissingOnlyCheckbox } from '~/client/pages/products/MissingOnlyCheckbox';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
 import { useHasMissing } from '~/client/state/products/useHasMissing';
+import { useProducts } from '~/client/state/products/useProducts';
 
 vi.mock(import('~/client/pages/products/MissingOnlyContext'), () => ({
     useMissingOnly: vi.fn(),
@@ -22,6 +23,9 @@ vi.mock(import('~/client/filters/QuickFilterContext'), () => ({
 vi.mock(import('~/client/state/products/useHasMissing'), () => ({
     useHasMissing: vi.fn(),
 }));
+vi.mock(import('~/client/state/products/useProducts'), () => ({
+    useProducts: vi.fn(),
+}));
 
 describe('<MissingOnlyCheckbox>', () => {
     const setMissingOnly = vi.fn();
@@ -30,6 +34,7 @@ describe('<MissingOnlyCheckbox>', () => {
     beforeEach(() => {
         vi.mocked(useMissingOnly).mockReturnValue([false, setMissingOnly]);
         vi.mocked(useHasMissing).mockReturnValue(true);
+        vi.mocked(useProducts).mockReturnValue([]);
         vi.mocked(useHasFilteredMissing).mockReturnValue(false);
         vi.mocked(useQuickFilter).mockReturnValue(['', setFilter]);
     });
@@ -55,6 +60,31 @@ describe('<MissingOnlyCheckbox>', () => {
         );
 
         expect(screen.getByRole('checkbox')).toBeDisabled();
+    });
+
+    it('shows the missing product count next to the checkbox', () => {
+        vi.mocked(useProducts).mockReturnValue([
+            { group: 'Uogienės', name: 'Avietės', missing: true, years: [] },
+            { group: 'Uogienės', name: 'Braškės', missing: true, years: [] },
+        ]);
+        render(
+            <MockTheme>
+                <MissingOnlyCheckbox />
+            </MockTheme>
+        );
+
+        expect(screen.getByText('Missing 2 products')).toBeInTheDocument();
+    });
+
+    it('shows that nothing is missing when there are no missing products', () => {
+        vi.mocked(useHasMissing).mockReturnValue(false);
+        render(
+            <MockTheme>
+                <MissingOnlyCheckbox />
+            </MockTheme>
+        );
+
+        expect(screen.getByText('No products missing')).toBeInTheDocument();
     });
 
     it('renders checked checkbox when showing all items', () => {
