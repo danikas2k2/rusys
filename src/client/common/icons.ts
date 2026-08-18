@@ -18,7 +18,7 @@ export {
     IconMinus as DecreaseIcon,
     IconTrashX as DeleteIcon,
     IconIcons as DetailedAmountViewIcon,
-    IconRobotFace as DevUserIcon,
+    IconUserCircle as DevUserIcon,
     IconX as DiscardIcon,
     IconEqual as DragHandleIcon,
     IconCopy as DuplicateIcon,
