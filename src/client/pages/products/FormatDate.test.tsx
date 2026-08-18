@@ -3,7 +3,7 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { FormatDate } from '~/client/pages/products/FormatDate';
+import { FormatDate } from '~/client/common/FormatDate';
 
 vi.mock(import('~/client/hooks/useLabels'), () => ({
     useLabels: () => (s: string) => s,

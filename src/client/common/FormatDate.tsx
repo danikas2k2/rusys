@@ -3,17 +3,12 @@ import React from 'react';
 import { useLabels } from '~/client/hooks/useLabels';
 import { formatDate, formatTime } from '~/client/utils/time';
 
-interface FormatDateProps {
-    date: Date;
-}
-
-export function FormatDate({ date }: FormatDateProps) {
+export function FormatDate({ date }: { date: Date }) {
     const _ = useLabels();
     const ts = formatTime(date);
     const ds = formatDate(date);
     const [mon, day, year] = ds.split(' ', 3);
     const month = _(mon);
-
     return (
         <>
             {ds && (

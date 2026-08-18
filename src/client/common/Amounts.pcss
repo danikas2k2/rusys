@@ -1,18 +1,12 @@
-// Shared amount-value styling (color-by-type, comma separators) - used wherever <ProductAmounts>
-// is rendered, whether that's a table cell or a grid tile. Only the surrounding layout (how the
-// block as a whole is aligned within its container) differs by context - see the table-specific
-// centering below.
 [data-type] {
     display: flex;
     flex-flow: row wrap;
 }
-
 [data-amounts-rows] {
     display: flex;
     flex-direction: column;
     row-gap: 0;
 }
-
 [data-amounts-row] {
     display: flex;
     flex-flow: row wrap;
@@ -20,69 +14,53 @@
     column-gap: 0.15rem;
     color: var(--value-cell-color, inherit);
 }
-
 [data-type="consumed"] {
     --value-cell-color: var(--mantine-color-positive-text);
 }
-
 [data-type="recycled"] {
     --value-cell-color: var(--mantine-color-negative-text);
 }
-
 [data-suspicious="true"] {
     --value-cell-color: var(--mantine-color-moderate-text);
 }
-
 [data-home="true"] {
     --value-cell-color: var(--mantine-color-blue-text);
 }
-
 [data-expires="soon"] {
     --value-cell-color: var(--mantine-color-orange-text);
 }
-
 [data-expires="expired"] {
     --value-cell-color: var(--mantine-color-negative-text);
 }
-
 [data-value="true"] {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     margin-inline: 0.1rem;
     color: var(--value-cell-color, inherit);
-
-    &:has(+ [data-value="true"]) {
-        &::after {
-            content: ",";
-            font-size: var(--mantine-font-size-sm);
-            font-weight: var(--mantine-font-weight-sm);
-            color: var(--value-comma-color, var(--mantine-color-dark-text));
-        }
+    &:has(+ [data-value="true"])::after {
+        content: ",";
+        font-size: var(--mantine-font-size-sm);
+        font-weight: var(--mantine-font-weight-sm);
+        color: var(--value-comma-color, var(--mantine-color-dark-text));
     }
-
     sub {
         font-size: var(--mantine-font-size-xs);
         font-weight: var(--mantine-font-weight-sm);
         opacity: 0.75;
     }
-
     [data-number="true"] {
         letter-spacing: -0.075em;
         margin-inline-end: 0.075em;
     }
 }
-
-// Table cells center the amounts block instead of the grid tile's default (start/end) alignment.
 .ui-Table-td[data-cell="true"] {
     [data-type] {
         justify-content: center;
     }
-
     [data-amounts-rows] {
         align-items: center;
     }
-
     [data-amounts-row] {
         justify-content: center;
     }

@@ -2,7 +2,7 @@ import { render } from '@testing-library/react';
 
 import React from 'react';
 
-import { ExpiryStatusRow } from '~/client/pages/products/ExpiryStatusRow';
+import { ExpiryStatusRow } from '~/client/common/ExpiryStatusRow';
 
 describe('<ExpiryStatusRow>', () => {
     it('renders no icon and no data-expires attribute for a valid (undefined) row', () => {

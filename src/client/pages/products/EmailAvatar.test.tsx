@@ -3,7 +3,7 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { EmailAvatar } from '~/client/pages/products/EmailAvatar';
+import { EmailAvatar } from '~/client/common/EmailAvatar';
 import { gravatarUrl } from '~/client/utils/gravatar';
 
 vi.mock(import('~/client/utils/gravatar'), (): any => ({

@@ -1,8 +1,8 @@
 import { Text } from '@mantine/core';
 import React from 'react';
 
-import { ExpiryStatusRow } from '~/client/pages/products/ExpiryStatusRow';
-import { VariantValueSpans } from '~/client/pages/products/VariantValueSpans';
+import { ExpiryStatusRow } from '~/client/common/ExpiryStatusRow';
+import { VariantValueSpans } from '~/client/common/VariantValueSpans';
 import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
 import {
     formatVolume,
@@ -14,11 +14,6 @@ import { orderedExpiryBuckets, partitionByExpiryStatus, type ExpiryStatus } from
 import type { Variant, VariantAmount } from '~/types/data';
 
 import './AnnotatedTotalAmounts.pcss';
-
-export interface AnnotatedTotalAmountsProps {
-    group: string;
-    amounts: readonly VariantAmount[];
-}
 
 function Sources({ group, bucket }: { group: string; bucket: AmountTotalWithSources }) {
     return (
@@ -34,9 +29,6 @@ function Sources({ group, bucket }: { group: string; bucket: AmountTotalWithSour
     );
 }
 
-// A single source that already reads exactly like the total (e.g. one 2l bottle summing to "2l")
-// would only show "2l (2)" - the same number twice for zero extra information. Worth showing only
-// once a second source, or a unit conversion, actually makes the two numbers diverge.
 function isRedundantBreakdown(bucket: AmountTotalWithSources, displayedValue: string): boolean {
     return bucket.sources.length === 1 && String(bucket.sources[0].amount) === displayedValue;
 }
@@ -47,13 +39,10 @@ function renderRow(
     variants: readonly Variant[],
     status: ExpiryStatus | undefined
 ) {
-    if (!amounts.length) {
-        return null;
-    }
+    if (!amounts.length) return null;
     const { volume, weight, count, unitless } = getAmountTotalsDetailed(amounts, variants);
     const formattedVolume = volume ? formatVolume(volume.total) : undefined;
     const formattedWeight = weight ? formatWeight(weight.total) : undefined;
-
     return (
         <ExpiryStatusRow key={status ?? 'valid'} status={status}>
             {formattedVolume && volume && (
@@ -81,11 +70,9 @@ function renderRow(
     );
 }
 
-export function AnnotatedTotalAmounts({ group, amounts }: AnnotatedTotalAmountsProps) {
+export function AnnotatedTotalAmounts({ group, amounts }: { group: string; amounts: readonly VariantAmount[] }) {
     const variants = useVariantsByGroup(group);
-    const now = new Date().getTime();
-    const buckets = partitionByExpiryStatus(amounts, now);
-
+    const buckets = partitionByExpiryStatus(amounts, new Date().getTime());
     return (
         <span data-amounts-rows data-annotated>
             {orderedExpiryBuckets(buckets).map(([status, bucketAmounts]) =>

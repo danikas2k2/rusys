@@ -3,7 +3,7 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { AmountsCell } from '~/client/pages/products/AmountsCell';
+import { AmountsCell } from '~/client/common/AmountsCell';
 import type { VariantAmount } from '~/types/data';
 
 vi.mock(import('~/client/common/ActiveContentContext'), () => ({

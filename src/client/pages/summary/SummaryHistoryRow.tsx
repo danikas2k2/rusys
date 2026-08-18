@@ -1,9 +1,9 @@
 import { Group, Stack, Table, Text } from '@mantine/core';
 import React from 'react';
 
-import { AmountsCell } from '~/client/pages/products/AmountsCell';
-import { EmailAvatar } from '~/client/pages/products/EmailAvatar';
-import { FormatDate } from '~/client/pages/products/FormatDate';
+import { AmountsCell } from '~/client/common/AmountsCell';
+import { EmailAvatar } from '~/client/common/EmailAvatar';
+import { FormatDate } from '~/client/common/FormatDate';
 import { getRoundedDate } from '~/client/utils/time';
 import type { History } from '~/types/data';
 
@@ -26,7 +26,7 @@ export function SummaryHistoryRow({ h, dimmed = false }: { h: History; dimmed?: 
                 </Stack>
             </Table.Td>
             <Table.Td>
-                <AmountsCell amounts={h.amounts ?? []} />
+                <AmountsCell group={h.group} amounts={h.amounts ?? []} />
             </Table.Td>
         </Table.Tr>
     );

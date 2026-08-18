@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import React from 'react';
 
 import { AmountSuffix } from '~/client/common/AmountSuffix';
-import { TotalAmounts } from '~/client/pages/products/TotalAmounts';
+import { TotalAmounts } from '~/client/common/TotalAmounts';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
 

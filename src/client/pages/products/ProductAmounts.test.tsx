@@ -4,7 +4,7 @@ import React from 'react';
 
 import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { useAmountView } from '~/client/common/AmountViewContext';
-import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
+import { Amounts as ProductAmounts } from '~/client/common/Amounts';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
 
@@ -21,7 +21,7 @@ vi.mock(import('~/client/state/variants/useVariantsByGroup'), () => ({
     useVariantsByGroup: vi.fn().mockReturnValue([]),
 }));
 
-describe('<ProductAmounts>', () => {
+describe('<Amounts>', () => {
     const group = 'Daržovės';
     const amounts = [
         { variant: 'p', amount: 2 },

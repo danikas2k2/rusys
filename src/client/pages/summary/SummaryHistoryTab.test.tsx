@@ -3,7 +3,7 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
-import { AmountsCell } from '~/client/pages/products/AmountsCell';
+import { AmountsCell } from '~/client/common/AmountsCell';
 import type { SummaryHistoryData } from '~/client/pages/summary/SummaryAmounts';
 import { SummaryHistoryTab } from '~/client/pages/summary/SummaryHistoryTab';
 import { useGetSummaryHistory } from '~/client/state/history/useGetSummaryHistory';
@@ -28,11 +28,11 @@ vi.mock(import('~/client/state/history/useUndates'), (): any => ({
     useUndates: vi.fn(() => []),
 }));
 
-vi.mock(import('~/client/pages/products/EmailAvatar'), (): any => ({
+vi.mock(import('~/client/common/EmailAvatar'), (): any => ({
     EmailAvatar: vi.fn(() => null),
 }));
 
-vi.mock(import('~/client/pages/products/AmountsCell'), (): any => ({
+vi.mock(import('~/client/common/AmountsCell'), (): any => ({
     AmountsCell: vi.fn(({ amounts }: any) => <span aria-label="Amount count">{amounts.length}</span>),
 }));
 

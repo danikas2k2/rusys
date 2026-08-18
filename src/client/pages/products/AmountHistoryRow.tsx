@@ -1,9 +1,9 @@
 import { Group, Stack, Table, Text } from '@mantine/core';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { AmountsCell } from '~/client/pages/products/AmountsCell';
-import { EmailAvatar } from '~/client/pages/products/EmailAvatar';
-import { FormatDate } from '~/client/pages/products/FormatDate';
+import { AmountsCell } from '~/client/common/AmountsCell';
+import { EmailAvatar } from '~/client/common/EmailAvatar';
+import { FormatDate } from '~/client/common/FormatDate';
 import { MoveConsumedForm } from '~/client/pages/products/MoveConsumedForm';
 import { useMoveConsumedToRecycled } from '~/client/state/products/useMoveConsumedToRecycled';
 import { getRoundedDate } from '~/client/utils/time';
@@ -72,7 +72,7 @@ export function AmountHistoryRow({
                     </Stack>
                 </Table.Td>
                 <Table.Td>
-                    <AmountsCell amounts={h.amounts ?? []} />
+                    <AmountsCell group={h.group} amounts={h.amounts ?? []} />
                     <Text size="xs" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
                         {h.comment}
                     </Text>

@@ -3,9 +3,9 @@ import React, { useMemo } from 'react';
 
 import { ApproxAmountIcon, HomeIcon } from '@icons';
 
+import { Amounts } from '~/client/common/Amounts';
 import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { useAmountView } from '~/client/common/AmountViewContext';
-import { ProductAmounts } from '~/client/pages/products/ProductAmounts';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
 import { formatVolume, formatWeight, getAmountTotals } from '~/common/utils/amounts';
@@ -99,8 +99,8 @@ export function SummaryAmounts({
     }
 
     const sections = [
-        consumed.length ? <ProductAmounts key="consumed" group={group} amounts={consumed} type="consumed" /> : null,
-        recycled.length ? <ProductAmounts key="recycled" group={group} amounts={recycled} type="recycled" /> : null,
+        consumed.length ? <Amounts key="consumed" group={group} amounts={consumed} type="consumed" /> : null,
+        recycled.length ? <Amounts key="recycled" group={group} amounts={recycled} type="recycled" /> : null,
         showHome ? <HomeAmounts key="home" group={group} homeBalance={homeBalance} /> : null,
     ].filter((section) => section != null);
 
@@ -117,5 +117,9 @@ export function SummaryAmounts({
         );
     }
 
-    return <Stack gap={2} align="center">{sections}</Stack>;
+    return (
+        <Stack gap={2} align="center">
+            {sections}
+        </Stack>
+    );
 }

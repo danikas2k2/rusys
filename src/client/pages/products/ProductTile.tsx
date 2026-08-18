@@ -1,12 +1,13 @@
-import { ActionIcon, Card, Checkbox, Group, Stack, Text } from '@mantine/core';
+import { ActionIcon, Checkbox, Group } from '@mantine/core';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 
 import { CollapseIcon, ExpandIcon, RecycledIcon } from '@icons';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
+import { AnnotatedTotalAmounts } from '~/client/common/AnnotatedTotalAmounts';
+import { GridTile } from '~/client/common/GridTile';
 import { useLabels } from '~/client/hooks/useLabels';
-import { AnnotatedTotalAmounts } from '~/client/pages/products/AnnotatedTotalAmounts';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
 import { getCombinedAmounts } from '~/common/utils/amounts';
 import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts, VariantAmount } from '~/types/data';
@@ -66,11 +67,6 @@ function ProductTileComponent({
 
     const isEmptyTile = !totalAmounts.length && !(hasChildren && hasNonEmptyDescendant);
 
-    // A near-square, icon-sized image sits next to the title; anything bigger/wider is a photo
-    // and becomes the tile's background instead - classified server-side, see classifyImage.
-    const isPhoto = !!product.photo;
-    const isIcon = !!product.image && !isPhoto;
-
     // Annual groups have no single "current" amounts field - the same year isPreferred() would
     // highlight in the table is what a tap opens here, since there's no year column to pick from.
     const year = annual ? getPreferredYear(years) : 0;
@@ -108,27 +104,15 @@ function ProductTileComponent({
     }, [available, setMissing, group, name, product.missing]);
 
     return (
-        <Card
-            withBorder
-            padding="sm"
-            radius="md"
+        <GridTile
+            name={name}
+            tileKind="product"
+            image={product.image}
+            photo={product.photo}
             onClick={handleClick}
-            data-tile="product"
-            data-hidden={hidden}
-            data-summary={isSummaryTile}
-            data-expanded-parent={hasChildren && expanded}
-            data-photo={isPhoto}
-            data-empty={isEmptyTile}
-            data-removing={hasRemovingYear}
-        >
-            {isPhoto && (
-                <>
-                    <div data-photo-bg style={{ backgroundImage: `url(${product.photo})` }} />
-                    <div data-scrim />
-                </>
-            )}
-            {isIcon && <div data-icon-bg style={{ backgroundImage: `url(${product.image})` }} />}
-            <Stack gap={6} data-content h="100%">
+            hidden={hidden}
+            empty={isEmptyTile}
+            leading={
                 <Group gap={4} wrap="nowrap" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
                         variant="outline"
@@ -140,38 +124,35 @@ function ProductTileComponent({
                         aria-label={_(product.missing ? 'Mark as available' : 'Mark as missing')}
                     />
                 </Group>
-                <Group data-tile-heading justify="space-between" wrap="nowrap" gap={6} align="flex-start">
-                    <Text
-                        data-text-shaddow={isIcon || isPhoto}
-                        lh={1}
-                        lineClamp={2}
-                        p="4 2"
-                        style={{ flex: 1, minWidth: 0 }}
+            }
+            headingAction={
+                hasChildren && (
+                    <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        size="sm"
+                        onClick={handleToggleExpand}
+                        aria-label={_(expanded ? 'Collapse' : 'Expand')}
                     >
-                        {name}
-                    </Text>
-                    {hasChildren && (
-                        <ActionIcon
-                            variant="subtle"
-                            color="gray"
-                            size="sm"
-                            onClick={handleToggleExpand}
-                            aria-label={_(expanded ? 'Collapse' : 'Expand')}
-                        >
-                            {expanded ? <CollapseIcon size={16} /> : <ExpandIcon size={16} />}
-                        </ActionIcon>
-                    )}
-                </Group>
-                <Group data-tile-amounts data-text-shaddow={isIcon || isPhoto} justify="flex-end" lh="xs">
-                    {totalAmounts.length > 0 && <AnnotatedTotalAmounts group={group} amounts={totalAmounts} />}
-                </Group>
-            </Stack>
-            {hasRemovingYear && (
-                <span data-removing-icon aria-label={_('Marked for removal')} title={_('Marked for removal')}>
-                    <RecycledIcon size={16} />
-                </span>
-            )}
-        </Card>
+                        {expanded ? <CollapseIcon size={16} /> : <ExpandIcon size={16} />}
+                    </ActionIcon>
+                )
+            }
+            amounts={totalAmounts.length > 0 && <AnnotatedTotalAmounts group={group} amounts={totalAmounts} />}
+            overlay={
+                hasRemovingYear && (
+                    <span data-removing-icon aria-label={_('Marked for removal')} title={_('Marked for removal')}>
+                        <RecycledIcon size={16} />
+                    </span>
+                )
+            }
+            tileData={{
+                'data-tile-kind': 'product',
+                'data-summary': isSummaryTile,
+                'data-expanded-parent': hasChildren && expanded,
+                'data-removing': hasRemovingYear,
+            }}
+        />
     );
 }
 

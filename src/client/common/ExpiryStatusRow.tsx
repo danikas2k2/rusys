@@ -9,8 +9,6 @@ export interface ExpiryStatusRowProps {
     children: React.ReactNode;
 }
 
-// One row of values sharing a single expiry status - the status icon is shown once, in front of
-// the whole row, rather than repeated next to every individual value.
 export function ExpiryStatusRow({ status, children }: ExpiryStatusRowProps) {
     return (
         <span data-amounts-row data-expires={status}>

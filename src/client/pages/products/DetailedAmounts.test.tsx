@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import React from 'react';
 
-import { DetailedAmounts } from '~/client/pages/products/DetailedAmounts';
+import { DetailedAmounts } from '~/client/common/DetailedAmounts';
 
 vi.mock(import('~/client/state/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn().mockReturnValue(() => 0),

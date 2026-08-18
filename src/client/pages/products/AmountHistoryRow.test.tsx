@@ -11,7 +11,7 @@ import type { History } from '~/types/data';
 
 vi.mock(import('~/client/state/products/useMoveConsumedToRecycled'));
 
-vi.mock(import('~/client/pages/products/AmountsCell'), (): any => ({
+vi.mock(import('~/client/common/AmountsCell'), (): any => ({
     AmountsCell: vi.fn(({ amounts }: any) => <span aria-label="Amount count">{amounts.length}</span>),
 }));
 

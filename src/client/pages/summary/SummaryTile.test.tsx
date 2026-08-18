@@ -3,10 +3,10 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
-import { AnnotatedTotalAmounts } from '~/client/pages/products/AnnotatedTotalAmounts';
+import { AnnotatedTotalAmounts } from '~/client/common/AnnotatedTotalAmounts';
 import { SummaryTile } from '~/client/pages/summary/SummaryTile';
 
-vi.mock(import('~/client/pages/products/AnnotatedTotalAmounts'), () => ({
+vi.mock(import('~/client/common/AnnotatedTotalAmounts'), () => ({
     AnnotatedTotalAmounts: vi.fn(({ amounts }: { amounts: readonly { amount: number }[] }) => (
         <span>{amounts[0]!.amount}</span>
     )),

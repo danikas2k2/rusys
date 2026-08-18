@@ -5,14 +5,14 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 import React from 'react';
 
 import { ActiveContentContext, createActiveContentStore } from '~/client/common/ActiveContentContext';
-import { AnnotatedTotalAmounts } from '~/client/pages/products/AnnotatedTotalAmounts';
+import { AnnotatedTotalAmounts } from '~/client/common/AnnotatedTotalAmounts';
 import { OLD_YEARS_THRESHOLD, ProductYearBar } from '~/client/pages/products/ProductYearBar';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
 import type { ProductAmounts as ProductAmountsType } from '~/types/data';
 
-vi.mock(import('~/client/pages/products/AnnotatedTotalAmounts'), () => ({
+vi.mock(import('~/client/common/AnnotatedTotalAmounts'), () => ({
     AnnotatedTotalAmounts: vi.fn(({ amounts }: any) => (amounts?.length ? <div>Annotated total</div> : null)),
 }));
 

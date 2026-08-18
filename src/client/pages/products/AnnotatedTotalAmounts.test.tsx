@@ -4,7 +4,7 @@ import { MantineProvider } from '@mantine/core';
 import React, { type ReactNode } from 'react';
 
 import { AmountSuffix } from '~/client/common/AmountSuffix';
-import { AnnotatedTotalAmounts } from '~/client/pages/products/AnnotatedTotalAmounts';
+import { AnnotatedTotalAmounts } from '~/client/common/AnnotatedTotalAmounts';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
 

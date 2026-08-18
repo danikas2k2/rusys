@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import React from 'react';
 
-import { VariantValueSpans } from '~/client/pages/products/VariantValueSpans';
+import { VariantValueSpans } from '~/client/common/VariantValueSpans';
 
 vi.mock(import('~/client/state/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn().mockReturnValue(() => 0),

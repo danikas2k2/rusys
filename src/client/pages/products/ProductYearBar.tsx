@@ -4,8 +4,8 @@ import React, { useCallback, useMemo } from 'react';
 import { HistoryTabIcon, RecycledIcon } from '@icons';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
+import { AnnotatedTotalAmounts } from '~/client/common/AnnotatedTotalAmounts';
 import { useLabels } from '~/client/hooks/useLabels';
-import { AnnotatedTotalAmounts } from '~/client/pages/products/AnnotatedTotalAmounts';
 import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useProducts } from '~/client/state/products/useProducts';

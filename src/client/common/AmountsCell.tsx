@@ -3,31 +3,29 @@ import React from 'react';
 
 import { ConsumedIcon, HomeIcon, RecycledIcon, SuspiciousIcon, UpdatedIcon } from '@icons';
 
-import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { VariantTitle } from '~/client/common/VariantTitle';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
-import type { ProductAmounts, VariantAmount } from '~/types/data';
+import type { VariantAmount } from '~/types/data';
 
-export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }): React.ReactElement {
-    const [active] = useActiveContent<ProductAmounts>();
-    const group = active?.data?.group ?? '';
-
+export function AmountsCell({
+    group = '',
+    amounts,
+}: {
+    group?: string;
+    amounts: readonly VariantAmount[];
+}): React.ReactElement {
     const comparator = useGroupVariantComparator(group);
-
-    if (!amounts.length) {
+    if (!amounts.length)
         return (
             <Text size="sm" c="dimmed">
                 —
             </Text>
         );
-    }
-
     const sorted = [...amounts].sort(
         (a, b) =>
             comparator(a.variant, b.variant) ||
             (!!a.suspicious === !!b.suspicious && !!a.home === !!b.home ? 0 : a.suspicious || a.home ? 1 : -1)
     );
-
     return (
         <Stack gap={4}>
             {sorted.map((a) => {
@@ -37,7 +35,6 @@ export function AmountsCell({ amounts }: { amounts: readonly VariantAmount[] }):
                 const Icon = isUpdated ? UpdatedIcon : a.recycled ? RecycledIcon : ConsumedIcon;
                 const key = `${a.variant}-${a.amount}-${a.recycled == null ? 'u' : a.recycled ? 'r' : 'c'}${a.suspicious ? '-s' : ''}${a.home ? '-h' : ''}`;
                 const labelColor = a.suspicious ? 'moderate' : a.home ? 'blue' : undefined;
-
                 return (
                     <Group key={key} justify="space-between" wrap="nowrap" gap="xs">
                         <Group wrap="nowrap" gap="xs">

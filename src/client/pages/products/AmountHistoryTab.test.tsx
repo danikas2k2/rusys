@@ -30,11 +30,11 @@ vi.mock(import('~/client/state/history/useUndates'), (): any => ({
     useUndates: vi.fn(() => []),
 }));
 
-vi.mock(import('~/client/pages/products/EmailAvatar'), (): any => ({
+vi.mock(import('~/client/common/EmailAvatar'), (): any => ({
     EmailAvatar: vi.fn(() => null),
 }));
 
-vi.mock(import('~/client/pages/products/AmountsCell'), (): any => ({
+vi.mock(import('~/client/common/AmountsCell'), (): any => ({
     AmountsCell: vi.fn(({ amounts }: any) => <span aria-label="Amount count">{amounts.length}</span>),
 }));
 
