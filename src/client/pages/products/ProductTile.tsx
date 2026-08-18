@@ -2,7 +2,7 @@ import { ActionIcon, Card, Checkbox, Group, Stack, Text } from '@mantine/core';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 
-import { CollapseIcon, DeleteIcon, ExpandIcon } from '@icons';
+import { CollapseIcon, ExpandIcon, RecycledIcon } from '@icons';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { useLabels } from '~/client/hooks/useLabels';
@@ -152,7 +152,7 @@ function ProductTileComponent({
             </Stack>
             {hasRemovingYear && (
                 <span data-removing-icon aria-label={_('Marked for removal')} title={_('Marked for removal')}>
-                    <DeleteIcon size={16} />
+                    <RecycledIcon size={16} />
                 </span>
             )}
         </Card>

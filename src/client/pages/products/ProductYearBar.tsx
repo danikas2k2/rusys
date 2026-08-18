@@ -1,7 +1,7 @@
 import { ActionIcon, Group, SegmentedControl, Stack } from '@mantine/core';
 import React, { useCallback, useMemo } from 'react';
 
-import { DeleteIcon } from '@icons';
+import { RecycledIcon } from '@icons';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
 import { useLabels } from '~/client/hooks/useLabels';
@@ -126,7 +126,7 @@ export function ProductYearBar({ disabled = false }: ProductYearBarProps) {
                             aria-label={_('Removing this year?')}
                             aria-pressed={removingYear}
                         >
-                            <DeleteIcon size={16} />
+                            <RecycledIcon size={16} />
                         </ActionIcon>
                     )}
                 </Group>

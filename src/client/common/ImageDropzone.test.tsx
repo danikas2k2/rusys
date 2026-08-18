@@ -78,7 +78,7 @@ describe('<ImageDropzone>', () => {
         expect(removeButton).toHaveStyle({ position: 'absolute' });
         expect(removeButton.style.insetInlineEnd).toBe(rem(8));
         expect(removeButton.style.bottom).toBe(rem(8));
-        expect(removeButton.querySelector('.tabler-icon-trash')).toBeInTheDocument();
+        expect(removeButton.querySelector('.tabler-icon-photo-cancel')).toBeInTheDocument();
     });
 
     it('falls back to a photo icon when the image fails to load', () => {

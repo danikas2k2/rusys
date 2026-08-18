@@ -2,7 +2,7 @@ import { ActionIcon, Alert, Avatar, Box, Group, rem, Stack, Text } from '@mantin
 import { Dropzone, type FileRejection, type FileWithPath } from '@mantine/dropzone';
 import React, { useCallback, useState } from 'react';
 
-import { DeleteIcon, ErrorAlertIcon, ImageAcceptIcon, ImageDropzoneIdleIcon, ImageRejectIcon } from '@icons';
+import { ErrorAlertIcon, ImageAcceptIcon, ImageDropzoneIdleIcon, ImageRejectIcon, RemoveImageIcon } from '@icons';
 
 import { Label } from '~/client/common/Label';
 import { useLabels } from '~/client/hooks/useLabels';
@@ -119,7 +119,7 @@ export function ImageDropzone({ image, label, onDrop, onRemove, disabled, compac
                 </Dropzone>
                 {!!image && (
                     <ActionIcon
-                        variant="filled"
+                        variant="outline"
                         color="negative"
                         size={compact ? 'sm' : 'md'}
                         onClick={handleRemove}
@@ -131,7 +131,7 @@ export function ImageDropzone({ image, label, onDrop, onRemove, disabled, compac
                             bottom: rem(compact ? 6 : 8),
                         }}
                     >
-                        <DeleteIcon size={removeIconSize} />
+                        <RemoveImageIcon size={removeIconSize} />
                     </ActionIcon>
                 )}
             </Box>
