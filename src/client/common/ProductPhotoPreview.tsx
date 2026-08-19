@@ -30,7 +30,7 @@ export function ProductPhotoPreview({ photo, onError, onOpenChange }: ProductPho
     const [opened, setOpened] = useState(false);
     const [zoomed, setZoomed] = useState(false);
     const [offset, setOffset] = useState<Point>({ x: 0, y: 0 });
-    const drag = useRef<DragState>();
+    const drag = useRef<DragState | undefined>(undefined);
     const hasDragged = useRef(false);
 
     const resetZoom = useCallback(() => {

@@ -26,7 +26,7 @@ export function CategoryRailLayout({
     children,
 }: React.PropsWithChildren<CategoryRailLayoutProps>): React.ReactElement {
     const [quickFilter] = useQuickFilter();
-    const groupBeforeFiltering = useRef<string>();
+    const groupBeforeFiltering = useRef<string | undefined>(undefined);
     const hasActiveFilter = !!quickFilter.trim() || filterActive;
 
     // A text filter can leave the selected category empty while results are available elsewhere.

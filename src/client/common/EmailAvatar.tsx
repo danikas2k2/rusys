@@ -16,12 +16,13 @@ export function EmailAvatar({
     profile?: UserProfile;
     fallbackPicture?: string;
 }): React.ReactElement | null {
-    if (!email)
+    if (!email) {
         return (
             <Avatar color="gray" variant="outline" radius="50%" size="sm" data-anonymous="true">
                 <AnonymousUserIcon size="60%" />
             </Avatar>
         );
+    }
     const initials = email
         .split('@', 1)[0]
         .split(/[.\-_ ]+/)
@@ -29,12 +30,13 @@ export function EmailAvatar({
         .slice(0, 2)
         .map((p) => p[0]!.toUpperCase())
         .join('');
-    if (email.toLowerCase() === DEV_MODE_EMAIL.toLowerCase())
+    if (email.toLowerCase() === DEV_MODE_EMAIL.toLowerCase()) {
         return (
             <Avatar color="cyan.9" variant="outline" radius="50%" size="sm" data-robot="true">
                 <DevUserIcon size="60%" />
             </Avatar>
         );
+    }
     return (
         <Avatar
             radius="50%"

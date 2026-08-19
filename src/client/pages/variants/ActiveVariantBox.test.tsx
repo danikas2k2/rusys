@@ -91,4 +91,17 @@ describe('<ActiveVariantBox>', () => {
         expect(deleteVariant).toHaveBeenCalledWith('Uogienės', 'p');
         expect(setActive).toHaveBeenCalledWith({ data: { group: 'Uogienės', variant: 'p' } });
     });
+
+    it('does not delete when the update action has no data', async () => {
+        render(
+            <MockApp active={{ action: 'update' }} setActive={setActive}>
+                <ActiveVariantBox />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Remove variant' }));
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        expect(deleteVariant).not.toHaveBeenCalled();
+    });
 });

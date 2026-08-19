@@ -137,7 +137,7 @@ describe('<ProductYearBar>', () => {
             await user.click(screen.getByRole('menuitem', { name: '2020' }));
 
             expect(setActive).toHaveBeenCalledWith({ action: 'values', data: { ...baseActive, year: 2020 } });
-            expect(onHistoryYearChange).toHaveBeenCalledOnce();
+            expect(onHistoryYearChange).toHaveBeenCalledExactlyOnceWith();
             expect(screen.queryByRole('menuitem', { name: '2023' })).not.toBeInTheDocument();
         });
 
@@ -163,10 +163,12 @@ describe('<ProductYearBar>', () => {
 
             await user.click(screen.getByRole('button', { name: 'History years' }));
             await user.click(screen.getByRole('menuitem', { name: '2020' }));
+
             expect(screen.getByText('2020')).toHaveAttribute('data-current');
 
             await user.click(screen.getByRole('button', { name: 'History years' }));
             await user.click(screen.getByRole('menuitem', { name: '2019' }));
+
             expect(screen.getByText('2019')).toHaveAttribute('data-current');
         });
 

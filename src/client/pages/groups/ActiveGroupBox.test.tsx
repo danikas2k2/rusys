@@ -89,4 +89,17 @@ describe('<ActiveGroupBox>', () => {
         expect(deleteGroup).toHaveBeenCalledWith('Uogienės');
         expect(setActive).toHaveBeenCalledWith({ data: { group: 'Uogienės' } });
     });
+
+    it('does not delete when the update action has no data', async () => {
+        render(
+            <MockApp active={{ action: 'update' }} setActive={setActive}>
+                <ActiveGroupBox />
+            </MockApp>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Remove category' }));
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        expect(deleteGroup).not.toHaveBeenCalled();
+    });
 });

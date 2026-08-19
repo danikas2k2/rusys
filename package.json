@@ -40,7 +40,7 @@
         "lint": "pnpm run lint:ts && pnpm run lint:es && pnpm run lint:styles",
         "lint:ts": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
         "lint:es": "eslint src",
-        "lint:styles": "stylelint src/**/*.pcss",
+        "lint:styles": "stylelint \"src/**/*.pcss\"",
         "test": "MONGOMS_VERSION=6.0.14 vitest run",
         "test:coverage": "vitest run --coverage",
         "test:ui": "MONGOMS_VERSION=6.0.14 vitest --ui",

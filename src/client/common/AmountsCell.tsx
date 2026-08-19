@@ -15,12 +15,13 @@ export function AmountsCell({
     amounts: readonly VariantAmount[];
 }): React.ReactElement {
     const comparator = useGroupVariantComparator(group);
-    if (!amounts.length)
+    if (!amounts.length) {
         return (
             <Text size="sm" c="dimmed">
                 —
             </Text>
         );
+    }
     const sorted = [...amounts].sort(
         (a, b) =>
             comparator(a.variant, b.variant) ||

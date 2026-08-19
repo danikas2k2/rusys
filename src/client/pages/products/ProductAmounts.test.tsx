@@ -2,9 +2,9 @@ import { render, screen } from '@testing-library/react';
 
 import React from 'react';
 
+import { Amounts as ProductAmounts } from '~/client/common/Amounts';
 import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { useAmountView } from '~/client/common/AmountViewContext';
-import { Amounts as ProductAmounts } from '~/client/common/Amounts';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
 

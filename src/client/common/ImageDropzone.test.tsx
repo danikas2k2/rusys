@@ -74,11 +74,11 @@ describe('<ImageDropzone>', () => {
 
         const removeButton = screen.getByRole('button', { name: 'Remove image' });
 
-        expect(removeButton).toHaveAttribute('data-variant', 'filled');
+        expect(removeButton).toHaveAttribute('data-variant', 'outline');
         expect(removeButton).toHaveStyle({ position: 'absolute' });
         expect(removeButton.style.insetInlineEnd).toBe(rem(8));
         expect(removeButton.style.bottom).toBe(rem(8));
-        expect(removeButton.querySelector('.tabler-icon-photo-cancel')).toBeInTheDocument();
+        expect(removeButton.querySelector('.tabler-icon-photo-x')).toBeInTheDocument();
     });
 
     it('falls back to a photo icon when the image fails to load', () => {

@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import postcss from 'postcss';
-import type { PluginContext } from 'rollup';
 import type { ModuleNode, Plugin, ViteDevServer } from 'vite';
 
 interface Hsl {
@@ -522,7 +521,7 @@ export function cssFallback(options: { outDir: string; sourceFile: string; outpu
             const browserModules = modules.filter((module) => !module.url.includes('?inline'));
             return browserModules.length ? browserModules : undefined;
         },
-        async closeBundle(this: PluginContext) {
+        async closeBundle() {
             const srcPath = path.resolve(options.outDir, options.sourceFile);
             if (!fs.existsSync(srcPath)) {
                 this.warn(`[css-fallback] Source file not found: ${srcPath}`);

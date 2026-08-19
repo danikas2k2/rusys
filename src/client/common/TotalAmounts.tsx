@@ -13,7 +13,9 @@ function renderRow(
     variants: readonly Variant[],
     status: ExpiryStatus | undefined
 ) {
-    if (!amounts.length) return null;
+    if (!amounts.length) {
+        return null;
+    }
     const { volume, weight, count, unitless } = getAmountTotals(amounts, variants);
     const formattedVolume = volume != null ? formatVolume(volume) : undefined;
     const formattedWeight = weight != null ? formatWeight(weight) : undefined;

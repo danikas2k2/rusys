@@ -5,6 +5,7 @@ import React from 'react';
 
 import { VariantAvatar } from '~/client/common/VariantAvatar';
 import { useVariant } from '~/client/state/variants/useVariant';
+import type { VariantUnits } from '~/types/data';
 
 vi.mock(import('~/client/state/variants/useVariant'), () => ({ useVariant: vi.fn() }));
 
@@ -51,5 +52,34 @@ describe('<VariantAvatar>', () => {
         );
 
         expect(screen.getByText('d')).toBeInTheDocument();
+    });
+
+    it.each([
+        ['ml', 500, '½'],
+        ['kg', 1, '1'],
+        ['g', 500, '½'],
+        [undefined, 0.25, '¼'],
+    ])('formats %s counts without a suffix', (units: VariantUnits | undefined, count: number, label: string) => {
+        vi.mocked(useVariant).mockReturnValue({ group: 'Uogienės', variant: 'v', order: 0, count, units });
+
+        render(
+            <MockTheme>
+                <VariantAvatar group="Uogienės" variant="v" />
+            </MockTheme>
+        );
+
+        expect(screen.getByText(label)).toBeInTheDocument();
+    });
+
+    it('falls back to the variant key for a zero count', () => {
+        vi.mocked(useVariant).mockReturnValue({ group: 'Uogienės', variant: 'v', order: 0, count: 0 });
+
+        render(
+            <MockTheme>
+                <VariantAvatar group="Uogienės" variant="v" />
+            </MockTheme>
+        );
+
+        expect(screen.getByText('v')).toBeInTheDocument();
     });
 });

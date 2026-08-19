@@ -4,7 +4,7 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import { SwipeControlsWrapper, useSwipePanelWidth } from './SwipeControlsContext';
+import { SwipeControlsWrapper, useSwipePanelDragApi, useSwipePanelWidth } from './SwipeControlsContext';
 
 function TestComponent() {
     const [width, setWidth] = useSwipePanelWidth();
@@ -15,6 +15,11 @@ function TestComponent() {
             <button onClick={() => setWidth(100)}>Set Width</button>
         </div>
     );
+}
+
+function DragApiComponent() {
+    const dragApi = useSwipePanelDragApi();
+    return <span aria-label="drag-api">{String(dragApi.current.setOffset('id', 1, true))}</span>;
 }
 
 describe('<SwipeControlsWrapper>', () => {
@@ -46,5 +51,17 @@ describe('<SwipeControlsWrapper>', () => {
         await user.click(screen.getByRole('button', { name: 'Set Width' }));
 
         expect(widthEl).toHaveTextContent('100');
+    });
+
+    it('provides the default drag API before a panel registers its own one', () => {
+        render(
+            <MockTheme>
+                <SwipeControlsWrapper>
+                    <DragApiComponent />
+                </SwipeControlsWrapper>
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('generic', { name: 'drag-api' })).toHaveTextContent('false');
     });
 });

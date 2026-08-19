@@ -25,6 +25,9 @@ const mockAssetsPlugin: Plugin = {
     name: 'vitest-mock-assets',
     enforce: 'pre',
     resolveId(id) {
+        if (id === 'virtual:css-fallback-client') {
+            return `${mocks}/cssFallbackClient.ts`;
+        }
         if (/\.p?css$/.test(id)) {
             return `${mocks}/styleMock.ts`;
         }
@@ -88,8 +91,12 @@ export default defineConfig({
             exclude: [
                 'src/**/*.d.ts',
                 'src/**/*.test.{ts,tsx}',
+                'src/**/__mocks__/**',
                 'src/tests/**',
                 'src/types/**',
+                'src/**/types.ts',
+                'src/client/common/icons.ts',
+                'src/client/table/DraggableRow.ts',
                 'src/server/index.ts',
                 'src/server/dev.ts',
                 'src/server/api/debug.ts',

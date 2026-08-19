@@ -16,6 +16,17 @@ vi.mock(import('~/client/pages/summary/SummaryAmounts'), async () => ({
 describe('<SummaryYearBar>', () => {
     afterEach(() => vi.clearAllMocks());
 
+    it('renders nothing without active history', () => {
+        vi.mocked(useSummary).mockReturnValue([]);
+        const { container } = render(
+            <MockThemeActive active={undefined}>
+                <SummaryYearBar />
+            </MockThemeActive>
+        );
+
+        expect(container).toBeEmptyDOMElement();
+    });
+
     it('shows the accounting period when only one year is available', () => {
         vi.mocked(useSummary).mockReturnValue([
             {

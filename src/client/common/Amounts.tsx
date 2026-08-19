@@ -17,7 +17,9 @@ export function Amounts({
     type?: 'common' | 'consumed' | 'recycled';
 }) {
     const [amountView] = useAmountView();
-    if (!amounts?.length) return null;
+    if (!amounts?.length) {
+        return null;
+    }
     return (
         <span data-type={type}>
             {amountView === 'total' ? (
