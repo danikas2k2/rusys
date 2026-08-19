@@ -23,7 +23,7 @@ describe('<GridTile>', () => {
 
         fireEvent.click(tile!);
 
-        expect(onClick).toHaveBeenCalledExactlyOnceWith();
+        expect(onClick).toHaveBeenCalledExactlyOnceWith(expect.any(Object));
     });
 
     it('renders the photo layer in preference to an icon and applies shared state', () => {
