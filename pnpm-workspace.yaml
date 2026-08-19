@@ -12,20 +12,21 @@ peerDependencyRules:
     "@css-modules-kit/core>typescript": "6"
 
 overrides:
-  braces: "^3.0.3"
-  diff: "^9.0.0"
-  glob: "^13.0.6"
+  braces: ^3.0.3
+  diff: ^9.0.0
+  glob: ^13.0.6
   jsdom: ^30.0.1
-  micromatch: "^4.0.8"
+  micromatch: ^4.0.8
   minimatch: ^10.2.6
-  nth-check: "^3.0.1"
-  parse5: "^8.0.1"
+  nth-check: ^3.0.1
+  parse5: ^8.0.1
   postcss: ^8.5.26
   qs: ^6.15.3
-  sane: "^5.0.1"
+  sane: ^5.0.1
   stylelint: ^17.14.1
-  test-exclude: "^8.0.0"
+  test-exclude: ^8.0.0
   tough-cookie: ^6.0.2
+  typescript: 6.0.3
 
 patchedDependencies:
   eslint-plugin-react@7.37.5: patches/eslint-plugin-react@7.37.5.patch
