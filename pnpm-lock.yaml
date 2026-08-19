@@ -6,6 +6,7 @@ settings:
 
 overrides:
   braces: ^3.0.3
+  deepmerge-ts: ^8.0.0
   diff: ^9.0.0
   glob: ^13.0.6
   jsdom: ^30.0.1
@@ -2867,8 +2868,8 @@ packages:
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
 
-  deepmerge-ts@7.1.6:
-    resolution: {integrity: sha512-gQhL1ksGBLQbHeAo47YU6cs2ahd3Pv+8PFYoWogNZbQnNwQyOh9Ad5kbeHFiWwbKdeWQJ5Z7Y7mwb9ew2hXBLw==}
+  deepmerge-ts@8.0.1:
+    resolution: {integrity: sha512-szCXE7YLCvLKR9bFPJcvsezOShdalctSvrgN/LM/QGUEPZQajwjmsMObZ6/DuANT5lxzM/wtO8Feubwdkz8myA==}
     engines: {node: '>=16.0.0'}
 
   define-data-property@1.1.4:
@@ -8274,7 +8275,7 @@ snapshots:
 
   deep-is@0.1.4: {}
 
-  deepmerge-ts@7.1.6: {}
+  deepmerge-ts@8.0.1: {}
 
   define-data-property@1.1.4:
     dependencies:
@@ -8637,7 +8638,7 @@ snapshots:
   eslint-plugin-functional@10.0.0(eslint@10.8.1(jiti@2.7.0))(typescript@6.0.3):
     dependencies:
       '@typescript-eslint/utils': 8.67.0(eslint@10.8.1(jiti@2.7.0))(typescript@6.0.3)
-      deepmerge-ts: 7.1.6
+      deepmerge-ts: 8.0.1
       escape-string-regexp: 5.0.0
       eslint: 10.8.1(jiti@2.7.0)
       is-immutable-type: 5.0.4(eslint@10.8.1(jiti@2.7.0))(typescript@6.0.3)
