@@ -48,7 +48,7 @@
         "preversion": "git pull && pnpm check",
         "version": "sed -i '' 's/APP_VERSION: \".*\"/APP_VERSION: \"'\"$npm_package_version\"'\"/' ./docker/compose.yaml && git add --all",
         "postversion": "git push && git push --tags",
-        "update-deps": "pnpm update --latest && syncpack update --dependency-types dev,local,overrides,peer,prod,resolutions && pnpm add -Dw typescript@6.0.3 --save-exact"
+        "update-deps": "pnpm update --latest && syncpack update && pnpm add -Dw typescript@6.0.3 --save-exact"
     },
     "browserslist": {
         "production": [
@@ -75,7 +75,7 @@
         "@react-oauth/google": "^0.13.5",
         "@reduxjs/toolkit": "^2.12.0",
         "@tabler/icons-react": "^3.46.0",
-        "@vitest/expect": "^4.1.10",
+        "@vitest/expect": "^4.1.11",
         "ajv": "^8.20.0",
         "axios": "^1.19.0",
         "blueimp-md5": "^2.19.0",
@@ -131,10 +131,10 @@
         "@typescript-eslint/eslint-plugin": "^8.67.0",
         "@typescript-eslint/parser": "^8.67.0",
         "@vitejs/plugin-react": "^6.0.5",
-        "@vitest/coverage-v8": "^4.1.10",
+        "@vitest/coverage-v8": "^4.1.11",
         "@vitest/eslint-plugin": "^1.6.27",
-        "@vitest/expect": "^4.1.10",
-        "@vitest/ui": "^4.1.10",
+        "@vitest/expect": "^4.1.11",
+        "@vitest/ui": "^4.1.11",
         "autoprefixer": "^10.5.4",
         "classnames": "^2.5.1",
         "dotenv-cli": "^11.0.0",
@@ -183,6 +183,6 @@
         "vite": "^8.2.1",
         "vite-plugin-html": "^3.2.2",
         "vite-plugin-svgr": "^5.2.0",
-        "vitest": "^4.1.10"
+        "vitest": "^4.1.11"
     }
 }
