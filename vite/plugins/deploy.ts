@@ -6,9 +6,9 @@ interface DeployConfig {
     serverHost?: string;
     serverPort?: string;
     remotePath?: string;
+    backupPath?: string;
+    dockerPath?: string;
 }
-
-const BACKUP_DIR = '.deploy-backup';
 
 function getConfig(config?: DeployConfig): Required<DeployConfig> {
     const {
@@ -16,17 +16,19 @@ function getConfig(config?: DeployConfig): Required<DeployConfig> {
         serverHost = process.env.DEPLOY_HOST,
         serverPort = process.env.DEPLOY_PORT ?? '22',
         remotePath = process.env.DEPLOY_PATH,
+        backupPath = process.env.BACKUP_PATH ?? '.backup',
+        dockerPath = process.env.DOCKER_PATH ?? 'docker',
     } = config || {};
 
     if (!serverUser || !serverHost || !remotePath) {
         throw new Error('DEPLOY_USER, DEPLOY_HOST and DEPLOY_PATH must be set.');
     }
 
-    return { serverUser, serverHost, serverPort, remotePath };
+    return { serverUser, serverHost, serverPort, remotePath, backupPath, dockerPath };
 }
 
 export function deploy(config?: DeployConfig) {
-    const { serverUser, serverHost, serverPort, remotePath } = getConfig(config);
+    const { serverUser, serverHost, serverPort, remotePath, backupPath, dockerPath } = getConfig(config);
 
     return {
         name: 'deploy',
@@ -44,7 +46,7 @@ export function deploy(config?: DeployConfig) {
                 // this deployment. This must happen before the first rsync, which uses --delete.
                 console.log('💾 Backing up the current release...');
                 execSync(
-                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && test -d dist && rm -rf ${BACKUP_DIR} && mkdir ${BACKUP_DIR} && cp -a dist ${BACKUP_DIR}/dist && cp compose.yaml Dockerfile ${BACKUP_DIR}/"`,
+                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && test -d dist && rm -rf ${backupPath} && mkdir ${backupPath} && cp -a dist ${backupPath}/dist && cp compose.yaml Dockerfile ${backupPath}/"`,
                     { stdio: 'inherit' }
                 );
 
@@ -70,7 +72,7 @@ export function deploy(config?: DeployConfig) {
                 // Build and restart containers
                 console.log('🐳 Building and restarting containers...');
                 execSync(
-                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && docker compose up -d --build"`,
+                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && ${dockerPath} compose up -d --build"`,
                     { stdio: 'inherit' }
                 );
 
@@ -84,7 +86,7 @@ export function deploy(config?: DeployConfig) {
 }
 
 export function rollback(config?: DeployConfig) {
-    const { serverUser, serverHost, serverPort, remotePath } = getConfig(config);
+    const { serverUser, serverHost, serverPort, remotePath, backupPath, dockerPath } = getConfig(config);
 
     return {
         name: 'deploy-rollback',
@@ -94,7 +96,7 @@ export function rollback(config?: DeployConfig) {
 
             try {
                 execSync(
-                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && test -d ${BACKUP_DIR}/dist && test -f ${BACKUP_DIR}/compose.yaml && test -f ${BACKUP_DIR}/Dockerfile && rm -rf dist && cp -a ${BACKUP_DIR}/dist ./dist && cp ${BACKUP_DIR}/compose.yaml ./compose.yaml && cp ${BACKUP_DIR}/Dockerfile ./Dockerfile && docker compose up -d --build"`,
+                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && test -d ${backupPath}/dist && test -f ${backupPath}/compose.yaml && test -f ${backupPath}/Dockerfile && rm -rf dist && cp -a ${backupPath}/dist ./dist && cp ${backupPath}/compose.yaml ./compose.yaml && cp ${backupPath}/Dockerfile ./Dockerfile && ${dockerPath} compose up -d --build"`,
                     { stdio: 'inherit' }
                 );
 
