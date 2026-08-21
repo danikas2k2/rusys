@@ -50,6 +50,16 @@
         overscroll-behavior: contain;
     }
 
+    // In a short list actions follow the content. Once the panel scrolls, they stay pinned to
+    // its bottom edge so they remain usable without leaving the current variant.
+    .amount-box-actions {
+        position: sticky;
+        bottom: 0;
+        z-index: 1;
+        background-color: var(--mantine-color-body);
+        padding-top: var(--mantine-spacing-sm);
+    }
+
     .ui-Accordion-item {
         transition: none;
     }

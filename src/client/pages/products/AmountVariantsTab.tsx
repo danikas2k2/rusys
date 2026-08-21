@@ -388,6 +388,59 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
         await redoProduct(group, name, year).finally(() => setUpdating(activeData!, false));
     }, [activeData, group, name, year, setUpdating, redoProduct, setExpandedKey]);
 
+    const actions =
+        (canUndo || canRedo) && !expandedKey && !hasChanges ? (
+            <Flex className="amount-box-actions" justify="center" gap="xs">
+                <Button
+                    variant="default"
+                    size="sm"
+                    leftSection={<UndoIcon size={16} />}
+                    rightSection={
+                        undoCount > 0 ? (
+                            <Badge size="sm" variant="filled" circle>
+                                {undoCount}
+                            </Badge>
+                        ) : undefined
+                    }
+                    onClick={handleUndo}
+                    disabled={!canUndo}
+                >
+                    <Label>Undo</Label>
+                </Button>
+                <Button
+                    variant="default"
+                    size="sm"
+                    leftSection={<RedoIcon size={16} />}
+                    rightSection={
+                        redoCount > 0 ? (
+                            <Badge size="sm" variant="filled" circle>
+                                {redoCount}
+                            </Badge>
+                        ) : undefined
+                    }
+                    onClick={handleRedo}
+                    disabled={!canRedo}
+                >
+                    <Label>Redo</Label>
+                </Button>
+            </Flex>
+        ) : expandedKey || hasChanges ? (
+            <Group className="amount-box-actions" justify="center" gap="xs">
+                <Button variant="default" size="sm" leftSection={<CancelIcon size={16} />} onClick={handleCancel}>
+                    <Label>Cancel</Label>
+                </Button>
+                <Button
+                    size="sm"
+                    leftSection={<UpdateIcon size={16} />}
+                    onClick={handleUpdate}
+                    disabled={!hasChanges || submitting}
+                    loading={loading}
+                >
+                    <Label>Update</Label>
+                </Button>
+            </Group>
+        ) : null;
+
     return (
         <>
             <Stack gap="sm">
@@ -512,65 +565,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
                     size="sm"
                     clearable={false}
                 />
-
-                {(canUndo || canRedo) && !expandedKey && !hasChanges && (
-                    <Flex justify="center" gap="xs">
-                        <Button
-                            variant="default"
-                            size="sm"
-                            leftSection={<UndoIcon size={16} />}
-                            rightSection={
-                                undoCount > 0 ? (
-                                    <Badge size="sm" variant="filled" circle>
-                                        {undoCount}
-                                    </Badge>
-                                ) : undefined
-                            }
-                            onClick={handleUndo}
-                            disabled={!canUndo}
-                        >
-                            <Label>Undo</Label>
-                        </Button>
-                        <Button
-                            variant="default"
-                            size="sm"
-                            leftSection={<RedoIcon size={16} />}
-                            rightSection={
-                                redoCount > 0 ? (
-                                    <Badge size="sm" variant="filled" circle>
-                                        {redoCount}
-                                    </Badge>
-                                ) : undefined
-                            }
-                            onClick={handleRedo}
-                            disabled={!canRedo}
-                        >
-                            <Label>Redo</Label>
-                        </Button>
-                    </Flex>
-                )}
-
-                {(expandedKey || hasChanges) && (
-                    <Group justify="center" gap="xs">
-                        <Button
-                            variant="default"
-                            size="sm"
-                            leftSection={<CancelIcon size={16} />}
-                            onClick={handleCancel}
-                        >
-                            <Label>Cancel</Label>
-                        </Button>
-                        <Button
-                            size="sm"
-                            leftSection={<UpdateIcon size={16} />}
-                            onClick={handleUpdate}
-                            disabled={!hasChanges || submitting}
-                            loading={loading}
-                        >
-                            <Label>Update</Label>
-                        </Button>
-                    </Group>
-                )}
+                {actions}
             </Stack>
 
             <VariantBox
