@@ -401,7 +401,7 @@ describe('<VariantsTable>', () => {
 
             const overlay = within(container).getByRole('table', { name: 'Drag overlay' });
 
-            expect(within(overlay).getByRole('row', { name: 'p' })).toBeInTheDocument();
+            expect(overlay.querySelector('tr[data-variant="p"]')).toBeInTheDocument();
         });
 
         it('returns null when no variant matches the activeId', () => {

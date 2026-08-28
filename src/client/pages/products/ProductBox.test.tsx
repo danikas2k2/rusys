@@ -59,23 +59,21 @@ vi.mock(import('@mantine/dropzone'), (): any => {
     return { Dropzone: DropzoneComponent };
 });
 
+let user: ReturnType<typeof userEvent.setup>;
+
 function selectOption(name: string) {
     const combobox = screen.getByRole('combobox', { name: 'Category' });
     act(() => fireEvent.click(combobox));
-    act(() => fireEvent.change(combobox, { target: { value: name } }));
     act(() => fireEvent.click(screen.getByRole('option', { name })));
 }
 
 function selectParentOption(name: string) {
     const combobox = screen.getByRole('combobox', { name: 'Parent product' });
     act(() => fireEvent.click(combobox));
-    act(() => fireEvent.change(combobox, { target: { value: name } }));
     act(() => fireEvent.click(screen.getByRole('option', { name })));
 }
 
 describe('<ProductBox>', () => {
-    let user: ReturnType<typeof userEvent.setup>;
-
     beforeEach(() => {
         user = userEvent.setup({ delay: null });
     });
@@ -975,9 +973,6 @@ describe('<ProductBox>', () => {
 
             // Use fireEvent to avoid userEvent incompatibility with fake timers
             act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
-            act(() =>
-                fireEvent.change(screen.getByRole('combobox', { name: 'Category' }), { target: { value: 'Daržovės' } })
-            );
             act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
             act(() =>
                 fireEvent.change(screen.getByRole('textbox', { name: 'Title' }), { target: { value: 'New Entry' } })
@@ -1020,9 +1015,6 @@ describe('<ProductBox>', () => {
             );
 
             act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
-            act(() =>
-                fireEvent.change(screen.getByRole('combobox', { name: 'Category' }), { target: { value: 'Daržovės' } })
-            );
             act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
             act(() =>
                 fireEvent.change(screen.getByRole('textbox', { name: 'Title' }), { target: { value: 'Fast Entry' } })

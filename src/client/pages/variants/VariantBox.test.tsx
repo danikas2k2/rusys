@@ -24,7 +24,6 @@ vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
 function selectOption(name: string) {
     const combobox = screen.getByRole('combobox', { name: 'Category' });
     act(() => fireEvent.click(combobox));
-    act(() => fireEvent.change(combobox, { target: { value: name } }));
     act(() => fireEvent.click(screen.getByRole('option', { name })));
 }
 
@@ -677,9 +676,6 @@ describe('<VariantBox>', () => {
             );
 
             act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
-            act(() =>
-                fireEvent.change(screen.getByRole('combobox', { name: 'Category' }), { target: { value: 'Daržovės' } })
-            );
             act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
             act(() =>
                 fireEvent.change(screen.getByRole('textbox', { name: 'Variant name' }), {
@@ -724,9 +720,6 @@ describe('<VariantBox>', () => {
             );
 
             act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
-            act(() =>
-                fireEvent.change(screen.getByRole('combobox', { name: 'Category' }), { target: { value: 'Daržovės' } })
-            );
             act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
             act(() =>
                 fireEvent.change(screen.getByRole('textbox', { name: 'Variant name' }), {

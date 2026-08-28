@@ -38,7 +38,7 @@ describe('<ProductDialogIcon>', () => {
         );
 
         await user.click(screen.getByRole('button', { name: 'View image' }));
-        const viewer = screen.getByRole('button', { name: '' });
+        const viewer = screen.getByRole('button', { name: 'Click to zoom' });
 
         expect(viewer).not.toHaveAttribute('data-zoomed');
 

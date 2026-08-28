@@ -396,7 +396,7 @@ export function ProductBox({
                                 onChange={(value) =>
                                     value === NEW_CATEGORY_VALUE
                                         ? handleAddCategoryOpen()
-                                        : form.getInputProps('group').onChange(value)
+                                        : form.setFieldValue('group', value ?? '')
                                 }
                             />
                             <TextInput
@@ -433,6 +433,7 @@ export function ProductBox({
                                 searchable
                                 disabled={loading}
                                 {...form.getInputProps('parent')}
+                                onChange={(value) => form.setFieldValue('parent', value ?? '')}
                             />
                             <ImageDropzone
                                 image={form.values.image}

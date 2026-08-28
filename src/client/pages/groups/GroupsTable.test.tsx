@@ -337,7 +337,7 @@ describe('<GroupsTable>', () => {
 
             const overlay = within(container).getByRole('table', { name: 'Drag overlay' });
 
-            expect(within(overlay).getByRole('row', { name: 'Uogienės' })).toBeInTheDocument();
+            expect(overlay.querySelector('tr[data-group="Uogienės"]')).toBeInTheDocument();
         });
 
         it('returns null when no group matches the activeId', () => {

@@ -335,7 +335,7 @@ export function VariantBox({
                                 onChange={(value) =>
                                     value === NEW_CATEGORY_VALUE
                                         ? handleAddCategoryOpen()
-                                        : form.getInputProps('group').onChange(value)
+                                        : form.setFieldValue('group', value ?? '')
                                 }
                             />
                             <TextInput

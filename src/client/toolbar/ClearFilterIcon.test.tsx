@@ -45,16 +45,29 @@ describe('<ClearFilterIcon>', () => {
 
         render(
             <MockTheme>
-                <button onClick={parentOnClick} onKeyDown={parentOnClick} tabIndex={0}>
-                    <ClearFilterIcon onClick={onClick} />
-                </button>
+                <ClearFilterIcon onClick={onClick} />
             </MockTheme>
         );
+        document.addEventListener('click', parentOnClick);
 
         const button = screen.getByRole('button', { name: 'Clear' });
         const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
-        Object.defineProperty(clickEvent, 'stopPropagation', { value: stopPropagation, writable: true });
-        Object.defineProperty(clickEvent, 'preventDefault', { value: preventDefault, writable: true });
+        const nativeStopPropagation = clickEvent.stopPropagation.bind(clickEvent);
+        const nativePreventDefault = clickEvent.preventDefault.bind(clickEvent);
+        Object.defineProperty(clickEvent, 'stopPropagation', {
+            value: () => {
+                stopPropagation();
+                nativeStopPropagation();
+            },
+            writable: true,
+        });
+        Object.defineProperty(clickEvent, 'preventDefault', {
+            value: () => {
+                preventDefault();
+                nativePreventDefault();
+            },
+            writable: true,
+        });
 
         button.dispatchEvent(clickEvent);
 
@@ -62,5 +75,7 @@ describe('<ClearFilterIcon>', () => {
         expect(stopPropagation).toHaveBeenCalledTimes(1);
         expect(preventDefault).toHaveBeenCalledTimes(1);
         expect(parentOnClick).not.toHaveBeenCalled();
+
+        document.removeEventListener('click', parentOnClick);
     });
 });
