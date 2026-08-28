@@ -59,8 +59,8 @@ export async function updateGroup(
               .updateOne(
                   { group },
                   {
-                      $set: { annual, review, ...(fieldUpdate?.$set ?? {}) },
-                      $unset: { archivedAt: 1, ...(fieldUpdate?.$unset ?? {}) },
+                      $set: { annual, review, ...fieldUpdate?.$set },
+                      $unset: { archivedAt: 1, ...fieldUpdate?.$unset },
                   }
               )
               .then(hasEffect)
@@ -73,7 +73,7 @@ export async function updateGroup(
                       order: found ? found.order + 1 : 0,
                       annual,
                       review,
-                      ...(fieldUpdate?.$set ?? {}),
+                      ...fieldUpdate?.$set,
                   })
               )
               .then(hasEffect)
@@ -99,7 +99,7 @@ export async function renameGroup(
         .updateOne(
             { group },
             {
-                $set: { group: newGroup, annual, review, ...(fieldUpdate?.$set ?? {}) },
+                $set: { group: newGroup, annual, review, ...fieldUpdate?.$set },
                 ...(fieldUpdate && Object.keys(fieldUpdate.$unset).length ? { $unset: fieldUpdate.$unset } : {}),
             },
             { session }

@@ -12,7 +12,7 @@ import { ErrorBoundary } from '~/client/common/ErrorBoundary';
 import { getStore } from '~/client/state/store';
 
 vi.mock(import('react-dom/client'), async () => {
-    const actual = await vi.importActual<typeof import('react-dom/client')>('react-dom/client'); // eslint-disable-line @typescript-eslint/consistent-type-imports
+    const actual = await vi.importActual<typeof import('react-dom/client')>('react-dom/client'); // oxlint-disable-line typescript/consistent-type-imports
     return {
         createRoot: vi.fn((container: Element, options?: Parameters<typeof actual.createRoot>[1]) =>
             actual.createRoot(container, options)

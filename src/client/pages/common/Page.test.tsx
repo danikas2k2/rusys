@@ -21,7 +21,7 @@ vi.mock(import('~/client/pages/common/AddAction'), () => ({
 vi.mock(import('~/client/pages/common/ActiveRemoveConfirmation'), () => ({
     ActiveRemoveConfirmation: vi.fn(
         ({ onConfirm: _onConfirm }: { onConfirm?: (data: unknown) => void | Promise<void> }) => (
-            <div role="dialog">Remove</div>
+            <dialog open>Remove</dialog>
         )
     ),
 }));

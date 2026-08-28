@@ -38,7 +38,6 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
         // shared via context specifically so SwipePanel can publish this imperative API into
         // it - mutating .current here is the intended design (a cross-component escape hatch
         // for zero-render-latency writes), not an accidental mutation of a hook's return value
-        // eslint-disable-next-line react-compiler/react-compiler
         dragApiRef.current = {
             setOffset: (id, offset, dragging) => {
                 const node = nodes.get(id);
@@ -79,7 +78,7 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
         const prevActive = prevActiveRef.current;
         prevActiveRef.current = active;
 
-        /* eslint-disable react-hooks/set-state-in-effect -- panel layout must follow active row in the same frame */
+        /* oxlint-disable react/set-state-in-effect -- panel layout must follow active row in the same frame */
         if (prevActive?.id && (!active || active.action || prevActive.id !== active.id)) {
             closeAllPanels();
         }
@@ -105,7 +104,7 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
                 return [...prev.slice(0, found), panel, ...prev.slice(found + 1)];
             });
         }
-        /* eslint-enable react-hooks/set-state-in-effect */
+        /* oxlint-enable react/set-state-in-effect */
     }, [active, closeAllPanels]);
 
     // Reveal a freshly-mounted, non-instant panel: move it from hidden (0) to its real
@@ -157,6 +156,7 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
                 <Group
                     key={panel.id}
                     ref={registerNode(panel.id, index === 0)}
+                    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                     role="group"
                     style={{
                         top: panel.rect.top + 1,

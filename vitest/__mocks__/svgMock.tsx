@@ -11,9 +11,7 @@ interface SvgProps extends React.SVGProps<SVGSVGElement> {
     className?: string;
 }
 
-const SvgMock: React.FC<SvgProps> = ({ className, ...rest }) => (
-    <svg className={classNames(className)} {...rest} />
-);
+const SvgMock: React.FC<SvgProps> = ({ className, ...rest }) => <svg className={classNames(className)} {...rest} />;
 
 export default SvgMock;
 

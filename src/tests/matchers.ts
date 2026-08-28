@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export const expectElement = (type?: string | Function | object, props?: object) => {
     const element = { $$typeof: expect.any(Symbol) };
 

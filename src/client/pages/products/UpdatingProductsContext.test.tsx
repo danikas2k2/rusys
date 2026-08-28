@@ -93,7 +93,7 @@ describe('<UpdatingProductsWrapper>', () => {
             <>
                 <button onClick={() => setUpdating(product, true)}>Set updating</button>
                 <button onClick={() => setUpdating(product, false)}>Set idle</button>
-                <div role="status">{`${key in state && state[key]}`}</div>
+                <output>{`${key in state && state[key]}`}</output>
             </>
         );
     }
@@ -150,9 +150,9 @@ describe('<UpdatingProductsWrapper>', () => {
                 <>
                     <button onClick={() => setUpdating(firstProduct, true)}>Update first product</button>
                     <button onClick={() => setUpdating(secondProduct, true)}>Update second product</button>
-                    <div role="status">
+                    <output>
                         {String(isFirstUpdating)} : {String(isSecondUpdating)}
-                    </div>
+                    </output>
                 </>
             );
         }

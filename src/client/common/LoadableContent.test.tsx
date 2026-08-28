@@ -16,7 +16,7 @@ describe('<LoadableContent>', () => {
     const props = {
         loader: vi.fn(),
         hasData: false,
-        children: <div role="main">Content</div>,
+        children: <main>Content</main>,
     };
 
     afterEach(() => vi.clearAllMocks());

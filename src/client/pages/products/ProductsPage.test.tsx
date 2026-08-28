@@ -1,8 +1,8 @@
 import { render, screen, within } from '@testing-library/react';
 import { MockApp } from '@tests/MockApp';
+import type { Mocked } from 'vitest';
 
 import React from 'react';
-import type { Mocked } from 'vitest';
 
 import { Page } from '~/client/pages/common/Page';
 import { MissingOnlyEffects } from '~/client/pages/products/MissingOnlyEffects';

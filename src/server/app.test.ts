@@ -1,11 +1,12 @@
-// @vitest-environment node
+import type { MockInstance } from 'vitest';
+
 import fs from 'fs';
 import https from 'https';
 
+// @vitest-environment node
 import express, { type Request, type Response } from 'express';
 import type { Express } from 'express-serve-static-core';
 import request from 'supertest';
-import type { MockInstance } from 'vitest';
 
 import { debug } from '~/server/api/debug';
 import { handleAdd } from '~/server/api/handleAdd';
@@ -127,7 +128,6 @@ describe('app', () => {
                 const response = await request(app).post(url);
 
                 expect(response.status).toBe(200);
-                // eslint-disable-next-line vitest/prefer-called-with
                 expect(handle).toHaveBeenCalled();
             });
 
@@ -300,7 +300,7 @@ describe('app', () => {
 
 describe('app (prod mode)', () => {
     // Re-import app with isDevMode returning false to test the prod-only branches
-    let setupHelmetProd: typeof import('~/server/app').setupHelmet; // eslint-disable-line @typescript-eslint/consistent-type-imports
+    let setupHelmetProd: typeof import('~/server/app').setupHelmet; // oxlint-disable-line typescript/consistent-type-imports
 
     beforeAll(async () => {
         vi.doMock(import('~/common/utils/dev'), () => ({ isDevMode: () => false }));

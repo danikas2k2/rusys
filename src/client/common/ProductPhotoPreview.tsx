@@ -129,6 +129,7 @@ export function ProductPhotoPreview({ photo, onError, onOpenChange }: ProductPho
             >
                 <button
                     type="button"
+                    aria-label={zoomed ? 'Drag to pan' : 'Click to zoom'}
                     data-photo-preview-viewport
                     data-zoomed={zoomed || undefined}
                     onClick={handleImageClick}

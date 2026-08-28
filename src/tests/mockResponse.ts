@@ -1,5 +1,6 @@
-import type { Response } from 'express';
 import { vi } from 'vitest';
+
+import type { Response } from 'express';
 
 import type { ApiResponse } from '~/types/api';
 

@@ -4,7 +4,7 @@ import { isEmpty } from 'lodash';
 
 import { formatFileSize } from '~/common/utils/format';
 
-// eslint-disable-next-line no-console
+// oxlint-disable-next-line no-console
 const debug: typeof console.debug = process.env.NODE_ENV === 'development' ? console.debug : () => {};
 export { debug };
 

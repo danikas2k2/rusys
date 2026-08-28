@@ -59,7 +59,7 @@ vi.mock(import('~/client/pages/variants/VariantsRow'), () => ({
             data-hidden={String(hidden ?? false)}
             aria-disabled={dragDisabled ?? false}
         >
-            <td />
+            <td aria-label="blank" />
             <td>{variant.variant}</td>
             <td>{variant.suffix ?? ''}</td>
         </tr>

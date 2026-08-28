@@ -20,7 +20,7 @@ export function useLockingLoader(loader: () => Promise<unknown>): LoadingState {
                 if (loading) {
                     setState(LoadingState.COMPLETE);
                 }
-            } catch (_e) {
+            } catch {
                 if (loading) {
                     setState(LoadingState.FAILED);
                 }

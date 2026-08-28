@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
-import { MongoClient } from 'mongodb';
 import { vi } from 'vitest';
+
+import { MongoClient } from 'mongodb';
 
 import type * as DbModule from '~/server/db';
 import { mongoUriFile } from '../../../vitest/mongoUri';
@@ -16,7 +17,6 @@ const $dbName = `test_${randomUUID().slice(0, 8)}`;
 
 let $client: MongoClient | undefined;
 
-// eslint-disable-next-line vitest/require-top-level-describe
 beforeAll(async () => {
     if (!$client) {
         const uri = await readFile(mongoUriFile, 'utf-8');
@@ -24,7 +24,6 @@ beforeAll(async () => {
     }
 });
 
-// eslint-disable-next-line vitest/require-top-level-describe
 afterAll(async () => {
     if ($client) {
         await $client.db($dbName).dropDatabase();

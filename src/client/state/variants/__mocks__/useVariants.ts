@@ -1,5 +1,4 @@
 import { getVariantsFixture } from '@tests/fixtures';
-
 import { vi } from 'vitest';
 
 // noinspection JSUnusedGlobalSymbols

@@ -1,5 +1,6 @@
-import React from 'react';
 import { vi } from 'vitest';
+
+import React from 'react';
 
 const data = { name: 'Name', group: 'Group', variant: 'Variant' };
 

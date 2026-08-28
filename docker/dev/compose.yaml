@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
     networks:
       - rusiodb
-    command: [ "mongod", "--replSet", "rusiors", "--wiredTigerCacheSizeGB", "1", "--port", "30201" ]
+    command: ["mongod", "--replSet", "rusiors", "--wiredTigerCacheSizeGB", "1", "--port", "30201"]
     mem_limit: 1g
 
   rusiodb2:
@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
     networks:
       - rusiodb
-    command: [ "mongod", "--replSet", "rusiors", "--wiredTigerCacheSizeGB", "1", "--port", "30202" ]
+    command: ["mongod", "--replSet", "rusiors", "--wiredTigerCacheSizeGB", "1", "--port", "30202"]
     mem_limit: 1g
 
   rusiodb3:
@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
     networks:
       - rusiodb
-    command: [ "mongod", "--replSet", "rusiors", "--wiredTigerCacheSizeGB", "1", "--port", "30203" ]
+    command: ["mongod", "--replSet", "rusiors", "--wiredTigerCacheSizeGB", "1", "--port", "30203"]
     mem_limit: 1g
 
 networks:

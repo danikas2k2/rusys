@@ -1,5 +1,6 @@
-/** @vitest-environment node */
 import { readFile } from 'node:fs/promises';
+
+/** @vitest-environment node */
 import { mockEnv } from '@tests/mockEnv';
 
 import { Db, MongoClient } from 'mongodb';
@@ -9,7 +10,7 @@ import { mongoUriFile } from '../../vitest/mongoUri';
 
 vi.setConfig({ testTimeout: 30_000 });
 
-describe('db.ts', () => {
+describe('db', () => {
     mockEnv();
 
     let uri: string;

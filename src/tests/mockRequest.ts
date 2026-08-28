@@ -13,7 +13,7 @@ export function mockRequest<T extends object = object & ApiWithFiles, R extends 
     files?: FileArray
 ): R {
     if (!files && 'files' in body) {
-        // eslint-disable-next-line no-param-reassign
+        // oxlint-disable-next-line no-param-reassign
         files = body.files as FileArray;
         delete body.files;
     }

@@ -22,13 +22,7 @@
         "resolveJsonModule": true,
         "preserveSymlinks": true,
         "jsx": "react-jsx",
-        "types": [
-            "node",
-            "express",
-            "vite/client",
-            "vitest/globals",
-            "@testing-library/jest-dom"
-        ],
+        "types": ["node", "express", "vite/client", "vitest/globals", "@testing-library/jest-dom"],
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true

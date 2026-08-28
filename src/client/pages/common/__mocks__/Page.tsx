@@ -1,5 +1,6 @@
-import React from 'react';
 import { vi } from 'vitest';
+
+import React from 'react';
 
 export const Page = vi.fn(
     ({ children, toolbar, onAdd }: React.PropsWithChildren<{ toolbar?: React.ReactNode; onAdd?: () => void }>) => (

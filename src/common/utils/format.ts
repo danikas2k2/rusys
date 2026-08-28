@@ -11,7 +11,7 @@ function trimZeroes(value: string): string {
 export function formatFileSize(size: number): string {
     let x = -1;
     while (size >= 1024) {
-        // eslint-disable-next-line no-param-reassign
+        // oxlint-disable-next-line no-param-reassign
         size /= 1024;
         x++;
     }

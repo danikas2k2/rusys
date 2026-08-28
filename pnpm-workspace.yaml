@@ -1,5 +1,5 @@
 packages:
-  - '.'
+  - "."
 
 allowBuilds:
   esbuild: true
@@ -8,12 +8,11 @@ allowBuilds:
 
 peerDependencyRules:
   allowedVersions:
-    eslint: "10"
     "@css-modules-kit/core>typescript": "6"
 
 overrides:
   braces: ^3.0.3
-  deepmerge-ts: ^8.0.1
+  deepmerge-ts: ^8.0.2
   diff: ^9.0.0
   glob: ^13.0.6
   jsdom: ^30.0.1
@@ -27,6 +26,3 @@ overrides:
   stylelint: ^17.14.1
   test-exclude: ^8.0.0
   tough-cookie: ^6.0.2
-
-patchedDependencies:
-  eslint-plugin-react@7.37.5: patches/eslint-plugin-react@7.37.5.patch

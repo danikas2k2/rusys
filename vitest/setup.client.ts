@@ -1,6 +1,6 @@
 import { TextDecoder as NodeTextDecoder, TextEncoder as NodeTextEncoder } from 'node:util';
-import { configure } from '@testing-library/dom';
 
+import { configure } from '@testing-library/dom';
 import { afterEach, beforeEach, vi } from 'vitest';
 
 // Ensure test runs don't accidentally behave like production if CI sets NODE_ENV=production.

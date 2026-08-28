@@ -47,10 +47,10 @@ vi.mock(import('~/client/table/DragOverlayTable'), () => ({
 vi.mock(import('~/client/pages/groups/GroupsRow'), () => ({
     GroupsRow: vi.fn(({ group, hidden, dragDisabled }: any) => (
         <tr data-group={group.group} data-hidden={String(hidden ?? false)} aria-disabled={dragDisabled ?? false}>
-            <td />
+            <td aria-label="Group name" />
             <td>{group.group}</td>
-            <td />
-            <td />
+            <td aria-label="Category" />
+            <td aria-label="Annual" />
         </tr>
     )),
 }));

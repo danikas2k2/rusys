@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
+import { expect } from 'vitest';
 
 import type { MatcherState } from '@vitest/expect';
-import { expect } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Custom project matchers (migrated from jest/expect.ts)

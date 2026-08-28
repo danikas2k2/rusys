@@ -35,7 +35,7 @@ type ErrorBoundaryProps = Readonly<React.PropsWithChildren<{ onReload?: () => vo
 export function ErrorBoundary({ children, onReload }: ErrorBoundaryProps): React.ReactElement {
     const handleError = (error: unknown, info: React.ErrorInfo) => {
         const message = error instanceof Error ? error.message : String(error);
-        // eslint-disable-next-line no-console
+        // oxlint-disable-next-line no-console
         console.error(`[ERR] ErrorBoundary caught error: ${message}`, info);
     };
 

@@ -45,9 +45,9 @@ describe('<ClearFilterIcon>', () => {
 
         render(
             <MockTheme>
-                <div onClick={parentOnClick} onKeyDown={parentOnClick} role="button" tabIndex={0}>
+                <button onClick={parentOnClick} onKeyDown={parentOnClick} tabIndex={0}>
                     <ClearFilterIcon onClick={onClick} />
-                </div>
+                </button>
             </MockTheme>
         );
 

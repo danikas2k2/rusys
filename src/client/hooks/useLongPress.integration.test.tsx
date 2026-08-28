@@ -26,11 +26,7 @@ describe('useLongPress', () => {
         onLongPress?: React.PointerEventHandler;
         delay?: number;
     }>): React.ReactElement {
-        return (
-            <div role="button" {...useLongPress({ onClick, onLongPress, delay })}>
-                {children}
-            </div>
-        );
+        return <button {...useLongPress({ onClick, onLongPress, delay })}>{children}</button>;
     }
 
     const onClick = vi.fn();

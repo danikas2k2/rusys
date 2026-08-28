@@ -18,7 +18,6 @@
 
     - https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/How_to/Customize_your_app_colors
 
-
 # How to run webpack-dev-server on express
 
     - https://dev.to/riversun/how-to-run-webpack-dev-server-on-express-5ei9

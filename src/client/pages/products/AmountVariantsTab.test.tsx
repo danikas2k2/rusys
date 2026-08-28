@@ -17,7 +17,7 @@ import type { ProductAmounts } from '~/types/data';
 vi.mock(import('~/client/pages/variants/VariantBox'), () => ({
     VariantBox: vi.fn(({ opened, onClose, onAfterClose }: any) =>
         opened ? (
-            <div role="dialog" aria-label="Add variant">
+            <dialog open aria-label="Add variant">
                 <button type="button" onClick={() => onClose('Uogienės', 'x')}>
                     Create variant x
                 </button>
@@ -27,7 +27,7 @@ vi.mock(import('~/client/pages/variants/VariantBox'), () => ({
                 <button type="button" onClick={() => onAfterClose?.()}>
                     Exit transition end
                 </button>
-            </div>
+            </dialog>
         ) : null
     ),
 }));
@@ -43,7 +43,7 @@ vi.mock(import('@mantine/core'), async () => {
                     onChange={(e) => onChange(e.target.value === '__null__' ? null : e.target.value)}
                     defaultValue="__null__"
                 >
-                    <option value="__null__" disabled />
+                    <option value="__null__" disabled aria-label="__null__" />
                     {(data as any[]).map((item: any) => (
                         <option key={item.value ?? item} value={item.value ?? item}>
                             {item.label ?? item}

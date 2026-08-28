@@ -18,7 +18,7 @@ export function ProductDialogIcon({
 }: ProductDialogIconProps): React.ReactElement {
     const [failed, setFailed] = useState(false);
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset the fallback when a new photo is given
+    // oxlint-disable-next-line react/set-state-in-effect -- reset the fallback when a new photo is given
     useEffect(() => setFailed(false), [photo]);
 
     const showPhoto = !!photo && !failed;

@@ -11,7 +11,7 @@ import { useProducts } from '~/client/state/products/useProducts';
 vi.mock(import('~/client/pages/products/AmountBox'), (): any => ({
     AmountBox: ({ opened, photo, title, onClose, onAfterClose, onEdit }: any) =>
         opened ? (
-            <div role="dialog" aria-label="Value box" data-photo={photo}>
+            <dialog open aria-label="Value box" data-photo={photo}>
                 {title}
                 <button type="button" onClick={() => onClose()}>
                     Close
@@ -22,13 +22,13 @@ vi.mock(import('~/client/pages/products/AmountBox'), (): any => ({
                 <button type="button" onClick={onEdit}>
                     Edit
                 </button>
-            </div>
+            </dialog>
         ) : null,
 }));
 vi.mock(import('~/client/pages/products/ProductBox'), (): any => ({
     ProductBox: ({ opened, group, name, parent, image, onClose, onDelete }: any) =>
         opened ? (
-            <div role="dialog" aria-label="Product box" data-group={group} data-name={name} data-parent={parent}>
+            <dialog open aria-label="Product box" data-group={group} data-name={name} data-parent={parent}>
                 {image}
                 <button type="button" onClick={() => onClose()}>
                     Cancel edit
@@ -42,7 +42,7 @@ vi.mock(import('~/client/pages/products/ProductBox'), (): any => ({
                 <button type="button" onClick={onDelete}>
                     Delete
                 </button>
-            </div>
+            </dialog>
         ) : null,
 }));
 vi.mock(import('~/client/state/products/useProducts'), () => ({

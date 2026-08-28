@@ -174,7 +174,7 @@ describe('<ConfirmationDialog>', () => {
     });
 
     it('renders custom actions when provided', () => {
-        const customActions = <div role="group">Custom Actions</div>;
+        const customActions = <details>Custom Actions</details>;
 
         render(
             <MockTheme>

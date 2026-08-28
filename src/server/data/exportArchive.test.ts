@@ -1,7 +1,7 @@
-/** @vitest-environment node */
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+/** @vitest-environment node */
 import JSZip from 'jszip';
 
 import { buildExportArchive, readImportArchive, writeImportImages } from '~/server/data/exportArchive';

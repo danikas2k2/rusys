@@ -9,11 +9,11 @@ import { ActiveReviewBox } from '~/client/pages/review/ActiveReviewBox';
 vi.mock(import('~/client/pages/review/ReviewBox'), (): any => ({
     ReviewBox: ({ opened, onClose }: any) =>
         opened ? (
-            <div role="dialog" aria-label="Review box">
+            <dialog open aria-label="Review box">
                 <button type="button" onClick={() => onClose()}>
                     Close
                 </button>
-            </div>
+            </dialog>
         ) : null,
 }));
 

@@ -10,8 +10,7 @@ function Boom(): React.JSX.Element {
 }
 
 function BoomString(): React.JSX.Element {
-    // eslint-disable-next-line no-throw-literal
-    throw 'string error' as unknown;
+    throw 'string error' as unknown; // oxlint-disable-line no-throw-literal
 }
 
 describe('<ErrorBoundary>', () => {

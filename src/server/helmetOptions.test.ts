@@ -1,5 +1,5 @@
 describe('helmetOptions (dev mode)', () => {
-    let helmetOptions: typeof import('~/server/helmetOptions').default; // eslint-disable-line @typescript-eslint/consistent-type-imports
+    let helmetOptions: typeof import('~/server/helmetOptions').default; // oxlint-disable-line typescript/consistent-type-imports
 
     beforeAll(async () => {
         vi.doMock(import('~/common/utils/dev'), () => ({ isDevMode: () => true }));
@@ -41,7 +41,7 @@ describe('helmetOptions (dev mode)', () => {
 });
 
 describe('helmetOptions (prod mode)', () => {
-    let helmetOptions: typeof import('~/server/helmetOptions').default; // eslint-disable-line @typescript-eslint/consistent-type-imports
+    let helmetOptions: typeof import('~/server/helmetOptions').default; // oxlint-disable-line typescript/consistent-type-imports
 
     beforeAll(async () => {
         vi.doMock(import('~/common/utils/dev'), () => ({ isDevMode: () => false }));

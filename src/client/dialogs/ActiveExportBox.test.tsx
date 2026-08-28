@@ -11,12 +11,12 @@ vi.mock(import('~/client/hooks/useExportHandler'));
 vi.mock(import('~/client/common/ConfirmationDialog'), (): any => ({
     ConfirmationDialog: ({ opened, onClose, onConfirm, title, children }: any) =>
         opened ? (
-            <div role="dialog" aria-label="Confirmation">
+            <dialog open aria-label="Confirmation">
                 <div>{title}</div>
                 <div>{children}</div>
                 <button onClick={onClose}>Cancel</button>
                 <button onClick={onConfirm}>Confirm</button>
-            </div>
+            </dialog>
         ) : null,
 }));
 

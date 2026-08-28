@@ -19,6 +19,7 @@ export function ChangeBadge({ change, position = 'inline' }: ChangeBadgeProps) {
         <Badge
             className={inline ? undefined : 'change-badge'}
             p={2}
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
             role="status"
             data-position={position}
             data-state={getState(change)}
