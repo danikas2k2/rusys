@@ -1,23 +1,17 @@
-import { readFile } from 'node:fs/promises';
-
 /** @vitest-environment node */
 import { mockEnv } from '@tests/mockEnv';
+import { inject } from 'vitest';
 
 import { Db, MongoClient } from 'mongodb';
 
 import { $clients, db, getClient, withTransaction } from '~/server/db';
-import { mongoUriFile } from '../../vitest/mongoUri';
 
 vi.setConfig({ testTimeout: 30_000 });
 
 describe('db', () => {
     mockEnv();
 
-    let uri: string;
-
-    beforeAll(async () => {
-        uri = await readFile(mongoUriFile, 'utf-8');
-    });
+    const uri = inject('mongoUri');
 
     afterAll(async () => {
         for (const c of $clients.values()) {

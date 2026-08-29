@@ -9,6 +9,10 @@ import type { MatcherState } from '@vitest/expect';
 
 // Augment Vitest's expect interface with custom matchers
 declare module 'vitest' {
+    interface ProvidedContext {
+        mongoUri: string;
+    }
+
     interface Matchers {
         toHaveListWithTextContent: (expected: string[]) => void;
         toBeExpanded: () => void;

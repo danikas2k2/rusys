@@ -1,13 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
 
-import { vi } from 'vitest';
+import { inject, vi } from 'vitest';
 
 import { MongoClient } from 'mongodb';
 
 import type * as DbModule from '~/server/db';
-import { mongoUriFile } from '../../../vitest/mongoUri';
-
 // Every test file gets its own database on the single shared replica set
 // (started once in vitest/globalSetup.mongo.ts) so parallel files can't see
 // each other's data despite reusing the same server. Kept short because some
@@ -19,8 +16,7 @@ let $client: MongoClient | undefined;
 
 beforeAll(async () => {
     if (!$client) {
-        const uri = await readFile(mongoUriFile, 'utf-8');
-        $client = await MongoClient.connect(uri, {});
+        $client = await MongoClient.connect(inject('mongoUri'), {});
     }
 });
 
