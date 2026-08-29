@@ -43,9 +43,6 @@ export function AmountExpanded({
         setExpiryPickerOpened(false);
         onAddExpiry?.(value);
     };
-    // No point picking a date for an already-expired product - disable everything before today.
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
     const minUpdated = -(baseAmount + delta.consumed + delta.recycled);
     const minConsumed = -(baseAmount + delta.updated + delta.recycled);
     const minRecycled = -(baseAmount + delta.updated + delta.consumed);
@@ -112,7 +109,7 @@ export function AmountExpanded({
                                 }
                             >
                                 <Flex justify="center" align="flex-start" mih="20rem">
-                                    <DatePicker onChange={handlePickExpiry} minDate={startOfToday} />
+                                    <DatePicker onChange={handlePickExpiry} />
                                 </Flex>
                             </Modal>
                         </>

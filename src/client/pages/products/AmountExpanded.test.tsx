@@ -36,6 +36,13 @@ function yesterdayCalendarLabel(): string {
     return `${yesterday.getDate()} ${yesterday.toLocaleDateString('en-US', { month: 'long' })} ${yesterday.getFullYear()}`;
 }
 
+function yesterdayIsoDate(): string {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${yesterday.getFullYear()}-${pad(yesterday.getMonth() + 1)}-${pad(yesterday.getDate())}`;
+}
+
 describe('<AmountExpanded>', () => {
     const onChange = vi.fn();
     const onCommentChange = vi.fn();
@@ -240,7 +247,7 @@ describe('<AmountExpanded>', () => {
         expect(onAddExpiry).not.toHaveBeenCalled();
     });
 
-    it('disables days before today - there is no point dating an already-expired batch', async () => {
+    it('allows picking a past expiry date', async () => {
         const onAddExpiry = vi.fn();
         render(
             <MockTheme>
@@ -257,10 +264,9 @@ describe('<AmountExpanded>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Valid until' }));
 
-        expect(screen.getByRole('button', { name: yesterdayCalendarLabel() })).toBeDisabled();
-
         await user.click(screen.getByRole('button', { name: yesterdayCalendarLabel() }));
 
-        expect(onAddExpiry).not.toHaveBeenCalled();
+        expect(onAddExpiry).toHaveBeenCalledWith(yesterdayIsoDate());
+        expect(screen.queryByRole('button', { name: yesterdayCalendarLabel() })).not.toBeInTheDocument();
     });
 });
