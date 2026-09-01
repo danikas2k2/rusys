@@ -18,6 +18,7 @@ import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
 import { handleReorderGroups } from '~/server/api/handleReorderGroups';
 import { handleReorderVariants } from '~/server/api/handleReorderVariants';
+import { handleSetAmounts } from '~/server/api/handleSetAmounts';
 import { handleSetImage } from '~/server/api/handleSetImage';
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { handleSetMissingBulk } from '~/server/api/handleSetMissingBulk';
@@ -29,12 +30,11 @@ import { handleSummary } from '~/server/api/handleSummary';
 import { handleSummaryHistory } from '~/server/api/handleSummaryHistory';
 import { handleUndoProduct } from '~/server/api/handleUndoProduct';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
-import { handleSetAmounts } from '~/server/api/handleSetAmounts';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
 import { handleUserProfiles } from '~/server/api/handleUserProfiles';
 import { handleVariants } from '~/server/api/handleVariants';
-import { ApiUrl, type ApiRequest, type ApiResponse } from '~/types/api';
+import { type ApiRequest, type ApiResponse, ApiUrl } from '~/types/api';
 
 export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiResponse) => Promise<void>> = {
     [ApiUrl.Export]: handleExport,

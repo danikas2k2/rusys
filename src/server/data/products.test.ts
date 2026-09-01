@@ -21,6 +21,7 @@ import {
     renameProduct,
     renameProductsGroup,
     renameProductsVariant,
+    setAmounts,
     setImage,
     setMissing,
     setMissingBulk,
@@ -28,7 +29,6 @@ import {
     setRemoving,
     setVariantImage,
     undoProduct,
-    setAmounts,
 } from '~/server/data/products';
 import { $all } from '~/server/data/tests/utils';
 import { db } from '~/server/db';
@@ -57,7 +57,9 @@ describe('products', () => {
 
     describe('getProducts', () => {
         it('returns expiry tolerance days', async () => {
-            await (await db())
+            await (
+                await db()
+            )
                 .collection('products')
                 .updateOne({ group: 'Daržovės', name: 'Agurkai' }, { $set: { expiryToleranceDays: 365 } });
 
@@ -2045,13 +2047,7 @@ describe('products', () => {
         });
 
         it('does NOT auto-consume when home consume arrives (only cellar triggers it)', async () => {
-            await setAmounts(
-                'Šaldyti',
-                'Mėsa',
-                22,
-                [{ variant: 'p', amount: -1, recycled: false, home: true }],
-                user
-            );
+            await setAmounts('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: false, home: true }], user);
 
             const result = await getProducts([22]);
             const product = result.find((p) => p.group === 'Šaldyti' && p.name === 'Mėsa')!;
