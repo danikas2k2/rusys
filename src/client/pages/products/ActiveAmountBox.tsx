@@ -115,6 +115,7 @@ export function ActiveAmountBox(): React.ReactElement {
                 name={activeData?.name}
                 parent={activeProduct?.parent}
                 image={currentData?.image}
+                expiryToleranceDays={activeProduct?.expiryToleranceDays}
                 onClose={handleEditClose}
                 onDelete={handleDelete}
                 closeOnEscape={!removing}

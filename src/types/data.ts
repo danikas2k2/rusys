@@ -54,6 +54,8 @@ export interface Product {
     group: string;
     name: string;
     parent?: string;
+    /** Additional days after expiresAt during which the product is still treated as usable. */
+    expiryToleranceDays?: number;
     years?: readonly RemovingYearAmounts[];
     missing?: boolean;
     updates?: readonly Update[] | readonly ProductHistoryMeta[];

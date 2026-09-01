@@ -194,6 +194,21 @@
   "Valid until": {
     "lt-LT": "Galioja iki"
   },
+  "Expiry tolerance (days)": {
+    "lt-LT": "Galiojimo paklaida (dienomis)"
+  },
+  "Expiry tolerance": {
+    "lt-LT": "Galiojimo paklaida"
+  },
+  "Examples: 7, 2 sav, 3 men, 1 m.": {
+    "lt-LT": "Pavyzdžiai: 7, 2 sav., 3 mėn., 1 m."
+  },
+  "Enter a valid expiry tolerance": {
+    "lt-LT": "Įveskite tinkamą galiojimo paklaidą"
+  },
+  "Days after expiry to keep this product marked as expiring soon": {
+    "lt-LT": "Dienos po galiojimo pabaigos, kai produktas dar rodomas kaip greitai baigiantis galioti"
+  },
   "No date": {
     "lt-LT": "Data nenurodyta"
   },

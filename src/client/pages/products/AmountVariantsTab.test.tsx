@@ -10,7 +10,7 @@ import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useRedoProduct } from '~/client/state/products/useRedoProduct';
 import { useUndoProduct } from '~/client/state/products/useUndoProduct';
-import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
+import { useSetAmounts } from '~/client/state/products/useSetAmounts';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import type { ProductAmounts } from '~/types/data';
 
@@ -140,7 +140,7 @@ vi.mock(import('~/client/state/products/useProducts'), () => ({
     useProducts: vi.fn(() => []),
 }));
 
-vi.mock(import('~/client/state/products/useUpdateProduct'), () => ({
+vi.mock(import('~/client/state/products/useSetAmounts'), () => ({
     useUpdateProduct: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
@@ -287,7 +287,7 @@ describe('<AmountVariantsTab>', () => {
 
     it('calls updateProduct when Update is clicked after changing a delta', async () => {
         const mockUpdate = vi.fn().mockResolvedValue(undefined);
-        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
+        vi.mocked(useSetAmounts).mockReturnValue(mockUpdate);
 
         renderTab();
 
@@ -314,7 +314,7 @@ describe('<AmountVariantsTab>', () => {
                     resolveUpdate = resolve;
                 })
         );
-        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
+        vi.mocked(useSetAmounts).mockReturnValue(mockUpdate);
 
         try {
             renderTab();
@@ -339,7 +339,7 @@ describe('<AmountVariantsTab>', () => {
 
     it('calls onClose after a successful update', async () => {
         const onClose = vi.fn();
-        vi.mocked(useUpdateProduct).mockReturnValue(vi.fn().mockResolvedValue(undefined));
+        vi.mocked(useSetAmounts).mockReturnValue(vi.fn().mockResolvedValue(undefined));
 
         renderTab(baseActive, undefined, onClose);
 
@@ -495,7 +495,7 @@ describe('<AmountVariantsTab>', () => {
 
     it('includes comment in update call when comment is non-empty', async () => {
         const mockUpdate = vi.fn().mockResolvedValue(undefined);
-        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
+        vi.mocked(useSetAmounts).mockReturnValue(mockUpdate);
 
         // AmountExpanded is already mocked but we need to expose the onCommentChange —
         // re-mock to also trigger comment change
@@ -526,7 +526,7 @@ describe('<AmountVariantsTab>', () => {
 
     it('passes consumed delta in changes array', async () => {
         const mockUpdate = vi.fn().mockResolvedValue(undefined);
-        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
+        vi.mocked(useSetAmounts).mockReturnValue(mockUpdate);
 
         vi.mocked(AmountVariantRow).mockImplementation(({ type, delta, onChange }: any) => (
             <div>
@@ -554,7 +554,7 @@ describe('<AmountVariantsTab>', () => {
 
     it('passes recycled delta in changes array', async () => {
         const mockUpdate = vi.fn().mockResolvedValue(undefined);
-        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
+        vi.mocked(useSetAmounts).mockReturnValue(mockUpdate);
 
         vi.mocked(AmountVariantRow).mockImplementation(({ type, delta, onChange }: any) => (
             <div>
@@ -707,7 +707,7 @@ describe('<AmountVariantsTab>', () => {
 
     it('does not call updateProduct when Update is clicked with no active content', async () => {
         const mockUpdate = vi.fn().mockResolvedValue(undefined);
-        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
+        vi.mocked(useSetAmounts).mockReturnValue(mockUpdate);
         vi.mocked(useAllVariants).mockReturnValue(['p', 'd', 'm']);
 
         render(
@@ -874,7 +874,7 @@ describe('suspicious amounts', () => {
 
     it('suspicious item passes suspicious:true in changes when Update is clicked', async () => {
         const mockUpdate = vi.fn().mockResolvedValue(undefined);
-        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
+        vi.mocked(useSetAmounts).mockReturnValue(mockUpdate);
 
         renderTab();
 
@@ -975,7 +975,7 @@ describe('home amounts', () => {
 
     it('home item passes home:true in changes when Update is clicked', async () => {
         const mockUpdate = vi.fn().mockResolvedValue(undefined);
-        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
+        vi.mocked(useSetAmounts).mockReturnValue(mockUpdate);
 
         renderTab();
 
@@ -1122,7 +1122,7 @@ describe('expiry amounts', () => {
 
     it('expiry item passes expiresAt in changes when Update is clicked', async () => {
         const mockUpdate = vi.fn().mockResolvedValue(undefined);
-        vi.mocked(useUpdateProduct).mockReturnValue(mockUpdate);
+        vi.mocked(useSetAmounts).mockReturnValue(mockUpdate);
 
         renderTab();
 

@@ -1,7 +1,9 @@
 import {
+    formatExpiryTolerance,
     formatDateOnly,
     getExpiryStatus,
     getWorstExpiryStatus,
+    parseExpiryTolerance,
     parseDateOnly,
     partitionByExpiryStatus,
 } from '~/common/utils/expiry';
@@ -36,6 +38,14 @@ describe('getExpiryStatus', () => {
 
     it('returns "expired" just past now', () => {
         expect(getExpiryStatus(NOW - 1, NOW)).toBe('expired');
+    });
+
+    it('returns "soon" while an expired date is still within its tolerance period', () => {
+        expect(getExpiryStatus(NOW - 10 * DAY_MS, NOW, 30)).toBe('soon');
+    });
+
+    it('returns "expired" once the tolerance period has elapsed', () => {
+        expect(getExpiryStatus(NOW - 31 * DAY_MS, NOW, 30)).toBe('expired');
     });
 
     it('returns "expired" well in the past', () => {
@@ -80,6 +90,43 @@ describe('formatDateOnly', () => {
 
     it('zero-pads single-digit month and day', () => {
         expect(formatDateOnly(new Date(2026, 0, 5).getTime())).toBe('2026-01-05');
+    });
+});
+
+describe('parseExpiryTolerance', () => {
+    it.each([
+        ['4', 4],
+        ['4 d.', 4],
+        ['2 s', 14],
+        ['2 sav.', 14],
+        ['2 w', 14],
+        ['3 men', 90],
+        ['3 mėn', 90],
+        ['3 mon.', 90],
+        ['1 m', 365],
+        ['1 m.', 365],
+        ['1 y', 365],
+        ['1 met.', 365],
+    ])('parses %s as %i days', (value: string, expected: number) => {
+        expect(parseExpiryTolerance(value)).toBe(expected);
+    });
+
+    it.each(['', '-1', '1 unknown', '1.5', 'many days'])('rejects invalid values: %s', (value: string) => {
+        expect(parseExpiryTolerance(value)).toBeUndefined();
+    });
+});
+
+describe('formatExpiryTolerance', () => {
+    it.each([
+        [0, '0'],
+        [7, '7'],
+        [8, '1 sav'],
+        [30, '1 mėn'],
+        [146, '5 mėn'],
+        [365, '1 m.'],
+        [700, '2 m.'],
+    ])('formats %i days as %s', (days: number, expected: string) => {
+        expect(formatExpiryTolerance(days)).toBe(expected);
     });
 });
 

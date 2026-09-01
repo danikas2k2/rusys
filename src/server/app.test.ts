@@ -29,7 +29,7 @@ import { handleSummary } from '~/server/api/handleSummary';
 import { handleSummaryHistory } from '~/server/api/handleSummaryHistory';
 import { handleUndoProduct } from '~/server/api/handleUndoProduct';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
-import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
+import { handleSetAmounts } from '~/server/api/handleSetAmounts';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
 import { handleUserProfiles } from '~/server/api/handleUserProfiles';
@@ -51,7 +51,7 @@ vi.mock(import('~/server/api/handleSummary'));
 // Products
 vi.mock(import('~/server/api/handleAdd'));
 vi.mock(import('~/server/api/handleProducts'));
-vi.mock(import('~/server/api/handleUpdateProduct'));
+vi.mock(import('~/server/api/handleSetAmounts'));
 vi.mock(import('~/server/api/handleSetRemoving'));
 vi.mock(import('~/server/api/handleSetMissing'));
 vi.mock(import('~/server/api/handleRename'));
@@ -100,7 +100,7 @@ describe('app', () => {
             ${ApiUrl.UserProfiles}        | ${handleUserProfiles}
             ${ApiUrl.Summary}             | ${handleSummary}
             ${ApiUrl.Products}            | ${handleProducts}
-            ${ApiUrl.ProductsUpdate}      | ${handleUpdateProduct}
+            ${ApiUrl.ProductsSetAmounts}  | ${handleSetAmounts}
             ${ApiUrl.ProductsAdd}         | ${handleAdd}
             ${ApiUrl.ProductsHistory}     | ${handleProductHistory}
             ${ApiUrl.ProductsUndo}        | ${handleUndoProduct}

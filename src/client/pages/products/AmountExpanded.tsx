@@ -1,5 +1,5 @@
 import { ActionIcon, Button, Flex, Group, Modal, Stack, Textarea } from '@mantine/core';
-import { DatePicker } from '@mantine/dates';
+import { DatePicker, type DateStringValue } from '@mantine/dates';
 import React, { useState } from 'react';
 
 import { AddExpiryIcon, HomeIcon, SuspiciousIcon } from '@icons';
@@ -39,6 +39,23 @@ export function AmountExpanded({
 }: VariantExpandedRowsProps) {
     const _ = useLabels();
     const [expiryPickerOpened, setExpiryPickerOpened] = useState(false);
+    const [expiryPickerDate, setExpiryPickerDate] = useState<DateStringValue>();
+    const [expiryYearsRange, setExpiryYearsRange] = useState<[number, number]>(() => {
+        const currentYear = new Date().getFullYear();
+        return [currentYear - 10, currentYear + 10];
+    });
+    const openExpiryPicker = () => {
+        const currentYear = new Date().getFullYear();
+        setExpiryPickerDate(undefined);
+        setExpiryYearsRange([currentYear - 10, currentYear + 10]);
+        setExpiryPickerOpened(true);
+    };
+    const handleExpiryDateChange = (date: DateStringValue) => {
+        setExpiryPickerDate(date);
+
+        const year = Number.parseInt(date, 10);
+        setExpiryYearsRange(([startYear, endYear]) => [Math.min(startYear, year), Math.max(endYear, year)]);
+    };
     const handlePickExpiry = (value: string | null) => {
         setExpiryPickerOpened(false);
         onAddExpiry?.(value);
@@ -92,7 +109,7 @@ export function AmountExpanded({
                                 color="gray"
                                 size="lg"
                                 aria-label={_('Valid until')}
-                                onClick={() => setExpiryPickerOpened(true)}
+                                onClick={openExpiryPicker}
                             >
                                 <AddExpiryIcon size={16} />
                             </ActionIcon>
@@ -101,6 +118,8 @@ export function AmountExpanded({
                                 onClose={() => setExpiryPickerOpened(false)}
                                 centered
                                 withCloseButton
+                                keepMounted={false}
+                                transitionProps={{ duration: 0 }}
                                 size="sm"
                                 title={
                                     <DialogIcon aria-label={_('Valid until')}>
@@ -109,7 +128,13 @@ export function AmountExpanded({
                                 }
                             >
                                 <Flex justify="center" align="flex-start" mih="20rem">
-                                    <DatePicker onChange={handlePickExpiry} />
+                                    <DatePicker
+                                        date={expiryPickerDate}
+                                        onDateChange={handleExpiryDateChange}
+                                        onChange={handlePickExpiry}
+                                        withNativeLevelSelect
+                                        yearsSelectRange={expiryYearsRange}
+                                    />
                                 </Flex>
                             </Modal>
                         </>

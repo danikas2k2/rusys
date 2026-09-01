@@ -20,10 +20,12 @@ import { useAddProduct } from '~/client/state/products/useAddProduct';
 import { useMoveProduct } from '~/client/state/products/useMoveProduct';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useRenameProduct } from '~/client/state/products/useRenameProduct';
+import { useSetProductExpiryTolerance } from '~/client/state/products/useSetProductExpiryTolerance';
 import { useSetProductImage } from '~/client/state/products/useSetProductImage';
 import { useSetProductParent } from '~/client/state/products/useSetProductParent';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
+import { formatExpiryTolerance, parseExpiryTolerance } from '~/common/utils/expiry';
 
 interface ProductBoxProps {
     opened?: boolean;
@@ -31,6 +33,7 @@ interface ProductBoxProps {
     name?: string;
     parent?: string;
     image?: string;
+    expiryToleranceDays?: number;
     onClose: (group?: string, name?: string) => void;
     onAfterClose?: () => void;
     onDelete?: () => void;
@@ -99,6 +102,7 @@ export function ProductBox({
     name: initialName = '',
     parent: initialParent = '',
     image: initialImage = '',
+    expiryToleranceDays: initialExpiryToleranceDays = 0,
     opened = false,
     onClose,
     onAfterClose,
@@ -131,6 +135,7 @@ export function ProductBox({
             name: initialName,
             parent: initialParent,
             image: initialImage,
+            expiryTolerance: formatExpiryTolerance(initialExpiryToleranceDays),
         },
         validate: {
             group: (value) => {
@@ -166,6 +171,8 @@ export function ProductBox({
                 }
                 return null;
             },
+            expiryTolerance: (value) =>
+                parseExpiryTolerance(value) === undefined ? _('Enter a valid expiry tolerance') : null,
         },
     });
 
@@ -178,6 +185,7 @@ export function ProductBox({
     const [loading, setLoading] = useState(false);
     const groupRef = useRef<HTMLInputElement>(null);
     const nameRef = useRef<HTMLInputElement>(null);
+    const expiryToleranceRef = useRef<HTMLInputElement>(null);
 
     // Reset form and focus input when modal opens
     useEffect(() => {
@@ -187,6 +195,7 @@ export function ProductBox({
                 name: initialName,
                 parent: initialParent,
                 image: initialImage,
+                expiryTolerance: formatExpiryTolerance(initialExpiryToleranceDays),
             });
             formRef.current.resetTouched();
             formRef.current.resetDirty();
@@ -199,7 +208,7 @@ export function ProductBox({
             }, 100);
             return () => clearTimeout(timer);
         }
-    }, [opened, initialGroup, initialName, initialParent, initialImage, filterGroup]);
+    }, [opened, initialGroup, initialName, initialParent, initialImage, initialExpiryToleranceDays, filterGroup]);
 
     const handleImageDrop = useCallback((dataUrl: string) => {
         formRef.current.setFieldValue('image', dataUrl);
@@ -251,6 +260,7 @@ export function ProductBox({
     const renameProduct = useRenameProduct();
     const setProductImage = useSetProductImage();
     const setProductParent = useSetProductParent();
+    const setProductExpiryTolerance = useSetProductExpiryTolerance();
 
     const [addingCategory, setAddingCategory] = useState(false);
     const handleAddCategoryOpen = useCallback(() => setAddingCategory(true), []);
@@ -271,13 +281,15 @@ export function ProductBox({
         const validation = form.validate();
         if (validation.hasErrors) {
             // Focus first invalid field
-            // Only 'group' and 'name' are validated, so hasErrors implies one of them is set.
             if (validation.errors.group) {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
                 groupRef.current?.focus();
-            } else {
+            } else if (validation.errors.name) {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
                 nameRef.current?.focus();
+            } else {
+                // istanbul ignore next - ref.current is always assigned in React Testing Library
+                expiryToleranceRef.current?.focus();
             }
             return;
         }
@@ -295,6 +307,12 @@ export function ProductBox({
             const nameRenamed = isEditing && values.name !== initialName && !groupChanged;
             const imageChanged = values.image !== initialImage;
             const parentChanged = values.parent !== initialParent;
+            const expiryToleranceDays = parseExpiryTolerance(values.expiryTolerance);
+            // Validation above ensures the parser succeeds before this point.
+            if (expiryToleranceDays === undefined) {
+                return;
+            }
+            const expiryToleranceChanged = expiryToleranceDays !== initialExpiryToleranceDays;
 
             if (groupChanged) {
                 // Move to different group - this also clears any parent link server-side,
@@ -312,6 +330,9 @@ export function ProductBox({
             }
             if (isEditing && !groupChanged && parentChanged) {
                 await setProductParent(values.group, values.name, values.parent || undefined);
+            }
+            if ((isEditing && expiryToleranceChanged) || (!isEditing && expiryToleranceDays > 0)) {
+                await setProductExpiryTolerance(values.group, values.name, expiryToleranceDays);
             }
             onClose(values.group, values.name);
         } catch (error) {
@@ -434,6 +455,12 @@ export function ProductBox({
                                 disabled={loading}
                                 {...form.getInputProps('parent')}
                                 onChange={(value) => form.setFieldValue('parent', value ?? '')}
+                            />
+                            <TextInput
+                                ref={expiryToleranceRef}
+                                label={_('Expiry tolerance')}
+                                description={_('Examples: 7, 2 sav, 3 men, 1 m.')}
+                                {...form.getInputProps('expiryTolerance')}
                             />
                             <ImageDropzone
                                 image={form.values.image}

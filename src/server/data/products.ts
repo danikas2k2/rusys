@@ -80,6 +80,7 @@ export async function getProducts(years: readonly number[] = []): Promise<Produc
                     group: 1,
                     name: 1,
                     parent: 1,
+                    expiryToleranceDays: 1,
                     years: 1,
                     missing: 1,
                     image: 1,
@@ -193,7 +194,7 @@ export const cleanupRecycled = ({ recycled, suspicious, home, expiresAt, ...v }:
 
 export const hasAmount = (a: VariantAmount) => a.amount > 0;
 
-export async function updateProduct(
+export async function setAmounts(
     group: string,
     name: string,
     year: number,
@@ -583,6 +584,20 @@ export async function setProductParent(group: string, name: string, parent?: str
 
         return col.updateOne({ group, name }, { $set: { parent } }, { session }).then(hasEffect);
     });
+}
+
+export async function setProductExpiryTolerance(
+    group: string,
+    name: string,
+    expiryToleranceDays: number
+): Promise<boolean> {
+    if (!group || !name || !Number.isInteger(expiryToleranceDays) || expiryToleranceDays < 0) {
+        return false;
+    }
+    const col = (await db()).collection<Product>('products');
+    return expiryToleranceDays
+        ? col.updateOne({ group, name }, { $set: { expiryToleranceDays } }).then(hasEffect)
+        : col.updateOne({ group, name }, { $unset: { expiryToleranceDays: 1 } }).then(hasEffect);
 }
 
 export async function renameProductsVariant(

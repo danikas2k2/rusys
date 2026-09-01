@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
+import { useSetAmounts } from '~/client/state/products/useSetAmounts';
 import { ApiUrl } from '~/types/api';
 
 vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
@@ -21,10 +21,10 @@ describe('useUpdateProduct', () => {
     afterEach(() => vi.clearAllMocks());
 
     it('calls update action', async () => {
-        const { result } = renderHook(() => useUpdateProduct(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useSetAmounts(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės', 25, [{ variant: 'p', amount: 1 }]);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsUpdate, {
+        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetAmounts, {
             group: 'Uogienės',
             name: 'Avietės',
             year: 25,
@@ -33,10 +33,10 @@ describe('useUpdateProduct', () => {
     });
 
     it('calls update action without amounts', async () => {
-        const { result } = renderHook(() => useUpdateProduct(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useSetAmounts(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės', 25);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsUpdate, {
+        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetAmounts, {
             group: 'Uogienės',
             name: 'Avietės',
             year: 25,
@@ -44,10 +44,10 @@ describe('useUpdateProduct', () => {
     });
 
     it('calls update action with zero year (non-annual)', async () => {
-        const { result } = renderHook(() => useUpdateProduct(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useSetAmounts(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės', 0);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsUpdate, {
+        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetAmounts, {
             group: 'Uogienės',
             name: 'Avietės',
             year: 0,
@@ -55,14 +55,14 @@ describe('useUpdateProduct', () => {
     });
 
     it('does not call update action with blank name', async () => {
-        const { result } = renderHook(() => useUpdateProduct(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useSetAmounts(), { wrapper: MockRedux });
         await result.current('Uogienės', '', 25);
 
         expect(request).not.toHaveBeenCalled();
     });
 
     it('does not call update action with blank group', async () => {
-        const { result } = renderHook(() => useUpdateProduct(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useSetAmounts(), { wrapper: MockRedux });
         await result.current('', 'Avietės', 25);
 
         expect(request).not.toHaveBeenCalled();

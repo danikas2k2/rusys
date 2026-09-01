@@ -26,9 +26,16 @@ vi.mock(import('~/client/pages/products/AmountBox'), (): any => ({
         ) : null,
 }));
 vi.mock(import('~/client/pages/products/ProductBox'), (): any => ({
-    ProductBox: ({ opened, group, name, parent, image, onClose, onDelete }: any) =>
+    ProductBox: ({ opened, group, name, parent, image, expiryToleranceDays, onClose, onDelete }: any) =>
         opened ? (
-            <dialog open aria-label="Product box" data-group={group} data-name={name} data-parent={parent}>
+            <dialog
+                open
+                aria-label="Product box"
+                data-group={group}
+                data-name={name}
+                data-parent={parent}
+                data-expiry-tolerance-days={expiryToleranceDays}
+            >
                 {image}
                 <button type="button" onClick={() => onClose()}>
                     Cancel edit
@@ -151,8 +158,10 @@ describe('<ActiveAmountBox>', () => {
             expect(mockSetActive).not.toHaveBeenCalled();
         });
 
-        it('includes the product parent looked up from the products list', async () => {
-            vi.mocked(useProducts).mockReturnValue([{ group: data.group, name: data.name, parent: 'Parent product' }]);
+        it('includes the product metadata looked up from the products list', async () => {
+            vi.mocked(useProducts).mockReturnValue([
+                { group: data.group, name: data.name, parent: 'Parent product', expiryToleranceDays: 365 },
+            ]);
 
             render(
                 <MockThemeActive active={{ action: 'values', data }} setActive={mockSetActive}>
@@ -165,6 +174,10 @@ describe('<ActiveAmountBox>', () => {
             expect(screen.getByRole('dialog', { name: 'Product box' })).toHaveAttribute(
                 'data-parent',
                 'Parent product'
+            );
+            expect(screen.getByRole('dialog', { name: 'Product box' })).toHaveAttribute(
+                'data-expiry-tolerance-days',
+                '365'
             );
         });
 

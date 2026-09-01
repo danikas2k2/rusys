@@ -138,7 +138,15 @@ function ProductTileComponent({
                     </ActionIcon>
                 )
             }
-            amounts={totalAmounts.length > 0 && <AnnotatedTotalAmounts group={group} amounts={totalAmounts} />}
+            amounts={
+                totalAmounts.length > 0 && (
+                    <AnnotatedTotalAmounts
+                        group={group}
+                        amounts={totalAmounts}
+                        expiryToleranceDays={product.expiryToleranceDays}
+                    />
+                )
+            }
             overlay={
                 hasRemovingYear && (
                     <span data-removing-icon aria-label={_('Marked for removal')} title={_('Marked for removal')}>

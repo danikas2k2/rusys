@@ -43,9 +43,17 @@ function renderRow(
     );
 }
 
-export function TotalAmounts({ group, amounts }: { group: string; amounts: readonly VariantAmount[] }) {
+export function TotalAmounts({
+    group,
+    amounts,
+    expiryToleranceDays = 0,
+}: {
+    group: string;
+    amounts: readonly VariantAmount[];
+    expiryToleranceDays?: number;
+}) {
     const variants = useVariantsByGroup(group);
-    const buckets = partitionByExpiryStatus(amounts, new Date().getTime());
+    const buckets = partitionByExpiryStatus(amounts, new Date().getTime(), expiryToleranceDays);
     return (
         <span data-amounts-rows>
             {orderedExpiryBuckets(buckets).map(([status, bucketAmounts]) =>

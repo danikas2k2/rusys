@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
@@ -181,6 +181,40 @@ describe('<AmountExpanded>', () => {
         expect(screen.getByRole('button', { name: todayCalendarLabel() })).toBeInTheDocument();
     });
 
+    it('offers native month and year selects, extending the year list after arrow navigation', async () => {
+        render(
+            <MockTheme>
+                <AmountExpanded
+                    delta={zeroDelta}
+                    baseAmount={5}
+                    comment=""
+                    onChange={onChange}
+                    onCommentChange={onCommentChange}
+                    onAddExpiry={vi.fn()}
+                />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Valid until' }));
+
+        const monthSelect = document.querySelector<HTMLSelectElement>('select[data-select="month"]');
+        const yearSelect = document.querySelector<HTMLSelectElement>('select[data-select="year"]');
+        const previousMonth = document.querySelector<HTMLButtonElement>('button[data-direction="previous"]');
+        const currentYear = new Date().getFullYear();
+
+        expect(monthSelect).toBeInTheDocument();
+        expect(yearSelect).toBeInTheDocument();
+        expect(yearSelect!).toHaveValue(String(currentYear));
+        expect(Array.from(yearSelect!.options, (option) => option.value)).toContain(String(currentYear - 10));
+        expect(Array.from(yearSelect!.options, (option) => option.value)).toContain(String(currentYear + 10));
+
+        for (let index = 0; index < 12 * 11; index += 1) {
+            fireEvent.click(previousMonth!);
+        }
+
+        expect(Array.from(yearSelect!.options, (option) => option.value)).toContain(String(currentYear - 11));
+    });
+
     it('shows the decorative dialog icon in the calendar header, matching other dialogs', async () => {
         render(
             <MockTheme>
@@ -220,6 +254,7 @@ describe('<AmountExpanded>', () => {
 
         expect(onAddExpiry).toHaveBeenCalledWith(todayIsoDate());
         expect(screen.queryByRole('button', { name: todayCalendarLabel() })).not.toBeInTheDocument();
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
     it('closes the calendar via the modal close button without calling onAddExpiry', async () => {

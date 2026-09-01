@@ -21,6 +21,7 @@ import { handleReorderVariants } from '~/server/api/handleReorderVariants';
 import { handleSetImage } from '~/server/api/handleSetImage';
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { handleSetMissingBulk } from '~/server/api/handleSetMissingBulk';
+import { handleSetProductExpiryTolerance } from '~/server/api/handleSetProductExpiryTolerance';
 import { handleSetProductParent } from '~/server/api/handleSetProductParent';
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { handleSetVariantImage } from '~/server/api/handleSetVariantImage';
@@ -28,7 +29,7 @@ import { handleSummary } from '~/server/api/handleSummary';
 import { handleSummaryHistory } from '~/server/api/handleSummaryHistory';
 import { handleUndoProduct } from '~/server/api/handleUndoProduct';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
-import { handleUpdateProduct } from '~/server/api/handleUpdateProduct';
+import { handleSetAmounts } from '~/server/api/handleSetAmounts';
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
 import { handleUserProfiles } from '~/server/api/handleUserProfiles';
@@ -46,12 +47,13 @@ export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiRes
     [ApiUrl.SummaryHistory]: handleSummaryHistory,
     [ApiUrl.Products]: handleProducts,
     [ApiUrl.ProductsAdd]: handleAdd,
-    [ApiUrl.ProductsUpdate]: handleUpdateProduct,
+    [ApiUrl.ProductsSetAmounts]: handleSetAmounts,
     [ApiUrl.ProductsUndo]: handleUndoProduct,
     [ApiUrl.ProductsRedo]: handleRedoProduct,
     [ApiUrl.ProductsHistory]: handleProductHistory,
     [ApiUrl.ProductsMoveToRecycled]: handleMoveConsumedToRecycled,
     [ApiUrl.ProductsSetParent]: handleSetProductParent,
+    [ApiUrl.ProductsSetExpiryTolerance]: handleSetProductExpiryTolerance,
     [ApiUrl.ProductsSetRemoving]: handleSetRemoving,
     [ApiUrl.ProductsSetMissing]: handleSetMissing,
     [ApiUrl.ProductsSetMissingBulk]: handleSetMissingBulk,

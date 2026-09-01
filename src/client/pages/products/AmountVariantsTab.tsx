@@ -29,7 +29,7 @@ import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useRedoProduct } from '~/client/state/products/useRedoProduct';
 import { useUndoProduct } from '~/client/state/products/useUndoProduct';
-import { useUpdateProduct } from '~/client/state/products/useUpdateProduct';
+import { useSetAmounts } from '~/client/state/products/useSetAmounts';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
@@ -97,7 +97,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
     const [active] = useActiveContent<ProductAmounts>();
     const [, setUpdating] = useUpdatingProducts();
     const profile = useProfile();
-    const updateProduct = useUpdateProduct();
+    const updateProduct = useSetAmounts();
     const undoProduct = useUndoProduct();
     const redoProduct = useRedoProduct();
     const products = useProducts();
@@ -456,7 +456,9 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
                         const hasSuspicious = visibleKeys.includes(toKey(variant, true));
                         const hasHome = visibleKeys.includes(toKey(variant, false, true));
                         const variantImage = activeProduct?.variantImages?.[variant];
-                        const expiryStatus = expiresAt ? getExpiryStatus(expiresAt, now) : undefined;
+                        const expiryStatus = expiresAt
+                            ? getExpiryStatus(expiresAt, now, activeProduct?.expiryToleranceDays)
+                            : undefined;
                         // Suspicious/home/expiry may only be added from the plain row.
                         const isPlain = !suspicious && !home && !expiresAt;
                         const ExpiryRowIcon =

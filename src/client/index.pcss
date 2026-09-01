@@ -69,6 +69,14 @@ select,
     font-size: var(--mantine-font-size-md);
 }
 
+// Mantine's custom native-calendar select indicator is an SVG data URI whose `currentColor`
+// resolves to black in dark mode. Let the platform render the indicator instead, so it follows
+// the active color scheme.
+[data-native-level-select] select {
+    appearance: auto;
+    background-image: none;
+}
+
 .ui-Burger-root {
     --burger-color: var(--mantine-color-text);
 }

@@ -209,7 +209,11 @@ export function ProductYearBar({ disabled = false, onHistoryYearChange }: Produc
             )}
             {liveAmounts.length > 0 && (
                 <Group justify="center" data-year-total data-dialog-year-total>
-                    <AnnotatedTotalAmounts group={group} amounts={liveAmounts} />
+                    <AnnotatedTotalAmounts
+                        group={group}
+                        amounts={liveAmounts}
+                        expiryToleranceDays={activeProduct?.expiryToleranceDays}
+                    />
                 </Group>
             )}
         </Stack>

@@ -26,20 +26,21 @@ export const enum ApiUrl {
     // Products
     Products = '/products',
     ProductsAdd = '/products/add',
-    ProductsUpdate = '/products/update',
-    ProductsUndo = '/products/undo',
-    ProductsRedo = '/products/redo',
+    ProductsSetAmounts = '/products/amounts',
+    ProductsUndo = '/products/amounts/undo',
+    ProductsRedo = '/products/amounts/redo',
     ProductsSetRemoving = '/products/removing',
     ProductsSetMissing = '/products/missing',
     ProductsSetMissingBulk = '/products/missing/bulk',
     ProductsSetImage = '/products/image',
-    ProductsSetVariantImage = '/products/variantImage',
+    ProductsSetVariantImage = '/products/image/variant',
+    ProductsSetParent = '/products/parent',
+    ProductsSetExpiryTolerance = '/products/expiry',
     ProductsRename = '/products/rename',
     ProductsMove = '/products/move',
     ProductsDelete = '/products/delete',
     ProductsHistory = '/products/history',
-    ProductsMoveToRecycled = '/products/moveToRecycled',
-    ProductsSetParent = '/products/setParent',
+    ProductsMoveToRecycled = '/products/recycle',
 
     // Groups
     Groups = '/groups',
@@ -118,6 +119,10 @@ export interface ApiSetParent extends ApiRequestProduct {
     parent?: string;
 }
 
+export interface ApiSetExpiryTolerance extends ApiRequestProduct {
+    expiryToleranceDays: number;
+}
+
 export interface ApiSetMissing extends ApiRequestProduct {
     missing: boolean;
 }
@@ -158,7 +163,7 @@ export interface ApiSetRemoving extends ApiRequestProductWithYear {
     removing: boolean;
 }
 
-export interface ApiUpdateProduct extends ApiRequestProductWithYear {
+export interface ApiSetAmounts extends ApiRequestProductWithYear {
     amounts?: readonly VariantAmount[];
     user?: string;
     comment?: string;

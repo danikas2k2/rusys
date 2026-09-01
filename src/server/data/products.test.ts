@@ -28,7 +28,7 @@ import {
     setRemoving,
     setVariantImage,
     undoProduct,
-    updateProduct,
+    setAmounts,
 } from '~/server/data/products';
 import { $all } from '~/server/data/tests/utils';
 import { db } from '~/server/db';
@@ -56,6 +56,16 @@ describe('products', () => {
     });
 
     describe('getProducts', () => {
+        it('returns expiry tolerance days', async () => {
+            await (await db())
+                .collection('products')
+                .updateOne({ group: 'Daržovės', name: 'Agurkai' }, { $set: { expiryToleranceDays: 365 } });
+
+            await expect(getProducts([22])).resolves.toContainEqual(
+                expect.objectContaining({ group: 'Daržovės', name: 'Agurkai', expiryToleranceDays: 365 })
+            );
+        });
+
         it('returns products for specified years', async () => {
             await expect(getProducts([21, 22])).resolves.toStrictEqual([
                 {
@@ -351,7 +361,7 @@ describe('products', () => {
         ];
 
         it('updates products for existing group, name, and year', async () => {
-            await expect(updateProduct('Daržovės', 'Agurkai', 22, amounts, user)).resolves.toBe(true);
+            await expect(setAmounts('Daržovės', 'Agurkai', 22, amounts, user)).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
                     $set: {
@@ -383,7 +393,7 @@ describe('products', () => {
 
         it('updates products for existing group, name, and year but with different variant', async () => {
             await expect(
-                updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'x', amount: 1, recycled: false }], user)
+                setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'x', amount: 1, recycled: false }], user)
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
@@ -405,7 +415,7 @@ describe('products', () => {
         });
 
         it('updates products for existing group, name, but with 0 year for non-annual items', async () => {
-            await expect(updateProduct('Daržovės', 'Agurkai', 0, amounts, user)).resolves.toBe(true);
+            await expect(setAmounts('Daržovės', 'Agurkai', 0, amounts, user)).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
                     $set: {
@@ -437,7 +447,7 @@ describe('products', () => {
         });
 
         it('stores the given comment on the new update entry', async () => {
-            await expect(updateProduct('Daržovės', 'Agurkai', 22, amounts, user, 'Pirktas kitas kiekis')).resolves.toBe(
+            await expect(setAmounts('Daržovės', 'Agurkai', 22, amounts, user, 'Pirktas kitas kiekis')).resolves.toBe(
                 true
             );
 
@@ -448,7 +458,7 @@ describe('products', () => {
         });
 
         it('unsets years entirely when a non-annual (year 0) update brings combined stock to zero', async () => {
-            await expect(updateProduct('Daržovės', 'Agurkai', 0, [{ variant: 'd', amount: -3 }], user)).resolves.toBe(
+            await expect(setAmounts('Daržovės', 'Agurkai', 0, [{ variant: 'd', amount: -3 }], user)).resolves.toBe(
                 true
             );
 
@@ -462,7 +472,7 @@ describe('products', () => {
             const bruknes = { group: 'Uogienės', name: 'Bruknės', years: [{ year: 21, amounts: [] }] };
             await (await db()).collection('products').insertOne(bruknes, { forceServerObjectId: true });
 
-            await expect(updateProduct('Uogienės', 'Bruknės', 21, [{ variant: 'p', amount: 0 }])).resolves.toBe(false);
+            await expect(setAmounts('Uogienės', 'Bruknės', 21, [{ variant: 'p', amount: 0 }])).resolves.toBe(false);
             await expect($all('products')).resolves.toStrictEqual([...products, bruknes]);
         });
 
@@ -479,13 +489,13 @@ describe('products', () => {
         `(
             'does not update products for $title',
             async ({ group, name, year, changes }: { group: string; name: string; year: number; changes: any }) => {
-                await expect(updateProduct(group, name, year, changes)).resolves.toBe(false);
+                await expect(setAmounts(group, name, year, changes)).resolves.toBe(false);
                 await expect($all('products')).resolves.toStrictEqual(products);
             }
         );
 
         it('removes missing flag when missing and negative update received', async () => {
-            await updateProduct('Uogienės', 'Braškės', 22, [{ variant: 'p', amount: -1, recycled: false }], user);
+            await setAmounts('Uogienės', 'Braškės', 22, [{ variant: 'p', amount: -1, recycled: false }], user);
 
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
@@ -503,7 +513,7 @@ describe('products', () => {
         });
 
         it('does not remove missing flag when missing and positive update received', async () => {
-            await updateProduct('Uogienės', 'Braškės', 22, [{ variant: 'p', amount: 1, recycled: false }], user);
+            await setAmounts('Uogienės', 'Braškės', 22, [{ variant: 'p', amount: 1, recycled: false }], user);
 
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
@@ -521,7 +531,7 @@ describe('products', () => {
 
         it('does not remove missing flag when missing and recycled update received', async () => {
             const amount = { variant: 'p', amount: -1, recycled: true };
-            await updateProduct('Uogienės', 'Braškės', 22, [amount], user);
+            await setAmounts('Uogienės', 'Braškės', 22, [amount], user);
 
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
@@ -532,7 +542,7 @@ describe('products', () => {
         });
 
         it('removes missing flag when missing and recycled update received and no amount left', async () => {
-            await updateProduct('Uogienės', 'Braškės', 22, [{ variant: 'p', amount: -2, recycled: false }], user);
+            await setAmounts('Uogienės', 'Braškės', 22, [{ variant: 'p', amount: -2, recycled: false }], user);
 
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
@@ -651,7 +661,7 @@ describe('products', () => {
         });
 
         it('undoes a consumed update', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -1, recycled: false }], user);
             await undoProduct('Daržovės', 'Agurkai', 22);
 
             await expect($all('products')).resolves.toStrictEqual(
@@ -670,7 +680,7 @@ describe('products', () => {
         });
 
         it('reverts inventory changes when undoing', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -3, recycled: false }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -3, recycled: false }], user);
 
             const beforeUndo = (await $all('products')) as {
                 years?: { year: number; amounts: { variant: string; amount: number }[] }[];
@@ -688,7 +698,7 @@ describe('products', () => {
         });
 
         it('moves last update to undates', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
             await undoProduct('Daržovės', 'Agurkai', 22);
 
             const all = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
@@ -699,8 +709,8 @@ describe('products', () => {
         });
 
         it('stacks multiple undos correctly', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
             await undoProduct('Daržovės', 'Agurkai', 22);
             await undoProduct('Daržovės', 'Agurkai', 22);
 
@@ -712,8 +722,8 @@ describe('products', () => {
         });
 
         it('clears year entry when undo brings inventory to zero', async () => {
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: 2, recycled: false }], user);
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -4, recycled: false }], user);
+            await setAmounts('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: 2, recycled: false }], user);
+            await setAmounts('Daržovės', 'Kopūstai', 21, [{ variant: 'p', amount: -4, recycled: false }], user);
             await undoProduct('Daržovės', 'Kopūstai', 21);
 
             const all = (await $all('products')) as { years?: { year: number }[]; updates?: unknown[] }[];
@@ -723,7 +733,7 @@ describe('products', () => {
         });
 
         it('undoes a recycled update', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -3, recycled: true }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -3, recycled: true }], user);
             const afterUpdate = (await $all('products')) as {
                 years?: { year: number; amounts: { variant: string; amount: number }[] }[];
             }[];
@@ -742,7 +752,7 @@ describe('products', () => {
         });
 
         it('undoes an updated (no recycled field) entry', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2 }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2 }], user);
             const afterUpdate = (
                 (await $all('products')) as {
                     years?: { year: number; amounts: { variant: string; amount: number }[] }[];
@@ -852,7 +862,7 @@ describe('products', () => {
         });
 
         it('redoes last undone update', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
             const afterUpdate = (
                 (await $all('products')) as {
                     years?: { year: number; amounts: { variant: string; amount: number }[] }[];
@@ -879,7 +889,7 @@ describe('products', () => {
         });
 
         it('moves last undate back to updates', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
             await undoProduct('Daržovės', 'Agurkai', 22);
 
             const beforeRedo = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
@@ -896,8 +906,8 @@ describe('products', () => {
         });
 
         it('redoes multiple undos in correct order (LIFO)', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
             await undoProduct('Daržovės', 'Agurkai', 22);
             await undoProduct('Daržovės', 'Agurkai', 22);
 
@@ -912,9 +922,9 @@ describe('products', () => {
         });
 
         it('new update clears undates, making redo impossible', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
             await undoProduct('Daržovės', 'Agurkai', 22);
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
 
             await expect(redoProduct('Daržovės', 'Agurkai', 22)).resolves.toBe(false);
 
@@ -1219,7 +1229,7 @@ describe('products', () => {
         });
 
         it('renames products variant on second year', async () => {
-            await updateProduct('Daržovės', 'Kopūstai', 22, [{ variant: 'p', amount: 1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Kopūstai', 22, [{ variant: 'p', amount: 1, recycled: false }], user);
 
             await expect(renameProductsVariant('Daržovės', 'p', '1/2')).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
@@ -1241,7 +1251,7 @@ describe('products', () => {
         });
 
         it('renames products second variant on first year', async () => {
-            await updateProduct('Daržovės', 'Kopūstai', 21, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Kopūstai', 21, [{ variant: 'd', amount: 1, recycled: false }], user);
 
             await expect(renameProductsVariant('Daržovės', 'd', '3/4')).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
@@ -1839,7 +1849,7 @@ describe('products', () => {
 
     describe('updateProduct with suspicious amounts', () => {
         it('stores suspicious flag in history amounts', async () => {
-            await updateProduct(
+            await setAmounts(
                 'Daržovės',
                 'Agurkai',
                 22,
@@ -1867,7 +1877,7 @@ describe('products', () => {
                 .collection('products')
                 .insertOne({ group: 'Daržovės', name: 'Agurkai' }, { forceServerObjectId: true });
 
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 3, suspicious: true }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 3, suspicious: true }], user);
 
             const all = (await $all('products')) as {
                 group: string;
@@ -1891,7 +1901,7 @@ describe('products', () => {
                 { forceServerObjectId: true }
             );
 
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 3, suspicious: true }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 3, suspicious: true }], user);
 
             const all = (await $all('products')) as {
                 group: string;
@@ -1917,7 +1927,7 @@ describe('products', () => {
                 .collection('products')
                 .insertOne({ group: 'Daržovės', name: 'Agurkai' }, { forceServerObjectId: true });
 
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 5, home: true }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 5, home: true }], user);
 
             const all = (await $all('products')) as {
                 group: string;
@@ -1941,7 +1951,7 @@ describe('products', () => {
                 .collection('products')
                 .insertOne({ group: 'Daržovės', name: 'Agurkai' }, { forceServerObjectId: true });
 
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 5, home: true }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 5, home: true }], user);
 
             const all = (await $all('products')) as {
                 group: string;
@@ -1965,7 +1975,7 @@ describe('products', () => {
                 { forceServerObjectId: true }
             );
 
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 3, home: true }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 3, home: true }], user);
 
             const all = (await $all('products')) as {
                 group: string;
@@ -2002,7 +2012,7 @@ describe('products', () => {
         });
 
         it('auto-consumes home balance when cellar consume arrives for variant with home amounts', async () => {
-            await updateProduct('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: false }], user);
+            await setAmounts('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: false }], user);
 
             const result = await getProducts([22]);
             const product = result.find((p) => p.group === 'Šaldyti' && p.name === 'Mėsa')!;
@@ -2014,7 +2024,7 @@ describe('products', () => {
         });
 
         it('auto-consume is saved in update history', async () => {
-            await updateProduct('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: false }], user);
+            await setAmounts('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: false }], user);
 
             const all = (await $all('products')) as {
                 group: string;
@@ -2035,7 +2045,7 @@ describe('products', () => {
         });
 
         it('does NOT auto-consume when home consume arrives (only cellar triggers it)', async () => {
-            await updateProduct(
+            await setAmounts(
                 'Šaldyti',
                 'Mėsa',
                 22,
@@ -2053,7 +2063,7 @@ describe('products', () => {
         });
 
         it('does NOT auto-consume for recycled:true (thrown away)', async () => {
-            await updateProduct('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: true }], user);
+            await setAmounts('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: true }], user);
 
             const result = await getProducts([22]);
             const product = result.find((p) => p.group === 'Šaldyti' && p.name === 'Mėsa')!;
@@ -2064,7 +2074,7 @@ describe('products', () => {
         });
 
         it('does NOT auto-consume when variant has no home amounts', async () => {
-            await updateProduct('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -1, recycled: false }], user);
 
             const all = (await $all('products')) as {
                 group: string;
@@ -2079,7 +2089,7 @@ describe('products', () => {
         });
 
         it('undo restores both cellar and auto-consumed home amounts', async () => {
-            await updateProduct('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: false }], user);
+            await setAmounts('Šaldyti', 'Mėsa', 22, [{ variant: 'p', amount: -1, recycled: false }], user);
             await undoProduct('Šaldyti', 'Mėsa', 22);
 
             const result = await getProducts([22]);

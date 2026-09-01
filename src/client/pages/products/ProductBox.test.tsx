@@ -11,6 +11,7 @@ import { useUpdateGroup } from '~/client/state/groups/useUpdateGroup';
 import { useAddProduct } from '~/client/state/products/useAddProduct';
 import { useMoveProduct } from '~/client/state/products/useMoveProduct';
 import { useRenameProduct } from '~/client/state/products/useRenameProduct';
+import { useSetProductExpiryTolerance } from '~/client/state/products/useSetProductExpiryTolerance';
 import { useSetProductImage } from '~/client/state/products/useSetProductImage';
 import { useSetProductParent } from '~/client/state/products/useSetProductParent';
 
@@ -19,6 +20,7 @@ vi.mock(import('~/client/state/products/useDeleteProduct'));
 vi.mock(import('~/client/state/products/useMoveProduct'));
 vi.mock(import('~/client/state/products/useRenameProduct'));
 vi.mock(import('~/client/state/products/useSetProductImage'));
+vi.mock(import('~/client/state/products/useSetProductExpiryTolerance'));
 vi.mock(import('~/client/state/products/useSetProductParent'));
 vi.mock(import('~/client/state/groups/useUpdateGroup'));
 vi.mock(import('~/client/state/groups/useRenameGroup'));
@@ -118,6 +120,24 @@ describe('<ProductBox>', () => {
         expect(screen.getByRole('heading', { name: 'Add new entry' })).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('');
         expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: 'Expiry tolerance' })).toHaveValue('0');
+    });
+
+    it('saves a changed expiry tolerance when editing a product', async () => {
+        const setProductExpiryTolerance = vi.fn().mockResolvedValue(true);
+        vi.mocked(useSetProductExpiryTolerance).mockReturnValue(setProductExpiryTolerance);
+        render(
+            <MockThemeRedux state={state}>
+                <ProductBox opened group="Uogienės" name="Avietės" expiryToleranceDays={0} onClose={onClose} />
+            </MockThemeRedux>
+        );
+
+        fireEvent.change(screen.getByRole('textbox', { name: 'Expiry tolerance' }), {
+            target: { value: '2 sav.' },
+        });
+        await user.click(screen.getByRole('button', { name: 'Update' }));
+
+        expect(setProductExpiryTolerance).toHaveBeenCalledWith('Uogienės', 'Avietės', 14);
     });
 
     it('renders with initial name', () => {

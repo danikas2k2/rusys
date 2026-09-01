@@ -5,8 +5,16 @@ import { VariantValueSpans } from '~/client/common/VariantValueSpans';
 import { orderedExpiryBuckets, partitionByExpiryStatus } from '~/common/utils/expiry';
 import type { VariantAmount } from '~/types/data';
 
-export function DetailedAmounts({ group, amounts }: { group: string; amounts: readonly VariantAmount[] }) {
-    const buckets = partitionByExpiryStatus(amounts, new Date().getTime());
+export function DetailedAmounts({
+    group,
+    amounts,
+    expiryToleranceDays = 0,
+}: {
+    group: string;
+    amounts: readonly VariantAmount[];
+    expiryToleranceDays?: number;
+}) {
+    const buckets = partitionByExpiryStatus(amounts, new Date().getTime(), expiryToleranceDays);
     return (
         <span data-amounts-rows>
             {orderedExpiryBuckets(buckets).map(

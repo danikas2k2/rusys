@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiUpdateProduct } from '~/types/api';
+import { ApiUrl, type ApiSetAmounts } from '~/types/api';
 import type { VariantAmount } from '~/types/data';
 
-export function useUpdateProduct(): (
+export function useSetAmounts(): (
     group: string,
     name: string,
     year: number,
@@ -12,7 +12,7 @@ export function useUpdateProduct(): (
     user?: string,
     comment?: string
 ) => Promise<void> {
-    const request = useUpdatingApiRequest<ApiUpdateProduct>();
+    const request = useUpdatingApiRequest<ApiSetAmounts>();
     return useCallback(
         async (
             group: string,
@@ -23,7 +23,7 @@ export function useUpdateProduct(): (
             comment?: string
         ): Promise<void> => {
             if (group && name) {
-                return request(ApiUrl.ProductsUpdate, { group, name, year, amounts, user, comment });
+                return request(ApiUrl.ProductsSetAmounts, { group, name, year, amounts, user, comment });
             }
         },
         [request]
