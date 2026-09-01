@@ -612,20 +612,20 @@ it('handles drag gesture', async () => {
 
     ```tsx
     // ❌ BLOGAI
-    (useUpdateProduct as jest.Mock).mockReturnValue(updateAmounts);
+    (useSetAmounts as jest.Mock).mockReturnValue(updateAmounts);
 
     // ✅ GERAI
-    jest.mocked(useUpdateProduct).mockReturnValue(updateAmounts);
+    jest.mocked(useSetAmounts).mockReturnValue(updateAmounts);
     ```
 
     ```tsx
     // Pilnas pavyzdys
-    jest.mock('~/client/state/products/useUpdateProduct');
+    jest.mock('~/client/state/products/useSetAmounts');
 
     describe('<Component>', () => {
         const updateProduct = jest.fn();
 
-        beforeAll(() => jest.mocked(useUpdateProduct).mockReturnValue(updateProduct));
+        beforeAll(() => jest.mocked(useSetAmounts).mockReturnValue(updateProduct));
 
         it('calls update on submit', async () => {
             render(<Component />);

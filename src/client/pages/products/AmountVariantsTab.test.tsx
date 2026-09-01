@@ -141,7 +141,7 @@ vi.mock(import('~/client/state/products/useProducts'), () => ({
 }));
 
 vi.mock(import('~/client/state/products/useSetAmounts'), () => ({
-    useUpdateProduct: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
+    useSetAmounts: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
 vi.mock(import('~/client/state/products/useUndoProduct'), () => ({

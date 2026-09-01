@@ -11,7 +11,7 @@ vi.mock(import('react-redux'), async () => ({
     useDispatch: vi.fn(),
 }));
 
-describe('useUpdateProduct', () => {
+describe('useSetAmounts', () => {
     const request = vi.fn();
 
     beforeAll(() => {
