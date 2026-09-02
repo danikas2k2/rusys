@@ -5,12 +5,12 @@ import type { Plugin } from 'vite';
 
 import Package from '../../package.json' with { type: 'json' };
 
-export function generatePackageJson(): Plugin {
+export function generatePackageJson(outputDirectory: string): Plugin {
     return {
         name: 'package-json',
         enforce: 'post',
         writeBundle() {
-            const distPath = path.resolve(process.cwd(), 'dist');
+            const distPath = path.resolve(outputDirectory);
             const packageJsonPath = path.join(distPath, 'package.json');
 
             // Create dist directory if it doesn't exist

@@ -6,12 +6,12 @@ import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
-import { cssFallback } from './vite/plugins/css-fallback.ts';
-import { injectTags, parseTemplate } from './vite/plugins/parse-template.ts';
+import { cssFallback } from '../../vite/plugins/css-fallback.ts';
+import { injectTags, parseTemplate } from '../../vite/plugins/parse-template.ts';
 
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
-    const root = import.meta.dirname;
+    const root = path.resolve(import.meta.dirname, '../..');
 
     return {
         root,
@@ -147,6 +147,7 @@ export default defineConfig(({ mode }) => {
                             return 'runtime';
                         }
 
+                        // oxlint-disable-next-line no-console
                         console.warn(`[VITE] unresolved package "${pkg}" from "${id}"\n`);
 
                         return 'other';

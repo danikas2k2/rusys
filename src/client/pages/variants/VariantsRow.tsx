@@ -6,7 +6,7 @@ import { Label } from '~/client/common/Label';
 import { VariantTitle } from '~/client/common/VariantTitle';
 import { SortableRow } from '~/client/table/SortableRow';
 import { getId } from '~/client/utils/id';
-import type { Variant } from '~/types/data';
+import type { Variant } from '~/common/data';
 
 interface VariantsRowProps {
     variant: Readonly<Variant>;

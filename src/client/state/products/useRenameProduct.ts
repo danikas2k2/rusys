@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiRenameProduct } from '~/types/api';
+import { ApiUrl, type ApiRenameProduct } from '~/common/api';
 
 export function useRenameProduct(): (group: string, name: string, newName: string) => Promise<void> {
     const request = useUpdatingApiRequest<ApiRenameProduct>();

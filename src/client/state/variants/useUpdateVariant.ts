@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiUpdateVariant } from '~/types/api';
-import type { UpdateVariant } from '~/types/data';
+import { ApiUrl, type ApiUpdateVariant } from '~/common/api';
+import type { UpdateVariant } from '~/common/data';
 
 export function useUpdateVariant(): (group: string, variant: string, update: UpdateVariant) => Promise<void> {
     const request = useUpdatingApiRequest<ApiUpdateVariant>();

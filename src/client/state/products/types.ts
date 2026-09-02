@@ -1,4 +1,4 @@
-import type { Product } from '~/types/data';
+import type { Product } from '~/common/data';
 
 export interface WithProductsState {
     products?: readonly Product[];

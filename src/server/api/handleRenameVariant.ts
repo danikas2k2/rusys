@@ -1,8 +1,8 @@
+import type { ApiRenameVariant, ApiRequest, ApiResponse, ApiVariants } from '~/common/api';
 import { debugRequest } from '~/server/api/debug';
 import { getProductsWithVariants } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { renameVariantOccurrences } from '~/server/data/common';
-import type { ApiRenameVariant, ApiRequest, ApiResponse, ApiVariants } from '~/types/api';
 
 export async function handleRenameVariant(
     req: ApiRequest<ApiRenameVariant>,

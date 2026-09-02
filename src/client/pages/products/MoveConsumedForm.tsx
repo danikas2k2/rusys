@@ -7,7 +7,7 @@ import { VariantAvatar } from '~/client/common/VariantAvatar';
 import { VariantTitle } from '~/client/common/VariantTitle';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
-import type { VariantAmount } from '~/types/data';
+import type { VariantAmount } from '~/common/data';
 
 import './MoveConsumedForm.pcss';
 

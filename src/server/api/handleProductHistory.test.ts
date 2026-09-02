@@ -2,11 +2,11 @@ import { getGroupsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiHistory, ApiRequestHistory } from '~/common/api';
+import type { History } from '~/common/data';
 import { handleProductHistory } from '~/server/api/handleProductHistory';
 import { getGroups } from '~/server/data/groups';
 import { getProductUndates, getProductUpdates } from '~/server/data/products';
-import type { ApiHistory, ApiRequestHistory } from '~/types/api';
-import type { History } from '~/types/data';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/data/products'));

@@ -8,6 +8,7 @@ import express, { type Request, type Response } from 'express';
 import type { Express } from 'express-serve-static-core';
 import request from 'supertest';
 
+import { ApiUrl } from '~/common/api';
 import { debug } from '~/server/api/debug';
 import { handleAdd } from '~/server/api/handleAdd';
 import { handleCheckUser } from '~/server/api/handleCheckUser';
@@ -35,7 +36,6 @@ import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
 import { handleUserProfiles } from '~/server/api/handleUserProfiles';
 import { handleVariants } from '~/server/api/handleVariants';
 import { setup, startHttpServer, startHttpsServer, startServers } from '~/server/app';
-import { ApiUrl } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 

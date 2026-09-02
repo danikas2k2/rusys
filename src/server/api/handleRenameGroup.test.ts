@@ -2,10 +2,10 @@ import { getGroupsFixture, getProductsFixture, getVariantsFixture, getYearsFixtu
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiProductsWithYears, ApiRenameGroup } from '~/common/api';
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { getProductsWithGroups } from '~/server/api/response';
 import { renameGroupOccurrences } from '~/server/data/common';
-import type { ApiProductsWithYears, ApiRenameGroup } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));

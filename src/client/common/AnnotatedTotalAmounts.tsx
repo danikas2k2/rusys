@@ -4,6 +4,7 @@ import React from 'react';
 import { ExpiryStatusRow } from '~/client/common/ExpiryStatusRow';
 import { VariantValueSpans } from '~/client/common/VariantValueSpans';
 import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
+import type { Variant, VariantAmount } from '~/common/data';
 import {
     formatVolume,
     formatWeight,
@@ -11,7 +12,6 @@ import {
     type AmountTotalWithSources,
 } from '~/common/utils/amounts';
 import { orderedExpiryBuckets, partitionByExpiryStatus, type ExpiryStatus } from '~/common/utils/expiry';
-import type { Variant, VariantAmount } from '~/types/data';
 
 import './AnnotatedTotalAmounts.pcss';
 

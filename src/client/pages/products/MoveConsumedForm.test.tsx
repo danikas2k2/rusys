@@ -6,7 +6,7 @@ import { Select } from '@mantine/core';
 import React from 'react';
 
 import { MoveConsumedForm } from '~/client/pages/products/MoveConsumedForm';
-import type { VariantAmount } from '~/types/data';
+import type { VariantAmount } from '~/common/data';
 
 vi.mock(import('~/client/state/variants/useVariant'), (): any => ({
     useVariant: vi.fn(() => undefined),

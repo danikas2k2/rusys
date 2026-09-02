@@ -5,7 +5,7 @@ import { AnonymousUserIcon, DevUserIcon } from '@icons';
 
 import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
 import { gravatarUrl } from '~/client/utils/gravatar';
-import type { UserProfile } from '~/types/data';
+import type { UserProfile } from '~/common/data';
 
 export function EmailAvatar({
     email,

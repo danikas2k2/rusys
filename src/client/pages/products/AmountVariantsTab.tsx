@@ -33,9 +33,9 @@ import { useUndoProduct } from '~/client/state/products/useUndoProduct';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
+import type { ProductAmounts, VariantAmount } from '~/common/data';
 import { getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { formatDateOnly, getExpiryStatus, parseDateOnly } from '~/common/utils/expiry';
-import type { ProductAmounts, VariantAmount } from '~/types/data';
 
 import './AmountVariantsTab.pcss';
 

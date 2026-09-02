@@ -1,5 +1,5 @@
+import type { VariantAmount } from '~/common/data';
 import { DAY_MS } from '~/common/utils/time';
-import type { VariantAmount } from '~/types/data';
 
 export const EXPIRY_SOON_THRESHOLD_DAYS = 30;
 

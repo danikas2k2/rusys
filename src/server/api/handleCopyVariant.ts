@@ -1,8 +1,8 @@
+import type { ApiCopyVariant, ApiProductsWithVariants, ApiRequest, ApiResponse } from '~/common/api';
 import { debugRequest } from '~/server/api/debug';
 import { getProductsWithVariants } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { copyVariant } from '~/server/data/variants';
-import type { ApiCopyVariant, ApiProductsWithVariants, ApiRequest, ApiResponse } from '~/types/api';
 
 export async function handleCopyVariant(
     req: ApiRequest<ApiCopyVariant>,

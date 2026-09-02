@@ -1,8 +1,8 @@
+import type { ApiAddProduct, ApiProductsWithYears, ApiRequest, ApiResponse } from '~/common/api';
 import { debugRequest } from '~/server/api/debug';
 import { getProductsWithYears } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { addProduct } from '~/server/data/products';
-import type { ApiAddProduct, ApiProductsWithYears, ApiRequest, ApiResponse } from '~/types/api';
 
 export async function handleAdd(req: ApiRequest<ApiAddProduct>, res: ApiResponse<ApiProductsWithYears>): Promise<void> {
     debugRequest(req);

@@ -3,7 +3,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useSetProductImage } from '~/client/state/products/useSetProductImage';
-import { ApiUrl } from '~/types/api';
+import { ApiUrl } from '~/common/api';
 
 vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
 

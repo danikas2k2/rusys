@@ -4,11 +4,11 @@ import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
 import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
+import type { ApiProductsWithYears, ApiSetAmounts } from '~/common/api';
+import type { VariantAmount } from '~/common/data';
 import { handleSetAmounts } from '~/server/api/handleSetAmounts';
 import { getProductsWithYears } from '~/server/api/response';
 import { setAmounts } from '~/server/data/products';
-import type { ApiProductsWithYears, ApiSetAmounts } from '~/types/api';
-import type { VariantAmount } from '~/types/data';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));

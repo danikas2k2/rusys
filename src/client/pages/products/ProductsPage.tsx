@@ -15,7 +15,7 @@ import { MissingOnlyEffects } from '~/client/pages/products/MissingOnlyEffects';
 import { ProductsGrid } from '~/client/pages/products/ProductsGrid';
 import { UpdatingProductsWrapper } from '~/client/pages/products/UpdatingProductsContext';
 import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
-import type { Product } from '~/types/data';
+import type { Product } from '~/common/data';
 
 import './ProductsPage.pcss';
 

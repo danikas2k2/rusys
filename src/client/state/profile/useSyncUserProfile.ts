@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 
 import { useApiRequest } from '~/client/state/common/useApiRequest';
 import { useProfile } from '~/client/state/profile/useProfile';
-import { ApiUrl, type ApiResult, type ApiUpsertUserProfile } from '~/types/api';
-import type { UserProfile } from '~/types/data';
+import { ApiUrl, type ApiResult, type ApiUpsertUserProfile } from '~/common/api';
+import type { UserProfile } from '~/common/data';
 
 // Refresh profile in DB if missing or stale
 const STALE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days

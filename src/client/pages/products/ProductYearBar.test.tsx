@@ -10,7 +10,7 @@ import { OLD_YEARS_THRESHOLD, ProductYearBar } from '~/client/pages/products/Pro
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
-import type { ProductAmounts as ProductAmountsType } from '~/types/data';
+import type { ProductAmounts as ProductAmountsType } from '~/common/data';
 
 vi.mock(import('~/client/common/AnnotatedTotalAmounts'), () => ({
     AnnotatedTotalAmounts: vi.fn(({ amounts }: any) => (amounts?.length ? <div>Annotated total</div> : null)),

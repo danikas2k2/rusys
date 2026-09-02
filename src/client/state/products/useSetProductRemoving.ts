@@ -5,7 +5,7 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { setErrorAction } from '~/client/state/error/actions';
 import { rollbackProductsRemovingAction, setProductsRemovingAction } from '~/client/state/products/actions';
 import { getErrorMessage } from '~/client/utils/errors';
-import { ApiUrl, type ApiSetRemoving } from '~/types/api';
+import { ApiUrl, type ApiSetRemoving } from '~/common/api';
 
 export function useSetProductRemoving(): (
     group: string,

@@ -2,8 +2,8 @@ import React from 'react';
 
 import { ExpiryStatusRow } from '~/client/common/ExpiryStatusRow';
 import { VariantValueSpans } from '~/client/common/VariantValueSpans';
+import type { VariantAmount } from '~/common/data';
 import { orderedExpiryBuckets, partitionByExpiryStatus } from '~/common/utils/expiry';
-import type { VariantAmount } from '~/types/data';
 
 export function DetailedAmounts({
     group,

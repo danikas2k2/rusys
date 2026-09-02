@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash';
 
 import { HistoryActionType, type HistoryAction } from '~/client/state/history/actions';
-import type { History } from '~/types/data';
+import type { History } from '~/common/data';
 
 export function updates(state: readonly History[] = [], action: Readonly<HistoryAction>): readonly History[] {
     switch (action.type) {

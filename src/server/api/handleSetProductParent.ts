@@ -1,8 +1,8 @@
+import type { ApiProductsWithYears, ApiRequest, ApiResponse, ApiSetParent } from '~/common/api';
 import { debugRequest } from '~/server/api/debug';
 import { getProductsWithYears } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { setProductParent } from '~/server/data/products';
-import type { ApiProductsWithYears, ApiRequest, ApiResponse, ApiSetParent } from '~/types/api';
 
 export async function handleSetProductParent(
     req: ApiRequest<ApiSetParent>,

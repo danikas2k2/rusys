@@ -3,10 +3,10 @@ import { getProductsFixture, getVariantsFixture, getYearsFixture } from '@tests/
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiRenameVariant, ApiVariants } from '~/common/api';
 import { handleRenameVariant } from '~/server/api/handleRenameVariant';
 import { getProductsWithVariants } from '~/server/api/response';
 import { renameVariantOccurrences } from '~/server/data/common';
-import type { ApiRenameVariant, ApiVariants } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));

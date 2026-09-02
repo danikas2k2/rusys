@@ -2,9 +2,9 @@ import { getGroupsFixture, getProductsFixture, getVariantsFixture, getYearsFixtu
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiProductsWithYears } from '~/common/api';
 import { handleProducts } from '~/server/api/handleProducts';
 import { getProductsWithGroups } from '~/server/api/response';
-import type { ApiProductsWithYears } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));

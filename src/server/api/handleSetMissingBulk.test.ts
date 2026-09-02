@@ -2,10 +2,10 @@ import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiProductsWithYears, ApiSetMissingBulk } from '~/common/api';
 import { handleSetMissingBulk } from '~/server/api/handleSetMissingBulk';
 import { getProductsWithYears } from '~/server/api/response';
 import { setMissingBulk } from '~/server/data/products';
-import type { ApiProductsWithYears, ApiSetMissingBulk } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));

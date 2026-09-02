@@ -1,12 +1,12 @@
 import type { WithId } from 'mongodb';
 
+import type { Group, History, Product, Summary, Variant, VariantAmount } from '~/common/data';
 import { addTypedVariantAmount } from '~/common/utils/amounts';
 import { getGroups } from '~/server/data/groups';
 import { buildHistoryPipeline } from '~/server/data/history';
 import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
-import type { Group, History, Product, Summary, Variant, VariantAmount } from '~/types/data';
 
 const MAX_YEARS = 3;
 const START_MONTH = 9; // September

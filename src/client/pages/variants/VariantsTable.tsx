@@ -19,7 +19,7 @@ import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
 import { DragOverlayTable } from '~/client/table/DragOverlayTable';
 import { getId, parseId } from '~/client/utils/id';
 import { mapOrder } from '~/client/utils/mapOrder';
-import type { Variant } from '~/types/data';
+import type { Variant } from '~/common/data';
 
 import './VariantsTable.pcss';
 

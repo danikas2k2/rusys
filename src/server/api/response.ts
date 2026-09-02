@@ -1,7 +1,3 @@
-import { getGroups } from '~/server/data/groups';
-import { getProducts } from '~/server/data/products';
-import { getVariants } from '~/server/data/variants';
-import { getYears } from '~/server/data/years';
 import type {
     ApiGroups,
     ApiProductsWithGroups,
@@ -9,8 +5,12 @@ import type {
     ApiProductsWithYears,
     ApiVariants,
     ApiVariantsWithGroups,
-} from '~/types/api';
-import type { Product } from '~/types/data';
+} from '~/common/api';
+import type { Product } from '~/common/data';
+import { getGroups } from '~/server/data/groups';
+import { getProducts } from '~/server/data/products';
+import { getVariants } from '~/server/data/variants';
+import { getYears } from '~/server/data/years';
 
 export async function getProductsWithYears(): Promise<ApiProductsWithYears> {
     const years = getYears();

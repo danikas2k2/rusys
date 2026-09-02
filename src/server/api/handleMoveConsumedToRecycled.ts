@@ -1,7 +1,7 @@
+import type { ApiMoveConsumedToRecycled, ApiRequest, ApiResponse } from '~/common/api';
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
 import { moveConsumedToRecycled } from '~/server/data/products';
-import type { ApiMoveConsumedToRecycled, ApiRequest, ApiResponse } from '~/types/api';
 
 export async function handleMoveConsumedToRecycled(
     req: ApiRequest<ApiMoveConsumedToRecycled>,

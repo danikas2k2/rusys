@@ -5,8 +5,8 @@ import { ApproxAmountIcon, HomeIcon, SuspiciousIcon } from '@icons';
 import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/client/common/variantKeys';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
+import type { VariantAmount } from '~/common/data';
 import { mergeAmountsIgnoringExpiry } from '~/common/utils/amounts';
-import type { VariantAmount } from '~/types/data';
 
 export interface VariantValueSpansProps {
     group: string;

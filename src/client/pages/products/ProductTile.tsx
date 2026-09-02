@@ -9,8 +9,8 @@ import { AnnotatedTotalAmounts } from '~/client/common/AnnotatedTotalAmounts';
 import { GridTile } from '~/client/common/GridTile';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
+import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts, VariantAmount } from '~/common/data';
 import { getCombinedAmounts } from '~/common/utils/amounts';
-import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts, VariantAmount } from '~/types/data';
 
 import './ProductTile.pcss';
 

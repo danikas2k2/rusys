@@ -7,7 +7,7 @@ import React from 'react';
 
 import { AmountHistoryRow } from '~/client/pages/products/AmountHistoryRow';
 import { useMoveConsumedToRecycled } from '~/client/state/products/useMoveConsumedToRecycled';
-import type { History } from '~/types/data';
+import type { History } from '~/common/data';
 
 vi.mock(import('~/client/state/products/useMoveConsumedToRecycled'));
 

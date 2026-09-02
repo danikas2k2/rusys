@@ -18,7 +18,7 @@ import { useReorderGroups } from '~/client/state/groups/useReorderGroups';
 import { DragOverlayTable } from '~/client/table/DragOverlayTable';
 import { parseId } from '~/client/utils/id';
 import { mapOrder } from '~/client/utils/mapOrder';
-import type { Group } from '~/types/data';
+import type { Group } from '~/common/data';
 
 import './GroupsTable.pcss';
 

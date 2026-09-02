@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiSetAmounts } from '~/types/api';
-import type { VariantAmount } from '~/types/data';
+import { ApiUrl, type ApiSetAmounts } from '~/common/api';
+import type { VariantAmount } from '~/common/data';
 
 export function useSetAmounts(): (
     group: string,

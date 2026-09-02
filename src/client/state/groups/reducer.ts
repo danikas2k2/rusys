@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash';
 
 import { GroupsActionType, type GroupsAction } from '~/client/state/groups/actions';
-import type { Group } from '~/types/data';
+import type { Group } from '~/common/data';
 
 export function groups(state: readonly Group[] = [], action: GroupsAction): readonly Group[] {
     switch (action.type) {

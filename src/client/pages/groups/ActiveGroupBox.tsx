@@ -9,7 +9,7 @@ import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { GroupBox } from '~/client/pages/groups/GroupBox';
 import { useDeleteGroup } from '~/client/state/groups/useDeleteGroup';
-import type { Group } from '~/types/data';
+import type { Group } from '~/common/data';
 
 export function ActiveGroupBox() {
     const [active, setActive] = useActiveContent<Group>();

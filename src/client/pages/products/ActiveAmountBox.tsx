@@ -12,7 +12,7 @@ import { AmountBox } from '~/client/pages/products/AmountBox';
 import { ProductBox } from '~/client/pages/products/ProductBox';
 import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
 import { useProducts } from '~/client/state/products/useProducts';
-import type { ProductAmounts } from '~/types/data';
+import type { ProductAmounts } from '~/common/data';
 
 export function ActiveAmountBox(): React.ReactElement {
     const [active, setActive] = useActiveContent<ProductAmounts>();

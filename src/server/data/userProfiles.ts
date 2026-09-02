@@ -1,5 +1,5 @@
+import type { UserProfile } from '~/common/data';
 import { db } from '~/server/db';
-import type { UserProfile } from '~/types/data';
 
 export async function upsertUserProfile(email: string, name?: string, picture?: string): Promise<boolean> {
     const cleanEmail = (email ?? '').trim().toLowerCase();

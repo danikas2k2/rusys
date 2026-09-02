@@ -1,7 +1,7 @@
 import type { Response } from 'express';
 
+import type { ApiResult } from '~/common/api';
 import { debug } from '~/server/api/debug';
-import type { ApiResult } from '~/types/api';
 
 export function headerNoCache(res: Response): void {
     res.header('Cache-Control', 'no-cache, no-store, must-revalidate');

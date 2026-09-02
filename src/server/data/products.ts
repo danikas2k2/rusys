@@ -1,12 +1,12 @@
 import type { AnyBulkWriteOperation, ClientSession, Collection, Filter, UpdateFilter, WithId } from 'mongodb';
 
+import type { History, Product, Update, VariantAmount } from '~/common/data';
 import { addVariantAmount, getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { buildHistoryPipeline } from '~/server/data/history';
 import { classifyImage } from '~/server/data/images';
 import { imageFieldUpdate, resolveImage } from '~/server/data/resolveImage';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
-import type { History, Product, Update, VariantAmount } from '~/types/data';
 
 // Backfills `photo` for any `image`/`variantImages` entry left by a pre-classification version of
 // the app that turns out to actually be a photo, persisting the result so future reads skip this

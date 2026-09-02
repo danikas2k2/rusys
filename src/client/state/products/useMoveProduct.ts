@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiMoveProduct } from '~/types/api';
+import { ApiUrl, type ApiMoveProduct } from '~/common/api';
 
 export function useMoveProduct(): (group: string, name: string, newGroup: string, newName?: string) => Promise<void> {
     const request = useUpdatingApiRequest<ApiMoveProduct>();

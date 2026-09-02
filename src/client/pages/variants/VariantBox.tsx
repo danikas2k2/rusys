@@ -20,7 +20,7 @@ import { useVariants } from '~/client/state/variants/useVariants';
 import { compareNames } from '~/client/utils/compareNames';
 import { DEFAULT_UNITS, deriveVariantKey } from '~/client/utils/deriveVariantKey';
 import { getErrorMessage } from '~/client/utils/errors';
-import type { VariantUnits } from '~/types/data';
+import type { VariantUnits } from '~/common/data';
 
 const UNITS_OPTIONS: { value: VariantUnits; label: string }[] = [
     { value: 'vnt', label: 'vnt' },

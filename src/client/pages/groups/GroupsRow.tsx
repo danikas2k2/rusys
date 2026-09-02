@@ -6,7 +6,7 @@ import { AnnualIcon, ReviewIcon } from '@icons';
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';
 import { SortableRow } from '~/client/table/SortableRow';
-import type { Group } from '~/types/data';
+import type { Group } from '~/common/data';
 
 interface GroupsRowProps {
     group: Group;

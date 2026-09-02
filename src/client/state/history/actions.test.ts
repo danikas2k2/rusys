@@ -1,5 +1,5 @@
 import { HistoryActionType, setUndatesAction, setUpdatesAction } from '~/client/state/history/actions';
-import type { History } from '~/types/data';
+import type { History } from '~/common/data';
 
 describe('setHistoryAction', () => {
     it('returns valid action', () => {

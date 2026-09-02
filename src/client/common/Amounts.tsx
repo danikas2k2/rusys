@@ -3,7 +3,7 @@ import React from 'react';
 import { useAmountView } from '~/client/common/AmountViewContext';
 import { DetailedAmounts } from '~/client/common/DetailedAmounts';
 import { TotalAmounts } from '~/client/common/TotalAmounts';
-import type { VariantAmount } from '~/types/data';
+import type { VariantAmount } from '~/common/data';
 
 import './Amounts.pcss';
 

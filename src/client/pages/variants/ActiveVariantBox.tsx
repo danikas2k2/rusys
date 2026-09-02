@@ -9,7 +9,7 @@ import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useDeleteVariant } from '~/client/state/variants/useDeleteVariant';
-import type { Variant } from '~/types/data';
+import type { Variant } from '~/common/data';
 
 export function ActiveVariantBox() {
     const [active, setActive] = useActiveContent<Variant>();

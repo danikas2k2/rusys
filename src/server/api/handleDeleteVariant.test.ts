@@ -2,10 +2,10 @@ import { getProductsFixture, getVariantsFixture, getYearsFixture } from '@tests/
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiRequestVariant, ApiVariants } from '~/common/api';
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { getProductsWithVariants } from '~/server/api/response';
 import { deleteVariantOccurrences } from '~/server/data/common';
-import type { ApiRequestVariant, ApiVariants } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));

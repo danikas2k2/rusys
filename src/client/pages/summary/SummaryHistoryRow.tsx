@@ -5,7 +5,7 @@ import { AmountsCell } from '~/client/common/AmountsCell';
 import { EmailAvatar } from '~/client/common/EmailAvatar';
 import { FormatDate } from '~/client/common/FormatDate';
 import { getRoundedDate } from '~/client/utils/time';
-import type { History } from '~/types/data';
+import type { History } from '~/common/data';
 
 export function SummaryHistoryRow({ h, dimmed = false }: { h: History; dimmed?: boolean }) {
     return (

@@ -5,7 +5,7 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { setErrorAction } from '~/client/state/error/actions';
 import { rollbackProductsMissingAction, setProductsMissingAction } from '~/client/state/products/actions';
 import { getErrorMessage } from '~/client/utils/errors';
-import { ApiUrl, type ApiSetMissing } from '~/types/api';
+import { ApiUrl, type ApiSetMissing } from '~/common/api';
 
 export function useSetProductMissing(): (group: string, name: string, missing: boolean) => Promise<void> {
     const dispatch = useDispatch();

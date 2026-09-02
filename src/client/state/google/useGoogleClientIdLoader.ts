@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { setClientIdAction, setLoadingAction } from '~/client/state/google/actions';
 import { useGoogle } from '~/client/state/google/useGoogle';
-import { ApiUrl } from '~/types/api';
+import { ApiUrl } from '~/common/api';
 
 export function useGoogleClientIdLoader(): () => Promise<void> {
     const dispatch = useDispatch();

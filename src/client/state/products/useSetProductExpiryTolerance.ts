@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiSetExpiryTolerance } from '~/types/api';
+import { ApiUrl, type ApiSetExpiryTolerance } from '~/common/api';
 
 export function useSetProductExpiryTolerance(): (
     group: string,

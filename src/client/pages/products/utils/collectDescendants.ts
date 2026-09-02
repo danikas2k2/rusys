@@ -1,4 +1,4 @@
-import type { Product } from '~/types/data';
+import type { Product } from '~/common/data';
 
 // Walks the parent -> children map to gather every descendant (at any depth) of `name`, in no
 // particular order. Shared by the table (rolled-up totals for a collapsed row) and the grid

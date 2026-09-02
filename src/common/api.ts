@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import type { FileArray } from 'express-fileupload';
 import type { ParamsDictionary } from 'express-serve-static-core';
 
-import type { Group, Product, Summary, UserProfile, Variant, VariantAmount, VariantUnits } from '~/types/data';
+import type { Group, Product, Summary, UserProfile, Variant, VariantAmount, VariantUnits } from './data';
 
 export type ApiRequest<R = unknown> = Request<ParamsDictionary, unknown, R>;
 export type ApiResult<R = unknown> = ({ ok: true } & R) | { ok?: false; error?: string };

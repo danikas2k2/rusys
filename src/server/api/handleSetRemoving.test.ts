@@ -1,9 +1,9 @@
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiSetRemoving } from '~/common/api';
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { setRemoving } from '~/server/data/products';
-import type { ApiSetRemoving } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/data/products'));

@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 
 import type { Response } from 'express';
 
-import type { ApiResponse } from '~/types/api';
+import type { ApiResponse } from '~/common/api';
 
 export function mockResponse<R extends Response>(): R;
 export function mockResponse<T extends object = object, R extends Response = ApiResponse<T>>(): R;

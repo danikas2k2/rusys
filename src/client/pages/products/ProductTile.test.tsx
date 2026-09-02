@@ -7,7 +7,7 @@ import React from 'react';
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { ProductTile, type ProductTileProps } from '~/client/pages/products/ProductTile';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
-import type { Product } from '~/types/data';
+import type { Product } from '~/common/data';
 
 vi.mock(import('~/client/common/ActiveContentContext'), async () => ({
     ...(await vi.importActual('~/client/common/ActiveContentContext')),

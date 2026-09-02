@@ -7,7 +7,7 @@ import { FormatDate } from '~/client/common/FormatDate';
 import { MoveConsumedForm } from '~/client/pages/products/MoveConsumedForm';
 import { useMoveConsumedToRecycled } from '~/client/state/products/useMoveConsumedToRecycled';
 import { getRoundedDate } from '~/client/utils/time';
-import type { History, VariantAmount } from '~/types/data';
+import type { History, VariantAmount } from '~/common/data';
 
 export function AmountHistoryRow({
     h,

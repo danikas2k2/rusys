@@ -19,7 +19,7 @@ import { useGroups } from '~/client/state/groups/useGroups';
 import { useGetVariants } from '~/client/state/variants/useGetVariants';
 import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
 import { useVariants } from '~/client/state/variants/useVariants';
-import type { Variant } from '~/types/data';
+import type { Variant } from '~/common/data';
 
 vi.mock(import('~/client/state/years/useYears'));
 vi.mock(import('~/client/state/groups/useGroups'));

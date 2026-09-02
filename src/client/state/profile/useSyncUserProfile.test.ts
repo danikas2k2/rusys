@@ -4,7 +4,7 @@ import { MockRedux } from '@tests/MockRedux';
 import { useApiRequest } from '~/client/state/common/useApiRequest';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useSyncUserProfile } from '~/client/state/profile/useSyncUserProfile';
-import { ApiUrl } from '~/types/api';
+import { ApiUrl } from '~/common/api';
 
 vi.mock(import('~/client/state/common/useApiRequest'));
 vi.mock(import('~/client/state/profile/useProfile'));

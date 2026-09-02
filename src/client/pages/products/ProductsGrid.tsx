@@ -12,7 +12,7 @@ import { buildProductGridTree, type ProductGridNode } from '~/client/pages/produ
 import { useGetProducts } from '~/client/state/products/useGetProducts';
 import { useProducts } from '~/client/state/products/useProducts';
 import { getId } from '~/client/utils/id';
-import type { Product } from '~/types/data';
+import type { Product } from '~/common/data';
 
 import './ProductsGrid.pcss';
 

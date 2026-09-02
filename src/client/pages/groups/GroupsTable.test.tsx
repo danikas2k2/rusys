@@ -16,7 +16,7 @@ import { useGroupsHasData } from '~/client/pages/groups/hooks/useGroupsHasData';
 import { useGetGroups } from '~/client/state/groups/useGetGroups';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useReorderGroups } from '~/client/state/groups/useReorderGroups';
-import type { Group } from '~/types/data';
+import type { Group } from '~/common/data';
 
 vi.mock(import('~/client/state/years/useYears'));
 vi.mock(import('~/client/state/groups/useGroups'));

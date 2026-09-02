@@ -1,8 +1,8 @@
 import type { ClientSession } from 'mongodb';
 
+import type { UpdateVariant, Variant } from '~/common/data';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
-import type { UpdateVariant, Variant } from '~/types/data';
 
 export async function getVariants(): Promise<readonly Variant[]> {
     const matchGroup = { $eq: ['$group', '$$group'] };

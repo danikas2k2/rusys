@@ -2,9 +2,9 @@
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiSetMissing } from '~/common/api';
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { setMissing } from '~/server/data/products';
-import type { ApiSetMissing } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/data/products'));

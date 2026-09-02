@@ -1,4 +1,4 @@
-import type { History } from '~/types/data';
+import type { History } from '~/common/data';
 
 export const enum HistoryActionType {
     SET_UPDATES = 'updates.set',

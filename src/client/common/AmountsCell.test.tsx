@@ -4,7 +4,7 @@ import { MockTheme } from '@tests/MockTheme';
 import React from 'react';
 
 import { AmountsCell } from '~/client/common/AmountsCell';
-import type { VariantAmount } from '~/types/data';
+import type { VariantAmount } from '~/common/data';
 
 vi.mock(import('~/client/common/ActiveContentContext'), () => ({
     useActiveContent: vi.fn().mockReturnValue([{ data: { group: '' } }, vi.fn()]),

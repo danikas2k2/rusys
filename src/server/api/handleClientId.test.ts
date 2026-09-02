@@ -2,9 +2,9 @@ import { mockEnv } from '@tests/mockEnv';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiClientId } from '~/common/api';
 import { DEV_CLIENT_ID } from '~/common/utils/dev';
 import { handleClientId } from '~/server/api/handleClientId';
-import type { ApiClientId } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 

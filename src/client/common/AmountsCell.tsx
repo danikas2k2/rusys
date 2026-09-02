@@ -5,7 +5,7 @@ import { ConsumedIcon, HomeIcon, RecycledIcon, SuspiciousIcon, UpdatedIcon } fro
 
 import { VariantTitle } from '~/client/common/VariantTitle';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
-import type { VariantAmount } from '~/types/data';
+import type { VariantAmount } from '~/common/data';
 
 export function AmountsCell({
     group = '',

@@ -1,12 +1,12 @@
 import type { Db } from 'mongodb';
 
+import type { ApiExport } from '~/common/api';
+import type { Group, Product, UpdateVariant, Variant } from '~/common/data';
 import { deleteGroup, renameGroup } from '~/server/data/groups';
 import { getProductVariants, moveProduct, renameProductsGroup, renameProductsVariant } from '~/server/data/products';
 import { hasEffect } from '~/server/data/utils';
 import { copyVariants, deleteVariant, renameVariant, renameVariantsGroup } from '~/server/data/variants';
 import { db, withTransaction } from '~/server/db';
-import type { ApiExport } from '~/types/api';
-import type { Group, Product, UpdateVariant, Variant } from '~/types/data';
 
 export const moveProductOccurrences = (
     group: string,

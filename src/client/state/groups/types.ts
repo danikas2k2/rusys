@@ -1,4 +1,4 @@
-import type { Group } from '~/types/data';
+import type { Group } from '~/common/data';
 
 export interface WithGroupsState {
     groups?: readonly Group[];

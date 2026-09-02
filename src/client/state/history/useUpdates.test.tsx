@@ -4,7 +4,7 @@ import { MockRedux } from '@tests/MockRedux';
 import React from 'react';
 
 import { useUpdates } from '~/client/state/history/useUpdates';
-import type { History } from '~/types/data';
+import type { History } from '~/common/data';
 
 describe('useHistory', () => {
     const historyData: History[] = [

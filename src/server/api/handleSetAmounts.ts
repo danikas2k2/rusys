@@ -1,8 +1,8 @@
+import type { ApiProductsWithYears, ApiRequest, ApiResponse, ApiSetAmounts } from '~/common/api';
 import { debugRequest } from '~/server/api/debug';
 import { getProductsWithYears } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { setAmounts } from '~/server/data/products';
-import type { ApiProductsWithYears, ApiRequest, ApiResponse, ApiSetAmounts } from '~/types/api';
 
 export async function handleSetAmounts(
     req: ApiRequest<ApiSetAmounts>,

@@ -1,0 +1,22 @@
+{
+    "name": "@rusys/client",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "vite --config vite.config.mts",
+        "build": "NODE_ENV=production vite build --mode production",
+        "format": "oxfmt --config ../../oxfmt.config.mts .",
+        "format:check": "oxfmt --config ../../oxfmt.config.mts --check .",
+        "lint": "pnpm format:check && pnpm lint:ts && pnpm lint:ox && pnpm lint:styles",
+        "lint:ts": "tsc --noEmit -p tsconfig.json",
+        "lint:ox": "oxlint --config ../../oxlint.config.mts .",
+        "lint:styles": "stylelint \"**/*.pcss\" --config stylelint.config.mjs",
+        "test": "vitest run --root ../.. --config vitest.config.mts --project client",
+        "test:coverage": "vitest run --root ../.. --config vitest.config.mts --project client --coverage",
+        "test:watch": "vitest --root ../.. --config vitest.config.mts --project client",
+        "check": "pnpm lint && pnpm test"
+    },
+    "dependencies": {
+        "@rusys/common": "workspace:*"
+    }
+}

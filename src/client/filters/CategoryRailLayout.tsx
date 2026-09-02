@@ -6,7 +6,7 @@ import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 
 import './CategoryRailLayout.pcss';
 
-import type { Group as GroupModel } from '~/types/data';
+import type { Group as GroupModel } from '~/common/data';
 
 interface CategoryRailLayoutProps {
     groups: readonly GroupModel[];

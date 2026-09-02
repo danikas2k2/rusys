@@ -1,9 +1,9 @@
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiUpdateGroup } from '~/common/api';
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { updateGroup } from '~/server/data/groups';
-import type { ApiUpdateGroup } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/data/groups'));

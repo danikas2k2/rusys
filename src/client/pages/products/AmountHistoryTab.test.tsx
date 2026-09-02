@@ -7,7 +7,7 @@ import { AmountHistoryTab } from '~/client/pages/products/AmountHistoryTab';
 import { useGetProductHistory } from '~/client/state/history/useGetProductHistory';
 import { useUndates } from '~/client/state/history/useUndates';
 import { useUpdates } from '~/client/state/history/useUpdates';
-import type { History, ProductAmounts } from '~/types/data';
+import type { History, ProductAmounts } from '~/common/data';
 
 vi.mock(import('~/client/state/history/useGetProductHistory'), (): any => ({
     useGetProductHistory: vi.fn(() => vi.fn().mockResolvedValue(undefined)),

@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiCopyVariant } from '~/types/api';
-import type { UpdateVariant } from '~/types/data';
+import { ApiUrl, type ApiCopyVariant } from '~/common/api';
+import type { UpdateVariant } from '~/common/data';
 
 export function useCopyVariant(): (
     group: string,

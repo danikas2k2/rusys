@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { useVariants } from '~/client/state/variants/useVariants';
-import type { Variant } from '~/types/data';
+import type { Variant } from '~/common/data';
 
 export function useSortedVariants() {
     const variants = useVariants();

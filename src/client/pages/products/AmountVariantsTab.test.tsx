@@ -12,7 +12,7 @@ import { useRedoProduct } from '~/client/state/products/useRedoProduct';
 import { useSetAmounts } from '~/client/state/products/useSetAmounts';
 import { useUndoProduct } from '~/client/state/products/useUndoProduct';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
-import type { ProductAmounts } from '~/types/data';
+import type { ProductAmounts } from '~/common/data';
 
 vi.mock(import('~/client/pages/variants/VariantBox'), () => ({
     VariantBox: vi.fn(({ opened, onClose, onAfterClose }: any) =>

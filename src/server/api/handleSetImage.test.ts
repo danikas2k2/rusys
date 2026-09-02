@@ -2,10 +2,10 @@ import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiProductsWithYears, ApiSetImage } from '~/common/api';
 import { handleSetImage } from '~/server/api/handleSetImage';
 import { getProductsWithYears } from '~/server/api/response';
 import { setImage } from '~/server/data/products';
-import type { ApiProductsWithYears, ApiSetImage } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));

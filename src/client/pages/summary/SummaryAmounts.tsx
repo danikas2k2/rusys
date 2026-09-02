@@ -8,8 +8,8 @@ import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { useAmountView } from '~/client/common/AmountViewContext';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
+import type { ProductAmounts as ProductAmountsData, VariantAmount } from '~/common/data';
 import { formatVolume, formatWeight, getAmountTotals } from '~/common/utils/amounts';
-import type { ProductAmounts as ProductAmountsData, VariantAmount } from '~/types/data';
 
 interface HomeAmountsProps {
     group: string;

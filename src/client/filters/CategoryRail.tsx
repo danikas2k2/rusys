@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 
 import './CategoryRail.pcss';
 
-import type { Group } from '~/types/data';
+import type { Group } from '~/common/data';
 
 interface CategoryRailProps {
     groups: readonly Group[];

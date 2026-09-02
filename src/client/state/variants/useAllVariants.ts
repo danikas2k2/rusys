@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import type { WithVariantsState } from '~/client/state/variants/types';
-import type { Variant } from '~/types/data';
+import type { Variant } from '~/common/data';
 
 export const useAllVariants = (group: string): string[] => {
     // A dedicated selector instance per (component, group) — createSelector's cache is a single

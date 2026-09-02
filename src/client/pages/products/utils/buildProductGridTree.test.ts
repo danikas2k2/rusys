@@ -1,5 +1,5 @@
 import { buildProductGridTree } from '~/client/pages/products/utils/buildProductGridTree';
-import type { Product } from '~/types/data';
+import type { Product } from '~/common/data';
 
 describe('buildProductGridTree', () => {
     it('builds a leaf node for a product with no parent and no children', () => {

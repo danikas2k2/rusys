@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useGetProductHistory } from '~/client/state/history/useGetProductHistory';
-import { ApiUrl } from '~/types/api';
+import { ApiUrl } from '~/common/api';
 
 vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
 

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl } from '~/types/api';
+import { ApiUrl } from '~/common/api';
 
 export function useGetVariants(): () => Promise<void> {
     const request = useUpdatingApiRequest();

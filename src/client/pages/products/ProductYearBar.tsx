@@ -10,8 +10,8 @@ import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsCon
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
+import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts } from '~/common/data';
 import { getCombinedAmounts } from '~/common/utils/amounts';
-import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts } from '~/types/data';
 
 import '../common/YearTotal.pcss';
 import './ProductYearBar.pcss';
