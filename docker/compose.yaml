@@ -62,6 +62,7 @@ services:
       - HTTPS_PORT
       - HTTPS_KEY
       - HTTPS_CERT
+      - IMAGES_DIR
     depends_on:
       - rusys-db1
       - rusys-db2
