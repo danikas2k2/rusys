@@ -1,5 +1,8 @@
 # Monorepo migracijos planas
 
+> Būsena: pagrindinė migracija įgyvendinta. Liko galutinė build/Docker validacija
+> ir keli pasirinktiniai kokybės patobulinimai.
+
 ## Tikslas
 
 Padalinti esamą projektą į atskirus kliento, serverio ir bendro kodo
@@ -23,6 +26,7 @@ Kiekvienas iš `src/client`, `src/server` ir `src/common` turi savo
 
 ```yaml
 packages:
+    - '.'
     - 'src/*'
 ```
 
@@ -36,7 +40,7 @@ server ──> common
 ```
 
 - `client` ir `server` negali importuoti vienas kito.
-- Abu priklauso nuo viešo `@rusys/common` API.
+- Abiejų `package.json` priklauso nuo `@rusys/common` per `workspace:*`.
 - `common` neturi priklausyti nuo React, Express, DB arba naršyklės API.
 - UI komponentai lieka `client`; atskiro UI paketo nekuriame, kol jis nėra
   reikalingas daugiau nei vienai aplikacijai.
@@ -61,7 +65,8 @@ Bendri paketai eksportuoja tik sąmoningai parinktus entry pointus:
     "name": "@rusys/common",
     "private": true,
     "exports": {
-        ".": "./index.ts"
+        ".": "./index.ts",
+        "./*": "./*.ts"
     }
 }
 ```
@@ -111,9 +116,9 @@ migracijai to nereikia.
         "dev": "...",
         "build": "...",
         "lint": "...",
-        "typecheck": "...",
+        "lint:ts": "...",
         "test": "...",
-        "check": "pnpm lint && pnpm typecheck && pnpm test"
+        "check": "pnpm lint && pnpm test"
     }
 }
 ```
@@ -123,11 +128,11 @@ migracijai to nereikia.
 ```json
 {
     "scripts": {
-        "dev": "turbo dev --parallel",
-        "build": "turbo build",
-        "check": "turbo check",
-        "check:client": "turbo check --filter=@rusys/client",
-        "check:server": "turbo check --filter=@rusys/server"
+        "dev": "turbo run dev --parallel --filter='!rusys'",
+        "build": "turbo run build --filter='!rusys'",
+        "check": "turbo run check --filter='!rusys'",
+        "lint": "turbo run lint --filter='!rusys'",
+        "test": "turbo run test --filter='!rusys'"
     }
 }
 ```
@@ -181,7 +186,7 @@ mygtuko arba NPM įrankio lango.
 
 ## Turbo užduotys
 
-Pradinis `turbo.json`:
+Dabartinis `turbo.json`:
 
 ```json
 {
@@ -191,8 +196,20 @@ Pradinis `turbo.json`:
             "dependsOn": ["^build"],
             "cache": false
         },
+        "@rusys/server#build": {
+            "dependsOn": ["@rusys/client#build", "^build"],
+            "outputs": []
+        },
         "check": {
-            "dependsOn": ["^build"],
+            "dependsOn": ["^check"],
+            "outputs": []
+        },
+        "lint": {
+            "dependsOn": ["^lint"],
+            "outputs": []
+        },
+        "lint:ts": {
+            "dependsOn": ["^lint:ts"],
             "outputs": []
         },
         "test": {
@@ -220,33 +237,55 @@ serveris pateikia kliento statinius failus. Pereinamuoju laikotarpiu:
 
 1. `@rusys/server#build` priklauso nuo `@rusys/client#build`.
 2. Esamas Docker image surenkamas iš abiejų artefaktų.
-3. Lokalūs `dev`, `test`, `lint` ir `typecheck` lieka nepriklausomi.
+3. Lokalūs `dev`, `test`, `lint` ir `lint:ts` lieka nepriklausomi.
 
 Vėliau klientą galima deploy'inti į CDN arba nginx, o serverį palikti tik API.
 Tai leistų visiškai nepriklausomus release'us, bet nėra pirmos migracijos
 reikalavimas.
 
-## Migracijos etapai
+## Migracijos eiga
 
-1. Įtraukti Turborepo ir `pnpm-workspace.yaml` nurodyti `src/*`, nekeičiant
-   esamų šaltinių, Docker ar infrastruktūros vietos.
-2. Pridėti `package.json` ir paketo kataloge esančius Vite, Vitest, Stylelint bei
-   TypeScript nustatymus `src/client`; paketo `tsconfig.json` išlaiko tik tam paketui reikalingą
-   TypeScript konfigūraciją; patikrinti kliento `dev`, `build`, `check`.
-3. Pridėti `package.json` ir atskirus serverio nustatymus `src/server`;
-   išlaikyti dabartinį Docker image ir CSP generavimą bei patikrinti serverio
-   `dev`, `build`, `check`.
-4. Pridėti `package.json` į `src/common`, perkelti į jį API DTO ir bendrus
-   tipus bei apibrėžti jo viešus eksportus.
-5. Atnaujinti šakninius lint, format, test ir deploy skriptus bei Docker build
-   context'us.
+- [x] Įtraukti `pnpm` workspace ir Turborepo; workspace apima root bei `src/*`.
+- [x] Sukurti `@rusys/client`, `@rusys/server` ir `@rusys/common` privačius
+  paketus su atskiromis `dev`, `build`, `lint`, `test` ir `check` komandomis.
+- [x] Perkelti client ir server Vite bei TypeScript konfigūracijas į jų paketų
+  katalogus; client Stylelint konfigūracija taip pat yra `src/client`.
+- [x] Sujungti buvusį `src/types` su `src/common`; importai išlaikyti kaip
+  `~/common/*`, o package grafike client ir server priklauso nuo
+  `@rusys/common`.
+- [x] Atnaujinti Vitest projektus: common testai vykdomi vieną kartą, be
+  MongoDB; client ir server testai yra atskiri projektai.
+- [x] Atnaujinti root Turbo užduotis (`build`, `dev`, `lint`, `lint:ts`,
+  `test`, `check`) bei package-local formatavimo ir lint komandas.
+- [x] Išlaikyti bendrą `dist/`: serverio build priklauso nuo client build,
+  kad CSP hash'ai būtų generuojami iš kliento artefaktų.
+- [x] Pataisyti serverio dev paveikslėlių kelią: `IMAGES_DIR` nustatomas per
+  `.env`, o Docker Compose perduoda `/app/data/images`.
+
+## Likę darbai
+
+1. **Galutinė validacija prieš merge/deploy.** Paleisti `pnpm build` ir
+   `pnpm check` iš root; tada su production aplinkos kintamaisiais patikrinti
+   Docker image bei CSP. Šioje vietoje tikrinamas visas realus deploy kelias.
+2. **Patikslinti root pagalbines komandas.** Nuspręsti, ar `lint:ox`,
+   `lint:styles`, `test:coverage` ir `test:watch` turi būti monorepo komandos
+   per Turbo, ar aiškiai package-local komandos. Šiuo metu pagrindinės `lint`,
+   `test` ir `check` komandos jau yra monorepo komandos.
+3. **Saugus versijos hook'as.** Pakeisti root `version` scenarijaus
+   `git add --all` į `git add docker/compose.yaml`, kad versijos pakėlimas
+   netyčia nepridėtų kitų neįtrauktų pakeitimų.
+4. **Pasirinktinai — griežtesnė common API riba.** Jei prireiks, source
+   importus `~/common/*` galima pakeisti į `@rusys/common/*`. Dabartinis
+   sprendimas sąmoningai palieka seną alias sintaksę; tai nėra migracijos
+   blokatorius.
 
 ## Priėmimo kriterijai
 
-- `pnpm build` ir `pnpm check` veikia iš šaknies.
-- `pnpm --filter @rusys/client {build,check}` veikia be serverio paleidimo.
-- `pnpm --filter @rusys/server {build,check}` veikia be kliento dev serverio.
-- `pnpm --filter @rusys/common test` vykdo bendro kodo testus be MongoDB.
-- Pakeitus `common` arba `types`, Turbo perskaičiuoja tik nuo jų priklausomas
-  užduotis.
-- Produkcinis Docker build išlieka funkcinis ir turi galiojančią CSP politiką.
+| Kriterijus | Būsena |
+| --- | --- |
+| Root `pnpm lint`, `pnpm lint:ts`, `pnpm format:check` | Įgyvendinta ir patikrinta |
+| Client, server ir common paketų `lint:ts`, `lint:ox`, `format:check` | Įgyvendinta ir patikrinta |
+| `@rusys/common` testai be MongoDB | Įgyvendinta ir patikrinta |
+| Client ir server dev/build/check atskirai | Įgyvendinta; prieš merge pakartoti galutinį `pnpm check` |
+| Root `pnpm build` ir `pnpm check` | Galutinai pakartoti prieš merge/deploy |
+| Produkcinis Docker image, statiniai failai ir CSP | Galutinai patikrinti prieš deploy |
