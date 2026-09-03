@@ -1,7 +1,7 @@
 # Monorepo migracijos planas
 
-> Būsena: pagrindinė migracija įgyvendinta. Liko galutinė build/Docker validacija
-> ir keli pasirinktiniai kokybės patobulinimai.
+> Būsena: migracija ir deploy kelio validacija įgyvendintos. Griežtesnė common
+> API riba yra pasirinktinė, ne migracijos reikalavimas.
 
 ## Tikslas
 
@@ -261,20 +261,16 @@ reikalavimas.
   kad CSP hash'ai būtų generuojami iš kliento artefaktų.
 - [x] Pataisyti serverio dev paveikslėlių kelią: `IMAGES_DIR` nustatomas per
   `.env`, o Docker Compose perduoda `/app/data/images`.
+- [x] Priverstinai, be Turbo cache, patikrinti root `pnpm build` ir
+  `pnpm check`.
+- [x] Susiaurinti root `version` hook'ą: jis stage'ina tik
+  `docker/compose.yaml`.
+- [x] Sukurti ir paleisti production Docker image su read-only paveikslėlių
+  volume; patikrinti `/images` ir CSP inline-script hash'ą.
 
 ## Likę darbai
 
-1. **Galutinė validacija prieš merge/deploy.** Paleisti `pnpm build` ir
-   `pnpm check` iš root; tada su production aplinkos kintamaisiais patikrinti
-   Docker image bei CSP. Šioje vietoje tikrinamas visas realus deploy kelias.
-2. **Patikslinti root pagalbines komandas.** Nuspręsti, ar `lint:ox`,
-   `lint:styles`, `test:coverage` ir `test:watch` turi būti monorepo komandos
-   per Turbo, ar aiškiai package-local komandos. Šiuo metu pagrindinės `lint`,
-   `test` ir `check` komandos jau yra monorepo komandos.
-3. **Saugus versijos hook'as.** Pakeisti root `version` scenarijaus
-   `git add --all` į `git add docker/compose.yaml`, kad versijos pakėlimas
-   netyčia nepridėtų kitų neįtrauktų pakeitimų.
-4. **Pasirinktinai — griežtesnė common API riba.** Jei prireiks, source
+1. **Pasirinktinai — griežtesnė common API riba.** Jei prireiks, source
    importus `~/common/*` galima pakeisti į `@rusys/common/*`. Dabartinis
    sprendimas sąmoningai palieka seną alias sintaksę; tai nėra migracijos
    blokatorius.
@@ -286,6 +282,6 @@ reikalavimas.
 | Root `pnpm lint`, `pnpm lint:ts`, `pnpm format:check` | Įgyvendinta ir patikrinta |
 | Client, server ir common paketų `lint:ts`, `lint:ox`, `format:check` | Įgyvendinta ir patikrinta |
 | `@rusys/common` testai be MongoDB | Įgyvendinta ir patikrinta |
-| Client ir server dev/build/check atskirai | Įgyvendinta; prieš merge pakartoti galutinį `pnpm check` |
-| Root `pnpm build` ir `pnpm check` | Galutinai pakartoti prieš merge/deploy |
-| Produkcinis Docker image, statiniai failai ir CSP | Galutinai patikrinti prieš deploy |
+| Client ir server dev/build/check atskirai | Įgyvendinta ir patikrinta |
+| Root `pnpm build` ir `pnpm check` | Įgyvendinta ir priverstinai patikrinta be Turbo cache |
+| Produkcinis Docker image, statiniai failai ir CSP | Įgyvendinta ir patikrinta su lokaliu production image |
