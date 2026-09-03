@@ -7,9 +7,9 @@ on:
     branches: [main]
 
 jobs:
-  lint-test:
+  build-check:
     runs-on: ubuntu-latest
-    name: Lint, Tests, and Coverage
+    name: Build and check workspace
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -26,10 +26,10 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      - name: Run TS compiler and ES linter
-        run: pnpm lint
+      - name: Build workspace
+        run: pnpm build
 
-      - name: Run tests with coverage check
-        run: pnpm test:coverage
+      - name: Check workspace
+        run: pnpm check

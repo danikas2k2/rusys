@@ -271,6 +271,8 @@ reikalavimas.
       volume; patikrinti `/images` ir CSP inline-script hash'ą.
 - [x] Įvesti common package ribą: client ir server importuoja bendrą kodą per
       `@rusys/common/*`, o ne per `~/common/*` alias.
+- [x] Atnaujinti GitHub Actions CI: jis naudoja užrakintą dependency diegimą
+      ir vykdo root `pnpm build` bei `pnpm check`.
 
 ## Likę darbai
 
