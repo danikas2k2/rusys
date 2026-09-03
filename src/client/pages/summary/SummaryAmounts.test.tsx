@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
+import { getAmountTotals } from '@rusys/common/utils/amounts';
 import React from 'react';
 
 import { Amounts } from '~/client/common/Amounts';
 import { useAmountView } from '~/client/common/AmountViewContext';
 import { SummaryAmounts } from '~/client/pages/summary/SummaryAmounts';
-import { getAmountTotals } from '~/common/utils/amounts';
 
 vi.mock(import('~/client/common/Amounts'), () => ({
     Amounts: vi.fn(({ type, amounts }: { type: string; amounts: readonly { amount: number }[] }) => (
@@ -19,8 +19,8 @@ vi.mock(import('~/client/state/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn(() => (a: string, b: string) => a.localeCompare(b)),
 }));
 vi.mock(import('~/client/state/variants/useVariantsByGroup'), () => ({ useVariantsByGroup: vi.fn(() => []) }));
-vi.mock(import('~/common/utils/amounts'), async () => ({
-    ...(await vi.importActual('~/common/utils/amounts')),
+vi.mock(import('@rusys/common/utils/amounts'), async () => ({
+    ...(await vi.importActual('@rusys/common/utils/amounts')),
     getAmountTotals: vi.fn(),
 }));
 

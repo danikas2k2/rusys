@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { mockLocalStorage } from '@tests/mockLocalStorage';
 import { MockRedux } from '@tests/MockRedux';
 
+import { isDevMode } from '@rusys/common/utils/dev';
 import React from 'react';
 
 import { DEV_MODE_PROFILE } from '~/client/state/profile/dev';
@@ -9,9 +10,8 @@ import { profile as reducer } from '~/client/state/profile/reducer';
 import type { Profile } from '~/client/state/profile/types';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useSetProfile } from '~/client/state/profile/useSetProfile';
-import { isDevMode } from '~/common/utils/dev';
 
-vi.mock(import('~/common/utils/dev'), () => ({
+vi.mock(import('@rusys/common/utils/dev'), () => ({
     isDevMode: vi.fn().mockReturnValue(false),
 }));
 vi.mock(import('~/client/state/profile/useSetProfile'), () => ({

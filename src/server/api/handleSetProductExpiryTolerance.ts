@@ -1,4 +1,5 @@
-import type { ApiProductsWithYears, ApiRequest, ApiResponse, ApiSetExpiryTolerance } from '~/common/api';
+import type { ApiProductsWithYears, ApiRequest, ApiResponse, ApiSetExpiryTolerance } from '@rusys/common/api';
+
 import { debugRequest } from '~/server/api/debug';
 import { getProductsWithYears } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';

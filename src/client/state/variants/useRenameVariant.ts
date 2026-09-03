@@ -1,8 +1,8 @@
+import { ApiUrl, type ApiRenameVariant } from '@rusys/common/api';
+import type { UpdateVariant } from '@rusys/common/data';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiRenameVariant } from '~/common/api';
-import type { UpdateVariant } from '~/common/data';
 
 export function useRenameVariant(): (
     group: string,

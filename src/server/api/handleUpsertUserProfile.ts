@@ -1,4 +1,5 @@
-import type { ApiRequest, ApiResponse, ApiUpsertUserProfile } from '~/common/api';
+import type { ApiRequest, ApiResponse, ApiUpsertUserProfile } from '@rusys/common/api';
+
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
 import { upsertUserProfile } from '~/server/data/userProfiles';

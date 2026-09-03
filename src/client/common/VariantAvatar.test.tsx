@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
+import type { VariantUnits } from '@rusys/common/data';
 import React from 'react';
 
 import { VariantAvatar } from '~/client/common/VariantAvatar';
 import { useVariant } from '~/client/state/variants/useVariant';
-import type { VariantUnits } from '~/common/data';
 
 vi.mock(import('~/client/state/variants/useVariant'), () => ({ useVariant: vi.fn() }));
 

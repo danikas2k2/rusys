@@ -2,7 +2,8 @@ import { getGroupsFixture, getProductsFixture, getVariantsFixture, getYearsFixtu
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiProductsWithYears } from '~/common/api';
+import type { ApiProductsWithYears } from '@rusys/common/api';
+
 import { handleProducts } from '~/server/api/handleProducts';
 import { getProductsWithGroups } from '~/server/api/response';
 

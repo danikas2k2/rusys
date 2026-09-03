@@ -1,4 +1,5 @@
-import type { ApiProductsWithYears, ApiRenameGroup, ApiRequest, ApiResponse } from '~/common/api';
+import type { ApiProductsWithYears, ApiRenameGroup, ApiRequest, ApiResponse } from '@rusys/common/api';
+
 import { debugRequest } from '~/server/api/debug';
 import { getProductsWithGroups } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';

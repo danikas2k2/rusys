@@ -1,4 +1,5 @@
-import type { ApiRequest, ApiResponse, ApiSetMissing } from '~/common/api';
+import type { ApiRequest, ApiResponse, ApiSetMissing } from '@rusys/common/api';
+
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
 import { setMissing } from '~/server/data/products';

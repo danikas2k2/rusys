@@ -5,8 +5,9 @@ import type {
     ApiProductsWithYears,
     ApiVariants,
     ApiVariantsWithGroups,
-} from '~/common/api';
-import type { Product } from '~/common/data';
+} from '@rusys/common/api';
+import type { Product } from '@rusys/common/data';
+
 import { getGroups } from '~/server/data/groups';
 import { getProducts } from '~/server/data/products';
 import { getVariants } from '~/server/data/variants';

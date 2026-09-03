@@ -3,7 +3,8 @@ import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiVariants } from '~/common/api';
+import type { ApiVariants } from '@rusys/common/api';
+
 import { handleVariants } from '~/server/api/handleVariants';
 import { getVariantsWithGroups } from '~/server/api/response';
 

@@ -1,4 +1,5 @@
-import { type ApiRequest, type ApiResponse, ApiUrl } from '~/common/api';
+import { type ApiRequest, type ApiResponse, ApiUrl } from '@rusys/common/api';
+
 import { handleAdd } from '~/server/api/handleAdd';
 import { handleCheckUser } from '~/server/api/handleCheckUser';
 import { handleClientId } from '~/server/api/handleClientId';

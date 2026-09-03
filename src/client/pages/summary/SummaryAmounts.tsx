@@ -1,4 +1,6 @@
 import { Group, Stack, Text } from '@mantine/core';
+import type { ProductAmounts as ProductAmountsData, VariantAmount } from '@rusys/common/data';
+import { formatVolume, formatWeight, getAmountTotals } from '@rusys/common/utils/amounts';
 import React, { useMemo } from 'react';
 
 import { ApproxAmountIcon, HomeIcon } from '@icons';
@@ -8,8 +10,6 @@ import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { useAmountView } from '~/client/common/AmountViewContext';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
 import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
-import type { ProductAmounts as ProductAmountsData, VariantAmount } from '~/common/data';
-import { formatVolume, formatWeight, getAmountTotals } from '~/common/utils/amounts';
 
 interface HomeAmountsProps {
     group: string;

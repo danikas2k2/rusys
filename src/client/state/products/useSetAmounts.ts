@@ -1,8 +1,8 @@
+import { ApiUrl, type ApiSetAmounts } from '@rusys/common/api';
+import type { VariantAmount } from '@rusys/common/data';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiSetAmounts } from '~/common/api';
-import type { VariantAmount } from '~/common/data';
 
 export function useSetAmounts(): (
     group: string,

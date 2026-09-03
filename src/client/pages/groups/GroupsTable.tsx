@@ -1,5 +1,6 @@
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import { Table, Title } from '@mantine/core';
+import type { Group } from '@rusys/common/data';
 import React from 'react';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
@@ -18,7 +19,6 @@ import { useReorderGroups } from '~/client/state/groups/useReorderGroups';
 import { DragOverlayTable } from '~/client/table/DragOverlayTable';
 import { parseId } from '~/client/utils/id';
 import { mapOrder } from '~/client/utils/mapOrder';
-import type { Group } from '~/common/data';
 
 import './GroupsTable.pcss';
 

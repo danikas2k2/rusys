@@ -5,6 +5,7 @@ import { MockRedux } from '@tests/MockRedux';
 import { MockTheme } from '@tests/MockTheme';
 
 import type { UniqueIdentifier } from '@dnd-kit/core';
+import type { Group } from '@rusys/common/data';
 import React from 'react';
 
 import { DraggableContent } from '~/client/common/DraggableContent';
@@ -16,7 +17,6 @@ import { useGroupsHasData } from '~/client/pages/groups/hooks/useGroupsHasData';
 import { useGetGroups } from '~/client/state/groups/useGetGroups';
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useReorderGroups } from '~/client/state/groups/useReorderGroups';
-import type { Group } from '~/common/data';
 
 vi.mock(import('~/client/state/years/useYears'));
 vi.mock(import('~/client/state/groups/useGroups'));

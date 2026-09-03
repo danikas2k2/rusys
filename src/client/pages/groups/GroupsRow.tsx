@@ -1,4 +1,5 @@
 import { Avatar, Table, Title } from '@mantine/core';
+import type { Group } from '@rusys/common/data';
 import React from 'react';
 
 import { AnnualIcon, ReviewIcon } from '@icons';
@@ -6,7 +7,6 @@ import { AnnualIcon, ReviewIcon } from '@icons';
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { Label } from '~/client/common/Label';
 import { SortableRow } from '~/client/table/SortableRow';
-import type { Group } from '~/common/data';
 
 interface GroupsRowProps {
     group: Group;

@@ -2,7 +2,8 @@
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiUpsertUserProfile } from '~/common/api';
+import type { ApiUpsertUserProfile } from '@rusys/common/api';
+
 import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
 import { upsertUserProfile } from '~/server/data/userProfiles';
 

@@ -1,8 +1,9 @@
 import { renderHook } from '@testing-library/react';
 
+import { ApiUrl } from '@rusys/common/api';
+
 import { useApiRequest } from '~/client/state/common/useApiRequest';
 import { useExport } from '~/client/state/common/useExport';
-import { ApiUrl } from '~/common/api';
 
 vi.mock(import('~/client/state/common/useApiRequest'));
 

@@ -2,7 +2,8 @@ import { getGroupsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiGroups } from '~/common/api';
+import type { ApiGroups } from '@rusys/common/api';
+
 import { handleGroups } from '~/server/api/handleGroups';
 import { getGroupsResponse } from '~/server/api/response';
 

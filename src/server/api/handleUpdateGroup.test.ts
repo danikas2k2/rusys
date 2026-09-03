@@ -1,7 +1,8 @@
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiUpdateGroup } from '~/common/api';
+import type { ApiUpdateGroup } from '@rusys/common/api';
+
 import { handleUpdateGroup } from '~/server/api/handleUpdateGroup';
 import { updateGroup } from '~/server/data/groups';
 

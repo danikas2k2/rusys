@@ -3,7 +3,8 @@ import { getVariantsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiReorderVariants, ApiVariants } from '~/common/api';
+import type { ApiReorderVariants, ApiVariants } from '@rusys/common/api';
+
 import { handleReorderVariants } from '~/server/api/handleReorderVariants';
 import { getVariantsResponse } from '~/server/api/response';
 import { reorderVariants } from '~/server/data/variants';

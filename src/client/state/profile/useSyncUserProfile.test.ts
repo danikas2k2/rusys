@@ -1,10 +1,11 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
+import { ApiUrl } from '@rusys/common/api';
+
 import { useApiRequest } from '~/client/state/common/useApiRequest';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useSyncUserProfile } from '~/client/state/profile/useSyncUserProfile';
-import { ApiUrl } from '~/common/api';
 
 vi.mock(import('~/client/state/common/useApiRequest'));
 vi.mock(import('~/client/state/profile/useProfile'));

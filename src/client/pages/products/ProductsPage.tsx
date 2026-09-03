@@ -1,3 +1,4 @@
+import type { Product } from '@rusys/common/data';
 import React from 'react';
 
 import { SwipeControls } from '~/client/common/SwipeControls';
@@ -15,7 +16,6 @@ import { MissingOnlyEffects } from '~/client/pages/products/MissingOnlyEffects';
 import { ProductsGrid } from '~/client/pages/products/ProductsGrid';
 import { UpdatingProductsWrapper } from '~/client/pages/products/UpdatingProductsContext';
 import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
-import type { Product } from '~/common/data';
 
 import './ProductsPage.pcss';
 

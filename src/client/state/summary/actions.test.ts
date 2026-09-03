@@ -1,7 +1,8 @@
 import { getSummaryFixture } from '@tests/fixtures';
 
+import type { Summary } from '@rusys/common/data';
+
 import { setSummaryAction, SummaryActionType } from '~/client/state/summary/actions';
-import type { Summary } from '~/common/data';
 
 describe('setSummaryAction', () => {
     it('returns valid action', () => {

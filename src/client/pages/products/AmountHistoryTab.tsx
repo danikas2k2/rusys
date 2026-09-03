@@ -1,4 +1,5 @@
 import { Divider, Table } from '@mantine/core';
+import type { ProductAmounts } from '@rusys/common/data';
 import React from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
@@ -8,7 +9,6 @@ import { AmountHistoryRow } from '~/client/pages/products/AmountHistoryRow';
 import { useGetProductHistory } from '~/client/state/history/useGetProductHistory';
 import { useUndates } from '~/client/state/history/useUndates';
 import { useUpdates } from '~/client/state/history/useUpdates';
-import type { ProductAmounts } from '~/common/data';
 
 import './AmountHistoryTab.pcss';
 

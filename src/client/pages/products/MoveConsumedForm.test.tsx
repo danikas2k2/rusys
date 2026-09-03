@@ -3,10 +3,10 @@ import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
 import { Select } from '@mantine/core';
+import type { VariantAmount } from '@rusys/common/data';
 import React from 'react';
 
 import { MoveConsumedForm } from '~/client/pages/products/MoveConsumedForm';
-import type { VariantAmount } from '~/common/data';
 
 vi.mock(import('~/client/state/variants/useVariant'), (): any => ({
     useVariant: vi.fn(() => undefined),

@@ -2,7 +2,8 @@ import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiProductsWithYears, ApiSetVariantImage } from '~/common/api';
+import type { ApiProductsWithYears, ApiSetVariantImage } from '@rusys/common/api';
+
 import { handleSetVariantImage } from '~/server/api/handleSetVariantImage';
 import { getProductsWithYears } from '~/server/api/response';
 import { setVariantImage } from '~/server/data/products';

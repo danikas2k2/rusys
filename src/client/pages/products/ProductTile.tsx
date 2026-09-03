@@ -1,4 +1,11 @@
 import { ActionIcon, Checkbox, Group } from '@mantine/core';
+import type {
+    Product,
+    ProductAmounts as ProductAmountsType,
+    RemovingYearAmounts,
+    VariantAmount,
+} from '@rusys/common/data';
+import { getCombinedAmounts } from '@rusys/common/utils/amounts';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 
@@ -9,8 +16,6 @@ import { AnnotatedTotalAmounts } from '~/client/common/AnnotatedTotalAmounts';
 import { GridTile } from '~/client/common/GridTile';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
-import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts, VariantAmount } from '~/common/data';
-import { getCombinedAmounts } from '~/common/utils/amounts';
 
 import './ProductTile.pcss';
 

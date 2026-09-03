@@ -1,7 +1,8 @@
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiSetRemoving } from '~/common/api';
+import type { ApiSetRemoving } from '@rusys/common/api';
+
 import { handleSetRemoving } from '~/server/api/handleSetRemoving';
 import { setRemoving } from '~/server/data/products';
 

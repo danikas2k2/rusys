@@ -81,16 +81,18 @@ Bendri paketai eksportuoja tik sąmoningai parinktus entry pointus:
 }
 ```
 
-Šaltinio kodas išlaiko esamą alias sintaksę:
+`client` ir `server` bendrą kodą importuoja tik per workspace paketo API:
 
 ```ts
-import type { Product } from '~/common/data';
-import { getAmountTotals } from '~/common/utils/amounts';
+import type { Product } from '@rusys/common/data';
+import { getAmountTotals } from '@rusys/common/utils/amounts';
 ```
 
-`@rusys/common` lieka workspace paketo vardas `package.json`
-priklausomybėse. Turbo iš jo mato priklausomybių grafiką: pakeitus `common`,
-bus perskaičiuotos tik nuo jo priklausomos kliento ir serverio užduotys.
+`~/client/*` ir `~/server/*` alias sintaksė lieka jų vidiniam kodui. Pats
+`common` gali naudoti `~/common/*` savo vidiniams importams. `@rusys/common`
+lieka workspace paketo vardas `package.json` priklausomybėse. Turbo iš jo mato
+priklausomybių grafiką: pakeitus `common`, bus perskaičiuotos tik nuo jo
+priklausomos kliento ir serverio užduotys.
 
 ## Versijavimas
 
@@ -247,41 +249,44 @@ reikalavimas.
 
 - [x] Įtraukti `pnpm` workspace ir Turborepo; workspace apima root bei `src/*`.
 - [x] Sukurti `@rusys/client`, `@rusys/server` ir `@rusys/common` privačius
-  paketus su atskiromis `dev`, `build`, `lint`, `test` ir `check` komandomis.
+      paketus su atskiromis `dev`, `build`, `lint`, `test` ir `check` komandomis.
 - [x] Perkelti client ir server Vite bei TypeScript konfigūracijas į jų paketų
-  katalogus; client Stylelint konfigūracija taip pat yra `src/client`.
+      katalogus; client Stylelint konfigūracija taip pat yra `src/client`.
 - [x] Sujungti buvusį `src/types` su `src/common`; importai išlaikyti kaip
-  `~/common/*`, o package grafike client ir server priklauso nuo
-  `@rusys/common`.
+      `~/common/*`, o package grafike client ir server priklauso nuo
+      `@rusys/common`.
 - [x] Atnaujinti Vitest projektus: common testai vykdomi vieną kartą, be
-  MongoDB; client ir server testai yra atskiri projektai.
+      MongoDB; client ir server testai yra atskiri projektai.
 - [x] Atnaujinti root Turbo užduotis (`build`, `dev`, `lint`, `lint:ts`,
-  `test`, `check`) bei package-local formatavimo ir lint komandas.
+      `test`, `check`) bei package-local formatavimo ir lint komandas.
 - [x] Išlaikyti bendrą `dist/`: serverio build priklauso nuo client build,
-  kad CSP hash'ai būtų generuojami iš kliento artefaktų.
+      kad CSP hash'ai būtų generuojami iš kliento artefaktų.
 - [x] Pataisyti serverio dev paveikslėlių kelią: `IMAGES_DIR` nustatomas per
-  `.env`, o Docker Compose perduoda `/app/data/images`.
+      `.env`, o Docker Compose perduoda `/app/data/images`.
 - [x] Priverstinai, be Turbo cache, patikrinti root `pnpm build` ir
-  `pnpm check`.
+      `pnpm check`.
 - [x] Susiaurinti root `version` hook'ą: jis stage'ina tik
-  `docker/compose.yaml`.
+      `docker/compose.yaml`.
 - [x] Sukurti ir paleisti production Docker image su read-only paveikslėlių
-  volume; patikrinti `/images` ir CSP inline-script hash'ą.
+      volume; patikrinti `/images` ir CSP inline-script hash'ą.
+- [x] Įvesti common package ribą: client ir server importuoja bendrą kodą per
+      `@rusys/common/*`, o ne per `~/common/*` alias.
 
 ## Likę darbai
 
-1. **Pasirinktinai — griežtesnė common API riba.** Jei prireiks, source
-   importus `~/common/*` galima pakeisti į `@rusys/common/*`. Dabartinis
-   sprendimas sąmoningai palieka seną alias sintaksę; tai nėra migracijos
-   blokatorius.
+Privalomų migracijos darbų nebeliko. Ateityje `@rusys/common` galima dar
+susiaurinti iki kelių ranka parinktų entry pointų, jei reikės paslėpti dalį
+`utils/*` modulių. Šiandien visi bendro kodo moduliai yra sąmoningai prieinami
+per `@rusys/common/*`.
 
 ## Priėmimo kriterijai
 
-| Kriterijus | Būsena |
-| --- | --- |
-| Root `pnpm lint`, `pnpm lint:ts`, `pnpm format:check` | Įgyvendinta ir patikrinta |
-| Client, server ir common paketų `lint:ts`, `lint:ox`, `format:check` | Įgyvendinta ir patikrinta |
-| `@rusys/common` testai be MongoDB | Įgyvendinta ir patikrinta |
-| Client ir server dev/build/check atskirai | Įgyvendinta ir patikrinta |
-| Root `pnpm build` ir `pnpm check` | Įgyvendinta ir priverstinai patikrinta be Turbo cache |
-| Produkcinis Docker image, statiniai failai ir CSP | Įgyvendinta ir patikrinta su lokaliu production image |
+| Kriterijus                                                           | Būsena                                                 |
+| -------------------------------------------------------------------- | ------------------------------------------------------ |
+| Root `pnpm lint`, `pnpm lint:ts`, `pnpm format:check`                | Įgyvendinta ir patikrinta                              |
+| Client, server ir common paketų `lint:ts`, `lint:ox`, `format:check` | Įgyvendinta ir patikrinta                              |
+| `@rusys/common` testai be MongoDB                                    | Įgyvendinta ir patikrinta                              |
+| Client ir server dev/build/check atskirai                            | Įgyvendinta ir patikrinta                              |
+| Root `pnpm build` ir `pnpm check`                                    | Įgyvendinta ir priverstinai patikrinta be Turbo cache  |
+| Produkcinis Docker image, statiniai failai ir CSP                    | Įgyvendinta ir patikrinta su lokaliu production image  |
+| Client/server common importų package riba                            | Įgyvendinta ir patikrinta su client bei server testais |

@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
+import type { History } from '@rusys/common/data';
 import React from 'react';
 
 import { AmountsCell } from '~/client/common/AmountsCell';
@@ -9,7 +10,6 @@ import { SummaryHistoryTab } from '~/client/pages/summary/SummaryHistoryTab';
 import { useGetSummaryHistory } from '~/client/state/history/useGetSummaryHistory';
 import { useUndates } from '~/client/state/history/useUndates';
 import { useUpdates } from '~/client/state/history/useUpdates';
-import type { History } from '~/common/data';
 
 vi.mock(import('~/client/state/history/useGetSummaryHistory'), (): any => ({
     useGetSummaryHistory: vi.fn(() => vi.fn().mockResolvedValue(undefined)),

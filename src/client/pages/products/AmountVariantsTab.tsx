@@ -1,4 +1,7 @@
 import { Accordion, Avatar, Badge, Button, type ComboboxItem, Flex, Group, Select, Stack, Text } from '@mantine/core';
+import type { ProductAmounts, VariantAmount } from '@rusys/common/data';
+import { getCombinedAmounts, getVariantAmount } from '@rusys/common/utils/amounts';
+import { formatDateOnly, getExpiryStatus, parseDateOnly } from '@rusys/common/utils/expiry';
 import React, { type RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
@@ -33,9 +36,6 @@ import { useUndoProduct } from '~/client/state/products/useUndoProduct';
 import { useProfile } from '~/client/state/profile/useProfile';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
-import type { ProductAmounts, VariantAmount } from '~/common/data';
-import { getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
-import { formatDateOnly, getExpiryStatus, parseDateOnly } from '~/common/utils/expiry';
 
 import './AmountVariantsTab.pcss';
 

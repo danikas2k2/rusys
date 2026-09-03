@@ -1,4 +1,4 @@
-import type { Product } from '~/common/data';
+import type { Product } from '@rusys/common/data';
 
 export const enum ProductsActionType {
     SET = 'products.set',

@@ -1,7 +1,8 @@
 import { getProductsFixture } from '@tests/fixtures';
 
+import type { Product } from '@rusys/common/data';
+
 import { ProductsActionType, setProductsAction } from '~/client/state/products/actions';
-import type { Product } from '~/common/data';
 
 describe('setProductsAction', () => {
     it('returns valid action', () => {

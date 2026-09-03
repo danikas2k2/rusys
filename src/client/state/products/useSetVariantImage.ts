@@ -1,7 +1,7 @@
+import { ApiUrl, type ApiSetVariantImage } from '@rusys/common/api';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiSetVariantImage } from '~/common/api';
 
 export function useSetVariantImage(): (group: string, name: string, variant: string, image: string) => Promise<void> {
     const request = useUpdatingApiRequest<ApiSetVariantImage>();

@@ -1,3 +1,5 @@
+import type { VariantAmount } from '@rusys/common/data';
+import { mergeAmountsIgnoringExpiry } from '@rusys/common/utils/amounts';
 import React from 'react';
 
 import { ApproxAmountIcon, HomeIcon, SuspiciousIcon } from '@icons';
@@ -5,8 +7,6 @@ import { ApproxAmountIcon, HomeIcon, SuspiciousIcon } from '@icons';
 import { AmountSuffix } from '~/client/common/AmountSuffix';
 import { HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/client/common/variantKeys';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
-import type { VariantAmount } from '~/common/data';
-import { mergeAmountsIgnoringExpiry } from '~/common/utils/amounts';
 
 export interface VariantValueSpansProps {
     group: string;

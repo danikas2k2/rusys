@@ -1,4 +1,5 @@
-import type { ApiMoveConsumedToRecycled, ApiRequest, ApiResponse } from '~/common/api';
+import type { ApiMoveConsumedToRecycled, ApiRequest, ApiResponse } from '@rusys/common/api';
+
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
 import { moveConsumedToRecycled } from '~/server/data/products';

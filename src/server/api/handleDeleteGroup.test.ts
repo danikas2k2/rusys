@@ -2,7 +2,8 @@ import { getGroupsFixture, getProductsFixture, getVariantsFixture, getYearsFixtu
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiGroups, ApiRequestGroup } from '~/common/api';
+import type { ApiGroups, ApiRequestGroup } from '@rusys/common/api';
+
 import { handleDeleteGroup } from '~/server/api/handleDeleteGroup';
 import { getProductsWithGroups } from '~/server/api/response';
 import { deleteGroupOccurrences } from '~/server/data/common';

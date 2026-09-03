@@ -1,7 +1,7 @@
+import { ApiUrl, type ApiRenameGroup } from '@rusys/common/api';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiRenameGroup } from '~/common/api';
 
 export function useRenameGroup(): (
     group: string,

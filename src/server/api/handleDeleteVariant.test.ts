@@ -2,7 +2,8 @@ import { getProductsFixture, getVariantsFixture, getYearsFixture } from '@tests/
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiRequestVariant, ApiVariants } from '~/common/api';
+import type { ApiRequestVariant, ApiVariants } from '@rusys/common/api';
+
 import { handleDeleteVariant } from '~/server/api/handleDeleteVariant';
 import { getProductsWithVariants } from '~/server/api/response';
 import { deleteVariantOccurrences } from '~/server/data/common';

@@ -1,17 +1,17 @@
 import { Text } from '@mantine/core';
-import React from 'react';
-
-import { ExpiryStatusRow } from '~/client/common/ExpiryStatusRow';
-import { VariantValueSpans } from '~/client/common/VariantValueSpans';
-import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
-import type { Variant, VariantAmount } from '~/common/data';
+import type { Variant, VariantAmount } from '@rusys/common/data';
 import {
     formatVolume,
     formatWeight,
     getAmountTotalsDetailed,
     type AmountTotalWithSources,
-} from '~/common/utils/amounts';
-import { orderedExpiryBuckets, partitionByExpiryStatus, type ExpiryStatus } from '~/common/utils/expiry';
+} from '@rusys/common/utils/amounts';
+import { orderedExpiryBuckets, partitionByExpiryStatus, type ExpiryStatus } from '@rusys/common/utils/expiry';
+import React from 'react';
+
+import { ExpiryStatusRow } from '~/client/common/ExpiryStatusRow';
+import { VariantValueSpans } from '~/client/common/VariantValueSpans';
+import { useVariantsByGroup } from '~/client/state/variants/useVariantsByGroup';
 
 import './AnnotatedTotalAmounts.pcss';
 

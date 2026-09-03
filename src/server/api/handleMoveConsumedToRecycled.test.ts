@@ -1,7 +1,8 @@
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiMoveConsumedToRecycled } from '~/common/api';
+import type { ApiMoveConsumedToRecycled } from '@rusys/common/api';
+
 import { handleMoveConsumedToRecycled } from '~/server/api/handleMoveConsumedToRecycled';
 import { moveConsumedToRecycled } from '~/server/data/products';
 

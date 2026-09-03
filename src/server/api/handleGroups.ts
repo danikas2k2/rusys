@@ -1,4 +1,5 @@
-import type { ApiGroups, ApiRequest, ApiResponse } from '~/common/api';
+import type { ApiGroups, ApiRequest, ApiResponse } from '@rusys/common/api';
+
 import { debugRequest } from '~/server/api/debug';
 import { getGroupsResponse } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';

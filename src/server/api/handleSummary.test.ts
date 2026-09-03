@@ -3,8 +3,9 @@ import { getGroupsFixture, getVariantsFixture, getYearsFixture } from '@tests/fi
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiSummary } from '~/common/api';
-import type { Summary } from '~/common/data';
+import type { ApiSummary } from '@rusys/common/api';
+import type { Summary } from '@rusys/common/data';
+
 import { handleSummary } from '~/server/api/handleSummary';
 import { getFullSummary } from '~/server/data/summary';
 

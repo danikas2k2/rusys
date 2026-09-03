@@ -2,7 +2,8 @@ import { getGroupsFixture, getProductsFixture, getVariantsFixture, getYearsFixtu
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiProductsWithYears, ApiRenameGroup } from '~/common/api';
+import type { ApiProductsWithYears, ApiRenameGroup } from '@rusys/common/api';
+
 import { handleRenameGroup } from '~/server/api/handleRenameGroup';
 import { getProductsWithGroups } from '~/server/api/response';
 import { renameGroupOccurrences } from '~/server/data/common';

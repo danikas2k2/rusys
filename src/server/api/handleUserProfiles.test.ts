@@ -2,8 +2,9 @@
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiGetUserProfiles, ApiUserProfiles } from '~/common/api';
-import type { UserProfile } from '~/common/data';
+import type { ApiGetUserProfiles, ApiUserProfiles } from '@rusys/common/api';
+import type { UserProfile } from '@rusys/common/data';
+
 import { handleUserProfiles } from '~/server/api/handleUserProfiles';
 import { getUserProfiles } from '~/server/data/userProfiles';
 

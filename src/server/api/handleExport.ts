@@ -1,6 +1,6 @@
+import type { ApiRequest } from '@rusys/common/api';
 import type { Response } from 'express';
 
-import type { ApiRequest } from '~/common/api';
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache } from '~/server/api/utils';
 import { buildExportArchive } from '~/server/data/exportArchive';

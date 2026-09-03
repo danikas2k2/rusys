@@ -2,7 +2,8 @@
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiSetMissing } from '~/common/api';
+import type { ApiSetMissing } from '@rusys/common/api';
+
 import { handleSetMissing } from '~/server/api/handleSetMissing';
 import { setMissing } from '~/server/data/products';
 

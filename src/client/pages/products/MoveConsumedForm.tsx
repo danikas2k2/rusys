@@ -1,4 +1,5 @@
 import { ActionIcon, Flex, NumberInput, Select, Text, type ComboboxItem } from '@mantine/core';
+import type { VariantAmount } from '@rusys/common/data';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { DecreaseIcon, IncreaseIcon, RecycledIcon } from '@icons';
@@ -7,7 +8,6 @@ import { VariantAvatar } from '~/client/common/VariantAvatar';
 import { VariantTitle } from '~/client/common/VariantTitle';
 import { useLabels } from '~/client/hooks/useLabels';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
-import type { VariantAmount } from '~/common/data';
 
 import './MoveConsumedForm.pcss';
 

@@ -1,11 +1,11 @@
 import { Group, Stack, Text, ThemeIcon } from '@mantine/core';
+import type { VariantAmount } from '@rusys/common/data';
 import React from 'react';
 
 import { ConsumedIcon, HomeIcon, RecycledIcon, SuspiciousIcon, UpdatedIcon } from '@icons';
 
 import { VariantTitle } from '~/client/common/VariantTitle';
 import { useGroupVariantComparator } from '~/client/state/variants/useGroupVariantComparator';
-import type { VariantAmount } from '~/common/data';
 
 export function AmountsCell({
     group = '',

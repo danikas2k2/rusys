@@ -1,5 +1,6 @@
-import type { ApiClientId, ApiRequest, ApiResponse } from '~/common/api';
-import { DEV_CLIENT_ID, isDevMode } from '~/common/utils/dev';
+import type { ApiClientId, ApiRequest, ApiResponse } from '@rusys/common/api';
+import { DEV_CLIENT_ID, isDevMode } from '@rusys/common/utils/dev';
+
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
 

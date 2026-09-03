@@ -3,10 +3,10 @@ import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
 import { rem } from '@mantine/core';
+import { MAX_IMAGE_FILE_MB } from '@rusys/common/utils/files';
 import React from 'react';
 
 import { ImageDropzone } from '~/client/common/ImageDropzone';
-import { MAX_IMAGE_FILE_MB } from '~/common/utils/files';
 
 vi.mock(import('@mantine/dropzone'), (): any => {
     const DropzoneComponent = ({

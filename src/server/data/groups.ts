@@ -1,6 +1,6 @@
+import type { Group } from '@rusys/common/data';
 import type { ClientSession, Collection } from 'mongodb';
 
-import type { Group } from '~/common/data';
 import { classifyImage } from '~/server/data/images';
 import { imageFieldUpdate, resolveImage } from '~/server/data/resolveImage';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';

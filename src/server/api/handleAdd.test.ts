@@ -2,7 +2,8 @@ import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiAddProduct, ApiProductsWithYears } from '~/common/api';
+import type { ApiAddProduct, ApiProductsWithYears } from '@rusys/common/api';
+
 import { handleAdd } from '~/server/api/handleAdd';
 import { getProductsWithYears } from '~/server/api/response';
 import { addProduct } from '~/server/data/products';

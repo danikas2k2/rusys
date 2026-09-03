@@ -1,4 +1,5 @@
-import type { ApiCopyVariant, ApiProductsWithVariants, ApiRequest, ApiResponse } from '~/common/api';
+import type { ApiCopyVariant, ApiProductsWithVariants, ApiRequest, ApiResponse } from '@rusys/common/api';
+
 import { debugRequest } from '~/server/api/debug';
 import { getProductsWithVariants } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';

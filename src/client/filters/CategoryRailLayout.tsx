@@ -1,12 +1,12 @@
 import { Group } from '@mantine/core';
+import type { Group as GroupModel } from '@rusys/common/data';
 import React, { useEffect, useRef } from 'react';
 
 import { CategoryRail } from '~/client/filters/CategoryRail';
-import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 
 import './CategoryRailLayout.pcss';
 
-import type { Group as GroupModel } from '~/common/data';
+import { useQuickFilter } from '~/client/filters/QuickFilterContext';
 
 interface CategoryRailLayoutProps {
     groups: readonly GroupModel[];

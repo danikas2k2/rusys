@@ -1,10 +1,10 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
+import type { History } from '@rusys/common/data';
 import React from 'react';
 
 import { useUndates } from '~/client/state/history/useUndates';
-import type { History } from '~/common/data';
 
 describe('useUndates', () => {
     const historyData: History[] = [

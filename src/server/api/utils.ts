@@ -1,6 +1,6 @@
+import type { ApiResult } from '@rusys/common/api';
 import type { Response } from 'express';
 
-import type { ApiResult } from '~/common/api';
 import { debug } from '~/server/api/debug';
 
 export function headerNoCache(res: Response): void {

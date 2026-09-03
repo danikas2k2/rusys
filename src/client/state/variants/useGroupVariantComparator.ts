@@ -1,10 +1,10 @@
 import { createSelector } from '@reduxjs/toolkit';
+import type { Variant } from '@rusys/common/data';
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import type { WithVariantsState } from '~/client/state/variants/types';
 import { compareNames } from '~/client/utils/compareNames';
-import type { Variant } from '~/common/data';
 
 export function useGroupVariantComparator(group: string): (a: string, b: string) => number {
     // A dedicated selector instance per (component, group) — createSelector's cache is a single

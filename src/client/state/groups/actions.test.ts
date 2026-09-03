@@ -1,7 +1,8 @@
 import { getGroupsFixture } from '@tests/fixtures';
 
+import type { Group } from '@rusys/common/data';
+
 import { GroupsActionType, setGroupsAction } from '~/client/state/groups/actions';
-import type { Group } from '~/common/data';
 
 describe('setGroupsAction', () => {
     it('returns valid action', () => {

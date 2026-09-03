@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
+import type { ProductAmounts as ProductAmountsType } from '@rusys/common/data';
 import React from 'react';
 
 import { ActiveContentContext, createActiveContentStore } from '~/client/common/ActiveContentContext';
@@ -10,7 +11,6 @@ import { OLD_YEARS_THRESHOLD, ProductYearBar } from '~/client/pages/products/Pro
 import { useGroups } from '~/client/state/groups/useGroups';
 import { useProducts } from '~/client/state/products/useProducts';
 import { useSetProductRemoving } from '~/client/state/products/useSetProductRemoving';
-import type { ProductAmounts as ProductAmountsType } from '~/common/data';
 
 vi.mock(import('~/client/common/AnnotatedTotalAmounts'), () => ({
     AnnotatedTotalAmounts: vi.fn(({ amounts }: any) => (amounts?.length ? <div>Annotated total</div> : null)),

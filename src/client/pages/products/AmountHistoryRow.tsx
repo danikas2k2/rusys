@@ -1,4 +1,5 @@
 import { Group, Stack, Table, Text } from '@mantine/core';
+import type { History, VariantAmount } from '@rusys/common/data';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { AmountsCell } from '~/client/common/AmountsCell';
@@ -7,7 +8,6 @@ import { FormatDate } from '~/client/common/FormatDate';
 import { MoveConsumedForm } from '~/client/pages/products/MoveConsumedForm';
 import { useMoveConsumedToRecycled } from '~/client/state/products/useMoveConsumedToRecycled';
 import { getRoundedDate } from '~/client/utils/time';
-import type { History, VariantAmount } from '~/common/data';
 
 export function AmountHistoryRow({
     h,

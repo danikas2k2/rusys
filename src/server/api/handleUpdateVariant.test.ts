@@ -2,7 +2,8 @@
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { Variant } from '~/common/data';
+import type { Variant } from '@rusys/common/data';
+
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { updateVariant } from '~/server/data/variants';
 

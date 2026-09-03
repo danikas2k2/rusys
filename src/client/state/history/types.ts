@@ -1,4 +1,4 @@
-import type { History } from '~/common/data';
+import type { History } from '@rusys/common/data';
 
 export interface WithHistoryState {
     updates?: readonly History[];

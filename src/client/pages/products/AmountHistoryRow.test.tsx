@@ -3,11 +3,11 @@ import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
 import { Table } from '@mantine/core';
+import type { History } from '@rusys/common/data';
 import React from 'react';
 
 import { AmountHistoryRow } from '~/client/pages/products/AmountHistoryRow';
 import { useMoveConsumedToRecycled } from '~/client/state/products/useMoveConsumedToRecycled';
-import type { History } from '~/common/data';
 
 vi.mock(import('~/client/state/products/useMoveConsumedToRecycled'));
 

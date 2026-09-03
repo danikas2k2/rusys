@@ -1,6 +1,5 @@
+import { DAY_MS, HOUR_MS, QUARTER_HOUR_MS, THREE_MONTHS_MS, WEEK_MS } from '@rusys/common/utils/time';
 import type { Document } from 'mongodb';
-
-import { DAY_MS, HOUR_MS, QUARTER_HOUR_MS, THREE_MONTHS_MS, WEEK_MS } from '~/common/utils/time';
 
 // Age-based session gap: last week = 15 min, last 3 months = 1 hour, older = 1 day
 const sessionGap = {

@@ -1,3 +1,5 @@
+import type { ApiResult } from '@rusys/common/api';
+import type { Product, Summary } from '@rusys/common/data';
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import type { ActionCreatorsMapObject } from 'redux';
@@ -8,8 +10,6 @@ import { setProductsAction } from '~/client/state/products/actions';
 import { setSummaryAction } from '~/client/state/summary/actions';
 import { setVariantsAction } from '~/client/state/variants/actions';
 import { setYearsAction } from '~/client/state/years/actions';
-import type { ApiResult } from '~/common/api';
-import type { Product, Summary } from '~/common/data';
 
 export type RefreshResult = ApiResult<{
     years?: number[];

@@ -1,9 +1,9 @@
 import { createSelector } from '@reduxjs/toolkit';
+import type { Variant } from '@rusys/common/data';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import type { WithVariantsState } from '~/client/state/variants/types';
-import type { Variant } from '~/common/data';
 
 export const useVariantsByGroup = (group: string): readonly Variant[] => {
     // A dedicated selector instance per (component, group) — createSelector's cache is a single

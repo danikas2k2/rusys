@@ -3,7 +3,8 @@ import { getProductsFixture, getVariantsFixture, getYearsFixture } from '@tests/
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
-import type { ApiCopyVariant, ApiProductsWithVariants } from '~/common/api';
+import type { ApiCopyVariant, ApiProductsWithVariants } from '@rusys/common/api';
+
 import { handleCopyVariant } from '~/server/api/handleCopyVariant';
 import { getProductsWithVariants } from '~/server/api/response';
 import { copyVariant } from '~/server/data/variants';

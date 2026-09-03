@@ -1,7 +1,7 @@
+import { ApiUrl, type ApiRequestVariant } from '@rusys/common/api';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiRequestVariant } from '~/common/api';
 
 export function useDeleteVariant(): (group: string, variant: string) => Promise<void> {
     const request = useUpdatingApiRequest<ApiRequestVariant>();

@@ -1,7 +1,7 @@
+import { ApiUrl, type ApiMoveConsumedToRecycled } from '@rusys/common/api';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiMoveConsumedToRecycled } from '~/common/api';
 
 export function useMoveConsumedToRecycled(): (
     group: string,

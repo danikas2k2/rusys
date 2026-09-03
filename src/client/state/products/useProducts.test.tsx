@@ -2,10 +2,10 @@ import { renderHook } from '@testing-library/react';
 import { getProductsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
 
+import type { Product } from '@rusys/common/data';
 import React from 'react';
 
 import { useProducts } from '~/client/state/products/useProducts';
-import type { Product } from '~/common/data';
 
 describe('useProducts', () => {
     it('return empty list for empty state', () => {

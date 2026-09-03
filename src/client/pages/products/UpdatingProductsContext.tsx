@@ -1,7 +1,7 @@
+import type { ProductAmounts } from '@rusys/common/data';
 import React, { createContext, use, useCallback, useState } from 'react';
 
 import { getId } from '~/client/utils/id';
-import type { ProductAmounts } from '~/common/data';
 
 type UpdatingProductsState = Record<string, boolean>;
 

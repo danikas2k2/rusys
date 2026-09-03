@@ -1,7 +1,7 @@
+import { ApiUrl, type ApiSetImage } from '@rusys/common/api';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiSetImage } from '~/common/api';
 
 export function useSetProductImage(): (group: string, name: string, image: string) => Promise<void> {
     const request = useUpdatingApiRequest<ApiSetImage>();

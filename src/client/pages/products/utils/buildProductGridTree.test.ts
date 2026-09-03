@@ -1,5 +1,6 @@
+import type { Product } from '@rusys/common/data';
+
 import { buildProductGridTree } from '~/client/pages/products/utils/buildProductGridTree';
-import type { Product } from '~/common/data';
 
 describe('buildProductGridTree', () => {
     it('builds a leaf node for a product with no parent and no children', () => {

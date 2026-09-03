@@ -1,7 +1,7 @@
+import type { History, Product, Update, VariantAmount } from '@rusys/common/data';
+import { addVariantAmount, getCombinedAmounts, getVariantAmount } from '@rusys/common/utils/amounts';
 import type { AnyBulkWriteOperation, ClientSession, Collection, Filter, UpdateFilter, WithId } from 'mongodb';
 
-import type { History, Product, Update, VariantAmount } from '~/common/data';
-import { addVariantAmount, getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { buildHistoryPipeline } from '~/server/data/history';
 import { classifyImage } from '~/server/data/images';
 import { imageFieldUpdate, resolveImage } from '~/server/data/resolveImage';

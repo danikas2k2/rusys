@@ -1,7 +1,7 @@
+import { ApiUrl } from '@rusys/common/api';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl } from '~/common/api';
 
 export function useGetSummaryHistory(year: number, group?: string, name?: string): () => Promise<void> {
     const request = useUpdatingApiRequest();
