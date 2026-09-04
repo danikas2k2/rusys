@@ -1,4 +1,5 @@
 import { Button } from '@mantine/core';
+import type { Variant } from '@rusys/common/data';
 import React, { useCallback, useState } from 'react';
 
 import { ConfirmationDialogIcon, DeleteIcon } from '@icons';
@@ -9,7 +10,6 @@ import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
 import { useDeleteVariant } from '~/client/state/variants/useDeleteVariant';
-import type { Variant } from '~/types/data';
 
 export function ActiveVariantBox() {
     const [active, setActive] = useActiveContent<Variant>();

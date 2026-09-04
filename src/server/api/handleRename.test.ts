@@ -2,10 +2,11 @@ import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiProductsWithYears, ApiRenameProduct } from '@rusys/common/api';
+
 import { handleRename } from '~/server/api/handleRename';
 import { getProductsWithYears } from '~/server/api/response';
 import { renameProduct } from '~/server/data/products';
-import type { ApiProductsWithYears, ApiRenameProduct } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));

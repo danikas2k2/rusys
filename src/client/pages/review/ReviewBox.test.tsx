@@ -2,11 +2,11 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
+import type { Group, Product } from '@rusys/common/data';
 import React from 'react';
 
 import { ReviewBox } from '~/client/pages/review/ReviewBox';
 import { useApplyReview } from '~/client/state/products/useApplyReview';
-import type { Group, Product } from '~/types/data';
 
 vi.mock(import('~/client/pages/review/ReviewTable'), () => ({
     ReviewTable: vi.fn(({ checkedKeys, onToggle, onSelectAll, onReset }: any) => (

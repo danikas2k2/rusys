@@ -2,14 +2,14 @@ describe('helmetOptions (dev mode)', () => {
     let helmetOptions: typeof import('~/server/helmetOptions').default; // oxlint-disable-line typescript/consistent-type-imports
 
     beforeAll(async () => {
-        vi.doMock(import('~/common/utils/dev'), () => ({ isDevMode: () => true }));
+        vi.doMock(import('@rusys/common/utils/dev'), () => ({ isDevMode: () => true }));
         vi.resetModules();
         helmetOptions = (await import('~/server/helmetOptions')).default;
     });
 
     afterAll(() => {
         vi.resetModules();
-        vi.doUnmock('~/common/utils/dev');
+        vi.doUnmock('@rusys/common/utils/dev');
     });
 
     it('disables hsts in dev mode', () => {
@@ -44,14 +44,14 @@ describe('helmetOptions (prod mode)', () => {
     let helmetOptions: typeof import('~/server/helmetOptions').default; // oxlint-disable-line typescript/consistent-type-imports
 
     beforeAll(async () => {
-        vi.doMock(import('~/common/utils/dev'), () => ({ isDevMode: () => false }));
+        vi.doMock(import('@rusys/common/utils/dev'), () => ({ isDevMode: () => false }));
         vi.resetModules();
         helmetOptions = (await import('~/server/helmetOptions')).default;
     });
 
     afterAll(() => {
         vi.resetModules();
-        vi.doUnmock('~/common/utils/dev');
+        vi.doUnmock('@rusys/common/utils/dev');
     });
 
     it('enables hsts with correct options in prod mode', () => {

@@ -2,10 +2,11 @@ import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiProductsWithYears, ApiSetExpiryTolerance } from '@rusys/common/api';
+
 import { handleSetProductExpiryTolerance } from '~/server/api/handleSetProductExpiryTolerance';
 import { getProductsWithYears } from '~/server/api/response';
 import { setProductExpiryTolerance } from '~/server/data/products';
-import type { ApiProductsWithYears, ApiSetExpiryTolerance } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));

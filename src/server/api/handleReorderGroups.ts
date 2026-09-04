@@ -1,8 +1,9 @@
+import type { ApiGroups, ApiReorderGroups, ApiRequest, ApiResponse } from '@rusys/common/api';
+
 import { debugRequest } from '~/server/api/debug';
 import { getGroupsResponse } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { reorderGroups } from '~/server/data/groups';
-import type { ApiGroups, ApiReorderGroups, ApiRequest, ApiResponse } from '~/types/api';
 
 export async function handleReorderGroups(
     req: ApiRequest<ApiReorderGroups>,

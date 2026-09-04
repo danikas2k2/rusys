@@ -1,4 +1,5 @@
 import { Button } from '@mantine/core';
+import type { Group } from '@rusys/common/data';
 import React, { useCallback, useState } from 'react';
 
 import { ConfirmationDialogIcon, DeleteIcon } from '@icons';
@@ -9,7 +10,6 @@ import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { GroupBox } from '~/client/pages/groups/GroupBox';
 import { useDeleteGroup } from '~/client/state/groups/useDeleteGroup';
-import type { Group } from '~/types/data';
 
 export function ActiveGroupBox() {
     const [active, setActive] = useActiveContent<Group>();

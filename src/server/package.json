@@ -1,0 +1,21 @@
+{
+    "name": "@rusys/server",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "dotenv -e ../../.env.local -- tsx --tsconfig tsconfig.json dev.ts",
+        "build": "vite build --config vite.config.mts --mode production",
+        "format": "oxfmt --config ../../oxfmt.config.mts .",
+        "format:check": "oxfmt --config ../../oxfmt.config.mts --check .",
+        "lint": "pnpm format:check && pnpm lint:ts && pnpm lint:ox",
+        "lint:ts": "tsc --noEmit -p tsconfig.json",
+        "lint:ox": "oxlint --config ../../oxlint.config.mts .",
+        "test": "vitest run --root ../.. --config vitest.config.mts --project server",
+        "test:coverage": "vitest run --root ../.. --config vitest.config.mts --project server --coverage",
+        "test:watch": "vitest --root ../.. --config vitest.config.mts --project server",
+        "check": "pnpm lint && pnpm test"
+    },
+    "dependencies": {
+        "@rusys/common": "workspace:*"
+    }
+}

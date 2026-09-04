@@ -2,13 +2,13 @@ import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
+import type { Product } from '@rusys/common/data';
 import React from 'react';
 
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { ReviewProductRow } from '~/client/pages/review/ReviewProductRow';
 import { ReviewTable } from '~/client/pages/review/ReviewTable';
 import { useProducts } from '~/client/state/products/useProducts';
-import type { Product } from '~/types/data';
 
 vi.mock(import('~/client/pages/review/ReviewProductRow'), () => ({
     ReviewProductRow: vi.fn().mockReturnValue(null),

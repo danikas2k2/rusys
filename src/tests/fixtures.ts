@@ -1,5 +1,5 @@
 import type { Profile } from '~/client/state/profile/types';
-import type { Group, Product, Summary, Variant } from '~/types/data';
+import type { Group, Product, Summary, Variant } from '~/common/data';
 
 export const getGroupsFixture = (): Group[] => [
     { group: 'Daržovės', order: 2 },

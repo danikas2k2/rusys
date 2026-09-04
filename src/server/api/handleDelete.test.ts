@@ -3,10 +3,11 @@ import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiProductsWithYears, ApiRequestProduct } from '@rusys/common/api';
+
 import { handleDelete } from '~/server/api/handleDelete';
 import { getProductsWithYears } from '~/server/api/response';
 import { deleteProduct } from '~/server/data/products';
-import type { ApiProductsWithYears, ApiRequestProduct } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));

@@ -1,5 +1,6 @@
 import { ActionIcon, Button, Group, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { formatExpiryTolerance, parseExpiryTolerance } from '@rusys/common/utils/expiry';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { AddIcon, CancelIcon, DeleteIcon, MoveIcon, UpdateIcon } from '@icons';
@@ -25,7 +26,6 @@ import { useSetProductImage } from '~/client/state/products/useSetProductImage';
 import { useSetProductParent } from '~/client/state/products/useSetProductParent';
 import { compareNames } from '~/client/utils/compareNames';
 import { getErrorMessage } from '~/client/utils/errors';
-import { formatExpiryTolerance, parseExpiryTolerance } from '~/common/utils/expiry';
 
 interface ProductBoxProps {
     opened?: boolean;

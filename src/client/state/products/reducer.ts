@@ -1,7 +1,7 @@
+import type { Product, RemovingYearAmounts } from '@rusys/common/data';
 import { cloneDeep } from 'lodash';
 
 import { ProductsActionType, type ProductsAction } from '~/client/state/products/actions';
-import type { Product, RemovingYearAmounts } from '~/types/data';
 
 export interface RemovingYearAmountsWithRollback extends RemovingYearAmounts {
     prevRemoving?: boolean;

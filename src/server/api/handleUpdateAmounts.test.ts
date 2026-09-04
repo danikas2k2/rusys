@@ -3,12 +3,13 @@ import { getProductsFixture, getYearsFixture } from '@tests/fixtures';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiProductsWithYears, ApiSetAmounts } from '@rusys/common/api';
+import type { VariantAmount } from '@rusys/common/data';
+
 import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
 import { handleSetAmounts } from '~/server/api/handleSetAmounts';
 import { getProductsWithYears } from '~/server/api/response';
 import { setAmounts } from '~/server/data/products';
-import type { ApiProductsWithYears, ApiSetAmounts } from '~/types/api';
-import type { VariantAmount } from '~/types/data';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));

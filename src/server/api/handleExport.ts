@@ -1,9 +1,9 @@
+import type { ApiRequest } from '@rusys/common/api';
 import type { Response } from 'express';
 
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache } from '~/server/api/utils';
 import { buildExportArchive } from '~/server/data/exportArchive';
-import type { ApiRequest } from '~/types/api';
 
 export async function handleExport(req: ApiRequest, res: Response): Promise<void> {
     debugRequest(req);

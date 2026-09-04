@@ -1,5 +1,6 @@
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import { Table, Title } from '@mantine/core';
+import type { Variant } from '@rusys/common/data';
 import React, { useMemo } from 'react';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
@@ -19,7 +20,6 @@ import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
 import { DragOverlayTable } from '~/client/table/DragOverlayTable';
 import { getId, parseId } from '~/client/utils/id';
 import { mapOrder } from '~/client/utils/mapOrder';
-import type { Variant } from '~/types/data';
 
 import './VariantsTable.pcss';
 

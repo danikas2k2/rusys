@@ -1,4 +1,4 @@
-import type { Variant } from '~/types/data';
+import type { Variant } from '@rusys/common/data';
 
 export const enum VariantsActionType {
     SET = 'variants.set',

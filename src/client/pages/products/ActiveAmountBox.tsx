@@ -1,4 +1,5 @@
 import { Button } from '@mantine/core';
+import type { ProductAmounts } from '@rusys/common/data';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { ConfirmationDialogIcon, DeleteIcon } from '@icons';
@@ -12,7 +13,6 @@ import { AmountBox } from '~/client/pages/products/AmountBox';
 import { ProductBox } from '~/client/pages/products/ProductBox';
 import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
 import { useProducts } from '~/client/state/products/useProducts';
-import type { ProductAmounts } from '~/types/data';
 
 export function ActiveAmountBox(): React.ReactElement {
     const [active, setActive] = useActiveContent<ProductAmounts>();

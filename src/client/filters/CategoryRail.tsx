@@ -1,9 +1,9 @@
 import { Avatar, Group as MantineGroup, Tabs, Text } from '@mantine/core';
-import React, { useEffect } from 'react';
+import type { Group } from '@rusys/common/data';
 
 import './CategoryRail.pcss';
 
-import type { Group } from '~/types/data';
+import React, { useEffect } from 'react';
 
 interface CategoryRailProps {
     groups: readonly Group[];

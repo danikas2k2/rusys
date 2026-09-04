@@ -1,3 +1,5 @@
+import { type ApiRequest, type ApiResponse, ApiUrl } from '@rusys/common/api';
+
 import { handleAdd } from '~/server/api/handleAdd';
 import { handleCheckUser } from '~/server/api/handleCheckUser';
 import { handleClientId } from '~/server/api/handleClientId';
@@ -34,7 +36,6 @@ import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
 import { handleUserProfiles } from '~/server/api/handleUserProfiles';
 import { handleVariants } from '~/server/api/handleVariants';
-import { type ApiRequest, type ApiResponse, ApiUrl } from '~/types/api';
 
 export const ApiUrlHandlers: Record<ApiUrl, (req: ApiRequest<never>, res: ApiResponse) => Promise<void>> = {
     [ApiUrl.Export]: handleExport,

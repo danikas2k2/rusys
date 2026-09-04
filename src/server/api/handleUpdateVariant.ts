@@ -1,8 +1,9 @@
+import type { ApiRequest, ApiResponse, ApiUpdateVariant, ApiVariants } from '@rusys/common/api';
+
 import { debugRequest } from '~/server/api/debug';
 import { getVariantsResponse } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { updateVariant } from '~/server/data/variants';
-import type { ApiRequest, ApiResponse, ApiUpdateVariant, ApiVariants } from '~/types/api';
 
 export async function handleUpdateVariant(
     req: ApiRequest<ApiUpdateVariant>,

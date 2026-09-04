@@ -3,6 +3,7 @@ import type { MockInstance } from 'vitest';
 import fs from 'fs';
 import https from 'https';
 
+import { ApiUrl } from '@rusys/common/api';
 // @vitest-environment node
 import express, { type Request, type Response } from 'express';
 import type { Express } from 'express-serve-static-core';
@@ -35,7 +36,6 @@ import { handleUpsertUserProfile } from '~/server/api/handleUpsertUserProfile';
 import { handleUserProfiles } from '~/server/api/handleUserProfiles';
 import { handleVariants } from '~/server/api/handleVariants';
 import { setup, startHttpServer, startHttpsServer, startServers } from '~/server/app';
-import { ApiUrl } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 
@@ -303,7 +303,7 @@ describe('app (prod mode)', () => {
     let setupHelmetProd: typeof import('~/server/app').setupHelmet; // oxlint-disable-line typescript/consistent-type-imports
 
     beforeAll(async () => {
-        vi.doMock(import('~/common/utils/dev'), () => ({ isDevMode: () => false }));
+        vi.doMock(import('@rusys/common/utils/dev'), () => ({ isDevMode: () => false }));
         vi.resetModules();
         setupHelmetProd = (await import('~/server/app')).setupHelmet;
     });
@@ -312,7 +312,7 @@ describe('app (prod mode)', () => {
 
     afterAll(() => {
         vi.resetModules();
-        vi.doUnmock('~/common/utils/dev');
+        vi.doUnmock('@rusys/common/utils/dev');
     });
 
     describe('setupHelmet HTTPS redirect middleware', () => {

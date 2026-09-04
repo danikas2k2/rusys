@@ -1,3 +1,4 @@
+import { ApiUrl, type ApiSetMissing } from '@rusys/common/api';
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -5,7 +6,6 @@ import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest
 import { setErrorAction } from '~/client/state/error/actions';
 import { rollbackProductsMissingAction, setProductsMissingAction } from '~/client/state/products/actions';
 import { getErrorMessage } from '~/client/utils/errors';
-import { ApiUrl, type ApiSetMissing } from '~/types/api';
 
 export function useSetProductMissing(): (group: string, name: string, missing: boolean) => Promise<void> {
     const dispatch = useDispatch();

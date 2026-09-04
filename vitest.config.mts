@@ -66,7 +66,21 @@ export default defineConfig({
                 },
             },
             // ------------------------------------------------------------------
-            // Server workspace: node environment for src/server and src/common
+            // Common workspace: node environment for platform-neutral shared code.
+            {
+                resolve: { alias },
+                plugins: [mockAssetsPlugin],
+                test: {
+                    name: 'common',
+                    globals: true,
+                    environment: 'node',
+                    pool: 'threads',
+                    root,
+                    include: ['src/common/**/*.test.{ts,tsx}'],
+                    setupFiles: [...sharedSetup],
+                },
+            },
+            // Server workspace: node environment for src/server.
             // ------------------------------------------------------------------
             {
                 resolve: { alias },
@@ -77,7 +91,7 @@ export default defineConfig({
                     environment: 'node',
                     pool: 'threads',
                     root,
-                    include: ['src/{common,server}/**/*.test.{ts,tsx}'],
+                    include: ['src/server/**/*.test.{ts,tsx}'],
                     setupFiles: [...sharedSetup],
                     globalSetup: [path.resolve(root, 'vitest/globalSetup.mongo.ts')],
                 },
@@ -93,7 +107,6 @@ export default defineConfig({
                 'src/**/*.test.{ts,tsx}',
                 'src/**/__mocks__/**',
                 'src/tests/**',
-                'src/types/**',
                 'src/**/types.ts',
                 'src/client/common/icons.ts',
                 'src/client/table/DraggableRow.ts',

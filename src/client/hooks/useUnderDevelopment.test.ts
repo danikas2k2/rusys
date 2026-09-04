@@ -1,11 +1,12 @@
 import { renderHook } from '@testing-library/react';
 
+import { DEV_CLIENT_ID, isDevMode } from '@rusys/common/utils/dev';
+
 import { useUnderDevelopment } from '~/client/hooks/useUnderDevelopment';
 import { useGoogle } from '~/client/state/google/useGoogle';
-import { DEV_CLIENT_ID, isDevMode } from '~/common/utils/dev';
 
 vi.mock(import('~/client/state/google/useGoogle'));
-vi.mock(import('~/common/utils/dev'), (): any => ({
+vi.mock(import('@rusys/common/utils/dev'), (): any => ({
     DEV_CLIENT_ID: 'dev-mode',
     isDevMode: vi.fn(),
 }));

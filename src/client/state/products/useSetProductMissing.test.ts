@@ -1,13 +1,13 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
+import { ApiUrl } from '@rusys/common/api';
 import { useDispatch } from 'react-redux';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { setErrorAction } from '~/client/state/error/actions';
 import { rollbackProductsMissingAction, setProductsMissingAction } from '~/client/state/products/actions';
 import { useSetProductMissing } from '~/client/state/products/useSetProductMissing';
-import { ApiUrl } from '~/types/api';
 
 vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
 vi.mock(import('react-redux'), async () => ({

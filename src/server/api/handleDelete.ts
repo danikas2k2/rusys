@@ -1,8 +1,9 @@
+import type { ApiProductsWithYears, ApiRequest, ApiRequestProduct, ApiResponse } from '@rusys/common/api';
+
 import { debugRequest } from '~/server/api/debug';
 import { getProductsWithYears } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { deleteProduct } from '~/server/data/products';
-import type { ApiProductsWithYears, ApiRequest, ApiRequestProduct, ApiResponse } from '~/types/api';
 
 export async function handleDelete(
     req: ApiRequest<ApiRequestProduct>,

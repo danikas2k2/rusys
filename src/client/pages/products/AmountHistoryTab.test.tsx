@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
+import type { History, ProductAmounts } from '@rusys/common/data';
 import React from 'react';
 
 import { AmountHistoryTab } from '~/client/pages/products/AmountHistoryTab';
 import { useGetProductHistory } from '~/client/state/history/useGetProductHistory';
 import { useUndates } from '~/client/state/history/useUndates';
 import { useUpdates } from '~/client/state/history/useUpdates';
-import type { History, ProductAmounts } from '~/types/data';
 
 vi.mock(import('~/client/state/history/useGetProductHistory'), (): any => ({
     useGetProductHistory: vi.fn(() => vi.fn().mockResolvedValue(undefined)),

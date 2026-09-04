@@ -1,0 +1,20 @@
+{
+    "name": "@rusys/common",
+    "version": "0.0.0",
+    "private": true,
+    "exports": {
+        ".": "./index.ts",
+        "./*": "./*.ts"
+    },
+    "scripts": {
+        "format": "oxfmt --config ../../oxfmt.config.mts .",
+        "format:check": "oxfmt --config ../../oxfmt.config.mts --check .",
+        "lint": "pnpm format:check && pnpm lint:ts && pnpm lint:ox",
+        "lint:ts": "tsc --noEmit -p tsconfig.json",
+        "lint:ox": "oxlint --config ../../oxlint.config.mts .",
+        "test": "vitest run --root ../.. --config vitest.config.mts --project common",
+        "test:coverage": "vitest run --root ../.. --config vitest.config.mts --project common --coverage",
+        "test:watch": "vitest --root ../.. --config vitest.config.mts --project common",
+        "check": "pnpm lint && pnpm test"
+    }
+}

@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
+import { isDevMode } from '@rusys/common/utils/dev';
 import React from 'react';
 
 import { AppContent } from '~/client/AppContent';
 import { useProfile } from '~/client/state/profile/useProfile';
-import { isDevMode } from '~/common/utils/dev';
 
-vi.mock(import('~/common/utils/dev'));
+vi.mock(import('@rusys/common/utils/dev'));
 vi.mock(import('~/client/state/profile/useProfile'));
 vi.mock(import('~/client/AppRouter'), () => ({
     AppRouter: () => <div>AppRouter</div>,

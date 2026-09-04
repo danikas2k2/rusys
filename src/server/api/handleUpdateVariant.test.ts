@@ -2,9 +2,10 @@
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { Variant } from '@rusys/common/data';
+
 import { handleUpdateVariant } from '~/server/api/handleUpdateVariant';
 import { updateVariant } from '~/server/data/variants';
-import type { Variant } from '~/types/data';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/data/variants'));

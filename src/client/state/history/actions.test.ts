@@ -1,5 +1,6 @@
+import type { History } from '@rusys/common/data';
+
 import { HistoryActionType, setUndatesAction, setUpdatesAction } from '~/client/state/history/actions';
-import type { History } from '~/types/data';
 
 describe('setHistoryAction', () => {
     it('returns valid action', () => {

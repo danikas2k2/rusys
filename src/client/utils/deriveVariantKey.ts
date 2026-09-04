@@ -1,4 +1,4 @@
-import type { VariantUnits } from '~/types/data';
+import type { VariantUnits } from '@rusys/common/data';
 
 export const DEFAULT_UNITS: VariantUnits = 'vnt';
 

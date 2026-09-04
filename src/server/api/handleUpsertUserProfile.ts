@@ -1,7 +1,8 @@
+import type { ApiRequest, ApiResponse, ApiUpsertUserProfile } from '@rusys/common/api';
+
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
 import { upsertUserProfile } from '~/server/data/userProfiles';
-import type { ApiRequest, ApiResponse, ApiUpsertUserProfile } from '~/types/api';
 
 export async function handleUpsertUserProfile(req: ApiRequest<ApiUpsertUserProfile>, res: ApiResponse): Promise<void> {
     debugRequest(req);

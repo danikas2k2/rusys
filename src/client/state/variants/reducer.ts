@@ -1,7 +1,7 @@
+import type { Variant } from '@rusys/common/data';
 import { cloneDeep } from 'lodash';
 
 import { VariantsActionType, type VariantsAction } from '~/client/state/variants/actions';
-import type { Variant } from '~/types/data';
 
 export function variants(state: readonly Variant[] = [], action: VariantsAction): readonly Variant[] {
     switch (action.type) {

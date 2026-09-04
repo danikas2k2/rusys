@@ -1,12 +1,12 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+import type { ApiExport } from '@rusys/common/api';
+import type { Group, Product } from '@rusys/common/data';
 import JSZip from 'jszip';
 
 import { exportEverything } from '~/server/data/common';
 import { IMAGES_DIR, resolveImagePath } from '~/server/data/images';
-import type { ApiExport } from '~/types/api';
-import type { Group, Product } from '~/types/data';
 
 const DATA_ENTRY = 'data.json';
 const IMAGES_ENTRY_PREFIX = 'images/';

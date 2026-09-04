@@ -1,5 +1,6 @@
 import { Alert, Button, Group, rem, Text } from '@mantine/core';
 import { Dropzone, type FileWithPath } from '@mantine/dropzone';
+import { MAX_IMPORT_FILE_MB, MAX_IMPORT_FILE_SIZE } from '@rusys/common/utils/files';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,7 +18,6 @@ import { DialogIcon } from '~/client/common/DialogIcon';
 import { Label } from '~/client/common/Label';
 import { useImportHandler } from '~/client/hooks/useImportHandler';
 import { useLabel } from '~/client/hooks/useLabel';
-import { MAX_IMPORT_FILE_MB, MAX_IMPORT_FILE_SIZE } from '~/common/utils/files';
 
 interface ImportBoxProps {
     opened?: boolean;

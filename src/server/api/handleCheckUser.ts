@@ -1,7 +1,8 @@
-import { isDevMode } from '~/common/utils/dev';
+import type { ApiRequest, ApiResponse, ApiUserAllowed, ApiUserEmail } from '@rusys/common/api';
+import { isDevMode } from '@rusys/common/utils/dev';
+
 import { debugRequest } from '~/server/api/debug';
 import { headerNoCache, run } from '~/server/api/utils';
-import type { ApiRequest, ApiResponse, ApiUserAllowed, ApiUserEmail } from '~/types/api';
 
 export async function handleCheckUser(req: ApiRequest<ApiUserEmail>, res: ApiResponse<ApiUserAllowed>): Promise<void> {
     debugRequest(req);

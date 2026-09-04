@@ -5,6 +5,7 @@ import { MockRedux } from '@tests/MockRedux';
 import { MockTheme } from '@tests/MockTheme';
 
 import type { UniqueIdentifier } from '@dnd-kit/core';
+import type { Variant } from '@rusys/common/data';
 import React from 'react';
 
 import { DraggableContent } from '~/client/common/DraggableContent';
@@ -19,7 +20,6 @@ import { useGroups } from '~/client/state/groups/useGroups';
 import { useGetVariants } from '~/client/state/variants/useGetVariants';
 import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
 import { useVariants } from '~/client/state/variants/useVariants';
-import type { Variant } from '~/types/data';
 
 vi.mock(import('~/client/state/years/useYears'));
 vi.mock(import('~/client/state/groups/useGroups'));

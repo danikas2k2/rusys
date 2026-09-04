@@ -1,11 +1,12 @@
+import type { ApiProductsWithGroups, ApiRequest, ApiResponse } from '@rusys/common/api';
+import type { Update } from '@rusys/common/data';
+
 import { debugRequest } from '~/server/api/debug';
 import { getProductsWithGroups } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { importEverything } from '~/server/data/common';
 import { readImportArchive, writeImportImages, type ImportArchive } from '~/server/data/exportArchive';
 import { getValidator } from '~/server/data/schema/getValidator';
-import type { ApiProductsWithGroups, ApiRequest, ApiResponse } from '~/types/api';
-import type { Update } from '~/types/data';
 
 export async function handleImport(req: ApiRequest, res: ApiResponse<ApiProductsWithGroups>): Promise<void> {
     debugRequest(req);

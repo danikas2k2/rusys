@@ -1,6 +1,5 @@
+import { isDevMode } from '@rusys/common/utils/dev';
 import type { HelmetOptions } from 'helmet';
-
-import { isDevMode } from '~/common/utils/dev';
 
 const prodInlineScriptHashes: string[] = ["'unsafe-inline'"]; // Replace with actual hashes in production for better security
 

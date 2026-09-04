@@ -1,8 +1,9 @@
+import type { ApiProductsWithYears, ApiRenameGroup, ApiRequest, ApiResponse } from '@rusys/common/api';
+
 import { debugRequest } from '~/server/api/debug';
 import { getProductsWithGroups } from '~/server/api/response';
 import { headerNoCache, run } from '~/server/api/utils';
 import { renameGroupOccurrences } from '~/server/data/common';
-import type { ApiProductsWithYears, ApiRenameGroup, ApiRequest, ApiResponse } from '~/types/api';
 
 export async function handleRenameGroup(
     req: ApiRequest<ApiRenameGroup>,

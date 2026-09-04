@@ -1,3 +1,5 @@
+import type { ApiExport } from '@rusys/common/api';
+import type { Group, Product, UpdateVariant, Variant } from '@rusys/common/data';
 import type { Db } from 'mongodb';
 
 import { deleteGroup, renameGroup } from '~/server/data/groups';
@@ -5,8 +7,6 @@ import { getProductVariants, moveProduct, renameProductsGroup, renameProductsVar
 import { hasEffect } from '~/server/data/utils';
 import { copyVariants, deleteVariant, renameVariant, renameVariantsGroup } from '~/server/data/variants';
 import { db, withTransaction } from '~/server/db';
-import type { ApiExport } from '~/types/api';
-import type { Group, Product, UpdateVariant, Variant } from '~/types/data';
 
 export const moveProductOccurrences = (
     group: string,
@@ -50,12 +50,7 @@ export const renameVariantOccurrences = (
     });
 
 export const deleteVariantOccurrences = (group: string, variant: string): Promise<boolean> =>
-    withTransaction(async (session) => {
-        if (await deleteVariant(group, variant, session)) {
-            return true;
-        }
-        return false;
-    });
+    withTransaction(async (session) => await deleteVariant(group, variant, session));
 
 export const renameGroupOccurrences = (
     group: string,
@@ -74,12 +69,7 @@ export const renameGroupOccurrences = (
     });
 
 export const deleteGroupOccurrences = (group: string): Promise<boolean> =>
-    withTransaction(async (session) => {
-        if (await deleteGroup(group, session)) {
-            return true;
-        }
-        return false;
-    });
+    withTransaction(async (session) => await deleteGroup(group, session));
 
 export async function exportEverything(): Promise<ApiExport> {
     const d = await db();

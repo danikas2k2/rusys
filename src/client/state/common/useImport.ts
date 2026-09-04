@@ -1,7 +1,7 @@
+import { ApiUrl, type ApiResult } from '@rusys/common/api';
 import { useCallback } from 'react';
 
 import { useApiRequest } from '~/client/state/common/useApiRequest';
-import { ApiUrl, type ApiResult } from '~/types/api';
 
 export function useImport(): (data: FormData) => Promise<ApiResult<boolean>> {
     const request = useApiRequest();

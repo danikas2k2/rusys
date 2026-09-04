@@ -4,12 +4,13 @@ import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 import { mockUploadedFile } from '@tests/mockUploadedFile';
 
+import type { ApiProductsWithGroups, ApiWithFiles } from '@rusys/common/api';
+
 import { handleImport } from '~/server/api/handleImport';
 import { getProductsWithGroups } from '~/server/api/response';
 import { importEverything } from '~/server/data/common';
 import { readImportArchive, writeImportImages } from '~/server/data/exportArchive';
 import { getValidator } from '~/server/data/schema/getValidator';
-import type { ApiProductsWithGroups, ApiWithFiles } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 vi.mock(import('~/server/api/response'));

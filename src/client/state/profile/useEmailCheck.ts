@@ -1,6 +1,7 @@
+import { ApiUrl, type ApiUserEmail } from '@rusys/common/api';
+
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { setAllowedAction } from '~/client/state/profile/actions';
-import { ApiUrl, type ApiUserEmail } from '~/types/api';
 
 export function useEmailCheck(): (email: string) => Promise<void> {
     const request = useUpdatingApiRequest<ApiUserEmail>({ allowed: setAllowedAction });

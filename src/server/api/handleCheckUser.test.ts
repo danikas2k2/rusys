@@ -2,8 +2,9 @@ import { mockEnv } from '@tests/mockEnv';
 import { mockRequest } from '@tests/mockRequest';
 import { mockResponse } from '@tests/mockResponse';
 
+import type { ApiUserAllowed, ApiUserEmail } from '@rusys/common/api';
+
 import { handleCheckUser } from '~/server/api/handleCheckUser';
-import type { ApiUserAllowed, ApiUserEmail } from '~/types/api';
 
 vi.mock(import('~/server/api/debug'));
 

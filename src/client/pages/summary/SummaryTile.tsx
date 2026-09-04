@@ -1,11 +1,11 @@
 import { Stack } from '@mantine/core';
+import type { YearAmounts } from '@rusys/common/data';
 import React, { useCallback, useMemo } from 'react';
 
 import { useSetActiveContent } from '~/client/common/ActiveContentContext';
 import { AnnotatedTotalAmounts } from '~/client/common/AnnotatedTotalAmounts';
 import { GridTile } from '~/client/common/GridTile';
 import { type SummaryHistoryData } from '~/client/pages/summary/SummaryAmounts';
-import type { YearAmounts } from '~/types/data';
 
 import './SummaryTile.pcss';
 

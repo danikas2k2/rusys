@@ -1,7 +1,7 @@
+import { ApiUrl } from '@rusys/common/api';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl } from '~/types/api';
 
 export function useGetGroups(): () => Promise<void> {
     const request = useUpdatingApiRequest();

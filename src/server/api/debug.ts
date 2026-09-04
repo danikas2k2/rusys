@@ -1,8 +1,7 @@
+import { formatFileSize } from '@rusys/common/utils/format';
 import type { Request } from 'express';
 import type { UploadedFile } from 'express-fileupload';
 import { isEmpty } from 'lodash';
-
-import { formatFileSize } from '~/common/utils/format';
 
 // oxlint-disable-next-line no-console
 const debug: typeof console.debug = process.env.NODE_ENV === 'development' ? console.debug : () => {};

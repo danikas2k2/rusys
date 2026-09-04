@@ -2,8 +2,7 @@
     "extends": "@tsconfig/node26",
     "include": [
         "vite.config.mts",
-        "vite.client.config.mts",
-        "vite.server.config.mts",
+        "src/**/vite.config.mts",
         "vite.deploy.config.mts",
         "vite.rollback.config.mts",
         "vite/*.ts",

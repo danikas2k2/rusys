@@ -2,8 +2,9 @@
 import { bulk } from '@tests/bulk';
 import { getProductsFixture } from '@tests/fixtures';
 
+import { addVariantAmount } from '@rusys/common/utils/amounts';
+
 import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
-import { addVariantAmount } from '~/common/utils/amounts';
 import { classifyImage, deleteImages, saveImage } from '~/server/data/images';
 import {
     addProduct,

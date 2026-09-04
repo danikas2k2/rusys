@@ -1,8 +1,8 @@
+import { ApiUrl, type ApiUpdateVariant } from '@rusys/common/api';
+import type { UpdateVariant } from '@rusys/common/data';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiUpdateVariant } from '~/types/api';
-import type { UpdateVariant } from '~/types/data';
 
 export function useUpdateVariant(): (group: string, variant: string, update: UpdateVariant) => Promise<void> {
     const request = useUpdatingApiRequest<ApiUpdateVariant>();

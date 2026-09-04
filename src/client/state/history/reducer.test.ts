@@ -1,6 +1,7 @@
+import type { History } from '@rusys/common/data';
+
 import { HistoryActionType, type HistoryAction } from '~/client/state/history/actions';
 import { updates as reducer, undates as undatesReducer } from '~/client/state/history/reducer';
-import type { History } from '~/types/data';
 
 describe('history', () => {
     const history: History[] = [

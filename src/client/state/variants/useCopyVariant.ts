@@ -1,8 +1,8 @@
+import { ApiUrl, type ApiCopyVariant } from '@rusys/common/api';
+import type { UpdateVariant } from '@rusys/common/data';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
-import { ApiUrl, type ApiCopyVariant } from '~/types/api';
-import type { UpdateVariant } from '~/types/data';
 
 export function useCopyVariant(): (
     group: string,
