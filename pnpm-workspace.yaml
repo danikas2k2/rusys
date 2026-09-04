@@ -3,6 +3,9 @@ packages:
   - "src/*"
 
 allowBuilds:
+  # Vite 8 keeps esbuild as an optional compatibility peer. It is not used by
+  # this project's build configuration, but pnpm requires its install script
+  # to be explicitly approved when the optional package is present.
   esbuild: true
   mongodb-memory-server: true
   unrs-resolver: true

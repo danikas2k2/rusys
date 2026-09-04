@@ -38,7 +38,7 @@ export default defineConfig(() => {
                 },
             } satisfies MinifyOptions,
             target: 'node24' as BuildEnvironmentOptions['target'],
-            rollupOptions: {
+            rolldownOptions: {
                 external: [
                     'express',
                     'cors',

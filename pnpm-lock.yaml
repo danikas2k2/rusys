@@ -230,15 +230,15 @@ importers:
       dotenv-cli:
         specifier: ^11.0.0
         version: 11.0.0
-      esbuild:
-        specifier: ^0.28.2
-        version: 0.28.2
       jiti:
         specifier: ^2.7.0
         version: 2.7.0
       jsdom:
         specifier: ^30.0.1
         version: 30.0.1(@noble/hashes@1.8.0)
+      lightningcss:
+        specifier: ^1.33.0
+        version: 1.33.0
       mongodb-memory-server:
         specifier: ^11.2.0
         version: 11.2.0(socks@2.8.10)(supports-color@10.2.2)

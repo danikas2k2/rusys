@@ -7,6 +7,7 @@ import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
 import { cssFallback } from '../../vite/plugins/css-fallback.ts';
+import { minifyPublicCss } from '../../vite/plugins/minify-public-css.ts';
 import { injectTags, parseTemplate } from '../../vite/plugins/parse-template.ts';
 
 export default defineConfig(({ mode }) => {
@@ -39,7 +40,6 @@ export default defineConfig(({ mode }) => {
             emptyOutDir: true,
             sourcemap: false,
             minify: 'terser',
-            cssMinify: 'esbuild',
             terserOptions: {
                 compress: true,
                 mangle: true,
@@ -48,7 +48,7 @@ export default defineConfig(({ mode }) => {
                 },
             } satisfies MinifyOptions,
             cssCodeSplit: true, // emit CSS as real style assets, not JS-injected
-            rollupOptions: {
+            rolldownOptions: {
                 input: path.resolve(root, 'index.html'),
                 output: {
                     entryFileNames: 'assets/[name].js',
@@ -185,6 +185,10 @@ export default defineConfig(({ mode }) => {
                 outDir: path.resolve(root, 'dist/public'),
                 sourceFile: 'assets/index.css',
                 outputFile: 'assets/legacy.css',
+            }),
+            minifyPublicCss({
+                outDir: path.resolve(root, 'dist/public'),
+                file: 'assets/loader.css',
             }),
         ],
         server: {

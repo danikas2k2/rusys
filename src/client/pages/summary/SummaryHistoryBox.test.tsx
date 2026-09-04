@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -19,7 +19,13 @@ vi.mock(import('~/client/hooks/useLocale'), () => ({
 }));
 
 describe('<SummaryHistoryBox>', () => {
-    afterEach(() => vi.clearAllMocks());
+    afterEach(async () => {
+        cleanup();
+        // Mantine schedules focus restoration with a zero-delay timer when a
+        // modal closes. Let it finish while JSDOM's document still exists.
+        await new Promise((resolve) => setTimeout(resolve));
+        vi.clearAllMocks();
+    });
 
     it('is closed by default (opened=false)', () => {
         render(
