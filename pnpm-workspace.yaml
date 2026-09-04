@@ -21,7 +21,7 @@ overrides:
   minimatch: ^10.2.6
   nth-check: ^3.0.1
   parse5: ^8.0.1
-  postcss: ^8.5.26
+  postcss: ^8.5.28
   qs: ^6.16.0
   sane: ^5.0.1
   stylelint: ^17.14.1

@@ -15,7 +15,7 @@ function BoomString(): React.JSX.Element {
 
 describe('<ErrorBoundary>', () => {
     beforeEach(() => {
-        vi.spyOn(console, 'error').mockImplementation();
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
     });
 
     afterEach(() => {

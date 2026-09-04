@@ -13,7 +13,9 @@ import {
     renameGroupOccurrences,
     renameVariantOccurrences,
 } from '~/server/data/common';
+import type * as GroupsData from '~/server/data/groups';
 import { deleteGroup, renameGroup } from '~/server/data/groups';
+import type * as ProductsData from '~/server/data/products';
 import {
     addProduct,
     deleteProductsGroup,
@@ -24,6 +26,7 @@ import {
     renameProductsVariant,
 } from '~/server/data/products';
 import { $all } from '~/server/data/tests/utils';
+import type * as VariantsData from '~/server/data/variants';
 import {
     copyVariants,
     deleteVariant,
@@ -36,7 +39,7 @@ import { db } from '~/server/db';
 vi.mock(import('~/server/db'));
 
 vi.mock(import('~/server/data/products'), async () => {
-    const actual = await vi.importActual('~/server/data/products');
+    const actual = await vi.importActual<typeof ProductsData>('~/server/data/products');
     return {
         ...actual,
         moveProduct: vi.fn(actual.moveProduct),
@@ -49,7 +52,7 @@ vi.mock(import('~/server/data/products'), async () => {
 });
 
 vi.mock(import('~/server/data/groups'), async () => {
-    const actual = await vi.importActual('~/server/data/groups');
+    const actual = await vi.importActual<typeof GroupsData>('~/server/data/groups');
     return {
         ...actual,
         deleteGroup: vi.fn(actual.deleteGroup),
@@ -58,7 +61,7 @@ vi.mock(import('~/server/data/groups'), async () => {
 });
 
 vi.mock(import('~/server/data/variants'), async () => {
-    const actual = await vi.importActual('~/server/data/variants');
+    const actual = await vi.importActual<typeof VariantsData>('~/server/data/variants');
     return {
         ...actual,
         copyVariants: vi.fn(actual.copyVariants),
@@ -155,7 +158,7 @@ describe('common', () => {
             ${'undefined'}  | ${undefined}
         `(
             'returns true but does not copy variants if getProductVariants returns $title',
-            async ({ value }: { value: unknown }) => {
+            async ({ value }: { value: readonly string[] | undefined }) => {
                 vi.mocked(getProductVariants).mockResolvedValueOnce(value);
 
                 await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBe(true);

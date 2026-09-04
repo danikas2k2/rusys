@@ -1,24 +1,24 @@
-import { vi } from 'vitest';
+import { vi, type Mock } from 'vitest';
 
 export interface MockedStorage extends Storage {
-    getItem: ReturnType<typeof vi.fn>;
-    setItem: ReturnType<typeof vi.fn>;
-    removeItem: ReturnType<typeof vi.fn>;
-    clear: ReturnType<typeof vi.fn>;
-    key: ReturnType<typeof vi.fn>;
-    getLength: ReturnType<typeof vi.fn>;
+    getItem: Mock<Storage['getItem']>;
+    setItem: Mock<Storage['setItem']>;
+    removeItem: Mock<Storage['removeItem']>;
+    clear: Mock<Storage['clear']>;
+    key: Mock<Storage['key']>;
+    getLength: Mock<() => number>;
 }
 
 export function mockLocalStorage(): MockedStorage {
     const data = new Map();
 
     const storage: MockedStorage = {
-        getItem: vi.fn().mockImplementation((key: string) => data.get(key) || null),
-        setItem: vi.fn().mockImplementation((key: string, value: string) => data.set(key, value)),
-        removeItem: vi.fn().mockImplementation((key: string) => data.delete(key)),
-        clear: vi.fn().mockImplementation(() => data.clear()),
-        key: vi.fn().mockImplementation((index: number) => Array.from(data.keys())[index] || null),
-        getLength: vi.fn().mockImplementation(() => data.size),
+        getItem: vi.fn<Storage['getItem']>((key) => data.get(key) || null),
+        setItem: vi.fn<Storage['setItem']>((key, value) => data.set(key, value)),
+        removeItem: vi.fn<Storage['removeItem']>((key) => data.delete(key)),
+        clear: vi.fn<Storage['clear']>(() => data.clear()),
+        key: vi.fn<Storage['key']>((index) => Array.from(data.keys())[index] || null),
+        getLength: vi.fn<() => number>(() => data.size),
         length: 0,
     };
 

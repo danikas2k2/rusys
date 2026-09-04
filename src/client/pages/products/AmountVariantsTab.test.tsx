@@ -442,7 +442,7 @@ describe('<AmountVariantsTab>', () => {
                 name: baseActive.name,
                 updates: [{ year: baseActive.year }],
                 undates: [],
-                years: [{ year: baseActive.year, amounts: baseActive.amounts }],
+                years: [{ year: baseActive.year, amounts: baseActive.amounts! }],
             },
         ]);
 
@@ -623,7 +623,7 @@ describe('<AmountVariantsTab>', () => {
             {
                 group: baseActive.group,
                 name: baseActive.name,
-                years: [{ year: baseActive.year, amounts: baseActive.amounts }],
+                years: [{ year: baseActive.year, amounts: baseActive.amounts! }],
                 variantImages: { d: '/images/ab/cd/d.png' },
             },
         ]);
@@ -644,7 +644,7 @@ describe('<AmountVariantsTab>', () => {
             {
                 group: baseActive.group,
                 name: baseActive.name,
-                years: [{ year: baseActive.year, amounts: baseActive.amounts }],
+                years: [{ year: baseActive.year, amounts: baseActive.amounts! }],
                 variantImages: { d: '/images/ab/cd/d.png' },
             },
         ]);

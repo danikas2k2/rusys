@@ -38,7 +38,7 @@ const createRootMock = vi.mocked(createRoot);
 describe('bootstrap', () => {
     beforeEach(() => {
         document.body.innerHTML = '<div id="root"></div>';
-        vi.spyOn(console, 'error').mockImplementation();
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
     });
 
     afterEach(() => {
@@ -70,7 +70,7 @@ describe('bootstrap', () => {
     });
 
     it('calls console.warn from onCaughtError callback', () => {
-        vi.spyOn(console, 'warn').mockImplementation();
+        vi.spyOn(console, 'warn').mockImplementation(() => undefined);
         bootstrap();
 
         const [, options] = createRootMock.mock.calls[0];

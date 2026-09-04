@@ -183,7 +183,7 @@ describe('<ProductsGrid>', () => {
             const { onToggleExpand } = vi.mocked(ProductTile).mock.calls[0][0];
             vi.mocked(ProductTile).mockClear();
 
-            act(() => onToggleExpand());
+            act(() => onToggleExpand!());
 
             expect(ProductTile).toHaveBeenCalledTimes(2);
             expect(ProductTile).toHaveBeenNthCalledWith(
@@ -219,7 +219,7 @@ describe('<ProductsGrid>', () => {
             expect(getWrapper()).toHaveAttribute('aria-hidden', 'true');
 
             const { onToggleExpand } = vi.mocked(ProductTile).mock.calls[0][0];
-            act(() => onToggleExpand());
+            act(() => onToggleExpand!());
 
             expect(getWrapper()).toHaveAttribute('aria-hidden', 'false');
         });
@@ -234,10 +234,10 @@ describe('<ProductsGrid>', () => {
             );
 
             const { onToggleExpand } = vi.mocked(ProductTile).mock.calls[0][0];
-            act(() => onToggleExpand());
+            act(() => onToggleExpand!());
             vi.mocked(ProductTile).mockClear();
 
-            act(() => onToggleExpand());
+            act(() => onToggleExpand!());
 
             expect(ProductTile).toHaveBeenCalledTimes(2);
             expect(ProductTile).toHaveBeenNthCalledWith(1, expect.objectContaining({ expanded: false }), undefined);

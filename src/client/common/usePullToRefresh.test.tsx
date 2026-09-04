@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import type { Mock } from 'vitest';
 
 import React from 'react';
 
@@ -27,10 +28,10 @@ function touch(clientY: number) {
 }
 
 describe('usePullToRefresh', () => {
-    let refreshAll: ReturnType<typeof vi.fn>;
+    let refreshAll: Mock<() => Promise<void>>;
 
     beforeEach(() => {
-        refreshAll = vi.fn().mockResolvedValue(undefined);
+        refreshAll = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
         vi.mocked(useRefreshAll).mockReturnValue(refreshAll);
     });
 

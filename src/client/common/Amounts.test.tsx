@@ -287,7 +287,7 @@ describe('<Amounts>', () => {
 
             expect(AmountSuffix).toHaveBeenCalledTimes(3);
 
-            vi.mocked(AmountSuffix).mock.calls.forEach(([props]: [Record<string, unknown>]) => {
+            vi.mocked(AmountSuffix).mock.calls.forEach(([props]) => {
                 expect(props).toMatchObject({ group, variant: 'p' });
             });
         });

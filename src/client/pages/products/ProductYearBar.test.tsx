@@ -105,7 +105,7 @@ describe('<ProductYearBar>', () => {
                     name: baseActive.name,
                     years: [
                         { year: 2022, amounts: [{ variant: 'p', amount: 1 }] },
-                        { year: 2023, amounts: baseActive.amounts },
+                        { year: 2023, amounts: baseActive.amounts! },
                     ],
                 },
             ]);
@@ -125,7 +125,7 @@ describe('<ProductYearBar>', () => {
                 {
                     group,
                     name: baseActive.name,
-                    years: [{ year: 2023, amounts: baseActive.amounts }],
+                    years: [{ year: 2023, amounts: baseActive.amounts! }],
                     updates: [{ year: 2020 }],
                     undates: [{ year: 2019 }],
                 },
@@ -148,7 +148,7 @@ describe('<ProductYearBar>', () => {
                 {
                     group,
                     name: baseActive.name,
-                    years: [{ year: 2023, amounts: baseActive.amounts }],
+                    years: [{ year: 2023, amounts: baseActive.amounts! }],
                     updates: [{ year: 2020 }],
                     undates: [{ year: 2019 }],
                 },
@@ -175,7 +175,7 @@ describe('<ProductYearBar>', () => {
         it('disables the switcher when disabled prop is set', () => {
             vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
             vi.mocked(useProducts).mockReturnValue([
-                { group, name: baseActive.name, years: [{ year: 2023, amounts: baseActive.amounts }] },
+                { group, name: baseActive.name, years: [{ year: 2023, amounts: baseActive.amounts! }] },
             ]);
 
             render(
@@ -192,7 +192,7 @@ describe('<ProductYearBar>', () => {
             const oldYear = thisYear - OLD_YEARS_THRESHOLD;
             vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
             vi.mocked(useProducts).mockReturnValue([
-                { group, name: baseActive.name, years: [{ year: oldYear, amounts: baseActive.amounts }] },
+                { group, name: baseActive.name, years: [{ year: oldYear, amounts: baseActive.amounts! }] },
             ]);
             const { container } = renderBar({ ...baseActive, year: oldYear });
 
@@ -204,7 +204,7 @@ describe('<ProductYearBar>', () => {
             const recentYear = thisYear - (OLD_YEARS_THRESHOLD - 1);
             vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
             vi.mocked(useProducts).mockReturnValue([
-                { group, name: baseActive.name, years: [{ year: recentYear, amounts: baseActive.amounts }] },
+                { group, name: baseActive.name, years: [{ year: recentYear, amounts: baseActive.amounts! }] },
             ]);
             const { container } = renderBar({ ...baseActive, year: recentYear });
 
@@ -215,7 +215,7 @@ describe('<ProductYearBar>', () => {
             const thisYear = new Date().getFullYear() % 100;
             vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
             vi.mocked(useProducts).mockReturnValue([
-                { group, name: baseActive.name, years: [{ year: thisYear, amounts: baseActive.amounts }] },
+                { group, name: baseActive.name, years: [{ year: thisYear, amounts: baseActive.amounts! }] },
             ]);
             const { container } = renderBar({ ...baseActive, year: thisYear });
 
@@ -237,7 +237,7 @@ describe('<ProductYearBar>', () => {
                 {
                     group,
                     name: baseActive.name,
-                    years: [{ year: baseActive.year, amounts: baseActive.amounts, removing: true }],
+                    years: [{ year: baseActive.year, amounts: baseActive.amounts!, removing: true }],
                 },
             ]);
             const { container } = renderBar();
@@ -258,7 +258,7 @@ describe('<ProductYearBar>', () => {
         it('renders unpressed when the year has no removing flag', () => {
             vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
             vi.mocked(useProducts).mockReturnValue([
-                { group, name: baseActive.name, years: [{ year: baseActive.year, amounts: baseActive.amounts }] },
+                { group, name: baseActive.name, years: [{ year: baseActive.year, amounts: baseActive.amounts! }] },
             ]);
             renderBar();
 
@@ -274,7 +274,7 @@ describe('<ProductYearBar>', () => {
                 {
                     group,
                     name: baseActive.name,
-                    years: [{ year: baseActive.year, amounts: baseActive.amounts, removing: true }],
+                    years: [{ year: baseActive.year, amounts: baseActive.amounts!, removing: true }],
                 },
             ]);
             renderBar();
@@ -287,7 +287,7 @@ describe('<ProductYearBar>', () => {
             vi.mocked(useSetProductRemoving).mockReturnValue(setProductRemoving);
             vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
             vi.mocked(useProducts).mockReturnValue([
-                { group, name: baseActive.name, years: [{ year: baseActive.year, amounts: baseActive.amounts }] },
+                { group, name: baseActive.name, years: [{ year: baseActive.year, amounts: baseActive.amounts! }] },
             ]);
             renderBar();
 
@@ -304,7 +304,7 @@ describe('<ProductYearBar>', () => {
                 {
                     group,
                     name: baseActive.name,
-                    years: [{ year: baseActive.year, amounts: baseActive.amounts, removing: true }],
+                    years: [{ year: baseActive.year, amounts: baseActive.amounts!, removing: true }],
                 },
             ]);
             renderBar();
@@ -317,7 +317,7 @@ describe('<ProductYearBar>', () => {
         it('disables the toggle when disabled prop is set', () => {
             vi.mocked(useGroups).mockReturnValue([{ group, order: 0, annual: true }]);
             vi.mocked(useProducts).mockReturnValue([
-                { group, name: baseActive.name, years: [{ year: baseActive.year, amounts: baseActive.amounts }] },
+                { group, name: baseActive.name, years: [{ year: baseActive.year, amounts: baseActive.amounts! }] },
             ]);
             render(
                 <MockThemeActive active={{ action: 'values', data: baseActive }}>
@@ -332,7 +332,7 @@ describe('<ProductYearBar>', () => {
     describe('total', () => {
         it('shows the annotated total for the selected year when liveAmounts is non-empty', () => {
             vi.mocked(useProducts).mockReturnValue([
-                { group, name: baseActive.name, years: [{ year: baseActive.year, amounts: baseActive.amounts }] },
+                { group, name: baseActive.name, years: [{ year: baseActive.year, amounts: baseActive.amounts! }] },
             ]);
             renderBar();
 

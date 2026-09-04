@@ -1,13 +1,16 @@
-import { bootstrap } from '~/client/bootstrap';
-// Import index module to execute its top-level code (calls bootstrap())
-import '~/client/index';
+import { bootstrap } from './bootstrap';
 
-vi.mock(import('~/client/bootstrap'), () => ({
+// Match index.tsx's relative module ID exactly. Vitest 5 no longer joins this
+// mock with the equivalent `~/client/bootstrap` alias during module loading.
+vi.mock(import('./bootstrap'), () => ({
     bootstrap: vi.fn(),
 }));
 
 describe('index', () => {
-    it('calls bootstrap function', () => {
+    it('calls bootstrap function', async () => {
+        // Import after registering the mock so index.tsx evaluates against it.
+        await import('./index');
+
         expect(bootstrap).toHaveBeenCalledWith();
     });
 });

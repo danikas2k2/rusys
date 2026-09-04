@@ -21,6 +21,8 @@ vi.mock(import('~/client/pages/products/ProductYearBar'), () => ({
 }));
 
 describe('<AmountBox>', () => {
+    type AmountVariantsTabProps = React.ComponentProps<typeof AmountVariantsTab>;
+
     afterEach(() => vi.clearAllMocks());
 
     it('does not render when opened=false', () => {
@@ -141,14 +143,12 @@ describe('<AmountBox>', () => {
 
     describe('discard confirmation', () => {
         function mockHasChanges(hasChanges: boolean) {
-            vi.mocked(AmountVariantsTab).mockImplementation(
-                ({ onChangesUpdate }: { onChangesUpdate?: (hasChanges: boolean) => void }) => {
-                    useEffect(() => {
-                        onChangesUpdate?.(hasChanges);
-                    }, [onChangesUpdate]);
-                    return null;
-                }
-            );
+            vi.mocked(AmountVariantsTab).mockImplementation(({ onChangesUpdate }: AmountVariantsTabProps = {}) => {
+                useEffect(() => {
+                    onChangesUpdate?.(hasChanges);
+                }, [onChangesUpdate]);
+                return <></>;
+            });
         }
 
         it('passes hasChanges through to ProductYearBar as disabled', () => {

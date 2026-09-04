@@ -22,12 +22,12 @@ describe('download', () => {
         mockAnchor = document.createElement('a');
 
         createObjectURLSpy.mockReturnValue('blob:mock-url');
-        revokeObjectURLSpy.mockImplementation();
+        revokeObjectURLSpy.mockImplementation(() => undefined);
 
         createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockAnchor);
         appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockAnchor);
         removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockAnchor);
-        clickSpy = vi.spyOn(mockAnchor, 'click').mockImplementation();
+        clickSpy = vi.spyOn(mockAnchor, 'click').mockImplementation(() => undefined);
     });
 
     afterEach(() => vi.clearAllMocks());

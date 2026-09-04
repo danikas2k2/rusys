@@ -54,7 +54,7 @@ describe('<VariantAvatar>', () => {
         expect(screen.getByText('d')).toBeInTheDocument();
     });
 
-    it.each([
+    it.each<[VariantUnits | undefined, number, string]>([
         ['ml', 500, '½'],
         ['kg', 1, '1'],
         ['g', 500, '½'],

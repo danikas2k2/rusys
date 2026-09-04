@@ -132,7 +132,7 @@ describe('<VariantsTable>', () => {
         const callArgs = vi.mocked(useReorderHandler).mock.calls[0]![0];
 
         expect(callArgs.items).toHaveLength(uogienesVariants.length);
-        expect(callArgs.items.every((v: Variant) => v.group === 'Uogienės')).toBe(true);
+        expect((callArgs.items as Variant[]).every((v) => v.group === 'Uogienės')).toBe(true);
     });
 
     it('re-filters when the selected group changes', () => {
@@ -150,7 +150,7 @@ describe('<VariantsTable>', () => {
         const callArgs = vi.mocked(useReorderHandler).mock.calls[0]![0];
 
         expect(callArgs.items).toHaveLength(darzovesVariants.length);
-        expect(callArgs.items.every((v: Variant) => v.group === 'Daržovės')).toBe(true);
+        expect((callArgs.items as Variant[]).every((v) => v.group === 'Daržovės')).toBe(true);
     });
 
     it('hides variants that do not match the quick filter', () => {

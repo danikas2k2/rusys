@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+import type * as ReduxToolkit from '@reduxjs/toolkit';
 import { isDevMode } from '@rusys/common/utils/dev';
 
 import { reducer } from '~/client/state/base/reducer';
@@ -8,7 +9,7 @@ vi.mock(import('@rusys/common/utils/dev'), () => ({
     isDevMode: vi.fn().mockReturnValue(false),
 }));
 vi.mock(import('@reduxjs/toolkit'), async () => {
-    const actual = await vi.importActual('@reduxjs/toolkit');
+    const actual = await vi.importActual<typeof ReduxToolkit>('@reduxjs/toolkit');
     return {
         ...actual,
         configureStore: vi.fn().mockImplementation(actual.configureStore),

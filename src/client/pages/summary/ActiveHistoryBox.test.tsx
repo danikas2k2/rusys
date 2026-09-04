@@ -76,7 +76,7 @@ describe('<ActiveHistoryBox>', () => {
         );
 
         const { onClose } = getLastProps();
-        onClose();
+        onClose!();
 
         expect(setActive).toHaveBeenCalledWith({ data: activeData });
     });
@@ -93,7 +93,7 @@ describe('<ActiveHistoryBox>', () => {
         );
 
         const { onAfterClose } = getLastProps();
-        onAfterClose();
+        onAfterClose!();
 
         expect(setActive).toHaveBeenCalledWith();
     });

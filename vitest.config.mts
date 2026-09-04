@@ -49,6 +49,9 @@ export default defineConfig({
             // Client workspace: jsdom environment for src/client and src/ui
             // ------------------------------------------------------------------
             {
+                // Vitest 5 projects inherit the declaring config by default.
+                // These projects already declare their own aliases and asset mock plugin.
+                extends: false,
                 resolve: { alias },
                 plugins: [mockAssetsPlugin],
                 test: {
@@ -68,6 +71,7 @@ export default defineConfig({
             // ------------------------------------------------------------------
             // Common workspace: node environment for platform-neutral shared code.
             {
+                extends: false,
                 resolve: { alias },
                 plugins: [mockAssetsPlugin],
                 test: {
@@ -83,6 +87,7 @@ export default defineConfig({
             // Server workspace: node environment for src/server.
             // ------------------------------------------------------------------
             {
+                extends: false,
                 resolve: { alias },
                 plugins: [mockAssetsPlugin],
                 test: {
