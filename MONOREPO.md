@@ -244,12 +244,18 @@ Manager visus servisus rodo tame pačiame `rusys-app` projekte, nepriklausomai
 nuo to, kad Compose failas laikomas `docker/` kataloge.
 
 - `rusys-client` pateikia `dist/client` statinius failus, TLS ir saugumo
-  antraštes; jis išorėje išlaiko esamus `3000` (HTTP) bei `4000` (HTTPS) portus.
-  Jo certifikatų volume turi turėti `cert.pem` ir `privkey.pem` failus.
+  antraštes. Jis tiesiogiai klauso `.env` `PORT` (numatytasis `3000`) ir
+  `HTTPS_PORT` (numatytasis `4000`) portų, o NAS Web Portal juos persiunčia iš
+  viešųjų `80` ir `443`. Nginx pats nieko nenukreipia. Jo certifikatų volume
+  turi turėti `cert.pem` ir `privkey.pem` failus.
 - Nginx persiunčia API ir `/images/` užklausas į vidinį `rusys-server:3000`.
   Naršyklei tai lieka tas pats origin, todėl CORS ir kliento URL keisti nereikia.
+  Jis išlaiko NAS Web Portal `X-Forwarded-Proto` antraštę, kad Express matytų
+  pradinį HTTPS protokolą ir neperadresuotų API užklausų.
 - `rusys-server` nėra publikuojamas per host portą. Jis turi tik API ir
   read-write `/app/data/images` volume.
+- Nuotolinio repo šaknies `.env` lieka serveryje; deploy komandos jį perduoda
+  Compose per `--env-file .env`, nes Compose failas yra `docker/` kataloge.
 - Kliento build sugeneruoja `dist/client/csp-hashes.conf`; Nginx jį įtraukia į
   CSP, todėl serverio build nebeskaito kliento artefaktų.
 

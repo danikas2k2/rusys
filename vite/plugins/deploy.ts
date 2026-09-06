@@ -83,7 +83,7 @@ export function deploy(config?: DeployConfig) {
                 // Build and restart containers
                 console.log('🐳 Building and restarting containers...');
                 execSync(
-                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && if ${dockerPath} container inspect rusys-app >/dev/null 2>&1; then ${dockerPath} compose -f compose.yaml down; fi && ${dockerPath} compose -p docker -f docker/compose.yaml down && ${dockerPath} compose -f docker/compose.yaml up -d --build"`,
+                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && if ${dockerPath} container inspect rusys-app >/dev/null 2>&1; then ${dockerPath} compose --env-file .env -f compose.yaml down; fi && ${dockerPath} compose --env-file .env -p docker -f docker/compose.yaml down && ${dockerPath} compose --env-file .env -f docker/compose.yaml up -d --build"`,
                     { stdio: 'inherit' }
                 );
 
@@ -107,7 +107,7 @@ export function rollback(config?: DeployConfig) {
 
             try {
                 execSync(
-                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && if test -f ${backupPath}/layout && grep -qx monorepo ${backupPath}/layout && test -d ${backupPath}/dist && test -d ${backupPath}/docker; then rm -rf dist docker && cp -a ${backupPath}/dist ./dist && cp -a ${backupPath}/docker ./docker && ${dockerPath} compose -f docker/compose.yaml up -d --build; elif test -f ${backupPath}/layout && grep -qx legacy ${backupPath}/layout && test -d ${backupPath}/dist && test -f ${backupPath}/compose.yaml && test -f ${backupPath}/Dockerfile; then ${dockerPath} compose -f docker/compose.yaml down && rm -rf dist docker && cp -a ${backupPath}/dist ./dist && cp ${backupPath}/compose.yaml ./compose.yaml && cp ${backupPath}/Dockerfile ./Dockerfile && ${dockerPath} compose -f compose.yaml up -d --build; else echo 'No valid deployment backup found.' >&2 && exit 1; fi"`,
+                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && if test -f ${backupPath}/layout && grep -qx monorepo ${backupPath}/layout && test -d ${backupPath}/dist && test -d ${backupPath}/docker; then rm -rf dist docker && cp -a ${backupPath}/dist ./dist && cp -a ${backupPath}/docker ./docker && ${dockerPath} compose --env-file .env -f docker/compose.yaml up -d --build; elif test -f ${backupPath}/layout && grep -qx legacy ${backupPath}/layout && test -d ${backupPath}/dist && test -f ${backupPath}/compose.yaml && test -f ${backupPath}/Dockerfile; then ${dockerPath} compose --env-file .env -f docker/compose.yaml down && rm -rf dist docker && cp -a ${backupPath}/dist ./dist && cp ${backupPath}/compose.yaml ./compose.yaml && cp ${backupPath}/Dockerfile ./Dockerfile && ${dockerPath} compose --env-file .env -f compose.yaml up -d --build; else echo 'No valid deployment backup found.' >&2 && exit 1; fi"`,
                     { stdio: 'inherit' }
                 );
 
@@ -161,7 +161,7 @@ export function deployTarget(config: DeployTargetConfig) {
                     { stdio: 'inherit' }
                 );
                 execSync(
-                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && ${dockerPath} compose -f docker/compose.yaml up -d --build ${service}"`,
+                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && ${dockerPath} compose --env-file .env -f docker/compose.yaml up -d --build ${service}"`,
                     { stdio: 'inherit' }
                 );
             } catch (error) {
@@ -183,7 +183,7 @@ export function rollbackTarget(config: DeployTargetConfig) {
         closeBundle() {
             try {
                 execSync(
-                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && test -d ${backupPath}/${artifactDirectory} && test -d ${backupPath}/docker-${artifactDirectory} && test -f ${backupPath}/compose.yaml && rm -rf dist/${artifactDirectory} docker/${artifactDirectory} && cp -a ${backupPath}/${artifactDirectory} dist/${artifactDirectory} && cp -a ${backupPath}/docker-${artifactDirectory} docker/${artifactDirectory} && cp ${backupPath}/compose.yaml docker/compose.yaml && ${dockerPath} compose -f docker/compose.yaml up -d --build ${service}"`,
+                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && test -d ${backupPath}/${artifactDirectory} && test -d ${backupPath}/docker-${artifactDirectory} && test -f ${backupPath}/compose.yaml && rm -rf dist/${artifactDirectory} docker/${artifactDirectory} && cp -a ${backupPath}/${artifactDirectory} dist/${artifactDirectory} && cp -a ${backupPath}/docker-${artifactDirectory} docker/${artifactDirectory} && cp ${backupPath}/compose.yaml docker/compose.yaml && ${dockerPath} compose --env-file .env -f docker/compose.yaml up -d --build ${service}"`,
                     { stdio: 'inherit' }
                 );
             } catch (error) {

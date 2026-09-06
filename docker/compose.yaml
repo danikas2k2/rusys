@@ -52,12 +52,16 @@ services:
     restart: unless-stopped
     depends_on:
       - rusys-server
+    environment:
+      PORT: ${PORT:-3000}
+      HTTPS_PORT: ${HTTPS_PORT:-4000}
+      NGINX_ENVSUBST_FILTER: '^(PORT|HTTPS_PORT)$'
     expose:
-      - 80
-      - 4000
+      - "${PORT:-3000}"
+      - "${HTTPS_PORT:-4000}"
     ports:
-      - "3000:80"
-      - "4000:4000"
+      - "${PORT:-3000}:${PORT:-3000}"
+      - "${HTTPS_PORT:-4000}:${HTTPS_PORT:-4000}"
     networks:
       - rusys-net
     volumes:
