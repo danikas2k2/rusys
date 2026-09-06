@@ -7,6 +7,7 @@ import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
 import { cssFallback } from '../../vite/plugins/css-fallback.ts';
+import { writeNginxCspHashes } from '../../vite/plugins/csp-inline-scripts.ts';
 import { minifyPublicCss } from '../../vite/plugins/minify-public-css.ts';
 import { injectTags, parseTemplate } from '../../vite/plugins/parse-template.ts';
 
@@ -36,7 +37,7 @@ export default defineConfig(({ mode }) => {
             postcss: './postcss.config.mjs',
         },
         build: {
-            outDir: path.resolve(root, 'dist/public'),
+            outDir: path.resolve(root, 'dist/client'),
             emptyOutDir: true,
             sourcemap: false,
             minify: 'terser',
@@ -182,13 +183,17 @@ export default defineConfig(({ mode }) => {
             }),
             svgr({ svgrOptions: {} }),
             cssFallback({
-                outDir: path.resolve(root, 'dist/public'),
+                outDir: path.resolve(root, 'dist/client'),
                 sourceFile: 'assets/index.css',
                 outputFile: 'assets/legacy.css',
             }),
             minifyPublicCss({
-                outDir: path.resolve(root, 'dist/public'),
+                outDir: path.resolve(root, 'dist/client'),
                 file: 'assets/loader.css',
+            }),
+            writeNginxCspHashes({
+                input: path.resolve(root, 'dist/client/index.html'),
+                output: path.resolve(root, 'dist/client/csp-hashes.conf'),
             }),
         ],
         server: {

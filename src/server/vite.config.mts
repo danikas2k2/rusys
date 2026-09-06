@@ -3,7 +3,6 @@ import path from 'node:path';
 import type { MinifyOptions } from 'terser';
 import { defineConfig, type BuildEnvironmentOptions, type UserConfigExport } from 'vite';
 
-import { cspInlineScriptHashes } from '../../vite/plugins/csp-inline-scripts.ts';
 import { generatePackageJson } from '../../vite/plugins/generate-package-json.ts';
 
 export default defineConfig(() => {
@@ -11,23 +10,15 @@ export default defineConfig(() => {
 
     return {
         publicDir: false,
-        plugins: [
-            cspInlineScriptHashes({
-                input: path.resolve(root, 'dist/public/index.html'),
-                output: path.resolve(root, 'src/server/helmetOptions.ts'),
-                placeholder: /\["'unsafe-inline'"]; \/\/ Replace with actual hashes.*?$/im,
-            }),
-            generatePackageJson(path.resolve(root, 'dist')),
-        ],
+        plugins: [generatePackageJson(path.resolve(root, 'dist/server'))],
         build: {
-            // Important: do NOT delete dist/public that was produced by the client build.
-            emptyOutDir: false,
+            emptyOutDir: true,
             lib: {
                 entry: path.resolve(root, 'src/server/index.ts'),
                 formats: ['es'],
                 fileName: () => 'server.js',
             },
-            outDir: path.resolve(root, 'dist'),
+            outDir: path.resolve(root, 'dist/server'),
             sourcemap: false,
             minify: 'terser',
             terserOptions: {

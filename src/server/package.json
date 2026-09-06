@@ -13,7 +13,9 @@
         "test": "vitest run --root ../.. --config vitest.config.mts --project server",
         "test:coverage": "vitest run --root ../.. --config vitest.config.mts --project server --coverage",
         "test:watch": "vitest --root ../.. --config vitest.config.mts --project server",
-        "check": "pnpm lint && pnpm test"
+        "check": "pnpm lint && pnpm test",
+        "deploy": "pnpm check && pnpm build && dotenv -e ../../.env.deploy.local -- vite build --config vite.deploy.config.mts --mode production",
+        "deploy:rollback": "dotenv -e ../../.env.deploy.local -- vite build --config vite.rollback.config.mts --mode production"
     },
     "dependencies": {
         "@rusys/common": "workspace:*"

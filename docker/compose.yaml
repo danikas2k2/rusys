@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   rusys-db1:
     container_name: rusys-db1
@@ -40,43 +38,58 @@ services:
       - rusys-net
     command: mongod --replSet rusys-rs
 
-  rusys-app:
-    container_name: rusys-app
-    image: rusys-app
+  rusys-client:
+    container_name: rusys-client
+    image: rusys-client
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/client/Dockerfile
+      args:
+        APP_VERSION: "3.11.1"
+    platform: linux/amd64
+    restart: unless-stopped
+    depends_on:
+      - rusys-server
+    expose:
+      - 80
+      - 4000
+    ports:
+      - "3000:80"
+      - "4000:4000"
+    networks:
+      - rusys-net
+    volumes:
+      - /volume1/docker/rusys-app/certs:/etc/nginx/certs:ro
+
+  rusys-server:
+    container_name: rusys-server
+    image: rusys-server
+    build:
+      context: ..
+      dockerfile: docker/server/Dockerfile
       args:
         APP_VERSION: "3.11.1"
     platform: linux/amd64
     restart: unless-stopped
     environment:
-      - NODE_ENV
-      - LOCALE
-      - TZ
-      - GOOGLE_CLIENT_ID
-      - GOOGLE_ALLOWED_USERS
-      - DB
-      - HOST
-      - PORT
-      - HTTPS_PORT
-      - HTTPS_KEY
-      - HTTPS_CERT
-      - IMAGES_DIR
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      LOCALE: ${LOCALE}
+      TZ: ${TZ}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_ALLOWED_USERS: ${GOOGLE_ALLOWED_USERS}
+      DB: ${DB}
+      IMAGES_DIR: ${IMAGES_DIR:-/app/data/images}
     depends_on:
       - rusys-db1
       - rusys-db2
       - rusys-db3
     expose:
       - 3000
-      - 4000
-    ports:
-      - "3000:3000"
-      - "4000:4000"
     networks:
       - rusys-net
     volumes:
-      - /volume1/docker/rusys-app/certs:/app/certs:ro
       - /volume1/docker/rusys-app/images:/app/data/images
 
 networks:

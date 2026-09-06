@@ -100,9 +100,11 @@ Kol visi trys paketai gyvena šiame repozitorijoje, `common` yra `private: true`
 ir gali turėti pastovią versiją, pvz. `0.0.0`. Jo versija nekeliama, nes jis
 nėra publikuojamas į npm.
 
-`client` ir `server` gali turėti atskiras versijas tik tada, kai jie
-deploy'inami nepriklausomai. Kol produkcijoje surenkamas vienas Docker image,
-galima palikti vieną bendrą produkto versiją šakniniame `package.json`.
+`client` ir `server` dabar deploy'inami nepriklausomai, todėl jų release'ai
+atskirti pagal artefaktą ir Docker servisą. Paketai išlieka `private`, taigi
+`0.0.0` nėra vieša semver sutartis; Docker image etiketę kol kas žymi bendra
+šakninio produkto versija. Jei reikės atskirų vartotojui matomų versijų,
+kitame etape galima įvesti Changesets arba du nepriklausomus release numerius.
 
 Jei bendri paketai kada nors bus publikuojami ar naudojami kitame
 repozitorijoje, tada galima įvesti nepriklausomą semver ir Changesets. Šiai
@@ -198,10 +200,6 @@ Dabartinis `turbo.json`:
             "dependsOn": ["^build"],
             "cache": false
         },
-        "@rusys/server#build": {
-            "dependsOn": ["@rusys/client#build", "^build"],
-            "outputs": []
-        },
         "check": {
             "dependsOn": ["^check"],
             "outputs": []
@@ -226,24 +224,51 @@ Dabartinis `turbo.json`:
 }
 ```
 
-Kol klientas ir serveris sąmoningai dalijasi šakniniu `dist/`, `build` cache
-paliekamas išjungtas: Turbo teisingai sudėlioja kliento → serverio eigą, bet
-neatkuria bendro artefakto į netinkamą paketo katalogą. `check` ir kitos
-užduotys išlieka cache'inamos.
+`build` cache paliekamas išjungtas, nes abiejų build artefaktai rašomi į bendrą
+šakninį `dist/`, tik į atskirus `client/` ir `server/` katalogus. Klientas ir
+serveris nebepriklauso vienas nuo kito: kiekvienas gali būti surenkamas ir
+deploy'inamas atskirai.
 
 ## Deploy ir Docker sprendimas
 
-Dabartinė `docker/` struktūra lieka vietoje. Šiandien serverio build naudoja
-kliento sugeneruotą `dist/public/index.html`, kad sukurtų CSP hash'us, ir
-serveris pateikia kliento statinius failus. Pereinamuoju laikotarpiu:
+Produkcinį leidimą sudaro du vidiniai Docker containeriai, be išorinio CDN:
 
-1. `@rusys/server#build` priklauso nuo `@rusys/client#build`.
-2. Esamas Docker image surenkamas iš abiejų artefaktų.
-3. Lokalūs `dev`, `test`, `lint` ir `lint:ts` lieka nepriklausomi.
+```text
+naršyklė ──HTTPS──> rusys-client (Nginx) ──vidinis Docker tinklas──> rusys-server (Express)
+                          │                                              │
+                          └─ dist/client                                 └─ dist/server + images volume
+```
 
-Vėliau klientą galima deploy'inti į CDN arba nginx, o serverį palikti tik API.
-Tai leistų visiškai nepriklausomus release'us, bet nėra pirmos migracijos
-reikalavimas.
+- `rusys-client` pateikia `dist/client` statinius failus, TLS ir saugumo
+  antraštes; jis išorėje išlaiko esamus `3000` (HTTP) bei `4000` (HTTPS) portus.
+- Nginx persiunčia API ir `/images/` užklausas į vidinį `rusys-server:3000`.
+  Naršyklei tai lieka tas pats origin, todėl CORS ir kliento URL keisti nereikia.
+- `rusys-server` nėra publikuojamas per host portą. Jis turi tik API ir
+  read-write `/app/data/images` volume.
+- Kliento build sugeneruoja `dist/client/csp-hashes.conf`; Nginx jį įtraukia į
+  CSP, todėl serverio build nebeskaito kliento artefaktų.
+
+Release komandos:
+
+```sh
+pnpm deploy                         # vienas pilnas abiejų servisų release
+pnpm --filter @rusys/client deploy  # tik client release
+pnpm --filter @rusys/server deploy  # tik server release
+pnpm --filter @rusys/client deploy:rollback # tik client rollback
+pnpm --filter @rusys/server deploy:rollback # tik server rollback
+pnpm deploy:rollback                        # pilnas abiejų servisų rollback
+```
+
+`deploy` yra pačių `@rusys/client` ir `@rusys/server` paketų komanda: ji
+pirmiausia vykdo to paketo `check` bei `build`, tada per savo Vite deploy
+konfigūraciją įkelia tik savo artefaktą ir perkrauna tik savo containerį.
+Šakninis `deploy` yra atskiras pilno release kelias: jis patikrina bei surenka
+visą repo, vienu veiksmu pakeičia visus artefaktus ir perkrauna visą Compose
+aplikaciją.
+
+Pilnas release sinchronizuoja visą `dist/`, kad pašalintų senos vieno
+containerio schemos likučius. Dalinis release sinchronizuoja tik savo
+`dist/client` arba `dist/server` katalogą ir nepakeičia kito serviso.
 
 ## Migracijos eiga
 
@@ -259,16 +284,16 @@ reikalavimas.
       MongoDB; client ir server testai yra atskiri projektai.
 - [x] Atnaujinti root Turbo užduotis (`build`, `dev`, `lint`, `lint:ts`,
       `test`, `check`) bei package-local formatavimo ir lint komandas.
-- [x] Išlaikyti bendrą `dist/`: serverio build priklauso nuo client build,
-      kad CSP hash'ai būtų generuojami iš kliento artefaktų.
+- [x] Atskirti build artefaktus į `dist/client` ir `dist/server`; serverio
+      build nebepriklauso nuo client build.
 - [x] Pataisyti serverio dev paveikslėlių kelią: `IMAGES_DIR` nustatomas per
       `.env`, o Docker Compose perduoda `/app/data/images`.
 - [x] Priverstinai, be Turbo cache, patikrinti root `pnpm build` ir
       `pnpm check`.
 - [x] Susiaurinti root `version` hook'ą: jis stage'ina tik
       `docker/compose.yaml`.
-- [x] Sukurti ir paleisti production Docker image su read-only paveikslėlių
-      volume; patikrinti `/images` ir CSP inline-script hash'ą.
+- [x] Sukurti atskirus Nginx client ir Node server Docker image; lokaliai
+      patikrinti HTTPS, CSP ir `/images/` proxy tarp jų izoliuotame tinkle.
 - [x] Įvesti common package ribą: client ir server importuoja bendrą kodą per
       `@rusys/common/*`, o ne per `~/common/*` alias.
 - [x] Atnaujinti GitHub Actions CI: jis naudoja užrakintą dependency diegimą
@@ -276,10 +301,12 @@ reikalavimas.
 
 ## Likę darbai
 
-Privalomų migracijos darbų nebeliko. Ateityje `@rusys/common` galima dar
-susiaurinti iki kelių ranka parinktų entry pointų, jei reikės paslėpti dalį
-`utils/*` modulių. Šiandien visi bendro kodo moduliai yra sąmoningai prieinami
-per `@rusys/common/*`.
+- Prieš pirmą produkcinį release patikrinti nuotolinio serverio certifikatų ir
+  `/volume1/docker/rusys-app/images` volume kelius.
+- Jei reikės nepriklausomų matomų client/server versijų, įvesti Changesets arba
+  atskirus release numerius. Tai nėra būtina nepriklausomam deploy.
+- Ateityje `@rusys/common` galima dar susiaurinti iki kelių ranka parinktų
+  entry pointų, jei reikės paslėpti dalį `utils/*` modulių.
 
 ## Priėmimo kriterijai
 
@@ -290,5 +317,5 @@ per `@rusys/common/*`.
 | `@rusys/common` testai be MongoDB                                    | Įgyvendinta ir patikrinta                              |
 | Client ir server dev/build/check atskirai                            | Įgyvendinta ir patikrinta                              |
 | Root `pnpm build` ir `pnpm check`                                    | Įgyvendinta ir priverstinai patikrinta be Turbo cache  |
-| Produkcinis Docker image, statiniai failai ir CSP                    | Įgyvendinta ir patikrinta su lokaliu production image  |
+| Atskiri client/server Docker image, HTTPS, `/images/` ir CSP         | Įgyvendinta ir patikrinta lokaliame Docker tinkle      |
 | Client/server common importų package riba                            | Įgyvendinta ir patikrinta su client bei server testais |

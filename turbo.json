@@ -6,10 +6,6 @@
       "dependsOn": ["^build"],
       "cache": false
     },
-    "@rusys/server#build": {
-      "dependsOn": ["@rusys/client#build", "^build"],
-      "outputs": []
-    },
     "check": {
       "dependsOn": ["^check"],
       "outputs": []

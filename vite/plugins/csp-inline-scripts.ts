@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
-import path from 'node:path';
 
 import { JSDOM } from 'jsdom';
 import type { Plugin } from 'vite';
@@ -38,58 +37,26 @@ function computeInlineScriptSha256FromHtml(html: string): string[] {
 }
 
 /**
- * Server-build plugin:
- * - Reads the already-built client `dist/public/index.html`
- * - Computes sha256 hashes for all inline scripts
- * - Replaces a placeholder marker in `src/server/helmetOptions.ts` during bundling
- *   so the final `dist/server.js` contains the hashes (no intermediate files).
+ * Client-build plugin:
+ * - Reads the final generated index.html.
+ * - Writes an nginx `set` directive containing CSP hashes for its inline scripts.
+ * - Lets the client image own CSP, without coupling the server build to client output.
  */
-export function cspInlineScriptHashes(options: {
-    input: string;
-    output: string;
-    placeholder: string | RegExp;
-}): Plugin {
-    let updates: string | undefined;
-
+export function writeNginxCspHashes(options: { input: string; output: string }): Plugin {
     return {
-        name: 'inject-csp-inline-script-hashes',
+        name: 'write-nginx-csp-hashes',
         apply: 'build',
-        enforce: 'pre',
-        buildStart() {
-            const indexPath = options.input;
-            if (!fs.existsSync(indexPath)) {
-                this.error(
-                    `[csp] Missing "${indexPath}". Run the client build first (pnpm build:client) before building the server.`
-                );
+        enforce: 'post',
+        closeBundle() {
+            if (!fs.existsSync(options.input)) {
+                this.error(`[csp] Missing generated client HTML at "${options.input}".`);
             }
 
-            const html = fs.readFileSync(indexPath, 'utf8');
-            const hashes = computeInlineScriptSha256FromHtml(html);
+            const hashes = computeInlineScriptSha256FromHtml(fs.readFileSync(options.input, 'utf8'));
+            const sources = hashes.map((hash) => `'${hash}'`).join(' ');
 
-            // Helmet expects sources like "'sha256-...'" (single quotes inside the directive string).
-            updates = JSON.stringify(hashes.map((h) => `'${h}'`));
-
-            this.info(`[csp] computed ${hashes.length} inline script hash(es) from ${path.basename(indexPath)}`);
-        },
-        transform(code, id) {
-            // Vite sometimes appends query params; strip them for matching.
-            const cleanId = id.split('?', 1)[0]!;
-            if (!cleanId.endsWith(options.output)) {
-                return null;
-            }
-
-            if (!code.match(options.placeholder)) {
-                this.error(`[csp] Placeholder "${options.placeholder}" not found in ${cleanId}`);
-            }
-
-            if (updates) {
-                return {
-                    code: code.replace(options.placeholder, `${updates};`),
-                    map: null,
-                };
-            }
-
-            this.error('[csp] Internal error: replacement not computed');
+            fs.writeFileSync(options.output, `set $csp_inline_script_hashes "${sources}";\n`);
+            this.info(`[csp] wrote ${hashes.length} inline script hash(es) for nginx`);
         },
     };
 }
