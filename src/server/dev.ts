@@ -9,7 +9,7 @@ const app = setupHelmet(express());
 // Register API handlers
 setupHandlers(app);
 
-// Register static file serving (for production builds)
+// Serve uploaded images; Vite serves client static files.
 setupStatic(app);
 
 // Start HTTP server only - Vite dev server proxies API requests to it over HTTP,

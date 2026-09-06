@@ -10,7 +10,7 @@ export default defineConfig(() => {
 
     return {
         root,
-        publicDir: path.resolve(root, 'public'),
+        publicDir: false,
         plugins: [rollback()],
         build: {
             outDir: path.resolve(root, 'dist'),

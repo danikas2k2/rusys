@@ -14,7 +14,7 @@ priklausomybes bei cache.
 
 ```text
 src/
-  client/                     # React + Vite klientas; @rusys/client
+  client/                     # React + Vite klientas ir jo public/; @rusys/client
   server/                     # Express API; @rusys/server
   common/                     # Domeno logika, API DTO ir bendri tipai; @rusys/common
 docker/                       # lieka dabartinėje vietoje

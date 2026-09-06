@@ -5,6 +5,12 @@
     "scripts": {
         "dev": "vite --config vite.config.mts",
         "build": "NODE_ENV=production vite build --mode production",
+        "assets": "pnpm assets:splash && pnpm assets:icons && pnpm assets:compress",
+        "assets:splash": "pnpm assets:splash:dark && pnpm assets:splash:light",
+        "assets:splash:light": "pwa-asset-generator public/assets/logo.svg public/assets --padding 'calc(50vh - 20vw) calc(50vw - 20vh)' --type png --background '#eff1f5' --splash-only --path-override /assets --index ../../templates/splash.html --xhtml",
+        "assets:splash:dark": "pwa-asset-generator public/assets/logo.svg public/assets --padding 'calc(50vh - 20vw) calc(50vw - 20vh)' --type png --background '#1e1e2e' --splash-only --dark-mode --path-override /assets --index ../../templates/splash.html --xhtml",
+        "assets:icons": "pwa-asset-generator public/assets/logo.svg public/assets --padding '1%' --type png --opaque false --icon-only --favicon --mstile --manifest public/manifest.json --path-override /assets --index ../../templates/icons.html --xhtml",
+        "assets:compress": "oxipng -o 4 public/assets/*.png",
         "format": "oxfmt --config ../../oxfmt.config.mts .",
         "format:check": "oxfmt --config ../../oxfmt.config.mts --check .",
         "lint": "pnpm format:check && pnpm lint:ts && pnpm lint:ox && pnpm lint:styles",
@@ -15,7 +21,8 @@
         "test:coverage": "vitest run --root ../.. --config vitest.config.mts --project client --coverage",
         "test:watch": "vitest --root ../.. --config vitest.config.mts --project client",
         "check": "pnpm lint && pnpm test",
-        "deploy": "pnpm check && pnpm build && dotenv -e ../../.env.deploy.local -- vite build --config vite.deploy.config.mts --mode production",
+        "deploy": "pnpm check && pnpm build && pnpm deploy:run",
+        "deploy:run": "dotenv -e ../../.env.deploy.local -- vite build --config vite.deploy.config.mts --mode production",
         "deploy:rollback": "dotenv -e ../../.env.deploy.local -- vite build --config vite.rollback.config.mts --mode production"
     },
     "dependencies": {

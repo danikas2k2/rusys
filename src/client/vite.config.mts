@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
 
     return {
         root,
-        publicDir: path.resolve(root, 'public'),
+        publicDir: path.resolve(import.meta.dirname, 'public'),
         define: {
             'process.env.LOCALE': JSON.stringify('lt-LT'),
             'process.env.DEBUG': JSON.stringify(development),

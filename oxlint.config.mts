@@ -1,7 +1,7 @@
 import { defineConfig } from 'oxlint';
 
 export default defineConfig({
-    ignorePatterns: ['coverage/*', 'data/*', 'dist/*', 'docker/*', 'node_modules/*', 'public/*'],
+    ignorePatterns: ['coverage/*', 'data/*', 'dist/*', 'docker/*', 'node_modules/*', 'src/client/public/**'],
     plugins: ['eslint', 'typescript', 'unicorn', 'oxc', 'react', 'jsx-a11y', 'vitest'],
     settings: {
         react: {

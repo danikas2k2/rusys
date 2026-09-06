@@ -7,7 +7,7 @@ import { deployTarget, rollbackTarget, type DeployTargetConfig } from './plugins
 function createTargetConfig(root: string, plugin: ReturnType<typeof deployTarget>): UserConfigExport {
     return {
         root,
-        publicDir: path.resolve(root, 'public'),
+        publicDir: false,
         plugins: [plugin],
         build: {
             outDir: path.resolve(root, 'dist'),

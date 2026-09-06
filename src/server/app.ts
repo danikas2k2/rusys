@@ -77,8 +77,6 @@ export function setupHandlers(app: Express): Express {
 }
 
 export function setupStatic(app: Express): Express {
-    // Serve static files
-    app.use(express.static('public'));
     // Serve uploaded images (category icons, product photos, ...) from the persistent volume
     app.use(IMAGES_URL_PATH, express.static(IMAGES_DIR));
 

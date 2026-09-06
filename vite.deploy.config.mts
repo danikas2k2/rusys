@@ -21,7 +21,7 @@ export default defineConfig(() => {
 
     return {
         root,
-        publicDir: path.resolve(root, 'public'),
+        publicDir: false,
         plugins: [deploy()],
         build: {
             // Do not touch the existing `dist/` output (we just want to run deploy hook).
