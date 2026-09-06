@@ -1,3 +1,5 @@
+name: rusys-app
+
 services:
   rusys-db1:
     container_name: rusys-db1

@@ -63,7 +63,7 @@ export function deploy(config?: DeployConfig) {
                 // this deployment. This must happen before the first rsync, which uses --delete.
                 console.log('💾 Backing up the current release...');
                 execSync(
-                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && test -d dist && test -d docker && rm -rf ${backupPath} && mkdir ${backupPath} && cp -a dist ${backupPath}/dist && cp -a docker ${backupPath}/docker"`,
+                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && rm -rf ${backupPath}.next && mkdir ${backupPath}.next && if ${dockerPath} container inspect rusys-app >/dev/null 2>&1 && test -d dist && test -f compose.yaml && test -f Dockerfile; then cp -a dist ${backupPath}.next/dist && cp compose.yaml ${backupPath}.next/compose.yaml && cp Dockerfile ${backupPath}.next/Dockerfile && printf legacy > ${backupPath}.next/layout; elif test -d dist && test -d docker; then cp -a dist ${backupPath}.next/dist && cp -a docker ${backupPath}.next/docker && printf monorepo > ${backupPath}.next/layout; else echo 'Cannot identify the current deployment layout.' >&2 && rm -rf ${backupPath}.next && exit 1; fi && rm -rf ${backupPath} && mv ${backupPath}.next ${backupPath}"`,
                     { stdio: 'inherit' }
                 );
 
@@ -83,7 +83,7 @@ export function deploy(config?: DeployConfig) {
                 // Build and restart containers
                 console.log('🐳 Building and restarting containers...');
                 execSync(
-                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && ${dockerPath} compose -f docker/compose.yaml up -d --build"`,
+                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && if ${dockerPath} container inspect rusys-app >/dev/null 2>&1; then ${dockerPath} compose -f compose.yaml down; fi && ${dockerPath} compose -p docker -f docker/compose.yaml down && ${dockerPath} compose -f docker/compose.yaml up -d --build"`,
                     { stdio: 'inherit' }
                 );
 
@@ -107,7 +107,7 @@ export function rollback(config?: DeployConfig) {
 
             try {
                 execSync(
-                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && test -d ${backupPath}/dist && test -d ${backupPath}/docker && rm -rf dist docker && cp -a ${backupPath}/dist ./dist && cp -a ${backupPath}/docker ./docker && ${dockerPath} compose -f docker/compose.yaml up -d --build"`,
+                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && if test -f ${backupPath}/layout && grep -qx monorepo ${backupPath}/layout && test -d ${backupPath}/dist && test -d ${backupPath}/docker; then rm -rf dist docker && cp -a ${backupPath}/dist ./dist && cp -a ${backupPath}/docker ./docker && ${dockerPath} compose -f docker/compose.yaml up -d --build; elif test -f ${backupPath}/layout && grep -qx legacy ${backupPath}/layout && test -d ${backupPath}/dist && test -f ${backupPath}/compose.yaml && test -f ${backupPath}/Dockerfile; then ${dockerPath} compose -f docker/compose.yaml down && rm -rf dist docker && cp -a ${backupPath}/dist ./dist && cp ${backupPath}/compose.yaml ./compose.yaml && cp ${backupPath}/Dockerfile ./Dockerfile && ${dockerPath} compose -f compose.yaml up -d --build; else echo 'No valid deployment backup found.' >&2 && exit 1; fi"`,
                     { stdio: 'inherit' }
                 );
 

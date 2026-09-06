@@ -239,8 +239,13 @@ naršyklė ──HTTPS──> rusys-client (Nginx) ──vidinis Docker tinklas�
                           └─ dist/client                                 └─ dist/server + images volume
 ```
 
+Compose faile nurodytas `name: rusys-app`, todėl Docker ir Synology Container
+Manager visus servisus rodo tame pačiame `rusys-app` projekte, nepriklausomai
+nuo to, kad Compose failas laikomas `docker/` kataloge.
+
 - `rusys-client` pateikia `dist/client` statinius failus, TLS ir saugumo
   antraštes; jis išorėje išlaiko esamus `3000` (HTTP) bei `4000` (HTTPS) portus.
+  Jo certifikatų volume turi turėti `cert.pem` ir `privkey.pem` failus.
 - Nginx persiunčia API ir `/images/` užklausas į vidinį `rusys-server:3000`.
   Naršyklei tai lieka tas pats origin, todėl CORS ir kliento URL keisti nereikia.
 - `rusys-server` nėra publikuojamas per host portą. Jis turi tik API ir
