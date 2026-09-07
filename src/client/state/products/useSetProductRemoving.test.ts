@@ -1,7 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
 import { useDispatch } from 'react-redux';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
@@ -31,12 +30,12 @@ describe('useSetProductRemoving', () => {
         await result.current('Uogienės', 'Avietės', 21, true);
 
         expect(dispatch).toHaveBeenCalledWith(setProductsRemovingAction('Uogienės', 'Avietės', 21, true));
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetRemoving, {
-            group: 'Uogienės',
-            name: 'Avietės',
-            year: 21,
-            removing: true,
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s/products/Aviet%C4%97s/years/21',
+            { removing: true },
+            'PATCH'
+        );
     });
 
     it('calls update action with false value', async () => {
@@ -44,12 +43,12 @@ describe('useSetProductRemoving', () => {
         await result.current('Uogienės', 'Avietės', 22, false);
 
         expect(dispatch).toHaveBeenCalledWith(setProductsRemovingAction('Uogienės', 'Avietės', 22, false));
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetRemoving, {
-            group: 'Uogienės',
-            name: 'Avietės',
-            year: 22,
-            removing: false,
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s/products/Aviet%C4%97s/years/22',
+            { removing: false },
+            'PATCH'
+        );
     });
 
     it('does not call request when group is empty', async () => {

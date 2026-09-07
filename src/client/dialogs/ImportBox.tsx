@@ -50,17 +50,16 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
         const formData = new FormData();
         formData.append('import', file);
 
-        const response = await handleImport(formData);
-
-        setLoading(false);
-
-        if (response.ok) {
+        try {
+            await handleImport(formData);
             setFile(null);
             onClose();
             // Reload current page after successful import
             navigate(0);
-        } else {
-            setError(response.error ?? 'Failed to import file');
+        } catch (cause) {
+            setError(cause instanceof Error ? cause.message : 'Failed to import file');
+        } finally {
+            setLoading(false);
         }
     }, [file, handleImport, onClose, navigate]);
 

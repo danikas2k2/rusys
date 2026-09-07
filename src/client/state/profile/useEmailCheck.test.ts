@@ -20,14 +20,12 @@ describe('useEmailCheck', () => {
     afterEach(() => vi.clearAllMocks());
 
     it('calls user check', async () => {
-        const response = { ok: true, allowed: true };
+        const response = { allowed: true };
         request.mockResolvedValueOnce(response);
         const { result } = renderHook(() => useEmailCheck(), { wrapper: MockRedux });
         await result.current('big.buddy@email.com');
 
-        expect(request).toHaveBeenCalledWith('/checkUser', {
-            email: 'big.buddy@email.com',
-        });
+        expect(request).toHaveBeenCalledWith('/api/v1/access?email=big.buddy%40email.com', 'GET');
         expect(update).toHaveBeenCalledWith(response);
     });
 

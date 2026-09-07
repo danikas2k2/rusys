@@ -14,10 +14,12 @@ describe('useGetProducts', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    it('request data from /products and update current state', async () => {
+    it('loads products and their dependent collections', async () => {
         const { result } = renderHook(() => useGetProducts());
         await result.current();
 
-        expect(request).toHaveBeenCalledWith('/products');
+        expect(request).toHaveBeenCalledWith('/api/v1/products', 'GET');
+        expect(request).toHaveBeenCalledWith('/api/v1/groups', 'GET');
+        expect(request).toHaveBeenCalledWith('/api/v1/variants', 'GET');
     });
 });

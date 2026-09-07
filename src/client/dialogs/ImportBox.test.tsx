@@ -235,7 +235,7 @@ describe('<ImportBox>', () => {
     });
 
     it('shows error when import fails', async () => {
-        const importData = vi.fn().mockResolvedValue({ ok: false, error: 'Import failed' });
+        const importData = vi.fn().mockRejectedValue(new Error('Import failed'));
         vi.mocked(useImportHandler).mockReturnValue(importData);
 
         render(
@@ -254,7 +254,7 @@ describe('<ImportBox>', () => {
     });
 
     it('shows default error message when import fails without error', async () => {
-        const importData = vi.fn().mockResolvedValue({ ok: false });
+        const importData = vi.fn().mockRejectedValue({});
         vi.mocked(useImportHandler).mockReturnValue(importData);
 
         render(

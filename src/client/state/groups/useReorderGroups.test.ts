@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useReorderGroups } from '~/client/state/groups/useReorderGroups';
 
@@ -22,7 +20,8 @@ describe('useReorderGroups', () => {
         const groups = { Uogienės: 3, Daržovės: 2 };
         await result.current(groups);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsReorder, { groups });
+        expect(request).toHaveBeenNthCalledWith(1, '/api/v1/groups/order', { groups }, 'PUT');
+        expect(request).toHaveBeenNthCalledWith(2, '/api/v1/groups', 'GET');
     });
 
     it('does not call reorder action with empty group set', async () => {

@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
+import { ApiV1 } from '@rusys/common/api/v1';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useSetVariantImage } from '~/client/state/products/useSetVariantImage';
@@ -21,12 +21,11 @@ describe('useSetVariantImage', () => {
         const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Braškės', '0.5l', 'data:image/png;base64,AAA');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetVariantImage, {
-            group: 'Uogienės',
-            name: 'Braškės',
-            variant: '0.5l',
-            image: 'data:image/png;base64,AAA',
-        });
+        expect(request).toHaveBeenCalledWith(
+            ApiV1.productVariantImage('Uogienės', 'Braškės', '0.5l'),
+            { image: 'data:image/png;base64,AAA' },
+            'PUT'
+        );
     });
 
     it('does not call set variant image action with empty group', async () => {

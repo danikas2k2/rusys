@@ -206,14 +206,15 @@ export default defineConfig(({ mode }) => {
             fs: {
                 allow: [root],
             },
-            // Proxy API requests to Express server
             proxy: {
-                // Proxy all API endpoints to Express server
-                '^/(products|groups|variants|export|import|clientId|checkUser|summary|history|userProfiles|userProfile|images)':
-                    {
-                        target: 'http://localhost:3000',
-                        changeOrigin: true,
-                    },
+                '/api/': {
+                    target: 'http://localhost:3000',
+                    changeOrigin: true,
+                },
+                '/images/': {
+                    target: 'http://localhost:3000',
+                    changeOrigin: true,
+                },
             },
         },
         optimizeDeps: {

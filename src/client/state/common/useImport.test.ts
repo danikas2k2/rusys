@@ -1,7 +1,5 @@
 import { renderHook } from '@testing-library/react';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useApiRequest } from '~/client/state/common/useApiRequest';
 import { useImport } from '~/client/state/common/useImport';
 
@@ -22,6 +20,6 @@ describe('useImport', () => {
         const { result } = renderHook(() => useImport());
         await result.current(data);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.Import, data);
+        expect(request).toHaveBeenCalledWith('/api/v1/imports', data, 'POST');
     });
 });

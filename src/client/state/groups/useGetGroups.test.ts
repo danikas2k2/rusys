@@ -1,7 +1,5 @@
 import { renderHook } from '@testing-library/react';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useGetGroups } from '~/client/state/groups/useGetGroups';
 
@@ -20,6 +18,6 @@ describe('useGetGroups', () => {
         const { result } = renderHook(() => useGetGroups());
         await result.current();
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.Groups);
+        expect(request).toHaveBeenCalledWith('/api/v1/groups', 'GET');
     });
 });

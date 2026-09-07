@@ -1,7 +1,5 @@
 import { renderHook } from '@testing-library/react';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useGetVariants } from '~/client/state/variants/useGetVariants';
 
@@ -16,10 +14,11 @@ describe('useGetVariants', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    it('calls get action', async () => {
+    it('loads variants and groups', async () => {
         const { result } = renderHook(() => useGetVariants());
         await result.current();
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.Variants);
+        expect(request).toHaveBeenCalledWith('/api/v1/variants', 'GET');
+        expect(request).toHaveBeenCalledWith('/api/v1/groups', 'GET');
     });
 });

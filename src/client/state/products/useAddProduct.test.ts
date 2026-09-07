@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useAddProduct } from '~/client/state/products/useAddProduct';
 
@@ -25,22 +23,32 @@ describe('useAddProduct', () => {
         const { result } = renderHook(() => useAddProduct(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsAdd, {
-            group: 'Uogienės',
-            name: 'Avietės',
-            parent: undefined,
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/products',
+            {
+                group: 'Uogienės',
+                name: 'Avietės',
+                parent: undefined,
+            },
+            'POST'
+        );
     });
 
     it('passes parent through when given', async () => {
         const { result } = renderHook(() => useAddProduct(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės (Zewa)', 'Avietės');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsAdd, {
-            group: 'Uogienės',
-            name: 'Avietės (Zewa)',
-            parent: 'Avietės',
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/products',
+            {
+                group: 'Uogienės',
+                name: 'Avietės (Zewa)',
+                parent: 'Avietės',
+            },
+            'POST'
+        );
     });
 
     it('does not call update action with blank name', async () => {

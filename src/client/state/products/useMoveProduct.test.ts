@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useMoveProduct } from '~/client/state/products/useMoveProduct';
 
@@ -21,11 +19,12 @@ describe('useMoveProduct', () => {
         const { result } = renderHook(() => useMoveProduct(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės', 'Daržovės');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsMove, {
-            group: 'Uogienės',
-            name: 'Avietės',
-            newGroup: 'Daržovės',
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s/products/Aviet%C4%97s',
+            { group: 'Daržovės', newName: undefined },
+            'PATCH'
+        );
     });
 
     it('does not call move action with same name', async () => {

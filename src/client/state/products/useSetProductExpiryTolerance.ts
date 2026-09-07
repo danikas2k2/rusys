@@ -1,20 +1,23 @@
-import { ApiUrl, type ApiSetExpiryTolerance } from '@rusys/common/api';
+import { ApiV1 } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
+import { useGetProducts } from '~/client/state/products/useGetProducts';
 
 export function useSetProductExpiryTolerance(): (
     group: string,
     name: string,
     expiryToleranceDays: number
 ) => Promise<void> {
-    const request = useUpdatingApiRequest<ApiSetExpiryTolerance>();
+    const request = useUpdatingApiRequest();
+    const refresh = useGetProducts();
     return useCallback(
         async (group: string, name: string, expiryToleranceDays: number): Promise<void> => {
             if (group && name) {
-                return request(ApiUrl.ProductsSetExpiryTolerance, { group, name, expiryToleranceDays });
+                await request(ApiV1.groupProduct(group, name), { expiryToleranceDays }, 'PATCH');
+                await refresh();
             }
         },
-        [request]
+        [refresh, request]
     );
 }

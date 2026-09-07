@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useSetProductExpiryTolerance } from '~/client/state/products/useSetProductExpiryTolerance';
 
@@ -21,10 +19,11 @@ describe('useSetProductExpiryTolerance', () => {
         const { result } = renderHook(() => useSetProductExpiryTolerance(), { wrapper: MockRedux });
         await result.current('Daržovės', 'Agurkai', 365);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetExpiryTolerance, {
-            group: 'Daržovės',
-            name: 'Agurkai',
-            expiryToleranceDays: 365,
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Dar%C5%BEov%C4%97s/products/Agurkai',
+            { expiryToleranceDays: 365 },
+            'PATCH'
+        );
     });
 });

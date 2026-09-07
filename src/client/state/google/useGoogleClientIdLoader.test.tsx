@@ -39,7 +39,7 @@ describe('useGoogleClientIdLoader', () => {
         await act(async () => await result.current());
 
         expect(dispatch).toHaveBeenCalledWith({ type: 'google.loading', loading: true });
-        expect(request).toHaveBeenCalledWith('/clientId');
+        expect(request).toHaveBeenCalledWith('/api/v1/auth/client-id', 'GET');
         expect(dispatch).toHaveBeenCalledWith({ type: 'google.loading', loading: false });
     });
 
