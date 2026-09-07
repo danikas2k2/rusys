@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useGetSummaryHistory } from '~/client/state/history/useGetSummaryHistory';
@@ -24,7 +24,7 @@ describe('useGetSummaryHistory', () => {
         });
         await result.current();
 
-        expect(request).toHaveBeenCalledWith(ApiV1.summaryHistory('Uogienės', 'Avietės', 25), undefined, 'GET');
+        expect(request).toHaveBeenCalledWith(API.summaryHistory('Uogienės', 'Avietės', 25), undefined, 'GET');
     });
 
     it('does not request history when group and name are undefined', async () => {

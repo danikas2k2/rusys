@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useApplyReview } from '~/client/state/products/useApplyReview';
@@ -26,7 +26,7 @@ describe('useApplyReview', () => {
         await result.current(updates);
 
         expect(request).toHaveBeenCalledWith(
-            ApiV1.productReviewStatuses('Uogienės'),
+            API.productReviewStatuses('Uogienės'),
             {
                 updates: [
                     { name: 'Avietės', missing: true },

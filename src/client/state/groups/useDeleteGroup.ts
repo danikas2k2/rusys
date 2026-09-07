@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
@@ -10,7 +10,7 @@ export function useDeleteGroup(): (group: string) => Promise<void> {
     return useCallback(
         async (group: string): Promise<void> => {
             if (group) {
-                await request(ApiV1.group(group), undefined, 'DELETE');
+                await request(API.group(group), undefined, 'DELETE');
                 await refresh();
             }
         },

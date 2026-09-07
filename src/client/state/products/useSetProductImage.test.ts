@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useSetProductImage } from '~/client/state/products/useSetProductImage';
@@ -22,7 +22,7 @@ describe('useSetProductImage', () => {
         await result.current('Uogienės', 'Braškės', 'data:image/png;base64,AAA');
 
         expect(request).toHaveBeenCalledWith(
-            ApiV1.productImage('Uogienės', 'Braškės'),
+            API.productImage('Uogienės', 'Braškės'),
             { image: 'data:image/png;base64,AAA' },
             'PUT'
         );

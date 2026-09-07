@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
@@ -10,7 +10,7 @@ export function useAddProduct(): (group: string, name: string, parent?: string) 
     return useCallback(
         async (group: string, name: string, parent?: string): Promise<void> => {
             if (group && name) {
-                await request(ApiV1.products, { group, name, parent }, 'POST');
+                await request(API.products(), { group, name, parent }, 'POST');
                 await refresh();
             }
         },

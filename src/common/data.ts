@@ -111,4 +111,10 @@ export interface Variant {
     archivedAt?: number;
 }
 
+export interface ExportArchiveData {
+    products: readonly Product[];
+    variants: readonly Variant[];
+    groups: readonly Group[];
+}
+
 export type UpdateVariant = Partial<Pick<Variant, 'order' | 'suffix' | 'count' | 'units'>>;

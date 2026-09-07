@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import type { UpdateVariant } from '@rusys/common/data';
 import { useCallback } from 'react';
 
@@ -11,7 +11,7 @@ export function useUpdateVariant(): (group: string, variant: string, update: Upd
     return useCallback(
         async (group: string, variant: string, update: UpdateVariant): Promise<void> => {
             if (group && variant) {
-                await request(ApiV1.groupVariant(group, variant), update, 'PATCH');
+                await request(API.groupVariant(group, variant), update, 'PATCH');
                 await refresh();
             }
         },

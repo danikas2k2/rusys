@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { isEmpty } from 'lodash';
 import { useCallback } from 'react';
 
@@ -11,7 +11,7 @@ export function useReorderGroups(): (groups: Readonly<Record<string, number>>) =
     return useCallback(
         async (groups: Readonly<Record<string, number>>): Promise<void> => {
             if (!isEmpty(groups)) {
-                await request(ApiV1.groupOrder, { groups }, 'PUT');
+                await request(API.groupOrder(), { groups }, 'PUT');
                 await refresh();
             }
         },

@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useSetVariantImage } from '~/client/state/products/useSetVariantImage';
@@ -22,7 +22,7 @@ describe('useSetVariantImage', () => {
         await result.current('Uogienės', 'Braškės', '0.5l', 'data:image/png;base64,AAA');
 
         expect(request).toHaveBeenCalledWith(
-            ApiV1.productVariantImage('Uogienės', 'Braškės', '0.5l'),
+            API.productVariantImage('Uogienės', 'Braškės', '0.5l'),
             { image: 'data:image/png;base64,AAA' },
             'PUT'
         );

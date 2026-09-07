@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { useDispatch } from 'react-redux';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
@@ -12,7 +12,7 @@ export function useGoogleClientIdLoader(): () => Promise<void> {
     return async (): Promise<void> => {
         if (google.clientId == null && !google.loading) {
             dispatch(setLoadingAction(true));
-            await request(ApiV1.authClientId, 'GET');
+            await request(API.authClientId(), 'GET');
             dispatch(setLoadingAction(false));
         }
     };

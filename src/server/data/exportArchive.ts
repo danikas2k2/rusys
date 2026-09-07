@@ -1,8 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import type { ApiExport } from '@rusys/common/api';
-import type { Group, Product } from '@rusys/common/data';
+import type { ExportArchiveData, Group, Product } from '@rusys/common/data';
 import JSZip from 'jszip';
 
 import { exportEverything } from '~/server/data/common';
@@ -63,7 +62,7 @@ export interface ImportArchiveImage {
 }
 
 export interface ImportArchive {
-    data: ApiExport;
+    data: ExportArchiveData;
     images: ImportArchiveImage[];
 }
 
@@ -73,7 +72,7 @@ export async function readImportArchive(buffer: Buffer): Promise<ImportArchive> 
     if (!dataEntry) {
         throw new Error(`Archive is missing ${DATA_ENTRY}`);
     }
-    const data = JSON.parse(await dataEntry.async('string')) as ApiExport;
+    const data = JSON.parse(await dataEntry.async('string')) as ExportArchiveData;
 
     const images: ImportArchiveImage[] = [];
     for (const [entryPath, entry] of Object.entries(zip.files)) {

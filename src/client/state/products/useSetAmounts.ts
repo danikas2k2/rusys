@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import type { VariantAmount } from '@rusys/common/data';
 import { useCallback } from 'react';
 
@@ -25,7 +25,7 @@ export function useSetAmounts(): (
             comment?: string
         ): Promise<void> => {
             if (group && name) {
-                await request(ApiV1.productAmounts(group, name, year), { amounts, user, comment }, 'PUT');
+                await request(API.productAmounts(group, name, year), { amounts, user, comment }, 'PUT');
                 await refresh();
             }
         },

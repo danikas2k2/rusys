@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
@@ -9,6 +9,6 @@ export function useGetSummaryHistory(year: number, group?: string, name?: string
         if (!group || !name) {
             return;
         }
-        await request(ApiV1.summaryHistory(group, name, year), undefined, 'GET');
+        await request(API.summaryHistory(group, name, year), undefined, 'GET');
     }, [group, name, request, year]);
 }

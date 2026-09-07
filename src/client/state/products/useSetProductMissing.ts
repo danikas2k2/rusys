@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -21,7 +21,7 @@ export function useSetProductMissing(): (group: string, name: string, missing: b
             dispatch(setProductsMissingAction(group, name, missing));
 
             try {
-                await request(ApiV1.groupProduct(group, name), { missing }, 'PATCH');
+                await request(API.groupProduct(group, name), { missing }, 'PATCH');
                 await refresh();
             } catch (error) {
                 dispatch(rollbackProductsMissingAction(group, name));

@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { isEmpty } from 'lodash';
 import { useCallback } from 'react';
 
@@ -11,7 +11,7 @@ export function useReorderVariants(): (group: string, variants: Readonly<Record<
     return useCallback(
         async (group: string, variants: Readonly<Record<string, number>>): Promise<void> => {
             if (group && !isEmpty(variants)) {
-                await request(ApiV1.groupVariantOrder(group), { variants }, 'PUT');
+                await request(API.groupVariantOrder(group), { variants }, 'PUT');
                 await refresh();
             }
         },
