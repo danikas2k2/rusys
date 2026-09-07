@@ -17,7 +17,7 @@ export const API: Record<string, (...args: any[]) => string> = {
         `${BASE}/groups/${segment(group)}/variants/${segment(variant)}/copies`,
     groupVariantOrder: (group: string): string => `${BASE}/groups/${segment(group)}/variants/order`,
     groupProduct: (group: string, name: string): string => `${BASE}/groups/${segment(group)}/products/${segment(name)}`,
-    productReviewStatuses: (group: string): string => `${BASE}/groups/${segment(group)}/products/review-statuses`,
+    productReviewStatuses: (): string => `${BASE}/products/review-statuses`,
     productYear: (group: string, name: string, year: number): string =>
         `${BASE}/groups/${segment(group)}/products/${segment(name)}/years/${year}`,
     productAmounts: (group: string, name: string, year: number): string =>

@@ -60,7 +60,7 @@ export function createV1Router(): Router {
     router.get('/products', handleGetProducts);
     router.post('/products', handleCreateProduct);
 
-    router.patch('/groups/:group/products/review-statuses', handleProductReviewStatuses);
+    router.patch('/products/review-statuses', handleProductReviewStatuses);
     router.delete('/groups/:group/products/:name', handleDeleteProduct);
     router.patch('/groups/:group/products/:name', handlePatchProduct);
     router.put('/groups/:group/products/:name/image', handlePutProductImage);

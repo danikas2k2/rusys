@@ -25,16 +25,7 @@ describe('useApplyReview', () => {
         const { result } = renderHook(() => useApplyReview(), { wrapper: MockRedux });
         await result.current(updates);
 
-        expect(request).toHaveBeenCalledWith(
-            API.productReviewStatuses('Uogienės'),
-            {
-                updates: [
-                    { name: 'Avietės', missing: true },
-                    { name: 'Braškės', missing: false },
-                ],
-            },
-            'PATCH'
-        );
+        expect(request).toHaveBeenCalledWith(API.productReviewStatuses(), { updates }, 'PATCH');
     });
 
     it('does not call apply review action with an empty list', async () => {
