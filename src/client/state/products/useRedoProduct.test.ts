@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useRedoProduct } from '~/client/state/products/useRedoProduct';
@@ -26,7 +26,7 @@ describe('useRedoProduct', () => {
         await result.current('Uogienės', 'Avietės', 25);
 
         expect(request).toHaveBeenCalledWith(
-            `${ApiV1.productAmountHistory('Uogienės', 'Avietės', 25)}/redo`,
+            `${API.productAmountHistory('Uogienės', 'Avietės', 25)}/redo`,
             undefined,
             'POST'
         );

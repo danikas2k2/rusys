@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
@@ -10,7 +10,7 @@ export function useUpdateGroup(): (group: string, annual?: boolean, review?: boo
     return useCallback(
         async (group: string, annual?: boolean, review?: boolean, image?: string): Promise<void> => {
             if (group) {
-                await request(ApiV1.group(group), { annual, review, image }, 'PUT');
+                await request(API.group(group), { annual, review, image }, 'PUT');
                 await refresh();
             }
         },

@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
@@ -10,7 +10,7 @@ export function useRenameProduct(): (group: string, name: string, newName: strin
     return useCallback(
         async (group: string, name: string, newName: string): Promise<void> => {
             if (group && name && newName && name !== newName) {
-                await request(ApiV1.groupProduct(group, name), { name: newName }, 'PATCH');
+                await request(API.groupProduct(group, name), { name: newName }, 'PATCH');
                 await refresh();
             }
         },

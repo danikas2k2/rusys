@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -26,7 +26,7 @@ export function useSetProductRemoving(): (
             dispatch(setProductsRemovingAction(group, name, year, removing));
 
             try {
-                await request(ApiV1.productYear(group, name, year), { removing }, 'PATCH');
+                await request(API.productYear(group, name, year), { removing }, 'PATCH');
                 await refresh();
             } catch (error) {
                 dispatch(rollbackProductsRemovingAction(group, name, year));

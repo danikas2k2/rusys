@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import type { UpdateVariant } from '@rusys/common/data';
 import { useCallback } from 'react';
 
@@ -18,7 +18,7 @@ export function useCopyVariant(): (
         async (group, variant, newGroup, newVariant, update): Promise<void> => {
             if (group && variant && newGroup && (group !== newGroup || (newVariant && variant !== newVariant))) {
                 await request(
-                    ApiV1.groupVariantCopies(group, variant),
+                    API.groupVariantCopies(group, variant),
                     {
                         newGroup,
                         ...(newVariant && { newVariant }),

@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
@@ -10,7 +10,7 @@ export function useSetVariantImage(): (group: string, name: string, variant: str
     return useCallback(
         async (group: string, name: string, variant: string, image: string): Promise<void> => {
             if (group && name && variant) {
-                await request(ApiV1.productVariantImage(group, name, variant), { image }, 'PUT');
+                await request(API.productVariantImage(group, name, variant), { image }, 'PUT');
                 await refresh();
             }
         },

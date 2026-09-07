@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
@@ -27,7 +27,7 @@ export function useMoveConsumedToRecycled(): (
         ): Promise<void> => {
             if (group && name && variant && amount > 0) {
                 await request(
-                    ApiV1.productAmountHistory(group, name, year),
+                    API.productAmountHistory(group, name, year),
                     {
                         variant,
                         amount,

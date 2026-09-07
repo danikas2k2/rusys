@@ -1,4 +1,4 @@
-import { ApiV1 } from '@rusys/common/api/v1';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
@@ -7,9 +7,9 @@ export function useGetProducts(): () => Promise<void> {
     const request = useUpdatingApiRequest();
     return useCallback(async (): Promise<void> => {
         await Promise.all([
-            request(ApiV1.products, 'GET'),
-            request(ApiV1.groups, 'GET'),
-            request(ApiV1.variants, 'GET'),
+            request(API.products(), 'GET'),
+            request(API.groups(), 'GET'),
+            request(API.variants(), 'GET'),
         ]);
     }, [request]);
 }
