@@ -75,15 +75,23 @@ describe('v1 router', () => {
         expect(getUserProfiles).toHaveBeenCalledWith(['a@example.com', 'b@example.com']);
     });
 
-    it('updates review status within the group named in the URL', async () => {
+    it('updates review statuses across groups in one request', async () => {
         vi.mocked(setMissingBulk).mockResolvedValueOnce(true);
 
         const response = await request(app)
-            .patch('/api/v1/groups/Dar%C5%BEov%C4%97s/products/review-statuses')
-            .send({ updates: [{ name: 'Agurkai', missing: true }] });
+            .patch('/api/v1/products/review-statuses')
+            .send({
+                updates: [
+                    { group: 'Daržovės', name: 'Agurkai', missing: true },
+                    { group: 'Vaisiai', name: 'Obuoliai', missing: false },
+                ],
+            });
 
         expect(response.status).toBe(204);
-        expect(setMissingBulk).toHaveBeenCalledWith([{ group: 'Daržovės', name: 'Agurkai', missing: true }]);
+        expect(setMissingBulk).toHaveBeenCalledWith([
+            { group: 'Daržovės', name: 'Agurkai', missing: true },
+            { group: 'Vaisiai', name: 'Obuoliai', missing: false },
+        ]);
     });
 
     it('creates a recycled amount entry within the product year history', async () => {

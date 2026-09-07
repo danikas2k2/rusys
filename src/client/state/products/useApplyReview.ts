@@ -16,16 +16,7 @@ export function useApplyReview(): (updates: readonly ReviewStatusUpdate[]) => Pr
     return useCallback(
         async (updates: readonly ReviewStatusUpdate[]): Promise<void> => {
             if (updates.length) {
-                const byGroup = Map.groupBy(updates, (update) => update.group);
-                await Promise.all(
-                    [...byGroup].map(([group, groupUpdates]) =>
-                        request(
-                            API.productReviewStatuses(group),
-                            { updates: groupUpdates.map(({ name, missing }) => ({ name, missing })) },
-                            'PATCH'
-                        )
-                    )
-                );
+                await request(API.productReviewStatuses(), { updates }, 'PATCH');
                 await refresh();
             }
         },
