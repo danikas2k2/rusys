@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useUpdateVariant } from '~/client/state/variants/useUpdateVariant';
 
@@ -21,19 +19,20 @@ describe('useUpdateVariant', () => {
         const { result } = renderHook(() => useUpdateVariant(), { wrapper: MockRedux });
         await result.current('Uogienės', 'p', { order: 1 });
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.VariantsUpdate, { group: 'Uogienės', variant: 'p', order: 1 });
+        expect(request).toHaveBeenNthCalledWith(1, '/api/v1/groups/Uogien%C4%97s/variants/p', { order: 1 }, 'PATCH');
+        expect(request).toHaveBeenNthCalledWith(2, '/api/v1/variants', 'GET');
     });
 
     it('calls update action with additional parameters', async () => {
         const { result } = renderHook(() => useUpdateVariant(), { wrapper: MockRedux });
         await result.current('Uogienės', 'p', { order: 1, suffix: '1/2' });
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.VariantsUpdate, {
-            group: 'Uogienės',
-            variant: 'p',
-            order: 1,
-            suffix: '1/2',
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s/variants/p',
+            { order: 1, suffix: '1/2' },
+            'PATCH'
+        );
     });
 
     it('does not call update action with empty group', async () => {
@@ -54,9 +53,6 @@ describe('useUpdateVariant', () => {
         const { result } = renderHook(() => useUpdateVariant(), { wrapper: MockRedux });
         await result.current('Uogienės', 'p', {});
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.VariantsUpdate, {
-            group: 'Uogienės',
-            variant: 'p',
-        });
+        expect(request).toHaveBeenNthCalledWith(1, '/api/v1/groups/Uogien%C4%97s/variants/p', {}, 'PATCH');
     });
 });

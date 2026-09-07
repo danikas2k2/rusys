@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useRenameGroup } from '~/client/state/groups/useRenameGroup';
 
@@ -21,22 +19,25 @@ describe('useRenameGroup', () => {
         const { result } = renderHook(() => useRenameGroup(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Daržovės');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsRename, {
-            group: 'Uogienės',
-            newGroup: 'Daržovės',
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s',
+            { name: 'Daržovės', annual: undefined, review: undefined, image: undefined },
+            'PATCH'
+        );
+        expect(request).toHaveBeenNthCalledWith(2, '/api/v1/groups', 'GET');
     });
 
     it('calls rename action with annual and review parameters', async () => {
         const { result } = renderHook(() => useRenameGroup(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Daržovės', true, true);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsRename, {
-            group: 'Uogienės',
-            newGroup: 'Daržovės',
-            annual: true,
-            review: true,
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s',
+            { name: 'Daržovės', annual: true, review: true, image: undefined },
+            'PATCH'
+        );
     });
 
     it.each`

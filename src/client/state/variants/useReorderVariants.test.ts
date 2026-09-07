@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useReorderVariants } from '~/client/state/variants/useReorderVariants';
 
@@ -23,7 +21,8 @@ describe('useReorderVariants', () => {
         const { result } = renderHook(() => useReorderVariants(), { wrapper: MockRedux });
         await result.current('Uogienės', variants);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.VariantsReorder, { group: 'Uogienės', variants });
+        expect(request).toHaveBeenNthCalledWith(1, '/api/v1/groups/Uogien%C4%97s/variants/order', { variants }, 'PUT');
+        expect(request).toHaveBeenNthCalledWith(2, '/api/v1/variants', 'GET');
     });
 
     it('does not call reorder action with empty group', async () => {

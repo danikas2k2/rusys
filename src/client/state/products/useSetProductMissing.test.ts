@@ -1,7 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
 import { useDispatch } from 'react-redux';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
@@ -31,11 +30,12 @@ describe('useSetProductMissing', () => {
         await result.current('Uogienės', 'Avietės', true);
 
         expect(dispatch).toHaveBeenCalledWith(setProductsMissingAction('Uogienės', 'Avietės', true));
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetMissing, {
-            group: 'Uogienės',
-            name: 'Avietės',
-            missing: true,
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s/products/Aviet%C4%97s',
+            { missing: true },
+            'PATCH'
+        );
     });
 
     it('calls update action with false value', async () => {
@@ -43,11 +43,12 @@ describe('useSetProductMissing', () => {
         await result.current('Uogienės', 'Avietės', false);
 
         expect(dispatch).toHaveBeenCalledWith(setProductsMissingAction('Uogienės', 'Avietės', false));
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetMissing, {
-            group: 'Uogienės',
-            name: 'Avietės',
-            missing: false,
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s/products/Aviet%C4%97s',
+            { missing: false },
+            'PATCH'
+        );
     });
 
     it('does not call request when group is empty', async () => {

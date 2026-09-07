@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useRenameProduct } from '~/client/state/products/useRenameProduct';
 
@@ -21,11 +19,12 @@ describe('useRenameProduct', () => {
         const { result } = renderHook(() => useRenameProduct(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės', 'Gervuogės');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsRename, {
-            group: 'Uogienės',
-            name: 'Avietės',
-            newName: 'Gervuogės',
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s/products/Aviet%C4%97s',
+            { name: 'Gervuogės' },
+            'PATCH'
+        );
     });
 
     it('does not call rename actions with same name', async () => {

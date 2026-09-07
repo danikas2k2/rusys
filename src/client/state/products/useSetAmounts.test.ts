@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useSetAmounts } from '~/client/state/products/useSetAmounts';
 
@@ -25,34 +23,40 @@ describe('useSetAmounts', () => {
         const { result } = renderHook(() => useSetAmounts(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės', 25, [{ variant: 'p', amount: 1 }]);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetAmounts, {
-            group: 'Uogienės',
-            name: 'Avietės',
-            year: 25,
-            amounts: [{ variant: 'p', amount: 1 }],
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s/products/Aviet%C4%97s/years/25/amounts',
+            {
+                amounts: [{ variant: 'p', amount: 1 }],
+                user: undefined,
+                comment: undefined,
+            },
+            'PUT'
+        );
     });
 
     it('calls update action without amounts', async () => {
         const { result } = renderHook(() => useSetAmounts(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės', 25);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetAmounts, {
-            group: 'Uogienės',
-            name: 'Avietės',
-            year: 25,
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s/products/Aviet%C4%97s/years/25/amounts',
+            { amounts: undefined, user: undefined, comment: undefined },
+            'PUT'
+        );
     });
 
     it('calls update action with zero year (non-annual)', async () => {
         const { result } = renderHook(() => useSetAmounts(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės', 0);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetAmounts, {
-            group: 'Uogienės',
-            name: 'Avietės',
-            year: 0,
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s/products/Aviet%C4%97s/years/0/amounts',
+            { amounts: undefined, user: undefined, comment: undefined },
+            'PUT'
+        );
     });
 
     it('does not call update action with blank name', async () => {

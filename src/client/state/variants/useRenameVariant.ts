@@ -1,8 +1,9 @@
-import { ApiUrl, type ApiRenameVariant } from '@rusys/common/api';
+import { ApiV1 } from '@rusys/common/api/v1';
 import type { UpdateVariant } from '@rusys/common/data';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
+import { useGetVariants } from '~/client/state/variants/useGetVariants';
 
 export function useRenameVariant(): (
     group: string,
@@ -10,13 +11,15 @@ export function useRenameVariant(): (
     newVariant: string,
     update?: UpdateVariant
 ) => Promise<void> {
-    const request = useUpdatingApiRequest<ApiRenameVariant>();
+    const request = useUpdatingApiRequest();
+    const refresh = useGetVariants();
     return useCallback(
         async (group, variant, newVariant, update): Promise<void> => {
             if (group && variant && newVariant && variant !== newVariant) {
-                return request(ApiUrl.VariantsRename, { group, variant, newVariant, ...update });
+                await request(ApiV1.groupVariant(group, variant), { name: newVariant, ...update }, 'PATCH');
+                await refresh();
             }
         },
-        [request]
+        [refresh, request]
     );
 }

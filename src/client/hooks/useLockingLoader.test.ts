@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import React from 'react';
+import React, { StrictMode } from 'react';
 
 import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
@@ -50,6 +50,18 @@ describe('useLockingLoader', () => {
         loader.mockResolvedValueOnce(undefined);
         const { result } = renderHook(() => useLockingLoader(loader));
         await waitFor(() => expect(result.current).toStrictEqual(LoadingState.COMPLETE));
+    });
+
+    it('calls a loader once in StrictMode', async () => {
+        loader.mockResolvedValueOnce(undefined);
+
+        const { result } = renderHook(() => useLockingLoader(loader), {
+            wrapper: ({ children }) => React.createElement(StrictMode, undefined, children),
+        });
+
+        await waitFor(() => expect(result.current).toStrictEqual(LoadingState.COMPLETE));
+
+        expect(loader).toHaveBeenCalledTimes(1);
     });
 
     it('return FAILED state when loading failed', async () => {

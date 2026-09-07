@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useDeleteProduct } from '~/client/state/products/useDeleteProduct';
 
@@ -21,7 +19,12 @@ describe('useRemoveProduct', () => {
         const { result } = renderHook(() => useDeleteProduct(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsDelete, { group: 'Uogienės', name: 'Avietės' });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s/products/Aviet%C4%97s',
+            undefined,
+            'DELETE'
+        );
     });
 
     it('does not call remove action with empty name', async () => {

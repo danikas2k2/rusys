@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
+import { ApiV1 } from '@rusys/common/api/v1';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useGetSummaryHistory } from '~/client/state/history/useGetSummaryHistory';
@@ -18,40 +18,28 @@ describe('useGetSummaryHistory', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    it('calls request with ApiUrl.SummaryHistory and full payload', async () => {
+    it('loads the selected product summary history', async () => {
         const { result } = renderHook(() => useGetSummaryHistory(25, 'Uogienės', 'Avietės'), {
             wrapper: MockRedux,
         });
         await result.current();
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.SummaryHistory, {
-            year: 25,
-            group: 'Uogienės',
-            name: 'Avietės',
-        });
+        expect(request).toHaveBeenCalledWith(ApiV1.summaryHistory('Uogienės', 'Avietės', 25), undefined, 'GET');
     });
 
-    it('calls request with only year when group and name are undefined', async () => {
+    it('does not request history when group and name are undefined', async () => {
         const { result } = renderHook(() => useGetSummaryHistory(25), { wrapper: MockRedux });
         await result.current();
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.SummaryHistory, {
-            year: 25,
-            group: undefined,
-            name: undefined,
-        });
+        expect(request).not.toHaveBeenCalled();
     });
 
-    it('calls request with year and group when name is omitted', async () => {
+    it('does not request history when name is omitted', async () => {
         const { result } = renderHook(() => useGetSummaryHistory(25, 'Uogienės'), {
             wrapper: MockRedux,
         });
         await result.current();
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.SummaryHistory, {
-            year: 25,
-            group: 'Uogienės',
-            name: undefined,
-        });
+        expect(request).not.toHaveBeenCalled();
     });
 });

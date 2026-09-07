@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useRenameVariant } from '~/client/state/variants/useRenameVariant';
 
@@ -21,11 +19,8 @@ describe('useRenameVariant', () => {
         const { result } = renderHook(() => useRenameVariant(), { wrapper: MockRedux });
         await result.current('Uogienės', 'p', '1/2');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.VariantsRename, {
-            group: 'Uogienės',
-            variant: 'p',
-            newVariant: '1/2',
-        });
+        expect(request).toHaveBeenNthCalledWith(1, '/api/v1/groups/Uogien%C4%97s/variants/p', { name: '1/2' }, 'PATCH');
+        expect(request).toHaveBeenNthCalledWith(2, '/api/v1/variants', 'GET');
     });
 
     it.each`

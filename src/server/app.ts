@@ -10,6 +10,7 @@ import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 
 import { debug } from '~/server/api/debug';
+import { createV1Router } from '~/server/api/v1/router';
 import { IMAGES_DIR, IMAGES_URL_PATH } from '~/server/data/images';
 import { ApiUrlHandlers } from '~/server/handlers';
 import helmetOptions from '~/server/helmetOptions';
@@ -68,7 +69,10 @@ export function setupHelmet(app: Express): Express {
 }
 
 export function setupHandlers(app: Express): Express {
-    // Register API routes first
+    // Keep the legacy routes during the client migration. New clients use this versioned router.
+    app.use('/api/v1', createV1Router());
+
+    // Register legacy API routes first.
     for (const [url, handler] of Object.entries(ApiUrlHandlers)) {
         app.post(url, handler);
     }
