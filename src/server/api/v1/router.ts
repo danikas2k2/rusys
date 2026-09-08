@@ -46,10 +46,10 @@ export function createV1Router(): Router {
     router.put('/user-profiles/:email', handlePutUserProfile);
 
     router.get('/groups', handleGetGroups);
+    router.put('/groups/order', handlePutGroupsOrder);
     router.put('/groups/:group', handlePutGroup);
     router.patch('/groups/:group', handlePatchGroup);
     router.delete('/groups/:group', handleDeleteGroup);
-    router.put('/groups/order', handlePutGroupsOrder);
 
     router.get('/variants', handleGetVariants);
     router.delete('/groups/:group/variants/:variant', handleDeleteVariant);
