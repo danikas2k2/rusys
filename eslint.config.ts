@@ -1,0 +1,225 @@
+import ts from '@typescript-eslint/eslint-plugin';
+import parser from '@typescript-eslint/parser';
+import vitest from '@vitest/eslint-plugin';
+import prettierConfig from 'eslint-config-prettier';
+import imp from 'eslint-plugin-import';
+import a11y from 'eslint-plugin-jsx-a11y';
+import prettier from 'eslint-plugin-prettier';
+import react from 'eslint-plugin-react';
+import reactCompiler from 'eslint-plugin-react-compiler';
+import reactHooks from 'eslint-plugin-react-hooks';
+
+export default [
+    {
+        ignores: [
+            'coverage/**',
+            'data/**',
+            'dist/**',
+            'docker/**',
+            'node_modules/**',
+            'src/client/public/**',
+            '**/*.config.{js,ts,mts}',
+        ],
+    },
+    {
+        files: ['**/*.{ts,tsx}'],
+        ...react.configs.flat.recommended,
+        settings: {
+            react: {
+                version: 'detect',
+            },
+        },
+    },
+    {
+        files: ['**/*.{ts,tsx}'],
+        ...reactHooks.configs.flat['recommended-latest'],
+    },
+    {
+        files: ['**/*.{ts,tsx}'],
+        ...a11y.flatConfigs.recommended,
+    },
+    {
+        files: ['**/*.test.{ts,tsx}', '**/__mocks__/*.{ts,tsx}'],
+        ...vitest.configs.all,
+        languageOptions: {
+            parser,
+            parserOptions: {
+                project: true,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    project: './tsconfig.json',
+                    alwaysTryTypes: true,
+                },
+            },
+        },
+        rules: {
+            ...vitest.configs.all.rules,
+            'vitest/no-hooks': 'off',
+            'vitest/prefer-expect-assertions': 'off',
+            'vitest/prefer-importing-vitest-globals': 'off',
+            'vitest/prefer-describe-function-title': 'off',
+            'vitest/require-mock-type-parameters': 'off',
+            'vitest/require-top-level-describe': 'off',
+            'vitest/max-expects': ['error', { max: 9 }],
+            'vitest/require-hook': ['error', { allowedFunctionCalls: ['mockEnv', 'mockWindow'] }],
+        },
+    },
+    {
+        files: ['**/*.{ts,tsx}'],
+        plugins: { prettier },
+        rules: {
+            ...prettierConfig.rules,
+            'prettier/prettier': 'error',
+        },
+    },
+    {
+        files: ['**/*.{ts,tsx}'],
+        languageOptions: {
+            parser,
+            parserOptions: {
+                ecmaFeatures: { modules: true },
+                ecmaVersion: 'latest',
+                project: true,
+            },
+            globals: {
+                Atomics: 'readonly',
+                SharedArrayBuffer: 'readonly',
+            },
+        },
+        plugins: {
+            import: imp,
+            '@typescript-eslint': ts,
+            'react-compiler': reactCompiler,
+        },
+        rules: {
+            ...ts.configs['eslint-recommended'].rules,
+            ...ts.configs.recommended.rules,
+            '@typescript-eslint/explicit-function-return-type': [
+                'warn',
+                {
+                    allowExpressions: true,
+                    allowTypedFunctionExpressions: true,
+                    allowHigherOrderFunctions: true,
+                    allowDirectConstAssertionInArrowFunctions: true,
+                    allowConciseArrowFunctionExpressionsStartingWithVoid: true,
+                    allowFunctionsWithoutTypeParameters: true,
+                },
+            ],
+            '@typescript-eslint/no-angle-bracket-type-assertion': 'off',
+            '@typescript-eslint/no-unused-expressions': ['error', {}],
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                {
+                    vars: 'all',
+                    varsIgnorePattern: '^_',
+                    args: 'after-used',
+                    argsIgnorePattern: '^_',
+                    caughtErrors: 'all',
+                    caughtErrorsIgnorePattern: '^_',
+                    destructuredArrayIgnorePattern: '^_',
+                },
+            ],
+            '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'as' }],
+            '@typescript-eslint/consistent-generic-constructors': 'error',
+            '@typescript-eslint/method-signature-style': ['error', 'property'],
+            '@typescript-eslint/consistent-type-imports': [
+                'error',
+                {
+                    prefer: 'type-imports',
+                    fixStyle: 'inline-type-imports',
+                    disallowTypeAnnotations: true,
+                },
+            ],
+            '@typescript-eslint/no-redeclare': 'error',
+            'comma-dangle': ['error', 'only-multiline'],
+            'import/no-nodejs-modules': 'off',
+            'import/no-unresolved': 'off',
+            'import/prefer-default-export': 'off',
+            'import/order': 'off',
+            'no-console': 'warn',
+            'no-unused-expressions': 'error',
+            'no-unused-labels': 'error',
+            'no-unused-vars': 'off',
+            'no-useless-rename': 'error',
+            'object-shorthand': 'error',
+            'padded-blocks': ['error', 'never'],
+            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
+            curly: ['error', 'all'],
+            semi: ['error', 'always'],
+            eqeqeq: ['error', 'always', { null: 'ignore' }],
+            'react-hooks/exhaustive-deps': 'error',
+            'react-compiler/react-compiler': 'error',
+            'react/prop-types': 'off',
+            'array-callback-return': 'error',
+            'no-self-compare': 'error',
+            'no-template-curly-in-string': 'error',
+            'default-case-last': 'error',
+            'dot-notation': 'error',
+            'no-alert': 'error',
+            'no-else-return': 'error',
+            'no-eval': 'warn',
+            'no-lonely-if': 'error',
+            'no-multi-assign': 'error',
+            'no-multi-str': 'error',
+            'no-param-reassign': 'error',
+            'no-return-assign': 'error',
+            'no-script-url': 'error',
+            'no-sequences': 'error',
+            'no-throw-literal': 'error',
+            'no-unneeded-ternary': 'error',
+            'no-useless-call': 'error',
+            'no-useless-constructor': 'error',
+            'no-useless-return': 'error',
+            'operator-assignment': ['error', 'always'],
+            'prefer-exponentiation-operator': 'error',
+            'prefer-object-has-own': 'error',
+            'prefer-promise-reject-errors': 'error',
+            'prefer-object-spread': 'error',
+            'prefer-template': 'error',
+            yoda: 'error',
+            radix: 'error',
+            'react/jsx-boolean-value': 'error',
+            'react/jsx-curly-brace-presence': ['error', 'never'],
+            'react/jsx-fragments': ['error', 'syntax'],
+            'react/jsx-no-comment-textnodes': 'error',
+            'react/jsx-no-duplicate-props': 'error',
+            'react/jsx-no-target-blank': 'error',
+            'react/no-children-prop': 'error',
+            'react/no-deprecated': 'error',
+            'react/no-find-dom-node': 'error',
+            'react/no-string-refs': 'error',
+            'react/self-closing-comp': 'error',
+            'react/void-dom-elements-no-children': 'error',
+            'no-duplicate-imports': 'off',
+            'import/named': 'off',
+            'import/default': 'off',
+            'import/no-extraneous-dependencies': 'off',
+            'prefer-const': 'error',
+            'no-shadow': 'error',
+            'no-redeclare': 'off',
+            'block-scoped-var': 'error',
+            'arrow-body-style': ['error', 'as-needed'],
+            'prefer-arrow-callback': ['error', { allowNamedFunctions: false }],
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    project: './tsconfig.json',
+                },
+            },
+        },
+    },
+    {
+        files: ['**/*.test.{ts,tsx}', '**/__mocks__/*.{ts,tsx}'],
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'off',
+            'react/display-name': 'off',
+            'import/no-named-as-default': 'off',
+            'no-console': 'off',
+            'vitest/valid-title': ['error', { disallowedWords: ['should'] }],
+        },
+    },
+];

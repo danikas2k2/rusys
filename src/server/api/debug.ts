@@ -3,7 +3,7 @@ import type { Request } from 'express';
 import type { UploadedFile } from 'express-fileupload';
 import { isEmpty } from 'lodash';
 
-// oxlint-disable-next-line no-console
+// eslint-disable-next-line no-console
 const debug: typeof console.debug = process.env.NODE_ENV === 'development' ? console.debug : () => {};
 export { debug };
 

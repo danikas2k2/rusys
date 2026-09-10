@@ -1,7 +1,7 @@
-import type { MockInstance } from 'vitest';
-
 import fs from 'fs';
 import https from 'https';
+
+import type { MockInstance } from 'vitest';
 
 import { ApiUrl } from '@rusys/common/api';
 // @vitest-environment node
@@ -128,7 +128,7 @@ describe('app', () => {
                 const response = await request(app).post(url);
 
                 expect(response.status).toBe(200);
-                expect(handle).toHaveBeenCalled();
+                expect(handle).toHaveBeenCalledWith();
             });
 
             it('does not respond to GET', async () => {
@@ -300,7 +300,7 @@ describe('app', () => {
 
 describe('app (prod mode)', () => {
     // Re-import app with isDevMode returning false to test the prod-only branches
-    let setupHelmetProd: typeof import('~/server/app').setupHelmet; // oxlint-disable-line typescript/consistent-type-imports
+    let setupHelmetProd: typeof import('~/server/app').setupHelmet; // eslint-disable-line @typescript-eslint/consistent-type-imports
 
     beforeAll(async () => {
         vi.doMock(import('@rusys/common/utils/dev'), () => ({ isDevMode: () => false }));

@@ -148,7 +148,7 @@ export default defineConfig(({ mode }) => {
                             return 'runtime';
                         }
 
-                        // oxlint-disable-next-line no-console
+                        // eslint-disable-next-line no-console
                         console.warn(`[VITE] unresolved package "${pkg}" from "${id}"\n`);
 
                         return 'other';

@@ -11,7 +11,6 @@ export function DragHandle({ ref, style, ...props }: React.ComponentPropsWithRef
             <div
                 ref={ref}
                 data-drag-handle
-                // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                 role="button"
                 aria-label={useLabel('Drag')}
                 style={{

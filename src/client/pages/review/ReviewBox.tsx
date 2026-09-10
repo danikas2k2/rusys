@@ -40,7 +40,7 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
 
     useEffect(() => {
         if (opened) {
-            // oxlint-disable-next-line react/set-state-in-effect -- reset draft state when dialog opens
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- reset draft state when dialog opens
             setTouchedGroups(new Set());
             setCheckedKeys(new Set());
             setSelectedGroup('');

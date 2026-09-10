@@ -93,7 +93,7 @@ export function GroupBox({
             });
             formRef.current.resetTouched();
             formRef.current.resetDirty();
-            // oxlint-disable-next-line react/set-state-in-effect -- submission state reset when modal opens
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- submission state reset when modal opens
             setSubmitting(false);
             setLoading(false);
 

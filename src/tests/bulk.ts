@@ -13,7 +13,7 @@ const $set = <T>(res: T, s: unknown): T =>
 
 type Paths = _.PropertyPath | _.PropertyPath[];
 type UnsetOperation = { $unset: Paths };
-const $unset = <T>(res: T, s: unknown): T => $paths(s).reduce((r, p) => (_.unset(r, p), r), res); // oxlint-disable-line no-sequences
+const $unset = <T>(res: T, s: unknown): T => $paths(s).reduce((r, p) => (_.unset(r, p), r), res); // eslint-disable-line no-sequences
 
 type PushOperation = { $push: PathObject };
 const $push = <T>(res: T, s: unknown): T =>

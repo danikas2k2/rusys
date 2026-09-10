@@ -1,6 +1,8 @@
 import { MantineProvider } from '@mantine/core';
 import { DatesProvider } from '@mantine/dates';
+
 import 'dayjs/locale/lt';
+
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -14,18 +16,18 @@ import { getTheme } from '~/client/theme';
 export function bootstrap(): void {
     const container = document.getElementById('root');
     if (!container) {
-        // oxlint-disable-next-line no-console
+        // eslint-disable-next-line no-console
         console.error('No #root container found');
         return;
     }
 
     createRoot(container, {
         onCaughtError: (error, errorInfo) => {
-            // oxlint-disable-next-line no-console
+            // eslint-disable-next-line no-console
             console.warn(`[ERR] Caught error in React tree: ${error}`, errorInfo);
         },
         onUncaughtError: (error, errorInfo) => {
-            // oxlint-disable-next-line no-console
+            // eslint-disable-next-line no-console
             console.error(`[ERR] Uncaught error in React tree: ${error}`, errorInfo);
         },
     }).render(

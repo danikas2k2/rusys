@@ -68,7 +68,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
     useEffect(() => {
         if (!opened) {
             // Intentionally clearing state when dialog closes for proper cleanup
-            // oxlint-disable-next-line react/set-state-in-effect
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setError(undefined);
             setFile(null);
             setLoading(false);

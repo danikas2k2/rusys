@@ -16,7 +16,7 @@ export function ColorSchemeToggle({ auto = true }: ColorSchemeToggleProps) {
 
     // Sync animatedValue when colorScheme changes elsewhere (e.g. system / another control)
     useEffect(() => {
-        // oxlint-disable-next-line react/set-state-in-effect -- mirror external scheme into local SegmentedControl value
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror external scheme into local SegmentedControl value
         setAnimatedValue(colorScheme);
     }, [colorScheme]);
 
