@@ -1,4 +1,4 @@
-export const expectElement = (type?: string | Function | object, props?: object) => {
+export const expectElement = (type?: string | ((...args: never[]) => unknown) | object, props?: object) => {
     const element = { $$typeof: expect.any(Symbol) };
 
     switch (typeof type) {

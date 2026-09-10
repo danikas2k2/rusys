@@ -1,6 +1,7 @@
 // The Vitest entry point also augments Vitest's `expect` types. The generic
 // entry point only registers matchers at runtime as of jest-dom 7.
 import '@testing-library/jest-dom/vitest';
+
 import { expect } from 'vitest';
 
 import type { MatcherState } from '@vitest/expect';

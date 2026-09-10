@@ -1,8 +1,8 @@
-import { Accordion, Avatar, Badge, Button, type ComboboxItem, Flex, Group, Select, Stack, Text } from '@mantine/core';
+import { Accordion, Avatar, Badge, Button, Flex, Group, Select, Stack, Text, type ComboboxItem } from '@mantine/core';
 import type { ProductAmounts, VariantAmount } from '@rusys/common/data';
 import { getCombinedAmounts, getVariantAmount } from '@rusys/common/utils/amounts';
 import { formatDateOnly, getExpiryStatus, parseDateOnly } from '@rusys/common/utils/expiry';
-import React, { type RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 
 import {
     AddIcon,

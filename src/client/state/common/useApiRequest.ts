@@ -2,16 +2,7 @@ import axios from 'axios';
 import { useCallback } from 'react';
 
 export type RequestMethod =
-    | 'GET'
-    | 'HEAD'
-    | 'POST'
-    | 'PUT'
-    | 'DELETE'
-    | 'CONNECT'
-    | 'OPTIONS'
-    | 'TRACE'
-    | 'PATCH'
-    | 'MOVE';
+    'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'CONNECT' | 'OPTIONS' | 'TRACE' | 'PATCH' | 'MOVE';
 
 export type ResponseType = 'json' | 'blob';
 
@@ -30,12 +21,12 @@ export function useApiRequest(): <R, D = object | string>(
         ): Promise<R> => {
             if (typeof data === 'string') {
                 if (typeof method === 'string') {
-                    // oxlint-disable-next-line no-param-reassign
+                    // eslint-disable-next-line no-param-reassign
                     data = { data } as D;
                 } else {
-                    // oxlint-disable-next-line no-param-reassign
+                    // eslint-disable-next-line no-param-reassign
                     method = data as RequestMethod;
-                    // oxlint-disable-next-line no-param-reassign
+                    // eslint-disable-next-line no-param-reassign
                     data = undefined;
                 }
             }

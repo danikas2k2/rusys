@@ -19,7 +19,6 @@ export function ProfileAvatar({ size = 'md', radius = '50%', variant }: ProfileA
     if (profile.picture) {
         return (
             <Avatar
-                // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                 role="figure"
                 src={profile.picture}
                 alt={name}
@@ -34,7 +33,6 @@ export function ProfileAvatar({ size = 'md', radius = '50%', variant }: ProfileA
     if (profile.dev || profile.sub === DEV_MODE_SUB) {
         return (
             <Avatar
-                // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                 role="figure"
                 color="cyan.9"
                 size={size}
@@ -48,15 +46,7 @@ export function ProfileAvatar({ size = 'md', radius = '50%', variant }: ProfileA
     }
 
     return (
-        <Avatar
-            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
-            role="figure"
-            aria-label={name}
-            size={size}
-            variant={variant}
-            radius={radius}
-            data-picture="false"
-        >
+        <Avatar role="figure" aria-label={name} size={size} variant={variant} radius={radius} data-picture="false">
             {name
                 .split(' ', 2)
                 .map(([letter]) => letter)

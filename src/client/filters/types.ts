@@ -1,1 +1,1 @@
-export type FilterPredicate<T = any> = (v: T) => boolean;
+export type FilterPredicate<T = unknown> = (v: T) => boolean;
