@@ -26,8 +26,12 @@ function splitAtCommaOrParen(char, str) {
     let i = 0;
     let depth = 0;
     while (i < str.length && (str[i] !== char || depth)) {
-        if (str[i] === '(') depth++;
-        if (str[i] === ')') depth--;
+        if (str[i] === '(') {
+            depth++;
+        }
+        if (str[i] === ')') {
+            depth--;
+        }
         i++;
     }
     return [str.slice(0, i), str.slice(i + 1)];
@@ -36,7 +40,9 @@ function splitAtCommaOrParen(char, str) {
 function parseLightDark(value) {
     const fn = 'light-dark(';
     const idx = value.indexOf(fn);
-    if (idx === -1) return { light: value, dark: value };
+    if (idx === -1) {
+        return { light: value, dark: value };
+    }
     const prefix = value.slice(0, idx);
     const rest = value.slice(idx + fn.length);
     const [args, suffix] = splitAtCommaOrParen(')', rest);
@@ -55,7 +61,9 @@ const lightDarkFallback = () => ({
         root.walkRules((rule) => {
             let node = rule.parent;
             while (node) {
-                if (node.type === 'atrule' && node.name === 'supports' && node.params.includes('light-dark')) return;
+                if (node.type === 'atrule' && node.name === 'supports' && node.params.includes('light-dark')) {
+                    return;
+                }
                 node = node.parent;
             }
             rules.push(rule);
@@ -63,12 +71,18 @@ const lightDarkFallback = () => ({
         for (const rule of rules) {
             const entries = [];
             rule.walkDecls((decl) => {
-                if (!/\blight-dark\s*\(/.test(decl.value)) return;
+                if (!/\blight-dark\s*\(/.test(decl.value)) {
+                    return;
+                }
                 entries.push({ decl, ...parseLightDark(decl.value) });
             });
-            if (!entries.length) continue;
+            if (!entries.length) {
+                continue;
+            }
 
-            for (const { decl } of entries) decl.remove();
+            for (const { decl } of entries) {
+                decl.remove();
+            }
 
             const supportsRule = rule.clone({ nodes: [] });
             for (const { decl } of entries) {
@@ -78,7 +92,9 @@ const lightDarkFallback = () => ({
             const supports = postcss.atRule({ name: 'supports', params: SUPPORTS_LIGHT_DARK });
             supports.append(supportsRule);
             rule.parent.insertAfter(rule, supports);
-            if (!rule.nodes.length) rule.remove();
+            if (!rule.nodes.length) {
+                rule.remove();
+            }
         }
     },
 });

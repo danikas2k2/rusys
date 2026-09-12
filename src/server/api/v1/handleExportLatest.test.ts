@@ -1,10 +1,9 @@
 // @vitest-environment node
+import { handleExportLatest } from '~/server/api/v1/handleExportLatest';
 import { buildExportArchive } from '~/server/data/exportArchive';
+import { mockResponse } from '~/server/data/tests/handleResponse';
 
 vi.mock(import('~/server/data/exportArchive'));
-
-import { handleExportLatest } from '~/server/api/v1/handleExportLatest';
-import { mockResponse } from '~/server/data/tests/handleResponse';
 
 describe('handleExportLatest', () => {
     it('handles its request', async () => {

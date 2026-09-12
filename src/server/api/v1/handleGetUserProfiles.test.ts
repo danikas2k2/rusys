@@ -1,10 +1,9 @@
 // @vitest-environment node
+import { handleGetUserProfiles } from '~/server/api/v1/handleGetUserProfiles';
+import { mockResponse } from '~/server/data/tests/handleResponse';
 import { getUserProfiles } from '~/server/data/userProfiles';
 
 vi.mock(import('~/server/data/userProfiles'));
-
-import { handleGetUserProfiles } from '~/server/api/v1/handleGetUserProfiles';
-import { mockResponse } from '~/server/data/tests/handleResponse';
 
 describe('handleGetUserProfiles', () => {
     it('handles its request', async () => {

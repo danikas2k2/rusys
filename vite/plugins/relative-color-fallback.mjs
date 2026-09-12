@@ -15,7 +15,9 @@ export const relativeColorFallback = () => ({
         root.walkRules((rule) => {
             let node = rule.parent;
             while (node) {
-                if (node.type === 'atrule' && node.name === 'supports') return;
+                if (node.type === 'atrule' && node.name === 'supports') {
+                    return;
+                }
                 node = node.parent;
             }
             rules.push(rule);
@@ -28,17 +30,25 @@ export const relativeColorFallback = () => ({
                     entries.push(decl);
                 }
             });
-            if (!entries.length) continue;
+            if (!entries.length) {
+                continue;
+            }
 
-            for (const decl of entries) decl.remove();
+            for (const decl of entries) {
+                decl.remove();
+            }
 
             const supportsRule = rule.clone({ nodes: [] });
-            for (const decl of entries) supportsRule.append(decl.clone());
+            for (const decl of entries) {
+                supportsRule.append(decl.clone());
+            }
 
             const supports = postcss.atRule({ name: 'supports', params: SUPPORTS_RELATIVE_COLOR });
             supports.append(supportsRule);
             rule.parent.insertAfter(rule, supports);
-            if (!rule.nodes.length) rule.remove();
+            if (!rule.nodes.length) {
+                rule.remove();
+            }
         }
     },
 });

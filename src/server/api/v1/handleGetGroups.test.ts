@@ -1,10 +1,9 @@
 // @vitest-environment node
+import { handleGetGroups } from '~/server/api/v1/handleGetGroups';
 import { getGroups } from '~/server/data/groups';
+import { mockResponse } from '~/server/data/tests/handleResponse';
 
 vi.mock(import('~/server/data/groups'));
-
-import { handleGetGroups } from '~/server/api/v1/handleGetGroups';
-import { mockResponse } from '~/server/data/tests/handleResponse';
 
 describe('handleGetGroups', () => {
     it('handles its request', async () => {

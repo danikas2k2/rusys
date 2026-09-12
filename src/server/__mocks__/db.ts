@@ -6,6 +6,8 @@ import { MongoClient } from 'mongodb';
 
 import type * as DbModule from '~/server/db';
 
+/* eslint-disable vitest/require-top-level-describe -- this shared mock must own its database lifecycle */
+
 // Every test file gets its own database on the single shared replica set
 // (started once in vitest/globalSetup.mongo.ts) so parallel files can't see
 // each other's data despite reusing the same server. Kept short because some

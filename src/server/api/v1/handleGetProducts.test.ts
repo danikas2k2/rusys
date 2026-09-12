@@ -1,10 +1,9 @@
 // @vitest-environment node
 import { getProductsWithYears } from '~/server/api/response';
-
-vi.mock(import('~/server/api/response'));
-
 import { handleGetProducts } from '~/server/api/v1/handleGetProducts';
 import { mockResponse } from '~/server/data/tests/handleResponse';
+
+vi.mock(import('~/server/api/response'));
 
 describe('handleGetProducts', () => {
     it('handles its request', async () => {

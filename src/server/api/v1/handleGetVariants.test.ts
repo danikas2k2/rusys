@@ -1,10 +1,9 @@
 // @vitest-environment node
+import { handleGetVariants } from '~/server/api/v1/handleGetVariants';
+import { mockResponse } from '~/server/data/tests/handleResponse';
 import { getVariants } from '~/server/data/variants';
 
 vi.mock(import('~/server/data/variants'));
-
-import { handleGetVariants } from '~/server/api/v1/handleGetVariants';
-import { mockResponse } from '~/server/data/tests/handleResponse';
 
 describe('handleGetVariants', () => {
     it('handles its request', async () => {
