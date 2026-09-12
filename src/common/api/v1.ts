@@ -2,7 +2,8 @@ export const BASE = '/api/v1';
 
 const segment = (value: string): string => encodeURIComponent(value);
 
-export const API: Record<string, (...args: any[]) => string> = {
+// TODO add types
+export const API = {
     authClientId: () => `${BASE}/auth/client-id`,
     access: (email: string): string => `${BASE}/access?email=${segment(email)}`,
     userProfiles: (emails: readonly string[] = []): string =>

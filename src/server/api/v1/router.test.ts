@@ -65,7 +65,7 @@ describe('v1 router', () => {
         const response = await request(app).get('/api/v1/auth/client-id');
 
         expect(response.status).toBe(200);
-        expect(response.body.clientId).toEqual(expect.any(String));
+        expect(response.body.clientId).toStrictEqual(expect.any(String));
     });
 
     it('updates and reorders groups through their collection routes', async () => {
@@ -353,7 +353,7 @@ describe('v1 router', () => {
         expect(response.status).toBe(200);
         expect(response.headers['content-type']).toMatch(/^application\/zip/);
         expect(response.headers['content-disposition']).toMatch(/attachment/);
-        expect(buildExportArchive).toHaveBeenCalledOnce();
+        expect(buildExportArchive).toHaveBeenCalledExactlyOnceWith();
     });
 
     it('rejects imports without exactly one file', async () => {

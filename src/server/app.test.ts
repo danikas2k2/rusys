@@ -1,7 +1,7 @@
-import type { MockInstance } from 'vitest';
-
 import fs from 'fs';
 import https from 'https';
+
+import type { MockInstance } from 'vitest';
 
 // @vitest-environment node
 import express, { type Express } from 'express';
@@ -48,7 +48,7 @@ describe('app', () => {
         expect(debug).toHaveBeenCalledWith('HTTP server listening on http://127.0.0.1:8080');
     });
 
-    describe('HTTPS server', () => {
+    describe('hTTPS server', () => {
         const app = {} as Express;
         const listen = vi.fn((_port: unknown, _host: unknown, callback: () => void) => callback());
         let createServer: MockInstance;
