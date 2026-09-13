@@ -8,6 +8,10 @@ server {
     listen ${HTTPS_PORT} ssl;
     server_name _;
 
+    # Images use base64 JSON (up to 28 MB), while import archives may be 200 MB.
+    # Keep this above both limits so nginx forwards the request to the API.
+    client_max_body_size 201m;
+
     ssl_certificate /etc/nginx/certs/cert.pem;
     ssl_certificate_key /etc/nginx/certs/privkey.pem;
 

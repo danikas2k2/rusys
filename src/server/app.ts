@@ -3,7 +3,7 @@ import https from 'node:https';
 
 import { BASE } from '@rusys/common/api/v1';
 import { isDevMode } from '@rusys/common/utils/dev';
-import { MAX_IMPORT_FILE_SIZE } from '@rusys/common/utils/files';
+import { MAX_IMAGE_REQUEST_MB, MAX_IMPORT_FILE_SIZE } from '@rusys/common/utils/files';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
@@ -46,8 +46,10 @@ export function setupHelmet(app: Express): Express {
         });
     }
 
-    app.use(bodyParser.urlencoded({ extended: false, limit: '20mb' }));
-    app.use(bodyParser.json({ inflate: true, limit: '20mb' }));
+    // Image files are sent as base64 data URLs, so their JSON request is larger
+    // than the 20 MB file limit shown in the UI.
+    app.use(bodyParser.urlencoded({ extended: false, limit: `${MAX_IMAGE_REQUEST_MB}mb` }));
+    app.use(bodyParser.json({ inflate: true, limit: `${MAX_IMAGE_REQUEST_MB}mb` }));
     app.use(
         fileUpload({
             abortOnLimit: true,

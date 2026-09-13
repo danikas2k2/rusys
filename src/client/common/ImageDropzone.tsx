@@ -17,9 +17,18 @@ interface ImageDropzoneProps {
     onRemove: () => void | Promise<void>;
     disabled?: boolean;
     compact?: boolean;
+    error?: React.ReactNode;
 }
 
-export function ImageDropzone({ image, label, onDrop, onRemove, disabled, compact }: ImageDropzoneProps) {
+export function ImageDropzone({
+    image,
+    label,
+    onDrop,
+    onRemove,
+    disabled,
+    compact,
+    error: externalError,
+}: ImageDropzoneProps) {
     const _ = useLabels();
     const [error, setError] = useState<string>();
     const [saving, setSaving] = useState(false);
@@ -135,9 +144,9 @@ export function ImageDropzone({ image, label, onDrop, onRemove, disabled, compac
                     </ActionIcon>
                 )}
             </Box>
-            {error && (
+            {(error || externalError) && (
                 <Alert variant="light" color="negative" icon={<ErrorAlertIcon size={errorIconSize} />}>
-                    {error}
+                    {error || externalError}
                 </Alert>
             )}
         </Stack>
