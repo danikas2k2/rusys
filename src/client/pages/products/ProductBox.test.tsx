@@ -296,6 +296,35 @@ describe('<ProductBox>', () => {
             expect(onClose).toHaveBeenCalledWith('Uogienės', 'Agrastai');
         });
 
+        it('allows clearing a failed image upload without creating the product a second time', async () => {
+            const addProduct = vi.fn().mockResolvedValue(undefined);
+            const setProductImage = vi.fn().mockRejectedValueOnce('Network Error');
+            vi.mocked(useAddProduct).mockReturnValue(addProduct);
+            vi.mocked(useSetProductImage).mockReturnValue(setProductImage);
+
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened group="Uogienės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
+            const imageInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose an image');
+            await user.upload(imageInput, new File(['image-data'], 'image.png', { type: 'image/png' }));
+            await screen.findByRole('button', { name: 'Remove image' });
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Network Error');
+            expect(screen.getByRole('textbox', { name: 'Title' })).not.toHaveAttribute('aria-invalid', 'true');
+            expect(addProduct).toHaveBeenCalledTimes(1);
+
+            await user.click(screen.getByRole('button', { name: 'Remove image' }));
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(addProduct).toHaveBeenCalledTimes(1);
+            expect(onClose).toHaveBeenCalledWith('Uogienės', 'Agrastai');
+        });
+
         it('sends the final identity to setProductImage after renaming', async () => {
             const renameProduct = vi.fn().mockResolvedValue(true);
             const setProductImage = vi.fn().mockResolvedValue(undefined);
