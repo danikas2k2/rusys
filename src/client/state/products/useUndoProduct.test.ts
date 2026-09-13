@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
+import { API } from '@rusys/common/api/v1';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useUndoProduct } from '~/client/state/products/useUndoProduct';
@@ -25,7 +25,11 @@ describe('useUndoProduct', () => {
         const { result } = renderHook(() => useUndoProduct(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės', 25);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsUndo, { group: 'Uogienės', name: 'Avietės', year: 25 });
+        expect(request).toHaveBeenCalledWith(
+            `${API.productAmountHistory('Uogienės', 'Avietės', 25)}/undo`,
+            undefined,
+            'POST'
+        );
     });
 
     it('does not call undo action with blank name', async () => {

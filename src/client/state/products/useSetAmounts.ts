@@ -1,8 +1,9 @@
-import { ApiUrl, type ApiSetAmounts } from '@rusys/common/api';
+import { API } from '@rusys/common/api/v1';
 import type { VariantAmount } from '@rusys/common/data';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
+import { useGetProducts } from '~/client/state/products/useGetProducts';
 
 export function useSetAmounts(): (
     group: string,
@@ -12,7 +13,8 @@ export function useSetAmounts(): (
     user?: string,
     comment?: string
 ) => Promise<void> {
-    const request = useUpdatingApiRequest<ApiSetAmounts>();
+    const request = useUpdatingApiRequest();
+    const refresh = useGetProducts();
     return useCallback(
         async (
             group: string,
@@ -23,9 +25,10 @@ export function useSetAmounts(): (
             comment?: string
         ): Promise<void> => {
             if (group && name) {
-                return request(ApiUrl.ProductsSetAmounts, { group, name, year, amounts, user, comment });
+                await request(API.productAmounts(group, name, year), { amounts, user, comment }, 'PUT');
+                await refresh();
             }
         },
-        [request]
+        [refresh, request]
     );
 }

@@ -183,6 +183,9 @@ export function ProductBox({
 
     const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(false);
+    // A new product is created before its image can be saved. Remember it when the image request
+    // fails so the next submit retries the image instead of attempting to create a duplicate.
+    const [createdProduct, setCreatedProduct] = useState<{ group: string; name: string }>();
     const groupRef = useRef<HTMLInputElement>(null);
     const nameRef = useRef<HTMLInputElement>(null);
     const expiryToleranceRef = useRef<HTMLInputElement>(null);
@@ -202,6 +205,7 @@ export function ProductBox({
             // eslint-disable-next-line react-hooks/set-state-in-effect -- submission state reset when modal opens
             setSubmitting(false);
             setLoading(false);
+            setCreatedProduct(undefined);
 
             const timer = setTimeout(() => {
                 nameRef.current?.focus();
@@ -212,10 +216,12 @@ export function ProductBox({
 
     const handleImageDrop = useCallback((dataUrl: string) => {
         formRef.current.setFieldValue('image', dataUrl);
+        formRef.current.clearFieldError('image');
     }, []);
 
     const handleImageRemove = useCallback(() => {
         formRef.current.setFieldValue('image', '');
+        formRef.current.clearFieldError('image');
     }, []);
 
     // Revalidate when group or name changes to show duplicate errors in real-time
@@ -301,6 +307,7 @@ export function ProductBox({
             setLoading(true);
         }, 300);
 
+        let failedField: 'name' | 'image' = 'name';
         try {
             const values = form.values;
             const groupChanged = isEditing && values.group !== initialGroup;
@@ -314,6 +321,7 @@ export function ProductBox({
             }
             const expiryToleranceChanged = expiryToleranceDays !== initialExpiryToleranceDays;
 
+            let savedProduct = createdProduct;
             if (groupChanged) {
                 // Move to different group - this also clears any parent link server-side,
                 // since a product's parent must be in the same category.
@@ -321,12 +329,16 @@ export function ProductBox({
             } else if (nameRenamed) {
                 // Rename in same group
                 await renameProduct(initialGroup, initialName, values.name);
-            } else if (!isEditing) {
+            } else if (!isEditing && !savedProduct) {
                 // Add new
                 await addProduct(values.group, values.name, values.parent || undefined);
+                savedProduct = { group: values.group, name: values.name };
+                setCreatedProduct(savedProduct);
             }
+            const product = savedProduct ?? { group: values.group, name: values.name };
             if (imageChanged) {
-                await setProductImage(values.group, values.name, values.image);
+                failedField = 'image';
+                await setProductImage(product.group, product.name, values.image);
             }
             if (isEditing && !groupChanged && parentChanged) {
                 await setProductParent(values.group, values.name, values.parent || undefined);
@@ -334,11 +346,13 @@ export function ProductBox({
             if ((isEditing && expiryToleranceChanged) || (!isEditing && expiryToleranceDays > 0)) {
                 await setProductExpiryTolerance(values.group, values.name, expiryToleranceDays);
             }
-            onClose(values.group, values.name);
+            onClose(product.group, product.name);
         } catch (error) {
-            form.setFieldError('name', getErrorMessage(error));
-            // istanbul ignore next - ref.current is always assigned in React Testing Library
-            nameRef.current?.focus();
+            form.setFieldError(failedField, getErrorMessage(error));
+            if (failedField === 'name') {
+                // istanbul ignore next - ref.current is always assigned in React Testing Library
+                nameRef.current?.focus();
+            }
         } finally {
             clearTimeout(loadingTimeout);
             setSubmitting(false);
@@ -411,7 +425,7 @@ export function ProductBox({
                                 withAsterisk
                                 withAlignedLabels
                                 checkIconPosition="left"
-                                disabled={loading}
+                                disabled={loading || !!createdProduct}
                                 searchable
                                 {...form.getInputProps('group')}
                                 onChange={(value) =>
@@ -425,7 +439,7 @@ export function ProductBox({
                                 label={_('Title')}
                                 placeholder={_('Enter name')}
                                 withAsterisk
-                                disabled={loading}
+                                disabled={loading || !!createdProduct}
                                 {...form.getInputProps('name')}
                             />
                             <Select
@@ -468,6 +482,7 @@ export function ProductBox({
                                 onDrop={handleImageDrop}
                                 onRemove={handleImageRemove}
                                 disabled={loading}
+                                error={form.errors.image}
                             />
                             <Group justify={isEditing && onDelete ? 'space-between' : 'flex-end'} mt="md" wrap="nowrap">
                                 {isEditing && onDelete && (

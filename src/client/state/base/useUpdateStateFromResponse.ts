@@ -1,4 +1,3 @@
-import type { ApiResult } from '@rusys/common/api';
 import type { Product, Summary } from '@rusys/common/data';
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
@@ -11,11 +10,13 @@ import { setSummaryAction } from '~/client/state/summary/actions';
 import { setVariantsAction } from '~/client/state/variants/actions';
 import { setYearsAction } from '~/client/state/years/actions';
 
-export type RefreshResult = ApiResult<{
+export interface RefreshResult {
     years?: number[];
     products?: Product[];
     summary?: Summary[];
-}>;
+    ok?: boolean;
+    error?: string;
+}
 
 const UPDATE_ACTIONS: ActionCreatorsMapObject = {
     years: setYearsAction,
@@ -31,10 +32,10 @@ export function useUpdateStateFromResponse(updateActions = UPDATE_ACTIONS): (res
     const dispatch = useDispatch();
     return useCallback(
         async (result?: RefreshResult): Promise<void> => {
-            if (!result || !('ok' in result)) {
+            if (!result) {
                 return;
             }
-            if (!result.ok) {
+            if ('ok' in result && !result.ok) {
                 throw new Error(result.error || 'Request failed');
             }
             for (const update of Object.keys(result)) {

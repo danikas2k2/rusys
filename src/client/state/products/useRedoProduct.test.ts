@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
+import { API } from '@rusys/common/api/v1';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useRedoProduct } from '~/client/state/products/useRedoProduct';
@@ -25,7 +25,11 @@ describe('useRedoProduct', () => {
         const { result } = renderHook(() => useRedoProduct(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės', 25);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsRedo, { group: 'Uogienės', name: 'Avietės', year: 25 });
+        expect(request).toHaveBeenCalledWith(
+            `${API.productAmountHistory('Uogienės', 'Avietės', 25)}/redo`,
+            undefined,
+            'POST'
+        );
     });
 
     it('does not call redo action with blank name', async () => {

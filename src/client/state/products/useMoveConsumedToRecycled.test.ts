@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useMoveConsumedToRecycled } from '~/client/state/products/useMoveConsumedToRecycled';
 
@@ -21,29 +19,33 @@ describe('useMoveConsumedToRecycled', () => {
         const { result } = renderHook(() => useMoveConsumedToRecycled(), { wrapper: MockRedux });
         await result.current('Daržovės', 'Agurkai', 22, 'd', 2, {}, 'user@example.com');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsMoveToRecycled, {
-            group: 'Daržovės',
-            name: 'Agurkai',
-            year: 22,
-            variant: 'd',
-            amount: 2,
-            user: 'user@example.com',
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Dar%C5%BEov%C4%97s/products/Agurkai/years/22/amount-history',
+            {
+                variant: 'd',
+                amount: 2,
+                user: 'user@example.com',
+            },
+            'POST'
+        );
     });
 
     it('passes suspicious/home flags through', async () => {
         const { result } = renderHook(() => useMoveConsumedToRecycled(), { wrapper: MockRedux });
         await result.current('Daržovės', 'Agurkai', 22, 'd', 2, { home: true });
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsMoveToRecycled, {
-            group: 'Daržovės',
-            name: 'Agurkai',
-            year: 22,
-            variant: 'd',
-            amount: 2,
-            user: undefined,
-            home: true,
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Dar%C5%BEov%C4%97s/products/Agurkai/years/22/amount-history',
+            {
+                variant: 'd',
+                amount: 2,
+                user: undefined,
+                home: true,
+            },
+            'POST'
+        );
     });
 
     it('does not call the action with empty group', async () => {

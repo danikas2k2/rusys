@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
+import { API } from '@rusys/common/api/v1';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useSetProductImage } from '~/client/state/products/useSetProductImage';
@@ -21,11 +21,11 @@ describe('useSetProductImage', () => {
         const { result } = renderHook(() => useSetProductImage(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Braškės', 'data:image/png;base64,AAA');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetImage, {
-            group: 'Uogienės',
-            name: 'Braškės',
-            image: 'data:image/png;base64,AAA',
-        });
+        expect(request).toHaveBeenCalledWith(
+            API.productImage('Uogienės', 'Braškės'),
+            { image: 'data:image/png;base64,AAA' },
+            'PUT'
+        );
     });
 
     it('does not call set image action with empty group', async () => {

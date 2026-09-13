@@ -1,7 +1,8 @@
-import { ApiUrl, type ApiMoveConsumedToRecycled } from '@rusys/common/api';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
+import { useGetProducts } from '~/client/state/products/useGetProducts';
 
 export function useMoveConsumedToRecycled(): (
     group: string,
@@ -12,7 +13,8 @@ export function useMoveConsumedToRecycled(): (
     flags?: { suspicious?: boolean; home?: boolean; expiresAt?: number },
     user?: string
 ) => Promise<void> {
-    const request = useUpdatingApiRequest<ApiMoveConsumedToRecycled>();
+    const request = useUpdatingApiRequest();
+    const refresh = useGetProducts();
     return useCallback(
         async (
             group: string,
@@ -24,17 +26,19 @@ export function useMoveConsumedToRecycled(): (
             user?: string
         ): Promise<void> => {
             if (group && name && variant && amount > 0) {
-                return request(ApiUrl.ProductsMoveToRecycled, {
-                    group,
-                    name,
-                    year,
-                    variant,
-                    amount,
-                    user,
-                    ...flags,
-                });
+                await request(
+                    API.productAmountHistory(group, name, year),
+                    {
+                        variant,
+                        amount,
+                        user,
+                        ...flags,
+                    },
+                    'POST'
+                );
+                await refresh();
             }
         },
-        [request]
+        [refresh, request]
     );
 }

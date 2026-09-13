@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import https from 'node:https';
 
+import { BASE } from '@rusys/common/api/v1';
 import { isDevMode } from '@rusys/common/utils/dev';
-import { MAX_IMPORT_FILE_SIZE } from '@rusys/common/utils/files';
+import { MAX_IMAGE_REQUEST_MB, MAX_IMPORT_FILE_SIZE } from '@rusys/common/utils/files';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
@@ -10,8 +11,8 @@ import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 
 import { debug } from '~/server/api/debug';
+import { createV1Router } from '~/server/api/v1/router';
 import { IMAGES_DIR, IMAGES_URL_PATH } from '~/server/data/images';
-import { ApiUrlHandlers } from '~/server/handlers';
 import helmetOptions from '~/server/helmetOptions';
 
 export function setup(app = express()): Express {
@@ -45,8 +46,10 @@ export function setupHelmet(app: Express): Express {
         });
     }
 
-    app.use(bodyParser.urlencoded({ extended: false, limit: '20mb' }));
-    app.use(bodyParser.json({ inflate: true, limit: '20mb' }));
+    // Image files are sent as base64 data URLs, so their JSON request is larger
+    // than the 20 MB file limit shown in the UI.
+    app.use(bodyParser.urlencoded({ extended: false, limit: `${MAX_IMAGE_REQUEST_MB}mb` }));
+    app.use(bodyParser.json({ inflate: true, limit: `${MAX_IMAGE_REQUEST_MB}mb` }));
     app.use(
         fileUpload({
             abortOnLimit: true,
@@ -68,18 +71,12 @@ export function setupHelmet(app: Express): Express {
 }
 
 export function setupHandlers(app: Express): Express {
-    // Register API routes first
-    for (const [url, handler] of Object.entries(ApiUrlHandlers)) {
-        app.post(url, handler);
-    }
-
+    app.use(BASE, createV1Router());
     return app;
 }
 
 export function setupStatic(app: Express): Express {
-    // Serve uploaded images (category icons, product photos, ...) from the persistent volume
     app.use(IMAGES_URL_PATH, express.static(IMAGES_DIR));
-
     return app;
 }
 

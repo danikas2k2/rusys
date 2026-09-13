@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useCopyVariant } from '~/client/state/variants/useCopyVariant';
 
@@ -39,12 +37,16 @@ describe('useCopyVariant', () => {
             const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
             await result.current(group, variant, newGroup, newVariant);
 
-            expect(request).toHaveBeenCalledWith(ApiUrl.VariantsCopy, {
-                group,
-                variant,
-                newGroup,
-                newVariant,
-            });
+            expect(request).toHaveBeenNthCalledWith(
+                1,
+                `/api/v1/groups/${encodeURIComponent(group)}/variants/${variant}/copies`,
+                {
+                    newGroup,
+                    ...(newVariant && { newVariant }),
+                },
+                'POST'
+            );
+            expect(request).toHaveBeenNthCalledWith(2, '/api/v1/variants', 'GET');
         }
     );
 
@@ -52,14 +54,17 @@ describe('useCopyVariant', () => {
         const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
         await result.current('Uogienės', 'p', 'Daržovės', '1/2', { order: 1, suffix: '1/2' });
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.VariantsCopy, {
-            group: 'Uogienės',
-            variant: 'p',
-            newGroup: 'Daržovės',
-            newVariant: '1/2',
-            order: 1,
-            suffix: '1/2',
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s/variants/p/copies',
+            {
+                newGroup: 'Daržovės',
+                newVariant: '1/2',
+                order: 1,
+                suffix: '1/2',
+            },
+            'POST'
+        );
     });
 
     it.each`

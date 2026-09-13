@@ -96,10 +96,10 @@ describe('useUpdateStateFromResponse', () => {
         expect(dispatch).toHaveBeenCalledWith({ type: SummaryActionType.SET, summary });
     });
 
-    it('do nothing if response has data fields but no ok status', () => {
+    it('updates state from a v1 response without the legacy ok field', () => {
         const { result } = renderHook(() => useUpdateStateFromResponse());
         result.current({ years, products, summary } as any);
 
-        expect(dispatch).not.toHaveBeenCalled();
+        expect(dispatch).toHaveBeenCalledTimes(3);
     });
 });

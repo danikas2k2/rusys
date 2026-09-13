@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
+import { API } from '@rusys/common/api/v1';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useApplyReview } from '~/client/state/products/useApplyReview';
@@ -25,7 +25,7 @@ describe('useApplyReview', () => {
         const { result } = renderHook(() => useApplyReview(), { wrapper: MockRedux });
         await result.current(updates);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetMissingBulk, { updates });
+        expect(request).toHaveBeenCalledWith(API.productReviewStatuses(), { updates }, 'PATCH');
     });
 
     it('does not call apply review action with an empty list', async () => {

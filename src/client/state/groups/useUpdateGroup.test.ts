@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useUpdateGroup } from '~/client/state/groups/useUpdateGroup';
 
@@ -21,25 +19,36 @@ describe('useUpdateGroup', () => {
         const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });
         await result.current('Uogienės');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsUpdate, { group: 'Uogienės' });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s',
+            { annual: undefined, review: undefined, image: undefined },
+            'PUT'
+        );
     });
 
     it('calls update action with annual parameter', async () => {
         const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });
         await result.current('Uogienės', true);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsUpdate, { group: 'Uogienės', annual: true });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s',
+            { annual: true, review: undefined, image: undefined },
+            'PUT'
+        );
     });
 
     it('calls update action with review parameter', async () => {
         const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });
         await result.current('Uogienės', true, true);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.GroupsUpdate, {
-            group: 'Uogienės',
-            annual: true,
-            review: true,
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Uogien%C4%97s',
+            { annual: true, review: true, image: undefined },
+            'PUT'
+        );
     });
 
     it('does not call update action with empty group', async () => {

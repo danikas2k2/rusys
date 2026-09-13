@@ -1,8 +1,9 @@
-import { ApiUrl, type ApiCopyVariant } from '@rusys/common/api';
+import { API } from '@rusys/common/api/v1';
 import type { UpdateVariant } from '@rusys/common/data';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
+import { useGetVariants } from '~/client/state/variants/useGetVariants';
 
 export function useCopyVariant(): (
     group: string,
@@ -11,19 +12,23 @@ export function useCopyVariant(): (
     newVariant?: string,
     update?: UpdateVariant
 ) => Promise<void> {
-    const request = useUpdatingApiRequest<ApiCopyVariant>();
+    const request = useUpdatingApiRequest();
+    const refresh = useGetVariants();
     return useCallback(
         async (group, variant, newGroup, newVariant, update): Promise<void> => {
             if (group && variant && newGroup && (group !== newGroup || (newVariant && variant !== newVariant))) {
-                return request(ApiUrl.VariantsCopy, {
-                    group,
-                    variant,
-                    newGroup,
-                    ...(newVariant && { newVariant }),
-                    ...update,
-                });
+                await request(
+                    API.groupVariantCopies(group, variant),
+                    {
+                        newGroup,
+                        ...(newVariant && { newVariant }),
+                        ...update,
+                    },
+                    'POST'
+                );
+                await refresh();
             }
         },
-        [request]
+        [refresh, request]
     );
 }

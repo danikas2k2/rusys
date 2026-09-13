@@ -1,7 +1,5 @@
 import { renderHook } from '@testing-library/react';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useApiRequest } from '~/client/state/common/useApiRequest';
 import { useExport } from '~/client/state/common/useExport';
 
@@ -20,6 +18,6 @@ describe('useExport', () => {
         const { result } = renderHook(() => useExport());
         await result.current();
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.Export, undefined, undefined, 'blob');
+        expect(request).toHaveBeenCalledWith('/api/v1/exports/latest', undefined, 'GET', 'blob');
     });
 });

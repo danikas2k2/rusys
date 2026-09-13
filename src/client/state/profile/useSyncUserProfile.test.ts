@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
+import { API } from '@rusys/common/api/v1';
 
 import { useApiRequest } from '~/client/state/common/useApiRequest';
 import { useProfile } from '~/client/state/profile/useProfile';
@@ -52,11 +52,14 @@ describe('useSyncUserProfile', () => {
         renderHook(() => useSyncUserProfile(), { wrapper: MockRedux });
         await act(flushPromises);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.UserProfileUpsert, {
-            email: 'user@example.com',
-            name: 'Alice',
-            picture: 'pic.png',
-        });
+        expect(request).toHaveBeenCalledWith(
+            API.userProfile('user@example.com'),
+            {
+                name: 'Alice',
+                picture: 'pic.png',
+            },
+            'PUT'
+        );
     });
 
     it('re-calls UserProfileUpsert when profile name changes (key differs)', async () => {
@@ -70,7 +73,11 @@ describe('useSyncUserProfile', () => {
         await act(flushPromises);
 
         expect(request).toHaveBeenCalledTimes(1);
-        expect(request).toHaveBeenLastCalledWith(ApiUrl.UserProfileUpsert, expect.objectContaining({ name: 'Alice' }));
+        expect(request).toHaveBeenLastCalledWith(
+            API.userProfile('user@example.com'),
+            expect.objectContaining({ name: 'Alice' }),
+            'PUT'
+        );
 
         mockUseProfile.mockReturnValue({ email: 'user@example.com', name: 'Bob', picture: undefined } as any);
 
@@ -80,7 +87,11 @@ describe('useSyncUserProfile', () => {
         await act(flushPromises);
 
         expect(request).toHaveBeenCalledTimes(2);
-        expect(request).toHaveBeenLastCalledWith(ApiUrl.UserProfileUpsert, expect.objectContaining({ name: 'Bob' }));
+        expect(request).toHaveBeenLastCalledWith(
+            API.userProfile('user@example.com'),
+            expect.objectContaining({ name: 'Bob' }),
+            'PUT'
+        );
     });
 
     // To reach the staleness-check path, we need the effect to re-run with the SAME key
@@ -99,10 +110,7 @@ describe('useSyncUserProfile', () => {
         await act(flushPromises);
 
         // First render: key was '' → key changed → upsert via request1
-        expect(request1).toHaveBeenCalledWith(
-            ApiUrl.UserProfileUpsert,
-            expect.objectContaining({ email: 'check@example.com' })
-        );
+        expect(request1).toHaveBeenCalledWith(API.userProfile('check@example.com'), expect.anything(), 'PUT');
 
         // Rerender: request ref changes → effect re-fires with same key → staleness check via request2
         await act(async () => {
@@ -110,7 +118,7 @@ describe('useSyncUserProfile', () => {
         });
         await act(flushPromises);
 
-        expect(request2).toHaveBeenCalledWith(ApiUrl.UserProfiles, { emails: ['check@example.com'] });
+        expect(request2).toHaveBeenCalledWith(API.userProfiles(['check@example.com']), 'GET');
     });
 
     it('deduplicates staleness check — does NOT call UserProfiles twice for the same email', async () => {
@@ -144,8 +152,8 @@ describe('useSyncUserProfile', () => {
         await act(flushPromises);
 
         // request2 was used for the staleness check, request3 should NOT have called UserProfiles
-        expect(request2).toHaveBeenCalledWith(ApiUrl.UserProfiles, expect.anything());
-        expect(request3).not.toHaveBeenCalledWith(ApiUrl.UserProfiles, expect.anything());
+        expect(request2).toHaveBeenCalledWith(API.userProfiles(['dedup@example.com']), 'GET');
+        expect(request3).not.toHaveBeenCalledWith(API.userProfiles(['dedup@example.com']), 'GET');
     });
 
     it('does NOT upsert if profile is fresh (updatedAt within STALE_MS)', async () => {
@@ -173,11 +181,11 @@ describe('useSyncUserProfile', () => {
         await act(flushPromises);
 
         await waitFor(() => {
-            expect(request2).toHaveBeenCalledWith(ApiUrl.UserProfiles, { emails: ['fresh@example.com'] });
+            expect(request2).toHaveBeenCalledWith(API.userProfiles(['fresh@example.com']), 'GET');
         });
 
         // Profile is fresh — should NOT upsert again via request2
-        expect(request2).not.toHaveBeenCalledWith(ApiUrl.UserProfileUpsert, expect.anything());
+        expect(request2).not.toHaveBeenCalledWith(API.userProfile('fresh@example.com'), expect.anything(), 'PUT');
     });
 
     it('dOES upsert if profile is stale (updatedAt > STALE_MS ago)', async () => {
@@ -205,10 +213,7 @@ describe('useSyncUserProfile', () => {
         await act(flushPromises);
 
         await waitFor(() => {
-            expect(request2).toHaveBeenCalledWith(
-                ApiUrl.UserProfileUpsert,
-                expect.objectContaining({ email: 'stale@example.com' })
-            );
+            expect(request2).toHaveBeenCalledWith(API.userProfile('stale@example.com'), expect.anything(), 'PUT');
         });
     });
 
@@ -233,10 +238,7 @@ describe('useSyncUserProfile', () => {
         await act(flushPromises);
 
         await waitFor(() => {
-            expect(request2).toHaveBeenCalledWith(
-                ApiUrl.UserProfileUpsert,
-                expect.objectContaining({ email: 'missing@example.com' })
-            );
+            expect(request2).toHaveBeenCalledWith(API.userProfile('missing@example.com'), expect.anything(), 'PUT');
         });
     });
 
@@ -262,10 +264,7 @@ describe('useSyncUserProfile', () => {
         await act(flushPromises);
 
         await waitFor(() => {
-            expect(request2).toHaveBeenCalledWith(
-                ApiUrl.UserProfileUpsert,
-                expect.objectContaining({ email: 'noprofiles@example.com' })
-            );
+            expect(request2).toHaveBeenCalledWith(API.userProfile('noprofiles@example.com'), expect.anything(), 'PUT');
         });
     });
 
@@ -289,10 +288,7 @@ describe('useSyncUserProfile', () => {
         await act(flushPromises);
 
         await waitFor(() => {
-            expect(request2).toHaveBeenCalledWith(
-                ApiUrl.UserProfileUpsert,
-                expect.objectContaining({ email: 'zero@example.com' })
-            );
+            expect(request2).toHaveBeenCalledWith(API.userProfile('zero@example.com'), expect.anything(), 'PUT');
         });
     });
 
@@ -313,11 +309,11 @@ describe('useSyncUserProfile', () => {
         await act(flushPromises);
 
         await waitFor(() => {
-            expect(request2).toHaveBeenCalledWith(ApiUrl.UserProfiles, { emails: ['no@example.com'] });
+            expect(request2).toHaveBeenCalledWith(API.userProfiles(['no@example.com']), 'GET');
         });
 
         // result.ok is false → early return → no second upsert
-        expect(request2).not.toHaveBeenCalledWith(ApiUrl.UserProfileUpsert, expect.anything());
+        expect(request2).not.toHaveBeenCalledWith(API.userProfile('no@example.com'), expect.anything(), 'PUT');
     });
 
     it('handles UserProfiles request throwing without propagating the error', async () => {
@@ -339,7 +335,7 @@ describe('useSyncUserProfile', () => {
 
         await act(flushPromises);
 
-        expect(request2).toHaveBeenCalledWith(ApiUrl.UserProfiles, { emails: ['throw@example.com'] });
+        expect(request2).toHaveBeenCalledWith(API.userProfiles(['throw@example.com']), 'GET');
     });
 
     it('handles initial UserProfileUpsert request throwing (catch in first-render branch)', async () => {
@@ -361,9 +357,6 @@ describe('useSyncUserProfile', () => {
         }
 
         expect(threw).toBe(false);
-        expect(request).toHaveBeenCalledWith(
-            ApiUrl.UserProfileUpsert,
-            expect.objectContaining({ email: 'throwinit@example.com' })
-        );
+        expect(request).toHaveBeenCalledWith(API.userProfile('throwinit@example.com'), expect.anything(), 'PUT');
     });
 });

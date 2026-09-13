@@ -1,4 +1,4 @@
-import { ApiUrl, type ApiResult, type ApiUpsertUserProfile } from '@rusys/common/api';
+import { API } from '@rusys/common/api/v1';
 import type { UserProfile } from '@rusys/common/data';
 import { useEffect, useRef } from 'react';
 
@@ -20,7 +20,7 @@ export function useSyncUserProfile(): void {
             return;
         }
 
-        const payload: ApiUpsertUserProfile = {
+        const payload = {
             email,
             name: profile.name,
             picture: profile.picture,
@@ -31,7 +31,9 @@ export function useSyncUserProfile(): void {
         // If local profile changed, always upsert (keeps cache up-to-date)
         if (key !== lastKeyRef.current) {
             lastKeyRef.current = key;
-            void request<ApiResult>(ApiUrl.UserProfileUpsert, payload).catch(() => undefined);
+            void request(API.userProfile(email), { name: payload.name, picture: payload.picture }, 'PUT').catch(
+                () => undefined
+            );
             return;
         }
 
@@ -44,16 +46,17 @@ export function useSyncUserProfile(): void {
 
         void (async () => {
             try {
-                const result = await request<ApiResult<{ profiles: readonly UserProfile[] }>>(ApiUrl.UserProfiles, {
-                    emails: [email],
-                });
-                if (!result.ok) {
+                const result = await request<{ profiles?: readonly UserProfile[]; ok?: boolean }>(
+                    API.userProfiles([email]),
+                    'GET'
+                );
+                if ('ok' in result && !result.ok) {
                     return;
                 }
-                const existing = (result.profiles ?? []).find((p) => p.email?.toLowerCase() === lowerEmail);
+                const existing = result.profiles?.find((p) => p.email?.toLowerCase() === lowerEmail);
                 const updatedAt = existing?.updatedAt ?? 0;
                 if (!existing || !updatedAt || Date.now() - updatedAt > STALE_MS) {
-                    await request<ApiResult>(ApiUrl.UserProfileUpsert, payload);
+                    await request(API.userProfile(email), { name: payload.name, picture: payload.picture }, 'PUT');
                 }
             } catch {
                 // ignore

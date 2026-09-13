@@ -1,16 +1,25 @@
-import { ApiUrl, type ApiSetMissingBulk } from '@rusys/common/api';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
+import { useGetProducts } from '~/client/state/products/useGetProducts';
 
-export function useApplyReview(): (updates: ApiSetMissingBulk['updates']) => Promise<void> {
-    const request = useUpdatingApiRequest<ApiSetMissingBulk>();
+interface ReviewStatusUpdate {
+    group: string;
+    name: string;
+    missing: boolean;
+}
+
+export function useApplyReview(): (updates: readonly ReviewStatusUpdate[]) => Promise<void> {
+    const request = useUpdatingApiRequest();
+    const refresh = useGetProducts();
     return useCallback(
-        async (updates: ApiSetMissingBulk['updates']): Promise<void> => {
+        async (updates: readonly ReviewStatusUpdate[]): Promise<void> => {
             if (updates.length) {
-                return request(ApiUrl.ProductsSetMissingBulk, { updates });
+                await request(API.productReviewStatuses(), { updates }, 'PATCH');
+                await refresh();
             }
         },
-        [request]
+        [refresh, request]
     );
 }

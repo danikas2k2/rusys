@@ -1,16 +1,19 @@
-import { ApiUrl, type ApiMoveProduct } from '@rusys/common/api';
+import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
+import { useGetProducts } from '~/client/state/products/useGetProducts';
 
 export function useMoveProduct(): (group: string, name: string, newGroup: string, newName?: string) => Promise<void> {
-    const request = useUpdatingApiRequest<ApiMoveProduct>();
+    const request = useUpdatingApiRequest();
+    const refresh = useGetProducts();
     return useCallback(
         async (group: string, name: string, newGroup: string, newName?: string): Promise<void> => {
             if (group && name && newGroup && group !== newGroup) {
-                return request(ApiUrl.ProductsMove, { group, name, newGroup, newName });
+                await request(API.groupProduct(group, name), { group: newGroup, newName }, 'PATCH');
+                await refresh();
             }
         },
-        [request]
+        [refresh, request]
     );
 }

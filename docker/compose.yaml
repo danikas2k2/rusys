@@ -47,7 +47,7 @@ services:
       context: ..
       dockerfile: docker/client/Dockerfile
       args:
-        APP_VERSION: "3.11.1"
+        APP_VERSION: "3.13.0"
     platform: linux/amd64
     restart: unless-stopped
     depends_on:
@@ -74,7 +74,7 @@ services:
       context: ..
       dockerfile: docker/server/Dockerfile
       args:
-        APP_VERSION: "3.11.1"
+        APP_VERSION: "3.13.0"
     platform: linux/amd64
     restart: unless-stopped
     environment:

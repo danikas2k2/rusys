@@ -2,6 +2,7 @@ import ts from '@typescript-eslint/eslint-plugin';
 import parser from '@typescript-eslint/parser';
 import vitest from '@vitest/eslint-plugin';
 import prettierConfig from 'eslint-config-prettier';
+import functional from 'eslint-plugin-functional';
 import imp from 'eslint-plugin-import';
 import a11y from 'eslint-plugin-jsx-a11y';
 import prettier from 'eslint-plugin-prettier';
@@ -18,12 +19,14 @@ export default [
             'docker/**',
             'node_modules/**',
             'src/client/public/**',
+            'vite/**',
+            'eslint.config.ts',
             '**/*.config.{js,ts,mts}',
         ],
     },
     {
-        files: ['**/*.{ts,tsx}'],
-        ...react.configs.flat.recommended,
+        files: ['**/*.{tsx,jsx}'],
+        ...react.configs.flat['recommended'],
         settings: {
             react: {
                 version: 'detect',
@@ -35,7 +38,7 @@ export default [
         ...reactHooks.configs.flat['recommended-latest'],
     },
     {
-        files: ['**/*.{ts,tsx}'],
+        files: ['**/*.{tsx,jsx}'],
         ...a11y.flatConfigs.recommended,
     },
     {
@@ -48,6 +51,9 @@ export default [
             },
         },
         settings: {
+            react: {
+                version: 'detect',
+            },
             'import/resolver': {
                 typescript: {
                     project: './tsconfig.json',
@@ -62,18 +68,13 @@ export default [
             'vitest/prefer-importing-vitest-globals': 'off',
             'vitest/prefer-describe-function-title': 'off',
             'vitest/require-mock-type-parameters': 'off',
-            'vitest/require-top-level-describe': 'off',
             'vitest/max-expects': ['error', { max: 9 }],
             'vitest/require-hook': ['error', { allowedFunctionCalls: ['mockEnv', 'mockWindow'] }],
         },
     },
     {
-        files: ['**/*.{ts,tsx}'],
         plugins: { prettier },
-        rules: {
-            ...prettierConfig.rules,
-            'prettier/prettier': 'error',
-        },
+        ...prettierConfig,
     },
     {
         files: ['**/*.{ts,tsx}'],
@@ -90,13 +91,17 @@ export default [
             },
         },
         plugins: {
+            functional,
             import: imp,
             '@typescript-eslint': ts,
+            ts,
+            react,
             'react-compiler': reactCompiler,
         },
         rules: {
             ...ts.configs['eslint-recommended'].rules,
-            ...ts.configs.recommended.rules,
+            ...ts.configs['recommended'].rules,
+            // 'ts/return-await': 2,
             '@typescript-eslint/explicit-function-return-type': [
                 'warn',
                 {
@@ -123,22 +128,13 @@ export default [
                 },
             ],
             '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'as' }],
-            '@typescript-eslint/consistent-generic-constructors': 'error',
-            '@typescript-eslint/method-signature-style': ['error', 'property'],
-            '@typescript-eslint/consistent-type-imports': [
-                'error',
-                {
-                    prefer: 'type-imports',
-                    fixStyle: 'inline-type-imports',
-                    disallowTypeAnnotations: true,
-                },
-            ],
-            '@typescript-eslint/no-redeclare': 'error',
             'comma-dangle': ['error', 'only-multiline'],
             'import/no-nodejs-modules': 'off',
             'import/no-unresolved': 'off',
             'import/prefer-default-export': 'off',
             'import/order': 'off',
+            'simple-import-sort/imports': 'off',
+            'simple-import-sort/exports': 'off',
             'no-console': 'warn',
             'no-unused-expressions': 'error',
             'no-unused-labels': 'error',
@@ -149,10 +145,21 @@ export default [
             'brace-style': ['error', '1tbs', { allowSingleLine: false }],
             curly: ['error', 'all'],
             semi: ['error', 'always'],
-            eqeqeq: ['error', 'always', { null: 'ignore' }],
+            eqeqeq: [
+                'error',
+                'always',
+                {
+                    null: 'ignore',
+                },
+            ],
+
+            'prettier/prettier': 'error',
             'react-hooks/exhaustive-deps': 'error',
             'react-compiler/react-compiler': 'error',
-            'react/prop-types': 'off',
+            'react/prop-types': 0,
+
+            // TODO use eslint-config-mantine
+            // Mantine recommended rules
             'array-callback-return': 'error',
             'no-self-compare': 'error',
             'no-template-curly-in-string': 'error',
@@ -181,6 +188,9 @@ export default [
             'prefer-template': 'error',
             yoda: 'error',
             radix: 'error',
+            '@typescript-eslint/consistent-generic-constructors': 'error',
+            '@typescript-eslint/method-signature-style': ['error', 'property'],
+            // 'react/button-has-type': 'error',
             'react/jsx-boolean-value': 'error',
             'react/jsx-curly-brace-presence': ['error', 'never'],
             'react/jsx-fragments': ['error', 'syntax'],
@@ -193,6 +203,14 @@ export default [
             'react/no-string-refs': 'error',
             'react/self-closing-comp': 'error',
             'react/void-dom-elements-no-children': 'error',
+            '@typescript-eslint/consistent-type-imports': [
+                'error',
+                {
+                    prefer: 'type-imports',
+                    fixStyle: 'inline-type-imports',
+                    disallowTypeAnnotations: true,
+                },
+            ],
             'no-duplicate-imports': 'off',
             'import/named': 'off',
             'import/default': 'off',
@@ -200,11 +218,17 @@ export default [
             'prefer-const': 'error',
             'no-shadow': 'error',
             'no-redeclare': 'off',
+            '@typescript-eslint/no-redeclare': 'error',
             'block-scoped-var': 'error',
+
+            // my custom overrides
             'arrow-body-style': ['error', 'as-needed'],
             'prefer-arrow-callback': ['error', { allowNamedFunctions: false }],
         },
         settings: {
+            react: {
+                version: 'detect',
+            },
             'import/resolver': {
                 typescript: {
                     project: './tsconfig.json',
@@ -220,6 +244,42 @@ export default [
             'import/no-named-as-default': 'off',
             'no-console': 'off',
             'vitest/valid-title': ['error', { disallowedWords: ['should'] }],
+
+            // my custom overrides
+            'arrow-body-style': ['error', 'as-needed'],
+            'prefer-arrow-callback': ['error', { allowNamedFunctions: false }],
+        },
+    },
+    {
+        files: ['*.config.{js,ts,mts}', 'vite/**/*.{js,ts,mts}'],
+        languageOptions: {
+            parser,
+            parserOptions: {
+                ecmaFeatures: { modules: true },
+                ecmaVersion: 'latest',
+            },
+        },
+        plugins: {
+            '@typescript-eslint': ts,
+            ts,
+        },
+        rules: {
+            curly: ['error', 'all'],
+            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
+            'no-undef': 'off',
+            'import/no-commonjs': 'off',
+            'prettier/prettier': 'off',
+            '@typescript-eslint/no-var-requires': 'off',
+            '@typescript-eslint/explicit-function-return-type': 'off',
+            '@typescript-eslint/no-unused-vars': 'off',
+            '@typescript-eslint/ban-ts-comment': 'off',
+        },
+    },
+    {
+        files: ['*.pcss.d.ts'],
+        rules: {
+            'no-undef': 'off',
+            'prettier/prettier': 'off',
         },
     },
 ];

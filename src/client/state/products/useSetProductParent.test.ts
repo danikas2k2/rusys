@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { ApiUrl } from '@rusys/common/api';
-
 import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
 import { useSetProductParent } from '~/client/state/products/useSetProductParent';
 
@@ -21,22 +19,24 @@ describe('useSetProductParent', () => {
         const { result } = renderHook(() => useSetProductParent(), { wrapper: MockRedux });
         await result.current('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetParent, {
-            group: 'Daržovės',
-            name: 'Agurkai (Zewa)',
-            parent: 'Agurkai',
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Dar%C5%BEov%C4%97s/products/Agurkai%20(Zewa)',
+            { parent: 'Agurkai' },
+            'PATCH'
+        );
     });
 
     it('calls set parent action with undefined to clear the parent', async () => {
         const { result } = renderHook(() => useSetProductParent(), { wrapper: MockRedux });
         await result.current('Daržovės', 'Agurkai (Zewa)', undefined);
 
-        expect(request).toHaveBeenCalledWith(ApiUrl.ProductsSetParent, {
-            group: 'Daržovės',
-            name: 'Agurkai (Zewa)',
-            parent: undefined,
-        });
+        expect(request).toHaveBeenNthCalledWith(
+            1,
+            '/api/v1/groups/Dar%C5%BEov%C4%97s/products/Agurkai%20(Zewa)',
+            { parent: null },
+            'PATCH'
+        );
     });
 
     it('does not call set parent action with empty group', async () => {
