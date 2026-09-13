@@ -107,7 +107,45 @@ describe('<ProductTile>', () => {
         );
 
         expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-removing', 'false');
+        expect(screen.getByText(name).closest('[data-tile="product"]')).not.toHaveAttribute('data-expiry');
         expect(screen.queryByLabelText('Marked for removal')).not.toBeInTheDocument();
+    });
+
+    it('marks only soon-expiring and expired amount rows', () => {
+        const { container } = render(
+            <MockApp>
+                <ProductTile
+                    {...defaultProps}
+                    totalAmounts={[
+                        { variant: 'p', amount: 1, expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000 },
+                        { variant: 'p', amount: 1, expiresAt: Date.now() + 40 * 24 * 60 * 60 * 1000 },
+                        { variant: 'p', amount: 1, expiresAt: Date.now() - 24 * 60 * 60 * 1000 },
+                    ]}
+                />
+            </MockApp>
+        );
+
+        const rows = container.querySelectorAll('[data-tile-amounts] [data-amounts-row]');
+        const tile = screen.getByText(name).closest('[data-tile="product"]');
+
+        expect(rows).toHaveLength(3);
+        expect(rows[0]).toHaveAttribute('data-expires', 'soon');
+        expect(rows[1]).not.toHaveAttribute('data-expires');
+        expect(rows[2]).toHaveAttribute('data-expires', 'expired');
+        expect(tile).toHaveAttribute('data-expiry', 'expired');
+    });
+
+    it('uses a soon status for the tile border when no amount is expired', () => {
+        render(
+            <MockApp>
+                <ProductTile
+                    {...defaultProps}
+                    totalAmounts={[{ variant: 'p', amount: 1, expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000 }]}
+                />
+            </MockApp>
+        );
+
+        expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-expiry', 'soon');
     });
 
     it('does not mark an expanded parent as empty when a child has an amount, even with no own amounts', () => {

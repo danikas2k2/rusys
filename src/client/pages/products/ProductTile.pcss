@@ -30,9 +30,27 @@
 
     &[data-removing="true"] {
         border: 2px solid var(--mantine-color-negative-filled);
+    }
 
-        [data-tile-heading] {
-            padding-inline-end: 1.5rem;
+    &[data-expiry="soon"] {
+        border: 2px solid var(--mantine-color-orange-filled);
+    }
+
+    &[data-expiry="expired"] {
+        border: 2px solid var(--mantine-color-negative-filled);
+    }
+
+    &[data-removing="true"] [data-tile-heading] {
+        padding-inline-end: 1.5rem;
+    }
+
+    [data-tile-amounts] {
+        [data-expires="soon"] {
+            color: var(--mantine-color-orange-text);
+        }
+
+        [data-expires="expired"] {
+            color: var(--mantine-color-negative-text);
         }
     }
 

@@ -6,6 +6,7 @@ import type {
     VariantAmount,
 } from '@rusys/common/data';
 import { getCombinedAmounts } from '@rusys/common/utils/amounts';
+import { getExpiryStatus, getWorstExpiryStatus } from '@rusys/common/utils/expiry';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 
@@ -71,6 +72,9 @@ function ProductTileComponent({
     const isSummaryTile = hasChildren && !expanded;
 
     const isEmptyTile = !totalAmounts.length && !(hasChildren && hasNonEmptyDescendant);
+    const expiryStatus = getWorstExpiryStatus(
+        totalAmounts.map(({ expiresAt }) => getExpiryStatus(expiresAt, Date.now(), product.expiryToleranceDays))
+    );
 
     // Annual groups have no single "current" amounts field - the same year isPreferred() would
     // highlight in the table is what a tap opens here, since there's no year column to pick from.
@@ -164,6 +168,7 @@ function ProductTileComponent({
                 'data-summary': isSummaryTile,
                 'data-expanded-parent': hasChildren && expanded,
                 'data-removing': hasRemovingYear,
+                'data-expiry': expiryStatus,
             }}
         />
     );
