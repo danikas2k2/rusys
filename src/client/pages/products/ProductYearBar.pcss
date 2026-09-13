@@ -22,14 +22,18 @@
 
         &:has([data-year-option][data-preferred]) {
             --year-color: var(--mantine-color-positive-light-color);
-            --year-background: var(--mantine-color-positive-light);
-            --year-border: 1px dotted var(--mantine-color-positive-light-color);
+            --year-border: 1px dotted color-mix(in srgb, transparent 70%, var(--mantine-color-positive-outline));
         }
 
         &:has([data-year-option][data-removing]) {
             --year-color: var(--mantine-color-negative-light-color);
-            --year-background: var(--mantine-color-negative-light);
-            --year-border: 1px dotted var(--mantine-color-negative-light-color);
+            --year-border: 1px dotted color-mix(in srgb, transparent 70%, var(--mantine-color-negative-outline));
+        }
+
+        &[data-active]:has([data-year-option]) {
+            --sc-font-size: var(--mantine-font-size-xl);
+
+            line-height: 1.5rem;
         }
 
         &[data-active]:has([data-year-option][data-preferred]) {
