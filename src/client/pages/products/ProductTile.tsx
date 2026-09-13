@@ -72,8 +72,9 @@ function ProductTileComponent({
     const isSummaryTile = hasChildren && !expanded;
 
     const isEmptyTile = !totalAmounts.length && !(hasChildren && hasNonEmptyDescendant);
+    const now = new Date().getTime();
     const expiryStatus = getWorstExpiryStatus(
-        totalAmounts.map(({ expiresAt }) => getExpiryStatus(expiresAt, Date.now(), product.expiryToleranceDays))
+        totalAmounts.map(({ expiresAt }) => getExpiryStatus(expiresAt, now, product.expiryToleranceDays))
     );
 
     // Annual groups have no single "current" amounts field - the same year isPreferred() would
