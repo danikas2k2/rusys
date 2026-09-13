@@ -1,4 +1,4 @@
-import { Group } from '@mantine/core';
+import { Group, Title } from '@mantine/core';
 import type { Group as GroupModel } from '@rusys/common/data';
 import React, { useEffect, useRef } from 'react';
 
@@ -67,7 +67,14 @@ export function CategoryRailLayout({
                 onSelect={onSelect}
                 groupsWithContent={groupsWithContent}
             />
-            <div className="CategoryRailLayout-content">{children}</div>
+            <div className="CategoryRailLayout-content">
+                {selected && (
+                    <Title order={2} data-category-heading>
+                        {selected}
+                    </Title>
+                )}
+                {children}
+            </div>
         </Group>
     );
 }

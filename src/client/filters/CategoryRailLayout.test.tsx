@@ -51,6 +51,23 @@ describe('<CategoryRailLayout>', () => {
         expect(screen.getByText('page content')).toBeInTheDocument();
     });
 
+    it('renders the selected category heading above the content', () => {
+        render(
+            <MockTheme>
+                <CategoryRailLayout
+                    groups={groups}
+                    selected="Uogienės"
+                    onSelect={vi.fn()}
+                    groupsWithContent={new Set()}
+                >
+                    <div>page content</div>
+                </CategoryRailLayout>
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('heading', { name: 'Uogienės' })).toHaveAttribute('data-category-heading');
+    });
+
     it('passes groups, selected, onSelect and groupsWithContent through to the rail', () => {
         const groupsWithContent = new Set(['Uogienės']);
         const onSelect = vi.fn();
