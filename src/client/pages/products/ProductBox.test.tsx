@@ -70,9 +70,23 @@ function selectOption(name: string) {
 }
 
 function selectParentOption(name: string) {
-    const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+    const combobox = getParentProductCombobox();
     act(() => fireEvent.click(combobox));
     act(() => fireEvent.click(screen.getByRole('option', { name })));
+}
+
+function getParentProductCombobox() {
+    const details = screen.getByRole('button', { name: 'Additional details' });
+    if (details.getAttribute('aria-expanded') !== 'true') {
+        act(() => fireEvent.click(details));
+        act(() => {
+            fireEvent.transitionEnd(
+                document.querySelector('[data-product-advanced-fields] [role="region"]') as HTMLElement,
+                { propertyName: 'height' }
+            );
+        });
+    }
+    return screen.getByRole('combobox', { name: 'Parent product' });
 }
 
 describe('<ProductBox>', () => {
@@ -120,6 +134,8 @@ describe('<ProductBox>', () => {
         expect(screen.getByRole('heading', { name: 'Add new entry' })).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('');
         expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
+        expect(screen.queryByRole('textbox', { name: 'Expiry tolerance' })).not.toBeInTheDocument();
+        expect(getParentProductCombobox()).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Expiry tolerance' })).toHaveValue('0');
     });
 
@@ -132,6 +148,7 @@ describe('<ProductBox>', () => {
             </MockThemeRedux>
         );
 
+        getParentProductCombobox();
         fireEvent.change(screen.getByRole('textbox', { name: 'Expiry tolerance' }), {
             target: { value: '2 sav.' },
         });
@@ -700,7 +717,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            const combobox = getParentProductCombobox();
             const wrapper = combobox.closest('.mantine-InputWrapper-root') as HTMLElement;
 
             expect(wrapper.querySelector('.mantine-InputClearButton-root')).not.toBeInTheDocument();
@@ -719,7 +736,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            const combobox = getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
             expect(screen.getByRole('option', { name: 'Agurkai' }).querySelector('img')).toHaveAttribute(
@@ -739,7 +756,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            const combobox = getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
             expect(screen.getByRole('option', { name: 'Agurkai' })).toBeInTheDocument();
@@ -764,7 +781,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            const combobox = getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
             const options = screen
@@ -789,7 +806,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            const combobox = getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
             expect(screen.getByRole('option', { name: 'Agurkai' }).querySelector('div')).toHaveStyle({
@@ -807,7 +824,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            const combobox = getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
             expect(screen.queryByRole('option', { name: 'Avietės' })).not.toBeInTheDocument();
@@ -820,7 +837,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            const combobox = getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
             expect(screen.queryByRole('option', { name: 'Agurkai' })).not.toBeInTheDocument();
@@ -844,7 +861,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            const combobox = getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
             // CiklinisA is excluded as its own parent option; CiklinisB (its cyclic "descendant"
@@ -908,7 +925,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            expect(screen.getByRole('combobox', { name: 'Parent product' })).toHaveValue('Agurkai');
+            expect(getParentProductCombobox()).toHaveValue('Agurkai');
 
             // Switching away then back to the original category: parentOptions no longer contains
             // 'Agurkai' at the intermediate step, so the field is cleared - and it stays cleared
@@ -930,7 +947,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = screen.getByRole('combobox', { name: 'Parent product' });
+            const combobox = getParentProductCombobox();
             const wrapper = combobox.closest('.mantine-InputWrapper-root') as HTMLElement;
             const clearButton = wrapper.querySelector('.mantine-InputClearButton-root') as HTMLElement;
 

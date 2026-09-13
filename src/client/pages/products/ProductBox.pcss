@@ -1,0 +1,21 @@
+.ProductBox-advancedFields {
+    .ui-Accordion-item {
+        --item-border-color: var(--mantine-color-default-border);
+    }
+
+    .ui-Accordion-item[data-active] {
+        background-color: var(--mantine-color-neutral-0);
+    }
+
+    @media (hover: hover) {
+        .ui-Accordion-control:hover:not(:disabled, [data-disabled]) {
+            background-color: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
+        }
+    }
+
+    @media (hover: none) {
+        .ui-Accordion-control:active:not(:disabled, [data-disabled]) {
+            background-color: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
+        }
+    }
+}
