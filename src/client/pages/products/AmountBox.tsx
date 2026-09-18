@@ -1,5 +1,5 @@
 import { ActionIcon, Group, Stack, Tabs, type ModalProps } from '@mantine/core';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { EditIcon, HistoryTabIcon, QuantitiesTabIcon } from '@icons';
 
@@ -41,7 +41,6 @@ export function AmountBox({
     const [hasChanges, setHasChanges] = useState(false);
     const [activeTab, setActiveTab] = useState<string | null>('quantities');
     const [photoPreviewOpen, setPhotoPreviewOpen] = useState(false);
-    const quantitiesPanelRef = useRef<HTMLDivElement>(null);
 
     const handleExitTransitionEnd = useCallback(() => onAfterClose?.(), [onAfterClose]);
 
@@ -93,16 +92,11 @@ export function AmountBox({
                         </Tabs.List>
 
                         <Tabs.Panel
-                            className="amount-box-tab-panel"
+                            className="amount-box-tab-panel amount-box-quantities-panel"
                             value="quantities"
                             pt="sm"
-                            ref={quantitiesPanelRef}
                         >
-                            <AmountVariantsTab
-                                onChangesUpdate={setHasChanges}
-                                onClose={onClose}
-                                scrollContainerRef={quantitiesPanelRef}
-                            />
+                            <AmountVariantsTab onChangesUpdate={setHasChanges} onClose={onClose} />
                         </Tabs.Panel>
 
                         <Tabs.Panel className="amount-box-tab-panel" value="history" pt="sm">

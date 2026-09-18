@@ -24,7 +24,7 @@ export function SummaryHistoryTab() {
     const undates = useUndates();
 
     return (
-        <LoadableContent loader={loader} hasData>
+        <LoadableContent resourceKey={`summary-history:${group}:${name}:${year}`} loader={loader} hasData>
             <Table data-table="history">
                 <Table.Thead>
                     <Table.Tr>

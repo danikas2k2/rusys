@@ -87,6 +87,10 @@ export const API = {
     productAmounts: (group: string, name: string, year: number): string =>
         `${BASE}/groups/${encodeURIComponent(group)}/products/${encodeURIComponent(name)}/years/${year}/amounts`,
 
+    /** Moves amount rows to another product. */
+    productAmountTransfers: (group: string, name: string, year: number): string =>
+        `${BASE}/groups/${encodeURIComponent(group)}/products/${encodeURIComponent(name)}/years/${year}/amounts/transfers`,
+
     /**
      * Creates a quantity change record.
      * @param group The category name.

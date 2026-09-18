@@ -54,6 +54,23 @@
         overscroll-behavior: contain;
     }
 
+    .ui-Tabs-panel.amount-box-quantities-panel {
+        display: flex;
+        overflow: hidden;
+    }
+
+    .ui-Stack-root.amount-variants-tab {
+        flex: 1;
+        min-height: 0;
+    }
+
+    .amount-variants-list {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
     // Accordion content is a nested flex item. Without a zero min-width, its
     // intrinsic width (inputs, buttons, or an image dropzone) can widen the
     // fullscreen dialog beyond a narrow mobile viewport.
@@ -71,6 +88,16 @@
         z-index: 1;
         background-color: var(--mantine-color-body);
         padding-top: var(--mantine-spacing-sm);
+    }
+
+    .amount-box-footer {
+        flex: 0 0 auto;
+        background-color: var(--mantine-color-body);
+        padding-top: var(--mantine-spacing-sm);
+
+        .amount-box-actions {
+            position: static;
+        }
     }
 
     .ui-Accordion-item {

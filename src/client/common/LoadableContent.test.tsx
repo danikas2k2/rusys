@@ -1,98 +1,78 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
 import { LoadableContent } from '~/client/common/LoadableContent';
 import { RefreshProvider, useRefreshAll } from '~/client/common/RefreshContext';
-import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
-
-vi.mock(import('~/client/hooks/useLockingLoader'), async () => ({
-    ...(await vi.importActual('~/client/hooks/useLockingLoader')),
-    useLockingLoader: vi.fn(),
-}));
 
 describe('<LoadableContent>', () => {
-    const props = {
-        loader: vi.fn(),
-        hasData: false,
-        children: <main>Content</main>,
-    };
+    afterEach(() => vi.restoreAllMocks());
 
-    afterEach(() => vi.clearAllMocks());
+    async function renderContent({
+        loader = vi.fn().mockResolvedValue(undefined),
+        hasData = false,
+    }: {
+        loader?: () => Promise<void>;
+        hasData?: boolean;
+    } = {}) {
+        let view!: ReturnType<typeof render>;
+        await act(async () => {
+            view = render(
+                <MockTheme>
+                    <RefreshProvider>
+                        <LoadableContent resourceKey="test" loader={loader} hasData={hasData}>
+                            <main>Content</main>
+                        </LoadableContent>
+                    </RefreshProvider>
+                </MockTheme>
+            );
+            await Promise.resolve();
+        });
+        return view;
+    }
 
-    it('displays loader on initial state', async () => {
-        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
+    it('displays an empty-data error once the resource resolves', async () => {
+        const loader = vi.fn().mockResolvedValue(undefined);
+        await renderContent({ loader });
 
-        render(
-            <MockTheme>
-                <LoadableContent {...props} />
-            </MockTheme>
-        );
+        await waitFor(() => expect(loader).toHaveBeenCalledTimes(1));
+        await waitFor(() => expect(screen.getByText('No data')).toBeInTheDocument());
 
-        expect(screen.getByRole('progressbar')).toBeInTheDocument();
-        expect(screen.queryByRole('main')).not.toBeInTheDocument();
-        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    });
-
-    it('displays loader on loading state', async () => {
-        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.LOADING);
-
-        render(
-            <MockTheme>
-                <LoadableContent {...props} />
-            </MockTheme>
-        );
-
-        expect(screen.getByRole('progressbar')).toBeInTheDocument();
-        expect(screen.queryByRole('main')).not.toBeInTheDocument();
-        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    });
-
-    it('displays error on failed state', async () => {
-        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.FAILED);
-
-        render(
-            <MockTheme>
-                <LoadableContent {...props} />
-            </MockTheme>
-        );
-
-        expect(screen.getByRole('alert')).toBeInTheDocument();
         expect(screen.queryByRole('main')).not.toBeInTheDocument();
         expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    it('displays error on complete state with no data', async () => {
-        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
+    it('displays content once the resource resolves with data', async () => {
+        await renderContent({ hasData: true });
 
-        render(
-            <MockTheme>
-                <LoadableContent {...props} />
-            </MockTheme>
-        );
+        await waitFor(() => expect(screen.getByRole('main')).toBeInTheDocument());
 
-        expect(screen.getByRole('alert')).toBeInTheDocument();
+        expect(screen.queryByText('No data')).not.toBeInTheDocument();
+        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
+    it('uses its ErrorBoundary when the resource rejects', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        const loader = vi.fn().mockRejectedValueOnce(new Error('network error')).mockResolvedValueOnce(undefined);
+        await renderContent({ loader, hasData: true });
+
+        await waitFor(() => expect(loader).toHaveBeenCalledTimes(1));
+        await waitFor(() => expect(screen.getByText('Unexpected error occurred')).toBeInTheDocument());
+
         expect(screen.queryByRole('main')).not.toBeInTheDocument();
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+
+        await act(async () => {
+            fireEvent.click(screen.getByRole('button', { name: 'Reload page' }));
+            await Promise.resolve();
+        });
+
+        await waitFor(() => expect(screen.getByRole('main')).toBeInTheDocument());
+
+        expect(loader).toHaveBeenCalledTimes(2);
     });
 
-    it('displays content on complete state with data', async () => {
-        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
-
-        render(
-            <MockTheme>
-                <LoadableContent {...props} hasData />
-            </MockTheme>
-        );
-
-        expect(screen.getByRole('main')).toBeInTheDocument();
-        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    });
-
-    it('registers its loader for pull-to-refresh so it can be re-run without a remount', async () => {
-        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
+    it('refreshes its resource through pull-to-refresh without a remount', async () => {
         const loader = vi.fn().mockResolvedValue(undefined);
         let refreshAll: (() => Promise<void>) | undefined;
 
@@ -101,21 +81,26 @@ describe('<LoadableContent>', () => {
             return null;
         }
 
-        render(
-            <MockTheme>
-                <RefreshProvider>
-                    <LoadableContent {...props} loader={loader} hasData>
-                        content
-                    </LoadableContent>
-                    <Trigger onReady={(fn) => (refreshAll = fn)} />
-                </RefreshProvider>
-            </MockTheme>
-        );
+        await act(async () => {
+            render(
+                <MockTheme>
+                    <RefreshProvider>
+                        <LoadableContent resourceKey="test" loader={loader} hasData>
+                            <main>Content</main>
+                        </LoadableContent>
+                        <Trigger onReady={(fn) => (refreshAll = fn)} />
+                    </RefreshProvider>
+                </MockTheme>
+            );
+            await Promise.resolve();
+        });
 
-        expect(loader).toHaveBeenCalledTimes(0);
+        await waitFor(() => expect(screen.getByRole('main')).toBeInTheDocument());
+
+        expect(loader).toHaveBeenCalledTimes(1);
 
         await act(() => refreshAll!());
 
-        expect(loader).toHaveBeenCalledTimes(1);
+        expect(loader).toHaveBeenCalledTimes(2);
     });
 });

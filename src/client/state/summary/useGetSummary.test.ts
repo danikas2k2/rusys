@@ -1,15 +1,15 @@
 import { renderHook } from '@testing-library/react';
 
-import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
+import { useSuspenseApiRequest } from '~/client/state/common/useSuspenseApiRequest';
 import { useGetSummary } from '~/client/state/summary/useGetSummary';
 
-vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
+vi.mock(import('~/client/state/common/useSuspenseApiRequest'));
 
 describe('useSummaryLoader', () => {
     const request = vi.fn();
 
     beforeEach(() => {
-        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+        vi.mocked(useSuspenseApiRequest).mockReturnValue(request);
     });
 
     afterEach(() => vi.clearAllMocks());
@@ -19,6 +19,6 @@ describe('useSummaryLoader', () => {
 
         await result.current();
 
-        expect(request).toHaveBeenCalledWith('/api/v1/summary', 'GET');
+        expect(request).toHaveBeenCalledWith('/api/v1/summary');
     });
 });

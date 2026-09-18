@@ -3,17 +3,17 @@ import { MockRedux } from '@tests/MockRedux';
 
 import { API } from '@rusys/common/api/v1';
 
-import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
+import { useSuspenseApiRequest } from '~/client/state/common/useSuspenseApiRequest';
 import { useGetSummaryHistory } from '~/client/state/history/useGetSummaryHistory';
 
-vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
+vi.mock(import('~/client/state/common/useSuspenseApiRequest'));
 vi.mock(import('react-redux'), async () => ({ ...(await vi.importActual('react-redux')), useDispatch: vi.fn() }));
 
 describe('useGetSummaryHistory', () => {
     const request = vi.fn();
 
     beforeAll(() => {
-        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+        vi.mocked(useSuspenseApiRequest).mockReturnValue(request);
     });
 
     afterEach(() => vi.clearAllMocks());
@@ -24,7 +24,7 @@ describe('useGetSummaryHistory', () => {
         });
         await result.current();
 
-        expect(request).toHaveBeenCalledWith(API.summaryHistory('Uogienės', 'Avietės', 25), undefined, 'GET');
+        expect(request).toHaveBeenCalledWith(API.summaryHistory('Uogienės', 'Avietės', 25));
     });
 
     it('does not request history when group and name are undefined', async () => {

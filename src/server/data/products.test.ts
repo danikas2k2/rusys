@@ -29,9 +29,11 @@ import {
     setProductParent,
     setRemoving,
     setVariantImage,
+    transferAmounts,
     undoProduct,
 } from '~/server/data/products';
 import { $all } from '~/server/data/tests/utils';
+import { copyVariants } from '~/server/data/variants';
 import { db } from '~/server/db';
 
 vi.mock(import('~/server/db'));
@@ -559,6 +561,71 @@ describe('products', () => {
                     },
                 })
             );
+        });
+    });
+
+    describe('transferAmounts', () => {
+        it('moves amounts between products in the same category', async () => {
+            await expect(
+                transferAmounts('Daržovės', 'Agurkai', 22, 'Daržovės', 'Kopūstai', [{ variant: 'd', amount: 2 }], user)
+            ).resolves.toBe(true);
+
+            const all = (await $all('products')) as {
+                group: string;
+                name: string;
+                years?: { year: number; amounts: { variant: string; amount: number }[] }[];
+            }[];
+
+            expect(
+                all.find((product) => product.group === 'Daržovės' && product.name === 'Agurkai')?.years
+            ).toContainEqual({
+                year: 22,
+                amounts: [{ variant: 'd', amount: 1 }],
+            });
+
+            expect(
+                all.find((product) => product.group === 'Daržovės' && product.name === 'Kopūstai')?.years
+            ).toContainEqual({
+                year: 22,
+                amounts: [{ variant: 'd', amount: 2 }],
+            });
+        });
+
+        it('rejects amounts that exceed the source balance', async () => {
+            await expect(
+                transferAmounts(
+                    'Daržovės',
+                    'Agurkai',
+                    22,
+                    'Daržovės',
+                    'Kopūstai',
+                    [
+                        { variant: 'd', amount: 2 },
+                        { variant: 'd', amount: 2 },
+                    ],
+                    user
+                )
+            ).resolves.toBe(false);
+        });
+
+        it('copies selected variants before moving them to another category', async () => {
+            await expect(
+                transferAmounts('Daržovės', 'Agurkai', 22, 'Uogienės', 'Avietės', [{ variant: 'd', amount: 2 }], user)
+            ).resolves.toBe(true);
+
+            const all = (await $all('products')) as {
+                group: string;
+                name: string;
+                years?: { year: number; amounts: { variant: string; amount: number }[] }[];
+            }[];
+
+            expect(copyVariants).toHaveBeenCalledWith('Daržovės', 'Uogienės', ['d'], expect.anything());
+            expect(
+                all.find((product) => product.group === 'Uogienės' && product.name === 'Avietės')?.years
+            ).toContainEqual({
+                year: 22,
+                amounts: [{ variant: 'd', amount: 2 }],
+            });
         });
     });
 

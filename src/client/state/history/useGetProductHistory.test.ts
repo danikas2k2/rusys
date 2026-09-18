@@ -2,16 +2,16 @@ import { renderHook } from '@testing-library/react';
 
 import { API } from '@rusys/common/api/v1';
 
-import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
+import { useSuspenseApiRequest } from '~/client/state/common/useSuspenseApiRequest';
 import { useGetProductHistory } from '~/client/state/history/useGetProductHistory';
 
-vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
+vi.mock(import('~/client/state/common/useSuspenseApiRequest'));
 
 describe('useGetProductHistory', () => {
     const request = vi.fn();
 
     beforeAll(() => {
-        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+        vi.mocked(useSuspenseApiRequest).mockReturnValue(request);
     });
 
     afterEach(() => vi.clearAllMocks());
@@ -22,7 +22,7 @@ describe('useGetProductHistory', () => {
 
         await result.current();
 
-        expect(request).toHaveBeenCalledWith(API.productHistory('Uogienės', 'Avietės', year), undefined, 'GET');
+        expect(request).toHaveBeenCalledWith(API.productHistory('Uogienės', 'Avietės', year));
     });
 
     it('does not request history without a selected product', async () => {

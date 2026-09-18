@@ -1,33 +1,21 @@
-import React from 'react';
+import React, { Suspense, use } from 'react';
 
+import { ErrorBoundary } from '~/client/common/ErrorBoundary';
 import { Label } from '~/client/common/Label';
-import { useRegisterRefresh } from '~/client/common/RefreshContext';
+import { useClearSuspenseResource, useSuspenseResource } from '~/client/common/RefreshContext';
 import { ScreenError } from '~/client/common/ScreenError';
 import { ScreenLoader } from '~/client/common/ScreenLoader';
-import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 
 import './LoadableContent.pcss';
 
 interface LoadableContentProps {
-    loader: () => Promise<unknown>;
+    resourceKey: string;
+    loader: () => Promise<void>;
     hasData: boolean;
 }
 
-export function LoadableContent({ loader, hasData, children }: React.PropsWithChildren<LoadableContentProps>) {
-    const loading = useLockingLoader(loader);
-    useRegisterRefresh(loader);
-
-    if (loading === LoadingState.INITIAL || loading === LoadingState.LOADING) {
-        return <ScreenLoader />;
-    }
-
-    if (loading === LoadingState.FAILED) {
-        return (
-            <ScreenError>
-                <Label>Failed to load data</Label>
-            </ScreenError>
-        );
-    }
+function LoadedContent({ resourceKey, loader, hasData, children }: React.PropsWithChildren<LoadableContentProps>) {
+    use(useSuspenseResource(resourceKey, loader));
 
     if (!hasData) {
         return (
@@ -38,4 +26,23 @@ export function LoadableContent({ loader, hasData, children }: React.PropsWithCh
     }
 
     return <>{children}</>;
+}
+
+export function LoadableContent({
+    resourceKey,
+    loader,
+    hasData,
+    children,
+}: React.PropsWithChildren<LoadableContentProps>) {
+    const clear = useClearSuspenseResource(resourceKey);
+
+    return (
+        <ErrorBoundary onReload={clear}>
+            <Suspense fallback={<ScreenLoader />}>
+                <LoadedContent resourceKey={resourceKey} loader={loader} hasData={hasData}>
+                    {children}
+                </LoadedContent>
+            </Suspense>
+        </ErrorBoundary>
+    );
 }
