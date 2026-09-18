@@ -11,7 +11,6 @@ import React from 'react';
 import { DraggableContent } from '~/client/common/DraggableContent';
 import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
-import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { GroupsTable } from '~/client/pages/groups/GroupsTable';
 import { useGroupsHasData } from '~/client/pages/groups/hooks/useGroupsHasData';
 import { useGetGroups } from '~/client/state/groups/useGetGroups';
@@ -24,7 +23,9 @@ vi.mock(import('~/client/common/hooks/useReorderHandler'));
 vi.mock(import('~/client/pages/groups/hooks/useGroupsHasData'));
 vi.mock(import('~/client/state/groups/useGetGroups'));
 vi.mock(import('~/client/state/groups/useReorderGroups'));
-vi.mock(import('~/client/hooks/useLockingLoader'));
+vi.mock(import('~/client/common/LoadableContent'), () => ({
+    LoadableContent: ({ children }: React.PropsWithChildren) => <>{children}</>,
+}));
 vi.mock(import('~/client/filters/QuickFilterContext'), () => ({
     useQuickFilter: vi.fn().mockReturnValue(['', vi.fn()]),
 }));
@@ -63,7 +64,6 @@ describe('<GroupsTable>', () => {
     beforeEach(() => {
         vi.mocked(useGroups).mockReturnValue(getGroupsFixture());
         vi.mocked(useQuickFilter).mockReturnValue(['', vi.fn()]);
-        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
         vi.mocked(useGroupsHasData).mockReturnValue(true);
         vi.mocked(useGetGroups).mockReturnValue(mockGetGroups);
         vi.mocked(useReorderHandler).mockReturnValue({
@@ -107,71 +107,6 @@ describe('<GroupsTable>', () => {
 
         expect(within(uogienesRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'Uogienės', '', '']);
         expect(within(darzovesRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'Daržovės', '', '']);
-    });
-
-    describe('renders loader', () => {
-        it('renders loader for initial state', () => {
-            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
-            render(
-                <MockTheme>
-                    <MockRedux>
-                        <GroupsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            expect(screen.getByRole('progressbar')).toBeInTheDocument();
-            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
-        });
-
-        it('renders loader for loading state', () => {
-            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.LOADING);
-            render(
-                <MockTheme>
-                    <MockRedux>
-                        <GroupsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            expect(screen.getByRole('progressbar')).toBeInTheDocument();
-            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
-        });
-    });
-
-    describe('renders error', () => {
-        it('renders error for failed state', () => {
-            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.FAILED);
-            render(
-                <MockTheme>
-                    <MockRedux>
-                        <GroupsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            expect(screen.getByRole('alert')).toHaveTextContent('Failed to load data');
-            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
-        });
-
-        it('renders error for complete state without groups', () => {
-            vi.mocked(useGroups).mockReturnValue([]);
-            vi.mocked(useGroupsHasData).mockReturnValue(false);
-            render(
-                <MockTheme>
-                    <MockRedux>
-                        <GroupsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            expect(screen.getByRole('alert')).toHaveTextContent('No data');
-            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
-        });
     });
 
     describe('handles filter state', () => {

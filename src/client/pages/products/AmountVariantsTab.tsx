@@ -1,4 +1,17 @@
-import { Accordion, Avatar, Badge, Button, Flex, Group, Select, Stack, Text, type ComboboxItem } from '@mantine/core';
+import {
+    Accordion,
+    ActionIcon,
+    Avatar,
+    Badge,
+    Button,
+    Checkbox,
+    Flex,
+    Group,
+    Select,
+    Stack,
+    Text,
+    type ComboboxItem,
+} from '@mantine/core';
 import type { ProductAmounts, VariantAmount } from '@rusys/common/data';
 import { getCombinedAmounts, getVariantAmount } from '@rusys/common/utils/amounts';
 import { formatDateOnly, getExpiryStatus, parseDateOnly } from '@rusys/common/utils/expiry';
@@ -12,6 +25,7 @@ import {
     ExpiredIcon,
     ExpiringSoonIcon,
     HomeIcon,
+    MoveIcon,
     RedoIcon,
     SuspiciousIcon,
     UndoIcon,
@@ -26,6 +40,7 @@ import { EXPIRY_INFIX, HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/client/common/va
 import { VariantTitle } from '~/client/common/VariantTitle';
 import { useLabels } from '~/client/hooks/useLabels';
 import { AmountExpanded, type VariantDelta } from '~/client/pages/products/AmountExpanded';
+import { MoveVariantsBox } from '~/client/pages/products/MoveVariantsBox';
 import { useUpdatingProducts } from '~/client/pages/products/UpdatingProductsContext';
 import { VariantImagePicker } from '~/client/pages/products/VariantImagePicker';
 import { VariantBox } from '~/client/pages/variants/VariantBox';
@@ -94,6 +109,7 @@ interface AmountVariantsTabProps {
 
 export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef }: AmountVariantsTabProps = {}) {
     const _ = useLabels();
+    const listRef = useRef<HTMLDivElement>(null);
     const [active] = useActiveContent<ProductAmounts>();
     const [, setUpdating] = useUpdatingProducts();
     const profile = useProfile();
@@ -177,13 +193,14 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
     const [expandedKey, setExpandedKey] = useState<string | null>(null);
     const [allDeltas, setAllDeltas] = useState<Record<string, VariantDelta>>({});
     const [comment, setComment] = useState('');
+    const [moving, setMoving] = useState(false);
+    const [movingKeys, setMovingKeys] = useState<string[]>([]);
 
     useEffect(() => {
-        if (!expandedKey || !scrollContainerRef?.current) {
+        const container = scrollContainerRef?.current ?? listRef.current;
+        if (!expandedKey || !container) {
             return;
         }
-
-        const container = scrollContainerRef.current;
         const scrollExpandedVariantIntoView = () => {
             const item = container.querySelector<HTMLElement>(`[data-amount-variant-key="${CSS.escape(expandedKey)}"]`);
             if (!item) {
@@ -192,12 +209,14 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
             const containerRect = container.getBoundingClientRect();
             const itemRect = item.getBoundingClientRect();
             const margin = 8;
-            const availableHeight = containerRect.height - margin * 2;
+            const footerHeight =
+                container.querySelector<HTMLElement>('.amount-box-footer')?.getBoundingClientRect().height ?? 0;
+            const availableHeight = containerRect.height - margin * 2 - footerHeight;
             const offset =
                 itemRect.height > availableHeight || itemRect.top < containerRect.top + margin
                     ? itemRect.top - containerRect.top - margin
-                    : Math.max(0, itemRect.bottom - containerRect.bottom + margin);
-            if (offset) {
+                    : Math.max(0, itemRect.bottom - (containerRect.bottom - footerHeight) + margin);
+            if (offset && typeof container.scrollBy === 'function') {
                 container.scrollBy({ top: offset, behavior: 'smooth' });
             }
         };
@@ -388,186 +407,263 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
         await redoProduct(group, name, year).finally(() => setUpdating(activeData!, false));
     }, [activeData, group, name, year, setUpdating, redoProduct, setExpandedKey]);
 
-    const actions =
-        (canUndo || canRedo) && !expandedKey && !hasChanges ? (
-            <Flex className="amount-box-actions" justify="center" gap="xs">
-                <Button
-                    variant="default"
-                    size="sm"
-                    leftSection={<UndoIcon size={16} />}
-                    rightSection={
-                        undoCount > 0 ? (
-                            <Badge size="sm" variant="filled" circle>
-                                {undoCount}
-                            </Badge>
-                        ) : undefined
-                    }
-                    onClick={handleUndo}
-                    disabled={!canUndo}
-                >
-                    <Label>Undo</Label>
-                </Button>
-                <Button
-                    variant="default"
-                    size="sm"
-                    leftSection={<RedoIcon size={16} />}
-                    rightSection={
-                        redoCount > 0 ? (
-                            <Badge size="sm" variant="filled" circle>
-                                {redoCount}
-                            </Badge>
-                        ) : undefined
-                    }
-                    onClick={handleRedo}
-                    disabled={!canRedo}
-                >
-                    <Label>Redo</Label>
-                </Button>
-            </Flex>
-        ) : expandedKey || hasChanges ? (
-            <Group className="amount-box-actions" justify="center" gap="xs">
-                <Button variant="default" size="sm" leftSection={<CancelIcon size={16} />} onClick={handleCancel}>
-                    <Label>Cancel</Label>
-                </Button>
-                <Button
-                    size="sm"
-                    leftSection={<UpdateIcon size={16} />}
-                    onClick={handleUpdate}
-                    disabled={!hasChanges || submitting}
-                    loading={loading}
-                >
-                    <Label>Update</Label>
-                </Button>
-            </Group>
-        ) : null;
+    const handleMoveStart = useCallback(() => {
+        setExpandedKey(null);
+        setMovingKeys([]);
+        setMoving(true);
+    }, [setExpandedKey]);
+    const handleMoveCancel = useCallback(() => {
+        setMovingKeys([]);
+        setMoving(false);
+    }, []);
+    const handleMoveToggle = useCallback((key: string) => {
+        setMovingKeys((current) =>
+            current.includes(key) ? current.filter((entry) => entry !== key) : [...current, key]
+        );
+    }, []);
+    const handleMoved = useCallback(() => {
+        setMovingKeys([]);
+        setMoving(false);
+    }, []);
+    const movingAmounts = useMemo(
+        () =>
+            movingKeys.map((key) => {
+                const { variant, suspicious, home, expiresAt } = fromKey(key);
+                return {
+                    variant,
+                    amount: getVariantAmount(liveAmounts, variant, suspicious, home, expiresAt),
+                    ...(suspicious ? { suspicious } : {}),
+                    ...(home ? { home } : {}),
+                    ...(expiresAt ? { expiresAt } : {}),
+                };
+            }),
+        [liveAmounts, movingKeys]
+    );
+
+    const actions = moving ? null : (canUndo || canRedo) && !expandedKey && !hasChanges ? (
+        <Flex className="amount-box-actions" justify="center" gap="xs">
+            <Button
+                variant="default"
+                size="sm"
+                leftSection={<UndoIcon size={16} />}
+                rightSection={
+                    undoCount > 0 ? (
+                        <Badge size="sm" variant="filled" circle>
+                            {undoCount}
+                        </Badge>
+                    ) : undefined
+                }
+                onClick={handleUndo}
+                disabled={!canUndo}
+            >
+                <Label>Undo</Label>
+            </Button>
+            <Button
+                variant="default"
+                size="sm"
+                leftSection={<RedoIcon size={16} />}
+                rightSection={
+                    redoCount > 0 ? (
+                        <Badge size="sm" variant="filled" circle>
+                            {redoCount}
+                        </Badge>
+                    ) : undefined
+                }
+                onClick={handleRedo}
+                disabled={!canRedo}
+            >
+                <Label>Redo</Label>
+            </Button>
+            <ActionIcon variant="default" size="lg" onClick={handleMoveStart} aria-label={_('Move variants')}>
+                <MoveIcon size={16} />
+            </ActionIcon>
+        </Flex>
+    ) : expandedKey || hasChanges ? (
+        <Group className="amount-box-actions" justify="center" gap="xs">
+            <Button variant="default" size="sm" leftSection={<CancelIcon size={16} />} onClick={handleCancel}>
+                <Label>Cancel</Label>
+            </Button>
+            <Button
+                size="sm"
+                leftSection={<UpdateIcon size={16} />}
+                onClick={handleUpdate}
+                disabled={!hasChanges || submitting}
+                loading={loading}
+            >
+                <Label>Update</Label>
+            </Button>
+        </Group>
+    ) : !expandedKey && !hasChanges && visibleKeys.length ? (
+        <Flex className="amount-box-actions" justify="center">
+            <ActionIcon variant="default" size="lg" onClick={handleMoveStart} aria-label={_('Move variants')}>
+                <MoveIcon size={16} />
+            </ActionIcon>
+        </Flex>
+    ) : null;
 
     return (
         <>
-            <Stack gap="sm">
-                <Accordion value={expandedKey} onChange={setExpandedKey} variant="contained" radius="md" chevron={null}>
-                    {visibleKeys.map((key) => {
-                        const { variant, suspicious, home, expiresAt } = fromKey(key);
-                        const variantDelta = allDeltas[key] ?? ZERO_DELTA;
-                        const totalDelta = variantDelta.updated + variantDelta.consumed + variantDelta.recycled;
-                        const totalChanges =
-                            !!variantDelta.updated || !!variantDelta.consumed || !!variantDelta.recycled;
-                        const baseAmount = getVariantAmount(liveAmounts, variant, suspicious, home, expiresAt);
-                        const displayAmount = baseAmount + totalDelta;
-                        const hasSuspicious = visibleKeys.includes(toKey(variant, true));
-                        const hasHome = visibleKeys.includes(toKey(variant, false, true));
-                        const variantImage = activeProduct?.variantImages?.[variant];
-                        const expiryStatus = expiresAt
-                            ? getExpiryStatus(expiresAt, now, activeProduct?.expiryToleranceDays)
-                            : undefined;
-                        // Suspicious/home/expiry may only be added from the plain row.
-                        const isPlain = !suspicious && !home && !expiresAt;
-                        const ExpiryRowIcon =
-                            expiryStatus === 'expired'
-                                ? ExpiredIcon
-                                : expiryStatus === 'soon'
-                                  ? ExpiringSoonIcon
-                                  : DatedIcon;
-                        const datedCount = datedCountByVariant.get(variant) ?? 0;
+            <Stack className="amount-variants-tab" gap="sm">
+                <div className="amount-variants-list" ref={listRef}>
+                    <Accordion
+                        value={moving ? null : expandedKey}
+                        onChange={moving ? (key) => key && handleMoveToggle(key) : setExpandedKey}
+                        variant="contained"
+                        radius="md"
+                        chevron={null}
+                    >
+                        {visibleKeys.map((key) => {
+                            const { variant, suspicious, home, expiresAt } = fromKey(key);
+                            const variantDelta = allDeltas[key] ?? ZERO_DELTA;
+                            const totalDelta = variantDelta.updated + variantDelta.consumed + variantDelta.recycled;
+                            const totalChanges =
+                                !!variantDelta.updated || !!variantDelta.consumed || !!variantDelta.recycled;
+                            const baseAmount = getVariantAmount(liveAmounts, variant, suspicious, home, expiresAt);
+                            const displayAmount = baseAmount + totalDelta;
+                            const hasSuspicious = visibleKeys.includes(toKey(variant, true));
+                            const hasHome = visibleKeys.includes(toKey(variant, false, true));
+                            const variantImage = activeProduct?.variantImages?.[variant];
+                            const expiryStatus = expiresAt
+                                ? getExpiryStatus(expiresAt, now, activeProduct?.expiryToleranceDays)
+                                : undefined;
+                            // Suspicious/home/expiry may only be added from the plain row.
+                            const isPlain = !suspicious && !home && !expiresAt;
+                            const ExpiryRowIcon =
+                                expiryStatus === 'expired'
+                                    ? ExpiredIcon
+                                    : expiryStatus === 'soon'
+                                      ? ExpiringSoonIcon
+                                      : DatedIcon;
+                            const datedCount = datedCountByVariant.get(variant) ?? 0;
 
-                        return (
-                            <Accordion.Item
-                                key={key}
-                                value={key}
-                                data-amount-variant-key={key}
-                                data-suspicious={suspicious || undefined}
-                                data-home={home || undefined}
-                                data-expires={expiryStatus || undefined}
-                            >
-                                <Accordion.Control>
-                                    <Group justify="space-between">
-                                        <Group gap={4}>
-                                            {variantImage && (
-                                                <Avatar src={variantImage} radius="sm" size={20} alt="">
-                                                    {variant.trim().charAt(0).toUpperCase()}
-                                                </Avatar>
-                                            )}
-                                            {suspicious && <SuspiciousIcon size={14} />}
-                                            {home && <HomeIcon size={14} />}
-                                            {expiresAt && <ExpiryRowIcon size={14} />}
-                                            <Text fz="md" fw={500}>
-                                                <VariantTitle group={group} variant={variant} />
-                                            </Text>
-                                            {expiresAt && (
-                                                <Text size="xs" data-expiry-date>
-                                                    {formatDateOnly(expiresAt)}
-                                                </Text>
-                                            )}
-                                            {isPlain && datedCount > 0 && (
-                                                <Badge size="xs" variant="light" color="gray">
-                                                    +{datedCount}
-                                                </Badge>
-                                            )}
-                                        </Group>
-                                        <Group gap="xs">
-                                            <Text fz="md" component="span">
-                                                {home && (
-                                                    <ApproxAmountIcon size={12} style={{ verticalAlign: 'middle' }} />
+                            return (
+                                <Accordion.Item
+                                    key={key}
+                                    value={key}
+                                    data-amount-variant-key={key}
+                                    data-suspicious={suspicious || undefined}
+                                    data-home={home || undefined}
+                                    data-expires={expiryStatus || undefined}
+                                >
+                                    <Accordion.Control>
+                                        <Group justify="space-between">
+                                            <Group gap={moving ? 8 : 4}>
+                                                {moving && (
+                                                    <Checkbox
+                                                        checked={movingKeys.includes(key)}
+                                                        onChange={() => handleMoveToggle(key)}
+                                                        onClick={(event) => event.stopPropagation()}
+                                                        aria-label={_('Select variant')}
+                                                    />
                                                 )}
-                                                {displayAmount}
-                                            </Text>
-                                            <ChangeBadge change={totalDelta || totalChanges} />
+                                                {variantImage && (
+                                                    <Avatar src={variantImage} radius="sm" size={20} alt="">
+                                                        {variant.trim().charAt(0).toUpperCase()}
+                                                    </Avatar>
+                                                )}
+                                                {suspicious && <SuspiciousIcon size={14} />}
+                                                {home && <HomeIcon size={14} />}
+                                                {expiresAt && <ExpiryRowIcon size={14} />}
+                                                <Text fz="md" fw={500}>
+                                                    <VariantTitle group={group} variant={variant} />
+                                                </Text>
+                                                {expiresAt && (
+                                                    <Text size="xs" data-expiry-date>
+                                                        {formatDateOnly(expiresAt)}
+                                                    </Text>
+                                                )}
+                                                {isPlain && datedCount > 0 && (
+                                                    <Badge size="xs" variant="light" color="gray">
+                                                        +{datedCount}
+                                                    </Badge>
+                                                )}
+                                            </Group>
+                                            <Group gap="xs">
+                                                <Text fz="md" component="span">
+                                                    {home && (
+                                                        <ApproxAmountIcon
+                                                            size={12}
+                                                            style={{ verticalAlign: 'middle' }}
+                                                        />
+                                                    )}
+                                                    {displayAmount}
+                                                </Text>
+                                                <ChangeBadge change={totalDelta || totalChanges} />
+                                            </Group>
                                         </Group>
-                                    </Group>
-                                </Accordion.Control>
-                                <Accordion.Panel>
-                                    <AmountExpanded
-                                        delta={variantDelta}
-                                        baseAmount={baseAmount}
-                                        comment={comment}
-                                        onChange={handleDeltaChange}
-                                        onCommentChange={setComment}
-                                        onAddSuspicious={
-                                            isPlain && !hasSuspicious ? () => handleAddSuspicious(variant) : undefined
-                                        }
-                                        onAddHome={isPlain && !hasHome ? () => handleAddHome(variant) : undefined}
-                                        onAddExpiry={isPlain ? (value) => handlePickExpiry(variant, value) : undefined}
-                                    >
-                                        <VariantImagePicker
-                                            group={group}
-                                            name={name}
-                                            variant={variant}
-                                            image={variantImage}
-                                        />
-                                    </AmountExpanded>
-                                </Accordion.Panel>
-                            </Accordion.Item>
-                        );
-                    })}
-                </Accordion>
+                                    </Accordion.Control>
+                                    <Accordion.Panel>
+                                        <AmountExpanded
+                                            delta={variantDelta}
+                                            baseAmount={baseAmount}
+                                            comment={comment}
+                                            onChange={handleDeltaChange}
+                                            onCommentChange={setComment}
+                                            onAddSuspicious={
+                                                isPlain && !hasSuspicious
+                                                    ? () => handleAddSuspicious(variant)
+                                                    : undefined
+                                            }
+                                            onAddHome={isPlain && !hasHome ? () => handleAddHome(variant) : undefined}
+                                            onAddExpiry={
+                                                isPlain ? (value) => handlePickExpiry(variant, value) : undefined
+                                            }
+                                        >
+                                            <VariantImagePicker
+                                                group={group}
+                                                name={name}
+                                                variant={variant}
+                                                image={variantImage}
+                                            />
+                                        </AmountExpanded>
+                                    </Accordion.Panel>
+                                </Accordion.Item>
+                            );
+                        })}
+                    </Accordion>
+                </div>
 
-                <Select
-                    placeholder={_('Select variant')}
-                    data={[
-                        ...unusedVariants.map((v) => ({ value: v, label: v })),
-                        { value: '', label: _('New variant') },
-                    ]}
-                    value={null}
-                    onChange={(v) => (v === '' ? handleAddVariantOpen() : handleSelectVariant(v))}
-                    renderOption={({ option }: { option: ComboboxItem }) =>
-                        option.value === '' ? (
-                            <Group gap="xs" data-separator={!!unusedVariants.length}>
-                                <AddIcon size={14} />
-                                {option.label}
-                            </Group>
-                        ) : (
-                            <Group gap={6} wrap="nowrap">
-                                <VariantAvatar group={group} variant={option.value} />
-                                <Text>
-                                    <VariantTitle group={group} variant={option.label} />
-                                </Text>
-                            </Group>
-                        )
-                    }
-                    withScrollArea={false}
-                    size="sm"
-                    clearable={false}
-                />
-                {actions}
+                <div className="amount-box-footer">
+                    {moving ? (
+                        <MoveVariantsBox
+                            group={group}
+                            name={name}
+                            year={year}
+                            amounts={movingAmounts}
+                            onCancel={handleMoveCancel}
+                            onMoved={handleMoved}
+                        />
+                    ) : (
+                        <Select
+                            placeholder={_('Select variant')}
+                            data={[
+                                ...unusedVariants.map((v) => ({ value: v, label: v })),
+                                { value: '', label: _('New variant') },
+                            ]}
+                            value={null}
+                            onChange={(v) => (v === '' ? handleAddVariantOpen() : handleSelectVariant(v))}
+                            renderOption={({ option }: { option: ComboboxItem }) =>
+                                option.value === '' ? (
+                                    <Group gap="xs" data-separator={!!unusedVariants.length}>
+                                        <AddIcon size={14} />
+                                        {option.label}
+                                    </Group>
+                                ) : (
+                                    <Group gap={6} wrap="nowrap">
+                                        <VariantAvatar group={group} variant={option.value} />
+                                        <Text>
+                                            <VariantTitle group={group} variant={option.label} />
+                                        </Text>
+                                    </Group>
+                                )
+                            }
+                            withScrollArea={false}
+                            size="sm"
+                            clearable={false}
+                        />
+                    )}
+                    {actions}
+                </div>
             </Stack>
 
             <VariantBox

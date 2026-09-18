@@ -112,7 +112,7 @@ export function ProductsGrid() {
     );
 
     return (
-        <LoadableContent loader={useGetProducts()} hasData={useProductsHasData()}>
+        <LoadableContent resourceKey="products" loader={useGetProducts()} hasData={useProductsHasData()}>
             <div data-grid="products">
                 <ProductGridSection nodes={nodes} annual={annual} isHidden={isHidden} toggleHandlers={toggleHandlers} />
             </div>

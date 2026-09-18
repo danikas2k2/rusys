@@ -5,7 +5,6 @@ import React from 'react';
 
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
-import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useSummaryHasData } from '~/client/pages/summary/hooks/useSummaryHasData';
 import { SummaryGrid } from '~/client/pages/summary/SummaryGrid';
 import { useSummary } from '~/client/state/summary/useSummary';
@@ -16,14 +15,12 @@ vi.mock(import('~/client/filters/hooks/useQuickFilterPredicate'), () => ({ useQu
 vi.mock(import('~/client/pages/summary/hooks/useSummaryHasData'), () => ({ useSummaryHasData: vi.fn() }));
 vi.mock(import('~/client/state/summary/useSummary'), () => ({ useSummary: vi.fn() }));
 vi.mock(import('~/client/state/years/useYears'), () => ({ useYears: vi.fn() }));
-vi.mock(import('~/client/hooks/useLockingLoader'), async () => ({
-    ...(await vi.importActual('~/client/hooks/useLockingLoader')),
-    useLockingLoader: vi.fn(),
+vi.mock(import('~/client/common/LoadableContent'), () => ({
+    LoadableContent: ({ children }: React.PropsWithChildren) => <>{children}</>,
 }));
 
 describe('<SummaryGrid>', () => {
     beforeEach(() => {
-        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
         vi.mocked(useSummaryHasData).mockReturnValue(true);
         vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
         vi.mocked(useQuickFilterPredicate).mockReturnValue((name: string) => name === 'Avietės');

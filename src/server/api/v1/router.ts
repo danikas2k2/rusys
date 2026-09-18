@@ -21,6 +21,7 @@ import { handlePatchVariant } from '~/server/api/v1/handlePatchVariant';
 import { handlePostAmountHistory } from '~/server/api/v1/handlePostAmountHistory';
 import { handlePostAmountHistoryRedo } from '~/server/api/v1/handlePostAmountHistoryRedo';
 import { handlePostAmountHistoryUndo } from '~/server/api/v1/handlePostAmountHistoryUndo';
+import { handlePostProductAmountTransfer } from '~/server/api/v1/handlePostProductAmountTransfer';
 import { handlePostVariantCopy } from '~/server/api/v1/handlePostVariantCopy';
 import { handleProductReviewStatuses } from '~/server/api/v1/handleProductReviewStatuses';
 import { handlePutGroup } from '~/server/api/v1/handlePutGroup';
@@ -66,6 +67,7 @@ export function createV1Router(): Router {
     router.put('/groups/:group/products/:name/image', handlePutProductImage);
     router.put('/groups/:group/products/:name/variants/:variant/image', handlePutProductVariantImage);
     router.put('/groups/:group/products/:name/years/:year/amounts', handlePutProductAmounts);
+    router.post('/groups/:group/products/:name/years/:year/amounts/transfers', handlePostProductAmountTransfer);
     router.patch('/groups/:group/products/:name/years/:year', handleSetProductYear);
     router.post('/groups/:group/products/:name/years/:year/amount-history', handlePostAmountHistory);
     router.post('/groups/:group/products/:name/years/:year/amount-history/undo', handlePostAmountHistoryUndo);

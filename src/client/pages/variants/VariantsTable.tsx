@@ -69,7 +69,7 @@ export function VariantsTable() {
     };
 
     return (
-        <LoadableContent loader={useGetVariants()} hasData={useVariantsHasData()}>
+        <LoadableContent resourceKey="variants" loader={useGetVariants()} hasData={useVariantsHasData()}>
             <DraggableContent
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}

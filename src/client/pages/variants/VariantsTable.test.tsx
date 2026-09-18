@@ -13,7 +13,6 @@ import { useReorderHandler } from '~/client/common/hooks/useReorderHandler';
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
 import { useQuickFilter } from '~/client/filters/QuickFilterContext';
-import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useVariantsHasData } from '~/client/pages/variants/hooks/useVariantsHasData';
 import { VariantsTable } from '~/client/pages/variants/VariantsTable';
 import { useGroups } from '~/client/state/groups/useGroups';
@@ -28,7 +27,9 @@ vi.mock(import('~/client/state/variants/useReorderVariants'));
 vi.mock(import('~/client/common/hooks/useReorderHandler'));
 vi.mock(import('~/client/pages/variants/hooks/useVariantsHasData'));
 vi.mock(import('~/client/state/variants/useGetVariants'));
-vi.mock(import('~/client/hooks/useLockingLoader'));
+vi.mock(import('~/client/common/LoadableContent'), () => ({
+    LoadableContent: ({ children }: React.PropsWithChildren) => <>{children}</>,
+}));
 vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
     useGroupFilter: vi.fn(),
 }));
@@ -73,7 +74,6 @@ describe('<VariantsTable>', () => {
     const mockGetVariants = vi.fn().mockResolvedValue(undefined);
 
     beforeEach(() => {
-        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
         vi.mocked(useVariants).mockReturnValue(allVariants);
         vi.mocked(useGroups).mockReturnValue(getGroupsFixture());
         vi.mocked(useGroupFilter).mockReturnValue(['Uogienės', vi.fn()]);
@@ -186,87 +186,6 @@ describe('<VariantsTable>', () => {
         const rows = screen.getAllByRole('row').slice(1);
 
         expect(rows.every((row) => row.getAttribute('aria-disabled') === 'true')).toBe(true);
-    });
-
-    describe('renders loader', () => {
-        it('renders loader for initial state', () => {
-            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.INITIAL);
-            render(
-                <MockTheme>
-                    <MockRedux>
-                        <VariantsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            expect(screen.getByRole('progressbar')).toBeInTheDocument();
-            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
-        });
-
-        it('renders loader for loading state', () => {
-            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.LOADING);
-            render(
-                <MockTheme>
-                    <MockRedux>
-                        <VariantsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            expect(screen.getByRole('progressbar')).toBeInTheDocument();
-            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
-        });
-    });
-
-    describe('renders error', () => {
-        it('renders error for failed state', () => {
-            vi.mocked(useLockingLoader).mockReturnValue(LoadingState.FAILED);
-            render(
-                <MockTheme>
-                    <MockRedux>
-                        <VariantsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            expect(screen.getByRole('alert')).toHaveTextContent('Failed to load data');
-            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
-        });
-
-        it('renders error for complete state without variants', () => {
-            vi.mocked(useVariants).mockReturnValue([]);
-            vi.mocked(useVariantsHasData).mockReturnValue(false);
-            render(
-                <MockTheme>
-                    <MockRedux>
-                        <VariantsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            expect(screen.getByRole('alert')).toHaveTextContent('No data');
-            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
-        });
-
-        it('renders error for complete state without groups', () => {
-            vi.mocked(useGroups).mockReturnValue([]);
-            vi.mocked(useVariantsHasData).mockReturnValue(false);
-            render(
-                <MockTheme>
-                    <MockRedux>
-                        <VariantsTable />
-                    </MockRedux>
-                </MockTheme>
-            );
-
-            expect(screen.getByRole('alert')).toHaveTextContent('No data');
-            expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-            expect(screen.queryByRole('table')).not.toBeInTheDocument();
-        });
     });
 
     describe('handles drag and reorder', () => {

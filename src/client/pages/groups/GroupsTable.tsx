@@ -55,7 +55,7 @@ export function GroupsTable() {
     const dragDisabled = !!filter.trim();
 
     return (
-        <LoadableContent loader={useGetGroups()} hasData={useGroupsHasData()}>
+        <LoadableContent resourceKey="groups" loader={useGetGroups()} hasData={useGroupsHasData()}>
             <DraggableContent
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}

@@ -14,6 +14,17 @@ import { useSetAmounts } from '~/client/state/products/useSetAmounts';
 import { useUndoProduct } from '~/client/state/products/useUndoProduct';
 import { useAllVariants } from '~/client/state/variants/useAllVariants';
 
+vi.mock(import('~/client/pages/products/MoveVariantsBox'), () => ({
+    MoveVariantsBox: ({ amounts, onMoved }: any) => (
+        <div aria-label="Move variants">
+            <span data-testid="moving-amounts">{JSON.stringify(amounts)}</span>
+            <button type="button" onClick={onMoved}>
+                Confirm move
+            </button>
+        </div>
+    ),
+}));
+
 vi.mock(import('~/client/pages/variants/VariantBox'), () => ({
     VariantBox: vi.fn(({ opened, onClose, onAfterClose }: any) =>
         opened ? (
@@ -224,6 +235,20 @@ describe('<AmountVariantsTab>', () => {
         expect(screen.getByRole('button', { name: /\bm\b/ })).toBeInTheDocument();
     });
 
+    it('selects amount rows before showing the product picker', async () => {
+        renderTab();
+
+        await user.click(screen.getByRole('button', { name: 'Move variants' }));
+        await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+
+        expect(screen.getByTestId('moving-amounts')).toHaveTextContent(JSON.stringify([{ variant: 'd', amount: 1 }]));
+
+        await user.click(screen.getByRole('button', { name: 'Confirm move' }));
+
+        expect(screen.queryByTestId('moving-amounts')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Move variants' })).toBeInTheDocument();
+    });
+
     it('clicking a row expands it', async () => {
         renderTab();
         const control = screen.getByRole('button', { name: /\bd\b/ });
@@ -417,6 +442,7 @@ describe('<AmountVariantsTab>', () => {
 
         expect(screen.getByRole('button', { name: /undo/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /redo/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Move variants' })).toBeInTheDocument();
     });
 
     it('shows Undo/Redo buttons when canRedo is true and no expandedVariant and no changes', () => {

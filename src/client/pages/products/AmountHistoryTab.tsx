@@ -24,7 +24,7 @@ export function AmountHistoryTab() {
     const undates = useUndates();
 
     return (
-        <LoadableContent loader={loader} hasData>
+        <LoadableContent resourceKey={`product-history:${group}:${name}:${year}`} loader={loader} hasData>
             <Table data-table="history">
                 <Table.Thead>
                     <Table.Tr>

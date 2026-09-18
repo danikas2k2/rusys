@@ -6,6 +6,7 @@ import { buildHistoryPipeline } from '~/server/data/history';
 import { classifyImage } from '~/server/data/images';
 import { imageFieldUpdate, resolveImage } from '~/server/data/resolveImage';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
+import { copyVariants } from '~/server/data/variants';
 import { db, withTransaction } from '~/server/db';
 
 // Backfills `photo` for any `image`/`variantImages` entry left by a pre-classification version of
@@ -206,91 +207,175 @@ export async function setAmounts(
         return false;
     }
 
-    return withTransaction(async (session) => {
-        const filter: UpdateFilter<Product> = { group, name };
-        const operations: AnyBulkWriteOperation<Product>[] = [];
+    return withTransaction((session) => setAmountsInTransaction(group, name, year, changes, user, comment, session));
+}
 
-        const col = (await db()).collection<Product>('products');
-        const product = await col.findOne(filter, {
-            projection: { years: 1, missing: 1, updates: 1 },
-            session,
-        });
-        const amounts =
-            (year ? product?.years?.find((y) => y.year === year)?.amounts : getCombinedAmounts(product?.years)) ?? [];
+async function setAmountsInTransaction(
+    group: string,
+    name: string,
+    year: number,
+    changes: readonly VariantAmount[],
+    user: string | undefined,
+    comment: string | undefined,
+    session: ClientSession
+): Promise<boolean> {
+    const filter: UpdateFilter<Product> = { group, name };
+    const operations: AnyBulkWriteOperation<Product>[] = [];
 
-        // auto-consume home balance when cellar consumption starts for that variant
-        const autoHomeConsumes: VariantAmount[] = [];
-        for (const change of changes) {
-            if (!change.home && change.recycled === false && change.amount < 0) {
-                const homeBalance = getVariantAmount(amounts, change.variant, false, true);
-                if (homeBalance > 0) {
-                    autoHomeConsumes.push({
-                        variant: change.variant,
-                        amount: -homeBalance,
-                        recycled: false,
-                        home: true,
-                    });
-                }
+    const col = (await db()).collection<Product>('products');
+    const product = await col.findOne(filter, {
+        projection: { years: 1, missing: 1, updates: 1 },
+        session,
+    });
+    const amounts =
+        (year ? product?.years?.find((y) => y.year === year)?.amounts : getCombinedAmounts(product?.years)) ?? [];
+
+    // auto-consume home balance when cellar consumption starts for that variant
+    const autoHomeConsumes: VariantAmount[] = [];
+    for (const change of changes) {
+        if (!change.home && change.recycled === false && change.amount < 0) {
+            const homeBalance = getVariantAmount(amounts, change.variant, false, true);
+            if (homeBalance > 0) {
+                autoHomeConsumes.push({
+                    variant: change.variant,
+                    amount: -homeBalance,
+                    recycled: false,
+                    home: true,
+                });
             }
         }
-        const allChanges = autoHomeConsumes.length ? [...changes, ...autoHomeConsumes] : changes;
+    }
+    const allChanges = autoHomeConsumes.length ? [...changes, ...autoHomeConsumes] : changes;
 
-        const updates = allChanges.reduce(addVariantAmount, amounts).filter(hasAmount).map(cleanupRecycled);
+    const updates = allChanges.reduce(addVariantAmount, amounts).filter(hasAmount).map(cleanupRecycled);
 
-        // save all change types (consumed=recycled:false, recycled=recycled:true, updated=no recycled field)
-        const historyAmounts = allChanges.map(cleanupRecycled);
-        const newEntry = {
-            time: Date.now(),
-            user,
-            ...(comment ? { comment } : {}),
-            years: [{ year, amounts: historyAmounts }],
-        };
-        const newUpdates = [...(product?.updates ?? []), newEntry];
-        // clear undates on new update
-        operations.push({ updateOne: { filter, update: { $set: { updates: newUpdates }, $unset: { undates: 1 } } } });
+    // save all change types (consumed=recycled:false, recycled=recycled:true, updated=no recycled field)
+    const historyAmounts = allChanges.map(cleanupRecycled);
+    const newEntry = {
+        time: Date.now(),
+        user,
+        ...(comment ? { comment } : {}),
+        years: [{ year, amounts: historyAmounts }],
+    };
+    const newUpdates = [...(product?.updates ?? []), newEntry];
+    // clear undates on new update
+    operations.push({ updateOne: { filter, update: { $set: { updates: newUpdates }, $unset: { undates: 1 } } } });
 
-        // no updates
-        if (!updates.length) {
-            if (!amounts.length) {
-                return false;
-            }
-            operations.push({
-                updateOne: {
-                    filter,
-                    update: year ? { $pull: { years: { year } } } : { $unset: { years: 1, missing: 1 } },
-                },
-            });
-        } else if (!amounts.length) {
-            operations.push({ updateOne: { filter, update: { $push: { years: { year, amounts: updates } } } } });
-        } else {
-            operations.push({
-                updateOne: year
-                    ? {
-                          filter,
-                          update: { $set: { 'years.$[y].amounts': updates } },
-                          arrayFilters: [{ 'y.year': year }],
-                      }
-                    : {
-                          filter,
-                          update: { $set: { years: [{ year, amounts: updates }] } },
-                      },
-            });
+    // no updates
+    if (!updates.length) {
+        if (!amounts.length) {
+            return false;
         }
-
-        // remove missing flag if amount decreased but not recycled
-        if (product?.missing && changes.some((a) => !a.recycled && a.amount < 0)) {
-            operations.push({ updateOne: { filter, update: { $unset: { missing: 1 } } } });
-        }
-
-        // clear all other empty years
         operations.push({
             updateOne: {
-                filter: { group, name, years: { $size: 0 } },
-                update: { $unset: { years: 1, missing: 1 } },
+                filter,
+                update: year ? { $pull: { years: { year } } } : { $unset: { years: 1, missing: 1 } },
             },
         });
+    } else if (!amounts.length) {
+        operations.push({ updateOne: { filter, update: { $push: { years: { year, amounts: updates } } } } });
+    } else {
+        operations.push({
+            updateOne: year
+                ? {
+                      filter,
+                      update: { $set: { 'years.$[y].amounts': updates } },
+                      arrayFilters: [{ 'y.year': year }],
+                  }
+                : {
+                      filter,
+                      update: { $set: { years: [{ year, amounts: updates }] } },
+                  },
+        });
+    }
 
-        return await col.bulkWrite(operations, { session }).then(hasEffect);
+    // remove missing flag if amount decreased but not recycled
+    if (product?.missing && changes.some((a) => !a.recycled && a.amount < 0)) {
+        operations.push({ updateOne: { filter, update: { $unset: { missing: 1 } } } });
+    }
+
+    // clear all other empty years
+    operations.push({
+        updateOne: {
+            filter: { group, name, years: { $size: 0 } },
+            update: { $unset: { years: 1, missing: 1 } },
+        },
+    });
+
+    return await col.bulkWrite(operations, { session }).then(hasEffect);
+}
+
+/** Moves stock rows between products, preserving their flags and creating missing target-group variants. */
+export async function transferAmounts(
+    group: string,
+    name: string,
+    year: number,
+    targetGroup: string,
+    targetName: string,
+    amounts: readonly VariantAmount[],
+    user?: string,
+    comment?: string
+): Promise<boolean> {
+    if (
+        !group ||
+        !name ||
+        !targetGroup ||
+        !targetName ||
+        (group === targetGroup && name === targetName) ||
+        !amounts.length
+    ) {
+        return false;
+    }
+    if (amounts.some((amount) => !amount.variant || !(amount.amount > 0))) {
+        return false;
+    }
+    // A client normally submits one row per variant key, but combine duplicate rows before
+    // validating the balance so an API request cannot transfer more than the source holds.
+    const requested = amounts.reduce(addVariantAmount, [] as readonly VariantAmount[]);
+
+    return withTransaction(async (session) => {
+        const col = (await db()).collection<Product>('products');
+        const source = await col.findOne({ group, name }, { projection: { years: 1 }, session });
+        const target = await col.findOne({ group: targetGroup, name: targetName }, { projection: { _id: 1 }, session });
+        if (!source || !target) {
+            return false;
+        }
+        const sourceAmounts =
+            (year ? source.years?.find((entry) => entry.year === year)?.amounts : getCombinedAmounts(source.years)) ??
+            [];
+        if (
+            requested.some(
+                (amount) =>
+                    getVariantAmount(
+                        sourceAmounts,
+                        amount.variant,
+                        !!amount.suspicious,
+                        !!amount.home,
+                        amount.expiresAt
+                    ) < amount.amount
+            )
+        ) {
+            return false;
+        }
+
+        if (group !== targetGroup) {
+            await copyVariants(group, targetGroup, [...new Set(requested.map((amount) => amount.variant))], session);
+        }
+
+        const removed = requested.map((amount) => ({ ...amount, amount: -amount.amount }));
+        // MongoDB sessions do not support concurrent operations. Both writes remain atomic because
+        // the surrounding transaction commits only after the second one succeeds.
+        const sourceChanged = await setAmountsInTransaction(group, name, year, removed, user, comment, session);
+        const targetChanged = await setAmountsInTransaction(
+            targetGroup,
+            targetName,
+            year,
+            requested,
+            user,
+            comment,
+            session
+        );
+        return sourceChanged && targetChanged;
     });
 }
 

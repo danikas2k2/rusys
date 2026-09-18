@@ -1,15 +1,15 @@
 import { renderHook } from '@testing-library/react';
 
-import { useUpdatingApiRequest } from '~/client/state/base/useUpdatingApiRequest';
+import { useSuspenseApiRequest } from '~/client/state/common/useSuspenseApiRequest';
 import { useGetGroups } from '~/client/state/groups/useGetGroups';
 
-vi.mock(import('~/client/state/base/useUpdatingApiRequest'));
+vi.mock(import('~/client/state/common/useSuspenseApiRequest'));
 
 describe('useGetGroups', () => {
     const request = vi.fn();
 
     beforeAll(() => {
-        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+        vi.mocked(useSuspenseApiRequest).mockReturnValue(request);
     });
 
     afterEach(() => vi.clearAllMocks());
@@ -18,6 +18,6 @@ describe('useGetGroups', () => {
         const { result } = renderHook(() => useGetGroups());
         await result.current();
 
-        expect(request).toHaveBeenCalledWith('/api/v1/groups', 'GET');
+        expect(request).toHaveBeenCalledWith('/api/v1/groups');
     });
 });

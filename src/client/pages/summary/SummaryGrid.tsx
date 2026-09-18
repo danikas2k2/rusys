@@ -22,7 +22,7 @@ export function SummaryGrid() {
     const quickFilter = useQuickFilterPredicate();
 
     return (
-        <LoadableContent loader={useGetSummary()} hasData={useSummaryHasData()}>
+        <LoadableContent resourceKey="summary" loader={useGetSummary()} hasData={useSummaryHasData()}>
             <SimpleGrid data-grid="summary" cols={GRID_COLS} spacing="xs">
                 {summary.map(({ name, years: amounts, image, photo }) => {
                     const year = amounts?.find(({ amounts: yearAmounts }) => yearAmounts.length)?.year ?? fallbackYear;

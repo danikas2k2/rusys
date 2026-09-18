@@ -7,7 +7,6 @@ import React from 'react';
 
 import { useGroupFilter } from '~/client/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/client/filters/hooks/useQuickFilterPredicate';
-import { LoadingState, useLockingLoader } from '~/client/hooks/useLockingLoader';
 import { useMissingOnly } from '~/client/pages/products/MissingOnlyContext';
 import { ProductsGrid } from '~/client/pages/products/ProductsGrid';
 import { ProductTile, type ProductTileProps } from '~/client/pages/products/ProductTile';
@@ -20,9 +19,8 @@ vi.mock(import('~/client/pages/products/hooks/useProductsHasData'), () => ({
 vi.mock(import('~/client/pages/products/MissingOnlyContext'), () => ({
     useMissingOnly: vi.fn().mockReturnValue([false, vi.fn()]),
 }));
-vi.mock(import('~/client/hooks/useLockingLoader'), async () => ({
-    ...(await vi.importActual('~/client/hooks/useLockingLoader')),
-    useLockingLoader: vi.fn(),
+vi.mock(import('~/client/common/LoadableContent'), () => ({
+    LoadableContent: ({ children }: React.PropsWithChildren) => <>{children}</>,
 }));
 vi.mock(import('~/client/filters/GroupFilterContext'), () => ({
     useGroupFilter: vi.fn(),
@@ -46,7 +44,6 @@ describe('<ProductsGrid>', () => {
     const uogienesProducts = products.filter((p) => p.group === 'Uogienės');
 
     beforeEach(() => {
-        vi.mocked(useLockingLoader).mockReturnValue(LoadingState.COMPLETE);
         vi.mocked(useQuickFilterPredicate).mockReturnValue(() => true);
         vi.mocked(useGroups).mockReturnValue(state.groups);
         vi.mocked(useProducts).mockReturnValue(products);
@@ -108,20 +105,6 @@ describe('<ProductsGrid>', () => {
         const uogienesGroup = state.groups.find((g) => g.group === 'Uogienės');
 
         expect(ProductTile).toHaveBeenCalledWith(expect.objectContaining({ annual: uogienesGroup?.annual }), undefined);
-    });
-
-    it('does not render for initial state', () => {
-        vi.mocked(useLockingLoader).mockReturnValueOnce(LoadingState.INITIAL);
-
-        render(
-            <MockTheme>
-                <MockRedux state={state}>
-                    <ProductsGrid />
-                </MockRedux>
-            </MockTheme>
-        );
-
-        expect(ProductTile).not.toHaveBeenCalled();
     });
 
     describe('tree', () => {

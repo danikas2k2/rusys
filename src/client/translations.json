@@ -62,6 +62,9 @@
   "Select variant": {
     "lt-LT": "Pasirinkite variantą"
   },
+  "Select product": {
+    "lt-LT": "Pasirinkite produktą"
+  },
   "Cannot contain \":\" character": {
     "lt-LT": "Negali turėti \":\" simbolio"
   },
@@ -296,8 +299,17 @@
   "Move": {
     "lt-LT": "Perkelti"
   },
+  "Move to": {
+    "lt-LT": "Perkelti į"
+  },
+  "Move variants": {
+    "lt-LT": "Perkelti variantus"
+  },
   "Move to discarded": {
     "lt-LT": "Perkelti į išmesta"
+  },
+  "New product": {
+    "lt-LT": "Naujas produktas"
   },
   "Name": {
     "lt-LT": "Pavadinimas"
@@ -421,6 +433,9 @@
   },
   "Variants": {
     "lt-LT": "Variantai"
+  },
+  "Variants will be copied to": {
+    "lt-LT": "Variantai bus nukopijuoti į"
   },
   "Wednesday": {
     "lt-LT": "Trečiadienis"
