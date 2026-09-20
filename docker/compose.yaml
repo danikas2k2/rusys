@@ -1,44 +1,23 @@
 name: rusys-app
 
 services:
-  rusys-db1:
-    container_name: rusys-db1
-    hostname: rusys-db1
-    image: mongo:7
+  rusys-db:
+    container_name: rusys-db
+    hostname: rusys-db
+    image: mongo:latest
     expose:
       - 27017
     volumes:
-      - rusys-db1-data:/data/db
+      - rusys-db-data:/data/db
     restart: unless-stopped
     networks:
       - rusys-net
-    command: mongod --replSet rusys-rs
-
-  rusys-db2:
-    container_name: rusys-db2
-    hostname: rusys-db2
-    image: mongo:7
-    expose:
-      - 27017
-    volumes:
-      - rusys-db2-data:/data/db
-    restart: unless-stopped
-    networks:
-      - rusys-net
-    command: mongod --replSet rusys-rs
-
-  rusys-db3:
-    container_name: rusys-db3
-    hostname: rusys-db3
-    image: mongo:7
-    expose:
-      - 27017
-    volumes:
-      - rusys-db3-data:/data/db
-    restart: unless-stopped
-    networks:
-      - rusys-net
-    command: mongod --replSet rusys-rs
+    command: ["mongod", "--replSet", "rusys-rs", "--bind_ip_all"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ hello: 1 }).isWritablePrimary || quit(1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
 
   rusys-client:
     container_name: rusys-client
@@ -88,9 +67,8 @@ services:
       DB: ${DB}
       IMAGES_DIR: ${IMAGES_DIR:-/app/data/images}
     depends_on:
-      - rusys-db1
-      - rusys-db2
-      - rusys-db3
+      rusys-db:
+        condition: service_healthy
     expose:
       - 3000
     networks:
@@ -103,6 +81,4 @@ networks:
     driver: bridge
 
 volumes:
-  rusys-db1-data:
-  rusys-db2-data:
-  rusys-db3-data:
+  rusys-db-data:

@@ -80,10 +80,9 @@ export function deploy(config?: DeployConfig) {
                     { stdio: 'inherit' }
                 );
 
-                // Build and restart containers
                 console.log('🐳 Building and restarting containers...');
                 execSync(
-                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && if ${dockerPath} container inspect rusys-app >/dev/null 2>&1; then ${dockerPath} compose --env-file .env -f compose.yaml down; fi && ${dockerPath} compose --env-file .env -p docker -f docker/compose.yaml down && ${dockerPath} compose --env-file .env -f docker/compose.yaml up -d --build"`,
+                    `ssh -p ${serverPort} ${serverUser}@${serverHost} "cd ${remotePath} && if ${dockerPath} container inspect rusys-app >/dev/null 2>&1; then ${dockerPath} compose --env-file .env -f compose.yaml down; fi && ${dockerPath} compose --env-file .env -f docker/compose.yaml up -d --build --remove-orphans"`,
                     { stdio: 'inherit' }
                 );
 
