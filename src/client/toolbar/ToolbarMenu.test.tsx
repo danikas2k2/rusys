@@ -111,7 +111,7 @@ describe('<ToolbarMenu>', () => {
             'Utilities',
         ]);
 
-        expect(menu.getByRole('radiogroup')).toBeInTheDocument();
+        expect(menu.getByRole('switch', { name: 'Dark mode' })).toBeInTheDocument();
     });
 
     it('renders utilities menu items', async () => {
