@@ -1,4 +1,4 @@
-import { Divider, Table } from '@mantine/core';
+import { Divider, Flex, Loader, Table } from '@mantine/core';
 import React from 'react';
 
 import { useActiveContent } from '~/client/common/ActiveContentContext';
@@ -24,7 +24,16 @@ export function SummaryHistoryTab() {
     const undates = useUndates();
 
     return (
-        <LoadableContent resourceKey={`summary-history:${group}:${name}:${year}`} loader={loader} hasData>
+        <LoadableContent
+            resourceKey={`summary-history:${group}:${name}:${year}`}
+            loader={loader}
+            hasData
+            fallback={
+                <Flex justify="center" py="xl">
+                    <Loader size="lg" type="bars" />
+                </Flex>
+            }
+        >
             <Table data-table="history">
                 <Table.Thead>
                     <Table.Tr>

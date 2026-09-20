@@ -12,6 +12,7 @@ interface LoadableContentProps {
     resourceKey: string;
     loader: () => Promise<void>;
     hasData: boolean;
+    fallback?: React.ReactNode;
 }
 
 function LoadedContent({ resourceKey, loader, hasData, children }: React.PropsWithChildren<LoadableContentProps>) {
@@ -32,13 +33,14 @@ export function LoadableContent({
     resourceKey,
     loader,
     hasData,
+    fallback = <ScreenLoader />,
     children,
 }: React.PropsWithChildren<LoadableContentProps>) {
     const clear = useClearSuspenseResource(resourceKey);
 
     return (
         <ErrorBoundary onReload={clear}>
-            <Suspense fallback={<ScreenLoader />}>
+            <Suspense fallback={fallback}>
                 <LoadedContent resourceKey={resourceKey} loader={loader} hasData={hasData}>
                     {children}
                 </LoadedContent>

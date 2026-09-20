@@ -2,7 +2,12 @@ module.exports = {
   singleQuote: true,
   tabWidth: 4,
   printWidth: 120,
+  useTabs: false,
+  semi: true,
   trailingComma: 'es5',
+  bracketSpacing: true,
+  arrowParens: 'always',
+  endOfLine: 'lf',
   embeddedLanguageFormatting: 'auto',
   overrides: [
     {

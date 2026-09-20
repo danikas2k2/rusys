@@ -1,4 +1,4 @@
-import { Divider, Table } from '@mantine/core';
+import { Divider, Flex, Loader, Table } from '@mantine/core';
 import type { ProductAmounts } from '@rusys/common/data';
 import React from 'react';
 
@@ -24,7 +24,16 @@ export function AmountHistoryTab() {
     const undates = useUndates();
 
     return (
-        <LoadableContent resourceKey={`product-history:${group}:${name}:${year}`} loader={loader} hasData>
+        <LoadableContent
+            resourceKey={`product-history:${group}:${name}:${year}`}
+            loader={loader}
+            hasData
+            fallback={
+                <Flex justify="center" py="xl">
+                    <Loader size="lg" type="bars" />
+                </Flex>
+            }
+        >
             <Table data-table="history">
                 <Table.Thead>
                     <Table.Tr>

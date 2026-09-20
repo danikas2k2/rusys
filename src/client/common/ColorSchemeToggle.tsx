@@ -1,79 +1,31 @@
-import { Center, SegmentedControl, useMantineColorScheme, type MantineColorScheme } from '@mantine/core';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Center, Switch, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
+import React from 'react';
 
-import { AutoModeIcon, DarkModeIcon, LightModeIcon } from '@icons';
+import { DarkModeIcon, LightModeIcon } from '@icons';
 
 import { useLabels } from '~/client/hooks/useLabels';
 
-interface ColorSchemeToggleProps {
-    auto?: boolean;
-}
-
-export function ColorSchemeToggle({ auto = true }: ColorSchemeToggleProps) {
+export function ColorSchemeToggle() {
     const { colorScheme, setColorScheme } = useMantineColorScheme();
-    const [animatedValue, setAnimatedValue] = useState<MantineColorScheme>(colorScheme);
+    const systemScheme = useComputedColorScheme('light');
     const _ = useLabels();
 
-    // Sync animatedValue when colorScheme changes elsewhere (e.g. system / another control)
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror external scheme into local SegmentedControl value
-        setAnimatedValue(colorScheme);
-    }, [colorScheme]);
-
-    const data = useMemo(
-        () => [
-            {
-                value: 'light',
-                label: (
-                    <Center>
-                        <LightModeIcon aria-label={_('Light mode')} />
-                    </Center>
-                ),
-            },
-            ...(auto
-                ? [
-                      {
-                          value: 'auto',
-                          label: (
-                              <Center>
-                                  <AutoModeIcon aria-label={_('System preferred mode')} />
-                              </Center>
-                          ),
-                      },
-                  ]
-                : []),
-            {
-                value: 'dark',
-                label: (
-                    <Center>
-                        <DarkModeIcon aria-label={_('Dark mode')} />
-                    </Center>
-                ),
-            },
-        ],
-        [_, auto]
-    );
-
-    const handleChange = (scheme: string) => {
-        const newScheme = scheme as MantineColorScheme;
-
-        // Immediately update animated value to start animation
-        setAnimatedValue(newScheme);
-
-        // Update actual colorScheme after animation completes
-        setTimeout(() => {
-            setColorScheme(newScheme);
-        }, 0);
-    };
+    const activeScheme = colorScheme === 'auto' ? systemScheme : colorScheme;
+    const isDark = activeScheme === 'dark';
+    const targetLabel = isDark ? _('Light mode') : _('Dark mode');
 
     return (
         <Center>
-            <SegmentedControl
-                data-toggle="color-scheme"
+            <Switch
+                aria-label={targetLabel}
+                checked={isDark}
                 color="primary"
-                value={animatedValue}
-                onChange={handleChange}
-                data={data}
+                offLabel={<LightModeIcon aria-hidden size={14} />}
+                onChange={(event) => setColorScheme(event.currentTarget.checked ? 'dark' : 'light')}
+                onLabel={<DarkModeIcon aria-hidden size={14} />}
+                size="lg"
+                title={targetLabel}
+                withThumbIndicator={false}
             />
         </Center>
     );

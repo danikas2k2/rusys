@@ -1,66 +1,56 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
-import { useMantineColorScheme } from '@mantine/core';
+import { useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
 import React from 'react';
 
 import { ColorSchemeToggle } from '~/client/common/ColorSchemeToggle';
 
 vi.mock(import('@mantine/core'), async () => ({
     ...(await vi.importActual('@mantine/core')),
+    useComputedColorScheme: vi.fn(),
     useMantineColorScheme: vi.fn(),
 }));
 
 describe('<ColorSchemeToggle>', () => {
+    const clearColorScheme = vi.fn();
     const setColorScheme = vi.fn();
 
-    beforeEach(() =>
+    const mockSchemes = (colorScheme: 'auto' | 'light' | 'dark', systemScheme: 'light' | 'dark') => {
         vi.mocked(useMantineColorScheme).mockReturnValue({
-            colorScheme: 'light',
+            colorScheme,
+            clearColorScheme,
             setColorScheme,
             toggleColorScheme: vi.fn(),
-            clearColorScheme: vi.fn(),
-        })
-    );
+        });
+        vi.mocked(useComputedColorScheme).mockReturnValue(systemScheme);
+    };
+
+    beforeEach(() => mockSchemes('auto', 'light'));
 
     afterEach(() => vi.clearAllMocks());
 
-    it('renders with light scheme selected', () => {
-        render(
+    it('shows the sun on the left and enables dark mode from a light system theme', async () => {
+        const { container } = render(
             <MockTheme>
                 <ColorSchemeToggle />
             </MockTheme>
         );
 
-        expect(screen.getByRole('radio', { name: 'Light mode' })).toBeChecked();
+        const toggle = screen.getByRole('switch', { name: 'Dark mode' });
+
+        expect(toggle).not.toBeChecked();
+        expect(container.querySelector('.tabler-icon-sun')).toBeInTheDocument();
+
+        await user.click(toggle);
+
+        expect(setColorScheme).toHaveBeenCalledWith('dark');
+        expect(clearColorScheme).not.toHaveBeenCalled();
     });
 
-    it('renders with dark scheme selected', () => {
-        vi.mocked(useMantineColorScheme).mockReturnValue({
-            colorScheme: 'dark',
-            setColorScheme,
-            toggleColorScheme: vi.fn(),
-            clearColorScheme: vi.fn(),
-        });
-
-        render(
-            <MockTheme>
-                <ColorSchemeToggle />
-            </MockTheme>
-        );
-
-        expect(screen.getByRole('radio', { name: 'Light mode' })).not.toBeChecked();
-        expect(screen.getByRole('radio', { name: 'Dark mode' })).toBeChecked();
-    });
-
-    it('renders with auto scheme selected', () => {
-        vi.mocked(useMantineColorScheme).mockReturnValue({
-            colorScheme: 'auto',
-            setColorScheme,
-            toggleColorScheme: vi.fn(),
-            clearColorScheme: vi.fn(),
-        });
+    it('shows the moon on the right and enables light mode from dark mode', async () => {
+        mockSchemes('dark', 'light');
 
         render(
             <MockTheme>
@@ -68,28 +58,19 @@ describe('<ColorSchemeToggle>', () => {
             </MockTheme>
         );
 
-        expect(screen.getByRole('radio', { name: 'System preferred mode' })).toBeChecked();
+        const toggle = screen.getByRole('switch', { name: 'Light mode' });
+
+        expect(toggle).toBeChecked();
+        expect(screen.getByRole('switch').parentElement?.querySelector('.tabler-icon-moon')).toBeInTheDocument();
+
+        await user.click(toggle);
+
+        expect(setColorScheme).toHaveBeenCalledWith('light');
+        expect(clearColorScheme).not.toHaveBeenCalled();
     });
 
-    it('changes to dark scheme when dark button is clicked', async () => {
-        render(
-            <MockTheme>
-                <ColorSchemeToggle />
-            </MockTheme>
-        );
-
-        await user.click(screen.getByRole('radio', { name: 'Dark mode' }));
-
-        await waitFor(() => expect(setColorScheme).toHaveBeenCalledWith('dark'));
-    });
-
-    it('changes to light scheme when light button is clicked', async () => {
-        vi.mocked(useMantineColorScheme).mockReturnValue({
-            colorScheme: 'dark',
-            setColorScheme,
-            toggleColorScheme: vi.fn(),
-            clearColorScheme: vi.fn(),
-        });
+    it('shows light mode and enables it when the system theme is dark', async () => {
+        mockSchemes('auto', 'dark');
 
         render(
             <MockTheme>
@@ -97,30 +78,22 @@ describe('<ColorSchemeToggle>', () => {
             </MockTheme>
         );
 
-        await user.click(screen.getByRole('radio', { name: 'Light mode' }));
+        await user.click(screen.getByRole('switch', { name: 'Light mode' }));
 
-        await waitFor(() => expect(setColorScheme).toHaveBeenCalledWith('light'));
+        expect(setColorScheme).toHaveBeenCalledWith('light');
     });
 
-    it('changes to auto scheme when auto button is clicked', async () => {
+    it('enables dark mode from forced light mode', async () => {
+        mockSchemes('light', 'dark');
+
         render(
             <MockTheme>
                 <ColorSchemeToggle />
             </MockTheme>
         );
 
-        await user.click(screen.getByRole('radio', { name: 'System preferred mode' }));
+        await user.click(screen.getByRole('switch', { name: 'Dark mode' }));
 
-        await waitFor(() => expect(setColorScheme).toHaveBeenCalledWith('auto'));
-    });
-
-    it('does not render auto button when auto prop is false', () => {
-        render(
-            <MockTheme>
-                <ColorSchemeToggle auto={false} />
-            </MockTheme>
-        );
-
-        expect(screen.queryByRole('radio', { name: 'System preferred mode' })).not.toBeInTheDocument();
+        expect(setColorScheme).toHaveBeenCalledWith('dark');
     });
 });
