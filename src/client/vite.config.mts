@@ -2,7 +2,7 @@ import path from 'node:path';
 
 import react from '@vitejs/plugin-react';
 import type { MinifyOptions } from 'terser';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import svgr from 'vite-plugin-svgr';
 
@@ -14,6 +14,8 @@ import { injectTags, parseTemplate } from '../../vite/plugins/parse-template.ts'
 export default defineConfig(({ mode }) => {
     const development = mode === 'development';
     const root = path.resolve(import.meta.dirname, '../..');
+    const { PORT = '3000', HOST = 'localhost' } = { ...loadEnv(mode, root, ''), ...process.env };
+    const serverTarget = `http://${HOST}:${PORT}`;
 
     return {
         root,
@@ -208,11 +210,11 @@ export default defineConfig(({ mode }) => {
             },
             proxy: {
                 '/api/': {
-                    target: 'http://localhost:3000',
+                    target: serverTarget,
                     changeOrigin: true,
                 },
                 '/images/': {
-                    target: 'http://localhost:3000',
+                    target: serverTarget,
                     changeOrigin: true,
                 },
             },
