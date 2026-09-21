@@ -109,7 +109,7 @@
         "@vitest/eslint-plugin": "^1.6.27",
         "@vitest/expect": "^5.0.0",
         "@vitest/ui": "^5.0.0",
-        "autoprefixer": "^10.5.6",
+        "autoprefixer": "^10.6.1",
         "classnames": "^2.5.1",
         "dotenv-cli": "^11.0.0",
         "eslint": "^9.39.5",
