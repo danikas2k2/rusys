@@ -19,47 +19,20 @@ services:
       timeout: 5s
       retries: 12
 
-  rusys-client:
-    container_name: rusys-client
-    image: rusys-client
+  rusys-app:
+    container_name: rusys-app
+    image: rusys-app
     build:
       context: ..
-      dockerfile: docker/client/Dockerfile
-      args:
-        APP_VERSION: "3.13.4"
-    platform: linux/amd64
-    restart: unless-stopped
-    depends_on:
-      - rusys-server
-    environment:
-      PORT: ${PORT:-3000}
-      HTTPS_PORT: ${HTTPS_PORT:-4000}
-      NGINX_ENVSUBST_FILTER: "^(PORT|HTTPS_PORT)$"
-    expose:
-      - "${PORT:-3000}"
-      - "${HTTPS_PORT:-4000}"
-    ports:
-      - "${PORT:-3000}:${PORT:-3000}"
-      - "${HTTPS_PORT:-4000}:${HTTPS_PORT:-4000}"
-    networks:
-      - rusys-net
-    volumes:
-      - /volume1/docker/rusys-app/certs:/etc/nginx/certs:ro
-
-  rusys-server:
-    container_name: rusys-server
-    image: rusys-server
-    build:
-      context: ..
-      dockerfile: docker/server/Dockerfile
+      dockerfile: docker/Dockerfile
       args:
         APP_VERSION: "3.13.4"
     platform: linux/amd64
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      HOST: 0.0.0.0
-      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      PORT: ${PORT:-3000}
       LOCALE: ${LOCALE}
       TZ: ${TZ}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
@@ -69,8 +42,8 @@ services:
     depends_on:
       rusys-db:
         condition: service_healthy
-    expose:
-      - 3000
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
     networks:
       - rusys-net
     volumes:

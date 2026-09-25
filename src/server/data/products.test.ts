@@ -4,7 +4,6 @@ import { getProductsFixture } from '@tests/fixtures';
 
 import { addVariantAmount } from '@rusys/common/utils/amounts';
 
-import { DEV_MODE_EMAIL } from '~/client/state/profile/dev';
 import { classifyImage, deleteImages, saveImage } from '~/server/data/images';
 import {
     addProduct,
@@ -35,6 +34,7 @@ import {
 import { $all } from '~/server/data/tests/utils';
 import { copyVariants } from '~/server/data/variants';
 import { db } from '~/server/db';
+import { DEV_MODE_EMAIL } from '~/store/profile/dev';
 
 vi.mock(import('~/server/db'));
 vi.mock(import('~/server/data/years'));

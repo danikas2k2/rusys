@@ -1,5 +1,0 @@
-{
-    "extends": "../../tsconfig.json",
-    "include": ["**/*", "../common/**/*", "../tests/**/*", "../../vitest/**/*"],
-    "exclude": ["node_modules", "vite.config.mts"]
-}

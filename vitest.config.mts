@@ -11,7 +11,7 @@ const mocks = path.resolve(root, 'vitest/__mocks__');
  */
 const alias = [
     { find: /^~\/(.*)$/, replacement: `${src}/$1` },
-    { find: '@icons', replacement: `${src}/client/common/icons` },
+    { find: '@icons', replacement: `${src}/components/icons` },
     { find: /^@tests\/(.*)$/, replacement: `${src}/tests/$1` },
     { find: 'package.json', replacement: path.resolve(root, 'package.json') },
 ];
@@ -25,9 +25,6 @@ const mockAssetsPlugin: Plugin = {
     name: 'vitest-mock-assets',
     enforce: 'pre',
     resolveId(id) {
-        if (id === 'virtual:css-fallback-client') {
-            return `${mocks}/cssFallbackClient.ts`;
-        }
         if (/\.p?css$/.test(id)) {
             return `${mocks}/styleMock.ts`;
         }
@@ -46,7 +43,7 @@ export default defineConfig({
     test: {
         projects: [
             // ------------------------------------------------------------------
-            // Client workspace: jsdom environment for src/client and src/ui
+            // Browser-facing code: jsdom environment for components, features and state.
             // ------------------------------------------------------------------
             {
                 // Vitest 5 projects inherit the declaring config by default.
@@ -60,7 +57,7 @@ export default defineConfig({
                     environment: 'jsdom',
                     pool: 'threads',
                     root,
-                    include: ['src/{client,ui}/**/*.test.{ts,tsx}'],
+                    include: ['src/{components,features,lib,store}/**/*.test.{ts,tsx}'],
                     setupFiles: [
                         '@testing-library/jest-dom/vitest',
                         ...sharedSetup,
@@ -113,13 +110,8 @@ export default defineConfig({
                 'src/**/__mocks__/**',
                 'src/tests/**',
                 'src/**/types.ts',
-                'src/client/common/icons.ts',
-                'src/client/table/DraggableRow.ts',
-                'src/server/index.ts',
-                'src/server/dev.ts',
-                'src/server/api/debug.ts',
-                'src/ui/tutorial/**',
-                'src/ui/Element.ts',
+                'src/components/icons.ts',
+                'src/components/table/DraggableRow.ts',
             ],
             reporter: ['text', 'json', 'lcov', 'html'],
             thresholds: {

@@ -1,7 +1,7 @@
 import { MantineProvider, type MantineThemeOverride } from '@mantine/core';
 import React from 'react';
 
-import { getTheme } from '~/client/theme';
+import { getTheme } from '~/styles/theme';
 
 export function MockTheme({
     theme,

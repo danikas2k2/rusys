@@ -1,0 +1,92 @@
+[data-year-bar] {
+    --sc-label-color: var(--mantine-color-text);
+    --sc-color: var(--mantine-color-default-hover);
+
+    /* .ui-SegmentedControl-indicator { */
+
+    /* } */
+
+    .ui-SegmentedControl-control:has([data-year-option]) {
+        --year-color: inherit;
+        --year-background: transparent;
+        --year-border: none;
+
+        background-color: var(--year-background);
+        border-radius: max(
+            calc(var(--sc-radius, var(--mantine-radius-default)) - 4px),
+            calc(var(--sc-radius, var(--mantine-radius-default)) / 4)
+        );
+
+        &:has([data-year-option][data-old]) {
+            --year-color: var(--mantine-color-negative-text);
+        }
+
+        &:has([data-year-option][data-preferred]) {
+            --year-color: var(--mantine-color-positive-light-color);
+            --year-border: 1px dotted color-mix(in srgb, transparent 70%, var(--mantine-color-positive-outline));
+        }
+
+        &:has([data-year-option][data-removing]) {
+            --year-color: var(--mantine-color-negative-light-color);
+            --year-border: 1px dotted color-mix(in srgb, transparent 70%, var(--mantine-color-negative-outline));
+        }
+
+        &[data-active]:has([data-year-option]) {
+            --sc-font-size: var(--mantine-font-size-xl);
+
+            line-height: 1.5rem;
+        }
+
+        &[data-active]:has([data-year-option][data-preferred]) {
+            --year-color: var(--mantine-color-body);
+            --year-background: var(--mantine-color-positive-filled);
+            --year-border: none;
+        }
+
+        &[data-active]:has([data-year-option][data-removing]) {
+            --year-color: var(--mantine-color-body);
+            --year-background: var(--mantine-color-negative-filled);
+            --year-border: none;
+        }
+    }
+
+    .ui-SegmentedControl-label:has([data-year-option]) {
+        color: var(--year-color);
+        background-color: transparent;
+        border: var(--year-border);
+        border-radius: max(
+            calc(var(--sc-radius, var(--mantine-radius-default)) - 4px),
+            calc(var(--sc-radius, var(--mantine-radius-default)) / 4)
+        );
+        box-sizing: border-box;
+        padding: 0.15rem 0.4rem;
+    }
+}
+
+/* Mantine's default menu surface does not follow the app's custom body surface in all themes. */
+.history-years-menu-dropdown {
+    background: var(--mantine-color-body);
+    border-color: var(--mantine-color-default-border);
+    color: var(--mantine-color-text);
+}
+
+/* Keep historical-year selection and hover aligned with the navigation menu: the regular */
+
+/* default hover surface in the dark scheme is too light for its text. */
+.history-years-menu-item {
+    &[data-current] {
+        background-color: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
+    }
+
+    @media (hover: hover) {
+        &:hover:not([data-disabled]) {
+            background-color: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
+        }
+    }
+
+    @media (hover: none) {
+        &:active:not([data-disabled]) {
+            background-color: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
+        }
+    }
+}

@@ -620,7 +620,7 @@ it('handles drag gesture', async () => {
 
     ```tsx
     // Pilnas pavyzdys
-    jest.mock('~/client/state/products/useSetAmounts');
+    jest.mock('~/store/products/useSetAmounts');
 
     describe('<Component>', () => {
         const updateProduct = jest.fn();
@@ -806,7 +806,7 @@ it('handles drag gesture', async () => {
 
     ```tsx
     // ✅ GERAI - tikrinimas su toHaveBeenCalledWith
-    jest.mock('~/client/dialogs/ImportBox', () => ({
+    jest.mock('~/features/dialogs/ImportBox', () => ({
         ImportBox: jest.fn(() => <div>ImportBox</div>),
     }));
 

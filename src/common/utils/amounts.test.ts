@@ -12,9 +12,9 @@ import {
     mergeAmountsIgnoringExpiry,
 } from '~/common/utils/amounts';
 
-vi.mock(import('~/client/state/groups/useGetGroups'));
-vi.mock(import('~/client/state/variants/useGetVariants'));
-vi.mock(import('~/client/state/products/useGetProducts'));
+vi.mock(import('~/store/groups/useGetGroups'));
+vi.mock(import('~/store/variants/useGetVariants'));
+vi.mock(import('~/store/products/useGetProducts'));
 
 describe('amounts', () => {
     beforeEach(() => {});

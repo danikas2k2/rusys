@@ -4,7 +4,7 @@ import {
     ActiveContentContext,
     type ActiveContent,
     type ActiveContentStore,
-} from '~/client/common/ActiveContentContext';
+} from '~/components/runtime/ActiveContentContext';
 
 export function MockActiveContent<P extends ActiveContent>({
     active,

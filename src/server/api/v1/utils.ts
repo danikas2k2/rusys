@@ -1,13 +1,14 @@
 import type { VariantUnits } from '@rusys/common/data';
-import type { Request, Response } from 'express';
+
+import type { ApiRequest, ApiResponse } from '~/server/api/next';
 
 const VARIANT_UNITS = new Set<VariantUnits>(['g', 'kg', 'l', 'ml', 'vnt']);
 
-export function sendError(res: Response, status: number, code: string, message: string): void {
+export function sendError(res: ApiResponse, status: number, code: string, message: string): void {
     res.status(status).json({ error: { code, message } });
 }
 
-export function requiredParam(req: Request, res: Response, name: string): string | undefined {
+export function requiredParam(req: ApiRequest, res: ApiResponse, name: string): string | undefined {
     const value = req.params[name];
     if (typeof value !== 'string' || !value) {
         sendError(res, 400, 'VALIDATION_ERROR', `${name} is required`);
@@ -16,7 +17,7 @@ export function requiredParam(req: Request, res: Response, name: string): string
     return value;
 }
 
-export function requiredYear(req: Request, res: Response): number | undefined {
+export function requiredYear(req: ApiRequest, res: ApiResponse): number | undefined {
     const value = Number(req.params.year);
     if (!Number.isInteger(value)) {
         sendError(res, 400, 'VALIDATION_ERROR', 'year must be an integer');
@@ -30,7 +31,7 @@ export function isVariantUnits(value: unknown): value is VariantUnits {
 }
 
 export async function respond(
-    res: Response,
+    res: ApiResponse,
     action: () => Promise<boolean>,
     body?: () => Promise<Record<string, unknown>>
 ): Promise<void> {

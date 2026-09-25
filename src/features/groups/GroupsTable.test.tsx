@@ -1,0 +1,294 @@
+import { render, screen, within } from '@testing-library/react';
+import { getGroupsFixture } from '@tests/fixtures';
+import { MockApp } from '@tests/MockApp';
+import { MockRedux } from '@tests/MockRedux';
+import { MockTheme } from '@tests/MockTheme';
+
+import type { UniqueIdentifier } from '@dnd-kit/core';
+import type { Group } from '@rusys/common/data';
+import React from 'react';
+
+import { DraggableContent } from '~/components/common/DraggableContent';
+import { useReorderHandler } from '~/components/hooks/useReorderHandler';
+import { useQuickFilter } from '~/features/filters/QuickFilterContext';
+import { GroupsTable } from '~/features/groups/GroupsTable';
+import { useGroupsHasData } from '~/features/groups/hooks/useGroupsHasData';
+import { useGetGroups } from '~/store/groups/useGetGroups';
+import { useGroups } from '~/store/groups/useGroups';
+import { useReorderGroups } from '~/store/groups/useReorderGroups';
+
+vi.mock(import('~/store/years/useYears'));
+vi.mock(import('~/store/groups/useGroups'));
+vi.mock(import('~/components/hooks/useReorderHandler'));
+vi.mock(import('~/features/groups/hooks/useGroupsHasData'));
+vi.mock(import('~/store/groups/useGetGroups'));
+vi.mock(import('~/store/groups/useReorderGroups'));
+vi.mock(import('~/components/common/LoadableContent'), () => ({
+    LoadableContent: ({ children }: React.PropsWithChildren) => <>{children}</>,
+}));
+vi.mock(import('~/features/filters/QuickFilterContext'), () => ({
+    useQuickFilter: vi.fn().mockReturnValue(['', vi.fn()]),
+}));
+vi.mock(import('~/components/common/DraggableContent'), () => ({
+    DraggableContent: vi.fn(({ children }: any) => <>{children}</>),
+}));
+
+vi.mock(import('~/components/common/SortableContent'), () => ({
+    SortableContent: vi.fn(({ children }: any) => <>{children}</>),
+}));
+
+vi.mock(import('~/components/table/DragOverlayTable'), () => ({
+    DragOverlayTable: vi.fn(({ children }: any) => (
+        <table aria-label="Drag overlay">
+            <tbody>{children}</tbody>
+        </table>
+    )),
+}));
+
+vi.mock(import('~/features/groups/GroupsRow'), () => ({
+    GroupsRow: vi.fn(({ group, hidden, dragDisabled }: any) => (
+        <tr data-group={group.group} data-hidden={String(hidden ?? false)} aria-disabled={dragDisabled ?? false}>
+            <td aria-label="Group name" />
+            <td>{group.group}</td>
+            <td aria-label="Category" />
+            <td aria-label="Annual" />
+        </tr>
+    )),
+}));
+
+describe('<GroupsTable>', () => {
+    const mockItems: Group[] = getGroupsFixture();
+    const mockOnDragEnd = vi.fn();
+    const mockGetGroups = vi.fn().mockResolvedValue(undefined);
+
+    beforeEach(() => {
+        vi.mocked(useGroups).mockReturnValue(getGroupsFixture());
+        vi.mocked(useQuickFilter).mockReturnValue(['', vi.fn()]);
+        vi.mocked(useGroupsHasData).mockReturnValue(true);
+        vi.mocked(useGetGroups).mockReturnValue(mockGetGroups);
+        vi.mocked(useReorderHandler).mockReturnValue({
+            items: mockItems,
+            reordering: false,
+            onDragEnd: mockOnDragEnd,
+        });
+    });
+
+    afterEach(() => vi.clearAllMocks());
+
+    it('renders table structure', () => {
+        render(
+            <MockTheme>
+                <MockRedux>
+                    <GroupsTable />
+                </MockRedux>
+            </MockTheme>
+        );
+
+        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(screen.getByRole('table')).toBeInTheDocument();
+
+        const rows = screen.getAllByRole('row');
+
+        expect(rows).toHaveLength(3);
+        expect(within(rows[0]).getAllByRole('columnheader')).toHaveListWithTextContent([
+            '',
+            '',
+            'Category',
+            'Annual',
+            'Review',
+        ]);
+
+        const uogienesRow = rows.find((row) => within(row).queryByText('Uogienės'));
+        const darzovesRow = rows.find((row) => within(row).queryByText('Daržovės'));
+
+        expect(uogienesRow).toBeInTheDocument();
+        expect(darzovesRow).toBeInTheDocument();
+
+        expect(within(uogienesRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'Uogienės', '', '']);
+        expect(within(darzovesRow!).getAllByRole('cell')).toHaveListWithTextContent(['', 'Daržovės', '', '']);
+    });
+
+    describe('handles filter state', () => {
+        it('renders filtered data by quick filter', () => {
+            vi.mocked(useQuickFilter).mockReturnValue(['Uog', vi.fn()]);
+
+            render(
+                <MockTheme>
+                    <MockRedux>
+                        <GroupsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            const rows = screen.getAllByRole('row');
+            const uogienesRow = rows.find((row) => within(row).queryByText('Uogienės'));
+            const darzovesRow = rows.find((row) => within(row).queryByText('Daržovės'));
+
+            expect(uogienesRow).toBeInTheDocument();
+            expect(darzovesRow).toHaveAttribute('data-hidden', 'true');
+        });
+
+        it('disables every drag handle while the quick filter is active', () => {
+            vi.mocked(useQuickFilter).mockReturnValue(['Uog', vi.fn()]);
+
+            render(
+                <MockTheme>
+                    <MockRedux>
+                        <GroupsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            const rows = screen.getAllByRole('row').slice(1);
+
+            expect(rows.every((row) => row.getAttribute('aria-disabled') === 'true')).toBe(true);
+        });
+    });
+
+    describe('handles drag and reorder', () => {
+        it('does not call setActive before a drag starts', () => {
+            const mockSetActive = vi.fn();
+            const state = {
+                groups: getGroupsFixture(),
+            };
+
+            render(
+                <MockApp state={state} setActive={mockSetActive}>
+                    <GroupsTable />
+                </MockApp>
+            );
+
+            expect(mockSetActive).not.toHaveBeenCalled();
+
+            const table = screen.getByRole('table');
+
+            expect(table).toBeInTheDocument();
+        });
+
+        it('clears the active content once a drag starts', () => {
+            const mockSetActive = vi.fn();
+            const state = {
+                groups: getGroupsFixture(),
+            };
+
+            render(
+                <MockApp state={state} setActive={mockSetActive}>
+                    <GroupsTable />
+                </MockApp>
+            );
+
+            const { onDragStart } = vi.mocked(DraggableContent).mock.calls.at(-1)![0] as { onDragStart: () => void };
+
+            onDragStart();
+
+            expect(mockSetActive).toHaveBeenCalledWith();
+        });
+
+        it('configures useReorderHandler with correct callbacks', () => {
+            const mockReorderGroups = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useReorderGroups).mockReturnValue(mockReorderGroups);
+
+            const state = {
+                groups: getGroupsFixture(),
+            };
+
+            render(
+                <MockApp state={state}>
+                    <GroupsTable />
+                </MockApp>
+            );
+
+            expect(useReorderHandler).toHaveBeenCalledWith(expect.any(Object));
+
+            const callArgs = vi.mocked(useReorderHandler).mock.calls[0][0];
+
+            expect(callArgs).toHaveProperty('onReorder');
+            expect(callArgs).toHaveProperty('equals');
+            expect(callArgs).toHaveProperty('resolve');
+
+            const { equals, resolve } = callArgs;
+
+            expect(equals({ group: 'Uogienės' }, { group: 'Uogienės' })).toBe(true);
+            expect(equals({ group: 'Uogienės' }, { group: 'Daržovės' })).toBe(false);
+
+            expect(resolve('Uogienės')).toStrictEqual({ group: 'Uogienės' });
+            expect(resolve('Daržovės')).toStrictEqual({ group: 'Daržovės' });
+        });
+
+        it('calls reorderGroups with correct parameters when onReorder is called', async () => {
+            const mockReorderGroups = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useReorderGroups).mockReturnValue(mockReorderGroups);
+
+            const state = {
+                groups: getGroupsFixture(),
+            };
+
+            render(
+                <MockApp state={state}>
+                    <GroupsTable />
+                </MockApp>
+            );
+
+            const callArgs = vi.mocked(useReorderHandler).mock.calls[0][0];
+            const { onReorder } = callArgs;
+
+            const reordered: Group[] = [
+                { group: 'Daržovės', order: 0 },
+                { group: 'Uogienės', order: 1 },
+            ];
+
+            await onReorder(reordered, { group: 'Daržovės' });
+
+            expect(mockReorderGroups).toHaveBeenCalledWith({ Daržovės: 0, Uogienės: 1 });
+        });
+    });
+
+    describe('renderDragOverlay', () => {
+        let capturedRenderDragOverlay: ((activeId: UniqueIdentifier, columns: number[]) => React.ReactNode) | null =
+            null;
+
+        beforeEach(() => {
+            capturedRenderDragOverlay = null;
+            vi.mocked(DraggableContent).mockImplementation(({ renderDragOverlay, children }: any) => {
+                capturedRenderDragOverlay = renderDragOverlay ?? null;
+                return <>{children}</>;
+            });
+        });
+
+        it('returns DragOverlayTable with GroupsRow when the group is found by activeId', () => {
+            render(
+                <MockTheme>
+                    <MockRedux>
+                        <GroupsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(capturedRenderDragOverlay).not.toBeNull();
+
+            const result = capturedRenderDragOverlay!('Uogienės', [100, 200, 300]);
+            const { container } = render(<MockTheme>{result as React.ReactElement}</MockTheme>);
+
+            const overlay = within(container).getByRole('table', { name: 'Drag overlay' });
+
+            expect(overlay.querySelector('tr[data-group="Uogienės"]')).toBeInTheDocument();
+        });
+
+        it('returns null when no group matches the activeId', () => {
+            render(
+                <MockTheme>
+                    <MockRedux>
+                        <GroupsTable />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(capturedRenderDragOverlay).not.toBeNull();
+
+            const result = capturedRenderDragOverlay!('NonExistentGroup', [100, 200]);
+
+            expect(result).toBeNull();
+        });
+    });
+});

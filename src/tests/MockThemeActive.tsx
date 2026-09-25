@@ -4,7 +4,7 @@ import { MockTheme } from '@tests/MockTheme';
 import { type MantineThemeOverride } from '@mantine/core';
 import React from 'react';
 
-import type { ActiveContent } from '~/client/common/ActiveContentContext';
+import type { ActiveContent } from '~/components/runtime/ActiveContentContext';
 
 export function MockThemeActive<P extends ActiveContent>({
     theme,
