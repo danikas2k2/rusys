@@ -13,6 +13,7 @@ import { getTheme } from '~/styles/theme';
 
 export function NextApp(): React.JSX.Element {
     const [mounted, setMounted] = useState(false);
+    const [store] = useState(getStore);
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- renders only after browser hydration.
@@ -25,7 +26,7 @@ export function NextApp(): React.JSX.Element {
 
     return (
         <StrictMode>
-            <Provider store={getStore()}>
+            <Provider store={store}>
                 <MantineProvider theme={getTheme()} defaultColorScheme="auto" classNamesPrefix="ui">
                     <ErrorBoundary>
                         <LocaleContext value="lt-LT">
