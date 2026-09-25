@@ -3,15 +3,14 @@ import path from 'node:path';
 
 import { appleDeviceSpecsForLaunchImages } from 'pwa-asset-generator';
 
+interface AppleDeviceSize {
+    height: number;
+    width: number;
+}
+
 interface AppleDeviceSpec {
-    landscape: {
-        height: number;
-        width: number;
-    };
-    portrait: {
-        height: number;
-        width: number;
-    };
+    landscape: AppleDeviceSize;
+    portrait: AppleDeviceSize;
     scaleFactor: number;
 }
 
@@ -28,10 +27,12 @@ function createSplashScreens(spec: AppleDeviceSpec, dark: boolean): SplashScreen
     const colorScheme = dark ? '(prefers-color-scheme: dark) and ' : '';
     const filenamePrefix = dark ? 'apple-splash-dark' : 'apple-splash';
 
-    return [
-        ['portrait', spec.portrait],
-        ['landscape', spec.landscape],
-    ].map(([orientation, { height, width }]) => ({
+    return (
+        [
+            ['portrait', spec.portrait],
+            ['landscape', spec.landscape],
+        ] as [string, AppleDeviceSize][]
+    ).map(([orientation, { height, width }]) => ({
         href: `/assets/${filenamePrefix}-${width}-${height}.png`,
         media: `${colorScheme}(device-width: ${width / spec.scaleFactor}px) and (device-height: ${height / spec.scaleFactor}px) and (-webkit-device-pixel-ratio: ${spec.scaleFactor}) and (orientation: ${orientation})`,
     }));
