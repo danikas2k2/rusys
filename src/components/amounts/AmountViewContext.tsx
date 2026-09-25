@@ -1,5 +1,5 @@
 import { noop } from 'lodash';
-import React, { createContext, use, useCallback, useEffect, useState } from 'react';
+import React, { createContext, use, useCallback, useState } from 'react';
 
 export type AmountView = 'detailed' | 'total';
 
@@ -12,12 +12,7 @@ function readInitialAmountView(): AmountView {
 export const AmountViewContext = createContext<[AmountView, (v: AmountView) => void]>(['total', noop]);
 
 export function AmountViewWrapper({ children }: React.PropsWithChildren) {
-    const [amountView, setAmountView] = useState<AmountView>('total');
-
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- reads browser storage after hydration.
-        setAmountView(readInitialAmountView());
-    }, []);
+    const [amountView, setAmountView] = useState<AmountView>(readInitialAmountView);
 
     const setAndPersist = useCallback((v: AmountView) => {
         localStorage.setItem(STORAGE_KEY, v);

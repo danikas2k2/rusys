@@ -2,7 +2,8 @@
 
 import { MantineProvider } from '@mantine/core';
 import { DatesProvider } from '@mantine/dates';
-import React, { StrictMode, useEffect, useState } from 'react';
+import React, { StrictMode, Suspense, use, useState } from 'react';
+import { browser } from 'react-dom';
 import { Provider } from 'react-redux';
 
 import { App } from '~/components/app/App';
@@ -12,17 +13,16 @@ import { getStore } from '~/store/store';
 import { getTheme } from '~/styles/theme';
 
 export function NextApp(): React.JSX.Element {
-    const [mounted, setMounted] = useState(false);
+    return (
+        <Suspense fallback={null}>
+            <BrowserApp />
+        </Suspense>
+    );
+}
+
+function BrowserApp(): React.JSX.Element {
+    use(browser());
     const [store] = useState(getStore);
-
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- renders only after browser hydration.
-        setMounted(true);
-    }, []);
-
-    if (!mounted) {
-        return <></>;
-    }
 
     return (
         <StrictMode>

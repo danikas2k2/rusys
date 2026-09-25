@@ -11,23 +11,22 @@ export function useProfile(): Profile {
     const setProfile = useSetProfile();
     const dev = isDevMode();
     const profile = useSelector((state: WithProfileState) => state.profile ?? {}, equal);
-    const [storedProfile, setStoredProfile] = useState<Profile>({});
+    const [storedProfile] = useState<Profile>(() => {
+        let savedProfile = JSON.parse(localStorage.getItem('profile') ?? '{}') ?? {};
+        if (!savedProfile.sub && dev) {
+            savedProfile = DEV_MODE_PROFILE;
+        }
+        return savedProfile;
+    });
 
     useEffect(() => {
         if (profile.sub) {
             return;
         }
-
-        let savedProfile = JSON.parse(localStorage.getItem('profile') ?? '{}') ?? {};
-        if (!savedProfile.sub && dev) {
-            savedProfile = DEV_MODE_PROFILE;
+        if (storedProfile.sub) {
+            setProfile(storedProfile);
         }
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- reads browser storage after hydration.
-        setStoredProfile(savedProfile);
-        if (savedProfile.sub) {
-            setProfile(savedProfile);
-        }
-    }, [dev, profile.sub, setProfile]);
+    }, [profile.sub, setProfile, storedProfile]);
 
     return profile.sub ? profile : storedProfile;
 }
