@@ -62,7 +62,7 @@ describe('<ToolbarMenu>', () => {
         expect(screen.getByRole('menu')).toBeEmptyDOMElement();
     });
 
-    it('lowers the burger back below the drawer once the close transition ends', async () => {
+    it('shows the burger above the navigation drawer only while it is open', async () => {
         render(
             <MockThemeRedux>
                 <MockRoute initialEntries={[Links.PRODUCTS]}>
@@ -73,7 +73,7 @@ describe('<ToolbarMenu>', () => {
 
         const burgerBox = document.querySelector('.burger') as HTMLElement;
 
-        expect(burgerBox).toHaveStyle({ zIndex: '100' });
+        expect(burgerBox).toHaveStyle({ zIndex: '101' });
 
         await user.click(screen.getByRole('button', { name: 'Menu' }));
 
@@ -84,7 +84,7 @@ describe('<ToolbarMenu>', () => {
         act(() => fireEvent.transitionEnd(screen.getByRole('menu')));
 
         await waitFor(() => {
-            expect(burgerBox).toHaveStyle({ zIndex: '100' });
+            expect(burgerBox).toHaveStyle({ zIndex: '101' });
         });
     });
 

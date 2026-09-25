@@ -14,6 +14,9 @@ import { ToolbarMenuIcon } from '~/components/toolbar/ToolbarMenuIcon';
 import { useLabel } from '~/lib/hooks/useLabel';
 import { Links } from '~/lib/links';
 
+const BURGER_Z_INDEX = 101;
+const OPEN_DRAWER_BURGER_Z_INDEX = 300;
+
 export function ToolbarMenu() {
     const [opened, { toggle, close }] = useDisclosure();
 
@@ -38,7 +41,7 @@ export function ToolbarMenu() {
     return (
         <>
             <Portal>
-                <Box className="burger" style={{ zIndex: burgerAbove ? 300 : 100 }}>
+                <Box className="burger" style={{ zIndex: burgerAbove ? OPEN_DRAWER_BURGER_Z_INDEX : BURGER_Z_INDEX }}>
                     <Burger
                         size="sm"
                         opened={opened}
