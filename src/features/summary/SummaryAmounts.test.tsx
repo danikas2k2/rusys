@@ -4,13 +4,13 @@ import { MockTheme } from '@tests/MockTheme';
 import React from 'react';
 
 import { getAmountTotals } from '~/common/utils/amounts';
-import { Amounts } from '~/components/amounts/Amounts';
 import { useAmountView } from '~/components/amounts/AmountViewContext';
+import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { SummaryAmounts } from '~/features/summary/SummaryAmounts';
 
-vi.mock(import('~/components/amounts/Amounts'), () => ({
-    Amounts: vi.fn(({ type, amounts }: { type: string; amounts: readonly { amount: number }[] }) => (
-        <span data-amount-type={type}>{amounts.map(({ amount }) => amount).join(',')}</span>
+vi.mock(import('~/components/amounts/AnnotatedTotalAmounts'), () => ({
+    AnnotatedTotalAmounts: vi.fn(({ amounts }: { amounts: readonly { amount: number }[] }) => (
+        <span>{amounts.map(({ amount }) => amount).join(',')}</span>
     )),
 }));
 vi.mock(import('~/components/amounts/AmountSuffix'), () => ({ AmountSuffix: vi.fn(() => null) }));
@@ -45,12 +45,12 @@ describe('<SummaryAmounts>', () => {
             </MockTheme>
         );
 
-        expect(Amounts).toHaveBeenCalledWith(
-            expect.objectContaining({ type: 'consumed', amounts: [{ variant: 'p', amount: 2, recycled: false }] }),
+        expect(AnnotatedTotalAmounts).toHaveBeenCalledWith(
+            expect.objectContaining({ group: 'Uogienės', amounts: [{ variant: 'p', amount: 2, recycled: false }] }),
             undefined
         );
-        expect(Amounts).toHaveBeenCalledWith(
-            expect.objectContaining({ type: 'recycled', amounts: [{ variant: 'd', amount: 3, recycled: true }] }),
+        expect(AnnotatedTotalAmounts).toHaveBeenCalledWith(
+            expect.objectContaining({ group: 'Uogienės', amounts: [{ variant: 'd', amount: 3, recycled: true }] }),
             undefined
         );
         expect(screen.getByText('1')).toBeInTheDocument();

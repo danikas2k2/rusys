@@ -5,9 +5,9 @@ import { ApproxAmountIcon, HomeIcon } from '@icons';
 
 import type { ProductAmounts as ProductAmountsData, VariantAmount } from '~/common/data';
 import { formatVolume, formatWeight, getAmountTotals } from '~/common/utils/amounts';
-import { Amounts } from '~/components/amounts/Amounts';
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { useAmountView } from '~/components/amounts/AmountViewContext';
+import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
 import { useVariantsByGroup } from '~/store/variants/useVariantsByGroup';
 
@@ -99,8 +99,16 @@ export function SummaryAmounts({
     }
 
     const sections = [
-        consumed.length ? <Amounts key="consumed" group={group} amounts={consumed} type="consumed" /> : null,
-        recycled.length ? <Amounts key="recycled" group={group} amounts={recycled} type="recycled" /> : null,
+        consumed.length ? (
+            <span key="consumed" data-type="consumed">
+                <AnnotatedTotalAmounts group={group} amounts={consumed} />
+            </span>
+        ) : null,
+        recycled.length ? (
+            <span key="recycled" data-type="recycled">
+                <AnnotatedTotalAmounts group={group} amounts={recycled} />
+            </span>
+        ) : null,
         showHome ? <HomeAmounts key="home" group={group} homeBalance={homeBalance} /> : null,
     ].filter((section) => section != null);
 
