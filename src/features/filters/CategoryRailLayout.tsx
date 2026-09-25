@@ -66,7 +66,7 @@ export function CategoryRailLayout({
             />
             <div className="CategoryRailLayout-content">
                 {selected && (
-                    <Title order={2} data-category-heading>
+                    <Title order={1} data-category-heading>
                         {selected}
                     </Title>
                 )}
