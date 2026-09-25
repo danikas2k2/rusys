@@ -3,28 +3,19 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
-import type { History } from '~/common/data';
+import type { History, Summary } from '~/common/data';
 import { AmountsCell } from '~/components/amounts/AmountsCell';
 import type { SummaryHistoryData } from '~/features/summary/SummaryAmounts';
 import { SummaryHistoryTab } from '~/features/summary/SummaryHistoryTab';
 import { useGetSummaryHistory } from '~/store/history/useGetSummaryHistory';
-import { useUndates } from '~/store/history/useUndates';
-import { useUpdates } from '~/store/history/useUpdates';
+import { useSummary } from '~/store/summary/useSummary';
 
 vi.mock(import('~/store/history/useGetSummaryHistory'), (): any => ({
     useGetSummaryHistory: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
-vi.mock(import('~/components/common/LoadableContent'), () => ({
-    LoadableContent: ({ children }: React.PropsWithChildren) => <>{children}</>,
-}));
-
-vi.mock(import('~/store/history/useUpdates'), (): any => ({
-    useUpdates: vi.fn(() => []),
-}));
-
-vi.mock(import('~/store/history/useUndates'), (): any => ({
-    useUndates: vi.fn(() => []),
+vi.mock(import('~/store/summary/useSummary'), (): any => ({
+    useSummary: vi.fn(() => []),
 }));
 
 vi.mock(import('~/components/common/EmailAvatar'), (): any => ({
@@ -43,10 +34,13 @@ describe('<SummaryHistoryTab>', () => {
         amounts: [],
     };
 
-    beforeEach(() => {
-        vi.mocked(useUpdates).mockReturnValue([]);
-        vi.mocked(useUndates).mockReturnValue([]);
-    });
+    function setHistory(updates: readonly History[] = [], undates: readonly History[] = [], year = activeData.year) {
+        vi.mocked(useSummary).mockReturnValue([
+            { group: activeData.group, name: activeData.name, history: { [year]: { updates, undates } } },
+        ]);
+    }
+
+    beforeEach(() => setHistory());
 
     afterEach(() => vi.clearAllMocks());
 
@@ -72,12 +66,97 @@ describe('<SummaryHistoryTab>', () => {
         expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith(2026, 'Vaisiai', 'Obuoliai');
     });
 
+    it('loads the selected summary year in the background', () => {
+        const loader = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useGetSummaryHistory).mockReturnValue(loader);
+
+        renderTab();
+
+        expect(loader).toHaveBeenCalledTimes(1);
+    });
+
+    it('refreshes cached history after summary data changes', () => {
+        const loader = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useGetSummaryHistory).mockReturnValue(loader);
+        const cached = { updates: [], undates: [] };
+        vi.mocked(useSummary).mockReturnValue([
+            { group: activeData.group, name: activeData.name, years: [], history: { 2026: cached } },
+        ]);
+
+        const { rerender } = renderTab();
+        vi.mocked(useSummary).mockReturnValue([
+            {
+                group: activeData.group,
+                name: activeData.name,
+                years: [{ year: activeData.year, amounts: [] }],
+                history: { 2026: cached },
+            },
+        ]);
+        rerender(
+            <MockThemeActive active={{ action: 'history', data: activeData }}>
+                <SummaryHistoryTab />
+            </MockThemeActive>
+        );
+
+        expect(loader).toHaveBeenCalledTimes(2);
+    });
+
+    it('shows a loader only when that summary year has not been loaded', () => {
+        vi.mocked(useSummary).mockReturnValue([{ group: activeData.group, name: activeData.name }]);
+
+        renderTab();
+
+        expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        expect(document.querySelector('.mantine-Loader-root')).toBeInTheDocument();
+    });
+
+    it('uses the cached history for the selected year', () => {
+        const history2025: History = {
+            group: activeData.group,
+            name: activeData.name,
+            time: 1000,
+            year: 2025,
+            amounts: [],
+            comment: 'history 2025',
+        };
+        const history2026: History = {
+            group: activeData.group,
+            name: activeData.name,
+            time: 2000,
+            year: 2026,
+            amounts: [],
+            comment: 'history 2026',
+        };
+        const summary: Summary = {
+            group: activeData.group,
+            name: activeData.name,
+            history: {
+                2025: { updates: [history2025], undates: [] },
+                2026: { updates: [history2026], undates: [] },
+            },
+        };
+        vi.mocked(useSummary).mockReturnValue([summary]);
+
+        const { rerender } = renderTab();
+
+        expect(screen.getByText('history 2026')).toBeInTheDocument();
+
+        rerender(
+            <MockThemeActive active={{ action: 'history', data: { ...activeData, year: 2025 } }}>
+                <SummaryHistoryTab />
+            </MockThemeActive>
+        );
+
+        expect(screen.getByText('history 2025')).toBeInTheDocument();
+        expect(screen.queryByText('history 2026')).not.toBeInTheDocument();
+    });
+
     it('renders a row for each update entry', () => {
         const entries: History[] = [
             { group: 'Vaisiai', name: 'Obuoliai', time: 1000, year: 2026, amounts: [{ variant: 'p', amount: 1 }] },
             { group: 'Vaisiai', name: 'Obuoliai', time: 2000, year: 2026, amounts: [{ variant: 'd', amount: 2 }] },
         ];
-        vi.mocked(useUpdates).mockReturnValue(entries);
+        setHistory(entries);
 
         renderTab();
 
@@ -86,7 +165,7 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('treats a missing amounts field as empty instead of crashing', () => {
-        vi.mocked(useUpdates).mockReturnValue([{ group: 'Vaisiai', name: 'Obuoliai', time: 1000, year: 2026 }]);
+        setHistory([{ group: 'Vaisiai', name: 'Obuoliai', time: 1000, year: 2026 }]);
 
         renderTab();
 
@@ -94,7 +173,7 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('renders amounts for each update row', () => {
-        vi.mocked(useUpdates).mockReturnValue([
+        setHistory([
             {
                 group: 'Vaisiai',
                 name: 'Obuoliai',
@@ -113,7 +192,7 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('renders all amounts regardless of recycled flag', () => {
-        vi.mocked(useUpdates).mockReturnValue([
+        setHistory([
             {
                 group: 'Vaisiai',
                 name: 'Obuoliai',
@@ -147,8 +226,7 @@ describe('<SummaryHistoryTab>', () => {
             year: 2026,
             amounts: [{ variant: 'p', amount: 3 }],
         };
-        vi.mocked(useUndates).mockReturnValue([undate]);
-        vi.mocked(useUpdates).mockReturnValue([update]);
+        setHistory([update], [undate]);
 
         renderTab();
 
@@ -164,15 +242,18 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('shows a divider row when there are undates', () => {
-        vi.mocked(useUndates).mockReturnValue([
-            {
-                group: 'Vaisiai',
-                name: 'Obuoliai',
-                time: 500,
-                year: 2025,
-                amounts: [{ variant: 'p', amount: 1 }],
-            },
-        ]);
+        setHistory(
+            [],
+            [
+                {
+                    group: 'Vaisiai',
+                    name: 'Obuoliai',
+                    time: 500,
+                    year: 2025,
+                    amounts: [{ variant: 'p', amount: 1 }],
+                },
+            ]
+        );
 
         renderTab();
 
@@ -189,7 +270,7 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('does not show a divider when there are no undates', () => {
-        vi.mocked(useUpdates).mockReturnValue([
+        setHistory([
             {
                 group: 'Vaisiai',
                 name: 'Obuoliai',
@@ -224,7 +305,7 @@ describe('<SummaryHistoryTab>', () => {
                 amounts: [{ variant: 'p', amount: 2 }],
             },
         ];
-        vi.mocked(useUndates).mockReturnValue(undates);
+        setHistory([], undates);
 
         // Track render order via AmountsCell calls
         const renderOrder: number[] = [];
@@ -240,7 +321,7 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('displays comment text when present in a history entry', () => {
-        vi.mocked(useUpdates).mockReturnValue([
+        setHistory([
             {
                 group: 'Vaisiai',
                 name: 'Obuoliai',
@@ -257,7 +338,7 @@ describe('<SummaryHistoryTab>', () => {
     });
 
     it('does not render comment element when comment is absent', () => {
-        vi.mocked(useUpdates).mockReturnValue([
+        setHistory([
             {
                 group: 'Vaisiai',
                 name: 'Obuoliai',

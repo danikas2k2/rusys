@@ -94,6 +94,8 @@ export interface Summary {
     group: string;
     name: string;
     years?: readonly YearAmounts[];
+    /** Client-side cache of the full summary history, indexed by year. It is never persisted. */
+    history?: Readonly<Record<number, ProductHistory>>;
     image?: string;
     photo?: string;
 }
