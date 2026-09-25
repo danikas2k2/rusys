@@ -68,6 +68,10 @@ export interface Product {
     photo?: string;
     variantImages?: Readonly<Record<string, string>>;
     variantPhotos?: Readonly<Record<string, string>>;
+    /** Internal marker used to avoid repeatedly classifying an icon-sized legacy image. */
+    imageChecked?: boolean;
+    /** Internal per-variant equivalent of `imageChecked`. */
+    variantImagesChecked?: Readonly<Record<string, boolean>>;
     /** Set instead of deleting so balances and change history remain auditable. */
     archivedAt?: number;
 }

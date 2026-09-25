@@ -272,6 +272,15 @@
               "type": "string"
             }
           },
+          "imageChecked": {
+            "type": "boolean"
+          },
+          "variantImagesChecked": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            }
+          },
           "archivedAt": {
             "type": "integer"
           }

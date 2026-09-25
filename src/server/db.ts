@@ -10,6 +10,7 @@ export async function createMissingIndexes(database: Db): Promise<void> {
         database.collection('products').createIndexes([
             { key: { group: 1 }, name: 'group', background: true },
             { key: { name: 1 }, name: 'name', background: true },
+            { key: { 'years.year': 1 }, name: 'year', background: true },
             { key: { group: 1, name: 1 }, name: 'group_name', unique: true, background: true },
             {
                 key: { group: 1, name: 1, 'years.year': 1 },
@@ -52,6 +53,7 @@ export async function createMissingIndexes(database: Db): Promise<void> {
         database.collection('groups').createIndexes([
             { key: { group: 1 }, name: 'group', unique: true, background: true },
             { key: { order: 1 }, name: 'order', background: true },
+            { key: { archivedAt: 1 }, name: 'archived_at', sparse: true, background: true },
         ]),
         database.collection('user_profiles').createIndexes([
             { key: { email: 1 }, name: 'email', unique: true, background: true },

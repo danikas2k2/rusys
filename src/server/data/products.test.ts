@@ -161,7 +161,7 @@ describe('products', () => {
             expect(agurkai?.image).toBe('/images/ab/cd/agurkai.png');
         });
 
-        it('leaves a genuinely icon-sized legacy image untouched, without writing anything back', async () => {
+        it('marks a genuinely icon-sized legacy image as checked, so it is not reclassified', async () => {
             await (
                 await db()
             )
@@ -169,13 +169,16 @@ describe('products', () => {
                 .updateOne({ group: 'Daržovės', name: 'Agurkai' }, { $set: { image: '/images/ab/cd/agurkai.png' } });
 
             await getProducts([22]);
+            await getProducts([22]);
 
+            expect(classifyImage).toHaveBeenCalledTimes(1);
             expect(classifyImage).toHaveBeenCalledWith('/images/ab/cd/agurkai.png');
 
             const stored = await (await db()).collection('products').findOne({ group: 'Daržovės', name: 'Agurkai' });
 
             expect(stored?.image).toBe('/images/ab/cd/agurkai.png');
             expect(stored?.photo).toBeUndefined();
+            expect(stored?.imageChecked).toBe(true);
         });
 
         it('backfills `photo` for a legacy image that turns out to be a photo, persisting the result', async () => {
@@ -219,6 +222,52 @@ describe('products', () => {
             expect(agurkai?.variantImages).toStrictEqual({ d: '/images/ab/cd/thumb.png' });
             expect(agurkai?.variantPhotos).toStrictEqual({ d: '/images/ab/cd/d.png' });
         });
+
+        it('marks a genuinely icon-sized legacy variant image as checked, so it is not reclassified', async () => {
+            await (
+                await db()
+            )
+                .collection('products')
+                .updateOne(
+                    { group: 'Daržovės', name: 'Agurkai' },
+                    { $set: { 'variantImages.d': '/images/ab/cd/d.png' } }
+                );
+
+            await getProducts([22]);
+            await getProducts([22]);
+
+            expect(classifyImage).toHaveBeenCalledTimes(1);
+            expect(classifyImage).toHaveBeenCalledWith('/images/ab/cd/d.png');
+
+            const stored = await (await db()).collection('products').findOne({ group: 'Daržovės', name: 'Agurkai' });
+
+            expect(stored?.variantImagesChecked).toStrictEqual({ d: true });
+        });
+
+        it('backfills an image for a variant whose key contains a dot', async () => {
+            vi.mocked(classifyImage).mockResolvedValueOnce({
+                image: '/images/ab/cd/thumb.png',
+                photo: '/images/ab/cd/0.5l.png',
+            });
+            await (
+                await db()
+            )
+                .collection('products')
+                .updateOne(
+                    { group: 'Daržovės', name: 'Agurkai' },
+                    { $set: { variantImages: { '0.5l': '/images/ab/cd/0.5l.png' } } }
+                );
+
+            const agurkai = (await getProducts([22])).find((p) => p.name === 'Agurkai');
+
+            expect(agurkai?.variantImages).toStrictEqual({ '0.5l': '/images/ab/cd/thumb.png' });
+            expect(agurkai?.variantPhotos).toStrictEqual({ '0.5l': '/images/ab/cd/0.5l.png' });
+
+            const stored = await (await db()).collection('products').findOne({ group: 'Daržovės', name: 'Agurkai' });
+
+            expect(stored?.variantImages).toStrictEqual({ '0.5l': '/images/ab/cd/thumb.png' });
+            expect(stored?.variantPhotos).toStrictEqual({ '0.5l': '/images/ab/cd/0.5l.png' });
+        });
     });
 
     describe('getProductVariants', () => {
@@ -226,6 +275,12 @@ describe('products', () => {
             await expect(getProductVariants('Uogienės', 'Braškės')).resolves.toStrictEqual(
                 expect.arrayContaining(['p', 'm'])
             );
+        });
+
+        it('returns no variants for a product without amounts or history', async () => {
+            await addProduct('Daržovės', 'Tuščias');
+
+            await expect(getProductVariants('Daržovės', 'Tuščias')).resolves.toBeUndefined();
         });
 
         it.each`
