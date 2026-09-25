@@ -1,7 +1,7 @@
-import { API } from '@rusys/common/api/v1';
-import type { UserProfile } from '@rusys/common/data';
 import { useEffect, useRef } from 'react';
 
+import { API } from '~/common/api/v1';
+import type { UserProfile } from '~/common/data';
 import { useApiRequest } from '~/store/common/useApiRequest';
 import { useProfile } from '~/store/profile/useProfile';
 

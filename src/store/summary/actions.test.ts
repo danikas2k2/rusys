@@ -1,7 +1,6 @@
 import { getSummaryFixture } from '@tests/fixtures';
 
-import type { Summary } from '@rusys/common/data';
-
+import type { Summary } from '~/common/data';
 import { setSummaryAction, SummaryActionType } from '~/store/summary/actions';
 
 describe('setSummaryAction', () => {

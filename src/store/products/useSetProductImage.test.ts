@@ -1,8 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { API } from '@rusys/common/api/v1';
-
+import { API } from '~/common/api/v1';
 import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useSetProductImage } from '~/store/products/useSetProductImage';
 

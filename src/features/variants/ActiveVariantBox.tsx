@@ -1,9 +1,9 @@
 import { Button } from '@mantine/core';
-import type { Variant } from '@rusys/common/data';
 import React, { useCallback, useState } from 'react';
 
 import { ConfirmationDialogIcon, DeleteIcon } from '@icons';
 
+import type { Variant } from '~/common/data';
 import { ConfirmationDialog } from '~/components/common/ConfirmationDialog';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';

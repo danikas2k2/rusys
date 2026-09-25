@@ -1,5 +1,4 @@
-import { API } from '@rusys/common/api/v1';
-
+import { API } from '~/common/api/v1';
 import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { setAllowedAction } from '~/store/profile/actions';
 

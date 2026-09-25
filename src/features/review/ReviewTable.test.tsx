@@ -2,9 +2,9 @@ import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
-import type { Product } from '@rusys/common/data';
 import React from 'react';
 
+import type { Product } from '~/common/data';
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
 import { ReviewProductRow } from '~/features/review/ReviewProductRow';
 import { ReviewTable } from '~/features/review/ReviewTable';

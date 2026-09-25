@@ -1,5 +1,4 @@
-import type { VariantUnits } from '@rusys/common/data';
-
+import type { VariantUnits } from '~/common/data';
 import type { ApiRequest, ApiResponse } from '~/server/api/next';
 import { requiredParam, respond, sendError } from '~/server/api/v1/utils';
 import { copyVariant } from '~/server/data/variants';

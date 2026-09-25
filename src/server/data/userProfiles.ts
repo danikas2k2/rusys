@@ -1,5 +1,4 @@
-import type { UserProfile } from '@rusys/common/data';
-
+import type { UserProfile } from '~/common/data';
 import { db } from '~/server/db';
 
 export async function upsertUserProfile(email: string, name?: string, picture?: string): Promise<boolean> {

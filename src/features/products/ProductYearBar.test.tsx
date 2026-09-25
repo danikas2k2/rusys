@@ -2,9 +2,9 @@ import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
-import type { ProductAmounts as ProductAmountsType } from '@rusys/common/data';
 import React from 'react';
 
+import type { ProductAmounts as ProductAmountsType } from '~/common/data';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { ActiveContentContext, createActiveContentStore } from '~/components/runtime/ActiveContentContext';
 import { OLD_YEARS_THRESHOLD, ProductYearBar } from '~/features/products/ProductYearBar';

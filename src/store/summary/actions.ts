@@ -1,4 +1,4 @@
-import type { Summary } from '@rusys/common/data';
+import type { Summary } from '~/common/data';
 
 export const enum SummaryActionType {
     SET = 'summary.set',

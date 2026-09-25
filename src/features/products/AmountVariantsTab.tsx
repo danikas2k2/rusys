@@ -12,9 +12,6 @@ import {
     Text,
     type ComboboxItem,
 } from '@mantine/core';
-import type { ProductAmounts, VariantAmount } from '@rusys/common/data';
-import { getCombinedAmounts, getVariantAmount } from '@rusys/common/utils/amounts';
-import { formatDateOnly, getExpiryStatus, parseDateOnly } from '@rusys/common/utils/expiry';
 import React, { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 
 import {
@@ -32,6 +29,9 @@ import {
     UpdateIcon,
 } from '@icons';
 
+import type { ProductAmounts, VariantAmount } from '~/common/data';
+import { getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
+import { formatDateOnly, getExpiryStatus, parseDateOnly } from '~/common/utils/expiry';
 import { ChangeBadge } from '~/components/amounts/ChangeBadge';
 import { VariantAvatar } from '~/components/amounts/VariantAvatar';
 import { EXPIRY_INFIX, HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/components/amounts/variantKeys';

@@ -1,6 +1,5 @@
-import type { Product, RemovingYearAmounts, VariantAmount } from '@rusys/common/data';
-import { combineProductYears, getCombinedAmounts } from '@rusys/common/utils/amounts';
-
+import type { Product, RemovingYearAmounts, VariantAmount } from '~/common/data';
+import { combineProductYears, getCombinedAmounts } from '~/common/utils/amounts';
 import { collectDescendants } from '~/features/products/utils/collectDescendants';
 import { getId } from '~/lib/utils/id';
 

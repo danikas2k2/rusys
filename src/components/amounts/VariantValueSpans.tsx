@@ -1,9 +1,9 @@
-import type { VariantAmount } from '@rusys/common/data';
-import { mergeAmountsIgnoringExpiry } from '@rusys/common/utils/amounts';
 import React from 'react';
 
 import { ApproxAmountIcon, HomeIcon, SuspiciousIcon } from '@icons';
 
+import type { VariantAmount } from '~/common/data';
+import { mergeAmountsIgnoringExpiry } from '~/common/utils/amounts';
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/components/amounts/variantKeys';
 import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';

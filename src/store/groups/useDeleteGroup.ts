@@ -1,6 +1,6 @@
-import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
+import { API } from '~/common/api/v1';
 import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useGetGroups } from '~/store/groups/useGetGroups';
 

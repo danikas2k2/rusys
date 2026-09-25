@@ -2,16 +2,16 @@ import { renderHook } from '@testing-library/react';
 import { mockLocalStorage } from '@tests/mockLocalStorage';
 import { MockRedux } from '@tests/MockRedux';
 
-import { isDevMode } from '@rusys/common/utils/dev';
 import React from 'react';
 
+import { isDevMode } from '~/common/utils/dev';
 import { DEV_MODE_PROFILE } from '~/store/profile/dev';
 import { profile as reducer } from '~/store/profile/reducer';
 import type { Profile } from '~/store/profile/types';
 import { useProfile } from '~/store/profile/useProfile';
 import { useSetProfile } from '~/store/profile/useSetProfile';
 
-vi.mock(import('@rusys/common/utils/dev'), () => ({
+vi.mock(import('~/common/utils/dev'), () => ({
     isDevMode: vi.fn().mockReturnValue(false),
 }));
 vi.mock(import('~/store/profile/useSetProfile'), () => ({

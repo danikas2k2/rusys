@@ -1,6 +1,6 @@
-import type { Product, RemovingYearAmounts } from '@rusys/common/data';
 import { cloneDeep } from 'lodash';
 
+import type { Product, RemovingYearAmounts } from '~/common/data';
 import { ProductsActionType, type ProductsAction } from '~/store/products/actions';
 
 export interface RemovingYearAmountsWithRollback extends RemovingYearAmounts {
@@ -18,7 +18,20 @@ export function products(
 ): readonly Product[] {
     switch (action.type) {
         case ProductsActionType.SET:
-            return cloneDeep(action.products);
+            return action.products.map((product) => {
+                const current = state.find((item) => item.group === product.group && item.name === product.name);
+                return { ...cloneDeep(product), ...(current?.history ? { history: current.history } : {}) };
+            });
+
+        case ProductsActionType.SET_HISTORY:
+            return state.map((product) =>
+                product.group !== action.group || product.name !== action.name
+                    ? product
+                    : {
+                          ...product,
+                          history: { ...product.history, [action.year]: cloneDeep(action.history) },
+                      }
+            );
 
         case ProductsActionType.SET_MISSING:
             return state.map((d) =>

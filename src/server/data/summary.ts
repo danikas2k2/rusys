@@ -1,7 +1,7 @@
-import type { Group, History, Product, Summary, Variant, VariantAmount } from '@rusys/common/data';
-import { addTypedVariantAmount } from '@rusys/common/utils/amounts';
 import type { WithId } from 'mongodb';
 
+import type { Group, History, Product, Summary, Variant, VariantAmount } from '~/common/data';
+import { addTypedVariantAmount } from '~/common/utils/amounts';
 import { getGroups } from '~/server/data/groups';
 import { buildHistoryPipeline } from '~/server/data/history';
 import { getVariants } from '~/server/data/variants';

@@ -1,7 +1,8 @@
-import type { Product } from '@rusys/common/data';
+import type { Product, ProductHistory } from '~/common/data';
 
 export const enum ProductsActionType {
     SET = 'products.set',
+    SET_HISTORY = 'products.set.history',
     SET_MISSING = 'products.set.missing',
     ROLLBACK_MISSING = 'products.rollback.missing',
     SET_REMOVING = 'products.set.removing',
@@ -12,6 +13,13 @@ export type ProductsAction =
     | {
           type: ProductsActionType.SET;
           products: readonly Product[];
+      }
+    | {
+          type: ProductsActionType.SET_HISTORY;
+          group: string;
+          name: string;
+          year: number;
+          history: ProductHistory;
       }
     | {
           type: ProductsActionType.SET_MISSING;
@@ -41,6 +49,19 @@ export type ProductsAction =
 export const setProductsAction = (products: readonly Product[]): Readonly<ProductsAction> => ({
     type: ProductsActionType.SET,
     products,
+});
+
+export const setProductHistoryAction = (
+    group: string,
+    name: string,
+    year: number,
+    history: ProductHistory
+): Readonly<ProductsAction> => ({
+    type: ProductsActionType.SET_HISTORY,
+    group,
+    name,
+    year,
+    history,
 });
 
 export const setProductsMissingAction = (group: string, name: string, missing: boolean): Readonly<ProductsAction> => ({

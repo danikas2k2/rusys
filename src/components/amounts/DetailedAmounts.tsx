@@ -1,7 +1,7 @@
-import type { VariantAmount } from '@rusys/common/data';
-import { orderedExpiryBuckets, partitionByExpiryStatus } from '@rusys/common/utils/expiry';
 import React from 'react';
 
+import type { VariantAmount } from '~/common/data';
+import { orderedExpiryBuckets, partitionByExpiryStatus } from '~/common/utils/expiry';
 import { ExpiryStatusRow } from '~/components/amounts/ExpiryStatusRow';
 import { VariantValueSpans } from '~/components/amounts/VariantValueSpans';
 

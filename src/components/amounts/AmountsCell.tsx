@@ -1,9 +1,9 @@
 import { Group, Stack, Text, ThemeIcon } from '@mantine/core';
-import type { VariantAmount } from '@rusys/common/data';
 import React from 'react';
 
 import { ConsumedIcon, HomeIcon, RecycledIcon, SuspiciousIcon, UpdatedIcon } from '@icons';
 
+import type { VariantAmount } from '~/common/data';
 import { VariantTitle } from '~/components/amounts/VariantTitle';
 import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
 

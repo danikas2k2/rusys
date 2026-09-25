@@ -1,5 +1,4 @@
-import type { VariantUnits } from '@rusys/common/data';
-
+import type { VariantUnits } from '~/common/data';
 import type { ApiRequest, ApiResponse } from '~/server/api/next';
 
 const VARIANT_UNITS = new Set<VariantUnits>(['g', 'kg', 'l', 'ml', 'vnt']);

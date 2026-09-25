@@ -3,9 +3,9 @@ import { mockEnv } from '@tests/mockEnv';
 import { MockThemeRedux } from '@tests/MockThemeRedux';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { isDevMode } from '@rusys/common/utils/dev';
 import React from 'react';
 
+import { isDevMode } from '~/common/utils/dev';
 import { App } from '~/components/app/App';
 import { useGoogleClientId } from '~/store/google/useGoogleClientId';
 
@@ -15,7 +15,7 @@ vi.mock(import('@react-oauth/google'), () => ({
 vi.mock(import('~/components/app/AppContent'), () => ({
     AppContent: () => <div>AppContent</div>,
 }));
-vi.mock(import('@rusys/common/utils/dev'));
+vi.mock(import('~/common/utils/dev'));
 vi.mock(import('~/store/google/useGoogleClientId'));
 
 describe('<App>', () => {

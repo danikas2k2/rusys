@@ -1,7 +1,7 @@
 import { Table, Title } from '@mantine/core';
-import type { Variant } from '@rusys/common/data';
 import React from 'react';
 
+import type { Variant } from '~/common/data';
 import { VariantTitle } from '~/components/amounts/VariantTitle';
 import { Label } from '~/components/common/Label';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';

@@ -1,9 +1,9 @@
 import { Alert, Button, Group, Select, Stack, Text, type ComboboxItem } from '@mantine/core';
-import type { Product, VariantAmount } from '@rusys/common/data';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { AddIcon, CancelIcon, MoveIcon } from '@icons';
 
+import type { Product, VariantAmount } from '~/common/data';
 import { CategoryAvatar } from '~/features/filters/CategoryAvatar';
 import { ProductBox } from '~/features/products/ProductBox';
 import { ProductOption } from '~/features/products/ProductOption';

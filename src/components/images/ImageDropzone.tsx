@@ -1,10 +1,10 @@
 import { ActionIcon, Alert, Avatar, Box, Group, rem, Stack, Text } from '@mantine/core';
 import { Dropzone, type FileRejection, type FileWithPath } from '@mantine/dropzone';
-import { IMAGE_MIME_TYPES, MAX_IMAGE_FILE_MB, MAX_IMAGE_FILE_SIZE } from '@rusys/common/utils/files';
 import React, { useCallback, useState } from 'react';
 
 import { ErrorAlertIcon, ImageAcceptIcon, ImageDropzoneIdleIcon, ImageRejectIcon, RemoveImageIcon } from '@icons';
 
+import { IMAGE_MIME_TYPES, MAX_IMAGE_FILE_MB, MAX_IMAGE_FILE_SIZE } from '~/common/utils/files';
 import { Label } from '~/components/common/Label';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { getErrorMessage } from '~/lib/utils/errors';

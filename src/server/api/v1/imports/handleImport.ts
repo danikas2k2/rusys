@@ -1,5 +1,4 @@
-import type { Update } from '@rusys/common/data';
-
+import type { Update } from '~/common/data';
 import type { ApiRequest, ApiResponse, ApiUploadedFile } from '~/server/api/next';
 import { sendError } from '~/server/api/v1/utils';
 import { importEverything } from '~/server/data/common';

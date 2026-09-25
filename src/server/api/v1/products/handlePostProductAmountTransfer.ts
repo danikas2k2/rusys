@@ -1,5 +1,4 @@
-import type { VariantAmount } from '@rusys/common/data';
-
+import type { VariantAmount } from '~/common/data';
 import type { ApiRequest, ApiResponse } from '~/server/api/next';
 import { requiredParam, requiredYear, respond, sendError } from '~/server/api/v1/utils';
 import { transferAmounts } from '~/server/data/products';

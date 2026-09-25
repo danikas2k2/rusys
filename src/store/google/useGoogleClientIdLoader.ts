@@ -1,6 +1,6 @@
-import { API } from '@rusys/common/api/v1';
 import { useDispatch } from 'react-redux';
 
+import { API } from '~/common/api/v1';
 import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { setClientIdAction, setLoadingAction } from '~/store/google/actions';
 import { useGoogle } from '~/store/google/useGoogle';

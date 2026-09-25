@@ -1,6 +1,5 @@
 packages:
   - "."
-  - "src/*"
 
 allowBuilds:
   # Vite 8 keeps esbuild as an optional compatibility peer. It is not used by

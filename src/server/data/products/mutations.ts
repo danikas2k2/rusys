@@ -1,6 +1,6 @@
-import type { Product } from '@rusys/common/data';
 import type { ClientSession, UpdateFilter } from 'mongodb';
 
+import type { Product } from '~/common/data';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db, withTransaction } from '~/server/db';
 

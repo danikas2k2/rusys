@@ -1,10 +1,10 @@
 import { ActionIcon, Group, Menu, SegmentedControl, Stack } from '@mantine/core';
-import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts } from '@rusys/common/data';
-import { getCombinedAmounts } from '@rusys/common/utils/amounts';
 import React, { useCallback, useMemo } from 'react';
 
 import { HistoryTabIcon, RecycledIcon } from '@icons';
 
+import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts } from '~/common/data';
+import { getCombinedAmounts } from '~/common/utils/amounts';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useUpdatingProducts } from '~/features/products/UpdatingProductsContext';

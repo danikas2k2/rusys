@@ -24,7 +24,7 @@ const alias = [
 const mockAssetsPlugin: Plugin = {
     name: 'vitest-mock-assets',
     enforce: 'pre',
-    resolveId(id) {
+    resolveId(id: string) {
         if (/\.p?css$/.test(id)) {
             return `${mocks}/styleMock.ts`;
         }

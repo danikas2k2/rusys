@@ -1,6 +1,6 @@
-import type { Product } from '@rusys/common/data';
 import type { ClientSession, Collection, Document, Filter } from 'mongodb';
 
+import type { Product } from '~/common/data';
 import { classifyImage } from '~/server/data/images';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';

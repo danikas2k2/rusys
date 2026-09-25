@@ -1,6 +1,6 @@
-import type { Product, ProductAmounts } from '@rusys/common/data';
 import React, { useCallback, useRef } from 'react';
 
+import type { Product, ProductAmounts } from '~/common/data';
 import { useActiveContent, useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { ProductBox } from '~/features/products/ProductBox';
 

@@ -50,6 +50,11 @@ export interface ProductHistoryMeta {
     year: number;
 }
 
+export interface ProductHistory {
+    updates: readonly History[];
+    undates: readonly History[];
+}
+
 export interface Product {
     group: string;
     name: string;
@@ -60,6 +65,8 @@ export interface Product {
     missing?: boolean;
     updates?: readonly Update[] | readonly ProductHistoryMeta[];
     undates?: readonly Update[] | readonly ProductHistoryMeta[];
+    /** Client-side cache of the full amount history, indexed by year. It is never persisted. */
+    history?: Readonly<Record<number, ProductHistory>>;
     // Always icon-sized (<=512x512, roughly square) - a generated thumbnail when the source is a
     // photo, or the original upload as-is when it already qualifies as an icon.
     image?: string;

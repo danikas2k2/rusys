@@ -1,9 +1,9 @@
 import { Button } from '@mantine/core';
-import type { ProductAmounts } from '@rusys/common/data';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { ConfirmationDialogIcon, DeleteIcon } from '@icons';
 
+import type { ProductAmounts } from '~/common/data';
 import { AmountTitle } from '~/components/amounts/AmountTitle';
 import { ConfirmationDialog } from '~/components/common/ConfirmationDialog';
 import { DialogIcon } from '~/components/common/DialogIcon';

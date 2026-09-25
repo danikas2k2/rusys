@@ -1,6 +1,6 @@
-import type { Product } from '@rusys/common/data';
 import React from 'react';
 
+import type { Product } from '~/common/data';
 import { SwipeControls } from '~/components/runtime/SwipeControls';
 import { SwipeControlsWrapper } from '~/components/runtime/SwipeControlsContext';
 import { Page } from '~/features/common/Page';

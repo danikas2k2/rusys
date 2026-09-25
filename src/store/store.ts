@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { isDevMode } from '@rusys/common/utils/dev';
 import type { Action, Store } from 'redux';
 
+import { isDevMode } from '~/common/utils/dev';
 import { reducer } from '~/store/base/reducer';
 
 export const getStore = (): Store =>

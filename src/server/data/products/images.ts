@@ -1,5 +1,4 @@
-import type { Product } from '@rusys/common/data';
-
+import type { Product } from '~/common/data';
 import { imageFieldUpdate, resolveImage } from '~/server/data/resolveImage';
 import { hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';

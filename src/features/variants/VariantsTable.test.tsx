@@ -5,9 +5,9 @@ import { MockRedux } from '@tests/MockRedux';
 import { MockTheme } from '@tests/MockTheme';
 
 import type { UniqueIdentifier } from '@dnd-kit/core';
-import type { Variant } from '@rusys/common/data';
 import React from 'react';
 
+import type { Variant } from '~/common/data';
 import { DraggableContent } from '~/components/common/DraggableContent';
 import { useReorderHandler } from '~/components/hooks/useReorderHandler';
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';

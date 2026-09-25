@@ -1,10 +1,10 @@
 import { Group, Stack, Text } from '@mantine/core';
-import type { ProductAmounts as ProductAmountsData, VariantAmount } from '@rusys/common/data';
-import { formatVolume, formatWeight, getAmountTotals } from '@rusys/common/utils/amounts';
 import React, { useMemo } from 'react';
 
 import { ApproxAmountIcon, HomeIcon } from '@icons';
 
+import type { ProductAmounts as ProductAmountsData, VariantAmount } from '~/common/data';
+import { formatVolume, formatWeight, getAmountTotals } from '~/common/utils/amounts';
 import { Amounts } from '~/components/amounts/Amounts';
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { useAmountView } from '~/components/amounts/AmountViewContext';

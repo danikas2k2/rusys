@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
-import type { History } from '@rusys/common/data';
 import React from 'react';
 
+import type { History } from '~/common/data';
 import { AmountsCell } from '~/components/amounts/AmountsCell';
 import type { SummaryHistoryData } from '~/features/summary/SummaryAmounts';
 import { SummaryHistoryTab } from '~/features/summary/SummaryHistoryTab';

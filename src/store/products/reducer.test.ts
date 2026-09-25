@@ -68,6 +68,34 @@ describe('products', () => {
                 })
             ).toStrictEqual(products);
         });
+
+        it('keeps a product history cache while refreshing product metadata', () => {
+            const history = { 22: { updates: [], undates: [] } };
+            const state = [{ ...products[0], history }];
+
+            expect(
+                reducer(state, {
+                    type: ProductsActionType.SET,
+                    products,
+                })
+            ).toStrictEqual([{ ...products[0], history }, ...products.slice(1)]);
+        });
+    });
+
+    describe('set history', () => {
+        it('caches history under its product and year', () => {
+            const history = { updates: [], undates: [] };
+
+            expect(
+                reducer(products, {
+                    type: ProductsActionType.SET_HISTORY,
+                    group: 'Uogienės',
+                    name: 'Avietės',
+                    year: 22,
+                    history,
+                })
+            ).toStrictEqual([{ ...products[0], history: { 22: history } }, ...products.slice(1)]);
+        });
     });
 
     describe('set removing', () => {

@@ -1,7 +1,7 @@
-import { API } from '@rusys/common/api/v1';
-import type { UpdateVariant } from '@rusys/common/data';
 import { useCallback } from 'react';
 
+import { API } from '~/common/api/v1';
+import type { UpdateVariant } from '~/common/data';
 import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useGetVariants } from '~/store/variants/useGetVariants';
 

@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import type { History } from '@rusys/common/data';
 import React from 'react';
 
+import type { History } from '~/common/data';
 import { useUpdates } from '~/store/history/useUpdates';
 
 describe('useHistory', () => {

@@ -1,8 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { API } from '@rusys/common/api/v1';
-
+import { API } from '~/common/api/v1';
 import { useApiRequest } from '~/store/common/useApiRequest';
 import { useProfile } from '~/store/profile/useProfile';
 import { useSyncUserProfile } from '~/store/profile/useSyncUserProfile';

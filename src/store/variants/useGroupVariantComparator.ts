@@ -1,8 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit';
-import type { Variant } from '@rusys/common/data';
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
+import type { Variant } from '~/common/data';
 import { compareNames } from '~/lib/utils/compareNames';
 import type { WithVariantsState } from '~/store/variants/types';
 

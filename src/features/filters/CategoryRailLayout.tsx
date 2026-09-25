@@ -1,7 +1,7 @@
 import { Group, Title } from '@mantine/core';
-import type { Group as GroupModel } from '@rusys/common/data';
 import React, { useEffect, useRef } from 'react';
 
+import type { Group as GroupModel } from '~/common/data';
 import { CategoryRail } from '~/features/filters/CategoryRail';
 import { useQuickFilter } from '~/features/filters/QuickFilterContext';
 

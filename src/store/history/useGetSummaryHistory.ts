@@ -1,6 +1,6 @@
-import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 
+import { API } from '~/common/api/v1';
 import { useSuspenseApiRequest } from '~/store/common/useSuspenseApiRequest';
 
 export function useGetSummaryHistory(year: number, group?: string, name?: string): () => Promise<void> {

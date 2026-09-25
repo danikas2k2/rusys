@@ -2,9 +2,9 @@ import { renderHook } from '@testing-library/react';
 import { getProductsFixture } from '@tests/fixtures';
 import { MockRedux } from '@tests/MockRedux';
 
-import type { Product } from '@rusys/common/data';
 import React from 'react';
 
+import type { Product } from '~/common/data';
 import { useProducts } from '~/store/products/useProducts';
 
 describe('useProducts', () => {

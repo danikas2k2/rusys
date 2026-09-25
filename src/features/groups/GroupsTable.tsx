@@ -1,8 +1,8 @@
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import { Table, Title } from '@mantine/core';
-import type { Group } from '@rusys/common/data';
 import React from 'react';
 
+import type { Group } from '~/common/data';
 import { DraggableContent } from '~/components/common/DraggableContent';
 import { Label } from '~/components/common/Label';
 import { LoadableContent } from '~/components/common/LoadableContent';

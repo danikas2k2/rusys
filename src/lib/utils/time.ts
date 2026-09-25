@@ -1,4 +1,4 @@
-import { HOUR_MS, QUARTER_HOUR_MS, THREE_MONTHS_MS, WEEK_MS } from '@rusys/common/utils/time';
+import { HOUR_MS, QUARTER_HOUR_MS, THREE_MONTHS_MS, WEEK_MS } from '~/common/utils/time';
 
 export { THREE_MONTHS_MS };
 

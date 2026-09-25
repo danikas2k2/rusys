@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
-import type { VariantUnits } from '@rusys/common/data';
 import React from 'react';
 
+import type { VariantUnits } from '~/common/data';
 import { VariantAvatar } from '~/components/amounts/VariantAvatar';
 import { useVariant } from '~/store/variants/useVariant';
 

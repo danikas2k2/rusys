@@ -3,9 +3,9 @@ import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
 import { Table } from '@mantine/core';
-import type { History } from '@rusys/common/data';
 import React from 'react';
 
+import type { History } from '~/common/data';
 import { AmountHistoryRow } from '~/features/products/AmountHistoryRow';
 import { useMoveConsumedToRecycled } from '~/store/products/useMoveConsumedToRecycled';
 

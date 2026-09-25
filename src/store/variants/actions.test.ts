@@ -1,7 +1,6 @@
 import { getVariantsFixture } from '@tests/fixtures';
 
-import type { Variant } from '@rusys/common/data';
-
+import type { Variant } from '~/common/data';
 import { setVariantsAction, VariantsActionType } from '~/store/variants/actions';
 
 describe('setVariantsAction', () => {

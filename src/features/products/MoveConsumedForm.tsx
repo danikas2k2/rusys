@@ -1,9 +1,9 @@
 import { ActionIcon, Flex, NumberInput, Select, Text, type ComboboxItem } from '@mantine/core';
-import type { VariantAmount } from '@rusys/common/data';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { DecreaseIcon, IncreaseIcon, RecycledIcon } from '@icons';
 
+import type { VariantAmount } from '~/common/data';
 import { VariantAvatar } from '~/components/amounts/VariantAvatar';
 import { VariantTitle } from '~/components/amounts/VariantTitle';
 import { useLabels } from '~/lib/hooks/useLabels';

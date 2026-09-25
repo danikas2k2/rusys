@@ -2,9 +2,9 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
-import type { Group, Product } from '@rusys/common/data';
 import React from 'react';
 
+import type { Group, Product } from '~/common/data';
 import { ReviewBox } from '~/features/review/ReviewBox';
 import { useApplyReview } from '~/store/products/useApplyReview';
 

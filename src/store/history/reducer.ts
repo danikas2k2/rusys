@@ -1,6 +1,6 @@
-import type { History } from '@rusys/common/data';
 import { cloneDeep } from 'lodash';
 
+import type { History } from '~/common/data';
 import { HistoryActionType, type HistoryAction } from '~/store/history/actions';
 
 export function updates(state: readonly History[] = [], action: Readonly<HistoryAction>): readonly History[] {

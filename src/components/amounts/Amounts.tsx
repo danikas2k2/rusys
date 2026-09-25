@@ -1,6 +1,6 @@
-import type { VariantAmount } from '@rusys/common/data';
 import React from 'react';
 
+import type { VariantAmount } from '~/common/data';
 import { useAmountView } from '~/components/amounts/AmountViewContext';
 import { DetailedAmounts } from '~/components/amounts/DetailedAmounts';
 import { TotalAmounts } from '~/components/amounts/TotalAmounts';

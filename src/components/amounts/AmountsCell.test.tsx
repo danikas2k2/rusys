@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
-import type { VariantAmount } from '@rusys/common/data';
 import React from 'react';
 
+import type { VariantAmount } from '~/common/data';
 import { AmountsCell } from '~/components/amounts/AmountsCell';
 
 vi.mock(import('~/components/runtime/ActiveContentContext'), () => ({

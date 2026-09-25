@@ -1,7 +1,7 @@
 import { Stack } from '@mantine/core';
-import type { YearAmounts } from '@rusys/common/data';
 import React, { useCallback, useMemo } from 'react';
 
+import type { YearAmounts } from '~/common/data';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { GridTile } from '~/components/common/GridTile';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';

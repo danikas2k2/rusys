@@ -2,9 +2,9 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
-import type { ProductAmounts } from '@rusys/common/data';
 import React from 'react';
 
+import type { ProductAmounts } from '~/common/data';
 import { AmountVariantRow } from '~/features/products/AmountVariantRow';
 import { AmountVariantsTab } from '~/features/products/AmountVariantsTab';
 import { VariantBox } from '~/features/variants/VariantBox';

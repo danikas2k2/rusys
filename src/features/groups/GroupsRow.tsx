@@ -1,9 +1,9 @@
 import { Avatar, Table, Title } from '@mantine/core';
-import type { Group } from '@rusys/common/data';
 import React from 'react';
 
 import { AnnualIcon, ReviewIcon } from '@icons';
 
+import type { Group } from '~/common/data';
 import { Label } from '~/components/common/Label';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { SortableRow } from '~/components/table/SortableRow';

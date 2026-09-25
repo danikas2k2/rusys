@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import type { ExportArchiveData, Group, Product } from '@rusys/common/data';
 import JSZip from 'jszip';
 
+import type { ExportArchiveData, Group, Product } from '~/common/data';
 import { exportEverything } from '~/server/data/common';
 import { IMAGES_DIR, resolveImagePath } from '~/server/data/images';
 

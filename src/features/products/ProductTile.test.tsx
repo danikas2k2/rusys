@@ -2,9 +2,9 @@ import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
-import type { Product } from '@rusys/common/data';
 import React from 'react';
 
+import type { Product } from '~/common/data';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { ProductTile, type ProductTileProps } from '~/features/products/ProductTile';
 import { useSetProductMissing } from '~/store/products/useSetProductMissing';

@@ -1,6 +1,5 @@
 import { Alert, Button, Group, rem, Text } from '@mantine/core';
 import { Dropzone, type FileWithPath } from '@mantine/dropzone';
-import { MAX_IMPORT_FILE_MB, MAX_IMPORT_FILE_SIZE } from '@rusys/common/utils/files';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 
@@ -13,6 +12,7 @@ import {
     ImportRejectIcon,
 } from '@icons';
 
+import { MAX_IMPORT_FILE_MB, MAX_IMPORT_FILE_SIZE } from '~/common/utils/files';
 import { ConfirmableModal } from '~/components/common/ConfirmableModal';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';

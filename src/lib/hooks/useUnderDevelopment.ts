@@ -1,5 +1,4 @@
-import { DEV_CLIENT_ID, isDevMode } from '@rusys/common/utils/dev';
-
+import { DEV_CLIENT_ID, isDevMode } from '~/common/utils/dev';
 import { useGoogle } from '~/store/google/useGoogle';
 
 export function useUnderDevelopment(): boolean {

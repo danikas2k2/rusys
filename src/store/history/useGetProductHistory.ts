@@ -1,14 +1,19 @@
-import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 
-import { useSuspenseApiRequest } from '~/store/common/useSuspenseApiRequest';
+import { API } from '~/common/api/v1';
+import type { ProductHistory } from '~/common/data';
+import { useApiRequest } from '~/store/common/useApiRequest';
+import { setProductHistoryAction } from '~/store/products/actions';
 
 export function useGetProductHistory(year: number, group?: string, name?: string): () => Promise<void> {
-    const request = useSuspenseApiRequest();
+    const dispatch = useDispatch();
+    const request = useApiRequest();
     return useCallback(async (): Promise<void> => {
         if (!group || !name) {
             return;
         }
-        await request(API.productHistory(group, name, year));
-    }, [group, name, request, year]);
+        const history = await request<ProductHistory>(API.productHistory(group, name, year), 'GET');
+        dispatch(setProductHistoryAction(group, name, year, history));
+    }, [dispatch, group, name, request, year]);
 }

@@ -1,10 +1,10 @@
 import { Accordion, ActionIcon, Button, Group, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { formatExpiryTolerance, parseExpiryTolerance } from '@rusys/common/utils/expiry';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { AddIcon, CancelIcon, DeleteIcon, MoveIcon, UpdateIcon } from '@icons';
 
+import { formatExpiryTolerance, parseExpiryTolerance } from '~/common/utils/expiry';
 import { ConfirmableModal } from '~/components/common/ConfirmableModal';
 import { Label } from '~/components/common/Label';
 import { ImageDropzone } from '~/components/images/ImageDropzone';

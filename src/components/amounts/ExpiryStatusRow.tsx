@@ -1,7 +1,8 @@
-import type { ExpiryStatus } from '@rusys/common/utils/expiry';
 import React from 'react';
 
 import { ExpiredIcon, ExpiringSoonIcon } from '@icons';
+
+import type { ExpiryStatus } from '~/common/utils/expiry';
 
 export interface ExpiryStatusRowProps {
     status: ExpiryStatus | undefined;

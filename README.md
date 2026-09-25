@@ -19,7 +19,7 @@ pnpm check
 - `src/components` — pakartotinai naudojami sąsajos elementai.
 - `src/features` — konkrečių sričių sąsajos funkcijos, pavyzdžiui, produktų ar grupių valdymas.
 - `src/store` — kliento būsena ir API užklausų hook'ai.
-- `src/common` — bendri tipai ir grynos funkcijos; tai atskiras `@rusys/common` workspace paketas, kurį gali importuoti ir klientas, ir serveris.
+- `src/common` — bendri tipai ir grynos funkcijos, pasiekiamos per `~/common` importų alias'ą tiek klientui, tiek serveriui.
 - `src/server` — tik Node.js pusėje veikiantis kodas: MongoDB, duomenų operacijos ir API handleriai.
 
 `src/server/data/products.ts` yra viešas produktų duomenų API fasadas. Jo realizacija suskirstyta į

@@ -3,9 +3,9 @@ import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
 import { Select } from '@mantine/core';
-import type { VariantAmount } from '@rusys/common/data';
 import React from 'react';
 
+import type { VariantAmount } from '~/common/data';
 import { MoveConsumedForm } from '~/features/products/MoveConsumedForm';
 
 vi.mock(import('~/store/variants/useVariant'), (): any => ({

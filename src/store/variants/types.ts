@@ -1,4 +1,4 @@
-import type { Variant } from '@rusys/common/data';
+import type { Variant } from '~/common/data';
 
 export interface WithVariantsState {
     variants?: readonly Variant[];

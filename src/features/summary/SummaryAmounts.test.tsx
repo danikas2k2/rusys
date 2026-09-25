@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
-import { getAmountTotals } from '@rusys/common/utils/amounts';
 import React from 'react';
 
+import { getAmountTotals } from '~/common/utils/amounts';
 import { Amounts } from '~/components/amounts/Amounts';
 import { useAmountView } from '~/components/amounts/AmountViewContext';
 import { SummaryAmounts } from '~/features/summary/SummaryAmounts';
@@ -19,8 +19,8 @@ vi.mock(import('~/store/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn(() => (a: string, b: string) => a.localeCompare(b)),
 }));
 vi.mock(import('~/store/variants/useVariantsByGroup'), () => ({ useVariantsByGroup: vi.fn(() => []) }));
-vi.mock(import('@rusys/common/utils/amounts'), async () => ({
-    ...(await vi.importActual('@rusys/common/utils/amounts')),
+vi.mock(import('~/common/utils/amounts'), async () => ({
+    ...(await vi.importActual('~/common/utils/amounts')),
     getAmountTotals: vi.fn(),
 }));
 

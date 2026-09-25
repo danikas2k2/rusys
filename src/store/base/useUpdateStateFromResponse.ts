@@ -1,8 +1,8 @@
-import type { Product, Summary } from '@rusys/common/data';
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import type { ActionCreatorsMapObject } from 'redux';
 
+import type { Product, Summary } from '~/common/data';
 import { setGroupsAction } from '~/store/groups/actions';
 import { setUndatesAction, setUpdatesAction } from '~/store/history/actions';
 import { setProductsAction } from '~/store/products/actions';

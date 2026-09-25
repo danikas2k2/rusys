@@ -1,5 +1,4 @@
-import { DEV_CLIENT_ID, isDevMode } from '@rusys/common/utils/dev';
-
+import { DEV_CLIENT_ID, isDevMode } from '~/common/utils/dev';
 import type { ApiRequest, ApiResponse } from '~/server/api/next';
 import { sendError } from '~/server/api/v1/utils';
 

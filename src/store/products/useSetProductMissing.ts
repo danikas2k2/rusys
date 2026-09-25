@@ -1,7 +1,7 @@
-import { API } from '@rusys/common/api/v1';
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
+import { API } from '~/common/api/v1';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { setErrorAction } from '~/store/error/actions';

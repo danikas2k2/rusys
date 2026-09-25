@@ -1,8 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { API } from '@rusys/common/api/v1';
-
+import { API } from '~/common/api/v1';
 import { useSuspenseApiRequest } from '~/store/common/useSuspenseApiRequest';
 import { useGetSummaryHistory } from '~/store/history/useGetSummaryHistory';
 

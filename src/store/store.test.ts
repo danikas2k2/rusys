@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import type * as ReduxToolkit from '@reduxjs/toolkit';
-import { isDevMode } from '@rusys/common/utils/dev';
 
+import { isDevMode } from '~/common/utils/dev';
 import { reducer } from '~/store/base/reducer';
 import { getStore } from '~/store/store';
 
-vi.mock(import('@rusys/common/utils/dev'), () => ({
+vi.mock(import('~/common/utils/dev'), () => ({
     isDevMode: vi.fn().mockReturnValue(false),
 }));
 vi.mock(import('@reduxjs/toolkit'), async () => {

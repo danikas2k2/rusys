@@ -1,7 +1,7 @@
 import { Group, Stack, Table, Text } from '@mantine/core';
-import type { History, VariantAmount } from '@rusys/common/data';
 import React, { useCallback, useMemo, useState } from 'react';
 
+import type { History, VariantAmount } from '~/common/data';
 import { AmountsCell } from '~/components/amounts/AmountsCell';
 import { EmailAvatar } from '~/components/common/EmailAvatar';
 import { FormatDate } from '~/components/common/FormatDate';

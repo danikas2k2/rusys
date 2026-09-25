@@ -1,6 +1,6 @@
-import type { UpdateVariant, Variant } from '@rusys/common/data';
 import type { ClientSession } from 'mongodb';
 
+import type { UpdateVariant, Variant } from '~/common/data';
 import { hasDuplicates, hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
 

@@ -1,13 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
-import type { History, ProductAmounts } from '@rusys/common/data';
 import React from 'react';
 
+import type { History, Product, ProductAmounts } from '~/common/data';
 import { AmountHistoryTab } from '~/features/products/AmountHistoryTab';
 import { useGetProductHistory } from '~/store/history/useGetProductHistory';
-import { useUndates } from '~/store/history/useUndates';
-import { useUpdates } from '~/store/history/useUpdates';
+import { useProducts } from '~/store/products/useProducts';
 
 vi.mock(import('~/store/history/useGetProductHistory'), (): any => ({
     useGetProductHistory: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
@@ -17,16 +16,8 @@ vi.mock(import('~/store/products/useMoveConsumedToRecycled'), (): any => ({
     useMoveConsumedToRecycled: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
-vi.mock(import('~/components/common/LoadableContent'), () => ({
-    LoadableContent: ({ children }: React.PropsWithChildren) => <>{children}</>,
-}));
-
-vi.mock(import('~/store/history/useUpdates'), (): any => ({
-    useUpdates: vi.fn(() => []),
-}));
-
-vi.mock(import('~/store/history/useUndates'), (): any => ({
-    useUndates: vi.fn(() => []),
+vi.mock(import('~/store/products/useProducts'), (): any => ({
+    useProducts: vi.fn(() => []),
 }));
 
 vi.mock(import('~/components/common/EmailAvatar'), (): any => ({
@@ -40,7 +31,11 @@ vi.mock(import('~/components/amounts/AmountsCell'), (): any => ({
 describe('<AmountHistoryTab>', () => {
     const activeData: ProductAmounts = { group: 'Uogienės', name: 'Avietės', year: 2026 };
 
-    afterEach(() => vi.clearAllMocks());
+    function setHistory(updates: readonly History[] = [], undates: readonly History[] = [], year = activeData.year) {
+        vi.mocked(useProducts).mockReturnValue([
+            { group: activeData.group, name: activeData.name, history: { [year]: { updates, undates } } },
+        ]);
+    }
 
     function renderTab(active = activeData) {
         return render(
@@ -50,163 +45,130 @@ describe('<AmountHistoryTab>', () => {
         );
     }
 
-    it('shows empty table when history is empty', () => {
+    beforeEach(() => setHistory());
+
+    afterEach(() => vi.clearAllMocks());
+
+    it('shows cached empty history immediately', () => {
         renderTab();
 
         expect(screen.getByRole('table')).toBeInTheDocument();
         expect(screen.queryAllByRole('row')).toHaveLength(1); // only thead
     });
 
-    it('calls useGetProductHistory with year, group, name from active context', () => {
-        const useGetHistory = vi.mocked(useGetProductHistory);
+    it('loads the active product year in the background', () => {
+        const loader = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useGetProductHistory).mockReturnValue(loader);
 
         renderTab();
 
-        expect(useGetHistory).toHaveBeenCalledWith(2026, 'Uogienės', 'Avietės');
+        expect(useGetProductHistory).toHaveBeenCalledWith(2026, 'Uogienės', 'Avietės');
+        expect(loader).toHaveBeenCalledTimes(1);
     });
 
-    it('renders a row for each history entry', () => {
-        const useHistory = vi.mocked(useUpdates);
-        const entries: History[] = [
-            { group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [{ variant: 'p', amount: 1 }] },
-            { group: 'Uogienės', name: 'Avietės', time: 2000, year: 2026, amounts: [{ variant: 'd', amount: -1 }] },
-        ];
-        useHistory.mockReturnValue(entries);
-
-        renderTab();
-
-        expect(screen.getAllByRole('row')).toHaveLength(entries.length + 1); // +1 for thead
-    });
-
-    it('renders amounts for each row', () => {
-        const useHistory = vi.mocked(useUpdates);
-        useHistory.mockReturnValue([
-            {
-                group: 'Uogienės',
-                name: 'Avietės',
-                time: 1000,
-                year: 2026,
-                amounts: [
-                    { variant: 'p', amount: 2 },
-                    { variant: 'd', amount: -1 },
-                ],
-            },
+    it('refreshes cached history after the product history metadata changes', () => {
+        const loader = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useGetProductHistory).mockReturnValue(loader);
+        const cached = { updates: [], undates: [] };
+        vi.mocked(useProducts).mockReturnValue([
+            { group: activeData.group, name: activeData.name, updates: [], history: { 2026: cached } },
         ]);
 
+        const { rerender } = renderTab();
+        vi.mocked(useProducts).mockReturnValue([
+            {
+                group: activeData.group,
+                name: activeData.name,
+                updates: [{ year: activeData.year }],
+                history: { 2026: cached },
+            },
+        ]);
+        rerender(
+            <MockThemeActive active={{ action: 'values', data: activeData }}>
+                <AmountHistoryTab />
+            </MockThemeActive>
+        );
+
+        expect(loader).toHaveBeenCalledTimes(2);
+    });
+
+    it('shows a loader only when that product year has not been loaded', () => {
+        vi.mocked(useProducts).mockReturnValue([{ group: activeData.group, name: activeData.name }]);
+
         renderTab();
 
-        expect(screen.getByLabelText('Amount count')).toHaveTextContent('2');
+        expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        expect(document.querySelector('.mantine-Loader-root')).toBeInTheDocument();
     });
 
-    it('uses year=0 when active context has no year', () => {
-        const useGetHistory = vi.mocked(useGetProductHistory);
+    it('uses the cached history for the selected year', () => {
+        const history2025: History = {
+            group: 'Uogienės',
+            name: 'Avietės',
+            time: 1000,
+            year: 2025,
+            amounts: [{ variant: '2025', amount: 1 }],
+            comment: 'history 2025',
+        };
+        const history2026: History = {
+            group: 'Uogienės',
+            name: 'Avietės',
+            time: 2000,
+            year: 2026,
+            amounts: [{ variant: '2026', amount: 1 }],
+            comment: 'history 2026',
+        };
+        const product: Product = {
+            group: activeData.group,
+            name: activeData.name,
+            history: {
+                2025: { updates: [history2025], undates: [] },
+                2026: { updates: [history2026], undates: [] },
+            },
+        };
+        vi.mocked(useProducts).mockReturnValue([product]);
 
-        render(
-            <MockThemeActive active={{ action: 'values', data: { group: 'G', name: 'N' } as ProductAmounts }}>
+        const { rerender } = renderTab();
+
+        expect(screen.getByText('history 2026')).toBeInTheDocument();
+
+        rerender(
+            <MockThemeActive active={{ action: 'values', data: { ...activeData, year: 2025 } }}>
                 <AmountHistoryTab />
             </MockThemeActive>
         );
 
-        expect(useGetHistory).toHaveBeenCalledWith(0, 'G', 'N');
-    });
-
-    it('uses empty group/name and year=0 when there is no active content', () => {
-        const useGetHistory = vi.mocked(useGetProductHistory);
-
-        render(
-            <MockThemeActive active={undefined}>
-                <AmountHistoryTab />
-            </MockThemeActive>
-        );
-
-        expect(useGetHistory).toHaveBeenCalledWith(0, '', '');
+        expect(screen.getByText('history 2025')).toBeInTheDocument();
+        expect(screen.queryByText('history 2026')).not.toBeInTheDocument();
     });
 
     it('renders undates rows reversed before the divider', () => {
-        vi.mocked(useUpdates).mockReturnValue([]);
         const undates: History[] = [
             { group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] },
             { group: 'Uogienės', name: 'Avietės', time: 200, year: 2026, amounts: [] },
         ];
-        vi.mocked(useUndates).mockReturnValue(undates);
+        setHistory([], undates);
 
         renderTab();
 
-        // thead row + 2 undate rows + 1 divider row = 4
-        expect(screen.getAllByRole('row')).toHaveLength(4);
+        expect(screen.getAllByRole('row')).toHaveLength(4); // thead + 2 undates + divider
     });
 
-    it('renders a divider row when undates are present', () => {
-        vi.mocked(useUndates).mockReturnValue([
-            { group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] },
-        ]);
-
-        renderTab();
-
-        // The divider is rendered inside a Table.Tr — Divider has role "separator"
-        expect(document.querySelector('[data-table="history"] hr, [role="separator"]')).not.toBeNull();
-    });
-
-    it('does not render a divider row when undates are empty', () => {
-        vi.mocked(useUndates).mockReturnValue([]);
-
-        renderTab();
-
-        expect(document.querySelector('[role="separator"]')).toBeNull();
-    });
-
-    it('shows comment text when h.comment is set', () => {
-        vi.mocked(useUpdates).mockReturnValue([
+    it('renders amounts and comments from the product-year cache', () => {
+        setHistory([
             {
                 group: 'Uogienės',
                 name: 'Avietės',
                 time: 1000,
                 year: 2026,
-                amounts: [],
+                amounts: [{ variant: 'p', amount: 2 }],
                 comment: 'Special batch',
             },
         ]);
 
         renderTab();
 
+        expect(screen.getByLabelText('Amount count')).toHaveTextContent('1');
         expect(screen.getByText('Special batch')).toBeInTheDocument();
-    });
-
-    it('does not show comment element when h.comment is absent', () => {
-        vi.mocked(useUpdates).mockReturnValue([
-            { group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [] },
-        ]);
-
-        renderTab();
-
-        // No comment text should appear
-        expect(screen.queryByText(/batch/i)).not.toBeInTheDocument();
-    });
-
-    it('dimmed (undate) rows have opacity 0.4', () => {
-        vi.mocked(useUndates).mockReturnValue([
-            { group: 'Uogienės', name: 'Avietės', time: 100, year: 2026, amounts: [] },
-        ]);
-
-        renderTab();
-
-        // The first tbody row is the undate row — check its style
-        const tbodyRows = document.querySelectorAll('[data-table="history"] tbody tr');
-
-        // first row = undate (dimmed), second = divider
-        expect((tbodyRows[0] as HTMLElement).style.opacity).toBe('0.4');
-    });
-
-    it('non-dimmed (update) rows do not have opacity set', () => {
-        vi.mocked(useUndates).mockReturnValue([]);
-        vi.mocked(useUpdates).mockReturnValue([
-            { group: 'Uogienės', name: 'Avietės', time: 1000, year: 2026, amounts: [] },
-        ]);
-
-        renderTab();
-
-        const tbodyRows = document.querySelectorAll('[data-table="history"] tbody tr');
-
-        expect((tbodyRows[0] as HTMLElement).style.opacity).toBe('');
     });
 });

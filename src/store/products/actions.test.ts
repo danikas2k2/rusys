@@ -1,8 +1,7 @@
 import { getProductsFixture } from '@tests/fixtures';
 
-import type { Product } from '@rusys/common/data';
-
-import { ProductsActionType, setProductsAction } from '~/store/products/actions';
+import type { Product } from '~/common/data';
+import { ProductsActionType, setProductHistoryAction, setProductsAction } from '~/store/products/actions';
 
 describe('setProductsAction', () => {
     it('returns valid action', () => {
@@ -15,5 +14,17 @@ describe('setProductsAction', () => {
         const products: Product[] = [];
 
         expect(setProductsAction(products)).toStrictEqual({ type: ProductsActionType.SET, products });
+    });
+
+    it('returns an action to cache one product year history', () => {
+        const history = { updates: [], undates: [] };
+
+        expect(setProductHistoryAction('Uogienės', 'Avietės', 26, history)).toStrictEqual({
+            type: ProductsActionType.SET_HISTORY,
+            group: 'Uogienės',
+            name: 'Avietės',
+            year: 26,
+            history,
+        });
     });
 });

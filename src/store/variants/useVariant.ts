@@ -1,6 +1,6 @@
-import type { Variant } from '@rusys/common/data';
 import { useSelector } from 'react-redux';
 
+import type { Variant } from '~/common/data';
 import type { WithVariantsState } from '~/store/variants/types';
 
 export function useVariant(group: string, variant: string): Readonly<Variant> | undefined {

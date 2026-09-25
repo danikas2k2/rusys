@@ -1,6 +1,6 @@
-import type { Group } from '@rusys/common/data';
 import { cloneDeep } from 'lodash';
 
+import type { Group } from '~/common/data';
 import { GroupsActionType, type GroupsAction } from '~/store/groups/actions';
 
 export function groups(state: readonly Group[] = [], action: GroupsAction): readonly Group[] {

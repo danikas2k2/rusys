@@ -1,9 +1,9 @@
 import { Avatar } from '@mantine/core';
-import type { UserProfile } from '@rusys/common/data';
 import React from 'react';
 
 import { AnonymousUserIcon, DevUserIcon } from '@icons';
 
+import type { UserProfile } from '~/common/data';
 import { gravatarUrl } from '~/lib/utils/gravatar';
 import { DEV_MODE_EMAIL } from '~/store/profile/dev';
 

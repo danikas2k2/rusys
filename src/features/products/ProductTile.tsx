@@ -1,17 +1,12 @@
 import { ActionIcon, Checkbox, Group } from '@mantine/core';
-import type {
-    Product,
-    ProductAmounts as ProductAmountsType,
-    RemovingYearAmounts,
-    VariantAmount,
-} from '@rusys/common/data';
-import { getCombinedAmounts } from '@rusys/common/utils/amounts';
-import { getExpiryStatus, getWorstExpiryStatus } from '@rusys/common/utils/expiry';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 
 import { CollapseIcon, ExpandIcon, RecycledIcon } from '@icons';
 
+import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts, VariantAmount } from '~/common/data';
+import { getCombinedAmounts } from '~/common/utils/amounts';
+import { getExpiryStatus, getWorstExpiryStatus } from '~/common/utils/expiry';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { GridTile } from '~/components/common/GridTile';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';

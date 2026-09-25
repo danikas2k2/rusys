@@ -1,6 +1,6 @@
-import type { Variant } from '@rusys/common/data';
 import { useMemo } from 'react';
 
+import type { Variant } from '~/common/data';
 import { useVariants } from '~/store/variants/useVariants';
 
 export function useSortedVariants() {

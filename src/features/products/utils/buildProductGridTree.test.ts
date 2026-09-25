@@ -1,5 +1,4 @@
-import type { Product } from '@rusys/common/data';
-
+import type { Product } from '~/common/data';
 import { buildProductGridTree } from '~/features/products/utils/buildProductGridTree';
 
 describe('buildProductGridTree', () => {

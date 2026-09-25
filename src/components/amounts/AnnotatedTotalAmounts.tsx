@@ -1,14 +1,14 @@
 import { Text } from '@mantine/core';
-import type { Variant, VariantAmount } from '@rusys/common/data';
+import React from 'react';
+
+import type { Variant, VariantAmount } from '~/common/data';
 import {
     formatVolume,
     formatWeight,
     getAmountTotalsDetailed,
     type AmountTotalWithSources,
-} from '@rusys/common/utils/amounts';
-import { orderedExpiryBuckets, partitionByExpiryStatus, type ExpiryStatus } from '@rusys/common/utils/expiry';
-import React from 'react';
-
+} from '~/common/utils/amounts';
+import { orderedExpiryBuckets, partitionByExpiryStatus, type ExpiryStatus } from '~/common/utils/expiry';
 import { ExpiryStatusRow } from '~/components/amounts/ExpiryStatusRow';
 import { VariantValueSpans } from '~/components/amounts/VariantValueSpans';
 import { useVariantsByGroup } from '~/store/variants/useVariantsByGroup';

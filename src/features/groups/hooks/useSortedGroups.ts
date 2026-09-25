@@ -1,6 +1,6 @@
-import type { Group } from '@rusys/common/data';
 import { useMemo } from 'react';
 
+import type { Group } from '~/common/data';
 import { useGroups } from '~/store/groups/useGroups';
 
 export function useSortedGroups() {

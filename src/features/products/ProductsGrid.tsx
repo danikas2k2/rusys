@@ -1,7 +1,7 @@
 import { Collapse, SimpleGrid } from '@mantine/core';
-import type { Product } from '@rusys/common/data';
 import React, { useCallback, useMemo, useState } from 'react';
 
+import type { Product } from '~/common/data';
 import { LoadableContent } from '~/components/common/LoadableContent';
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';

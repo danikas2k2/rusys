@@ -1,5 +1,4 @@
-import type { History } from '@rusys/common/data';
-
+import type { History } from '~/common/data';
 import { HistoryActionType, type HistoryAction } from '~/store/history/actions';
 import { updates as reducer, undates as undatesReducer } from '~/store/history/reducer';
 
