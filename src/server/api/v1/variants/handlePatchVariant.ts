@@ -27,18 +27,18 @@ export async function handlePatchVariant(req: ApiRequest, res: ApiResponse): Pro
         return;
     }
     const current = (await getVariants()).find((item) => item.group === group && item.variant === variant);
-    if (!current) {
+    const renamed = typeof name === 'string' && name !== variant;
+    if (!current && renamed) {
         sendError(res, 404, 'NOT_FOUND', 'Variant not found');
         return;
     }
     const update = {
-        order: typeof order === 'number' ? order : current.order,
-        suffix: typeof suffix === 'string' ? suffix : current.suffix,
-        count: typeof count === 'number' ? count : current.count,
-        units: isVariantUnits(units) ? units : current.units,
+        order: typeof order === 'number' ? order : current?.order,
+        suffix: typeof suffix === 'string' ? suffix : current?.suffix,
+        count: typeof count === 'number' ? count : current?.count,
+        units: isVariantUnits(units) ? units : current?.units,
     };
     try {
-        const renamed = typeof name === 'string' && name !== variant;
         if (renamed && !(await renameVariantOccurrences(group, variant, name, update))) {
             sendError(res, 409, 'CONFLICT', 'The variant could not be renamed');
             return;

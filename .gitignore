@@ -7,6 +7,9 @@
 
 # testing
 /coverage
+/playwright-report
+/test-results
+/e2e/setup/.runtime.json
 
 # production
 /certs
@@ -27,3 +30,4 @@ yarn-error.log*
 
 *.*_
 /.next/
+/.next-e2e/

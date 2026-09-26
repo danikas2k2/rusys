@@ -19,6 +19,7 @@ export default [
             'docker/**',
             'node_modules/**',
             '.next/**',
+            '.next-e2e/**',
             'next-env.d.ts',
             'vitest/**',
             'eslint.config.ts',

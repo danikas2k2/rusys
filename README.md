@@ -13,6 +13,16 @@ paleisti visą patikrą:
 pnpm check
 ```
 
+Naršyklės navigacijos testai paleidžiami su atskira laikina MongoDB ir testiniais duomenimis:
+
+```sh
+pnpm exec playwright install chromium
+pnpm test:e2e
+```
+
+Greitam svarbiausių grandinių patikrinimui naudok `pnpm test:e2e:critical`. Jei nori matyti veiksmus naršyklėje, naudok `pnpm test:e2e:headed`. `pnpm test:e2e:ui`
+atidaro interaktyvią Playwright sąsają, kurioje testus reikia paleisti paspaudus „Run“.
+
 ## Kodo struktūra
 
 - `src/app` — Next.js maršrutai, šakninis išdėstymas ir `route.ts` API įėjimo taškai.

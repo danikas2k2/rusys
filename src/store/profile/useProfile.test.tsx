@@ -45,7 +45,7 @@ describe('useProfile', () => {
         });
 
         expect(result.current).toStrictEqual(value);
-        expect(getItem).not.toHaveBeenCalled();
+        expect(getItem).toHaveBeenCalledWith('profile');
         expect(setProfile).not.toHaveBeenCalled();
     });
 
