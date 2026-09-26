@@ -29,6 +29,7 @@
         "assets:metadata": "tsx scripts/generate-pwa-assets.ts && prettier --write public/manifest.json src/app/pwa-assets.json",
         "assets:compress": "tsx scripts/optimize-pwa-assets.ts",
         "check": "pnpm lint && pnpm test",
+        "check:all": "pnpm check && pnpm test:coverage && pnpm test:e2e",
         "lint": "pnpm format:check && pnpm lint:ts && pnpm lint:es && pnpm lint:styles",
         "lint:ts": "tsc --noEmit",
         "lint:es": "eslint",
