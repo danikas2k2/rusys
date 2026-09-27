@@ -30,7 +30,7 @@ jobs:
         run: pnpm build
 
       - name: Check workspace
-        run: pnpm check
+        run: pnpm lint && pnpm test:coverage
 
   e2e:
     runs-on: ubuntu-latest

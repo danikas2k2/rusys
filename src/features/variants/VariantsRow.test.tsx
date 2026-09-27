@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
 import { Table } from '@mantine/core';
@@ -175,6 +175,24 @@ describe('<VariantsRow>', () => {
         renderRow({ variant, reordering: false });
 
         screen.getByRole('row').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+        expect(setActive).toHaveBeenCalledWith({ action: 'update', data: variant });
+    });
+
+    it('ignores a drag handle and unrelated keys but opens with Space', () => {
+        const variant = { group: 'Uogienės', variant: 'p', order: 0 };
+        renderRow({ variant, reordering: false });
+        const row = screen.getByRole('row');
+        const handle = document.createElement('button');
+        handle.dataset.dragHandle = '';
+        row.append(handle);
+
+        fireEvent.click(handle);
+        fireEvent.keyDown(row, { key: 'Escape' });
+
+        expect(setActive).not.toHaveBeenCalled();
+
+        fireEvent.keyDown(row, { key: ' ' });
 
         expect(setActive).toHaveBeenCalledWith({ action: 'update', data: variant });
     });

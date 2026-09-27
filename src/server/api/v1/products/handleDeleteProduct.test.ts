@@ -1,13 +1,35 @@
-// @vitest-environment node
+import { NextRequest } from 'next/server';
+
+import { runApiHandler } from '~/server/api/next';
 import { handleDeleteProduct } from '~/server/api/v1/products/handleDeleteProduct';
-import { mockResponse } from '~/server/data/tests/handleResponse';
+import { deleteProduct } from '~/server/data/products';
+
+vi.mock(import('~/server/data/products'), () => ({ deleteProduct: vi.fn() }));
+
+async function remove(name = 'Avietės') {
+    const request = new NextRequest('http://localhost/api/v1/products', { method: 'DELETE' });
+    return runApiHandler(request, handleDeleteProduct, { group: 'Uogienės', name });
+}
 
 describe('handleDeleteProduct', () => {
-    it('handles its request', async () => {
-        const response = mockResponse();
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.mocked(deleteProduct).mockResolvedValue(true);
+    });
 
-        await handleDeleteProduct({ params: { group: 'A' } } as any, response as any);
+    it('requires a product name', async () => {
+        expect((await remove('')).status).toBe(400);
+        expect(deleteProduct).not.toHaveBeenCalled();
+    });
 
-        expect(response.status).toHaveBeenCalledWith(400);
+    it('archives the selected product', async () => {
+        expect((await remove()).status).toBe(204);
+        expect(deleteProduct).toHaveBeenCalledWith('Uogienės', 'Avietės');
+    });
+
+    it('reports a product that could not be archived', async () => {
+        vi.mocked(deleteProduct).mockResolvedValueOnce(false);
+
+        expect((await remove()).status).toBe(422);
     });
 });

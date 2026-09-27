@@ -2,7 +2,13 @@
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 
 import { getGroups } from '~/server/data/groups';
-import { getFullSummary, getSummary, getSummaryUndates, getSummaryUpdates } from '~/server/data/summary';
+import {
+    getFullSummary,
+    getSummary,
+    getSummaryUndates,
+    getSummaryUpdates,
+    rollUpSummaries,
+} from '~/server/data/summary';
 import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
@@ -26,6 +32,18 @@ describe('updates', () => {
         await d.collection('groups').deleteMany({});
         await d.collection('variants').deleteMany({});
         vi.clearAllMocks();
+    });
+
+    it('rolls up incomplete legacy summaries without losing their product row', () => {
+        const result = rollUpSummaries(
+            [
+                { group: 'Daržovės', name: 'Tėvas' },
+                { group: 'Daržovės', name: 'Vaikas', years: [{ year: 23, amounts: [] }] },
+            ],
+            new Map([['Daržovės/Vaikas', 'Tėvas']])
+        );
+
+        expect(result).toStrictEqual([{ group: 'Daržovės', name: 'Tėvas', years: [{ year: 23, amounts: [] }] }]);
     });
 
     describe('getSummary', () => {
@@ -164,6 +182,24 @@ describe('updates', () => {
         beforeEach(() => {
             vi.mocked(getGroups).mockResolvedValue(groups);
             vi.mocked(getVariants).mockResolvedValue(variants);
+        });
+
+        it('preserves a product image and photo in the summary', async () => {
+            await (
+                await db()
+            )
+                .collection('products')
+                .updateOne(
+                    { group: 'Uogienės', name: 'Avietės' },
+                    { $set: { image: '/images/icon.png', photo: '/images/photo.webp' } }
+                );
+
+            const result = await getFullSummary();
+
+            expect(result.summary.find((item) => item.name === 'Avietės')).toMatchObject({
+                image: '/images/icon.png',
+                photo: '/images/photo.webp',
+            });
         });
 
         it('returns summary', async () => {

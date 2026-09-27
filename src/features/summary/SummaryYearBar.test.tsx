@@ -84,4 +84,36 @@ describe('<SummaryYearBar>', () => {
             data: { group: 'Uogienės', name: 'Avietės', year: 22, amounts: [{ variant: 'p', amount: 3 }] },
         });
     });
+
+    it('uses an empty total if a cached summary year has no amounts', () => {
+        const setActive = vi.fn();
+        vi.mocked(useSummary).mockReturnValue([
+            {
+                group: 'Uogienės',
+                name: 'Avietės',
+                years: [
+                    { year: 23, amounts: [{ variant: 'p', amount: 5 }] },
+                    { year: 22, amounts: undefined as never },
+                ],
+            },
+        ]);
+        render(
+            <MockThemeActive
+                active={{
+                    action: 'history',
+                    data: { group: 'Uogienės', name: 'Avietės', year: 23, amounts: [{ variant: 'p', amount: 5 }] },
+                }}
+                setActive={setActive}
+            >
+                <SummaryYearBar />
+            </MockThemeActive>
+        );
+
+        fireEvent.click(screen.getByLabelText('22/23'));
+
+        expect(setActive).toHaveBeenCalledWith({
+            action: 'history',
+            data: { group: 'Uogienės', name: 'Avietės', year: 22, amounts: [] },
+        });
+    });
 });

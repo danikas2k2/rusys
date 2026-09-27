@@ -56,6 +56,17 @@ describe('<AmountHistoryTab>', () => {
         expect(screen.queryAllByRole('row')).toHaveLength(1); // only thead
     });
 
+    it('shows an empty history table when no product is active', () => {
+        render(
+            <MockThemeActive active={undefined}>
+                <AmountHistoryTab />
+            </MockThemeActive>
+        );
+
+        expect(screen.getByRole('table')).toBeInTheDocument();
+        expect(screen.queryAllByRole('row')).toHaveLength(1);
+    });
+
     it('loads the active product year in the background', () => {
         const loader = vi.fn().mockResolvedValue(undefined);
         vi.mocked(useGetProductHistory).mockReturnValue(loader);

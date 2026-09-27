@@ -17,7 +17,9 @@ vi.mock(import('~/features/products/AmountVariantsTab'), () => ({
 }));
 
 vi.mock(import('~/features/products/ProductYearBar'), () => ({
-    ProductYearBar: vi.fn().mockReturnValue(null),
+    ProductYearBar: vi.fn(({ onHistoryYearChange }: { onHistoryYearChange: () => void }) => (
+        <button onClick={onHistoryYearChange}>Show selected year history</button>
+    )),
 }));
 
 describe('<AmountBox>', () => {
@@ -89,6 +91,31 @@ describe('<AmountBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('offers the edit action when an edit handler is supplied', async () => {
+        const onEdit = vi.fn();
+        render(
+            <MockTheme>
+                <AmountBox opened onEdit={onEdit} />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Edit' }));
+
+        expect(onEdit).toHaveBeenCalledExactlyOnceWith();
+    });
+
+    it('opens the history tab when the year bar requests it', async () => {
+        render(
+            <MockTheme>
+                <AmountBox opened />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Show selected year history' }));
+
+        expect(screen.getByRole('tab', { name: 'History' })).toHaveAttribute('aria-selected', 'true');
     });
 
     it('closes only the photo viewer when Escape is pressed over it', async () => {

@@ -57,7 +57,10 @@ export default defineConfig({
                     environment: 'jsdom',
                     pool: 'threads',
                     root,
-                    include: ['src/{components,features,lib,store}/**/*.test.{ts,tsx}'],
+                    include: [
+                        'src/{app,components,features,lib,store}/**/*.test.tsx',
+                        'src/{components,features,lib,store}/**/*.test.ts',
+                    ],
                     setupFiles: [
                         '@testing-library/jest-dom/vitest',
                         ...sharedSetup,
@@ -93,7 +96,11 @@ export default defineConfig({
                     environment: 'node',
                     pool: 'threads',
                     root,
-                    include: ['src/server/**/*.test.{ts,tsx}'],
+                    include: [
+                        'src/server/**/*.test.{ts,tsx}',
+                        'src/app/api/**/*.test.ts',
+                        'src/app/images/**/*.test.ts',
+                    ],
                     setupFiles: [...sharedSetup],
                     globalSetup: [path.resolve(root, 'vitest/globalSetup.mongo.ts')],
                 },
@@ -117,10 +124,23 @@ export default defineConfig({
             ],
             reporter: ['text', 'json', 'lcov', 'html'],
             thresholds: {
+                perFile: true,
                 branches: 85,
                 functions: 85,
                 lines: 85,
                 statements: 85,
+                'src/server/api/**': {
+                    branches: 85,
+                    functions: 85,
+                    lines: 85,
+                    statements: 85,
+                },
+                'src/server/data/**': {
+                    branches: 90,
+                    functions: 90,
+                    lines: 90,
+                    statements: 90,
+                },
             },
         },
     },

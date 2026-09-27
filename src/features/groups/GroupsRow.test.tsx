@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MockTheme } from '@tests/MockTheme';
 
 import { Table } from '@mantine/core';
@@ -258,6 +258,31 @@ describe('<GroupsRow>', () => {
         );
 
         screen.getByRole('row').click();
+
+        expect(setActive).toHaveBeenCalledWith({ action: 'update', data: group });
+    });
+
+    it('ignores clicks on the drag handle and unrelated keys', () => {
+        const group = { group: 'Uogienės', order: 0 };
+        render(
+            <MockTheme>
+                <Table>
+                    <Table.Tbody>
+                        <GroupsRow group={group} reordering={false} />
+                    </Table.Tbody>
+                </Table>
+            </MockTheme>
+        );
+        const handle = document.createElement('button');
+        handle.dataset.dragHandle = '';
+        screen.getByRole('row').append(handle);
+
+        fireEvent.click(handle);
+        fireEvent.keyDown(screen.getByRole('row'), { key: 'Escape' });
+
+        expect(setActive).not.toHaveBeenCalled();
+
+        fireEvent.keyDown(screen.getByRole('row'), { key: ' ' });
 
         expect(setActive).toHaveBeenCalledWith({ action: 'update', data: group });
     });

@@ -1,13 +1,43 @@
-// @vitest-environment node
+import { NextRequest } from 'next/server';
+
+import { runApiHandler } from '~/server/api/next';
 import { handleSetProductYear } from '~/server/api/v1/products/handleSetProductYear';
-import { mockResponse } from '~/server/data/tests/handleResponse';
+import { setRemoving } from '~/server/data/products';
+
+vi.mock(import('~/server/data/products'), () => ({ setRemoving: vi.fn() }));
+
+async function put(body: unknown, year = '26') {
+    const request = new NextRequest('http://localhost/api/v1/years', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+    });
+    return runApiHandler(request, handleSetProductYear, { group: 'Uogienės', name: 'Avietės', year });
+}
 
 describe('handleSetProductYear', () => {
-    it('handles its request', async () => {
-        const response = mockResponse();
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.mocked(setRemoving).mockResolvedValue(true);
+    });
 
-        await handleSetProductYear({ params: {}, body: {} } as any, response as any);
+    it('requires a valid year and a boolean removing flag', async () => {
+        expect((await put({ removing: true }, 'bad')).status).toBe(400);
+        expect((await put({ removing: 'yes' })).status).toBe(400);
+        expect(setRemoving).not.toHaveBeenCalled();
+    });
 
-        expect(response.status).toHaveBeenCalledWith(400);
+    it('sets and clears the year removal marker', async () => {
+        expect((await put({ removing: true })).status).toBe(204);
+        expect(setRemoving).toHaveBeenCalledWith('Uogienės', 'Avietės', 26, true);
+
+        expect((await put({ removing: false })).status).toBe(204);
+        expect(setRemoving).toHaveBeenLastCalledWith('Uogienės', 'Avietės', 26, false);
+    });
+
+    it('reports a rejected year update', async () => {
+        vi.mocked(setRemoving).mockResolvedValueOnce(false);
+
+        expect((await put({ removing: true })).status).toBe(422);
     });
 });

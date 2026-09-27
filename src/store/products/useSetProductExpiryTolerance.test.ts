@@ -26,4 +26,12 @@ describe('useSetProductExpiryTolerance', () => {
             'PATCH'
         );
     });
+
+    it('ignores an incomplete product identity', async () => {
+        const { result } = renderHook(() => useSetProductExpiryTolerance(), { wrapper: MockRedux });
+        await result.current('', 'Agurkai', 365);
+        await result.current('Daržovės', '', 365);
+
+        expect(request).not.toHaveBeenCalled();
+    });
 });

@@ -11,6 +11,7 @@ import {
     deleteProductsGroup,
     deleteProductsVariant,
     getProducts,
+    getProductsWithYears,
     getProductUndates,
     getProductUpdates,
     getProductVariants,
@@ -58,6 +59,19 @@ describe('products', () => {
     });
 
     describe('getProducts', () => {
+        it('includes product years beyond the default year window', async () => {
+            await (await db()).collection('products').insertOne({
+                group: 'Daržovės',
+                name: 'Burokėliai',
+                years: [{ year: 25, amounts: [] }],
+            });
+
+            const result = await getProductsWithYears();
+
+            expect(result.products).toContainEqual(expect.objectContaining({ name: 'Burokėliai' }));
+            expect(result.years).toStrictEqual([25, 23, 22, 21]);
+        });
+
         it('returns expiry tolerance days', async () => {
             await (
                 await db()
