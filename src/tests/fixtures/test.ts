@@ -30,7 +30,7 @@ async function getRuntime(): Promise<Runtime> {
     return runtime;
 }
 
-export const test = base.extend<{ scenario: Scenario; db: Db; _seed: void }>({
+export const test = base.extend<{ scenario: Scenario; db: Db; imagesDir: string; _seed: void }>({
     scenario: ['basic', { option: true }],
     db: async ({}, run) => {
         const runtime = await getRuntime();
@@ -41,9 +41,11 @@ export const test = base.extend<{ scenario: Scenario; db: Db; _seed: void }>({
             await client.close();
         }
     },
+    imagesDir: async ({}, run) => {
+        await run((await getRuntime()).imagesDir);
+    },
     _seed: [
-        async ({ db, scenario }, run) => {
-            const { imagesDir } = await getRuntime();
+        async ({ db, imagesDir, scenario }, run) => {
             for (const name of await readdir(imagesDir)) {
                 await rm(path.join(imagesDir, name), { recursive: true, force: true });
             }

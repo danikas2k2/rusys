@@ -45,6 +45,40 @@ test.describe('categories', () => {
         expect(await db.collection<Variant>('variants').countDocuments({ group: 'Uogų uogienės' })).toBe(2);
     });
 
+    test('keeps an edited category after a failed save and succeeds on retry', async ({ page, db }) => {
+        await page.goto('/categories');
+        await page.getByRole('row', { name: /Uogienės/ }).click();
+        const dialog = page.getByRole('dialog', { name: 'Taisyti kategoriją' });
+        const name = dialog.getByRole('textbox', { name: 'Kategorija' });
+        await name.fill('Uogų uogienės');
+
+        let fail = true;
+        await page.route('**/api/v1/groups/**', async (route) => {
+            if (route.request().method() === 'PATCH' && fail) {
+                fail = false;
+                await route.fulfill({
+                    status: 503,
+                    contentType: 'application/json',
+                    body: '{"error":"temporarily unavailable"}',
+                });
+            } else {
+                await route.continue();
+            }
+        });
+
+        await dialog.getByRole('button', { name: 'Naujinti' }).click();
+        await expect(dialog).toBeVisible();
+        await expect(name).toHaveValue('Uogų uogienės');
+        expect(await db.collection<Group>('groups').countDocuments({ group: 'Uogienės' })).toBe(1);
+        expect(await db.collection<Group>('groups').countDocuments({ group: 'Uogų uogienės' })).toBe(0);
+
+        await dialog.getByRole('button', { name: 'Naujinti' }).click();
+        await expect(dialog).toHaveCount(0);
+        await page.reload();
+        await expect(page.getByRole('row', { name: /Uogų uogienės/ })).toBeVisible();
+        expect(await db.collection<Group>('groups').countDocuments({ group: 'Uogų uogienės' })).toBe(1);
+    });
+
     test('requires confirmation before archiving a category', async ({ page, db }) => {
         await page.goto('/categories');
         await page.getByRole('row', { name: /Daržovės/ }).click();

@@ -4,7 +4,7 @@
 
 Playwright saugo svarbiausias naudotojo grandines per naršyklę, Next API ir MongoDB, kad būtų saugiau refaktorizuoti sąsają bei duomenų srautus. Tai nėra kiekvienos kodo eilutės padengimas: skaičiavimų, validavimo ir retų duomenų operacijų detalės lieka Vitest testuose.
 
-**Būsena:** 64 Playwright testai (`pnpm test:e2e`), iš jų 19 vizualinių (`pnpm test:visual`) ir 6 pažymėti `@critical` (`pnpm test:e2e:critical`). CI paleidžia visą Chromium E2E rinkinį. Toliau pateikti punktai skiria išbandytus scenarijus nuo dar nepadengtų šakų.
+**Būsena:** funkciniai Playwright testai vykdomi per `pnpm test:e2e:functional`, vaizdiniai — per `pnpm test:visual`, o 6 kritiniai scenarijai pažymėti `@critical`. CI paleidžia funkcinį Chromium ir vaizdinį Chromium bei WebKit rinkinius. Toliau pateikti punktai skiria išbandytus scenarijus nuo dar nepadengtų šakų.
 
 ## Testų pagrindas — padaryta
 
@@ -42,9 +42,11 @@ Kritinis šešių testų rinkinys apima kategorijos, varianto ir produkto sukūr
 
 - [x] Kategorijos paveikslėlio įkėlimas bei šalinimas; produkto ir varianto paveikslėlių įkėlimas, varianto paveikslėlio šalinimas; neleistino formato atmetimas.
 - [x] ZIP eksportas su `data.json`, importas į išvalytą **laikiną** DB, netinkamas ZIP, netinkama schema ir importo atšaukimas nekeičiant duomenų.
+- [x] Produkto paveikslėlio įkėlimas, `images/` įrašo patikra ZIP archyve ir paveikslėlio atkūrimas iš archyvo po jo pašalinimo iš laikino failų katalogo.
 - [x] `LoadableContent` API klaida ir sėkmingas pakartotinis bandymas po jos.
-- [ ] Patikrinti produkto paveikslėlio šalinimą, didelės nuotraukos miniatiūrą bei pilną peržiūrą ir fizinio failo išvalymą. Eksporto ZIP patikrinti ir `images/` įrašus, tada atkurti paveikslėlį importu.
-- [ ] Patikrinti per didelio failo klaidą, failo įkėlimo API nesėkmę ir pakartotinį bandymą, taip pat vieną mutacijos API klaidos bei lėto atsakymo UI scenarijų. Įprasti CRUD testai ir toliau turi naudoti tikrą API, o klaidų scenarijai — Playwright tinklo maršrutizavimą.
+- [x] Kategorijos redagavimo API klaida išsaugo juodraštį ir nekeičia DB; pakartotinis bandymas pavyksta ir išlieka po perkrovimo.
+- [ ] Patikrinti produkto paveikslėlio šalinimą, didelės nuotraukos miniatiūrą bei pilną peržiūrą ir fizinio failo išvalymą.
+- [ ] Patikrinti per didelio failo klaidą, failo įkėlimo API nesėkmę ir pakartotinį bandymą bei lėto atsakymo UI scenarijų. Įprasti CRUD testai ir toliau turi naudoti tikrą API, o klaidų scenarijai — Playwright tinklo maršrutizavimą.
 - [ ] Pridėti atskirą valdomą prisijungimo bei leidimų režimą su deterministine testine tapatybe arba OAuth atsakymų pakaitalu. `next dev` autentifikaciją apeina, todėl dabartiniai E2E testai **nepatikrina produkcinio prisijungimo**.
 
 ## Paleidimas ir refaktoringo vartai
@@ -52,7 +54,8 @@ Kritinis šešių testų rinkinys apima kategorijos, varianto ir produkto sukūr
 - [x] `pnpm test:e2e:critical` skirtas greitam patikrinimui; `pnpm test:e2e` vykdo visą rinkinį, įskaitant mobilų Chromium projektą. Testai nepriklauso nuo eilės ir nenaudoja fiksuotų `sleep`.
 - [x] `src/**/*.snap.ts` lygina puslapių, kortelių, lentelių, meniu, dialogų, nuotraukų, metinių likučių ir įvesties būsenų ekrano vaizdus. Darbalaukio ir mobilieji scenarijai sugrupuoti tame pačiame atitinkamos srities faile. Etalonai laikomi tos pačios srities `.snapshots/<komponentas>/` kataloge; `pnpm test:visual:update` juos atnaujina. Prieš priimant pakeistas nuotraukas, reikia jas vizualiai peržiūrėti.
 - [x] `.github/workflows/ci.yml` funkcinius testus paleidžia atskirame Node 26 Linux darbe (`pnpm test:e2e:functional`), o vizualinius — `xcode-27` macOS 27 arm64 darbe, kad sutaptų su etalonų aplinka. Kiekvienam vaizdui saugomas vienas `-chromium.png` etalonas. Nesėkmės atveju CI išsaugo Playwright artefaktus.
-- [ ] Prireikus naršyklių suderinamumo, pridėti tikslinius WebKit mobilius ir Firefox kritinius scenarijus. Viso rinkinio kiekvienoje naršyklėje dubliuoti nereikia.
+- [x] Pagrindiniams puslapiams ir dialogams pridėti iPhone 17 bei iPad mini WebKit vaizdiniai scenarijai.
+- [ ] Prireikus naršyklių suderinamumo, pridėti tikslinius Firefox kritinius scenarijus. Viso rinkinio kiekvienoje naršyklėje dubliuoti nereikia.
 - [ ] Refaktorizuojant dar nepadengtą modulį, pridėti bent vieną teigiamą naudotojo scenarijų, svarbią atšaukimo arba klaidos šaką ir patikrinimą po perkrovimo, jei keičiasi saugomi duomenys.
 
 `pnpm test:visual:update` atnaujina vienintelius etalonus. Juos generuoti ir lyginti `macOS 27` arm64 aplinkoje, kaip CI `xcode-27` darbe; skirtingų OS naršyklių vaizdai gali skirtis.
