@@ -107,6 +107,8 @@ export default defineConfig({
             exclude: [
                 'src/**/*.d.ts',
                 'src/**/*.test.{ts,tsx}',
+                'src/**/*.spec.ts',
+                'src/**/*.snap.ts',
                 'src/**/__mocks__/**',
                 'src/tests/**',
                 'src/**/types.ts',

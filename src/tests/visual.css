@@ -1,0 +1,4 @@
+/* Next.js development controls are outside the application being compared. */
+nextjs-portal {
+    visibility: hidden !important;
+}

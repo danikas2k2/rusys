@@ -406,7 +406,7 @@ describe('<SwipeableRow>', () => {
     });
 
     describe('pointer events', () => {
-        // Note: No beforeAll/afterAll setup needed - PointerEvent should be available by default
+        // Note: No beforeAll/afterAll playwright needed - PointerEvent should be available by default
 
         it('handles pointerdown event', async () => {
             render(
