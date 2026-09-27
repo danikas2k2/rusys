@@ -52,7 +52,7 @@ Kritinis šešių testų rinkinys apima kategorijos, varianto ir produkto sukūr
 ## Paleidimas ir refaktoringo vartai
 
 - [x] `pnpm test:e2e:critical` skirtas greitam patikrinimui; `pnpm test:e2e` vykdo visą rinkinį, įskaitant mobilų Chromium projektą. Testai nepriklauso nuo eilės ir nenaudoja fiksuotų `sleep`.
-- [x] `src/**/*.snap.ts` lygina puslapių, kortelių, lentelių, meniu, dialogų, nuotraukų, metinių likučių ir įvesties būsenų ekrano vaizdus. Darbalaukio ir mobilieji scenarijai sugrupuoti tame pačiame atitinkamos srities faile. Etalonai laikomi tos pačios srities `.snapshots/<komponentas>/` kataloge; `pnpm test:visual:update` juos atnaujina. Prieš priimant pakeistas nuotraukas, reikia jas vizualiai peržiūrėti.
+- [x] `src/**/*.snap.ts` lygina puslapių, kortelių, lentelių, meniu, dialogų, nuotraukų, metinių likučių ir įvesties būsenų ekrano vaizdus visuose penkiuose įrenginių projektuose su šviesia ir tamsia temomis. Testai laikomi šalia savo komponenčių, o etalonai – tos pačios srities `__snapshots__/<komponentas>/` kataloge. `pnpm test:visual` lygina vaizdus su etalonais; `pnpm test:visual:update` juos atnaujina. Prieš priimant pakeistas nuotraukas, reikia jas vizualiai peržiūrėti.
 - [x] `.github/workflows/ci.yml` funkcinius testus paleidžia atskirame Node 26 Linux darbe (`pnpm test:e2e:functional`), o vizualinius — `xcode-27` macOS 27 arm64 darbe, kad sutaptų su etalonų aplinka. Kiekvienam vaizdui saugomas vienas `-chromium.png` etalonas. Nesėkmės atveju CI išsaugo Playwright artefaktus.
 - [x] Pagrindiniams puslapiams ir dialogams pridėti iPhone 17 bei iPad mini WebKit vaizdiniai scenarijai.
 - [ ] Prireikus naršyklių suderinamumo, pridėti tikslinius Firefox kritinius scenarijus. Viso rinkinio kiekvienoje naršyklėje dubliuoti nereikia.

@@ -81,7 +81,7 @@ export function ImageDropzone({
     const errorIconSize = compact ? 16 : 18;
 
     return (
-        <Stack gap={compact ? 4 : undefined}>
+        <Stack gap={compact ? 4 : undefined} data-testid="image-dropzone">
             <Box pos="relative">
                 <Dropzone
                     onDrop={handleDrop}

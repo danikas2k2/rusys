@@ -10,3 +10,11 @@ export async function openProduct(page: Page, name: string) {
     await productTile(page, name).click();
     return page.getByRole('dialog', { name: new RegExp(`${name} Uogienės`) });
 }
+
+export async function openSummaryHistory(page: Page) {
+    await page.goto('/summary');
+    const tile = page.locator('[data-summary-tile]').filter({ hasText: 'Avietės' });
+    await tile.click();
+    const history = page.getByRole('dialog').last();
+    return history;
+}
