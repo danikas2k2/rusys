@@ -48,7 +48,12 @@ pnpm assets
 
 ## Diegimo grąžinimas
 
-Kiekvienas `pnpm deploy` prieš įkeldamas naujus failus serveryje išsaugo šiuo metu veikiančią versiją į `.deploy-backup` (arba `BACKUP_PATH`). Pirmas monorepo deploy taip pat išsaugo ankstesnę vieno containerio struktūrą. Jei diegimą reikia atšaukti, vykdykite:
+`pnpm deploy` patikrina projektą ir į serverį tiesiai iš projekto įkelia tik
+„Docker“ build reikalingus šaltinio failus. „Docker“ konteineryje įdiegiamos
+priklausomybės ir sugeneruojamas produkcinis Next.js `standalone`, todėl vietiniai
+`node_modules` ir `.next` į serverį nesiunčiami.
+
+Kiekvienas `pnpm deploy` prieš įkeldamas naujus failus serveryje išsaugo šiuo metu veikiančią versiją į `.backup` (arba `BACKUP_PATH`). Pirmas monorepo deploy taip pat išsaugo ankstesnę vieno containerio struktūrą. Jei diegimą reikia atšaukti, vykdykite:
 
 ```sh
 pnpm deploy:rollback
