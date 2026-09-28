@@ -7,11 +7,13 @@ pnpm dev
 ```
 
 Programa veikia adresu `http://localhost:3021`. Prieš siūlant pakeitimą verta
-paleisti visą patikrą:
+paleisti kodo stiliaus ir vienetinių testų patikrą:
 
 ```sh
 pnpm check
 ```
+
+Visą patikrą, įskaitant padengimą ir naršyklės testus, paleidžia `pnpm check:all`.
 
 Naršyklės navigacijos testai paleidžiami su atskira laikina MongoDB ir testiniais duomenimis:
 
@@ -22,6 +24,8 @@ pnpm test:e2e
 
 Greitam svarbiausių grandinių patikrinimui naudok `pnpm test:e2e:critical`. Jei nori matyti veiksmus naršyklėje, naudok `pnpm test:e2e:headed`. `pnpm test:e2e:ui`
 atidaro interaktyvią Playwright sąsają, kurioje testus reikia paleisti paspaudus „Run“.
+
+Visos `test:e2e` komandos vykdo tik `*.spec.ts` testus. Vaizdinius `*.snap.ts` testus paleidžia `pnpm test:visual`, o etalonus atnaujina `pnpm test:visual:update`.
 
 ## Kodo struktūra
 

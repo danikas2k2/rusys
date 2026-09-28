@@ -65,7 +65,7 @@ export function AmountBox({
                 <Stack className="amount-box-content" gap="sm">
                     <Group wrap="nowrap" gap="xs" align="flex-start">
                         {onEdit && (
-                            <ActionIcon variant="subtle" color="gray" onClick={onEdit} aria-label={_('Edit')}>
+                            <ActionIcon variant="subtle" color="gray" onClick={() => onEdit()} aria-label={_('Edit')}>
                                 <EditIcon size={18} />
                             </ActionIcon>
                         )}

@@ -4,7 +4,7 @@
 
 Playwright saugo svarbiausias naudotojo grandines per naršyklę, Next API ir MongoDB, kad būtų saugiau refaktorizuoti sąsają bei duomenų srautus. Tai nėra kiekvienos kodo eilutės padengimas: skaičiavimų, validavimo ir retų duomenų operacijų detalės lieka Vitest testuose.
 
-**Būsena:** funkciniai Playwright testai vykdomi per `pnpm test:e2e:functional`, vaizdiniai — per `pnpm test:visual`, o 6 kritiniai scenarijai pažymėti `@critical`. CI paleidžia funkcinį Chromium ir vaizdinį Chromium bei WebKit rinkinius. Toliau pateikti punktai skiria išbandytus scenarijus nuo dar nepadengtų šakų.
+**Būsena:** funkciniai Playwright testai vykdomi per `pnpm test:e2e`, vaizdiniai — per `pnpm test:visual`, o 6 kritiniai scenarijai pažymėti `@critical`. CI paleidžia funkcinį Chromium ir vaizdinį Chromium bei WebKit rinkinius. Toliau pateikti punktai skiria išbandytus scenarijus nuo dar nepadengtų šakų.
 
 ## Testų pagrindas — padaryta
 
@@ -51,9 +51,9 @@ Kritinis šešių testų rinkinys apima kategorijos, varianto ir produkto sukūr
 
 ## Paleidimas ir refaktoringo vartai
 
-- [x] `pnpm test:e2e:critical` skirtas greitam patikrinimui; `pnpm test:e2e` vykdo visą rinkinį, įskaitant mobilų Chromium projektą. Testai nepriklauso nuo eilės ir nenaudoja fiksuotų `sleep`.
+- [x] `pnpm test:e2e:critical` skirtas greitam patikrinimui; visos `test:e2e` komandos vykdo tik `*.spec.ts` failus, įskaitant mobilų Chromium projektą. `test:visual` komandos vykdo tik `*.snap.ts`. Testai nepriklauso nuo eilės ir nenaudoja fiksuotų `sleep`.
 - [x] `src/**/*.snap.ts` lygina puslapių, kortelių, lentelių, meniu, dialogų, nuotraukų, metinių likučių ir įvesties būsenų ekrano vaizdus visuose penkiuose įrenginių projektuose su šviesia ir tamsia temomis. Testai laikomi šalia savo komponenčių, o etalonai – tos pačios srities `__snapshots__/<komponentas>/` kataloge. `pnpm test:visual` lygina vaizdus su etalonais; `pnpm test:visual:update` juos atnaujina. Prieš priimant pakeistas nuotraukas, reikia jas vizualiai peržiūrėti.
-- [x] `.github/workflows/ci.yml` funkcinius testus paleidžia atskirame Node 26 Linux darbe (`pnpm test:e2e:functional`), o vizualinius — `xcode-27` macOS 27 arm64 darbe, kad sutaptų su etalonų aplinka. Kiekvienam vaizdui saugomas vienas `-chromium.png` etalonas. Nesėkmės atveju CI išsaugo Playwright artefaktus.
+- [x] `.github/workflows/ci.yml` funkcinius testus paleidžia atskirame Node 26 Linux darbe (`pnpm test:e2e`), o vizualinius — `xcode-27` macOS 27 arm64 darbe, kad sutaptų su etalonų aplinka. Kiekvienam vaizdui saugomi įrenginių ir abiejų temų etalonai. Nesėkmės atveju CI išsaugo Playwright artefaktus.
 - [x] Pagrindiniams puslapiams ir dialogams pridėti iPhone 17 bei iPad mini WebKit vaizdiniai scenarijai.
 - [ ] Prireikus naršyklių suderinamumo, pridėti tikslinius Firefox kritinius scenarijus. Viso rinkinio kiekvienoje naršyklėje dubliuoti nereikia.
 - [ ] Refaktorizuojant dar nepadengtą modulį, pridėti bent vieną teigiamą naudotojo scenarijų, svarbią atšaukimo arba klaidos šaką ir patikrinimą po perkrovimo, jei keičiasi saugomi duomenys.
