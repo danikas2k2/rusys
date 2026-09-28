@@ -74,6 +74,14 @@ select,
     font-size: var(--mantine-font-size-md);
 }
 
+/* Let actions inside input sections use the entire reserved area. */
+.ui-Input-section > .ui-ActionIcon-root[aria-label] {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    pointer-events: auto;
+}
+
 /* Mantine's custom native-calendar select indicator is an SVG data URI whose `currentColor` */
 
 /* resolves to black in dark mode. Let the platform render the indicator instead, so it follows */
