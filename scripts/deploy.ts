@@ -72,6 +72,20 @@ docker=${shellQuote(dockerPath)}
 type Connection = ReturnType<typeof createConnection>;
 type Slot = 'blue' | 'green';
 
+function getDeployExcludes(): string[] {
+    return readFileSync(path.resolve('.dockerignore'), 'utf8')
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line && line !== '*' && !line.startsWith('#') && !line.startsWith('!'))
+        .map((line) => {
+            // These basename patterns have the same meaning in Docker and rsync.
+            if (!line.startsWith('**/') || line.slice(3).includes('/')) {
+                throw new Error(`Unsupported deployment exclusion in .dockerignore: ${line}`);
+            }
+            return `--exclude=${line.slice(3)}`;
+        });
+}
+
 function isRunning(connection: Connection, name: string): boolean {
     return (
         connection.remote(
@@ -162,6 +176,7 @@ export function deploy(config?: DeployConfig) {
             console.log('🚀 Starting blue-green deployment...');
 
             try {
+                const deployExcludes = getDeployExcludes();
                 if (!isRunning(connection, 'rusys-gateway')) {
                     throw new Error('The blue-green gateway is not running.');
                 }
@@ -169,23 +184,25 @@ export function deploy(config?: DeployConfig) {
                 connection.remote('mkdir -p src public scripts/postcss docker\n');
 
                 console.log('📤 Uploading source files for the Docker build...');
+                connection.upload('src/', ['src/'], ['--delete', '--delete-excluded', ...deployExcludes]);
+                connection.upload('public/', ['public/'], ['--delete', '--delete-excluded', ...deployExcludes]);
                 connection.upload(
-                    'src/',
-                    ['src/'],
+                    'scripts/postcss/',
+                    ['scripts/postcss/'],
+                    ['--delete', '--delete-excluded', ...deployExcludes]
+                );
+                connection.upload(
+                    'docker/',
+                    ['docker/'],
                     [
                         '--delete',
                         '--delete-excluded',
-                        '--exclude=*.test.ts',
-                        '--exclude=*.test.tsx',
-                        '--exclude=*.spec.ts',
-                        '--exclude=*.snap.ts',
-                        '--exclude=__mocks__/',
-                        '--exclude=tests/',
+                        '--include=/Dockerfile',
+                        '--include=/compose.yaml',
+                        '--include=/nginx.conf.template',
+                        '--exclude=*',
                     ]
                 );
-                connection.upload('public/', ['public/'], ['--delete']);
-                connection.upload('scripts/postcss/', ['scripts/postcss/'], ['--delete']);
-                connection.upload('docker/', ['docker/'], ['--delete']);
                 connection.upload('', [
                     'package.json',
                     'pnpm-lock.yaml',

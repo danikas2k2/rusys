@@ -14,9 +14,14 @@
 !next.config.ts
 !postcss.config.mjs
 !tsconfig.json
-**/*.test.ts
-**/*.test.tsx
-**/*.spec.ts
-**/*.snap.ts
+# Shared exclusions for Docker and deployment rsync; use **/basename patterns.
+**/*.test.*
+**/*.spec.*
+**/*.snap.*
 **/__mocks__
+**/__snapshots__
+**/__tests__
+**/test
 **/tests
+**/*.md
+**/.DS_Store
