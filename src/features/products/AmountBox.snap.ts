@@ -13,6 +13,12 @@ test.describe('amount dialog', () => {
         const variant = dialog.locator('[data-amount-variant-key="Stiklainis"]');
         await variant.click();
         await expect(dialog.getByRole('textbox', { name: 'updated' })).toBeVisible();
+        const cardOverflow = await variant.evaluate((element) => {
+            const panel = element.closest('.amount-box-quantities-panel');
+            if (!panel) throw new Error('Quantities panel not found');
+            return element.getBoundingClientRect().right - panel.getBoundingClientRect().right;
+        });
+        expect(cardOverflow).toBeLessThanOrEqual(0);
         await expect(dialog).toHaveScreenshot(['AmountBox', 'amounts-expanded.png']);
         await dialog.getByRole('textbox', { name: 'updated' }).fill('2');
         await expect(variant.locator('[data-state="positive"]')).toBeVisible();
