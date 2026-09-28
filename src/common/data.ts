@@ -50,6 +50,11 @@ export interface ProductHistoryMeta {
     year: number;
 }
 
+export interface ProductHistory {
+    updates: readonly History[];
+    undates: readonly History[];
+}
+
 export interface Product {
     group: string;
     name: string;
@@ -60,6 +65,8 @@ export interface Product {
     missing?: boolean;
     updates?: readonly Update[] | readonly ProductHistoryMeta[];
     undates?: readonly Update[] | readonly ProductHistoryMeta[];
+    /** Client-side cache of the full amount history, indexed by year. It is never persisted. */
+    history?: Readonly<Record<number, ProductHistory>>;
     // Always icon-sized (<=512x512, roughly square) - a generated thumbnail when the source is a
     // photo, or the original upload as-is when it already qualifies as an icon.
     image?: string;
@@ -68,6 +75,10 @@ export interface Product {
     photo?: string;
     variantImages?: Readonly<Record<string, string>>;
     variantPhotos?: Readonly<Record<string, string>>;
+    /** Internal marker used to avoid repeatedly classifying an icon-sized legacy image. */
+    imageChecked?: boolean;
+    /** Internal per-variant equivalent of `imageChecked`. */
+    variantImagesChecked?: Readonly<Record<string, boolean>>;
     /** Set instead of deleting so balances and change history remain auditable. */
     archivedAt?: number;
 }
@@ -83,6 +94,8 @@ export interface Summary {
     group: string;
     name: string;
     years?: readonly YearAmounts[];
+    /** Client-side cache of the full summary history, indexed by year. It is never persisted. */
+    history?: Readonly<Record<number, ProductHistory>>;
     image?: string;
     photo?: string;
 }

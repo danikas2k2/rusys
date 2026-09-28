@@ -1,0 +1,1714 @@
+@import "@catppuccin/palette/css/catppuccin.css";
+
+:root {
+    /* Font family variables */
+    --mantine-font-family-fallback:
+        -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji";
+    --mantine-font-family: "Noto Sans", "Noto Color Emoji", var(--mantine-font-family-fallback);
+    --mantine-font-family-headings: "Noto Sans Display", var(--mantine-font-family-fallback);
+    --mantine-font-family-monospace-fallback:
+        ui-monospace, "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace;
+    --mantine-font-family-monospace:
+        "NotoSansM Nerd Font", "Noto Sans Mono", "Source Code Pro", var(--mantine-font-family-monospace-fallback);
+
+    /* Font weights */
+    --mantine-font-weight-xs: 300;
+    --mantine-font-weight-sm: 400; /* normal */
+    --mantine-font-weight-md: 500;
+    --mantine-font-weight-lg: 600;
+    --mantine-font-weight-xl: 700; /* bold */
+
+    /* Other mantine values */
+
+    --mantine-radius-default: var(--mantine-radius-md);
+
+    /* Focus variables */
+
+    /* TODO: not sure if still needed */
+
+    /* --focus-thickness: 2px; */
+
+    /* --focus-outline-offset: var(--focus-thickness, 2px); */
+
+    /* --focus-color: var(--mantine-color-primary); */
+
+    /* --focus-outline: var(--focus-thickness, 2px) solid var(--focus-color); */
+
+    /* Shadow variables */
+    --mantine-shadow-xs:
+        0 calc(0.125rem * var(--mantine-scale)) calc(0.25rem * var(--mantine-scale))
+            calc(-0.0625rem * var(--mantine-scale)) var(--mantine-color-shadow),
+        0 calc(0.125rem * var(--mantine-scale)) calc(0.25rem * var(--mantine-scale))
+            calc(-0.125rem * var(--mantine-scale)) var(--mantine-color-shadow);
+    --mantine-shadow-sm:
+        0 calc(0.125rem * var(--mantine-scale)) calc(0.25rem * var(--mantine-scale))
+            calc(-0.125rem * var(--mantine-scale)) var(--mantine-color-shadow),
+        0 calc(0.25rem * var(--mantine-scale)) calc(0.5rem * var(--mantine-scale))
+            calc(-0.125rem * var(--mantine-scale)) var(--mantine-color-shadow);
+    --mantine-shadow-md:
+        0 calc(0.125rem * var(--mantine-scale)) calc(0.5rem * var(--mantine-scale))
+            calc(-0.125rem * var(--mantine-scale)) var(--mantine-color-shadow),
+        0 calc(0.375rem * var(--mantine-scale)) calc(0.75rem * var(--mantine-scale))
+            calc(-0.125rem * var(--mantine-scale)) var(--mantine-color-shadow);
+    --mantine-shadow-lg:
+        0 calc(0.125rem * var(--mantine-scale)) calc(0.5rem * var(--mantine-scale))
+            calc(-0.125rem * var(--mantine-scale)) var(--mantine-color-shadow),
+        0 calc(0.75rem * var(--mantine-scale)) calc(1rem * var(--mantine-scale)) calc(-0.25rem * var(--mantine-scale))
+            var(--mantine-color-shadow);
+    --mantine-shadow-xl:
+        0 calc(0.125rem * var(--mantine-scale)) calc(0.5rem * var(--mantine-scale))
+            calc(-0.125rem * var(--mantine-scale)) var(--mantine-color-shadow),
+        0 calc(1.125rem * var(--mantine-scale)) calc(1.5rem * var(--mantine-scale))
+            calc(-0.25rem * var(--mantine-scale)) var(--mantine-color-shadow);
+
+    /* Color scheme */
+    color-scheme: var(--mantine-color-scheme, normal);
+
+    &[data-mantine-color-scheme="light"] {
+        --mantine-color-scheme: light;
+    }
+
+    &[data-mantine-color-scheme="dark"] {
+        --mantine-color-scheme: dark;
+    }
+
+    &[data-mantine-color-scheme="auto"],
+    &:not([data-mantine-color-scheme]) {
+        @media (prefers-color-scheme: light) {
+            --mantine-color-scheme: light;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            --mantine-color-scheme: dark;
+        }
+    }
+
+    &[data-mantine-color-scheme] {
+        /* Shade curves (0 lightest -> 9 darkest) */
+
+        /* latte (s) */
+        --ctp-latte-s-0: 0.5;
+        --ctp-latte-s-1: 0.55;
+        --ctp-latte-s-2: 0.6;
+        --ctp-latte-s-3: 0.7;
+        --ctp-latte-s-4: 0.85;
+        --ctp-latte-s-5: 0.95;
+        --ctp-latte-s-6: 1;
+        --ctp-latte-s-7: 1.05;
+        --ctp-latte-s-8: 1.1;
+        --ctp-latte-s-9: 1.15;
+
+        /* latte (l) */
+        --ctp-latte-l-0: 1.3;
+        --ctp-latte-l-1: 1.22;
+        --ctp-latte-l-2: 1.16;
+        --ctp-latte-l-3: 1.1;
+        --ctp-latte-l-4: 1.05;
+        --ctp-latte-l-5: 1.02;
+        --ctp-latte-l-6: 1;
+        --ctp-latte-l-7: 0.94;
+        --ctp-latte-l-8: 0.88;
+        --ctp-latte-l-9: 0.82;
+
+        /* mocha (s) */
+        --ctp-mocha-s-0: 0.59;
+        --ctp-mocha-s-1: 0.64;
+        --ctp-mocha-s-2: 0.73;
+        --ctp-mocha-s-3: 0.82;
+        --ctp-mocha-s-4: 0.91;
+        --ctp-mocha-s-5: 0.95;
+        --ctp-mocha-s-6: 1;
+        --ctp-mocha-s-7: 1.05;
+        --ctp-mocha-s-8: 1.09;
+        --ctp-mocha-s-9: 1.14;
+
+        /* mocha (l) */
+        --ctp-mocha-l-0: 0.7;
+        --ctp-mocha-l-1: 0.78;
+        --ctp-mocha-l-2: 0.86;
+        --ctp-mocha-l-3: 0.92;
+        --ctp-mocha-l-4: 0.97;
+        --ctp-mocha-l-5: 0.99;
+        --ctp-mocha-l-6: 1;
+        --ctp-mocha-l-7: 1.04;
+        --ctp-mocha-l-8: 1.12;
+        --ctp-mocha-l-9: 1.2;
+
+        /* Mixed base colors that depend on both palettes */
+
+        /* rosewater */
+        --ctp-latte-rosewater-0: hsl(
+            from var(--ctp-latte-rosewater) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-rosewater-1: hsl(
+            from var(--ctp-latte-rosewater) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-rosewater-2: hsl(
+            from var(--ctp-latte-rosewater) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-rosewater-3: hsl(
+            from var(--ctp-latte-rosewater) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-rosewater-4: hsl(
+            from var(--ctp-latte-rosewater) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-rosewater-5: hsl(
+            from var(--ctp-latte-rosewater) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-rosewater-6: hsl(
+            from var(--ctp-latte-rosewater) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-rosewater-7: hsl(
+            from var(--ctp-latte-rosewater) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-rosewater-8: hsl(
+            from var(--ctp-latte-rosewater) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-rosewater-9: hsl(
+            from var(--ctp-latte-rosewater) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-rosewater-0: hsl(
+            from var(--ctp-mocha-rosewater) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-rosewater-1: hsl(
+            from var(--ctp-mocha-rosewater) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-rosewater-2: hsl(
+            from var(--ctp-mocha-rosewater) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-rosewater-3: hsl(
+            from var(--ctp-mocha-rosewater) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-rosewater-4: hsl(
+            from var(--ctp-mocha-rosewater) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-rosewater-5: hsl(
+            from var(--ctp-mocha-rosewater) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-rosewater-6: hsl(
+            from var(--ctp-mocha-rosewater) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-rosewater-7: hsl(
+            from var(--ctp-mocha-rosewater) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-rosewater-8: hsl(
+            from var(--ctp-mocha-rosewater) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-rosewater-9: hsl(
+            from var(--ctp-mocha-rosewater) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-rosewater-0: light-dark(var(--ctp-latte-rosewater-0), var(--ctp-mocha-rosewater-0));
+        --mantine-color-rosewater-1: light-dark(var(--ctp-latte-rosewater-1), var(--ctp-mocha-rosewater-1));
+        --mantine-color-rosewater-2: light-dark(var(--ctp-latte-rosewater-2), var(--ctp-mocha-rosewater-2));
+        --mantine-color-rosewater-3: light-dark(var(--ctp-latte-rosewater-3), var(--ctp-mocha-rosewater-3));
+        --mantine-color-rosewater-4: light-dark(var(--ctp-latte-rosewater-4), var(--ctp-mocha-rosewater-4));
+        --mantine-color-rosewater-5: light-dark(var(--ctp-latte-rosewater-5), var(--ctp-mocha-rosewater-5));
+        --mantine-color-rosewater-6: light-dark(var(--ctp-latte-rosewater-6), var(--ctp-mocha-rosewater-6));
+        --mantine-color-rosewater-7: light-dark(var(--ctp-latte-rosewater-7), var(--ctp-mocha-rosewater-7));
+        --mantine-color-rosewater-8: light-dark(var(--ctp-latte-rosewater-8), var(--ctp-mocha-rosewater-8));
+        --mantine-color-rosewater-9: light-dark(var(--ctp-latte-rosewater-9), var(--ctp-mocha-rosewater-9));
+        --mantine-color-rosewater-text: var(--mantine-color-rosewater-filled);
+        --mantine-color-rosewater-filled: var(--mantine-color-rosewater-6);
+        --mantine-color-rosewater-filled-hover: var(--mantine-color-rosewater-7);
+        --mantine-color-rosewater-light: color(from var(--mantine-color-rosewater-6) srgb r g b / 10%);
+        --mantine-color-rosewater-light-hover: color(from var(--mantine-color-rosewater-6) srgb r g b / 12%);
+        --mantine-color-rosewater-light-color: var(--mantine-color-rosewater-6);
+        --mantine-color-rosewater-outline: var(--mantine-color-rosewater-6);
+        --mantine-color-rosewater-outline-hover: color(from var(--mantine-color-rosewater-6) srgb r g b / 5%);
+
+        /* flamingo */
+        --ctp-latte-flamingo-0: hsl(
+            from var(--ctp-latte-flamingo) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-flamingo-1: hsl(
+            from var(--ctp-latte-flamingo) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-flamingo-2: hsl(
+            from var(--ctp-latte-flamingo) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-flamingo-3: hsl(
+            from var(--ctp-latte-flamingo) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-flamingo-4: hsl(
+            from var(--ctp-latte-flamingo) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-flamingo-5: hsl(
+            from var(--ctp-latte-flamingo) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-flamingo-6: hsl(
+            from var(--ctp-latte-flamingo) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-flamingo-7: hsl(
+            from var(--ctp-latte-flamingo) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-flamingo-8: hsl(
+            from var(--ctp-latte-flamingo) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-flamingo-9: hsl(
+            from var(--ctp-latte-flamingo) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-flamingo-0: hsl(
+            from var(--ctp-mocha-flamingo) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-flamingo-1: hsl(
+            from var(--ctp-mocha-flamingo) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-flamingo-2: hsl(
+            from var(--ctp-mocha-flamingo) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-flamingo-3: hsl(
+            from var(--ctp-mocha-flamingo) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-flamingo-4: hsl(
+            from var(--ctp-mocha-flamingo) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-flamingo-5: hsl(
+            from var(--ctp-mocha-flamingo) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-flamingo-6: hsl(
+            from var(--ctp-mocha-flamingo) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-flamingo-7: hsl(
+            from var(--ctp-mocha-flamingo) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-flamingo-8: hsl(
+            from var(--ctp-mocha-flamingo) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-flamingo-9: hsl(
+            from var(--ctp-mocha-flamingo) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-flamingo-0: light-dark(var(--ctp-latte-flamingo-0), var(--ctp-mocha-flamingo-0));
+        --mantine-color-flamingo-1: light-dark(var(--ctp-latte-flamingo-1), var(--ctp-mocha-flamingo-1));
+        --mantine-color-flamingo-2: light-dark(var(--ctp-latte-flamingo-2), var(--ctp-mocha-flamingo-2));
+        --mantine-color-flamingo-3: light-dark(var(--ctp-latte-flamingo-3), var(--ctp-mocha-flamingo-3));
+        --mantine-color-flamingo-4: light-dark(var(--ctp-latte-flamingo-4), var(--ctp-mocha-flamingo-4));
+        --mantine-color-flamingo-5: light-dark(var(--ctp-latte-flamingo-5), var(--ctp-mocha-flamingo-5));
+        --mantine-color-flamingo-6: light-dark(var(--ctp-latte-flamingo-6), var(--ctp-mocha-flamingo-6));
+        --mantine-color-flamingo-7: light-dark(var(--ctp-latte-flamingo-7), var(--ctp-mocha-flamingo-7));
+        --mantine-color-flamingo-8: light-dark(var(--ctp-latte-flamingo-8), var(--ctp-mocha-flamingo-8));
+        --mantine-color-flamingo-9: light-dark(var(--ctp-latte-flamingo-9), var(--ctp-mocha-flamingo-9));
+        --mantine-color-flamingo-text: var(--mantine-color-flamingo-filled);
+        --mantine-color-flamingo-filled: var(--mantine-color-flamingo-6);
+        --mantine-color-flamingo-filled-hover: var(--mantine-color-flamingo-7);
+        --mantine-color-flamingo-light: color(from var(--mantine-color-flamingo-6) srgb r g b / 10%);
+        --mantine-color-flamingo-light-hover: color(from var(--mantine-color-flamingo-6) srgb r g b / 12%);
+        --mantine-color-flamingo-light-color: var(--mantine-color-flamingo-6);
+        --mantine-color-flamingo-outline: var(--mantine-color-flamingo-6);
+        --mantine-color-flamingo-outline-hover: color(from var(--mantine-color-flamingo-6) srgb r g b / 5%);
+
+        /* pink */
+        --ctp-latte-pink-0: hsl(
+            from var(--ctp-latte-pink) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-pink-1: hsl(
+            from var(--ctp-latte-pink) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-pink-2: hsl(
+            from var(--ctp-latte-pink) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-pink-3: hsl(
+            from var(--ctp-latte-pink) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-pink-4: hsl(
+            from var(--ctp-latte-pink) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-pink-5: hsl(
+            from var(--ctp-latte-pink) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-pink-6: hsl(
+            from var(--ctp-latte-pink) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-pink-7: hsl(
+            from var(--ctp-latte-pink) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-pink-8: hsl(
+            from var(--ctp-latte-pink) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-pink-9: hsl(
+            from var(--ctp-latte-pink) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-pink-0: hsl(
+            from var(--ctp-mocha-pink) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-pink-1: hsl(
+            from var(--ctp-mocha-pink) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-pink-2: hsl(
+            from var(--ctp-mocha-pink) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-pink-3: hsl(
+            from var(--ctp-mocha-pink) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-pink-4: hsl(
+            from var(--ctp-mocha-pink) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-pink-5: hsl(
+            from var(--ctp-mocha-pink) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-pink-6: hsl(
+            from var(--ctp-mocha-pink) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-pink-7: hsl(
+            from var(--ctp-mocha-pink) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-pink-8: hsl(
+            from var(--ctp-mocha-pink) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-pink-9: hsl(
+            from var(--ctp-mocha-pink) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-pink-0: light-dark(var(--ctp-latte-pink-0), var(--ctp-mocha-pink-0));
+        --mantine-color-pink-1: light-dark(var(--ctp-latte-pink-1), var(--ctp-mocha-pink-1));
+        --mantine-color-pink-2: light-dark(var(--ctp-latte-pink-2), var(--ctp-mocha-pink-2));
+        --mantine-color-pink-3: light-dark(var(--ctp-latte-pink-3), var(--ctp-mocha-pink-3));
+        --mantine-color-pink-4: light-dark(var(--ctp-latte-pink-4), var(--ctp-mocha-pink-4));
+        --mantine-color-pink-5: light-dark(var(--ctp-latte-pink-5), var(--ctp-mocha-pink-5));
+        --mantine-color-pink-6: light-dark(var(--ctp-latte-pink-6), var(--ctp-mocha-pink-6));
+        --mantine-color-pink-7: light-dark(var(--ctp-latte-pink-7), var(--ctp-mocha-pink-7));
+        --mantine-color-pink-8: light-dark(var(--ctp-latte-pink-8), var(--ctp-mocha-pink-8));
+        --mantine-color-pink-9: light-dark(var(--ctp-latte-pink-9), var(--ctp-mocha-pink-9));
+        --mantine-color-pink-text: var(--mantine-color-pink-filled);
+        --mantine-color-pink-filled: var(--mantine-color-pink-6);
+        --mantine-color-pink-filled-hover: var(--mantine-color-pink-7);
+        --mantine-color-pink-light: color(from var(--mantine-color-pink-6) srgb r g b / 10%);
+        --mantine-color-pink-light-hover: color(from var(--mantine-color-pink-6) srgb r g b / 12%);
+        --mantine-color-pink-light-color: var(--mantine-color-pink-6);
+        --mantine-color-pink-outline: var(--mantine-color-pink-6);
+        --mantine-color-pink-outline-hover: color(from var(--mantine-color-pink-6) srgb r g b / 5%);
+
+        /* grape */
+        --ctp-latte-grape-0: hsl(
+            from var(--ctp-latte-mauve) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-grape-1: hsl(
+            from var(--ctp-latte-mauve) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-grape-2: hsl(
+            from var(--ctp-latte-mauve) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-grape-3: hsl(
+            from var(--ctp-latte-mauve) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-grape-4: hsl(
+            from var(--ctp-latte-mauve) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-grape-5: hsl(
+            from var(--ctp-latte-mauve) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-grape-6: hsl(
+            from var(--ctp-latte-mauve) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-grape-7: hsl(
+            from var(--ctp-latte-mauve) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-grape-8: hsl(
+            from var(--ctp-latte-mauve) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-grape-9: hsl(
+            from var(--ctp-latte-mauve) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-grape-0: hsl(
+            from var(--ctp-mocha-mauve) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-grape-1: hsl(
+            from var(--ctp-mocha-mauve) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-grape-2: hsl(
+            from var(--ctp-mocha-mauve) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-grape-3: hsl(
+            from var(--ctp-mocha-mauve) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-grape-4: hsl(
+            from var(--ctp-mocha-mauve) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-grape-5: hsl(
+            from var(--ctp-mocha-mauve) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-grape-6: hsl(
+            from var(--ctp-mocha-mauve) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-grape-7: hsl(
+            from var(--ctp-mocha-mauve) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-grape-8: hsl(
+            from var(--ctp-mocha-mauve) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-grape-9: hsl(
+            from var(--ctp-mocha-mauve) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-grape-0: light-dark(var(--ctp-latte-grape-0), var(--ctp-mocha-grape-0));
+        --mantine-color-grape-1: light-dark(var(--ctp-latte-grape-1), var(--ctp-mocha-grape-1));
+        --mantine-color-grape-2: light-dark(var(--ctp-latte-grape-2), var(--ctp-mocha-grape-2));
+        --mantine-color-grape-3: light-dark(var(--ctp-latte-grape-3), var(--ctp-mocha-grape-3));
+        --mantine-color-grape-4: light-dark(var(--ctp-latte-grape-4), var(--ctp-mocha-grape-4));
+        --mantine-color-grape-5: light-dark(var(--ctp-latte-grape-5), var(--ctp-mocha-grape-5));
+        --mantine-color-grape-6: light-dark(var(--ctp-latte-grape-6), var(--ctp-mocha-grape-6));
+        --mantine-color-grape-7: light-dark(var(--ctp-latte-grape-7), var(--ctp-mocha-grape-7));
+        --mantine-color-grape-8: light-dark(var(--ctp-latte-grape-8), var(--ctp-mocha-grape-8));
+        --mantine-color-grape-9: light-dark(var(--ctp-latte-grape-9), var(--ctp-mocha-grape-9));
+        --mantine-color-grape-text: var(--mantine-color-grape-filled);
+        --mantine-color-grape-filled: var(--mantine-color-grape-6);
+        --mantine-color-grape-filled-hover: var(--mantine-color-grape-7);
+        --mantine-color-grape-light: color(from var(--mantine-color-grape-6) srgb r g b / 10%);
+        --mantine-color-grape-light-hover: color(from var(--mantine-color-grape-6) srgb r g b / 12%);
+        --mantine-color-grape-light-color: var(--mantine-color-grape-6);
+        --mantine-color-grape-outline: var(--mantine-color-grape-6);
+        --mantine-color-grape-outline-hover: color(from var(--mantine-color-grape-6) srgb r g b / 5%);
+
+        /* red */
+        --ctp-latte-red-0: hsl(
+            from var(--ctp-latte-red) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-red-1: hsl(
+            from var(--ctp-latte-red) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-red-2: hsl(
+            from var(--ctp-latte-red) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-red-3: hsl(
+            from var(--ctp-latte-red) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-red-4: hsl(
+            from var(--ctp-latte-red) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-red-5: hsl(
+            from var(--ctp-latte-red) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-red-6: hsl(
+            from var(--ctp-latte-red) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-red-7: hsl(
+            from var(--ctp-latte-red) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-red-8: hsl(
+            from var(--ctp-latte-red) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-red-9: hsl(
+            from var(--ctp-latte-red) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-red-0: hsl(
+            from var(--ctp-mocha-red) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-red-1: hsl(
+            from var(--ctp-mocha-red) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-red-2: hsl(
+            from var(--ctp-mocha-red) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-red-3: hsl(
+            from var(--ctp-mocha-red) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-red-4: hsl(
+            from var(--ctp-mocha-red) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-red-5: hsl(
+            from var(--ctp-mocha-red) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-red-6: hsl(
+            from var(--ctp-mocha-red) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-red-7: hsl(
+            from var(--ctp-mocha-red) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-red-8: hsl(
+            from var(--ctp-mocha-red) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-red-9: hsl(
+            from var(--ctp-mocha-red) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-red-0: light-dark(var(--ctp-latte-red-0), var(--ctp-mocha-red-0));
+        --mantine-color-red-1: light-dark(var(--ctp-latte-red-1), var(--ctp-mocha-red-1));
+        --mantine-color-red-2: light-dark(var(--ctp-latte-red-2), var(--ctp-mocha-red-2));
+        --mantine-color-red-3: light-dark(var(--ctp-latte-red-3), var(--ctp-mocha-red-3));
+        --mantine-color-red-4: light-dark(var(--ctp-latte-red-4), var(--ctp-mocha-red-4));
+        --mantine-color-red-5: light-dark(var(--ctp-latte-red-5), var(--ctp-mocha-red-5));
+        --mantine-color-red-6: light-dark(var(--ctp-latte-red-6), var(--ctp-mocha-red-6));
+        --mantine-color-red-7: light-dark(var(--ctp-latte-red-7), var(--ctp-mocha-red-7));
+        --mantine-color-red-8: light-dark(var(--ctp-latte-red-8), var(--ctp-mocha-red-8));
+        --mantine-color-red-9: light-dark(var(--ctp-latte-red-9), var(--ctp-mocha-red-9));
+        --mantine-color-red-text: var(--mantine-color-red-filled);
+        --mantine-color-red-filled: var(--mantine-color-red-6);
+        --mantine-color-red-filled-hover: var(--mantine-color-red-7);
+        --mantine-color-red-light: color(from var(--mantine-color-red-6) srgb r g b / 10%);
+        --mantine-color-red-light-hover: color(from var(--mantine-color-red-6) srgb r g b / 12%);
+        --mantine-color-red-light-color: var(--mantine-color-red-6);
+        --mantine-color-red-outline: var(--mantine-color-red-6);
+        --mantine-color-red-outline-hover: color(from var(--mantine-color-red-6) srgb r g b / 5%);
+
+        /* maroon */
+        --ctp-latte-maroon-0: hsl(
+            from var(--ctp-latte-maroon) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-maroon-1: hsl(
+            from var(--ctp-latte-maroon) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-maroon-2: hsl(
+            from var(--ctp-latte-maroon) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-maroon-3: hsl(
+            from var(--ctp-latte-maroon) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-maroon-4: hsl(
+            from var(--ctp-latte-maroon) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-maroon-5: hsl(
+            from var(--ctp-latte-maroon) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-maroon-6: hsl(
+            from var(--ctp-latte-maroon) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-maroon-7: hsl(
+            from var(--ctp-latte-maroon) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-maroon-8: hsl(
+            from var(--ctp-latte-maroon) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-maroon-9: hsl(
+            from var(--ctp-latte-maroon) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-maroon-0: hsl(
+            from var(--ctp-mocha-maroon) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-maroon-1: hsl(
+            from var(--ctp-mocha-maroon) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-maroon-2: hsl(
+            from var(--ctp-mocha-maroon) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-maroon-3: hsl(
+            from var(--ctp-mocha-maroon) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-maroon-4: hsl(
+            from var(--ctp-mocha-maroon) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-maroon-5: hsl(
+            from var(--ctp-mocha-maroon) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-maroon-6: hsl(
+            from var(--ctp-mocha-maroon) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-maroon-7: hsl(
+            from var(--ctp-mocha-maroon) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-maroon-8: hsl(
+            from var(--ctp-mocha-maroon) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-maroon-9: hsl(
+            from var(--ctp-mocha-maroon) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-maroon-0: light-dark(var(--ctp-latte-maroon-0), var(--ctp-mocha-maroon-0));
+        --mantine-color-maroon-1: light-dark(var(--ctp-latte-maroon-1), var(--ctp-mocha-maroon-1));
+        --mantine-color-maroon-2: light-dark(var(--ctp-latte-maroon-2), var(--ctp-mocha-maroon-2));
+        --mantine-color-maroon-3: light-dark(var(--ctp-latte-maroon-3), var(--ctp-mocha-maroon-3));
+        --mantine-color-maroon-4: light-dark(var(--ctp-latte-maroon-4), var(--ctp-mocha-maroon-4));
+        --mantine-color-maroon-5: light-dark(var(--ctp-latte-maroon-5), var(--ctp-mocha-maroon-5));
+        --mantine-color-maroon-6: light-dark(var(--ctp-latte-maroon-6), var(--ctp-mocha-maroon-6));
+        --mantine-color-maroon-7: light-dark(var(--ctp-latte-maroon-7), var(--ctp-mocha-maroon-7));
+        --mantine-color-maroon-8: light-dark(var(--ctp-latte-maroon-8), var(--ctp-mocha-maroon-8));
+        --mantine-color-maroon-9: light-dark(var(--ctp-latte-maroon-9), var(--ctp-mocha-maroon-9));
+        --mantine-color-maroon-text: var(--mantine-color-maroon-filled);
+        --mantine-color-maroon-filled: var(--mantine-color-maroon-6);
+        --mantine-color-maroon-filled-hover: var(--mantine-color-maroon-7);
+        --mantine-color-maroon-light: color(from var(--mantine-color-maroon-6) srgb r g b / 10%);
+        --mantine-color-maroon-light-hover: color(from var(--mantine-color-maroon-6) srgb r g b / 12%);
+        --mantine-color-maroon-light-color: var(--mantine-color-maroon-6);
+        --mantine-color-maroon-outline: var(--mantine-color-maroon-6);
+        --mantine-color-maroon-outline-hover: color(from var(--mantine-color-maroon-6) srgb r g b / 5%);
+
+        /* orange */
+        --ctp-latte-orange-0: hsl(
+            from var(--ctp-latte-peach) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-orange-1: hsl(
+            from var(--ctp-latte-peach) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-orange-2: hsl(
+            from var(--ctp-latte-peach) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-orange-3: hsl(
+            from var(--ctp-latte-peach) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-orange-4: hsl(
+            from var(--ctp-latte-peach) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-orange-5: hsl(
+            from var(--ctp-latte-peach) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-orange-6: hsl(
+            from var(--ctp-latte-peach) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-orange-7: hsl(
+            from var(--ctp-latte-peach) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-orange-8: hsl(
+            from var(--ctp-latte-peach) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-orange-9: hsl(
+            from var(--ctp-latte-peach) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-orange-0: hsl(
+            from var(--ctp-mocha-peach) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-orange-1: hsl(
+            from var(--ctp-mocha-peach) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-orange-2: hsl(
+            from var(--ctp-mocha-peach) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-orange-3: hsl(
+            from var(--ctp-mocha-peach) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-orange-4: hsl(
+            from var(--ctp-mocha-peach) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-orange-5: hsl(
+            from var(--ctp-mocha-peach) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-orange-6: hsl(
+            from var(--ctp-mocha-peach) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-orange-7: hsl(
+            from var(--ctp-mocha-peach) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-orange-8: hsl(
+            from var(--ctp-mocha-peach) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-orange-9: hsl(
+            from var(--ctp-mocha-peach) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-orange-0: light-dark(var(--ctp-latte-orange-0), var(--ctp-mocha-orange-0));
+        --mantine-color-orange-1: light-dark(var(--ctp-latte-orange-1), var(--ctp-mocha-orange-1));
+        --mantine-color-orange-2: light-dark(var(--ctp-latte-orange-2), var(--ctp-mocha-orange-2));
+        --mantine-color-orange-3: light-dark(var(--ctp-latte-orange-3), var(--ctp-mocha-orange-3));
+        --mantine-color-orange-4: light-dark(var(--ctp-latte-orange-4), var(--ctp-mocha-orange-4));
+        --mantine-color-orange-5: light-dark(var(--ctp-latte-orange-5), var(--ctp-mocha-orange-5));
+        --mantine-color-orange-6: light-dark(var(--ctp-latte-orange-6), var(--ctp-mocha-orange-6));
+        --mantine-color-orange-7: light-dark(var(--ctp-latte-orange-7), var(--ctp-mocha-orange-7));
+        --mantine-color-orange-8: light-dark(var(--ctp-latte-orange-8), var(--ctp-mocha-orange-8));
+        --mantine-color-orange-9: light-dark(var(--ctp-latte-orange-9), var(--ctp-mocha-orange-9));
+        --mantine-color-orange-text: var(--mantine-color-orange-filled);
+        --mantine-color-orange-filled: var(--mantine-color-orange-6);
+        --mantine-color-orange-filled-hover: var(--mantine-color-orange-7);
+        --mantine-color-orange-light: color(from var(--mantine-color-orange-6) srgb r g b / 10%);
+        --mantine-color-orange-light-hover: color(from var(--mantine-color-orange-6) srgb r g b / 12%);
+        --mantine-color-orange-light-color: var(--mantine-color-orange-6);
+        --mantine-color-orange-outline: var(--mantine-color-orange-6);
+        --mantine-color-orange-outline-hover: color(from var(--mantine-color-orange-6) srgb r g b / 5%);
+
+        /* yellow */
+        --ctp-latte-yellow-0: hsl(
+            from var(--ctp-latte-yellow) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-yellow-1: hsl(
+            from var(--ctp-latte-yellow) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-yellow-2: hsl(
+            from var(--ctp-latte-yellow) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-yellow-3: hsl(
+            from var(--ctp-latte-yellow) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-yellow-4: hsl(
+            from var(--ctp-latte-yellow) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-yellow-5: hsl(
+            from var(--ctp-latte-yellow) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-yellow-6: hsl(
+            from var(--ctp-latte-yellow) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-yellow-7: hsl(
+            from var(--ctp-latte-yellow) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-yellow-8: hsl(
+            from var(--ctp-latte-yellow) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-yellow-9: hsl(
+            from var(--ctp-latte-yellow) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-yellow-0: hsl(
+            from var(--ctp-mocha-yellow) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-yellow-1: hsl(
+            from var(--ctp-mocha-yellow) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-yellow-2: hsl(
+            from var(--ctp-mocha-yellow) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-yellow-3: hsl(
+            from var(--ctp-mocha-yellow) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-yellow-4: hsl(
+            from var(--ctp-mocha-yellow) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-yellow-5: hsl(
+            from var(--ctp-mocha-yellow) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-yellow-6: hsl(
+            from var(--ctp-mocha-yellow) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-yellow-7: hsl(
+            from var(--ctp-mocha-yellow) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-yellow-8: hsl(
+            from var(--ctp-mocha-yellow) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-yellow-9: hsl(
+            from var(--ctp-mocha-yellow) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-yellow-0: light-dark(var(--ctp-latte-yellow-0), var(--ctp-mocha-yellow-0));
+        --mantine-color-yellow-1: light-dark(var(--ctp-latte-yellow-1), var(--ctp-mocha-yellow-1));
+        --mantine-color-yellow-2: light-dark(var(--ctp-latte-yellow-2), var(--ctp-mocha-yellow-2));
+        --mantine-color-yellow-3: light-dark(var(--ctp-latte-yellow-3), var(--ctp-mocha-yellow-3));
+        --mantine-color-yellow-4: light-dark(var(--ctp-latte-yellow-4), var(--ctp-mocha-yellow-4));
+        --mantine-color-yellow-5: light-dark(var(--ctp-latte-yellow-5), var(--ctp-mocha-yellow-5));
+        --mantine-color-yellow-6: light-dark(var(--ctp-latte-yellow-6), var(--ctp-mocha-yellow-6));
+        --mantine-color-yellow-7: light-dark(var(--ctp-latte-yellow-7), var(--ctp-mocha-yellow-7));
+        --mantine-color-yellow-8: light-dark(var(--ctp-latte-yellow-8), var(--ctp-mocha-yellow-8));
+        --mantine-color-yellow-9: light-dark(var(--ctp-latte-yellow-9), var(--ctp-mocha-yellow-9));
+        --mantine-color-yellow-text: var(--mantine-color-yellow-filled);
+        --mantine-color-yellow-filled: var(--mantine-color-yellow-6);
+        --mantine-color-yellow-filled-hover: var(--mantine-color-yellow-7);
+        --mantine-color-yellow-light: color(from var(--mantine-color-yellow-6) srgb r g b / 10%);
+        --mantine-color-yellow-light-hover: color(from var(--mantine-color-yellow-6) srgb r g b / 12%);
+        --mantine-color-yellow-light-color: var(--mantine-color-yellow-6);
+        --mantine-color-yellow-outline: var(--mantine-color-yellow-6);
+        --mantine-color-yellow-outline-hover: color(from var(--mantine-color-yellow-6) srgb r g b / 5%);
+
+        /* green */
+        --ctp-latte-green-0: hsl(
+            from var(--ctp-latte-green) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-green-1: hsl(
+            from var(--ctp-latte-green) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-green-2: hsl(
+            from var(--ctp-latte-green) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-green-3: hsl(
+            from var(--ctp-latte-green) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-green-4: hsl(
+            from var(--ctp-latte-green) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-green-5: hsl(
+            from var(--ctp-latte-green) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-green-6: hsl(
+            from var(--ctp-latte-green) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-green-7: hsl(
+            from var(--ctp-latte-green) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-green-8: hsl(
+            from var(--ctp-latte-green) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-green-9: hsl(
+            from var(--ctp-latte-green) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-green-0: hsl(
+            from var(--ctp-mocha-green) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-green-1: hsl(
+            from var(--ctp-mocha-green) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-green-2: hsl(
+            from var(--ctp-mocha-green) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-green-3: hsl(
+            from var(--ctp-mocha-green) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-green-4: hsl(
+            from var(--ctp-mocha-green) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-green-5: hsl(
+            from var(--ctp-mocha-green) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-green-6: hsl(
+            from var(--ctp-mocha-green) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-green-7: hsl(
+            from var(--ctp-mocha-green) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-green-8: hsl(
+            from var(--ctp-mocha-green) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-green-9: hsl(
+            from var(--ctp-mocha-green) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-green-0: light-dark(var(--ctp-latte-green-0), var(--ctp-mocha-green-0));
+        --mantine-color-green-1: light-dark(var(--ctp-latte-green-1), var(--ctp-mocha-green-1));
+        --mantine-color-green-2: light-dark(var(--ctp-latte-green-2), var(--ctp-mocha-green-2));
+        --mantine-color-green-3: light-dark(var(--ctp-latte-green-3), var(--ctp-mocha-green-3));
+        --mantine-color-green-4: light-dark(var(--ctp-latte-green-4), var(--ctp-mocha-green-4));
+        --mantine-color-green-5: light-dark(var(--ctp-latte-green-5), var(--ctp-mocha-green-5));
+        --mantine-color-green-6: light-dark(var(--ctp-latte-green-6), var(--ctp-mocha-green-6));
+        --mantine-color-green-7: light-dark(var(--ctp-latte-green-7), var(--ctp-mocha-green-7));
+        --mantine-color-green-8: light-dark(var(--ctp-latte-green-8), var(--ctp-mocha-green-8));
+        --mantine-color-green-9: light-dark(var(--ctp-latte-green-9), var(--ctp-mocha-green-9));
+        --mantine-color-green-text: var(--mantine-color-green-filled);
+        --mantine-color-green-filled: var(--mantine-color-green-6);
+        --mantine-color-green-filled-hover: var(--mantine-color-green-7);
+        --mantine-color-green-light: color(from var(--mantine-color-green-6) srgb r g b / 10%);
+        --mantine-color-green-light-hover: color(from var(--mantine-color-green-6) srgb r g b / 12%);
+        --mantine-color-green-light-color: var(--mantine-color-green-6);
+        --mantine-color-green-outline: var(--mantine-color-green-6);
+        --mantine-color-green-outline-hover: color(from var(--mantine-color-green-6) srgb r g b / 5%);
+
+        /* lime */
+        --ctp-latte-lime: color-mix(in hsl, var(--ctp-latte-yellow) 60%, var(--ctp-latte-green) 40%);
+        --ctp-latte-lime-0: hsl(
+            from var(--ctp-latte-lime) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-lime-1: hsl(
+            from var(--ctp-latte-lime) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-lime-2: hsl(
+            from var(--ctp-latte-lime) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-lime-3: hsl(
+            from var(--ctp-latte-lime) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-lime-4: hsl(
+            from var(--ctp-latte-lime) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-lime-5: hsl(
+            from var(--ctp-latte-lime) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-lime-6: hsl(
+            from var(--ctp-latte-lime) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-lime-7: hsl(
+            from var(--ctp-latte-lime) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-lime-8: hsl(
+            from var(--ctp-latte-lime) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-lime-9: hsl(
+            from var(--ctp-latte-lime) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-lime: color-mix(in hsl, var(--ctp-mocha-yellow) 65%, var(--ctp-mocha-green) 45%);
+        --ctp-mocha-lime-0: hsl(
+            from var(--ctp-mocha-lime) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-lime-1: hsl(
+            from var(--ctp-mocha-lime) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-lime-2: hsl(
+            from var(--ctp-mocha-lime) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-lime-3: hsl(
+            from var(--ctp-mocha-lime) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-lime-4: hsl(
+            from var(--ctp-mocha-lime) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-lime-5: hsl(
+            from var(--ctp-mocha-lime) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-lime-6: hsl(
+            from var(--ctp-mocha-lime) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-lime-7: hsl(
+            from var(--ctp-mocha-lime) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-lime-8: hsl(
+            from var(--ctp-mocha-lime) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-lime-9: hsl(
+            from var(--ctp-mocha-lime) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-lime-0: light-dark(var(--ctp-latte-lime-0), var(--ctp-mocha-lime-0));
+        --mantine-color-lime-1: light-dark(var(--ctp-latte-lime-1), var(--ctp-mocha-lime-1));
+        --mantine-color-lime-2: light-dark(var(--ctp-latte-lime-2), var(--ctp-mocha-lime-2));
+        --mantine-color-lime-3: light-dark(var(--ctp-latte-lime-3), var(--ctp-mocha-lime-3));
+        --mantine-color-lime-4: light-dark(var(--ctp-latte-lime-4), var(--ctp-mocha-lime-4));
+        --mantine-color-lime-5: light-dark(var(--ctp-latte-lime-5), var(--ctp-mocha-lime-5));
+        --mantine-color-lime-6: light-dark(var(--ctp-latte-lime-6), var(--ctp-mocha-lime-6));
+        --mantine-color-lime-7: light-dark(var(--ctp-latte-lime-7), var(--ctp-mocha-lime-7));
+        --mantine-color-lime-8: light-dark(var(--ctp-latte-lime-8), var(--ctp-mocha-lime-8));
+        --mantine-color-lime-9: light-dark(var(--ctp-latte-lime-9), var(--ctp-mocha-lime-9));
+        --mantine-color-lime-text: var(--mantine-color-lime-filled);
+        --mantine-color-lime-filled: var(--mantine-color-lime-6);
+        --mantine-color-lime-filled-hover: var(--mantine-color-lime-7);
+        --mantine-color-lime-light: color(from var(--mantine-color-lime-6) srgb r g b / 10%);
+        --mantine-color-lime-light-hover: color(from var(--mantine-color-lime-6) srgb r g b / 12%);
+        --mantine-color-lime-light-color: var(--mantine-color-lime-6);
+        --mantine-color-lime-outline: var(--mantine-color-lime-6);
+        --mantine-color-lime-outline-hover: color(from var(--mantine-color-lime-6) srgb r g b / 5%);
+
+        /* violet */
+        --ctp-latte-violet: color-mix(in srgb, var(--ctp-latte-blue) 60%, var(--ctp-latte-mauve) 40%);
+        --ctp-latte-violet-0: hsl(
+            from var(--ctp-latte-violet) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-violet-1: hsl(
+            from var(--ctp-latte-violet) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-violet-2: hsl(
+            from var(--ctp-latte-violet) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-violet-3: hsl(
+            from var(--ctp-latte-violet) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-violet-4: hsl(
+            from var(--ctp-latte-violet) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-violet-5: hsl(
+            from var(--ctp-latte-violet) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-violet-6: hsl(
+            from var(--ctp-latte-violet) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-violet-7: hsl(
+            from var(--ctp-latte-violet) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-violet-8: hsl(
+            from var(--ctp-latte-violet) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-violet-9: hsl(
+            from var(--ctp-latte-violet) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-violet: color-mix(in srgb, var(--ctp-mocha-blue) 65%, var(--ctp-mocha-mauve) 45%);
+        --ctp-mocha-violet-0: hsl(
+            from var(--ctp-mocha-violet) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-violet-1: hsl(
+            from var(--ctp-mocha-violet) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-violet-2: hsl(
+            from var(--ctp-mocha-violet) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-violet-3: hsl(
+            from var(--ctp-mocha-violet) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-violet-4: hsl(
+            from var(--ctp-mocha-violet) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-violet-5: hsl(
+            from var(--ctp-mocha-violet) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-violet-6: hsl(
+            from var(--ctp-mocha-violet) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-violet-7: hsl(
+            from var(--ctp-mocha-violet) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-violet-8: hsl(
+            from var(--ctp-mocha-violet) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-violet-9: hsl(
+            from var(--ctp-mocha-violet) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-violet-0: light-dark(var(--ctp-latte-violet-0), var(--ctp-mocha-violet-0));
+        --mantine-color-violet-1: light-dark(var(--ctp-latte-violet-1), var(--ctp-mocha-violet-1));
+        --mantine-color-violet-2: light-dark(var(--ctp-latte-violet-2), var(--ctp-mocha-violet-2));
+        --mantine-color-violet-3: light-dark(var(--ctp-latte-violet-3), var(--ctp-mocha-violet-3));
+        --mantine-color-violet-4: light-dark(var(--ctp-latte-violet-4), var(--ctp-mocha-violet-4));
+        --mantine-color-violet-5: light-dark(var(--ctp-latte-violet-5), var(--ctp-mocha-violet-5));
+        --mantine-color-violet-6: light-dark(var(--ctp-latte-violet-6), var(--ctp-mocha-violet-6));
+        --mantine-color-violet-7: light-dark(var(--ctp-latte-violet-7), var(--ctp-mocha-violet-7));
+        --mantine-color-violet-8: light-dark(var(--ctp-latte-violet-8), var(--ctp-mocha-violet-8));
+        --mantine-color-violet-9: light-dark(var(--ctp-latte-violet-9), var(--ctp-mocha-violet-9));
+        --mantine-color-violet-text: var(--mantine-color-violet-filled);
+        --mantine-color-violet-filled: var(--mantine-color-violet-6);
+        --mantine-color-violet-filled-hover: var(--mantine-color-violet-7);
+        --mantine-color-violet-light: color(from var(--mantine-color-violet-6) srgb r g b / 10%);
+        --mantine-color-violet-light-hover: color(from var(--mantine-color-violet-6) srgb r g b / 12%);
+        --mantine-color-violet-light-color: var(--mantine-color-violet-6);
+        --mantine-color-violet-outline: var(--mantine-color-violet-6);
+        --mantine-color-violet-outline-hover: color(from var(--mantine-color-violet-6) srgb r g b / 5%);
+
+        /* teal */
+        --ctp-latte-teal-0: hsl(
+            from var(--ctp-latte-teal) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-teal-1: hsl(
+            from var(--ctp-latte-teal) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-teal-2: hsl(
+            from var(--ctp-latte-teal) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-teal-3: hsl(
+            from var(--ctp-latte-teal) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-teal-4: hsl(
+            from var(--ctp-latte-teal) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-teal-5: hsl(
+            from var(--ctp-latte-teal) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-teal-6: hsl(
+            from var(--ctp-latte-teal) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-teal-7: hsl(
+            from var(--ctp-latte-teal) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-teal-8: hsl(
+            from var(--ctp-latte-teal) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-teal-9: hsl(
+            from var(--ctp-latte-teal) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-teal-0: hsl(
+            from var(--ctp-mocha-teal) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-teal-1: hsl(
+            from var(--ctp-mocha-teal) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-teal-2: hsl(
+            from var(--ctp-mocha-teal) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-teal-3: hsl(
+            from var(--ctp-mocha-teal) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-teal-4: hsl(
+            from var(--ctp-mocha-teal) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-teal-5: hsl(
+            from var(--ctp-mocha-teal) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-teal-6: hsl(
+            from var(--ctp-mocha-teal) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-teal-7: hsl(
+            from var(--ctp-mocha-teal) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-teal-8: hsl(
+            from var(--ctp-mocha-teal) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-teal-9: hsl(
+            from var(--ctp-mocha-teal) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-teal-0: light-dark(var(--ctp-latte-teal-0), var(--ctp-mocha-teal-0));
+        --mantine-color-teal-1: light-dark(var(--ctp-latte-teal-1), var(--ctp-mocha-teal-1));
+        --mantine-color-teal-2: light-dark(var(--ctp-latte-teal-2), var(--ctp-mocha-teal-2));
+        --mantine-color-teal-3: light-dark(var(--ctp-latte-teal-3), var(--ctp-mocha-teal-3));
+        --mantine-color-teal-4: light-dark(var(--ctp-latte-teal-4), var(--ctp-mocha-teal-4));
+        --mantine-color-teal-5: light-dark(var(--ctp-latte-teal-5), var(--ctp-mocha-teal-5));
+        --mantine-color-teal-6: light-dark(var(--ctp-latte-teal-6), var(--ctp-mocha-teal-6));
+        --mantine-color-teal-7: light-dark(var(--ctp-latte-teal-7), var(--ctp-mocha-teal-7));
+        --mantine-color-teal-8: light-dark(var(--ctp-latte-teal-8), var(--ctp-mocha-teal-8));
+        --mantine-color-teal-9: light-dark(var(--ctp-latte-teal-9), var(--ctp-mocha-teal-9));
+        --mantine-color-teal-text: var(--mantine-color-teal-filled);
+        --mantine-color-teal-filled: var(--mantine-color-teal-6);
+        --mantine-color-teal-filled-hover: var(--mantine-color-teal-7);
+        --mantine-color-teal-light: color(from var(--mantine-color-teal-6) srgb r g b / 10%);
+        --mantine-color-teal-light-hover: color(from var(--mantine-color-teal-6) srgb r g b / 12%);
+        --mantine-color-teal-light-color: var(--mantine-color-teal-6);
+        --mantine-color-teal-outline: var(--mantine-color-teal-6);
+        --mantine-color-teal-outline-hover: color(from var(--mantine-color-teal-6) srgb r g b / 5%);
+
+        /* sky */
+        --ctp-latte-sky-0: hsl(
+            from var(--ctp-latte-sky) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-sky-1: hsl(
+            from var(--ctp-latte-sky) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-sky-2: hsl(
+            from var(--ctp-latte-sky) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-sky-3: hsl(
+            from var(--ctp-latte-sky) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-sky-4: hsl(
+            from var(--ctp-latte-sky) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-sky-5: hsl(
+            from var(--ctp-latte-sky) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-sky-6: hsl(
+            from var(--ctp-latte-sky) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-sky-7: hsl(
+            from var(--ctp-latte-sky) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-sky-8: hsl(
+            from var(--ctp-latte-sky) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-sky-9: hsl(
+            from var(--ctp-latte-sky) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-sky-0: hsl(
+            from var(--ctp-mocha-sky) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-sky-1: hsl(
+            from var(--ctp-mocha-sky) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-sky-2: hsl(
+            from var(--ctp-mocha-sky) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-sky-3: hsl(
+            from var(--ctp-mocha-sky) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-sky-4: hsl(
+            from var(--ctp-mocha-sky) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-sky-5: hsl(
+            from var(--ctp-mocha-sky) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-sky-6: hsl(
+            from var(--ctp-mocha-sky) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-sky-7: hsl(
+            from var(--ctp-mocha-sky) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-sky-8: hsl(
+            from var(--ctp-mocha-sky) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-sky-9: hsl(
+            from var(--ctp-mocha-sky) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-sky-0: light-dark(var(--ctp-latte-sky-0), var(--ctp-mocha-sky-0));
+        --mantine-color-sky-1: light-dark(var(--ctp-latte-sky-1), var(--ctp-mocha-sky-1));
+        --mantine-color-sky-2: light-dark(var(--ctp-latte-sky-2), var(--ctp-mocha-sky-2));
+        --mantine-color-sky-3: light-dark(var(--ctp-latte-sky-3), var(--ctp-mocha-sky-3));
+        --mantine-color-sky-4: light-dark(var(--ctp-latte-sky-4), var(--ctp-mocha-sky-4));
+        --mantine-color-sky-5: light-dark(var(--ctp-latte-sky-5), var(--ctp-mocha-sky-5));
+        --mantine-color-sky-6: light-dark(var(--ctp-latte-sky-6), var(--ctp-mocha-sky-6));
+        --mantine-color-sky-7: light-dark(var(--ctp-latte-sky-7), var(--ctp-mocha-sky-7));
+        --mantine-color-sky-8: light-dark(var(--ctp-latte-sky-8), var(--ctp-mocha-sky-8));
+        --mantine-color-sky-9: light-dark(var(--ctp-latte-sky-9), var(--ctp-mocha-sky-9));
+        --mantine-color-sky-text: var(--mantine-color-sky-filled);
+        --mantine-color-sky-filled: var(--mantine-color-sky-6);
+        --mantine-color-sky-filled-hover: var(--mantine-color-sky-7);
+        --mantine-color-sky-light: color(from var(--mantine-color-sky-6) srgb r g b / 10%);
+        --mantine-color-sky-light-hover: color(from var(--mantine-color-sky-6) srgb r g b / 12%);
+        --mantine-color-sky-light-color: var(--mantine-color-sky-6);
+        --mantine-color-sky-outline: var(--mantine-color-sky-6);
+        --mantine-color-sky-outline-hover: color(from var(--mantine-color-sky-6) srgb r g b / 5%);
+
+        /* cyan */
+        --ctp-latte-cyan-0: hsl(
+            from var(--ctp-latte-sapphire) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-cyan-1: hsl(
+            from var(--ctp-latte-sapphire) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-cyan-2: hsl(
+            from var(--ctp-latte-sapphire) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-cyan-3: hsl(
+            from var(--ctp-latte-sapphire) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-cyan-4: hsl(
+            from var(--ctp-latte-sapphire) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-cyan-5: hsl(
+            from var(--ctp-latte-sapphire) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-cyan-6: hsl(
+            from var(--ctp-latte-sapphire) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-cyan-7: hsl(
+            from var(--ctp-latte-sapphire) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-cyan-8: hsl(
+            from var(--ctp-latte-sapphire) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-cyan-9: hsl(
+            from var(--ctp-latte-sapphire) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-cyan-0: hsl(
+            from var(--ctp-mocha-sapphire) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-cyan-1: hsl(
+            from var(--ctp-mocha-sapphire) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-cyan-2: hsl(
+            from var(--ctp-mocha-sapphire) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-cyan-3: hsl(
+            from var(--ctp-mocha-sapphire) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-cyan-4: hsl(
+            from var(--ctp-mocha-sapphire) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-cyan-5: hsl(
+            from var(--ctp-mocha-sapphire) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-cyan-6: hsl(
+            from var(--ctp-mocha-sapphire) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-cyan-7: hsl(
+            from var(--ctp-mocha-sapphire) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-cyan-8: hsl(
+            from var(--ctp-mocha-sapphire) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-cyan-9: hsl(
+            from var(--ctp-mocha-sapphire) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-cyan-0: light-dark(var(--ctp-latte-cyan-0), var(--ctp-mocha-cyan-0));
+        --mantine-color-cyan-1: light-dark(var(--ctp-latte-cyan-1), var(--ctp-mocha-cyan-1));
+        --mantine-color-cyan-2: light-dark(var(--ctp-latte-cyan-2), var(--ctp-mocha-cyan-2));
+        --mantine-color-cyan-3: light-dark(var(--ctp-latte-cyan-3), var(--ctp-mocha-cyan-3));
+        --mantine-color-cyan-4: light-dark(var(--ctp-latte-cyan-4), var(--ctp-mocha-cyan-4));
+        --mantine-color-cyan-5: light-dark(var(--ctp-latte-cyan-5), var(--ctp-mocha-cyan-5));
+        --mantine-color-cyan-6: light-dark(var(--ctp-latte-cyan-6), var(--ctp-mocha-cyan-6));
+        --mantine-color-cyan-7: light-dark(var(--ctp-latte-cyan-7), var(--ctp-mocha-cyan-7));
+        --mantine-color-cyan-8: light-dark(var(--ctp-latte-cyan-8), var(--ctp-mocha-cyan-8));
+        --mantine-color-cyan-9: light-dark(var(--ctp-latte-cyan-9), var(--ctp-mocha-cyan-9));
+        --mantine-color-cyan-text: var(--mantine-color-cyan-filled);
+        --mantine-color-cyan-filled: var(--mantine-color-cyan-6);
+        --mantine-color-cyan-filled-hover: var(--mantine-color-cyan-7);
+        --mantine-color-cyan-light: color(from var(--mantine-color-cyan-6) srgb r g b / 10%);
+        --mantine-color-cyan-light-hover: color(from var(--mantine-color-cyan-6) srgb r g b / 12%);
+        --mantine-color-cyan-light-color: var(--mantine-color-cyan-6);
+        --mantine-color-cyan-outline: var(--mantine-color-cyan-6);
+        --mantine-color-cyan-outline-hover: color(from var(--mantine-color-cyan-6) srgb r g b / 5%);
+
+        /* blue */
+        --ctp-latte-blue-0: hsl(
+            from var(--ctp-latte-blue) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-blue-1: hsl(
+            from var(--ctp-latte-blue) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-blue-2: hsl(
+            from var(--ctp-latte-blue) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-blue-3: hsl(
+            from var(--ctp-latte-blue) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-blue-4: hsl(
+            from var(--ctp-latte-blue) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-blue-5: hsl(
+            from var(--ctp-latte-blue) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-blue-6: hsl(
+            from var(--ctp-latte-blue) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-blue-7: hsl(
+            from var(--ctp-latte-blue) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-blue-8: hsl(
+            from var(--ctp-latte-blue) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-blue-9: hsl(
+            from var(--ctp-latte-blue) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-blue-0: hsl(
+            from var(--ctp-mocha-blue) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-blue-1: hsl(
+            from var(--ctp-mocha-blue) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-blue-2: hsl(
+            from var(--ctp-mocha-blue) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-blue-3: hsl(
+            from var(--ctp-mocha-blue) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-blue-4: hsl(
+            from var(--ctp-mocha-blue) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-blue-5: hsl(
+            from var(--ctp-mocha-blue) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-blue-6: hsl(
+            from var(--ctp-mocha-blue) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-blue-7: hsl(
+            from var(--ctp-mocha-blue) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-blue-8: hsl(
+            from var(--ctp-mocha-blue) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-blue-9: hsl(
+            from var(--ctp-mocha-blue) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-blue-0: light-dark(var(--ctp-latte-blue-0), var(--ctp-mocha-blue-0));
+        --mantine-color-blue-1: light-dark(var(--ctp-latte-blue-1), var(--ctp-mocha-blue-1));
+        --mantine-color-blue-2: light-dark(var(--ctp-latte-blue-2), var(--ctp-mocha-blue-2));
+        --mantine-color-blue-3: light-dark(var(--ctp-latte-blue-3), var(--ctp-mocha-blue-3));
+        --mantine-color-blue-4: light-dark(var(--ctp-latte-blue-4), var(--ctp-mocha-blue-4));
+        --mantine-color-blue-5: light-dark(var(--ctp-latte-blue-5), var(--ctp-mocha-blue-5));
+        --mantine-color-blue-6: light-dark(var(--ctp-latte-blue-6), var(--ctp-mocha-blue-6));
+        --mantine-color-blue-7: light-dark(var(--ctp-latte-blue-7), var(--ctp-mocha-blue-7));
+        --mantine-color-blue-8: light-dark(var(--ctp-latte-blue-8), var(--ctp-mocha-blue-8));
+        --mantine-color-blue-9: light-dark(var(--ctp-latte-blue-9), var(--ctp-mocha-blue-9));
+        --mantine-color-blue-text: var(--mantine-color-blue-filled);
+        --mantine-color-blue-filled: var(--mantine-color-blue-6);
+        --mantine-color-blue-filled-hover: var(--mantine-color-blue-7);
+        --mantine-color-blue-light: color(from var(--mantine-color-blue-6) srgb r g b / 10%);
+        --mantine-color-blue-light-hover: color(from var(--mantine-color-blue-6) srgb r g b / 12%);
+        --mantine-color-blue-light-color: var(--mantine-color-blue-6);
+        --mantine-color-blue-outline: var(--mantine-color-blue-6);
+        --mantine-color-blue-outline-hover: color(from var(--mantine-color-blue-6) srgb r g b / 5%);
+
+        /* indigo */
+        --ctp-latte-indigo-0: hsl(
+            from var(--ctp-latte-lavender) h calc(s * var(--ctp-latte-s-0)) calc(l * var(--ctp-latte-l-0))
+        );
+        --ctp-latte-indigo-1: hsl(
+            from var(--ctp-latte-lavender) h calc(s * var(--ctp-latte-s-1)) calc(l * var(--ctp-latte-l-1))
+        );
+        --ctp-latte-indigo-2: hsl(
+            from var(--ctp-latte-lavender) h calc(s * var(--ctp-latte-s-2)) calc(l * var(--ctp-latte-l-2))
+        );
+        --ctp-latte-indigo-3: hsl(
+            from var(--ctp-latte-lavender) h calc(s * var(--ctp-latte-s-3)) calc(l * var(--ctp-latte-l-3))
+        );
+        --ctp-latte-indigo-4: hsl(
+            from var(--ctp-latte-lavender) h calc(s * var(--ctp-latte-s-4)) calc(l * var(--ctp-latte-l-4))
+        );
+        --ctp-latte-indigo-5: hsl(
+            from var(--ctp-latte-lavender) h calc(s * var(--ctp-latte-s-5)) calc(l * var(--ctp-latte-l-5))
+        );
+        --ctp-latte-indigo-6: hsl(
+            from var(--ctp-latte-lavender) h calc(s * var(--ctp-latte-s-6)) calc(l * var(--ctp-latte-l-6))
+        );
+        --ctp-latte-indigo-7: hsl(
+            from var(--ctp-latte-lavender) h calc(s * var(--ctp-latte-s-7)) calc(l * var(--ctp-latte-l-7))
+        );
+        --ctp-latte-indigo-8: hsl(
+            from var(--ctp-latte-lavender) h calc(s * var(--ctp-latte-s-8)) calc(l * var(--ctp-latte-l-8))
+        );
+        --ctp-latte-indigo-9: hsl(
+            from var(--ctp-latte-lavender) h calc(s * var(--ctp-latte-s-9)) calc(l * var(--ctp-latte-l-9))
+        );
+        --ctp-mocha-indigo-0: hsl(
+            from var(--ctp-mocha-lavender) h calc(s * var(--ctp-mocha-s-0)) calc(l * var(--ctp-mocha-l-0))
+        );
+        --ctp-mocha-indigo-1: hsl(
+            from var(--ctp-mocha-lavender) h calc(s * var(--ctp-mocha-s-1)) calc(l * var(--ctp-mocha-l-1))
+        );
+        --ctp-mocha-indigo-2: hsl(
+            from var(--ctp-mocha-lavender) h calc(s * var(--ctp-mocha-s-2)) calc(l * var(--ctp-mocha-l-2))
+        );
+        --ctp-mocha-indigo-3: hsl(
+            from var(--ctp-mocha-lavender) h calc(s * var(--ctp-mocha-s-3)) calc(l * var(--ctp-mocha-l-3))
+        );
+        --ctp-mocha-indigo-4: hsl(
+            from var(--ctp-mocha-lavender) h calc(s * var(--ctp-mocha-s-4)) calc(l * var(--ctp-mocha-l-4))
+        );
+        --ctp-mocha-indigo-5: hsl(
+            from var(--ctp-mocha-lavender) h calc(s * var(--ctp-mocha-s-5)) calc(l * var(--ctp-mocha-l-5))
+        );
+        --ctp-mocha-indigo-6: hsl(
+            from var(--ctp-mocha-lavender) h calc(s * var(--ctp-mocha-s-6)) calc(l * var(--ctp-mocha-l-6))
+        );
+        --ctp-mocha-indigo-7: hsl(
+            from var(--ctp-mocha-lavender) h calc(s * var(--ctp-mocha-s-7)) calc(l * var(--ctp-mocha-l-7))
+        );
+        --ctp-mocha-indigo-8: hsl(
+            from var(--ctp-mocha-lavender) h calc(s * var(--ctp-mocha-s-8)) calc(l * var(--ctp-mocha-l-8))
+        );
+        --ctp-mocha-indigo-9: hsl(
+            from var(--ctp-mocha-lavender) h calc(s * var(--ctp-mocha-s-9)) calc(l * var(--ctp-mocha-l-9))
+        );
+        --mantine-color-indigo-0: light-dark(var(--ctp-latte-indigo-0), var(--ctp-mocha-indigo-0));
+        --mantine-color-indigo-1: light-dark(var(--ctp-latte-indigo-1), var(--ctp-mocha-indigo-1));
+        --mantine-color-indigo-2: light-dark(var(--ctp-latte-indigo-2), var(--ctp-mocha-indigo-2));
+        --mantine-color-indigo-3: light-dark(var(--ctp-latte-indigo-3), var(--ctp-mocha-indigo-3));
+        --mantine-color-indigo-4: light-dark(var(--ctp-latte-indigo-4), var(--ctp-mocha-indigo-4));
+        --mantine-color-indigo-5: light-dark(var(--ctp-latte-indigo-5), var(--ctp-mocha-indigo-5));
+        --mantine-color-indigo-6: light-dark(var(--ctp-latte-indigo-6), var(--ctp-mocha-indigo-6));
+        --mantine-color-indigo-7: light-dark(var(--ctp-latte-indigo-7), var(--ctp-mocha-indigo-7));
+        --mantine-color-indigo-8: light-dark(var(--ctp-latte-indigo-8), var(--ctp-mocha-indigo-8));
+        --mantine-color-indigo-9: light-dark(var(--ctp-latte-indigo-9), var(--ctp-mocha-indigo-9));
+        --mantine-color-indigo-text: var(--mantine-color-indigo-filled);
+        --mantine-color-indigo-filled: var(--mantine-color-indigo-6);
+        --mantine-color-indigo-filled-hover: var(--mantine-color-indigo-7);
+        --mantine-color-indigo-light: color(from var(--mantine-color-indigo-6) srgb r g b / 10%);
+        --mantine-color-indigo-light-hover: color(from var(--mantine-color-indigo-6) srgb r g b / 12%);
+        --mantine-color-indigo-light-color: var(--mantine-color-indigo-6);
+        --mantine-color-indigo-outline: var(--mantine-color-indigo-6);
+        --mantine-color-indigo-outline-hover: color(from var(--mantine-color-indigo-6) srgb r g b / 5%);
+
+        /* Scheme-agnostic aliases and derived variables */
+        --mantine-primary-color-0: var(--mantine-color-blue-0);
+        --mantine-primary-color-1: var(--mantine-color-blue-1);
+        --mantine-primary-color-2: var(--mantine-color-blue-2);
+        --mantine-primary-color-3: var(--mantine-color-blue-3);
+        --mantine-primary-color-4: var(--mantine-color-blue-4);
+        --mantine-primary-color-5: var(--mantine-color-blue-5);
+        --mantine-primary-color-6: var(--mantine-color-blue-6);
+        --mantine-primary-color-7: var(--mantine-color-blue-7);
+        --mantine-primary-color-8: var(--mantine-color-blue-8);
+        --mantine-primary-color-9: var(--mantine-color-blue-9);
+        --mantine-primary-color-contrast: var(--mantine-color-white);
+        --mantine-primary-color-filled: var(--mantine-color-blue-filled);
+        --mantine-primary-color-filled-hover: var(--mantine-color-blue-filled-hover);
+        --mantine-primary-color-light: var(--mantine-color-blue-light);
+        --mantine-primary-color-light-hover: var(--mantine-color-blue-light-hover);
+        --mantine-primary-color-light-color: var(--mantine-color-blue-light-color);
+
+        /* Final scheme selection */
+        --mantine-color-text: light-dark(var(--ctp-latte-text), var(--ctp-mocha-text));
+        --mantine-color-subtext1: light-dark(var(--ctp-latte-subtext1), var(--ctp-mocha-subtext1));
+        --mantine-color-subtext0: light-dark(var(--ctp-latte-subtext0), var(--ctp-mocha-subtext0));
+        --mantine-color-overlay2: light-dark(var(--ctp-latte-overlay2), var(--ctp-mocha-overlay2));
+        --mantine-color-overlay1: light-dark(var(--ctp-latte-overlay1), var(--ctp-mocha-overlay1));
+        --mantine-color-overlay0: light-dark(var(--ctp-latte-overlay0), var(--ctp-mocha-overlay0));
+        --mantine-color-surface2: light-dark(var(--ctp-latte-surface2), var(--ctp-mocha-surface2));
+        --mantine-color-surface1: light-dark(var(--ctp-latte-surface1), var(--ctp-mocha-surface1));
+        --mantine-color-surface0: light-dark(var(--ctp-latte-surface0), var(--ctp-mocha-surface0));
+        --mantine-color-base: light-dark(var(--ctp-latte-base), var(--ctp-mocha-base));
+        --mantine-color-mantle: light-dark(var(--ctp-latte-mantle), var(--ctp-mocha-mantle));
+        --mantine-color-crust: light-dark(var(--ctp-latte-crust), var(--ctp-mocha-crust));
+        --mantine-color-strong: light-dark(var(--ctp-mocha-crust), var(--ctp-latte-crust));
+        --mantine-color-soft: light-dark(var(--ctp-latte-crust), var(--ctp-mocha-crust));
+        --mantine-color-shadow: light-dark(var(--ctp-latte-overlay2), var(--ctp-mocha-crust));
+        --mantine-color-white: light-dark(#fff, #000);
+        --mantine-color-black: light-dark(#000, #fff);
+        --mantine-color-body: var(--mantine-color-base);
+        --mantine-color-bright: var(--mantine-color-black);
+        --mantine-color-error: var(--mantine-color-red-6);
+        --mantine-color-placeholder: var(--mantine-color-gray-5);
+        --mantine-color-anchor: var(--mantine-color-blue-6);
+        --mantine-color-default: var(--mantine-color-white);
+        --mantine-color-default-hover: var(--mantine-color-gray-0);
+        --mantine-color-default-color: var(--mantine-color-black);
+        --mantine-color-default-border: var(--mantine-color-gray-4);
+        --mantine-color-dimmed: var(--mantine-color-gray-6);
+        --mantine-color-disabled: var(--mantine-color-gray-2);
+        --mantine-color-disabled-color: var(--mantine-color-gray-5);
+        --mantine-color-disabled-border: var(--mantine-color-gray-3);
+
+        /* mauve */
+        --mantine-color-mauve-0: var(--mantine-color-grape-0);
+        --mantine-color-mauve-1: var(--mantine-color-grape-1);
+        --mantine-color-mauve-2: var(--mantine-color-grape-2);
+        --mantine-color-mauve-3: var(--mantine-color-grape-3);
+        --mantine-color-mauve-4: var(--mantine-color-grape-4);
+        --mantine-color-mauve-5: var(--mantine-color-grape-5);
+        --mantine-color-mauve-6: var(--mantine-color-grape-6);
+        --mantine-color-mauve-7: var(--mantine-color-grape-7);
+        --mantine-color-mauve-8: var(--mantine-color-grape-8);
+        --mantine-color-mauve-9: var(--mantine-color-grape-9);
+        --mantine-color-mauve-text: var(--mantine-color-grape-text);
+        --mantine-color-mauve-filled: var(--mantine-color-grape-filled);
+        --mantine-color-mauve-filled-hover: var(--mantine-color-grape-filled-hover);
+        --mantine-color-mauve-light: var(--mantine-color-grape-light);
+        --mantine-color-mauve-light-hover: var(--mantine-color-grape-light-hover);
+        --mantine-color-mauve-light-color: var(--mantine-color-grape-light-color);
+        --mantine-color-mauve-outline: var(--mantine-color-grape-outline);
+        --mantine-color-mauve-outline-hover: var(--mantine-color-grape-outline-hover);
+
+        /* peach */
+        --mantine-color-peach-0: var(--mantine-color-orange-0);
+        --mantine-color-peach-1: var(--mantine-color-orange-1);
+        --mantine-color-peach-2: var(--mantine-color-orange-2);
+        --mantine-color-peach-3: var(--mantine-color-orange-3);
+        --mantine-color-peach-4: var(--mantine-color-orange-4);
+        --mantine-color-peach-5: var(--mantine-color-orange-5);
+        --mantine-color-peach-6: var(--mantine-color-orange-6);
+        --mantine-color-peach-7: var(--mantine-color-orange-7);
+        --mantine-color-peach-8: var(--mantine-color-orange-8);
+        --mantine-color-peach-9: var(--mantine-color-orange-9);
+        --mantine-color-peach-text: var(--mantine-color-orange-text);
+        --mantine-color-peach-filled: var(--mantine-color-orange-filled);
+        --mantine-color-peach-filled-hover: var(--mantine-color-orange-filled-hover);
+        --mantine-color-peach-light: var(--mantine-color-orange-light);
+        --mantine-color-peach-light-hover: var(--mantine-color-orange-light-hover);
+        --mantine-color-peach-light-color: var(--mantine-color-orange-light-color);
+        --mantine-color-peach-outline: var(--mantine-color-orange-outline);
+        --mantine-color-peach-outline-hover: var(--mantine-color-orange-outline-hover);
+
+        /* sapphire */
+        --mantine-color-sapphire-0: var(--mantine-color-cyan-0);
+        --mantine-color-sapphire-1: var(--mantine-color-cyan-1);
+        --mantine-color-sapphire-2: var(--mantine-color-cyan-2);
+        --mantine-color-sapphire-3: var(--mantine-color-cyan-3);
+        --mantine-color-sapphire-4: var(--mantine-color-cyan-4);
+        --mantine-color-sapphire-5: var(--mantine-color-cyan-5);
+        --mantine-color-sapphire-6: var(--mantine-color-cyan-6);
+        --mantine-color-sapphire-7: var(--mantine-color-cyan-7);
+        --mantine-color-sapphire-8: var(--mantine-color-cyan-8);
+        --mantine-color-sapphire-9: var(--mantine-color-cyan-9);
+        --mantine-color-sapphire-text: var(--mantine-color-cyan-text);
+        --mantine-color-sapphire-filled: var(--mantine-color-cyan-filled);
+        --mantine-color-sapphire-filled-hover: var(--mantine-color-cyan-filled-hover);
+        --mantine-color-sapphire-light: var(--mantine-color-cyan-light);
+        --mantine-color-sapphire-light-hover: var(--mantine-color-cyan-light-hover);
+        --mantine-color-sapphire-light-color: var(--mantine-color-cyan-light-color);
+        --mantine-color-sapphire-outline: var(--mantine-color-cyan-outline);
+        --mantine-color-sapphire-outline-hover: var(--mantine-color-cyan-outline-hover);
+
+        /* lavender */
+        --mantine-color-lavender-0: var(--mantine-color-indigo-0);
+        --mantine-color-lavender-1: var(--mantine-color-indigo-1);
+        --mantine-color-lavender-2: var(--mantine-color-indigo-2);
+        --mantine-color-lavender-3: var(--mantine-color-indigo-3);
+        --mantine-color-lavender-4: var(--mantine-color-indigo-4);
+        --mantine-color-lavender-5: var(--mantine-color-indigo-5);
+        --mantine-color-lavender-6: var(--mantine-color-indigo-6);
+        --mantine-color-lavender-7: var(--mantine-color-indigo-7);
+        --mantine-color-lavender-8: var(--mantine-color-indigo-8);
+        --mantine-color-lavender-9: var(--mantine-color-indigo-9);
+        --mantine-color-lavender-text: var(--mantine-color-indigo-text);
+        --mantine-color-lavender-filled: var(--mantine-color-indigo-filled);
+        --mantine-color-lavender-filled-hover: var(--mantine-color-indigo-filled-hover);
+        --mantine-color-lavender-light: var(--mantine-color-indigo-light);
+        --mantine-color-lavender-light-hover: var(--mantine-color-indigo-light-hover);
+        --mantine-color-lavender-light-color: var(--mantine-color-indigo-light-color);
+        --mantine-color-lavender-outline: var(--mantine-color-indigo-outline);
+        --mantine-color-lavender-outline-hover: var(--mantine-color-indigo-outline-hover);
+
+        /* gray */
+        --mantine-color-gray-0: var(--mantine-color-crust);
+        --mantine-color-gray-1: var(--mantine-color-mantle);
+        --mantine-color-gray-2: var(--mantine-color-base);
+        --mantine-color-gray-3: var(--mantine-color-surface0);
+        --mantine-color-gray-4: var(--mantine-color-surface1);
+        --mantine-color-gray-5: var(--mantine-color-surface2);
+        --mantine-color-gray-6: var(--mantine-color-overlay0);
+        --mantine-color-gray-7: var(--mantine-color-overlay1);
+        --mantine-color-gray-8: var(--mantine-color-overlay2);
+        --mantine-color-gray-9: var(--mantine-color-text);
+        --mantine-color-gray-text: var(--mantine-color-gray-filled);
+        --mantine-color-gray-filled: var(--mantine-color-gray-6);
+        --mantine-color-gray-filled-hover: var(--mantine-color-gray-7);
+        --mantine-color-gray-light: color(from var(--mantine-color-gray-6) srgb r g b / 10%);
+        --mantine-color-gray-light-hover: color(from var(--mantine-color-gray-6) srgb r g b / 12%);
+        --mantine-color-gray-light-color: var(--mantine-color-gray-6);
+        --mantine-color-gray-outline: var(--mantine-color-gray-6);
+        --mantine-color-gray-outline-hover: color(from var(--mantine-color-gray-6) srgb r g b / 5%);
+
+        /* dark */
+        --mantine-color-dark-0: var(--mantine-color-surface0);
+        --mantine-color-dark-1: var(--mantine-color-surface1);
+        --mantine-color-dark-2: var(--mantine-color-surface2);
+        --mantine-color-dark-3: var(--mantine-color-overlay0);
+        --mantine-color-dark-4: var(--mantine-color-overlay1);
+        --mantine-color-dark-5: var(--mantine-color-overlay2);
+        --mantine-color-dark-6: var(--mantine-color-subtext0);
+        --mantine-color-dark-7: var(--mantine-color-subtext1);
+        --mantine-color-dark-8: var(--mantine-color-text);
+        --mantine-color-dark-9: var(--mantine-color-strong);
+        --mantine-color-dark-text: var(--mantine-color-dark-filled);
+        --mantine-color-dark-filled: var(--mantine-color-dark-6);
+        --mantine-color-dark-filled-hover: var(--mantine-color-dark-7);
+        --mantine-color-dark-light: color(from var(--mantine-color-dark-6) srgb r g b / 10%);
+        --mantine-color-dark-light-hover: color(from var(--mantine-color-dark-6) srgb r g b / 12%);
+        --mantine-color-dark-light-color: var(--mantine-color-dark-6);
+        --mantine-color-dark-outline: var(--mantine-color-dark-6);
+        --mantine-color-dark-outline-hover: color(from var(--mantine-color-dark-6) srgb r g b / 5%);
+    }
+
+    /* primary */
+    --mantine-color-primary-0: var(--mantine-color-blue-0);
+    --mantine-color-primary-1: var(--mantine-color-blue-1);
+    --mantine-color-primary-2: var(--mantine-color-blue-2);
+    --mantine-color-primary-3: var(--mantine-color-blue-3);
+    --mantine-color-primary-4: var(--mantine-color-blue-4);
+    --mantine-color-primary-5: var(--mantine-color-blue-5);
+    --mantine-color-primary-6: var(--mantine-color-blue-6);
+    --mantine-color-primary-7: var(--mantine-color-blue-7);
+    --mantine-color-primary-8: var(--mantine-color-blue-8);
+    --mantine-color-primary-9: var(--mantine-color-blue-9);
+    --mantine-color-primary-text: var(--mantine-color-blue-text);
+    --mantine-color-primary-filled: var(--mantine-color-blue-filled);
+    --mantine-color-primary-filled-hover: var(--mantine-color-blue-filled-hover);
+    --mantine-color-primary-light: var(--mantine-color-blue-light);
+    --mantine-color-primary-light-hover: var(--mantine-color-blue-light-hover);
+    --mantine-color-primary-light-color: var(--mantine-color-blue-light-color);
+    --mantine-color-primary-outline: var(--mantine-color-blue-outline);
+    --mantine-color-primary-outline-hover: var(--mantine-color-blue-outline-hover);
+
+    /* secondary */
+    --mantine-color-secondary-0: var(--mantine-color-violet-0);
+    --mantine-color-secondary-1: var(--mantine-color-violet-1);
+    --mantine-color-secondary-2: var(--mantine-color-violet-2);
+    --mantine-color-secondary-3: var(--mantine-color-violet-3);
+    --mantine-color-secondary-4: var(--mantine-color-violet-4);
+    --mantine-color-secondary-5: var(--mantine-color-violet-5);
+    --mantine-color-secondary-6: var(--mantine-color-violet-6);
+    --mantine-color-secondary-7: var(--mantine-color-violet-7);
+    --mantine-color-secondary-8: var(--mantine-color-violet-8);
+    --mantine-color-secondary-9: var(--mantine-color-violet-9);
+    --mantine-color-secondary-text: var(--mantine-color-violet-text);
+    --mantine-color-secondary-filled: var(--mantine-color-violet-filled);
+    --mantine-color-secondary-filled-hover: var(--mantine-color-violet-filled-hover);
+    --mantine-color-secondary-light: var(--mantine-color-violet-light);
+    --mantine-color-secondary-light-hover: var(--mantine-color-violet-light-hover);
+    --mantine-color-secondary-light-color: var(--mantine-color-violet-light-color);
+    --mantine-color-secondary-outline: var(--mantine-color-violet-outline);
+    --mantine-color-secondary-outline-hover: var(--mantine-color-violet-outline-hover);
+
+    /* positive */
+    --mantine-color-positive-0: var(--mantine-color-green-0);
+    --mantine-color-positive-1: var(--mantine-color-green-1);
+    --mantine-color-positive-2: var(--mantine-color-green-2);
+    --mantine-color-positive-3: var(--mantine-color-green-3);
+    --mantine-color-positive-4: var(--mantine-color-green-4);
+    --mantine-color-positive-5: var(--mantine-color-green-5);
+    --mantine-color-positive-6: var(--mantine-color-green-6);
+    --mantine-color-positive-7: var(--mantine-color-green-7);
+    --mantine-color-positive-8: var(--mantine-color-green-8);
+    --mantine-color-positive-9: var(--mantine-color-green-9);
+    --mantine-color-positive-text: var(--mantine-color-green-text);
+    --mantine-color-positive-filled: var(--mantine-color-green-filled);
+    --mantine-color-positive-filled-hover: var(--mantine-color-green-filled-hover);
+    --mantine-color-positive-light: var(--mantine-color-green-light);
+    --mantine-color-positive-light-hover: var(--mantine-color-green-light-hover);
+    --mantine-color-positive-light-color: var(--mantine-color-green-light-color);
+    --mantine-color-positive-outline: var(--mantine-color-green-outline);
+    --mantine-color-positive-outline-hover: var(--mantine-color-green-outline-hover);
+
+    /* negative */
+    --mantine-color-negative-0: var(--mantine-color-red-0);
+    --mantine-color-negative-1: var(--mantine-color-red-1);
+    --mantine-color-negative-2: var(--mantine-color-red-2);
+    --mantine-color-negative-3: var(--mantine-color-red-3);
+    --mantine-color-negative-4: var(--mantine-color-red-4);
+    --mantine-color-negative-5: var(--mantine-color-red-5);
+    --mantine-color-negative-6: var(--mantine-color-red-6);
+    --mantine-color-negative-7: var(--mantine-color-red-7);
+    --mantine-color-negative-8: var(--mantine-color-red-8);
+    --mantine-color-negative-9: var(--mantine-color-red-9);
+    --mantine-color-negative-text: var(--mantine-color-red-text);
+    --mantine-color-negative-filled: var(--mantine-color-red-filled);
+    --mantine-color-negative-filled-hover: var(--mantine-color-red-filled-hover);
+    --mantine-color-negative-light: var(--mantine-color-red-light);
+    --mantine-color-negative-light-hover: var(--mantine-color-red-light-hover);
+    --mantine-color-negative-light-color: var(--mantine-color-red-light-color);
+    --mantine-color-negative-outline: var(--mantine-color-red-outline);
+    --mantine-color-negative-outline-hover: var(--mantine-color-red-outline-hover);
+
+    /* moderate */
+    --mantine-color-moderate-0: var(--mantine-color-yellow-0);
+    --mantine-color-moderate-1: var(--mantine-color-yellow-1);
+    --mantine-color-moderate-2: var(--mantine-color-yellow-2);
+    --mantine-color-moderate-3: var(--mantine-color-yellow-3);
+    --mantine-color-moderate-4: var(--mantine-color-yellow-4);
+    --mantine-color-moderate-5: var(--mantine-color-yellow-5);
+    --mantine-color-moderate-6: var(--mantine-color-yellow-6);
+    --mantine-color-moderate-7: var(--mantine-color-yellow-7);
+    --mantine-color-moderate-8: var(--mantine-color-yellow-8);
+    --mantine-color-moderate-9: var(--mantine-color-yellow-9);
+    --mantine-color-moderate-text: var(--mantine-color-yellow-text);
+    --mantine-color-moderate-filled: var(--mantine-color-yellow-filled);
+    --mantine-color-moderate-filled-hover: var(--mantine-color-yellow-filled-hover);
+    --mantine-color-moderate-light: var(--mantine-color-yellow-light);
+    --mantine-color-moderate-light-hover: var(--mantine-color-yellow-light-hover);
+    --mantine-color-moderate-light-color: var(--mantine-color-yellow-light-color);
+    --mantine-color-moderate-outline: var(--mantine-color-yellow-outline);
+    --mantine-color-moderate-outline-hover: var(--mantine-color-yellow-outline-hover);
+
+    /* neutral */
+    --mantine-color-neutral-0: var(--mantine-color-gray-0);
+    --mantine-color-neutral-1: var(--mantine-color-gray-1);
+    --mantine-color-neutral-2: var(--mantine-color-gray-2);
+    --mantine-color-neutral-3: var(--mantine-color-gray-3);
+    --mantine-color-neutral-4: var(--mantine-color-gray-4);
+    --mantine-color-neutral-5: var(--mantine-color-gray-5);
+    --mantine-color-neutral-6: var(--mantine-color-gray-6);
+    --mantine-color-neutral-7: var(--mantine-color-gray-7);
+    --mantine-color-neutral-8: var(--mantine-color-gray-8);
+    --mantine-color-neutral-9: var(--mantine-color-gray-9);
+    --mantine-color-neutral-text: var(--mantine-color-gray-text);
+    --mantine-color-neutral-filled: var(--mantine-color-gray-filled);
+    --mantine-color-neutral-filled-hover: var(--mantine-color-gray-filled-hover);
+    --mantine-color-neutral-light: var(--mantine-color-gray-light);
+    --mantine-color-neutral-light-hover: var(--mantine-color-gray-light-hover);
+    --mantine-color-neutral-light-color: var(--mantine-color-gray-light-color);
+    --mantine-color-neutral-outline: var(--mantine-color-gray-outline);
+    --mantine-color-neutral-outline-hover: var(--mantine-color-gray-outline-hover);
+}

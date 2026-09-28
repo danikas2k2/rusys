@@ -1,0 +1,46 @@
+/* Totals shown immediately below a year selector are a dialog summary, not a table cell: */
+
+/* give them a single visual centre and make the actual totals easier to scan. */
+[data-dialog-year-total] {
+    width: 100%;
+    font-size: var(--mantine-font-size-lg);
+    font-weight: var(--mantine-font-weight-md);
+
+    [data-type],
+    [data-amounts-rows] {
+        align-items: center;
+        justify-content: center;
+    }
+
+    [data-amounts-row],
+    [data-value="true"] {
+        justify-content: center;
+    }
+
+    [data-value][data-total] {
+        font-size: var(--mantine-font-size-xl);
+        align-items: baseline;
+
+        sub {
+            font-size: var(--mantine-font-size-md);
+            line-height: 1;
+        }
+    }
+
+    /* The annotated product total normally stretches its source breakdown to the cell edge. */
+
+    /* In a dialog it should stay with the total so the complete expression remains centred. */
+    [data-annotated="true"] [data-sources] {
+        flex: 0 1 auto;
+        align-items: baseline;
+        justify-content: center;
+
+        /* Parentheses were deliberately small in a table cell. Here they belong to the */
+
+        /* enlarged dialog total, so retain their secondary weight but align to its baseline. */
+        .ui-Text-root {
+            font-size: var(--mantine-font-size-md);
+            line-height: 1;
+        }
+    }
+}

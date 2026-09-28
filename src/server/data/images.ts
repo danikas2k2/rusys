@@ -2,11 +2,12 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import { IMAGE_EXTENSION_BY_MIME_TYPE } from '@rusys/common/utils/files';
 import sharp from 'sharp';
 
+import { IMAGE_EXTENSION_BY_MIME_TYPE } from '~/common/utils/files';
+
 // Mounted as a persistent Docker volume in production - see docker/compose.yaml
-export const IMAGES_DIR = path.resolve(process.env.IMAGES_DIR ?? 'data/images');
+export const IMAGES_DIR = path.resolve(/*turbopackIgnore: true*/ process.env.IMAGES_DIR ?? 'data/images');
 export const IMAGES_URL_PATH = '/images';
 
 const DATA_URL_PATTERN = /^data:([^;]+);base64,(.+)$/;
@@ -20,7 +21,7 @@ const ICON_MAX_ASPECT = 1.33;
 // Shards files across 256*256 sub-directories by uid prefix (like a content-addressable store),
 // so a single directory never accumulates a huge, unbrowsable number of files.
 function shardedPath(uid: string, extension: string): string {
-    return path.join(uid.slice(0, 2), uid.slice(2, 4), `${uid}.${extension}`);
+    return path.join(/*turbopackIgnore: true*/ uid.slice(0, 2), uid.slice(2, 4), `${uid}.${extension}`);
 }
 
 export async function saveImage(dataUrl: string): Promise<string> {
@@ -35,7 +36,7 @@ export async function saveImage(dataUrl: string): Promise<string> {
     }
 
     const relativePath = shardedPath(randomUUID().replace(/-/g, ''), extension);
-    const filePath = path.join(IMAGES_DIR, relativePath);
+    const filePath = path.join(/*turbopackIgnore: true*/ IMAGES_DIR, relativePath);
 
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, Buffer.from(base64, 'base64'));
@@ -61,7 +62,7 @@ export function resolveImagePath(url?: string): string | undefined {
     if (!url?.startsWith(`${IMAGES_URL_PATH}/`)) {
         return undefined;
     }
-    return path.join(IMAGES_DIR, url.slice(IMAGES_URL_PATH.length + 1));
+    return path.join(/*turbopackIgnore: true*/ IMAGES_DIR, url.slice(IMAGES_URL_PATH.length + 1));
 }
 
 export async function deleteImage(url?: string): Promise<void> {
@@ -94,7 +95,7 @@ async function isPhotoSized(filePath: string): Promise<boolean> {
 async function saveThumbnail(sourcePath: string): Promise<string> {
     const extension = path.extname(sourcePath).slice(1) || 'jpg';
     const relativePath = shardedPath(randomUUID().replace(/-/g, ''), extension);
-    const filePath = path.join(IMAGES_DIR, relativePath);
+    const filePath = path.join(/*turbopackIgnore: true*/ IMAGES_DIR, relativePath);
 
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await sharp(sourcePath).resize(ICON_MAX_SIZE, ICON_MAX_SIZE, { fit: 'cover' }).toFile(filePath);

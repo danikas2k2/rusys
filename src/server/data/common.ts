@@ -1,6 +1,6 @@
-import type { ExportArchiveData, Group, Product, UpdateVariant, Variant } from '@rusys/common/data';
 import type { Db } from 'mongodb';
 
+import type { ExportArchiveData, Group, Product, UpdateVariant, Variant } from '~/common/data';
 import { deleteGroup, renameGroup } from '~/server/data/groups';
 import { getProductVariants, moveProduct, renameProductsGroup, renameProductsVariant } from '~/server/data/products';
 import { hasEffect } from '~/server/data/utils';

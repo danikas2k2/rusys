@@ -1,11 +1,13 @@
 {
     "extends": "@tsconfig/node26",
-    "include": ["src/**/*", "vitest/**/*"],
-    "exclude": ["node_modules", "**/*.spec.ts"],
+    "include": ["next-env.d.ts", "src/**/*", "vitest/**/*", "playwright.config.ts"],
+    "exclude": ["node_modules", "**/*.test.ts", "**/*.test.tsx", "**/__mocks__/**", "vitest/**"],
     "compilerOptions": {
+        "ignoreDeprecations": "6.0",
         "paths": {
+            "*": ["./*"],
             "package.json": ["./package.json"],
-            "@icons": ["./src/client/common/icons"],
+            "@icons": ["./src/components/icons"],
             "@tests/*": ["./src/tests/*"],
             "~/*": ["./src/*"]
         },
@@ -22,7 +24,7 @@
         "resolveJsonModule": true,
         "preserveSymlinks": true,
         "jsx": "react-jsx",
-        "types": ["node", "express", "vite/client", "vitest/globals", "@testing-library/jest-dom"],
+        "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true

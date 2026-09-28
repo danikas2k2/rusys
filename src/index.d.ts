@@ -10,19 +10,17 @@ declare module '*.css' {
     export default classes;
 }
 
-declare module '*.pcss' {
+declare module '*.css' {
     const classes: { readonly [key: string]: string };
     export default classes;
 }
 
-declare module '*.module.pcss' {
+declare module '*.module.css' {
     const classes: { readonly [key: string]: string };
     export default classes;
 }
 
-declare module '*.pcss?module' {
+declare module '*.css?module' {
     const classes: { readonly [key: string]: string };
     export default classes;
 }
-
-declare module 'virtual:css-fallback-client';

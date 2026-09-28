@@ -1,0 +1,68 @@
+.burger {
+    position: fixed;
+    top: calc(var(--safe-block-start) + 6px);
+    left: calc(var(--safe-inline-start) + 6px);
+}
+
+/* Turbopack dev currently drops these shared Mantine pseudo-element declarations. */
+.toolbar-menu-burger-icon::before {
+    display: block;
+    width: var(--burger-size);
+    height: var(--burger-line-size);
+    background-color: var(--burger-color);
+    outline: calc(0.0625rem * var(--mantine-scale)) solid transparent;
+    transition: background-color var(--burger-transition-duration, 300ms)
+        var(--burger-transition-timing-function, ease),
+        transform var(--burger-transition-duration, 300ms) var(--burger-transition-timing-function, ease);
+}
+
+.toolbar-menu-burger-icon::after {
+    display: block;
+    width: var(--burger-size);
+    height: var(--burger-line-size);
+    background-color: var(--burger-color);
+    outline: calc(0.0625rem * var(--mantine-scale)) solid transparent;
+    transition: background-color var(--burger-transition-duration, 300ms)
+        var(--burger-transition-timing-function, ease),
+        transform var(--burger-transition-duration, 300ms) var(--burger-transition-timing-function, ease);
+}
+
+.drawer {
+    .ui-Drawer-body {
+        padding-inline: var(--safe-inline-start) 0;
+        padding-block: 0 var(--safe-block-end);
+    }
+
+    .ui-Drawer-content {
+        padding: 0;
+        flex-basis: min(300px, 60vw);
+        height: 100dvh;
+        max-height: 100dvh;
+
+        @supports (height: 100lvh) {
+            height: 100lvh;
+            max-height: 100lvh;
+        }
+    }
+}
+
+.menu {
+    padding-inline: 0;
+    padding-block: calc(4rem + var(--safe-block-start)) var(--safe-block-end);
+    height: 100dvh;
+
+    @supports (height: 100lvh) {
+        height: 100lvh;
+    }
+
+    /* The global default hover maps to a very light gray in the dark scheme, leaving too little */
+
+    /* contrast with the menu's light text. Keep that default in light mode, but use the much */
+
+    /* darker mantle surface for non-active navigation rows in dark mode. */
+    @media (hover: hover) {
+        .ui-NavLink-root:not([data-active="true"]):hover {
+            background-color: light-dark(var(--mantine-color-default-hover), var(--mantine-color-mantle));
+        }
+    }
+}

@@ -1,0 +1,40 @@
+.ui-Flex-root.variant-edit-row {
+    --row-color: var(--mantine-color-text);
+    --input-sz: 50%;
+
+    &[data-type="updated"] {
+        --input-sz: 100%;
+    }
+
+    &[data-type="consumed"] {
+        --row-color: var(--mantine-color-positive-filled);
+    }
+
+    &[data-type="recycled"] {
+        --row-color: var(--mantine-color-negative-filled);
+    }
+
+    border-radius: var(--mantine-radius-default);
+    color: var(--row-color);
+
+    .ui-NumberInput-root {
+        width: var(--input-sz);
+    }
+
+    .ui-NumberInput-input {
+        text-align: center;
+        color: var(--row-color);
+        border-color: var(--row-color);
+    }
+
+    .ui-NumberInput-section {
+        width: auto;
+
+        /* Do not rely on Mantine's inline `color="text"` ActionIcon variable here. On legacy */
+
+        /* WebKit it can retain the system theme after the app selects the opposite one. */
+        .ui-ActionIcon-root {
+            color: var(--row-color);
+        }
+    }
+}

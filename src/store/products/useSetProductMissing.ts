@@ -1,0 +1,33 @@
+import { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
+
+import { API } from '~/common/api/v1';
+import { getErrorMessage } from '~/lib/utils/errors';
+import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { setErrorAction } from '~/store/error/actions';
+import { rollbackProductsMissingAction, setProductsMissingAction } from '~/store/products/actions';
+import { useGetProducts } from '~/store/products/useGetProducts';
+
+export function useSetProductMissing(): (group: string, name: string, missing: boolean) => Promise<void> {
+    const dispatch = useDispatch();
+    const request = useUpdatingApiRequest();
+    const refresh = useGetProducts();
+    return useCallback(
+        async (group: string, name: string, missing: boolean): Promise<void> => {
+            if (!group || !name) {
+                return;
+            }
+
+            dispatch(setProductsMissingAction(group, name, missing));
+
+            try {
+                await request(API.groupProduct(group, name), { missing }, 'PATCH');
+                await refresh();
+            } catch (error) {
+                dispatch(rollbackProductsMissingAction(group, name));
+                dispatch(setErrorAction(getErrorMessage(error)));
+            }
+        },
+        [refresh, request, dispatch]
+    );
+}

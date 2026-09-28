@@ -11,7 +11,7 @@ const mocks = path.resolve(root, 'vitest/__mocks__');
  */
 const alias = [
     { find: /^~\/(.*)$/, replacement: `${src}/$1` },
-    { find: '@icons', replacement: `${src}/client/common/icons` },
+    { find: '@icons', replacement: `${src}/components/icons` },
     { find: /^@tests\/(.*)$/, replacement: `${src}/tests/$1` },
     { find: 'package.json', replacement: path.resolve(root, 'package.json') },
 ];
@@ -24,10 +24,7 @@ const alias = [
 const mockAssetsPlugin: Plugin = {
     name: 'vitest-mock-assets',
     enforce: 'pre',
-    resolveId(id) {
-        if (id === 'virtual:css-fallback-client') {
-            return `${mocks}/cssFallbackClient.ts`;
-        }
+    resolveId(id: string) {
         if (/\.p?css$/.test(id)) {
             return `${mocks}/styleMock.ts`;
         }
@@ -46,7 +43,7 @@ export default defineConfig({
     test: {
         projects: [
             // ------------------------------------------------------------------
-            // Client workspace: jsdom environment for src/client and src/ui
+            // Browser-facing code: jsdom environment for components, features and state.
             // ------------------------------------------------------------------
             {
                 // Vitest 5 projects inherit the declaring config by default.
@@ -60,7 +57,10 @@ export default defineConfig({
                     environment: 'jsdom',
                     pool: 'threads',
                     root,
-                    include: ['src/{client,ui}/**/*.test.{ts,tsx}'],
+                    include: [
+                        'src/{app,components,features,lib,store}/**/*.test.tsx',
+                        'src/{components,features,lib,store}/**/*.test.ts',
+                    ],
                     setupFiles: [
                         '@testing-library/jest-dom/vitest',
                         ...sharedSetup,
@@ -96,7 +96,11 @@ export default defineConfig({
                     environment: 'node',
                     pool: 'threads',
                     root,
-                    include: ['src/server/**/*.test.{ts,tsx}'],
+                    include: [
+                        'src/server/**/*.test.{ts,tsx}',
+                        'src/app/api/**/*.test.ts',
+                        'src/app/images/**/*.test.ts',
+                    ],
                     setupFiles: [...sharedSetup],
                     globalSetup: [path.resolve(root, 'vitest/globalSetup.mongo.ts')],
                 },
@@ -110,23 +114,33 @@ export default defineConfig({
             exclude: [
                 'src/**/*.d.ts',
                 'src/**/*.test.{ts,tsx}',
+                'src/**/*.spec.ts',
+                'src/**/*.snap.ts',
                 'src/**/__mocks__/**',
                 'src/tests/**',
                 'src/**/types.ts',
-                'src/client/common/icons.ts',
-                'src/client/table/DraggableRow.ts',
-                'src/server/index.ts',
-                'src/server/dev.ts',
-                'src/server/api/debug.ts',
-                'src/ui/tutorial/**',
-                'src/ui/Element.ts',
+                'src/components/icons.ts',
+                'src/components/table/DraggableRow.ts',
             ],
             reporter: ['text', 'json', 'lcov', 'html'],
             thresholds: {
+                perFile: true,
                 branches: 85,
                 functions: 85,
                 lines: 85,
                 statements: 85,
+                'src/server/api/**': {
+                    branches: 85,
+                    functions: 85,
+                    lines: 85,
+                    statements: 85,
+                },
+                'src/server/data/**': {
+                    branches: 90,
+                    functions: 90,
+                    lines: 90,
+                    statements: 90,
+                },
             },
         },
     },

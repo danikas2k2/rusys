@@ -18,8 +18,10 @@ export default [
             'dist/**',
             'docker/**',
             'node_modules/**',
-            'src/client/public/**',
-            'vite/**',
+            '.next/**',
+            '.next-e2e/**',
+            'next-env.d.ts',
+            'vitest/**',
             'eslint.config.ts',
             '**/*.config.{js,ts,mts}',
         ],
@@ -29,7 +31,7 @@ export default [
         ...react.configs.flat['recommended'],
         settings: {
             react: {
-                version: 'detect',
+                version: '19.0',
             },
         },
     },
@@ -47,16 +49,16 @@ export default [
         languageOptions: {
             parser,
             parserOptions: {
-                project: true,
+                project: './tsconfig.eslint.json',
             },
         },
         settings: {
             react: {
-                version: 'detect',
+                version: '19.0',
             },
             'import/resolver': {
                 typescript: {
-                    project: './tsconfig.json',
+                    project: './tsconfig.eslint.json',
                     alwaysTryTypes: true,
                 },
             },
@@ -83,7 +85,7 @@ export default [
             parserOptions: {
                 ecmaFeatures: { modules: true },
                 ecmaVersion: 'latest',
-                project: true,
+                project: './tsconfig.eslint.json',
             },
             globals: {
                 Atomics: 'readonly',
@@ -227,11 +229,11 @@ export default [
         },
         settings: {
             react: {
-                version: 'detect',
+                version: '19.0',
             },
             'import/resolver': {
                 typescript: {
-                    project: './tsconfig.json',
+                    project: './tsconfig.eslint.json',
                 },
             },
         },
@@ -251,7 +253,7 @@ export default [
         },
     },
     {
-        files: ['*.config.{js,ts,mts}', 'vite/**/*.{js,ts,mts}'],
+        files: ['*.config.{js,ts,mts}'],
         languageOptions: {
             parser,
             parserOptions: {
@@ -276,7 +278,14 @@ export default [
         },
     },
     {
-        files: ['*.pcss.d.ts'],
+        files: ['scripts/**/*.ts'],
+        rules: {
+            // Deployment feedback is the script's only user interface.
+            'no-console': 'off',
+        },
+    },
+    {
+        files: ['*.css.d.ts'],
         rules: {
             'no-undef': 'off',
             'prettier/prettier': 'off',

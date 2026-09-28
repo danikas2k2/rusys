@@ -23,7 +23,7 @@ module.exports = {
       },
     },
     {
-      files: ['*.html', '*.pcss', '*.css', '*.yaml', '*.yml'],
+      files: ['*.html', '*.css', '*.css', '*.yaml', '*.yml'],
       options: {
         singleQuote: false,
       },

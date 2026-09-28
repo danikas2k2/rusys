@@ -1,0 +1,18 @@
+.CategoryRailLayout-content {
+    flex: 1;
+    min-width: 0;
+
+    [data-category-heading] {
+        margin: var(--mantine-spacing-xs);
+    }
+
+    @media (width >= 48em) {
+        [data-category-heading] {
+            display: none;
+        }
+
+        @media (width >= 75em) {
+            max-width: 90rem;
+        }
+    }
+}

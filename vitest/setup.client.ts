@@ -3,6 +3,14 @@ import { TextDecoder as NodeTextDecoder, TextEncoder as NodeTextEncoder } from '
 import { configure } from '@testing-library/dom';
 import { afterEach, beforeEach, vi } from 'vitest';
 
+const refresh = vi.fn();
+
+vi.mock('next/navigation', () => ({
+    usePathname: () => window.location.pathname,
+    useRouter: () => ({ refresh }),
+    useSearchParams: () => new URLSearchParams(window.location.search),
+}));
+
 // Ensure test runs don't accidentally behave like production if CI sets NODE_ENV=production.
 if (process.env.NODE_ENV === 'production') {
     process.env.NODE_ENV = 'test';

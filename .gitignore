@@ -2,17 +2,20 @@
 
 # dependencies
 /node_modules
-.turbo
 /.pnp
 .pnp.js
 
 # testing
 /coverage
+/playwright-report
+/test-results
+/src/tests/playwright/.runtime.json
 
 # production
 /certs
 /dist
 /data
+/images
 /config.js
 /server.js
 
@@ -26,3 +29,6 @@ yarn-debug.log*
 yarn-error.log*
 
 *.*_
+/.next/
+/.next-e2e/
+/next-env.d.ts

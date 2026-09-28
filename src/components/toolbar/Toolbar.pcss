@@ -1,0 +1,40 @@
+.Toolbar {
+    display: grid;
+    grid-template-columns: 42px auto 42px 42px;
+    align-items: center;
+    padding-block: 6px;
+
+    > * {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+
+    > * + *,
+    > *:has(+ *) {
+        flex: 0 1 50%;
+    }
+
+    .filter {
+        width: 100%;
+
+        /* On wider screens the filter stays a compact, left-anchored control instead of */
+
+        /* floating in the middle of a very wide toolbar or stretching across all available space. */
+        @media (width >= 48em) {
+            max-width: 28rem;
+            justify-self: start;
+            justify-content: flex-start;
+        }
+    }
+
+    &[data-align-category-rail="true"] .filter {
+        @media (width >= 48em) {
+            /* Main content begins after the responsive category rail, its 4px layout gap and */
+
+            /* the grid's xs padding. The filter column already begins after the 42px menu. */
+            margin-inline-start: calc(var(--category-rail-width) + 4px + var(--mantine-spacing-xs) - 42px);
+        }
+    }
+}
