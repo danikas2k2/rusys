@@ -1,5 +1,5 @@
 import { Checkbox } from '@mantine/core';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { startTransition, useCallback, useEffect, useMemo } from 'react';
 
 import { useQuickFilter } from '~/features/filters/QuickFilterContext';
 import { useHasFilteredMissing } from '~/features/products/hooks/useHasFilteredMissing';
@@ -18,13 +18,13 @@ export function MissingOnlyCheckbox({ onClick }: { onClick?: () => void }) {
     const [missingOnly, setMissingOnly] = useMissingOnly();
     useEffect(() => {
         if (missingOnly && !hasFilteredMissing) {
-            setMissingOnly(false);
+            startTransition(() => setMissingOnly(false));
         }
     }, [hasFilteredMissing, missingOnly, setMissingOnly]);
 
     const [, setFilter] = useQuickFilter();
     const handleChange = useCallback(() => {
-        setMissingOnly(!missingOnly);
+        startTransition(() => setMissingOnly(!missingOnly));
         if (!missingOnly && hasMissing && !hasFilteredMissing) {
             setFilter('');
         }

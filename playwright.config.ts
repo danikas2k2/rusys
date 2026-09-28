@@ -8,12 +8,23 @@ const screenshotExpect = {
 };
 
 const visualTests = '**/*.snap.ts';
+const mobileInteractionTests = [
+    '**/AppRouter.spec.ts',
+    '**/AmountBox.spec.ts',
+    '**/ProductYearBar.spec.ts',
+    '**/ProductsPage.spec.ts',
+    visualTests,
+];
 
 const browserProjects = [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile-chromium', use: { ...devices['Pixel 7'] }, testMatch: ['**/AppRouter.spec.ts', visualTests] },
+    { name: 'mobile-chromium', use: { ...devices['Pixel 7'] }, testMatch: mobileInteractionTests },
     { name: 'tablet-chromium', use: { ...devices['Galaxy Tab S9'] }, testMatch: visualTests },
-    { name: 'mobile-webkit', use: { ...devices['iPhone 17'] }, testMatch: visualTests },
+    {
+        name: 'mobile-webkit',
+        use: { ...devices['iPhone 17'] },
+        testMatch: mobileInteractionTests,
+    },
     { name: 'tablet-webkit', use: { ...devices['iPad Mini'] }, testMatch: visualTests },
 ] satisfies PlaywrightTestProject[];
 

@@ -12,7 +12,17 @@ import {
     Text,
     type ComboboxItem,
 } from '@mantine/core';
-import React, { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
+import React, {
+    startTransition,
+    useCallback,
+    useDeferredValue,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    ViewTransition,
+    type RefObject,
+} from 'react';
 
 import {
     AddIcon,
@@ -120,7 +130,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
     const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const activeData = active?.data;
+    const activeData = useDeferredValue(active?.data);
     const group = activeData?.group ?? '';
     const name = activeData?.name ?? '';
     const year = activeData?.year ?? 0;
@@ -407,22 +417,31 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
     }, [activeData, group, name, year, setUpdating, redoProduct, setExpandedKey]);
 
     const handleMoveStart = useCallback(() => {
-        setExpandedKey(null);
-        setMovingKeys([]);
-        setMoving(true);
+        startTransition(() => {
+            setExpandedKey(null);
+            setMovingKeys([]);
+            setMoving(true);
+        });
     }, [setExpandedKey]);
     const handleMoveCancel = useCallback(() => {
-        setMovingKeys([]);
-        setMoving(false);
+        startTransition(() => {
+            setMovingKeys([]);
+            setMoving(false);
+        });
     }, []);
     const handleMoveToggle = useCallback((key: string) => {
         setMovingKeys((current) =>
             current.includes(key) ? current.filter((entry) => entry !== key) : [...current, key]
         );
     }, []);
+    const handleExpandChange = useCallback((key: string | null) => {
+        startTransition(() => setExpandedKey(key));
+    }, []);
     const handleMoved = useCallback(() => {
-        setMovingKeys([]);
-        setMoving(false);
+        startTransition(() => {
+            setMovingKeys([]);
+            setMoving(false);
+        });
     }, []);
     const movingAmounts = useMemo(
         () =>
@@ -510,7 +529,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
                 <div className="amount-variants-list" ref={listRef}>
                     <Accordion
                         value={moving ? null : expandedKey}
-                        onChange={moving ? (key) => key && handleMoveToggle(key) : setExpandedKey}
+                        onChange={moving ? (key) => key && handleMoveToggle(key) : handleExpandChange}
                         variant="contained"
                         radius="md"
                         chevron={null}
@@ -540,87 +559,96 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
                             const datedCount = datedCountByVariant.get(variant) ?? 0;
 
                             return (
-                                <Accordion.Item
-                                    key={key}
-                                    value={key}
-                                    data-amount-variant-key={key}
-                                    data-suspicious={suspicious || undefined}
-                                    data-home={home || undefined}
-                                    data-expires={expiryStatus || undefined}
-                                >
-                                    <Accordion.Control>
-                                        <Group justify="space-between">
-                                            <Group gap={moving ? 8 : 4}>
-                                                {moving && (
-                                                    <Checkbox
-                                                        checked={movingKeys.includes(key)}
-                                                        onChange={() => handleMoveToggle(key)}
-                                                        onClick={(event) => event.stopPropagation()}
-                                                        aria-label={_('Select variant')}
-                                                    />
-                                                )}
-                                                {variantImage && (
-                                                    <Avatar src={variantImage} radius="sm" size={20} alt="">
-                                                        {variant.trim().charAt(0).toUpperCase()}
-                                                    </Avatar>
-                                                )}
-                                                {suspicious && <SuspiciousIcon size={14} />}
-                                                {home && <HomeIcon size={14} />}
-                                                {expiresAt && <ExpiryRowIcon size={14} />}
-                                                <Text fz="md" fw={500}>
-                                                    <VariantTitle group={group} variant={variant} />
-                                                </Text>
-                                                {expiresAt && (
-                                                    <Text size="xs" data-expiry-date>
-                                                        {formatDateOnly(expiresAt)}
-                                                    </Text>
-                                                )}
-                                                {isPlain && datedCount > 0 && (
-                                                    <Badge size="xs" variant="light" color="gray">
-                                                        +{datedCount}
-                                                    </Badge>
-                                                )}
-                                            </Group>
-                                            <Group gap="xs">
-                                                <Text fz="md" component="span">
-                                                    {home && (
-                                                        <ApproxAmountIcon
-                                                            size={12}
-                                                            style={{ verticalAlign: 'middle' }}
-                                                        />
+                                <ViewTransition update="amount-variant-update" default="none" key={key}>
+                                    <Accordion.Item
+                                        value={key}
+                                        data-amount-variant-key={key}
+                                        data-suspicious={suspicious || undefined}
+                                        data-home={home || undefined}
+                                        data-expires={expiryStatus || undefined}
+                                    >
+                                        <Accordion.Control>
+                                            <Group justify="space-between">
+                                                <Group gap={moving ? 8 : 4}>
+                                                    {moving && (
+                                                        <ViewTransition
+                                                            enter="move-checkbox-enter"
+                                                            exit="move-checkbox-exit"
+                                                            default="none"
+                                                        >
+                                                            <Checkbox
+                                                                checked={movingKeys.includes(key)}
+                                                                onChange={() => handleMoveToggle(key)}
+                                                                onClick={(event) => event.stopPropagation()}
+                                                                aria-label={_('Select variant')}
+                                                            />
+                                                        </ViewTransition>
                                                     )}
-                                                    {displayAmount}
-                                                </Text>
-                                                <ChangeBadge change={totalDelta || totalChanges} />
+                                                    {variantImage && (
+                                                        <Avatar src={variantImage} radius="sm" size={20} alt="">
+                                                            {variant.trim().charAt(0).toUpperCase()}
+                                                        </Avatar>
+                                                    )}
+                                                    {suspicious && <SuspiciousIcon size={14} />}
+                                                    {home && <HomeIcon size={14} />}
+                                                    {expiresAt && <ExpiryRowIcon size={14} />}
+                                                    <Text fz="md" fw={500}>
+                                                        <VariantTitle group={group} variant={variant} />
+                                                    </Text>
+                                                    {expiresAt && (
+                                                        <Text size="xs" data-expiry-date>
+                                                            {formatDateOnly(expiresAt)}
+                                                        </Text>
+                                                    )}
+                                                    {isPlain && datedCount > 0 && (
+                                                        <Badge size="xs" variant="light" color="gray">
+                                                            +{datedCount}
+                                                        </Badge>
+                                                    )}
+                                                </Group>
+                                                <Group gap="xs">
+                                                    <Text fz="md" component="span">
+                                                        {home && (
+                                                            <ApproxAmountIcon
+                                                                size={12}
+                                                                style={{ verticalAlign: 'middle' }}
+                                                            />
+                                                        )}
+                                                        {displayAmount}
+                                                    </Text>
+                                                    <ChangeBadge change={totalDelta || totalChanges} />
+                                                </Group>
                                             </Group>
-                                        </Group>
-                                    </Accordion.Control>
-                                    <Accordion.Panel>
-                                        <AmountExpanded
-                                            delta={variantDelta}
-                                            baseAmount={baseAmount}
-                                            comment={comment}
-                                            onChange={handleDeltaChange}
-                                            onCommentChange={setComment}
-                                            onAddSuspicious={
-                                                isPlain && !hasSuspicious
-                                                    ? () => handleAddSuspicious(variant)
-                                                    : undefined
-                                            }
-                                            onAddHome={isPlain && !hasHome ? () => handleAddHome(variant) : undefined}
-                                            onAddExpiry={
-                                                isPlain ? (value) => handlePickExpiry(variant, value) : undefined
-                                            }
-                                        >
-                                            <VariantImagePicker
-                                                group={group}
-                                                name={name}
-                                                variant={variant}
-                                                image={variantImage}
-                                            />
-                                        </AmountExpanded>
-                                    </Accordion.Panel>
-                                </Accordion.Item>
+                                        </Accordion.Control>
+                                        <Accordion.Panel>
+                                            <AmountExpanded
+                                                delta={variantDelta}
+                                                baseAmount={baseAmount}
+                                                comment={comment}
+                                                onChange={handleDeltaChange}
+                                                onCommentChange={setComment}
+                                                onAddSuspicious={
+                                                    isPlain && !hasSuspicious
+                                                        ? () => handleAddSuspicious(variant)
+                                                        : undefined
+                                                }
+                                                onAddHome={
+                                                    isPlain && !hasHome ? () => handleAddHome(variant) : undefined
+                                                }
+                                                onAddExpiry={
+                                                    isPlain ? (value) => handlePickExpiry(variant, value) : undefined
+                                                }
+                                            >
+                                                <VariantImagePicker
+                                                    group={group}
+                                                    name={name}
+                                                    variant={variant}
+                                                    image={variantImage}
+                                                />
+                                            </AmountExpanded>
+                                        </Accordion.Panel>
+                                    </Accordion.Item>
+                                </ViewTransition>
                             );
                         })}
                     </Accordion>

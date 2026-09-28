@@ -165,3 +165,37 @@
     margin-top: 0.25rem;
     padding-top: 0.5rem;
 }
+
+::view-transition-old(.amount-tab-exit),
+::view-transition-old(.move-checkbox-exit) {
+    animation: 100ms ease-in both page-fade-out;
+}
+
+::view-transition-new(.amount-tab-enter),
+::view-transition-new(.move-checkbox-enter) {
+    animation: 160ms ease-out both page-fade-in;
+}
+
+::view-transition-group(.amount-variant-update) {
+    animation-duration: 180ms;
+}
+
+::view-transition-old(.product-year-update) {
+    animation: 100ms ease-in both product-year-fade-out;
+}
+
+::view-transition-new(.product-year-update) {
+    animation: 180ms ease-out both product-year-fade-in;
+}
+
+@keyframes product-year-fade-out {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes product-year-fade-in {
+    from {
+        opacity: 0;
+    }
+}

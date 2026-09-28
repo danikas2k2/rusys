@@ -7,6 +7,70 @@ import type { Product } from '~/common/data';
 test.use({ scenario: 'annual' });
 
 test.describe('annual products', () => {
+    test('animates the year content when switching between years', async ({ page }) => {
+        await page.goto('/');
+        const amount = await openProduct(page, 'Avietės');
+        await page.evaluate(() => {
+            const original = document.startViewTransition.bind(document);
+            const counter = window as typeof window & { __yearViewTransitions: number; __yearAnimations: string[] };
+            counter.__yearViewTransitions = 0;
+            counter.__yearAnimations = [];
+            document.startViewTransition = (...args) => {
+                counter.__yearViewTransitions += 1;
+                const transition = original(...args);
+                void transition.ready.then(
+                    () => {
+                        counter.__yearAnimations.push(
+                            ...document
+                                .getAnimations()
+                                .filter((animation): animation is CSSAnimation => animation instanceof CSSAnimation)
+                                .map(
+                                    (animation) =>
+                                        `${(animation.effect as KeyframeEffect | null)?.pseudoElement}:${animation.animationName}`
+                                )
+                        );
+                    },
+                    () => {}
+                );
+                return transition;
+            };
+        });
+
+        await amount
+            .locator('label')
+            .filter({ hasText: String(currentYear) })
+            .click();
+        await expect(amount.locator('[data-amount-variant-key="Stiklainis"]')).toContainText('3');
+        await expect
+            .poll(() =>
+                page.evaluate(() => (window as typeof window & { __yearViewTransitions: number }).__yearViewTransitions)
+            )
+            .toBeGreaterThan(0);
+        await expect
+            .poll(() =>
+                page.evaluate(() =>
+                    (window as typeof window & { __yearAnimations: string[] }).__yearAnimations.some((animation) =>
+                        animation.endsWith(':product-year-fade-out')
+                    )
+                )
+            )
+            .toBe(true);
+        const afterFirstYear = await page.evaluate(
+            () => (window as typeof window & { __yearViewTransitions: number }).__yearViewTransitions
+        );
+
+        await amount
+            .locator('label')
+            .filter({ hasText: String(currentYear - 1) })
+            .click();
+        await expect(amount.locator('[data-amount-variant-key="Stiklainis"]')).toContainText('2');
+        await expect
+            .poll(() =>
+                page.evaluate(() => (window as typeof window & { __yearViewTransitions: number }).__yearViewTransitions)
+            )
+            .toBeGreaterThan(afterFirstYear);
+    });
+
     test('annual years remain separate and removal marker persists', async ({ page, db }) => {
         await page.goto('/');
         const amount = await openProduct(page, 'Avietės');

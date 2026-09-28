@@ -15,7 +15,7 @@ export function ToolbarReviewButton() {
     const handleClick = useCallback(() => setActive({ action: 'review' }), [setActive]);
 
     return (
-        <IconButtonTooltip>
+        <IconButtonTooltip position="left">
             <ActionIcon
                 variant="subtle"
                 size="lg"

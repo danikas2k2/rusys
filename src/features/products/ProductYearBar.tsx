@@ -1,5 +1,5 @@
 import { ActionIcon, Group, Menu, SegmentedControl, Stack } from '@mantine/core';
-import React, { useCallback, useMemo } from 'react';
+import React, { startTransition, useCallback, useMemo } from 'react';
 
 import { HistoryTabIcon, RecycledIcon } from '@icons';
 
@@ -105,7 +105,7 @@ export function ProductYearBar({ disabled = false, onHistoryYearChange }: Produc
             if (!activeData) {
                 return;
             }
-            setActive({ action: 'values', data: { ...activeData, year: newYear } });
+            startTransition(() => setActive({ action: 'values', data: { ...activeData, year: newYear } }));
         },
         [activeData, setActive]
     );

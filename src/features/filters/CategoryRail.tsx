@@ -1,5 +1,5 @@
 import { Avatar, Group as MantineGroup, Tabs, Text } from '@mantine/core';
-import React, { useEffect } from 'react';
+import React, { startTransition, useEffect } from 'react';
 
 import type { Group } from '~/common/data';
 
@@ -30,7 +30,7 @@ export function CategoryRail({
     return (
         <Tabs
             value={selected}
-            onChange={(value) => value && onSelect(value)}
+            onChange={(value) => value && startTransition(() => onSelect(value))}
             orientation="vertical"
             variant="outline"
             data-tabs="category-rail"

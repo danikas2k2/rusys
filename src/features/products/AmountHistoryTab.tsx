@@ -1,5 +1,5 @@
 import { Divider, Flex, Loader, Table } from '@mantine/core';
-import React, { useEffect } from 'react';
+import React, { useDeferredValue, useEffect } from 'react';
 
 import type { History, ProductAmounts } from '~/common/data';
 import { Label } from '~/components/common/Label';
@@ -10,7 +10,7 @@ import { useProducts } from '~/store/products/useProducts';
 
 export function AmountHistoryTab() {
     const [active] = useActiveContent<ProductAmounts>();
-    const activeData = active?.data;
+    const activeData = useDeferredValue(active?.data);
     const group = activeData?.group ?? '';
     const name = activeData?.name ?? '';
     const year = activeData?.year ?? 0;

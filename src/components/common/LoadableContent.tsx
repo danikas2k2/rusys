@@ -1,4 +1,4 @@
-import React, { Suspense, use } from 'react';
+import React, { Suspense, use, ViewTransition } from 'react';
 
 import { Label } from '~/components/common/Label';
 import { ScreenError } from '~/components/common/ScreenError';
@@ -39,9 +39,11 @@ export function LoadableContent({
     return (
         <ErrorBoundary onReload={clear}>
             <Suspense fallback={fallback}>
-                <LoadedContent resourceKey={resourceKey} loader={loader} hasData={hasData}>
-                    {children}
-                </LoadedContent>
+                <ViewTransition enter="content-enter" default="none">
+                    <LoadedContent resourceKey={resourceKey} loader={loader} hasData={hasData}>
+                        {children}
+                    </LoadedContent>
+                </ViewTransition>
             </Suspense>
         </ErrorBoundary>
     );

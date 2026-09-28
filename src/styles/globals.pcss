@@ -24,6 +24,51 @@
     }
 }
 
+::view-transition {
+    pointer-events: none;
+}
+
+::view-transition-old(.page-exit) {
+    animation: 120ms ease-in both page-fade-out;
+}
+
+::view-transition-new(.page-enter) {
+    animation: 180ms ease-out both page-fade-in;
+}
+
+::view-transition-old(.category-update) {
+    animation: 100ms ease-in both page-fade-out;
+}
+
+::view-transition-new(.category-update) {
+    animation: 180ms ease-out both page-fade-in;
+}
+
+::view-transition-new(.content-enter) {
+    animation: 180ms ease-out both page-fade-in;
+}
+
+@keyframes page-fade-out {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes page-fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(*),
+    ::view-transition-new(*),
+    ::view-transition-group(*) {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+    }
+}
+
 html {
     user-select: none;
     height: 100%;

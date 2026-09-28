@@ -29,3 +29,35 @@
     background-color: var(--mantine-color-neutral-0);
     padding: var(--mantine-spacing-xs);
 }
+
+::view-transition-group(.grouped-product-update) {
+    animation-duration: 180ms;
+}
+
+::view-transition-new(.product-tile-enter) {
+    animation: 180ms ease-out both product-tile-fade-in;
+}
+
+::view-transition-old(.product-tile-exit) {
+    animation: 120ms ease-in both product-tile-fade-out;
+}
+
+@keyframes product-tile-fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes product-tile-fade-out {
+    to {
+        opacity: 0;
+    }
+}
+
+::view-transition-old(.missing-products-update) {
+    animation: 100ms ease-in both page-fade-out;
+}
+
+::view-transition-new(.missing-products-update) {
+    animation: 180ms ease-out both page-fade-in;
+}

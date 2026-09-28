@@ -1,6 +1,15 @@
 import { Accordion, ActionIcon, Button, Group, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, {
+    startTransition,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+    ViewTransition,
+} from 'react';
 
 import { AddIcon, CancelIcon, DeleteIcon, MoveIcon, UpdateIcon } from '@icons';
 
@@ -455,55 +464,59 @@ export function ProductBox({
                             />
                             <Accordion
                                 value={advancedFieldsOpen ? 'additional-details' : null}
-                                onChange={(value) => setAdvancedFieldsOpen(value === 'additional-details')}
+                                onChange={(value) =>
+                                    startTransition(() => setAdvancedFieldsOpen(value === 'additional-details'))
+                                }
                                 className="ProductBox-advancedFields"
                                 variant="contained"
                                 radius="md"
                             >
-                                <Accordion.Item value="additional-details" data-product-advanced-fields>
-                                    <Accordion.Control>
-                                        <Label>Additional details</Label>
-                                    </Accordion.Control>
-                                    <Accordion.Panel>
-                                        <Stack gap="sm">
-                                            <Select
-                                                label={_('Parent product')}
-                                                placeholder={_('No parent')}
-                                                data={parentOptions}
-                                                // option.value is always one of parentOptions, which is built from the
-                                                // same parentOptionNodes as parentDepthByName - the entry always exists.
-                                                renderOption={({ option }: { option: ComboboxItem }) => (
-                                                    <ProductOption
-                                                        option={option}
-                                                        image={parentImageByName.get(option.value)}
-                                                        depth={parentDepthByName.get(option.value)!}
-                                                    />
-                                                )}
-                                                leftSection={
-                                                    form.values.parent ? (
-                                                        <ProductAvatar
-                                                            image={parentImageByName.get(form.values.parent)}
-                                                            label={form.values.parent}
+                                <ViewTransition update="product-advanced-update" default="none">
+                                    <Accordion.Item value="additional-details" data-product-advanced-fields>
+                                        <Accordion.Control>
+                                            <Label>Additional details</Label>
+                                        </Accordion.Control>
+                                        <Accordion.Panel>
+                                            <Stack gap="sm">
+                                                <Select
+                                                    label={_('Parent product')}
+                                                    placeholder={_('No parent')}
+                                                    data={parentOptions}
+                                                    // option.value is always one of parentOptions, which is built from the
+                                                    // same parentOptionNodes as parentDepthByName - the entry always exists.
+                                                    renderOption={({ option }: { option: ComboboxItem }) => (
+                                                        <ProductOption
+                                                            option={option}
+                                                            image={parentImageByName.get(option.value)}
+                                                            depth={parentDepthByName.get(option.value)!}
                                                         />
-                                                    ) : undefined
-                                                }
-                                                withAlignedLabels
-                                                clearable={!!form.values.parent}
-                                                searchable
-                                                disabled={loading}
-                                                {...form.getInputProps('parent')}
-                                                onChange={(value) => form.setFieldValue('parent', value ?? '')}
-                                            />
-                                            <TextInput
-                                                ref={expiryToleranceRef}
-                                                label={_('Expiry tolerance')}
-                                                description={_('Examples: 7, 2 sav, 3 men, 1 m.')}
-                                                disabled={loading}
-                                                {...form.getInputProps('expiryTolerance')}
-                                            />
-                                        </Stack>
-                                    </Accordion.Panel>
-                                </Accordion.Item>
+                                                    )}
+                                                    leftSection={
+                                                        form.values.parent ? (
+                                                            <ProductAvatar
+                                                                image={parentImageByName.get(form.values.parent)}
+                                                                label={form.values.parent}
+                                                            />
+                                                        ) : undefined
+                                                    }
+                                                    withAlignedLabels
+                                                    clearable={!!form.values.parent}
+                                                    searchable
+                                                    disabled={loading}
+                                                    {...form.getInputProps('parent')}
+                                                    onChange={(value) => form.setFieldValue('parent', value ?? '')}
+                                                />
+                                                <TextInput
+                                                    ref={expiryToleranceRef}
+                                                    label={_('Expiry tolerance')}
+                                                    description={_('Examples: 7, 2 sav, 3 men, 1 m.')}
+                                                    disabled={loading}
+                                                    {...form.getInputProps('expiryTolerance')}
+                                                />
+                                            </Stack>
+                                        </Accordion.Panel>
+                                    </Accordion.Item>
+                                </ViewTransition>
                             </Accordion>
                             <Group justify={isEditing && onDelete ? 'space-between' : 'flex-end'} mt="md" wrap="nowrap">
                                 {isEditing && onDelete && (

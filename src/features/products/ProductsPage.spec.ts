@@ -4,6 +4,200 @@ import { openProduct, productTile } from '@tests/helpers/ui';
 import type { Product } from '~/common/data';
 
 test.describe('products', () => {
+    test('animates the missing-products filter in both directions', async ({ page, db }) => {
+        await db.collection<Product>('products').updateOne({ name: 'Avietės' }, { $set: { missing: true } });
+        await page.goto('/');
+        await expect(productTile(page, 'Avietės')).toBeVisible();
+        await expect(productTile(page, 'Braškės')).toBeVisible();
+        await page.evaluate(() => {
+            const original = document.startViewTransition.bind(document);
+            const counter = window as typeof window & { __missingViewTransitions: number };
+            counter.__missingViewTransitions = 0;
+            document.startViewTransition = (...args) => {
+                counter.__missingViewTransitions += 1;
+                return original(...args);
+            };
+        });
+
+        const filter = page.locator('[data-products-header]').getByRole('checkbox');
+        await filter.click();
+        await expect(productTile(page, 'Braškės')).toHaveCount(0);
+        await expect
+            .poll(() =>
+                page.evaluate(
+                    () => (window as typeof window & { __missingViewTransitions: number }).__missingViewTransitions
+                )
+            )
+            .toBeGreaterThan(0);
+        const afterEnable = await page.evaluate(
+            () => (window as typeof window & { __missingViewTransitions: number }).__missingViewTransitions
+        );
+
+        await filter.click();
+        await expect(productTile(page, 'Braškės')).toBeVisible();
+        await expect
+            .poll(() =>
+                page.evaluate(
+                    () => (window as typeof window & { __missingViewTransitions: number }).__missingViewTransitions
+                )
+            )
+            .toBeGreaterThan(afterEnable);
+    });
+
+    test('animates a product tile when it is added and removed', async ({ page }) => {
+        await page.goto('/');
+        await expect(productTile(page, 'Avietės')).toBeVisible();
+        await page.evaluate(() => {
+            const original = document.startViewTransition.bind(document);
+            const counter = window as typeof window & {
+                __tileViewTransitions: number;
+                __tileAnimations: string[];
+            };
+            counter.__tileViewTransitions = 0;
+            counter.__tileAnimations = [];
+            document.startViewTransition = (...args) => {
+                counter.__tileViewTransitions += 1;
+                const transition = original(...args);
+                void transition.ready.then(
+                    () => {
+                        counter.__tileAnimations.push(
+                            ...document
+                                .getAnimations()
+                                .filter((animation): animation is CSSAnimation => animation instanceof CSSAnimation)
+                                .map((animation) => animation.animationName)
+                        );
+                    },
+                    () => {}
+                );
+                return transition;
+            };
+        });
+
+        await page.locator('[data-action="add"]').click();
+        const add = page.getByRole('dialog', { name: 'Pridėti naują produktą' });
+        await add.getByRole('textbox', { name: 'Produktas' }).fill('Šilauogės');
+        await add.getByRole('button', { name: 'Pridėti' }).click();
+        await expect(productTile(page, 'Šilauogės')).toBeVisible();
+        await expect
+            .poll(() =>
+                page.evaluate(() => (window as typeof window & { __tileViewTransitions: number }).__tileViewTransitions)
+            )
+            .toBeGreaterThan(0);
+        const afterAdd = await page.evaluate(
+            () => (window as typeof window & { __tileViewTransitions: number }).__tileViewTransitions
+        );
+        await expect
+            .poll(() =>
+                page.evaluate(() => (window as typeof window & { __tileAnimations: string[] }).__tileAnimations)
+            )
+            .toContain('product-tile-fade-in');
+
+        const amount = page.getByRole('dialog', { name: /Šilauogės Uogienės/ });
+        await amount.getByRole('button', { name: 'Taisyti' }).click();
+        const edit = page.getByRole('dialog', { name: 'Taisyti produktą' });
+        await edit.getByRole('button', { name: 'Šalinti' }).click();
+        const confirm = page.getByRole('dialog', { name: 'Ar tikrai norite pašalinti?' });
+        await confirm.getByRole('button', { name: 'Šalinti' }).click();
+        await expect(productTile(page, 'Šilauogės')).toHaveCount(0);
+        await expect
+            .poll(() =>
+                page.evaluate(() => (window as typeof window & { __tileViewTransitions: number }).__tileViewTransitions)
+            )
+            .toBeGreaterThan(afterAdd);
+        await expect
+            .poll(() =>
+                page.evaluate(() => (window as typeof window & { __tileAnimations: string[] }).__tileAnimations)
+            )
+            .toContain('product-tile-fade-out');
+    });
+
+    test('animates the advanced product fields without losing their values', async ({ page }) => {
+        await page.goto('/');
+        await expect(productTile(page, 'Avietės')).toBeVisible();
+        await page.locator('[data-action="add"]').click();
+        const add = page.getByRole('dialog', { name: 'Pridėti naują produktą' });
+        const details = add.getByRole('button', { name: 'Papildoma informacija' });
+        await page.evaluate(() => {
+            const original = document.startViewTransition.bind(document);
+            const counter = window as typeof window & { __advancedViewTransitions: number };
+            counter.__advancedViewTransitions = 0;
+            document.startViewTransition = (...args) => {
+                counter.__advancedViewTransitions += 1;
+                return original(...args);
+            };
+        });
+
+        await details.click();
+        await expect(details).toHaveAttribute('aria-expanded', 'true');
+        await expect
+            .poll(() =>
+                page.evaluate(
+                    () => (window as typeof window & { __advancedViewTransitions: number }).__advancedViewTransitions
+                )
+            )
+            .toBeGreaterThan(0);
+        const expiry = add.getByRole('textbox', { name: 'Galiojimo paklaida' });
+        await expiry.fill('7');
+        const afterExpand = await page.evaluate(
+            () => (window as typeof window & { __advancedViewTransitions: number }).__advancedViewTransitions
+        );
+
+        await details.click();
+        await expect(details).toHaveAttribute('aria-expanded', 'false');
+        await expect
+            .poll(() =>
+                page.evaluate(
+                    () => (window as typeof window & { __advancedViewTransitions: number }).__advancedViewTransitions
+                )
+            )
+            .toBeGreaterThan(afterExpand);
+        await details.click();
+        await expect(expiry).toHaveValue('7');
+    });
+
+    test('animates a grouped product while expanding and collapsing its children', async ({ page, db }) => {
+        await db.collection<Product>('products').insertOne({
+            group: 'Uogienės',
+            name: 'Aviečių uogienė be cukraus',
+            parent: 'Avietės',
+            years: [],
+        });
+        await page.goto('/');
+        await expect(productTile(page, 'Avietės')).toBeVisible();
+        await page.evaluate(() => {
+            const original = document.startViewTransition.bind(document);
+            const counter = window as typeof window & { __groupViewTransitions: number };
+            counter.__groupViewTransitions = 0;
+            document.startViewTransition = (...args) => {
+                counter.__groupViewTransitions += 1;
+                return original(...args);
+            };
+        });
+
+        await productTile(page, 'Avietės').getByRole('button', { name: 'Išplėsti' }).click();
+        await expect(productTile(page, 'Aviečių uogienė be cukraus')).toBeVisible();
+        await expect
+            .poll(() =>
+                page.evaluate(
+                    () => (window as typeof window & { __groupViewTransitions: number }).__groupViewTransitions
+                )
+            )
+            .toBeGreaterThan(0);
+        const afterExpand = await page.evaluate(
+            () => (window as typeof window & { __groupViewTransitions: number }).__groupViewTransitions
+        );
+
+        await productTile(page, 'Avietės').getByRole('button', { name: 'Suskleisti' }).click();
+        await expect(productTile(page, 'Aviečių uogienė be cukraus')).toBeHidden();
+        await expect
+            .poll(() =>
+                page.evaluate(
+                    () => (window as typeof window & { __groupViewTransitions: number }).__groupViewTransitions
+                )
+            )
+            .toBeGreaterThan(afterExpand);
+    });
+
     test('creates a product and opens its amounts dialog @critical', async ({ page, db }) => {
         await page.goto('/');
         await expect(productTile(page, 'Avietės')).toBeVisible();

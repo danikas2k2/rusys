@@ -1,5 +1,5 @@
 import { Group, Title } from '@mantine/core';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, ViewTransition } from 'react';
 
 import type { Group as GroupModel } from '~/common/data';
 import { CategoryRail } from '~/features/filters/CategoryRail';
@@ -64,14 +64,16 @@ export function CategoryRailLayout({
                 onSelect={onSelect}
                 groupsWithContent={groupsWithContent}
             />
-            <div className="CategoryRailLayout-content">
-                {selected && (
-                    <Title order={1} data-category-heading>
-                        {selected}
-                    </Title>
-                )}
-                {children}
-            </div>
+            <ViewTransition update="category-update" default="none">
+                <div className="CategoryRailLayout-content">
+                    {selected && (
+                        <Title order={1} data-category-heading>
+                            {selected}
+                        </Title>
+                    )}
+                    {children}
+                </div>
+            </ViewTransition>
         </Group>
     );
 }

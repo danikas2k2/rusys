@@ -11,6 +11,125 @@ test.describe('desktop navigation', () => {
     test.use({ scenario: 'history' });
     test.skip(({ isMobile }) => isMobile);
 
+    test('starts view transitions for page and category changes', async ({ page }) => {
+        await page.addInitScript(() => {
+            const original = document.startViewTransition.bind(document);
+            const counter = window as typeof window & { __viewTransitionStarts: number };
+            counter.__viewTransitionStarts = 0;
+            document.startViewTransition = (...args) => {
+                counter.__viewTransitionStarts += 1;
+                return original(...args);
+            };
+        });
+
+        await page.goto('/');
+        await expect(page.locator('[data-grid="products"]')).toBeVisible();
+        await page.evaluate(() => {
+            (window as typeof window & { __viewTransitionStarts: number }).__viewTransitionStarts = 0;
+        });
+
+        await page.getByRole('button', { name: 'Meniu' }).click();
+        await page.getByRole('menu').getByRole('link', { name: 'Suvestinė' }).click();
+        await expect(page.locator('[data-grid="summary"]')).toBeVisible();
+        await expect
+            .poll(() =>
+                page.evaluate(
+                    () => (window as typeof window & { __viewTransitionStarts: number }).__viewTransitionStarts
+                )
+            )
+            .toBeGreaterThan(0);
+
+        await page.getByRole('button', { name: 'Meniu' }).click();
+        await page.getByRole('menu').getByRole('link', { name: 'Produktai' }).click();
+        await expect(page.locator('[data-grid="products"]')).toBeVisible();
+        await page.evaluate(() => {
+            (window as typeof window & { __viewTransitionStarts: number }).__viewTransitionStarts = 0;
+        });
+        await page.getByRole('tab', { name: 'Daržovės' }).click();
+        await expect(page.getByRole('tab', { name: 'Daržovės' })).toHaveAttribute('aria-selected', 'true');
+        await expect
+            .poll(() =>
+                page.evaluate(
+                    () => (window as typeof window & { __viewTransitionStarts: number }).__viewTransitionStarts
+                )
+            )
+            .toBeGreaterThan(0);
+    });
+
+    test('disables view transition animations for reduced motion', async ({ page }) => {
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+        await page.addInitScript(() => {
+            const original = document.startViewTransition.bind(document);
+            const observed = window as typeof window & { __viewTransitionDurations: number[] };
+            observed.__viewTransitionDurations = [];
+            document.startViewTransition = (...args) => {
+                const transition = original(...args);
+                void transition.ready.then(() => {
+                    observed.__viewTransitionDurations.push(
+                        ...document
+                            .getAnimations()
+                            .filter((animation) =>
+                                (animation.effect as KeyframeEffect | null)?.pseudoElement?.startsWith(
+                                    '::view-transition'
+                                )
+                            )
+                            .map((animation) => Number(animation.effect?.getComputedTiming().duration))
+                    );
+                });
+                return transition;
+            };
+        });
+
+        await page.goto('/');
+        await expect(page.locator('[data-grid="products"]')).toBeVisible();
+        await page.evaluate(() => {
+            (window as typeof window & { __viewTransitionDurations: number[] }).__viewTransitionDurations = [];
+        });
+        await page.getByRole('button', { name: 'Meniu' }).click();
+        await page.getByRole('menu').getByRole('link', { name: 'Suvestinė' }).click();
+        await expect(page.locator('[data-grid="summary"]')).toBeVisible();
+
+        await expect
+            .poll(() =>
+                page.evaluate(
+                    () => (window as typeof window & { __viewTransitionDurations: number[] }).__viewTransitionDurations
+                )
+            )
+            .not.toHaveLength(0);
+        const durations = await page.evaluate(
+            () => (window as typeof window & { __viewTransitionDurations: number[] }).__viewTransitionDurations
+        );
+        expect(durations.every((duration) => duration === 0)).toBe(true);
+    });
+
+    test('navigates and restores the previous page without the browser API', async ({ page }) => {
+        await page.addInitScript(() => {
+            Object.defineProperty(document, 'startViewTransition', { configurable: true, value: undefined });
+        });
+
+        await page.goto('/');
+        await expect(page.locator('[data-grid="products"]')).toBeVisible();
+        await page.getByRole('button', { name: 'Meniu' }).click();
+        await page.getByRole('menu').getByRole('link', { name: 'Suvestinė' }).click();
+        await expect(page.locator('[data-grid="summary"]')).toBeVisible();
+        await page.goBack();
+        await expect(page.locator('[data-grid="products"]')).toBeVisible();
+    });
+
+    test('shows loading content while the destination data is pending', async ({ page }) => {
+        await page.route('**/api/v1/summary', async (route) => {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            await route.continue();
+        });
+
+        await page.goto('/');
+        await expect(page.locator('[data-grid="products"]')).toBeVisible();
+        await page.getByRole('button', { name: 'Meniu' }).click();
+        await page.getByRole('menu').getByRole('link', { name: 'Suvestinė' }).click();
+        await expect(page.locator('[data-loading]')).toBeVisible();
+        await expect(page.locator('[data-grid="summary"]')).toBeVisible();
+    });
+
     for (const { label, path, content } of destinations) {
         test(`menu navigates to ${label}`, async ({ page }) => {
             await page.goto('/');

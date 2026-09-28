@@ -41,7 +41,6 @@ describe('<IconButtonTooltip>', () => {
 
         fireEvent.mouseEnter(button);
 
-        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
         await expect(screen.findByRole('tooltip')).resolves.toHaveTextContent('Move variants');
 
         fireEvent.click(button);

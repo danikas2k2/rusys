@@ -1,5 +1,5 @@
 import { ActionIcon, Group, Stack, Tabs, type ModalProps } from '@mantine/core';
-import React, { useCallback, useState } from 'react';
+import React, { startTransition, useCallback, useState, ViewTransition } from 'react';
 
 import { EditIcon, HistoryTabIcon, QuantitiesTabIcon } from '@icons';
 
@@ -42,6 +42,9 @@ export function AmountBox({
     const [photoPreviewOpen, setPhotoPreviewOpen] = useState(false);
 
     const handleExitTransitionEnd = useCallback(() => onAfterClose?.(), [onAfterClose]);
+    const changeTab = useCallback((value: string | null) => {
+        startTransition(() => setActiveTab(value));
+    }, []);
 
     return (
         <ConfirmableModal
@@ -78,7 +81,7 @@ export function AmountBox({
                             </IconButtonTooltip>
                         )}
                         <div style={{ flex: 1, minWidth: 0 }}>
-                            <ProductYearBar disabled={hasChanges} onHistoryYearChange={() => setActiveTab('history')} />
+                            <ProductYearBar disabled={hasChanges} onHistoryYearChange={() => changeTab('history')} />
                         </div>
                     </Group>
                     <Tabs
@@ -86,7 +89,7 @@ export function AmountBox({
                         variant="outline"
                         radius="sm"
                         value={activeTab}
-                        onChange={setActiveTab}
+                        onChange={changeTab}
                     >
                         <Tabs.List>
                             <Tabs.Tab fz="md" value="quantities" leftSection={<QuantitiesTabIcon size={18} />}>
@@ -102,11 +105,25 @@ export function AmountBox({
                             value="quantities"
                             pt="sm"
                         >
-                            <AmountVariantsTab onChangesUpdate={setHasChanges} onClose={onClose} />
+                            <ViewTransition
+                                enter="amount-tab-enter"
+                                exit="amount-tab-exit"
+                                update="product-year-update"
+                                default="none"
+                            >
+                                <AmountVariantsTab onChangesUpdate={setHasChanges} onClose={onClose} />
+                            </ViewTransition>
                         </Tabs.Panel>
 
                         <Tabs.Panel className="amount-box-tab-panel" value="history" pt="sm">
-                            <AmountHistoryTab />
+                            <ViewTransition
+                                enter="amount-tab-enter"
+                                exit="amount-tab-exit"
+                                update="product-year-update"
+                                default="none"
+                            >
+                                <AmountHistoryTab />
+                            </ViewTransition>
                         </Tabs.Panel>
                     </Tabs>
                 </Stack>
