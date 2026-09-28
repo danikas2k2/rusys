@@ -58,7 +58,5 @@ pnpm deploy:rollback
 ```
 
 `pnpm deploy:rollback` perjungia srautą į ankstesnę sveiką vietą be pakartotinio
-surinkimo. Per pirmą perėjimą nuo seno tiesiogiai hosto portą naudojančio
-`rusys-client` arba `rusys-app` konteinerio bus trumpas porto perdavimas
-„Nginx“; senasis konteineris lieka sustabdytas kaip greito grąžinimo galimybė.
-Jei veikė `rusys-client`, jo senasis `rusys-server` paliekamas veikti rollbackui.
+surinkimo. Diegimui ir rollback reikia veikiančio `rusys-gateway`; rollback taip
+pat reikia sveiko ankstesnės spalvos konteinerio.

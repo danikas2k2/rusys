@@ -126,60 +126,28 @@ fi
     return slot;
 }
 
-function restoreConfig(connection: Connection, hadPrevious: boolean) {
-    connection.remote(
-        hadPrevious
-            ? 'mv .deploy/nginx/default.conf.previous .deploy/nginx/default.conf\n'
-            : 'rm -f .deploy/nginx/default.conf\n'
-    );
-}
-
 function switchTo(connection: Connection, slot: Slot) {
     const config = readFileSync(path.resolve('docker/nginx.conf.template'), 'utf8').replaceAll(
         '@BACKEND@',
         `rusys-app-${slot}`
     );
-    const hadPrevious = connection.remote('if test -f .deploy/nginx/default.conf; then printf true; fi\n') === 'true';
     connection.remote(`mkdir -p .deploy/nginx
-${hadPrevious ? 'cp .deploy/nginx/default.conf .deploy/nginx/default.conf.previous' : ':'}
+cp .deploy/nginx/default.conf .deploy/nginx/default.conf.previous
 printf %s ${shellQuote(config)} > .deploy/nginx/default.conf.next
 mv .deploy/nginx/default.conf.next .deploy/nginx/default.conf
 `);
 
-    if (isRunning(connection, 'rusys-gateway')) {
+    try {
+        connection.remote('"$docker" exec rusys-gateway nginx -t\n"$docker" exec rusys-gateway nginx -s reload\n');
+        waitGateway(connection);
+    } catch (error) {
+        connection.remote('mv .deploy/nginx/default.conf.previous .deploy/nginx/default.conf\n');
         try {
-            connection.remote('"$docker" exec rusys-gateway nginx -t\n"$docker" exec rusys-gateway nginx -s reload\n');
-            waitGateway(connection);
-        } catch (error) {
-            restoreConfig(connection, hadPrevious);
-            try {
-                connection.remote('"$docker" exec rusys-gateway nginx -s reload\n');
-            } catch {
-                // Preserve the original switching failure.
-            }
-            throw error;
+            connection.remote('"$docker" exec rusys-gateway nginx -s reload\n');
+        } catch {
+            // Preserve the original switching failure.
         }
-    } else {
-        const legacy = (['rusys-client', 'rusys-app'] as const).find((name) => isRunning(connection, name));
-        try {
-            if (legacy) {
-                connection.remote(`"$docker" stop ${shellQuote(legacy)}\n`);
-            }
-            connection.remote(
-                '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps --no-build rusys-gateway\n'
-            );
-            waitGateway(connection);
-        } catch (error) {
-            connection.remote('"$docker" stop rusys-gateway >/dev/null 2>&1 || true\n');
-            if (legacy) {
-                connection.remote(`"$docker" start ${shellQuote(legacy)}\n`);
-            }
-            restoreConfig(connection, hadPrevious);
-            throw error;
-        }
-        if (legacy) {
-            connection.remote(`printf %s ${shellQuote(legacy)} > .deploy/legacy-container\n`);
-        }
+        throw error;
     }
     connection.remote('rm -f .deploy/nginx/default.conf.previous\n');
 }
@@ -194,12 +162,10 @@ export function deploy(config?: DeployConfig) {
             console.log('🚀 Starting blue-green deployment...');
 
             try {
-                const gatewayRunning = isRunning(connection, 'rusys-gateway');
-                const candidate: Slot = gatewayRunning
-                    ? activeSlot(connection) === 'blue'
-                        ? 'green'
-                        : 'blue'
-                    : 'blue';
+                if (!isRunning(connection, 'rusys-gateway')) {
+                    throw new Error('The blue-green gateway is not running.');
+                }
+                const candidate: Slot = activeSlot(connection) === 'blue' ? 'green' : 'blue';
                 connection.remote('mkdir -p src public scripts/postcss docker\n');
 
                 console.log('📤 Uploading source files for the Docker build...');
@@ -234,9 +200,6 @@ export function deploy(config?: DeployConfig) {
                     '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps rusys-db\n'
                 );
                 waitHealthy(connection, 'rusys-db');
-                if (!gatewayRunning) {
-                    connection.remote('"$docker" compose --env-file .env -f docker/compose.yaml pull rusys-gateway\n');
-                }
                 connection.remote(
                     `"$docker" compose --env-file .env -f docker/compose.yaml build rusys-app-${candidate}\n`
                 );
@@ -273,21 +236,7 @@ export function rollback(config?: DeployConfig) {
                     switchTo(connection, previous);
                     console.log(`Rolled back to application slot: ${previous}`);
                 } else {
-                    const legacy = connection.remote(
-                        'if test -f .deploy/legacy-container; then cat .deploy/legacy-container; fi\n'
-                    );
-                    if (legacy !== 'rusys-client' && legacy !== 'rusys-app') {
-                        throw new Error('No healthy previous application is available.');
-                    }
-                    connection.remote(`"$docker" inspect ${shellQuote(legacy)} >/dev/null\n`);
-                    connection.remote('"$docker" stop rusys-gateway\n');
-                    try {
-                        connection.remote(`"$docker" start ${shellQuote(legacy)}\n`);
-                        console.log('Rolled back to the pre-gateway application.');
-                    } catch (error) {
-                        connection.remote('"$docker" start rusys-gateway\n');
-                        throw error;
-                    }
+                    throw new Error('No healthy previous application is available.');
                 }
                 console.log('✅ Rollback completed successfully!');
             } catch (error) {
