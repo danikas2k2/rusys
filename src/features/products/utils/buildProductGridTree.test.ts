@@ -172,4 +172,15 @@ describe('buildProductGridTree', () => {
 
         expect(nodes.map((n) => n.product.name)).toStrictEqual(['A', 'B']);
     });
+
+    it('promotes a child to a root when its parent is absent from the filtered products', () => {
+        const child: Product = { group: 'g', name: 'B', parent: 'A', years: [] };
+        const grandchild: Product = { group: 'g', name: 'C', parent: 'B', years: [] };
+
+        const nodes = buildProductGridTree([child, grandchild], new Set());
+
+        expect(nodes).toHaveLength(1);
+        expect(nodes[0].product).toBe(child);
+        expect(nodes[0].children[0].product).toBe(grandchild);
+    });
 });

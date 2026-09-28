@@ -89,6 +89,14 @@ test.describe('products', () => {
         await expect(productTile(page, 'Avietės').getByRole('button', { name: 'Išplėsti' })).toBeVisible();
         await productTile(page, 'Avietės').getByRole('button', { name: 'Išplėsti' }).click();
         await expect(productTile(page, 'Aviečių uogienė be cukraus')).toBeVisible();
+
+        const parentTile = productTile(page, 'Avietės');
+        const { width } = (await parentTile.boundingBox())!;
+        await parentTile.click({ position: { x: width - 4, y: 4 } });
+        await expect(productTile(page, 'Aviečių uogienė be cukraus')).toBeHidden();
+        await expect(page.getByRole('dialog', { name: /Avietės Uogienės/ })).not.toBeVisible();
+        await parentTile.click({ position: { x: width - 4, y: 4 } });
+        await expect(productTile(page, 'Aviečių uogienė be cukraus')).toBeVisible();
     });
 
     test('Escape discards an unsaved product while preserving the database', async ({ page, db }) => {

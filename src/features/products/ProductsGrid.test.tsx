@@ -225,6 +225,43 @@ describe('<ProductsGrid>', () => {
             expect(ProductTile).toHaveBeenCalledTimes(2);
             expect(ProductTile).toHaveBeenNthCalledWith(1, expect.objectContaining({ expanded: false }), undefined);
         });
+
+        it('shows a matching child as a root when its collapsed parent does not match the search', () => {
+            vi.mocked(useQuickFilterPredicate).mockReturnValue((name) => name.includes('Zewa'));
+
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsGrid />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(ProductTile).toHaveBeenCalledTimes(1);
+            expect(ProductTile).toHaveBeenCalledWith(
+                expect.objectContaining({ product: childProduct, totalAmounts: [{ variant: 'p', amount: 3 }] }),
+                undefined
+            );
+            expect(document.querySelector('[data-children-panel]')).not.toBeInTheDocument();
+        });
+
+        it('keeps a matching child nested when its parent also matches the search', () => {
+            vi.mocked(useQuickFilterPredicate).mockReturnValue((name) => name.includes('Avietės'));
+
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsGrid />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(ProductTile).toHaveBeenCalledTimes(2);
+            expect(document.querySelector('[data-children-panel]')?.parentElement).toHaveAttribute(
+                'aria-hidden',
+                'true'
+            );
+        });
     });
 
     describe('missing-only', () => {
@@ -236,7 +273,7 @@ describe('<ProductsGrid>', () => {
 
         afterEach(() => vi.clearAllMocks());
 
-        it('hides non-missing products when missing-only is active', () => {
+        it('omits non-missing products when missing-only is active', () => {
             render(
                 <MockTheme>
                     <MockRedux state={state}>
@@ -252,8 +289,26 @@ describe('<ProductsGrid>', () => {
                 .mocked(ProductTile)
                 .mock.calls.find(([props]: [ProductTileProps]) => props.product.name === 'Braškės');
 
-            expect(avietesCall?.[0].hidden).toBe(true);
-            expect(braskesCall?.[0].hidden).toBe(false);
+            expect(avietesCall).toBeUndefined();
+            expect(braskesCall).toBeDefined();
+        });
+
+        it('shows a missing child independently when its parent is available', () => {
+            const parent = { group: 'Uogienės', name: 'Avietės', missing: false };
+            const child = { group: 'Uogienės', name: 'Avietės (Zewa)', parent: 'Avietės', missing: true };
+            vi.mocked(useProducts).mockReturnValue([parent, child]);
+
+            render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsGrid />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(ProductTile).toHaveBeenCalledTimes(1);
+            expect(ProductTile).toHaveBeenCalledWith(expect.objectContaining({ product: child }), undefined);
+            expect(document.querySelector('[data-children-panel]')).not.toBeInTheDocument();
         });
     });
 });

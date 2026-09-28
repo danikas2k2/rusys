@@ -1,7 +1,6 @@
 import { Collapse, SimpleGrid } from '@mantine/core';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import type { Product } from '~/common/data';
 import { LoadableContent } from '~/components/common/LoadableContent';
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
@@ -20,11 +19,10 @@ const GRID_SPACING = 'xs';
 interface ProductGridSectionProps {
     nodes: readonly ProductGridNode[];
     annual?: boolean;
-    isHidden: (product: Product) => boolean;
     toggleHandlers: ReadonlyMap<string, () => void>;
 }
 
-function ProductGridSection({ nodes, annual, isHidden, toggleHandlers }: ProductGridSectionProps) {
+function ProductGridSection({ nodes, annual, toggleHandlers }: ProductGridSectionProps) {
     return (
         <SimpleGrid cols={GRID_COLS} spacing={GRID_SPACING}>
             {nodes.map((node) => {
@@ -34,7 +32,6 @@ function ProductGridSection({ nodes, annual, isHidden, toggleHandlers }: Product
                         <ProductTile
                             product={node.product}
                             annual={annual}
-                            hidden={isHidden(node.product)}
                             hasChildren={node.hasChildren}
                             expanded={node.expanded}
                             onToggleExpand={toggleHandlers.get(id)}
@@ -51,7 +48,6 @@ function ProductGridSection({ nodes, annual, isHidden, toggleHandlers }: Product
                                     <ProductGridSection
                                         nodes={node.children}
                                         annual={annual}
-                                        isHidden={isHidden}
                                         toggleHandlers={toggleHandlers}
                                     />
                                 </div>
@@ -68,9 +64,13 @@ export function ProductsGrid() {
     const groups = useSortedGroups();
     const [selectedGroup] = useGroupFilter();
     const allProducts = useProducts();
-    const products = useMemo(() => allProducts.filter((p) => p.group === selectedGroup), [allProducts, selectedGroup]);
     const quickFilter = useQuickFilterPredicate();
     const [missingOnly] = useMissingOnly();
+    const products = useMemo(
+        () =>
+            allProducts.filter((p) => p.group === selectedGroup && (!missingOnly || p.missing) && quickFilter(p.name)),
+        [allProducts, selectedGroup, missingOnly, quickFilter]
+    );
     const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(new Set());
 
     const annual = groups.find((g) => g.group === selectedGroup)?.annual;
@@ -104,15 +104,10 @@ export function ProductsGrid() {
         return map;
     }, [nodes, handleToggleExpand]);
 
-    const isHidden = useCallback(
-        (product: Product) => (missingOnly && !product.missing) || !quickFilter(product.name),
-        [missingOnly, quickFilter]
-    );
-
     return (
         <LoadableContent resourceKey="products" loader={useGetProducts()} hasData={useProductsHasData()}>
             <div data-grid="products">
-                <ProductGridSection nodes={nodes} annual={annual} isHidden={isHidden} toggleHandlers={toggleHandlers} />
+                <ProductGridSection nodes={nodes} annual={annual} toggleHandlers={toggleHandlers} />
             </div>
         </LoadableContent>
     );

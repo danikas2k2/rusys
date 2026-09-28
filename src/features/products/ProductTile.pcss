@@ -1,4 +1,16 @@
 .ui-Card-root[data-tile-kind="product"] {
+    [data-product-expand] {
+        position: relative;
+        z-index: 2;
+        overflow: visible;
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: calc(-1 * var(--mantine-spacing-sm));
+        }
+    }
+
     &[data-summary="true"] {
         background-color: var(--mantine-color-neutral-0);
     }

@@ -133,6 +133,7 @@ function ProductTileComponent({
                 hasChildren && (
                     <IconButtonTooltip>
                         <ActionIcon
+                            data-product-expand
                             variant="subtle"
                             color="gray"
                             size="sm"

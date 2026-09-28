@@ -42,8 +42,9 @@ export function buildProductGridTree(
 ): readonly ProductGridNode[] {
     const childrenByParent = new Map<string, Product[]>();
     const roots: Product[] = [];
+    const names = new Set(products.map((p) => p.name));
     for (const p of products) {
-        if (p.parent) {
+        if (p.parent && names.has(p.parent)) {
             childrenByParent.set(p.parent, [...(childrenByParent.get(p.parent) ?? []), p]);
         } else {
             roots.push(p);
