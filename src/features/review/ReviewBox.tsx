@@ -17,6 +17,8 @@ import { getId } from '~/lib/utils/id';
 import { useApplyReview } from '~/store/products/useApplyReview';
 import { useProducts } from '~/store/products/useProducts';
 
+import './ReviewBox.css';
+
 export interface ReviewBoxProps {
     opened?: boolean;
     onClose?: () => void;

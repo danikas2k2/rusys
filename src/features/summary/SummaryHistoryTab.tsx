@@ -9,6 +9,8 @@ import { SummaryHistoryRow } from '~/features/summary/SummaryHistoryRow';
 import { useGetSummaryHistory } from '~/store/history/useGetSummaryHistory';
 import { useSummary } from '~/store/summary/useSummary';
 
+import './SummaryHistoryTab.css';
+
 export function SummaryHistoryTab() {
     const [active] = useActiveContent<SummaryHistoryData>();
     const activeData = active?.data;

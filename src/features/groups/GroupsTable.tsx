@@ -20,6 +20,8 @@ import { mapOrder } from '~/lib/utils/mapOrder';
 import { useGetGroups } from '~/store/groups/useGetGroups';
 import { useReorderGroups } from '~/store/groups/useReorderGroups';
 
+import './GroupsTable.css';
+
 export function GroupsTable() {
     const setActive = useSetActiveContent();
     const handleDragStart = () => setActive();

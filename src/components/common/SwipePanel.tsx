@@ -4,6 +4,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useActiveContent, type ActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useSwipePanelDragApi, useSwipePanelWidth } from '~/components/runtime/SwipeControlsContext';
 
+import './SwipePanel.css';
+
 interface SwipePanelState {
     id?: string;
     rect: DOMRect;

@@ -11,8 +11,8 @@
     height: var(--burger-line-size);
     background-color: var(--burger-color);
     outline: calc(0.0625rem * var(--mantine-scale)) solid transparent;
-    transition: background-color var(--burger-transition-duration, 300ms)
-        var(--burger-transition-timing-function, ease),
+    transition:
+        background-color var(--burger-transition-duration, 300ms) var(--burger-transition-timing-function, ease),
         transform var(--burger-transition-duration, 300ms) var(--burger-transition-timing-function, ease);
 }
 
@@ -22,8 +22,8 @@
     height: var(--burger-line-size);
     background-color: var(--burger-color);
     outline: calc(0.0625rem * var(--mantine-scale)) solid transparent;
-    transition: background-color var(--burger-transition-duration, 300ms)
-        var(--burger-transition-timing-function, ease),
+    transition:
+        background-color var(--burger-transition-duration, 300ms) var(--burger-transition-timing-function, ease),
         transform var(--burger-transition-duration, 300ms) var(--burger-transition-timing-function, ease);
 }
 

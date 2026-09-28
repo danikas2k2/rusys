@@ -6,6 +6,8 @@ import { AddIcon } from '@icons';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useLabel } from '~/lib/hooks/useLabel';
 
+import './AddAction.css';
+
 export function AddAction({ onClick }: { onClick?: React.MouseEventHandler }) {
     const [active, setActive] = useActiveContent();
 

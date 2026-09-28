@@ -21,6 +21,8 @@ import { mapOrder } from '~/lib/utils/mapOrder';
 import { useGetVariants } from '~/store/variants/useGetVariants';
 import { useReorderVariants } from '~/store/variants/useReorderVariants';
 
+import './VariantsTable.css';
+
 export function VariantsTable() {
     const [selectedGroup] = useGroupFilter();
     const [filter] = useQuickFilter();

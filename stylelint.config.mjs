@@ -8,7 +8,7 @@ export default {
     customSyntax: 'postcss-less',
     overrides: [
         {
-            files: ['**/*.pcss'],
+            files: ['**/*.css'],
             customSyntax: 'postcss-less',
             rules: {
                 'at-rule-prelude-no-invalid': [true, { ignoreAtRules: ['import'] }],

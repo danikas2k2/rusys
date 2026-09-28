@@ -8,6 +8,8 @@ import { Label } from '~/components/common/Label';
 import { useLoginError } from '~/components/user/hooks/useLoginError';
 import { useLoginSuccess } from '~/components/user/hooks/useLoginSuccess';
 
+import './LoginButton.css';
+
 export function LoginButton() {
     const onError = useLoginError();
     const onSuccess = useLoginSuccess(onError);

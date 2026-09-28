@@ -6,6 +6,8 @@ import { ConsumedIcon, DecreaseIcon, IncreaseIcon, RecycledIcon, UpdatedIcon } f
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useLabels } from '~/lib/hooks/useLabels';
 
+import './AmountVariantRow.css';
+
 export type VariantEditType = 'updated' | 'consumed' | 'recycled';
 
 interface VariantEditRowProps {

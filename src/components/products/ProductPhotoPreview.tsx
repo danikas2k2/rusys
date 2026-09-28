@@ -3,6 +3,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useLabel } from '~/lib/hooks/useLabel';
 
+import './ProductPhotoPreview.css';
+
 interface Point {
     x: number;
     y: number;

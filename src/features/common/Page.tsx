@@ -15,6 +15,8 @@ import { ActiveExportBox } from '~/features/dialogs/ActiveExportBox';
 import { ActiveImportBox } from '~/features/dialogs/ActiveImportBox';
 import { ActiveReviewBox } from '~/features/review/ActiveReviewBox';
 
+import './Page.css';
+
 function PageContent<D = ActiveContentData>({
     withAdd,
     onAdd,

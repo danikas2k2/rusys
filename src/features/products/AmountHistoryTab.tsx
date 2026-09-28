@@ -8,6 +8,8 @@ import { AmountHistoryRow } from '~/features/products/AmountHistoryRow';
 import { useGetProductHistory } from '~/store/history/useGetProductHistory';
 import { useProducts } from '~/store/products/useProducts';
 
+import './AmountHistoryTab.css';
+
 export function AmountHistoryTab() {
     const [active] = useActiveContent<ProductAmounts>();
     const activeData = useDeferredValue(active?.data);

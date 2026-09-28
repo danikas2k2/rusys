@@ -5,6 +5,8 @@ import { ToolbarMenu } from '~/components/toolbar/ToolbarMenu';
 import { ToolbarReviewButton } from '~/components/toolbar/ToolbarReviewButton';
 import { LogoutButton } from '~/components/user/LogoutButton';
 
+import './Toolbar.css';
+
 export function Toolbar({
     children,
     alignWithCategoryRail = false,

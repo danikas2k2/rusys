@@ -5,6 +5,8 @@ import { useAmountView } from '~/components/amounts/AmountViewContext';
 import { DetailedAmounts } from '~/components/amounts/DetailedAmounts';
 import { TotalAmounts } from '~/components/amounts/TotalAmounts';
 
+import './Amounts.css';
+
 export function Amounts({
     group,
     amounts,

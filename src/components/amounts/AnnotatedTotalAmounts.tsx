@@ -13,6 +13,8 @@ import { ExpiryStatusRow } from '~/components/amounts/ExpiryStatusRow';
 import { VariantValueSpans } from '~/components/amounts/VariantValueSpans';
 import { useVariantsByGroup } from '~/store/variants/useVariantsByGroup';
 
+import './AnnotatedTotalAmounts.css';
+
 function Sources({ group, bucket }: { group: string; bucket: AmountTotalWithSources }) {
     return (
         <span data-sources>

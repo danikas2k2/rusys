@@ -1,6 +1,8 @@
 import { Card, Group, Stack, Text } from '@mantine/core';
 import React from 'react';
 
+import './GridTile.css';
+
 interface GridTileProps {
     name: string;
     tileKind: 'product' | 'summary';

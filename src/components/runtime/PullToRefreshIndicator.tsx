@@ -4,6 +4,8 @@ import { RefreshIcon } from '@icons';
 
 import { ScreenLoader } from '~/components/common/ScreenLoader';
 
+import './PullToRefreshIndicator.css';
+
 interface PullToRefreshIndicatorProps {
     distance: number;
     refreshing: boolean;

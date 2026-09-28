@@ -1,7 +1,3 @@
-@import "../styles/mantine.pcss";
-@import "../styles/theme.pcss";
-@import "../styles/globals.pcss";
-
-/* All component and feature styles are discovered from their current folders. */
-@import-glob "../components/**/*.pcss";
-@import-glob "../features/**/*.pcss";
+@import "../styles/mantine.css";
+@import "../styles/theme.css";
+@import "../styles/globals.css";

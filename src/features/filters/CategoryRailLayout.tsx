@@ -5,6 +5,8 @@ import type { Group as GroupModel } from '~/common/data';
 import { CategoryRail } from '~/features/filters/CategoryRail';
 import { useQuickFilter } from '~/features/filters/QuickFilterContext';
 
+import './CategoryRailLayout.css';
+
 interface CategoryRailLayoutProps {
     groups: readonly GroupModel[];
     selected: string;

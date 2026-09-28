@@ -13,6 +13,8 @@ import { getId } from '~/lib/utils/id';
 import { useGetProducts } from '~/store/products/useGetProducts';
 import { useProducts } from '~/store/products/useProducts';
 
+import './ProductsGrid.css';
+
 const GRID_COLS = { base: 2, xs: 3, sm: 4, md: 5, lg: 6 };
 const GRID_SPACING = 'xs';
 

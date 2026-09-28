@@ -8,6 +8,8 @@ import { UntouchedCheckboxIcon } from '~/features/review/UntouchedCheckboxIcon';
 import { getId } from '~/lib/utils/id';
 import { useProducts } from '~/store/products/useProducts';
 
+import './ReviewTable.css';
+
 interface ReviewTableProps {
     group: string;
     touched: boolean;

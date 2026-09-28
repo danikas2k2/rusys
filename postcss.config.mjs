@@ -1,13 +1,5 @@
-import { fileURLToPath } from 'node:url';
-
-const nestedPlugin = fileURLToPath(new URL('./scripts/postcss/nested.cjs', import.meta.url));
-const discardLineCommentsPlugin = fileURLToPath(
-    new URL('./scripts/postcss/discard-line-comments.cjs', import.meta.url)
-);
-
 export default {
     plugins: {
-        'postcss-import-ext-glob': {},
         'postcss-import': {},
         'postcss-preset-mantine': {
             features: {
@@ -15,11 +7,9 @@ export default {
             },
         },
         'postcss-simple-vars': {},
-        [discardLineCommentsPlugin]: {},
         'postcss-discard-comments': {
             removeAll: true,
         },
-        [nestedPlugin]: {},
         'postcss-preset-env': {
             stage: 0,
             enableClientSidePolyfills: false,

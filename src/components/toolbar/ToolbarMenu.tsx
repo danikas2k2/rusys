@@ -14,6 +14,8 @@ import { ToolbarMenuIcon } from '~/components/toolbar/ToolbarMenuIcon';
 import { useLabel } from '~/lib/hooks/useLabel';
 import { Links } from '~/lib/links';
 
+import './ToolbarMenu.css';
+
 const BURGER_Z_INDEX = 101;
 const OPEN_DRAWER_BURGER_Z_INDEX = 300;
 

@@ -1,5 +1,7 @@
 import React from 'react';
 
+import './DialogIcon.css';
+
 export interface DialogIconProps extends React.PropsWithChildren {
     /** When set, this becomes the dialog's accessible name (via the header's aria-labelledby) */
     'aria-label'?: string;

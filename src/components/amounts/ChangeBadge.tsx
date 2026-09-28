@@ -1,6 +1,8 @@
 import { Badge, type MantineColor } from '@mantine/core';
 import React from 'react';
 
+import './ChangeBadge.css';
+
 type ChangeBadgeType = number | boolean;
 
 type ChangeBadgePosition = 'left' | 'right' | 'top' | 'top-left' | 'top-right' | 'inline';

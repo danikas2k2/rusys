@@ -2,9 +2,9 @@ import { ColorSchemeScript } from '@mantine/core';
 import type { Metadata } from 'next';
 import React, { type PropsWithChildren } from 'react';
 
-import './globals.css';
-
 import { PwaHead } from './PwaHead';
+
+import './globals.css';
 
 export const metadata: Metadata = {
     title: 'Rusio programėlė',

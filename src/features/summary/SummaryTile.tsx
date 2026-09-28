@@ -7,6 +7,8 @@ import { GridTile } from '~/components/common/GridTile';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { type SummaryHistoryData } from '~/features/summary/SummaryAmounts';
 
+import './SummaryTile.css';
+
 interface SummaryTileProps {
     group: string;
     name: string;

@@ -6,6 +6,8 @@ import { SummaryAmounts, type SummaryHistoryData } from '~/features/summary/Summ
 import { SummaryYear } from '~/features/summary/SummaryYear';
 import { useSummary } from '~/store/summary/useSummary';
 
+import '../common/YearTotal.css';
+
 export function SummaryYearBar() {
     const [active, setActive] = useActiveContent<SummaryHistoryData>();
     const summary = useSummary();

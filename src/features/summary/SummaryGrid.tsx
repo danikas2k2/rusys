@@ -11,6 +11,8 @@ import { getId } from '~/lib/utils/id';
 import { useGetSummary } from '~/store/summary/useGetSummary';
 import { useSummary } from '~/store/summary/useSummary';
 
+import './SummaryGrid.css';
+
 const GRID_COLS = { base: 2, xs: 3, sm: 4, md: 5, lg: 6 };
 
 export function SummaryGrid() {

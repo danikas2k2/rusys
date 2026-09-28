@@ -10,6 +10,8 @@ import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
 
+import './MoveConsumedForm.css';
+
 interface MoveConsumedFormProps {
     group: string;
     lines: readonly VariantAmount[];

@@ -12,6 +12,8 @@ import { AmountVariantsTab } from '~/features/products/AmountVariantsTab';
 import { ProductYearBar } from '~/features/products/ProductYearBar';
 import { useLabels } from '~/lib/hooks/useLabels';
 
+import './AmountBox.css';
+
 export interface ValueListBoxProps extends Pick<ModalProps, 'title'> {
     opened?: boolean;
     photo?: string;

@@ -17,6 +17,8 @@ import { ProductsGrid } from '~/features/products/ProductsGrid';
 import { UpdatingProductsWrapper } from '~/features/products/UpdatingProductsContext';
 import { useDeleteProduct } from '~/store/products/useDeleteProduct';
 
+import './ProductsPage.css';
+
 export function ProductsPage() {
     const deleteProduct = useDeleteProduct();
     const handleDelete = ({ group, name }: Product) => deleteProduct(group, name);

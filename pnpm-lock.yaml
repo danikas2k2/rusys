@@ -245,15 +245,9 @@ importers:
       postcss-import:
         specifier: ^17.0.0
         version: 17.0.0(postcss@8.5.28)
-      postcss-import-ext-glob:
-        specifier: ^2.1.1
-        version: 2.1.1(postcss@8.5.28)
       postcss-less:
         specifier: ^6.0.0
         version: 6.0.0(postcss@8.5.28)
-      postcss-nested:
-        specifier: ^8.0.1
-        version: 8.0.1(postcss@8.5.28)
       postcss-preset-env:
         specifier: ^11.5.3
         version: 11.5.3(postcss@8.5.28)
@@ -2710,9 +2704,6 @@ packages:
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
 
-  fast-sort@3.4.1:
-    resolution: {integrity: sha512-76uvGPsF6So53sZAqenP9UVT3p5l7cyTHkLWVCMinh41Y8NDrK1IYXJgaBMfc1gk7nJiSRZp676kddFG2Aa5+A==}
-
   fast-uri@3.1.8:
     resolution: {integrity: sha512-GZMtZUTNRpOVIECoXwLNZS5xUGE+mVNbTB8h/7Rwh2TFWcBQiPzTgyZi05BF9UMZKkLJv8XBRJTlU7zg8+ZfMg==}
 
@@ -3803,11 +3794,6 @@ packages:
     peerDependencies:
       postcss: ^8.5.28
 
-  postcss-import-ext-glob@2.1.1:
-    resolution: {integrity: sha512-qd4ELOx2G0hyjgtmLnf/fSVJXXPhkcxcxhLT1y1mAnk53JYbMLoGg+AFtnJowOSvnv4CvjPAzpLpAcfWeofP5g==}
-    peerDependencies:
-      postcss: ^8.5.28
-
   postcss-import@17.0.0:
     resolution: {integrity: sha512-qzVMJhcq39KweT7Fp0HcjE5YxL5yI854Q3CtufxDuZKO9HLQUp2rptB9+U0MIj3pT1ZEVXoqnpeC1mSkfYuz4Q==}
     engines: {node: '>=22.0.0'}
@@ -3847,12 +3833,6 @@ packages:
   postcss-nested@7.0.2:
     resolution: {integrity: sha512-5osppouFc0VR9/VYzYxO03VaDa3e8F23Kfd6/9qcZTUI8P58GIYlArOET2Wq0ywSl2o2PjELhYOFI4W7l5QHKw==}
     engines: {node: '>=18.0'}
-    peerDependencies:
-      postcss: ^8.5.28
-
-  postcss-nested@8.0.1:
-    resolution: {integrity: sha512-PvSIwDVh1NTw939iu4FBK+oeZfSm0cbErFAjXCTPiStammzobBNE2SiQNezy8Xp+Oud2uLXaLpTauv3UdxWjbQ==}
-    engines: {node: ^22.0.0 || ^24.0.0 || >= 26.0.0}
     peerDependencies:
       postcss: ^8.5.28
 
@@ -7302,8 +7282,6 @@ snapshots:
 
   fast-levenshtein@2.0.6: {}
 
-  fast-sort@3.4.1: {}
-
   fast-uri@3.1.8: {}
 
   fastest-levenshtein@1.0.16: {}
@@ -8357,13 +8335,6 @@ snapshots:
       postcss: 8.5.28
       postcss-value-parser: 4.2.0
 
-  postcss-import-ext-glob@2.1.1(postcss@8.5.28):
-    dependencies:
-      fast-glob: 3.3.3
-      fast-sort: 3.4.1
-      postcss: 8.5.28
-      postcss-value-parser: 4.2.0
-
   postcss-import@17.0.0(postcss@8.5.28):
     dependencies:
       postcss: 8.5.28
@@ -8403,11 +8374,6 @@ snapshots:
       tinyglobby: 0.2.17
 
   postcss-nested@7.0.2(postcss@8.5.28):
-    dependencies:
-      postcss: 8.5.28
-      postcss-selector-parser: 7.1.6
-
-  postcss-nested@8.0.1(postcss@8.5.28):
     dependencies:
       postcss: 8.5.28
       postcss-selector-parser: 7.1.6

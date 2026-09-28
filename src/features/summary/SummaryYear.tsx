@@ -1,5 +1,7 @@
 import React from 'react';
 
+import './SummaryYear.css';
+
 interface SummaryYearProps {
     year: number;
 }

@@ -63,6 +63,8 @@ import { useProfile } from '~/store/profile/useProfile';
 import { useAllVariants } from '~/store/variants/useAllVariants';
 import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
 
+import './AmountVariantsTab.css';
+
 const ZERO_DELTA: VariantDelta = { updated: 0, consumed: 0, recycled: 0 };
 
 // A row is plain, suspicious, home, or dated - mutually exclusive. `VariantAmount`'s type shape

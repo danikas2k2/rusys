@@ -5,6 +5,8 @@ import { SummaryHistoryTab } from '~/features/summary/SummaryHistoryTab';
 import { SummaryYearBar } from '~/features/summary/SummaryYearBar';
 import { useLabels } from '~/lib/hooks/useLabels';
 
+import './SummaryHistoryBox.css';
+
 export interface SummaryHistoryBoxProps extends Pick<ModalProps, 'title'> {
     opened?: boolean;
     closeOnEscape?: boolean;

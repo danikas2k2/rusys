@@ -14,6 +14,9 @@ import { useGroups } from '~/store/groups/useGroups';
 import { useProducts } from '~/store/products/useProducts';
 import { useSetProductRemoving } from '~/store/products/useSetProductRemoving';
 
+import '../common/YearTotal.css';
+import './ProductYearBar.css';
+
 export interface ProductYearBarProps {
     disabled?: boolean;
     onHistoryYearChange?: () => void;

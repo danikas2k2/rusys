@@ -13,6 +13,8 @@ import { useProducts } from '~/store/products/useProducts';
 import { useTransferAmounts } from '~/store/products/useTransferAmounts';
 import { useProfile } from '~/store/profile/useProfile';
 
+import './MoveVariantsBox.css';
+
 const GROUP_PREFIX = ':group:';
 const PRODUCT_PREFIX = ':product:';
 const NEW_PRODUCT = ':new-product';

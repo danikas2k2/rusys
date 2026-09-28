@@ -6,6 +6,8 @@ import { ScreenLoader } from '~/components/common/ScreenLoader';
 import { ErrorBoundary } from '~/components/runtime/ErrorBoundary';
 import { useClearSuspenseResource, useSuspenseResource } from '~/components/runtime/RefreshContext';
 
+import './LoadableContent.css';
+
 interface LoadableContentProps {
     resourceKey: string;
     loader: () => Promise<void>;

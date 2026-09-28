@@ -3,6 +3,8 @@ import React, { startTransition, useEffect } from 'react';
 
 import type { Group } from '~/common/data';
 
+import './CategoryRail.css';
+
 interface CategoryRailProps {
     groups: readonly Group[];
     selected: string;

@@ -37,6 +37,8 @@ import { useSetProductExpiryTolerance } from '~/store/products/useSetProductExpi
 import { useSetProductImage } from '~/store/products/useSetProductImage';
 import { useSetProductParent } from '~/store/products/useSetProductParent';
 
+import './ProductBox.css';
+
 interface ProductBoxProps {
     opened?: boolean;
     group?: string;

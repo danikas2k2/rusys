@@ -14,6 +14,8 @@ import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { useSetProductMissing } from '~/store/products/useSetProductMissing';
 
+import './ProductTile.css';
+
 export interface ProductTileProps {
     product: Product;
     annual?: boolean;
