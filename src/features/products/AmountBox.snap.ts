@@ -15,7 +15,9 @@ test.describe('amount dialog', () => {
         await expect(dialog.getByRole('textbox', { name: 'updated' })).toBeVisible();
         const cardOverflow = await variant.evaluate((element) => {
             const panel = element.closest('.amount-box-quantities-panel');
-            if (!panel) throw new Error('Quantities panel not found');
+            if (!panel) {
+                throw new Error('Quantities panel not found');
+            }
             return element.getBoundingClientRect().right - panel.getBoundingClientRect().right;
         });
         expect(cardOverflow).toBeLessThanOrEqual(0);
