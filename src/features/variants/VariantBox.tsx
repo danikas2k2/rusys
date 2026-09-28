@@ -7,6 +7,7 @@ import { AddIcon, CancelIcon, DeleteIcon, DuplicateIcon, UpdateIcon, VariantsNav
 import type { VariantUnits } from '~/common/data';
 import { ConfirmableModal } from '~/components/common/ConfirmableModal';
 import { DialogIcon } from '~/components/common/DialogIcon';
+import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
 import { CategoryAvatar } from '~/features/filters/CategoryAvatar';
 import { CategoryOption } from '~/features/filters/CategoryOption';
@@ -375,16 +376,18 @@ export function VariantBox({
                             />
                             <Group justify={isEditing && onDelete ? 'space-between' : 'flex-end'} mt="md" wrap="nowrap">
                                 {isEditing && onDelete && (
-                                    <ActionIcon
-                                        variant="outline"
-                                        color="negative"
-                                        size="lg"
-                                        disabled={loading}
-                                        onClick={onDelete}
-                                        aria-label={_('Remove')}
-                                    >
-                                        <DeleteIcon size={18} />
-                                    </ActionIcon>
+                                    <IconButtonTooltip>
+                                        <ActionIcon
+                                            variant="outline"
+                                            color="negative"
+                                            size="lg"
+                                            disabled={loading}
+                                            onClick={onDelete}
+                                            aria-label={_('Remove')}
+                                        >
+                                            <DeleteIcon size={18} />
+                                        </ActionIcon>
+                                    </IconButtonTooltip>
                                 )}
                                 <Group gap="sm" wrap="nowrap">
                                     <Button

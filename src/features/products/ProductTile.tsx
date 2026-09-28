@@ -9,6 +9,7 @@ import { getCombinedAmounts } from '~/common/utils/amounts';
 import { getExpiryStatus, getWorstExpiryStatus } from '~/common/utils/expiry';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { GridTile } from '~/components/common/GridTile';
+import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { useSetProductMissing } from '~/store/products/useSetProductMissing';
@@ -130,15 +131,17 @@ function ProductTileComponent({
             }
             headingAction={
                 hasChildren && (
-                    <ActionIcon
-                        variant="subtle"
-                        color="gray"
-                        size="sm"
-                        onClick={handleToggleExpand}
-                        aria-label={_(expanded ? 'Collapse' : 'Expand')}
-                    >
-                        {expanded ? <CollapseIcon size={16} /> : <ExpandIcon size={16} />}
-                    </ActionIcon>
+                    <IconButtonTooltip>
+                        <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            size="sm"
+                            onClick={handleToggleExpand}
+                            aria-label={_(expanded ? 'Collapse' : 'Expand')}
+                        >
+                            {expanded ? <CollapseIcon size={16} /> : <ExpandIcon size={16} />}
+                        </ActionIcon>
+                    </IconButtonTooltip>
                 )
             }
             amounts={

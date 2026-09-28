@@ -3,6 +3,7 @@ import React from 'react';
 
 import { DarkModeIcon, LightModeIcon } from '@icons';
 
+import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useLabels } from '~/lib/hooks/useLabels';
 
 export function ColorSchemeToggle() {
@@ -15,18 +16,19 @@ export function ColorSchemeToggle() {
     const targetLabel = isDark ? _('Light mode') : _('Dark mode');
 
     return (
-        <Center>
-            <Switch
-                aria-label={targetLabel}
-                checked={isDark}
-                color="primary"
-                offLabel={<LightModeIcon aria-hidden size={14} />}
-                onChange={(event) => setColorScheme(event.currentTarget.checked ? 'dark' : 'light')}
-                onLabel={<DarkModeIcon aria-hidden size={14} />}
-                size="lg"
-                title={targetLabel}
-                withThumbIndicator={false}
-            />
-        </Center>
+        <IconButtonTooltip label={targetLabel}>
+            <Center w="fit-content" mx="auto">
+                <Switch
+                    aria-label={targetLabel}
+                    checked={isDark}
+                    color="primary"
+                    offLabel={<LightModeIcon aria-hidden size={14} />}
+                    onChange={(event) => setColorScheme(event.currentTarget.checked ? 'dark' : 'light')}
+                    onLabel={<DarkModeIcon aria-hidden size={14} />}
+                    size="lg"
+                    withThumbIndicator={false}
+                />
+            </Center>
+        </IconButtonTooltip>
     );
 }

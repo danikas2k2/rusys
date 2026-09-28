@@ -36,6 +36,7 @@ import { ChangeBadge } from '~/components/amounts/ChangeBadge';
 import { VariantAvatar } from '~/components/amounts/VariantAvatar';
 import { EXPIRY_INFIX, HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/components/amounts/variantKeys';
 import { VariantTitle } from '~/components/amounts/VariantTitle';
+import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { AmountExpanded, type VariantDelta } from '~/features/products/AmountExpanded';
@@ -472,9 +473,11 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
             >
                 <Label>Redo</Label>
             </Button>
-            <ActionIcon variant="default" size="lg" onClick={handleMoveStart} aria-label={_('Move variants')}>
-                <MoveIcon size={16} />
-            </ActionIcon>
+            <IconButtonTooltip>
+                <ActionIcon variant="default" size="lg" onClick={handleMoveStart} aria-label={_('Move variants')}>
+                    <MoveIcon size={16} />
+                </ActionIcon>
+            </IconButtonTooltip>
         </Flex>
     ) : expandedKey || hasChanges ? (
         <Group className="amount-box-actions" justify="center" gap="xs">
@@ -493,9 +496,11 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
         </Group>
     ) : !expandedKey && !hasChanges && visibleKeys.length ? (
         <Flex className="amount-box-actions" justify="center">
-            <ActionIcon variant="default" size="lg" onClick={handleMoveStart} aria-label={_('Move variants')}>
-                <MoveIcon size={16} />
-            </ActionIcon>
+            <IconButtonTooltip>
+                <ActionIcon variant="default" size="lg" onClick={handleMoveStart} aria-label={_('Move variants')}>
+                    <MoveIcon size={16} />
+                </ActionIcon>
+            </IconButtonTooltip>
         </Flex>
     ) : null;
 

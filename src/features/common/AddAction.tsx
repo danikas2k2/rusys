@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import { AddIcon } from '@icons';
 
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
+import { useLabel } from '~/lib/hooks/useLabel';
 
 export function AddAction({ onClick }: { onClick?: React.MouseEventHandler }) {
     const [active, setActive] = useActiveContent();
@@ -27,6 +28,7 @@ export function AddAction({ onClick }: { onClick?: React.MouseEventHandler }) {
             onClick={handleClick}
             data-hidden={hidden}
             data-action="add"
+            aria-label={useLabel('Add')}
         >
             <AddIcon size={24} />
         </ActionIcon>

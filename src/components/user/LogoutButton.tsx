@@ -9,6 +9,7 @@ import { ConfirmationDialog } from '~/components/common/ConfirmationDialog';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
 import { ProfileAvatar } from '~/components/user/ProfileAvatar';
+import { useLabel } from '~/lib/hooks/useLabel';
 import { useProfile } from '~/store/profile/useProfile';
 import { useResetProfile } from '~/store/profile/useResetProfile';
 
@@ -25,7 +26,7 @@ export function LogoutButton({ children }: React.PropsWithChildren): React.React
 
     return (
         <>
-            <ActionIcon variant="outline" size="lg" radius="xl" onClick={open}>
+            <ActionIcon variant="outline" size="lg" radius="xl" onClick={open} aria-label={useLabel('Logout')}>
                 {children || <ProfileAvatar />}
             </ActionIcon>
 

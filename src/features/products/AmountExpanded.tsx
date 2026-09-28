@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { AddExpiryIcon, HomeIcon, SuspiciousIcon } from '@icons';
 
 import { DialogIcon } from '~/components/common/DialogIcon';
+import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { AmountVariantRow, type VariantEditType } from '~/features/products/AmountVariantRow';
 import { useLabels } from '~/lib/hooks/useLabels';
 
@@ -104,20 +105,23 @@ export function AmountExpanded({
                     )}
                     {onAddExpiry && (
                         <>
-                            <ActionIcon
-                                variant="light"
-                                color="gray"
-                                size="lg"
-                                aria-label={_('Valid until')}
-                                onClick={openExpiryPicker}
-                            >
-                                <AddExpiryIcon size={16} />
-                            </ActionIcon>
+                            <IconButtonTooltip>
+                                <ActionIcon
+                                    variant="light"
+                                    color="gray"
+                                    size="lg"
+                                    aria-label={_('Valid until')}
+                                    onClick={openExpiryPicker}
+                                >
+                                    <AddExpiryIcon size={16} />
+                                </ActionIcon>
+                            </IconButtonTooltip>
                             <Modal
                                 opened={expiryPickerOpened}
                                 onClose={() => setExpiryPickerOpened(false)}
                                 centered
                                 withCloseButton
+                                closeButtonProps={{ 'aria-label': _('Close') }}
                                 keepMounted={false}
                                 transitionProps={{ duration: 0 }}
                                 size="sm"

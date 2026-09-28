@@ -6,6 +6,7 @@ import { AddIcon, AnnualIcon, CancelIcon, CategoriesNavIcon, DeleteIcon, ReviewI
 
 import { ConfirmableModal } from '~/components/common/ConfirmableModal';
 import { DialogIcon } from '~/components/common/DialogIcon';
+import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
 import { ImageDropzone } from '~/components/images/ImageDropzone';
 import { useLabels } from '~/lib/hooks/useLabels';
@@ -224,16 +225,18 @@ export function GroupBox({
                         />
                         <Group justify={isEditing && onDelete ? 'space-between' : 'flex-end'} mt="md" wrap="nowrap">
                             {isEditing && onDelete && (
-                                <ActionIcon
-                                    variant="outline"
-                                    color="negative"
-                                    size="lg"
-                                    disabled={loading}
-                                    onClick={onDelete}
-                                    aria-label={_('Remove')}
-                                >
-                                    <DeleteIcon size={18} />
-                                </ActionIcon>
+                                <IconButtonTooltip>
+                                    <ActionIcon
+                                        variant="outline"
+                                        color="negative"
+                                        size="lg"
+                                        disabled={loading}
+                                        onClick={onDelete}
+                                        aria-label={_('Remove')}
+                                    >
+                                        <DeleteIcon size={18} />
+                                    </ActionIcon>
+                                </IconButtonTooltip>
                             )}
                             <Group gap="sm" wrap="nowrap">
                                 <Button

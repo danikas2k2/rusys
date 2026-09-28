@@ -6,6 +6,7 @@ import { HistoryTabIcon, RecycledIcon } from '@icons';
 import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts } from '~/common/data';
 import { getCombinedAmounts } from '~/common/utils/amounts';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
+import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useUpdatingProducts } from '~/features/products/UpdatingProductsContext';
 import { useLabels } from '~/lib/hooks/useLabels';
@@ -162,29 +163,35 @@ export function ProductYearBar({ disabled = false, onHistoryYearChange }: Produc
                         disabled={disabled}
                     />
                     {!!year && (
-                        <ActionIcon
-                            variant={removingYear ? 'filled' : 'subtle'}
-                            color={removingYear ? 'negative' : 'gray'}
-                            onClick={handleToggleRemoving}
-                            disabled={disabled}
-                            aria-label={_('Removing this year?')}
-                            aria-pressed={removingYear}
-                        >
-                            <RecycledIcon size={16} />
-                        </ActionIcon>
+                        <IconButtonTooltip>
+                            <ActionIcon
+                                variant={removingYear ? 'filled' : 'subtle'}
+                                color={removingYear ? 'negative' : 'gray'}
+                                onClick={handleToggleRemoving}
+                                disabled={disabled}
+                                aria-label={_('Removing this year?')}
+                                aria-pressed={removingYear}
+                            >
+                                <RecycledIcon size={16} />
+                            </ActionIcon>
+                        </IconButtonTooltip>
                     )}
                     {historyOnlyYears.length > 0 && (
                         <Menu position="bottom-end" withinPortal={false}>
-                            <Menu.Target>
-                                <ActionIcon
-                                    variant="subtle"
-                                    color="gray"
-                                    disabled={disabled}
-                                    aria-label={_('History years')}
-                                >
-                                    <HistoryTabIcon size={16} />
-                                </ActionIcon>
-                            </Menu.Target>
+                            <IconButtonTooltip label={_('History years')}>
+                                <span style={{ display: 'inline-flex' }}>
+                                    <Menu.Target>
+                                        <ActionIcon
+                                            variant="subtle"
+                                            color="gray"
+                                            disabled={disabled}
+                                            aria-label={_('History years')}
+                                        >
+                                            <HistoryTabIcon size={16} />
+                                        </ActionIcon>
+                                    </Menu.Target>
+                                </span>
+                            </IconButtonTooltip>
                             <Menu.Dropdown
                                 className="history-years-menu-dropdown"
                                 style={{ maxHeight: 240, overflowY: 'auto' }}

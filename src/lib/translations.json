@@ -83,6 +83,9 @@
   "Clear": {
     "lt-LT": "Išvalyti"
   },
+  "Click to zoom": {
+    "lt-LT": "Spustelėkite, kad padidintumėte"
+  },
   "Close": {
     "lt-LT": "Uždaryti"
   },
@@ -103,6 +106,12 @@
   },
   "Decrease": {
     "lt-LT": "Mažinti"
+  },
+  "Drag": {
+    "lt-LT": "Vilkite"
+  },
+  "Drag to pan": {
+    "lt-LT": "Vilkite vaizdui perkelti"
   },
   "Detailed": {
     "lt-LT": "Detaliai"
@@ -238,6 +247,9 @@
   },
   "Increase": {
     "lt-LT": "Didinti"
+  },
+  "History years": {
+    "lt-LT": "Istorijos metai"
   },
   "Review": {
     "lt-LT": "Peržiūra"

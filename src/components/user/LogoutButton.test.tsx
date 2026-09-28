@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockThemeRedux } from '@tests/MockThemeRedux';
 
@@ -64,9 +64,9 @@ describe('<LogoutButton>', () => {
             </MockThemeRedux>
         );
 
-        await user.click(screen.getByRole('button', { name: 'ProfileAvatar' }));
+        await user.click(screen.getByRole('button', { name: 'Logout' }));
 
-        await user.click(await screen.findByRole('button', { name: 'Logout' }));
+        await user.click(await within(screen.getByRole('alertdialog')).findByRole('button', { name: 'Logout' }));
 
         expect(googleLogout).toHaveBeenCalledWith();
         expect(resetProfile).toHaveBeenCalledWith();

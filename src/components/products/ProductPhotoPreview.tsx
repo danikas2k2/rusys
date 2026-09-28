@@ -25,6 +25,8 @@ export interface ProductPhotoPreviewProps {
 export function ProductPhotoPreview({ photo, onError, onOpenChange }: ProductPhotoPreviewProps): React.ReactElement {
     const closeLabel = useLabel('Close');
     const viewImageLabel = useLabel('View image');
+    const zoomLabel = useLabel('Click to zoom');
+    const panLabel = useLabel('Drag to pan');
     const [opened, setOpened] = useState(false);
     const [zoomed, setZoomed] = useState(false);
     const [offset, setOffset] = useState<Point>({ x: 0, y: 0 });
@@ -127,7 +129,7 @@ export function ProductPhotoPreview({ photo, onError, onOpenChange }: ProductPho
             >
                 <button
                     type="button"
-                    aria-label={zoomed ? 'Drag to pan' : 'Click to zoom'}
+                    aria-label={zoomed ? panLabel : zoomLabel}
                     data-photo-preview-viewport
                     data-zoomed={zoomed || undefined}
                     onClick={handleImageClick}

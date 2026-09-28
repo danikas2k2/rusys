@@ -4,6 +4,7 @@ import React, { useCallback, useState } from 'react';
 import { EditIcon, HistoryTabIcon, QuantitiesTabIcon } from '@icons';
 
 import { ConfirmableModal } from '~/components/common/ConfirmableModal';
+import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
 import { ProductDialogIcon } from '~/components/products/ProductDialogIcon';
 import { AmountHistoryTab } from '~/features/products/AmountHistoryTab';
@@ -65,9 +66,16 @@ export function AmountBox({
                 <Stack className="amount-box-content" gap="sm">
                     <Group wrap="nowrap" gap="xs" align="flex-start">
                         {onEdit && (
-                            <ActionIcon variant="subtle" color="gray" onClick={() => onEdit()} aria-label={_('Edit')}>
-                                <EditIcon size={18} />
-                            </ActionIcon>
+                            <IconButtonTooltip>
+                                <ActionIcon
+                                    variant="subtle"
+                                    color="gray"
+                                    onClick={() => onEdit()}
+                                    aria-label={_('Edit')}
+                                >
+                                    <EditIcon size={18} />
+                                </ActionIcon>
+                            </IconButtonTooltip>
                         )}
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <ProductYearBar disabled={hasChanges} onHistoryYearChange={() => setActiveTab('history')} />

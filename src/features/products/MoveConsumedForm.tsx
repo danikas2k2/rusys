@@ -6,6 +6,7 @@ import { DecreaseIcon, IncreaseIcon, RecycledIcon } from '@icons';
 import type { VariantAmount } from '~/common/data';
 import { VariantAvatar } from '~/components/amounts/VariantAvatar';
 import { VariantTitle } from '~/components/amounts/VariantTitle';
+import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
 
@@ -104,38 +105,44 @@ export function MoveConsumedForm({ group, lines, onMove, disabled = false }: Mov
                 disabled={disabled}
                 style={{ width: 120 }}
                 leftSection={
-                    <ActionIcon
-                        size="input-xs"
-                        color="text"
-                        variant="subtle"
-                        onClick={amount > 0 && !disabled ? decrease : undefined}
-                        aria-label={amount > 0 ? _('Decrease') : undefined}
-                    >
-                        {amount > 0 ? <DecreaseIcon size={14} /> : undefined}
-                    </ActionIcon>
+                    <IconButtonTooltip>
+                        <ActionIcon
+                            size="input-xs"
+                            color="text"
+                            variant="subtle"
+                            onClick={amount > 0 && !disabled ? decrease : undefined}
+                            aria-label={amount > 0 ? _('Decrease') : undefined}
+                        >
+                            {amount > 0 ? <DecreaseIcon size={14} /> : undefined}
+                        </ActionIcon>
+                    </IconButtonTooltip>
                 }
                 rightSection={
-                    <ActionIcon
-                        size="input-xs"
-                        color="text"
-                        variant="subtle"
-                        onClick={amount < max && !disabled ? increase : undefined}
-                        aria-label={amount < max ? _('Increase') : undefined}
-                    >
-                        {amount < max ? <IncreaseIcon size={14} /> : undefined}
-                    </ActionIcon>
+                    <IconButtonTooltip>
+                        <ActionIcon
+                            size="input-xs"
+                            color="text"
+                            variant="subtle"
+                            onClick={amount < max && !disabled ? increase : undefined}
+                            aria-label={amount < max ? _('Increase') : undefined}
+                        >
+                            {amount < max ? <IncreaseIcon size={14} /> : undefined}
+                        </ActionIcon>
+                    </IconButtonTooltip>
                 }
             />
-            <ActionIcon
-                size="input-sm"
-                color="negative"
-                variant="subtle"
-                onClick={handleMove}
-                disabled={amount <= 0 || disabled}
-                aria-label={_('Move to discarded')}
-            >
-                <RecycledIcon size={16} />
-            </ActionIcon>
+            <IconButtonTooltip>
+                <ActionIcon
+                    size="input-sm"
+                    color="negative"
+                    variant="subtle"
+                    onClick={handleMove}
+                    disabled={amount <= 0 || disabled}
+                    aria-label={_('Move to discarded')}
+                >
+                    <RecycledIcon size={16} />
+                </ActionIcon>
+            </IconButtonTooltip>
         </Flex>
     );
 }

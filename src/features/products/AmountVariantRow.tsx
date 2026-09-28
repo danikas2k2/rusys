@@ -3,6 +3,7 @@ import React, { useCallback } from 'react';
 
 import { ConsumedIcon, DecreaseIcon, IncreaseIcon, RecycledIcon, UpdatedIcon } from '@icons';
 
+import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useLabels } from '~/lib/hooks/useLabels';
 
 export type VariantEditType = 'updated' | 'consumed' | 'recycled';
@@ -83,26 +84,30 @@ export function AmountVariantRow({ type, delta, minDelta, onChange }: VariantEdi
                 size="sm"
                 hideControls
                 leftSection={
-                    <ActionIcon
-                        size="input-xs"
-                        color="text"
-                        variant="subtle"
-                        onClick={canDecrease ? decrease : undefined}
-                        aria-label={canDecrease ? _('Decrease') : undefined}
-                    >
-                        {canDecrease ? <DecreaseIcon size={14} /> : undefined}
-                    </ActionIcon>
+                    <IconButtonTooltip>
+                        <ActionIcon
+                            size="input-xs"
+                            color="text"
+                            variant="subtle"
+                            onClick={canDecrease ? decrease : undefined}
+                            aria-label={canDecrease ? _('Decrease') : undefined}
+                        >
+                            {canDecrease ? <DecreaseIcon size={14} /> : undefined}
+                        </ActionIcon>
+                    </IconButtonTooltip>
                 }
                 rightSection={
-                    <ActionIcon
-                        size="input-xs"
-                        color="text"
-                        variant="subtle"
-                        onClick={canIncrease ? increase : undefined}
-                        aria-label={canIncrease ? _('Increase') : undefined}
-                    >
-                        {canIncrease ? <IncreaseIcon size={14} /> : undefined}
-                    </ActionIcon>
+                    <IconButtonTooltip>
+                        <ActionIcon
+                            size="input-xs"
+                            color="text"
+                            variant="subtle"
+                            onClick={canIncrease ? increase : undefined}
+                            aria-label={canIncrease ? _('Increase') : undefined}
+                        >
+                            {canIncrease ? <IncreaseIcon size={14} /> : undefined}
+                        </ActionIcon>
+                    </IconButtonTooltip>
                 }
             />
         </Flex>

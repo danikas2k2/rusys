@@ -5,6 +5,7 @@ import React, { useCallback, useState } from 'react';
 import { ErrorAlertIcon, ImageAcceptIcon, ImageDropzoneIdleIcon, ImageRejectIcon, RemoveImageIcon } from '@icons';
 
 import { IMAGE_MIME_TYPES, MAX_IMAGE_FILE_MB, MAX_IMAGE_FILE_SIZE } from '~/common/utils/files';
+import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { getErrorMessage } from '~/lib/utils/errors';
@@ -127,21 +128,23 @@ export function ImageDropzone({
                     </Group>
                 </Dropzone>
                 {!!image && (
-                    <ActionIcon
-                        variant="outline"
-                        color="negative"
-                        size={compact ? 'sm' : 'md'}
-                        onClick={handleRemove}
-                        disabled={disabled || saving}
-                        aria-label={_('Remove image')}
-                        style={{
-                            position: 'absolute',
-                            insetInlineEnd: rem(compact ? 6 : 8),
-                            bottom: rem(compact ? 6 : 8),
-                        }}
-                    >
-                        <RemoveImageIcon size={removeIconSize} />
-                    </ActionIcon>
+                    <IconButtonTooltip>
+                        <ActionIcon
+                            variant="outline"
+                            color="negative"
+                            size={compact ? 'sm' : 'md'}
+                            onClick={handleRemove}
+                            disabled={disabled || saving}
+                            aria-label={_('Remove image')}
+                            style={{
+                                position: 'absolute',
+                                insetInlineEnd: rem(compact ? 6 : 8),
+                                bottom: rem(compact ? 6 : 8),
+                            }}
+                        >
+                            <RemoveImageIcon size={removeIconSize} />
+                        </ActionIcon>
+                    </IconButtonTooltip>
                 )}
             </Box>
             {(error || externalError) && (
