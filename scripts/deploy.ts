@@ -160,10 +160,10 @@ mv .deploy/nginx/default.conf.next .deploy/nginx/default.conf
             throw error;
         }
     } else {
-        const legacyWasRunning = isRunning(connection, 'rusys-app');
+        const legacy = (['rusys-client', 'rusys-app'] as const).find((name) => isRunning(connection, name));
         try {
-            if (legacyWasRunning) {
-                connection.remote('"$docker" stop rusys-app\n');
+            if (legacy) {
+                connection.remote(`"$docker" stop ${shellQuote(legacy)}\n`);
             }
             connection.remote(
                 '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps --no-build rusys-gateway\n'
@@ -171,11 +171,14 @@ mv .deploy/nginx/default.conf.next .deploy/nginx/default.conf
             waitGateway(connection);
         } catch (error) {
             connection.remote('"$docker" stop rusys-gateway >/dev/null 2>&1 || true\n');
-            if (legacyWasRunning) {
-                connection.remote('"$docker" start rusys-app\n');
+            if (legacy) {
+                connection.remote(`"$docker" start ${shellQuote(legacy)}\n`);
             }
             restoreConfig(connection, hadPrevious);
             throw error;
+        }
+        if (legacy) {
+            connection.remote(`printf %s ${shellQuote(legacy)} > .deploy/legacy-container\n`);
         }
     }
     connection.remote('rm -f .deploy/nginx/default.conf.previous\n');
@@ -269,20 +272,22 @@ export function rollback(config?: DeployConfig) {
                 if (isHealthy(connection, `rusys-app-${previous}`)) {
                     switchTo(connection, previous);
                     console.log(`Rolled back to application slot: ${previous}`);
-                } else if (
-                    connection.remote('if "$docker" inspect rusys-app >/dev/null 2>&1; then printf true; fi\n') ===
-                    'true'
-                ) {
+                } else {
+                    const legacy = connection.remote(
+                        'if test -f .deploy/legacy-container; then cat .deploy/legacy-container; fi\n'
+                    );
+                    if (legacy !== 'rusys-client' && legacy !== 'rusys-app') {
+                        throw new Error('No healthy previous application is available.');
+                    }
+                    connection.remote(`"$docker" inspect ${shellQuote(legacy)} >/dev/null\n`);
                     connection.remote('"$docker" stop rusys-gateway\n');
                     try {
-                        connection.remote('"$docker" start rusys-app\n');
+                        connection.remote(`"$docker" start ${shellQuote(legacy)}\n`);
                         console.log('Rolled back to the pre-gateway application.');
                     } catch (error) {
                         connection.remote('"$docker" start rusys-gateway\n');
                         throw error;
                     }
-                } else {
-                    throw new Error('No healthy previous application is available.');
                 }
                 console.log('✅ Rollback completed successfully!');
             } catch (error) {
