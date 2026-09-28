@@ -46,17 +46,18 @@ PWA paveikslėliai ir jų metaduomenys generuojami taip:
 pnpm assets
 ```
 
-## Diegimo grąžinimas
+## Diegimas ir grąžinimas
 
 `pnpm deploy` patikrina projektą ir į serverį tiesiai iš projekto įkelia tik
-„Docker“ build reikalingus šaltinio failus. „Docker“ konteineryje įdiegiamos
-priklausomybės ir sugeneruojamas produkcinis Next.js `standalone`, todėl vietiniai
-`node_modules` ir `.next` į serverį nesiunčiami.
-
-Kiekvienas `pnpm deploy` prieš įkeldamas naujus failus serveryje išsaugo šiuo metu veikiančią versiją į `.backup` (arba `BACKUP_PATH`). Pirmas monorepo deploy taip pat išsaugo ankstesnę vieno containerio struktūrą. Jei diegimą reikia atšaukti, vykdykite:
+„Docker“ build reikalingus šaltinio failus. Ten surenkama neaktyvi mėlyna arba
+žalia programos vieta; ją paleidus ir patikrinus, „Nginx“ perjungia srautą. Ankstesnė
+vieta lieka veikianti, todėl ją galima greitai grąžinti:
 
 ```sh
 pnpm deploy:rollback
 ```
 
-Komanda atstato ankstesnio release struktūrą ir perstato jos containerius. Ji veikia tik po bent vieno diegimo su šia atsarginių kopijų logika.
+`pnpm deploy:rollback` perjungia srautą į ankstesnę sveiką vietą be pakartotinio
+surinkimo. Per pirmą perėjimą nuo seno tiesiogiai hosto portą naudojančio
+konteinerio bus trumpas porto perdavimas „Nginx“; senasis konteineris lieka
+sustabdytas kaip greito grąžinimo galimybė.

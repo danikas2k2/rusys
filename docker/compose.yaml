@@ -1,5 +1,39 @@
 name: rusys-app
 
+x-app: &app
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+    args:
+      APP_VERSION: "4.0.0"
+  platform: linux/amd64
+  restart: unless-stopped
+  environment:
+    NODE_ENV: production
+    HOSTNAME: 0.0.0.0
+    PORT: 3000
+    LOCALE: ${LOCALE}
+    TZ: ${TZ}
+    GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+    GOOGLE_ALLOWED_USERS: ${GOOGLE_ALLOWED_USERS}
+    DB: ${DB}
+    IMAGES_DIR: ${IMAGES_DIR:-/app/data/images}
+  depends_on:
+    rusys-db:
+      condition: service_healthy
+  expose:
+    - 3000
+  networks:
+    - rusys-net
+  volumes:
+    - /volume1/docker/rusys-app/images:/app/data/images
+  healthcheck:
+    test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
+    interval: 5s
+    timeout: 3s
+    retries: 12
+    start_period: 10s
+
 services:
   rusys-db:
     container_name: rusys-db
@@ -19,35 +53,33 @@ services:
       timeout: 5s
       retries: 12
 
-  rusys-app:
-    container_name: rusys-app
-    image: rusys-app
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-      args:
-        APP_VERSION: "4.0.0"
-    platform: linux/amd64
+  rusys-gateway:
+    container_name: rusys-gateway
+    image: nginx:stable-alpine
     restart: unless-stopped
-    environment:
-      NODE_ENV: production
-      HOSTNAME: 0.0.0.0
-      PORT: ${PORT:-3000}
-      LOCALE: ${LOCALE}
-      TZ: ${TZ}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_ALLOWED_USERS: ${GOOGLE_ALLOWED_USERS}
-      DB: ${DB}
-      IMAGES_DIR: ${IMAGES_DIR:-/app/data/images}
-    depends_on:
-      rusys-db:
-        condition: service_healthy
     ports:
-      - "${PORT:-3000}:${PORT:-3000}"
+      - "${PORT:-3000}:80"
     networks:
       - rusys-net
     volumes:
-      - /volume1/docker/rusys-app/images:/app/data/images
+      - ../.deploy/nginx:/etc/nginx/conf.d:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+
+  rusys-app-blue:
+    <<: *app
+    container_name: rusys-app-blue
+    image: rusys-app-blue
+    profiles: [blue]
+
+  rusys-app-green:
+    <<: *app
+    container_name: rusys-app-green
+    image: rusys-app-green
+    profiles: [green]
 
 networks:
   rusys-net:
