@@ -51,8 +51,10 @@ describe('<ToolbarFilter>', () => {
             </MockApp>
         );
 
+        const input = screen.getByPlaceholderText('type to filter');
         await user.click(screen.getByRole('button', { name: 'Clear' }));
 
         expect(setFilter).toHaveBeenCalledWith('');
+        expect(input).toHaveFocus();
     });
 });

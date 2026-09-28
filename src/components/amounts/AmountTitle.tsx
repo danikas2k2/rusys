@@ -20,7 +20,7 @@ export function AmountTitle({ group, name, image, photo }: AmountTitleProps): Re
                 <Title order={1} lh={1}>
                     {name}
                 </Title>
-                <Title order={4} lh={1}>
+                <Title order={3} lh={1}>
                     {group}
                 </Title>
             </Stack>
