@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
 
@@ -21,17 +21,19 @@ vi.mock(import('~/features/filters/GroupFilterContext'), () => ({
     useGroupFilter: vi.fn(),
 }));
 
-function selectOption(name: string) {
+async function selectOption(name: string) {
     const combobox = screen.getByRole('combobox', { name: 'Category' });
     act(() => fireEvent.click(combobox));
-    act(() => fireEvent.click(screen.getByRole('option', { name })));
+    await selectUser.click(await screen.findByRole('option', { name }));
 }
 
-describe('<VariantBox>', () => {
-    let user: ReturnType<typeof userEvent.setup>;
+let user: UserEvent;
+let selectUser: UserEvent;
 
+describe('<VariantBox>', () => {
     beforeEach(() => {
         user = userEvent.setup({ delay: null });
+        selectUser = userEvent.setup();
         vi.mocked(useGroupFilter).mockReturnValue(['', vi.fn()]);
     });
 
@@ -102,7 +104,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('New category');
+            await selectOption('New category');
             const categoryDialog = screen
                 .getByRole('textbox', { name: 'Category name' })
                 .closest('[role="dialog"]') as HTMLElement;
@@ -256,7 +258,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.type(screen.getByRole('textbox', { name: 'Amount' }), '500');
             await user.type(screen.getByRole('textbox', { name: 'Suffix' }), '4½');
@@ -276,7 +278,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.type(screen.getByRole('textbox', { name: 'Amount' }), '500');
             await user.click(screen.getByRole('button', { name: 'Add' }));
@@ -295,7 +297,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(updateVariant).not.toHaveBeenCalled();
@@ -313,7 +315,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'd');
             await user.type(screen.getByRole('textbox', { name: 'Amount' }), '500');
             await user.click(screen.getByRole('button', { name: 'Add' }));
@@ -444,7 +446,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('Uogienės');
+            await selectOption('Uogienės');
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
             await user.click(screen.getByRole('button', { name: 'Duplicate' }));
@@ -467,7 +469,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('Uogienės');
+            await selectOption('Uogienės');
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
             await user.click(screen.getByRole('button', { name: 'Duplicate' }));
@@ -496,7 +498,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('Uogienės');
+            await selectOption('Uogienės');
             await user.clear(screen.getByRole('textbox', { name: 'Variant name' }));
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
             await user.clear(screen.getByRole('textbox', { name: 'Suffix' }));
@@ -536,7 +538,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test:variant');
             await user.type(screen.getByRole('textbox', { name: 'Amount' }), '500');
             await user.click(screen.getByRole('button', { name: 'Add' }));
@@ -555,7 +557,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewOne');
             await user.type(screen.getByRole('textbox', { name: 'Amount' }), '500');
             await user.clear(screen.getByRole('textbox', { name: 'Amount' }));
@@ -579,7 +581,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.type(screen.getByRole('textbox', { name: 'Amount' }), '750');
 
             expect(screen.getByRole('textbox', { name: 'Variant name' })).not.toHaveAttribute('aria-invalid', 'true');
@@ -598,7 +600,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(onClose).not.toHaveBeenCalled();
@@ -616,7 +618,7 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'BothFilled');
             await user.type(screen.getByRole('textbox', { name: 'Amount' }), '500');
 
@@ -646,7 +648,7 @@ describe('<VariantBox>', () => {
             expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
 
             // Change group to trigger Duplicate button
-            selectOption('Uogienės');
+            await selectOption('Uogienės');
 
             // Should now show Duplicate button (tests getButtonContent with groupChanged condition)
             expect(screen.getByRole('button', { name: 'Duplicate' })).toBeInTheDocument();
@@ -655,8 +657,6 @@ describe('<VariantBox>', () => {
 
     describe('loading state with fake timers', () => {
         let resolveUpdate: () => void;
-
-        beforeEach(() => vi.useFakeTimers());
 
         afterEach(() => vi.useRealTimers());
 
@@ -675,16 +675,12 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
-            act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
-            act(() =>
-                fireEvent.change(screen.getByRole('textbox', { name: 'Variant name' }), {
-                    target: { value: 'New Variant' },
-                })
-            );
-            act(() => fireEvent.change(screen.getByRole('textbox', { name: 'Amount' }), { target: { value: '500' } }));
+            await selectOption('Daržovės');
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'New Variant');
+            await user.type(screen.getByRole('textbox', { name: 'Amount' }), '500');
 
             const addButton = screen.getByRole('button', { name: 'Add' });
+            vi.useFakeTimers();
             act(() => fireEvent.click(addButton));
 
             expect(addButton).toBeDisabled();
@@ -719,16 +715,12 @@ describe('<VariantBox>', () => {
                 </MockApp>
             );
 
-            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
-            act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
-            act(() =>
-                fireEvent.change(screen.getByRole('textbox', { name: 'Variant name' }), {
-                    target: { value: 'Fast Variant' },
-                })
-            );
-            act(() => fireEvent.change(screen.getByRole('textbox', { name: 'Amount' }), { target: { value: '500' } }));
+            await selectOption('Daržovės');
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'Fast Variant');
+            await user.type(screen.getByRole('textbox', { name: 'Amount' }), '500');
 
             const addButton = screen.getByRole('button', { name: 'Add' });
+            vi.useFakeTimers();
             act(() => fireEvent.click(addButton));
 
             // Complete the async operation immediately (before 300ms)

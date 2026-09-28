@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { getProductsFixture } from '@tests/fixtures';
 import { MockTheme } from '@tests/MockTheme';
 
@@ -10,9 +10,13 @@ import { ReviewProductRow } from '~/features/review/ReviewProductRow';
 import { getId } from '~/lib/utils/id';
 
 describe('<ReviewProductRow>', () => {
-    const user = userEvent.setup();
+    let user: UserEvent;
     const products = getProductsFixture();
     const onToggle = vi.fn();
+
+    beforeEach(() => {
+        user = userEvent.setup();
+    });
 
     afterEach(() => vi.clearAllMocks());
 

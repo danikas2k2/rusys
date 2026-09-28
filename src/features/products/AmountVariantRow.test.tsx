@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
@@ -256,74 +256,74 @@ describe('<AmountVariantRow>', () => {
     });
 
     describe('handleChange', () => {
-        it('negates positive input for consumed type', () => {
+        it('negates positive input for consumed type', async () => {
             render(
                 <MockTheme>
                     <AmountVariantRow type="consumed" delta={0} minDelta={-10} onChange={onChange} />
                 </MockTheme>
             );
 
-            fireEvent.change(screen.getByRole('textbox', { name: 'consumed' }), { target: { value: '2' } });
+            await user.type(screen.getByRole('textbox', { name: 'consumed' }), '2');
 
             expect(onChange).toHaveBeenCalledWith('consumed', -2);
         });
 
-        it('negates positive input for recycled type', () => {
+        it('negates positive input for recycled type', async () => {
             render(
                 <MockTheme>
                     <AmountVariantRow type="recycled" delta={0} minDelta={-10} onChange={onChange} />
                 </MockTheme>
             );
 
-            fireEvent.change(screen.getByRole('textbox', { name: 'recycled' }), { target: { value: '5' } });
+            await user.type(screen.getByRole('textbox', { name: 'recycled' }), '5');
 
             expect(onChange).toHaveBeenCalledWith('recycled', -5);
         });
 
-        it('does not negate input for updated type', () => {
+        it('does not negate input for updated type', async () => {
             render(
                 <MockTheme>
                     <AmountVariantRow type="updated" delta={0} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 
-            fireEvent.change(screen.getByRole('textbox', { name: 'updated' }), { target: { value: '4' } });
+            await user.type(screen.getByRole('textbox', { name: 'updated' }), '4');
 
             expect(onChange).toHaveBeenCalledWith('updated', 4);
         });
 
-        it('clamps value to minDelta for consumed type when input is below minDelta', () => {
+        it('clamps value to minDelta for consumed type when input is below minDelta', async () => {
             render(
                 <MockTheme>
                     <AmountVariantRow type="consumed" delta={0} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
-            fireEvent.change(screen.getByRole('textbox', { name: 'consumed' }), { target: { value: '10' } });
+            await user.type(screen.getByRole('textbox', { name: 'consumed' }), '10');
 
             expect(onChange).toHaveBeenCalledWith('consumed', -5);
         });
 
-        it('negates negative string input for consumed type (abs then negate)', () => {
+        it('negates negative string input for consumed type (abs then negate)', async () => {
             render(
                 <MockTheme>
                     <AmountVariantRow type="consumed" delta={-2} minDelta={-5} onChange={onChange} />
                 </MockTheme>
             );
 
-            fireEvent.change(screen.getByRole('textbox', { name: 'consumed' }), { target: { value: '-3' } });
+            await user.type(screen.getByRole('textbox', { name: 'consumed' }), '-3');
 
             expect(onChange).toHaveBeenCalledWith('consumed', -3);
         });
 
-        it('returns early and does not call onChange for NaN input', () => {
+        it('returns early and does not call onChange for NaN input', async () => {
             render(
                 <MockTheme>
                     <AmountVariantRow type="updated" delta={5} minDelta={0} onChange={onChange} />
                 </MockTheme>
             );
 
-            fireEvent.change(screen.getByRole('textbox', { name: 'updated' }), { target: { value: '' } });
+            await user.clear(screen.getByRole('textbox', { name: 'updated' }));
 
             expect(onChange).not.toHaveBeenCalled();
         });

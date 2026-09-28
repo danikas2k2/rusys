@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockThemeRedux } from '@tests/MockThemeRedux';
 
@@ -61,24 +61,25 @@ vi.mock(import('@mantine/dropzone'), (): any => {
     return { Dropzone: DropzoneComponent };
 });
 
-let user: ReturnType<typeof userEvent.setup>;
+let user: UserEvent;
+let selectUser: UserEvent;
 
-function selectOption(name: string) {
+async function selectOption(name: string) {
     const combobox = screen.getByRole('combobox', { name: 'Category' });
     act(() => fireEvent.click(combobox));
-    act(() => fireEvent.click(screen.getByRole('option', { name })));
+    await selectUser.click(await screen.findByRole('option', { name }));
 }
 
-function selectParentOption(name: string) {
-    const combobox = getParentProductCombobox();
+async function selectParentOption(name: string) {
+    const combobox = await getParentProductCombobox();
     act(() => fireEvent.click(combobox));
-    act(() => fireEvent.click(screen.getByRole('option', { name })));
+    await selectUser.click(await screen.findByRole('option', { name }));
 }
 
-function getParentProductCombobox() {
+async function getParentProductCombobox() {
     const details = screen.getByRole('button', { name: 'Additional details' });
     if (details.getAttribute('aria-expanded') !== 'true') {
-        act(() => fireEvent.click(details));
+        await selectUser.click(details);
         act(() => {
             fireEvent.transitionEnd(
                 document.querySelector('[data-product-advanced-fields] [role="region"]') as HTMLElement,
@@ -92,6 +93,7 @@ function getParentProductCombobox() {
 describe('<ProductBox>', () => {
     beforeEach(() => {
         user = userEvent.setup({ delay: null });
+        selectUser = userEvent.setup();
     });
 
     afterEach(() => vi.clearAllMocks());
@@ -124,7 +126,7 @@ describe('<ProductBox>', () => {
         expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
 
-    it('renders without initial value', () => {
+    it('renders without initial value', async () => {
         render(
             <MockThemeRedux state={state}>
                 <ProductBox opened onClose={onClose} />
@@ -135,7 +137,10 @@ describe('<ProductBox>', () => {
         expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('');
         expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
         expect(screen.queryByRole('textbox', { name: 'Expiry tolerance' })).not.toBeInTheDocument();
-        expect(getParentProductCombobox()).toBeInTheDocument();
+
+        const parentCombobox = await getParentProductCombobox();
+
+        expect(parentCombobox).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Expiry tolerance' })).toHaveValue('0');
     });
 
@@ -148,10 +153,9 @@ describe('<ProductBox>', () => {
             </MockThemeRedux>
         );
 
-        getParentProductCombobox();
-        fireEvent.change(screen.getByRole('textbox', { name: 'Expiry tolerance' }), {
-            target: { value: '2 sav.' },
-        });
+        await getParentProductCombobox();
+        await user.clear(screen.getByRole('textbox', { name: 'Expiry tolerance' }));
+        await user.type(screen.getByRole('textbox', { name: 'Expiry tolerance' }), '2 sav.');
         await user.click(screen.getByRole('button', { name: 'Update' }));
 
         expect(setProductExpiryTolerance).toHaveBeenCalledWith('Uogienės', 'Avietės', 14);
@@ -617,7 +621,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.click(screen.getByRole('button', { name: 'Move' }));
 
             expect(moveProduct).toHaveBeenCalledWith('Uogienės', 'Avietės', 'Daržovės', 'Avietės');
@@ -633,7 +637,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.click(screen.getByRole('button', { name: 'Move' }));
 
             expect(moveProduct).toHaveBeenCalledWith('Uogienės', 'Avietės', 'Daržovės', 'Avietės');
@@ -649,7 +653,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
             await user.click(screen.getByRole('button', { name: 'Move' }));
 
@@ -666,7 +670,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            selectOption('Daržovės');
+            await selectOption('Daržovės');
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agurkai');
             await user.click(screen.getByRole('button', { name: 'Move' }));
@@ -710,20 +714,20 @@ describe('<ProductBox>', () => {
             products: [...getProductsFixture(), { group: 'Daržovės', name: 'Agurkai (Zewa)', parent: 'Agurkai' }],
         };
 
-        it('does not show the clear button when no parent is selected', () => {
+        it('does not show the clear button when no parent is selected', async () => {
             render(
                 <MockThemeRedux state={stateWithChild}>
                     <ProductBox opened group="Daržovės" onClose={onClose} />
                 </MockThemeRedux>
             );
 
-            const combobox = getParentProductCombobox();
+            const combobox = await getParentProductCombobox();
             const wrapper = combobox.closest('.mantine-InputWrapper-root') as HTMLElement;
 
             expect(wrapper.querySelector('.mantine-InputClearButton-root')).not.toBeInTheDocument();
         });
 
-        it('shows the product image in parent options and the selected field', () => {
+        it('shows the product image in parent options and the selected field', async () => {
             const stateWithProductImage = {
                 ...stateWithChild,
                 products: stateWithChild.products.map((product) =>
@@ -736,7 +740,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = getParentProductCombobox();
+            const combobox = await getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
             expect(screen.getByRole('option', { name: 'Agurkai' }).querySelector('img')).toHaveAttribute(
@@ -744,19 +748,19 @@ describe('<ProductBox>', () => {
                 '/images/ab/cd/agurkai.png'
             );
 
-            selectParentOption('Agurkai');
+            await selectParentOption('Agurkai');
 
             expect(combobox.parentElement!.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/agurkai.png');
         });
 
-        it('offers products from the currently selected category as parent options', () => {
+        it('offers products from the currently selected category as parent options', async () => {
             render(
                 <MockThemeRedux state={stateWithChild}>
                     <ProductBox opened group="Daržovės" onClose={onClose} />
                 </MockThemeRedux>
             );
 
-            const combobox = getParentProductCombobox();
+            const combobox = await getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
             expect(screen.getByRole('option', { name: 'Agurkai' })).toBeInTheDocument();
@@ -764,7 +768,7 @@ describe('<ProductBox>', () => {
             expect(screen.getByRole('option', { name: 'Agurkai (Zewa)' })).toBeInTheDocument();
         });
 
-        it('orders parent options by tree structure (children directly under their parent), not alphabetically', () => {
+        it('orders parent options by tree structure (children directly under their parent), not alphabetically', async () => {
             const treeState = {
                 ...state,
                 products: [
@@ -781,7 +785,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = getParentProductCombobox();
+            const combobox = await getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
             const options = screen
@@ -791,7 +795,7 @@ describe('<ProductBox>', () => {
             expect(options).toStrictEqual(['Agurkai', 'Zewa', 'Beta', 'Kopūstai']);
         });
 
-        it('indents child options to reflect their depth in the tree', () => {
+        it('indents child options to reflect their depth in the tree', async () => {
             const treeState = {
                 ...state,
                 products: [
@@ -806,10 +810,10 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = getParentProductCombobox();
+            const combobox = await getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
-            expect(screen.getByRole('option', { name: 'Agurkai' }).querySelector('div')).toHaveStyle({
+            expect((await screen.findByRole('option', { name: 'Agurkai' })).querySelector('div')).toHaveStyle({
                 paddingInlineStart: '0px',
             });
             expect(screen.getByRole('option', { name: 'Zewa' }).querySelector('div')).toHaveStyle({
@@ -817,35 +821,36 @@ describe('<ProductBox>', () => {
             });
         });
 
-        it('does not offer products from a different category', () => {
+        it('does not offer products from a different category', async () => {
             render(
                 <MockThemeRedux state={stateWithChild}>
                     <ProductBox opened group="Daržovės" onClose={onClose} />
                 </MockThemeRedux>
             );
 
-            const combobox = getParentProductCombobox();
+            const combobox = await getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
             expect(screen.queryByRole('option', { name: 'Avietės' })).not.toBeInTheDocument();
         });
 
-        it('excludes the product itself and its descendants (would create a cycle)', () => {
+        it('excludes the product itself and its descendants (would create a cycle)', async () => {
             render(
                 <MockThemeRedux state={stateWithChild}>
                     <ProductBox opened group="Daržovės" name="Agurkai" onClose={onClose} />
                 </MockThemeRedux>
             );
 
-            const combobox = getParentProductCombobox();
+            const combobox = await getParentProductCombobox();
             act(() => fireEvent.click(combobox));
+            const remainingOption = await screen.findByRole('option', { name: 'Kopūstai' });
 
             expect(screen.queryByRole('option', { name: 'Agurkai' })).not.toBeInTheDocument();
             expect(screen.queryByRole('option', { name: 'Agurkai (Zewa)' })).not.toBeInTheDocument();
-            expect(screen.getByRole('option', { name: 'Kopūstai' })).toBeInTheDocument();
+            expect(remainingOption).toBeInTheDocument();
         });
 
-        it('does not hang when walking a pre-existing cyclic parent chain in the data', () => {
+        it('does not hang when walking a pre-existing cyclic parent chain in the data', async () => {
             const cyclicState = {
                 ...state,
                 products: [
@@ -861,14 +866,15 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = getParentProductCombobox();
+            const combobox = await getParentProductCombobox();
             act(() => fireEvent.click(combobox));
+            const remainingOption = await screen.findByRole('option', { name: 'Kopūstai' });
 
             // CiklinisA is excluded as its own parent option; CiklinisB (its cyclic "descendant"
             // per the corrupted data) is also excluded, but unrelated products remain offered.
             expect(screen.queryByRole('option', { name: 'CiklinisA' })).not.toBeInTheDocument();
             expect(screen.queryByRole('option', { name: 'CiklinisB' })).not.toBeInTheDocument();
-            expect(screen.getByRole('option', { name: 'Kopūstai' })).toBeInTheDocument();
+            expect(remainingOption).toBeInTheDocument();
         });
 
         it('passes the selected parent when adding a new product', async () => {
@@ -881,7 +887,7 @@ describe('<ProductBox>', () => {
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agurkai (Perlan)');
-            selectParentOption('Agurkai');
+            await selectParentOption('Agurkai');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(addProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai (Perlan)', 'Agurkai');
@@ -896,7 +902,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            selectParentOption('Agurkai');
+            await selectParentOption('Agurkai');
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
             expect(setProductParent).toHaveBeenCalledWith('Daržovės', 'Kopūstai', 'Agurkai');
@@ -925,13 +931,15 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            expect(getParentProductCombobox()).toHaveValue('Agurkai');
+            const parentCombobox = await getParentProductCombobox();
+
+            expect(parentCombobox).toHaveValue('Agurkai');
 
             // Switching away then back to the original category: parentOptions no longer contains
             // 'Agurkai' at the intermediate step, so the field is cleared - and it stays cleared
             // (not restored) once we're back, since the clearing effect only ever moves value -> ''.
-            selectOption('Uogienės');
-            selectOption('Daržovės');
+            await selectOption('Uogienės');
+            await selectOption('Daržovės');
 
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
@@ -947,7 +955,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            const combobox = getParentProductCombobox();
+            const combobox = await getParentProductCombobox();
             const wrapper = combobox.closest('.mantine-InputWrapper-root') as HTMLElement;
             const clearButton = wrapper.querySelector('.mantine-InputClearButton-root') as HTMLElement;
 
@@ -967,7 +975,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            selectOption('Uogienės');
+            await selectOption('Uogienės');
             await user.click(screen.getByRole('button', { name: 'Move' }));
 
             expect(moveProduct).not.toHaveBeenCalled();
@@ -1018,8 +1026,6 @@ describe('<ProductBox>', () => {
     describe('loading state with fake timers', () => {
         let resolveAdd: () => void;
 
-        beforeEach(() => vi.useFakeTimers());
-
         afterEach(() => vi.useRealTimers());
 
         it('shows loading state after 300ms delay when submitting form', async () => {
@@ -1037,14 +1043,11 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            // Use fireEvent to avoid userEvent incompatibility with fake timers
-            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
-            act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
-            act(() =>
-                fireEvent.change(screen.getByRole('textbox', { name: 'Title' }), { target: { value: 'New Entry' } })
-            );
+            await selectOption('Daržovės');
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'New Entry');
 
             const addButton = screen.getByRole('button', { name: 'Add' });
+            vi.useFakeTimers();
             act(() => fireEvent.click(addButton));
 
             expect(addButton).toBeDisabled();
@@ -1080,13 +1083,11 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
-            act(() => fireEvent.click(screen.getByRole('option', { name: 'Daržovės' })));
-            act(() =>
-                fireEvent.change(screen.getByRole('textbox', { name: 'Title' }), { target: { value: 'Fast Entry' } })
-            );
+            await selectOption('Daržovės');
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Fast Entry');
 
             const addButton = screen.getByRole('button', { name: 'Add' });
+            vi.useFakeTimers();
             act(() => fireEvent.click(addButton));
 
             // Complete the async operation immediately (before 300ms) — clears the timeout
@@ -1103,7 +1104,7 @@ describe('<ProductBox>', () => {
     });
 
     describe('inline category creation', () => {
-        it('"New category" option is present in the dropdown', () => {
+        it('"New category" option is present in the dropdown', async () => {
             render(
                 <MockThemeRedux state={state}>
                     <ProductBox opened onClose={onClose} />
@@ -1124,7 +1125,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            selectOption('New category');
+            await selectOption('New category');
 
             expect(screen.getByRole('heading', { name: 'Add new category' })).toBeInTheDocument();
         });
@@ -1145,7 +1146,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            selectOption('New category');
+            await selectOption('New category');
             const groupDialog = screen
                 .getByRole('textbox', { name: 'Category name' })
                 .closest('[role="dialog"]') as HTMLElement;
@@ -1170,7 +1171,7 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            selectOption('New category');
+            await selectOption('New category');
             const groupDialog = screen
                 .getByRole('textbox', { name: 'Category name' })
                 .closest('[role="dialog"]') as HTMLElement;

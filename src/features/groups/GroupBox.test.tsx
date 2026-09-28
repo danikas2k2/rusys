@@ -533,8 +533,6 @@ describe('<GroupBox>', () => {
     describe('loading state with fake timers', () => {
         let resolveUpdate: () => void;
 
-        beforeEach(() => vi.useFakeTimers());
-
         afterEach(() => vi.useRealTimers());
 
         it('shows loading state after 300ms delay when submitting form', async () => {
@@ -552,13 +550,10 @@ describe('<GroupBox>', () => {
                 </MockApp>
             );
 
-            act(() =>
-                fireEvent.change(screen.getByRole('textbox', { name: 'Category name' }), {
-                    target: { value: 'New Group' },
-                })
-            );
+            await user.type(screen.getByRole('textbox', { name: 'Category name' }), 'New Group');
 
             const addButton = screen.getByRole('button', { name: 'Add' });
+            vi.useFakeTimers();
             act(() => fireEvent.click(addButton));
 
             expect(addButton).toBeDisabled();
@@ -593,13 +588,10 @@ describe('<GroupBox>', () => {
                 </MockApp>
             );
 
-            act(() =>
-                fireEvent.change(screen.getByRole('textbox', { name: 'Category name' }), {
-                    target: { value: 'Fast Group' },
-                })
-            );
+            await user.type(screen.getByRole('textbox', { name: 'Category name' }), 'Fast Group');
 
             const addButton = screen.getByRole('button', { name: 'Add' });
+            vi.useFakeTimers();
             act(() => fireEvent.click(addButton));
 
             // Complete the async operation immediately (before 300ms)

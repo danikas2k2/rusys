@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { MockRedux } from '@tests/MockRedux';
 import { MockTheme } from '@tests/MockTheme';
 
@@ -15,11 +15,15 @@ vi.mock(import('react-redux'), async () => ({
 }));
 
 describe('<ErrorDialog>', () => {
-    const user = userEvent.setup();
+    let user: UserEvent;
     const dispatch = vi.fn();
 
     beforeAll(() => {
         vi.mocked(useDispatch).mockReturnValue(dispatch);
+    });
+
+    beforeEach(() => {
+        user = userEvent.setup();
     });
 
     afterEach(() => {

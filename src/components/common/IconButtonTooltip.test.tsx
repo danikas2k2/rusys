@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
 import React, { useState } from 'react';
@@ -33,24 +34,30 @@ function setup(hover: boolean) {
 }
 
 describe('<IconButtonTooltip>', () => {
+    let user: UserEvent;
+
+    beforeEach(() => {
+        user = userEvent.setup();
+    });
+
     afterEach(() => vi.unstubAllGlobals());
 
     it('waits before showing and closes when its trigger disappears', async () => {
         setup(true);
         const button = screen.getByRole('button', { name: 'Move variants' });
 
-        fireEvent.mouseEnter(button);
+        await user.hover(button);
 
         await expect(screen.findByRole('tooltip')).resolves.toHaveTextContent('Move variants');
 
-        fireEvent.click(button);
+        await user.click(button);
 
         expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
     it('does not show a tooltip on devices without hover', async () => {
         setup(false);
-        fireEvent.mouseEnter(screen.getByRole('button', { name: 'Move variants' }));
+        await user.hover(screen.getByRole('button', { name: 'Move variants' }));
 
         await new Promise((resolve) => setTimeout(resolve, 550));
 

@@ -1,4 +1,5 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, type RenderResult } from '@testing-library/react';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -7,6 +8,12 @@ import { LoadableContent } from '~/components/common/LoadableContent';
 import { RefreshProvider, useRefreshAll } from '~/components/runtime/RefreshContext';
 
 describe('<LoadableContent>', () => {
+    let user: UserEvent;
+
+    beforeEach(() => {
+        user = userEvent.setup();
+    });
+
     afterEach(() => vi.restoreAllMocks());
 
     async function renderContent({
@@ -16,7 +23,7 @@ describe('<LoadableContent>', () => {
         loader?: () => Promise<void>;
         hasData?: boolean;
     } = {}) {
-        let view!: ReturnType<typeof render>;
+        let view!: RenderResult;
         await act(async () => {
             view = render(
                 <MockTheme>
@@ -63,8 +70,7 @@ describe('<LoadableContent>', () => {
         expect(screen.queryByRole('main')).not.toBeInTheDocument();
 
         await act(async () => {
-            fireEvent.click(screen.getByRole('button', { name: 'Reload page' }));
-            await Promise.resolve();
+            await user.click(screen.getByRole('button', { name: 'Reload page' }));
         });
 
         await waitFor(() => expect(screen.getByRole('main')).toBeInTheDocument());

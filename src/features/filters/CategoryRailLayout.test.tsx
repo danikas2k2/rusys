@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
 import React, { useState } from 'react';
@@ -13,6 +13,12 @@ vi.mock(import('~/features/filters/CategoryRail'), () => ({
 }));
 
 describe('<CategoryRailLayout>', () => {
+    let user: UserEvent;
+
+    beforeEach(() => {
+        user = userEvent.setup();
+    });
+
     const groups = [{ group: 'Uogienės', order: 0 }];
 
     afterEach(() => vi.clearAllMocks());
@@ -117,7 +123,6 @@ describe('<CategoryRailLayout>', () => {
             );
         }
 
-        const user = userEvent.setup();
         render(
             <MockTheme>
                 <QuickFilterWrapper>
@@ -160,7 +165,6 @@ describe('<CategoryRailLayout>', () => {
             );
         }
 
-        const user = userEvent.setup();
         render(
             <MockTheme>
                 <Fixture />

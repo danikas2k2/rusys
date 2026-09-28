@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 
 import React from 'react';
 
@@ -14,7 +15,10 @@ function BoomString(): React.JSX.Element {
 }
 
 describe('<ErrorBoundary>', () => {
+    let user: UserEvent;
+
     beforeEach(() => {
+        user = userEvent.setup();
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
     });
 
@@ -46,7 +50,7 @@ describe('<ErrorBoundary>', () => {
         expect(screen.getByRole('alert')).toHaveTextContent('Unexpected error occurred');
     });
 
-    it('calls onReload prop when the Reload page button is clicked', () => {
+    it('calls onReload prop when the Reload page button is clicked', async () => {
         const reloadSpy = vi.fn();
 
         render(
@@ -57,12 +61,12 @@ describe('<ErrorBoundary>', () => {
             </MockTheme>
         );
 
-        fireEvent.click(screen.getByRole('button', { name: 'Reload page' }));
+        await user.click(screen.getByRole('button', { name: 'Reload page' }));
 
         expect(reloadSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('clicking Reload page without onReload prop does not throw', () => {
+    it('clicking Reload page without onReload prop does not throw', async () => {
         // No onReload prop — the fallback branch uses reloadPage (globalThis.location.reload)
         // jsdom provides a no-op location.reload, so we verify the click does not throw
         render(
@@ -75,9 +79,7 @@ describe('<ErrorBoundary>', () => {
 
         expect(screen.getByRole('alert')).toHaveTextContent('Unexpected error occurred');
 
-        expect(() => {
-            fireEvent.click(screen.getByRole('button', { name: 'Reload page' }));
-        }).not.toThrow();
+        await expect(user.click(screen.getByRole('button', { name: 'Reload page' }))).resolves.not.toThrow();
     });
 
     it('logs non-Error thrown values using String() in console.error', () => {

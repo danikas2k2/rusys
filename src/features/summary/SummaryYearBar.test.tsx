@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
@@ -14,6 +15,12 @@ vi.mock(import('~/features/summary/SummaryAmounts'), async () => ({
 }));
 
 describe('<SummaryYearBar>', () => {
+    let user: UserEvent;
+
+    beforeEach(() => {
+        user = userEvent.setup();
+    });
+
     afterEach(() => vi.clearAllMocks());
 
     it('renders nothing without active history', () => {
@@ -49,7 +56,7 @@ describe('<SummaryYearBar>', () => {
         expect(screen.getByLabelText('23/24')).toBeChecked();
     });
 
-    it('changes the active year, total and history context', () => {
+    it('changes the active year, total and history context', async () => {
         const setActive = vi.fn();
         vi.mocked(useSummary).mockReturnValue([
             {
@@ -77,7 +84,7 @@ describe('<SummaryYearBar>', () => {
         expect(screen.getByText('5')).toHaveAttribute('data-inline', 'true');
         expect(screen.getByLabelText('23/24')).toBeChecked();
 
-        fireEvent.click(screen.getByLabelText('22/23'));
+        await user.click(screen.getByLabelText('22/23'));
 
         expect(setActive).toHaveBeenCalledWith({
             action: 'history',
@@ -85,7 +92,7 @@ describe('<SummaryYearBar>', () => {
         });
     });
 
-    it('uses an empty total if a cached summary year has no amounts', () => {
+    it('uses an empty total if a cached summary year has no amounts', async () => {
         const setActive = vi.fn();
         vi.mocked(useSummary).mockReturnValue([
             {
@@ -109,7 +116,7 @@ describe('<SummaryYearBar>', () => {
             </MockThemeActive>
         );
 
-        fireEvent.click(screen.getByLabelText('22/23'));
+        await user.click(screen.getByLabelText('22/23'));
 
         expect(setActive).toHaveBeenCalledWith({
             action: 'history',

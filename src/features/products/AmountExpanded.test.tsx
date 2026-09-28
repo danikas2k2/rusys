@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
@@ -209,7 +209,7 @@ describe('<AmountExpanded>', () => {
         expect(Array.from(yearSelect!.options, (option) => option.value)).toContain(String(currentYear + 10));
 
         for (let index = 0; index < 12 * 11; index += 1) {
-            fireEvent.click(previousMonth!);
+            await user.click(previousMonth!);
         }
 
         expect(Array.from(yearSelect!.options, (option) => option.value)).toContain(String(currentYear - 11));

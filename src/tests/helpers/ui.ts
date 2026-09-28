@@ -1,6 +1,4 @@
-import type { test } from '../fixtures/test';
-
-type Page = Parameters<Parameters<typeof test>[2]>[0]['page'];
+import type { Page } from '@playwright/test';
 
 export function productTile(page: Page, name: string) {
     return page.locator('[data-tile-kind="product"]').filter({ hasText: name });

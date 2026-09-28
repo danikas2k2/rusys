@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -6,10 +7,16 @@ import React from 'react';
 import { GridTile } from '~/components/common/GridTile';
 
 describe('<GridTile>', () => {
+    let user: UserEvent;
+
+    beforeEach(() => {
+        user = userEvent.setup();
+    });
+
     const baseProps = { tileKind: 'product' as const, name: 'Avietės' };
     const renderTile = (tile: React.ReactElement) => render(<MockTheme>{tile}</MockTheme>);
 
-    it('renders the shared card structure and forwards its click handler', () => {
+    it('renders the shared card structure and forwards its click handler', async () => {
         const onClick = vi.fn();
         renderTile(<GridTile {...baseProps} onClick={onClick} amounts={<span>3 vnt.</span>} />);
 
@@ -21,7 +28,7 @@ describe('<GridTile>', () => {
         expect(tile?.querySelector('[data-tile-icon]')).toBeInTheDocument();
         expect(screen.getByText('3 vnt.')).toBeInTheDocument();
 
-        fireEvent.click(tile!);
+        await user.click(tile!);
 
         expect(onClick).toHaveBeenCalledExactlyOnceWith(expect.any(Object));
     });

@@ -128,7 +128,7 @@ describe('<AmountBox>', () => {
         );
 
         await user.click(screen.getByRole('button', { name: 'View image' }));
-        fireEvent.keyDown(document.body, { key: 'Escape' });
+        await user.keyboard('{Escape}');
 
         expect(onClose).not.toHaveBeenCalled();
         expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -139,7 +139,7 @@ describe('<AmountBox>', () => {
         // any other modal stacked on top - a caller opening one there (see ActiveAmountBox) needs
         // to be able to disable this one's own handling for as long as that one is open, or a
         // single Escape press would close both at once.
-        it('closes on Escape by default', () => {
+        it('closes on Escape by default', async () => {
             const onClose = vi.fn();
 
             render(
@@ -148,12 +148,12 @@ describe('<AmountBox>', () => {
                 </MockTheme>
             );
 
-            fireEvent.keyDown(document.body, { key: 'Escape' });
+            await user.keyboard('{Escape}');
 
             expect(onClose).toHaveBeenCalledTimes(1);
         });
 
-        it('does not close on Escape when closeOnEscape is false', () => {
+        it('does not close on Escape when closeOnEscape is false', async () => {
             const onClose = vi.fn();
 
             render(
@@ -162,7 +162,7 @@ describe('<AmountBox>', () => {
                 </MockTheme>
             );
 
-            fireEvent.keyDown(document.body, { key: 'Escape' });
+            await user.keyboard('{Escape}');
 
             expect(onClose).not.toHaveBeenCalled();
         });

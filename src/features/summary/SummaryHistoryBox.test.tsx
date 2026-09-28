@@ -1,4 +1,5 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -17,6 +18,12 @@ vi.mock(import('~/lib/hooks/useLocale'), () => ({
 }));
 
 describe('<SummaryHistoryBox>', () => {
+    let user: UserEvent;
+
+    beforeEach(() => {
+        user = userEvent.setup();
+    });
+
     afterEach(async () => {
         cleanup();
         // Mantine schedules focus restoration with a zero-delay timer when a
@@ -45,7 +52,7 @@ describe('<SummaryHistoryBox>', () => {
         expect(screen.getByRole('region', { name: 'Summary history' })).toBeInTheDocument();
     });
 
-    it('calls onClose when the close button is clicked', () => {
+    it('calls onClose when the close button is clicked', async () => {
         const onClose = vi.fn();
 
         render(
@@ -54,12 +61,12 @@ describe('<SummaryHistoryBox>', () => {
             </MockTheme>
         );
 
-        fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+        await user.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onClose).toHaveBeenCalledTimes(1);
     });
 
-    it('does not throw when onAfterClose is called after close', () => {
+    it('does not throw when onAfterClose is called after close', async () => {
         const onAfterClose = vi.fn();
 
         render(
@@ -68,21 +75,19 @@ describe('<SummaryHistoryBox>', () => {
             </MockTheme>
         );
 
-        fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+        await user.click(screen.getByRole('button', { name: 'Close' }));
 
         expect(onAfterClose).not.toHaveBeenCalled();
     });
 
-    it('does not throw when onClose is not provided', () => {
+    it('does not throw when onClose is not provided', async () => {
         render(
             <MockTheme>
                 <SummaryHistoryBox opened />
             </MockTheme>
         );
 
-        expect(() => {
-            fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-        }).not.toThrow();
+        await expect(user.click(screen.getByRole('button', { name: 'Close' }))).resolves.not.toThrow();
     });
 
     it('does not throw when onAfterClose is not provided', () => {

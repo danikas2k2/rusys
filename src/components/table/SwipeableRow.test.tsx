@@ -2212,43 +2212,32 @@ describe('<SwipeableRow>', () => {
             );
 
             const row = screen.getByRole('row');
+            const pointer = user.setup();
 
             // Pointer down from closed (offset 0) - the first move just mounts the panel hidden,
             // it does not call setOffset at all yet.
-            fireEvent.pointerDown(row, { clientX: 200, clientY: 50, isPrimary: true });
-            fireEvent.pointerMove(row, {
-                clientX: 200 - POINTER_MOVE_THRESHOLD - 5,
-                clientY: 50,
-                isPrimary: true,
-            });
+            await pointer.pointer({ keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } });
+            await pointer.pointer({ target: row, coords: { x: 200 - POINTER_MOVE_THRESHOLD - 5, y: 50 } });
 
             expect(mockSetOffset).not.toHaveBeenCalled();
 
             // Second move: panel now exists in the DOM registry (setOffset succeeds) - this is
             // the one-time reveal write, and arms the freeze window.
-            fireEvent.pointerMove(row, {
-                clientX: 200 - POINTER_MOVE_THRESHOLD - 8,
-                clientY: 50,
-                isPrimary: true,
-            });
+            await pointer.pointer({ target: row, coords: { x: 200 - POINTER_MOVE_THRESHOLD - 8, y: 50 } });
 
             expect(mockSetOffset).toHaveBeenCalledTimes(1);
             expect(mockSetOffset).toHaveBeenLastCalledWith('test-1', expect.any(Number), false);
 
             // Third move, fired essentially instantly and only a few px further - within both the
             // freeze deadline (70ms) and the abandon distance (20px), so it's skipped entirely.
-            fireEvent.pointerMove(row, {
-                clientX: 200 - POINTER_MOVE_THRESHOLD - 10,
-                clientY: 50,
-                isPrimary: true,
-            });
+            await pointer.pointer({ target: row, coords: { x: 200 - POINTER_MOVE_THRESHOLD - 10, y: 50 } });
 
             expect(mockSetOffset).toHaveBeenCalledTimes(1);
 
-            fireEvent.pointerUp(row, {
-                clientX: 200 - POINTER_MOVE_THRESHOLD - 10,
-                clientY: 50,
-                isPrimary: true,
+            await pointer.pointer({
+                keys: '[/MouseLeft]',
+                target: row,
+                coords: { x: 200 - POINTER_MOVE_THRESHOLD - 10, y: 50 },
             });
         });
 
@@ -2270,21 +2259,22 @@ describe('<SwipeableRow>', () => {
             );
 
             const row = screen.getByRole('row');
+            const pointer = user.setup();
 
-            fireEvent.pointerDown(row, { clientX: 500, clientY: 50, isPrimary: true });
-            fireEvent.pointerMove(row, { clientX: 500 - POINTER_MOVE_THRESHOLD - 5, clientY: 50, isPrimary: true });
-            fireEvent.pointerMove(row, { clientX: 500 - POINTER_MOVE_THRESHOLD - 8, clientY: 50, isPrimary: true });
+            await pointer.pointer({ keys: '[MouseLeft>]', target: row, coords: { x: 500, y: 50 } });
+            await pointer.pointer({ target: row, coords: { x: 500 - POINTER_MOVE_THRESHOLD - 5, y: 50 } });
+            await pointer.pointer({ target: row, coords: { x: 500 - POINTER_MOVE_THRESHOLD - 8, y: 50 } });
 
             expect(mockSetOffset).toHaveBeenCalledTimes(1);
 
             // Big jump, far past REVEAL_ABANDON_DISTANCE (20px) from where the reveal was armed -
             // tracks the finger live instead of staying frozen.
-            fireEvent.pointerMove(row, { clientX: 500 - 200, clientY: 50, isPrimary: true });
+            await pointer.pointer({ target: row, coords: { x: 500 - 200, y: 50 } });
 
             expect(mockSetOffset).toHaveBeenCalledTimes(2);
             expect(mockSetOffset).toHaveBeenLastCalledWith('test-1', expect.any(Number), true);
 
-            fireEvent.pointerUp(row, { clientX: 500 - 200, clientY: 50, isPrimary: true });
+            await pointer.pointer({ keys: '[/MouseLeft]', target: row, coords: { x: 500 - 200, y: 50 } });
         });
     });
 
@@ -2306,11 +2296,13 @@ describe('<SwipeableRow>', () => {
 
             const row = screen.getByRole('row');
 
-            fireEvent.pointerDown(row, { clientX: 300, clientY: 50, isPrimary: true });
             // ax=12, ay=15: past POINTER_MOVE_THRESHOLD but more vertical than horizontal, so
             // sliding never starts (this is treated as a vertical scroll, not a swipe).
-            fireEvent.pointerMove(row, { clientX: 288, clientY: 65, isPrimary: true });
-            fireEvent.pointerUp(row, { clientX: 288, clientY: 65, isPrimary: true });
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 300, y: 50 } },
+                { target: row, coords: { x: 288, y: 65 } },
+                { keys: '[/MouseLeft]', target: row, coords: { x: 288, y: 65 } },
+            ]);
 
             expect(setActive).not.toHaveBeenCalled();
         });
@@ -2332,12 +2324,14 @@ describe('<SwipeableRow>', () => {
 
             const row = screen.getByRole('row');
 
-            fireEvent.pointerDown(row, { clientX: 300, clientY: 50, isPrimary: true });
             // ax=30, ay=40: still more vertical than horizontal throughout (never triggers
             // sliding), but the horizontal component alone clears the 20%-of-controlsWidth
             // open threshold (120 * 0.2 = 24) once the finger lifts.
-            fireEvent.pointerMove(row, { clientX: 270, clientY: 90, isPrimary: true });
-            fireEvent.pointerUp(row, { clientX: 270, clientY: 90, isPrimary: true });
+            await user.pointer([
+                { keys: '[MouseLeft>]', target: row, coords: { x: 300, y: 50 } },
+                { target: row, coords: { x: 270, y: 90 } },
+                { keys: '[/MouseLeft]', target: row, coords: { x: 270, y: 90 } },
+            ]);
 
             await waitFor(() => {
                 expect(setActive).toHaveBeenCalledWith(

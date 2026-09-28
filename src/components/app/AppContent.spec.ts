@@ -1,6 +1,8 @@
 import { expect, test } from '@tests/fixtures/test';
 import { productTile } from '@tests/helpers/ui';
 
+import type { Route } from '@playwright/test';
+
 test.describe('app states and filters', () => {
     test.describe('isolated empty state', () => {
         test.use({ scenario: 'empty' });
@@ -42,7 +44,7 @@ test.describe('app states and filters', () => {
 
     test('load error offers retry and recovers when the API responds', async ({ page }) => {
         let fail = true;
-        await page.route('**/api/v1/groups', async (route: Parameters<Parameters<typeof page.route>[1]>[0]) => {
+        await page.route('**/api/v1/groups', async (route: Route) => {
             if (fail) {
                 await route.fulfill({
                     status: 503,

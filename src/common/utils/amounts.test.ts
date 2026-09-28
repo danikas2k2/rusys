@@ -251,7 +251,7 @@ describe('amounts', () => {
         });
 
         it('adds all four independent variants of the same variant string', () => {
-            let acc: readonly ReturnType<typeof addVariantAmount>[number][] = [];
+            let acc: readonly VariantAmount[] = [];
             acc = addVariantAmount(acc, { variant: 'p', amount: 1 });
             acc = addVariantAmount(acc, { variant: 'p', amount: 2, suspicious: true });
             acc = addVariantAmount(acc, { variant: 'p', amount: 3, home: true });
@@ -425,7 +425,7 @@ describe('amounts', () => {
 
     describe('addTypedVariantAmount', () => {
         it('keeps consumed and recycled totals separate for the same variant', () => {
-            let acc: readonly ReturnType<typeof addTypedVariantAmount>[number][] = [];
+            let acc: readonly VariantAmount[] = [];
             acc = addTypedVariantAmount(acc, { variant: 'p', amount: -2, recycled: false });
             acc = addTypedVariantAmount(acc, { variant: 'p', amount: -3, recycled: true });
 
@@ -435,7 +435,7 @@ describe('amounts', () => {
         });
 
         it('keeps an "updated" (no recycled field) entry separate from consumed/recycled', () => {
-            let acc: readonly ReturnType<typeof addTypedVariantAmount>[number][] = [];
+            let acc: readonly VariantAmount[] = [];
             acc = addTypedVariantAmount(acc, { variant: 'p', amount: 5 });
             acc = addTypedVariantAmount(acc, { variant: 'p', amount: -2, recycled: false });
 
@@ -453,7 +453,7 @@ describe('amounts', () => {
         });
 
         it('still respects suspicious/home as independent dimensions', () => {
-            let acc: readonly ReturnType<typeof addTypedVariantAmount>[number][] = [];
+            let acc: readonly VariantAmount[] = [];
             acc = addTypedVariantAmount(acc, { variant: 'p', amount: -2, recycled: false });
             acc = addTypedVariantAmount(acc, { variant: 'p', amount: -1, recycled: false, home: true });
 
@@ -463,7 +463,7 @@ describe('amounts', () => {
         });
 
         it('keeps a suspicious entry separate from a non-suspicious one for the same variant', () => {
-            let acc: readonly ReturnType<typeof addTypedVariantAmount>[number][] = [];
+            let acc: readonly VariantAmount[] = [];
             acc = addTypedVariantAmount(acc, { variant: 'p', amount: -2, recycled: false });
             acc = addTypedVariantAmount(acc, { variant: 'p', amount: -1, recycled: false, suspicious: true });
 
@@ -473,7 +473,7 @@ describe('amounts', () => {
         });
 
         it('keeps differently-dated consumed lines for the same variant separate', () => {
-            let acc: readonly ReturnType<typeof addTypedVariantAmount>[number][] = [];
+            let acc: readonly VariantAmount[] = [];
             acc = addTypedVariantAmount(acc, { variant: 'p', amount: -2, recycled: false, expiresAt: 100 });
             acc = addTypedVariantAmount(acc, { variant: 'p', amount: -3, recycled: false, expiresAt: 200 });
 

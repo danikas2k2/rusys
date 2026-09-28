@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -6,7 +7,13 @@ import React from 'react';
 import { ProductPhotoPreview } from '~/components/products/ProductPhotoPreview';
 
 describe('<ProductPhotoPreview>', () => {
-    it('opens, zooms, and closes the full-screen preview', () => {
+    let user: UserEvent;
+
+    beforeEach(() => {
+        user = userEvent.setup();
+    });
+
+    it('opens, zooms, and closes the full-screen preview', async () => {
         const onOpenChange = vi.fn();
         render(
             <MockTheme>
@@ -14,22 +21,22 @@ describe('<ProductPhotoPreview>', () => {
             </MockTheme>
         );
 
-        fireEvent.click(screen.getByRole('button', { name: 'View image' }));
+        await user.click(screen.getByRole('button', { name: 'View image' }));
         const viewport = document.querySelector('[data-photo-preview-viewport]');
 
         expect(viewport).toBeInTheDocument();
         expect(onOpenChange).toHaveBeenCalledWith(true);
 
-        fireEvent.click(viewport!);
+        await user.click(viewport!);
 
         expect(viewport).toHaveAttribute('data-zoomed', 'true');
 
-        fireEvent.keyDown(document.body, { key: 'Escape' });
+        await user.keyboard('{Escape}');
 
         expect(onOpenChange).toHaveBeenLastCalledWith(false);
     });
 
-    it('reports image loading errors from both thumbnail and preview', () => {
+    it('reports image loading errors from both thumbnail and preview', async () => {
         const onError = vi.fn();
         render(
             <MockTheme>
@@ -38,7 +45,7 @@ describe('<ProductPhotoPreview>', () => {
         );
 
         fireEvent.error(document.querySelector('.product-photo-thumbnail img')!);
-        fireEvent.click(screen.getByRole('button', { name: 'View image' }));
+        await user.click(screen.getByRole('button', { name: 'View image' }));
         fireEvent.error(document.querySelector('[data-photo-preview-viewport] img')!);
 
         expect(onError).toHaveBeenCalledTimes(2);

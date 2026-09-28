@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
 import { Table } from '@mantine/core';
@@ -23,8 +24,12 @@ vi.mock(import('~/components/runtime/ActiveContentContext'), async () => ({
 
 describe('<GroupsRow>', () => {
     const setActive = vi.fn();
+    let user: UserEvent;
 
-    beforeEach(() => vi.mocked(useSetActiveContent).mockReturnValue(setActive));
+    beforeEach(() => {
+        user = userEvent.setup();
+        vi.mocked(useSetActiveContent).mockReturnValue(setActive);
+    });
 
     afterEach(() => vi.clearAllMocks());
 
@@ -245,7 +250,7 @@ describe('<GroupsRow>', () => {
         expect(props['data-hidden']).toBe(false);
     });
 
-    it('opens the edit dialog when the row is clicked', () => {
+    it('opens the edit dialog when the row is clicked', async () => {
         const group = { group: 'Uogienės', order: 0 };
         render(
             <MockTheme>
@@ -257,12 +262,12 @@ describe('<GroupsRow>', () => {
             </MockTheme>
         );
 
-        screen.getByRole('row').click();
+        await user.click(screen.getByRole('row'));
 
         expect(setActive).toHaveBeenCalledWith({ action: 'update', data: group });
     });
 
-    it('ignores clicks on the drag handle and unrelated keys', () => {
+    it('ignores clicks on the drag handle and unrelated keys', async () => {
         const group = { group: 'Uogienės', order: 0 };
         render(
             <MockTheme>
@@ -277,12 +282,16 @@ describe('<GroupsRow>', () => {
         handle.dataset.dragHandle = '';
         screen.getByRole('row').append(handle);
 
-        fireEvent.click(handle);
-        fireEvent.keyDown(screen.getByRole('row'), { key: 'Escape' });
+        await user.click(handle);
+        await user.keyboard('{Escape}');
 
         expect(setActive).not.toHaveBeenCalled();
 
-        fireEvent.keyDown(screen.getByRole('row'), { key: ' ' });
+        await user.tab({ shift: true });
+
+        expect(screen.getByRole('row')).toHaveFocus();
+
+        await user.keyboard(' ');
 
         expect(setActive).toHaveBeenCalledWith({ action: 'update', data: group });
     });

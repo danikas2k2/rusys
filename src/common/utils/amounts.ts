@@ -161,7 +161,7 @@ export function formatWeight(totalG: number): FormattedQuantity {
 export function addVariantAmount(
     acc: readonly VariantAmount[],
     { variant, amount, suspicious, home, expiresAt }: VariantAmount
-): typeof acc {
+): readonly VariantAmount[] {
     // expiresAt is kept in the combine key (exact match, not !!-coerced like the boolean flags) so
     // differently-dated batches of the same variant never merge into one total.
     const i = acc.findIndex(
@@ -208,7 +208,7 @@ export function mergeAmountsIgnoringExpiry(amounts: readonly VariantAmount[]): r
 export function addTypedVariantAmount(
     acc: readonly VariantAmount[],
     { variant, amount, recycled, suspicious, home, expiresAt }: VariantAmount
-): typeof acc {
+): readonly VariantAmount[] {
     const i = acc.findIndex(
         (a) =>
             a.variant === variant &&

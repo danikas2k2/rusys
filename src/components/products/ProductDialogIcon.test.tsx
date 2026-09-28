@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -7,6 +7,12 @@ import React from 'react';
 import { ProductDialogIcon } from '~/components/products/ProductDialogIcon';
 
 describe('<ProductDialogIcon>', () => {
+    let user: UserEvent;
+
+    beforeEach(() => {
+        user = userEvent.setup();
+    });
+
     it('renders the generic icon when there is no photo', () => {
         const { container } = render(
             <MockTheme>
@@ -30,7 +36,6 @@ describe('<ProductDialogIcon>', () => {
     });
 
     it('opens the photo viewer and toggles between fitting and original-size modes', async () => {
-        const user = userEvent.setup();
         render(
             <MockTheme>
                 <ProductDialogIcon photo="/images/ab/cd/product.png" />
@@ -46,15 +51,14 @@ describe('<ProductDialogIcon>', () => {
 
         expect(viewer).toHaveAttribute('data-zoomed', 'true');
 
-        fireEvent.pointerDown(viewer, { pointerId: 1, clientX: 10, clientY: 20 });
-        fireEvent.pointerMove(viewer, { pointerId: 1, clientX: 35, clientY: 50 });
-        fireEvent.pointerUp(viewer, { pointerId: 1 });
+        await user.pointer([
+            { keys: '[MouseLeft>]', target: viewer, coords: { x: 10, y: 20 } },
+            { target: viewer, coords: { x: 35, y: 50 } },
+            { keys: '[/MouseLeft]', target: viewer },
+        ]);
 
         expect(viewer.querySelector('img')).toHaveStyle({ transform: 'translate(25px, 30px)' });
-
-        await user.click(viewer);
-
-        // The click that ends a drag must not collapse the image; the next click does.
+        // The click emitted at the end of the drag must not collapse the image.
         expect(viewer).toHaveAttribute('data-zoomed', 'true');
 
         await user.click(viewer);

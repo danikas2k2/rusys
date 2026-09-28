@@ -4,11 +4,12 @@ import path from 'node:path';
 import { expect, test } from '@tests/fixtures/test';
 import { productTile } from '@tests/helpers/ui';
 
+import type { Page } from '@playwright/test';
 import JSZip from 'jszip';
 
 import type { Product } from '~/common/data';
 
-async function openUtility(page: Parameters<Parameters<typeof test>[2]>[0]['page'], label: string) {
+async function openUtility(page: Page, label: string) {
     await page.getByRole('button', { name: 'Meniu' }).click();
     const menu = page.getByRole('menu');
     await menu.getByRole('link', { name: 'Įrankiai' }).click();

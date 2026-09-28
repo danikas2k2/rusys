@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockApp } from '@tests/MockApp';
 
@@ -132,14 +132,14 @@ describe('<MoveConsumedForm>', () => {
             </MockApp>
         );
 
-        fireEvent.change(screen.getByRole('textbox', { name: 'amount' }), { target: { value: '2' } });
-        fireEvent.change(screen.getByRole('textbox', { name: 'amount' }), { target: { value: 'abc' } });
+        await user.type(screen.getByRole('textbox', { name: 'amount' }), '2');
+        await user.type(screen.getByRole('textbox', { name: 'amount' }), 'abc');
         await user.click(screen.getByRole('button', { name: 'Move to discarded' }));
 
         expect(onMove).toHaveBeenCalledWith(lines[0], 2);
     });
 
-    it('clamps typed input to the line max', () => {
+    it('clamps typed input to the line max', async () => {
         const lines: VariantAmount[] = [{ variant: 'd', amount: -2, recycled: false }];
 
         render(
@@ -148,7 +148,7 @@ describe('<MoveConsumedForm>', () => {
             </MockApp>
         );
 
-        fireEvent.change(screen.getByRole('textbox', { name: 'amount' }), { target: { value: '10' } });
+        await user.type(screen.getByRole('textbox', { name: 'amount' }), '10');
 
         expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('2');
     });
@@ -162,7 +162,7 @@ describe('<MoveConsumedForm>', () => {
             </MockApp>
         );
 
-        fireEvent.change(screen.getByRole('textbox', { name: 'amount' }), { target: { value: '2' } });
+        await user.type(screen.getByRole('textbox', { name: 'amount' }), '2');
         await user.click(screen.getByRole('button', { name: 'Move to discarded' }));
 
         expect(onMove).toHaveBeenCalledWith(lines[0], 2);
@@ -216,7 +216,7 @@ describe('<MoveConsumedForm>', () => {
             </MockApp>
         );
 
-        fireEvent.change(screen.getByRole('textbox', { name: 'amount' }), { target: { value: '3' } });
+        await user.type(screen.getByRole('textbox', { name: 'amount' }), '3');
 
         expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('3');
 
@@ -224,7 +224,7 @@ describe('<MoveConsumedForm>', () => {
 
         expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('0');
 
-        fireEvent.change(screen.getByRole('textbox', { name: 'amount' }), { target: { value: '5' } });
+        await user.type(screen.getByRole('textbox', { name: 'amount' }), '5');
 
         expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('1');
     });

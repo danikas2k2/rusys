@@ -1,3 +1,4 @@
+import type { ValidateFunction } from 'ajv';
 import { NextRequest } from 'next/server';
 
 import type { ExportArchiveData } from '~/common/data';
@@ -32,7 +33,7 @@ describe('handleImport', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         validate.mockReturnValue(true);
-        vi.mocked(getValidator).mockReturnValue(validate as ReturnType<typeof getValidator>);
+        vi.mocked(getValidator).mockReturnValue(validate as ValidateFunction<ExportArchiveData>);
         vi.mocked(readImportArchive).mockResolvedValue({ data, images });
         vi.mocked(writeImportImages).mockResolvedValue(undefined);
         vi.mocked(importEverything).mockResolvedValue(true);

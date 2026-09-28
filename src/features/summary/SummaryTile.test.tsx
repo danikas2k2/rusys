@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
@@ -13,7 +14,13 @@ vi.mock(import('~/components/amounts/AnnotatedTotalAmounts'), () => ({
 }));
 
 describe('<SummaryTile>', () => {
-    it('renders the selected year total and opens its history', () => {
+    let user: UserEvent;
+
+    beforeEach(() => {
+        user = userEvent.setup();
+    });
+
+    it('renders the selected year total and opens its history', async () => {
         const setActive = vi.fn();
         render(
             <MockThemeActive setActive={setActive}>
@@ -52,7 +59,7 @@ describe('<SummaryTile>', () => {
             undefined
         );
 
-        fireEvent.click(document.querySelector('[data-summary-tile]')!);
+        await user.click(document.querySelector('[data-summary-tile]')!);
 
         expect(setActive).toHaveBeenCalledWith({
             action: 'history',

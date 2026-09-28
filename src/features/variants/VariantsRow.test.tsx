@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
 import { Table } from '@mantine/core';
@@ -28,8 +29,12 @@ vi.mock(import('~/store/variants/useVariant'), () => ({
 
 describe('<VariantsRow>', () => {
     const setActive = vi.fn();
+    let user: UserEvent;
 
-    beforeEach(() => vi.mocked(useSetActiveContent).mockReturnValue(setActive));
+    beforeEach(() => {
+        user = userEvent.setup();
+        vi.mocked(useSetActiveContent).mockReturnValue(setActive);
+    });
 
     afterEach(() => vi.clearAllMocks());
 
@@ -161,25 +166,29 @@ describe('<VariantsRow>', () => {
         expect(props.disabled).toBe(false);
     });
 
-    it('opens the edit dialog when the row is clicked', () => {
+    it('opens the edit dialog when the row is clicked', async () => {
         const variant = { group: 'Uogienės', variant: 'p', order: 0 };
         renderRow({ variant, reordering: false });
 
-        screen.getByRole('row').click();
+        await user.click(screen.getByRole('row'));
 
         expect(setActive).toHaveBeenCalledWith({ action: 'update', data: variant });
     });
 
-    it('opens the edit dialog with the Enter key', () => {
+    it('opens the edit dialog with the Enter key', async () => {
         const variant = { group: 'Uogienės', variant: 'p', order: 0 };
         renderRow({ variant, reordering: false });
 
-        screen.getByRole('row').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        await user.tab();
+
+        expect(screen.getByRole('row')).toHaveFocus();
+
+        await user.keyboard('{Enter}');
 
         expect(setActive).toHaveBeenCalledWith({ action: 'update', data: variant });
     });
 
-    it('ignores a drag handle and unrelated keys but opens with Space', () => {
+    it('ignores a drag handle and unrelated keys but opens with Space', async () => {
         const variant = { group: 'Uogienės', variant: 'p', order: 0 };
         renderRow({ variant, reordering: false });
         const row = screen.getByRole('row');
@@ -187,12 +196,16 @@ describe('<VariantsRow>', () => {
         handle.dataset.dragHandle = '';
         row.append(handle);
 
-        fireEvent.click(handle);
-        fireEvent.keyDown(row, { key: 'Escape' });
+        await user.click(handle);
+        await user.keyboard('{Escape}');
 
         expect(setActive).not.toHaveBeenCalled();
 
-        fireEvent.keyDown(row, { key: ' ' });
+        await user.tab({ shift: true });
+
+        expect(row).toHaveFocus();
+
+        await user.keyboard(' ');
 
         expect(setActive).toHaveBeenCalledWith({ action: 'update', data: variant });
     });

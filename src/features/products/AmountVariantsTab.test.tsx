@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
+import { Select } from '@mantine/core';
 import React from 'react';
 
 import type { ProductAmounts } from '~/common/data';
@@ -331,7 +332,6 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('disables Update immediately and delays its loader', async () => {
-        vi.useFakeTimers();
         let resolveUpdate!: () => void;
         const mockUpdate = vi.fn(
             () =>
@@ -343,10 +343,11 @@ describe('<AmountVariantsTab>', () => {
 
         try {
             renderTab();
-            fireEvent.click(screen.getByRole('button', { name: /\bd\b/ }));
-            fireEvent.click(screen.getAllByText('decrease-updated')[0]);
+            await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+            await user.click(screen.getAllByText('decrease-updated')[0]);
 
             const updateButton = screen.getByRole('button', { name: /^update$/i });
+            vi.useFakeTimers();
             fireEvent.click(updateButton);
 
             expect(updateButton).toBeDisabled();
@@ -405,7 +406,7 @@ describe('<AmountVariantsTab>', () => {
     it('selecting "New variant" opens VariantBox with group pre-filled', async () => {
         renderTab();
 
-        fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } });
+        await user.selectOptions(screen.getByRole('combobox'), screen.getByRole('option', { name: /new variant/i }));
 
         expect(VariantBox).toHaveBeenCalledWith(expect.objectContaining({ opened: true, group }), undefined);
     });
@@ -413,7 +414,7 @@ describe('<AmountVariantsTab>', () => {
     it('after creating a variant, it appears in the list and is expanded', async () => {
         renderTab();
 
-        fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } });
+        await user.selectOptions(screen.getByRole('combobox'), screen.getByRole('option', { name: /new variant/i }));
         await user.click(screen.getByRole('button', { name: 'Create variant x' }));
 
         expect(screen.getByRole('button', { name: /\bx\b/ })).toHaveAttribute('aria-expanded', 'true');
@@ -422,7 +423,7 @@ describe('<AmountVariantsTab>', () => {
     it('cancelling VariantBox without a variant does not change the list', async () => {
         renderTab();
 
-        fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } });
+        await user.selectOptions(screen.getByRole('combobox'), screen.getByRole('option', { name: /new variant/i }));
         await user.click(screen.getByRole('button', { name: 'Cancel add' }));
 
         expect(screen.queryByRole('button', { name: /\bm\b/ })).not.toBeInTheDocument();
@@ -752,7 +753,8 @@ describe('<AmountVariantsTab>', () => {
     it('does nothing when the variant select reports a null value', () => {
         renderTab();
 
-        fireEvent.change(screen.getByRole('combobox'), { target: { value: '__null__' } });
+        const { onChange } = vi.mocked(Select).mock.calls.at(-1)![0] as { onChange: (value: string | null) => void };
+        act(() => onChange(null));
 
         expect(screen.queryByRole('button', { name: /\bm\b/ })).not.toBeInTheDocument();
         expect(VariantBox).toHaveBeenCalledWith(expect.objectContaining({ opened: false }), undefined);
@@ -761,7 +763,7 @@ describe('<AmountVariantsTab>', () => {
     it('closing VariantBox via its exit transition hides it without needing Cancel/Create first', async () => {
         renderTab();
 
-        fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } });
+        await user.selectOptions(screen.getByRole('combobox'), screen.getByRole('option', { name: /new variant/i }));
 
         expect(screen.getByRole('dialog', { name: 'Add variant' })).toBeInTheDocument();
 
