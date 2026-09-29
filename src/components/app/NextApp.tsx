@@ -11,21 +11,24 @@ import { InitialGroupContext } from '~/components/app/InitialGroupContext';
 import { InitialResourceContext } from '~/components/app/InitialResourceContext';
 import { ErrorBoundary } from '~/components/runtime/ErrorBoundary';
 import { LocaleContext } from '~/components/runtime/LocaleContext';
+import type { Profile } from '~/store/profile/types';
 import { getStore } from '~/store/store';
 import { getTheme } from '~/styles/theme';
 
 export function NextApp({
     clientId,
+    profile,
     initialData,
     initialGroup,
     initialResource,
 }: {
     clientId?: string;
+    profile?: Profile;
     initialData?: InitialAppData;
     initialGroup?: string;
     initialResource?: InitialResource;
 }): React.JSX.Element {
-    const [store] = useState(() => getStore(clientId, initialData));
+    const [store] = useState(() => getStore(clientId, initialData, profile));
 
     return (
         <StrictMode>

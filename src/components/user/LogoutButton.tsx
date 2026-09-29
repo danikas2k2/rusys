@@ -1,6 +1,7 @@
 import { ActionIcon, Button, Group, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { googleLogout } from '@react-oauth/google';
+import { useRouter } from 'next/navigation';
 import React, { useCallback } from 'react';
 
 import { ConfirmationDialogIcon, LogoutIcon } from '@icons';
@@ -10,6 +11,7 @@ import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
 import { ProfileAvatar } from '~/components/user/ProfileAvatar';
 import { useLabel } from '~/lib/hooks/useLabel';
+import { logout } from '~/server/actions/auth';
 import { useProfile } from '~/store/profile/useProfile';
 import { useResetProfile } from '~/store/profile/useResetProfile';
 
@@ -17,12 +19,15 @@ export function LogoutButton({ children }: React.PropsWithChildren): React.React
     const [opened, { open, close }] = useDisclosure(false);
 
     const profile = useProfile();
+    const router = useRouter();
     const resetProfile = useResetProfile();
 
-    const handleConfirm = useCallback(() => {
+    const handleConfirm = useCallback(async () => {
+        await logout();
         resetProfile();
         googleLogout();
-    }, [resetProfile]);
+        router.refresh();
+    }, [resetProfile, router]);
 
     return (
         <>

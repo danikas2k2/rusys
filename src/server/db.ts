@@ -59,6 +59,10 @@ export async function createMissingIndexes(database: Db): Promise<void> {
             { key: { email: 1 }, name: 'email', unique: true, background: true },
             { key: { updatedAt: -1 }, name: 'updatedAt', background: true },
         ]),
+        database.collection('sessions').createIndexes([
+            { key: { tokenHash: 1 }, name: 'token_hash', unique: true, background: true },
+            { key: { expiresAt: 1 }, name: 'expires_at', expireAfterSeconds: 0, background: true },
+        ]),
     ]);
 }
 

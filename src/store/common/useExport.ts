@@ -1,13 +1,11 @@
 import { useCallback } from 'react';
 
-import { API } from '~/common/api/v1';
+import { exportArchive } from '~/server/actions/archive';
 
 export function useExport(): () => Promise<Blob> {
     return useCallback(async () => {
-        const response = await fetch(API.exportLatest());
-        if (!response.ok) {
-            throw new Error(`Export failed (${response.status})`);
-        }
-        return response.blob();
+        const base64 = await exportArchive();
+        const bytes = Uint8Array.from(atob(base64), (character) => character.charCodeAt(0));
+        return new Blob([bytes], { type: 'application/zip' });
     }, []);
 }

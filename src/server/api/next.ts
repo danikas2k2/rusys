@@ -2,6 +2,8 @@ import { Buffer } from 'node:buffer';
 
 import type { NextRequest } from 'next/server';
 
+import { requireSession } from '~/server/auth/session';
+
 export interface ApiUploadedFile {
     data: Buffer;
 }
@@ -88,6 +90,13 @@ export async function runApiHandler(
     handler: ApiHandler,
     params: ApiRequest['params'] = {}
 ): Promise<Response> {
+    if (request.nextUrl.pathname !== '/api/v1/auth/client-id') {
+        try {
+            await requireSession();
+        } catch {
+            return Response.json({ error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } }, { status: 401 });
+        }
+    }
     return runServerHandler(handler, { ...(await bodyFrom(request)), params, query: queryFrom(request) });
 }
 

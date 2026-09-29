@@ -1,8 +1,11 @@
+import { createHash } from 'node:crypto';
+
 import { connection } from 'next/server';
 import React from 'react';
 
 import { DEV_CLIENT_ID, isDevMode } from '~/common/utils/dev';
 import { NextApp } from '~/components/app/NextApp';
+import { getSessionProfile } from '~/server/auth/session';
 import { getInitialAppData } from '~/server/data/initialAppData';
 
 export default async function AppPage({
@@ -13,11 +16,16 @@ export default async function AppPage({
     await connection();
     const clientId = process.env.GOOGLE_CLIENT_ID ?? (isDevMode() ? DEV_CLIENT_ID : undefined);
     const pathname = `/${(await params)?.path?.join('/') ?? ''}`;
-    const initial = isDevMode() || clientId === DEV_CLIENT_ID ? await getInitialAppData(pathname) : undefined;
+    const profile = await getSessionProfile();
+    const initial = profile ? await getInitialAppData(pathname) : undefined;
+    const dataVersion = createHash('sha256')
+        .update(JSON.stringify(initial?.data ?? {}))
+        .digest('hex');
     return (
         <NextApp
-            key={pathname}
+            key={`${pathname}:${profile?.sub ?? 'guest'}:${dataVersion}`}
             clientId={clientId}
+            profile={profile}
             initialData={initial?.data}
             initialGroup={initial?.initialGroup}
             initialResource={initial?.resource}

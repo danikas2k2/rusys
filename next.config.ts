@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
     serverExternalPackages: ['mongodb', 'sharp'],
     experimental: {
         serverActions: {
-            bodySizeLimit: '30mb',
+            bodySizeLimit: '210mb',
         },
         lightningCssFeatures: {
             exclude: ['light-dark'],

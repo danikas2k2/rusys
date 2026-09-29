@@ -15,12 +15,12 @@ describe('handleAccess', () => {
         expect((await access('?email=one@example.com&email=two@example.com')).status).toBe(400);
     });
 
-    it('checks the configured allowlist in production', async () => {
+    it('requires a verified session in production', async () => {
         vi.stubEnv('NODE_ENV', 'production');
         vi.stubEnv('GOOGLE_ALLOWED_USERS', 'allowed@example.com,another@example.com');
 
-        await expect((await access('?email=allowed@example.com')).json()).resolves.toStrictEqual({ allowed: true });
-        await expect((await access('?email=blocked@example.com')).json()).resolves.toStrictEqual({ allowed: false });
+        expect((await access('?email=allowed@example.com')).status).toBe(401);
+        expect((await access('?email=blocked@example.com')).status).toBe(401);
     });
 
     it('permits local development access without a configured allowlist', async () => {

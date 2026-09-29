@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+import { getSessionProfile } from '~/server/auth/session';
 import { IMAGES_DIR } from '~/server/data/images';
 
 export const runtime = 'nodejs';
@@ -18,6 +19,9 @@ interface RouteContext {
 }
 
 export async function GET(_request: Request, context: RouteContext): Promise<Response> {
+    if (!(await getSessionProfile())) {
+        return new Response(null, { status: 401 });
+    }
     const parts = (await context.params).path;
     if (parts.length === 0 || parts.some((part) => part === '.' || part === '..' || part.includes('\\'))) {
         return new Response(null, { status: 404 });
@@ -33,7 +37,7 @@ export async function GET(_request: Request, context: RouteContext): Promise<Res
         const extension = path.extname(filePath).slice(1).toLowerCase();
         return new Response(image, {
             headers: {
-                'Cache-Control': 'public, max-age=31536000, immutable',
+                'Cache-Control': 'private, no-store',
                 'Content-Type': CONTENT_TYPES[extension] ?? 'application/octet-stream',
             },
         });

@@ -1,26 +1,17 @@
 import { renderHook } from '@testing-library/react';
 
+import { exportArchive } from '~/server/actions/archive';
 import { useExport } from '~/store/common/useExport';
 
+vi.mock(import('~/server/actions/archive'), () => ({ exportArchive: vi.fn() }));
+
 describe('useExport', () => {
-    afterEach(() => vi.unstubAllGlobals());
-
-    it('downloads the archive as a blob', async () => {
-        const archive = new Blob(['archive'], { type: 'application/zip' });
-        const fetchMock = vi.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(archive) });
-        vi.stubGlobal('fetch', fetchMock);
-
+    it('converts the Server Action archive into a ZIP blob', async () => {
+        vi.mocked(exportArchive).mockResolvedValue(btoa('archive'));
         const { result } = renderHook(() => useExport());
+        const blob = await result.current();
 
-        await expect(result.current()).resolves.toBe(archive);
-        expect(fetchMock).toHaveBeenCalledExactlyOnceWith('/api/v1/exports/latest');
-    });
-
-    it('reports an unsuccessful download', async () => {
-        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 503 }));
-
-        const { result } = renderHook(() => useExport());
-
-        await expect(result.current()).rejects.toThrow('Export failed (503)');
+        expect(blob.type).toBe('application/zip');
+        await expect(blob.text()).resolves.toBe('archive');
     });
 });

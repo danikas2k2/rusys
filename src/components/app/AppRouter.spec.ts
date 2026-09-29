@@ -11,7 +11,7 @@ test.describe('desktop navigation', () => {
     test.use({ scenario: 'history' });
     test.skip(({ isMobile }) => isMobile);
 
-    test('starts view transitions for page and category changes', async ({ page }) => {
+    test('starts a view transition for category changes', async ({ page }) => {
         await page.addInitScript(() => {
             const original = document.startViewTransition.bind(document);
             const counter = window as typeof window & { __viewTransitionStarts: number };
@@ -28,23 +28,6 @@ test.describe('desktop navigation', () => {
             (window as typeof window & { __viewTransitionStarts: number }).__viewTransitionStarts = 0;
         });
 
-        await page.getByRole('button', { name: 'Meniu' }).click();
-        await page.getByRole('menu').getByRole('link', { name: 'Suvestinė' }).click();
-        await expect(page.locator('[data-grid="summary"]')).toBeVisible();
-        await expect
-            .poll(() =>
-                page.evaluate(
-                    () => (window as typeof window & { __viewTransitionStarts: number }).__viewTransitionStarts
-                )
-            )
-            .toBeGreaterThan(0);
-
-        await page.getByRole('button', { name: 'Meniu' }).click();
-        await page.getByRole('menu').getByRole('link', { name: 'Produktai' }).click();
-        await expect(page.locator('[data-grid="products"]')).toBeVisible();
-        await page.evaluate(() => {
-            (window as typeof window & { __viewTransitionStarts: number }).__viewTransitionStarts = 0;
-        });
         await page.getByRole('tab', { name: 'Daržovės' }).click();
         await expect(page.getByRole('tab', { name: 'Daržovės' })).toHaveAttribute('aria-selected', 'true');
         await expect
@@ -85,9 +68,8 @@ test.describe('desktop navigation', () => {
         await page.evaluate(() => {
             (window as typeof window & { __viewTransitionDurations: number[] }).__viewTransitionDurations = [];
         });
-        await page.getByRole('button', { name: 'Meniu' }).click();
-        await page.getByRole('menu').getByRole('link', { name: 'Suvestinė' }).click();
-        await expect(page.locator('[data-grid="summary"]')).toBeVisible();
+        await page.getByRole('tab', { name: 'Daržovės' }).click();
+        await expect(page.getByRole('tab', { name: 'Daržovės' })).toHaveAttribute('aria-selected', 'true');
 
         await expect
             .poll(() =>
@@ -116,18 +98,19 @@ test.describe('desktop navigation', () => {
         await expect(page.locator('[data-grid="products"]')).toBeVisible();
     });
 
-    test('shows loading content while the destination data is pending', async ({ page }) => {
-        await page.route('**/api/v1/summary', async (route) => {
-            await new Promise((resolve) => setTimeout(resolve, 500));
-            await route.continue();
+    test('navigates with server-preloaded destination data', async ({ page }) => {
+        const apiRequests: string[] = [];
+        page.on('request', (request) => {
+            if (request.url().includes('/api/v1/')) {
+                apiRequests.push(request.url());
+            }
         });
-
         await page.goto('/');
         await expect(page.locator('[data-grid="products"]')).toBeVisible();
         await page.getByRole('button', { name: 'Meniu' }).click();
         await page.getByRole('menu').getByRole('link', { name: 'Suvestinė' }).click();
-        await expect(page.locator('[data-loading]')).toBeVisible();
         await expect(page.locator('[data-grid="summary"]')).toBeVisible();
+        expect(apiRequests).toStrictEqual([]);
     });
 
     for (const { label, path, content } of destinations) {

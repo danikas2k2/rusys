@@ -24,6 +24,7 @@ import { handleDeleteVariant } from '~/server/api/v1/variants/handleDeleteVarian
 import { handlePatchVariant } from '~/server/api/v1/variants/handlePatchVariant';
 import { handlePostVariantCopy } from '~/server/api/v1/variants/handlePostVariantCopy';
 import { handlePutVariantsOrder } from '~/server/api/v1/variants/handlePutVariantsOrder';
+import { requireSession } from '~/server/auth/session';
 import { getInitialAppData } from '~/server/data/initialAppData';
 
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -119,6 +120,7 @@ function findOperation(method: string, path: string): { handler: ApiHandler; par
 }
 
 export async function requestData(url: string, method: string, data?: unknown): Promise<unknown> {
+    await requireSession();
     if (typeof url !== 'string' || !url.startsWith('/api/v1/')) {
         throw new Error('Unsupported operation');
     }
@@ -129,5 +131,6 @@ export async function requestData(url: string, method: string, data?: unknown): 
         const failure = (await response.json()) as { error?: { message?: string } };
         throw new Error(failure.error?.message ?? `Request failed (${response.status})`);
     }
-    return response.status === 204 ? undefined : response.json();
+    const body = await response.text();
+    return body ? JSON.parse(body) : undefined;
 }

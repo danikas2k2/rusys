@@ -22,6 +22,12 @@ describe('requestData', () => {
         });
     });
 
+    it('accepts a successful handler with an empty 200 response', async () => {
+        vi.mocked(runServerHandler).mockResolvedValue(new Response(null, { status: 200 }));
+
+        await expect(requestData(API.products(), 'POST', { name: 'Test' })).resolves.toBeUndefined();
+    });
+
     it('rejects operations outside the allowlist', async () => {
         await expect(requestData('https://example.com/api/v1/products', 'POST')).rejects.toThrow(
             'Unsupported operation'

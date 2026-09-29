@@ -237,9 +237,13 @@ test.describe('products', () => {
             await expect(category).toHaveValue('Daržovės', { timeout: 1000 });
         }).toPass({ timeout: 10000 });
         await edit.getByRole('button', { name: 'Perkelti' }).click();
+        await expect
+            .poll(async () => (await db.collection<Product>('products').findOne({ name: 'Aviečių džemas' }))?.group)
+            .toBe('Daržovės');
         await page.reload();
         expect((await db.collection<Product>('products').findOne({ name: 'Aviečių džemas' }))?.group).toBe('Daržovės');
         await page.getByRole('tab', { name: 'Daržovės' }).click();
+        await expect(page.getByRole('tab', { name: 'Daržovės' })).toHaveAttribute('aria-selected', 'true');
         await expect(productTile(page, 'Aviečių džemas')).toBeVisible();
         await productTile(page, 'Aviečių džemas').click();
         await page

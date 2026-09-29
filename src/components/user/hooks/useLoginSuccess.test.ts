@@ -1,150 +1,54 @@
 import { act, renderHook } from '@testing-library/react';
 
-import { jwtDecode } from 'jwt-decode';
+import { useRouter } from 'next/navigation';
 
 import { useLoginSuccess } from '~/components/user/hooks/useLoginSuccess';
-import { useEmailCheck } from '~/store/profile/useEmailCheck';
+import { loginWithGoogle } from '~/server/actions/auth';
 import { useSetProfile } from '~/store/profile/useSetProfile';
 
-vi.mock(import('~/store/profile/useEmailCheck'));
+vi.mock(import('next/navigation'), () => ({ useRouter: vi.fn() }));
+vi.mock(import('~/server/actions/auth'), () => ({ loginWithGoogle: vi.fn() }));
 vi.mock(import('~/store/profile/useSetProfile'));
-vi.mock(import('jwt-decode'));
+
+const refresh = vi.fn();
+const setProfile = vi.fn();
 
 describe('useLoginSuccess', () => {
-    const setProfile = vi.fn();
-    const emailCheck = vi.fn().mockResolvedValue(true);
-
-    beforeAll(() => {
-        // Jest (node) environment may not provide fetch; define it so vi.spyOn can work.
-        if (!('fetch' in globalThis)) {
-            Object.defineProperty(globalThis, 'fetch', {
-                value: async () => ({ ok: true, json: async () => ({}) }),
-                writable: true,
-                configurable: true,
-            });
-        }
-    });
-
     beforeEach(() => {
+        vi.mocked(useRouter).mockReturnValue({ refresh } as any);
         vi.mocked(useSetProfile).mockReturnValue(setProfile);
-        vi.mocked(useEmailCheck).mockReturnValue(emailCheck);
     });
 
-    afterEach(() => {
-        vi.restoreAllMocks();
-        vi.clearAllMocks();
-    });
+    afterEach(() => vi.clearAllMocks());
 
-    it('sets profile and checks email when response contains valid data', async () => {
-        vi.mocked(jwtDecode).mockReturnValue({ email: 'test.email@email.com' });
-
+    it('verifies an ID token on the server and refreshes SSR data', async () => {
+        const profile = { sub: '123', email: 'user@example.com', allowed: true };
+        vi.mocked(loginWithGoogle).mockResolvedValue(profile);
         const onError = vi.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
-        await act(() => result.current({ credential: 'test' }));
+        await act(() => result.current({ credential: 'id-token' }));
 
-        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com' });
-        expect(emailCheck).toHaveBeenCalledWith('test.email@email.com');
+        expect(loginWithGoogle).toHaveBeenCalledWith('id-token', 'id');
+        expect(setProfile).toHaveBeenCalledWith(profile);
+        expect(refresh).toHaveBeenCalledWith();
         expect(onError).not.toHaveBeenCalled();
     });
 
-    it('calls onError when response does not contain valid data', async () => {
-        vi.mocked(jwtDecode).mockReturnValue({});
+    it('verifies a button access token on the server', async () => {
+        vi.mocked(loginWithGoogle).mockResolvedValue({ sub: '123', email: 'user@example.com', allowed: true });
+        const { result } = renderHook(() => useLoginSuccess(vi.fn()));
+        await act(() => result.current({ access_token: 'access-token' } as any));
 
+        expect(loginWithGoogle).toHaveBeenCalledWith('access-token', 'access');
+    });
+
+    it('rejects a failed verification', async () => {
+        vi.mocked(loginWithGoogle).mockRejectedValue(new Error('Unauthorized'));
         const onError = vi.fn();
         const { result } = renderHook(() => useLoginSuccess(onError));
-        await act(() => result.current({}));
+        await act(() => result.current({ credential: 'bad-token' }));
 
         expect(setProfile).not.toHaveBeenCalled();
-        expect(emailCheck).not.toHaveBeenCalled();
         expect(onError).toHaveBeenCalledWith();
-    });
-
-    it('sets profile and checks email when response contains TokenResponse with access_token', async () => {
-        // access_token is not a JWT; we fetch userinfo instead
-        vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-            ok: true,
-            json: async () => ({ email: 'test.email@email.com', sub: '123' }),
-        } as any);
-
-        const onError = vi.fn();
-        const { result } = renderHook(() => useLoginSuccess(onError));
-        await act(() => result.current({ access_token: 'test-token' } as any));
-
-        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com', sub: '123' });
-        expect(emailCheck).toHaveBeenCalledWith('test.email@email.com');
-        expect(onError).not.toHaveBeenCalled();
-    });
-
-    it('calls onError when decoded profile does not contain email', async () => {
-        vi.mocked(jwtDecode).mockReturnValue({ name: 'Test User' });
-
-        const onError = vi.fn();
-        const { result } = renderHook(() => useLoginSuccess(onError));
-        await act(() => result.current({ credential: 'test' }));
-
-        expect(setProfile).not.toHaveBeenCalled();
-        expect(emailCheck).not.toHaveBeenCalled();
-        expect(onError).toHaveBeenCalledWith();
-    });
-
-    it('calls onError when decoded profile from access_token does not contain email', async () => {
-        vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-            ok: true,
-            json: async () => ({ name: 'Test User', sub: '123' }),
-        } as any);
-
-        const onError = vi.fn();
-        const { result } = renderHook(() => useLoginSuccess(onError));
-        await act(() => result.current({ access_token: 'test-token' } as any));
-
-        expect(setProfile).not.toHaveBeenCalled();
-        expect(emailCheck).not.toHaveBeenCalled();
-        expect(onError).toHaveBeenCalledWith();
-    });
-
-    it('uses access_token when credential is undefined', async () => {
-        vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-            ok: true,
-            json: async () => ({ email: 'test.email@email.com', sub: '123' }),
-        } as any);
-
-        const onError = vi.fn();
-        const { result } = renderHook(() => useLoginSuccess(onError));
-        await act(() => result.current({ credential: undefined, access_token: 'test-token' } as any));
-
-        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com', sub: '123' });
-        expect(emailCheck).toHaveBeenCalledWith('test.email@email.com');
-        expect(onError).not.toHaveBeenCalled();
-    });
-
-    it('calls onError when the Google userinfo request fails', async () => {
-        vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-            ok: false,
-            status: 401,
-            json: async () => ({}),
-        } as any);
-
-        const onError = vi.fn();
-        const { result } = renderHook(() => useLoginSuccess(onError));
-        await act(() => result.current({ access_token: 'test-token' } as any));
-
-        expect(setProfile).not.toHaveBeenCalled();
-        expect(emailCheck).not.toHaveBeenCalled();
-        expect(onError).toHaveBeenCalledWith();
-    });
-
-    it('uses access_token when credential is null', async () => {
-        vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-            ok: true,
-            json: async () => ({ email: 'test.email@email.com', sub: '123' }),
-        } as any);
-
-        const onError = vi.fn();
-        const { result } = renderHook(() => useLoginSuccess(onError));
-        await act(() => result.current({ credential: null, access_token: 'test-token' } as any));
-
-        expect(setProfile).toHaveBeenCalledWith({ email: 'test.email@email.com', sub: '123' });
-        expect(emailCheck).toHaveBeenCalledWith('test.email@email.com');
-        expect(onError).not.toHaveBeenCalled();
     });
 });

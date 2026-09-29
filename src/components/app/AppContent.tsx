@@ -7,11 +7,9 @@ import { LoginButton } from '~/components/user/LoginButton';
 import { LogoutButton } from '~/components/user/LogoutButton';
 import { useUnderDevelopment } from '~/lib/hooks/useUnderDevelopment';
 import { useProfile } from '~/store/profile/useProfile';
-import { useSyncUserProfile } from '~/store/profile/useSyncUserProfile';
 
 export function AppContent() {
     const profile = useProfile();
-    useSyncUserProfile();
 
     if (!useUnderDevelopment()) {
         if (!profile.sub) {

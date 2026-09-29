@@ -2,7 +2,10 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
+import { getSessionProfile } from '~/server/auth/session';
 import type { GET } from './route';
+
+vi.mock(import('~/server/auth/session'), () => ({ getSessionProfile: vi.fn() }));
 
 let imagesDir: string;
 let route: { GET: typeof GET };
@@ -13,6 +16,7 @@ async function get(parts: string[]) {
 
 describe('stored image route', () => {
     beforeAll(async () => {
+        vi.mocked(getSessionProfile).mockResolvedValue({ sub: 'test-user' });
         imagesDir = await mkdtemp(path.join(os.tmpdir(), 'rusys-route-images-'));
         vi.stubEnv('IMAGES_DIR', imagesDir);
         vi.resetModules();
@@ -32,7 +36,7 @@ describe('stored image route', () => {
 
         expect(response.status).toBe(200);
         expect(response.headers.get('Content-Type')).toBe('image/png');
-        expect(response.headers.get('Cache-Control')).toContain('immutable');
+        expect(response.headers.get('Cache-Control')).toBe('private, no-store');
         expect(Buffer.from(await response.arrayBuffer())).toStrictEqual(Buffer.from('png bytes'));
     });
 
@@ -50,5 +54,11 @@ describe('stored image route', () => {
         expect((await get(['.'])).status).toBe(404);
         expect((await get(['a\\b'])).status).toBe(404);
         expect((await get(['/outside.png'])).status).toBe(404);
+    });
+
+    it('does not serve images without a session', async () => {
+        vi.mocked(getSessionProfile).mockResolvedValueOnce(undefined);
+
+        expect((await get(['ab', 'icon.png'])).status).toBe(401);
     });
 });

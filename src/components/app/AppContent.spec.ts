@@ -1,8 +1,6 @@
 import { expect, test } from '@tests/fixtures/test';
 import { productTile } from '@tests/helpers/ui';
 
-import type { Route } from '@playwright/test';
-
 test.describe('app states and filters', () => {
     test.describe('isolated empty state', () => {
         test.use({ scenario: 'empty' });
@@ -23,6 +21,7 @@ test.describe('app states and filters', () => {
         await expect(productTile(page, 'Avietės')).toBeHidden();
         await expect(productTile(page, 'Braškės')).toBeVisible();
         await page.goto('/categories');
+        await search.fill('Braškės');
         await expect(page.getByRole('row', { name: /Uogienės/ })).toBeHidden();
         await search.clear();
         await expect(page.getByRole('row', { name: /Uogienės/ })).toBeVisible();
@@ -42,23 +41,15 @@ test.describe('app states and filters', () => {
         await expect(page.getByRole('menu').getByRole('switch')).toBeChecked();
     });
 
-    test('load error offers retry and recovers when the API responds', async ({ page }) => {
-        let fail = true;
-        await page.route('**/api/v1/groups', async (route: Route) => {
-            if (fail) {
-                await route.fulfill({
-                    status: 503,
-                    contentType: 'application/json',
-                    body: '{"error":"temporarily unavailable"}',
-                });
-            } else {
-                await route.continue();
+    test('loads categories from SSR without a browser API request', async ({ page }) => {
+        const apiRequests: string[] = [];
+        page.on('request', (request) => {
+            if (request.url().includes('/api/v1/')) {
+                apiRequests.push(request.url());
             }
         });
         await page.goto('/categories');
-        await expect(page.locator('[data-error]').first()).toContainText('Unexpected error occurred');
-        fail = false;
-        await page.getByRole('button', { name: 'Reload page' }).click();
         await expect(page.getByRole('row', { name: /Uogienės/ })).toBeVisible();
+        expect(apiRequests).toStrictEqual([]);
     });
 });

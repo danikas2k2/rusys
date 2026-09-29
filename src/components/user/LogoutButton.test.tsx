@@ -3,14 +3,18 @@ import user from '@testing-library/user-event';
 import { MockThemeRedux } from '@tests/MockThemeRedux';
 
 import { googleLogout } from '@react-oauth/google';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 import { LogoutButton } from '~/components/user/LogoutButton';
+import { logout } from '~/server/actions/auth';
 import { useResetProfile } from '~/store/profile/useResetProfile';
 
 vi.mock(import('@react-oauth/google'), () => ({
     googleLogout: vi.fn(),
 }));
+vi.mock(import('next/navigation'), () => ({ useRouter: vi.fn() }));
+vi.mock(import('~/server/actions/auth'), () => ({ logout: vi.fn() }));
 vi.mock(import('~/components/user/ProfileAvatar'), () => ({
     ProfileAvatar: () => <div>ProfileAvatar</div>,
 }));
@@ -18,9 +22,11 @@ vi.mock(import('~/store/profile/useResetProfile'));
 
 describe('<LogoutButton>', () => {
     const resetProfile = vi.fn();
+    const refresh = vi.fn();
 
     beforeAll(() => {
         vi.mocked(useResetProfile).mockReturnValue(resetProfile);
+        vi.mocked(useRouter).mockReturnValue({ refresh } as any);
     });
 
     afterEach(() => vi.clearAllMocks());
@@ -70,5 +76,7 @@ describe('<LogoutButton>', () => {
 
         expect(googleLogout).toHaveBeenCalledWith();
         expect(resetProfile).toHaveBeenCalledWith();
+        expect(logout).toHaveBeenCalledWith();
+        expect(refresh).toHaveBeenCalledWith();
     });
 });
