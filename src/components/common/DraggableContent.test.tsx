@@ -71,6 +71,8 @@ describe('<DraggableContent>', () => {
 
         expect(lastDndContextProps).toStrictEqual(expect.any(Object));
 
+        expect(lastDndContextProps?.id).toStrictEqual(expect.any(String));
+
         expect(lastDndContextProps?.collisionDetection).toBe('closestCenter');
 
         expect(lastDndContextProps?.modifiers).toStrictEqual([restrictToVerticalAxis, restrictToParentElement]);

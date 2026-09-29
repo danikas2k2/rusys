@@ -1,25 +1,26 @@
 import { renderHook } from '@testing-library/react';
 
-import { useApiRequest } from '~/store/common/useApiRequest';
 import { useImport } from '~/store/common/useImport';
 
-vi.mock(import('~/store/common/useApiRequest'));
-
 describe('useImport', () => {
-    const request = vi.fn();
+    afterEach(() => vi.unstubAllGlobals());
 
-    beforeAll(() => {
-        vi.mocked(useApiRequest).mockReturnValue(request);
-    });
-
-    afterEach(() => vi.clearAllMocks());
-
-    it('calls import action', async () => {
+    it('uploads the archive with multipart form data', async () => {
+        const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+        vi.stubGlobal('fetch', fetchMock);
         const data = new FormData();
 
         const { result } = renderHook(() => useImport());
         await result.current(data);
 
-        expect(request).toHaveBeenCalledWith('/api/v1/imports', data, 'POST');
+        expect(fetchMock).toHaveBeenCalledExactlyOnceWith('/api/v1/imports', { method: 'POST', body: data });
+    });
+
+    it('reports an unsuccessful import', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 422 }));
+
+        const { result } = renderHook(() => useImport());
+
+        await expect(result.current(new FormData())).rejects.toThrow('Import failed (422)');
     });
 });

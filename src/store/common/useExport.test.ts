@@ -1,23 +1,26 @@
 import { renderHook } from '@testing-library/react';
 
-import { useApiRequest } from '~/store/common/useApiRequest';
 import { useExport } from '~/store/common/useExport';
 
-vi.mock(import('~/store/common/useApiRequest'));
-
 describe('useExport', () => {
-    const request = vi.fn();
+    afterEach(() => vi.unstubAllGlobals());
 
-    beforeAll(() => {
-        vi.mocked(useApiRequest).mockReturnValue(request);
+    it('downloads the archive as a blob', async () => {
+        const archive = new Blob(['archive'], { type: 'application/zip' });
+        const fetchMock = vi.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(archive) });
+        vi.stubGlobal('fetch', fetchMock);
+
+        const { result } = renderHook(() => useExport());
+
+        await expect(result.current()).resolves.toBe(archive);
+        expect(fetchMock).toHaveBeenCalledExactlyOnceWith('/api/v1/exports/latest');
     });
 
-    afterEach(() => vi.clearAllMocks());
+    it('reports an unsuccessful download', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 503 }));
 
-    it('calls export action requesting a blob response', async () => {
         const { result } = renderHook(() => useExport());
-        await result.current();
 
-        expect(request).toHaveBeenCalledWith('/api/v1/exports/latest', undefined, 'GET', 'blob');
+        await expect(result.current()).rejects.toThrow('Export failed (503)');
     });
 });

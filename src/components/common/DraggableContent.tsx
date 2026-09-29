@@ -12,7 +12,7 @@ import {
 } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 
 export function DraggableContent({
     onDragStart,
@@ -26,6 +26,7 @@ export function DraggableContent({
 }>) {
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
     const [columns, setColumns] = useState<number[]>([]);
+    const dndId = useId();
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -59,6 +60,7 @@ export function DraggableContent({
 
     return (
         <DndContext
+            id={dndId}
             sensors={sensors}
             collisionDetection={closestCenter}
             modifiers={[restrictToVerticalAxis, restrictToParentElement]}

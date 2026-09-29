@@ -18,6 +18,6 @@ describe('useGetGroups', () => {
         const { result } = renderHook(() => useGetGroups());
         await result.current();
 
-        expect(request).toHaveBeenCalledWith('/api/v1/groups');
+        expect(request).toHaveBeenCalledWith('/api/v1/groups', undefined);
     });
 });

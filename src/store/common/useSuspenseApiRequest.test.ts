@@ -21,12 +21,23 @@ describe('useSuspenseApiRequest', () => {
         vi.clearAllMocks();
     });
 
-    it('fetches JSON data and updates application state', async () => {
+    it('refreshes data through the server operation', async () => {
+        const request = vi.fn();
+        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
+
+        const { result } = renderHook(() => useSuspenseApiRequest());
+        await result.current('/api/v1/groups');
+
+        expect(request).toHaveBeenCalledWith('/api/v1/groups', 'GET');
+        expect(fetch).not.toHaveBeenCalled();
+    });
+
+    it('fetches the initial JSON data when the server has not preloaded it', async () => {
         const data = { groups: [] };
         vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(data), { status: 200 }));
 
         const { result } = renderHook(() => useSuspenseApiRequest());
-        await result.current('/api/v1/groups');
+        await result.current('/api/v1/groups', true);
 
         expect(fetch).toHaveBeenCalledWith('/api/v1/groups');
         expect(update).toHaveBeenCalledWith(data);
@@ -37,19 +48,21 @@ describe('useSuspenseApiRequest', () => {
 
         const { result } = renderHook(() => useSuspenseApiRequest());
 
-        await expect(result.current('/api/v1/groups')).rejects.toThrow('503');
+        await expect(result.current('/api/v1/groups', true)).rejects.toThrow('503');
         expect(update).not.toHaveBeenCalled();
     });
 
-    it('uses the request fallback when a non-browser fetch rejects a relative URL', async () => {
+    it('does not issue a server action while rendering an unseeded resource', async () => {
         const request = vi.fn();
         vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
         vi.mocked(fetch).mockRejectedValue(new TypeError('Invalid URL'));
 
         const { result } = renderHook(() => useSuspenseApiRequest());
-        await result.current('/api/v1/groups');
 
-        expect(request).toHaveBeenCalledWith('/api/v1/groups', 'GET');
+        await expect(result.current('/api/v1/groups', true)).rejects.toThrow('Invalid URL');
+
+        expect(request).not.toHaveBeenCalled();
+
         expect(update).not.toHaveBeenCalled();
     });
 
@@ -59,7 +72,7 @@ describe('useSuspenseApiRequest', () => {
 
         const { result } = renderHook(() => useSuspenseApiRequest());
 
-        await expect(result.current('/api/v1/groups')).rejects.toBe(failure);
+        await expect(result.current('/api/v1/groups', true)).rejects.toBe(failure);
         expect(update).not.toHaveBeenCalled();
     });
 });

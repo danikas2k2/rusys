@@ -14,12 +14,20 @@ describe('useGetProducts', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    it('loads products and their dependent collections', async () => {
+    it('refreshes products and their dependent collections in one server operation', async () => {
         const { result } = renderHook(() => useGetProducts());
         await result.current();
 
         expect(request).toHaveBeenCalledWith('/api/v1/products');
-        expect(request).toHaveBeenCalledWith('/api/v1/groups');
-        expect(request).toHaveBeenCalledWith('/api/v1/variants');
+        expect(request).toHaveBeenCalledTimes(1);
+    });
+
+    it('loads all collections for an unseeded initial render', async () => {
+        const { result } = renderHook(() => useGetProducts());
+        await result.current(true);
+
+        expect(request).toHaveBeenCalledWith('/api/v1/products', true);
+        expect(request).toHaveBeenCalledWith('/api/v1/groups', true);
+        expect(request).toHaveBeenCalledWith('/api/v1/variants', true);
     });
 });

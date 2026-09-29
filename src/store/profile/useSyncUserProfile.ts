@@ -1,66 +1,30 @@
-import { useEffect, useRef } from 'react';
+import { startTransition, useEffect, useRef } from 'react';
 
-import { API } from '~/common/api/v1';
-import type { UserProfile } from '~/common/data';
-import { useApiRequest } from '~/store/common/useApiRequest';
+import { syncUserProfile } from '~/server/actions/syncUserProfile';
 import { useProfile } from '~/store/profile/useProfile';
 
-// Refresh profile in DB if missing or stale
-const STALE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
-
 export function useSyncUserProfile(): void {
-    const request = useApiRequest();
     const profile = useProfile();
-    const lastKeyRef = useRef<string>('');
-    const lastCheckedEmailRef = useRef<string>('');
+    const lastKeyRef = useRef('');
 
     useEffect(() => {
-        const email = profile?.email?.trim();
-        if (!email) {
+        const email = profile.email?.trim();
+        if (!profile.sub || !email) {
             return;
         }
-
-        const payload = {
-            email,
-            name: profile.name,
-            picture: profile.picture,
-        };
 
         const key = `${email}|${profile.name ?? ''}|${profile.picture ?? ''}`;
-
-        // If local profile changed, always upsert (keeps cache up-to-date)
-        if (key !== lastKeyRef.current) {
-            lastKeyRef.current = key;
-            void request(API.userProfile(email), { name: payload.name, picture: payload.picture }, 'PUT').catch(
-                () => undefined
-            );
+        if (key === lastKeyRef.current) {
             return;
         }
+        lastKeyRef.current = key;
 
-        // Otherwise, upsert only if server missing/stale (check once per email per session)
-        const lowerEmail = email.toLowerCase();
-        if (lowerEmail === lastCheckedEmailRef.current) {
-            return;
-        }
-        lastCheckedEmailRef.current = lowerEmail;
-
-        void (async () => {
-            try {
-                const result = await request<{ profiles?: readonly UserProfile[]; ok?: boolean }>(
-                    API.userProfiles([email]),
-                    'GET'
-                );
-                if ('ok' in result && !result.ok) {
-                    return;
+        startTransition(() => {
+            void syncUserProfile({ email, name: profile.name, picture: profile.picture }).catch(() => {
+                if (lastKeyRef.current === key) {
+                    lastKeyRef.current = '';
                 }
-                const existing = result.profiles?.find((p) => p.email?.toLowerCase() === lowerEmail);
-                const updatedAt = existing?.updatedAt ?? 0;
-                if (!existing || !updatedAt || Date.now() - updatedAt > STALE_MS) {
-                    await request(API.userProfile(email), { name: payload.name, picture: payload.picture }, 'PUT');
-                }
-            } catch {
-                // ignore
-            }
-        })();
-    }, [profile.email, profile.name, profile.picture, request]);
+            });
+        });
+    }, [profile.email, profile.name, profile.picture, profile.sub]);
 }

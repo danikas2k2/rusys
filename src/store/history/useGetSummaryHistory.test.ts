@@ -3,20 +3,17 @@ import { MockRedux } from '@tests/MockRedux';
 
 import { useDispatch } from 'react-redux';
 
-import { API } from '~/common/api/v1';
-import { useApiRequest } from '~/store/common/useApiRequest';
+import { getSummaryHistory } from '~/server/actions/history';
 import { useGetSummaryHistory } from '~/store/history/useGetSummaryHistory';
 import { setSummaryHistoryAction } from '~/store/summary/actions';
 
-vi.mock(import('~/store/common/useApiRequest'));
+vi.mock(import('~/server/actions/history'));
 vi.mock(import('react-redux'), async () => ({ ...(await vi.importActual('react-redux')), useDispatch: vi.fn() }));
 
 describe('useGetSummaryHistory', () => {
-    const request = vi.fn();
     const dispatch = vi.fn();
 
     beforeAll(() => {
-        vi.mocked(useApiRequest).mockReturnValue(request);
         vi.mocked(useDispatch).mockReturnValue(dispatch);
     });
 
@@ -25,13 +22,13 @@ describe('useGetSummaryHistory', () => {
     it('loads the selected product summary history', async () => {
         const year = 25;
         const history = { updates: [], undates: [] };
-        request.mockResolvedValueOnce(history);
+        vi.mocked(getSummaryHistory).mockResolvedValueOnce(history);
         const { result } = renderHook(() => useGetSummaryHistory(year, 'Uogienės', 'Avietės'), {
             wrapper: MockRedux,
         });
         await result.current();
 
-        expect(request).toHaveBeenCalledWith(API.summaryHistory('Uogienės', 'Avietės', year), 'GET');
+        expect(getSummaryHistory).toHaveBeenCalledWith('Uogienės', 'Avietės', year);
         expect(dispatch).toHaveBeenCalledWith(setSummaryHistoryAction('Uogienės', 'Avietės', year, history));
     });
 
@@ -39,7 +36,7 @@ describe('useGetSummaryHistory', () => {
         const { result } = renderHook(() => useGetSummaryHistory(25), { wrapper: MockRedux });
         await result.current();
 
-        expect(request).not.toHaveBeenCalled();
+        expect(getSummaryHistory).not.toHaveBeenCalled();
         expect(dispatch).not.toHaveBeenCalled();
     });
 
@@ -49,7 +46,7 @@ describe('useGetSummaryHistory', () => {
         });
         await result.current();
 
-        expect(request).not.toHaveBeenCalled();
+        expect(getSummaryHistory).not.toHaveBeenCalled();
         expect(dispatch).not.toHaveBeenCalled();
     });
 });

@@ -20,6 +20,9 @@ const nextConfig: NextConfig = {
     output: 'standalone',
     serverExternalPackages: ['mongodb', 'sharp'],
     experimental: {
+        serverActions: {
+            bodySizeLimit: '30mb',
+        },
         lightningCssFeatures: {
             exclude: ['light-dark'],
         },

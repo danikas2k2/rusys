@@ -1,41 +1,38 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { useUpdateStateFromResponse } from '~/store/base/useUpdateStateFromResponse';
-import { useApiRequest } from '~/store/common/useApiRequest';
+import { useDispatch } from 'react-redux';
+
+import { checkEmailAccess } from '~/server/actions/checkEmailAccess';
+import { setAllowedAction } from '~/store/profile/actions';
 import { useEmailCheck } from '~/store/profile/useEmailCheck';
 
-vi.mock(import('~/store/common/useApiRequest'));
-vi.mock(import('~/store/base/useUpdateStateFromResponse'));
+vi.mock(import('~/server/actions/checkEmailAccess'));
+vi.mock(import('react-redux'), async () => ({ ...(await vi.importActual('react-redux')), useDispatch: vi.fn() }));
 
 describe('useEmailCheck', () => {
-    const request = vi.fn();
-    const update = vi.fn();
+    const dispatch = vi.fn();
 
     beforeAll(() => {
-        vi.mocked(useApiRequest).mockReturnValue(request);
-        vi.mocked(useUpdateStateFromResponse).mockReturnValue(update);
+        vi.mocked(useDispatch).mockReturnValue(dispatch);
     });
 
     afterEach(() => vi.clearAllMocks());
 
     it('calls user check', async () => {
-        const response = { allowed: true };
-        request.mockResolvedValueOnce(response);
+        vi.mocked(checkEmailAccess).mockResolvedValueOnce(true);
         const { result } = renderHook(() => useEmailCheck(), { wrapper: MockRedux });
         await result.current('big.buddy@email.com');
 
-        expect(request).toHaveBeenCalledWith('/api/v1/access?email=big.buddy%40email.com', 'GET');
-        expect(update).toHaveBeenCalledWith(response);
+        expect(checkEmailAccess).toHaveBeenCalledWith('big.buddy@email.com');
+        expect(dispatch).toHaveBeenCalledWith(setAllowedAction(true));
     });
 
     it('calls user check with empty value', async () => {
-        const response = { ok: true, allowed: true };
-        request.mockResolvedValueOnce(response);
         const { result } = renderHook(() => useEmailCheck(), { wrapper: MockRedux });
         await result.current('');
 
-        expect(request).not.toHaveBeenCalled();
-        expect(update).not.toHaveBeenCalled();
+        expect(checkEmailAccess).not.toHaveBeenCalled();
+        expect(dispatch).not.toHaveBeenCalled();
     });
 });

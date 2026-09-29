@@ -10,7 +10,7 @@ import './LoadableContent.css';
 
 interface LoadableContentProps {
     resourceKey: string;
-    loader: () => Promise<void>;
+    loader: (initial?: boolean) => Promise<void>;
     hasData: boolean;
     fallback?: React.ReactNode;
 }

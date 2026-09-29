@@ -1,12 +1,13 @@
-import { API } from '~/common/api/v1';
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { useDispatch } from 'react-redux';
+
+import { checkEmailAccess } from '~/server/actions/checkEmailAccess';
 import { setAllowedAction } from '~/store/profile/actions';
 
 export function useEmailCheck(): (email: string) => Promise<void> {
-    const request = useUpdatingApiRequest({ allowed: setAllowedAction });
+    const dispatch = useDispatch();
     return async (email: string): Promise<void> => {
         if (email) {
-            await request(API.access(email), 'GET');
+            dispatch(setAllowedAction(await checkEmailAccess(email)));
         }
     };
 }

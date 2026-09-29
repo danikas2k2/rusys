@@ -1,8 +1,22 @@
 import { NextRequest } from 'next/server';
 
-import { runApiHandler } from '~/server/api/next';
+import { runApiHandler, runServerHandler } from '~/server/api/next';
 
 describe('runApiHandler', () => {
+    it('runs a handler with an in-process request', async () => {
+        const response = await runServerHandler(
+            (request, result) => {
+                expect(request.body).toStrictEqual({ name: 'Avietės' });
+                expect(request.params).toStrictEqual({ group: 'Uogienės' });
+
+                result.status(204).end();
+            },
+            { body: { name: 'Avietės' }, params: { group: 'Uogienės' }, query: {} }
+        );
+
+        expect(response.status).toBe(204);
+    });
+
     it('passes JSON, route params and repeated query values to the handler', async () => {
         const request = new NextRequest('http://localhost/api/items?tag=first&tag=second&sort=name', {
             method: 'POST',

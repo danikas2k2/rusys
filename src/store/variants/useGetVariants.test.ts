@@ -14,11 +14,19 @@ describe('useGetVariants', () => {
 
     afterEach(() => vi.clearAllMocks());
 
-    it('loads variants and groups', async () => {
+    it('refreshes variants and groups in one server operation', async () => {
         const { result } = renderHook(() => useGetVariants());
         await result.current();
 
         expect(request).toHaveBeenCalledWith('/api/v1/variants');
-        expect(request).toHaveBeenCalledWith('/api/v1/groups');
+        expect(request).toHaveBeenCalledTimes(1);
+    });
+
+    it('loads variants and groups for an unseeded initial render', async () => {
+        const { result } = renderHook(() => useGetVariants());
+        await result.current(true);
+
+        expect(request).toHaveBeenCalledWith('/api/v1/variants', true);
+        expect(request).toHaveBeenCalledWith('/api/v1/groups', true);
     });
 });

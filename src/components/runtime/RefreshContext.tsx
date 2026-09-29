@@ -3,7 +3,7 @@ import React, { createContext, use, useCallback, useEffect, useMemo, useRef } fr
 import type { InitialResource } from '~/components/app/initialData';
 
 type RefreshFn = () => Promise<unknown>;
-type ResourceLoader = () => Promise<void>;
+type ResourceLoader = (initial?: boolean) => Promise<void>;
 
 interface RefreshContextValue {
     register: (fn: RefreshFn) => () => void;
@@ -30,7 +30,7 @@ export function RefreshProvider({
             return cached ?? null;
         }
 
-        const promise = Promise.resolve().then(loader);
+        const promise = Promise.resolve().then(() => loader(!replace));
         resourcesRef.current.set(key, promise);
         return promise;
     }, []);

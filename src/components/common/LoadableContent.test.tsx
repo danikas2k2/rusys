@@ -85,6 +85,7 @@ describe('<LoadableContent>', () => {
         await act(() => refreshAll!());
 
         expect(loader).toHaveBeenCalledTimes(1);
+        expect(loader).toHaveBeenCalledWith(false);
     });
 
     it('uses its ErrorBoundary when the resource rejects', async () => {
@@ -132,6 +133,7 @@ describe('<LoadableContent>', () => {
         await waitFor(() => expect(screen.getByRole('main')).toBeInTheDocument());
 
         expect(loader).toHaveBeenCalledTimes(1);
+        expect(loader).toHaveBeenCalledWith(true);
 
         await act(() => refreshAll!());
 

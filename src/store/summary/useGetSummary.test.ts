@@ -19,6 +19,6 @@ describe('useSummaryLoader', () => {
 
         await result.current();
 
-        expect(request).toHaveBeenCalledWith('/api/v1/summary');
+        expect(request).toHaveBeenCalledWith('/api/v1/summary', undefined);
     });
 });

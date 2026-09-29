@@ -88,9 +88,13 @@ export async function runApiHandler(
     handler: ApiHandler,
     params: ApiRequest['params'] = {}
 ): Promise<Response> {
+    return runServerHandler(handler, { ...(await bodyFrom(request)), params, query: queryFrom(request) });
+}
+
+export async function runServerHandler(handler: ApiHandler, request: ApiRequest): Promise<Response> {
     const response = createResponse();
     try {
-        await handler({ ...(await bodyFrom(request)), params, query: queryFrom(request) }, response);
+        await handler(request, response);
     } catch (error) {
         response.status(500).json({ error: { code: 'INTERNAL_ERROR', message: `${error}` } });
     }
