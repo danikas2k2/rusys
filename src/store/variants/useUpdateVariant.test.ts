@@ -5,6 +5,8 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useUpdateVariant } from '~/store/variants/useUpdateVariant';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+const refresh = vi.hoisted(() => vi.fn());
+vi.mock(import('~/store/variants/useGetVariants'), () => ({ useGetVariants: () => refresh }));
 
 describe('useUpdateVariant', () => {
     const request = vi.fn();
@@ -20,7 +22,8 @@ describe('useUpdateVariant', () => {
         await result.current('Uogienės', 'p', { order: 1 });
 
         expect(request).toHaveBeenNthCalledWith(1, '/api/v1/groups/Uogien%C4%97s/variants/p', { order: 1 }, 'PATCH');
-        expect(request).toHaveBeenNthCalledWith(2, '/api/v1/variants', 'GET');
+        expect(request).toHaveBeenCalledTimes(1);
+        expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
 
     it('calls update action with additional parameters', async () => {

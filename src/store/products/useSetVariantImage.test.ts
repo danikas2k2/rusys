@@ -6,6 +6,7 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useSetVariantImage } from '~/store/products/useSetVariantImage';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/store/products/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
 
 describe('useSetVariantImage', () => {
     const request = vi.fn();

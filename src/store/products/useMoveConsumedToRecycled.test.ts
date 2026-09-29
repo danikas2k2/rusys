@@ -5,6 +5,7 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useMoveConsumedToRecycled } from '~/store/products/useMoveConsumedToRecycled';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/store/products/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
 
 describe('useMoveConsumedToRecycled', () => {
     const request = vi.fn();

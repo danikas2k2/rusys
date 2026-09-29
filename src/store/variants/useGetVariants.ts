@@ -1,18 +1,15 @@
 import { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 
-import { API } from '~/common/api/v1';
-import { useSuspenseApiRequest } from '~/store/common/useSuspenseApiRequest';
+import { readVariants } from '~/server/actions/readData';
+import { setGroupsAction } from '~/store/groups/actions';
+import { setVariantsAction } from '~/store/variants/actions';
 
 export function useGetVariants(): (initial?: boolean) => Promise<void> {
-    const request = useSuspenseApiRequest();
-    return useCallback(
-        async (initial?: boolean): Promise<void> => {
-            if (initial) {
-                await Promise.all([request(API.variants(), true), request(API.groups(), true)]);
-            } else {
-                await request(API.variants());
-            }
-        },
-        [request]
-    );
+    const dispatch = useDispatch();
+    return useCallback(async (): Promise<void> => {
+        const data = await readVariants();
+        dispatch(setVariantsAction([...data.variants]));
+        dispatch(setGroupsAction([...data.groups]));
+    }, [dispatch]);
 }

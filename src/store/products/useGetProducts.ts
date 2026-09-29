@@ -1,22 +1,19 @@
 import { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 
-import { API } from '~/common/api/v1';
-import { useSuspenseApiRequest } from '~/store/common/useSuspenseApiRequest';
+import { readProducts } from '~/server/actions/readData';
+import { setGroupsAction } from '~/store/groups/actions';
+import { setProductsAction } from '~/store/products/actions';
+import { setVariantsAction } from '~/store/variants/actions';
+import { setYearsAction } from '~/store/years/actions';
 
 export function useGetProducts(): (initial?: boolean) => Promise<void> {
-    const request = useSuspenseApiRequest();
-    return useCallback(
-        async (initial?: boolean): Promise<void> => {
-            if (initial) {
-                await Promise.all([
-                    request(API.products(), true),
-                    request(API.groups(), true),
-                    request(API.variants(), true),
-                ]);
-            } else {
-                await request(API.products());
-            }
-        },
-        [request]
-    );
+    const dispatch = useDispatch();
+    return useCallback(async (): Promise<void> => {
+        const data = await readProducts();
+        dispatch(setProductsAction(data.products));
+        dispatch(setYearsAction(data.years));
+        dispatch(setGroupsAction([...data.groups]));
+        dispatch(setVariantsAction([...data.variants]));
+    }, [dispatch]);
 }

@@ -5,6 +5,8 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useRenameVariant } from '~/store/variants/useRenameVariant';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+const refresh = vi.hoisted(() => vi.fn());
+vi.mock(import('~/store/variants/useGetVariants'), () => ({ useGetVariants: () => refresh }));
 
 describe('useRenameVariant', () => {
     const request = vi.fn();
@@ -20,7 +22,8 @@ describe('useRenameVariant', () => {
         await result.current('Uogienės', 'p', '1/2');
 
         expect(request).toHaveBeenNthCalledWith(1, '/api/v1/groups/Uogien%C4%97s/variants/p', { name: '1/2' }, 'PATCH');
-        expect(request).toHaveBeenNthCalledWith(2, '/api/v1/variants', 'GET');
+        expect(request).toHaveBeenCalledTimes(1);
+        expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
 
     it.each`

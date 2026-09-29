@@ -6,6 +6,7 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useRedoProduct } from '~/store/products/useRedoProduct';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/store/products/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
 vi.mock(import('react-redux'), async () => ({
     ...(await vi.importActual('react-redux')),
     useDispatch: vi.fn(),

@@ -5,6 +5,8 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useDeleteGroup } from '~/store/groups/useDeleteGroup';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+const refresh = vi.hoisted(() => vi.fn());
+vi.mock(import('~/store/groups/useGetGroups'), () => ({ useGetGroups: () => refresh }));
 
 describe('useDeleteGroup', () => {
     const request = vi.fn();
@@ -20,7 +22,8 @@ describe('useDeleteGroup', () => {
         await result.current('Uogienės');
 
         expect(request).toHaveBeenNthCalledWith(1, '/api/v1/groups/Uogien%C4%97s', undefined, 'DELETE');
-        expect(request).toHaveBeenNthCalledWith(2, '/api/v1/groups', 'GET');
+        expect(request).toHaveBeenCalledTimes(1);
+        expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
 
     it('does not call delete action with empty group', async () => {

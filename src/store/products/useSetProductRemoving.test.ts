@@ -9,6 +9,7 @@ import { rollbackProductsRemovingAction, setProductsRemovingAction } from '~/sto
 import { useSetProductRemoving } from '~/store/products/useSetProductRemoving';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/store/products/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
 vi.mock(import('react-redux'), async () => ({
     ...(await vi.importActual('react-redux')),
     useDispatch: vi.fn(),

@@ -5,6 +5,7 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useSetProductExpiryTolerance } from '~/store/products/useSetProductExpiryTolerance';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/store/products/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
 
 describe('useSetProductExpiryTolerance', () => {
     const request = vi.fn();

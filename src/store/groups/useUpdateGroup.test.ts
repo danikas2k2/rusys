@@ -5,6 +5,7 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useUpdateGroup } from '~/store/groups/useUpdateGroup';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/store/groups/useGetGroups'), () => ({ useGetGroups: () => vi.fn() }));
 
 describe('useUpdateGroup', () => {
     const request = vi.fn();

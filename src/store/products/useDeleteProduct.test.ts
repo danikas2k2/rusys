@@ -5,6 +5,7 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useDeleteProduct } from '~/store/products/useDeleteProduct';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/store/products/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
 
 describe('useRemoveProduct', () => {
     const request = vi.fn();

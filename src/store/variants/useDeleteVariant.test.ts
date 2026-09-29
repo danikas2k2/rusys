@@ -5,6 +5,8 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useDeleteVariant } from '~/store/variants/useDeleteVariant';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+const refresh = vi.hoisted(() => vi.fn());
+vi.mock(import('~/store/variants/useGetVariants'), () => ({ useGetVariants: () => refresh }));
 
 describe('useDeleteVariant', () => {
     const request = vi.fn();
@@ -25,7 +27,8 @@ describe('useDeleteVariant', () => {
             undefined,
             'DELETE'
         );
-        expect(request).toHaveBeenNthCalledWith(2, '/api/v1/variants', 'GET');
+        expect(request).toHaveBeenCalledTimes(1);
+        expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
 
     it('does not call delete action with empty group', async () => {

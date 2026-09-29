@@ -1,9 +1,12 @@
 import { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 
-import { API } from '~/common/api/v1';
-import { useSuspenseApiRequest } from '~/store/common/useSuspenseApiRequest';
+import { readGroups } from '~/server/actions/readData';
+import { setGroupsAction } from '~/store/groups/actions';
 
 export function useGetGroups(): (initial?: boolean) => Promise<void> {
-    const request = useSuspenseApiRequest();
-    return useCallback(async (initial?: boolean): Promise<void> => request(API.groups(), initial), [request]);
+    const dispatch = useDispatch();
+    return useCallback(async (): Promise<void> => {
+        dispatch(setGroupsAction([...(await readGroups())]));
+    }, [dispatch]);
 }

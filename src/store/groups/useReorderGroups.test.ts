@@ -5,6 +5,8 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useReorderGroups } from '~/store/groups/useReorderGroups';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+const refresh = vi.hoisted(() => vi.fn());
+vi.mock(import('~/store/groups/useGetGroups'), () => ({ useGetGroups: () => refresh }));
 
 describe('useReorderGroups', () => {
     const request = vi.fn();
@@ -21,7 +23,8 @@ describe('useReorderGroups', () => {
         await result.current(groups);
 
         expect(request).toHaveBeenNthCalledWith(1, '/api/v1/groups/order', { groups }, 'PUT');
-        expect(request).toHaveBeenNthCalledWith(2, '/api/v1/groups', 'GET');
+        expect(request).toHaveBeenCalledTimes(1);
+        expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
 
     it('does not call reorder action with empty group set', async () => {

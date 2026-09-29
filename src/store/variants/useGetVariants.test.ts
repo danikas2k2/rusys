@@ -1,32 +1,41 @@
 import { renderHook } from '@testing-library/react';
 
-import { useSuspenseApiRequest } from '~/store/common/useSuspenseApiRequest';
+import { useDispatch } from 'react-redux';
+
+import { readVariants } from '~/server/actions/readData';
+import { setGroupsAction } from '~/store/groups/actions';
+import { setVariantsAction } from '~/store/variants/actions';
 import { useGetVariants } from '~/store/variants/useGetVariants';
 
-vi.mock(import('~/store/common/useSuspenseApiRequest'));
+vi.mock(import('~/server/actions/readData'));
+vi.mock(import('react-redux'), async () => ({ ...(await vi.importActual('react-redux')), useDispatch: vi.fn() }));
 
 describe('useGetVariants', () => {
-    const request = vi.fn();
+    const dispatch = vi.fn();
+    const variants = [{ group: 'Food', variant: 'Box', order: 0 }];
+    const groups = [{ group: 'Food', order: 0 }];
 
-    beforeAll(() => {
-        vi.mocked(useSuspenseApiRequest).mockReturnValue(request);
-    });
+    beforeEach(() => vi.mocked(useDispatch).mockReturnValue(dispatch));
 
     afterEach(() => vi.clearAllMocks());
 
-    it('refreshes variants and groups in one server operation', async () => {
+    it('refreshes variants and groups', async () => {
+        vi.mocked(readVariants).mockResolvedValue({ variants, groups });
         const { result } = renderHook(() => useGetVariants());
         await result.current();
 
-        expect(request).toHaveBeenCalledWith('/api/v1/variants');
-        expect(request).toHaveBeenCalledTimes(1);
+        expect(readVariants).toHaveBeenCalledWith();
+        expect(dispatch).toHaveBeenCalledWith(setVariantsAction(variants));
+        expect(dispatch).toHaveBeenCalledWith(setGroupsAction(groups));
+        expect(dispatch).toHaveBeenCalledTimes(2);
     });
 
-    it('loads variants and groups for an unseeded initial render', async () => {
+    it('also loads groups initially', async () => {
+        vi.mocked(readVariants).mockResolvedValue({ variants, groups });
         const { result } = renderHook(() => useGetVariants());
         await result.current(true);
 
-        expect(request).toHaveBeenCalledWith('/api/v1/variants', true);
-        expect(request).toHaveBeenCalledWith('/api/v1/groups', true);
+        expect(readVariants).toHaveBeenCalledWith();
+        expect(dispatch).toHaveBeenCalledWith(setGroupsAction(groups));
     });
 });

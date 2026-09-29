@@ -5,6 +5,8 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useRenameGroup } from '~/store/groups/useRenameGroup';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+const refresh = vi.hoisted(() => vi.fn());
+vi.mock(import('~/store/groups/useGetGroups'), () => ({ useGetGroups: () => refresh }));
 
 describe('useRenameGroup', () => {
     const request = vi.fn();
@@ -25,7 +27,8 @@ describe('useRenameGroup', () => {
             { name: 'Daržovės', annual: undefined, review: undefined, image: undefined },
             'PATCH'
         );
-        expect(request).toHaveBeenNthCalledWith(2, '/api/v1/groups', 'GET');
+        expect(request).toHaveBeenCalledTimes(1);
+        expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
 
     it('calls rename action with annual and review parameters', async () => {

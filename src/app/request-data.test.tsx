@@ -36,17 +36,13 @@ describe('requestData', () => {
         expect(runServerHandler).not.toHaveBeenCalled();
     });
 
-    it('covers the resource reads and mutation paths used by the client', async () => {
+    it('covers the mutation paths used by the client', async () => {
         vi.mocked(runServerHandler).mockResolvedValue(new Response(null, { status: 204 }));
         const group = 'A';
         const name = 'B';
         const variant = 'C';
         const year = 2026;
         const paths = [
-            [API.products(), 'GET'],
-            [API.groups(), 'GET'],
-            [API.variants(), 'GET'],
-            [API.summary(), 'GET'],
             [API.products(), 'POST'],
             [API.productReviewStatuses(), 'PATCH'],
             [API.groupOrder(), 'PUT'],

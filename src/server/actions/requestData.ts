@@ -1,9 +1,7 @@
 'use server';
 
-import { Links } from '~/lib/links';
 import { runServerHandler, type ApiHandler, type ApiRequest } from '~/server/api/next';
 import { handleDeleteGroup } from '~/server/api/v1/groups/handleDeleteGroup';
-import { handleGetGroups } from '~/server/api/v1/groups/handleGetGroups';
 import { handlePatchGroup } from '~/server/api/v1/groups/handlePatchGroup';
 import { handlePutGroup } from '~/server/api/v1/groups/handlePutGroup';
 import { handlePutGroupsOrder } from '~/server/api/v1/groups/handlePutGroupsOrder';
@@ -19,15 +17,13 @@ import { handlePutProductAmounts } from '~/server/api/v1/products/handlePutProdu
 import { handlePutProductImage } from '~/server/api/v1/products/handlePutProductImage';
 import { handlePutProductVariantImage } from '~/server/api/v1/products/handlePutProductVariantImage';
 import { handleSetProductYear } from '~/server/api/v1/products/handleSetProductYear';
-import { handleGetSummary } from '~/server/api/v1/summary/handleGetSummary';
 import { handleDeleteVariant } from '~/server/api/v1/variants/handleDeleteVariant';
 import { handlePatchVariant } from '~/server/api/v1/variants/handlePatchVariant';
 import { handlePostVariantCopy } from '~/server/api/v1/variants/handlePostVariantCopy';
 import { handlePutVariantsOrder } from '~/server/api/v1/variants/handlePutVariantsOrder';
 import { requireSession } from '~/server/auth/session';
-import { getInitialAppData } from '~/server/data/initialAppData';
 
-type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+type Method = 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 interface Operation {
     method: Method;
@@ -35,21 +31,9 @@ interface Operation {
     handler: ApiHandler;
 }
 
-const productPageData: ApiHandler = async (_request, response) => {
-    response.json((await getInitialAppData('/')).data);
-};
-
-const variantPageData: ApiHandler = async (_request, response) => {
-    response.json((await getInitialAppData(Links.VARIANTS)).data);
-};
-
 // These operations retain the existing validation and error handling while
 // client mutations call them in-process through a Server Action.
 const operations: readonly Operation[] = [
-    { method: 'GET', path: 'groups', handler: handleGetGroups },
-    { method: 'GET', path: 'products', handler: productPageData },
-    { method: 'GET', path: 'variants', handler: variantPageData },
-    { method: 'GET', path: 'summary', handler: handleGetSummary },
     { method: 'POST', path: 'products', handler: handleCreateProduct },
     { method: 'PATCH', path: 'products/review-statuses', handler: handleProductReviewStatuses },
     { method: 'PUT', path: 'groups/order', handler: handlePutGroupsOrder },
@@ -119,7 +103,7 @@ function findOperation(method: string, path: string): { handler: ApiHandler; par
     throw new Error('Unsupported operation');
 }
 
-export async function requestData(url: string, method: string, data?: unknown): Promise<unknown> {
+export async function requestData(url: string, method: string, data?: unknown): Promise<void> {
     await requireSession();
     if (typeof url !== 'string' || !url.startsWith('/api/v1/')) {
         throw new Error('Unsupported operation');
@@ -131,6 +115,4 @@ export async function requestData(url: string, method: string, data?: unknown): 
         const failure = (await response.json()) as { error?: { message?: string } };
         throw new Error(failure.error?.message ?? `Request failed (${response.status})`);
     }
-    const body = await response.text();
-    return body ? JSON.parse(body) : undefined;
 }

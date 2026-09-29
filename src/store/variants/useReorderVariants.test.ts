@@ -5,6 +5,8 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useReorderVariants } from '~/store/variants/useReorderVariants';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+const refresh = vi.hoisted(() => vi.fn());
+vi.mock(import('~/store/variants/useGetVariants'), () => ({ useGetVariants: () => refresh }));
 
 describe('useReorderVariants', () => {
     const request = vi.fn();
@@ -22,7 +24,8 @@ describe('useReorderVariants', () => {
         await result.current('Uogienės', variants);
 
         expect(request).toHaveBeenNthCalledWith(1, '/api/v1/groups/Uogien%C4%97s/variants/order', { variants }, 'PUT');
-        expect(request).toHaveBeenNthCalledWith(2, '/api/v1/variants', 'GET');
+        expect(request).toHaveBeenCalledTimes(1);
+        expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
 
     it('does not call reorder action with empty group', async () => {

@@ -5,6 +5,8 @@ import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
 import { useCopyVariant } from '~/store/variants/useCopyVariant';
 
 vi.mock(import('~/store/base/useUpdatingApiRequest'));
+const refresh = vi.hoisted(() => vi.fn());
+vi.mock(import('~/store/variants/useGetVariants'), () => ({ useGetVariants: () => refresh }));
 
 describe('useCopyVariant', () => {
     const request = vi.fn();
@@ -46,7 +48,8 @@ describe('useCopyVariant', () => {
                 },
                 'POST'
             );
-            expect(request).toHaveBeenNthCalledWith(2, '/api/v1/variants', 'GET');
+            expect(request).toHaveBeenCalledTimes(1);
+            expect(refresh).toHaveBeenCalledExactlyOnceWith();
         }
     );
 
