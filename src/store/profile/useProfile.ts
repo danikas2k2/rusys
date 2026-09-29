@@ -1,5 +1,5 @@
 import equal from 'fast-deep-equal/es6/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { useSelector } from 'react-redux';
 
 import { isDevMode } from '~/common/utils/dev';
@@ -11,19 +11,26 @@ export function useProfile(): Profile {
     const setProfile = useSetProfile();
     const dev = isDevMode();
     const profile = useSelector((state: WithProfileState) => state.profile ?? {}, equal);
-    const [storedProfile] = useState<Profile>(() => {
-        let savedProfile = JSON.parse(localStorage.getItem('profile') ?? '{}') ?? {};
-        if (!savedProfile.sub && dev) {
-            savedProfile = DEV_MODE_PROFILE;
+    const storedProfileJson = useSyncExternalStore(
+        (onChange) => {
+            window.addEventListener('storage', onChange);
+            return () => window.removeEventListener('storage', onChange);
+        },
+        () => localStorage.getItem('profile') ?? '{}',
+        () => '{}'
+    );
+    const storedProfile = useMemo<Profile>(() => {
+        let savedProfile: Profile;
+        try {
+            savedProfile = JSON.parse(storedProfileJson) ?? {};
+        } catch {
+            savedProfile = {};
         }
-        return savedProfile;
-    });
+        return !savedProfile.sub && dev ? DEV_MODE_PROFILE : savedProfile;
+    }, [dev, storedProfileJson]);
 
     useEffect(() => {
-        if (profile.sub) {
-            return;
-        }
-        if (storedProfile.sub) {
+        if (!profile.sub && storedProfile.sub) {
             setProfile(storedProfile);
         }
     }, [profile.sub, setProfile, storedProfile]);

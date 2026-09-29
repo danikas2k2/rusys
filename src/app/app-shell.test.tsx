@@ -9,6 +9,10 @@ import { PwaHead } from './PwaHead';
 vi.mock(import('~/components/app/NextApp'), () => ({
     NextApp: () => <main>Application loaded</main>,
 }));
+vi.mock(import('~/server/data/initialAppData'), () => ({
+    getInitialAppData: vi.fn().mockResolvedValue({ data: {}, resource: 'products' }),
+}));
+vi.mock(import('next/server'), () => ({ connection: vi.fn().mockResolvedValue(undefined) }));
 
 describe('next.js app shell', () => {
     it('renders all generated PWA links, metadata, and splash screens', () => {
@@ -27,12 +31,8 @@ describe('next.js app shell', () => {
         }
     });
 
-    it('renders the Lithuanian document with application content and fonts', () => {
-        const markup = renderToStaticMarkup(
-            <RootLayout>
-                <AppPage />
-            </RootLayout>
-        );
+    it('renders the Lithuanian document with application content and fonts', async () => {
+        const markup = renderToStaticMarkup(<RootLayout>{await AppPage()}</RootLayout>);
 
         expect(markup).toContain('<html lang="lt"');
         expect(markup).toContain('<main>Application loaded</main>');

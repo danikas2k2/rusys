@@ -23,6 +23,13 @@ describe('store configuration', () => {
         expect(getStore().getState()).toStrictEqual(reducer(undefined, {} as any));
     });
 
+    it('hydrates server-loaded data and Google client ID', () => {
+        expect(getStore('test-client', { groups: [{ group: 'Test', order: 0 }] }).getState()).toMatchObject({
+            google: { clientId: 'test-client' },
+            groups: [{ group: 'Test', order: 0 }],
+        });
+    });
+
     it('disables devTools in production mode', () => {
         getStore();
 

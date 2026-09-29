@@ -1,26 +1,33 @@
 import React, { createContext, use, useCallback, useEffect, useMemo, useRef } from 'react';
 
+import type { InitialResource } from '~/components/app/initialData';
+
 type RefreshFn = () => Promise<unknown>;
 type ResourceLoader = () => Promise<void>;
 
 interface RefreshContextValue {
     register: (fn: RefreshFn) => () => void;
     refreshAll: () => Promise<void>;
-    read: (key: string, loader: ResourceLoader) => Promise<void>;
+    read: (key: string, loader: ResourceLoader) => Promise<void> | null;
     refresh: (key: string, loader: ResourceLoader) => Promise<void>;
     clear: (key: string) => void;
 }
 
 const RefreshContext = createContext<RefreshContextValue | null>(null);
 
-export function RefreshProvider({ children }: React.PropsWithChildren): React.ReactElement {
+export function RefreshProvider({
+    children,
+    initialResource,
+}: React.PropsWithChildren<{ initialResource?: InitialResource }>): React.ReactElement {
     const refreshersRef = useRef<Set<RefreshFn>>(new Set());
-    const resourcesRef = useRef<Map<string, Promise<void>>>(new Map());
+    const resourcesRef = useRef<Map<string, Promise<void> | null>>(
+        new Map(initialResource ? [[initialResource, null]] : [])
+    );
 
-    const load = useCallback((key: string, loader: ResourceLoader, replace = false): Promise<void> => {
+    const load = useCallback((key: string, loader: ResourceLoader, replace = false): Promise<void> | null => {
         const cached = resourcesRef.current.get(key);
-        if (cached && !replace) {
-            return cached;
+        if (resourcesRef.current.has(key) && !replace) {
+            return cached ?? null;
         }
 
         const promise = Promise.resolve().then(loader);
@@ -41,7 +48,7 @@ export function RefreshProvider({ children }: React.PropsWithChildren): React.Re
     );
 
     const read = useCallback((key: string, loader: ResourceLoader) => load(key, loader), [load]);
-    const refresh = useCallback((key: string, loader: ResourceLoader) => load(key, loader, true), [load]);
+    const refresh = useCallback((key: string, loader: ResourceLoader) => load(key, loader, true)!, [load]);
     const clear = useCallback((key: string) => resourcesRef.current.delete(key), []);
 
     const value = useMemo<RefreshContextValue>(
@@ -62,7 +69,7 @@ export function useRefreshAll(): () => Promise<void> {
     return ctx?.refreshAll ?? noopRefresh;
 }
 
-export function useSuspenseResource(key: string, loader: ResourceLoader): Promise<void> {
+export function useSuspenseResource(key: string, loader: ResourceLoader): Promise<void> | null {
     const ctx = use(RefreshContext);
     if (!ctx) {
         throw new Error('Suspense data resources must be rendered inside a RefreshProvider');

@@ -1,7 +1,8 @@
 import { AppShell, ScrollArea } from '@mantine/core';
-import React from 'react';
+import React, { use } from 'react';
 
 import { AppVersion } from '~/components/app/AppVersion';
+import { InitialResourceContext } from '~/components/app/InitialResourceContext';
 import { useSwipeVisible } from '~/components/hooks/useSwipeVisible';
 import { type ActiveContentData } from '~/components/runtime/ActiveContentContext';
 import { PullToRefreshIndicator } from '~/components/runtime/PullToRefreshIndicator';
@@ -65,8 +66,9 @@ export function Page<D = ActiveContentData>(
         onDelete?: (data: D) => void | Promise<void>;
     }>
 ): React.ReactElement {
+    const initialResource = use(InitialResourceContext);
     return (
-        <RefreshProvider>
+        <RefreshProvider initialResource={initialResource}>
             <PageContent {...props} />
         </RefreshProvider>
     );

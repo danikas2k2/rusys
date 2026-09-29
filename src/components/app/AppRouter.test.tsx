@@ -4,6 +4,8 @@ import React from 'react';
 
 import { AppRouter } from '~/components/app/AppRouter';
 
+vi.mock(import('~/store/groups/useGroups'), () => ({ useGroups: () => [] }));
+
 vi.mock(import('~/features/products/ProductsPage'), () => ({
     ProductsPage: () => <div>ProductsPage</div>,
 }));

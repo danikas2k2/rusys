@@ -25,7 +25,10 @@ describe('useProfile', () => {
         vi.mocked(useSetProfile).mockReturnValue(setProfile);
     });
 
-    afterEach(() => vi.clearAllMocks());
+    afterEach(() => {
+        localStorage.clear();
+        vi.clearAllMocks();
+    });
 
     const value: Profile = {
         sub: '123',
@@ -70,7 +73,7 @@ describe('useProfile', () => {
     });
 
     it('returns empty profile from localStorage if invalid', () => {
-        getItem.mockReturnValueOnce('null');
+        localStorage.setItem('profile', 'null');
 
         const { result } = renderHook(() => useProfile(), {
             wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
@@ -82,7 +85,7 @@ describe('useProfile', () => {
     });
 
     it('returns profile from localStorage and store it to redux', () => {
-        getItem.mockReturnValueOnce(JSON.stringify(value));
+        localStorage.setItem('profile', JSON.stringify(value));
 
         const { result } = renderHook(() => useProfile(), {
             wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,
@@ -109,7 +112,7 @@ describe('useProfile', () => {
 
     it('returns profile from localStorage if dev mode enabled', () => {
         vi.mocked(isDevMode).mockReturnValueOnce(true);
-        getItem.mockReturnValueOnce(JSON.stringify(value));
+        localStorage.setItem('profile', JSON.stringify(value));
 
         const { result } = renderHook(() => useProfile(), {
             wrapper: ({ children }) => <MockRedux reducers={{ profile: reducer }}>{children}</MockRedux>,

@@ -16,7 +16,10 @@ interface LoadableContentProps {
 }
 
 function LoadedContent({ resourceKey, loader, hasData, children }: React.PropsWithChildren<LoadableContentProps>) {
-    use(useSuspenseResource(resourceKey, loader));
+    const resource = useSuspenseResource(resourceKey, loader);
+    if (resource) {
+        use(resource);
+    }
 
     if (!hasData) {
         return (

@@ -2,27 +2,30 @@
 
 import { MantineProvider } from '@mantine/core';
 import { DatesProvider } from '@mantine/dates';
-import React, { StrictMode, Suspense, use, useState } from 'react';
-import { browser } from 'react-dom';
+import React, { StrictMode, useState } from 'react';
 import { Provider } from 'react-redux';
 
 import { App } from '~/components/app/App';
+import type { InitialAppData, InitialResource } from '~/components/app/initialData';
+import { InitialGroupContext } from '~/components/app/InitialGroupContext';
+import { InitialResourceContext } from '~/components/app/InitialResourceContext';
 import { ErrorBoundary } from '~/components/runtime/ErrorBoundary';
 import { LocaleContext } from '~/components/runtime/LocaleContext';
 import { getStore } from '~/store/store';
 import { getTheme } from '~/styles/theme';
 
-export function NextApp(): React.JSX.Element {
-    return (
-        <Suspense fallback={null}>
-            <BrowserApp />
-        </Suspense>
-    );
-}
-
-function BrowserApp(): React.JSX.Element {
-    use(browser());
-    const [store] = useState(getStore);
+export function NextApp({
+    clientId,
+    initialData,
+    initialGroup,
+    initialResource,
+}: {
+    clientId?: string;
+    initialData?: InitialAppData;
+    initialGroup?: string;
+    initialResource?: InitialResource;
+}): React.JSX.Element {
+    const [store] = useState(() => getStore(clientId, initialData));
 
     return (
         <StrictMode>
@@ -31,7 +34,11 @@ function BrowserApp(): React.JSX.Element {
                     <ErrorBoundary>
                         <LocaleContext value="lt-LT">
                             <DatesProvider settings={{ locale: 'lt' }}>
-                                <App />
+                                <InitialResourceContext value={initialResource}>
+                                    <InitialGroupContext value={initialGroup}>
+                                        <App />
+                                    </InitialGroupContext>
+                                </InitialResourceContext>
                             </DatesProvider>
                         </LocaleContext>
                     </ErrorBoundary>

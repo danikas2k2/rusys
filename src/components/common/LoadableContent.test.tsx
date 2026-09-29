@@ -59,6 +59,34 @@ describe('<LoadableContent>', () => {
         expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
+    it('uses server-loaded data on first render and still refreshes it on demand', async () => {
+        const loader = vi.fn().mockResolvedValue(undefined);
+        let refreshAll: (() => Promise<void>) | undefined;
+
+        function Trigger({ onReady }: { onReady: (refresh: () => Promise<void>) => void }) {
+            onReady(useRefreshAll());
+            return null;
+        }
+
+        render(
+            <MockTheme>
+                <RefreshProvider initialResource="products">
+                    <LoadableContent resourceKey="products" loader={loader} hasData>
+                        <main>Content</main>
+                    </LoadableContent>
+                    <Trigger onReady={(refresh) => (refreshAll = refresh)} />
+                </RefreshProvider>
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('main')).toBeInTheDocument();
+        expect(loader).not.toHaveBeenCalled();
+
+        await act(() => refreshAll!());
+
+        expect(loader).toHaveBeenCalledTimes(1);
+    });
+
     it('uses its ErrorBoundary when the resource rejects', async () => {
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
         const loader = vi.fn().mockRejectedValueOnce(new Error('network error')).mockResolvedValueOnce(undefined);
