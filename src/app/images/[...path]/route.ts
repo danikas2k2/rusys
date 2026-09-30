@@ -18,7 +18,7 @@ interface RouteContext {
     params: Promise<{ path: string[] }>;
 }
 
-export async function GET(_request: Request, context: RouteContext): Promise<Response> {
+export async function GET(request: Request, context: RouteContext): Promise<Response> {
     if (!(await getSessionProfile())) {
         return new Response(null, { status: 401 });
     }
@@ -33,13 +33,32 @@ export async function GET(_request: Request, context: RouteContext): Promise<Res
     }
 
     try {
+        const stats = await fs.stat(filePath, { bigint: true });
+        if (!stats.isFile()) {
+            return new Response(null, { status: 404 });
+        }
+        // Nanosecond precision also detects an import that replaces a file within the same second.
+        const etag = `W/"${stats.mtimeNs.toString(16)}-${stats.size.toString(16)}"`;
+        const headers = new Headers({
+            'Cache-Control': 'private, no-cache',
+            ETag: etag,
+            'Last-Modified': stats.mtime.toUTCString(),
+            Vary: 'Cookie',
+        });
+        if (
+            request.headers
+                .get('If-None-Match')
+                ?.split(',')
+                .some((tag) => tag.trim() === etag || tag.trim() === '*')
+        ) {
+            return new Response(null, { status: 304, headers });
+        }
+
         const image = await fs.readFile(filePath);
         const extension = path.extname(filePath).slice(1).toLowerCase();
+        headers.set('Content-Type', CONTENT_TYPES[extension] ?? 'application/octet-stream');
         return new Response(image, {
-            headers: {
-                'Cache-Control': 'private, no-store',
-                'Content-Type': CONTENT_TYPES[extension] ?? 'application/octet-stream',
-            },
+            headers,
         });
     } catch {
         return new Response(null, { status: 404 });

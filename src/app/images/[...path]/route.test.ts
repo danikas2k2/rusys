@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, stat, utimes, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -10,8 +10,10 @@ vi.mock(import('~/server/auth/session'), () => ({ getSessionProfile: vi.fn() }))
 let imagesDir: string;
 let route: { GET: typeof GET };
 
-async function get(parts: string[]) {
-    return route.GET(new Request('http://localhost/images/test.png'), { params: Promise.resolve({ path: parts }) });
+async function get(parts: string[], headers?: HeadersInit) {
+    return route.GET(new Request('http://localhost/images/test.png', { headers }), {
+        params: Promise.resolve({ path: parts }),
+    });
 }
 
 describe('stored image route', () => {
@@ -36,8 +38,38 @@ describe('stored image route', () => {
 
         expect(response.status).toBe(200);
         expect(response.headers.get('Content-Type')).toBe('image/png');
-        expect(response.headers.get('Cache-Control')).toBe('private, no-store');
+        expect(response.headers.get('Cache-Control')).toBe('private, no-cache');
+        expect(response.headers.get('ETag')).toMatch(/^W\/"[0-9a-f]+-[0-9a-f]+"$/);
+        expect(response.headers.get('Last-Modified')).not.toBeNull();
+        expect(response.headers.get('Vary')).toBe('Cookie');
         expect(Buffer.from(await response.arrayBuffer())).toStrictEqual(Buffer.from('png bytes'));
+    });
+
+    it('returns 304 without image bytes when the cached file is unchanged', async () => {
+        const first = await get(['ab', 'icon.png']);
+        const etag = first.headers.get('ETag')!;
+        const response = await get(['ab', 'icon.png'], { 'If-None-Match': etag });
+
+        expect(response.status).toBe(304);
+        expect(response.headers.get('ETag')).toBe(etag);
+        expect(response.headers.get('Cache-Control')).toBe('private, no-cache');
+        await expect(response.arrayBuffer()).resolves.toHaveProperty('byteLength', 0);
+    });
+
+    it('sends the new image after an import overwrites the same URL', async () => {
+        const filePath = path.join(imagesDir, 'ab', 'icon.png');
+        const first = await get(['ab', 'icon.png']);
+        const previous = await stat(filePath);
+        await writeFile(filePath, Buffer.from('new bytes'));
+        const updatedAt = new Date(previous.mtimeMs + 1000);
+        await utimes(filePath, updatedAt, updatedAt);
+
+        const response = await get(['ab', 'icon.png'], { 'If-None-Match': first.headers.get('ETag')! });
+
+        expect(response.status).toBe(200);
+        expect(response.headers.get('ETag')).not.toBe(first.headers.get('ETag'));
+        expect(response.headers.get('Last-Modified')).not.toBe(first.headers.get('Last-Modified'));
+        expect(Buffer.from(await response.arrayBuffer())).toStrictEqual(Buffer.from('new bytes'));
     });
 
     it('uses a binary content type when the extension is unknown', async () => {
@@ -59,6 +91,9 @@ describe('stored image route', () => {
     it('does not serve images without a session', async () => {
         vi.mocked(getSessionProfile).mockResolvedValueOnce(undefined);
 
-        expect((await get(['ab', 'icon.png'])).status).toBe(401);
+        const response = await get(['ab', 'icon.png'], { 'If-None-Match': '*' });
+
+        expect(response.status).toBe(401);
+        expect(response.headers.get('Cache-Control')).toBeNull();
     });
 });
