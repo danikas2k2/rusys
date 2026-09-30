@@ -26,6 +26,15 @@ describe('google server authentication', () => {
         vi.clearAllMocks();
     });
 
+    it.each([
+        [42, 'id'],
+        ['id-token', 'other'],
+    ])('rejects malformed login arguments', async (token, kind) => {
+        await expect(loginWithGoogle(token as never, kind as never)).rejects.toThrow('Invalid login');
+
+        expect(createSession).not.toHaveBeenCalled();
+    });
+
     it('verifies a Google ID token before creating the session', async () => {
         vi.spyOn(OAuth2Client.prototype, 'verifyIdToken').mockResolvedValue({
             getPayload: () => ({ sub: 'google-user', email: 'User@Example.com', email_verified: true }),
@@ -38,6 +47,31 @@ describe('google server authentication', () => {
         });
         expect(createSession).toHaveBeenCalledWith(expect.objectContaining({ sub: 'google-user' }));
         expect(upsertUserProfile).toHaveBeenCalledWith('user@example.com', undefined, undefined);
+    });
+
+    it('keeps a recently synchronized profile without rewriting it', async () => {
+        vi.spyOn(OAuth2Client.prototype, 'verifyIdToken').mockResolvedValue({
+            getPayload: () => ({
+                sub: 'google-user',
+                email: 'User@Example.com',
+                email_verified: true,
+                name: 'User',
+                picture: 'portrait',
+            }),
+        } as any);
+        vi.mocked(getUserProfiles).mockResolvedValueOnce([
+            {
+                email: 'user@example.com',
+                name: 'User',
+                picture: 'portrait',
+                updatedAt: Date.now(),
+            },
+        ]);
+
+        await loginWithGoogle('id-token', 'id');
+
+        expect(upsertUserProfile).not.toHaveBeenCalled();
+        expect(createSession).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ sub: 'google-user' }));
     });
 
     it('rejects an unverified email', async () => {
@@ -73,6 +107,17 @@ describe('google server authentication', () => {
         );
 
         await expect(loginWithGoogle('access-token', 'access')).rejects.toThrow('Google identity mismatch');
+        expect(createSession).not.toHaveBeenCalled();
+    });
+
+    it('rejects a failed Google userinfo response', async () => {
+        vi.spyOn(OAuth2Client.prototype, 'getTokenInfo').mockResolvedValue({
+            aud: 'client-id',
+            user_id: 'google-user',
+        } as any);
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }));
+
+        await expect(loginWithGoogle('access-token', 'access')).rejects.toThrow('Google userinfo failed');
         expect(createSession).not.toHaveBeenCalled();
     });
 

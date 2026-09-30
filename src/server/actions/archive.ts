@@ -10,6 +10,9 @@ import { buildExportArchive } from '~/server/data/exportArchive';
 
 export async function importArchive(data: FormData): Promise<string | undefined> {
     await requireSession();
+    if (!(data instanceof FormData)) {
+        return 'Choose a valid ZIP file';
+    }
     const file = data.get('import');
     if (!(file instanceof File) || file.size > MAX_IMPORT_FILE_SIZE) {
         return 'Choose a valid ZIP file';

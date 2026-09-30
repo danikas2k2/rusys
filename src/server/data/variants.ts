@@ -46,6 +46,11 @@ export async function getVariants(): Promise<readonly Variant[]> {
         .toArray();
 }
 
+export const getVariant = async (group: string, variant: string): Promise<Readonly<Variant> | null> =>
+    (await db())
+        .collection<Variant>('variants')
+        .findOne({ group, variant, archivedAt: { $exists: false } }, { projection: { _id: 0 } });
+
 export async function updateVariant(group: string, variant: string, update: UpdateVariant): Promise<boolean> {
     if (!group || !variant) {
         return false;

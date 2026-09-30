@@ -1,20 +1,13 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { API } from '~/common/api/v1';
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { applyReviewAction } from '~/server/actions/products';
 import { useApplyReview } from '~/store/products/useApplyReview';
 
-vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/server/actions/products'));
 vi.mock(import('~/store/products/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
 
 describe('useApplyReview', () => {
-    const request = vi.fn();
-
-    beforeAll(() => {
-        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
-    });
-
     afterEach(() => vi.clearAllMocks());
 
     it('calls apply review action', async () => {
@@ -25,13 +18,13 @@ describe('useApplyReview', () => {
         const { result } = renderHook(() => useApplyReview(), { wrapper: MockRedux });
         await result.current(updates);
 
-        expect(request).toHaveBeenCalledWith(API.productReviewStatuses(), { updates }, 'PATCH');
+        expect(applyReviewAction).toHaveBeenCalledWith(updates);
     });
 
     it('does not call apply review action with an empty list', async () => {
         const { result } = renderHook(() => useApplyReview(), { wrapper: MockRedux });
         await result.current([]);
 
-        expect(request).not.toHaveBeenCalled();
+        expect(applyReviewAction).not.toHaveBeenCalled();
     });
 });

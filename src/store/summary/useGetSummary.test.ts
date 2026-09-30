@@ -2,14 +2,14 @@ import { renderHook } from '@testing-library/react';
 
 import { useDispatch } from 'react-redux';
 
-import { readSummary } from '~/server/actions/readData';
+import { readSummary } from '~/server/actions/summary';
 import { setGroupsAction } from '~/store/groups/actions';
 import { setSummaryAction } from '~/store/summary/actions';
 import { useGetSummary } from '~/store/summary/useGetSummary';
 import { setVariantsAction } from '~/store/variants/actions';
 import { setYearsAction } from '~/store/years/actions';
 
-vi.mock(import('~/server/actions/readData'));
+vi.mock(import('~/server/actions/summary'));
 vi.mock(import('react-redux'), async () => ({ ...(await vi.importActual('react-redux')), useDispatch: vi.fn() }));
 
 describe('useGetSummary', () => {

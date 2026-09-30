@@ -3,11 +3,11 @@ import { MockRedux } from '@tests/MockRedux';
 
 import { useDispatch } from 'react-redux';
 
-import { getProductHistory } from '~/server/actions/history';
+import { getProductHistory } from '~/server/actions/products';
 import { useGetProductHistory } from '~/store/history/useGetProductHistory';
 import { setProductHistoryAction } from '~/store/products/actions';
 
-vi.mock(import('~/server/actions/history'));
+vi.mock(import('~/server/actions/products'));
 vi.mock(import('react-redux'), async () => ({
     ...(await vi.importActual('react-redux')),
     useDispatch: vi.fn(),

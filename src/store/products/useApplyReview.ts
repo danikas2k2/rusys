@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 
-import { API } from '~/common/api/v1';
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { applyReviewAction } from '~/server/actions/products';
 import { useGetProducts } from '~/store/products/useGetProducts';
 
 interface ReviewStatusUpdate {
@@ -11,15 +10,14 @@ interface ReviewStatusUpdate {
 }
 
 export function useApplyReview(): (updates: readonly ReviewStatusUpdate[]) => Promise<void> {
-    const request = useUpdatingApiRequest();
     const refresh = useGetProducts();
     return useCallback(
         async (updates: readonly ReviewStatusUpdate[]): Promise<void> => {
             if (updates.length) {
-                await request(API.productReviewStatuses(), { updates }, 'PATCH');
+                await applyReviewAction(updates);
                 await refresh();
             }
         },
-        [refresh, request]
+        [refresh]
     );
 }

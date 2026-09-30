@@ -1,11 +1,10 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { API } from '~/common/api/v1';
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { undoProductAction } from '~/server/actions/products';
 import { useUndoProduct } from '~/store/products/useUndoProduct';
 
-vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/server/actions/products'));
 vi.mock(import('~/store/products/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
 vi.mock(import('react-redux'), async () => ({
     ...(await vi.importActual('react-redux')),
@@ -13,36 +12,26 @@ vi.mock(import('react-redux'), async () => ({
 }));
 
 describe('useUndoProduct', () => {
-    const request = vi.fn();
-
-    beforeAll(() => {
-        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
-    });
-
     afterEach(() => vi.clearAllMocks());
 
     it('calls undo action', async () => {
         const { result } = renderHook(() => useUndoProduct(), { wrapper: MockRedux });
         await result.current('Uogienės', 'Avietės', 25);
 
-        expect(request).toHaveBeenCalledWith(
-            `${API.productAmountHistory('Uogienės', 'Avietės', 25)}/undo`,
-            undefined,
-            'POST'
-        );
+        expect(undoProductAction).toHaveBeenCalledWith('Uogienės', 'Avietės', 25);
     });
 
     it('does not call undo action with blank name', async () => {
         const { result } = renderHook(() => useUndoProduct(), { wrapper: MockRedux });
         await result.current('Uogienės', '', 25);
 
-        expect(request).not.toHaveBeenCalled();
+        expect(undoProductAction).not.toHaveBeenCalled();
     });
 
     it('does not call undo action with blank group', async () => {
         const { result } = renderHook(() => useUndoProduct(), { wrapper: MockRedux });
         await result.current('', 'Avietės', 25);
 
-        expect(request).not.toHaveBeenCalled();
+        expect(undoProductAction).not.toHaveBeenCalled();
     });
 });

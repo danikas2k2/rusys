@@ -1,8 +1,7 @@
 import { useCallback } from 'react';
 
-import { API } from '~/common/api/v1';
 import type { VariantAmount } from '~/common/data';
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { setAmountsAction } from '~/server/actions/products';
 import { useGetProducts } from '~/store/products/useGetProducts';
 
 export function useSetAmounts(): (
@@ -13,7 +12,6 @@ export function useSetAmounts(): (
     user?: string,
     comment?: string
 ) => Promise<void> {
-    const request = useUpdatingApiRequest();
     const refresh = useGetProducts();
     return useCallback(
         async (
@@ -25,10 +23,10 @@ export function useSetAmounts(): (
             comment?: string
         ): Promise<void> => {
             if (group && name) {
-                await request(API.productAmounts(group, name, year), { amounts, user, comment }, 'PUT');
+                await setAmountsAction(group, name, year, amounts, user, comment);
                 await refresh();
             }
         },
-        [refresh, request]
+        [refresh]
     );
 }

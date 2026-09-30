@@ -1,7 +1,7 @@
 import type { VariantUnits } from '~/common/data';
 import type { ApiRequest, ApiResponse } from '~/server/api/next';
 
-const VARIANT_UNITS = new Set<VariantUnits>(['g', 'kg', 'l', 'ml', 'vnt']);
+export const VARIANT_UNITS = new Set<VariantUnits>(['g', 'kg', 'l', 'ml', 'vnt']);
 
 export function sendError(res: ApiResponse, status: number, code: string, message: string): void {
     res.status(status).json({ error: { code, message } });

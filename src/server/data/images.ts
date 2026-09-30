@@ -109,8 +109,7 @@ export interface ClassifiedImage {
 }
 
 // Classifies an already-saved local image by its real pixel dimensions, generating an icon-sized
-// thumbnail (returned as `image`) when it's a photo (kept in full as `photo`). Used both right
-// after a fresh upload and to lazily backfill an old, pre-classification `image` field on read.
+// thumbnail (returned as `image`) when it's a photo (kept in full as `photo`). Used after a fresh upload.
 export async function classifyImage(url: string): Promise<ClassifiedImage> {
     const filePath = resolveImagePath(url);
     if (!filePath || !(await isPhotoSized(filePath))) {

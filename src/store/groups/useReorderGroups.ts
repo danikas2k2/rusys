@@ -1,20 +1,18 @@
 import { isEmpty } from 'lodash';
 import { useCallback } from 'react';
 
-import { API } from '~/common/api/v1';
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { reorderGroupsAction } from '~/server/actions/groups';
 import { useGetGroups } from '~/store/groups/useGetGroups';
 
 export function useReorderGroups(): (groups: Readonly<Record<string, number>>) => Promise<void> {
-    const request = useUpdatingApiRequest();
     const refresh = useGetGroups();
     return useCallback(
         async (groups: Readonly<Record<string, number>>): Promise<void> => {
             if (!isEmpty(groups)) {
-                await request(API.groupOrder(), { groups }, 'PUT');
+                await reorderGroupsAction(groups);
                 await refresh();
             }
         },
-        [refresh, request]
+        [refresh]
     );
 }

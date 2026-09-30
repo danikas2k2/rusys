@@ -3,11 +3,11 @@ import { MockRedux } from '@tests/MockRedux';
 
 import { useDispatch } from 'react-redux';
 
-import { getSummaryHistory } from '~/server/actions/history';
+import { getSummaryHistory } from '~/server/actions/summary';
 import { useGetSummaryHistory } from '~/store/history/useGetSummaryHistory';
 import { setSummaryHistoryAction } from '~/store/summary/actions';
 
-vi.mock(import('~/server/actions/history'));
+vi.mock(import('~/server/actions/summary'));
 vi.mock(import('react-redux'), async () => ({ ...(await vi.importActual('react-redux')), useDispatch: vi.fn() }));
 
 describe('useGetSummaryHistory', () => {

@@ -27,6 +27,21 @@ describe('groups', () => {
         it('returns groups sorted by order and name', async () => {
             await expect(getGroups()).resolves.toStrictEqual(groups);
         });
+
+        it('returns stored image fields without classifying on read', async () => {
+            await (
+                await db()
+            )
+                .collection('groups')
+                .updateOne({ group: 'Daržovės' }, { $set: { image: '/images/icon.png', photo: '/images/photo.png' } });
+
+            await expect(getGroups()).resolves.toContainEqual({
+                ...groups[1],
+                image: '/images/icon.png',
+                photo: '/images/photo.png',
+            });
+            expect(classifyImage).not.toHaveBeenCalled();
+        });
     });
 
     describe('updateGroup', () => {

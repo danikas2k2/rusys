@@ -1,19 +1,17 @@
 import { useCallback } from 'react';
 
-import { API } from '~/common/api/v1';
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { addProductAction } from '~/server/actions/products';
 import { useGetProducts } from '~/store/products/useGetProducts';
 
 export function useAddProduct(): (group: string, name: string, parent?: string) => Promise<void> {
-    const request = useUpdatingApiRequest();
     const refresh = useGetProducts();
     return useCallback(
         async (group: string, name: string, parent?: string): Promise<void> => {
             if (group && name) {
-                await request(API.products(), { group, name, parent }, 'POST');
+                await addProductAction(group, name, parent);
                 await refresh();
             }
         },
-        [refresh, request]
+        [refresh]
     );
 }

@@ -1,19 +1,17 @@
 import { useCallback } from 'react';
 
-import { API } from '~/common/api/v1';
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { moveProductAction } from '~/server/actions/products';
 import { useGetProducts } from '~/store/products/useGetProducts';
 
 export function useMoveProduct(): (group: string, name: string, newGroup: string, newName?: string) => Promise<void> {
-    const request = useUpdatingApiRequest();
     const refresh = useGetProducts();
     return useCallback(
         async (group: string, name: string, newGroup: string, newName?: string): Promise<void> => {
             if (group && name && newGroup && group !== newGroup) {
-                await request(API.groupProduct(group, name), { group: newGroup, newName }, 'PATCH');
+                await moveProductAction(group, name, newGroup, newName);
                 await refresh();
             }
         },
-        [refresh, request]
+        [refresh]
     );
 }

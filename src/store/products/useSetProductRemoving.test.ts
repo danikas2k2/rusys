@@ -3,12 +3,12 @@ import { MockRedux } from '@tests/MockRedux';
 
 import { useDispatch } from 'react-redux';
 
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { setProductRemovingAction } from '~/server/actions/products';
 import { setErrorAction } from '~/store/error/actions';
 import { rollbackProductsRemovingAction, setProductsRemovingAction } from '~/store/products/actions';
 import { useSetProductRemoving } from '~/store/products/useSetProductRemoving';
 
-vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/server/actions/products'));
 vi.mock(import('~/store/products/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
 vi.mock(import('react-redux'), async () => ({
     ...(await vi.importActual('react-redux')),
@@ -16,11 +16,9 @@ vi.mock(import('react-redux'), async () => ({
 }));
 
 describe('useSetProductRemoving', () => {
-    const request = vi.fn();
     const dispatch = vi.fn();
 
     beforeAll(() => {
-        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
         vi.mocked(useDispatch).mockReturnValue(dispatch);
     });
 
@@ -31,12 +29,7 @@ describe('useSetProductRemoving', () => {
         await result.current('Uogienės', 'Avietės', 21, true);
 
         expect(dispatch).toHaveBeenCalledWith(setProductsRemovingAction('Uogienės', 'Avietės', 21, true));
-        expect(request).toHaveBeenNthCalledWith(
-            1,
-            '/api/v1/groups/Uogien%C4%97s/products/Aviet%C4%97s/years/21',
-            { removing: true },
-            'PATCH'
-        );
+        expect(setProductRemovingAction).toHaveBeenNthCalledWith(1, 'Uogienės', 'Avietės', 21, true);
     });
 
     it('calls update action with false value', async () => {
@@ -44,12 +37,7 @@ describe('useSetProductRemoving', () => {
         await result.current('Uogienės', 'Avietės', 22, false);
 
         expect(dispatch).toHaveBeenCalledWith(setProductsRemovingAction('Uogienės', 'Avietės', 22, false));
-        expect(request).toHaveBeenNthCalledWith(
-            1,
-            '/api/v1/groups/Uogien%C4%97s/products/Aviet%C4%97s/years/22',
-            { removing: false },
-            'PATCH'
-        );
+        expect(setProductRemovingAction).toHaveBeenNthCalledWith(1, 'Uogienės', 'Avietės', 22, false);
     });
 
     it('does not call request when group is empty', async () => {
@@ -58,7 +46,7 @@ describe('useSetProductRemoving', () => {
         await result.current('', 'Avietės', 21, true);
 
         expect(dispatch).not.toHaveBeenCalled();
-        expect(request).not.toHaveBeenCalled();
+        expect(setProductRemovingAction).not.toHaveBeenCalled();
     });
 
     it('does not call request when name is empty', async () => {
@@ -67,7 +55,7 @@ describe('useSetProductRemoving', () => {
         await result.current('Uogienės', '', 21, true);
 
         expect(dispatch).not.toHaveBeenCalled();
-        expect(request).not.toHaveBeenCalled();
+        expect(setProductRemovingAction).not.toHaveBeenCalled();
     });
 
     it('does not call request when year is 0', async () => {
@@ -76,12 +64,12 @@ describe('useSetProductRemoving', () => {
         await result.current('Uogienės', 'Avietės', 0, true);
 
         expect(dispatch).not.toHaveBeenCalled();
-        expect(request).not.toHaveBeenCalled();
+        expect(setProductRemovingAction).not.toHaveBeenCalled();
     });
 
     it('rolls back and sets error when request fails', async () => {
         const error = new Error('Request failed');
-        request.mockRejectedValueOnce(error);
+        vi.mocked(setProductRemovingAction).mockRejectedValueOnce(error);
 
         const { result } = renderHook(() => useSetProductRemoving(), { wrapper: MockRedux });
 

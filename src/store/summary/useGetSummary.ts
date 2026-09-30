@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { readSummary } from '~/server/actions/readData';
+import { readSummary } from '~/server/actions/summary';
 import { setGroupsAction } from '~/store/groups/actions';
 import { setSummaryAction } from '~/store/summary/actions';
 import { setVariantsAction } from '~/store/variants/actions';

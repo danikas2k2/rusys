@@ -2,10 +2,8 @@ import { classifyImage, deleteImages, saveImage, type ClassifiedImage } from '~/
 
 // Resolves the image/photo pair to persist: uploads and classifies a freshly-dropped data URL
 // (deleting the file(s) it replaces), deletes the file(s) when the image was removed, or keeps
-// the previous image/photo pair as-is when unchanged - a legacy `image` with no `photo` is left
-// untouched here (the read path lazily backfills `photo` for those), since a plain non-data: url
-// only ever reaches this function unchanged (the client only ever sends a fresh upload, the
-// existing url as-is, or an empty string).
+// the previous image/photo pair as-is when unchanged. The client sends a fresh upload, the
+// existing URL, or an empty string.
 export async function resolveImage(
     image: string,
     previousImage?: string,

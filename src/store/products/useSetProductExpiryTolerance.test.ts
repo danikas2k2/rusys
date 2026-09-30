@@ -1,31 +1,20 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { setProductExpiryToleranceAction } from '~/server/actions/products';
 import { useSetProductExpiryTolerance } from '~/store/products/useSetProductExpiryTolerance';
 
-vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/server/actions/products'));
 vi.mock(import('~/store/products/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
 
 describe('useSetProductExpiryTolerance', () => {
-    const request = vi.fn();
-
-    beforeAll(() => {
-        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
-    });
-
     afterEach(() => vi.clearAllMocks());
 
     it('sends the expiry tolerance update', async () => {
         const { result } = renderHook(() => useSetProductExpiryTolerance(), { wrapper: MockRedux });
         await result.current('Daržovės', 'Agurkai', 365);
 
-        expect(request).toHaveBeenNthCalledWith(
-            1,
-            '/api/v1/groups/Dar%C5%BEov%C4%97s/products/Agurkai',
-            { expiryToleranceDays: 365 },
-            'PATCH'
-        );
+        expect(setProductExpiryToleranceAction).toHaveBeenNthCalledWith(1, 'Daržovės', 'Agurkai', 365);
     });
 
     it('ignores an incomplete product identity', async () => {
@@ -33,6 +22,6 @@ describe('useSetProductExpiryTolerance', () => {
         await result.current('', 'Agurkai', 365);
         await result.current('Daržovės', '', 365);
 
-        expect(request).not.toHaveBeenCalled();
+        expect(setProductExpiryToleranceAction).not.toHaveBeenCalled();
     });
 });

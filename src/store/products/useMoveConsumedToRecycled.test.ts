@@ -1,34 +1,28 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { moveConsumedToRecycledAction } from '~/server/actions/products';
 import { useMoveConsumedToRecycled } from '~/store/products/useMoveConsumedToRecycled';
 
-vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/server/actions/products'));
 vi.mock(import('~/store/products/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
 
 describe('useMoveConsumedToRecycled', () => {
-    const request = vi.fn();
-
-    beforeAll(() => {
-        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
-    });
-
     afterEach(() => vi.clearAllMocks());
 
     it('calls move to recycled action', async () => {
         const { result } = renderHook(() => useMoveConsumedToRecycled(), { wrapper: MockRedux });
         await result.current('Daržovės', 'Agurkai', 22, 'd', 2, {}, 'user@example.com');
 
-        expect(request).toHaveBeenNthCalledWith(
+        expect(moveConsumedToRecycledAction).toHaveBeenNthCalledWith(
             1,
-            '/api/v1/groups/Dar%C5%BEov%C4%97s/products/Agurkai/years/22/amount-history',
-            {
-                variant: 'd',
-                amount: 2,
-                user: 'user@example.com',
-            },
-            'POST'
+            'Daržovės',
+            'Agurkai',
+            22,
+            'd',
+            2,
+            {},
+            'user@example.com'
         );
     });
 
@@ -36,16 +30,15 @@ describe('useMoveConsumedToRecycled', () => {
         const { result } = renderHook(() => useMoveConsumedToRecycled(), { wrapper: MockRedux });
         await result.current('Daržovės', 'Agurkai', 22, 'd', 2, { home: true });
 
-        expect(request).toHaveBeenNthCalledWith(
+        expect(moveConsumedToRecycledAction).toHaveBeenNthCalledWith(
             1,
-            '/api/v1/groups/Dar%C5%BEov%C4%97s/products/Agurkai/years/22/amount-history',
-            {
-                variant: 'd',
-                amount: 2,
-                user: undefined,
-                home: true,
-            },
-            'POST'
+            'Daržovės',
+            'Agurkai',
+            22,
+            'd',
+            2,
+            { home: true },
+            undefined
         );
     });
 
@@ -53,27 +46,27 @@ describe('useMoveConsumedToRecycled', () => {
         const { result } = renderHook(() => useMoveConsumedToRecycled(), { wrapper: MockRedux });
         await result.current('', 'Agurkai', 22, 'd', 2);
 
-        expect(request).not.toHaveBeenCalled();
+        expect(moveConsumedToRecycledAction).not.toHaveBeenCalled();
     });
 
     it('does not call the action with empty name', async () => {
         const { result } = renderHook(() => useMoveConsumedToRecycled(), { wrapper: MockRedux });
         await result.current('Daržovės', '', 22, 'd', 2);
 
-        expect(request).not.toHaveBeenCalled();
+        expect(moveConsumedToRecycledAction).not.toHaveBeenCalled();
     });
 
     it('does not call the action with empty variant', async () => {
         const { result } = renderHook(() => useMoveConsumedToRecycled(), { wrapper: MockRedux });
         await result.current('Daržovės', 'Agurkai', 22, '', 2);
 
-        expect(request).not.toHaveBeenCalled();
+        expect(moveConsumedToRecycledAction).not.toHaveBeenCalled();
     });
 
     it('does not call the action with a non-positive amount', async () => {
         const { result } = renderHook(() => useMoveConsumedToRecycled(), { wrapper: MockRedux });
         await result.current('Daržovės', 'Agurkai', 22, 'd', 0);
 
-        expect(request).not.toHaveBeenCalled();
+        expect(moveConsumedToRecycledAction).not.toHaveBeenCalled();
     });
 });

@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 
-import { API } from '~/common/api/v1';
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { renameGroupAction } from '~/server/actions/groups';
 import { useGetGroups } from '~/store/groups/useGetGroups';
 
 export function useRenameGroup(): (
@@ -11,15 +10,14 @@ export function useRenameGroup(): (
     review?: boolean,
     image?: string
 ) => Promise<void> {
-    const request = useUpdatingApiRequest();
     const refresh = useGetGroups();
     return useCallback(
         async (group: string, newGroup: string, annual?: boolean, review?: boolean, image?: string): Promise<void> => {
             if (group && newGroup && group !== newGroup) {
-                await request(API.group(group), { name: newGroup, annual, review, image }, 'PATCH');
+                await renameGroupAction(group, newGroup, annual, review, image);
                 await refresh();
             }
         },
-        [refresh, request]
+        [refresh]
     );
 }

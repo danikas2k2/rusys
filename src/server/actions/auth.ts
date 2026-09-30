@@ -10,7 +10,7 @@ const STALE_MS = 14 * 24 * 60 * 60 * 1000;
 
 export async function loginWithGoogle(token: string, kind: 'id' | 'access'): Promise<Profile> {
     const clientId = process.env.GOOGLE_CLIENT_ID;
-    if (!clientId || !token || (kind !== 'id' && kind !== 'access')) {
+    if (!clientId || typeof token !== 'string' || !token || (kind !== 'id' && kind !== 'access')) {
         throw new Error('Invalid login');
     }
     const client = new OAuth2Client(clientId);

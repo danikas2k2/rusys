@@ -107,6 +107,79 @@ describe('<ProductsGrid>', () => {
         expect(ProductTile).toHaveBeenCalledWith(expect.objectContaining({ annual: uogienesGroup?.annual }), undefined);
     });
 
+    it('updates existing tiles on the next animation frame when membership stays the same', () => {
+        let frame: FrameRequestCallback | undefined;
+        const request = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+            frame = callback;
+            return 1;
+        });
+        const cancel = vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => undefined);
+        const first = { group: 'Uogienės', name: 'Braškės', missing: false };
+        const updated = { ...first, missing: true };
+        vi.mocked(useProducts).mockReturnValueOnce([first]).mockReturnValue([updated]);
+
+        const view = render(
+            <MockTheme>
+                <MockRedux state={state}>
+                    <ProductsGrid />
+                </MockRedux>
+            </MockTheme>
+        );
+        view.rerender(
+            <MockTheme>
+                <MockRedux state={state}>
+                    <ProductsGrid />
+                </MockRedux>
+            </MockTheme>
+        );
+
+        expect(request).toHaveBeenCalledWith(expect.any(Function));
+
+        act(() => frame?.(0));
+
+        expect(ProductTile).toHaveBeenLastCalledWith(expect.objectContaining({ product: updated }), undefined);
+
+        view.unmount();
+
+        expect(cancel).toHaveBeenCalledWith(1);
+
+        request.mockRestore();
+        cancel.mockRestore();
+    });
+
+    it('delays changed product membership until the dialog exit completes', () => {
+        vi.useFakeTimers();
+        try {
+            const first = { group: 'Uogienės', name: 'Braškės' };
+            const added = { group: 'Uogienės', name: 'Avietės' };
+            vi.mocked(useProducts).mockReturnValueOnce([first]).mockReturnValue([first, added]);
+            const view = render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsGrid />
+                    </MockRedux>
+                </MockTheme>
+            );
+            view.rerender(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsGrid />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            expect(vi.mocked(ProductTile).mock.calls.some(([props]) => props.product === added)).toBe(false);
+
+            act(() => vi.advanceTimersByTime(220));
+
+            expect(vi.mocked(ProductTile).mock.calls.some(([props]) => props.product === added)).toBe(true);
+
+            view.unmount();
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
     describe('tree', () => {
         const parentProduct = {
             group: 'Uogienės',

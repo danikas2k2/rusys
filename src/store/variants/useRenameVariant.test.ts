@@ -1,28 +1,22 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { renameVariantAction } from '~/server/actions/variants';
 import { useRenameVariant } from '~/store/variants/useRenameVariant';
 
-vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/server/actions/variants'));
 const refresh = vi.hoisted(() => vi.fn());
 vi.mock(import('~/store/variants/useGetVariants'), () => ({ useGetVariants: () => refresh }));
 
 describe('useRenameVariant', () => {
-    const request = vi.fn();
-
-    beforeAll(() => {
-        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
-    });
-
     afterEach(() => vi.clearAllMocks());
 
     it('calls rename action', async () => {
         const { result } = renderHook(() => useRenameVariant(), { wrapper: MockRedux });
         await result.current('Uogienės', 'p', '1/2');
 
-        expect(request).toHaveBeenNthCalledWith(1, '/api/v1/groups/Uogien%C4%97s/variants/p', { name: '1/2' }, 'PATCH');
-        expect(request).toHaveBeenCalledTimes(1);
+        expect(renameVariantAction).toHaveBeenNthCalledWith(1, 'Uogienės', 'p', '1/2', undefined);
+        expect(renameVariantAction).toHaveBeenCalledTimes(1);
         expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
 
@@ -38,7 +32,7 @@ describe('useRenameVariant', () => {
             const { result } = renderHook(() => useRenameVariant(), { wrapper: MockRedux });
             await result.current(group, variant, newVariant);
 
-            expect(request).not.toHaveBeenCalled();
+            expect(renameVariantAction).not.toHaveBeenCalled();
         }
     );
 });

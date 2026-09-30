@@ -1,20 +1,14 @@
 import { renderHook } from '@testing-library/react';
 import { MockRedux } from '@tests/MockRedux';
 
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { copyVariantAction } from '~/server/actions/variants';
 import { useCopyVariant } from '~/store/variants/useCopyVariant';
 
-vi.mock(import('~/store/base/useUpdatingApiRequest'));
+vi.mock(import('~/server/actions/variants'));
 const refresh = vi.hoisted(() => vi.fn());
 vi.mock(import('~/store/variants/useGetVariants'), () => ({ useGetVariants: () => refresh }));
 
 describe('useCopyVariant', () => {
-    const request = vi.fn();
-
-    beforeAll(() => {
-        vi.mocked(useUpdatingApiRequest).mockReturnValue(request);
-    });
-
     afterEach(() => vi.clearAllMocks());
 
     it.each`
@@ -39,16 +33,8 @@ describe('useCopyVariant', () => {
             const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
             await result.current(group, variant, newGroup, newVariant);
 
-            expect(request).toHaveBeenNthCalledWith(
-                1,
-                `/api/v1/groups/${encodeURIComponent(group)}/variants/${variant}/copies`,
-                {
-                    newGroup,
-                    ...(newVariant && { newVariant }),
-                },
-                'POST'
-            );
-            expect(request).toHaveBeenCalledTimes(1);
+            expect(copyVariantAction).toHaveBeenNthCalledWith(1, group, variant, newGroup, newVariant, undefined);
+            expect(copyVariantAction).toHaveBeenCalledTimes(1);
             expect(refresh).toHaveBeenCalledExactlyOnceWith();
         }
     );
@@ -57,17 +43,10 @@ describe('useCopyVariant', () => {
         const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
         await result.current('Uogienės', 'p', 'Daržovės', '1/2', { order: 1, suffix: '1/2' });
 
-        expect(request).toHaveBeenNthCalledWith(
-            1,
-            '/api/v1/groups/Uogien%C4%97s/variants/p/copies',
-            {
-                newGroup: 'Daržovės',
-                newVariant: '1/2',
-                order: 1,
-                suffix: '1/2',
-            },
-            'POST'
-        );
+        expect(copyVariantAction).toHaveBeenNthCalledWith(1, 'Uogienės', 'p', 'Daržovės', '1/2', {
+            order: 1,
+            suffix: '1/2',
+        });
     });
 
     it.each`
@@ -93,7 +72,7 @@ describe('useCopyVariant', () => {
             const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
             await result.current(group, variant, newGroup, newVariant);
 
-            expect(request).not.toHaveBeenCalled();
+            expect(copyVariantAction).not.toHaveBeenCalled();
         }
     );
 });

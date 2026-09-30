@@ -1,8 +1,7 @@
 import { useCallback } from 'react';
 
-import { API } from '~/common/api/v1';
 import type { VariantAmount } from '~/common/data';
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { transferAmountsAction } from '~/server/actions/products';
 import { useGetProducts } from '~/store/products/useGetProducts';
 
 export function useTransferAmounts(): (
@@ -15,17 +14,12 @@ export function useTransferAmounts(): (
     user?: string,
     comment?: string
 ) => Promise<void> {
-    const request = useUpdatingApiRequest();
     const refresh = useGetProducts();
     return useCallback(
         async (group, name, year, targetGroup, targetName, amounts, user, comment): Promise<void> => {
-            await request(
-                API.productAmountTransfers(group, name, year),
-                { targetGroup, targetName, amounts, user, comment },
-                'POST'
-            );
+            await transferAmountsAction(group, name, year, targetGroup, targetName, amounts, user, comment);
             await refresh();
         },
-        [refresh, request]
+        [refresh]
     );
 }

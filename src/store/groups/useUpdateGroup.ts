@@ -1,19 +1,17 @@
 import { useCallback } from 'react';
 
-import { API } from '~/common/api/v1';
-import { useUpdatingApiRequest } from '~/store/base/useUpdatingApiRequest';
+import { updateGroupAction } from '~/server/actions/groups';
 import { useGetGroups } from '~/store/groups/useGetGroups';
 
 export function useUpdateGroup(): (group: string, annual?: boolean, review?: boolean, image?: string) => Promise<void> {
-    const request = useUpdatingApiRequest();
     const refresh = useGetGroups();
     return useCallback(
         async (group: string, annual?: boolean, review?: boolean, image?: string): Promise<void> => {
             if (group) {
-                await request(API.group(group), { annual, review, image }, 'PUT');
+                await updateGroupAction(group, annual, review, image);
                 await refresh();
             }
         },
-        [refresh, request]
+        [refresh]
     );
 }
