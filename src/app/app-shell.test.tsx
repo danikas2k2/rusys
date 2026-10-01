@@ -2,7 +2,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import AppPage from './[...path]/page';
-import RootLayout, { metadata } from './layout';
+import RootLayout, { metadata, viewport } from './layout';
 import pwaAssets from './pwa-assets.json';
 import { PwaHead } from './PwaHead';
 
@@ -38,5 +38,6 @@ describe('next.js app shell', () => {
         expect(markup).toContain('<main>Application loaded</main>');
         expect(markup).toContain('fonts.googleapis.com');
         expect(metadata.manifest).toBe('/manifest.json');
+        expect(viewport.viewportFit).toBe('cover');
     });
 });

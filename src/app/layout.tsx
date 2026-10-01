@@ -1,5 +1,5 @@
 import { ColorSchemeScript } from '@mantine/core';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import React, { type PropsWithChildren } from 'react';
 
 import { PwaHead } from './PwaHead';
@@ -10,6 +10,10 @@ export const metadata: Metadata = {
     title: 'Rusio programėlė',
     description: 'Produktų ir atsargų apskaita',
     manifest: '/manifest.json',
+};
+
+export const viewport: Viewport = {
+    viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: PropsWithChildren): React.JSX.Element {
