@@ -2,7 +2,7 @@
 import { bulk } from '@tests/bulk';
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 
-import { AggregationCursor, ClientSession, Collection, Db } from 'mongodb';
+import { ClientSession } from 'mongodb';
 
 import {
     deleteGroupOccurrences,
@@ -35,6 +35,7 @@ import {
     renameVariantsGroup,
 } from '~/server/data/variants';
 import { db } from '~/server/db';
+import { fakeMethods } from '../../../vitest/fakeDb';
 
 vi.mock(import('~/server/db'));
 
@@ -526,13 +527,13 @@ describe('common', () => {
         });
 
         it('rejects if inserting fails', async () => {
-            vi.spyOn(Collection.prototype, 'insertMany').mockRejectedValueOnce('Failed to insert many');
+            vi.spyOn(fakeMethods, 'insertMany').mockRejectedValueOnce('Failed to insert many');
 
             await expect(importEverything(products, variants, groups)).rejects.toBe('Failed to insert many');
         });
 
         it('rejects if inserting does nothing', async () => {
-            vi.spyOn(Collection.prototype, 'insertMany').mockResolvedValueOnce({
+            vi.spyOn(fakeMethods, 'insertMany').mockResolvedValueOnce({
                 acknowledged: true,
                 insertedCount: 0,
                 insertedIds: [],
@@ -544,13 +545,13 @@ describe('common', () => {
         });
 
         it('rejects if copying fails', async () => {
-            vi.spyOn(AggregationCursor.prototype, 'toArray').mockRejectedValueOnce('Failed to aggregate');
+            vi.spyOn(fakeMethods, 'aggregateToArray').mockRejectedValueOnce('Failed to aggregate');
 
             await expect(importEverything(products, variants, groups)).rejects.toBe('Failed to aggregate');
         });
 
         it('rejects if copying does nothing', async () => {
-            vi.spyOn(Collection.prototype, 'countDocuments').mockResolvedValueOnce(0);
+            vi.spyOn(fakeMethods, 'countDocuments').mockResolvedValueOnce(0);
 
             await expect(importEverything(products, variants, groups)).rejects.toThrow(
                 'Failed to move original data to backup database'
@@ -558,13 +559,13 @@ describe('common', () => {
         });
 
         it('rejects if drop database fails', async () => {
-            vi.spyOn(Db.prototype, 'dropDatabase').mockRejectedValueOnce('Failed to drop database');
+            vi.spyOn(fakeMethods, 'dropDatabase').mockRejectedValueOnce('Failed to drop database');
 
             await expect(importEverything(products, variants, groups)).rejects.toBe('Failed to drop database');
         });
 
         it('rejects if drop database does nothing', async () => {
-            vi.spyOn(Db.prototype, 'dropDatabase').mockResolvedValueOnce(false);
+            vi.spyOn(fakeMethods, 'dropDatabase').mockResolvedValueOnce(false);
 
             await expect(importEverything(products, variants, groups)).rejects.toThrow(
                 'Failed to move original data to backup database'
@@ -572,7 +573,7 @@ describe('common', () => {
         });
 
         it('rejects if second drop database does nothing', async () => {
-            vi.spyOn(Db.prototype, 'dropDatabase').mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+            vi.spyOn(fakeMethods, 'dropDatabase').mockResolvedValueOnce(true).mockResolvedValueOnce(false);
 
             await expect(importEverything(products, variants, groups)).rejects.toThrow(
                 'Failed to move data from temporary database to original database'

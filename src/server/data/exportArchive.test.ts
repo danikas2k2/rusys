@@ -9,7 +9,23 @@ import { IMAGES_DIR } from '~/server/data/images';
 import { getValidator } from '~/server/data/schema/getValidator';
 import { db } from '~/server/db';
 
-vi.mock(import('~/server/db'));
+const collections = vi.hoisted(() => new Map<string, object[]>());
+
+vi.mock(import('~/server/db'), () => ({
+    db: vi.fn(async () => ({
+        collection: (name: string) => ({
+            insertMany: async (documents: object[]) => {
+                collections.set(name, [...(collections.get(name) ?? []), ...structuredClone(documents)]);
+                return { insertedCount: documents.length };
+            },
+            deleteMany: async () => {
+                collections.delete(name);
+                return { deletedCount: 0 };
+            },
+            find: () => ({ toArray: async () => structuredClone(collections.get(name) ?? []) }),
+        }),
+    })),
+}));
 
 const writtenPaths: string[] = [];
 

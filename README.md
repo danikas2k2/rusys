@@ -15,6 +15,9 @@ pnpm check
 
 Visą patikrą, įskaitant padengimą ir naršyklės testus, paleidžia `pnpm check:all`.
 
+`pnpm test` paleidžia visus vienetinius ir serverio duomenų testus be MongoDB serverio.
+`pnpm test:coverage` papildomai patikrina testų padengimą.
+
 Naršyklės navigacijos testai paleidžiami su atskira laikina MongoDB ir testiniais duomenimis:
 
 ```sh

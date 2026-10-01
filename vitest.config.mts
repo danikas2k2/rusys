@@ -102,7 +102,6 @@ export default defineConfig({
                         'src/app/images/**/*.test.ts',
                     ],
                     setupFiles: [...sharedSetup],
-                    globalSetup: [path.resolve(root, 'vitest/globalSetup.mongo.ts')],
                 },
             },
         ],
