@@ -5,12 +5,12 @@ import { LoadableContent } from '~/components/common/LoadableContent';
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
 import { useSortedGroups } from '~/features/groups/hooks/useSortedGroups';
+import { useGetProducts } from '~/features/products/hooks/useGetProducts';
 import { useProductsHasData } from '~/features/products/hooks/useProductsHasData';
 import { useMissingOnly } from '~/features/products/MissingOnlyContext';
 import { ProductTile } from '~/features/products/ProductTile';
 import { buildProductGridTree, type ProductGridNode } from '~/features/products/utils/buildProductGridTree';
 import { getId } from '~/lib/utils/id';
-import { useGetProducts } from '~/store/products/useGetProducts';
 import { useProducts } from '~/store/products/useProducts';
 
 import './ProductsGrid.css';

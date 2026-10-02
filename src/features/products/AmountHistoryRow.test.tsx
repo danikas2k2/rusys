@@ -7,9 +7,9 @@ import React from 'react';
 
 import type { History } from '~/common/data';
 import { AmountHistoryRow } from '~/features/products/AmountHistoryRow';
-import { useMoveConsumedToRecycled } from '~/store/products/useMoveConsumedToRecycled';
+import { useMoveConsumedToRecycled } from '~/features/products/hooks/useMoveConsumedToRecycled';
 
-vi.mock(import('~/store/products/useMoveConsumedToRecycled'));
+vi.mock(import('~/features/products/hooks/useMoveConsumedToRecycled'));
 
 vi.mock(import('~/components/amounts/AmountsCell'), (): any => ({
     AmountsCell: vi.fn(({ amounts }: any) => <span aria-label="Amount count">{amounts.length}</span>),

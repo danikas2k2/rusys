@@ -4,11 +4,11 @@ import React from 'react';
 import { LoadableContent } from '~/components/common/LoadableContent';
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
+import { useGetSummary } from '~/features/summary/hooks/useGetSummary';
 import { useSummaryHasData } from '~/features/summary/hooks/useSummaryHasData';
 import { useSummaryYears } from '~/features/summary/hooks/useSummaryYears';
 import { SummaryTile } from '~/features/summary/SummaryTile';
 import { getId } from '~/lib/utils/id';
-import { useGetSummary } from '~/store/summary/useGetSummary';
 import { useSummary } from '~/store/summary/useSummary';
 
 import './SummaryGrid.css';

@@ -4,9 +4,9 @@ import React, { useEffect } from 'react';
 import type { History } from '~/common/data';
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
+import { useGetSummaryHistory } from '~/features/summary/hooks/useGetSummaryHistory';
 import { type SummaryHistoryData } from '~/features/summary/SummaryAmounts';
 import { SummaryHistoryRow } from '~/features/summary/SummaryHistoryRow';
-import { useGetSummaryHistory } from '~/store/history/useGetSummaryHistory';
 import { useSummary } from '~/store/summary/useSummary';
 
 import './SummaryHistoryTab.css';

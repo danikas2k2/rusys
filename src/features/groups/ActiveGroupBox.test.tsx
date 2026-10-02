@@ -6,9 +6,9 @@ import React from 'react';
 
 import type { ActiveContent } from '~/components/runtime/ActiveContentContext';
 import { ActiveGroupBox } from '~/features/groups/ActiveGroupBox';
-import { useDeleteGroup } from '~/store/groups/useDeleteGroup';
+import { useDeleteGroup } from '~/features/groups/hooks/useDeleteGroup';
 
-vi.mock(import('~/store/groups/useDeleteGroup'));
+vi.mock(import('~/features/groups/hooks/useDeleteGroup'));
 
 vi.mock(import('~/features/groups/GroupBox'), (): any => ({
     GroupBox: ({ opened, onClose, onAfterClose, onDelete, ...props }: any) =>

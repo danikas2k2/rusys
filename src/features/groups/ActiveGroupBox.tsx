@@ -9,7 +9,7 @@ import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { GroupBox } from '~/features/groups/GroupBox';
-import { useDeleteGroup } from '~/store/groups/useDeleteGroup';
+import { useDeleteGroup } from '~/features/groups/hooks/useDeleteGroup';
 
 export function ActiveGroupBox() {
     const [active, setActive] = useActiveContent<Group>();

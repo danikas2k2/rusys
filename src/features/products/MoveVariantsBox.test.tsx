@@ -4,15 +4,15 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
+import { useTransferAmounts } from '~/features/products/hooks/useTransferAmounts';
 import { useGroups } from '~/store/groups/useGroups';
 import { useProducts } from '~/store/products/useProducts';
-import { useTransferAmounts } from '~/store/products/useTransferAmounts';
 import { useProfile } from '~/store/profile/useProfile';
 import { MoveVariantsBox } from './MoveVariantsBox';
 
 vi.mock(import('~/store/groups/useGroups'));
 vi.mock(import('~/store/products/useProducts'));
-vi.mock(import('~/store/products/useTransferAmounts'));
+vi.mock(import('~/features/products/hooks/useTransferAmounts'));
 vi.mock(import('~/store/profile/useProfile'));
 vi.mock(import('~/features/products/ProductBox'), () => ({
     ProductBox: ({ opened, onClose }: { opened: boolean; onClose: (group?: string, name?: string) => void }) =>

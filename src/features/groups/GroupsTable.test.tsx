@@ -12,17 +12,17 @@ import { DraggableContent } from '~/components/common/DraggableContent';
 import { useReorderHandler } from '~/components/hooks/useReorderHandler';
 import { useQuickFilter } from '~/features/filters/QuickFilterContext';
 import { GroupsTable } from '~/features/groups/GroupsTable';
+import { useGetGroups } from '~/features/groups/hooks/useGetGroups';
 import { useGroupsHasData } from '~/features/groups/hooks/useGroupsHasData';
-import { useGetGroups } from '~/store/groups/useGetGroups';
+import { useReorderGroups } from '~/features/groups/hooks/useReorderGroups';
 import { useGroups } from '~/store/groups/useGroups';
-import { useReorderGroups } from '~/store/groups/useReorderGroups';
 
 vi.mock(import('~/store/years/useYears'));
 vi.mock(import('~/store/groups/useGroups'));
 vi.mock(import('~/components/hooks/useReorderHandler'));
 vi.mock(import('~/features/groups/hooks/useGroupsHasData'));
-vi.mock(import('~/store/groups/useGetGroups'));
-vi.mock(import('~/store/groups/useReorderGroups'));
+vi.mock(import('~/features/groups/hooks/useGetGroups'));
+vi.mock(import('~/features/groups/hooks/useReorderGroups'));
 vi.mock(import('~/components/common/LoadableContent'), () => ({
     LoadableContent: ({ children }: React.PropsWithChildren) => <>{children}</>,
 }));

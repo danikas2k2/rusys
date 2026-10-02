@@ -6,9 +6,9 @@ import { googleLogout } from '@react-oauth/google';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
+import { useResetProfile } from '~/components/user/hooks/useResetProfile';
 import { LogoutButton } from '~/components/user/LogoutButton';
 import { logout } from '~/server/actions/auth';
-import { useResetProfile } from '~/store/profile/useResetProfile';
 
 vi.mock(import('@react-oauth/google'), () => ({
     googleLogout: vi.fn(),
@@ -18,7 +18,7 @@ vi.mock(import('~/server/actions/auth'), () => ({ logout: vi.fn() }));
 vi.mock(import('~/components/user/ProfileAvatar'), () => ({
     ProfileAvatar: () => <div>ProfileAvatar</div>,
 }));
-vi.mock(import('~/store/profile/useResetProfile'));
+vi.mock(import('~/components/user/hooks/useResetProfile'));
 
 describe('<LogoutButton>', () => {
     const resetProfile = vi.fn();

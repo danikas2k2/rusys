@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useResetProfile } from '~/store/profile/useResetProfile';
+import { useResetProfile } from '~/components/user/hooks/useResetProfile';
 
 export function useLoginError(): () => void {
     const resetProfile = useResetProfile();

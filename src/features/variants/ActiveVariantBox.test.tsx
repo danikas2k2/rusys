@@ -6,9 +6,9 @@ import React from 'react';
 
 import type { ActiveContent } from '~/components/runtime/ActiveContentContext';
 import { ActiveVariantBox } from '~/features/variants/ActiveVariantBox';
-import { useDeleteVariant } from '~/store/variants/useDeleteVariant';
+import { useDeleteVariant } from '~/features/variants/hooks/useDeleteVariant';
 
-vi.mock(import('~/store/variants/useDeleteVariant'));
+vi.mock(import('~/features/variants/hooks/useDeleteVariant'));
 
 vi.mock(import('~/features/variants/VariantBox'), (): any => ({
     VariantBox: ({ opened, onClose, onAfterClose, onDelete, ...props }: any) =>

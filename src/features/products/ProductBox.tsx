@@ -23,19 +23,19 @@ import { CategoryAvatar } from '~/features/filters/CategoryAvatar';
 import { CategoryOption } from '~/features/filters/CategoryOption';
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';
 import { GroupBox } from '~/features/groups/GroupBox';
+import { useAddProduct } from '~/features/products/hooks/useAddProduct';
+import { useMoveProduct } from '~/features/products/hooks/useMoveProduct';
+import { useRenameProduct } from '~/features/products/hooks/useRenameProduct';
+import { useSetProductExpiryTolerance } from '~/features/products/hooks/useSetProductExpiryTolerance';
+import { useSetProductImage } from '~/features/products/hooks/useSetProductImage';
+import { useSetProductParent } from '~/features/products/hooks/useSetProductParent';
 import { ProductAvatar } from '~/features/products/ProductAvatar';
 import { ProductOption } from '~/features/products/ProductOption';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { compareNames } from '~/lib/utils/compareNames';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { useGroups } from '~/store/groups/useGroups';
-import { useAddProduct } from '~/store/products/useAddProduct';
-import { useMoveProduct } from '~/store/products/useMoveProduct';
 import { useProducts } from '~/store/products/useProducts';
-import { useRenameProduct } from '~/store/products/useRenameProduct';
-import { useSetProductExpiryTolerance } from '~/store/products/useSetProductExpiryTolerance';
-import { useSetProductImage } from '~/store/products/useSetProductImage';
-import { useSetProductParent } from '~/store/products/useSetProductParent';
 
 import './ProductBox.css';
 

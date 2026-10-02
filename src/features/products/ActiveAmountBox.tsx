@@ -10,8 +10,8 @@ import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { AmountBox } from '~/features/products/AmountBox';
+import { useDeleteProduct } from '~/features/products/hooks/useDeleteProduct';
 import { ProductBox } from '~/features/products/ProductBox';
-import { useDeleteProduct } from '~/store/products/useDeleteProduct';
 import { useProducts } from '~/store/products/useProducts';
 
 export function ActiveAmountBox(): React.ReactElement {

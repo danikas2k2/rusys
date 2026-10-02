@@ -10,11 +10,11 @@ import { Label } from '~/components/common/Label';
 import { ToolbarFilter } from '~/components/toolbar/ToolbarFilter';
 import { CategoryRailLayout } from '~/features/filters/CategoryRailLayout';
 import { useSortedGroups } from '~/features/groups/hooks/useSortedGroups';
+import { useApplyReview } from '~/features/products/hooks/useApplyReview';
 import { useGroupsWithReviewProducts } from '~/features/review/hooks/useGroupsWithReviewProducts';
 import { ReviewTable } from '~/features/review/ReviewTable';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { getId } from '~/lib/utils/id';
-import { useApplyReview } from '~/store/products/useApplyReview';
 import { useProducts } from '~/store/products/useProducts';
 
 import './ReviewBox.css';

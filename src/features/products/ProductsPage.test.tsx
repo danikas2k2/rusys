@@ -5,10 +5,10 @@ import type { Mocked } from 'vitest';
 import React from 'react';
 
 import { Page } from '~/features/common/Page';
+import { useDeleteProduct } from '~/features/products/hooks/useDeleteProduct';
 import { MissingOnlyEffects } from '~/features/products/MissingOnlyEffects';
 import { ProductsGrid } from '~/features/products/ProductsGrid';
 import { ProductsPage } from '~/features/products/ProductsPage';
-import { useDeleteProduct } from '~/store/products/useDeleteProduct';
 
 vi.mock(import('~/features/products/ProductsGrid'), (): any => ({
     ProductsGrid: vi.fn(() => <div>ProductsGrid</div>),
@@ -39,7 +39,7 @@ vi.mock(import('~/features/products/MissingOnlyContext'), (): any => ({
 vi.mock(import('~/features/products/UpdatingProductsContext'), (): any => ({
     UpdatingProductsWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-vi.mock(import('~/store/products/useDeleteProduct'));
+vi.mock(import('~/features/products/hooks/useDeleteProduct'));
 
 describe('<ProductsPage>', () => {
     const mockDeleteProduct = vi.fn().mockResolvedValue(undefined);

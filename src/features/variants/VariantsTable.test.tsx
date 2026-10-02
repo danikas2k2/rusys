@@ -13,20 +13,20 @@ import { useReorderHandler } from '~/components/hooks/useReorderHandler';
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
 import { useQuickFilter } from '~/features/filters/QuickFilterContext';
+import { useGetVariants } from '~/features/variants/hooks/useGetVariants';
+import { useReorderVariants } from '~/features/variants/hooks/useReorderVariants';
 import { useVariantsHasData } from '~/features/variants/hooks/useVariantsHasData';
 import { VariantsTable } from '~/features/variants/VariantsTable';
 import { useGroups } from '~/store/groups/useGroups';
-import { useGetVariants } from '~/store/variants/useGetVariants';
-import { useReorderVariants } from '~/store/variants/useReorderVariants';
 import { useVariants } from '~/store/variants/useVariants';
 
 vi.mock(import('~/store/years/useYears'));
 vi.mock(import('~/store/groups/useGroups'));
 vi.mock(import('~/store/variants/useVariants'));
-vi.mock(import('~/store/variants/useReorderVariants'));
+vi.mock(import('~/features/variants/hooks/useReorderVariants'));
 vi.mock(import('~/components/hooks/useReorderHandler'));
 vi.mock(import('~/features/variants/hooks/useVariantsHasData'));
-vi.mock(import('~/store/variants/useGetVariants'));
+vi.mock(import('~/features/variants/hooks/useGetVariants'));
 vi.mock(import('~/components/common/LoadableContent'), () => ({
     LoadableContent: ({ children }: React.PropsWithChildren) => <>{children}</>,
 }));

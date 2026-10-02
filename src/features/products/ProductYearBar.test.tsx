@@ -7,10 +7,10 @@ import React from 'react';
 import type { ProductAmounts as ProductAmountsType } from '~/common/data';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { ActiveContentContext, createActiveContentStore } from '~/components/runtime/ActiveContentContext';
+import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
 import { OLD_YEARS_THRESHOLD, ProductYearBar } from '~/features/products/ProductYearBar';
 import { useGroups } from '~/store/groups/useGroups';
 import { useProducts } from '~/store/products/useProducts';
-import { useSetProductRemoving } from '~/store/products/useSetProductRemoving';
 
 vi.mock(import('~/components/amounts/AnnotatedTotalAmounts'), () => ({
     AnnotatedTotalAmounts: vi.fn(({ amounts }: any) => (amounts?.length ? <div>Annotated total</div> : null)),
@@ -28,7 +28,7 @@ vi.mock(import('~/store/groups/useGroups'), () => ({
     useGroups: vi.fn(() => []),
 }));
 
-vi.mock(import('~/store/products/useSetProductRemoving'), () => ({
+vi.mock(import('~/features/products/hooks/useSetProductRemoving'), () => ({
     useSetProductRemoving: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 

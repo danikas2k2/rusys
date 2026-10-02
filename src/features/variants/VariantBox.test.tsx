@@ -6,17 +6,17 @@ import { MockApp } from '@tests/MockApp';
 import React from 'react';
 
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';
+import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
+import { useCopyVariant } from '~/features/variants/hooks/useCopyVariant';
+import { useRenameVariant } from '~/features/variants/hooks/useRenameVariant';
+import { useUpdateVariant } from '~/features/variants/hooks/useUpdateVariant';
 import { VariantBox } from '~/features/variants/VariantBox';
-import { useUpdateGroup } from '~/store/groups/useUpdateGroup';
-import { useCopyVariant } from '~/store/variants/useCopyVariant';
-import { useRenameVariant } from '~/store/variants/useRenameVariant';
-import { useUpdateVariant } from '~/store/variants/useUpdateVariant';
 
 vi.mock(import('~/components/common/Label'));
-vi.mock(import('~/store/variants/useCopyVariant'));
-vi.mock(import('~/store/variants/useRenameVariant'));
-vi.mock(import('~/store/variants/useUpdateVariant'));
-vi.mock(import('~/store/groups/useUpdateGroup'));
+vi.mock(import('~/features/variants/hooks/useCopyVariant'));
+vi.mock(import('~/features/variants/hooks/useRenameVariant'));
+vi.mock(import('~/features/variants/hooks/useUpdateVariant'));
+vi.mock(import('~/features/groups/hooks/useUpdateGroup'));
 vi.mock(import('~/features/filters/GroupFilterContext'), () => ({
     useGroupFilter: vi.fn(),
 }));

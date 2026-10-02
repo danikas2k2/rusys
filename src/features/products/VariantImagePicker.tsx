@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 
 import { ImageDropzone } from '~/components/images/ImageDropzone';
+import { useSetVariantImage } from '~/features/products/hooks/useSetVariantImage';
 import { useLabels } from '~/lib/hooks/useLabels';
-import { useSetVariantImage } from '~/store/products/useSetVariantImage';
 
 interface VariantImagePickerProps {
     group: string;

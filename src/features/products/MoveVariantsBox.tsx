@@ -5,12 +5,12 @@ import { AddIcon, CancelIcon, MoveIcon } from '@icons';
 
 import type { Product, VariantAmount } from '~/common/data';
 import { CategoryAvatar } from '~/features/filters/CategoryAvatar';
+import { useTransferAmounts } from '~/features/products/hooks/useTransferAmounts';
 import { ProductBox } from '~/features/products/ProductBox';
 import { ProductOption } from '~/features/products/ProductOption';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { useGroups } from '~/store/groups/useGroups';
 import { useProducts } from '~/store/products/useProducts';
-import { useTransferAmounts } from '~/store/products/useTransferAmounts';
 import { useProfile } from '~/store/profile/useProfile';
 
 import './MoveVariantsBox.css';

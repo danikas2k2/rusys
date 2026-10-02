@@ -7,7 +7,7 @@ import React from 'react';
 
 import { SwipeControls } from '~/components/runtime/SwipeControls';
 
-vi.mock(import('~/store/groups/useDeleteGroup'));
+vi.mock(import('~/features/groups/hooks/useDeleteGroup'));
 vi.mock(import('~/components/common/SwipePanel'), (): any => ({
     SwipePanel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));

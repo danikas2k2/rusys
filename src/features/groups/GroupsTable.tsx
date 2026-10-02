@@ -13,12 +13,12 @@ import { DragOverlayTable } from '~/components/table/DragOverlayTable';
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
 import { useQuickFilter } from '~/features/filters/QuickFilterContext';
 import { GroupsRow } from '~/features/groups/GroupsRow';
+import { useGetGroups } from '~/features/groups/hooks/useGetGroups';
 import { useGroupsHasData } from '~/features/groups/hooks/useGroupsHasData';
+import { useReorderGroups } from '~/features/groups/hooks/useReorderGroups';
 import { useSortedGroups } from '~/features/groups/hooks/useSortedGroups';
 import { parseId } from '~/lib/utils/id';
 import { mapOrder } from '~/lib/utils/mapOrder';
-import { useGetGroups } from '~/store/groups/useGetGroups';
-import { useReorderGroups } from '~/store/groups/useReorderGroups';
 
 import './GroupsTable.css';
 

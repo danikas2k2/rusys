@@ -8,11 +8,11 @@ import { getCombinedAmounts } from '~/common/utils/amounts';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
+import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
 import { useUpdatingProducts } from '~/features/products/UpdatingProductsContext';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { useGroups } from '~/store/groups/useGroups';
 import { useProducts } from '~/store/products/useProducts';
-import { useSetProductRemoving } from '~/store/products/useSetProductRemoving';
 
 import '../common/YearTotal.css';
 import './ProductYearBar.css';

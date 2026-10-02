@@ -2,8 +2,8 @@ import type { CredentialResponse, TokenResponse } from '@react-oauth/google';
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 
+import { useSetProfile } from '~/components/user/hooks/useSetProfile';
 import { loginWithGoogle } from '~/server/actions/auth';
-import { useSetProfile } from '~/store/profile/useSetProfile';
 
 export function useLoginSuccess(
     onError: () => void

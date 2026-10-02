@@ -8,11 +8,11 @@ import React from 'react';
 import type { ProductAmounts } from '~/common/data';
 import { AmountVariantRow } from '~/features/products/AmountVariantRow';
 import { AmountVariantsTab } from '~/features/products/AmountVariantsTab';
+import { useRedoProduct } from '~/features/products/hooks/useRedoProduct';
+import { useSetAmounts } from '~/features/products/hooks/useSetAmounts';
+import { useUndoProduct } from '~/features/products/hooks/useUndoProduct';
 import { VariantBox } from '~/features/variants/VariantBox';
 import { useProducts } from '~/store/products/useProducts';
-import { useRedoProduct } from '~/store/products/useRedoProduct';
-import { useSetAmounts } from '~/store/products/useSetAmounts';
-import { useUndoProduct } from '~/store/products/useUndoProduct';
 import { useAllVariants } from '~/store/variants/useAllVariants';
 
 vi.mock(import('~/features/products/MoveVariantsBox'), () => ({
@@ -152,15 +152,15 @@ vi.mock(import('~/store/products/useProducts'), () => ({
     useProducts: vi.fn(() => []),
 }));
 
-vi.mock(import('~/store/products/useSetAmounts'), () => ({
+vi.mock(import('~/features/products/hooks/useSetAmounts'), () => ({
     useSetAmounts: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
-vi.mock(import('~/store/products/useUndoProduct'), () => ({
+vi.mock(import('~/features/products/hooks/useUndoProduct'), () => ({
     useUndoProduct: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
-vi.mock(import('~/store/products/useRedoProduct'), () => ({
+vi.mock(import('~/features/products/hooks/useRedoProduct'), () => ({
     useRedoProduct: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
@@ -168,7 +168,7 @@ vi.mock(import('~/store/profile/useProfile'), () => ({
     useProfile: vi.fn(() => ({ email: 'test@example.com' })),
 }));
 
-vi.mock(import('~/store/products/useSetVariantImage'), () => ({
+vi.mock(import('~/features/products/hooks/useSetVariantImage'), () => ({
     useSetVariantImage: vi.fn(() => vi.fn()),
 }));
 

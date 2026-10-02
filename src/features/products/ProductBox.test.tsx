@@ -6,24 +6,24 @@ import { MockThemeRedux } from '@tests/MockThemeRedux';
 import React from 'react';
 
 import { GroupFilterWrapper } from '~/features/filters/GroupFilterContext';
+import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
+import { useAddProduct } from '~/features/products/hooks/useAddProduct';
+import { useMoveProduct } from '~/features/products/hooks/useMoveProduct';
+import { useRenameProduct } from '~/features/products/hooks/useRenameProduct';
+import { useSetProductExpiryTolerance } from '~/features/products/hooks/useSetProductExpiryTolerance';
+import { useSetProductImage } from '~/features/products/hooks/useSetProductImage';
+import { useSetProductParent } from '~/features/products/hooks/useSetProductParent';
 import { ProductBox } from '~/features/products/ProductBox';
-import { useUpdateGroup } from '~/store/groups/useUpdateGroup';
-import { useAddProduct } from '~/store/products/useAddProduct';
-import { useMoveProduct } from '~/store/products/useMoveProduct';
-import { useRenameProduct } from '~/store/products/useRenameProduct';
-import { useSetProductExpiryTolerance } from '~/store/products/useSetProductExpiryTolerance';
-import { useSetProductImage } from '~/store/products/useSetProductImage';
-import { useSetProductParent } from '~/store/products/useSetProductParent';
 
-vi.mock(import('~/store/products/useAddProduct'));
-vi.mock(import('~/store/products/useDeleteProduct'));
-vi.mock(import('~/store/products/useMoveProduct'));
-vi.mock(import('~/store/products/useRenameProduct'));
-vi.mock(import('~/store/products/useSetProductImage'));
-vi.mock(import('~/store/products/useSetProductExpiryTolerance'));
-vi.mock(import('~/store/products/useSetProductParent'));
-vi.mock(import('~/store/groups/useUpdateGroup'));
-vi.mock(import('~/store/groups/useRenameGroup'));
+vi.mock(import('~/features/products/hooks/useAddProduct'));
+vi.mock(import('~/features/products/hooks/useDeleteProduct'));
+vi.mock(import('~/features/products/hooks/useMoveProduct'));
+vi.mock(import('~/features/products/hooks/useRenameProduct'));
+vi.mock(import('~/features/products/hooks/useSetProductImage'));
+vi.mock(import('~/features/products/hooks/useSetProductExpiryTolerance'));
+vi.mock(import('~/features/products/hooks/useSetProductParent'));
+vi.mock(import('~/features/groups/hooks/useUpdateGroup'));
+vi.mock(import('~/features/groups/hooks/useRenameGroup'));
 vi.mock(import('~/components/common/Label'));
 vi.mock(import('@mantine/dropzone'), (): any => {
     const DropzoneComponent = ({

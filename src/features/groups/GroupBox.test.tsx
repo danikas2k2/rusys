@@ -6,12 +6,12 @@ import { MockApp } from '@tests/MockApp';
 import React from 'react';
 
 import { GroupBox } from '~/features/groups/GroupBox';
-import { useRenameGroup } from '~/store/groups/useRenameGroup';
-import { useUpdateGroup } from '~/store/groups/useUpdateGroup';
+import { useRenameGroup } from '~/features/groups/hooks/useRenameGroup';
+import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
 
 vi.mock(import('~/components/common/Label'));
-vi.mock(import('~/store/groups/useRenameGroup'));
-vi.mock(import('~/store/groups/useUpdateGroup'));
+vi.mock(import('~/features/groups/hooks/useRenameGroup'));
+vi.mock(import('~/features/groups/hooks/useUpdateGroup'));
 vi.mock(import('@mantine/dropzone'), (): any => {
     const DropzoneComponent = ({
         onDrop,

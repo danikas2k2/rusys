@@ -13,13 +13,13 @@ import { DragOverlayTable } from '~/components/table/DragOverlayTable';
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
 import { useQuickFilter } from '~/features/filters/QuickFilterContext';
+import { useGetVariants } from '~/features/variants/hooks/useGetVariants';
+import { useReorderVariants } from '~/features/variants/hooks/useReorderVariants';
 import { useSortedVariants } from '~/features/variants/hooks/useSortedVariants';
 import { useVariantsHasData } from '~/features/variants/hooks/useVariantsHasData';
 import { VariantsRow } from '~/features/variants/VariantsRow';
 import { getId, parseId } from '~/lib/utils/id';
 import { mapOrder } from '~/lib/utils/mapOrder';
-import { useGetVariants } from '~/store/variants/useGetVariants';
-import { useReorderVariants } from '~/store/variants/useReorderVariants';
 
 import './VariantsTable.css';
 

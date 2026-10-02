@@ -5,7 +5,7 @@ import type { History, ProductAmounts } from '~/common/data';
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { AmountHistoryRow } from '~/features/products/AmountHistoryRow';
-import { useGetProductHistory } from '~/store/history/useGetProductHistory';
+import { useGetProductHistory } from '~/features/products/hooks/useGetProductHistory';
 import { useProducts } from '~/store/products/useProducts';
 
 import './AmountHistoryTab.css';

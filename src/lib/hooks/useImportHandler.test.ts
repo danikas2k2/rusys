@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react';
 
-import { useImport } from '~/store/common/useImport';
+import { useImport } from '~/lib/hooks/useImport';
 import { useImportHandler } from './useImportHandler';
 
-vi.mock(import('~/store/common/useImport'));
+vi.mock(import('~/lib/hooks/useImport'));
 
 describe('useImportHandler', () => {
     const mockHandle = vi.fn();

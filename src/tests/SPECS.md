@@ -620,7 +620,7 @@ it('handles drag gesture', async () => {
 
     ```tsx
     // Pilnas pavyzdys
-    jest.mock('~/store/products/useSetAmounts');
+    jest.mock('~/features/products/hooks/useSetAmounts');
 
     describe('<Component>', () => {
         const updateProduct = jest.fn();

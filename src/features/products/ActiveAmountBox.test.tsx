@@ -5,7 +5,7 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 import React from 'react';
 
 import { ActiveAmountBox } from '~/features/products/ActiveAmountBox';
-import { useDeleteProduct } from '~/store/products/useDeleteProduct';
+import { useDeleteProduct } from '~/features/products/hooks/useDeleteProduct';
 import { useProducts } from '~/store/products/useProducts';
 
 vi.mock(import('~/features/products/AmountBox'), (): any => ({
@@ -55,7 +55,7 @@ vi.mock(import('~/features/products/ProductBox'), (): any => ({
 vi.mock(import('~/store/products/useProducts'), () => ({
     useProducts: vi.fn().mockReturnValue([]),
 }));
-vi.mock(import('~/store/products/useDeleteProduct'), () => ({
+vi.mock(import('~/features/products/hooks/useDeleteProduct'), () => ({
     useDeleteProduct: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 

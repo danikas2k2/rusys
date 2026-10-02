@@ -1,11 +1,11 @@
 import { renderHook } from '@testing-library/react';
 
+import { useExport } from '~/lib/hooks/useExport';
 import { download } from '~/lib/utils/download';
-import { useExport } from '~/store/common/useExport';
 import { useExportHandler } from './useExportHandler';
 
 vi.mock(import('~/lib/utils/download'));
-vi.mock(import('~/store/common/useExport'));
+vi.mock(import('~/lib/hooks/useExport'));
 
 describe('useExportHandler', () => {
     afterEach(() => vi.clearAllMocks());

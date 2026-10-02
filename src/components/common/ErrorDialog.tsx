@@ -7,7 +7,7 @@ import { PageErrorIcon } from '@icons';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Error } from '~/components/common/Error';
 import { useLabel } from '~/lib/hooks/useLabel';
-import { clearErrorAction } from '~/store/error/actions';
+import { clearErrorAction } from '~/store/error/slice';
 import type { WithErrorState } from '~/store/error/types';
 
 export function ErrorDialog(): React.ReactElement | null {

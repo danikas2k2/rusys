@@ -8,8 +8,8 @@ import { ConfirmationDialog } from '~/components/common/ConfirmationDialog';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
+import { useDeleteVariant } from '~/features/variants/hooks/useDeleteVariant';
 import { VariantBox } from '~/features/variants/VariantBox';
-import { useDeleteVariant } from '~/store/variants/useDeleteVariant';
 
 export function ActiveVariantBox() {
     const [active, setActive] = useActiveContent<Variant>();

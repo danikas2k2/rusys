@@ -9,12 +9,12 @@ import { DialogIcon } from '~/components/common/DialogIcon';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
 import { ImageDropzone } from '~/components/images/ImageDropzone';
+import { useRenameGroup } from '~/features/groups/hooks/useRenameGroup';
+import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { compareNames } from '~/lib/utils/compareNames';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { useGroups } from '~/store/groups/useGroups';
-import { useRenameGroup } from '~/store/groups/useRenameGroup';
-import { useUpdateGroup } from '~/store/groups/useUpdateGroup';
 
 interface GroupBoxProps {
     opened?: boolean;

@@ -5,9 +5,9 @@ import type { History, VariantAmount } from '~/common/data';
 import { AmountsCell } from '~/components/amounts/AmountsCell';
 import { EmailAvatar } from '~/components/common/EmailAvatar';
 import { FormatDate } from '~/components/common/FormatDate';
+import { useMoveConsumedToRecycled } from '~/features/products/hooks/useMoveConsumedToRecycled';
 import { MoveConsumedForm } from '~/features/products/MoveConsumedForm';
 import { getRoundedDate } from '~/lib/utils/time';
-import { useMoveConsumedToRecycled } from '~/store/products/useMoveConsumedToRecycled';
 
 export function AmountHistoryRow({
     h,

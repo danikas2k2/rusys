@@ -4,10 +4,10 @@ import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
+import { useSetVariantImage } from '~/features/products/hooks/useSetVariantImage';
 import { VariantImagePicker } from '~/features/products/VariantImagePicker';
-import { useSetVariantImage } from '~/store/products/useSetVariantImage';
 
-vi.mock(import('~/store/products/useSetVariantImage'));
+vi.mock(import('~/features/products/hooks/useSetVariantImage'));
 vi.mock(import('@mantine/dropzone'), (): any => {
     const DropzoneComponent = ({
         onDrop,

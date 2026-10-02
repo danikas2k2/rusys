@@ -5,7 +5,7 @@ import React from 'react';
 
 import { isDevMode } from '~/common/utils/dev';
 import { DEV_MODE_PROFILE } from '~/store/profile/dev';
-import { profile as reducer } from '~/store/profile/reducer';
+import { profile as reducer } from '~/store/profile/slice';
 import { useProfile } from '~/store/profile/useProfile';
 
 vi.mock(import('~/common/utils/dev'), () => ({ isDevMode: vi.fn().mockReturnValue(false) }));

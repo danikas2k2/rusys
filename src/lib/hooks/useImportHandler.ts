@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useImport } from '~/store/common/useImport';
+import { useImport } from '~/lib/hooks/useImport';
 
 export function useImportHandler() {
     const handle = useImport();

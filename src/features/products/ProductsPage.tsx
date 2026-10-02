@@ -9,13 +9,13 @@ import { useGroupFilter } from '~/features/filters/GroupFilterContext';
 import { useSortedGroups } from '~/features/groups/hooks/useSortedGroups';
 import { ActiveAmountBox } from '~/features/products/ActiveAmountBox';
 import { ActiveProductBox } from '~/features/products/ActiveProductBox';
+import { useDeleteProduct } from '~/features/products/hooks/useDeleteProduct';
 import { useGroupsWithProducts } from '~/features/products/hooks/useGroupsWithProducts';
 import { MissingOnlyCheckbox } from '~/features/products/MissingOnlyCheckbox';
 import { MissingOnlyWrapper, useMissingOnly } from '~/features/products/MissingOnlyContext';
 import { MissingOnlyEffects } from '~/features/products/MissingOnlyEffects';
 import { ProductsGrid } from '~/features/products/ProductsGrid';
 import { UpdatingProductsWrapper } from '~/features/products/UpdatingProductsContext';
-import { useDeleteProduct } from '~/store/products/useDeleteProduct';
 
 import './ProductsPage.css';
 

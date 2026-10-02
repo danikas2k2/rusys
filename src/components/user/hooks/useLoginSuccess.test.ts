@@ -3,12 +3,12 @@ import { act, renderHook } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
 
 import { useLoginSuccess } from '~/components/user/hooks/useLoginSuccess';
+import { useSetProfile } from '~/components/user/hooks/useSetProfile';
 import { loginWithGoogle } from '~/server/actions/auth';
-import { useSetProfile } from '~/store/profile/useSetProfile';
 
 vi.mock(import('next/navigation'), () => ({ useRouter: vi.fn() }));
 vi.mock(import('~/server/actions/auth'), () => ({ loginWithGoogle: vi.fn() }));
-vi.mock(import('~/store/profile/useSetProfile'));
+vi.mock(import('~/components/user/hooks/useSetProfile'));
 
 const refresh = vi.fn();
 const setProfile = vi.fn();

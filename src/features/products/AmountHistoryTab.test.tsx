@@ -5,14 +5,14 @@ import React from 'react';
 
 import type { History, Product, ProductAmounts } from '~/common/data';
 import { AmountHistoryTab } from '~/features/products/AmountHistoryTab';
-import { useGetProductHistory } from '~/store/history/useGetProductHistory';
+import { useGetProductHistory } from '~/features/products/hooks/useGetProductHistory';
 import { useProducts } from '~/store/products/useProducts';
 
-vi.mock(import('~/store/history/useGetProductHistory'), (): any => ({
+vi.mock(import('~/features/products/hooks/useGetProductHistory'), (): any => ({
     useGetProductHistory: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
-vi.mock(import('~/store/products/useMoveConsumedToRecycled'), (): any => ({
+vi.mock(import('~/features/products/hooks/useMoveConsumedToRecycled'), (): any => ({
     useMoveConsumedToRecycled: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 

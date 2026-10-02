@@ -6,14 +6,14 @@ import React from 'react';
 
 import type { Product } from '~/common/data';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
+import { useSetProductMissing } from '~/features/products/hooks/useSetProductMissing';
 import { ProductTile, type ProductTileProps } from '~/features/products/ProductTile';
-import { useSetProductMissing } from '~/store/products/useSetProductMissing';
 
 vi.mock(import('~/components/runtime/ActiveContentContext'), async () => ({
     ...(await vi.importActual('~/components/runtime/ActiveContentContext')),
     useSetActiveContent: vi.fn(),
 }));
-vi.mock(import('~/store/products/useSetProductMissing'), () => ({
+vi.mock(import('~/features/products/hooks/useSetProductMissing'), () => ({
     useSetProductMissing: vi.fn(),
 }));
 

@@ -39,4 +39,20 @@ describe('useVariantsByGroup', () => {
 
         expect(result.current).toStrictEqual([]);
     });
+
+    it('reuses a cached result when switching back to a group', () => {
+        const { result, rerender } = renderHook(({ group }) => useVariantsByGroup(group), {
+            initialProps: { group: 'Daržovės' },
+            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+        });
+        const first = result.current;
+
+        rerender({ group: 'Uogienės' });
+
+        expect(result.current[0]?.group).toBe('Uogienės');
+
+        rerender({ group: 'Daržovės' });
+
+        expect(result.current).toBe(first);
+    });
 });

@@ -11,8 +11,8 @@ import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmount
 import { GridTile } from '~/components/common/GridTile';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
+import { useSetProductMissing } from '~/features/products/hooks/useSetProductMissing';
 import { useLabels } from '~/lib/hooks/useLabels';
-import { useSetProductMissing } from '~/store/products/useSetProductMissing';
 
 import './ProductTile.css';
 

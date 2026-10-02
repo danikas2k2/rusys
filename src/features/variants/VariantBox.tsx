@@ -13,14 +13,14 @@ import { CategoryAvatar } from '~/features/filters/CategoryAvatar';
 import { CategoryOption } from '~/features/filters/CategoryOption';
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';
 import { GroupBox } from '~/features/groups/GroupBox';
+import { useCopyVariant } from '~/features/variants/hooks/useCopyVariant';
+import { useRenameVariant } from '~/features/variants/hooks/useRenameVariant';
+import { useUpdateVariant } from '~/features/variants/hooks/useUpdateVariant';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { compareNames } from '~/lib/utils/compareNames';
 import { DEFAULT_UNITS, deriveVariantKey } from '~/lib/utils/deriveVariantKey';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { useGroups } from '~/store/groups/useGroups';
-import { useCopyVariant } from '~/store/variants/useCopyVariant';
-import { useRenameVariant } from '~/store/variants/useRenameVariant';
-import { useUpdateVariant } from '~/store/variants/useUpdateVariant';
 import { useVariants } from '~/store/variants/useVariants';
 
 const UNITS_OPTIONS: { value: VariantUnits; label: string }[] = [

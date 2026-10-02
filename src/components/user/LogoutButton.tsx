@@ -9,11 +9,11 @@ import { ConfirmationDialogIcon, LogoutIcon } from '@icons';
 import { ConfirmationDialog } from '~/components/common/ConfirmationDialog';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
+import { useResetProfile } from '~/components/user/hooks/useResetProfile';
 import { ProfileAvatar } from '~/components/user/ProfileAvatar';
 import { useLabel } from '~/lib/hooks/useLabel';
 import { logout } from '~/server/actions/auth';
 import { useProfile } from '~/store/profile/useProfile';
-import { useResetProfile } from '~/store/profile/useResetProfile';
 
 export function LogoutButton({ children }: React.PropsWithChildren): React.ReactElement {
     const [opened, { open, close }] = useDisclosure(false);
