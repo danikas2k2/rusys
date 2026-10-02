@@ -12,3 +12,13 @@
         margin-inline-start: calc(var(--category-rail-width) + 4px - var(--mantine-spacing-md));
     }
 }
+
+.ReviewBox-scroll {
+    padding-inline: var(--safe-inline-start) var(--safe-inline-end);
+}
+
+.ReviewBox-actions {
+    padding-block: var(--mantine-spacing-md) calc(var(--mantine-spacing-md) + var(--safe-block-end));
+    padding-inline: calc(var(--mantine-spacing-md) + var(--safe-inline-start))
+        calc(var(--mantine-spacing-md) + var(--safe-inline-end));
+}

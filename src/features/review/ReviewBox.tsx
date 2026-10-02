@@ -134,7 +134,7 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
         >
             {(handleClose) => (
                 <>
-                    <div style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto' }}>
+                    <div className="ReviewBox-scroll" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto' }}>
                         <CategoryRailLayout
                             groups={reviewGroups}
                             selected={selectedGroup}
@@ -152,8 +152,8 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
                         </CategoryRailLayout>
                     </div>
                     <Group
+                        className="ReviewBox-actions"
                         justify="flex-end"
-                        p="md"
                         style={{
                             flex: '0 0 auto',
                             borderTop: '1px solid var(--mantine-color-default-border)',

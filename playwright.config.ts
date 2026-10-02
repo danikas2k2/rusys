@@ -13,6 +13,7 @@ const mobileInteractionTests = [
     '**/AmountBox.spec.ts',
     '**/ProductYearBar.spec.ts',
     '**/ProductsPage.spec.ts',
+    '**/ReviewBoxSafeArea.spec.ts',
     visualTests,
 ];
 

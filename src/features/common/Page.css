@@ -4,15 +4,9 @@
     box-sizing: border-box;
     padding-block: var(--safe-block-start) var(--safe-block-end);
     padding-inline: 0;
+    height: 100vh;
     height: 100dvh;
-    min-height: 100vh;
-
-    /* iOS PWA / Safari can report a smaller dynamic viewport height. */
-
-    /* Prefer the "large viewport" when supported to avoid layout ending above the bottom edge. */
-    @supports (height: 100lvh) {
-        height: 100lvh;
-    }
+    min-height: 0;
 
     .ui-AppShell-header,
     .ui-AppShell-footer {

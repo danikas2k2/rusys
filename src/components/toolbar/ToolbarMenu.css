@@ -36,24 +36,17 @@
     .ui-Drawer-content {
         padding: 0;
         flex-basis: min(300px, 60vw);
+        height: 100vh;
         height: 100dvh;
         max-height: 100dvh;
-
-        @supports (height: 100lvh) {
-            height: 100lvh;
-            max-height: 100lvh;
-        }
     }
 }
 
 .menu {
     padding-inline: 0;
     padding-block: calc(4rem + var(--safe-block-start)) var(--safe-block-end);
+    height: 100vh;
     height: 100dvh;
-
-    @supports (height: 100lvh) {
-        height: 100lvh;
-    }
 
     /* The global default hover maps to a very light gray in the dark scheme, leaving too little */
 

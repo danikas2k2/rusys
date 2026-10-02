@@ -163,6 +163,32 @@ test.describe('desktop navigation', () => {
 test.describe('mobile navigation', () => {
     test.skip(({ isMobile }) => !isMobile);
 
+    test('page and menu fit within the viewport with iOS safe area insets', async ({ page }) => {
+        await page.goto('/');
+        await expect(page.locator('[data-grid="products"]')).toBeVisible();
+        await page.addStyleTag({
+            content:
+                ':root { --safe-block-start: 59px; --safe-block-end: 34px; --safe-inline-start: 12px; --safe-inline-end: 12px; }',
+        });
+
+        const shell = page.locator('.ui-AppShell-root');
+        const shellBounds = await shell.boundingBox();
+        const footerBounds = await page.locator('.ui-AppShell-footer').boundingBox();
+        const viewport = page.viewportSize()!;
+
+        expect(shellBounds).not.toBeNull();
+        expect(footerBounds).not.toBeNull();
+        expect(shellBounds!.x).toBeGreaterThanOrEqual(0);
+        expect(shellBounds!.x + shellBounds!.width).toBeLessThanOrEqual(viewport.width);
+        expect(shellBounds!.y + shellBounds!.height).toBeLessThanOrEqual(viewport.height);
+        expect(footerBounds!.y + footerBounds!.height).toBeLessThanOrEqual(viewport.height);
+
+        await page.getByRole('button', { name: 'Meniu' }).tap();
+        const menuBounds = await page.locator('.drawer .ui-Drawer-content').boundingBox();
+        expect(menuBounds).not.toBeNull();
+        expect(menuBounds!.y + menuBounds!.height).toBeLessThanOrEqual(viewport.height);
+    });
+
     test('mobile menu and product amounts work with touch', async ({ page }) => {
         await page.goto('/');
         await page.getByRole('button', { name: 'Meniu' }).tap();
