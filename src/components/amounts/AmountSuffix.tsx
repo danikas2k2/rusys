@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useVariant } from '~/store/variants/useVariant';
+import { useVariant } from '~/store/variants';
 
 interface AmountSuffixProps {
     group: string;

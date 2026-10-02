@@ -12,8 +12,8 @@ import { useRedoProduct } from '~/features/products/hooks/useRedoProduct';
 import { useSetAmounts } from '~/features/products/hooks/useSetAmounts';
 import { useUndoProduct } from '~/features/products/hooks/useUndoProduct';
 import { VariantBox } from '~/features/variants/VariantBox';
-import { useProducts } from '~/store/products/useProducts';
-import { useAllVariants } from '~/store/variants/useAllVariants';
+import { useProducts } from '~/store/products';
+import { useAllVariants } from '~/store/variants';
 
 vi.mock(import('~/features/products/MoveVariantsBox'), () => ({
     MoveVariantsBox: ({ amounts, onMoved }: any) => (

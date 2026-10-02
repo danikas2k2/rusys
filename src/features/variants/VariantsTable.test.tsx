@@ -17,8 +17,8 @@ import { useGetVariants } from '~/features/variants/hooks/useGetVariants';
 import { useReorderVariants } from '~/features/variants/hooks/useReorderVariants';
 import { useVariantsHasData } from '~/features/variants/hooks/useVariantsHasData';
 import { VariantsTable } from '~/features/variants/VariantsTable';
-import { useGroups } from '~/store/groups/useGroups';
-import { useVariants } from '~/store/variants/useVariants';
+import { useGroups } from '~/store/groups';
+import { useVariants } from '~/store/variants';
 
 vi.mock(import('~/store/years/useYears'));
 vi.mock(import('~/store/groups/useGroups'));

@@ -4,7 +4,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { useGroups } from '~/store/groups/useGroups';
+import { useGroups } from './useGroups';
 
 describe('useGroups', () => {
     const groups = getGroupsFixture();

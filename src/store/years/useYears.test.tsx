@@ -3,7 +3,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { useYears } from '~/store/years/useYears';
+import { useYears } from './useYears';
 
 describe('useYears', () => {
     it('return empty list for empty state', () => {

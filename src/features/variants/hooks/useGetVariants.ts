@@ -2,8 +2,8 @@ import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { getVariantsAction } from '~/server/actions/variants';
-import { setGroupsAction } from '~/store/groups/slice';
-import { setVariantsAction } from '~/store/variants/slice';
+import { setGroupsAction } from '~/store/groups';
+import { setVariantsAction } from '~/store/variants';
 
 export function useGetVariants(): (initial?: boolean) => Promise<void> {
     const dispatch = useDispatch();

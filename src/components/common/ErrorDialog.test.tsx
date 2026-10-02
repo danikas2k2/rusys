@@ -7,7 +7,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { ErrorDialog } from '~/components/common/ErrorDialog';
-import { clearErrorAction } from '~/store/error/slice';
+import { clearErrorAction } from '~/store/error';
 
 vi.mock(import('react-redux'), async () => ({
     ...(await vi.importActual('react-redux')),

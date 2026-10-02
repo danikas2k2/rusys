@@ -13,7 +13,7 @@ import { useResetProfile } from '~/components/user/hooks/useResetProfile';
 import { ProfileAvatar } from '~/components/user/ProfileAvatar';
 import { useLabel } from '~/lib/hooks/useLabel';
 import { logout } from '~/server/actions/auth';
-import { useProfile } from '~/store/profile/useProfile';
+import { useProfile } from '~/store/profile';
 
 export function LogoutButton({ children }: React.PropsWithChildren): React.ReactElement {
     const [opened, { open, close }] = useDisclosure(false);

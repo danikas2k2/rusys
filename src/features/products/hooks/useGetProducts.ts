@@ -2,10 +2,10 @@ import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { getProductsAction } from '~/server/actions/products';
-import { setGroupsAction } from '~/store/groups/slice';
-import { setProductsAction } from '~/store/products/slice';
-import { setVariantsAction } from '~/store/variants/slice';
-import { setYearsAction } from '~/store/years/slice';
+import { setGroupsAction } from '~/store/groups';
+import { setProductsAction } from '~/store/products';
+import { setVariantsAction } from '~/store/variants';
+import { setYearsAction } from '~/store/years';
 
 export function useGetProducts(): (initial?: boolean) => Promise<void> {
     const dispatch = useDispatch();

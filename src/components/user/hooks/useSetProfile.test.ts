@@ -4,7 +4,7 @@ import { MockRedux } from '@tests/MockRedux';
 import { useDispatch } from 'react-redux';
 
 import { useSetProfile } from '~/components/user/hooks/useSetProfile';
-import { setProfileAction } from '~/store/profile/slice';
+import { setProfileAction } from '~/store/profile';
 
 vi.mock(import('react-redux'), async () => ({
     ...(await vi.importActual('react-redux')),

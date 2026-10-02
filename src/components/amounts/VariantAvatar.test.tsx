@@ -5,7 +5,7 @@ import React from 'react';
 
 import type { VariantUnits } from '~/common/data';
 import { VariantAvatar } from '~/components/amounts/VariantAvatar';
-import { useVariant } from '~/store/variants/useVariant';
+import { useVariant } from '~/store/variants';
 
 vi.mock(import('~/store/variants/useVariant'), () => ({ useVariant: vi.fn() }));
 

@@ -4,7 +4,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
+import { useGroupVariantComparator } from './useGroupVariantComparator';
 
 describe('useGroupVariantComparator', () => {
     const variants = getVariantsFixture();

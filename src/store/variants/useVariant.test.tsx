@@ -4,7 +4,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { useVariant } from '~/store/variants/useVariant';
+import { useVariant } from './useVariant';
 
 describe('useVariant', () => {
     const variants = getVariantsFixture();

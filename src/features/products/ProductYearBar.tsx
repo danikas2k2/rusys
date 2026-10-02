@@ -11,8 +11,8 @@ import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
 import { useUpdatingProducts } from '~/features/products/UpdatingProductsContext';
 import { useLabels } from '~/lib/hooks/useLabels';
-import { useGroups } from '~/store/groups/useGroups';
-import { useProducts } from '~/store/products/useProducts';
+import { useGroups } from '~/store/groups';
+import { useProducts } from '~/store/products';
 
 import '../common/YearTotal.css';
 import './ProductYearBar.css';

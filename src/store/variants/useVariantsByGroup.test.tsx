@@ -4,8 +4,8 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import type { WithVariantsState } from '~/store/variants/types';
-import { useVariantsByGroup } from '~/store/variants/useVariantsByGroup';
+import type { WithVariantsState } from './types';
+import { useVariantsByGroup } from './useVariantsByGroup';
 
 describe('useVariantsByGroup', () => {
     const state: WithVariantsState = {

@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 
 import { useGetProductHistory } from '~/features/products/hooks/useGetProductHistory';
 import { getProductHistory } from '~/server/actions/products';
-import { setProductHistoryAction } from '~/store/products/slice';
+import { setProductHistoryAction } from '~/store/products';
 
 vi.mock(import('~/server/actions/products'));
 vi.mock(import('react-redux'), async () => ({

@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
 
-import type { WithVariantsState } from '~/store/variants/types';
+import type { WithVariantsState } from './types';
 
 const selectVariantsForGroup = createSelector(
     [(state: WithVariantsState) => state.variants, (_state: WithVariantsState, group: string) => group],

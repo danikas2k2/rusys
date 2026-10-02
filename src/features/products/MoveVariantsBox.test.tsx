@@ -5,9 +5,9 @@ import { MockTheme } from '@tests/MockTheme';
 import React from 'react';
 
 import { useTransferAmounts } from '~/features/products/hooks/useTransferAmounts';
-import { useGroups } from '~/store/groups/useGroups';
-import { useProducts } from '~/store/products/useProducts';
-import { useProfile } from '~/store/profile/useProfile';
+import { useGroups } from '~/store/groups';
+import { useProducts } from '~/store/products';
+import { useProfile } from '~/store/profile';
 import { MoveVariantsBox } from './MoveVariantsBox';
 
 vi.mock(import('~/store/groups/useGroups'));

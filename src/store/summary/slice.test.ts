@@ -1,7 +1,7 @@
 import { getSummaryFixture } from '@tests/fixtures';
 
 import type { Summary } from '~/common/data';
-import { summary as reducer, setSummaryAction, setSummaryHistoryAction } from '~/store/summary/slice';
+import { summary as reducer, setSummaryAction, setSummaryHistoryAction } from './slice';
 
 describe('setSummaryAction', () => {
     it('returns valid action', () => {

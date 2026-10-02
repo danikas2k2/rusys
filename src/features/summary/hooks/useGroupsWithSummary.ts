@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import type { FilterPredicate } from '~/features/filters/types';
-import { useSummary } from '~/store/summary/useSummary';
+import { useSummary } from '~/store/summary';
 
 export function useGroupsWithSummary(predicate: FilterPredicate<string> = () => true): ReadonlySet<string> {
     const summary = useSummary();

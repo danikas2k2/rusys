@@ -4,8 +4,7 @@ import { cookies } from 'next/headers';
 
 import { isDevMode } from '~/common/utils/dev';
 import { db } from '~/server/db';
-import { DEV_MODE_PROFILE } from '~/store/profile/dev';
-import type { Profile } from '~/store/profile/types';
+import { DEV_MODE_PROFILE, type Profile } from '~/store/profile';
 
 const COOKIE = 'rusys_session';
 const SESSION_AGE = 30 * 24 * 60 * 60;

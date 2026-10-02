@@ -1,7 +1,7 @@
 import { getGroupsFixture } from '@tests/fixtures';
 
 import type { Group } from '~/common/data';
-import { groups as reducer, setGroupsAction } from '~/store/groups/slice';
+import { groups as reducer, setGroupsAction } from './slice';
 
 describe('setGroupsAction', () => {
     it('returns valid action', () => {

@@ -1,4 +1,4 @@
-import type { Profile } from '~/store/profile/types';
+import type { Profile } from './types';
 
 export const DEV_MODE_SUB = 'dev-mode';
 

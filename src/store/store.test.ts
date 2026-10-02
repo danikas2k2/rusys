@@ -4,14 +4,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import type * as ReduxToolkit from '@reduxjs/toolkit';
 
 import { isDevMode } from '~/common/utils/dev';
-import { setErrorAction } from '~/store/error/slice';
-import { setClientIdAction } from '~/store/google/slice';
-import { setProductsAction } from '~/store/products/slice';
-import { setProfileAction } from '~/store/profile/slice';
+import { setErrorAction } from '~/store/error';
+import { setClientIdAction } from '~/store/google';
+import { setProductsAction } from '~/store/products';
+import { setProfileAction } from '~/store/profile';
 import { reducer } from '~/store/reducer';
 import { getStore } from '~/store/store';
-import { setSummaryAction } from '~/store/summary/slice';
-import { setYearsAction } from '~/store/years/slice';
+import { setSummaryAction } from '~/store/summary';
+import { setYearsAction } from '~/store/years';
 
 vi.mock(import('~/common/utils/dev'), () => ({
     isDevMode: vi.fn().mockReturnValue(false),

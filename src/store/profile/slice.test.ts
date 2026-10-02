@@ -1,5 +1,5 @@
-import { profile as reducer, resetProfileAction, setAllowedAction, setProfileAction } from '~/store/profile/slice';
-import type { Profile } from '~/store/profile/types';
+import { profile as reducer, resetProfileAction, setAllowedAction, setProfileAction } from './slice';
+import type { Profile } from './types';
 
 describe('setProfileAction', () => {
     it('returns valid action', () => {

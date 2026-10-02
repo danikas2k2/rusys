@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import type { Group } from '~/common/data';
-import { useGroups } from '~/store/groups/useGroups';
+import { useGroups } from '~/store/groups';
 
 export function useSortedGroups() {
     const groups = useGroups();

@@ -4,7 +4,7 @@ import React from 'react';
 
 import { MissingOnlyContext } from '~/features/products/MissingOnlyContext';
 import { MissingOnlyEffects } from '~/features/products/MissingOnlyEffects';
-import { useHasMissing } from '~/store/products/useHasMissing';
+import { useHasMissing } from '~/store/products';
 
 vi.mock(import('~/store/products/useHasMissing'), () => ({
     useHasMissing: vi.fn().mockReturnValue(true),

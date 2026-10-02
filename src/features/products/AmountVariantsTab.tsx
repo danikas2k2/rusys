@@ -58,10 +58,9 @@ import { useUpdatingProducts } from '~/features/products/UpdatingProductsContext
 import { VariantImagePicker } from '~/features/products/VariantImagePicker';
 import { VariantBox } from '~/features/variants/VariantBox';
 import { useLabels } from '~/lib/hooks/useLabels';
-import { useProducts } from '~/store/products/useProducts';
-import { useProfile } from '~/store/profile/useProfile';
-import { useAllVariants } from '~/store/variants/useAllVariants';
-import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
+import { useProducts } from '~/store/products';
+import { useProfile } from '~/store/profile';
+import { useAllVariants, useGroupVariantComparator } from '~/store/variants';
 
 import './AmountVariantsTab.css';
 

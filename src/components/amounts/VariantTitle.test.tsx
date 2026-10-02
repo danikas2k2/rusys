@@ -4,7 +4,7 @@ import { MockTheme } from '@tests/MockTheme';
 import React from 'react';
 
 import { VariantTitle } from '~/components/amounts/VariantTitle';
-import { useVariant } from '~/store/variants/useVariant';
+import { useVariant } from '~/store/variants';
 
 vi.mock(import('~/store/variants/useVariant'), () => ({
     useVariant: vi.fn(),

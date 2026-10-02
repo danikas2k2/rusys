@@ -8,7 +8,7 @@ import React from 'react';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { SortableRow } from '~/components/table/SortableRow';
 import { VariantsRow } from '~/features/variants/VariantsRow';
-import { useVariant } from '~/store/variants/useVariant';
+import { useVariant } from '~/store/variants';
 
 vi.mock(import('~/components/table/SortableRow'), () => ({
     SortableRow: vi.fn(({ children, onClick, onKeyDown, tabIndex }: any) => (

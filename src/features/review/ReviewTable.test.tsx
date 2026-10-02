@@ -8,7 +8,7 @@ import type { Product } from '~/common/data';
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
 import { ReviewProductRow } from '~/features/review/ReviewProductRow';
 import { ReviewTable } from '~/features/review/ReviewTable';
-import { useProducts } from '~/store/products/useProducts';
+import { useProducts } from '~/store/products';
 
 vi.mock(import('~/features/review/ReviewProductRow'), () => ({
     ReviewProductRow: vi.fn().mockReturnValue(null),

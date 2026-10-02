@@ -1,4 +1,4 @@
-import type { ErrorState } from '~/store/error/slice';
+import type { ErrorState } from './slice';
 
 export interface WithErrorState {
     error?: ErrorState;

@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 
 import { useVariantsHasData } from '~/features/variants/hooks/useVariantsHasData';
-import { useGroups } from '~/store/groups/useGroups';
-import { useVariants } from '~/store/variants/useVariants';
+import { useGroups } from '~/store/groups';
+import { useVariants } from '~/store/variants';
 
 vi.mock(import('~/store/groups/useGroups'));
 vi.mock(import('~/store/variants/useVariants'));

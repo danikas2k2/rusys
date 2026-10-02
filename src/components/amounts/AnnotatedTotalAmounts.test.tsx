@@ -5,8 +5,7 @@ import React, { type ReactNode } from 'react';
 
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
-import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
-import { useVariantsByGroup } from '~/store/variants/useVariantsByGroup';
+import { useGroupVariantComparator, useVariantsByGroup } from '~/store/variants';
 
 vi.mock(import('~/store/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn().mockReturnValue(() => 0),

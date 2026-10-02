@@ -9,7 +9,7 @@ import { useSummaryHasData } from '~/features/summary/hooks/useSummaryHasData';
 import { useSummaryYears } from '~/features/summary/hooks/useSummaryYears';
 import { SummaryTile } from '~/features/summary/SummaryTile';
 import { getId } from '~/lib/utils/id';
-import { useSummary } from '~/store/summary/useSummary';
+import { useSummary } from '~/store/summary';
 
 import './SummaryGrid.css';
 

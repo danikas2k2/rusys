@@ -8,7 +8,7 @@ import { VariantAvatar } from '~/components/amounts/VariantAvatar';
 import { VariantTitle } from '~/components/amounts/VariantTitle';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useLabels } from '~/lib/hooks/useLabels';
-import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
+import { useGroupVariantComparator } from '~/store/variants';
 
 import './MoveConsumedForm.css';
 

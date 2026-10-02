@@ -3,7 +3,7 @@ import type { Action, Store } from 'redux';
 
 import { isDevMode } from '~/common/utils/dev';
 import type { InitialAppData } from '~/components/app/initialData';
-import type { Profile } from '~/store/profile/types';
+import type { Profile } from '~/store/profile';
 import { reducer } from '~/store/reducer';
 
 export const getStore = (clientId?: string, initialData?: InitialAppData, profile?: Profile): Store =>

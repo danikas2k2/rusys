@@ -5,7 +5,7 @@ import React from 'react';
 
 import { isDevMode } from '~/common/utils/dev';
 import { AppContent } from '~/components/app/AppContent';
-import { useProfile } from '~/store/profile/useProfile';
+import { useProfile } from '~/store/profile';
 
 vi.mock(import('~/common/utils/dev'));
 vi.mock(import('~/store/profile/useProfile'));

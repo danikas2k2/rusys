@@ -11,7 +11,7 @@ import { useMissingOnly } from '~/features/products/MissingOnlyContext';
 import { ProductTile } from '~/features/products/ProductTile';
 import { buildProductGridTree, type ProductGridNode } from '~/features/products/utils/buildProductGridTree';
 import { getId } from '~/lib/utils/id';
-import { useProducts } from '~/store/products/useProducts';
+import { useProducts } from '~/store/products';
 
 import './ProductsGrid.css';
 

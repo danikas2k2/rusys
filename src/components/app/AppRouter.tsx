@@ -10,7 +10,7 @@ import { ProductsPage } from '~/features/products/ProductsPage';
 import { SummaryPage } from '~/features/summary/SummaryPage';
 import { VariantsPage } from '~/features/variants/VariantsPage';
 import { Links } from '~/lib/links';
-import { useGroups } from '~/store/groups/useGroups';
+import { useGroups } from '~/store/groups';
 
 function QuickFilterLayout({ children }: React.PropsWithChildren) {
     return (

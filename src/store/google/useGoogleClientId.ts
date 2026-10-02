@@ -1,4 +1,4 @@
-import { useGoogle } from '~/store/google/useGoogle';
+import { useGoogle } from './useGoogle';
 
 export function useGoogleClientId(): string {
     return useGoogle().clientId ?? '';

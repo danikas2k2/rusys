@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
 import { useMissingOnly } from '~/features/products/MissingOnlyContext';
-import { useProducts } from '~/store/products/useProducts';
+import { useProducts } from '~/store/products';
 import { useGroupsWithProducts } from './useGroupsWithProducts';
 
 vi.mock(import('~/store/products/useProducts'));

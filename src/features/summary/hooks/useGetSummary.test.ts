@@ -4,10 +4,10 @@ import { useDispatch } from 'react-redux';
 
 import { useGetSummary } from '~/features/summary/hooks/useGetSummary';
 import { readSummary } from '~/server/actions/summary';
-import { setGroupsAction } from '~/store/groups/slice';
-import { setSummaryAction } from '~/store/summary/slice';
-import { setVariantsAction } from '~/store/variants/slice';
-import { setYearsAction } from '~/store/years/slice';
+import { setGroupsAction } from '~/store/groups';
+import { setSummaryAction } from '~/store/summary';
+import { setVariantsAction } from '~/store/variants';
+import { setYearsAction } from '~/store/years';
 
 vi.mock(import('~/server/actions/summary'));
 vi.mock(import('react-redux'), async () => ({ ...(await vi.importActual('react-redux')), useDispatch: vi.fn() }));

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import type { FilterPredicate } from '~/features/filters/types';
-import { useVariants } from '~/store/variants/useVariants';
+import { useVariants } from '~/store/variants';
 
 export function useGroupsWithVariants(predicate: FilterPredicate<string> = () => true): ReadonlySet<string> {
     const variants = useVariants();

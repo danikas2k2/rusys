@@ -4,7 +4,7 @@ import { OAuth2Client } from 'google-auth-library';
 
 import { createSession, deleteSession, isAllowedEmail } from '~/server/auth/session';
 import { getUserProfiles, upsertUserProfile } from '~/server/data/userProfiles';
-import type { Profile } from '~/store/profile/types';
+import type { Profile } from '~/store/profile';
 
 const STALE_MS = 14 * 24 * 60 * 60 * 1000;
 

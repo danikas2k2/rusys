@@ -5,8 +5,8 @@ import { useDispatch } from 'react-redux';
 
 import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
 import { setProductRemovingAction } from '~/server/actions/products';
-import { setErrorAction } from '~/store/error/slice';
-import { rollbackProductsRemovingAction, setProductsRemovingAction } from '~/store/products/slice';
+import { setErrorAction } from '~/store/error';
+import { rollbackProductsRemovingAction, setProductsRemovingAction } from '~/store/products';
 
 vi.mock(import('~/server/actions/products'));
 vi.mock(import('~/features/products/hooks/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));

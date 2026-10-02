@@ -7,7 +7,7 @@ import React from 'react';
 
 import { isDevMode } from '~/common/utils/dev';
 import { App } from '~/components/app/App';
-import { useGoogleClientId } from '~/store/google/useGoogleClientId';
+import { useGoogleClientId } from '~/store/google';
 
 vi.mock(import('@react-oauth/google'), () => ({
     GoogleOAuthProvider: vi.fn(({ children }: { children: React.ReactNode }) => <div>{children}</div>),

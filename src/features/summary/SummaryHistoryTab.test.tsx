@@ -8,7 +8,7 @@ import { AmountsCell } from '~/components/amounts/AmountsCell';
 import { useGetSummaryHistory } from '~/features/summary/hooks/useGetSummaryHistory';
 import type { SummaryHistoryData } from '~/features/summary/SummaryAmounts';
 import { SummaryHistoryTab } from '~/features/summary/SummaryHistoryTab';
-import { useSummary } from '~/store/summary/useSummary';
+import { useSummary } from '~/store/summary';
 
 vi.mock(import('~/features/summary/hooks/useGetSummaryHistory'), (): any => ({
     useGetSummaryHistory: vi.fn(() => vi.fn().mockResolvedValue(undefined)),

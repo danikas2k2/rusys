@@ -1,7 +1,7 @@
 import { getVariantsFixture } from '@tests/fixtures';
 
 import type { Variant } from '~/common/data';
-import { variants as reducer, setVariantsAction } from '~/store/variants/slice';
+import { variants as reducer, setVariantsAction } from './slice';
 
 describe('setVariantsAction', () => {
     it('returns valid action', () => {

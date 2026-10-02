@@ -1,9 +1,9 @@
 import { isEmpty } from 'lodash';
 
-import { useGroups } from '~/store/groups/useGroups';
-import { useProducts } from '~/store/products/useProducts';
-import { useVariants } from '~/store/variants/useVariants';
-import { useYears } from '~/store/years/useYears';
+import { useGroups } from '~/store/groups';
+import { useProducts } from '~/store/products';
+import { useVariants } from '~/store/variants';
+import { useYears } from '~/store/years';
 
 export function useProductsHasData() {
     const years = useYears();

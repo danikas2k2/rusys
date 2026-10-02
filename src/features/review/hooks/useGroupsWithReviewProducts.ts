@@ -2,7 +2,7 @@ import { isEmpty } from 'lodash';
 import { useMemo } from 'react';
 
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
-import { useProducts } from '~/store/products/useProducts';
+import { useProducts } from '~/store/products';
 
 // Nothing to physically confirm for a product with no recorded stock at all.
 export function useGroupsWithReviewProducts(): ReadonlySet<string> {

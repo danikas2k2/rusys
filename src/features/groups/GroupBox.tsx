@@ -14,7 +14,7 @@ import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { compareNames } from '~/lib/utils/compareNames';
 import { getErrorMessage } from '~/lib/utils/errors';
-import { useGroups } from '~/store/groups/useGroups';
+import { useGroups } from '~/store/groups';
 
 interface GroupBoxProps {
     opened?: boolean;

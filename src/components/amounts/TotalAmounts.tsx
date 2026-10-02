@@ -5,7 +5,7 @@ import { formatVolume, formatWeight, getAmountTotals } from '~/common/utils/amou
 import { orderedExpiryBuckets, partitionByExpiryStatus, type ExpiryStatus } from '~/common/utils/expiry';
 import { ExpiryStatusRow } from '~/components/amounts/ExpiryStatusRow';
 import { VariantValueSpans } from '~/components/amounts/VariantValueSpans';
-import { useVariantsByGroup } from '~/store/variants/useVariantsByGroup';
+import { useVariantsByGroup } from '~/store/variants';
 
 function renderRow(
     group: string,

@@ -1,7 +1,7 @@
 import { startTransition, useEffect } from 'react';
 
 import { useMissingOnly } from '~/features/products/MissingOnlyContext';
-import { useHasMissing } from '~/store/products/useHasMissing';
+import { useHasMissing } from '~/store/products';
 
 export function MissingOnlyEffects() {
     const hasMissing = useHasMissing();

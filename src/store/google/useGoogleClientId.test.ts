@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react';
 
-import { useGoogle } from '~/store/google/useGoogle';
-import { useGoogleClientId } from '~/store/google/useGoogleClientId';
+import { useGoogle } from './useGoogle';
+import { useGoogleClientId } from './useGoogleClientId';
 
-vi.mock(import('~/store/google/useGoogle'));
+vi.mock(import('./useGoogle'));
 
 describe('useGoogleClientId', () => {
     afterEach(() => vi.clearAllMocks());

@@ -20,8 +20,8 @@ import { useLabels } from '~/lib/hooks/useLabels';
 import { compareNames } from '~/lib/utils/compareNames';
 import { DEFAULT_UNITS, deriveVariantKey } from '~/lib/utils/deriveVariantKey';
 import { getErrorMessage } from '~/lib/utils/errors';
-import { useGroups } from '~/store/groups/useGroups';
-import { useVariants } from '~/store/variants/useVariants';
+import { useGroups } from '~/store/groups';
+import { useVariants } from '~/store/variants';
 
 const UNITS_OPTIONS: { value: VariantUnits; label: string }[] = [
     { value: 'vnt', label: 'vnt' },

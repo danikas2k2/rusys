@@ -4,9 +4,9 @@ import { MockRedux } from '@tests/MockRedux';
 import React from 'react';
 
 import { isDevMode } from '~/common/utils/dev';
-import { DEV_MODE_PROFILE } from '~/store/profile/dev';
-import { profile as reducer } from '~/store/profile/slice';
-import { useProfile } from '~/store/profile/useProfile';
+import { DEV_MODE_PROFILE } from './dev';
+import { profile as reducer } from './slice';
+import { useProfile } from './useProfile';
 
 vi.mock(import('~/common/utils/dev'), () => ({ isDevMode: vi.fn().mockReturnValue(false) }));
 

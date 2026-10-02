@@ -6,7 +6,7 @@ import { Error } from '~/components/common/Error';
 import { Label } from '~/components/common/Label';
 import { ScreenLoader } from '~/components/common/ScreenLoader';
 import { useUnderDevelopment } from '~/lib/hooks/useUnderDevelopment';
-import { useGoogleClientId } from '~/store/google/useGoogleClientId';
+import { useGoogleClientId } from '~/store/google';
 
 export function App() {
     const isUnderDevelopment = useUnderDevelopment();

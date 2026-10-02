@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
-import { useSummary } from '~/store/summary/useSummary';
+import { useSummary } from '~/store/summary';
 import { useGroupsWithSummary } from './useGroupsWithSummary';
 
 vi.mock(import('~/store/summary/useSummary'));

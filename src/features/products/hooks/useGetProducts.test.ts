@@ -4,10 +4,10 @@ import { useDispatch } from 'react-redux';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
 import { getProductsAction } from '~/server/actions/products';
-import { setGroupsAction } from '~/store/groups/slice';
-import { setProductsAction } from '~/store/products/slice';
-import { setVariantsAction } from '~/store/variants/slice';
-import { setYearsAction } from '~/store/years/slice';
+import { setGroupsAction } from '~/store/groups';
+import { setProductsAction } from '~/store/products';
+import { setVariantsAction } from '~/store/variants';
+import { setYearsAction } from '~/store/years';
 
 vi.mock(import('~/server/actions/products'));
 vi.mock(import('react-redux'), async () => ({ ...(await vi.importActual('react-redux')), useDispatch: vi.fn() }));

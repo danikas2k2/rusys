@@ -5,7 +5,7 @@ import { MockRedux } from '@tests/MockRedux';
 import React from 'react';
 
 import type { Product } from '~/common/data';
-import { useProducts } from '~/store/products/useProducts';
+import { useProducts } from './useProducts';
 
 describe('useProducts', () => {
     it('return empty list for empty state', () => {

@@ -4,8 +4,8 @@ import { useDispatch } from 'react-redux';
 
 import { useGetVariants } from '~/features/variants/hooks/useGetVariants';
 import { getVariantsAction } from '~/server/actions/variants';
-import { setGroupsAction } from '~/store/groups/slice';
-import { setVariantsAction } from '~/store/variants/slice';
+import { setGroupsAction } from '~/store/groups';
+import { setVariantsAction } from '~/store/variants';
 
 vi.mock(import('~/server/actions/variants'));
 vi.mock(import('react-redux'), async () => ({ ...(await vi.importActual('react-redux')), useDispatch: vi.fn() }));

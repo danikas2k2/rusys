@@ -7,7 +7,7 @@ import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useGetSummaryHistory } from '~/features/summary/hooks/useGetSummaryHistory';
 import { type SummaryHistoryData } from '~/features/summary/SummaryAmounts';
 import { SummaryHistoryRow } from '~/features/summary/SummaryHistoryRow';
-import { useSummary } from '~/store/summary/useSummary';
+import { useSummary } from '~/store/summary';
 
 import './SummaryHistoryTab.css';
 

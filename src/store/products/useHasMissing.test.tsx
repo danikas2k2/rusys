@@ -4,7 +4,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { useHasMissing } from '~/store/products/useHasMissing';
+import { useHasMissing } from './useHasMissing';
 
 describe('useHasMissing', () => {
     it('return false for empty state', () => {

@@ -6,7 +6,7 @@ import React from 'react';
 
 import { ActiveAmountBox } from '~/features/products/ActiveAmountBox';
 import { useDeleteProduct } from '~/features/products/hooks/useDeleteProduct';
-import { useProducts } from '~/store/products/useProducts';
+import { useProducts } from '~/store/products';
 
 vi.mock(import('~/features/products/AmountBox'), (): any => ({
     AmountBox: ({ opened, photo, title, onClose, onAfterClose, onEdit }: any) =>

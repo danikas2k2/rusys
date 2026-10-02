@@ -9,9 +9,9 @@ import { useTransferAmounts } from '~/features/products/hooks/useTransferAmounts
 import { ProductBox } from '~/features/products/ProductBox';
 import { ProductOption } from '~/features/products/ProductOption';
 import { useLabels } from '~/lib/hooks/useLabels';
-import { useGroups } from '~/store/groups/useGroups';
-import { useProducts } from '~/store/products/useProducts';
-import { useProfile } from '~/store/profile/useProfile';
+import { useGroups } from '~/store/groups';
+import { useProducts } from '~/store/products';
+import { useProfile } from '~/store/profile';
 
 import './MoveVariantsBox.css';
 

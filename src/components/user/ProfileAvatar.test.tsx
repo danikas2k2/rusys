@@ -4,8 +4,7 @@ import { MockTheme } from '@tests/MockTheme';
 import React from 'react';
 
 import { ProfileAvatar } from '~/components/user/ProfileAvatar';
-import { DEV_MODE_SUB } from '~/store/profile/dev';
-import { useProfile } from '~/store/profile/useProfile';
+import { DEV_MODE_SUB, useProfile } from '~/store/profile';
 
 vi.mock(import('~/store/profile/useProfile'));
 

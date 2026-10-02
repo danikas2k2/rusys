@@ -6,7 +6,7 @@ import type { VariantAmount } from '~/common/data';
 import { mergeAmountsIgnoringExpiry } from '~/common/utils/amounts';
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/components/amounts/variantKeys';
-import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
+import { useGroupVariantComparator } from '~/store/variants';
 
 export interface VariantValueSpansProps {
     group: string;

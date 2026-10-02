@@ -3,8 +3,8 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import type { Google } from '~/store/google/types';
-import { useGoogle } from '~/store/google/useGoogle';
+import type { Google } from './types';
+import { useGoogle } from './useGoogle';
 
 describe('useGoogle', () => {
     it('return empty list for empty state', () => {

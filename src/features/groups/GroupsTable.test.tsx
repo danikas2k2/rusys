@@ -15,7 +15,7 @@ import { GroupsTable } from '~/features/groups/GroupsTable';
 import { useGetGroups } from '~/features/groups/hooks/useGetGroups';
 import { useGroupsHasData } from '~/features/groups/hooks/useGroupsHasData';
 import { useReorderGroups } from '~/features/groups/hooks/useReorderGroups';
-import { useGroups } from '~/store/groups/useGroups';
+import { useGroups } from '~/store/groups';
 
 vi.mock(import('~/store/years/useYears'));
 vi.mock(import('~/store/groups/useGroups'));

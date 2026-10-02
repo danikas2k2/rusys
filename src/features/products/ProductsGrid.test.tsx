@@ -10,8 +10,8 @@ import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilter
 import { useMissingOnly } from '~/features/products/MissingOnlyContext';
 import { ProductsGrid } from '~/features/products/ProductsGrid';
 import { ProductTile, type ProductTileProps } from '~/features/products/ProductTile';
-import { useGroups } from '~/store/groups/useGroups';
-import { useProducts } from '~/store/products/useProducts';
+import { useGroups } from '~/store/groups';
+import { useProducts } from '~/store/products';
 
 vi.mock(import('~/features/products/hooks/useProductsHasData'), () => ({
     useProductsHasData: vi.fn().mockReturnValue(true),

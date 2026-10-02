@@ -8,8 +8,7 @@ import { useQuickFilter } from '~/features/filters/QuickFilterContext';
 import { useHasFilteredMissing } from '~/features/products/hooks/useHasFilteredMissing';
 import { MissingOnlyCheckbox } from '~/features/products/MissingOnlyCheckbox';
 import { useMissingOnly } from '~/features/products/MissingOnlyContext';
-import { useHasMissing } from '~/store/products/useHasMissing';
-import { useProducts } from '~/store/products/useProducts';
+import { useHasMissing, useProducts } from '~/store/products';
 
 vi.mock(import('~/features/products/MissingOnlyContext'), () => ({
     useMissingOnly: vi.fn(),

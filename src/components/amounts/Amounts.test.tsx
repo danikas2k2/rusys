@@ -5,8 +5,7 @@ import React from 'react';
 import { Amounts as ProductAmounts } from '~/components/amounts/Amounts';
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { useAmountView } from '~/components/amounts/AmountViewContext';
-import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
-import { useVariantsByGroup } from '~/store/variants/useVariantsByGroup';
+import { useGroupVariantComparator, useVariantsByGroup } from '~/store/variants';
 
 vi.mock(import('~/store/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn().mockReturnValue(() => 0),

@@ -6,7 +6,7 @@ import { ActiveContentWrapper } from '~/components/runtime/ActiveContentContext'
 import { LoginButton } from '~/components/user/LoginButton';
 import { LogoutButton } from '~/components/user/LogoutButton';
 import { useUnderDevelopment } from '~/lib/hooks/useUnderDevelopment';
-import { useProfile } from '~/store/profile/useProfile';
+import { useProfile } from '~/store/profile';
 
 export function AppContent() {
     const profile = useProfile();

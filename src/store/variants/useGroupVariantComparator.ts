@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
 import { compareNames } from '~/lib/utils/compareNames';
-import type { WithVariantsState } from '~/store/variants/types';
+import type { WithVariantsState } from './types';
 
 const selectVariantOrders = createSelector(
     [(state: WithVariantsState) => state.variants, (_state: WithVariantsState, group: string) => group],

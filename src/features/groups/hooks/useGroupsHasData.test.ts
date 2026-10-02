@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 
 import { useGroupsHasData } from '~/features/groups/hooks/useGroupsHasData';
-import { useGroups } from '~/store/groups/useGroups';
+import { useGroups } from '~/store/groups';
 
 vi.mock(import('~/store/groups/useGroups'));
 

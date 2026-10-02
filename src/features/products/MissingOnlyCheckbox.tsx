@@ -5,8 +5,7 @@ import { useQuickFilter } from '~/features/filters/QuickFilterContext';
 import { useHasFilteredMissing } from '~/features/products/hooks/useHasFilteredMissing';
 import { useMissingOnly } from '~/features/products/MissingOnlyContext';
 import { useLabels } from '~/lib/hooks/useLabels';
-import { useHasMissing } from '~/store/products/useHasMissing';
-import { useProducts } from '~/store/products/useProducts';
+import { useHasMissing, useProducts } from '~/store/products';
 
 export function MissingOnlyCheckbox({ onClick }: { onClick?: () => void }) {
     const _ = useLabels();

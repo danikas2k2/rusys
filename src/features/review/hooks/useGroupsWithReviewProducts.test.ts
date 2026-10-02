@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
-import { useProducts } from '~/store/products/useProducts';
+import { useProducts } from '~/store/products';
 import { useGroupsWithReviewProducts } from './useGroupsWithReviewProducts';
 
 vi.mock(import('~/store/products/useProducts'));

@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 
-import { useGroups } from '~/store/groups/useGroups';
-import { useVariants } from '~/store/variants/useVariants';
+import { useGroups } from '~/store/groups';
+import { useVariants } from '~/store/variants';
 
 export function useVariantsHasData(): boolean {
     const groups = useGroups();

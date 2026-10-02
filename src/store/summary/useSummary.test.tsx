@@ -4,7 +4,7 @@ import { MockRedux } from '@tests/MockRedux';
 
 import React from 'react';
 
-import { useSummary } from '~/store/summary/useSummary';
+import { useSummary } from './useSummary';
 
 describe('useSummary', () => {
     it('return empty list for empty state', () => {

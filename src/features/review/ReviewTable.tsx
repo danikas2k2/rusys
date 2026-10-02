@@ -6,7 +6,7 @@ import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilter
 import { ReviewProductRow } from '~/features/review/ReviewProductRow';
 import { UntouchedCheckboxIcon } from '~/features/review/UntouchedCheckboxIcon';
 import { getId } from '~/lib/utils/id';
-import { useProducts } from '~/store/products/useProducts';
+import { useProducts } from '~/store/products';
 
 import './ReviewTable.css';
 

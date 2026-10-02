@@ -3,8 +3,7 @@ import React from 'react';
 
 import { DevUserIcon } from '@icons';
 
-import { DEV_MODE_SUB } from '~/store/profile/dev';
-import { useProfile } from '~/store/profile/useProfile';
+import { DEV_MODE_SUB, useProfile } from '~/store/profile';
 
 type ProfileAvatarProps = Pick<AvatarProps, 'size' | 'variant' | 'radius'>;
 

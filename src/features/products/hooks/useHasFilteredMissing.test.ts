@@ -3,7 +3,7 @@ import { getProductsFixture } from '@tests/fixtures';
 
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
 import { useHasFilteredMissing } from '~/features/products/hooks/useHasFilteredMissing';
-import { useProducts } from '~/store/products/useProducts';
+import { useProducts } from '~/store/products';
 
 vi.mock(import('~/features/filters/hooks/useQuickFilterPredicate'), () => ({
     useQuickFilterPredicate: vi.fn(),

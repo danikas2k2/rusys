@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { getSummaryHistory } from '~/server/actions/summary';
-import { setSummaryHistoryAction } from '~/store/summary/slice';
+import { setSummaryHistoryAction } from '~/store/summary';
 
 export function useGetSummaryHistory(year: number, group?: string, name?: string): () => Promise<void> {
     const dispatch = useDispatch();

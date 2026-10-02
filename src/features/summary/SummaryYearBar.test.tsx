@@ -5,7 +5,7 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 import React from 'react';
 
 import { SummaryYearBar } from '~/features/summary/SummaryYearBar';
-import { useSummary } from '~/store/summary/useSummary';
+import { useSummary } from '~/store/summary';
 
 vi.mock(import('~/store/summary/useSummary'), () => ({ useSummary: vi.fn() }));
 vi.mock(import('~/features/summary/SummaryAmounts'), async () => ({

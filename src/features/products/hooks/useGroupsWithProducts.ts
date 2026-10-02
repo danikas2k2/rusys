@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
 import { useMissingOnly } from '~/features/products/MissingOnlyContext';
-import { useProducts } from '~/store/products/useProducts';
+import { useProducts } from '~/store/products';
 
 export function useGroupsWithProducts(): ReadonlySet<string> {
     const products = useProducts();

@@ -1,4 +1,4 @@
-import { years as reducer, setYearsAction } from '~/store/years/slice';
+import { years as reducer, setYearsAction } from './slice';
 
 describe('setYearsAction', () => {
     it('returns valid action', () => {

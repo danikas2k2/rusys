@@ -4,8 +4,7 @@ import React from 'react';
 
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { TotalAmounts } from '~/components/amounts/TotalAmounts';
-import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
-import { useVariantsByGroup } from '~/store/variants/useVariantsByGroup';
+import { useGroupVariantComparator, useVariantsByGroup } from '~/store/variants';
 
 vi.mock(import('~/store/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn().mockReturnValue(() => 0),

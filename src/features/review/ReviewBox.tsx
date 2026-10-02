@@ -15,7 +15,7 @@ import { useGroupsWithReviewProducts } from '~/features/review/hooks/useGroupsWi
 import { ReviewTable } from '~/features/review/ReviewTable';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { getId } from '~/lib/utils/id';
-import { useProducts } from '~/store/products/useProducts';
+import { useProducts } from '~/store/products';
 
 import './ReviewBox.css';
 

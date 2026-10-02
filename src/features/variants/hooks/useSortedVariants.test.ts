@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
-import { useVariants } from '~/store/variants/useVariants';
+import { useVariants } from '~/store/variants';
 import { useSortedVariants } from './useSortedVariants';
 
 vi.mock(import('~/store/variants/useVariants'));

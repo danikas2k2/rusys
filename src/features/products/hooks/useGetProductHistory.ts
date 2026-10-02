@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { getProductHistory } from '~/server/actions/products';
-import { setProductHistoryAction } from '~/store/products/slice';
+import { setProductHistoryAction } from '~/store/products';
 
 export function useGetProductHistory(year: number, group?: string, name?: string): () => Promise<void> {
     const dispatch = useDispatch();

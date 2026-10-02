@@ -34,7 +34,7 @@ import {
 import { $all } from '~/server/data/tests/utils';
 import { copyVariants } from '~/server/data/variants';
 import { db } from '~/server/db';
-import { DEV_MODE_EMAIL } from '~/store/profile/dev';
+import { DEV_MODE_EMAIL } from '~/store/profile';
 
 vi.mock(import('~/server/db'));
 vi.mock(import('~/server/data/years'));

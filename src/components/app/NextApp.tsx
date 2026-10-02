@@ -11,7 +11,7 @@ import { InitialGroupContext } from '~/components/app/InitialGroupContext';
 import { InitialResourceContext } from '~/components/app/InitialResourceContext';
 import { ErrorBoundary } from '~/components/runtime/ErrorBoundary';
 import { LocaleContext } from '~/components/runtime/LocaleContext';
-import type { Profile } from '~/store/profile/types';
+import type { Profile } from '~/store/profile';
 import { getStore } from '~/store/store';
 import { getTheme } from '~/styles/theme';
 

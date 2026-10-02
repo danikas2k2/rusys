@@ -4,7 +4,7 @@ import React, { useCallback, useMemo } from 'react';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { SummaryAmounts, type SummaryHistoryData } from '~/features/summary/SummaryAmounts';
 import { SummaryYear } from '~/features/summary/SummaryYear';
-import { useSummary } from '~/store/summary/useSummary';
+import { useSummary } from '~/store/summary';
 
 import '../common/YearTotal.css';
 

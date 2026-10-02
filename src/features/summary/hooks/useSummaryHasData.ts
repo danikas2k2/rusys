@@ -1,9 +1,9 @@
 import { isEmpty } from 'lodash';
 
-import { useGroups } from '~/store/groups/useGroups';
-import { useSummary } from '~/store/summary/useSummary';
-import { useVariants } from '~/store/variants/useVariants';
-import { useYears } from '~/store/years/useYears';
+import { useGroups } from '~/store/groups';
+import { useSummary } from '~/store/summary';
+import { useVariants } from '~/store/variants';
+import { useYears } from '~/store/years';
 
 export function useSummaryHasData(): boolean {
     const years = useYears();

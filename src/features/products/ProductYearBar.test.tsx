@@ -9,8 +9,8 @@ import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmount
 import { ActiveContentContext, createActiveContentStore } from '~/components/runtime/ActiveContentContext';
 import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
 import { OLD_YEARS_THRESHOLD, ProductYearBar } from '~/features/products/ProductYearBar';
-import { useGroups } from '~/store/groups/useGroups';
-import { useProducts } from '~/store/products/useProducts';
+import { useGroups } from '~/store/groups';
+import { useProducts } from '~/store/products';
 
 vi.mock(import('~/components/amounts/AnnotatedTotalAmounts'), () => ({
     AnnotatedTotalAmounts: vi.fn(({ amounts }: any) => (amounts?.length ? <div>Annotated total</div> : null)),

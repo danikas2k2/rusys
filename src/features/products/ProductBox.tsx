@@ -34,8 +34,8 @@ import { ProductOption } from '~/features/products/ProductOption';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { compareNames } from '~/lib/utils/compareNames';
 import { getErrorMessage } from '~/lib/utils/errors';
-import { useGroups } from '~/store/groups/useGroups';
-import { useProducts } from '~/store/products/useProducts';
+import { useGroups } from '~/store/groups';
+import { useProducts } from '~/store/products';
 
 import './ProductBox.css';
 

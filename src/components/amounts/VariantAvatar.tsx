@@ -3,7 +3,7 @@ import React from 'react';
 
 import type { Variant } from '~/common/data';
 import { formatQuarter, formatVolume, formatWeight } from '~/common/utils/amounts';
-import { useVariant } from '~/store/variants/useVariant';
+import { useVariant } from '~/store/variants';
 
 export interface VariantAvatarProps extends Pick<AvatarProps, 'size'> {
     group: string;

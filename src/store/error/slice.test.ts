@@ -1,4 +1,4 @@
-import { clearErrorAction, error as reducer, setErrorAction } from '~/store/error/slice';
+import { clearErrorAction, error as reducer, setErrorAction } from './slice';
 
 describe('error actions', () => {
     describe('setErrorAction', () => {

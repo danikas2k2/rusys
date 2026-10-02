@@ -8,8 +8,7 @@ import { formatVolume, formatWeight, getAmountTotals } from '~/common/utils/amou
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { useAmountView } from '~/components/amounts/AmountViewContext';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
-import { useGroupVariantComparator } from '~/store/variants/useGroupVariantComparator';
-import { useVariantsByGroup } from '~/store/variants/useVariantsByGroup';
+import { useGroupVariantComparator, useVariantsByGroup } from '~/store/variants';
 
 interface HomeAmountsProps {
     group: string;

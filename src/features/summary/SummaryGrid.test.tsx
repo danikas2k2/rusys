@@ -7,8 +7,8 @@ import { useGroupFilter } from '~/features/filters/GroupFilterContext';
 import { useQuickFilterPredicate } from '~/features/filters/hooks/useQuickFilterPredicate';
 import { useSummaryHasData } from '~/features/summary/hooks/useSummaryHasData';
 import { SummaryGrid } from '~/features/summary/SummaryGrid';
-import { useSummary } from '~/store/summary/useSummary';
-import { useYears } from '~/store/years/useYears';
+import { useSummary } from '~/store/summary';
+import { useYears } from '~/store/years';
 
 vi.mock(import('~/features/filters/GroupFilterContext'), () => ({ useGroupFilter: vi.fn() }));
 vi.mock(import('~/features/filters/hooks/useQuickFilterPredicate'), () => ({ useQuickFilterPredicate: vi.fn() }));

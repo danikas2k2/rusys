@@ -1,13 +1,13 @@
 import { combineReducers } from 'redux';
 
-import { error } from '~/store/error/slice';
-import { google } from '~/store/google/slice';
-import { groups } from '~/store/groups/slice';
-import { products } from '~/store/products/slice';
-import { profile } from '~/store/profile/slice';
-import { summary } from '~/store/summary/slice';
-import { variants } from '~/store/variants/slice';
-import { years } from '~/store/years/slice';
+import { error } from '~/store/error';
+import { google } from '~/store/google';
+import { groups } from '~/store/groups';
+import { products } from '~/store/products';
+import { profile } from '~/store/profile';
+import { summary } from '~/store/summary';
+import { variants } from '~/store/variants';
+import { years } from '~/store/years';
 
 export const reducer = combineReducers({
     error,

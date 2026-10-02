@@ -10,7 +10,7 @@ import {
     setProductsAction,
     setProductsMissingAction,
     setProductsRemovingAction,
-} from '~/store/products/slice';
+} from './slice';
 
 describe('setProductsAction', () => {
     it('returns valid action', () => {

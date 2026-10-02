@@ -1,5 +1,5 @@
-import { google as reducer, setClientIdAction, setLoadingAction } from '~/store/google/slice';
-import type { Google } from '~/store/google/types';
+import { google as reducer, setClientIdAction, setLoadingAction } from './slice';
+import type { Google } from './types';
 
 describe('setLoadingAction', () => {
     it('returns valid action', () => {

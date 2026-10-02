@@ -11,7 +11,7 @@ import {
 import { orderedExpiryBuckets, partitionByExpiryStatus, type ExpiryStatus } from '~/common/utils/expiry';
 import { ExpiryStatusRow } from '~/components/amounts/ExpiryStatusRow';
 import { VariantValueSpans } from '~/components/amounts/VariantValueSpans';
-import { useVariantsByGroup } from '~/store/variants/useVariantsByGroup';
+import { useVariantsByGroup } from '~/store/variants';
 
 import './AnnotatedTotalAmounts.css';
 

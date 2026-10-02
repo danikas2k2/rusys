@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 
 import { DEV_CLIENT_ID, isDevMode } from '~/common/utils/dev';
 import { useUnderDevelopment } from '~/lib/hooks/useUnderDevelopment';
-import { useGoogle } from '~/store/google/useGoogle';
+import { useGoogle } from '~/store/google';
 
 vi.mock(import('~/store/google/useGoogle'));
 vi.mock(import('~/common/utils/dev'), (): any => ({
