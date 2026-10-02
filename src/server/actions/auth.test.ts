@@ -110,6 +110,27 @@ describe('google server authentication', () => {
         expect(createSession).not.toHaveBeenCalled();
     });
 
+    it('accepts an access token whose token info identifies the user with sub', async () => {
+        vi.spyOn(OAuth2Client.prototype, 'getTokenInfo').mockResolvedValue({
+            aud: 'client-id',
+            sub: 'google-user',
+        } as any);
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({
+                ok: true,
+                json: async () => ({ sub: 'google-user', email: 'user@example.com', email_verified: true }),
+            })
+        );
+
+        await expect(loginWithGoogle('access-token', 'access')).resolves.toMatchObject({
+            sub: 'google-user',
+            email: 'user@example.com',
+            allowed: true,
+        });
+        expect(createSession).toHaveBeenCalledWith(expect.objectContaining({ sub: 'google-user' }));
+    });
+
     it('rejects a failed Google userinfo response', async () => {
         vi.spyOn(OAuth2Client.prototype, 'getTokenInfo').mockResolvedValue({
             aud: 'client-id',

@@ -38,7 +38,8 @@ export async function loginWithGoogle(token: string, kind: 'id' | 'access'): Pro
             throw new Error('Google userinfo failed');
         }
         profile = (await response.json()) as Profile;
-        if (profile.sub !== info.user_id) {
+        const subject = info.sub ?? info.user_id;
+        if (!subject || profile.sub !== subject) {
             throw new Error('Google identity mismatch');
         }
     }
