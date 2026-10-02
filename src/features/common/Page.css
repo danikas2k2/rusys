@@ -5,7 +5,7 @@
     padding-block: var(--safe-block-start) var(--safe-block-end);
     padding-inline: 0;
     height: 100vh;
-    height: 100dvh;
+    height: 100svh;
     min-height: 0;
 
     .ui-AppShell-header,
