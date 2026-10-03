@@ -41,6 +41,9 @@ export default defineConfig({
     resolve: { alias },
     plugins: [mockAssetsPlugin],
     test: {
+        experimental: {
+            diagnostics: { isolate: false },
+        },
         projects: [
             // ------------------------------------------------------------------
             // Browser-facing code: jsdom environment for components, features and state.
