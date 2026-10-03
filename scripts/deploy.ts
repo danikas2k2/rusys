@@ -40,11 +40,11 @@ docker=${shellQuote(dockerPath)}
 `;
 
     return {
-        remote(script: string) {
+        remote(script: string, streamOutput = false) {
             return execFileSync('ssh', ['-p', serverPort, address, 'sh', '-s'], {
                 input: remoteHeader + script,
                 encoding: 'utf8',
-                stdio: ['pipe', 'pipe', 'inherit'],
+                stdio: ['pipe', streamOutput ? 'inherit' : 'pipe', 'inherit'],
             });
         },
         upload(destination: string, sources: string[], options: string[] = []) {
@@ -103,6 +103,7 @@ function isHealthy(connection: Connection, name: string): boolean {
 }
 
 function waitHealthy(connection: Connection, name: string) {
+    console.log(`⏳ Waiting for ${name} to become healthy...`);
     connection.remote(`attempt=0
 while test "$attempt" -lt 60; do
     if test "$("$docker" inspect --format '{{.State.Health.Status}}' ${shellQuote(name)} 2>/dev/null || true)" = healthy; then exit 0; fi
@@ -112,6 +113,7 @@ done
 echo ${shellQuote(`${name} did not become healthy.`)} >&2
 exit 1
 `);
+    console.log(`✅ ${name} is healthy.`);
 }
 
 function waitGateway(connection: Connection) {
@@ -217,9 +219,12 @@ export function deploy(config?: DeployConfig) {
                     '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps rusys-db\n'
                 );
                 waitHealthy(connection, 'rusys-db');
+                console.log(`🔨 Building rusys-app-${candidate} on the server...`);
                 connection.remote(
-                    `"$docker" compose --env-file .env -f docker/compose.yaml build rusys-app-${candidate}\n`
+                    `"$docker" compose --env-file .env -f docker/compose.yaml build rusys-app-${candidate}\n`,
+                    true
                 );
+                console.log(`🚀 Starting rusys-app-${candidate}...`);
                 connection.remote(
                     `"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps --no-build --force-recreate rusys-app-${candidate}\n`
                 );
