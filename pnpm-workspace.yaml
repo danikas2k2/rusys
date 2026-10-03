@@ -26,6 +26,6 @@ overrides:
   postcss: ^8.5.28
   qs: ^6.16.0
   sane: ^5.0.1
-  stylelint: ^17.15.0
+  stylelint: ^17.16.0
   test-exclude: ^8.0.0
   tough-cookie: ^6.0.2
