@@ -7,7 +7,7 @@ import sharp from 'sharp';
 import { IMAGE_EXTENSION_BY_MIME_TYPE } from '~/common/utils/files';
 
 // Mounted as a persistent Docker volume in production - see docker/compose.yaml
-export const IMAGES_DIR = path.resolve(/*turbopackIgnore: true*/ process.env.IMAGES_DIR ?? 'data/images');
+export const IMAGES_DIR = path.resolve(/*turbopackIgnore: true*/ process.env.IMAGES_DIR ?? 'images');
 export const IMAGES_URL_PATH = '/images';
 
 const DATA_URL_PATTERN = /^data:([^;]+);base64,(.+)$/;

@@ -743,14 +743,15 @@ describe('<ProductBox>', () => {
             const combobox = await getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
-            expect(screen.getByRole('option', { name: 'Agurkai' }).querySelector('img')).toHaveAttribute(
-                'src',
-                '/images/ab/cd/agurkai.png'
+            expect(screen.getByRole('option', { name: 'Agurkai' }).querySelector('img')?.getAttribute('src')).toContain(
+                '/images/ab/cd/agurkai.png?w=32'
             );
 
             await selectParentOption('Agurkai');
 
-            expect(combobox.parentElement!.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/agurkai.png');
+            expect(combobox.parentElement!.querySelector('img')?.getAttribute('src')).toContain(
+                '/images/ab/cd/agurkai.png?w=32'
+            );
         });
 
         it('offers products from the currently selected category as parent options', async () => {

@@ -464,7 +464,7 @@ time[data-date]:has(+ time[data-time])::after {
     text-wrap: wrap;
 }
 
-[data-text-shaddow="true"] {
+[data-text-shadow="true"] {
     --shadow-color: var(--mantine-color-body);
     --shadow-offset: 2px;
     --shadow-nefset: calc(var(--shadow-offset) * -1);

@@ -35,7 +35,7 @@ describe('<ProfileAvatar>', () => {
         const avatar = screen.getByRole('figure');
 
         expect(avatar).toHaveAttribute('data-picture', 'true');
-        expect(screen.getByRole('img', { name: 'Test User' })).toHaveAttribute('src', 'test.jpg');
+        expect(screen.getByRole('img', { name: 'Test User' }).getAttribute('src')).toContain('url=%2Ftest.jpg');
     });
 
     it('renders initials when profile picture does not exist', () => {

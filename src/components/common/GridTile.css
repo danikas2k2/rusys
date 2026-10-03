@@ -63,7 +63,7 @@
         height: 76px;
         background-size: cover;
         background-position: center;
-        filter: blur(3px) opacity(0.5);
+        filter: blur(2px) opacity(0.25);
         pointer-events: none;
     }
 
@@ -71,9 +71,16 @@
         [data-photo-bg] {
             position: absolute;
             inset: 0;
+            background-image: var(--photo-background-url);
             background-size: cover;
             background-position: center;
-            filter: blur(3px);
+            filter: blur(2px) opacity(0.75);
+        }
+
+        @supports (background-image: image-set(url("/image.png") 1x)) {
+            [data-photo-bg] {
+                background-image: var(--photo-background-set);
+            }
         }
 
         [data-scrim] {

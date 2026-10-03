@@ -1,9 +1,9 @@
-import { Avatar } from '@mantine/core';
 import React from 'react';
 
 import { AnonymousUserIcon, DevUserIcon } from '@icons';
 
 import type { UserProfile } from '~/common/data';
+import { Thumbnail } from '~/components/common/Thumbnail';
 import { gravatarUrl } from '~/lib/utils/gravatar';
 import { DEV_MODE_EMAIL } from '~/store/profile';
 
@@ -18,9 +18,15 @@ export function EmailAvatar({
 }): React.ReactElement | null {
     if (!email) {
         return (
-            <Avatar color="gray" variant="outline" radius="50%" size="sm" data-anonymous="true">
-                <AnonymousUserIcon size="60%" />
-            </Avatar>
+            <Thumbnail
+                alt=""
+                fallback={<AnonymousUserIcon size="60%" />}
+                color="gray"
+                variant="outline"
+                radius="50%"
+                size="sm"
+                data-anonymous="true"
+            />
         );
     }
     const initials = email
@@ -32,21 +38,26 @@ export function EmailAvatar({
         .join('');
     if (email.toLowerCase() === DEV_MODE_EMAIL.toLowerCase()) {
         return (
-            <Avatar color="cyan.9" variant="outline" radius="50%" size="sm" data-robot="true">
-                <DevUserIcon size="60%" />
-            </Avatar>
+            <Thumbnail
+                alt=""
+                fallback={<DevUserIcon size="60%" />}
+                color="cyan.9"
+                variant="outline"
+                radius="50%"
+                size="sm"
+                data-robot="true"
+            />
         );
     }
     return (
-        <Avatar
+        <Thumbnail
             radius="50%"
             size="sm"
             src={profile?.picture || fallbackPicture || gravatarUrl(email)}
             alt={profile?.name ?? email}
+            fallback={initials || email[0]!.toUpperCase()}
             title={email}
             aria-label={email}
-        >
-            {initials || email[0]!.toUpperCase()}
-        </Avatar>
+        />
     );
 }

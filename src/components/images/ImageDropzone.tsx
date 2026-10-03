@@ -1,4 +1,4 @@
-import { ActionIcon, Alert, Avatar, Box, Group, rem, Stack, Text } from '@mantine/core';
+import { ActionIcon, Alert, Box, Group, rem, Stack, Text } from '@mantine/core';
 import { Dropzone, type FileRejection, type FileWithPath } from '@mantine/dropzone';
 import React, { useCallback, useState } from 'react';
 
@@ -7,6 +7,7 @@ import { ErrorAlertIcon, ImageAcceptIcon, ImageDropzoneIdleIcon, ImageRejectIcon
 import { IMAGE_MIME_TYPES, MAX_IMAGE_FILE_MB, MAX_IMAGE_FILE_SIZE } from '~/common/utils/files';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
+import { Thumbnail } from '~/components/common/Thumbnail';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { readFileAsDataUrl } from '~/lib/utils/readFileAsDataUrl';
@@ -98,10 +99,14 @@ export function ImageDropzone({
                         style={{ minHeight: compact ? undefined : rem(80), pointerEvents: 'none' }}
                     >
                         {image ? (
-                            // If the image fails to load, Mantine will render children as fallback.
-                            <Avatar src={image} radius="md" size={avatarSize} aria-label={label}>
-                                <ImageAcceptIcon size={previewIconSize} stroke={1.5} />
-                            </Avatar>
+                            <Thumbnail
+                                src={image}
+                                alt={label}
+                                fallback={<ImageAcceptIcon size={previewIconSize} stroke={1.5} />}
+                                radius="md"
+                                size={avatarSize}
+                                aria-label={label}
+                            />
                         ) : (
                             <>
                                 <Dropzone.Accept>

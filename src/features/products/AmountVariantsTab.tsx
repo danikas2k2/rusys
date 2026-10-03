@@ -1,7 +1,6 @@
 import {
     Accordion,
     ActionIcon,
-    Avatar,
     Badge,
     Button,
     Checkbox,
@@ -48,6 +47,7 @@ import { EXPIRY_INFIX, HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/components/amoun
 import { VariantTitle } from '~/components/amounts/VariantTitle';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
+import { Thumbnail } from '~/components/common/Thumbnail';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { AmountExpanded, type VariantDelta } from '~/features/products/AmountExpanded';
 import { useRedoProduct } from '~/features/products/hooks/useRedoProduct';
@@ -586,9 +586,13 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
                                                         </ViewTransition>
                                                     )}
                                                     {variantImage && (
-                                                        <Avatar src={variantImage} radius="sm" size={20} alt="">
-                                                            {variant.trim().charAt(0).toUpperCase()}
-                                                        </Avatar>
+                                                        <Thumbnail
+                                                            src={variantImage}
+                                                            alt=""
+                                                            fallback={variant.trim().charAt(0).toUpperCase()}
+                                                            radius="sm"
+                                                            size={20}
+                                                        />
                                                     )}
                                                     {suspicious && <SuspiciousIcon size={14} />}
                                                     {home && <HomeIcon size={14} />}

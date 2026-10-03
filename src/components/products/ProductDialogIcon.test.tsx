@@ -31,7 +31,11 @@ describe('<ProductDialogIcon>', () => {
             </MockTheme>
         );
 
-        expect(container.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/product.png');
+        const thumbnail = container.querySelector('.product-photo-thumbnail img');
+
+        expect(thumbnail?.getAttribute('src')).toContain('/images/ab/cd/product.png?w=96');
+        expect(thumbnail?.getAttribute('srcset')).toContain('/images/ab/cd/product.png?w=48 1x');
+        expect(thumbnail?.getAttribute('srcset')).toContain('/images/ab/cd/product.png?w=96 2x');
         expect(screen.getByRole('button', { name: 'View image' })).toBeInTheDocument();
     });
 
@@ -96,7 +100,10 @@ describe('<ProductDialogIcon>', () => {
             </MockTheme>
         );
 
-        expect(container.querySelector('img')).toHaveAttribute('src', '/images/ef/gh/other.png');
+        const thumbnail = container.querySelector('.product-photo-thumbnail img');
+
+        expect(thumbnail?.getAttribute('src')).toContain('/images/ef/gh/other.png?w=96');
+        expect(thumbnail?.getAttribute('srcset')).toContain('/images/ef/gh/other.png?w=48 1x');
     });
 
     it('sets the aria-label on the icon container', () => {

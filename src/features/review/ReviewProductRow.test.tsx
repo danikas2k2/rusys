@@ -53,7 +53,7 @@ describe('<ReviewProductRow>', () => {
         const product = { ...products[0], image: '/images/products/avietes.png' };
         renderRow(product);
 
-        expect(document.querySelector('img')).toHaveAttribute('src', product.image);
+        expect(document.querySelector('img')?.getAttribute('src')).toContain('/images/products/avietes.png?w=32');
     });
 
     it('renders checkbox as checked when checked=true', () => {

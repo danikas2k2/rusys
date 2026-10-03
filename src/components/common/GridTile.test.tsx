@@ -70,10 +70,16 @@ describe('<GridTile>', () => {
             'data-summary-tile': 'true',
             'data-year': '2025',
         });
-        expect(container.querySelector('[data-photo-bg]')).toHaveStyle({ backgroundImage: 'url(/photo.jpg)' });
+
+        const photoBackground = container.querySelector<HTMLElement>('[data-photo-bg]')!;
+
+        expect(photoBackground.style.getPropertyValue('--photo-background-url')).toBe('url("/photo.jpg")');
+        expect(photoBackground.style.getPropertyValue('--photo-background-set')).toContain('image-set(');
+        expect(photoBackground.style.getPropertyValue('--photo-background-set')).toContain(' 1x');
+        expect(photoBackground.style.getPropertyValue('--photo-background-set')).toContain(' 2x');
         expect(container.querySelector('[data-scrim]')).toBeInTheDocument();
         expect(container.querySelector('[data-icon-bg]')).not.toBeInTheDocument();
-        expect(screen.getByText('Avietės')).toHaveAttribute('data-text-shaddow', 'true');
+        expect(screen.getByText('Avietės')).toHaveAttribute('data-text-shadow', 'true');
     });
 
     it('renders caller-provided slots and permits overriding the text shadow', () => {
@@ -92,7 +98,7 @@ describe('<GridTile>', () => {
         expect(screen.getByRole('button', { name: 'Expand' })).toBeInTheDocument();
         expect(container.querySelector('[data-tile-icon]')).not.toBeInTheDocument();
         expect(container.querySelector('[data-icon-bg]')).toHaveStyle({ backgroundImage: 'url(/icon.png)' });
-        expect(screen.getByText('Avietės')).toHaveAttribute('data-text-shaddow', 'false');
+        expect(screen.getByText('Avietės')).toHaveAttribute('data-text-shadow', 'false');
         expect(container.querySelector('[data-overlay]')).toHaveTextContent('Recycled');
     });
 });

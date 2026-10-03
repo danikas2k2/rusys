@@ -1,7 +1,8 @@
-import { Avatar, Group as MantineGroup, Tabs, Text } from '@mantine/core';
+import { Group as MantineGroup, Tabs, Text } from '@mantine/core';
 import React, { startTransition, useEffect } from 'react';
 
 import type { Group } from '~/common/data';
+import { Thumbnail } from '~/components/common/Thumbnail';
 
 import './CategoryRail.css';
 
@@ -43,15 +44,15 @@ export function CategoryRail({
                     return (
                         <Tabs.Tab key={group} value={group} aria-label={group} px={8} py={isActive ? 12 : 8}>
                             <MantineGroup gap="xs" wrap="nowrap" justify="flex-start">
-                                <Avatar
-                                    src={image || undefined}
+                                <Thumbnail
+                                    src={image}
+                                    alt=""
+                                    fallback={group.trim().charAt(0).toUpperCase()}
                                     radius="sm"
                                     size="sm"
                                     p={0}
                                     data-grayed={!groupsWithContent.has(group)}
-                                >
-                                    {group.trim().charAt(0).toUpperCase()}
-                                </Avatar>
+                                />
                                 {/* Only the avatar is meaningful below `sm` - there's no room for
                                     a label next to a narrow vertical rail on a phone; wider
                                     screens (landscape phone, tablet, desktop) have space to spare. */}

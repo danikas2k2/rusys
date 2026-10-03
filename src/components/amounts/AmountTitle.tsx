@@ -1,5 +1,7 @@
-import { Avatar, Group, Stack, Title } from '@mantine/core';
+import { Group, Stack, Title } from '@mantine/core';
 import React from 'react';
+
+import { Thumbnail } from '~/components/common/Thumbnail';
 
 interface AmountTitleProps {
     group?: string;
@@ -12,9 +14,7 @@ export function AmountTitle({ group, name, image, photo }: AmountTitleProps): Re
     return (
         <Group gap="sm" wrap="nowrap">
             {image && !photo && (
-                <Avatar src={image} radius="md" size="lg" alt={name}>
-                    {name?.trim().charAt(0).toUpperCase()}
-                </Avatar>
+                <Thumbnail src={image} alt={name ?? ''} fallback={name?.trim().charAt(0).toUpperCase() ?? ''} />
             )}
             <Stack gap={8} align="start">
                 <Title order={1} lh={1}>

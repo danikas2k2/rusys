@@ -151,7 +151,8 @@ describe('<CategoryRail>', () => {
 
         const img = document.querySelector('img');
 
-        expect(img).toHaveAttribute('src', '/images/ab/cd/uogienes.png');
+        expect(img?.getAttribute('src')).toContain('/images/ab/cd/uogienes.png?w=64');
+        expect(img?.getAttribute('srcset')).toContain('/images/ab/cd/uogienes.png?w=32 1x');
     });
 
     it('renders the category name as a label for wider screens', () => {

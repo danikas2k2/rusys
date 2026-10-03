@@ -1,10 +1,11 @@
-import { Avatar, Table, Title } from '@mantine/core';
+import { Table, Title } from '@mantine/core';
 import React from 'react';
 
 import { AnnualIcon, ReviewIcon } from '@icons';
 
 import type { Group } from '~/common/data';
 import { Label } from '~/components/common/Label';
+import { Thumbnail } from '~/components/common/Thumbnail';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { SortableRow } from '~/components/table/SortableRow';
 
@@ -49,9 +50,13 @@ export function GroupsRow({
         >
             <Table.Td>
                 {group.image && (
-                    <Avatar src={group.image} radius="sm" size="sm" alt={group.group}>
-                        {group.group.trim().charAt(0).toUpperCase()}
-                    </Avatar>
+                    <Thumbnail
+                        src={group.image}
+                        alt={group.group}
+                        fallback={group.group.trim().charAt(0).toUpperCase()}
+                        radius="sm"
+                        size="sm"
+                    />
                 )}
             </Table.Td>
             <Table.Td colSpan={annual ? undefined : review ? 2 : 3}>

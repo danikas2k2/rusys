@@ -310,6 +310,6 @@ describe('<GroupsRow>', () => {
             </MockTheme>
         );
 
-        expect(document.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/uogienes.png');
+        expect(document.querySelector('img')?.getAttribute('src')).toContain('/images/ab/cd/uogienes.png?w=64');
     });
 });

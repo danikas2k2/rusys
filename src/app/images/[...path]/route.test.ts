@@ -1,6 +1,8 @@
-import { mkdir, mkdtemp, rm, stat, utimes, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, rm, stat, utimes, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+
+import sharp from 'sharp';
 
 import { getSessionProfile } from '~/server/auth/session';
 import type { GET } from './route';
@@ -10,8 +12,8 @@ vi.mock(import('~/server/auth/session'), () => ({ getSessionProfile: vi.fn() }))
 let imagesDir: string;
 let route: { GET: typeof GET };
 
-async function get(parts: string[], headers?: HeadersInit) {
-    return route.GET(new Request('http://localhost/images/test.png', { headers }), {
+async function get(parts: string[], headers?: HeadersInit, query = '') {
+    return route.GET(new Request(`http://localhost/images/test.png${query}`, { headers }), {
         params: Promise.resolve({ path: parts }),
     });
 }
@@ -26,6 +28,12 @@ describe('stored image route', () => {
         await mkdir(path.join(imagesDir, 'ab'), { recursive: true });
         await writeFile(path.join(imagesDir, 'ab', 'icon.png'), Buffer.from('png bytes'));
         await writeFile(path.join(imagesDir, 'ab', 'archive.bin'), Buffer.from('binary bytes'));
+        await writeFile(
+            path.join(imagesDir, 'ab', 'photo.png'),
+            await sharp({ create: { width: 800, height: 400, channels: 3, background: 'red' } })
+                .png()
+                .toBuffer()
+        );
     });
 
     afterAll(async () => {
@@ -77,6 +85,87 @@ describe('stored image route', () => {
 
         expect(response.status).toBe(200);
         expect(response.headers.get('Content-Type')).toBe('application/octet-stream');
+    });
+
+    it('resizes into requested bounds without changing aspect ratio or enlarging the source', async () => {
+        const response = await get(['ab', 'photo.png'], undefined, '?w=200&h=200');
+
+        expect(response.status).toBe(200);
+        expect(response.headers.get('Content-Type')).toBe('image/png');
+        await expect(sharp(Buffer.from(await response.arrayBuffer())).metadata()).resolves.toMatchObject({
+            width: 200,
+            height: 100,
+        });
+
+        const heightOnly = await get(['ab', 'photo.png'], undefined, '?h=100');
+
+        await expect(sharp(Buffer.from(await heightOnly.arrayBuffer())).metadata()).resolves.toMatchObject({
+            width: 200,
+            height: 100,
+        });
+
+        const oversized = await get(['ab', 'photo.png'], undefined, '?w=2048');
+
+        await expect(sharp(Buffer.from(await oversized.arrayBuffer())).metadata()).resolves.toMatchObject({
+            width: 800,
+            height: 400,
+        });
+    });
+
+    it('caches a variant and creates a fresh one when the source changes', async () => {
+        const filePath = path.join(imagesDir, 'ab', 'photo.png');
+        const first = await get(['ab', 'photo.png'], undefined, '?w=160');
+        const firstBytes = Buffer.from(await first.arrayBuffer());
+        const cacheRoot = path.join(imagesDir, '.variants');
+        const [sourceDir] = await readdir(cacheRoot);
+        const cacheDir = path.join(cacheRoot, sourceDir);
+        const [cachedFile] = (await readdir(cacheDir)).filter((name) => name.endsWith('-160-0.png'));
+
+        expect(cachedFile).toBeDefined();
+
+        const cachePath = path.join(cacheDir, cachedFile);
+        const cachedStats = await stat(cachePath);
+
+        const second = await get(['ab', 'photo.png'], undefined, '?w=160');
+
+        expect(Buffer.from(await second.arrayBuffer())).toStrictEqual(firstBytes);
+        expect((await stat(cachePath)).mtimeNs).toBe(cachedStats.mtimeNs);
+        expect(second.headers.get('ETag')).toBe(first.headers.get('ETag'));
+
+        await writeFile(
+            filePath,
+            await sharp({ create: { width: 400, height: 400, channels: 3, background: 'blue' } })
+                .png()
+                .toBuffer()
+        );
+        const updatedAt = new Date((await stat(filePath)).mtimeMs + 1000);
+        await utimes(filePath, updatedAt, updatedAt);
+
+        const updated = await get(['ab', 'photo.png'], { 'If-None-Match': first.headers.get('ETag')! }, '?w=160');
+
+        expect(updated.status).toBe(200);
+        expect(updated.headers.get('ETag')).not.toBe(first.headers.get('ETag'));
+        await expect(sharp(Buffer.from(await updated.arrayBuffer())).metadata()).resolves.toMatchObject({
+            width: 160,
+            height: 160,
+        });
+    });
+
+    it('returns 304 for a matching resized variant after checking the session', async () => {
+        const first = await get(['ab', 'photo.png'], undefined, '?w=100');
+        const response = await get(['ab', 'photo.png'], { 'If-None-Match': first.headers.get('ETag')! }, '?w=100');
+
+        expect(response.status).toBe(304);
+        expect(response.headers.get('Cache-Control')).toBe('private, no-cache');
+    });
+
+    it('rejects invalid dimensions and unsupported formats', async () => {
+        for (const query of ['?w=0', '?w=-1', '?w=2049', '?w=abc', '?w=1.5', '?w=20&w=40', '?h=999999']) {
+            expect((await get(['ab', 'photo.png'], undefined, query)).status).toBe(400);
+        }
+
+        expect((await get(['ab', 'archive.bin'], undefined, '?w=100')).status).toBe(415);
+        expect((await get(['.variants', 'private.png'])).status).toBe(404);
     });
 
     it('rejects missing files and paths outside the image directory', async () => {

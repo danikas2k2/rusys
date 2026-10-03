@@ -1,8 +1,9 @@
-import { Avatar, type AvatarProps } from '@mantine/core';
+import type { AvatarProps } from '@mantine/core';
 import React from 'react';
 
 import type { Variant } from '~/common/data';
 import { formatQuarter, formatVolume, formatWeight } from '~/common/utils/amounts';
+import { Thumbnail } from '~/components/common/Thumbnail';
 import { useVariant } from '~/store/variants';
 
 export interface VariantAvatarProps extends Pick<AvatarProps, 'size'> {
@@ -38,7 +39,9 @@ export function VariantAvatar({ group, variant, size = 'sm' }: VariantAvatarProp
     const label = value?.suffix || (value ? getCountLabel(value) : undefined) || variant;
 
     return (
-        <Avatar
+        <Thumbnail
+            alt=""
+            fallback={label}
             variant="outline"
             color="gray"
             radius="50%"
@@ -48,8 +51,6 @@ export function VariantAvatar({ group, variant, size = 'sm' }: VariantAvatarProp
             styles={{
                 placeholder: { padding: 0, fontSize: 'var(--mantine-font-size-sm)', fontWeight: 600, lineHeight: 1 },
             }}
-        >
-            {label}
-        </Avatar>
+        />
     );
 }

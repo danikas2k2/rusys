@@ -657,7 +657,7 @@ describe('<AmountVariantsTab>', () => {
 
         renderTab();
 
-        expect(document.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/d.png');
+        expect(document.querySelector('img')?.getAttribute('src')).toContain('/images/ab/cd/d.png?w=48');
     });
 
     it('does not show a variant image avatar in the row control when unset', () => {

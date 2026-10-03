@@ -387,9 +387,18 @@ describe('<ProductTile>', () => {
             const tile = screen.getByText(name).closest('[data-tile="product"]');
 
             expect(tile).toHaveAttribute('data-photo', 'true');
-            expect(container.querySelector('[data-photo-bg]')).toHaveStyle({
-                backgroundImage: 'url(/images/ab/cd/product.png)',
-            });
+
+            const photoBackground = container.querySelector<HTMLElement>('[data-photo-bg]')!;
+
+            expect(photoBackground.style.getPropertyValue('--photo-background-url')).toBe(
+                'url("/images/ab/cd/product.png")'
+            );
+            expect(photoBackground.style.getPropertyValue('--photo-background-set')).toContain(
+                '/images/ab/cd/product.png?w=384'
+            );
+            expect(photoBackground.style.getPropertyValue('--photo-background-set')).toContain(
+                '/images/ab/cd/product.png?w=640'
+            );
             expect(container.querySelector('img')).not.toBeInTheDocument();
         });
     });

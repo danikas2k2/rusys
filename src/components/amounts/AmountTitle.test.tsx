@@ -45,7 +45,12 @@ describe('<AmountTitle>', () => {
             </MockTheme>
         );
 
-        expect(document.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/product.png');
+        const image = screen.getByRole('img', { name: 'Braškės' });
+
+        expect(new URL(image.getAttribute('src')!).pathname).toBe('/images/ab/cd/product.png');
+        expect(new URL(image.getAttribute('src')!).searchParams.get('w')).toBe('128');
+        expect(image).toHaveAttribute('srcset', expect.stringContaining('/images/ab/cd/product.png?w=64 1x'));
+        expect(image).toHaveAttribute('srcset', expect.stringContaining('/images/ab/cd/product.png?w=128 2x'));
     });
 
     it('does not render an avatar when image is not provided', () => {

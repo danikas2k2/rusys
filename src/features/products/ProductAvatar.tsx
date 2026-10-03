@@ -1,5 +1,7 @@
-import { Avatar, type AvatarProps } from '@mantine/core';
+import type { AvatarProps } from '@mantine/core';
 import React from 'react';
+
+import { Thumbnail } from '~/components/common/Thumbnail';
 
 export interface ProductAvatarProps extends Pick<AvatarProps, 'size'> {
     image?: string;
@@ -8,8 +10,14 @@ export interface ProductAvatarProps extends Pick<AvatarProps, 'size'> {
 
 export function ProductAvatar({ image, label, size = 'xs' }: ProductAvatarProps): React.ReactElement {
     return (
-        <Avatar src={image || undefined} radius="sm" size={size} p={0} aria-hidden="true">
-            {label.trim().charAt(0).toUpperCase()}
-        </Avatar>
+        <Thumbnail
+            src={image}
+            alt=""
+            fallback={label.trim().charAt(0).toUpperCase()}
+            radius="sm"
+            size={size}
+            p={0}
+            aria-hidden="true"
+        />
     );
 }

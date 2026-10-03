@@ -50,4 +50,17 @@ describe('<ProductPhotoPreview>', () => {
 
         expect(onError).toHaveBeenCalledTimes(2);
     });
+
+    it('uses resized local images for the small preview', () => {
+        render(
+            <MockTheme>
+                <ProductPhotoPreview photo="/images/ab/cd/photo.jpg" />
+            </MockTheme>
+        );
+
+        const thumbnail = document.querySelector('.product-photo-thumbnail img');
+
+        expect(thumbnail?.getAttribute('srcset')).toContain('/images/ab/cd/photo.jpg?w=48 1x');
+        expect(thumbnail?.getAttribute('srcset')).toContain('/images/ab/cd/photo.jpg?w=96 2x');
+    });
 });

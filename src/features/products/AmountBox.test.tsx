@@ -54,7 +54,10 @@ describe('<AmountBox>', () => {
             </MockTheme>
         );
 
-        expect(container.querySelector('img')).toHaveAttribute('src', '/images/ab/cd/photo.png');
+        const thumbnail = container.querySelector('.product-photo-thumbnail img');
+
+        expect(thumbnail?.getAttribute('src')).toContain('/images/ab/cd/photo.png?w=96');
+        expect(thumbnail?.getAttribute('srcset')).toContain('/images/ab/cd/photo.png?w=48 1x');
     });
 
     it('falls back to the generic icon in the dialog header when no photo is given', () => {

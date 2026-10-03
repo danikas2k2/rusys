@@ -1,7 +1,33 @@
 import { Card, Group, Stack, Text } from '@mantine/core';
+import { getImageProps } from 'next/image';
 import React from 'react';
 
+import { localImageLoader } from '~/lib/utils/localImageLoader';
+
 import './GridTile.css';
+
+function getPhotoBackground(photo: string): string {
+    const { props } = getImageProps({
+        src: photo,
+        alt: '',
+        width: 320,
+        height: 240,
+        loader: photo.startsWith('/images/') ? localImageLoader : undefined,
+        unoptimized: photo.includes('://') || photo.startsWith('data:'),
+    });
+
+    if (!props.srcSet) {
+        return `url("${props.src}")`;
+    }
+
+    return `image-set(${props.srcSet
+        .split(', ')
+        .map((candidate) => {
+            const [url, density] = candidate.split(' ');
+            return `url("${url}") ${density}`;
+        })
+        .join(', ')})`;
+}
 
 interface GridTileProps {
     name: string;
@@ -54,7 +80,13 @@ export function GridTile({
         >
             {isPhoto && (
                 <>
-                    <div data-photo-bg style={{ backgroundImage: `url(${photo})` }} />
+                    <div
+                        data-photo-bg
+                        style={{
+                            '--photo-background-url': `url("${photo}")`,
+                            '--photo-background-set': getPhotoBackground(photo),
+                        }}
+                    />
                     <div data-scrim />
                 </>
             )}
@@ -63,7 +95,7 @@ export function GridTile({
                 {leading ?? <span data-tile-icon />}
                 <Group data-tile-heading justify="space-between" wrap="nowrap" gap={6} align="flex-start">
                     <Text
-                        data-text-shaddow={textShadow}
+                        data-text-shadow={textShadow}
                         lh={fullHeading ? 'xs' : 1}
                         lineClamp={2}
                         p={fullHeading ? undefined : '4 2'}
@@ -74,7 +106,7 @@ export function GridTile({
                     {headingAction}
                 </Group>
                 {amounts && (
-                    <Group data-tile-amounts data-text-shaddow={textShadow} justify="flex-end" lh="xs">
+                    <Group data-tile-amounts data-text-shadow={textShadow} justify="flex-end" lh="xs">
                         {amounts}
                     </Group>
                 )}

@@ -1,7 +1,9 @@
 import { Modal } from '@mantine/core';
+import Image from 'next/image';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useLabel } from '~/lib/hooks/useLabel';
+import { localImageLoader } from '~/lib/utils/localImageLoader';
 
 import './ProductPhotoPreview.css';
 
@@ -118,7 +120,15 @@ export function ProductPhotoPreview({ photo, onError, onOpenChange }: ProductPho
     return (
         <>
             <button className="product-photo-thumbnail" type="button" onClick={handleOpen} aria-label={viewImageLabel}>
-                <img src={photo} alt="" onError={onError} />
+                <Image
+                    src={photo}
+                    alt=""
+                    width={48}
+                    height={48}
+                    loader={photo.startsWith('/images/') ? localImageLoader : undefined}
+                    unoptimized={photo.includes('://') || photo.startsWith('data:')}
+                    onError={onError}
+                />
             </button>
             <Modal
                 fullScreen
