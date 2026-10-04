@@ -22,7 +22,7 @@ describe('useGroupsWithProducts', () => {
         vi.mocked(useProducts).mockReturnValue([
             { group: 'Uogienės', name: 'Avietės' },
             { group: 'Uogienės', name: 'Braškės' },
-            { group: 'Daržovės', name: 'Agurkai' },
+            { group: 'Daržovės', name: 'Morkos' },
         ]);
 
         const { result } = renderHook(() => useGroupsWithProducts());
@@ -41,9 +41,9 @@ describe('useGroupsWithProducts', () => {
     it('excludes groups whose products are all hidden by the quick filter', () => {
         vi.mocked(useProducts).mockReturnValue([
             { group: 'Uogienės', name: 'Avietės' },
-            { group: 'Daržovės', name: 'Agurkai' },
+            { group: 'Daržovės', name: 'Morkos' },
         ]);
-        vi.mocked(useQuickFilterPredicate).mockReturnValue((name: string) => name === 'Agurkai');
+        vi.mocked(useQuickFilterPredicate).mockReturnValue((name: string) => name === 'Morkos');
 
         const { result } = renderHook(() => useGroupsWithProducts());
 
@@ -53,7 +53,7 @@ describe('useGroupsWithProducts', () => {
     it('excludes groups with no missing product when showing missing only', () => {
         vi.mocked(useProducts).mockReturnValue([
             { group: 'Uogienės', name: 'Avietės', missing: false },
-            { group: 'Daržovės', name: 'Agurkai', missing: true },
+            { group: 'Daržovės', name: 'Morkos', missing: true },
         ]);
         vi.mocked(useMissingOnly).mockReturnValue([true, vi.fn()]);
 

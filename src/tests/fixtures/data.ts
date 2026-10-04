@@ -1,8 +1,12 @@
+import { copyFile } from 'node:fs/promises';
+import path from 'node:path';
+
 import type { Db } from 'mongodb';
 
 import type { Group, Product, Variant } from '~/common/data';
 
-export type Scenario = 'empty' | 'basic' | 'annual' | 'review' | 'history' | 'images';
+export type Scenario =
+    'empty' | 'basic' | 'annual' | 'review' | 'history' | 'images' | 'history-images' | 'consumed-recycled';
 
 export const currentYear = new Date().getFullYear() % 100;
 
@@ -12,10 +16,9 @@ function harvestUpdateTime(): number {
     return new Date(year, 8, 15, 12).getTime();
 }
 
-export async function seedScenario(db: Db, scenario: Scenario): Promise<void> {
-    await db.dropDatabase();
+export function createScenarioData(scenario: Scenario): { groups: Group[]; variants: Variant[]; products: Product[] } {
     if (scenario === 'empty') {
-        return;
+        return { groups: [], variants: [], products: [] };
     }
 
     const groups: Group[] = [
@@ -32,7 +35,7 @@ export async function seedScenario(db: Db, scenario: Scenario): Promise<void> {
             group: 'Uogienės',
             name: 'Avietės',
             years: [{ year: currentYear, amounts: [{ variant: 'Stiklainis', amount: 3 }] }],
-            ...(scenario === 'history'
+            ...(scenario === 'history' || scenario === 'history-images'
                 ? {
                       updates: [
                           {
@@ -52,10 +55,23 @@ export async function seedScenario(db: Db, scenario: Scenario): Promise<void> {
         { group: 'Uogienės', name: 'Braškės', years: [{ year: currentYear, amounts: [] }] },
         {
             group: 'Daržovės',
-            name: 'Agurkai',
+            name: 'Morkos',
             years: [{ year: currentYear, amounts: [{ variant: 'Kilogramas', amount: 1 }] }],
         },
     ];
+
+    if (scenario === 'images' || scenario === 'history-images') {
+        const images = [
+            { file: 'uogienes.png', target: groups[0]! },
+            { file: 'darzoves.png', target: groups[1]! },
+            { file: 'avietes.png', target: products[0]! },
+            { file: 'braskes.png', target: products[1]! },
+            { file: 'morkos.png', target: products[2]! },
+        ];
+        for (const { file, target } of images) {
+            target.image = `/images/${file}`;
+        }
+    }
 
     if (scenario === 'annual') {
         products[0]!.years = [
@@ -65,6 +81,27 @@ export async function seedScenario(db: Db, scenario: Scenario): Promise<void> {
     }
     if (scenario === 'review') {
         products[0]!.missing = true;
+    }
+
+    return { groups, variants, products };
+}
+
+export async function seedScenario(db: Db, scenario: Scenario, imagesDir: string): Promise<void> {
+    await db.dropDatabase();
+    if (scenario === 'empty') {
+        return;
+    }
+
+    const { groups, variants, products } = createScenarioData(scenario);
+    if (scenario === 'images' || scenario === 'history-images') {
+        await Promise.all(
+            [...groups, ...products]
+                .filter((item) => item.image)
+                .map((item) => {
+                    const file = path.basename(item.image!);
+                    return copyFile(path.resolve(process.cwd(), 'assets', file), path.join(imagesDir, file));
+                })
+        );
     }
 
     await Promise.all([

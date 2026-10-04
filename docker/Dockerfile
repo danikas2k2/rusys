@@ -1,4 +1,4 @@
-FROM node:26-alpine AS builder
+FROM node:26-slim AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ COPY src ./src
 COPY public ./public
 RUN pnpm exec next build
 
-FROM node:26-alpine
+FROM node:26-slim
 
 WORKDIR /app
 

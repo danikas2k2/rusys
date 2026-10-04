@@ -1,4 +1,4 @@
-import { expect, test } from '@tests/fixtures/test';
+import { expect, test } from '@tests/fixtures/visual';
 
 test.use({ reducedMotion: 'reduce', locale: 'lt-LT', scenario: 'empty' });
 

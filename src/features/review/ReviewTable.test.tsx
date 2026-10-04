@@ -25,7 +25,7 @@ describe('<ReviewTable>', () => {
         { group: 'Uogienės', name: 'Avietės', years: [{ year: 23, amounts: [] }] },
         { group: 'Uogienės', name: 'Braškės', years: [{ year: 22, amounts: [] }] },
         { group: 'Uogienės', name: 'Serbentai', years: [] },
-        { group: 'Daržovės', name: 'Agurkai', years: [{ year: 22, amounts: [] }] },
+        { group: 'Daržovės', name: 'Morkos', years: [{ year: 22, amounts: [] }] },
     ];
     const onToggle = vi.fn();
     const onSelectAll = vi.fn();

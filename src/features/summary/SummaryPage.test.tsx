@@ -76,7 +76,7 @@ describe('<SummaryPage>', () => {
                     ],
                     summary: [
                         { group: 'Uogienės', name: 'Avietės', years: [] },
-                        { group: 'Daržovės', name: 'Agurkai', years: [] },
+                        { group: 'Daržovės', name: 'Morkos', years: [] },
                     ],
                 }}
             >

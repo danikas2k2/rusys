@@ -672,7 +672,7 @@ describe('<ProductBox>', () => {
 
             await selectOption('Daržovės');
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
-            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agurkai');
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Morkos');
             await user.click(screen.getByRole('button', { name: 'Move' }));
 
             expect(moveProduct).not.toHaveBeenCalled();
@@ -711,7 +711,7 @@ describe('<ProductBox>', () => {
     describe('parent product', () => {
         const stateWithChild = {
             ...state,
-            products: [...getProductsFixture(), { group: 'Daržovės', name: 'Agurkai (Zewa)', parent: 'Agurkai' }],
+            products: [...getProductsFixture(), { group: 'Daržovės', name: 'Morkos (Zewa)', parent: 'Morkos' }],
         };
 
         it('does not show the clear button when no parent is selected', async () => {
@@ -731,7 +731,7 @@ describe('<ProductBox>', () => {
             const stateWithProductImage = {
                 ...stateWithChild,
                 products: stateWithChild.products.map((product) =>
-                    product.name === 'Agurkai' ? { ...product, image: '/images/ab/cd/agurkai.png' } : product
+                    product.name === 'Morkos' ? { ...product, image: '/images/ab/cd/morkos.png' } : product
                 ),
             };
             render(
@@ -743,14 +743,14 @@ describe('<ProductBox>', () => {
             const combobox = await getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
-            expect(screen.getByRole('option', { name: 'Agurkai' }).querySelector('img')?.getAttribute('src')).toContain(
-                '/images/ab/cd/agurkai.png?w=32'
+            expect(screen.getByRole('option', { name: 'Morkos' }).querySelector('img')?.getAttribute('src')).toContain(
+                '/images/ab/cd/morkos.png?w=32'
             );
 
-            await selectParentOption('Agurkai');
+            await selectParentOption('Morkos');
 
             expect(combobox.parentElement!.querySelector('img')?.getAttribute('src')).toContain(
-                '/images/ab/cd/agurkai.png?w=32'
+                '/images/ab/cd/morkos.png?w=32'
             );
         });
 
@@ -764,18 +764,18 @@ describe('<ProductBox>', () => {
             const combobox = await getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
-            expect(screen.getByRole('option', { name: 'Agurkai' })).toBeInTheDocument();
+            expect(screen.getByRole('option', { name: 'Morkos' })).toBeInTheDocument();
             expect(screen.getByRole('option', { name: 'Kopūstai' })).toBeInTheDocument();
-            expect(screen.getByRole('option', { name: 'Agurkai (Zewa)' })).toBeInTheDocument();
+            expect(screen.getByRole('option', { name: 'Morkos (Zewa)' })).toBeInTheDocument();
         });
 
         it('orders parent options by tree structure (children directly under their parent), not alphabetically', async () => {
             const treeState = {
                 ...state,
                 products: [
-                    { group: 'Daržovės', name: 'Agurkai' },
+                    { group: 'Daržovės', name: 'Morkos' },
                     { group: 'Daržovės', name: 'Beta' },
-                    { group: 'Daržovės', name: 'Zewa', parent: 'Agurkai' },
+                    { group: 'Daržovės', name: 'Zewa', parent: 'Morkos' },
                     { group: 'Daržovės', name: 'Kopūstai' },
                 ],
             };
@@ -793,15 +793,15 @@ describe('<ProductBox>', () => {
                 .getAllByRole('option')
                 .map((o) => o.querySelector('[data-product-label]')?.textContent);
 
-            expect(options).toStrictEqual(['Agurkai', 'Zewa', 'Beta', 'Kopūstai']);
+            expect(options).toStrictEqual(['Morkos', 'Zewa', 'Beta', 'Kopūstai']);
         });
 
         it('indents child options to reflect their depth in the tree', async () => {
             const treeState = {
                 ...state,
                 products: [
-                    { group: 'Daržovės', name: 'Agurkai' },
-                    { group: 'Daržovės', name: 'Zewa', parent: 'Agurkai' },
+                    { group: 'Daržovės', name: 'Morkos' },
+                    { group: 'Daržovės', name: 'Zewa', parent: 'Morkos' },
                 ],
             };
 
@@ -814,7 +814,7 @@ describe('<ProductBox>', () => {
             const combobox = await getParentProductCombobox();
             act(() => fireEvent.click(combobox));
 
-            expect((await screen.findByRole('option', { name: 'Agurkai' })).querySelector('div')).toHaveStyle({
+            expect((await screen.findByRole('option', { name: 'Morkos' })).querySelector('div')).toHaveStyle({
                 paddingInlineStart: '0px',
             });
             expect(screen.getByRole('option', { name: 'Zewa' }).querySelector('div')).toHaveStyle({
@@ -838,7 +838,7 @@ describe('<ProductBox>', () => {
         it('excludes the product itself and its descendants (would create a cycle)', async () => {
             render(
                 <MockThemeRedux state={stateWithChild}>
-                    <ProductBox opened group="Daržovės" name="Agurkai" onClose={onClose} />
+                    <ProductBox opened group="Daržovės" name="Morkos" onClose={onClose} />
                 </MockThemeRedux>
             );
 
@@ -846,8 +846,8 @@ describe('<ProductBox>', () => {
             act(() => fireEvent.click(combobox));
             const remainingOption = await screen.findByRole('option', { name: 'Kopūstai' });
 
-            expect(screen.queryByRole('option', { name: 'Agurkai' })).not.toBeInTheDocument();
-            expect(screen.queryByRole('option', { name: 'Agurkai (Zewa)' })).not.toBeInTheDocument();
+            expect(screen.queryByRole('option', { name: 'Morkos' })).not.toBeInTheDocument();
+            expect(screen.queryByRole('option', { name: 'Morkos (Zewa)' })).not.toBeInTheDocument();
             expect(remainingOption).toBeInTheDocument();
         });
 
@@ -887,11 +887,11 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agurkai (Perlan)');
-            await selectParentOption('Agurkai');
+            await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Morkos (Perlan)');
+            await selectParentOption('Morkos');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai (Perlan)', 'Agurkai');
+            expect(addProduct).toHaveBeenCalledWith('Daržovės', 'Morkos (Perlan)', 'Morkos');
         });
 
         it('calls setProductParent when the parent changes on an existing product', async () => {
@@ -903,10 +903,10 @@ describe('<ProductBox>', () => {
                 </MockThemeRedux>
             );
 
-            await selectParentOption('Agurkai');
+            await selectParentOption('Morkos');
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(setProductParent).toHaveBeenCalledWith('Daržovės', 'Kopūstai', 'Agurkai');
+            expect(setProductParent).toHaveBeenCalledWith('Daržovės', 'Kopūstai', 'Morkos');
         });
 
         it('does not call setProductParent when the parent is unchanged', async () => {
@@ -928,16 +928,16 @@ describe('<ProductBox>', () => {
             vi.mocked(useSetProductParent).mockReturnValue(setProductParent);
             render(
                 <MockThemeRedux state={stateWithChild}>
-                    <ProductBox opened group="Daržovės" name="Kopūstai" parent="Agurkai" onClose={onClose} />
+                    <ProductBox opened group="Daržovės" name="Kopūstai" parent="Morkos" onClose={onClose} />
                 </MockThemeRedux>
             );
 
             const parentCombobox = await getParentProductCombobox();
 
-            expect(parentCombobox).toHaveValue('Agurkai');
+            expect(parentCombobox).toHaveValue('Morkos');
 
             // Switching away then back to the original category: parentOptions no longer contains
-            // 'Agurkai' at the intermediate step, so the field is cleared - and it stays cleared
+            // 'Morkos' at the intermediate step, so the field is cleared - and it stays cleared
             // (not restored) once we're back, since the clearing effect only ever moves value -> ''.
             await selectOption('Uogienės');
             await selectOption('Daržovės');
@@ -952,7 +952,7 @@ describe('<ProductBox>', () => {
             vi.mocked(useSetProductParent).mockReturnValue(setProductParent);
             render(
                 <MockThemeRedux state={stateWithChild}>
-                    <ProductBox opened group="Daržovės" name="Kopūstai" parent="Agurkai" onClose={onClose} />
+                    <ProductBox opened group="Daržovės" name="Kopūstai" parent="Morkos" onClose={onClose} />
                 </MockThemeRedux>
             );
 
@@ -972,7 +972,7 @@ describe('<ProductBox>', () => {
             vi.mocked(useMoveProduct).mockReturnValue(moveProduct);
             render(
                 <MockThemeRedux state={stateWithChild}>
-                    <ProductBox opened group="Daržovės" name="Agurkai" onClose={onClose} />
+                    <ProductBox opened group="Daržovės" name="Morkos" onClose={onClose} />
                 </MockThemeRedux>
             );
 

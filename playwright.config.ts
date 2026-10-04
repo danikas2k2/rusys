@@ -8,6 +8,7 @@ const screenshotExpect = {
 };
 
 const visualTests = '**/*.snap.ts';
+const visualRun = process.env.PLAYWRIGHT_VISUAL === '1';
 const mobileInteractionTests = [
     '**/AppRouter.spec.ts',
     '**/AmountBox.spec.ts',
@@ -32,7 +33,6 @@ const browserProjects = [
 export default defineConfig({
     testDir: './src',
     testMatch: ['**/*.spec.ts', '**/*.snap.ts'],
-    // Every scenario resets the same temporary MongoDB. Parallel workers need separate servers.
     workers: 1,
     retries: process.env.CI ? 2 : 0,
     reporter: process.env.CI ? 'github' : 'list',
@@ -59,7 +59,9 @@ export default defineConfig({
     ],
     globalTeardown: './src/tests/playwright/global-teardown.ts',
     webServer: {
-        command: 'node --import tsx src/tests/playwright/start-server.ts',
+        command: visualRun
+            ? 'node --import tsx src/tests/playwright/start-visual-server.ts'
+            : 'node --import tsx src/tests/playwright/start-server.ts',
         url: 'http://127.0.0.1:3022',
         reuseExistingServer: false,
         timeout: 120_000,

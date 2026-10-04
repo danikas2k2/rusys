@@ -20,10 +20,10 @@ describe('getKey', () => {
 
     it('generates unique keys for different products', () => {
         const first = { group: 'Uogienės', name: 'Avietės', year: 2024 };
-        const second = { group: 'Daržovės', name: 'Agurkai', year: 2025 };
+        const second = { group: 'Daržovės', name: 'Morkos', year: 2025 };
 
         expect(getKey(first)).toBe('Uogienės:Avietės:2024');
-        expect(getKey(second)).toBe('Daržovės:Agurkai:2025');
+        expect(getKey(second)).toBe('Daržovės:Morkos:2025');
         expect(getKey(first)).not.toBe(getKey(second));
     });
 });
@@ -142,7 +142,7 @@ describe('<UpdatingProductsWrapper>', () => {
         function MultiTest() {
             const firstProduct = { group: 'Uogienės', name: 'Avietės', year: 2024 };
             const isFirstUpdating = useProductUpdating(firstProduct);
-            const secondProduct = { group: 'Daržovės', name: 'Agurkai', year: 2025 };
+            const secondProduct = { group: 'Daržovės', name: 'Morkos', year: 2025 };
             const isSecondUpdating = useProductUpdating(secondProduct);
             const [, setUpdating] = useUpdatingProducts();
 

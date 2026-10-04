@@ -2,3 +2,13 @@
 nextjs-portal {
     visibility: hidden !important;
 }
+
+/* Keep page snapshots stable when the package version changes. */
+.ui-AppShell-footer > span:first-child {
+    font-size: 0 !important;
+
+    &::after {
+        content: "v4.0.0";
+        font-size: var(--mantine-font-size-sm);
+    }
+}

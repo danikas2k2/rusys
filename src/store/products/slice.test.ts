@@ -304,7 +304,7 @@ describe('products', () => {
                             '[2].missing': true,
                         },
                     }),
-                    setProductsMissingAction({ group: 'Daržovės', name: 'Agurkai', missing: false })
+                    setProductsMissingAction({ group: 'Daržovės', name: 'Morkos', missing: false })
                 )
             ).toStrictEqual(
                 bulk(products, {

@@ -1,4 +1,4 @@
-import { expect, test } from '@tests/fixtures/test';
+import { expect, test } from '@tests/fixtures/visual';
 import { openSummaryHistory } from '@tests/helpers/ui';
 
 test.use({ reducedMotion: 'reduce', locale: 'lt-LT', scenario: 'history' });

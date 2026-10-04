@@ -15,11 +15,11 @@ describe('useTransferAmounts', () => {
 
         const { result } = renderHook(() => useTransferAmounts(), { wrapper: MockRedux });
         const amounts = [{ variant: '0.5 l', amount: 3, home: true }];
-        await result.current('Daržovės', 'Agurkai', 22, 'Vaisiai', 'Obuoliai', amounts, 'user@example.com');
+        await result.current('Daržovės', 'Morkos', 22, 'Vaisiai', 'Obuoliai', amounts, 'user@example.com');
 
         expect(transferAmountsAction).toHaveBeenCalledWith(
             'Daržovės',
-            'Agurkai',
+            'Morkos',
             22,
             'Vaisiai',
             'Obuoliai',

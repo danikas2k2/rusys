@@ -51,7 +51,7 @@ describe('<AmountHistoryRow>', () => {
     it('treats a missing amounts field as empty instead of crashing', () => {
         renderRow({
             group: 'Daržovės',
-            name: 'Agurkai',
+            name: 'Morkos',
             time: 1000,
         });
 
@@ -62,7 +62,7 @@ describe('<AmountHistoryRow>', () => {
     it('does not expand when the entry has no consumed lines', async () => {
         renderRow({
             group: 'Daržovės',
-            name: 'Agurkai',
+            name: 'Morkos',
             time: 1000,
             year: 22,
             amounts: [{ variant: 'p', amount: 2 }],
@@ -77,7 +77,7 @@ describe('<AmountHistoryRow>', () => {
         renderRow(
             {
                 group: 'Daržovės',
-                name: 'Agurkai',
+                name: 'Morkos',
                 time: 1000,
                 year: 22,
                 amounts: [{ variant: 'd', amount: -3, recycled: false }],
@@ -93,7 +93,7 @@ describe('<AmountHistoryRow>', () => {
     it('expands the move form, passing only the consumed lines, when clicked', async () => {
         renderRow({
             group: 'Daržovės',
-            name: 'Agurkai',
+            name: 'Morkos',
             time: 1000,
             year: 22,
             amounts: [
@@ -111,7 +111,7 @@ describe('<AmountHistoryRow>', () => {
     it('collapses the form when the row is clicked again', async () => {
         renderRow({
             group: 'Daržovės',
-            name: 'Agurkai',
+            name: 'Morkos',
             time: 1000,
             year: 22,
             amounts: [{ variant: 'd', amount: -3, recycled: false }],
@@ -130,7 +130,7 @@ describe('<AmountHistoryRow>', () => {
     it('calls moveConsumedToRecycled with the entry identity and its own author, and collapses on success', async () => {
         renderRow({
             group: 'Daržovės',
-            name: 'Agurkai',
+            name: 'Morkos',
             time: 1000,
             year: 22,
             user: 'author@example.com',
@@ -142,7 +142,7 @@ describe('<AmountHistoryRow>', () => {
 
         expect(moveConsumedToRecycled).toHaveBeenCalledWith(
             'Daržovės',
-            'Agurkai',
+            'Morkos',
             22,
             'd',
             1,
@@ -156,7 +156,7 @@ describe('<AmountHistoryRow>', () => {
     it('passes the line expiresAt through to moveConsumedToRecycled', async () => {
         renderRow({
             group: 'Daržovės',
-            name: 'Agurkai',
+            name: 'Morkos',
             time: 1000,
             year: 22,
             user: 'author@example.com',
@@ -168,7 +168,7 @@ describe('<AmountHistoryRow>', () => {
 
         expect(moveConsumedToRecycled).toHaveBeenCalledWith(
             'Daržovės',
-            'Agurkai',
+            'Morkos',
             22,
             'd',
             1,
@@ -180,7 +180,7 @@ describe('<AmountHistoryRow>', () => {
     it('passes the entry author even when it differs from whoever is performing the correction', async () => {
         renderRow({
             group: 'Daržovės',
-            name: 'Agurkai',
+            name: 'Morkos',
             time: 1000,
             year: 22,
             user: 'original-author@example.com',
@@ -192,7 +192,7 @@ describe('<AmountHistoryRow>', () => {
 
         expect(moveConsumedToRecycled).toHaveBeenCalledWith(
             'Daržovės',
-            'Agurkai',
+            'Morkos',
             22,
             'd',
             1,
@@ -204,7 +204,7 @@ describe('<AmountHistoryRow>', () => {
     it('defaults year to 0 when the history entry has no year', async () => {
         renderRow({
             group: 'Daržovės',
-            name: 'Agurkai',
+            name: 'Morkos',
             time: 1000,
             amounts: [{ variant: 'd', amount: -3, recycled: false }],
         });
@@ -214,7 +214,7 @@ describe('<AmountHistoryRow>', () => {
 
         expect(moveConsumedToRecycled).toHaveBeenCalledWith(
             'Daržovės',
-            'Agurkai',
+            'Morkos',
             0,
             'd',
             1,

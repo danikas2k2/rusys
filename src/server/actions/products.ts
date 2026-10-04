@@ -180,7 +180,7 @@ export async function setVariantImageAction(
     image: string
 ): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name) || !isRequiredString(variant) || !isRequiredString(image)) {
+    if (!isProduct(group, name) || !isRequiredString(variant) || (image !== '' && !isRequiredString(image))) {
         throw new Error('Invalid product update');
     }
     if (!(await setVariantImage(group, name, variant, image))) {

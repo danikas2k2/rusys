@@ -15,6 +15,12 @@ export async function getSummaryHistory(group: string, name: string, year: numbe
     if (!isRequiredString(group) || !isRequiredString(name) || !isYear(year)) {
         throw new Error('Invalid history selection');
     }
+    if (process.env.PLAYWRIGHT_TEST === '1') {
+        const { getVisualScenario, getVisualSummaryHistory } = await import('~/tests/fixtures/visualData');
+        if (await getVisualScenario()) {
+            return getVisualSummaryHistory(group, name, year);
+        }
+    }
     const [updates, undates] = await Promise.all([
         getSummaryUpdates(group, name, year),
         getSummaryUndates(group, name, year),

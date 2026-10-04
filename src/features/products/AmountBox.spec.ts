@@ -106,7 +106,7 @@ test.describe('product amounts', () => {
     test('consumes stock with a comment, then undoes and redoes it @critical', async ({ page, db }) => {
         await page.goto('/');
         let amount = await openProduct(page, 'Avietės');
-        await amount.locator('[data-amount-variant-key="Stiklainis"]').click();
+        await amount.locator('[data-amount-variant-key="Stiklainis"] [aria-expanded="false"]').click();
         await amount.getByRole('textbox', { name: 'consumed' }).fill('1');
         await amount.getByPlaceholder('Komentaras').fill('Suvalgytas stiklainis');
         await amount.getByRole('button', { name: 'Naujinti' }).click();
@@ -130,9 +130,9 @@ test.describe('product amounts', () => {
     });
 
     test('adds stock and records discarded amounts in the summary', async ({ page, db }) => {
-        await page.goto('/');
+        await page.goto('/', { waitUntil: 'domcontentloaded' });
         const amount = await openProduct(page, 'Avietės');
-        await amount.locator('[data-amount-variant-key="Stiklainis"]').click();
+        await amount.locator('[data-amount-variant-key="Stiklainis"] [aria-expanded="false"]').click();
         await amount.getByRole('textbox', { name: 'updated' }).fill('2');
         await amount.getByRole('textbox', { name: 'recycled' }).fill('1');
         await amount.getByRole('button', { name: 'Naujinti' }).click();
@@ -154,7 +154,7 @@ test.describe('product amounts', () => {
         await page.goto('/');
         const amount = await openProduct(page, 'Avietės');
         await amount.getByRole('button', { name: 'Perkelti variantus' }).click();
-        await amount.locator('[data-amount-variant-key="Stiklainis"]').click();
+        await amount.locator('[data-amount-variant-key="Stiklainis"] [aria-expanded="false"]').click();
         const target = amount.getByRole('combobox', { name: 'Perkelti į' });
         await target.click();
         await page.getByRole('option', { name: 'Braškės' }).click();
@@ -173,7 +173,7 @@ test.describe('product amounts', () => {
     test('reclassifies part of consumed stock as discarded from history', async ({ page, db }) => {
         await page.goto('/');
         let amount = await openProduct(page, 'Avietės');
-        await amount.locator('[data-amount-variant-key="Stiklainis"]').click();
+        await amount.locator('[data-amount-variant-key="Stiklainis"] [aria-expanded="false"]').click();
         await amount.getByRole('textbox', { name: 'consumed' }).fill('2');
         await amount.getByRole('button', { name: 'Naujinti' }).click();
         amount = await openProduct(page, 'Avietės');

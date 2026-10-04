@@ -32,7 +32,7 @@ describe('<SummaryGrid>', () => {
                 years: [{ year: 22, amounts: [{ variant: 'p', amount: 5, recycled: false }] }],
             },
             { group: 'Uogienės', name: 'Braškės', years: [] },
-            { group: 'Daržovės', name: 'Agurkai', years: [] },
+            { group: 'Daržovės', name: 'Morkos', years: [] },
         ]);
     });
 
@@ -51,6 +51,6 @@ describe('<SummaryGrid>', () => {
         expect(firstAvailableYearTile).toHaveAttribute('data-year', '22');
         expect(firstAvailableYearTile).toHaveTextContent('5');
         expect(screen.getByText('Braškės').closest('[data-summary-tile]')).toHaveAttribute('data-hidden', 'true');
-        expect(screen.queryByText('Agurkai')).not.toBeInTheDocument();
+        expect(screen.queryByText('Morkos')).not.toBeInTheDocument();
     });
 });

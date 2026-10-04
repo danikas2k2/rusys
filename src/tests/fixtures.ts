@@ -92,7 +92,7 @@ export const getProductsFixture = (): Product[] => [
     },
     {
         group: 'Daržovės',
-        name: 'Agurkai',
+        name: 'Morkos',
         years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
         updates: [
             {
@@ -139,7 +139,7 @@ export const getSummaryFixture = (): Summary[] => [
             },
         ],
     },
-    { group: 'Daržovės', name: 'Agurkai', years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }] },
+    { group: 'Daržovės', name: 'Morkos', years: [{ year: 22, amounts: [{ variant: 'd', amount: 1 }] }] },
     { group: 'Daržovės', name: 'Kopūstai', years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }] }] },
 ];
 

@@ -1,5 +1,5 @@
 import { currentYear } from '@tests/fixtures/data';
-import { expect, test } from '@tests/fixtures/test';
+import { expect, test } from '@tests/fixtures/visual';
 import { openProduct } from '@tests/helpers/ui';
 
 test.use({ reducedMotion: 'reduce', locale: 'lt-LT' });

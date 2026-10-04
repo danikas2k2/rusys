@@ -23,6 +23,7 @@ test.describe('categories', () => {
         await dialog.getByRole('checkbox', { name: 'Peržiūra' }).check();
         await dialog.getByRole('button', { name: 'Pridėti' }).click();
         await expect(page.getByRole('row', { name: /Konservai/ })).toBeVisible();
+        await expect.poll(() => db.collection<Group>('groups').countDocuments({ group: 'Konservai' })).toBe(1);
         await page.reload();
         await expect(page.getByRole('row', { name: /Konservai/ })).toBeVisible();
         const category = await db.collection<Group>('groups').findOne({ group: 'Konservai' });

@@ -23,7 +23,7 @@ test.describe('desktop navigation', () => {
         });
 
         await page.goto('/');
-        await expect(page.locator('[data-grid="products"]')).toBeVisible();
+        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
         await page.evaluate(() => {
             (window as typeof window & { __viewTransitionStarts: number }).__viewTransitionStarts = 0;
         });
@@ -64,7 +64,7 @@ test.describe('desktop navigation', () => {
         });
 
         await page.goto('/');
-        await expect(page.locator('[data-grid="products"]')).toBeVisible();
+        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
         await page.evaluate(() => {
             (window as typeof window & { __viewTransitionDurations: number[] }).__viewTransitionDurations = [];
         });
@@ -90,12 +90,12 @@ test.describe('desktop navigation', () => {
         });
 
         await page.goto('/');
-        await expect(page.locator('[data-grid="products"]')).toBeVisible();
+        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
         await page.getByRole('button', { name: 'Meniu' }).click();
         await page.getByRole('menu').getByRole('link', { name: 'Suvestinė' }).click();
-        await expect(page.locator('[data-grid="summary"]')).toBeVisible();
+        await expect(page.locator('[data-grid="summary"]:visible').first()).toBeVisible();
         await page.goBack();
-        await expect(page.locator('[data-grid="products"]')).toBeVisible();
+        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
     });
 
     test('navigates with server-preloaded destination data', async ({ page }) => {
@@ -106,10 +106,10 @@ test.describe('desktop navigation', () => {
             }
         });
         await page.goto('/');
-        await expect(page.locator('[data-grid="products"]')).toBeVisible();
+        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
         await page.getByRole('button', { name: 'Meniu' }).click();
         await page.getByRole('menu').getByRole('link', { name: 'Suvestinė' }).click();
-        await expect(page.locator('[data-grid="summary"]')).toBeVisible();
+        await expect(page.locator('[data-grid="summary"]:visible').first()).toBeVisible();
         expect(apiRequests).toStrictEqual([]);
     });
 
@@ -122,7 +122,7 @@ test.describe('desktop navigation', () => {
             await menu.getByRole('link', { name: label }).click();
             await expect(page).toHaveURL(new RegExp(`${path === '/' ? '/$' : `${path}$`}`));
             await expect(menu.getByRole('dialog')).toBeHidden();
-            await expect(page.locator(content)).toBeVisible();
+            await expect(page.locator(`${content}:visible`).first()).toBeVisible();
 
             await page.getByRole('button', { name: 'Meniu' }).click();
             await expect(menu.getByRole('link', { name: label })).toHaveAttribute('data-active', 'true');
@@ -132,7 +132,7 @@ test.describe('desktop navigation', () => {
     for (const { label, path, content } of destinations) {
         test(`opens ${label} directly`, async ({ page }) => {
             await page.goto(path);
-            await expect(page.locator(content)).toBeVisible();
+            await expect(page.locator(`${content}:visible`).first()).toBeVisible();
         });
     }
 

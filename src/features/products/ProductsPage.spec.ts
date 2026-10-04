@@ -229,13 +229,11 @@ test.describe('products', () => {
         await amount.getByRole('button', { name: 'Taisyti' }).click();
         edit = page.getByRole('dialog', { name: 'Taisyti produktą' });
         const category = edit.getByRole('combobox', { name: 'Kategorija' });
-        await expect(async () => {
-            await category.click();
-            await category.fill('Daržovės');
-            await category.press('ArrowDown');
-            await category.press('Enter');
-            await expect(category).toHaveValue('Daržovės', { timeout: 1000 });
-        }).toPass({ timeout: 10000 });
+        await category.click();
+        const vegetables = page.getByRole('option', { name: 'Daržovės' });
+        await expect(vegetables).toBeVisible();
+        await vegetables.click();
+        await expect(category).toHaveValue('Daržovės');
         await edit.getByRole('button', { name: 'Perkelti' }).click();
         await expect
             .poll(async () => (await db.collection<Product>('products').findOne({ name: 'Aviečių džemas' }))?.group)

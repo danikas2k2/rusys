@@ -16,7 +16,11 @@ const contentSecurityPolicy = [
 ].join('; ');
 
 const nextConfig: NextConfig = {
-    distDir: process.env.PLAYWRIGHT_TEST ? '.next-e2e' : '.next',
+    distDir: process.env.PLAYWRIGHT_TEST
+        ? process.env.PLAYWRIGHT_VISUAL === '1'
+            ? '.next-e2e-visual'
+            : '.next-e2e'
+        : '.next',
     output: 'standalone',
     serverExternalPackages: ['mongodb', 'sharp'],
     experimental: {

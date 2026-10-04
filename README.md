@@ -28,7 +28,7 @@ pnpm test:e2e
 Greitam svarbiausių grandinių patikrinimui naudok `pnpm test:e2e:critical`. Jei nori matyti veiksmus naršyklėje, naudok `pnpm test:e2e:headed`. `pnpm test:e2e:ui`
 atidaro interaktyvią Playwright sąsają, kurioje testus reikia paleisti paspaudus „Run“.
 
-Visos `test:e2e` komandos vykdo tik `*.spec.ts` testus. Vaizdinius `*.snap.ts` testus paleidžia `pnpm test:visual`, o etalonus atnaujina `pnpm test:visual:update`.
+Visos `test:e2e` komandos vykdo tik `*.spec.ts` testus. Vaizdinius `*.snap.ts` testus paleidžia `pnpm test:visual`, o etalonus atnaujina `pnpm test:visual:update`. Vaizdiniai testai naudoja vieną Next serverį ir testinius duomenis be MongoDB. E2E testai naudoja vieną Next serverį ir laikiną MongoDB. Visi Playwright testai vykdomi viename workeryje.
 
 ## Kodo struktūra
 

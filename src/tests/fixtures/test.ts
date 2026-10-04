@@ -9,9 +9,10 @@ import { seedScenario, type Scenario } from './data';
 
 interface Runtime {
     uri: string;
+    pid: number;
+    port: number;
     dbName: string;
     imagesDir: string;
-    pid: number;
 }
 
 async function getRuntime(): Promise<Runtime> {
@@ -21,6 +22,7 @@ async function getRuntime(): Promise<Runtime> {
     if (
         uri.protocol !== 'mongodb:' ||
         uri.hostname !== '127.0.0.1' ||
+        runtime.port !== 3022 ||
         runtime.dbName !== 'rusys_playwright' ||
         !runtime.imagesDir.startsWith(path.join(os.tmpdir(), 'rusys-e2e-images-')) ||
         !Number.isInteger(runtime.pid)
@@ -30,26 +32,40 @@ async function getRuntime(): Promise<Runtime> {
     return runtime;
 }
 
-export const test = base.extend<{ scenario: Scenario; db: Db; imagesDir: string; _seed: void }>({
+export const test = base.extend<{ scenario: Scenario; _seed: void }, { runtime: Runtime; db: Db; imagesDir: string }>({
     scenario: ['basic', { option: true }],
-    db: async ({}, run) => {
-        const runtime = await getRuntime();
-        const client = await MongoClient.connect(runtime.uri);
-        try {
-            await run(client.db(runtime.dbName));
-        } finally {
-            await client.close();
-        }
+    runtime: [
+        async ({}, run) => {
+            await run(await getRuntime());
+        },
+        { scope: 'worker' },
+    ],
+    baseURL: async ({ runtime }, run) => {
+        await run(`http://127.0.0.1:${runtime.port}`);
     },
-    imagesDir: async ({}, run) => {
-        await run((await getRuntime()).imagesDir);
-    },
+    db: [
+        async ({ runtime }, run) => {
+            const client = await MongoClient.connect(runtime.uri);
+            try {
+                await run(client.db(runtime.dbName));
+            } finally {
+                await client.close();
+            }
+        },
+        { scope: 'worker' },
+    ],
+    imagesDir: [
+        async ({ runtime }, run) => {
+            await run(runtime.imagesDir);
+        },
+        { scope: 'worker' },
+    ],
     _seed: [
         async ({ db, imagesDir, scenario }, run) => {
             for (const name of await readdir(imagesDir)) {
                 await rm(path.join(imagesDir, name), { recursive: true, force: true });
             }
-            await seedScenario(db, scenario);
+            await seedScenario(db, scenario, imagesDir);
             await run();
         },
         { auto: true },

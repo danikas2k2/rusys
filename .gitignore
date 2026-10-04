@@ -30,5 +30,5 @@ yarn-error.log*
 
 *.*_
 /.next/
-/.next-e2e/
+/.next-*
 /next-env.d.ts

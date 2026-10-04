@@ -98,9 +98,9 @@ describe('common', () => {
 
     describe('moveProductOccurrences', () => {
         it('moves products occurrences, returns true', async () => {
-            await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBe(true);
-            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
-            expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkai', session);
+            await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti')).resolves.toBe(true);
+            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Morkos', 'Šaldyti', undefined, session);
+            expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Morkos', session);
             expect(copyVariants).toHaveBeenCalledWith(
                 'Daržovės',
                 'Šaldyti',
@@ -126,8 +126,8 @@ describe('common', () => {
         });
 
         it('moves products occurrences with new name, returns true', async () => {
-            await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti', 'Agurkėliai')).resolves.toBe(true);
-            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', 'Agurkėliai', session);
+            await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti', 'Agurkėliai')).resolves.toBe(true);
+            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Morkos', 'Šaldyti', 'Agurkėliai', session);
             expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkėliai', session);
             expect(copyVariants).toHaveBeenCalledWith(
                 'Daržovės',
@@ -162,15 +162,15 @@ describe('common', () => {
             async ({ value }: { value: readonly string[] | undefined }) => {
                 vi.mocked(getProductVariants).mockResolvedValueOnce(value);
 
-                await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBe(true);
-                expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
-                expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkai', session);
+                await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti')).resolves.toBe(true);
+                expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Morkos', 'Šaldyti', undefined, session);
+                expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Morkos', session);
                 expect(copyVariants).not.toHaveBeenCalledWith();
                 await expect($all('groups')).resolves.toStrictEqual(groups);
                 await expect($all('variants')).resolves.toStrictEqual(variants);
                 await expect($all('products')).resolves.toStrictEqual([
                     ...products.slice(0, 2),
-                    { ...products[2], group: 'Šaldyti', name: 'Agurkai' },
+                    { ...products[2], group: 'Šaldyti', name: 'Morkos' },
                     ...products.slice(3),
                 ]);
             }
@@ -179,8 +179,8 @@ describe('common', () => {
         it('returns false if moveProduct returns false', async () => {
             vi.mocked(moveProduct).mockResolvedValueOnce(false);
 
-            await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBe(false);
-            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
+            await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti')).resolves.toBe(false);
+            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Morkos', 'Šaldyti', undefined, session);
             expect(getProductVariants).not.toHaveBeenCalled();
             expect(copyVariants).not.toHaveBeenCalledWith();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -191,10 +191,10 @@ describe('common', () => {
         it('rejects if moveProduct fails', async () => {
             vi.mocked(moveProduct).mockRejectedValueOnce('Failed to move products');
 
-            await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).rejects.toBe(
+            await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti')).rejects.toBe(
                 'Failed to move products'
             );
-            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
+            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Morkos', 'Šaldyti', undefined, session);
             expect(getProductVariants).not.toHaveBeenCalled();
             expect(copyVariants).not.toHaveBeenCalledWith();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -205,11 +205,11 @@ describe('common', () => {
         it('rejects if copyVariants fails', async () => {
             vi.mocked(copyVariants).mockRejectedValueOnce('Failed to rename variants group');
 
-            await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).rejects.toBe(
+            await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti')).rejects.toBe(
                 'Failed to rename variants group'
             );
-            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Agurkai', 'Šaldyti', undefined, session);
-            expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkai', session);
+            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Morkos', 'Šaldyti', undefined, session);
+            expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Morkos', session);
             expect(copyVariants).toHaveBeenCalledWith(
                 'Daržovės',
                 'Šaldyti',
@@ -222,9 +222,9 @@ describe('common', () => {
         });
 
         it('blocks the move and does not touch anything when the product has children', async () => {
-            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+            await addProduct('Daržovės', 'Morkos (Zewa)', 'Morkos');
 
-            await expect(moveProductOccurrences('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBe(false);
+            await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti')).resolves.toBe(false);
 
             expect(moveProduct).not.toHaveBeenCalled();
             expect(getProductVariants).not.toHaveBeenCalled();
@@ -232,7 +232,7 @@ describe('common', () => {
 
             const all = (await $all('products')) as { group: string; name: string }[];
 
-            expect(all.some((p) => p.group === 'Daržovės' && p.name === 'Agurkai')).toBe(true);
+            expect(all.some((p) => p.group === 'Daržovės' && p.name === 'Morkos')).toBe(true);
         });
     });
 

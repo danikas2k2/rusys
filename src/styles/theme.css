@@ -22,10 +22,10 @@
     /* Heading weights */
     --mantine-h1-font-weight: var(--mantine-font-weight-lg);
     --mantine-h2-font-weight: var(--mantine-font-weight-lg);
-    --mantine-h3-font-weight: var(--mantine-font-weight-md);
-    --mantine-h4-font-weight: var(--mantine-font-weight-sm);
-    --mantine-h5-font-weight: var(--mantine-font-weight-xs);
-    --mantine-h6-font-weight: var(--mantine-font-weight-xs);
+    --mantine-h3-font-weight: var(--mantine-font-weight-lg);
+    --mantine-h4-font-weight: var(--mantine-font-weight-lg);
+    --mantine-h5-font-weight: var(--mantine-font-weight-xl);
+    --mantine-h6-font-weight: var(--mantine-font-weight-xl);
 
     /* Other mantine values */
 

@@ -74,6 +74,7 @@ describe('product actions', () => {
         ['removing year', () => setProductRemovingAction('A', 'P', NaN, true), setRemoving],
         ['product image', () => setProductImageAction('A', 'P', 42 as never), setImage],
         ['variant image identity', () => setVariantImageAction('A', 'P', [] as never, 'image'), setVariantImage],
+        ['variant image value', () => setVariantImageAction('A', 'P', 'v', 42 as never), setVariantImage],
         ['stock row', () => setAmountsAction('A', 'P', 2026, [{ variant: 'v', amount: Infinity }]), setAmounts],
         [
             'transfer row',
@@ -149,6 +150,7 @@ describe('product actions', () => {
             setVariantImage,
             ['A', 'P', 'v', 'image'],
         ],
+        ['remove variant image', () => setVariantImageAction('A', 'P', 'v', ''), setVariantImage, ['A', 'P', 'v', '']],
         [
             'set amounts',
             () => setAmountsAction('A', 'P', 2026, [{ variant: 'v', amount: 2 }]),

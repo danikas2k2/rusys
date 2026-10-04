@@ -9,7 +9,7 @@ vi.mock(import('~/server/data/products'), () => ({ transferAmounts: vi.fn() }));
 const params = { group: 'Uogienės', name: 'Avietės', year: '26' };
 const body = {
     targetGroup: 'Daržovės',
-    targetName: 'Agurkai',
+    targetName: 'Morkos',
     amounts: [{ variant: 'Stiklainis', amount: 2 }],
     user: 'tester',
     comment: 'Perkelta',
@@ -45,7 +45,7 @@ describe('handlePostProductAmountTransfer', () => {
             'Avietės',
             26,
             'Daržovės',
-            'Agurkai',
+            'Morkos',
             body.amounts,
             'tester',
             'Perkelta'

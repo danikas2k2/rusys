@@ -102,10 +102,10 @@ describe('products', () => {
                 await db()
             )
                 .collection('products')
-                .updateOne({ group: 'Daržovės', name: 'Agurkai' }, { $set: { expiryToleranceDays: 365 } });
+                .updateOne({ group: 'Daržovės', name: 'Morkos' }, { $set: { expiryToleranceDays: 365 } });
 
             await expect(getProducts([22])).resolves.toContainEqual(
-                expect.objectContaining({ group: 'Daržovės', name: 'Agurkai', expiryToleranceDays: 365 })
+                expect.objectContaining({ group: 'Daržovės', name: 'Morkos', expiryToleranceDays: 365 })
             );
         });
 
@@ -113,14 +113,14 @@ describe('products', () => {
             await expect(getProducts([21, 22])).resolves.toStrictEqual([
                 {
                     group: 'Daržovės',
-                    name: 'Agurkai',
-                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
-                    updates: expect.arrayContaining([{ year: 22 }]),
+                    name: 'Kopūstai',
+                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }],
                 },
                 {
                     group: 'Daržovės',
-                    name: 'Kopūstai',
-                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }],
+                    name: 'Morkos',
+                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
+                    updates: expect.arrayContaining([{ year: 22 }]),
                 },
                 {
                     group: 'Uogienės',
@@ -158,14 +158,14 @@ describe('products', () => {
             await expect(getProducts()).resolves.toStrictEqual([
                 {
                     group: 'Daržovės',
-                    name: 'Agurkai',
-                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
-                    updates: expect.arrayContaining([{ year: 22 }]),
+                    name: 'Kopūstai',
+                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }],
                 },
                 {
                     group: 'Daržovės',
-                    name: 'Kopūstai',
-                    years: [{ year: 21, amounts: [{ variant: 'p', amount: 2 }], removing: true }],
+                    name: 'Morkos',
+                    years: [{ year: 22, amounts: [{ variant: 'd', amount: 3 }] }],
+                    updates: expect.arrayContaining([{ year: 22 }]),
                 },
                 {
                     group: 'Uogienės',
@@ -192,16 +192,16 @@ describe('products', () => {
                 await db()
             )
                 .collection('products')
-                .updateOne({ group: 'Daržovės', name: 'Agurkai' }, { $set: { image: '/images/ab/cd/agurkai.png' } });
+                .updateOne({ group: 'Daržovės', name: 'Morkos' }, { $set: { image: '/images/ab/cd/morkos.png' } });
 
-            const agurkai = (await getProducts([22])).find((p) => p.name === 'Agurkai');
+            const morkos = (await getProducts([22])).find((p) => p.name === 'Morkos');
 
-            expect(agurkai?.image).toBe('/images/ab/cd/agurkai.png');
+            expect(morkos?.image).toBe('/images/ab/cd/morkos.png');
         });
 
         it('returns stored image and variant photo fields without classifying on read', async () => {
             await (await db()).collection('products').updateOne(
-                { group: 'Daržovės', name: 'Agurkai' },
+                { group: 'Daržovės', name: 'Morkos' },
                 {
                     $set: {
                         image: '/images/ab/cd/icon.png',
@@ -212,9 +212,9 @@ describe('products', () => {
                 }
             );
 
-            const agurkai = (await getProducts([22])).find((product) => product.name === 'Agurkai');
+            const morkos = (await getProducts([22])).find((product) => product.name === 'Morkos');
 
-            expect(agurkai).toMatchObject({
+            expect(morkos).toMatchObject({
                 image: '/images/ab/cd/icon.png',
                 photo: '/images/ab/cd/photo.png',
                 variantImages: { '0.5l': '/images/ab/cd/variant-icon.png' },
@@ -268,25 +268,25 @@ describe('products', () => {
         });
 
         it('adds a product with a parent that exists in the same group', async () => {
-            await expect(addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai')).resolves.toBe(true);
+            await expect(addProduct('Daržovės', 'Morkos (Zewa)', 'Morkos')).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual([
                 ...products,
-                { group: 'Daržovės', name: 'Agurkai (Zewa)', parent: 'Agurkai' },
+                { group: 'Daržovės', name: 'Morkos (Zewa)', parent: 'Morkos' },
             ]);
         });
 
         it('does not add a product whose parent does not exist in the same group', async () => {
-            await expect(addProduct('Daržovės', 'Agurkai (Zewa)', 'Neegzistuoja')).resolves.toBe(false);
+            await expect(addProduct('Daržovės', 'Morkos (Zewa)', 'Neegzistuoja')).resolves.toBe(false);
             await expect($all('products')).resolves.toStrictEqual(products);
         });
 
         it('does not add a product whose parent exists but in a different group', async () => {
-            await expect(addProduct('Uogienės', 'Braškės (Zewa)', 'Agurkai')).resolves.toBe(false);
+            await expect(addProduct('Uogienės', 'Braškės (Zewa)', 'Morkos')).resolves.toBe(false);
             await expect($all('products')).resolves.toStrictEqual(products);
         });
 
         it('does not add a product that is its own parent', async () => {
-            await expect(addProduct('Daržovės', 'Agurkai', 'Agurkai')).resolves.toBe(false);
+            await expect(addProduct('Daržovės', 'Morkos', 'Morkos')).resolves.toBe(false);
             await expect($all('products')).resolves.toStrictEqual(products);
         });
     });
@@ -295,41 +295,41 @@ describe('products', () => {
         type ProductRow = { group: string; name: string; parent?: string };
 
         beforeEach(async () => {
-            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+            await addProduct('Daržovės', 'Morkos (Zewa)', 'Morkos');
         });
 
         it('sets the parent for a root-level product', async () => {
-            await expect(setProductParent('Daržovės', 'Kopūstai', 'Agurkai')).resolves.toBe(true);
+            await expect(setProductParent('Daržovės', 'Kopūstai', 'Morkos')).resolves.toBe(true);
 
             const all = (await $all('products')) as ProductRow[];
 
-            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Kopūstai')?.parent).toBe('Agurkai');
+            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Kopūstai')?.parent).toBe('Morkos');
         });
 
         it('clears the parent when no parent is given', async () => {
-            await expect(setProductParent('Daržovės', 'Agurkai (Zewa)', undefined)).resolves.toBe(true);
+            await expect(setProductParent('Daržovės', 'Morkos (Zewa)', undefined)).resolves.toBe(true);
 
             const all = (await $all('products')) as ProductRow[];
 
-            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai (Zewa)')?.parent).toBeUndefined();
+            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Morkos (Zewa)')?.parent).toBeUndefined();
         });
 
         it('rejects setting a product as its own parent', async () => {
-            await expect(setProductParent('Daržovės', 'Agurkai', 'Agurkai')).resolves.toBe(false);
+            await expect(setProductParent('Daržovės', 'Morkos', 'Morkos')).resolves.toBe(false);
         });
 
         it('rejects setting a direct child as the parent (would create a cycle)', async () => {
-            await expect(setProductParent('Daržovės', 'Agurkai', 'Agurkai (Zewa)')).resolves.toBe(false);
+            await expect(setProductParent('Daržovės', 'Morkos', 'Morkos (Zewa)')).resolves.toBe(false);
 
             const all = (await $all('products')) as ProductRow[];
 
-            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')?.parent).toBeUndefined();
+            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Morkos')?.parent).toBeUndefined();
         });
 
         it('rejects setting a grandchild as the parent (cycle at any depth)', async () => {
-            await addProduct('Daržovės', 'Agurkai (Zewa) 3sl.', 'Agurkai (Zewa)');
+            await addProduct('Daržovės', 'Morkos (Zewa) 3sl.', 'Morkos (Zewa)');
 
-            await expect(setProductParent('Daržovės', 'Agurkai', 'Agurkai (Zewa) 3sl.')).resolves.toBe(false);
+            await expect(setProductParent('Daržovės', 'Morkos', 'Morkos (Zewa) 3sl.')).resolves.toBe(false);
         });
 
         it('does not hang when walking a pre-existing cyclic parent chain in the data', async () => {
@@ -351,7 +351,7 @@ describe('products', () => {
         });
 
         it('rejects a parent from a different group', async () => {
-            await expect(setProductParent('Uogienės', 'Braškės', 'Agurkai')).resolves.toBe(false);
+            await expect(setProductParent('Uogienės', 'Braškės', 'Morkos')).resolves.toBe(false);
         });
 
         it('rejects a nonexistent parent', async () => {
@@ -360,10 +360,10 @@ describe('products', () => {
 
         it.each`
             title            | group         | name
-            ${'empty group'} | ${''}         | ${'Agurkai'}
+            ${'empty group'} | ${''}         | ${'Morkos'}
             ${'empty name'}  | ${'Daržovės'} | ${''}
         `('returns false for $title', async ({ group, name }: { group: string; name: string }) => {
-            await expect(setProductParent(group, name, 'Agurkai')).resolves.toBe(false);
+            await expect(setProductParent(group, name, 'Morkos')).resolves.toBe(false);
         });
     });
 
@@ -375,7 +375,7 @@ describe('products', () => {
         ];
 
         it('updates products for existing group, name, and year', async () => {
-            await expect(setAmounts('Daržovės', 'Agurkai', 22, amounts, user)).resolves.toBe(true);
+            await expect(setAmounts('Daržovės', 'Morkos', 22, amounts, user)).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
                     $set: {
@@ -407,7 +407,7 @@ describe('products', () => {
 
         it('updates products for existing group, name, and year but with different variant', async () => {
             await expect(
-                setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'x', amount: 1, recycled: false }], user)
+                setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'x', amount: 1, recycled: false }], user)
             ).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
@@ -429,7 +429,7 @@ describe('products', () => {
         });
 
         it('updates products for existing group, name, but with 0 year for non-annual items', async () => {
-            await expect(setAmounts('Daržovės', 'Agurkai', 0, amounts, user)).resolves.toBe(true);
+            await expect(setAmounts('Daržovės', 'Morkos', 0, amounts, user)).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
                     $set: {
@@ -461,25 +461,23 @@ describe('products', () => {
         });
 
         it('stores the given comment on the new update entry', async () => {
-            await expect(setAmounts('Daržovės', 'Agurkai', 22, amounts, user, 'Pirktas kitas kiekis')).resolves.toBe(
+            await expect(setAmounts('Daržovės', 'Morkos', 22, amounts, user, 'Pirktas kitas kiekis')).resolves.toBe(
                 true
             );
 
             const all = (await $all('products')) as { group: string; name: string; updates?: { comment?: string }[] }[];
-            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
+            const morkos = all.find((p) => p.group === 'Daržovės' && p.name === 'Morkos')!;
 
-            expect(agurkai.updates?.at(-1)?.comment).toBe('Pirktas kitas kiekis');
+            expect(morkos.updates?.at(-1)?.comment).toBe('Pirktas kitas kiekis');
         });
 
         it('unsets years entirely when a non-annual (year 0) update brings combined stock to zero', async () => {
-            await expect(setAmounts('Daržovės', 'Agurkai', 0, [{ variant: 'd', amount: -3 }], user)).resolves.toBe(
-                true
-            );
+            await expect(setAmounts('Daržovės', 'Morkos', 0, [{ variant: 'd', amount: -3 }], user)).resolves.toBe(true);
 
             const all = (await $all('products')) as { group: string; name: string; years?: unknown }[];
-            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
+            const morkos = all.find((p) => p.group === 'Daržovės' && p.name === 'Morkos')!;
 
-            expect(agurkai.years).toBeUndefined();
+            expect(morkos.years).toBeUndefined();
         });
 
         it('does not update products if no updates made', async () => {
@@ -495,8 +493,8 @@ describe('products', () => {
         it.each`
             title                  | group         | name         | year  | changes
             ${'invalid name'}      | ${'Uogienės'} | ${'Bruknės'} | ${22} | ${[change]}
-            ${'invalid group'}     | ${'Šaldyti'}  | ${'Agurkai'} | ${22} | ${[change]}
-            ${'empty group'}       | ${''}         | ${'Agurkai'} | ${22} | ${[change]}
+            ${'invalid group'}     | ${'Šaldyti'}  | ${'Morkos'}  | ${22} | ${[change]}
+            ${'empty group'}       | ${''}         | ${'Morkos'}  | ${22} | ${[change]}
             ${'empty name'}        | ${'Daržovės'} | ${''}        | ${22} | ${[change]}
             ${'empty changes'}     | ${'Uogienės'} | ${'Avietės'} | ${22} | ${[]}
             ${'undefined changes'} | ${'Uogienės'} | ${'Avietės'} | ${22} | ${undefined}
@@ -576,7 +574,7 @@ describe('products', () => {
     describe('transferAmounts', () => {
         it('moves amounts between products in the same category', async () => {
             await expect(
-                transferAmounts('Daržovės', 'Agurkai', 22, 'Daržovės', 'Kopūstai', [{ variant: 'd', amount: 2 }], user)
+                transferAmounts('Daržovės', 'Morkos', 22, 'Daržovės', 'Kopūstai', [{ variant: 'd', amount: 2 }], user)
             ).resolves.toBe(true);
 
             const all = (await $all('products')) as {
@@ -586,7 +584,7 @@ describe('products', () => {
             }[];
 
             expect(
-                all.find((product) => product.group === 'Daržovės' && product.name === 'Agurkai')?.years
+                all.find((product) => product.group === 'Daržovės' && product.name === 'Morkos')?.years
             ).toContainEqual({
                 year: 22,
                 amounts: [{ variant: 'd', amount: 1 }],
@@ -604,7 +602,7 @@ describe('products', () => {
             await expect(
                 transferAmounts(
                     'Daržovės',
-                    'Agurkai',
+                    'Morkos',
                     22,
                     'Daržovės',
                     'Kopūstai',
@@ -619,7 +617,7 @@ describe('products', () => {
 
         it('copies selected variants before moving them to another category', async () => {
             await expect(
-                transferAmounts('Daržovės', 'Agurkai', 22, 'Uogienės', 'Avietės', [{ variant: 'd', amount: 2 }], user)
+                transferAmounts('Daržovės', 'Morkos', 22, 'Uogienės', 'Avietės', [{ variant: 'd', amount: 2 }], user)
             ).resolves.toBe(true);
 
             const all = (await $all('products')) as {
@@ -647,7 +645,7 @@ describe('products', () => {
         });
 
         it('appends a new entry with a positive consumed line and a matching negative recycled line, leaving old history and current balance untouched', async () => {
-            await expect(moveConsumedToRecycled('Daržovės', 'Agurkai', 22, 'd', 2, {}, user)).resolves.toBe(true);
+            await expect(moveConsumedToRecycled('Daržovės', 'Morkos', 22, 'd', 2, {}, user)).resolves.toBe(true);
 
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
@@ -674,7 +672,7 @@ describe('products', () => {
             await expect(
                 moveConsumedToRecycled(
                     'Daržovės',
-                    'Agurkai',
+                    'Morkos',
                     22,
                     'd',
                     1,
@@ -692,9 +690,9 @@ describe('products', () => {
         });
 
         it('clears undates so a stale redo cannot be applied afterwards', async () => {
-            await undoProduct('Daržovės', 'Agurkai', 22);
+            await undoProduct('Daržovės', 'Morkos', 22);
 
-            await expect(moveConsumedToRecycled('Daržovės', 'Agurkai', 22, 'd', 1, {}, undefined)).resolves.toBe(true);
+            await expect(moveConsumedToRecycled('Daržovės', 'Morkos', 22, 'd', 1, {}, undefined)).resolves.toBe(true);
 
             const all = (await $all('products')) as { undates?: unknown[] }[];
 
@@ -702,12 +700,12 @@ describe('products', () => {
         });
 
         it.each`
-            title                | group         | name         | variant | amount
-            ${'empty group'}     | ${''}         | ${'Agurkai'} | ${'d'}  | ${1}
-            ${'empty name'}      | ${'Daržovės'} | ${''}        | ${'d'}  | ${1}
-            ${'empty variant'}   | ${'Daržovės'} | ${'Agurkai'} | ${''}   | ${1}
-            ${'zero amount'}     | ${'Daržovės'} | ${'Agurkai'} | ${'d'}  | ${0}
-            ${'negative amount'} | ${'Daržovės'} | ${'Agurkai'} | ${'d'}  | ${-1}
+            title                | group         | name        | variant | amount
+            ${'empty group'}     | ${''}         | ${'Morkos'} | ${'d'}  | ${1}
+            ${'empty name'}      | ${'Daržovės'} | ${''}       | ${'d'}  | ${1}
+            ${'empty variant'}   | ${'Daržovės'} | ${'Morkos'} | ${''}   | ${1}
+            ${'zero amount'}     | ${'Daržovės'} | ${'Morkos'} | ${'d'}  | ${0}
+            ${'negative amount'} | ${'Daržovės'} | ${'Morkos'} | ${'d'}  | ${-1}
         `(
             'returns false and makes no changes for $title',
             async ({
@@ -731,7 +729,7 @@ describe('products', () => {
 
     describe('undoProduct', () => {
         it('returns false for empty group or name', async () => {
-            await expect(undoProduct('', 'Agurkai', 22)).resolves.toBe(false);
+            await expect(undoProduct('', 'Morkos', 22)).resolves.toBe(false);
             await expect(undoProduct('Daržovės', '', 22)).resolves.toBe(false);
         });
 
@@ -740,8 +738,8 @@ describe('products', () => {
         });
 
         it('undoes a consumed update', async () => {
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -1, recycled: false }], user);
-            await undoProduct('Daržovės', 'Agurkai', 22);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: -1, recycled: false }], user);
+            await undoProduct('Daržovės', 'Morkos', 22);
 
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
@@ -759,7 +757,7 @@ describe('products', () => {
         });
 
         it('reverts inventory changes when undoing', async () => {
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -3, recycled: false }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: -3, recycled: false }], user);
 
             const beforeUndo = (await $all('products')) as {
                 years?: { year: number; amounts: { variant: string; amount: number }[] }[];
@@ -768,7 +766,7 @@ describe('products', () => {
             // inventory hits 0 so year entry is removed
             expect(beforeUndo[2].years).toBeUndefined();
 
-            await undoProduct('Daržovės', 'Agurkai', 22);
+            await undoProduct('Daržovės', 'Morkos', 22);
             const afterUndo = (await $all('products')) as {
                 years?: { year: number; amounts: { variant: string; amount: number }[] }[];
             }[];
@@ -777,27 +775,27 @@ describe('products', () => {
         });
 
         it('moves last update to undates', async () => {
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
-            await undoProduct('Daržovės', 'Agurkai', 22);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
+            await undoProduct('Daržovės', 'Morkos', 22);
 
             const all = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
-            const agurkai = all[2];
+            const morkos = all[2];
 
-            expect(agurkai.undates).toHaveLength(1);
-            expect(agurkai.updates).toHaveLength(2);
+            expect(morkos.undates).toHaveLength(1);
+            expect(morkos.updates).toHaveLength(2);
         });
 
         it('stacks multiple undos correctly', async () => {
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
-            await undoProduct('Daržovės', 'Agurkai', 22);
-            await undoProduct('Daržovės', 'Agurkai', 22);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await undoProduct('Daržovės', 'Morkos', 22);
+            await undoProduct('Daržovės', 'Morkos', 22);
 
             const all = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
-            const agurkai = all[2];
+            const morkos = all[2];
 
-            expect(agurkai.undates).toHaveLength(2);
-            expect(agurkai.updates).toHaveLength(2);
+            expect(morkos.undates).toHaveLength(2);
+            expect(morkos.updates).toHaveLength(2);
         });
 
         it('clears year entry when undo brings inventory to zero', async () => {
@@ -812,7 +810,7 @@ describe('products', () => {
         });
 
         it('undoes a recycled update', async () => {
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -3, recycled: true }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: -3, recycled: true }], user);
             const afterUpdate = (await $all('products')) as {
                 years?: { year: number; amounts: { variant: string; amount: number }[] }[];
             }[];
@@ -820,7 +818,7 @@ describe('products', () => {
             // inventory hits 0 so year entry is removed
             expect(afterUpdate[2].years).toBeUndefined();
 
-            await undoProduct('Daržovės', 'Agurkai', 22);
+            await undoProduct('Daržovės', 'Morkos', 22);
             const afterUndo = (
                 (await $all('products')) as {
                     years?: { year: number; amounts: { variant: string; amount: number }[] }[];
@@ -831,14 +829,14 @@ describe('products', () => {
         });
 
         it('undoes an updated (no recycled field) entry', async () => {
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2 }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 2 }], user);
             const afterUpdate = (
                 (await $all('products')) as {
                     years?: { year: number; amounts: { variant: string; amount: number }[] }[];
                 }[]
             )[2].years?.[0].amounts[0].amount;
 
-            await undoProduct('Daržovės', 'Agurkai', 22);
+            await undoProduct('Daržovės', 'Morkos', 22);
             const afterUndo = (
                 (await $all('products')) as {
                     years?: { year: number; amounts: { variant: string; amount: number }[] }[];
@@ -851,7 +849,7 @@ describe('products', () => {
 
         it('pulls just that year out of years when undo zeroes out an annual product that also has other years', async () => {
             await (await db()).collection('products').updateOne(
-                { group: 'Daržovės', name: 'Agurkai' },
+                { group: 'Daržovės', name: 'Morkos' },
                 {
                     $set: {
                         years: [
@@ -870,7 +868,7 @@ describe('products', () => {
                 }
             );
 
-            await expect(undoProduct('Daržovės', 'Agurkai', 22)).resolves.toBe(true);
+            await expect(undoProduct('Daržovės', 'Morkos', 22)).resolves.toBe(true);
 
             const all = (await $all('products')) as { years?: { year: number; amounts: unknown[] }[] }[];
 
@@ -880,7 +878,7 @@ describe('products', () => {
         describe('non-annual item (year 0, combined amounts)', () => {
             it('replaces the whole combined years entry when stock remains after undo', async () => {
                 await (await db()).collection('products').updateOne(
-                    { group: 'Daržovės', name: 'Agurkai' },
+                    { group: 'Daržovės', name: 'Morkos' },
                     {
                         $set: {
                             years: [{ year: 0, amounts: [{ variant: 'd', amount: 5 }] }],
@@ -896,7 +894,7 @@ describe('products', () => {
                     }
                 );
 
-                await expect(undoProduct('Daržovės', 'Agurkai', 0)).resolves.toBe(true);
+                await expect(undoProduct('Daržovės', 'Morkos', 0)).resolves.toBe(true);
 
                 const all = (await $all('products')) as { years?: { year: number; amounts: unknown[] }[] }[];
 
@@ -905,7 +903,7 @@ describe('products', () => {
 
             it('unsets years entirely when undo brings combined stock to zero', async () => {
                 await (await db()).collection('products').updateOne(
-                    { group: 'Daržovės', name: 'Agurkai' },
+                    { group: 'Daržovės', name: 'Morkos' },
                     {
                         $set: {
                             years: [{ year: 0, amounts: [{ variant: 'd', amount: 2 }] }],
@@ -921,7 +919,7 @@ describe('products', () => {
                     }
                 );
 
-                await expect(undoProduct('Daržovės', 'Agurkai', 0)).resolves.toBe(true);
+                await expect(undoProduct('Daržovės', 'Morkos', 0)).resolves.toBe(true);
 
                 const all = (await $all('products')) as { years?: unknown }[];
 
@@ -932,7 +930,7 @@ describe('products', () => {
 
     describe('redoProduct', () => {
         it('returns false for empty group or name', async () => {
-            await expect(redoProduct('', 'Agurkai', 22)).resolves.toBe(false);
+            await expect(redoProduct('', 'Morkos', 22)).resolves.toBe(false);
             await expect(redoProduct('Daržovės', '', 22)).resolves.toBe(false);
         });
 
@@ -941,21 +939,21 @@ describe('products', () => {
         });
 
         it('redoes last undone update', async () => {
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
             const afterUpdate = (
                 (await $all('products')) as {
                     years?: { year: number; amounts: { variant: string; amount: number }[] }[];
                 }[]
             )[2].years?.[0].amounts[0].amount;
 
-            await undoProduct('Daržovės', 'Agurkai', 22);
+            await undoProduct('Daržovės', 'Morkos', 22);
             const afterUndo = (
                 (await $all('products')) as {
                     years?: { year: number; amounts: { variant: string; amount: number }[] }[];
                 }[]
             )[2].years?.[0].amounts[0].amount;
 
-            await redoProduct('Daržovės', 'Agurkai', 22);
+            await redoProduct('Daržovės', 'Morkos', 22);
             const afterRedo = (
                 (await $all('products')) as {
                     years?: { year: number; amounts: { variant: string; amount: number }[] }[];
@@ -968,15 +966,15 @@ describe('products', () => {
         });
 
         it('moves last undate back to updates', async () => {
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
-            await undoProduct('Daržovės', 'Agurkai', 22);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 2, recycled: false }], user);
+            await undoProduct('Daržovės', 'Morkos', 22);
 
             const beforeRedo = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
 
             expect(beforeRedo[2].updates).toHaveLength(2);
             expect(beforeRedo[2].undates).toHaveLength(1);
 
-            await redoProduct('Daržovės', 'Agurkai', 22);
+            await redoProduct('Daržovės', 'Morkos', 22);
 
             const afterRedo = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
 
@@ -985,27 +983,27 @@ describe('products', () => {
         });
 
         it('redoes multiple undos in correct order (LIFO)', async () => {
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
-            await undoProduct('Daržovės', 'Agurkai', 22);
-            await undoProduct('Daržovės', 'Agurkai', 22);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await undoProduct('Daržovės', 'Morkos', 22);
+            await undoProduct('Daržovės', 'Morkos', 22);
 
-            await redoProduct('Daržovės', 'Agurkai', 22);
-            await redoProduct('Daržovės', 'Agurkai', 22);
+            await redoProduct('Daržovės', 'Morkos', 22);
+            await redoProduct('Daržovės', 'Morkos', 22);
 
             const all = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
-            const agurkai = all[2];
+            const morkos = all[2];
 
-            expect(agurkai.updates).toHaveLength(4);
-            expect(agurkai.undates).toBeUndefined();
+            expect(morkos.updates).toHaveLength(4);
+            expect(morkos.undates).toBeUndefined();
         });
 
         it('new update clears undates, making redo impossible', async () => {
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
-            await undoProduct('Daržovės', 'Agurkai', 22);
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
+            await undoProduct('Daržovės', 'Morkos', 22);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 1, recycled: false }], user);
 
-            await expect(redoProduct('Daržovės', 'Agurkai', 22)).resolves.toBe(false);
+            await expect(redoProduct('Daržovės', 'Morkos', 22)).resolves.toBe(false);
 
             const all = (await $all('products')) as { undates?: unknown[] }[];
 
@@ -1013,7 +1011,7 @@ describe('products', () => {
         });
 
         it('undo on fixture product with pre-existing updates leaves undates with one entry', async () => {
-            await undoProduct('Daržovės', 'Agurkai', 22);
+            await undoProduct('Daržovės', 'Morkos', 22);
 
             const all = (await $all('products')) as { updates?: unknown[]; undates?: unknown[] }[];
 
@@ -1023,7 +1021,7 @@ describe('products', () => {
 
         it('pulls just that year out of years when redo zeroes out an annual product that also has other years', async () => {
             await (await db()).collection('products').updateOne(
-                { group: 'Daržovės', name: 'Agurkai' },
+                { group: 'Daržovės', name: 'Morkos' },
                 {
                     $set: {
                         years: [
@@ -1041,7 +1039,7 @@ describe('products', () => {
                 }
             );
 
-            await expect(redoProduct('Daržovės', 'Agurkai', 22)).resolves.toBe(true);
+            await expect(redoProduct('Daržovės', 'Morkos', 22)).resolves.toBe(true);
 
             const all = (await $all('products')) as { years?: { year: number; amounts: unknown[] }[] }[];
 
@@ -1050,7 +1048,7 @@ describe('products', () => {
 
         it('pushes a new year entry when redo applies to a year currently missing from years', async () => {
             await (await db()).collection('products').updateOne(
-                { group: 'Daržovės', name: 'Agurkai' },
+                { group: 'Daržovės', name: 'Morkos' },
                 {
                     $unset: { years: 1 },
                     $set: {
@@ -1065,7 +1063,7 @@ describe('products', () => {
                 }
             );
 
-            await expect(redoProduct('Daržovės', 'Agurkai', 22)).resolves.toBe(true);
+            await expect(redoProduct('Daržovės', 'Morkos', 22)).resolves.toBe(true);
 
             const all = (await $all('products')) as { years?: { year: number; amounts: unknown[] }[] }[];
 
@@ -1075,7 +1073,7 @@ describe('products', () => {
         describe('non-annual item (year 0, combined amounts)', () => {
             it('replaces the whole combined years entry when stock remains after redo', async () => {
                 await (await db()).collection('products').updateOne(
-                    { group: 'Daržovės', name: 'Agurkai' },
+                    { group: 'Daržovės', name: 'Morkos' },
                     {
                         $set: {
                             years: [{ year: 0, amounts: [{ variant: 'd', amount: 5 }] }],
@@ -1090,7 +1088,7 @@ describe('products', () => {
                     }
                 );
 
-                await expect(redoProduct('Daržovės', 'Agurkai', 0)).resolves.toBe(true);
+                await expect(redoProduct('Daržovės', 'Morkos', 0)).resolves.toBe(true);
 
                 const all = (await $all('products')) as { years?: { year: number; amounts: unknown[] }[] }[];
 
@@ -1099,7 +1097,7 @@ describe('products', () => {
 
             it('unsets years entirely when redo brings combined stock to zero', async () => {
                 await (await db()).collection('products').updateOne(
-                    { group: 'Daržovės', name: 'Agurkai' },
+                    { group: 'Daržovės', name: 'Morkos' },
                     {
                         $set: {
                             years: [{ year: 0, amounts: [{ variant: 'd', amount: 2 }] }],
@@ -1114,7 +1112,7 @@ describe('products', () => {
                     }
                 );
 
-                await expect(redoProduct('Daržovės', 'Agurkai', 0)).resolves.toBe(true);
+                await expect(redoProduct('Daržovės', 'Morkos', 0)).resolves.toBe(true);
 
                 const all = (await $all('products')) as { years?: unknown }[];
 
@@ -1189,7 +1187,7 @@ describe('products', () => {
 
     describe('renameProduct', () => {
         it('renames products', async () => {
-            await expect(renameProduct('Daržovės', 'Agurkai', 'Z')).resolves.toBe(true);
+            await expect(renameProduct('Daržovės', 'Morkos', 'Z')).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(bulk(products, { $set: { '2.name': 'Z' } }));
         });
 
@@ -1216,23 +1214,23 @@ describe('products', () => {
         );
 
         it("cascades the rename to children's parent field", async () => {
-            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+            await addProduct('Daržovės', 'Morkos (Zewa)', 'Morkos');
 
-            await expect(renameProduct('Daržovės', 'Agurkai', 'Agurkėliai')).resolves.toBe(true);
+            await expect(renameProduct('Daržovės', 'Morkos', 'Agurkėliai')).resolves.toBe(true);
 
             const all = (await $all('products')) as { group: string; name: string; parent?: string }[];
 
-            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai (Zewa)')?.parent).toBe('Agurkėliai');
+            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Morkos (Zewa)')?.parent).toBe('Agurkėliai');
         });
 
         it("does not affect other groups' or products' parent fields", async () => {
-            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+            await addProduct('Daržovės', 'Morkos (Zewa)', 'Morkos');
 
             await expect(renameProduct('Uogienės', 'Avietės', 'Agrastai')).resolves.toBe(true);
 
             const all = (await $all('products')) as { group: string; name: string; parent?: string }[];
 
-            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai (Zewa)')?.parent).toBe('Agurkai');
+            expect(all.find((p) => p.group === 'Daržovės' && p.name === 'Morkos (Zewa)')?.parent).toBe('Morkos');
         });
     });
 
@@ -1397,7 +1395,7 @@ describe('products', () => {
 
     describe('moveProduct', () => {
         it('moves products', async () => {
-            await expect(moveProduct('Daržovės', 'Agurkai', 'Šaldyti')).resolves.toBe(true);
+            await expect(moveProduct('Daržovės', 'Morkos', 'Šaldyti')).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(bulk(products, { $set: { '2.group': 'Šaldyti' } }));
         });
 
@@ -1407,14 +1405,14 @@ describe('products', () => {
         });
 
         it('moves products with new name', async () => {
-            await expect(moveProduct('Daržovės', 'Agurkai', 'Šaldyti', 'Agurkėliai')).resolves.toBe(true);
+            await expect(moveProduct('Daržovės', 'Morkos', 'Šaldyti', 'Agurkėliai')).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, { $set: { '2.group': 'Šaldyti', '2.name': 'Agurkėliai' } })
             );
         });
 
         it('moves products with old name if new name is empty', async () => {
-            await expect(moveProduct('Daržovės', 'Agurkai', 'Šaldyti', '')).resolves.toBe(true);
+            await expect(moveProduct('Daržovės', 'Morkos', 'Šaldyti', '')).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(bulk(products, { $set: { '2.group': 'Šaldyti' } }));
         });
 
@@ -1422,11 +1420,11 @@ describe('products', () => {
             title                       | group         | name         | newGroup
             ${'invalid group'}          | ${'Šaldyti'}  | ${'Krapai'}  | ${'Uogienės'}
             ${'invalid name'}           | ${'Daržovės'} | ${'Braškės'} | ${'Šaldyti'}
-            ${'same groups'}            | ${'Daržovės'} | ${'Agurkai'} | ${'Daržovės'}
-            ${'same name in new group'} | ${'Uogienės'} | ${'Agurkai'} | ${'Daržovės'}
-            ${'empty group'}            | ${''}         | ${'Agurkai'} | ${'Daržovės'}
+            ${'same groups'}            | ${'Daržovės'} | ${'Morkos'}  | ${'Daržovės'}
+            ${'same name in new group'} | ${'Uogienės'} | ${'Morkos'}  | ${'Daržovės'}
+            ${'empty group'}            | ${''}         | ${'Morkos'}  | ${'Daržovės'}
             ${'empty name'}             | ${'Daržovės'} | ${''}        | ${'Šaldyti'}
-            ${'empty new group'}        | ${'Daržovės'} | ${'Agurkai'} | ${''}
+            ${'empty new group'}        | ${'Daržovės'} | ${'Morkos'}  | ${''}
         `(
             'does not move products for $title',
             async ({ group, name, newGroup }: { group: string; name: string; newGroup: string }) => {
@@ -1436,12 +1434,12 @@ describe('products', () => {
         );
 
         it('clears the parent field when moving to a different group', async () => {
-            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+            await addProduct('Daržovės', 'Morkos (Zewa)', 'Morkos');
 
-            await expect(moveProduct('Daržovės', 'Agurkai (Zewa)', 'Šaldyti')).resolves.toBe(true);
+            await expect(moveProduct('Daržovės', 'Morkos (Zewa)', 'Šaldyti')).resolves.toBe(true);
 
             const all = (await $all('products')) as { group: string; name: string; parent?: string }[];
-            const moved = all.find((p) => p.group === 'Šaldyti' && p.name === 'Agurkai (Zewa)');
+            const moved = all.find((p) => p.group === 'Šaldyti' && p.name === 'Morkos (Zewa)');
 
             expect(moved?.parent).toBeUndefined();
         });
@@ -1451,8 +1449,8 @@ describe('products', () => {
         afterEach(() => vi.clearAllMocks());
 
         it('archives products without removing their history', async () => {
-            await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(true);
-            expect((await $all('products')).find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')).toMatchObject({
+            await expect(deleteProduct('Daržovės', 'Morkos')).resolves.toBe(true);
+            expect((await $all('products')).find((p) => p.group === 'Daržovės' && p.name === 'Morkos')).toMatchObject({
                 archivedAt: expect.any(Number),
                 years: products[2]?.years,
                 updates: products[2]?.updates,
@@ -1472,7 +1470,7 @@ describe('products', () => {
             title              | group         | name
             ${'invalid group'} | ${'Šaldyti'}  | ${'Krapai'}
             ${'invalid name'}  | ${'Daržovės'} | ${'Braškės'}
-            ${'empty group'}   | ${''}         | ${'Agurkai'}
+            ${'empty group'}   | ${''}         | ${'Morkos'}
             ${'empty name'}    | ${'Daržovės'} | ${''}
         `('does not delete products for $title', async ({ group, name }: { group: string; name: string }) => {
             await expect(deleteProduct(group, name)).resolves.toBe(false);
@@ -1481,47 +1479,47 @@ describe('products', () => {
 
         it('keeps the image file for an archived product', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/old/old.png');
-            await setImage('Daržovės', 'Agurkai', 'data:image/png;base64,AAA');
+            await setImage('Daržovės', 'Morkos', 'data:image/png;base64,AAA');
             vi.clearAllMocks();
 
-            await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(true);
+            await expect(deleteProduct('Daržovės', 'Morkos')).resolves.toBe(true);
 
             expect(deleteImages).not.toHaveBeenCalled();
         });
 
         it('does not touch image files when the product has no image', async () => {
-            await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(true);
+            await expect(deleteProduct('Daržovės', 'Morkos')).resolves.toBe(true);
 
             expect(deleteImages).not.toHaveBeenCalled();
         });
 
         it('keeps all variant image files for an archived product', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/old/d.png');
-            await setVariantImage('Daržovės', 'Agurkai', 'd', 'data:image/png;base64,AAA');
+            await setVariantImage('Daržovės', 'Morkos', 'd', 'data:image/png;base64,AAA');
             vi.mocked(saveImage).mockResolvedValueOnce('/images/old/p.png');
-            await setVariantImage('Daržovės', 'Agurkai', 'p', 'data:image/png;base64,AAA');
+            await setVariantImage('Daržovės', 'Morkos', 'p', 'data:image/png;base64,AAA');
             vi.clearAllMocks();
 
-            await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(true);
+            await expect(deleteProduct('Daržovės', 'Morkos')).resolves.toBe(true);
 
             expect(deleteImages).not.toHaveBeenCalled();
         });
 
         it('does not delete a product that has children', async () => {
-            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+            await addProduct('Daržovės', 'Morkos (Zewa)', 'Morkos');
             vi.clearAllMocks();
 
-            await expect(deleteProduct('Daržovės', 'Agurkai')).resolves.toBe(false);
+            await expect(deleteProduct('Daržovės', 'Morkos')).resolves.toBe(false);
 
             expect(deleteImages).not.toHaveBeenCalled();
 
             const all = (await $all('products')) as { group: string; name: string }[];
 
-            expect(all.some((p) => p.group === 'Daržovės' && p.name === 'Agurkai')).toBe(true);
+            expect(all.some((p) => p.group === 'Daržovės' && p.name === 'Morkos')).toBe(true);
         });
 
         it('archives a childless product even when other unrelated products have children', async () => {
-            await addProduct('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+            await addProduct('Daržovės', 'Morkos (Zewa)', 'Morkos');
 
             await expect(deleteProduct('Daržovės', 'Kopūstai')).resolves.toBe(true);
 
@@ -1539,7 +1537,7 @@ describe('products', () => {
         it('uploads a new image, classifies it, and stores it', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
 
-            await expect(setImage('Daržovės', 'Agurkai', 'data:image/png;base64,AAA')).resolves.toBe(true);
+            await expect(setImage('Daržovės', 'Morkos', 'data:image/png;base64,AAA')).resolves.toBe(true);
 
             expect(saveImage).toHaveBeenCalledWith('data:image/png;base64,AAA');
             expect(classifyImage).toHaveBeenCalledWith('/images/ab/cd/new-image.png');
@@ -1556,7 +1554,7 @@ describe('products', () => {
                 photo: '/images/ab/cd/saved.png',
             });
 
-            await expect(setImage('Daržovės', 'Agurkai', 'data:image/png;base64,AAA')).resolves.toBe(true);
+            await expect(setImage('Daržovės', 'Morkos', 'data:image/png;base64,AAA')).resolves.toBe(true);
 
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
@@ -1567,21 +1565,21 @@ describe('products', () => {
 
         it('deletes the previous image file(s) when replacing it', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/old/old.png');
-            await setImage('Daržovės', 'Agurkai', 'data:image/png;base64,AAA');
+            await setImage('Daržovės', 'Morkos', 'data:image/png;base64,AAA');
             vi.clearAllMocks();
             vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
 
-            await setImage('Daržovės', 'Agurkai', 'data:image/png;base64,AAA');
+            await setImage('Daržovės', 'Morkos', 'data:image/png;base64,AAA');
 
             expect(deleteImages).toHaveBeenCalledWith('/images/old/old.png', undefined);
         });
 
         it('deletes the image file when the image is removed', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/old/old.png');
-            await setImage('Daržovės', 'Agurkai', 'data:image/png;base64,AAA');
+            await setImage('Daržovės', 'Morkos', 'data:image/png;base64,AAA');
             vi.clearAllMocks();
 
-            await setImage('Daržovės', 'Agurkai', '');
+            await setImage('Daržovės', 'Morkos', '');
 
             expect(deleteImages).toHaveBeenCalledWith('/images/old/old.png', undefined);
             await expect($all('products')).resolves.toStrictEqual(products);
@@ -1589,10 +1587,10 @@ describe('products', () => {
 
         it('does not touch image files when the image is unchanged', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/same/same.png');
-            await setImage('Daržovės', 'Agurkai', 'data:image/png;base64,AAA');
+            await setImage('Daržovės', 'Morkos', 'data:image/png;base64,AAA');
             vi.clearAllMocks();
 
-            await setImage('Daržovės', 'Agurkai', '/images/same/same.png');
+            await setImage('Daržovės', 'Morkos', '/images/same/same.png');
 
             expect(saveImage).not.toHaveBeenCalled();
             expect(deleteImages).not.toHaveBeenCalled();
@@ -1600,9 +1598,9 @@ describe('products', () => {
 
         it.each`
             title              | group         | name
-            ${'invalid group'} | ${'Šaldyti'}  | ${'Agurkai'}
+            ${'invalid group'} | ${'Šaldyti'}  | ${'Morkos'}
             ${'invalid name'}  | ${'Daržovės'} | ${'Braškės'}
-            ${'empty group'}   | ${''}         | ${'Agurkai'}
+            ${'empty group'}   | ${''}         | ${'Morkos'}
             ${'empty name'}    | ${'Daržovės'} | ${''}
         `('does nothing for $title', async ({ group, name }: { group: string; name: string }) => {
             await expect(setImage(group, name, 'data:image/png;base64,AAA')).resolves.toBe(false);
@@ -1616,7 +1614,7 @@ describe('products', () => {
         it('uploads a new image, classifies it, and stores it under the variant key', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
 
-            await expect(setVariantImage('Daržovės', 'Agurkai', 'd', 'data:image/png;base64,AAA')).resolves.toBe(true);
+            await expect(setVariantImage('Daržovės', 'Morkos', 'd', 'data:image/png;base64,AAA')).resolves.toBe(true);
 
             expect(saveImage).toHaveBeenCalledWith('data:image/png;base64,AAA');
             expect(deleteImages).toHaveBeenCalledWith(undefined, undefined);
@@ -1632,7 +1630,7 @@ describe('products', () => {
                 photo: '/images/ab/cd/saved.png',
             });
 
-            await expect(setVariantImage('Daržovės', 'Agurkai', 'd', 'data:image/png;base64,AAA')).resolves.toBe(true);
+            await expect(setVariantImage('Daržovės', 'Morkos', 'd', 'data:image/png;base64,AAA')).resolves.toBe(true);
 
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, {
@@ -1646,21 +1644,21 @@ describe('products', () => {
 
         it('deletes the previous image file(s) when replacing it', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/old/old.png');
-            await setVariantImage('Daržovės', 'Agurkai', 'd', 'data:image/png;base64,AAA');
+            await setVariantImage('Daržovės', 'Morkos', 'd', 'data:image/png;base64,AAA');
             vi.clearAllMocks();
             vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/new-image.png');
 
-            await setVariantImage('Daržovės', 'Agurkai', 'd', 'data:image/png;base64,AAA');
+            await setVariantImage('Daržovės', 'Morkos', 'd', 'data:image/png;base64,AAA');
 
             expect(deleteImages).toHaveBeenCalledWith('/images/old/old.png', undefined);
         });
 
         it('deletes the image file when the image is removed', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/old/old.png');
-            await setVariantImage('Daržovės', 'Agurkai', 'd', 'data:image/png;base64,AAA');
+            await setVariantImage('Daržovės', 'Morkos', 'd', 'data:image/png;base64,AAA');
             vi.clearAllMocks();
 
-            await setVariantImage('Daržovės', 'Agurkai', 'd', '');
+            await setVariantImage('Daržovės', 'Morkos', 'd', '');
 
             expect(deleteImages).toHaveBeenCalledWith('/images/old/old.png', undefined);
             await expect($all('products')).resolves.toStrictEqual(bulk(products, { $set: { '2.variantImages': {} } }));
@@ -1668,10 +1666,10 @@ describe('products', () => {
 
         it('does not touch image files when the image is unchanged', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/same/same.png');
-            await setVariantImage('Daržovės', 'Agurkai', 'd', 'data:image/png;base64,AAA');
+            await setVariantImage('Daržovės', 'Morkos', 'd', 'data:image/png;base64,AAA');
             vi.clearAllMocks();
 
-            await setVariantImage('Daržovės', 'Agurkai', 'd', '/images/same/same.png');
+            await setVariantImage('Daržovės', 'Morkos', 'd', '/images/same/same.png');
 
             expect(saveImage).not.toHaveBeenCalled();
             expect(deleteImages).not.toHaveBeenCalled();
@@ -1679,11 +1677,11 @@ describe('products', () => {
 
         it('keeps images for different variants of the same product independent', async () => {
             vi.mocked(saveImage).mockResolvedValueOnce('/images/old/d.png');
-            await setVariantImage('Daržovės', 'Agurkai', 'd', 'data:image/png;base64,AAA');
+            await setVariantImage('Daržovės', 'Morkos', 'd', 'data:image/png;base64,AAA');
             vi.clearAllMocks();
             vi.mocked(saveImage).mockResolvedValueOnce('/images/ab/cd/p.png');
 
-            await setVariantImage('Daržovės', 'Agurkai', 'p', 'data:image/png;base64,AAA');
+            await setVariantImage('Daržovės', 'Morkos', 'p', 'data:image/png;base64,AAA');
 
             expect(deleteImages).toHaveBeenCalledWith(undefined, undefined);
             await expect($all('products')).resolves.toStrictEqual(
@@ -1698,11 +1696,11 @@ describe('products', () => {
 
         it.each`
             title              | group         | name         | variant
-            ${'invalid group'} | ${'Šaldyti'}  | ${'Agurkai'} | ${'d'}
+            ${'invalid group'} | ${'Šaldyti'}  | ${'Morkos'}  | ${'d'}
             ${'invalid name'}  | ${'Daržovės'} | ${'Braškės'} | ${'d'}
-            ${'empty group'}   | ${''}         | ${'Agurkai'} | ${'d'}
+            ${'empty group'}   | ${''}         | ${'Morkos'}  | ${'d'}
             ${'empty name'}    | ${'Daržovės'} | ${''}        | ${'d'}
-            ${'empty variant'} | ${'Daržovės'} | ${'Agurkai'} | ${''}
+            ${'empty variant'} | ${'Daržovės'} | ${'Morkos'}  | ${''}
         `(
             'does nothing for $title',
             async ({ group, name, variant }: { group: string; name: string; variant: string }) => {
@@ -1722,7 +1720,7 @@ describe('products', () => {
             title                | group         | variant
             ${'invalid group'}   | ${'Šaldyti'}  | ${'p'}
             ${'invalid variant'} | ${'Daržovės'} | ${'0.5'}
-            ${'empty group'}     | ${''}         | ${'Agurkai'}
+            ${'empty group'}     | ${''}         | ${'Morkos'}
             ${'empty variant'}   | ${'Daržovės'} | ${''}
         `('does not delete variant for $title', async ({ group, variant }: { group: string; variant: string }) => {
             await expect(deleteProductsVariant(group, variant)).resolves.toBe(false);
@@ -1748,7 +1746,7 @@ describe('products', () => {
 
     describe('setRemoving', () => {
         it('sets removing by group, name, and year', async () => {
-            await expect(setRemoving('Daržovės', 'Agurkai', 22, true)).resolves.toBe(true);
+            await expect(setRemoving('Daržovės', 'Morkos', 22, true)).resolves.toBe(true);
             await expect($all('products')).resolves.toStrictEqual(
                 bulk(products, { $set: { '2.years.0.removing': true } })
             );
@@ -1930,7 +1928,7 @@ describe('products', () => {
         it('stores suspicious flag in history amounts', async () => {
             await setAmounts(
                 'Daržovės',
-                'Agurkai',
+                'Morkos',
                 22,
                 [{ variant: 'd', amount: -1, recycled: false, suspicious: true }],
                 user
@@ -1941,54 +1939,54 @@ describe('products', () => {
                     years: { year: number; amounts: { variant: string; amount: number; suspicious?: boolean }[] }[];
                 }[];
             }[];
-            const agurkai = all[2];
-            const lastUpdate = agurkai.updates![agurkai.updates!.length - 1];
+            const morkos = all[2];
+            const lastUpdate = morkos.updates![morkos.updates!.length - 1];
             const historyAmount = lastUpdate.years[0].amounts[0];
 
             expect(historyAmount.suspicious).toBe(true);
         });
 
         it('stores suspicious flag in years.amounts', async () => {
-            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Agurkai' });
+            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Morkos' });
             await (
                 await db()
             )
                 .collection('products')
-                .insertOne({ group: 'Daržovės', name: 'Agurkai' }, { forceServerObjectId: true });
+                .insertOne({ group: 'Daržovės', name: 'Morkos' }, { forceServerObjectId: true });
 
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 3, suspicious: true }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 3, suspicious: true }], user);
 
             const all = (await $all('products')) as {
                 group: string;
                 name: string;
                 years?: { year: number; amounts: { variant: string; amount: number; suspicious?: boolean }[] }[];
             }[];
-            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
-            const yearEntry = agurkai.years?.find((y) => y.year === 22);
+            const morkos = all.find((p) => p.group === 'Daržovės' && p.name === 'Morkos')!;
+            const yearEntry = morkos.years?.find((y) => y.year === 22);
 
             expect(yearEntry?.amounts.find((a) => a.variant === 'd' && a.suspicious)).toBeDefined();
         });
 
         it('does NOT merge suspicious and non-suspicious amounts for same variant', async () => {
-            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Agurkai' });
+            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Morkos' });
             await (await db()).collection('products').insertOne(
                 {
                     group: 'Daržovės',
-                    name: 'Agurkai',
+                    name: 'Morkos',
                     years: [{ year: 22, amounts: [{ variant: 'd', amount: 2 }] }],
                 },
                 { forceServerObjectId: true }
             );
 
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 3, suspicious: true }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 3, suspicious: true }], user);
 
             const all = (await $all('products')) as {
                 group: string;
                 name: string;
                 years?: { year: number; amounts: { variant: string; amount: number; suspicious?: boolean }[] }[];
             }[];
-            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
-            const amounts = agurkai.years?.find((y) => y.year === 22)?.amounts ?? [];
+            const morkos = all.find((p) => p.group === 'Daržovės' && p.name === 'Morkos')!;
+            const amounts = morkos.years?.find((y) => y.year === 22)?.amounts ?? [];
 
             // non-suspicious and suspicious are separate entries
             expect(amounts.filter((a) => a.variant === 'd')).toHaveLength(2);
@@ -1999,14 +1997,14 @@ describe('products', () => {
 
     describe('updateProduct with home amounts', () => {
         it('stores home flag in history amounts', async () => {
-            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Agurkai' });
+            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Morkos' });
             await (
                 await db()
             )
                 .collection('products')
-                .insertOne({ group: 'Daržovės', name: 'Agurkai' }, { forceServerObjectId: true });
+                .insertOne({ group: 'Daržovės', name: 'Morkos' }, { forceServerObjectId: true });
 
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 5, home: true }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 5, home: true }], user);
 
             const all = (await $all('products')) as {
                 group: string;
@@ -2015,54 +2013,54 @@ describe('products', () => {
                     years: { year: number; amounts: { variant: string; amount: number; home?: boolean }[] }[];
                 }[];
             }[];
-            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
-            const lastUpdate = agurkai.updates![agurkai.updates!.length - 1];
+            const morkos = all.find((p) => p.group === 'Daržovės' && p.name === 'Morkos')!;
+            const lastUpdate = morkos.updates![morkos.updates!.length - 1];
             const historyAmount = lastUpdate.years[0].amounts[0];
 
             expect(historyAmount.home).toBe(true);
         });
 
         it('stores home flag in years.amounts', async () => {
-            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Agurkai' });
+            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Morkos' });
             await (
                 await db()
             )
                 .collection('products')
-                .insertOne({ group: 'Daržovės', name: 'Agurkai' }, { forceServerObjectId: true });
+                .insertOne({ group: 'Daržovės', name: 'Morkos' }, { forceServerObjectId: true });
 
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 5, home: true }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 5, home: true }], user);
 
             const all = (await $all('products')) as {
                 group: string;
                 name: string;
                 years?: { year: number; amounts: { variant: string; amount: number; home?: boolean }[] }[];
             }[];
-            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
-            const yearEntry = agurkai.years?.find((y) => y.year === 22);
+            const morkos = all.find((p) => p.group === 'Daržovės' && p.name === 'Morkos')!;
+            const yearEntry = morkos.years?.find((y) => y.year === 22);
 
             expect(yearEntry?.amounts.find((a) => a.variant === 'd' && a.home)).toBeDefined();
         });
 
         it('does NOT merge home and non-home amounts for same variant', async () => {
-            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Agurkai' });
+            await (await db()).collection('products').deleteMany({ group: 'Daržovės', name: 'Morkos' });
             await (await db()).collection('products').insertOne(
                 {
                     group: 'Daržovės',
-                    name: 'Agurkai',
+                    name: 'Morkos',
                     years: [{ year: 22, amounts: [{ variant: 'd', amount: 2 }] }],
                 },
                 { forceServerObjectId: true }
             );
 
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: 3, home: true }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: 3, home: true }], user);
 
             const all = (await $all('products')) as {
                 group: string;
                 name: string;
                 years?: { year: number; amounts: { variant: string; amount: number; home?: boolean }[] }[];
             }[];
-            const agurkai = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
-            const amounts = agurkai.years?.find((y) => y.year === 22)?.amounts ?? [];
+            const morkos = all.find((p) => p.group === 'Daržovės' && p.name === 'Morkos')!;
+            const amounts = morkos.years?.find((y) => y.year === 22)?.amounts ?? [];
 
             // non-home and home are separate entries
             expect(amounts.filter((a) => a.variant === 'd')).toHaveLength(2);
@@ -2147,14 +2145,14 @@ describe('products', () => {
         });
 
         it('does NOT auto-consume when variant has no home amounts', async () => {
-            await setAmounts('Daržovės', 'Agurkai', 22, [{ variant: 'd', amount: -1, recycled: false }], user);
+            await setAmounts('Daržovės', 'Morkos', 22, [{ variant: 'd', amount: -1, recycled: false }], user);
 
             const all = (await $all('products')) as {
                 group: string;
                 name: string;
                 updates?: { years: { year: number; amounts: { variant: string; home?: boolean }[] }[] }[];
             }[];
-            const product = all.find((p) => p.group === 'Daržovės' && p.name === 'Agurkai')!;
+            const product = all.find((p) => p.group === 'Daržovės' && p.name === 'Morkos')!;
             const lastUpdate = product.updates![product.updates!.length - 1];
             const amounts = lastUpdate.years.find((y) => y.year === 22)?.amounts ?? [];
 
@@ -2176,10 +2174,10 @@ describe('products', () => {
 
     describe('getProductUpdates and getProductUndates', () => {
         it('returns update history entries for the given product and year', async () => {
-            const result = await getProductUpdates('Daržovės', 'Agurkai', 22);
+            const result = await getProductUpdates('Daržovės', 'Morkos', 22);
 
             expect(result.length).toBeGreaterThan(0);
-            expect(result.every((e) => e.group === 'Daržovės' && e.name === 'Agurkai' && e.year === 22)).toBe(true);
+            expect(result.every((e) => e.group === 'Daržovės' && e.name === 'Morkos' && e.year === 22)).toBe(true);
         });
 
         it('returns empty array when product has no updates for that year', async () => {
@@ -2187,16 +2185,16 @@ describe('products', () => {
         });
 
         it('returns empty array for undates when none recorded', async () => {
-            await expect(getProductUndates('Daržovės', 'Agurkai', 22)).resolves.toStrictEqual([]);
+            await expect(getProductUndates('Daržovės', 'Morkos', 22)).resolves.toStrictEqual([]);
         });
 
         it('returns undate history entries after an undo', async () => {
-            await undoProduct('Daržovės', 'Agurkai', 22);
+            await undoProduct('Daržovės', 'Morkos', 22);
 
-            const result = await getProductUndates('Daržovės', 'Agurkai', 22);
+            const result = await getProductUndates('Daržovės', 'Morkos', 22);
 
             expect(result.length).toBeGreaterThan(0);
-            expect(result.every((e) => e.group === 'Daržovės' && e.name === 'Agurkai' && e.year === 22)).toBe(true);
+            expect(result.every((e) => e.group === 'Daržovės' && e.name === 'Morkos' && e.year === 22)).toBe(true);
         });
     });
 });

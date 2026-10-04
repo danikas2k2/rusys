@@ -51,7 +51,7 @@ describe('exportArchive', () => {
                 await db()
             )
                 .collection('products')
-                .insertMany([{ group: 'Daržovės', name: 'Agurkai' }], { forceServerObjectId: true });
+                .insertMany([{ group: 'Daržovės', name: 'Morkos' }], { forceServerObjectId: true });
             await (
                 await db()
             )
@@ -68,7 +68,7 @@ describe('exportArchive', () => {
             const data = JSON.parse(await zip.file('data.json')!.async('string'));
 
             expect(data).toStrictEqual({
-                products: [{ group: 'Daržovės', name: 'Agurkai' }],
+                products: [{ group: 'Daržovės', name: 'Morkos' }],
                 groups: [{ group: 'Daržovės', order: 0 }],
                 variants: [{ group: 'Daržovės', variant: 'p', order: 0 }],
             });
@@ -83,7 +83,7 @@ describe('exportArchive', () => {
                 [
                     {
                         group: 'Daržovės',
-                        name: 'Agurkai',
+                        name: 'Morkos',
                         image: '/images/ab/cd/product.png',
                         variantImages: { p: '/images/ef/00/variant.png' },
                     },
@@ -114,7 +114,7 @@ describe('exportArchive', () => {
                 [
                     {
                         group: 'Daržovės',
-                        name: 'Agurkai',
+                        name: 'Morkos',
                         image: '/images/ab/cd/thumb.png',
                         photo: '/images/ef/00/photo.png',
                     },
@@ -134,7 +134,7 @@ describe('exportArchive', () => {
                 await db()
             )
                 .collection('products')
-                .insertMany([{ group: 'Daržovės', name: 'Agurkai', image: '/images/aa/bb/missing.png' }], {
+                .insertMany([{ group: 'Daržovės', name: 'Morkos', image: '/images/aa/bb/missing.png' }], {
                     forceServerObjectId: true,
                 });
 
@@ -151,7 +151,7 @@ describe('exportArchive', () => {
                 [
                     {
                         group: 'Daržovės',
-                        name: 'Agurkai',
+                        name: 'Morkos',
                         variantImages: { p: '/images/ab/cd/product.png', d: undefined },
                     },
                 ],
@@ -169,7 +169,7 @@ describe('exportArchive', () => {
                 await db()
             )
                 .collection('products')
-                .insertMany([{ group: 'Daržovės', name: 'Agurkai', image: 'https://example.com/photo.png' }], {
+                .insertMany([{ group: 'Daržovės', name: 'Morkos', image: 'https://example.com/photo.png' }], {
                     forceServerObjectId: true,
                 });
 
@@ -184,7 +184,7 @@ describe('exportArchive', () => {
 
             await (await db()).collection('products').insertMany(
                 [
-                    { group: 'Daržovės', name: 'Agurkai', image: '/images/ab/cd/shared.png' },
+                    { group: 'Daržovės', name: 'Morkos', image: '/images/ab/cd/shared.png' },
                     { group: 'Daržovės', name: 'Kopūstai', image: '/images/ab/cd/shared.png' },
                 ],
                 { forceServerObjectId: true }
@@ -262,7 +262,7 @@ describe('exportArchive', () => {
                 [
                     {
                         group: 'Daržovės',
-                        name: 'Agurkai',
+                        name: 'Morkos',
                         image: '/images/ab/cd/product.png',
                         variantImages: { p: '/images/ab/cd/product.png' },
                     },
@@ -282,7 +282,7 @@ describe('exportArchive', () => {
                 [
                     {
                         group: 'Daržovės',
-                        name: 'Agurkai',
+                        name: 'Morkos',
                         image: '/images/ab/cd/thumb.png',
                         photo: '/images/ef/00/photo.png',
                         variantImages: { p: '/images/ab/cd/thumb.png' },
@@ -303,7 +303,7 @@ describe('exportArchive', () => {
                 [
                     {
                         group: 'Daržovės',
-                        name: 'Agurkai',
+                        name: 'Morkos',
                         updates: [
                             {
                                 time: Date.now(),
@@ -341,7 +341,7 @@ describe('exportArchive', () => {
                 [
                     {
                         group: 'Daržovės',
-                        name: 'Agurkai',
+                        name: 'Morkos',
                         updates: [
                             {
                                 time: Date.now(),
@@ -376,8 +376,8 @@ describe('exportArchive', () => {
         it('the real schema accepts a sub-product with a parent field', async () => {
             await (await db()).collection('products').insertMany(
                 [
-                    { group: 'Daržovės', name: 'Agurkai' },
-                    { group: 'Daržovės', name: 'Agurkai (Zewa)', parent: 'Agurkai' },
+                    { group: 'Daržovės', name: 'Morkos' },
+                    { group: 'Daržovės', name: 'Morkos (Zewa)', parent: 'Morkos' },
                 ],
                 { forceServerObjectId: true }
             );

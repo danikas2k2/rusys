@@ -30,7 +30,7 @@ describe('handleProductReviewStatuses', () => {
     it('applies multiple product statuses in one operation', async () => {
         const updates = [
             { group: 'Uogienės', name: 'Avietės', missing: true },
-            { group: 'Daržovės', name: 'Agurkai', missing: false },
+            { group: 'Daržovės', name: 'Morkos', missing: false },
         ];
 
         expect((await update({ updates })).status).toBe(204);

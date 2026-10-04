@@ -75,6 +75,18 @@ describe('<AmountTitle>', () => {
         expect(screen.getByText('B')).toBeInTheDocument();
     });
 
+    it('shows an empty fallback when an unnamed image fails to load', () => {
+        const { container } = render(
+            <MockTheme>
+                <AmountTitle image="/images/ab/cd/product.png" />
+            </MockTheme>
+        );
+
+        fireEvent.error(container.querySelector('img')!);
+
+        expect(container.querySelector('img')).not.toBeInTheDocument();
+    });
+
     it('does not render the avatar when photo is set - the dialog watermark already shows it', () => {
         render(
             <MockTheme>

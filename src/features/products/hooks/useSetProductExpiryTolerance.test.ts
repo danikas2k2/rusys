@@ -12,14 +12,14 @@ describe('useSetProductExpiryTolerance', () => {
 
     it('sends the expiry tolerance update', async () => {
         const { result } = renderHook(() => useSetProductExpiryTolerance(), { wrapper: MockRedux });
-        await result.current('Daržovės', 'Agurkai', 365);
+        await result.current('Daržovės', 'Morkos', 365);
 
-        expect(setProductExpiryToleranceAction).toHaveBeenNthCalledWith(1, 'Daržovės', 'Agurkai', 365);
+        expect(setProductExpiryToleranceAction).toHaveBeenNthCalledWith(1, 'Daržovės', 'Morkos', 365);
     });
 
     it('ignores an incomplete product identity', async () => {
         const { result } = renderHook(() => useSetProductExpiryTolerance(), { wrapper: MockRedux });
-        await result.current('', 'Agurkai', 365);
+        await result.current('', 'Morkos', 365);
         await result.current('Daržovės', '', 365);
 
         expect(setProductExpiryToleranceAction).not.toHaveBeenCalled();

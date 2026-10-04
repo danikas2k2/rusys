@@ -17,7 +17,7 @@ describe('useGroupsWithReviewProducts', () => {
         vi.mocked(useProducts).mockReturnValue([
             { group: 'Uogienės', name: 'Avietės', years: [{ year: 23, amounts: [] }] },
             { group: 'Uogienės', name: 'Braškės', years: [] },
-            { group: 'Daržovės', name: 'Agurkai', years: [{ year: 22, amounts: [] }] },
+            { group: 'Daržovės', name: 'Morkos', years: [{ year: 22, amounts: [] }] },
         ]);
 
         const { result } = renderHook(() => useGroupsWithReviewProducts());
@@ -44,9 +44,9 @@ describe('useGroupsWithReviewProducts', () => {
     it('excludes groups whose products are all hidden by the quick filter', () => {
         vi.mocked(useProducts).mockReturnValue([
             { group: 'Uogienės', name: 'Avietės', years: [{ year: 23, amounts: [] }] },
-            { group: 'Daržovės', name: 'Agurkai', years: [{ year: 22, amounts: [] }] },
+            { group: 'Daržovės', name: 'Morkos', years: [{ year: 22, amounts: [] }] },
         ]);
-        vi.mocked(useQuickFilterPredicate).mockReturnValue((name: string) => name === 'Agurkai');
+        vi.mocked(useQuickFilterPredicate).mockReturnValue((name: string) => name === 'Morkos');
 
         const { result } = renderHook(() => useGroupsWithReviewProducts());
 

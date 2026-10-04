@@ -47,7 +47,7 @@ describe('<ReviewBox>', () => {
         { group: 'Uogienės', name: 'Avietės', years: [{ year: 2024, amounts: [] }], missing: false },
         { group: 'Uogienės', name: 'Braškės', years: [{ year: 2024, amounts: [] }], missing: true },
         { group: 'Uogienės', name: 'Serbentai', years: [] },
-        { group: 'Daržovės', name: 'Agurkai', years: [{ year: 2024, amounts: [] }] },
+        { group: 'Daržovės', name: 'Morkos', years: [{ year: 2024, amounts: [] }] },
     ];
     const state = { groups, products };
     const applyReview = vi.fn().mockResolvedValue(undefined);
@@ -345,7 +345,7 @@ describe('<ReviewBox>', () => {
 
             const updates = applyReview.mock.calls[0][0];
 
-            expect(updates.some((u: any) => u.name === 'Agurkai')).toBe(false);
+            expect(updates.some((u: any) => u.name === 'Morkos')).toBe(false);
         });
     });
 

@@ -3,11 +3,48 @@ import { getInitialAppData } from '~/server/data/initialAppData';
 import { getProductsWithYears } from '~/server/data/products';
 import { getFullSummary } from '~/server/data/summary';
 import { getVariants } from '~/server/data/variants';
+import { getVisualAppData, getVisualScenario } from '~/tests/fixtures/visualData';
 
 vi.mock(import('~/server/data/groups'));
 vi.mock(import('~/server/data/products'));
 vi.mock(import('~/server/data/variants'));
 vi.mock(import('~/server/data/summary'));
+vi.mock(import('~/tests/fixtures/visualData'), () => ({
+    getVisualAppData: vi.fn(),
+    getVisualScenario: vi.fn(),
+}));
+
+afterEach(() => vi.unstubAllEnvs());
+
+describe('visual scenario data', () => {
+    afterEach(() => vi.clearAllMocks());
+
+    it('uses the visual scenario without reading database collections', async () => {
+        vi.stubEnv('PLAYWRIGHT_TEST', '1');
+        const result = { data: { groups: [] }, resource: 'groups' as const };
+        vi.mocked(getVisualScenario).mockResolvedValueOnce('basic');
+        vi.mocked(getVisualAppData).mockReturnValueOnce(result);
+
+        await expect(getInitialAppData('/categories')).resolves.toBe(result);
+
+        expect(getVisualAppData).toHaveBeenCalledExactlyOnceWith('/categories', 'basic');
+        expect(getGroups).not.toHaveBeenCalled();
+    });
+
+    it('reads database collections when visual mode has no scenario', async () => {
+        vi.stubEnv('PLAYWRIGHT_TEST', '1');
+        vi.mocked(getVisualScenario).mockResolvedValueOnce(undefined);
+        vi.mocked(getGroups).mockResolvedValueOnce([{ group: 'First', order: 0 }]);
+
+        await expect(getInitialAppData('/categories')).resolves.toMatchObject({
+            resource: 'groups',
+            initialGroup: 'First',
+        });
+
+        expect(getVisualAppData).not.toHaveBeenCalled();
+        expect(getGroups).toHaveBeenCalledExactlyOnceWith();
+    });
+});
 
 describe('server-loaded product page', () => {
     it('loads collections directly and opens the first category with products', async () => {

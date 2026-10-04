@@ -67,7 +67,11 @@ jobs:
 
   visual:
     runs-on: xcode-27
-    name: Playwright visual snapshots
+    name: Playwright visual snapshots (${{ matrix.browser }})
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -84,16 +88,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Chromium and WebKit
-        run: pnpm exec playwright install chromium webkit
+      - name: Install ${{ matrix.browser }}
+        run: pnpm exec playwright install ${{ matrix.browser }}
 
       - name: Compare visual snapshots
-        run: pnpm test:visual
+        run: pnpm test:visual --project='*${{ matrix.browser }}*'
 
       - name: Upload Playwright visual diffs
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-visual-diffs
+          name: playwright-visual-diffs-${{ matrix.browser }}
           path: test-results/
           retention-days: 7

@@ -76,7 +76,7 @@ describe('updates', () => {
                 },
                 {
                     group: 'Daržovės',
-                    name: 'Agurkai',
+                    name: 'Morkos',
                     years: [{ year: 22, amounts: [{ variant: 'd', amount: 3, recycled: false }] }],
                 },
             ]);
@@ -168,7 +168,7 @@ describe('updates', () => {
                 },
                 {
                     group: 'Daržovės',
-                    name: 'Agurkai',
+                    name: 'Morkos',
                     years: [{ year: 22, amounts: [{ variant: 'd', amount: 3, recycled: false }] }],
                 },
             ]);
@@ -232,7 +232,7 @@ describe('updates', () => {
                     },
                     {
                         group: 'Daržovės',
-                        name: 'Agurkai',
+                        name: 'Morkos',
                         years: [{ year: 22, amounts: [{ variant: 'd', amount: 3, recycled: false }] }],
                     },
                 ],
@@ -271,7 +271,7 @@ describe('updates', () => {
                 },
                 {
                     group: 'Daržovės',
-                    name: 'Agurkai',
+                    name: 'Morkos',
                     years: [{ year: 22, amounts: [{ variant: 'd', amount: 3, recycled: false }] }],
                 },
             ]);

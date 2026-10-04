@@ -11,6 +11,13 @@ export async function getInitialAppData(pathname: string): Promise<{
     resource: InitialResource;
     initialGroup?: string;
 }> {
+    if (process.env.PLAYWRIGHT_TEST === '1') {
+        const { getVisualAppData, getVisualScenario } = await import('~/tests/fixtures/visualData');
+        const visualScenario = await getVisualScenario();
+        if (visualScenario) {
+            return getVisualAppData(pathname, visualScenario);
+        }
+    }
     if (pathname === Links.CATEGORIES) {
         const groups = await getGroups();
         return { data: { groups }, resource: 'groups', initialGroup: groups[0]?.group };

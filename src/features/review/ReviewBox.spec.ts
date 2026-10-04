@@ -35,7 +35,7 @@ test.describe('review', () => {
         await expect
             .poll(async () => (await db.collection<Product>('products').findOne({ name: 'Avietės' }))?.missing)
             .toBeFalsy();
-        expect((await db.collection<Product>('products').findOne({ name: 'Agurkai' }))?.missing).toBeUndefined();
+        expect((await db.collection<Product>('products').findOne({ name: 'Morkos' }))?.missing).toBeUndefined();
     });
 
     test('missing-only filter reacts to a product checkbox', async ({ page, db }) => {

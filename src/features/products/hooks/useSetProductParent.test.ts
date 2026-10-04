@@ -12,28 +12,28 @@ describe('useSetProductParent', () => {
 
     it('calls set parent action', async () => {
         const { result } = renderHook(() => useSetProductParent(), { wrapper: MockRedux });
-        await result.current('Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+        await result.current('Daržovės', 'Morkos (Zewa)', 'Morkos');
 
-        expect(setProductParentAction).toHaveBeenNthCalledWith(1, 'Daržovės', 'Agurkai (Zewa)', 'Agurkai');
+        expect(setProductParentAction).toHaveBeenNthCalledWith(1, 'Daržovės', 'Morkos (Zewa)', 'Morkos');
     });
 
     it('calls set parent action with undefined to clear the parent', async () => {
         const { result } = renderHook(() => useSetProductParent(), { wrapper: MockRedux });
-        await result.current('Daržovės', 'Agurkai (Zewa)', undefined);
+        await result.current('Daržovės', 'Morkos (Zewa)', undefined);
 
-        expect(setProductParentAction).toHaveBeenNthCalledWith(1, 'Daržovės', 'Agurkai (Zewa)', undefined);
+        expect(setProductParentAction).toHaveBeenNthCalledWith(1, 'Daržovės', 'Morkos (Zewa)', undefined);
     });
 
     it('does not call set parent action with empty group', async () => {
         const { result } = renderHook(() => useSetProductParent(), { wrapper: MockRedux });
-        await result.current('', 'Agurkai (Zewa)', 'Agurkai');
+        await result.current('', 'Morkos (Zewa)', 'Morkos');
 
         expect(setProductParentAction).not.toHaveBeenCalled();
     });
 
     it('does not call set parent action with empty name', async () => {
         const { result } = renderHook(() => useSetProductParent(), { wrapper: MockRedux });
-        await result.current('Daržovės', '', 'Agurkai');
+        await result.current('Daržovės', '', 'Morkos');
 
         expect(setProductParentAction).not.toHaveBeenCalled();
     });

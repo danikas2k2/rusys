@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
@@ -12,10 +12,13 @@ async function main() {
         binary: { version: '8.2.6' },
         replSet: { count: 1, ip: '127.0.0.1', storageEngine: 'wiredTiger' },
     });
-    const dbName = 'rusys_playwright';
     const imagesDir = await mkdtemp(path.join(os.tmpdir(), 'rusys-e2e-images-'));
+    const dbName = 'rusys_playwright';
     const runtimePath = path.resolve(import.meta.dirname, '.runtime.json');
-    await writeFile(runtimePath, JSON.stringify({ uri: mongo.getUri(), dbName, imagesDir, pid: process.pid }));
+    await writeFile(
+        runtimePath,
+        JSON.stringify({ uri: mongo.getUri(), port: 3022, dbName, imagesDir, pid: process.pid })
+    );
     const require = createRequire(import.meta.url);
 
     const app = spawn(
@@ -45,7 +48,10 @@ async function main() {
         app.kill('SIGTERM');
         await mongo.stop({ force: true });
         await rm(imagesDir, { recursive: true, force: true });
-        await rm(runtimePath, { force: true });
+        const activeRuntime = await readFile(runtimePath, 'utf8').catch(() => '');
+        if (activeRuntime && (JSON.parse(activeRuntime) as { pid: number }).pid === process.pid) {
+            await rm(runtimePath, { force: true });
+        }
     }
 
     process.on('SIGINT', () => void stop().finally(() => process.exit(0)));
