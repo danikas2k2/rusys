@@ -44,25 +44,6 @@ test.describe('variants', () => {
         expect(product?.years?.[0]?.amounts?.[0]?.variant).toBe('Vienas stiklainis');
     });
 
-    test('archives a variant only after confirmation', async ({ page, db }) => {
-        await page.goto('/variants');
-        await expect(page.getByRole('row', { name: /Didelis indelis/ })).toBeVisible();
-        await page.getByRole('row', { name: /Didelis indelis/ }).click();
-        const dialog = page.getByRole('dialog', { name: 'Taisyti variantą' });
-        await dialog.getByRole('button', { name: 'Šalinti' }).click();
-        const confirm = page.getByRole('dialog', { name: 'Ar tikrai norite pašalinti?' });
-        await confirm.getByRole('button', { name: 'Atšaukti' }).click();
-        await expect(page.getByRole('row', { name: /Didelis indelis/ })).toBeVisible();
-
-        await dialog.getByRole('button', { name: 'Šalinti' }).click();
-        await confirm.getByRole('button', { name: 'Šalinti' }).click();
-        await expect(page.getByRole('row', { name: /Didelis indelis/ })).toHaveCount(0);
-        expect(
-            (await db.collection<Variant>('variants').findOne({ group: 'Uogienės', variant: 'Didelis indelis' }))
-                ?.archivedAt
-        ).toBeDefined();
-    });
-
     test('copies a variant into another category without removing the source', async ({ page, db }) => {
         await page.goto('/variants');
         await page.getByRole('row', { name: /Didelis indelis/ }).click();
@@ -80,7 +61,7 @@ test.describe('variants', () => {
         await expect(page.getByRole('row', { name: /Didelis indelis/ })).toBeVisible();
     });
 
-    test('reorders variants and keeps the new order after reload', async ({ page, db }) => {
+    test('reorders variants and archives one after confirmation', async ({ page, db }) => {
         await page.goto('/variants');
         await expect(page.getByRole('row', { name: /Didelis indelis/ })).toBeVisible();
         await page
@@ -96,5 +77,22 @@ test.describe('variants', () => {
             .toBe(1);
         await page.reload();
         await expect(page.locator('[data-table="variants"] tbody tr').first()).toContainText('Didelis indelis');
+
+        await test.step('archives a variant only after confirmation', async () => {
+            await page.getByRole('row', { name: /Didelis indelis/ }).click();
+            const dialog = page.getByRole('dialog', { name: 'Taisyti variantą' });
+            await dialog.getByRole('button', { name: 'Šalinti' }).click();
+            const confirm = page.getByRole('dialog', { name: 'Ar tikrai norite pašalinti?' });
+            await confirm.getByRole('button', { name: 'Atšaukti' }).click();
+            await expect(page.getByRole('row', { name: /Didelis indelis/ })).toBeVisible();
+
+            await dialog.getByRole('button', { name: 'Šalinti' }).click();
+            await confirm.getByRole('button', { name: 'Šalinti' }).click();
+            await expect(page.getByRole('row', { name: /Didelis indelis/ })).toHaveCount(0);
+            expect(
+                (await db.collection<Variant>('variants').findOne({ group: 'Uogienės', variant: 'Didelis indelis' }))
+                    ?.archivedAt
+            ).toBeDefined();
+        });
     });
 });

@@ -6,19 +6,35 @@ import type { Product } from '~/common/data';
 test.use({ scenario: 'review' });
 
 test.describe('review', () => {
-    test('review button shows its tooltip to the left', async ({ page }) => {
+    test('review tooltip and untouched selection', async ({ page, db }) => {
         await page.goto('/');
-        const button = page.getByRole('button', { name: 'Peržiūra' });
-        await button.hover();
-        const tooltip = page.getByRole('tooltip', { name: 'Peržiūra' });
-        await expect(tooltip).toBeVisible();
-        await expect
-            .poll(async () => {
-                const buttonBounds = (await button.boundingBox())!;
-                const tooltipBounds = (await tooltip.boundingBox())!;
-                return tooltipBounds.x + tooltipBounds.width - buttonBounds.x;
-            })
-            .toBeLessThanOrEqual(0);
+        await test.step('review button shows its tooltip to the left', async () => {
+            const button = page.getByRole('button', { name: 'Peržiūra' });
+            await button.hover();
+            const tooltip = page.getByRole('tooltip', { name: 'Peržiūra' });
+            await expect(tooltip).toBeVisible();
+            await expect
+                .poll(async () => {
+                    const buttonBounds = (await button.boundingBox())!;
+                    const tooltipBounds = (await tooltip.boundingBox())!;
+                    return tooltipBounds.x + tooltipBounds.width - buttonBounds.x;
+                })
+                .toBeLessThanOrEqual(0);
+        });
+
+        await test.step('select-all can return a category to untouched without saving changes', async () => {
+            await page.getByRole('button', { name: 'Peržiūra' }).click();
+            const review = page.getByRole('dialog').last();
+            const master = review.getByRole('row', { name: 'Uogienės' }).getByRole('checkbox');
+            await master.click();
+            await expect(master).toHaveAttribute('data-untouched', 'false');
+            await master.click();
+            await expect(master).toBeChecked();
+            await master.click();
+            await expect(master).toHaveAttribute('data-untouched', 'true');
+            await review.getByRole('button', { name: 'Taikyti' }).click();
+            expect((await db.collection<Product>('products').findOne({ name: 'Avietės' }))?.missing).toBe(true);
+        });
     });
 
     test('review changes only the touched category and persists missing status @critical', async ({ page, db }) => {
@@ -49,20 +65,5 @@ test.describe('review', () => {
         await expect
             .poll(async () => (await db.collection<Product>('products').findOne({ name: 'Avietės' }))?.missing)
             .toBeFalsy();
-    });
-
-    test('select-all can return a category to untouched without saving changes', async ({ page, db }) => {
-        await page.goto('/');
-        await page.getByRole('button', { name: 'Peržiūra' }).click();
-        const review = page.getByRole('dialog').last();
-        const master = review.getByRole('row', { name: 'Uogienės' }).getByRole('checkbox');
-        await master.click();
-        await expect(master).toHaveAttribute('data-untouched', 'false');
-        await master.click();
-        await expect(master).toBeChecked();
-        await master.click();
-        await expect(master).toHaveAttribute('data-untouched', 'true');
-        await review.getByRole('button', { name: 'Taikyti' }).click();
-        expect((await db.collection<Product>('products').findOne({ name: 'Avietės' }))?.missing).toBe(true);
     });
 });

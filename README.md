@@ -28,7 +28,15 @@ pnpm test:e2e
 Greitam svarbiausių grandinių patikrinimui naudok `pnpm test:e2e:critical`. Jei nori matyti veiksmus naršyklėje, naudok `pnpm test:e2e:headed`. `pnpm test:e2e:ui`
 atidaro interaktyvią Playwright sąsają, kurioje testus reikia paleisti paspaudus „Run“.
 
-Visos `test:e2e` komandos vykdo tik `*.spec.ts` testus. Vaizdinius `*.snap.ts` testus paleidžia `pnpm test:visual`, o etalonus atnaujina `pnpm test:visual:update`. Vaizdiniai testai naudoja vieną Next serverį ir testinius duomenis be MongoDB. E2E testai naudoja vieną Next serverį ir laikiną MongoDB. Visi Playwright testai vykdomi viename workeryje.
+Visos `test:e2e` komandos vykdo tik `*.spec.ts` testus. Vaizdinius `*.snap.ts` testus paleidžia `pnpm test:visual`, o etalonus atnaujina `pnpm test:visual:update`. Vaizdiniai testai naudoja vieną Next serverį ir testinius duomenis be MongoDB. E2E testai naudoja vieną Next serverį ir laikiną MongoDB. Visi Playwright testai vykdomi viename workeryje: naršyklės procesas naudojamas pakartotinai, tačiau kiekvienas atskiras testas gauna švarią DB ir atskirą puslapį. Susijusius veiksmus viename scenarijuje galima išdėstyti su `test.step`, kad jie vyktų tame pačiame puslapyje.
+
+Pasirinktiems failams paleisti galima perduoti jų kelius Playwright komandai, pavyzdžiui:
+
+```sh
+pnpm test:e2e:chromium src/features/groups/GroupsPage.spec.ts src/features/variants/VariantsPage.spec.ts
+```
+
+`pnpm test:e2e:chromium` vykdo tik darbalaukio Chromium testus; `pnpm test:e2e` papildomai tikrina mobiliąsias Chromium ir WebKit konfigūracijas.
 
 ## Kodo struktūra
 

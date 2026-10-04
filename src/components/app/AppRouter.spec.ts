@@ -113,21 +113,26 @@ test.describe('desktop navigation', () => {
         expect(apiRequests).toStrictEqual([]);
     });
 
-    for (const { label, path, content } of destinations) {
-        test(`menu navigates to ${label}`, async ({ page }) => {
-            await page.goto('/');
-            await page.getByRole('button', { name: 'Meniu' }).click();
-            const menu = page.getByRole('menu');
-            await expect(menu.getByRole('dialog')).toBeVisible();
-            await menu.getByRole('link', { name: label }).click();
-            await expect(page).toHaveURL(new RegExp(`${path === '/' ? '/$' : `${path}$`}`));
-            await expect(menu.getByRole('dialog')).toBeHidden();
-            await expect(page.locator(`${content}:visible`).first()).toBeVisible();
+    test('menu navigates between all primary routes', async ({ page }) => {
+        await page.goto('/');
+        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
+        for (const { label, path, content } of [...destinations.slice(1), destinations[0]!]) {
+            await test.step(`menu navigates to ${label}`, async () => {
+                await page.getByRole('button', { name: 'Meniu' }).click();
+                const menu = page.getByRole('menu');
+                await expect(menu.getByRole('dialog')).toBeVisible();
+                await menu.getByRole('link', { name: label }).click();
+                await expect(page).toHaveURL(new RegExp(`${path === '/' ? '/$' : `${path}$`}`));
+                await expect(menu.getByRole('dialog')).toBeHidden();
+                await expect(page.locator(`${content}:visible`).first()).toBeVisible();
 
-            await page.getByRole('button', { name: 'Meniu' }).click();
-            await expect(menu.getByRole('link', { name: label })).toHaveAttribute('data-active', 'true');
-        });
-    }
+                await page.getByRole('button', { name: 'Meniu' }).click();
+                await expect(menu.getByRole('link', { name: label })).toHaveAttribute('data-active', 'true');
+                await page.keyboard.press('Escape');
+                await expect(menu.getByRole('dialog')).toBeHidden();
+            });
+        }
+    });
 
     for (const { label, path, content } of destinations) {
         test(`opens ${label} directly`, async ({ page }) => {

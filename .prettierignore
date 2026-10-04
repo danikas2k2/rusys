@@ -1,3 +1,4 @@
-**/*.pcss
+**/node_modules/
+**/dist/
 pnpm-lock.yaml
 next-env.d.ts
