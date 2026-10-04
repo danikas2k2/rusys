@@ -19,7 +19,10 @@ export const test = base.extend<{ scenario: Scenario; _visualData: void }>({
                     await route.abort();
                     return;
                 }
-                await route.fulfill({ path: path.resolve(process.cwd(), 'assets', file), contentType: 'image/png' });
+                await route.fulfill({
+                    path: path.resolve(process.cwd(), 'src/tests/assets', file),
+                    contentType: 'image/png',
+                });
             });
             await run();
         },

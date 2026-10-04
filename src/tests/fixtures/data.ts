@@ -99,7 +99,7 @@ export async function seedScenario(db: Db, scenario: Scenario, imagesDir: string
                 .filter((item) => item.image)
                 .map((item) => {
                     const file = path.basename(item.image!);
-                    return copyFile(path.resolve(process.cwd(), 'assets', file), path.join(imagesDir, file));
+                    return copyFile(path.resolve(process.cwd(), 'src/tests/assets', file), path.join(imagesDir, file));
                 })
         );
     }

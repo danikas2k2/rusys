@@ -27,6 +27,10 @@ const nextConfig: NextConfig = {
         serverActions: {
             bodySizeLimit: '210mb',
         },
+        useLightningcss: true,
+        lightningCssFeatures: {
+            exclude: ['light-dark'],
+        },
     },
     async headers() {
         return [
