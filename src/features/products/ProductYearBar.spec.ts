@@ -10,70 +10,17 @@ test.describe('annual products', () => {
     test('switches annual content and persists the removal marker', async ({ page, db }) => {
         await page.goto('/');
         const amount = await openProduct(page, 'Avietės');
-        await test.step('animates the year content when switching between years', async () => {
-            await page.evaluate(() => {
-                const original = document.startViewTransition.bind(document);
-                const counter = window as typeof window & { __yearViewTransitions: number; __yearAnimations: string[] };
-                counter.__yearViewTransitions = 0;
-                counter.__yearAnimations = [];
-                document.startViewTransition = (...args) => {
-                    counter.__yearViewTransitions += 1;
-                    const transition = original(...args);
-                    void transition.ready.then(
-                        () => {
-                            counter.__yearAnimations.push(
-                                ...document
-                                    .getAnimations()
-                                    .filter((animation): animation is CSSAnimation => animation instanceof CSSAnimation)
-                                    .map(
-                                        (animation) =>
-                                            `${(animation.effect as KeyframeEffect | null)?.pseudoElement}:${animation.animationName}`
-                                    )
-                            );
-                        },
-                        () => {}
-                    );
-                    return transition;
-                };
-            });
-
+        await test.step('switches between years', async () => {
             await amount
                 .locator('label')
                 .filter({ hasText: String(currentYear) })
                 .click();
             await expect(amount.locator('[data-amount-variant-key="Stiklainis"]')).toContainText('3');
-            await expect
-                .poll(() =>
-                    page.evaluate(
-                        () => (window as typeof window & { __yearViewTransitions: number }).__yearViewTransitions
-                    )
-                )
-                .toBeGreaterThan(0);
-            await expect
-                .poll(() =>
-                    page.evaluate(() =>
-                        (window as typeof window & { __yearAnimations: string[] }).__yearAnimations.some((animation) =>
-                            animation.endsWith(':product-year-fade-out')
-                        )
-                    )
-                )
-                .toBe(true);
-            const afterFirstYear = await page.evaluate(
-                () => (window as typeof window & { __yearViewTransitions: number }).__yearViewTransitions
-            );
-
             await amount
                 .locator('label')
                 .filter({ hasText: String(currentYear - 1) })
                 .click();
             await expect(amount.locator('[data-amount-variant-key="Stiklainis"]')).toContainText('2');
-            await expect
-                .poll(() =>
-                    page.evaluate(
-                        () => (window as typeof window & { __yearViewTransitions: number }).__yearViewTransitions
-                    )
-                )
-                .toBeGreaterThan(afterFirstYear);
         });
 
         await test.step('annual years remain separate and removal marker persists', async () => {

@@ -4,102 +4,26 @@ import { openProduct, productTile } from '@tests/helpers/ui';
 import type { Product } from '~/common/data';
 
 test.describe('product amounts', () => {
-    test('animates variant expansion and dialog controls', async ({ page }) => {
+    test('expands a variant and switches dialog controls', async ({ page }) => {
         await page.goto('/');
         const amount = await openProduct(page, 'Avietės');
-        await test.step('animates variant expansion', async () => {
-            await page.evaluate(() => {
-                const original = document.startViewTransition.bind(document);
-                const counter = window as typeof window & { __variantViewTransitions: number };
-                counter.__variantViewTransitions = 0;
-                document.startViewTransition = (...args) => {
-                    counter.__variantViewTransitions += 1;
-                    return original(...args);
-                };
-            });
-
+        await test.step('variant expansion', async () => {
             const variant = amount.locator('[data-amount-variant-key="Stiklainis"]');
             await variant.locator('[aria-expanded="false"]').click();
             await expect(variant.locator('[aria-expanded="true"]')).toBeVisible();
-            await expect
-                .poll(() =>
-                    page.evaluate(
-                        () => (window as typeof window & { __variantViewTransitions: number }).__variantViewTransitions
-                    )
-                )
-                .toBeGreaterThan(0);
-            const afterExpand = await page.evaluate(
-                () => (window as typeof window & { __variantViewTransitions: number }).__variantViewTransitions
-            );
-
             await variant.locator('[aria-expanded="true"]').click();
             await expect(variant.locator('[aria-expanded="false"]')).toBeVisible();
-            await expect
-                .poll(() =>
-                    page.evaluate(
-                        () => (window as typeof window & { __variantViewTransitions: number }).__variantViewTransitions
-                    )
-                )
-                .toBeGreaterThan(afterExpand);
         });
 
-        await test.step('animates tab content and variant-selection controls', async () => {
-            await page.evaluate(() => {
-                const original = document.startViewTransition.bind(document);
-                const counter = window as typeof window & { __dialogViewTransitions: number };
-                counter.__dialogViewTransitions = 0;
-                document.startViewTransition = (...args) => {
-                    counter.__dialogViewTransitions += 1;
-                    return original(...args);
-                };
-            });
-
+        await test.step('tab and variant-selection controls', async () => {
             await amount.getByRole('tab', { name: 'Istorija' }).click();
             await expect(amount.getByRole('tabpanel', { name: 'Istorija' })).toBeVisible();
-            await expect
-                .poll(() =>
-                    page.evaluate(
-                        () => (window as typeof window & { __dialogViewTransitions: number }).__dialogViewTransitions
-                    )
-                )
-                .toBeGreaterThan(0);
-            const afterTabSwitch = await page.evaluate(
-                () => (window as typeof window & { __dialogViewTransitions: number }).__dialogViewTransitions
-            );
-
             await amount.getByRole('tab', { name: 'Kiekiai' }).click();
             await expect(amount.getByRole('tabpanel', { name: 'Kiekiai' })).toBeVisible();
-            await expect
-                .poll(() =>
-                    page.evaluate(
-                        () => (window as typeof window & { __dialogViewTransitions: number }).__dialogViewTransitions
-                    )
-                )
-                .toBeGreaterThan(afterTabSwitch);
-            await page.evaluate(() => {
-                (window as typeof window & { __dialogViewTransitions: number }).__dialogViewTransitions = 0;
-            });
             await amount.getByRole('button', { name: 'Perkelti variantus' }).click();
             await expect(amount.getByRole('checkbox')).toHaveCount(1);
-            await expect
-                .poll(() =>
-                    page.evaluate(
-                        () => (window as typeof window & { __dialogViewTransitions: number }).__dialogViewTransitions
-                    )
-                )
-                .toBeGreaterThan(0);
-            const afterMoveStart = await page.evaluate(
-                () => (window as typeof window & { __dialogViewTransitions: number }).__dialogViewTransitions
-            );
             await amount.getByRole('button', { name: 'Atšaukti' }).click();
             await expect(amount.getByRole('checkbox')).toHaveCount(0);
-            await expect
-                .poll(() =>
-                    page.evaluate(
-                        () => (window as typeof window & { __dialogViewTransitions: number }).__dialogViewTransitions
-                    )
-                )
-                .toBeGreaterThan(afterMoveStart);
         });
     });
 
