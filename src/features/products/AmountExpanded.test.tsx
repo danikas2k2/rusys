@@ -208,10 +208,11 @@ describe('<AmountExpanded>', () => {
         expect(Array.from(yearSelect!.options, (option) => option.value)).toContain(String(currentYear - 10));
         expect(Array.from(yearSelect!.options, (option) => option.value)).toContain(String(currentYear + 10));
 
-        for (let index = 0; index < 12 * 11; index += 1) {
-            await user.click(previousMonth!);
-        }
+        await user.selectOptions(yearSelect!, String(currentYear - 10));
+        await user.selectOptions(monthSelect!, '0');
+        await user.click(previousMonth!);
 
+        expect(yearSelect!).toHaveValue(String(currentYear - 11));
         expect(Array.from(yearSelect!.options, (option) => option.value)).toContain(String(currentYear - 11));
     });
 
