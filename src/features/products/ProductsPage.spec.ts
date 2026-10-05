@@ -55,21 +55,16 @@ test.describe('products', () => {
             };
             counter.__tileViewTransitions = 0;
             counter.__tileAnimations = [];
+            document.addEventListener(
+                'animationstart',
+                (event) => {
+                    counter.__tileAnimations.push(event.animationName);
+                },
+                true
+            );
             document.startViewTransition = (...args) => {
                 counter.__tileViewTransitions += 1;
-                const transition = original(...args);
-                void transition.ready.then(
-                    () => {
-                        counter.__tileAnimations.push(
-                            ...document
-                                .getAnimations()
-                                .filter((animation): animation is CSSAnimation => animation instanceof CSSAnimation)
-                                .map((animation) => animation.animationName)
-                        );
-                    },
-                    () => {}
-                );
-                return transition;
+                return original(...args);
             };
         });
 
