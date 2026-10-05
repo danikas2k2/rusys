@@ -50,8 +50,7 @@ test.describe('variants', () => {
         const edit = page.getByRole('dialog', { name: 'Taisyti variantą' });
         const category = edit.getByRole('combobox', { name: 'Kategorija' });
         await category.click();
-        await category.press('ArrowDown');
-        await category.press('Enter');
+        await page.getByRole('option', { name: 'Daržovės' }).click();
         await expect(category).toHaveValue('Daržovės');
         await edit.getByRole('button', { name: 'Kopijuoti' }).click();
         await page.getByRole('tab', { name: 'Daržovės' }).click();
