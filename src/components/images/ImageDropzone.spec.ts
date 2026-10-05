@@ -59,9 +59,10 @@ test.describe('image uploads', () => {
         await page.reload();
         amount = await openProduct(page, 'Avietės');
         await amount.locator('[data-amount-variant-key="Stiklainis"] [aria-expanded="false"]').click();
-        await amount
-            .locator('input[type="file"]')
-            .setInputFiles({ name: 'variant.png', mimeType: 'image/png', buffer: png });
+        const variantDropzone = amount.getByTestId('image-dropzone');
+        const fileChooser = page.waitForEvent('filechooser');
+        await variantDropzone.click();
+        await (await fileChooser).setFiles({ name: 'variant.png', mimeType: 'image/png', buffer: png });
         await expect
             .poll(
                 async () =>
