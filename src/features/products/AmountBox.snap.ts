@@ -5,6 +5,8 @@ import { openProduct } from '@tests/helpers/ui';
 test.use({ reducedMotion: 'reduce', locale: 'lt-LT' });
 
 test.describe('amount dialog', () => {
+    test.use({ scenario: 'history' });
+
     test('product amounts, editable variant and history', async ({ page }) => {
         await page.goto('/');
         const dialog = await openProduct(page, 'Avietės');
@@ -27,8 +29,10 @@ test.describe('amount dialog', () => {
         await dialog.getByRole('button', { name: 'Atšaukti' }).click();
 
         await dialog.getByRole('tab', { name: 'Istorija' }).click();
-        await expect(dialog.locator('[data-table="history"]')).toBeVisible();
-        await expect(dialog).toHaveScreenshot(['AmountBox', 'amounts-history-empty.png']);
+        const history = dialog.locator('[data-table="history"]');
+        await expect(history).toContainText('Suvalgyta su arbata');
+        await expect(history).toContainText('Stiklainis');
+        await expect(dialog).toHaveScreenshot(['AmountBox', 'amounts-history.png']);
     });
 
     test.describe('annual products', () => {

@@ -59,13 +59,9 @@ export default defineConfig({
     ],
     globalTeardown: './src/tests/playwright/global-teardown.ts',
     webServer: {
-        command: visualRun
-            ? 'node --import tsx src/tests/playwright/start-visual-server.ts'
-            : 'node --import tsx src/tests/playwright/start-server.ts',
-        // The visual server has no database. Without a scenario cookie, requesting `/`
-        // during startup tries to load app data from MongoDB and never reports ready.
+        command: 'node --import tsx src/tests/playwright/start-server.ts',
         url: visualRun ? 'http://127.0.0.1:3022/manifest.json' : 'http://127.0.0.1:3022',
         reuseExistingServer: false,
-        timeout: 120_000,
+        timeout: visualRun ? 240_000 : 120_000,
     },
 });

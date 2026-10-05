@@ -1,13 +1,10 @@
 import path from 'node:path';
 
-import { test as base, expect } from '@playwright/test';
-
-import type { Scenario } from './data';
+import { test as base, expect } from './test';
 
 const imageFiles = new Set(['uogienes.png', 'darzoves.png', 'avietes.png', 'braskes.png', 'morkos.png']);
 
-export const test = base.extend<{ scenario: Scenario; _visualData: void }>({
-    scenario: ['basic', { option: true }],
+export const test = base.extend<{ _visualData: void }>({
     _visualData: [
         async ({ context, scenario }, run) => {
             await context.addCookies([

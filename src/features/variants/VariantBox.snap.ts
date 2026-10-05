@@ -7,6 +7,7 @@ test('variant creation and editor', async ({ page }) => {
     const table = page.locator('[data-table="variants"]');
     await expect(table.getByRole('row', { name: /Stiklainis/ }).first()).toBeVisible();
     await page.locator('[data-action="add"]').click();
+    await expect(page.getByRole('textbox', { name: 'Variantas' })).toBeFocused();
     await expect(page.getByRole('dialog', { name: 'Pridėti naują variantą' })).toHaveScreenshot([
         'VariantBox',
         'variant-create.png',
