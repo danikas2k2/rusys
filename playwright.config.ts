@@ -62,7 +62,9 @@ export default defineConfig({
         command: visualRun
             ? 'node --import tsx src/tests/playwright/start-visual-server.ts'
             : 'node --import tsx src/tests/playwright/start-server.ts',
-        url: 'http://127.0.0.1:3022',
+        // The visual server has no database. Without a scenario cookie, requesting `/`
+        // during startup tries to load app data from MongoDB and never reports ready.
+        url: visualRun ? 'http://127.0.0.1:3022/manifest.json' : 'http://127.0.0.1:3022',
         reuseExistingServer: false,
         timeout: 120_000,
     },
