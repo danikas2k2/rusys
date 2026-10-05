@@ -10,9 +10,12 @@ test.describe('review', () => {
         await page.goto('/');
         await test.step('review button shows its tooltip to the left', async () => {
             const button = page.getByRole('button', { name: 'Peržiūra' });
-            await button.hover();
             const tooltip = page.getByRole('tooltip', { name: 'Peržiūra' });
-            await expect(tooltip).toBeVisible();
+            await expect(async () => {
+                await page.mouse.move(0, 0);
+                await button.hover();
+                await expect(tooltip).toBeVisible({ timeout: 1000 });
+            }).toPass({ timeout: 10_000 });
             await expect
                 .poll(async () => {
                     const buttonBounds = (await button.boundingBox())!;

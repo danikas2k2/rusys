@@ -154,7 +154,10 @@ test.describe('product amounts', () => {
         await page.goto('/');
         const amount = await openProduct(page, 'Avietės');
         await amount.getByRole('button', { name: 'Perkelti variantus' }).click();
-        await amount.locator('[data-amount-variant-key="Stiklainis"] [aria-expanded="false"]').click();
+        const variant = amount.locator('[data-amount-variant-key="Stiklainis"]');
+        const selection = variant.getByRole('checkbox', { name: 'Pasirinkite variantą' });
+        await selection.check();
+        await expect(selection).toBeChecked();
         const target = amount.getByRole('combobox', { name: 'Perkelti į' });
         await target.click();
         await page.getByRole('option', { name: 'Braškės' }).click();

@@ -34,7 +34,7 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    name: Playwright Chromium
+    name: Playwright E2E
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -51,8 +51,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Chromium and system dependencies
-        run: pnpm exec playwright install --with-deps chromium
+      - name: Install browsers and system dependencies
+        run: pnpm exec playwright install --with-deps chromium webkit
 
       - name: Run E2E tests
         run: pnpm test:e2e
