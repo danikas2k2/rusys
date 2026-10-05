@@ -1,12 +1,11 @@
 import { useCallback } from 'react';
 
-import { importArchive } from '~/server/actions/archive';
+import { uploadWithProgress, type UploadProgress } from '~/lib/utils/uploadWithProgress';
 
-export function useImport(): (data: FormData) => Promise<void> {
-    return useCallback(async (data: FormData): Promise<void> => {
-        const error = await importArchive(data);
-        if (error) {
-            throw new Error(error);
-        }
-    }, []);
+export function useImport(): (data: FormData, onProgress?: UploadProgress) => Promise<void> {
+    return useCallback(
+        (data: FormData, onProgress?: UploadProgress) =>
+            uploadWithProgress('POST', '/api/v1/imports', data, onProgress),
+        []
+    );
 }

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { ImageDropzone } from '~/components/images/ImageDropzone';
 import { useSetVariantImage } from '~/features/products/hooks/useSetVariantImage';
@@ -14,9 +14,17 @@ interface VariantImagePickerProps {
 export function VariantImagePicker({ group, name, variant, image }: VariantImagePickerProps): React.ReactElement {
     const _ = useLabels();
     const setVariantImage = useSetVariantImage();
+    const [progress, setProgress] = useState<number>();
 
     const handleDrop = useCallback(
-        (dataUrl: string) => setVariantImage(group, name, variant, dataUrl),
+        async (dataUrl: string) => {
+            setProgress(0);
+            try {
+                await setVariantImage(group, name, variant, dataUrl, setProgress);
+            } finally {
+                setProgress(undefined);
+            }
+        },
         [group, name, variant, setVariantImage]
     );
 
@@ -26,6 +34,13 @@ export function VariantImagePicker({ group, name, variant, image }: VariantImage
     );
 
     return (
-        <ImageDropzone image={image} label={_('Variant image')} onDrop={handleDrop} onRemove={handleRemove} compact />
+        <ImageDropzone
+            image={image}
+            label={_('Variant image')}
+            onDrop={handleDrop}
+            onRemove={handleRemove}
+            progress={progress}
+            compact
+        />
     );
 }

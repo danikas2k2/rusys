@@ -81,6 +81,7 @@ export function GroupBox({
 
     const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [imageProgress, setImageProgress] = useState<number>();
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Reset form and focus input when modal opens
@@ -97,6 +98,7 @@ export function GroupBox({
             // eslint-disable-next-line react-hooks/set-state-in-effect -- submission state reset when modal opens
             setSubmitting(false);
             setLoading(false);
+            setImageProgress(undefined);
 
             const timer = setTimeout(() => {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
@@ -148,11 +150,30 @@ export function GroupBox({
             const annualChanged = values.annual !== initialAnnual;
             const reviewChanged = values.review !== initialReview;
             const imageChanged = values.image !== initialImage;
+            const uploadingImage = imageChanged && values.image.startsWith('data:');
+            if (uploadingImage) {
+                setImageProgress(0);
+            }
 
             if (groupRenamed) {
-                await renameGroup(initialGroup, values.group, values.annual, values.review, values.image);
+                if (uploadingImage) {
+                    await renameGroup(
+                        initialGroup,
+                        values.group,
+                        values.annual,
+                        values.review,
+                        values.image,
+                        setImageProgress
+                    );
+                } else {
+                    await renameGroup(initialGroup, values.group, values.annual, values.review, values.image);
+                }
             } else if (!isEditing || annualChanged || reviewChanged || imageChanged) {
-                await updateGroup(values.group, values.annual, values.review, values.image);
+                if (uploadingImage) {
+                    await updateGroup(values.group, values.annual, values.review, values.image, setImageProgress);
+                } else {
+                    await updateGroup(values.group, values.annual, values.review, values.image);
+                }
             }
             onClose(values.group);
         } catch (error) {
@@ -163,6 +184,7 @@ export function GroupBox({
             clearTimeout(loadingTimeout);
             setSubmitting(false);
             setLoading(false);
+            setImageProgress(undefined);
         }
     };
 
@@ -222,6 +244,7 @@ export function GroupBox({
                             onDrop={handleImageDrop}
                             onRemove={handleImageRemove}
                             disabled={loading}
+                            progress={imageProgress}
                         />
                         <Group justify={isEditing && onDelete ? 'space-between' : 'flex-end'} mt="md" wrap="nowrap">
                             {isEditing && onDelete && (

@@ -229,7 +229,8 @@ describe('<GroupBox>', () => {
                 'Buitinė chemija',
                 true,
                 false,
-                expect.stringMatching(/^data:image\/png;base64,/)
+                expect.stringMatching(/^data:image\/png;base64,/),
+                expect.any(Function)
             );
         });
     });

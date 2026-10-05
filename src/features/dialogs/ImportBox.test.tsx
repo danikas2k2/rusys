@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockPage } from '@tests/MockPage';
@@ -175,6 +175,38 @@ describe('<ImportBox>', () => {
     });
 
     describe('calls import handler when importing a file', () => {
+        it('shows the reported upload progress while the request is pending', async () => {
+            let complete!: () => void;
+            const importData = vi.fn().mockImplementation(
+                () =>
+                    new Promise<void>((resolve) => {
+                        complete = resolve;
+                    })
+            );
+            vi.mocked(useImportHandler).mockReturnValue(importData);
+
+            render(
+                <MockPage state={state}>
+                    <ImportBox opened onClose={onClose} />
+                </MockPage>
+            );
+            await user.upload(
+                screen.getByPlaceholderText<HTMLInputElement>('Please choose a file'),
+                new File(['zip-bytes'], 'test.zip', { type: 'application/zip' })
+            );
+            await user.click(screen.getByRole('button', { name: 'Import' }));
+
+            expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+
+            const onProgress = importData.mock.calls[0][1] as (percent: number) => void;
+            act(() => onProgress(42));
+
+            expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '42');
+
+            complete();
+            await waitFor(() => expect(screen.queryByRole('progressbar')).not.toBeInTheDocument());
+        });
+
         it('closes dialog without error when successfully imported', async () => {
             const importData = vi.fn().mockResolvedValue({ ok: true });
             vi.mocked(useImportHandler).mockReturnValue(importData);
@@ -195,7 +227,7 @@ describe('<ImportBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Import' }));
 
-            expect(importData).toHaveBeenCalledWith(expect.any(FormData));
+            expect(importData).toHaveBeenCalledWith(expect.any(FormData), expect.any(Function));
             expect(importData.mock.calls[0][0].get('import')).toStrictEqual(file);
             expect(onClose).toHaveBeenCalledWith();
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
