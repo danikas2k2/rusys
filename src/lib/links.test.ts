@@ -1,4 +1,4 @@
-import { Links } from './Links';
+import { Links } from './links';
 
 describe('links', () => {
     it('defines all route links', () => {
