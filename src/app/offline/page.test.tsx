@@ -12,12 +12,14 @@ describe('offline page', () => {
     ] as const)('renders %s using the request language', async (locale, title, heading) => {
         vi.mocked(getRequestLocale).mockResolvedValue(locale);
 
-        expect(await generateMetadata()).toMatchObject({ title });
+        await expect(generateMetadata()).resolves.toMatchObject({ title });
+
         render(await OfflinePage());
 
         expect(screen.getByRole('heading', { name: heading })).toBeInTheDocument();
         expect(screen.getByRole('link')).toHaveAttribute('href', '/');
         expect(getRequestLocale).toHaveBeenCalledTimes(2);
+
         vi.clearAllMocks();
     });
 });

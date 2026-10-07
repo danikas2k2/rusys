@@ -35,7 +35,9 @@ describe('<NextApp>', () => {
         render(<NextApp locale="en-US" />);
 
         expect(screen.getByText('en-US')).toBeInTheDocument();
+
         await user.click(screen.getByRole('button', { name: 'Lithuanian' }));
+
         expect(screen.getByText('lt-LT')).toBeInTheDocument();
     });
 });

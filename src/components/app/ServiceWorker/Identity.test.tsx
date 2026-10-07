@@ -4,7 +4,7 @@ import React from 'react';
 
 import { ServiceWorkerIdentity } from './Identity';
 
-describe('ServiceWorkerIdentity', () => {
+describe('serviceWorkerIdentity', () => {
     const postMessage = vi.fn();
 
     beforeEach(() => {
@@ -34,10 +34,12 @@ describe('ServiceWorkerIdentity', () => {
     it('does nothing without a worker or outside production', async () => {
         Reflect.deleteProperty(navigator, 'serviceWorker');
         render(<ServiceWorkerIdentity sub="account-a" />);
+
         expect(postMessage).not.toHaveBeenCalled();
 
         vi.stubEnv('NODE_ENV', 'test');
         render(<ServiceWorkerIdentity sub="account-b" />);
+
         expect(postMessage).not.toHaveBeenCalled();
     });
 
@@ -48,6 +50,7 @@ describe('ServiceWorkerIdentity', () => {
         });
         render(<ServiceWorkerIdentity sub="account-a" />);
         await Promise.resolve();
+
         expect(postMessage).not.toHaveBeenCalled();
     });
 });

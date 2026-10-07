@@ -14,10 +14,11 @@ vi.mock(import('~/tests/fixtures/visualData'), () => ({
     getVisualScenario: vi.fn(),
 }));
 
-afterEach(() => vi.unstubAllEnvs());
-
 describe('visual scenario data', () => {
-    afterEach(() => vi.clearAllMocks());
+    afterEach(() => {
+        vi.unstubAllEnvs();
+        vi.clearAllMocks();
+    });
 
     it('uses the visual scenario without reading database collections', async () => {
         vi.stubEnv('PLAYWRIGHT_TEST', '1');

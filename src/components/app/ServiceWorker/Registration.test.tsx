@@ -45,11 +45,13 @@ describe('service worker registration and cleanup', () => {
         Reflect.deleteProperty(navigator, 'serviceWorker');
         vi.stubEnv('NODE_ENV', 'production');
         render(<ServiceWorkerRegistration />);
+
         expect(register).not.toHaveBeenCalled();
     });
 
     it('asks an installed worker to refresh the translated offline page', async () => {
         await refreshOfflinePage();
+
         expect(postMessage).toHaveBeenCalledExactlyOnceWith({ type: 'REFRESH_OFFLINE_PAGE' });
     });
 
@@ -59,6 +61,7 @@ describe('service worker registration and cleanup', () => {
         await refreshOfflinePage();
         Reflect.deleteProperty(navigator, 'serviceWorker');
         await refreshOfflinePage();
+
         expect(postMessage).not.toHaveBeenCalled();
     });
 
@@ -76,6 +79,7 @@ describe('service worker registration and cleanup', () => {
 
         try {
             await clearOfflineData();
+
             expect(postMessage).toHaveBeenCalledWith({ type: 'CLEAR_USER' }, [ports[1]]);
             expect(cacheDelete).toHaveBeenCalledTimes(2);
             expect(cacheDelete).toHaveBeenCalledWith('rusys-private-v1-a');
@@ -89,12 +93,14 @@ describe('service worker registration and cleanup', () => {
     it('clears account caches even if worker access fails', async () => {
         getRegistration.mockRejectedValueOnce(new Error('worker unavailable'));
         await clearOfflineData();
+
         expect(cacheDelete).toHaveBeenCalledTimes(2);
     });
 
     it('ignores a failed cache cleanup', async () => {
         getRegistration.mockResolvedValueOnce(undefined);
         cacheKeys.mockRejectedValueOnce(new Error('storage unavailable'));
+
         await expect(clearOfflineData()).resolves.toBeUndefined();
     });
 });

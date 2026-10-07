@@ -106,19 +106,22 @@ describe('offline service worker', () => {
         store('rusys-public-old').set('/old', response('old'));
         store('unrelated').set('/keep', response('keep'));
         await dispatch('install');
-        expect(skipWaiting).toHaveBeenCalledOnce();
+
+        expect(skipWaiting).toHaveBeenCalledExactlyOnceWith();
         expect(store('rusys-public-v2').has('/offline')).toBe(true);
         expect(store('rusys-public-v2').has('/manifest.json')).toBe(true);
 
         await dispatch('activate');
+
         expect(entries.has('rusys-public-old')).toBe(false);
         expect(entries.has('unrelated')).toBe(true);
-        expect(claim).toHaveBeenCalledOnce();
+        expect(claim).toHaveBeenCalledExactlyOnceWith();
     });
 
     it('serves cached assets and caches successful basic responses', async () => {
         const asset = new Request(`${origin}/assets/logo.svg`);
         store('rusys-public-v2').set(asset.url, response('cached'));
+
         expect((await dispatch('fetch', { request: asset }))?.status).toBe(200);
         expect(fetchMock).not.toHaveBeenCalled();
 
@@ -128,7 +131,8 @@ describe('offline service worker', () => {
             Object.defineProperty(result, 'type', { value: 'basic' });
             return result;
         });
-        expect(await (await dispatch('fetch', { request: missing }))?.text()).toBe('fresh');
+
+        await expect((await dispatch('fetch', { request: missing }))?.text()).resolves.toBe('fresh');
         expect(store('rusys-public-v2').has(missing.url)).toBe(true);
     });
 
@@ -140,42 +144,50 @@ describe('offline service worker', () => {
             new Request(`${origin}/sw.js`),
             new Request(`${origin}/ordinary`),
         ]) {
-            expect(await dispatch('fetch', { request })).toBeUndefined();
+            await expect(dispatch('fetch', { request })).resolves.toBeUndefined();
         }
+
         expect(fetchMock).not.toHaveBeenCalled();
     });
 
     it('refreshes the saved offline page only for a successful HTML response', async () => {
         await dispatch('message', { data: { type: 'REFRESH_OFFLINE_PAGE' } });
+
         expect(store('rusys-public-v2').has('/offline')).toBe(true);
 
         store('rusys-public-v2').delete('/offline');
         fetchMock.mockResolvedValueOnce(response('json', 'application/json'));
         await dispatch('message', { data: { type: 'REFRESH_OFFLINE_PAGE' } });
+
         expect(store('rusys-public-v2').has('/offline')).toBe(false);
 
         fetchMock.mockRejectedValueOnce(new Error('offline'));
+
         await expect(dispatch('message', { data: { type: 'REFRESH_OFFLINE_PAGE' } })).resolves.toBeUndefined();
     });
 
     it('verifies an account before caching its page and acknowledges the message', async () => {
         const acknowledge = await setUser();
+
         expect(acknowledge).toHaveBeenCalledWith('done');
-        expect(await store('rusys-session-v1').get(`${origin}/__offline_user`)?.text()).toBe('alice');
+        await expect(store('rusys-session-v1').get(`${origin}/__offline_user`)?.text()).resolves.toBe('alice');
         expect(store('rusys-private-v1-alice').has(`${origin}/`)).toBe(true);
 
         await dispatch('message', { data: { type: 'unrecognized' } });
+
         expect(store('rusys-session-v1').size).toBe(1);
     });
 
     it('rejects a mismatched identity and clears private data on sign-out', async () => {
         await setUser();
         await setUser('bob');
+
         expect(store('rusys-private-v1-alice').size).toBe(1);
         expect(store('rusys-private-v1-bob').size).toBe(0);
 
         const acknowledge = vi.fn();
         await dispatch('message', { data: { type: 'CLEAR_USER' }, ports: [{ postMessage: acknowledge }] });
+
         expect(acknowledge).toHaveBeenCalledWith('done');
         expect(entries.has('rusys-private-v1-alice')).toBe(false);
         expect(store('rusys-session-v1').size).toBe(0);
@@ -183,10 +195,12 @@ describe('offline service worker', () => {
 
     it('does not warm a page cache without a valid same-origin client', async () => {
         await dispatch('message', { data: { type: 'SET_USER', sub: 'alice' } });
+
         expect(store('rusys-private-v1-alice').size).toBe(0);
 
         await setUser('alice', `${origin}/offline`);
         await setUser('alice', 'https://other.test/');
+
         expect(store('rusys-private-v1-alice').size).toBe(0);
     });
 
@@ -195,13 +209,14 @@ describe('offline service worker', () => {
         const page = new Request(`${origin}/summary`);
         Object.defineProperty(page, 'mode', { value: 'navigate' });
 
-        expect(await (await dispatch('fetch', { request: page }))?.text()).toBe(page.url);
+        await expect((await dispatch('fetch', { request: page }))?.text()).resolves.toBe(page.url);
         expect(store('rusys-private-v1-alice').has(page.url)).toBe(true);
 
         store('rusys-session-v1').delete(`${origin}/__offline_user`);
         const otherPage = new Request(`${origin}/categories`);
         Object.defineProperty(otherPage, 'mode', { value: 'navigate' });
-        expect(await (await dispatch('fetch', { request: otherPage }))?.text()).toBe(otherPage.url);
+
+        await expect((await dispatch('fetch', { request: otherPage }))?.text()).resolves.toBe(otherPage.url);
         expect(store('rusys-private-v1-alice').has(otherPage.url)).toBe(false);
     });
 
@@ -218,10 +233,12 @@ describe('offline service worker', () => {
         Object.defineProperty(page, 'mode', { value: 'navigate' });
         store('rusys-private-v1-alice').set(page.url, response('saved page'));
         fetchMock.mockRejectedValue(new Error('offline'));
-        expect(await (await dispatch('fetch', { request: page }))?.text()).toBe('saved page');
+
+        await expect((await dispatch('fetch', { request: page }))?.text()).resolves.toBe('saved page');
 
         store('rusys-private-v1-alice').delete(page.url);
         store('rusys-public-v2').set('/offline', response('offline page'));
-        expect(await (await dispatch('fetch', { request: page }))?.text()).toBe('offline page');
+
+        await expect((await dispatch('fetch', { request: page }))?.text()).resolves.toBe('offline page');
     });
 });

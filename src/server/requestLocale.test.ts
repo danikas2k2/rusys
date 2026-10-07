@@ -13,7 +13,8 @@ describe('getRequestLocale', () => {
         vi.mocked(headers).mockResolvedValue(new Headers(acceptLanguage ? { 'accept-language': acceptLanguage } : {}));
 
         await expect(getRequestLocale()).resolves.toBe(expected);
-        expect(headers).toHaveBeenCalledOnce();
+        expect(headers).toHaveBeenCalledExactlyOnceWith();
+
         vi.clearAllMocks();
     });
 });

@@ -30,11 +30,13 @@ describe('<LocaleContext>', () => {
         });
 
         result.current('lt-LT');
+
         expect(setLocale).toHaveBeenCalledExactlyOnceWith('lt-LT');
     });
 
     it('has a harmless default setter outside the application provider', () => {
         const { result } = renderHook(() => use(SetLocaleContext));
+
         expect(result.current('en-US')).toBeUndefined();
     });
 });
