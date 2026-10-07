@@ -11,12 +11,12 @@ test.describe('products', () => {
         await expect(productTile(page, 'Braškės')).toBeVisible();
         const filter = page.locator('[data-products-header]').getByRole('checkbox');
         await filter.click();
-        await expect(filter).toBeChecked();
+        await expect(filter).not.toBeChecked();
         await expect(productTile(page, 'Avietės')).toBeVisible();
         await expect(productTile(page, 'Braškės')).toHaveCount(0);
 
         await filter.click();
-        await expect(filter).not.toBeChecked();
+        await expect(filter).toBeChecked();
         await expect(productTile(page, 'Braškės')).toBeVisible();
     });
 
