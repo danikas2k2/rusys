@@ -2,23 +2,30 @@ import { ColorSchemeScript } from '@mantine/core';
 import type { Metadata, Viewport } from 'next';
 import React, { type PropsWithChildren } from 'react';
 
+import { ServiceWorkerRegistration } from '~/components/app/ServiceWorker/Registration';
+import { translate } from '~/lib/translate';
+import { getRequestLocale } from '~/server/requestLocale';
 import { PwaHead } from './PwaHead';
 
 import './globals.css';
 
-export const metadata: Metadata = {
-    title: 'Rusio programėlė',
-    description: 'Produktų ir atsargų apskaita',
-    manifest: '/manifest.json',
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const locale = await getRequestLocale();
+    return {
+        title: translate('Cellar', locale),
+        description: translate('Product and inventory tracking', locale),
+        manifest: '/manifest.json',
+    };
+}
 
 export const viewport: Viewport = {
     viewportFit: 'cover',
 };
 
-export default function RootLayout({ children }: PropsWithChildren): React.JSX.Element {
+export default async function RootLayout({ children }: PropsWithChildren): Promise<React.JSX.Element> {
+    const locale = await getRequestLocale();
     return (
-        <html lang="lt" suppressHydrationWarning>
+        <html lang={locale.slice(0, 2)} suppressHydrationWarning>
             <head>
                 <ColorSchemeScript defaultColorScheme="auto" />
                 <PwaHead />
@@ -29,7 +36,10 @@ export default function RootLayout({ children }: PropsWithChildren): React.JSX.E
                     href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&family=Noto+Sans+Display:ital,wdth,wght@0,62.5..100,100..900;1,62.5..100,100..900&family=Noto+Sans+Mono:wdth,wght@62.5..100,100..900&family=Noto+Sans:ital,wdth,wght@0,62.5..100,100..900;1,62.5..100,100..900&display=swap"
                 />
             </head>
-            <body>{children}</body>
+            <body>
+                <ServiceWorkerRegistration />
+                {children}
+            </body>
         </html>
     );
 }

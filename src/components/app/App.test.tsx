@@ -75,6 +75,26 @@ describe('<App>', () => {
         expect(screen.getByRole('alert')).toHaveTextContent('Failed to load Google OAuth script');
     });
 
+    it('keeps the signed-in app available when Google OAuth cannot load offline', () => {
+        vi.mocked(useGoogleClientId).mockReturnValueOnce('validId');
+        let onScriptLoadError: (() => void) | undefined;
+        vi.mocked(GoogleOAuthProvider).mockImplementation(
+            ({ children, onScriptLoadError: onError }: React.PropsWithChildren<{ onScriptLoadError?: () => void }>) => {
+                onScriptLoadError = onError;
+                return <div>{children}</div>;
+            }
+        );
+
+        render(
+            <MockThemeRedux state={{ profile: { sub: 'alice', allowed: true } }}>
+                <App />
+            </MockThemeRedux>
+        );
+        act(() => onScriptLoadError?.());
+
+        expect(screen.getByText('AppContent')).toBeInTheDocument();
+    });
+
     it('renders AppContent when clientId is valid', () => {
         vi.mocked(useGoogleClientId).mockReturnValueOnce('validId');
 

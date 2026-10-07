@@ -7,6 +7,7 @@ import { DEV_CLIENT_ID, isDevMode } from '~/common/utils/dev';
 import { NextApp } from '~/components/app/NextApp';
 import { getSessionProfile } from '~/server/auth/session';
 import { getInitialAppData } from '~/server/data/initialAppData';
+import { getRequestLocale } from '~/server/requestLocale';
 
 export default async function AppPage({
     params,
@@ -21,6 +22,7 @@ export default async function AppPage({
     const dataVersion = createHash('sha256')
         .update(JSON.stringify(initial?.data ?? {}))
         .digest('hex');
+    const locale = await getRequestLocale();
     return (
         <NextApp
             key={`${pathname}:${profile?.sub ?? 'guest'}:${dataVersion}`}
@@ -29,6 +31,7 @@ export default async function AppPage({
             initialData={initial?.data}
             initialGroup={initial?.initialGroup}
             initialResource={initial?.resource}
+            locale={locale}
         />
     );
 }

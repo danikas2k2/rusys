@@ -1,4 +1,4 @@
-import { Box, Burger, Divider, Drawer, Flex, NavLink, Portal } from '@mantine/core';
+import { Box, Burger, Divider, Drawer, Flex, Group, NavLink, Portal } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -8,6 +8,7 @@ import { CategoriesNavIcon, ProductsNavIcon, SummaryNavIcon, UtilitiesNavIcon, V
 
 import { Label } from '~/components/common/Label';
 import { ColorSchemeToggle } from '~/components/runtime/ColorSchemeToggle';
+import { LanguageToggle } from '~/components/runtime/LanguageToggle';
 import { ExportMenuItem } from '~/components/toolbar/items/ExportMenuItem';
 import { ImportMenuItem } from '~/components/toolbar/items/ImportMenuItem';
 import { ToolbarMenuIcon } from '~/components/toolbar/ToolbarMenuIcon';
@@ -72,6 +73,7 @@ export function ToolbarMenu() {
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
+                            prefetch={false}
                             href={to(Links.PRODUCTS)}
                             active={pathname === Links.PRODUCTS}
                             onClick={close}
@@ -84,6 +86,7 @@ export function ToolbarMenu() {
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
+                            prefetch={false}
                             href={to(Links.SUMMARY)}
                             active={pathname === Links.SUMMARY}
                             onClick={close}
@@ -98,6 +101,7 @@ export function ToolbarMenu() {
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
+                            prefetch={false}
                             href={to(Links.VARIANTS)}
                             active={pathname === Links.VARIANTS}
                             onClick={close}
@@ -110,6 +114,7 @@ export function ToolbarMenu() {
                                 </ToolbarMenuIcon>
                             }
                             component={Link}
+                            prefetch={false}
                             href={to(Links.CATEGORIES)}
                             active={pathname === Links.CATEGORIES}
                             onClick={close}
@@ -133,7 +138,10 @@ export function ToolbarMenu() {
                     </Box>
 
                     <Box mt="auto" mb="xs">
-                        <ColorSchemeToggle />
+                        <Group justify="center" gap="sm">
+                            <ColorSchemeToggle />
+                            <LanguageToggle />
+                        </Group>
                     </Box>
                 </Flex>
             </Drawer>

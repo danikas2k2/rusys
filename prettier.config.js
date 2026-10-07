@@ -11,6 +11,13 @@ module.exports = {
   embeddedLanguageFormatting: 'auto',
   overrides: [
     {
+      files: ['*.md'],
+      options: {
+        printWidth: 120,
+        proseWrap: 'always',
+      },
+    },
+    {
       files: ['*.html', '*.xml', '*.json', '*.js', '*.yaml', '*.yml'],
       options: {
         tabWidth: 2,

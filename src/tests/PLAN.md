@@ -1,63 +1,97 @@
-# E2E testų planas ir būsena
+# E2E test plan and status
 
-## Tikslas
+## Goal
 
-Playwright saugo svarbiausias naudotojo grandines per naršyklę, Next API ir MongoDB, kad būtų saugiau refaktorizuoti sąsają bei duomenų srautus. Tai nėra kiekvienos kodo eilutės padengimas: skaičiavimų, validavimo ir retų duomenų operacijų detalės lieka Vitest testuose.
+Playwright protects the most important user flows across the browser, Next API, and MongoDB so UI and data-flow
+refactoring is safer. It does not aim to cover every line of code: details of calculations, validation, and uncommon
+data operations remain in Vitest tests.
 
-**Būsena:** funkciniai Playwright testai vykdomi per `pnpm test:e2e`, vaizdiniai — per `pnpm test:visual`, o 6 kritiniai scenarijai pažymėti `@critical`. CI paleidžia funkcinį Chromium ir vaizdinį Chromium bei WebKit rinkinius. Toliau pateikti punktai skiria išbandytus scenarijus nuo dar nepadengtų šakų.
+**Status:** functional Playwright tests run with `pnpm test:e2e`, visual tests with `pnpm test:visual`, and six critical
+scenarios carry the `@critical` tag. CI runs the functional Chromium suite and visual Chromium and WebKit suites. The
+items below distinguish tested scenarios from branches that still need coverage.
 
-## Testų pagrindas — padaryta
+## Test infrastructure — complete
 
-- [x] `src/tests/fixtures/data.ts` aprašo tipizuotus `empty`, `basic`, `annual`, `review`, `history`, `images` scenarijus. Metai saugomi programos dviejų skaitmenų formatu; istorijos pavyzdys susietas su rugsėjo suvestinės riba.
-- [x] `src/tests/fixtures/test.ts` prieš **kiekvieną** testą atkuria laikiną `mongodb-memory-server` bazę ir paveikslėlių katalogą. URI, DB vardas ir katalogo kelias tikrinami prieš valymą; gyva DB nenaudojama. Bendrą DB naudojantys testai vykdomi vienu darbuotoju.
-- [x] Testuose naudojami matomi pavadinimai, prieinamumo vaidmenys ir stabilios `data-*` atramos. Po svarbių mutacijų tikrinamas MongoDB įrašas ir, kur aktualu, puslapio perkrovimas.
-- [x] Visų keturių puslapių meniu bei tiesioginis atidarymas tikrina turinį, ne vien URL; yra tuščios bazės scenarijus. Nesėkmės atveju saugomi `trace` ir ekrano vaizdas.
-- [ ] `images` scenarijų papildyti tikrais paveikslėlių failais. Dabar paveikslėliai sukuriami per atskirus įkėlimo testus, o pats scenarijus turi bazinius duomenis.
-- [ ] Jei prireiks lygiagretumo, izoliuoti DB ir Next procesą kiekvienam Playwright darbuotojui. Dabartinis `workers: 1` yra sąmoningas apribojimas.
+- [x] `src/tests/fixtures/data.ts` defines typed `empty`, `basic`, `annual`, `review`, `history`, and `images`
+      scenarios. Years use the app's two-digit format; the history example aligns with the September summary boundary.
+- [x] `src/tests/fixtures/test.ts` resets the temporary `mongodb-memory-server` database and image directory before
+      **every** test. The URI, database name, and directory path are checked before cleanup; no live database is used.
+      Tests sharing the database run in one worker.
+- [x] Tests use visible names, accessibility roles, and stable `data-*` selectors. Important mutations are checked
+      against MongoDB records and, where applicable, after a page reload.
+- [x] Menu navigation and direct entry for all four pages verify content, not just the URL; an empty-database scenario
+      is included. Failures retain a `trace` and screenshot.
+- [ ] Add real image files to the `images` scenario. Separate upload tests currently create images, while the scenario
+      itself contains only basic data.
+- [ ] If parallel execution becomes necessary, isolate the database and Next process per Playwright worker. The current
+      `workers: 1` limit is intentional.
 
-## Kritinės naudotojo grandinės
+## Critical user flows
 
-| Sritis               | Jau padengta                                                                                                                                                                                                             | Dar liko                                                                                                                                                 |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Kategorijos          | Sukūrimas su `Annual`/`Review`, juodraščio atmetimas, pervadinimas ir susijusių produktų bei variantų perkėlimas, šalinimo patvirtinimas, tvarkos keitimas vilkimu; patikrinimas po perkrovimo.                          | Pakeisti `Annual` ir `Review` **esamai** kategorijai ir patikrinti poveikį sąrašams.                                                                     |
-| Variantai            | Sukūrimas su kiekiu ir žyma, pervadinimas bei likučių atnaujinimas, kopijavimas į kitą kategoriją, šalinimas su patvirtinimu, perrikiavimas ir išlikimas po perkrovimo.                                                  | Atskirai keisti vienetus ir kiekį redaguojant variantą; tikrinti kopijos konfliktą.                                                                      |
-| Produktai            | Sukūrimas per „+“ ir perėjimas į kiekių dialogą, pervadinimas, perkėlimas tarp kategorijų, tėvinio produkto nustatymas ir išskleidimas, šalinimo atšaukimas bei patvirtinimas, neįrašyto produkto atmetimas su `Escape`. | Tėvinio produkto suskleidimas, tėvinio ryšio pakeitimas ir ribojimas perkelti produktą su vaikais.                                                       |
-| Likučiai ir istorija | Papildymas, vartojimas su komentaru, išmetimas, viso varianto perkėlimas kitam produktui, dalies suvartoto kiekio perklasifikavimas į išmestą, istorija, `Undo`/`Redo`, rezultatas kortelėje ir suvestinėje.             | Atskira paprasto likučio sumažinimo šaka, perkėlimas į **kitą kategoriją** su varianto kopijavimu, kelios variantų rūšys viename veiksme.                |
-| Metai ir suvestinė   | Metinių metų perjungimas, metų pažymėjimas šalinimui ir išlikimas DB, vartojimo bei išmetimo atvaizdavimas suvestinėje, suvestinės istorija ir filtrai.                                                                  | Nemetinio produkto elgesys keliuose metuose, istoriniai metai meniu, laikotarpio ribos prieš ir po rugsėjo, metų perjungimas su neįrašytais pakeitimais. |
-| Peržiūra             | Produkto `missing` keitimas kortelėje ir dialoge, „tik trūkstami“ filtras, pasirinkti visus, grąžinti kategoriją į nepaliestą būseną; neliečiama kita kategorija.                                                        | Kelių kategorijų pakeitimų taikymas vienu metu ir peržiūros dialogo atšaukimas su neįrašytais pakeitimais.                                               |
+| Area              | Covered                                                                                                                                                                                                          | Remaining                                                                                                                                                    |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Categories        | Create with `Annual`/`Review`, discard a draft, rename and move related products and variants, confirm deletion, drag to reorder, and verify after reload.                                                       | Change `Annual` and `Review` on an **existing** category and check the effect on lists.                                                                      |
+| Variants          | Create with an amount and label, rename and update stock, copy to another category, confirm deletion, reorder, and verify persistence after reload.                                                              | Change units and amount separately while editing a variant; check copy conflicts.                                                                            |
+| Products          | Create through “+” and open the amounts dialog, rename, move between categories, set and expand a parent product, cancel and confirm deletion, and discard an unsaved product with `Escape`.                     | Collapse a parent product, change its parent relationship, and prevent moving a product that has children.                                                   |
+| Stock and history | Add stock, consume with a comment, discard, transfer a whole variant to another product, reclassify part of consumed stock as discarded, inspect history, use `Undo`/`Redo`, and check card and summary results. | Cover simple stock reduction separately, transfer to **another category** with a copied variant, and handle multiple variant types in one action.            |
+| Years and summary | Switch annual years, mark a year for deletion and verify persistence, show consumption and discarded amounts in the summary, and use summary history and filters.                                                | Check nonannual products across years, historical years in the menu, period boundaries before and after September, and switching years with unsaved changes. |
+| Review            | Change a product's `missing` value in a card and dialog, use the “missing only” filter, select all, and return a category to its untouched state without changing another category.                              | Apply changes to multiple categories at once and cancel the review dialog with unsaved changes.                                                              |
 
-Kritinis šešių testų rinkinys apima kategorijos, varianto ir produkto sukūrimą, vartojimą su istorija bei `Undo`/`Redo`, suvestinę ir peržiūrą. Visas rinkinys paleidžiamas prieš didelius refaktoringus.
+The six-test critical suite covers creating a category, variant, and product; consumption with history and
+`Undo`/`Redo`; the summary; and review. Run the full suite before major refactors.
 
-## Filtrai ir sąveika
+## Filters and interaction
 
-- [x] Greita paieška produktuose, kategorijose, variantuose ir suvestinėje; paieškos išvalymas, kategorijos filtras ir URL parametrų išsaugojimas keičiant puslapį.
-- [x] Kategorijų bei variantų perrikiavimas vilkimu ir išlikimas po perkrovimo.
-- [x] Neįrašytų kategorijos pakeitimų atšaukimas, produkto atmetimas su `Escape`, produkto ir šalinimo dialogų patvirtinimas.
-- [x] Temos perjungimas išlieka po perkrovimo. Mobilus Chromium tikrina meniu, navigaciją ir kiekių dialogą per `touch`.
-- [ ] Patikrinti vilkimo draudimą, kai aktyvus paieškos filtras; tėvinio produkto suskleidimą.
-- [ ] Patikrinti paspaudimą už neįrašyto dialogo, kai vienas ant kito atidaryti kiekių, produkto redagavimo ir šalinimo dialogai.
-- [ ] Pridėti tikrų mobilių gestų scenarijus: braukimą ir „pull to refresh“, jei tie veiksmai vis dar naudojami programoje.
+- [x] Quick search in products, categories, variants, and summary; clearing search, filtering by category, and
+      preserving URL parameters when changing pages.
+- [x] Dragging to reorder categories and variants, with persistence after reload.
+- [x] Canceling unsaved category changes, discarding a product with `Escape`, and confirming product and deletion
+      dialogs.
+- [x] Theme selection persists after reload. Mobile Chromium checks the menu, navigation, and amounts dialog via
+      `touch`.
+- [ ] Verify that dragging is disabled while a search filter is active; collapse a parent product.
+- [ ] Check clicking outside an unsaved dialog when the amounts, product edit, and deletion dialogs are stacked.
+- [ ] Add scenarios for real mobile gestures: swiping and pull to refresh, if those actions remain in the app.
 
-## Failai, importas ir klaidos
+## Files, imports, and errors
 
-- [x] Kategorijos paveikslėlio įkėlimas bei šalinimas; produkto ir varianto paveikslėlių įkėlimas, varianto paveikslėlio šalinimas; neleistino formato atmetimas.
-- [x] ZIP eksportas su `data.json`, importas į išvalytą **laikiną** DB, netinkamas ZIP, netinkama schema ir importo atšaukimas nekeičiant duomenų.
-- [x] Produkto paveikslėlio įkėlimas, `images/` įrašo patikra ZIP archyve ir paveikslėlio atkūrimas iš archyvo po jo pašalinimo iš laikino failų katalogo.
-- [x] `LoadableContent` API klaida ir sėkmingas pakartotinis bandymas po jos.
-- [x] Kategorijos redagavimo API klaida išsaugo juodraštį ir nekeičia DB; pakartotinis bandymas pavyksta ir išlieka po perkrovimo.
-- [ ] Patikrinti produkto paveikslėlio šalinimą, didelės nuotraukos miniatiūrą bei pilną peržiūrą ir fizinio failo išvalymą.
-- [ ] Patikrinti per didelio failo klaidą, failo įkėlimo API nesėkmę ir pakartotinį bandymą bei lėto atsakymo UI scenarijų. Įprasti CRUD testai ir toliau turi naudoti tikrą API, o klaidų scenarijai — Playwright tinklo maršrutizavimą.
-- [ ] Pridėti atskirą valdomą prisijungimo bei leidimų režimą su deterministine testine tapatybe arba OAuth atsakymų pakaitalu. `next dev` autentifikaciją apeina, todėl dabartiniai E2E testai **nepatikrina produkcinio prisijungimo**.
+- [x] Upload and delete a category image; upload product and variant images; delete a variant image; reject an
+      unsupported format.
+- [x] Export a ZIP with `data.json`; import into a cleared **temporary** database; reject invalid ZIP files and schemas;
+      cancel an import without changing data.
+- [x] Upload a product image, verify its `images/` entry in the ZIP archive, and restore it from the archive after
+      deleting it from the temporary file directory.
+- [x] Handle a `LoadableContent` API error and retry successfully.
+- [x] Preserve the draft and leave the database unchanged after a category-edit API error; retry successfully and verify
+      persistence after reload.
+- [ ] Check deletion of a product image, a large image thumbnail and full preview, and removal of the physical file.
+- [ ] Check oversized-file errors, upload API failure and retry, and slow-response UI behavior. Ordinary CRUD tests
+      should keep using the real API; error scenarios should use Playwright network routing.
+- [ ] Add a separate controlled sign-in and permissions mode with a deterministic test identity or stubbed OAuth
+      responses. Authentication is bypassed in `next dev`, so current E2E tests **do not verify production sign-in**.
 
-## Paleidimas ir refaktoringo vartai
+## Running tests and refactoring gates
 
-- [x] `pnpm test:e2e:critical` skirtas greitam patikrinimui; visos `test:e2e` komandos vykdo tik `*.spec.ts` failus, įskaitant mobilų Chromium projektą. `test:visual` komandos vykdo tik `*.snap.ts`. Testai nepriklauso nuo eilės ir nenaudoja fiksuotų `sleep`.
-- [x] `src/**/*.snap.ts` lygina puslapių, kortelių, lentelių, meniu, dialogų, nuotraukų, metinių likučių ir įvesties būsenų ekrano vaizdus visuose penkiuose įrenginių projektuose su šviesia ir tamsia temomis. Testai laikomi šalia savo komponenčių, o etalonai – tos pačios srities `__snapshots__/<komponentas>/` kataloge. `pnpm test:visual` lygina vaizdus su etalonais; `pnpm test:visual:update` juos atnaujina. Prieš priimant pakeistas nuotraukas, reikia jas vizualiai peržiūrėti.
-- [x] `.github/workflows/ci.yml` funkcinius testus paleidžia atskirame Node 26 Linux darbe (`pnpm test:e2e`), o vizualinius — `xcode-27` macOS 27 arm64 darbe, kad sutaptų su etalonų aplinka. Kiekvienam vaizdui saugomi įrenginių ir abiejų temų etalonai. Nesėkmės atveju CI išsaugo Playwright artefaktus.
-- [x] Pagrindiniams puslapiams ir dialogams pridėti iPhone 17 bei iPad mini WebKit vaizdiniai scenarijai.
-- [ ] Prireikus naršyklių suderinamumo, pridėti tikslinius Firefox kritinius scenarijus. Viso rinkinio kiekvienoje naršyklėje dubliuoti nereikia.
-- [ ] Refaktorizuojant dar nepadengtą modulį, pridėti bent vieną teigiamą naudotojo scenarijų, svarbią atšaukimo arba klaidos šaką ir patikrinimą po perkrovimo, jei keičiasi saugomi duomenys.
+- [x] `pnpm test:e2e:critical` provides a quick check; all `test:e2e` commands run only `*.spec.ts` files, including the
+      mobile Chromium project. `test:visual` commands run only `*.snap.ts`. Tests are order-independent and do not use
+      fixed `sleep` calls.
+- [x] `src/**/*.snap.ts` compares screenshots of pages, cards, tables, menus, dialogs, photos, annual stock, and input
+      states across all five device projects in light and dark themes. Tests live beside their components, and snapshots
+      live in the corresponding `__snapshots__/<component>/` directory. `pnpm test:visual` compares images with
+      snapshots; `pnpm test:visual:update` updates them. Review changed images visually before accepting them.
+- [x] `.github/workflows/ci.yml` runs functional tests in a separate Node 26 Linux job (`pnpm test:e2e`) and visual
+      tests in an `xcode-27` macOS 27 arm64 job to match the snapshot environment. Snapshots are kept for every device
+      and both themes. CI preserves Playwright artifacts on failure.
+- [x] Added iPhone 17 and iPad mini WebKit visual scenarios for the main pages and dialogs.
+- [ ] Add targeted Firefox critical scenarios if browser compatibility requires them. There is no need to duplicate the
+      entire suite in every browser.
+- [ ] When refactoring a module without coverage, add at least one successful user scenario, an important cancel or
+      error branch, and a check after reload if stored data changes.
 
-`pnpm test:visual:update` atnaujina vienintelius etalonus. Juos generuoti ir lyginti `macOS 27` arm64 aplinkoje, kaip CI `xcode-27` darbe; skirtingų OS naršyklių vaizdai gali skirtis.
+`pnpm test:visual:update` updates the single set of snapshots. Generate and compare them in the `macOS 27` arm64
+environment used by CI's `xcode-27` job; browser images can differ across operating systems.
 
-Vienetiniai testai yra `src/**/*.test.ts` arba `src/**/*.test.tsx`, funkciniai E2E — `src/**/*.spec.ts`, vizualiniai — `src/**/*.snap.ts`, šalia atitinkamų komponentų ir funkcijų. Bendros pradinės būsenos lieka `src/tests/fixtures/`, UI veiksmai — `src/tests/helpers/`, o laikino serverio paleidimas bei sutvarkymas — `src/tests/playwright/`. Šį dokumentą atnaujinti kartu su naujais scenarijais, kad „padengta“ reikštų realiai veikiantį Playwright testą.
+Unit tests are `src/**/*.test.ts` or `src/**/*.test.tsx`, functional E2E tests are `src/**/*.spec.ts`, and visual tests
+are `src/**/*.snap.ts`, each beside the relevant component or function. Shared initial states live in
+`src/tests/fixtures/`, UI actions in `src/tests/helpers/`, and temporary server startup and cleanup in
+`src/tests/playwright/`. Update this document when adding scenarios so “covered” always means a working Playwright test.
