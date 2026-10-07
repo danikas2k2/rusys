@@ -35,7 +35,7 @@ export default defineConfig({
     testMatch: ['**/*.spec.ts', '**/*.snap.ts'],
     workers: 1,
     retries: process.env.CI ? 2 : 0,
-    reporter: process.env.CI ? 'github' : 'list',
+    reporter: process.env.CI ? 'github' : 'line',
     use: {
         baseURL: 'http://127.0.0.1:3022',
         colorScheme: 'light',
