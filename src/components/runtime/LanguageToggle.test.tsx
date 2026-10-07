@@ -49,7 +49,7 @@ describe('<LanguageToggle>', () => {
         expect(screen.getByText('Produktai')).toBeInTheDocument();
         expect(document.cookie).toContain(`${LOCALE_COOKIE}=lt-LT`);
         expect(document.documentElement.lang).toBe('lt');
-        expect(document.title).toBe('Rusio programėlė');
+        expect(document.title).toBe('Rūsys');
         expect(refreshOfflinePage).toHaveBeenCalledTimes(1);
     });
 

@@ -41,7 +41,7 @@ describe('next.js app shell', () => {
         expect(markup).toContain('<main>Application loaded</main>');
         expect(markup).toContain('fonts.googleapis.com');
         await expect(generateMetadata()).resolves.toMatchObject({
-            title: 'Rusio programėlė',
+            title: 'Rūsys',
             description: 'Produktų ir atsargų apskaita',
             manifest: '/manifest.json',
         });
