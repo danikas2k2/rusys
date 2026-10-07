@@ -78,7 +78,7 @@ describe('<FormatDate>', () => {
             </MockTheme>
         );
 
-        expect(container.querySelector('[data-date]')).toHaveTextContent(/gegužės.*16/);
+        expect(container.querySelector('[data-date]')).toHaveTextContent('Gegužės 16');
     });
 
     it('renders year, month and day when date is from a previous year', () => {
