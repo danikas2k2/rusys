@@ -98,7 +98,8 @@ describe('<VariantImagePicker>', () => {
                 'Uogienės',
                 'Braškės',
                 '0.5l',
-                expect.stringMatching(/^data:image\/png;base64,/)
+                expect.stringMatching(/^data:image\/png;base64,/),
+                expect.any(Function)
             )
         );
     });

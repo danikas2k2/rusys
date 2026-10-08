@@ -287,6 +287,29 @@ describe('<ProductBox>', () => {
             expect(screen.queryByRole('button', { name: 'Remove image' })).not.toBeInTheDocument();
         });
 
+        it('saves removal of an existing product image', async () => {
+            const setProductImage = vi.fn().mockResolvedValue(undefined);
+            vi.mocked(useSetProductImage).mockReturnValue(setProductImage);
+
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox
+                        opened
+                        group="Uogienės"
+                        name="Avietės"
+                        image="/images/ab/cd/current.png"
+                        onClose={onClose}
+                    />
+                </MockThemeRedux>
+            );
+
+            await user.click(screen.getByRole('button', { name: 'Remove image' }));
+            await user.click(screen.getByRole('button', { name: 'Update' }));
+
+            expect(setProductImage).toHaveBeenCalledWith('Uogienės', 'Avietės', '');
+            expect(onClose).toHaveBeenCalledWith('Uogienės', 'Avietės');
+        });
+
         it('sends the uploaded image via setProductImage when adding a new entry', async () => {
             const addProduct = vi.fn().mockResolvedValue(true);
             const setProductImage = vi.fn().mockResolvedValue(undefined);
@@ -312,7 +335,8 @@ describe('<ProductBox>', () => {
             expect(setProductImage).toHaveBeenCalledWith(
                 'Uogienės',
                 'Agrastai',
-                expect.stringMatching(/^data:image\/png;base64,/)
+                expect.stringMatching(/^data:image\/png;base64,/),
+                expect.any(Function)
             );
             expect(onClose).toHaveBeenCalledWith('Uogienės', 'Agrastai');
         });
@@ -372,7 +396,8 @@ describe('<ProductBox>', () => {
             expect(setProductImage).toHaveBeenCalledWith(
                 'Uogienės',
                 'Agrastai',
-                expect.stringMatching(/^data:image\/png;base64,/)
+                expect.stringMatching(/^data:image\/png;base64,/),
+                expect.any(Function)
             );
         });
 

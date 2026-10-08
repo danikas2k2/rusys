@@ -8,6 +8,7 @@ import { IMAGE_MIME_TYPES, MAX_IMAGE_FILE_MB, MAX_IMAGE_FILE_SIZE } from '~/comm
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { Label } from '~/components/common/Label';
 import { Thumbnail } from '~/components/common/Thumbnail';
+import { UploadProgressBar } from '~/components/common/UploadProgressBar';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { readFileAsDataUrl } from '~/lib/utils/readFileAsDataUrl';
@@ -20,6 +21,7 @@ interface ImageDropzoneProps {
     disabled?: boolean;
     compact?: boolean;
     error?: React.ReactNode;
+    progress?: number;
 }
 
 export function ImageDropzone({
@@ -30,6 +32,7 @@ export function ImageDropzone({
     disabled,
     compact,
     error: externalError,
+    progress,
 }: ImageDropzoneProps) {
     const _ = useLabels();
     const [error, setError] = useState<string>();
@@ -132,6 +135,11 @@ export function ImageDropzone({
                         </div>
                     </Group>
                 </Dropzone>
+                {progress !== undefined && (
+                    <Box pos="absolute" bottom={0} style={{ insetInline: 0, pointerEvents: 'none' }}>
+                        <UploadProgressBar value={progress} />
+                    </Box>
+                )}
                 {!!image && (
                     <IconButtonTooltip>
                         <ActionIcon

@@ -165,7 +165,7 @@ export async function setProductRemovingAction(
 
 export async function setProductImageAction(group: string, name: string, image: string): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name) || !isRequiredString(image)) {
+    if (!isProduct(group, name) || (image !== '' && !isRequiredString(image))) {
         throw new Error('Invalid product update');
     }
     if (!(await setImage(group, name, image))) {

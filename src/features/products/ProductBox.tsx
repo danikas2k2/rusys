@@ -199,6 +199,7 @@ export function ProductBox({
     // A new product is created before its image can be saved. Remember it when the image request
     // fails so the next submit retries the image instead of attempting to create a duplicate.
     const [createdProduct, setCreatedProduct] = useState<{ group: string; name: string }>();
+    const [imageProgress, setImageProgress] = useState<number>();
     const groupRef = useRef<HTMLInputElement>(null);
     const nameRef = useRef<HTMLInputElement>(null);
     const expiryToleranceRef = useRef<HTMLInputElement>(null);
@@ -220,6 +221,7 @@ export function ProductBox({
             setLoading(false);
             setCreatedProduct(undefined);
             setAdvancedFieldsOpen(false);
+            setImageProgress(undefined);
 
             const timer = setTimeout(() => {
                 nameRef.current?.focus();
@@ -352,7 +354,15 @@ export function ProductBox({
             const product = savedProduct ?? { group: values.group, name: values.name };
             if (imageChanged) {
                 failedField = 'image';
-                await setProductImage(product.group, product.name, values.image);
+                const uploadingImage = values.image.startsWith('data:');
+                if (uploadingImage) {
+                    setImageProgress(0);
+                }
+                if (uploadingImage) {
+                    await setProductImage(product.group, product.name, values.image, setImageProgress);
+                } else {
+                    await setProductImage(product.group, product.name, values.image);
+                }
             }
             if (isEditing && !groupChanged && parentChanged) {
                 await setProductParent(values.group, values.name, values.parent || undefined);
@@ -368,6 +378,7 @@ export function ProductBox({
                 nameRef.current?.focus();
             }
         } finally {
+            setImageProgress(undefined);
             clearTimeout(loadingTimeout);
             setSubmitting(false);
             setLoading(false);
@@ -460,6 +471,7 @@ export function ProductBox({
                                 image={form.values.image}
                                 label={_('Product image')}
                                 onDrop={handleImageDrop}
+                                progress={imageProgress}
                                 onRemove={handleImageRemove}
                                 disabled={loading}
                                 error={form.errors.image}

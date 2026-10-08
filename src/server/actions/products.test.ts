@@ -144,6 +144,7 @@ describe('product actions', () => {
         ],
         ['set removing', () => setProductRemovingAction('A', 'P', 2026, true), setRemoving, ['A', 'P', 2026, true]],
         ['set image', () => setProductImageAction('A', 'P', 'image'), setImage, ['A', 'P', 'image']],
+        ['remove product image', () => setProductImageAction('A', 'P', ''), setImage, ['A', 'P', '']],
         [
             'set variant image',
             () => setVariantImageAction('A', 'P', 'v', 'image'),

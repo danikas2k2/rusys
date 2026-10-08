@@ -24,6 +24,16 @@ describe('useImportHandler', () => {
         expect(mockHandle).toHaveBeenCalledWith(formData);
     });
 
+    it('forwards the progress callback with the import data', () => {
+        const { result } = renderHook(() => useImportHandler());
+        const formData = new FormData();
+        const onProgress = vi.fn();
+
+        result.current(formData, onProgress);
+
+        expect(mockHandle).toHaveBeenCalledExactlyOnceWith(formData, onProgress);
+    });
+
     it('does not call the handle function when no data is provided', () => {
         const { result } = renderHook(() => useImportHandler());
         const wrappedCallback = result.current;
