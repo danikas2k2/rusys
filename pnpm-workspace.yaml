@@ -18,12 +18,12 @@ overrides:
   deepmerge-ts: ^8.0.2
   diff: ^9.0.0
   glob: ^13.0.6
-  jsdom: ^30.1.1
+  jsdom: ^30.1.2
   micromatch: ^4.0.8
   minimatch: ^10.2.6
   nth-check: ^3.0.1
   parse5: ^8.0.1
-  postcss: ^8.5.28
+  postcss: ^8.5.29
   qs: ^6.16.0
   sane: ^5.0.1
   stylelint: ^17.16.0
