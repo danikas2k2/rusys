@@ -191,6 +191,14 @@ describe('formatDate', () => {
         expect(result).toMatch(/\d+/);
     });
 
+    it('formats Lithuanian dates with a capitalized month and no day suffix', () => {
+        vi.setSystemTime(new Date(2024, 8, 23, 12));
+
+        expect(formatDate(new Date(2024, 8, 15, 12), 'lt-LT')).toBe('Rugsėjo 15');
+        expect(formatDate(new Date(2024, 8, 15, 12), 'lt')).toBe('Rugsėjo 15');
+        expect(formatDate(new Date(2023, 8, 15, 12), 'lt-LT')).toBe('Rugsėjo 15, 2023');
+    });
+
     it('uses default locale "en" when not specified', () => {
         const sevenDaysAgo = new Date(NOW - 7 * 24 * 60 * 60 * 1000);
         const withDefault = formatDate(sevenDaysAgo);

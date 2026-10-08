@@ -39,6 +39,13 @@ export function formatDate(date: Date, locale = 'en', label: (s: string) => stri
         return label('Yesterday');
     }
     const sameYear = date.getFullYear() === now.getFullYear();
+    if (days >= 7 && (locale === 'lt' || locale.startsWith('lt-'))) {
+        const month = new Intl.DateTimeFormat(locale, { month: 'long', day: 'numeric' })
+            .formatToParts(date)
+            .find((part) => part.type === 'month')!.value;
+        const monthAndDay = `${month.charAt(0).toLocaleUpperCase(locale)}${month.slice(1)} ${date.getDate()}`;
+        return sameYear ? monthAndDay : `${monthAndDay}, ${date.getFullYear()}`;
+    }
     return date.toLocaleDateString(
         locale,
         days < 7

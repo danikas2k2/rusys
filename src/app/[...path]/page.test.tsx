@@ -7,6 +7,7 @@ import { isDevMode } from '~/common/utils/dev';
 import { NextApp } from '~/components/app/NextApp';
 import { getSessionProfile } from '~/server/auth/session';
 import { getInitialAppData } from '~/server/data/initialAppData';
+import { getRequestLocale } from '~/server/requestLocale';
 import AppPage from './page';
 
 vi.mock(import('next/server'), () => ({ connection: vi.fn() }));
@@ -14,6 +15,7 @@ vi.mock(import('~/common/utils/dev'), () => ({ DEV_CLIENT_ID: 'dev-client', isDe
 vi.mock(import('~/components/app/NextApp'), () => ({ NextApp: vi.fn(() => <div />) }));
 vi.mock(import('~/server/auth/session'), () => ({ getSessionProfile: vi.fn() }));
 vi.mock(import('~/server/data/initialAppData'), () => ({ getInitialAppData: vi.fn() }));
+vi.mock(import('~/server/requestLocale'), () => ({ getRequestLocale: vi.fn().mockResolvedValue('lt-LT') }));
 
 describe('appPage initial data', () => {
     afterEach(() => {
@@ -40,11 +42,13 @@ describe('appPage initial data', () => {
             initialData: data,
             initialGroup: 'A',
             initialResource: 'groups',
+            locale: 'lt-LT',
         });
         expect(page.type).toBe(NextApp);
     });
 
     it('renders a guest without querying private data and uses the development client ID', async () => {
+        vi.mocked(getRequestLocale).mockResolvedValueOnce('en-US');
         vi.stubEnv('GOOGLE_CLIENT_ID', undefined);
         vi.mocked(isDevMode).mockReturnValueOnce(true);
         vi.mocked(getSessionProfile).mockResolvedValueOnce(undefined);
@@ -52,7 +56,12 @@ describe('appPage initial data', () => {
         const page = await AppPage();
 
         expect(getInitialAppData).not.toHaveBeenCalled();
-        expect(page.props).toMatchObject({ clientId: 'dev-client', profile: undefined, initialData: undefined });
+        expect(page.props).toMatchObject({
+            clientId: 'dev-client',
+            profile: undefined,
+            initialData: undefined,
+            locale: 'en-US',
+        });
     });
 
     it('omits a client ID outside development when none is configured', async () => {

@@ -1,73 +1,77 @@
-# RUSIO PROGRAMELE
+# RUSYS APP
 
-## Kūrimas
+## Development
 
 ```sh
 pnpm dev
 ```
 
-Programa veikia adresu `http://localhost:3021`. Prieš siūlant pakeitimą verta
-paleisti kodo stiliaus ir vienetinių testų patikrą:
+The app runs at `http://localhost:3021`. Before proposing a change, run the code style checks and unit tests:
 
 ```sh
 pnpm check
 ```
 
-Visą patikrą, įskaitant padengimą ir naršyklės testus, paleidžia `pnpm check:all`.
+`pnpm check:all` runs the full set of checks, including coverage and browser tests.
 
-`pnpm test` paleidžia visus vienetinius ir serverio duomenų testus be MongoDB serverio.
-`pnpm test:coverage` papildomai patikrina testų padengimą.
+`pnpm test` runs all unit and server data tests without a MongoDB server. `pnpm test:coverage` also checks test
+coverage.
 
-Naršyklės navigacijos testai paleidžiami su atskira laikina MongoDB ir testiniais duomenimis:
+Browser navigation tests use a separate temporary MongoDB instance and test data:
 
 ```sh
 pnpm exec playwright install chromium
 pnpm test:e2e
 ```
 
-Greitam svarbiausių grandinių patikrinimui naudok `pnpm test:e2e:critical`. Jei nori matyti veiksmus naršyklėje, naudok `pnpm test:e2e:headed`. `pnpm test:e2e:ui`
-atidaro interaktyvią Playwright sąsają, kurioje testus reikia paleisti paspaudus „Run“.
+Use `pnpm test:e2e:critical` for a quick check of the most important flows. To watch the browser actions, use
+`pnpm test:e2e:headed`. `pnpm test:e2e:ui` opens Playwright's interactive UI, where tests must be started by clicking
+“Run”.
 
-Visos `test:e2e` komandos vykdo tik `*.spec.ts` testus. Vaizdinius `*.snap.ts` testus paleidžia `pnpm test:visual`, o etalonus atnaujina `pnpm test:visual:update`. Vaizdiniai testai naudoja vieną Next serverį ir testinius duomenis be MongoDB. E2E testai naudoja vieną Next serverį ir laikiną MongoDB. Visi Playwright testai vykdomi viename workeryje: naršyklės procesas naudojamas pakartotinai, tačiau kiekvienas atskiras testas gauna švarią DB ir atskirą puslapį. Susijusius veiksmus viename scenarijuje galima išdėstyti su `test.step`, kad jie vyktų tame pačiame puslapyje.
+All `test:e2e` commands run only `*.spec.ts` tests. `pnpm test:visual` runs `*.snap.ts` visual tests, and
+`pnpm test:visual:update` updates their snapshots. Visual tests use one Next server and test data without MongoDB. E2E
+tests use one Next server and a temporary MongoDB instance. All Playwright tests run in one worker: the browser process
+is reused, but each test gets a clean database and a separate page. Related actions can be grouped with `test.step` so
+they run on the same page.
 
-Pasirinktiems failams paleisti galima perduoti jų kelius Playwright komandai, pavyzdžiui:
+To run selected files, pass their paths to the Playwright command, for example:
 
 ```sh
 pnpm test:e2e:chromium src/features/groups/GroupsPage.spec.ts src/features/variants/VariantsPage.spec.ts
 ```
 
-`pnpm test:e2e:chromium` vykdo tik darbalaukio Chromium testus; `pnpm test:e2e` papildomai tikrina mobiliąsias Chromium ir WebKit konfigūracijas.
+`pnpm test:e2e:chromium` runs only desktop Chromium tests; `pnpm test:e2e` also checks mobile Chromium and WebKit
+configurations.
 
-## Kodo struktūra
+## Code structure
 
-- `src/app` — Next.js maršrutai, šakninis išdėstymas ir `route.ts` API įėjimo taškai.
-- `src/components` — pakartotinai naudojami sąsajos elementai.
-- `src/features` — konkrečių sričių sąsajos funkcijos, pavyzdžiui, produktų ar grupių valdymas.
-- `src/store` — kliento būsena ir API užklausų hook'ai.
-- `src/common` — bendri tipai ir grynos funkcijos, pasiekiamos per `~/common` importų alias'ą tiek klientui, tiek serveriui.
-- `src/server` — tik Node.js pusėje veikiantis kodas: MongoDB, duomenų operacijos ir API handleriai.
+- `src/app` — Next.js routes, the root layout, and `route.ts` API entry points.
+- `src/components` — reusable UI components.
+- `src/features` — feature-specific UI, such as product or group management.
+- `src/store` — client state and API request hooks.
+- `src/common` — shared types and pure functions available to both client and server through the `~/common` import
+  alias.
+- `src/server` — Node.js-only code: MongoDB, data operations, and API handlers.
 
-`src/server/data/products.ts` yra viešas produktų duomenų API fasadas. Jo realizacija suskirstyta į
-`products/read.ts`, `products/stock.ts`, `products/images.ts` ir `products/mutations.ts`, kad skaitymo
-užklausos, likučių transakcijos, paveikslėliai ir metaduomenų pakeitimai neliktų viename faile.
+`src/server/data/products.ts` is the public facade for the product data API. Its implementation is split among
+`products/read.ts`, `products/stock.ts`, `products/images.ts`, and `products/mutations.ts` so read queries, stock
+transactions, images, and metadata changes do not live in one file.
 
-PWA paveikslėliai ir jų metaduomenys generuojami taip:
+Generate PWA images and their metadata with:
 
 ```sh
 pnpm assets
 ```
 
-## Diegimas ir grąžinimas
+## Deployment and rollback
 
-`pnpm deploy` patikrina projektą ir į serverį tiesiai iš projekto įkelia tik
-„Docker“ build reikalingus šaltinio failus. Ten surenkama neaktyvi mėlyna arba
-žalia programos vieta; ją paleidus ir patikrinus, „Nginx“ perjungia srautą. Ankstesnė
-vieta lieka veikianti, todėl ją galima greitai grąžinti:
+`pnpm deploy` checks the project and uploads only the source files needed for the Docker build directly to the server.
+It builds the inactive blue or green app slot. Once that slot starts and passes its health check, Nginx switches traffic
+to it. The previous slot keeps running for a quick rollback:
 
 ```sh
 pnpm deploy:rollback
 ```
 
-`pnpm deploy:rollback` perjungia srautą į ankstesnę sveiką vietą be pakartotinio
-surinkimo. Diegimui ir rollback reikia veikiančio `rusys-gateway`; rollback taip
-pat reikia sveiko ankstesnės spalvos konteinerio.
+`pnpm deploy:rollback` switches traffic to the previous healthy slot without rebuilding. Deployment and rollback require
+a running `rusys-gateway`; rollback also requires a healthy container in the previous slot.

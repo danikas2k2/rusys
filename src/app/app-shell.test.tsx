@@ -1,8 +1,9 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
+import { getRequestLocale } from '~/server/requestLocale';
 import AppPage from './[...path]/page';
-import RootLayout, { metadata, viewport } from './layout';
+import RootLayout, { generateMetadata, viewport } from './layout';
 import pwaAssets from './pwa-assets.json';
 import { PwaHead } from './PwaHead';
 
@@ -13,6 +14,7 @@ vi.mock(import('~/server/data/initialAppData'), () => ({
     getInitialAppData: vi.fn().mockResolvedValue({ data: {}, resource: 'products' }),
 }));
 vi.mock(import('next/server'), () => ({ connection: vi.fn().mockResolvedValue(undefined) }));
+vi.mock(import('~/server/requestLocale'), () => ({ getRequestLocale: vi.fn() }));
 
 describe('next.js app shell', () => {
     it('renders all generated PWA links, metadata, and splash screens', () => {
@@ -32,12 +34,28 @@ describe('next.js app shell', () => {
     });
 
     it('renders the Lithuanian document with application content and fonts', async () => {
-        const markup = renderToStaticMarkup(<RootLayout>{await AppPage()}</RootLayout>);
+        vi.mocked(getRequestLocale).mockResolvedValue('lt-LT');
+        const markup = renderToStaticMarkup(await RootLayout({ children: await AppPage() }));
 
         expect(markup).toContain('<html lang="lt"');
         expect(markup).toContain('<main>Application loaded</main>');
         expect(markup).toContain('fonts.googleapis.com');
-        expect(metadata.manifest).toBe('/manifest.json');
+        await expect(generateMetadata()).resolves.toMatchObject({
+            title: 'Rūsys',
+            description: 'Produktų ir atsargų apskaita',
+            manifest: '/manifest.json',
+        });
         expect(viewport.viewportFit).toBe('cover');
+    });
+
+    it('renders English document language and metadata', async () => {
+        vi.mocked(getRequestLocale).mockResolvedValue('en-US');
+        const markup = renderToStaticMarkup(await RootLayout({ children: <main>Application loaded</main> }));
+
+        expect(markup).toContain('<html lang="en"');
+        await expect(generateMetadata()).resolves.toMatchObject({
+            title: 'Cellar',
+            description: 'Product and inventory tracking',
+        });
     });
 });

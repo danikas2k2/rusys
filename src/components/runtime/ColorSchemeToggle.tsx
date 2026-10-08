@@ -17,7 +17,7 @@ export function ColorSchemeToggle() {
 
     return (
         <IconButtonTooltip label={targetLabel}>
-            <Center w="fit-content" mx="auto">
+            <Center w="fit-content">
                 <Switch
                     aria-label={targetLabel}
                     checked={isDark}

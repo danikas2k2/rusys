@@ -1,16 +1,16 @@
-# ✅ **`usePointerGestures` hook (React) – rekomenduojama versija**
+# ✅ **`usePointerGestures` hook (React) — recommended version**
 
-Šitas hook’as:
+This hook:
 
-- atpažįsta horizontalų swipe, vertikalų scroll ir click/long-press
-- veikia iPhone / iPad / Android / desktop
-- naudojamas ant **eilutės** (`<tr>`) ar **celės** (`<td>`)
-- neriboja Mantine scroll (scroll vyksta natūraliai)
-- su pointer events, ne su touch events
+- recognizes horizontal swipes, vertical scrolling, clicks, and long presses
+- works on iPhone, iPad, Android, and desktop
+- attaches to a **row** (`<tr>`) or **cell** (`<td>`)
+- allows Mantine to scroll naturally
+- uses pointer events rather than touch events
 
 ---
 
-## 🚀 Hook kodas (paruoštas naudoti)
+## 🚀 Hook code (ready to use)
 
 ```tsx
 import { useRef, useCallback } from 'react';
@@ -61,25 +61,25 @@ export function usePointerGestures({
             movedX.current = e.clientX - startX.current;
             movedY.current = e.clientY - startY.current;
 
-            // jei jau swipe
+            // If already swiping
             if (gesture.current === 'swipe') {
                 e.preventDefault();
                 onSwipeMove?.(movedX.current, e);
                 return;
             }
 
-            // jei jau scroll
+            // If already scrolling
             if (gesture.current === 'scroll') return;
 
-            // nustatom kryptį
+            // Determine the direction
             if (Math.abs(movedX.current) > threshold && Math.abs(movedX.current) > Math.abs(movedY.current)) {
-                // horizontalus swipe
+                // Horizontal swipe
                 gesture.current = 'swipe';
                 if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
                 e.preventDefault();
                 onSwipeMove?.(movedX.current, e);
             } else if (Math.abs(movedY.current) > threshold) {
-                // vertikalus scroll
+                // Vertical scroll
                 gesture.current = 'scroll';
                 if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
             }
@@ -119,9 +119,9 @@ export function usePointerGestures({
 
 ---
 
-# 🔧 **Kaip naudoti su Mantine `<Table>`**
+# 🔧 **Using it with Mantine `<Table>`**
 
-## ➤ **Swipe ant eilutės (`<tr>`)**
+## ➤ **Swipe on a row (`<tr>`)**
 
 ```tsx
 function MyRow({ item }) {
@@ -141,18 +141,17 @@ function MyRow({ item }) {
 }
 ```
 
-### Kodėl `touchAction: "pan-y"`?
+### Why `touchAction: "pan-y"`?
 
-- leidžia **scrollinti vertikaliai**
-- bet neleidžia naršyklei „suvalgyti“ horizontalaus pointer move
-- tai yra idealus nustatymas tavo scenarijui
+- allows **vertical scrolling**
+- prevents the browser from consuming horizontal pointer movement
+- suits this interaction pattern
 
 ---
 
-## ➤ **Click + long-press ant celės (`<td>`)**
+## ➤ **Click and long press on a cell (`<td>`)**
 
-Jei nori, kad celė turėtų savo gestus:
-_(bet dažniausiai užtenka ant `<tr>`)_
+If a cell needs its own gestures: _(usually attaching the hook to `<tr>` is enough)_
 
 ```tsx
 <td
@@ -167,21 +166,21 @@ _(bet dažniausiai užtenka ant `<tr>`)_
 
 ---
 
-# 🧠 Praktiniai patarimai Mantine Table + iOS
+# 🧠 Practical tips for Mantine Table and iOS
 
-Norint užtikrinti sklandų darbą:
+For smooth behavior:
 
-### 1) ant visos lentelės arba wrapperio
+### 1) On the whole table or its wrapper
 
 ```css
 touch-action: pan-y;
 -webkit-overflow-scrolling: touch;
 ```
 
-### 2) nekabink pointer eventų ant `<Table.ScrollContainer>` vidinių struktūrų
+### 2) Do not attach pointer events to the internals of `<Table.ScrollContainer>`
 
-Tik ant `<tr>` arba `<td>` — ten, kur reikia.
+Attach them only to `<tr>` or `<td>`, where needed.
 
-### 3) nepamiršk `passive: false` jei dirbtum su low-level listeneriais
+### 3) Use `passive: false` when working with low-level listeners
 
-Hook’e to nereikia – React tai jau apdoroja.
+The hook does not need this; React already handles it.

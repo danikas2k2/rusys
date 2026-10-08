@@ -6,6 +6,7 @@ import React, { useCallback } from 'react';
 
 import { ConfirmationDialogIcon, LogoutIcon } from '@icons';
 
+import { clearOfflineData } from '~/components/app/ServiceWorker/Registration';
 import { ConfirmationDialog } from '~/components/common/ConfirmationDialog';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
@@ -23,6 +24,7 @@ export function LogoutButton({ children }: React.PropsWithChildren): React.React
     const resetProfile = useResetProfile();
 
     const handleConfirm = useCallback(async () => {
+        await clearOfflineData();
         await logout();
         resetProfile();
         googleLogout();

@@ -1,12 +1,12 @@
 # Test File Specifications
 
-Šiame faile aprašyti reikalavimai testų failams projekte.
+This file defines the requirements for test files in the project.
 
-## 1. Rendering ir Query metodai
+## 1. Rendering and query methods
 
-### 1.1. Sinchroniniai vs Asinchroniniai Query
+### 1.1. Synchronous vs. asynchronous queries
 
-- **Naudoti `screen.getBy*`** kai elementas renderinasi iš karto ir nereikia laukti:
+- **Use `screen.getBy*`** when an element renders immediately and no waiting is needed:
 
     ```tsx
     it('renders heading', () => {
@@ -16,7 +16,7 @@
     });
     ```
 
-- **Naudoti `await screen.findBy*`** tik kai tikrai reikia laukti asinchroninio renderinimo:
+- **Use `await screen.findBy*`** only when you really need to wait for asynchronous rendering:
 
     ```tsx
     it('renders after loading', async () => {
@@ -28,31 +28,32 @@
     });
     ```
 
-### 1.2. Query metodų pasirinkimas
+### 1.2. Choosing query methods
 
-- **VISADA naudoti `screen.get*` / `screen.query*` / `screen.find*`** vietoj `container.querySelector` / `document.querySelector`:
+- **ALWAYS use `screen.get*` / `screen.query*` / `screen.find*`** instead of `container.querySelector` /
+  `document.querySelector`:
 
     ```tsx
-    // ❌ BLOGAI - naudoja querySelector
+    // ❌ BAD - uses querySelector
     const { container } = render(<Component />);
     expect(container.querySelectorAll('td')).toHaveLength(3);
 
-    // ✅ GERAI - naudoja screen queries
+    // ✅ GOOD - uses screen queries
     render(<Component />);
     expect(screen.getAllByRole('cell')).toHaveLength(3);
     ```
 
-- **Kodėl `screen.*` vietoj `querySelector`?**
-    - `screen` queries yra semantiniai ir accessibility-aware
-    - `screen` queries testuoja tikrą user experience
-    - `querySelector` yra low-level DOM API, kuris neatsispindi accessibility
-    - `screen` queries automatiškai naudoja accessibility tree
-    - Jei reikia `querySelector`, tai reiškia, kad trūksta proper accessibility arba semantic HTML
+- **Why use `screen.*` instead of `querySelector`?**
+    - `screen` queries are semantic and accessibility aware.
+    - `screen` queries test the actual user experience.
+    - `querySelector` is a low-level DOM API that does not reflect accessibility.
+    - `screen` queries use the accessibility tree automatically.
+    - Needing `querySelector` can indicate missing accessibility support or semantic HTML.
 
-- **Pavyzdžiai:**
+- **Examples:**
 
     ```tsx
-    // ❌ BLOGAI
+    // ❌ BAD
     const { container } = render(
         <Table>
             <Table.Tbody>
@@ -64,7 +65,7 @@
     );
     expect(container.querySelectorAll('td')).toHaveLength(1);
 
-    // ✅ GERAI
+    // ✅ GOOD
     render(
         <Table>
             <Table.Tbody>
@@ -76,107 +77,107 @@
     );
     expect(screen.getAllByRole('cell')).toHaveLength(1);
 
-    // ❌ BLOGAI
+    // ❌ BAD
     const { container } = render(<Component />);
     const button = container.querySelector('button');
 
-    // ✅ GERAI
+    // ✅ GOOD
     render(<Component />);
     const button = screen.getByRole('button');
     ```
 
-### 1.3. NIEKADA nenaudoti `data-testid`
+### 1.3. NEVER use `data-testid`
 
-- **GRIEŽTAI DRAUDŽIAMA** naudoti `data-testid` atributus testuose:
+- **STRICTLY FORBIDDEN:** using `data-testid` attributes in tests:
 
     ```tsx
-    // ❌ BLOGAI - nenaudoti data-testid
+    // ❌ BAD - do not use data-testid
     <div data-testid="user-name">John</div>;
     expect(screen.getByTestId('user-name')).toBeInTheDocument();
 
-    // ✅ GERAI - naudoti semantic queries
+    // ✅ GOOD - use semantic queries
     <div role="heading">John</div>;
     expect(screen.getByRole('heading', { name: 'John' })).toBeInTheDocument();
 
-    // ✅ GERAI - naudoti text content
+    // ✅ GOOD - use text content
     <p>User: John</p>;
     expect(screen.getByText('User: John')).toBeInTheDocument();
     ```
 
-- **Kodėl ne `data-testid`?**
-    - Test-id nėra semantiniai - nieko nesako apie elemento prasmę
-    - Test-id neatspindi tikro user experience
-    - Test-id sukuria tarpinę priklausomybę tarp testo ir implementacijos
-    - Semantic queries (role, label, text) testuoja accessibility ir UX
-    - Jei reikia test-id, tai reiškia, kad trūksta proper accessibility
+- **Why avoid `data-testid`?**
+    - Test IDs are not semantic and say nothing about an element's purpose.
+    - Test IDs do not reflect the real user experience.
+    - Test IDs create an indirect dependency between tests and implementation.
+    - Semantic queries (role, label, text) test accessibility and UX.
+    - Needing a test ID can indicate missing accessibility support.
 
-- **Alternatyvos vietoj test-id:**
-    - `getByRole()` - button, heading, link, textbox, etc.
-    - `getByLabelText()` - form inputs
-    - `getByText()` - visible text content
-    - `getByPlaceholderText()` - input placeholder
-    - `getByAltText()` - images
-    - `getByTitle()` - title attribute
+- **Alternatives to test IDs:**
+    - `getByRole()` — buttons, headings, links, textboxes, etc.
+    - `getByLabelText()` — form inputs.
+    - `getByText()` — visible text content.
+    - `getByPlaceholderText()` — input placeholders.
+    - `getByAltText()` — images.
+    - `getByTitle()` — title attributes.
 
-- **Pavyzdžiai:**
+- **Examples:**
 
     ```tsx
-    // ❌ BLOGAI
+    // ❌ BAD
     <button data-testid="submit-button">Submit</button>
     screen.getByTestId('submit-button')
 
-    // ✅ GERAI
+    // ✅ GOOD
     <button type="submit">Submit</button>
     screen.getByRole('button', { name: 'Submit' })
 
-    // ❌ BLOGAI
+    // ❌ BAD
     <div data-testid="error-message">Error occurred</div>
     screen.getByTestId('error-message')
 
-    // ✅ GERAI
+    // ✅ GOOD
     <div role="alert">Error occurred</div>
     screen.getByRole('alert')
 
-    // ❌ BLOGAI
+    // ❌ BAD
     <input data-testid="email-input" />
     screen.getByTestId('email-input')
 
-    // ✅ GERAI
+    // ✅ GOOD
     <input aria-label="Email" />
     screen.getByRole('textbox', { name: 'Email' })
     ```
 
-## 2. User Interakcijos
+## 2. User interactions
 
 ### 2.1. `user-event` vs `fireEvent`
 
-- **VISADA naudoti `user-event`** vietoj `fireEvent`, kai testuojamos user interakcijos:
+- **ALWAYS use `user-event`** instead of `fireEvent` when testing user interactions:
 
     ```tsx
-    // ❌ BLOGAI - naudoja fireEvent
+    // ❌ BAD - uses fireEvent
     fireEvent.click(screen.getByRole('button'));
 
-    // ✅ GERAI - naudoja user-event
+    // ✅ GOOD - uses user-event
     await user.click(screen.getByRole('button'));
     ```
 
-- **Kodėl `user-event`?**
-    - Simuliuoja tikrą user behavior (pvz., click triggerina focus, hover, ir kitus events)
-    - Geriau atspindi realias user interakcijas
-    - Asinchroninis - geriau testuoja async behavior
+- **Why use `user-event`?**
+    - It simulates real user behavior (for example, a click triggers focus, hover, and other events).
+    - It represents real user interactions more accurately.
+    - It is asynchronous, so it better tests asynchronous behavior.
 
-- **Pointer Events ir Gestures**
-    - **Naudoti `user.pointer()`** mouse/touch/pointer events testuose:
+- **Pointer events and gestures**
+    - **Use `user.pointer()`** to test mouse, touch, and pointer events:
 
         ```tsx
-        // ✅ GERAI - pointer API mouse gesture
+        // ✅ GOOD - mouse gesture with pointer API
         await user.pointer([
             { keys: '[MouseLeft>]', target: row, coords: { x: 100, y: 50 } }, // mouse down
             { coords: { x: 150, y: 50 } }, // mouse move
             { keys: '[/MouseLeft]' }, // mouse up
         ]);
 
-        // ✅ GERAI - touch gesture
+        // ✅ GOOD - touch gesture
         await user.pointer([
             { keys: '[TouchA>]', target: row, coords: { x: 100, y: 50 } },
             { coords: { x: 50, y: 50 } },
@@ -184,37 +185,37 @@
         ]);
         ```
 
-    - **`user.pointer()` privalumai:**
-        - Simuliuoja tikrą pointer behavior (focus, hover, ir t.t.)
-        - Palaiko mouse, touch, pen įrenginius
-        - Automatiškai triggerina susijusius events tinkama tvarka
-        - Geriau testuoja cross-device compatibility
+    - **Benefits of `user.pointer()`:**
+        - It simulates real pointer behavior, including focus and hover.
+        - It supports mouse, touch, and pen devices.
+        - It triggers related events automatically in the correct order.
+        - It better tests compatibility across devices.
 
     - **Pointer keys:**
-        - `[MouseLeft>]` / `[/MouseLeft]` - kairysis pelės mygtukas (down/up)
-        - `[MouseRight>]` / `[/MouseRight]` - dešinysis pelės mygtukas
-        - `[MouseMiddle>]` / `[/MouseMiddle]` - vidurinis pelės mygtukas
-        - `[TouchA>]` / `[/TouchA]` - touch taškas A (multi-touch support)
-        - `[TouchB>]` / `[/TouchB]` - touch taškas B (multi-touch gestures)
+        - `[MouseLeft>]` / `[/MouseLeft]` — left mouse button (down/up).
+        - `[MouseRight>]` / `[/MouseRight]` — right mouse button.
+        - `[MouseMiddle>]` / `[/MouseMiddle]` — middle mouse button.
+        - `[TouchA>]` / `[/TouchA]` — touch point A (supports multitouch).
+        - `[TouchB>]` / `[/TouchB]` — touch point B (supports multitouch gestures).
 
-- **Kada naudoti `fireEvent`?**
-    - Tik **labai retais atvejais**, kai `user-event` nepalaiko reikalingo funkcionalumo:
-        - Custom events (`fireEvent(element, new CustomEvent(...))`)
-        - Specifiniai low-level events, kurių `user.pointer()` negali simuliuoti
+- **When should `fireEvent` be used?**
+    - Only in **very rare cases** when `user-event` does not support the needed behavior:
+        - Custom events (`fireEvent(element, new CustomEvent(...))`).
+        - Specific low-level events that `user.pointer()` cannot simulate.
 
         ```tsx
-        // ✅ GERAI - custom event (user-event nepalaiko)
+        // ✅ GOOD - custom event unsupported by user-event
         fireEvent(element, new CustomEvent('customEvent', { detail: data }));
         ```
 
-### 5.2. `user-event` setup
+### 2.2. `user-event` setup
 
-- **Setup user-event** testuose naudojant import iš `@testing-library/user-event`:
+- **Set up user-event** in tests by importing it from `@testing-library/user-event`:
 
     ```tsx
     import user from '@testing-library/user-event';
 
-    // Naudojimas testuose
+    // Usage in tests
     it('handles click', async () => {
         render(<Component />);
 
@@ -224,22 +225,22 @@
     });
     ```
 
-- **Pagrindinės `user-event` funkcijos:**
-    - `user.click()` - mygtuko paspaudimas
-    - `user.dblClick()` - dvigubas paspaudimas
-    - `user.type()` - tekstas input laukelyje
-    - `user.clear()` - input lauko išvalymas
-    - `user.selectOptions()` - select elemento pasirinkimas
-    - `user.hover()` - hover over element
-    - `user.unhover()` - hover išėjimas
-    - `user.tab()` - Tab klavišo paspaudimas
-    - `user.keyboard()` - klaviatūros įvestis
-    - `user.pointer()` - pointer/mouse/touch gestures
+- **Main `user-event` functions:**
+    - `user.click()` — click a button.
+    - `user.dblClick()` — double-click.
+    - `user.type()` — enter text in an input.
+    - `user.clear()` — clear an input.
+    - `user.selectOptions()` — select an option.
+    - `user.hover()` — hover over an element.
+    - `user.unhover()` — end a hover.
+    - `user.tab()` — press Tab.
+    - `user.keyboard()` — keyboard input.
+    - `user.pointer()` — pointer, mouse, and touch gestures.
 
-### 3.3. Pavyzdžiai
+### 2.3. Examples
 
 ```tsx
-// ✅ GERAI - click event
+// ✅ GOOD - click event
 it('calls onClick when button is clicked', async () => {
     const onClick = jest.fn();
     render(<button onClick={onClick}>Click</button>);
@@ -249,7 +250,7 @@ it('calls onClick when button is clicked', async () => {
     expect(onClick).toHaveBeenCalledTimes(1);
 });
 
-// ✅ GERAI - type event
+// ✅ GOOD - type event
 it('updates input value', async () => {
     render(<input />);
 
@@ -258,7 +259,7 @@ it('updates input value', async () => {
     expect(screen.getByRole('textbox')).toHaveValue('Hello');
 });
 
-// ✅ GERAI - keyboard navigation
+// ✅ GOOD - keyboard navigation
 it('navigates with Tab', async () => {
     render(
         <form>
@@ -275,7 +276,7 @@ it('navigates with Tab', async () => {
     expect(screen.getAllByRole('textbox')[1]).toHaveFocus();
 });
 
-// ✅ GERAI - swipe gesture su user.pointer()
+// ✅ GOOD - swipe gesture with user.pointer()
 it('handles swipe gesture', async () => {
     const { container } = render(<SwipeableRow />);
     const row = container.querySelector('tr')!;
@@ -289,7 +290,7 @@ it('handles swipe gesture', async () => {
     expect(onSwipe).toHaveBeenCalled();
 });
 
-// ✅ GERAI - mouse drag gesture
+// ✅ GOOD - mouse drag gesture
 it('handles drag gesture', async () => {
     const onDrag = jest.fn();
     const { container } = render(<DraggableItem onDrag={onDrag} />);
@@ -306,11 +307,11 @@ it('handles drag gesture', async () => {
 });
 ```
 
-## 3. Formatavimas ir Tarpai
+## 3. Formatting and spacing
 
-### 8.1. Tarpai aplink `render()`, `renderHook()` ir `rerender()`
+### 3.1. Spacing around `render()`, `renderHook()`, and `rerender()`
 
-- **Po `render()` / `renderHook()` / `rerender()` VISADA** tuščia eilutė:
+- **ALWAYS leave a blank line after `render()` / `renderHook()` / `rerender()`:**
 
     ```tsx
     render(<Component />);
@@ -334,10 +335,10 @@ it('handles drag gesture', async () => {
     expect(firstValue).toBe(secondValue);
     ```
 
-- **Prieš `render()` / `renderHook()` / `rerender()` tuščia eilutė** tik jei prieš ją yra kitas kodas:
+- **Leave a blank line before `render()` / `renderHook()` / `rerender()`** only if other code precedes it:
 
     ```tsx
-    // ✅ GERAI - tuščia eilutė, nes yra kodas prieš render
+    // ✅ GOOD - blank line because code precedes render
     it('test', async () => {
         const onClose = jest.fn();
 
@@ -346,14 +347,14 @@ it('handles drag gesture', async () => {
         await user.click(screen.getByRole('button'));
     });
 
-    // ✅ GERAI - be tuščios eilutės, nes render pirmas
+    // ✅ GOOD - no blank line because render comes first
     it('test', () => {
         render(<Component />);
 
         expect(screen.getByRole('button')).toBeInTheDocument();
     });
 
-    // ✅ GERAI - tuščia eilutė prieš renderHook, nes yra kodas prieš
+    // ✅ GOOD - blank line before renderHook because code precedes it
     it('test', () => {
         const mockFn = jest.fn();
 
@@ -362,7 +363,7 @@ it('handles drag gesture', async () => {
         expect(result.current).toBe(true);
     });
 
-    // ✅ GERAI - be tuščios eilutės, nes renderHook pirmas
+    // ✅ GOOD - no blank line because renderHook comes first
     it('test', () => {
         const { result } = renderHook(() => useCustomHook());
 
@@ -370,9 +371,9 @@ it('handles drag gesture', async () => {
     });
     ```
 
-### 5.2. Tarpai tarp logikos blokų
+### 3.2. Spacing between logic blocks
 
-- **User veiksmai** atskirti tuščia eilute nuo `expect`:
+- **Separate user actions** from `expect` with a blank line:
 
     ```tsx
     await user.type(screen.getByLabelText('name'), 'John');
@@ -381,7 +382,7 @@ it('handles drag gesture', async () => {
     expect(onSubmit).toHaveBeenCalledWith({ name: 'John' });
     ```
 
-- **Keli susiję user veiksmai** be tarpų tarp jų:
+- **Keep related user actions together** without blank lines between them:
 
     ```tsx
     await user.type(screen.getByLabelText('p'), '2');
@@ -391,9 +392,9 @@ it('handles drag gesture', async () => {
     await user.click(screen.getByText('Update'));
     ```
 
-### 3.3. Kintamieji testuose
+### 3.3. Variables in tests
 
-- **Bendri kintamieji** deklaruoti prieš `it()` blokus:
+- **Declare shared variables** before the `it()` blocks:
 
     ```tsx
     describe('<Component>', () => {
@@ -401,16 +402,16 @@ it('handles drag gesture', async () => {
         const onClose = jest.fn();
 
         it('test 1', () => {
-            // naudoja sharedValue ir onClose
+            // uses sharedValue and onClose
         });
 
         it('test 2', () => {
-            // naudoja sharedValue ir onClose
+            // uses sharedValue and onClose
         });
     });
     ```
 
-- **Specifiniai kintamieji** deklaruoti kiekviename `it()` bloke atskirai:
+- **Declare test-specific variables** separately inside each `it()` block:
 
     ```tsx
     it('test', async () => {
@@ -420,11 +421,11 @@ it('handles drag gesture', async () => {
     });
     ```
 
-## 4. Struktūra ir Organizavimas
+## 4. Structure and organization
 
-### 4.1. Test grupavimas
+### 4.1. Grouping tests
 
-- Naudoti `describe()` blokus susijusiems testams grupuoti:
+- Use `describe()` blocks to group related tests:
 
     ```tsx
     describe('ensure to have no negative amounts', () => {
@@ -438,26 +439,26 @@ it('handles drag gesture', async () => {
     });
     ```
 
-### 4.2. React komponentų `describe` antrastės
+### 4.2. `describe` titles for React components
 
-- **Testuojant React komponentes, `describe` antrastė turi būti rašoma kaip elementas su `<>` simboliais:**
+- **When testing a React component, write its `describe` title as an element with `<>` brackets:**
 
     ```tsx
-    // ✅ GERAI - React komponentas
+    // ✅ GOOD - React component
     describe('<ComponentName>', () => {
         it('renders correctly', () => {
             // ...
         });
     });
 
-    // ✅ GERAI - Hook arba utility funkcija
+    // ✅ GOOD - hook or utility function
     describe('useCustomHook', () => {
         it('returns correct value', () => {
             // ...
         });
     });
 
-    // ✅ GERAI - Utility funkcija
+    // ✅ GOOD - utility function
     describe('formatDate', () => {
         it('formats date correctly', () => {
             // ...
@@ -465,21 +466,21 @@ it('handles drag gesture', async () => {
     });
     ```
 
-### 4.3. Test pavadinimai
+### 4.3. Test names
 
-- Naudoti aiškius, aprašomuosius pavadinimus
-- Pradėti veiksmu arba būsena
-- Pavyzdžiai:
+- Use clear, descriptive names.
+- Start with an action or state.
+- Examples:
     - ✅ `renders heading details`
     - ✅ `calls onClose when dialog is closed`
     - ✅ `does not accept any other symbols, but digits`
 
-### 4.4. NIEKADA nekurti papildomų render funkcijų
+### 4.4. NEVER create extra render functions
 
-- **GRIEŽTAI DRAUDŽIAMA** kurti papildomas helper funkcijas, kurios wrap'ina `render()`:
+- **STRICTLY FORBIDDEN:** helper functions that wrap `render()`:
 
     ```tsx
-    // ❌ BLOGAI - papildoma render funkcija
+    // ❌ BAD - extra render function
     describe('<Component>', () => {
         const renderComponent = (props = {}) =>
             render(
@@ -494,7 +495,7 @@ it('handles drag gesture', async () => {
         });
     });
 
-    // ✅ GERAI - tiesiogiai render() kiekviename teste
+    // ✅ GOOD - call render() directly in every test
     describe('<Component>', () => {
         it('renders correctly', () => {
             render(
@@ -507,18 +508,18 @@ it('handles drag gesture', async () => {
     });
     ```
 
-- **Kodėl ne helper funkcijos?**
-    - Helper funkcijos slepia tikrąjį render'inimo procesą
-    - Sunku suprasti, kas tikrai vyksta teste
-    - Helper funkcijos gali turėti netikėtus side effects
-    - Kiekvienas testas turėtų būti aiškus ir savarankiškas
-    - Jei wrapper'is kartojasi, geriau sukurti Mock komponentą (pvz., `MockTableRow`)
+- **Why avoid render helpers?**
+    - Helper functions hide the actual render process.
+    - They make it hard to understand what happens in a test.
+    - They can have unexpected side effects.
+    - Each test should be clear and self-contained.
+    - If a wrapper repeats, create a mock component instead (for example, `MockTableRow`).
 
-- **Kada leistina?**
-    - Tik jei wrapper'is yra labai sudėtingas ir kartojasi daugelyje testų, tada geriau sukurti atskirą Mock komponentą:
+- **When is an exception allowed?**
+    - If a wrapper is very complex and repeats across many tests, create a separate mock component:
 
         ```tsx
-        // ✅ GERAI - Mock komponentas, jei wrapper'is sudėtingas ir kartojasi
+        // ✅ GOOD - mock component for a complex, repeated wrapper
         // src/tests/MockTableRow.tsx
         export function MockTableRow({ children }: { children: React.ReactNode }) {
             return (
@@ -532,7 +533,7 @@ it('handles drag gesture', async () => {
             );
         }
 
-        // Teste
+        // In the test
         it('renders correctly', () => {
             render(
                 <MockTableRow>
@@ -542,11 +543,11 @@ it('handles drag gesture', async () => {
         });
         ```
 
-## 5. Mocking ir Setup
+## 5. Mocking and setup
 
-### 5.1. Lifecycle Hooks ir Cleanup
+### 5.1. Lifecycle hooks and cleanup
 
-- **Naudoti `afterEach()` cleanup'ui** po kiekvieno testo:
+- **Use `afterEach()` for cleanup** after every test:
 
     ```tsx
     describe('<Component>', () => {
@@ -555,15 +556,16 @@ it('handles drag gesture', async () => {
         afterEach(() => jest.clearAllMocks());
 
         it('test', () => {
-            // naudoja mockFunction
+            // uses mockFunction
         });
     });
     ```
 
-- **Naudoti `afterAll()` vietoj `afterEach()`** kai cleanup'as reikalingas tik vieną kartą po visų testų (pvz., `jest.useRealTimers()`):
+- **Use `afterAll()` instead of `afterEach()`** when cleanup is needed only once after all tests (for example,
+  `jest.useRealTimers()`):
 
     ```tsx
-    // ❌ BLOGAI - useRealTimers kiekvieno testo gale nereikalingas
+    // ❌ BAD - useRealTimers is unnecessary after every test
     describe('with fake timers', () => {
         beforeEach(() => jest.useFakeTimers());
 
@@ -577,7 +579,7 @@ it('handles drag gesture', async () => {
         });
     });
 
-    // ✅ GERAI - useRealTimers tik vieną kartą po visų testų
+    // ✅ GOOD - useRealTimers once after all tests
     describe('with fake timers', () => {
         beforeEach(() => jest.useFakeTimers());
 
@@ -592,34 +594,34 @@ it('handles drag gesture', async () => {
     });
     ```
 
-- **NIEKADA nenaudoti `beforeEach()` cleanup'ui** - cleanup'as turi būti `afterEach()` arba `afterAll()`:
+- **NEVER use `beforeEach()` for cleanup**; cleanup belongs in `afterEach()` or `afterAll()`:
 
     ```tsx
-    // ❌ BLOGAI - cleanup beforeEach
+    // ❌ BAD - cleanup in beforeEach
     beforeEach(() => jest.clearAllMocks());
 
-    // ✅ GERAI - cleanup afterEach
+    // ✅ GOOD - cleanup in afterEach
     afterEach(() => jest.clearAllMocks());
     ```
 
-### 5.2. Mock funkcijos
+### 5.2. Mock functions
 
-- Deklaruoti prieš testus, jei naudojamos keliuose testuose
-- Naudoti `jest.fn()` su aprašomais pavadinimais
-- Išvalyti po kiekvieno testo su `afterEach()`
+- Declare them before tests if multiple tests use them.
+- Use `jest.fn()` with descriptive names.
+- Clear them after every test with `afterEach()`.
 
-- **Naudoti `jest.mocked()`** dirbant su mock'intomis funkcijomis:
+- **Use `jest.mocked()`** when working with mocked functions:
 
     ```tsx
-    // ❌ BLOGAI
+    // ❌ BAD
     (useSetAmounts as jest.Mock).mockReturnValue(updateAmounts);
 
-    // ✅ GERAI
+    // ✅ GOOD
     jest.mocked(useSetAmounts).mockReturnValue(updateAmounts);
     ```
 
     ```tsx
-    // Pilnas pavyzdys
+    // Complete example
     jest.mock('~/features/products/hooks/useSetAmounts');
 
     describe('<Component>', () => {
@@ -637,10 +639,10 @@ it('handles drag gesture', async () => {
     });
     ```
 
-- **Naudoti `beforeEach()` vietoje `beforeAll()`** kai mock reikšmė yra keičiama testuose:
+- **Use `beforeEach()` instead of `beforeAll()`** when tests change a mock's value:
 
     ```tsx
-    // ❌ BLOGAI - mock reikšmė nustatyta beforeAll, bet keičiama testuose
+    // ❌ BAD - mock value is set in beforeAll but changed in tests
     describe('<Component>', () => {
         const setActive = jest.fn();
 
@@ -650,15 +652,15 @@ it('handles drag gesture', async () => {
 
         it('test 1', () => {
             jest.mocked(useActiveContent).mockReturnValue([{ data: {} }, setActive]);
-            // testas keičia mock reikšmę
+            // test changes the mock value
         });
 
         it('test 2', () => {
-            // testas naudoja blogą mock reikšmę iš test 1
+            // test uses the wrong mock value from test 1
         });
     });
 
-    // ✅ GERAI - mock reikšmė nustatyta beforeEach, reset'inama tarp testų
+    // ✅ GOOD - mock value is reset in beforeEach between tests
     describe('<Component>', () => {
         const setActive = jest.fn();
 
@@ -668,52 +670,52 @@ it('handles drag gesture', async () => {
 
         it('test 1', () => {
             jest.mocked(useActiveContent).mockReturnValue([{ data: {} }, setActive]);
-            // testas keičia mock reikšmę
+            // test changes the mock value
         });
 
         it('test 2', () => {
-            // testas naudoja teisingą default mock reikšmę
+            // test uses the correct default mock value
         });
     });
     ```
 
-- **NIEKADA netestuoti neįmanomų scenarijų arba castinti tipus per aplinkui:**
+- **NEVER test impossible scenarios or force types through casts:**
 
     ```tsx
-    // ❌ BLOGAI - castinimas per aplinkui, kai tipas neleidžia undefined
+    // ❌ BAD - forced cast when the type does not allow undefined
     jest.mocked(useQuickFilterContext).mockReturnValue([undefined as unknown as string, setFilter]);
 
-    // ❌ BLOGAI - testuojamas scenarijus, kuris neįmanomas pagal tipus
+    // ❌ BAD - scenario impossible under the types
     it('uses default empty string when filter is undefined', () => {
         jest.mocked(useQuickFilterContext).mockReturnValue([undefined as unknown as string, setFilter]);
         // ...
     });
 
-    // ✅ GERAI - naudoti tuščią string, jei reikia testuoti default value
+    // ✅ GOOD - use an empty string to test the default value
     it('uses empty string when filter is empty', () => {
         jest.mocked(useQuickFilterContext).mockReturnValue(['', setFilter]);
         // ...
     });
 
-    // ✅ GERAI - jei tipas leidžia undefined, testuoti be cast'inimo
+    // ✅ GOOD - if the type allows undefined, test without casting
     it('handles undefined value', () => {
         jest.mocked(useGroups).mockReturnValue(undefined);
         // ...
     });
     ```
 
-    - **Kodėl ne castinti tipus?**
-        - Cast'inimas slepia tikrąją tipų struktūrą
-        - Testai turėtų atspindėti tikrąjį kodą ir jo tipus
-        - Jei tipas neleidžia `undefined`, tai reiškia, kad toks scenarijus neįmanomas
-        - Testuoti reikia tik įmanomus scenarijus pagal tipus
+    - **Why avoid type casts?**
+        - Casting hides the actual type structure.
+        - Tests should reflect the real code and its types.
+        - If a type does not permit `undefined`, that scenario is impossible.
+        - Test only scenarios that are possible under the types.
 
-### 5.3. Mock funkcijų kvietimų tikrinimas
+### 5.3. Checking mock function calls
 
-- **Naudoti `toHaveBeenCalledWith()`** tikrinti mock funkcijų kvietimus:
+- **Use `toHaveBeenCalledWith()`** to check mock function calls:
 
     ```tsx
-    // ✅ GERAI - tikrinimas su toHaveBeenCalledWith
+    // ✅ GOOD - assertion with toHaveBeenCalledWith
     expect(ImportBox).toHaveBeenCalledWith(
         expect.objectContaining({
             opened: true,
@@ -723,20 +725,20 @@ it('handles drag gesture', async () => {
     );
     ```
 
-- **React komponentai perduoda antrą argumentą** (`undefined`), todėl reikia jį įtraukti į tikrinimą:
+- **React components receive a second argument** (`undefined`), so include it in the assertion:
 
     ```tsx
-    // ❌ BLOGAI - nepakanka tikrinti tik pirmą argumentą
+    // ❌ BAD - checking only the first argument is insufficient
     expect(Component).toHaveBeenCalledWith(expect.objectContaining({ prop: 'value' }));
 
-    // ✅ GERAI - įtraukti antrą argumentą (React context)
+    // ✅ GOOD - include the second argument (React context)
     expect(Component).toHaveBeenCalledWith(expect.objectContaining({ prop: 'value' }), undefined);
     ```
 
-- **Gauti callback funkcijas iš mock'intų komponentų** naudojant `mockImplementation`:
+- **Capture callback functions from mocked components** with `mockImplementation`:
 
     ```tsx
-    // ✅ GERAI - naudoti mockImplementation, kad gauti callback funkciją
+    // ✅ GOOD - capture the callback with mockImplementation
     it('calls callback when event occurs', () => {
         let mockCallback: (() => void) | null = null;
         jest.mocked(Component).mockImplementation(({ onClose }) => {
@@ -754,46 +756,46 @@ it('handles drag gesture', async () => {
     });
     ```
 
-- **NIEKADA nenaudoti `mock.calls` tiesiogiai** - visada naudoti Jest matchers:
+- **NEVER use `mock.calls` directly**; use Jest matchers:
 
     ```tsx
-    // ❌ BLOGAI - naudoja mock.calls tiesiogiai
+    // ❌ BAD - accesses mock.calls directly
     expect(jest.mocked(ProductCell).mock.calls.at(-1)?.[0]).toStrictEqual(
         expect.objectContaining({ last: true, year: years.at(-1) })
     );
 
-    // ✅ GERAI - naudoja toHaveBeenLastCalledWith
+    // ✅ GOOD - uses toHaveBeenLastCalledWith
     expect(ProductCell).toHaveBeenLastCalledWith(
         expect.objectContaining({ last: true, year: years.at(-1) }),
         undefined
     );
     ```
 
-- **Naudoti `toHaveBeenNthCalledWith()`** tikrinti konkretų kvietimą pagal indeksą:
+- **Use `toHaveBeenNthCalledWith()`** to check a call at a specific index:
 
     ```tsx
-    // ✅ GERAI - tikrinti konkretų kvietimą
+    // ✅ GOOD - check a specific call
     expect(Component).toHaveBeenNthCalledWith(1, expect.objectContaining({ prop: 'first' }), undefined);
     expect(Component).toHaveBeenNthCalledWith(2, expect.objectContaining({ prop: 'second' }), undefined);
     ```
 
-- **Naudoti `toHaveBeenLastCalledWith()`** tikrinti paskutinį kvietimą:
+- **Use `toHaveBeenLastCalledWith()`** to check the last call:
 
     ```tsx
-    // ✅ GERAI - tikrinti paskutinį kvietimą
+    // ✅ GOOD - check the last call
     expect(Component).toHaveBeenLastCalledWith(expect.objectContaining({ last: true }), undefined);
     ```
 
-- **Kodėl ne `mock.calls`?**
-    - `mock.calls` yra low-level API, kuris nėra semantinis
-    - Jest matchers (`toHaveBeenNthCalledWith`, `toHaveBeenLastCalledWith`) yra aiškesni ir lengviau skaitomi
-    - Jest matchers automatiškai formatuoja error pranešimus geriau
-    - `mock.calls` reikalauja manual tipo cast'inimo ir null checking
+- **Why avoid `mock.calls`?**
+    - `mock.calls` is a low-level, nonsemantic API.
+    - Jest matchers (`toHaveBeenNthCalledWith`, `toHaveBeenLastCalledWith`) are clearer and easier to read.
+    - Jest matchers format error messages better automatically.
+    - `mock.calls` requires manual type casts and null checks.
 
-- **Alternatyva - naudoti `mock.calls`** tik labai retais atvejais, kai `mockImplementation` arba Jest matchers netinka:
+- **Alternative:** use `mock.calls` only in rare cases where `mockImplementation` and Jest matchers do not work:
 
     ```tsx
-    // ⚠️ NAUDOTI TIK JEI MOCK_IMPLEMENTATION ARBA JEST MATCHERS NETINKA
+    // ⚠️ USE ONLY IF MOCKIMPLEMENTATION OR JEST MATCHERS DO NOT WORK
     const lastCall = jest.mocked(Component).mock.calls[jest.mocked(Component).mock.calls.length - 1]!;
     const onClose = lastCall[0].onClose;
 
@@ -802,10 +804,10 @@ it('handles drag gesture', async () => {
     expect(onCloseHandler).toHaveBeenCalledWith();
     ```
 
-- **Pavyzdžiai:**
+- **Examples:**
 
     ```tsx
-    // ✅ GERAI - tikrinimas su toHaveBeenCalledWith
+    // ✅ GOOD - assertion with toHaveBeenCalledWith
     jest.mock('~/features/dialogs/ImportBox', () => ({
         ImportBox: jest.fn(() => <div>ImportBox</div>),
     }));
@@ -826,7 +828,7 @@ it('handles drag gesture', async () => {
         );
     });
 
-    // ✅ GERAI - callback funkcijos gavimas
+    // ✅ GOOD - capturing the callback
     it('calls setActive when onClose is called', () => {
         let mockClose: (() => void) | null = null;
         jest.mocked(ImportBox).mockImplementation(({ onClose }) => {
@@ -848,10 +850,10 @@ it('handles drag gesture', async () => {
     });
     ```
 
-### 5.2. State ir Fixtures
+### 5.4. State and fixtures
 
-- Naudoti fixture funkcijas duomenims paruošti
-- Deklaruoti prieš testus, jei state bendras:
+- Use fixture functions to prepare data.
+- Declare shared state before the tests:
 
     ```tsx
     describe('<Component>', () => {
@@ -868,53 +870,53 @@ it('handles drag gesture', async () => {
     });
     ```
 
-## 6. Arrow Funkcijos ir Sintaksė
+## 6. Arrow functions and syntax
 
-### 8.1. Vienos eilutės arrow funkcijos
+### 6.1. One-line arrow functions
 
-- **Nenaudoti nereikalingų skliaustų** `{}` ir `return`, jei funkcija vienos eilutės:
+- **Avoid unnecessary braces** `{}` and `return` for one-line functions:
 
     ```tsx
-    // ❌ BLOGAI
+    // ❌ BAD
     afterEach(() => {
         jest.clearAllMocks();
     });
 
-    // ✅ GERAI
+    // ✅ GOOD
     afterEach(() => jest.clearAllMocks());
     ```
 
     ```tsx
-    // ❌ BLOGAI
+    // ❌ BAD
     const double = (x: number) => {
         return x * 2;
     };
 
-    // ✅ GERAI
+    // ✅ GOOD
     const double = (x: number) => x * 2;
     ```
 
-- **Naudoti skliaustu** kai reikia grąžinti objektą:
+- **Use parentheses** when returning an object:
 
     ```tsx
-    // ✅ GERAI - objektui reikia skliaustų
+    // ✅ GOOD - objects need parentheses
     const createUser = (name: string) => ({ name, active: true });
 
-    // ✅ GERAI - kelios eilutės
+    // ✅ GOOD - multiple lines
     const processData = (data: Data) => {
         const result = transform(data);
         return validate(result);
     };
     ```
 
-## 7. Struktūrų Palyginimas
+## 7. Comparing structures
 
-### 7.1. Struktūroms palyginti naudoti `toStrictEqual`
+### 7.1. Use `toStrictEqual` to compare structures
 
-- **VISADA naudoti `toStrictEqual`** palyginant objektus, masyvus ar kitas struktūras:
+- **ALWAYS use `toStrictEqual`** when comparing objects, arrays, or other structures:
 
     ```tsx
-    // ❌ BLOGAI - daug atskirų expect'ų
+    // ❌ BAD - many separate assertions
     expect(result.current).toHaveLength(1);
     expect(result.current[0].group).toBe('Group1');
     expect(result.current[0].years).toHaveLength(2);
@@ -923,7 +925,7 @@ it('handles drag gesture', async () => {
     expect(result.current[0].years![1].amounts).toHaveLength(1);
     expect(result.current[0].years![1].amounts[0].recycled).toBe(true);
 
-    // ✅ GERAI - vienas toStrictEqual
+    // ✅ GOOD - one toStrictEqual assertion
     expect(result.current).toStrictEqual([
         {
             group: 'Group1',
@@ -942,17 +944,17 @@ it('handles drag gesture', async () => {
     ]);
     ```
 
-- **Kodėl `toStrictEqual`?**
-    - Tiksliau palygina struktūras (tikrina tipus, undefined vs missing properties)
-    - Aiškiau matyti visą struktūrą vienu metu
-    - Lengviau palaikyti - vienas expect vietoj daugelio
-    - Geriau atspindi tikrąją duomenų struktūrą
+- **Why use `toStrictEqual`?**
+    - It compares structures more precisely (types, `undefined` versus missing properties).
+    - It shows the whole structure clearly in one place.
+    - It is easier to maintain: one assertion instead of many.
+    - It better reflects the real data structure.
 
-- **Kada naudoti `expect.string*`, `expect.object*`, `expect.array*`?**
-    - Kai reikia patikrinti tik dalį struktūros arba kai tikslus formatas nėra svarbus:
+- **When should `expect.string*`, `expect.object*`, or `expect.array*` be used?**
+    - When only part of a structure matters or its exact format is unimportant:
 
         ```tsx
-        // ✅ GERAI - tik dalis struktūros svarbi
+        // ✅ GOOD - only part of the structure matters
         expect(result.current).toStrictEqual([
             {
                 group: 'Group1',
@@ -966,7 +968,7 @@ it('handles drag gesture', async () => {
             },
         ]);
 
-        // ✅ GERAI - tik tam tikri laukai svarbūs
+        // ✅ GOOD - only certain fields matter
         expect(result.current).toStrictEqual([
             expect.objectContaining({
                 group: 'Group1',
@@ -975,26 +977,26 @@ it('handles drag gesture', async () => {
         ]);
         ```
 
-- **Pavyzdžiai:**
+- **Examples:**
 
     ```tsx
-    // ✅ GERAI - pilnas objektas
+    // ✅ GOOD - complete object
     expect(user).toStrictEqual({
         id: 1,
         name: 'John',
         email: 'john@example.com',
     });
 
-    // ✅ GERAI - masyvas objektų
+    // ✅ GOOD - array of objects
     expect(items).toStrictEqual([
         { id: 1, name: 'Item 1' },
         { id: 2, name: 'Item 2' },
     ]);
 
-    // ✅ GERAI - tuščias masyvas
+    // ✅ GOOD - empty array
     expect(result.current).toStrictEqual([]);
 
-    // ✅ GERAI - dalinis palyginimas su expect.objectContaining
+    // ✅ GOOD - partial match with expect.objectContaining
     expect(response).toStrictEqual(
         expect.objectContaining({
             status: 200,
@@ -1003,61 +1005,61 @@ it('handles drag gesture', async () => {
     );
     ```
 
-## 8. Custom Jest Matchers
+## 8. Custom Jest matchers
 
-Projektas turi papildomus custom Jest matchers (`jest/expect.ts`):
+The project defines additional custom Jest matchers in `jest/expect.ts`:
 
 ### 8.1. `toHaveListWithTextContent`
 
-- Naudoti tikrinti kelių elementų text content vienu metu:
+- Use it to check the text content of several elements at once:
 
     ```tsx
-    // ❌ BLOGAI - po vieną
+    // ❌ BAD - one at a time
     expect(cells[0]).toHaveTextContent('Name');
     expect(cells[1]).toHaveTextContent('.');
     expect(cells[2]).toHaveTextContent('.');
     expect(cells[3]).toHaveTextContent('2');
 
-    // ✅ GERAI - vienu metu
+    // ✅ GOOD - all at once
     const cells = screen.getAllByRole('cell');
     expect(cells).toHaveListWithTextContent(['Name', '.', '.', '2']);
     ```
 
-### 8.2. Kiti custom matchers
+### 8.2. Other custom matchers
 
-- `toBeExpanded()` - tikrina `aria-expanded="true"`
-- `toBeCollapsed()` - tikrina `aria-expanded` nėra "true"
-- `toBeSelected()` - tikrina `aria-selected="true"`
+- `toBeExpanded()` — checks `aria-expanded="true"`.
+- `toBeCollapsed()` — checks that `aria-expanded` is not "true".
+- `toBeSelected()` — checks `aria-selected="true"`.
 
-## 8. Jest Pluginai
+## 9. Jest plugins
 
-Projektas naudoja papildomus Jest pluginus, kurie suteikia daugiau galimybių testavimui.
+The project uses additional Jest plugins for more testing features.
 
 ### 9.1. jest-chain
 
-Leidžia grandinėti (`chain`) kelis matchers į vieną eilutę:
+Chain several matchers on one line:
 
 ```tsx
-// ❌ BLOGAI - kintamasis ir kelios eilutės
+// ❌ BAD - variable and multiple lines
 const badge = screen.getByRole('status');
 expect(badge).toHaveTextContent('+1');
 expect(badge).toHaveAttribute('data-state', 'positive');
 
-// ✅ GERAI - grandininis patikrinimas
+// ✅ GOOD - chained assertion
 expect(screen.getByRole('status')).toHaveTextContent('+1').toHaveAttribute('data-state', 'positive');
 ```
 
 ```tsx
-// ✅ GERAI - kompaktiška viena eilutė
+// ✅ GOOD - compact one-liner
 expect(screen.getByRole('status')).toHaveTextContent('+1').toHaveAttribute('data-state', 'positive');
 ```
 
 ### 9.2. jest-expect-message
 
-Leidžia pridėti custom error pranešimus prie assertions:
+Add custom error messages to assertions:
 
 ```tsx
-// Naudojimas su papildomu pranešimu
+// Usage with an additional message
 expect(value, 'Value should be positive').toBeGreaterThan(0);
 
 expect(cells, 'Year cells should have correct values').toHaveListWithTextContent(['', '.', '.', '2']);
@@ -1065,7 +1067,7 @@ expect(cells, 'Year cells should have correct values').toHaveListWithTextContent
 
 ### 9.3. jest-extended
 
-Suteikia daug papildomų matchers:
+Provides many additional matchers:
 
 #### String matchers
 
@@ -1120,11 +1122,11 @@ expect(date).toBeBefore(otherDate);
 expect(date).toBeAfter(otherDate);
 ```
 
-Pilną sąrašą rasite: [jest-extended documentation](https://jest-extended.jestcommunity.dev/docs/matchers/)
+For the full list, see [jest-extended documentation](https://jest-extended.jestcommunity.dev/docs/matchers/).
 
-## 10. Papildomi Principai
+## 10. Additional principles
 
-- Testavimo biblioteka: `@testing-library/react`
-- User interakcijos: `@testing-library/user-event`
-- Pageidautina `getBy*` > `queryBy*` > `findBy*` eiliškumas
-- Visuomet laukti user event completion su `await`
+- Testing library: `@testing-library/react`
+- User interactions: `@testing-library/user-event`
+- Prefer `getBy*` > `queryBy*` > `findBy*`.
+- Always await completion of user events with `await`.

@@ -1,38 +1,38 @@
-# ✔️ Pagrindinė idėja
+# ✔️ Core idea
 
-### 1. `touchstart` — tik pradedi rinkti duomenis
+### 1. `touchstart` — start collecting data
 
-- išsisaugai pradžios koordinatę
-- paleidi long-press timerį
-- dar nieko nenusprendi
+- Save the starting coordinates.
+- Start the long-press timer.
+- Do not decide which gesture it is yet.
 
-### 2. `touchmove` — sprendi gestą
+### 2. `touchmove` — identify the gesture
 
-- jei judama > X px horizontaliai → **swipe režimas**, atšauki long press
-- jei judama > Y px vertikaliai → **scroll režimas**, atšauki long press
-- scroll režime **neblokuoji** default scroll’o
-- swipe režime **blokuoji** scroll’ą (`preventDefault()`)
+- If horizontal movement exceeds X px, enter **swipe mode** and cancel the long press.
+- If vertical movement exceeds Y px, enter **scroll mode** and cancel the long press.
+- In scroll mode, **allow** the default scrolling behavior.
+- In swipe mode, **block** scrolling with `preventDefault()`.
 
-### 3. `touchend` — išvedi galutinį veiksmą
+### 3. `touchend` — finish the gesture
 
-- jei nebuvo swipe / scroll → click arba long press
-- jei buvo swipe → pabaigi swipe animaciją
-- jei buvo scroll → nieko nedarai (scroll finish)
-
----
-
-# ✔️ Rekomenduojami parametrai
-
-| Parametras               | Reikšmė    | Paaiškinimas                                |
-| ------------------------ | ---------- | ------------------------------------------- |
-| Horizontal threshold     | **12 px**  | nuo šios ribos gestas laikomas horizontaliu |
-| Vertical threshold       | **12 px**  | analogiškai vertikaliam                     |
-| Long press delay         | **450 ms** | Haptic touch jausmas                        |
-| Cancel longPress on move | taip       | bet tik jei pasiektas threshold             |
+- If it was neither a swipe nor a scroll, handle a click or long press.
+- If it was a swipe, finish the swipe animation.
+- If it was a scroll, do nothing.
 
 ---
 
-# ✔️ Minimalus, aiškus kodas (galima tiesiai naudoti)
+# ✔️ Recommended parameters
+
+| Parameter                | Value      | Explanation                                   |
+| ------------------------ | ---------- | --------------------------------------------- |
+| Horizontal threshold     | **12 px**  | Movement beyond this is considered horizontal |
+| Vertical threshold       | **12 px**  | The equivalent limit for vertical movement    |
+| Long press delay         | **450 ms** | Provides a Haptic Touch feel                  |
+| Cancel longPress on move | yes        | Only after the movement threshold is reached  |
+
+---
+
+# ✔️ Minimal example (ready to use)
 
 ```js
 function attachGestureHandlers(el, { onClick, onLongPress, onSwipe }) {
@@ -71,17 +71,17 @@ function attachGestureHandlers(el, { onClick, onLongPress, onSwipe }) {
             movedX = t.clientX - startX;
             movedY = t.clientY - startY;
 
-            // Jei jau scroll/swipe – tvarkome tik tą režimą
+            // Continue handling the gesture already in progress
             if (gesture === 'swipe') {
-                e.preventDefault(); // blokuojam scroll, nes jau swipe
+                e.preventDefault(); // Block scrolling during a swipe
                 onSwipe?.(movedX, e);
                 return;
             }
             if (gesture === 'scroll') {
-                return; // leidžiam scrollinti
+                return; // Allow scrolling
             }
 
-            // Naujai nustatom režimą
+            // Determine the gesture mode
             if (Math.abs(movedX) > THRESHOLD && Math.abs(movedX) > Math.abs(movedY)) {
                 // Horizontal swipe
                 gesture = 'swipe';
@@ -95,20 +95,20 @@ function attachGestureHandlers(el, { onClick, onLongPress, onSwipe }) {
             }
         },
         { passive: false }
-    ); // būtina, kad veiktų preventDefault()
+    ); // Required for preventDefault() to work
 
     el.addEventListener('touchend', (e) => {
         clearTimeout(longPressTimeout);
 
         if (gesture === 'press') {
-            // nepajudėjo pakankamai -> click
+            // Not enough movement: handle the click
             if (!longPressFired) {
                 onClick?.(e);
             }
         }
 
         if (gesture === 'swipe') {
-            // swipe pabaiga
+            // End of the swipe
             onSwipe?.('end', e);
         }
     });
@@ -121,23 +121,24 @@ function attachGestureHandlers(el, { onClick, onLongPress, onSwipe }) {
 
 ---
 
-# ✔️ Kaip tai veikia tavo scenarijuje
+# ✔️ How this works in this case
 
-### 🟦 Lentelė → scroll (vertikali kryptis)
+### 🟦 Table → scroll (vertical movement)
 
-Kai vartotojas tempia vertikaliai daugiau nei 12px, gestas tampa scroll’u, **long press atšaukiamas**, scroll leidžiamas.
+When the user moves more than 12 px vertically, the gesture becomes a scroll. The **long press is canceled** and
+scrolling is allowed.
 
-### 🟥 Eilutės → swipe (horizontali kryptis)
+### 🟥 Rows → swipe (horizontal movement)
 
-Kai horizontalus poslinkis >12px ir didesnis nei vertikalus:
+When horizontal movement exceeds 12 px and is greater than vertical movement:
 
-- pereinama į swipe režimą
-- slinkimą blokuoji (`preventDefault`)
-- gali rodyti „Delete / Edit“ veiksmus
+- Enter swipe mode.
+- Block scrolling with `preventDefault`.
+- Show actions such as “Delete” and “Edit”.
 
-### 🟧 Celė → click / long press
+### 🟧 Cell → click or long press
 
-Kai judėjimo nėra:
+When there is no movement:
 
-- iki 450ms → click
-- po 450ms → long press
+- Before 450 ms → click.
+- After 450 ms → long press.

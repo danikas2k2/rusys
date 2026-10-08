@@ -7,13 +7,18 @@ import { Label } from '~/components/common/Label';
 import { ScreenLoader } from '~/components/common/ScreenLoader';
 import { useUnderDevelopment } from '~/lib/hooks/useUnderDevelopment';
 import { useGoogleClientId } from '~/store/google';
+import { useProfile } from '~/store/profile';
 
 export function App() {
     const isUnderDevelopment = useUnderDevelopment();
     const clientId = useGoogleClientId();
+    const profile = useProfile();
     const [error, setError] = useState(false);
 
     if (error) {
+        if (profile.sub && profile.allowed) {
+            return <AppContent />;
+        }
         return (
             <Error>
                 <Label>Failed to load Google OAuth script</Label>

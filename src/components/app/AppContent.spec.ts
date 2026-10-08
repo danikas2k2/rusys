@@ -43,7 +43,7 @@ test.describe('app states and filters', () => {
         await menu.getByRole('switch', { name: 'Tamsi tema' }).locator('..').click();
         await page.reload();
         await page.getByRole('button', { name: 'Meniu' }).click();
-        await expect(page.getByRole('menu').getByRole('switch')).toBeChecked();
+        await expect(page.getByRole('menu').getByRole('switch', { name: 'Šviesi tema' })).toBeChecked();
     });
 
     test('loads categories from SSR without a browser API request', async ({ page }) => {

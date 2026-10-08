@@ -4,6 +4,7 @@ import { MockTheme } from '@tests/MockTheme';
 import React from 'react';
 
 import { FormatDate } from '~/components/common/FormatDate';
+import { LocaleContext } from '~/components/runtime/LocaleContext';
 
 vi.mock(import('~/lib/hooks/useLabels'), () => ({
     useLabels: () => (s: string) => s,
@@ -65,6 +66,19 @@ describe('<FormatDate>', () => {
         expect(dateEl!.textContent).toMatch(/May/);
         expect(dateEl!.textContent).toMatch(/16/);
         expect(dateEl!.textContent).not.toMatch(/2024/);
+    });
+
+    it('formats a date in the selected language', () => {
+        const date = new Date('2024-05-16T09:30:00.000Z');
+        const { container } = render(
+            <MockTheme>
+                <LocaleContext value="lt-LT">
+                    <FormatDate date={date} />
+                </LocaleContext>
+            </MockTheme>
+        );
+
+        expect(container.querySelector('[data-date]')).toHaveTextContent('Gegužės 16');
     });
 
     it('renders year, month and day when date is from a previous year', () => {

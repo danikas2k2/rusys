@@ -112,6 +112,7 @@ describe('<ToolbarMenu>', () => {
         ]);
 
         expect(menu.getByRole('switch', { name: 'Dark mode' })).toBeInTheDocument();
+        expect(menu.getByRole('switch', { name: 'Switch to Lithuanian' })).toBeInTheDocument();
     });
 
     it('renders utilities menu items', async () => {

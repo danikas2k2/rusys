@@ -2,23 +2,20 @@
   "Add": {
     "lt-LT": "Pridėti"
   },
-  "Additional details": {
-    "lt-LT": "Papildoma informacija"
+  "Add new category": {
+    "lt-LT": "Pridėti naują kategoriją"
   },
   "Add new entry": {
     "lt-LT": "Pridėti naują produktą"
   },
-  "Add new category": {
-    "lt-LT": "Pridėti naują kategoriją"
-  },
   "Add new variant": {
     "lt-LT": "Pridėti naują variantą"
   },
-  "New variant": {
-    "lt-LT": "Naujas variantas"
+  "Add suspicious": {
+    "lt-LT": "Pridėti įtartiną"
   },
-  "New category": {
-    "lt-LT": "Nauja kategorija"
+  "Additional details": {
+    "lt-LT": "Papildoma informacija"
   },
   "All categories": {
     "lt-LT": "Visos kategorijos"
@@ -53,29 +50,38 @@
   "Cancel": {
     "lt-LT": "Atšaukti"
   },
-  "Redo": {
-    "lt-LT": "Pakartoti"
-  },
-  "Undo": {
-    "lt-LT": "Grąžinti"
-  },
-  "Select variant": {
-    "lt-LT": "Pasirinkite variantą"
-  },
-  "Select product": {
-    "lt-LT": "Pasirinkite produktą"
-  },
   "Cannot contain \":\" character": {
     "lt-LT": "Negali turėti \":\" simbolio"
+  },
+  "Cannot move a product with sub-products to another category": {
+    "lt-LT": "Negalima perkelti produkto, turinčio poproduktų, į kitą kategoriją"
+  },
+  "Categories": {
+    "lt-LT": "Kategorijos"
+  },
+  "Category": {
+    "lt-LT": "Kategorija"
+  },
+  "Category already exists": {
+    "lt-LT": "Tokia kategorija jau yra"
+  },
+  "Category image": {
+    "lt-LT": "Kategorijos paveikslėlis"
+  },
+  "Category is required": {
+    "lt-LT": "Kategorija yra privaloma"
+  },
+  "Category name": {
+    "lt-LT": "Kategorija"
   },
   "Cellar": {
     "lt-LT": "Rūsys"
   },
-  "Choose a valid image file": {
-    "lt-LT": "Pasirinkite tinkamą paveikslėlio failą"
-  },
   "Choose a valid ZIP file": {
     "lt-LT": "Pasirinkite tinkamą ZIP failą"
+  },
+  "Choose a valid image file": {
+    "lt-LT": "Pasirinkite tinkamą paveikslėlio failą"
   },
   "Choose file": {
     "lt-LT": "Pasirinkite failą"
@@ -89,11 +95,17 @@
   "Close": {
     "lt-LT": "Uždaryti"
   },
+  "Collapse": {
+    "lt-LT": "Suskleisti"
+  },
   "Comment": {
     "lt-LT": "Komentaras"
   },
   "Confirm": {
     "lt-LT": "Patvirtinti"
+  },
+  "Connect to the internet and try again.": {
+    "lt-LT": "Prisijunkite prie interneto ir bandykite dar kartą."
   },
   "Consumed": {
     "lt-LT": "Sunaudota"
@@ -101,17 +113,14 @@
   "Dark mode": {
     "lt-LT": "Tamsi tema"
   },
+  "Days after expiry to keep this product marked as expiring soon": {
+    "lt-LT": "Dienos po galiojimo pabaigos, kai produktas dar rodomas kaip greitai baigiantis galioti"
+  },
   "December": {
     "lt-LT": "Gruodžio"
   },
   "Decrease": {
     "lt-LT": "Mažinti"
-  },
-  "Drag": {
-    "lt-LT": "Vilkite"
-  },
-  "Drag to pan": {
-    "lt-LT": "Vilkite vaizdui perkelti"
   },
   "Detailed": {
     "lt-LT": "Detaliai"
@@ -122,8 +131,14 @@
   "Discard unsaved changes?": {
     "lt-LT": "Atmesti neišsaugotus pakeitimus?"
   },
+  "Drag": {
+    "lt-LT": "Vilkite"
+  },
   "Drag ZIP file here or click to select": {
     "lt-LT": "Vilkite ZIP failą čia arba spustelėkite ir pasirinkite"
+  },
+  "Drag to pan": {
+    "lt-LT": "Vilkite vaizdui perkelti"
   },
   "Duplicate": {
     "lt-LT": "Kopijuoti"
@@ -131,17 +146,17 @@
   "Edit": {
     "lt-LT": "Taisyti"
   },
-  "Edit entry": {
-    "lt-LT": "Taisyti produktą"
-  },
   "Edit category": {
     "lt-LT": "Taisyti kategoriją"
+  },
+  "Edit entry": {
+    "lt-LT": "Taisyti produktą"
   },
   "Edit variant": {
     "lt-LT": "Taisyti variantą"
   },
-  "e.g. 500": {
-    "lt-LT": "pvz. 500"
+  "Enter a valid expiry tolerance": {
+    "lt-LT": "Įveskite tinkamą galiojimo paklaidą"
   },
   "Enter category name": {
     "lt-LT": "Įveskite pavadinimą"
@@ -158,11 +173,23 @@
   "Error": {
     "lt-LT": "Klaida"
   },
+  "Examples: 7, 2 sav, 3 men, 1 m.": {
+    "lt-LT": "Pavyzdžiai: 7, 2 sav., 3 mėn., 1 m."
+  },
   "Expand": {
     "lt-LT": "Išplėsti"
   },
-  "Collapse": {
-    "lt-LT": "Suskleisti"
+  "Expired": {
+    "lt-LT": "Pasibaigusi galiojimo data"
+  },
+  "Expiring soon": {
+    "lt-LT": "Greitai baigsis galiojimo data"
+  },
+  "Expiry tolerance": {
+    "lt-LT": "Galiojimo paklaida"
+  },
+  "Expiry tolerance (days)": {
+    "lt-LT": "Galiojimo paklaida (dienomis)"
   },
   "Export": {
     "lt-LT": "Eksportuoti"
@@ -185,74 +212,23 @@
   "Friday": {
     "lt-LT": "Penktadienis"
   },
-  "Category": {
-    "lt-LT": "Kategorija"
-  },
-  "Category already exists": {
-    "lt-LT": "Tokia kategorija jau yra"
-  },
-  "Category is required": {
-    "lt-LT": "Kategorija yra privaloma"
-  },
-  "Category image": {
-    "lt-LT": "Kategorijos paveikslėlis"
-  },
-  "Category name": {
-    "lt-LT": "Kategorija"
-  },
-  "Parent product": {
-    "lt-LT": "Tėvinis produktas"
-  },
-  "No parent": {
-    "lt-LT": "Nėra"
-  },
-  "Valid until": {
-    "lt-LT": "Galioja iki"
-  },
-  "Expiry tolerance (days)": {
-    "lt-LT": "Galiojimo paklaida (dienomis)"
-  },
-  "Expiry tolerance": {
-    "lt-LT": "Galiojimo paklaida"
-  },
-  "Examples: 7, 2 sav, 3 men, 1 m.": {
-    "lt-LT": "Pavyzdžiai: 7, 2 sav., 3 mėn., 1 m."
-  },
-  "Enter a valid expiry tolerance": {
-    "lt-LT": "Įveskite tinkamą galiojimo paklaidą"
-  },
-  "Days after expiry to keep this product marked as expiring soon": {
-    "lt-LT": "Dienos po galiojimo pabaigos, kai produktas dar rodomas kaip greitai baigiantis galioti"
-  },
-  "No date": {
-    "lt-LT": "Data nenurodyta"
-  },
-  "Expired": {
-    "lt-LT": "Pasibaigusi galiojimo data"
-  },
-  "Expiring soon": {
-    "lt-LT": "Greitai baigsis galiojimo data"
-  },
-  "Cannot move a product with sub-products to another category": {
-    "lt-LT": "Negalima perkelti produkto, turinčio poproduktų, į kitą kategoriją"
-  },
-  "Categories": {
-    "lt-LT": "Kategorijos"
-  },
   "History": {
     "lt-LT": "Istorija"
+  },
+  "History years": {
+    "lt-LT": "Istorijos metai"
+  },
+  "Home": {
+    "lt-LT": "Namie"
+  },
+  "Home amounts?": {
+    "lt-LT": "Liko namie?"
   },
   "Import": {
     "lt-LT": "Importuoti"
   },
   "Increase": {
     "lt-LT": "Didinti"
-  },
-  "History years": {
-    "lt-LT": "Istorijos metai"
-  },
-  "Review": {
-    "lt-LT": "Peržiūra"
   },
   "Invalid Client ID": {
     "lt-LT": "Netinkamas kliento ID"
@@ -287,15 +263,6 @@
   "Mark as missing": {
     "lt-LT": "Pažymėti kaip trūkstamą"
   },
-  "Missing {count} product": {
-    "lt-LT": "Trūksta {count} produkto"
-  },
-  "Missing {count} products": {
-    "lt-LT": "Trūksta {count} produktų"
-  },
-  "No products missing": {
-    "lt-LT": "Produktų netrūksta"
-  },
   "Marked for removal": {
     "lt-LT": "Pažymėta šalinimui"
   },
@@ -304,6 +271,12 @@
   },
   "Menu": {
     "lt-LT": "Meniu"
+  },
+  "Missing {count} product": {
+    "lt-LT": "Trūksta {count} produkto"
+  },
+  "Missing {count} products": {
+    "lt-LT": "Trūksta {count} produktų"
   },
   "Monday": {
     "lt-LT": "Pirmadienis"
@@ -314,14 +287,11 @@
   "Move to": {
     "lt-LT": "Perkelti į"
   },
-  "Move variants": {
-    "lt-LT": "Perkelti variantus"
-  },
   "Move to discarded": {
     "lt-LT": "Perkelti į išmesta"
   },
-  "New product": {
-    "lt-LT": "Naujas produktas"
+  "Move variants": {
+    "lt-LT": "Perkelti variantus"
   },
   "Name": {
     "lt-LT": "Pavadinimas"
@@ -335,8 +305,32 @@
   "Name is required": {
     "lt-LT": "Pavadinimas yra privalomas"
   },
+  "New category": {
+    "lt-LT": "Nauja kategorija"
+  },
+  "New product": {
+    "lt-LT": "Naujas produktas"
+  },
+  "New variant": {
+    "lt-LT": "Naujas variantas"
+  },
+  "No connection": {
+    "lt-LT": "Nėra ryšio"
+  },
   "No data": {
     "lt-LT": "Duomenų nėra"
+  },
+  "No date": {
+    "lt-LT": "Data nenurodyta"
+  },
+  "No internet connection": {
+    "lt-LT": "Nėra interneto ryšio"
+  },
+  "No parent": {
+    "lt-LT": "Nėra"
+  },
+  "No products missing": {
+    "lt-LT": "Produktų netrūksta"
   },
   "November": {
     "lt-LT": "Lapkričio"
@@ -344,11 +338,23 @@
   "October": {
     "lt-LT": "Spalio"
   },
+  "Parent product": {
+    "lt-LT": "Tėvinis produktas"
+  },
+  "Product and inventory tracking": {
+    "lt-LT": "Produktų ir atsargų apskaita"
+  },
   "Products": {
     "lt-LT": "Produktai"
   },
+  "Quantities": {
+    "lt-LT": "Kiekiai"
+  },
   "Recycled": {
     "lt-LT": "Išmesta"
+  },
+  "Redo": {
+    "lt-LT": "Pakartoti"
   },
   "Remove": {
     "lt-LT": "Šalinti"
@@ -356,11 +362,11 @@
   "Remove image": {
     "lt-LT": "Pašalinti paveikslėlį"
   },
-  "View image": {
-    "lt-LT": "Peržiūrėti paveikslėlį"
-  },
   "Removing this year?": {
     "lt-LT": "Šie metai naikinami?"
+  },
+  "Review": {
+    "lt-LT": "Peržiūra"
   },
   "Saturday": {
     "lt-LT": "Šeštadienis"
@@ -368,8 +374,17 @@
   "Select category": {
     "lt-LT": "Pasirinkite kategoriją"
   },
+  "Select product": {
+    "lt-LT": "Pasirinkite produktą"
+  },
+  "Select variant": {
+    "lt-LT": "Pasirinkite variantą"
+  },
   "September": {
     "lt-LT": "Rugsėjo"
+  },
+  "Something suspicious?": {
+    "lt-LT": "Kažkas įtartino?"
   },
   "Suffix": {
     "lt-LT": "Žyma"
@@ -377,11 +392,17 @@
   "Summary": {
     "lt-LT": "Suvestinė"
   },
-  "Quantities": {
-    "lt-LT": "Kiekiai"
-  },
   "Sunday": {
     "lt-LT": "Sekmadienis"
+  },
+  "Suspicious": {
+    "lt-LT": "Įtartinas"
+  },
+  "Switch to English": {
+    "lt-LT": "Perjungti į anglų kalbą"
+  },
+  "Switch to Lithuanian": {
+    "lt-LT": "Perjungti į lietuvių kalbą"
   },
   "System preferred mode": {
     "lt-LT": "Sistemos tema"
@@ -404,8 +425,14 @@
   "Total quantity": {
     "lt-LT": "Bendrai"
   },
+  "Try again": {
+    "lt-LT": "Bandyti dar kartą"
+  },
   "Tuesday": {
     "lt-LT": "Antradienis"
+  },
+  "Undo": {
+    "lt-LT": "Grąžinti"
   },
   "Units": {
     "lt-LT": "Vienetai"
@@ -424,6 +451,9 @@
   },
   "Utilities": {
     "lt-LT": "Įrankiai"
+  },
+  "Valid until": {
+    "lt-LT": "Galioja iki"
   },
   "Variant": {
     "lt-LT": "Variantas"
@@ -449,8 +479,17 @@
   "Variants will be copied to": {
     "lt-LT": "Variantai bus nukopijuoti į"
   },
+  "View image": {
+    "lt-LT": "Peržiūrėti paveikslėlį"
+  },
   "Wednesday": {
     "lt-LT": "Trečiadienis"
+  },
+  "What": {
+    "lt-LT": "Kiek"
+  },
+  "When": {
+    "lt-LT": "Kada"
   },
   "Year": {
     "lt-LT": "Metai"
@@ -461,28 +500,10 @@
   "Yesterday": {
     "lt-LT": "Vakar"
   },
+  "e.g. 500": {
+    "lt-LT": "pvz. 500"
+  },
   "type to filter": {
     "lt-LT": "filtruokite"
-  },
-  "When": {
-    "lt-LT": "Kada"
-  },
-  "What": {
-    "lt-LT": "Kiek"
-  },
-  "Add suspicious": {
-    "lt-LT": "Pridėti įtartiną"
-  },
-  "Suspicious": {
-    "lt-LT": "Įtartinas"
-  },
-  "Something suspicious?": {
-    "lt-LT": "Kažkas įtartino?"
-  },
-  "Home amounts?": {
-    "lt-LT": "Liko namie?"
-  },
-  "Home": {
-    "lt-LT": "Namie"
   }
 }
