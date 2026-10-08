@@ -53,4 +53,30 @@ describe('uploadWithProgress', () => {
 
         await expect(result).rejects.toThrow('Invalid image');
     });
+
+    it('rejects on a network error', async () => {
+        const result = uploadWithProgress('POST', '/api/v1/imports', new FormData());
+
+        MockRequest.current.onerror();
+
+        await expect(result).rejects.toThrow('Upload failed');
+    });
+
+    it('rejects when the upload is cancelled', async () => {
+        const result = uploadWithProgress('POST', '/api/v1/imports', new FormData());
+
+        MockRequest.current.onabort();
+
+        await expect(result).rejects.toThrow('Upload cancelled');
+    });
+
+    it('includes the response status when the server returns plain text', async () => {
+        const result = uploadWithProgress('PUT', '/image', '{}');
+        const request = MockRequest.current;
+        request.status = 503;
+        request.responseText = 'Service unavailable';
+        request.onload();
+
+        await expect(result).rejects.toThrow('Upload failed (503)');
+    });
 });
