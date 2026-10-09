@@ -116,6 +116,25 @@ describe('<SwipePanel>', () => {
         expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
     });
 
+    it('opens and closes immediately when reduced motion is requested', () => {
+        const originalMatchMedia = window.matchMedia.bind(window);
+        window.matchMedia = (query) => ({
+            ...originalMatchMedia(query),
+            matches: query === '(prefers-reduced-motion: reduce)',
+        });
+        try {
+            const { rerender } = render(<TestWrapper active={{ id: 'test-id', offset: -100 }} />);
+
+            expect(screen.getByRole('group')).toHaveStyle({ transform: 'translateX(-100px)' });
+
+            rerender(<TestWrapper active={undefined} />);
+
+            expect(screen.queryByRole('group')).not.toBeInTheDocument();
+        } finally {
+            window.matchMedia = originalMatchMedia;
+        }
+    });
+
     it('renders first panel with ref for width measurement', () => {
         render(<TestWrapper active={{ id: 'test-id', data: { name: 'Test' }, offset: -100 }} />);
 

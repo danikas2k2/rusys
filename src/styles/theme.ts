@@ -2,6 +2,7 @@ import { createTheme, virtualColor, type MantineThemeColorsOverride } from '@man
 
 export function getTheme() {
     return createTheme({
+        respectReducedMotion: true,
         colors: [
             // missing catppuccin colors
             'flamingo',

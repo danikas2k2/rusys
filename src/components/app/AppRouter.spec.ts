@@ -7,6 +7,37 @@ const destinations = [
     { label: 'Kategorijos', path: '/categories', content: '[data-table="groups"]' },
 ];
 
+test.describe('reduced motion', () => {
+    test.use({ scenario: 'history' });
+    test.skip(({ isMobile }) => isMobile);
+
+    test('disables CSS motion across the app and startup loader', async ({ page }) => {
+        await page.goto('/');
+        await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
+        expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
+        await page.addStyleTag({ url: '/assets/loader.css' });
+
+        const movingElements = await page.evaluate(() => {
+            const loader = document.createElement('div');
+            loader.className = 'loader';
+            loader.innerHTML = '<div></div><div></div><div></div>';
+            document.body.append(loader);
+
+            return Array.from(document.querySelectorAll('body *'))
+                .filter((element) => !element.closest('nextjs-portal'))
+                .flatMap((element) => {
+                    const style = getComputedStyle(element);
+                    const durations = [style.animationDuration, style.transitionDuration].flatMap((value) =>
+                        value.split(',').map((duration) => Number.parseFloat(duration))
+                    );
+                    return durations.some((duration) => duration > 0) ? [element.outerHTML.slice(0, 120)] : [];
+                });
+        });
+
+        expect(movingElements).toEqual([]);
+    });
+});
+
 test.describe('desktop navigation', () => {
     test.use({ scenario: 'history' });
     test.skip(({ isMobile }) => isMobile);

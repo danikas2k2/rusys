@@ -2194,6 +2194,46 @@ describe('<SwipeableRow>', () => {
     });
 
     describe('reveal transition (dragApiRef.setOffset succeeds)', () => {
+        it('keeps tracking the finger immediately with reduced motion', async () => {
+            const originalMatchMedia = window.matchMedia.bind(window);
+            window.matchMedia = (query) => ({
+                ...originalMatchMedia(query),
+                matches: query === '(prefers-reduced-motion: reduce)',
+            });
+            mockSetOffset.mockReturnValue(true);
+
+            try {
+                render(
+                    <MockTheme>
+                        <MockActiveContent setActive={setActive}>
+                            <Table>
+                                <Table.Tbody>
+                                    <SwipeableRow id="test-1" data={mockData} ref={mockRef}>
+                                        <Table.Td>Cell</Table.Td>
+                                    </SwipeableRow>
+                                </Table.Tbody>
+                            </Table>
+                        </MockActiveContent>
+                    </MockTheme>
+                );
+
+                const row = screen.getByRole('row');
+                const pointer = user.setup();
+
+                await pointer.pointer({ keys: '[MouseLeft>]', target: row, coords: { x: 200, y: 50 } });
+                await pointer.pointer({ target: row, coords: { x: 200 - POINTER_MOVE_THRESHOLD - 5, y: 50 } });
+                await pointer.pointer({ target: row, coords: { x: 200 - POINTER_MOVE_THRESHOLD - 8, y: 50 } });
+                await pointer.pointer({ target: row, coords: { x: 200 - POINTER_MOVE_THRESHOLD - 10, y: 50 } });
+
+                expect(mockSetOffset).toHaveBeenCalledTimes(2);
+                expect(mockSetOffset).toHaveBeenLastCalledWith('test-1', expect.any(Number), true);
+
+                await pointer.pointer({ keys: '[/MouseLeft]', target: row });
+            } finally {
+                window.matchMedia = originalMatchMedia;
+            }
+        });
+
         it('arms the reveal freeze once the panel node is found, and does not re-write while still within it', async () => {
             mockSetOffset.mockReturnValue(true);
 

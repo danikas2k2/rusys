@@ -129,6 +129,35 @@ describe('<ConfirmableModal>', () => {
         }
     });
 
+    it('scrolls instantly when reduced motion is requested', async () => {
+        const originalMatchMedia = window.matchMedia.bind(window);
+        window.matchMedia = (query) => ({
+            ...originalMatchMedia(query),
+            matches: query === '(prefers-reduced-motion: reduce)',
+        });
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        const scrollIntoView = vi.fn();
+        HTMLElement.prototype.scrollIntoView = scrollIntoView;
+
+        try {
+            render(
+                <MockTheme>
+                    <ConfirmableModal opened isDirty={() => false} onClose={onClose}>
+                        {() => <input aria-label="Name" />}
+                    </ConfirmableModal>
+                </MockTheme>
+            );
+
+            await user.click(screen.getByRole('textbox', { name: 'Name' }));
+            vi.advanceTimersByTime(300);
+
+            expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', behavior: 'instant' });
+        } finally {
+            window.matchMedia = originalMatchMedia;
+            vi.useRealTimers();
+        }
+    });
+
     it('does not scroll on focus for non-input elements', async () => {
         vi.useFakeTimers({ shouldAdvanceTime: true });
         const scrollIntoView = vi.fn();

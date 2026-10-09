@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useActiveContent, type ActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useSwipePanelDragApi, useSwipePanelWidth } from '~/components/runtime/SwipeControlsContext';
+import { prefersReducedMotion } from '~/lib/utils/motion';
 
 import './SwipePanel.css';
 
@@ -62,6 +63,10 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
     }, [dragApiRef]);
 
     const closeAllPanels = useCallback(() => {
+        if (prefersReducedMotion()) {
+            setPanels([]);
+            return;
+        }
         setPanels((prev) => {
             const closingIds = prev.map((p) => p.id);
             // Safety net: if a panel was already at offset 0 (e.g. it was mounted hidden for
@@ -91,6 +96,7 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
             }
 
             const offset = active.offset!;
+            const reduceMotion = prefersReducedMotion();
             setPanels((prev) => {
                 const found = prev.findIndex((p) => p.id === active.id);
                 if (found < 0) {
@@ -98,7 +104,7 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
                     // (a live drag, `instant`), mount it hidden - the effect below then
                     // animates it open, so it always visibly unfolds into place instead of
                     // appearing there instantly
-                    const panel = { id: active.id, rect, offset: active.instant ? offset : 0 };
+                    const panel = { id: active.id, rect, offset: active.instant || reduceMotion ? offset : 0 };
                     return [...prev, panel];
                 }
                 const panel = { id: active.id, rect, offset };
@@ -111,7 +117,13 @@ export function SwipePanel<D = object>({ children }: React.PropsWithChildren): R
     // Reveal a freshly-mounted, non-instant panel: move it from hidden (0) to its real
     // offset on the next frame, so the CSS transition animates the unfold
     useEffect(() => {
-        if (active?.action || active?.offset === undefined || active.instant || !active.offset) {
+        if (
+            active?.action ||
+            active?.offset === undefined ||
+            active.instant ||
+            !active.offset ||
+            prefersReducedMotion()
+        ) {
             return;
         }
 

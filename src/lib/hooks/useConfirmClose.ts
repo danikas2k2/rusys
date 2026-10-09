@@ -12,7 +12,8 @@ export function useConfirmClose(isDirty: () => boolean, onClose: () => void): Co
 
     const handleClose = useCallback(() => {
         if (isDirty()) {
-            setConfirming(true);
+            // A confirmation opened during Escape can receive that same key event and close again.
+            window.setTimeout(() => setConfirming(true), 0);
         } else {
             onClose();
         }

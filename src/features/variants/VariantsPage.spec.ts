@@ -48,6 +48,7 @@ test.describe('variants', () => {
         await page.goto('/variants');
         await page.getByRole('row', { name: /Didelis indelis/ }).click();
         const edit = page.getByRole('dialog', { name: 'Taisyti variantą' });
+        await expect(edit.getByRole('textbox', { name: 'Variantas' })).toBeFocused();
         const category = edit.getByRole('combobox', { name: 'Kategorija' });
         await category.click();
         await page.getByRole('option', { name: 'Daržovės' }).click();

@@ -11,6 +11,7 @@ import { useMissingOnly } from '~/features/products/MissingOnlyContext';
 import { ProductTile } from '~/features/products/ProductTile';
 import { buildProductGridTree, type ProductGridNode } from '~/features/products/utils/buildProductGridTree';
 import { getId } from '~/lib/utils/id';
+import { prefersReducedMotion } from '~/lib/utils/motion';
 import { useProducts } from '~/store/products';
 
 import './ProductsGrid.css';
@@ -92,7 +93,10 @@ export function ProductsGrid() {
             const frame = requestAnimationFrame(() => setDisplayProducts(allProducts));
             return () => cancelAnimationFrame(frame);
         }
-        const timeout = window.setTimeout(() => startTransition(() => setDisplayProducts(allProducts)), 220);
+        const timeout = window.setTimeout(
+            () => startTransition(() => setDisplayProducts(allProducts)),
+            prefersReducedMotion() ? 0 : 220
+        );
         return () => window.clearTimeout(timeout);
     }, [allProducts, displayProducts]);
     const quickFilter = useQuickFilterPredicate();
