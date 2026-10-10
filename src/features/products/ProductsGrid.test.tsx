@@ -180,6 +180,44 @@ describe('<ProductsGrid>', () => {
         }
     });
 
+    it('updates changed membership without the dialog delay when reduced motion is requested', () => {
+        const originalMatchMedia = window.matchMedia.bind(window);
+        window.matchMedia = (query) => ({
+            ...originalMatchMedia(query),
+            matches: query === '(prefers-reduced-motion: reduce)',
+        });
+        vi.useFakeTimers();
+
+        try {
+            const first = { group: 'Uogienės', name: 'Braškės' };
+            const added = { group: 'Uogienės', name: 'Avietės' };
+            vi.mocked(useProducts).mockReturnValueOnce([first]).mockReturnValue([first, added]);
+            const view = render(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsGrid />
+                    </MockRedux>
+                </MockTheme>
+            );
+            view.rerender(
+                <MockTheme>
+                    <MockRedux state={state}>
+                        <ProductsGrid />
+                    </MockRedux>
+                </MockTheme>
+            );
+
+            act(() => vi.advanceTimersByTime(0));
+
+            expect(vi.mocked(ProductTile).mock.calls.some(([props]) => props.product === added)).toBe(true);
+
+            view.unmount();
+        } finally {
+            window.matchMedia = originalMatchMedia;
+            vi.useRealTimers();
+        }
+    });
+
     describe('tree', () => {
         const parentProduct = {
             group: 'Uogienės',

@@ -3,6 +3,7 @@ import React from 'react';
 
 import { DiscardChangesDialog } from '~/components/common/DiscardChangesDialog';
 import { useConfirmClose } from '~/lib/hooks/useConfirmClose';
+import { prefersReducedMotion } from '~/lib/utils/motion';
 
 export interface ConfirmableModalProps extends Omit<ModalProps, 'children'> {
     isDirty: () => boolean;
@@ -17,7 +18,10 @@ const SCROLLABLE_FOCUS_TAGS = new Set(['INPUT', 'TEXTAREA']);
 function handleFocusCapture(event: React.FocusEvent<HTMLDivElement>): void {
     const target = event.target;
     if (target instanceof HTMLElement && SCROLLABLE_FOCUS_TAGS.has(target.tagName)) {
-        window.setTimeout(() => target.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), FOCUS_SCROLL_DELAY);
+        window.setTimeout(
+            () => target.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion() ? 'instant' : 'smooth' }),
+            FOCUS_SCROLL_DELAY
+        );
     }
 }
 

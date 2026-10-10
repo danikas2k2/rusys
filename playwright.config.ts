@@ -40,6 +40,7 @@ export default defineConfig({
         baseURL: 'http://127.0.0.1:3022',
         colorScheme: 'light',
         locale: 'lt-LT',
+        reducedMotion: 'reduce',
         trace: 'retain-on-failure',
         screenshot: 'only-on-failure',
     },

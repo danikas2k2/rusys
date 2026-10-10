@@ -61,11 +61,28 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition-duration: 0s !important;
+        transition-delay: 0s !important;
+        scroll-behavior: auto !important;
+    }
+
     ::view-transition-old(*),
     ::view-transition-new(*),
     ::view-transition-group(*) {
-        animation-duration: 0s !important;
-        animation-delay: 0s !important;
+        animation: none !important;
+    }
+
+    .ui-Modal-content {
+        transform: translateY(0);
+        backface-visibility: hidden;
+    }
+
+    .ui-Button-loader {
+        transform: translate(-50%, calc(-50% + 0.0625rem));
     }
 }
 
@@ -205,6 +222,13 @@ select,
 .ui-Drawer-overlay {
     opacity: 0.2;
     backdrop-filter: blur(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ui-Modal-overlay,
+    .ui-Drawer-overlay {
+        opacity: 1;
+    }
 }
 
 .ui-Modal-close {

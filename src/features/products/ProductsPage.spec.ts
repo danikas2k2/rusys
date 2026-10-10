@@ -105,6 +105,7 @@ test.describe('products', () => {
         amount = await openProduct(page, 'Aviečių džemas');
         await amount.getByRole('button', { name: 'Taisyti' }).click();
         edit = page.getByRole('dialog', { name: 'Taisyti produktą' });
+        await expect(edit.getByRole('textbox', { name: 'Produktas' })).toBeFocused();
         const category = edit.getByRole('combobox', { name: 'Kategorija' });
         await category.click();
         const vegetables = page.getByRole('option', { name: 'Daržovės' });
@@ -177,6 +178,7 @@ test.describe('products', () => {
         await expect(productTile(page, 'Avietės')).toBeVisible();
         await page.locator('[data-action="add"]').click();
         const add = page.getByRole('dialog', { name: 'Pridėti naują produktą' });
+        await expect(add.getByRole('textbox', { name: 'Produktas' })).toBeFocused();
         await add.getByRole('textbox', { name: 'Produktas' }).fill('Serbentai');
         await page.keyboard.press('Escape');
         await page

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockThemeActive } from '@tests/MockThemeActive';
 
@@ -201,6 +201,33 @@ describe('<AmountVariantsTab>', () => {
             </MockThemeActive>
         );
     }
+
+    it.each([
+        { reduceMotion: false, behavior: 'smooth' },
+        { reduceMotion: true, behavior: 'instant' },
+    ] as const)('scrolls expanded variants with $behavior behavior', async ({ reduceMotion, behavior }) => {
+        const originalMatchMedia = window.matchMedia.bind(window);
+        window.matchMedia = (query) => ({
+            ...originalMatchMedia(query),
+            matches: query === '(prefers-reduced-motion: reduce)' && reduceMotion,
+        });
+        const view = renderTab();
+        const container = view.container.querySelector<HTMLElement>('.amount-variants-list')!;
+        const item = view.container.querySelector<HTMLElement>('[data-amount-variant-key="d"]')!;
+        const scrollBy = vi.fn();
+        container.scrollBy = scrollBy;
+        vi.spyOn(container, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 100, 100));
+        vi.spyOn(item, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 120, 100, 40));
+
+        try {
+            await user.click(screen.getByRole('button', { name: /\bd\b/ }));
+
+            await waitFor(() => expect(scrollBy).toHaveBeenCalledWith({ top: 68, behavior }));
+        } finally {
+            view.unmount();
+            window.matchMedia = originalMatchMedia;
+        }
+    });
 
     it('reports changes via onChangesUpdate as deltas are entered and cleared', async () => {
         const onChangesUpdate = vi.fn();

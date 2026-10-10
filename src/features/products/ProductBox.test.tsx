@@ -446,7 +446,7 @@ describe('<ProductBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('button', { name: 'Discard' })).toBeInTheDocument();
+            await expect(screen.findByRole('button', { name: 'Discard' })).resolves.toBeInTheDocument();
         });
 
         it('closes after confirming discard', async () => {
@@ -458,7 +458,7 @@ describe('<ProductBox>', () => {
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'test');
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
-            await user.click(screen.getByRole('button', { name: 'Discard' }));
+            await user.click(await screen.findByRole('button', { name: 'Discard' }));
 
             expect(onClose).toHaveBeenCalledWith();
         });
@@ -472,6 +472,7 @@ describe('<ProductBox>', () => {
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'test');
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
+            await screen.findByRole('button', { name: 'Discard' });
 
             const openAlertDialog = screen.getAllByRole('alertdialog').find((el) => el.textContent)!;
             await user.click(within(openAlertDialog).getByRole('button', { name: 'Cancel' }));

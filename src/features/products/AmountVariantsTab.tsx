@@ -58,6 +58,7 @@ import { useUpdatingProducts } from '~/features/products/UpdatingProductsContext
 import { VariantImagePicker } from '~/features/products/VariantImagePicker';
 import { VariantBox } from '~/features/variants/VariantBox';
 import { useLabels } from '~/lib/hooks/useLabels';
+import { prefersReducedMotion } from '~/lib/utils/motion';
 import { useProducts } from '~/store/products';
 import { useProfile } from '~/store/profile';
 import { useAllVariants, useGroupVariantComparator } from '~/store/variants';
@@ -227,7 +228,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
                     ? itemRect.top - containerRect.top - margin
                     : Math.max(0, itemRect.bottom - (containerRect.bottom - footerHeight) + margin);
             if (offset && typeof container.scrollBy === 'function') {
-                container.scrollBy({ top: offset, behavior: 'smooth' });
+                container.scrollBy({ top: offset, behavior: prefersReducedMotion() ? 'instant' : 'smooth' });
             }
         };
 

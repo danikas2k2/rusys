@@ -74,3 +74,9 @@ body {
         transform: scale(1);
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .loader div {
+        animation: none;
+    }
+}

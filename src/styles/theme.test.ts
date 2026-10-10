@@ -4,6 +4,8 @@ describe('theme', () => {
     it('includes component configurations with accessibility defaults', () => {
         const theme = getTheme();
 
+        expect(theme.respectReducedMotion).toBe(true);
+
         expect(theme.components).toMatchObject({
             Alert: { defaultProps: { role: 'alert' } },
             Loader: { defaultProps: { role: 'progressbar' } },

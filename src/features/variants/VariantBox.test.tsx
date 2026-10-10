@@ -213,7 +213,7 @@ describe('<VariantBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('button', { name: 'Discard' })).toBeInTheDocument();
+            await expect(screen.findByRole('button', { name: 'Discard' })).resolves.toBeInTheDocument();
         });
 
         it('closes after confirming discard', async () => {
@@ -225,7 +225,7 @@ describe('<VariantBox>', () => {
 
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test');
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
-            await user.click(screen.getByRole('button', { name: 'Discard' }));
+            await user.click(await screen.findByRole('button', { name: 'Discard' }));
 
             expect(onClose).toHaveBeenCalledWith();
         });
@@ -239,7 +239,7 @@ describe('<VariantBox>', () => {
 
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'test');
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
-            await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }));
+            await user.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Cancel' }));
 
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveValue('test');

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from
 import { useActiveRow, type ActiveContentData } from '~/components/runtime/ActiveContentContext';
 import { useSwipePanelDragApi, useSwipePanelWidth } from '~/components/runtime/SwipeControlsContext';
 import { type DraggableRowProps } from '~/components/table/DraggableRow';
+import { prefersReducedMotion } from '~/lib/utils/motion';
 import { POINTER_MOVE_THRESHOLD } from '~/lib/utils/pointer';
 import { dispatchNativeCancelEvents } from '~/lib/utils/pointEvents';
 
@@ -223,7 +224,7 @@ export function SwipeableRow<D = ActiveContentData>({
                 if (dragApiRef.current.setOffset(latestId, dx, false)) {
                     revealedRef.current = true;
                     revealArmedDxRef.current = dx;
-                    revealDeadlineRef.current = performance.now() + REVEAL_DURATION_MS;
+                    revealDeadlineRef.current = prefersReducedMotion() ? 0 : performance.now() + REVEAL_DURATION_MS;
                 }
             } else if (
                 performance.now() < revealDeadlineRef.current &&
