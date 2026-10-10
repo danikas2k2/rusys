@@ -23,16 +23,18 @@ interface ProductGridSectionProps {
     nodes: readonly ProductGridNode[];
     annual?: boolean;
     toggleHandlers: ReadonlyMap<string, () => void>;
+    eagerInitialImages?: boolean;
 }
 
-function ProductGridSection({ nodes, annual, toggleHandlers }: ProductGridSectionProps) {
+function ProductGridSection({ nodes, annual, toggleHandlers, eagerInitialImages = false }: ProductGridSectionProps) {
     return (
         <SimpleGrid cols={GRID_COLS} spacing={GRID_SPACING}>
-            {nodes.map((node) => {
+            {nodes.map((node, index) => {
                 const id = getId(node.product.group, node.product.name);
                 const tile = (
                     <ProductTile
                         product={node.product}
+                        imageLoading={eagerInitialImages && index < 2 ? 'eager' : 'lazy'}
                         annual={annual}
                         hasChildren={node.hasChildren}
                         expanded={node.expanded}
@@ -147,7 +149,12 @@ export function ProductsGrid() {
         <LoadableContent resourceKey="products" loader={useGetProducts()} hasData={useProductsHasData()}>
             <ViewTransition update="missing-products-update" default="none">
                 <div data-grid="products">
-                    <ProductGridSection nodes={nodes} annual={annual} toggleHandlers={toggleHandlers} />
+                    <ProductGridSection
+                        nodes={nodes}
+                        annual={annual}
+                        toggleHandlers={toggleHandlers}
+                        eagerInitialImages
+                    />
                 </div>
             </ViewTransition>
         </LoadableContent>

@@ -61,8 +61,7 @@
         inset-block-start: 4px;
         width: 76px;
         height: 76px;
-        background-size: cover;
-        background-position: center;
+        object-fit: cover;
         filter: blur(2px) opacity(0.25);
         pointer-events: none;
     }
@@ -71,16 +70,10 @@
         [data-photo-bg] {
             position: absolute;
             inset: 0;
-            background-image: var(--photo-background-url);
-            background-size: cover;
-            background-position: center;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             filter: blur(2px) opacity(0.75);
-        }
-
-        @supports (/*noinspection CssUnknownTarget*/ background-image: image-set(url("/image.png") 1x)) {
-            [data-photo-bg] {
-                background-image: var(--photo-background-set);
-            }
         }
 
         [data-scrim] {

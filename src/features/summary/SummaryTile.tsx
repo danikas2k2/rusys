@@ -17,9 +17,19 @@ interface SummaryTileProps {
     image?: string;
     photo?: string;
     hidden?: boolean;
+    imageLoading?: 'eager' | 'lazy';
 }
 
-export function SummaryTile({ group, name, year, amounts, image, photo, hidden = false }: SummaryTileProps) {
+export function SummaryTile({
+    group,
+    name,
+    year,
+    amounts,
+    image,
+    photo,
+    hidden = false,
+    imageLoading,
+}: SummaryTileProps) {
     const setActive = useSetActiveContent<SummaryHistoryData>();
     const yearAmounts = amounts?.find((item) => item.year === year)?.amounts;
     const consumed = useMemo(() => yearAmounts?.filter((amount) => amount.recycled === false) ?? [], [yearAmounts]);
@@ -39,6 +49,7 @@ export function SummaryTile({ group, name, year, amounts, image, photo, hidden =
             tileKind="summary"
             image={image}
             photo={photo}
+            imageLoading={imageLoading}
             onClick={handleClick}
             hidden={hidden}
             empty={isEmpty}

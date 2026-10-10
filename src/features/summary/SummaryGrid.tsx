@@ -24,7 +24,7 @@ export function SummaryGrid() {
     return (
         <LoadableContent resourceKey="summary" loader={useGetSummary()} hasData={useSummaryHasData()}>
             <SimpleGrid data-grid="summary" cols={GRID_COLS} spacing="xs">
-                {summary.map(({ name, years: amounts, image, photo }) => {
+                {summary.map(({ name, years: amounts, image, photo }, index) => {
                     const year = amounts?.find(({ amounts: yearAmounts }) => yearAmounts.length)?.year ?? fallbackYear;
                     return (
                         <SummaryTile
@@ -35,6 +35,7 @@ export function SummaryGrid() {
                             amounts={amounts}
                             image={image}
                             photo={photo}
+                            imageLoading={index < 2 && quickFilter(name) ? 'eager' : 'lazy'}
                             hidden={!quickFilter(name)}
                         />
                     );

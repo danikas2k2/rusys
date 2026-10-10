@@ -355,7 +355,7 @@ describe('<ProductTile>', () => {
             expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-photo', 'false');
         });
 
-        it('shows the image as an 80x80 corner watermark when icon-sized (no photo)', () => {
+        it('shows the image as a corner watermark when icon-sized (no photo)', () => {
             const productWithImage = { ...product, image: '/images/ab/cd/product.png' };
 
             const { container } = render(
@@ -364,10 +364,10 @@ describe('<ProductTile>', () => {
                 </MockApp>
             );
 
-            expect(container.querySelector('[data-icon-bg]')).toHaveStyle({
-                backgroundImage: 'url(/images/ab/cd/product.png)',
-            });
-            expect(container.querySelector('img')).not.toBeInTheDocument();
+            expect(container.querySelector('[data-icon-bg]')?.getAttribute('src')).toContain(
+                '/images/ab/cd/product.png?w='
+            );
+            expect(container.querySelector('[data-icon-bg]')).toHaveAttribute('loading', 'lazy');
             expect(screen.getByText(name).closest('[data-tile="product"]')).toHaveAttribute('data-photo', 'false');
         });
 
@@ -388,18 +388,11 @@ describe('<ProductTile>', () => {
 
             expect(tile).toHaveAttribute('data-photo', 'true');
 
-            const photoBackground = container.querySelector<HTMLElement>('[data-photo-bg]')!;
+            const photoBackground = container.querySelector<HTMLImageElement>('[data-photo-bg]')!;
 
-            expect(photoBackground.style.getPropertyValue('--photo-background-url')).toBe(
-                'url("/images/ab/cd/product.png")'
-            );
-            expect(photoBackground.style.getPropertyValue('--photo-background-set')).toContain(
-                '/images/ab/cd/product.png?w=384'
-            );
-            expect(photoBackground.style.getPropertyValue('--photo-background-set')).toContain(
-                '/images/ab/cd/product.png?w=640'
-            );
-            expect(container.querySelector('img')).not.toBeInTheDocument();
+            expect(photoBackground.getAttribute('srcset')).toContain('/images/ab/cd/product.png?w=384');
+            expect(photoBackground.getAttribute('srcset')).toContain('/images/ab/cd/product.png?w=640');
+            expect(photoBackground).toHaveAttribute('loading', 'lazy');
         });
     });
 });
