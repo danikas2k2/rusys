@@ -6,6 +6,7 @@ Generate commit messages in English using exactly this structure:
 - <change detail 2>
 
 Rules:
+
 - Output only the commit message, without Markdown code fences.
 - Separate the subject and bullet list with one blank line.
 - Use as many bullets as needed; keep them concise.
