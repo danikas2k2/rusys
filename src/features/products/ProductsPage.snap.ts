@@ -9,6 +9,16 @@ test('products page', async ({ page }) => {
     await expect(page).toHaveScreenshot(['ProductsPage', 'products-page.png']);
 });
 
+test.describe('review', () => {
+    test.use({ scenario: 'review' });
+
+    test('products page with missing items', async ({ page }) => {
+        await page.goto('/');
+        await expect(productTile(page, 'Avietės')).toBeVisible();
+        await expect(page).toHaveScreenshot(['ProductsPage', 'products-page-missing.png']);
+    });
+});
+
 test.describe('with images', () => {
     test.use({ scenario: 'images' });
 
