@@ -125,6 +125,7 @@ export function ProductPhotoPreview({ photo, onError, onOpenChange }: ProductPho
                     alt=""
                     width={48}
                     height={48}
+                    loading="eager"
                     loader={photo.startsWith('/images/') ? localImageLoader : undefined}
                     unoptimized={photo.includes('://') || photo.startsWith('data:')}
                     onError={onError}
@@ -153,6 +154,7 @@ export function ProductPhotoPreview({ photo, onError, onOpenChange }: ProductPho
                     <img
                         src={photo}
                         alt=""
+                        loading="eager"
                         draggable={false}
                         onError={onError}
                         style={zoomed ? { transform: `translate(${offset.x}px, ${offset.y}px)` } : undefined}

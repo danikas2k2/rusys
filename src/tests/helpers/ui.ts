@@ -13,8 +13,7 @@ export async function openSummaryHistory(page: Page) {
     await page.goto('/summary');
     const tile = page.locator('[data-summary-tile]').filter({ hasText: 'Avietės' });
     await tile.click();
-    const history = page.getByRole('dialog').last();
-    return history;
+    return page.getByRole('dialog').last();
 }
 
 export async function waitForImages(locator: Locator, count: number) {
@@ -30,15 +29,9 @@ export async function waitForImages(locator: Locator, count: number) {
 }
 
 export async function waitForTileBackground(tile: Locator) {
-    const icon = tile.locator('[data-icon-bg]').first();
-    await expect.poll(() => icon.evaluate((element) => getComputedStyle(element).backgroundImage)).toMatch(/^url\(/);
-    await icon.evaluate(async (element) => {
-        const source = getComputedStyle(element).backgroundImage.match(/^url\(["']?(.*?)["']?\)$/)?.[1];
-        if (!source) {
-            throw new Error('Tile has no background image');
-        }
-        const image = new Image();
-        image.src = source;
-        await image.decode();
-    });
+    const image = tile.locator('[data-icon-bg], [data-photo-bg]').first();
+    await expect(image).toBeVisible();
+    await expect
+        .poll(() => image.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 0))
+        .toBe(true);
 }

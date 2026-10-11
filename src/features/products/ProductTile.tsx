@@ -20,6 +20,7 @@ export interface ProductTileProps {
     product: Product;
     annual?: boolean;
     hidden?: boolean;
+    imageLoading?: 'eager' | 'lazy';
     hasChildren?: boolean;
     expanded?: boolean;
     onToggleExpand?: () => void;
@@ -52,6 +53,7 @@ function ProductTileComponent({
     product,
     annual = false,
     hidden = false,
+    imageLoading,
     hasChildren = false,
     expanded = false,
     onToggleExpand,
@@ -115,6 +117,7 @@ function ProductTileComponent({
             tileKind="product"
             image={product.image}
             photo={product.photo}
+            imageLoading={imageLoading}
             onClick={handleClick}
             hidden={hidden}
             empty={isEmptyTile}

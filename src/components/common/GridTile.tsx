@@ -1,39 +1,17 @@
 import { Card, Group, Stack, Text } from '@mantine/core';
-import { getImageProps } from 'next/image';
+import Image from 'next/image';
 import React from 'react';
 
 import { localImageLoader } from '~/lib/utils/localImageLoader';
 
 import './GridTile.css';
 
-function getPhotoBackground(photo: string): string {
-    const { props } = getImageProps({
-        src: photo,
-        alt: '',
-        width: 320,
-        height: 240,
-        loader: photo.startsWith('/images/') ? localImageLoader : undefined,
-        unoptimized: photo.includes('://') || photo.startsWith('data:'),
-    });
-
-    if (!props.srcSet) {
-        return `url("${props.src}")`;
-    }
-
-    return `image-set(${props.srcSet
-        .split(', ')
-        .map((candidate) => {
-            const [url, density] = candidate.split(' ');
-            return `url("${url}") ${density}`;
-        })
-        .join(', ')})`;
-}
-
 interface GridTileProps {
     name: string;
     tileKind: 'product' | 'summary';
     image?: string;
     photo?: string;
+    imageLoading?: 'eager' | 'lazy';
     hidden?: boolean;
     empty?: boolean;
     onClick?: () => void;
@@ -51,6 +29,7 @@ export function GridTile({
     tileKind,
     image,
     photo,
+    imageLoading = 'lazy',
     hidden = false,
     empty = false,
     onClick,
@@ -80,17 +59,31 @@ export function GridTile({
         >
             {isPhoto && (
                 <>
-                    <div
+                    <Image
                         data-photo-bg
-                        style={{
-                            '--photo-background-url': `url("${photo}")`,
-                            '--photo-background-set': getPhotoBackground(photo),
-                        }}
+                        src={photo}
+                        alt=""
+                        width={320}
+                        height={240}
+                        loading={imageLoading}
+                        loader={photo.startsWith('/images/') ? localImageLoader : undefined}
+                        unoptimized={photo.includes('://') || photo.startsWith('data:')}
                     />
                     <div data-scrim />
                 </>
             )}
-            {isIcon && <div data-icon-bg style={{ backgroundImage: `url(${image})` }} />}
+            {isIcon && (
+                <Image
+                    data-icon-bg
+                    src={image}
+                    alt=""
+                    width={80}
+                    height={80}
+                    loading={imageLoading}
+                    loader={image.startsWith('/images/') ? localImageLoader : undefined}
+                    unoptimized={image.includes('://') || image.startsWith('data:')}
+                />
+            )}
             <Stack gap={6} data-content h="100%">
                 {leading ?? <span data-tile-icon />}
                 <Group data-tile-heading justify="space-between" wrap="nowrap" gap={6} align="flex-start">

@@ -71,12 +71,12 @@ describe('<GridTile>', () => {
             'data-year': '2025',
         });
 
-        const photoBackground = container.querySelector<HTMLElement>('[data-photo-bg]')!;
+        const photoBackground = container.querySelector<HTMLImageElement>('[data-photo-bg]')!;
 
-        expect(photoBackground.style.getPropertyValue('--photo-background-url')).toBe('url("/photo.jpg")');
-        expect(photoBackground.style.getPropertyValue('--photo-background-set')).toContain('image-set(');
-        expect(photoBackground.style.getPropertyValue('--photo-background-set')).toContain(' 1x');
-        expect(photoBackground.style.getPropertyValue('--photo-background-set')).toContain(' 2x');
+        expect(photoBackground.getAttribute('src')).toContain('%2Fphoto.jpg');
+        expect(photoBackground).toHaveAttribute('loading', 'lazy');
+        expect(photoBackground).toHaveAttribute('width', '320');
+        expect(photoBackground).toHaveAttribute('height', '240');
         expect(container.querySelector('[data-scrim]')).toBeInTheDocument();
         expect(container.querySelector('[data-icon-bg]')).not.toBeInTheDocument();
         expect(screen.getByText('Avietės')).toHaveAttribute('data-text-shadow', 'true');
@@ -97,8 +97,15 @@ describe('<GridTile>', () => {
         expect(screen.getByRole('button', { name: 'Available' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Expand' })).toBeInTheDocument();
         expect(container.querySelector('[data-tile-icon]')).not.toBeInTheDocument();
-        expect(container.querySelector('[data-icon-bg]')).toHaveStyle({ backgroundImage: 'url(/icon.png)' });
+        expect(container.querySelector('[data-icon-bg]')?.getAttribute('src')).toContain('%2Ficon.png');
+        expect(container.querySelector('[data-icon-bg]')).toHaveAttribute('loading', 'lazy');
         expect(screen.getByText('Avietės')).toHaveAttribute('data-text-shadow', 'false');
         expect(container.querySelector('[data-overlay]')).toHaveTextContent('Recycled');
+    });
+
+    it('loads an immediately visible tile image eagerly', () => {
+        const { container } = renderTile(<GridTile {...baseProps} photo="/photo.jpg" imageLoading="eager" />);
+
+        expect(container.querySelector('[data-photo-bg]')).toHaveAttribute('loading', 'eager');
     });
 });

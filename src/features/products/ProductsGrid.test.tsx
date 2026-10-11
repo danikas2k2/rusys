@@ -64,6 +64,31 @@ describe('<ProductsGrid>', () => {
         expect(ProductTile).toHaveBeenCalledTimes(uogienesProducts.length);
     });
 
+    it('loads the first two product images eagerly and later ones lazily', () => {
+        vi.mocked(useProducts).mockReturnValue(
+            Array.from({ length: 8 }, (_, index) => ({ ...uogienesProducts[0]!, name: `Product ${index}` }))
+        );
+
+        render(
+            <MockTheme>
+                <MockRedux state={state}>
+                    <ProductsGrid />
+                </MockRedux>
+            </MockTheme>
+        );
+
+        expect(vi.mocked(ProductTile).mock.calls.map(([props]) => props.imageLoading)).toStrictEqual([
+            'eager',
+            'eager',
+            'lazy',
+            'lazy',
+            'lazy',
+            'lazy',
+            'lazy',
+            'lazy',
+        ]);
+    });
+
     it('renders only tiles for the selected group', () => {
         vi.mocked(useGroupFilter).mockReturnValueOnce(['Daržovės', vi.fn()]);
         const darzovesProducts = products.filter((p) => p.group === 'Daržovės');

@@ -45,7 +45,7 @@ describe('<SummaryTile>', () => {
         expect(screen.getByText('Avietės')).toBeInTheDocument();
         expect(screen.getByText('5')).toBeInTheDocument();
         expect(screen.getByText('2')).toBeInTheDocument();
-        expect(document.querySelector('[data-icon-bg]')).toHaveStyle({ backgroundImage: 'url(/avietes.png)' });
+        expect(document.querySelector('[data-icon-bg]')?.getAttribute('src')).toContain('%2Favietes.png');
         expect(document.querySelector('[data-type="consumed"]')).toContainElement(screen.getByText('5'));
         expect(document.querySelector('[data-type="recycled"]')).toContainElement(screen.getByText('2'));
         expect(AnnotatedTotalAmounts).toHaveBeenNthCalledWith(
