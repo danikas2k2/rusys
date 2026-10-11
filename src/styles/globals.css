@@ -24,6 +24,15 @@
     }
 }
 
+@media (display-mode: standalone) {
+    @supports (padding: env(safe-area-max-inset-bottom)) {
+        :root {
+            /* iOS 26 standalone can include absent browser controls in the dynamic inset. */
+            --safe-block-end: env(safe-area-max-inset-bottom, env(safe-area-inset-bottom, 0px));
+        }
+    }
+}
+
 ::view-transition {
     pointer-events: none;
 }
