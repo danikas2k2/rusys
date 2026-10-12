@@ -14,6 +14,7 @@ import { useSetProductExpiryTolerance } from '~/features/products/hooks/useSetPr
 import { useSetProductImage } from '~/features/products/hooks/useSetProductImage';
 import { useSetProductParent } from '~/features/products/hooks/useSetProductParent';
 import { ProductBox } from '~/features/products/ProductBox';
+import { expectNoA11yViolations } from '~/tests/accessibility';
 
 vi.mock(import('~/features/products/hooks/useAddProduct'));
 vi.mock(import('~/features/products/hooks/useDeleteProduct'));
@@ -142,6 +143,8 @@ describe('<ProductBox>', () => {
 
         expect(parentCombobox).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Expiry tolerance' })).toHaveValue('0');
+
+        await expectNoA11yViolations(screen.getByRole('dialog'));
     });
 
     it('saves a changed expiry tolerance when editing a product', async () => {
@@ -1174,9 +1177,7 @@ describe('<ProductBox>', () => {
             );
 
             await selectOption('New category');
-            const groupDialog = screen
-                .getByRole('textbox', { name: 'Category name' })
-                .closest('[role="dialog"]') as HTMLElement;
+            const groupDialog = screen.getByRole('dialog', { name: 'Add new category' });
             await user.type(within(groupDialog).getByRole('textbox', { name: 'Category name' }), 'Konservai');
             await user.click(within(groupDialog).getByRole('button', { name: 'Add' }));
 
@@ -1199,9 +1200,7 @@ describe('<ProductBox>', () => {
             );
 
             await selectOption('New category');
-            const groupDialog = screen
-                .getByRole('textbox', { name: 'Category name' })
-                .closest('[role="dialog"]') as HTMLElement;
+            const groupDialog = screen.getByRole('dialog', { name: 'Add new category' });
             await user.click(within(groupDialog).getByRole('button', { name: 'Cancel' }));
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Serbentai');

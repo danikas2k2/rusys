@@ -30,6 +30,7 @@ export function AddAction({ onClick }: { onClick?: React.MouseEventHandler }) {
             onClick={handleClick}
             data-hidden={hidden}
             data-action="add"
+            data-color="positive"
             aria-label={useLabel('Add')}
         >
             <AddIcon size={24} />

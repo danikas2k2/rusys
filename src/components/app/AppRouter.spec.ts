@@ -24,7 +24,7 @@ test.describe('reduced motion', () => {
             document.body.append(loader);
 
             return Array.from(document.querySelectorAll('body *'))
-                .filter((element) => !element.closest('nextjs-portal'))
+                .filter((element) => !element.closest('extjs-portal'))
                 .flatMap((element) => {
                     const style = getComputedStyle(element);
                     const durations = [style.animationDuration, style.transitionDuration].flatMap((value) =>
@@ -59,7 +59,7 @@ test.describe('desktop navigation', () => {
         await page.goto('/');
         await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
         await page.getByRole('button', { name: 'Meniu' }).click();
-        await page.getByRole('menu').getByRole('link', { name: 'Suvestinė' }).click();
+        await page.getByRole('navigation').getByRole('link', { name: 'Suvestinė' }).click();
         await expect(page.locator('[data-grid="summary"]:visible').first()).toBeVisible();
         await page.goBack();
         await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
@@ -75,7 +75,7 @@ test.describe('desktop navigation', () => {
         await page.goto('/');
         await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
         await page.getByRole('button', { name: 'Meniu' }).click();
-        await page.getByRole('menu').getByRole('link', { name: 'Suvestinė' }).click();
+        await page.getByRole('navigation').getByRole('link', { name: 'Suvestinė' }).click();
         await expect(page.locator('[data-grid="summary"]:visible').first()).toBeVisible();
         expect(apiRequests).toStrictEqual([]);
     });
@@ -86,17 +86,18 @@ test.describe('desktop navigation', () => {
         for (const { label, path, content } of [...destinations.slice(1), destinations[0]!]) {
             await test.step(`menu navigates to ${label}`, async () => {
                 await page.getByRole('button', { name: 'Meniu' }).click();
-                const menu = page.getByRole('menu');
-                await expect(menu.getByRole('dialog')).toBeVisible();
+                const menu = page.getByRole('navigation');
+                const drawer = page.getByRole('dialog', { name: 'Meniu' });
+                await expect(drawer).toBeVisible();
                 await menu.getByRole('link', { name: label }).click();
                 await expect(page).toHaveURL(new RegExp(`${path === '/' ? '/$' : `${path}$`}`));
-                await expect(menu.getByRole('dialog')).toBeHidden();
+                await expect(drawer).toBeHidden();
                 await expect(page.locator(`${content}:visible`).first()).toBeVisible();
 
                 await page.getByRole('button', { name: 'Meniu' }).click();
                 await expect(menu.getByRole('link', { name: label })).toHaveAttribute('data-active', 'true');
                 await page.keyboard.press('Escape');
-                await expect(menu.getByRole('dialog')).toBeHidden();
+                await expect(drawer).toBeHidden();
             });
         }
     });
@@ -112,20 +113,20 @@ test.describe('desktop navigation', () => {
         const filters = 'q=Aviet%C4%97s&g=Uogien%C4%97s';
         await page.goto(`/?${filters}`);
         await page.getByRole('button', { name: 'Meniu' }).click();
-        const menu = page.getByRole('menu');
+        const menu = page.getByRole('navigation');
         await expect(menu.getByRole('link', { name: 'Suvestinė' })).toHaveAttribute('href', `/summary?${filters}`);
         await menu.getByRole('link', { name: 'Suvestinė' }).click();
         await expect(page).toHaveURL(new RegExp(`/summary\\?${filters}$`));
 
         await page.getByRole('button', { name: 'Meniu' }).click();
         await page.keyboard.press('Escape');
-        await expect(menu.getByRole('dialog')).toBeHidden();
+        await expect(page.getByRole('dialog', { name: 'Meniu' })).toBeHidden();
     });
 
     test('utilities expands to show import and export actions', async ({ page }) => {
         await page.goto('/');
         await page.getByRole('button', { name: 'Meniu' }).click();
-        const menu = page.getByRole('menu');
+        const menu = page.getByRole('navigation');
         await menu.getByRole('link', { name: 'Įrankiai' }).click();
         await expect(menu.getByText('Eksportuoti', { exact: true })).toBeVisible();
         await expect(menu.getByText('Importuoti', { exact: true })).toBeVisible();
@@ -156,7 +157,7 @@ test.describe('mobile navigation', () => {
         expect(footerBounds!.y + footerBounds!.height).toBeLessThanOrEqual(viewport.height);
 
         await page.getByRole('button', { name: 'Meniu' }).tap();
-        const menuBounds = await page.locator('.drawer .ui-Drawer-content').boundingBox();
+        const menuBounds = await page.getByRole('dialog', { name: 'Meniu' }).boundingBox();
         expect(menuBounds).not.toBeNull();
         expect(menuBounds!.y + menuBounds!.height).toBeLessThanOrEqual(viewport.height);
     });
@@ -164,10 +165,10 @@ test.describe('mobile navigation', () => {
     test('mobile menu and product amounts work with touch', async ({ page }) => {
         await page.goto('/');
         await page.getByRole('button', { name: 'Meniu' }).tap();
-        await page.getByRole('menu').getByRole('link', { name: 'Variantai' }).tap();
+        await page.getByRole('navigation').getByRole('link', { name: 'Variantai' }).tap();
         await expect(page.locator('[data-table="variants"]')).toBeVisible();
         await page.getByRole('button', { name: 'Meniu' }).tap();
-        await page.getByRole('menu').getByRole('link', { name: 'Produktai' }).tap();
+        await page.getByRole('navigation').getByRole('link', { name: 'Produktai' }).tap();
         await page.locator('[data-tile-kind="product"]').filter({ hasText: 'Avietės' }).tap();
         const dialog = page.getByRole('dialog', { name: /Avietės Uogienės/ });
         await expect(dialog.getByRole('tab', { name: 'Kiekiai' })).toBeVisible();

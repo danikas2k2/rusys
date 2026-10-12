@@ -276,7 +276,7 @@ export function GroupBox({
                                     disabled={submitting}
                                     loading={loading}
                                     leftSection={isEditing ? <UpdateIcon size={18} /> : <AddIcon size={18} />}
-                                    color={!isEditing ? 'positive' : undefined}
+                                    {...(!isEditing ? { color: 'positive', 'data-color': 'positive' } : {})}
                                 >
                                     <Label>{isEditing ? 'Update' : 'Add'}</Label>
                                 </Button>

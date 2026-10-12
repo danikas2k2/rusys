@@ -9,6 +9,7 @@
 /coverage
 /playwright-report
 /test-results
+/.lighthouseci
 /src/tests/playwright/.runtime.json
 
 # production

@@ -105,9 +105,7 @@ describe('<VariantBox>', () => {
             );
 
             await selectOption('New category');
-            const categoryDialog = screen
-                .getByRole('textbox', { name: 'Category name' })
-                .closest('[role="dialog"]') as HTMLElement;
+            const categoryDialog = screen.getByRole('dialog', { name: 'Add new category' });
             await user.type(within(categoryDialog).getByRole('textbox', { name: 'Category name' }), 'Konservai');
             await user.click(within(categoryDialog).getByRole('button', { name: 'Add' }));
 

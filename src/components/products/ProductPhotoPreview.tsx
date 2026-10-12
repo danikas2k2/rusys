@@ -151,6 +151,7 @@ export function ProductPhotoPreview({ photo, onError, onOpenChange }: ProductPho
                     onPointerUp={handlePointerEnd}
                     onPointerCancel={handlePointerEnd}
                 >
+                    {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Image load failures only trigger the existing fallback, not a user interaction. */}
                     <img
                         src={photo}
                         alt=""

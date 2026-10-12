@@ -8,6 +8,7 @@ import React from 'react';
 
 import { ToolbarMenu } from '~/components/toolbar/ToolbarMenu';
 import { Links } from '~/lib/links';
+import { expectNoA11yViolations } from '~/tests/accessibility';
 
 vi.mock(import('~/lib/hooks/useLabel'), () => ({
     useLabel: vi.fn((key: string) => key),
@@ -30,7 +31,7 @@ describe('<ToolbarMenu>', () => {
         );
 
         expect(screen.getByRole('button', { name: 'Menu' })).toBeInTheDocument();
-        expect(screen.getByRole('menu')).toBeEmptyDOMElement();
+        expect(screen.queryByRole('dialog', { name: 'Menu' })).not.toBeInTheDocument();
     });
 
     it('expands menu by click', async () => {
@@ -44,7 +45,7 @@ describe('<ToolbarMenu>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Menu' }));
 
-        expect(screen.getByRole('dialog')).toBeInTheDocument();
+        expect(screen.getByRole('dialog', { name: 'Menu' })).toBeInTheDocument();
     });
 
     it('collapses menu by second click', async () => {
@@ -59,7 +60,7 @@ describe('<ToolbarMenu>', () => {
         await user.click(screen.getByRole('button', { name: 'Menu' }));
         await user.click(screen.getByRole('button', { name: 'Menu' }));
 
-        expect(screen.getByRole('menu')).toBeEmptyDOMElement();
+        expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
     });
 
     it('shows the burger above the navigation drawer only while it is open', async () => {
@@ -79,9 +80,10 @@ describe('<ToolbarMenu>', () => {
 
         expect(burgerBox).toHaveStyle({ zIndex: '300' });
 
+        const drawer = screen.getByRole('dialog', { name: 'Menu' });
         await user.click(screen.getByRole('button', { name: 'Menu' }));
 
-        act(() => fireEvent.transitionEnd(screen.getByRole('menu')));
+        act(() => fireEvent.transitionEnd(drawer));
 
         await waitFor(() => {
             expect(burgerBox).toHaveStyle({ zIndex: '101' });
@@ -101,7 +103,7 @@ describe('<ToolbarMenu>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Menu' }));
 
-        const menu = within(screen.getByRole('menu'));
+        const menu = within(screen.getByRole('navigation'));
 
         expect(menu.getAllByRole('link')).toHaveListWithTextContent([
             'Products',
@@ -113,6 +115,8 @@ describe('<ToolbarMenu>', () => {
 
         expect(menu.getByRole('switch', { name: 'Dark mode' })).toBeInTheDocument();
         expect(menu.getByRole('switch', { name: 'Switch to Lithuanian' })).toBeInTheDocument();
+
+        await expectNoA11yViolations();
     });
 
     it('renders utilities menu items', async () => {
@@ -133,7 +137,9 @@ describe('<ToolbarMenu>', () => {
 
         expect(utilities).toHaveAttribute('data-expanded', 'true');
 
-        await waitFor(() => expect(within(screen.getByRole('menu')).findAllByRole('link')).resolves.toHaveLength(7));
+        await waitFor(() =>
+            expect(within(screen.getByRole('navigation')).findAllByRole('link')).resolves.toHaveLength(7)
+        );
 
         expect(screen.getByRole('link', { name: 'Export' })).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Import' })).toBeInTheDocument();
@@ -158,7 +164,7 @@ describe('<ToolbarMenu>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Menu' }));
 
-        const menu = within(screen.getByRole('menu'));
+        const menu = within(screen.getByRole('navigation'));
         const links = menu.getAllByRole('link');
         const active = links.filter((l) => l.matches('[data-active]'));
 
@@ -179,7 +185,7 @@ describe('<ToolbarMenu>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Menu' }));
 
-        const menu = within(screen.getByRole('menu'));
+        const menu = within(screen.getByRole('navigation'));
         const products = menu.getByRole('link', { name: 'Products' });
         const summary = menu.getByRole('link', { name: 'Summary' });
 

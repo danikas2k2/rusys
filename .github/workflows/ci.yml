@@ -65,6 +65,42 @@ jobs:
           path: test-results/
           retention-days: 7
 
+  lighthouse:
+    runs-on: ubuntu-latest
+    name: Lighthouse accessibility
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 26
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Install Lighthouse browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run Lighthouse CI accessibility audits
+        run: pnpm exec lhci autorun
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-accessibility-reports
+          path: .lighthouseci/
+          retention-days: 7
+
   visual:
     runs-on: xcode-27
     name: Playwright visual snapshots (${{ matrix.browser }})

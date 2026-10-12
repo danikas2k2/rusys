@@ -55,95 +55,99 @@ export function ToolbarMenu() {
                 </Box>
             </Portal>
             <Drawer
-                role="menu"
                 opened={opened}
                 onClose={close}
                 position="left"
                 withCloseButton={false}
+                title={<span className="drawer-title">{useLabel('Menu')}</span>}
+                classNames={{ header: 'drawer-header', title: 'drawer-title' }}
                 className="drawer"
                 onExitTransitionEnd={() => setBurgerAbove(false)}
             >
-                <Flex direction="column" className="menu">
-                    <Box>
-                        <NavLink
-                            label={<Label>Products</Label>}
-                            leftSection={
-                                <ToolbarMenuIcon>
-                                    <ProductsNavIcon />
-                                </ToolbarMenuIcon>
-                            }
-                            component={Link}
-                            prefetch={false}
-                            href={to(Links.PRODUCTS)}
-                            active={pathname === Links.PRODUCTS}
-                            onClick={close}
-                        />
-                        <NavLink
-                            label={<Label>Summary</Label>}
-                            leftSection={
-                                <ToolbarMenuIcon>
-                                    <SummaryNavIcon />
-                                </ToolbarMenuIcon>
-                            }
-                            component={Link}
-                            prefetch={false}
-                            href={to(Links.SUMMARY)}
-                            active={pathname === Links.SUMMARY}
-                            onClick={close}
-                        />
-                        <Divider m="xs" />
+                <nav className="drawer-navigation" aria-label={useLabel('Menu')}>
+                    <Flex direction="column" className="menu">
+                        <Box>
+                            <NavLink
+                                label={<Label>Products</Label>}
+                                leftSection={
+                                    <ToolbarMenuIcon>
+                                        <ProductsNavIcon />
+                                    </ToolbarMenuIcon>
+                                }
+                                component={Link}
+                                prefetch={false}
+                                href={to(Links.PRODUCTS)}
+                                active={pathname === Links.PRODUCTS}
+                                onClick={close}
+                            />
+                            <NavLink
+                                label={<Label>Summary</Label>}
+                                leftSection={
+                                    <ToolbarMenuIcon>
+                                        <SummaryNavIcon />
+                                    </ToolbarMenuIcon>
+                                }
+                                component={Link}
+                                prefetch={false}
+                                href={to(Links.SUMMARY)}
+                                active={pathname === Links.SUMMARY}
+                                onClick={close}
+                            />
 
-                        <NavLink
-                            label={<Label>Variants</Label>}
-                            leftSection={
-                                <ToolbarMenuIcon>
-                                    <VariantsNavIcon />
-                                </ToolbarMenuIcon>
-                            }
-                            component={Link}
-                            prefetch={false}
-                            href={to(Links.VARIANTS)}
-                            active={pathname === Links.VARIANTS}
-                            onClick={close}
-                        />
-                        <NavLink
-                            label={<Label>Categories</Label>}
-                            leftSection={
-                                <ToolbarMenuIcon>
-                                    <CategoriesNavIcon />
-                                </ToolbarMenuIcon>
-                            }
-                            component={Link}
-                            prefetch={false}
-                            href={to(Links.CATEGORIES)}
-                            active={pathname === Links.CATEGORIES}
-                            onClick={close}
-                        />
+                            <Divider m="xs" />
 
-                        <Divider m="xs" />
+                            <NavLink
+                                label={<Label>Variants</Label>}
+                                leftSection={
+                                    <ToolbarMenuIcon>
+                                        <VariantsNavIcon />
+                                    </ToolbarMenuIcon>
+                                }
+                                component={Link}
+                                prefetch={false}
+                                href={to(Links.VARIANTS)}
+                                active={pathname === Links.VARIANTS}
+                                onClick={close}
+                            />
+                            <NavLink
+                                label={<Label>Categories</Label>}
+                                leftSection={
+                                    <ToolbarMenuIcon>
+                                        <CategoriesNavIcon />
+                                    </ToolbarMenuIcon>
+                                }
+                                component={Link}
+                                prefetch={false}
+                                href={to(Links.CATEGORIES)}
+                                active={pathname === Links.CATEGORIES}
+                                onClick={close}
+                            />
 
-                        <NavLink
-                            label={<Label>Utilities</Label>}
-                            leftSection={
-                                <ToolbarMenuIcon>
-                                    <UtilitiesNavIcon />
-                                </ToolbarMenuIcon>
-                            }
-                            childrenOffset={32}
-                            href="#utils"
-                        >
-                            <ExportMenuItem onClick={close} />
-                            <ImportMenuItem onClick={close} />
-                        </NavLink>
-                    </Box>
+                            <Divider m="xs" />
 
-                    <Box mt="auto" mb="xs">
-                        <Group justify="center" gap="sm">
-                            <ColorSchemeToggle />
-                            <LanguageToggle />
-                        </Group>
-                    </Box>
-                </Flex>
+                            <NavLink
+                                label={<Label>Utilities</Label>}
+                                leftSection={
+                                    <ToolbarMenuIcon>
+                                        <UtilitiesNavIcon />
+                                    </ToolbarMenuIcon>
+                                }
+                                childrenOffset={32}
+                                href="#utils"
+                            >
+                                <ExportMenuItem onClick={close} />
+                                <ImportMenuItem onClick={close} />
+                            </NavLink>
+                        </Box>
+
+                        <Box mt="auto" mb="xs">
+                            <Group justify="center" gap="sm">
+                                <ColorSchemeToggle />
+                                <LanguageToggle />
+                            </Group>
+                        </Box>
+                    </Flex>
+                </nav>
             </Drawer>
         </>
     );

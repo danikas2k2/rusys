@@ -15,6 +15,7 @@ const mobileInteractionTests = [
     '**/ProductYearBar.spec.ts',
     '**/ProductsPage.spec.ts',
     '**/ReviewBoxSafeArea.spec.ts',
+    '**/Accessibility.spec.ts',
     visualTests,
 ];
 
