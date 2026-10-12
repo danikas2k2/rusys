@@ -1,0 +1,102 @@
+name: Deploy production release
+
+on:
+  pull_request_target:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.version.outputs.changed }}
+    steps:
+      - name: Checkout merged commit
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 26
+
+      - name: Detect release version change
+        id: version
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$MERGE_SHA" origin/main
+          base_version=$(git show "$BASE_SHA:package.json" | node -p "JSON.parse(require('node:fs').readFileSync(0, 'utf8')).version")
+          merged_version=$(node -p "require('./package.json').version")
+
+          if [[ "$base_version" == "$merged_version" ]]; then
+            echo "No project version change."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Release version changed: $base_version → $merged_version"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  tests:
+    needs: release
+    if: needs.release.outputs.changed == 'true'
+    uses: ./.github/workflows/ci.yml
+    with:
+      checkout_ref: ${{ github.event.pull_request.merge_commit_sha }}
+    permissions:
+      contents: read
+
+  deploy:
+    needs: [release, tests]
+    if: needs.release.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: production-deployment
+      cancel-in-progress: false
+    steps:
+      - name: Checkout merged commit
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure deployment SSH
+        env:
+          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          DEPLOY_SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
+        run: |
+          test -n "$DEPLOY_SSH_PRIVATE_KEY" && test -n "$DEPLOY_SSH_KNOWN_HOSTS"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy blue/green release
+        env:
+          DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+          DOCKER_PATH: ${{ vars.DOCKER_PATH || 'docker' }}
+        run: pnpm deploy:run
