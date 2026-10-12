@@ -1,5 +1,18 @@
 # RUSYS APP
 
+RUSYS is a web application for managing groups, products, variants, quantities, and change history. The guides below are
+organized by topic, with Mermaid diagrams placed alongside the concepts they explain.
+
+## Documentation
+
+- [Architecture and structure](docs/ARCHITECTURE.md) — system context, technologies, directories, modules, and routes.
+- [Data and workflows](docs/DATA-AND-WORKFLOWS.md) — MongoDB model, authentication, updates, import and export, and
+  offline behavior.
+- [Development and deployment](docs/DEVELOPMENT-AND-DEPLOYMENT.md) — local setup, commands, CI, and production releases.
+
+Related guides: [accessibility](ACCESSIBILITY.md), [table components](src/components/table/TABLE.md), and the
+[Service Worker](src/components/app/ServiceWorker/README.md).
+
 ## Development
 
 ```sh

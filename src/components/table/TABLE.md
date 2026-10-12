@@ -1,144 +1,62 @@
-# ✔️ Core idea
+# Table components
 
-### 1. `touchstart` — start collecting data
+This guide describes the current row sorting and swipe infrastructure.
 
-- Save the starting coordinates.
-- Start the long-press timer.
-- Do not decide which gesture it is yet.
+## Component relationships
 
-### 2. `touchmove` — identify the gesture
-
-- If horizontal movement exceeds X px, enter **swipe mode** and cancel the long press.
-- If vertical movement exceeds Y px, enter **scroll mode** and cancel the long press.
-- In scroll mode, **allow** the default scrolling behavior.
-- In swipe mode, **block** scrolling with `preventDefault()`.
-
-### 3. `touchend` — finish the gesture
-
-- If it was neither a swipe nor a scroll, handle a click or long press.
-- If it was a swipe, finish the swipe animation.
-- If it was a scroll, do nothing.
-
----
-
-# ✔️ Recommended parameters
-
-| Parameter                | Value      | Explanation                                   |
-| ------------------------ | ---------- | --------------------------------------------- |
-| Horizontal threshold     | **12 px**  | Movement beyond this is considered horizontal |
-| Vertical threshold       | **12 px**  | The equivalent limit for vertical movement    |
-| Long press delay         | **450 ms** | Provides a Haptic Touch feel                  |
-| Cancel longPress on move | yes        | Only after the movement threshold is reached  |
-
----
-
-# ✔️ Minimal example (ready to use)
-
-```js
-function attachGestureHandlers(el, { onClick, onLongPress, onSwipe }) {
-    let startX = 0;
-    let startY = 0;
-    let movedX = 0;
-    let movedY = 0;
-    let gesture = null; // 'swipe' | 'scroll' | 'press'
-    let longPressTimeout;
-    let longPressFired = false;
-
-    const LONG_PRESS_DELAY = 450;
-    const THRESHOLD = 12;
-
-    el.addEventListener('touchstart', (e) => {
-        const t = e.touches[0];
-        startX = t.clientX;
-        startY = t.clientY;
-        movedX = 0;
-        movedY = 0;
-        gesture = 'press';
-        longPressFired = false;
-
-        longPressTimeout = setTimeout(() => {
-            if (gesture === 'press') {
-                longPressFired = true;
-                onLongPress?.(e);
-            }
-        }, LONG_PRESS_DELAY);
-    });
-
-    el.addEventListener(
-        'touchmove',
-        (e) => {
-            const t = e.touches[0];
-            movedX = t.clientX - startX;
-            movedY = t.clientY - startY;
-
-            // Continue handling the gesture already in progress
-            if (gesture === 'swipe') {
-                e.preventDefault(); // Block scrolling during a swipe
-                onSwipe?.(movedX, e);
-                return;
-            }
-            if (gesture === 'scroll') {
-                return; // Allow scrolling
-            }
-
-            // Determine the gesture mode
-            if (Math.abs(movedX) > THRESHOLD && Math.abs(movedX) > Math.abs(movedY)) {
-                // Horizontal swipe
-                gesture = 'swipe';
-                clearTimeout(longPressTimeout);
-                e.preventDefault();
-                onSwipe?.(movedX, e);
-            } else if (Math.abs(movedY) > THRESHOLD) {
-                // Vertical scroll
-                gesture = 'scroll';
-                clearTimeout(longPressTimeout);
-            }
-        },
-        { passive: false }
-    ); // Required for preventDefault() to work
-
-    el.addEventListener('touchend', (e) => {
-        clearTimeout(longPressTimeout);
-
-        if (gesture === 'press') {
-            // Not enough movement: handle the click
-            if (!longPressFired) {
-                onClick?.(e);
-            }
-        }
-
-        if (gesture === 'swipe') {
-            // End of the swipe
-            onSwipe?.('end', e);
-        }
-    });
-
-    el.addEventListener('touchcancel', () => {
-        clearTimeout(longPressTimeout);
-    });
-}
+```mermaid
+flowchart TB
+    Tables[GroupsTable / VariantsTable] --> Dnd[DraggableContent]
+    Tables --> Sortable[SortableContent]
+    Tables --> Rows[GroupsRow / VariantsRow]
+    Rows --> Row[SortableRow]
+    Row --> Handle[DragHandle]
+    Row -->|when swipeable is true| Swipe[SwipeableRow]
+    Dnd --> Overlay[DragOverlayTable]
+    Dnd --> Reorder[useReorderHandler]
+    Swipe --> Panel[SwipePanel]
 ```
 
----
+`GroupsTable` and `VariantsTable` use Mantine `Table`, `@dnd-kit` sorting, and `useReorderHandler`. Their rows pass
+`swipeable={false}`: users can drag a row by its handle or open editing by clicking the row, but swipe controls are
+disabled. `Enter` and Space also open editing. Clicks on the drag handle are ignored by the edit handler.
 
-# ✔️ How this works in this case
+## Row sorting
 
-### 🟦 Table → scroll (vertical movement)
+- `DraggableContent` creates the `DndContext`. Its pointer sensor activates after 8 px of movement; its keyboard sensor
+  uses `sortableKeyboardCoordinates`. Dragging is restricted to the vertical axis and the parent element.
+- `SortableContent` applies `verticalListSortingStrategy`. `SortableRow` connects each row to `useSortable` and passes
+  sensor and accessibility attributes to `DragHandle`.
+- `DragOverlayTable` renders a copy of the dragged row with the original column widths.
+- `useReorderHandler` temporarily freezes the reordered item list while `onReorder` saves it. This prevents rows from
+  jumping while the server responds.
+- Group and variant tables disable dragging when a quick filter is active or the row is hidden.
 
-When the user moves more than 12 px vertically, the gesture becomes a scroll. The **long press is canceled** and
-scrolling is allowed.
+## Swipeable row infrastructure
 
-### 🟥 Rows → swipe (horizontal movement)
+`SortableRow` uses `SwipeableRow` by default, but the current group and variant tables turn this option off.
+`SwipeableRow` attaches native `pointerdown`, `pointermove`, `pointerup`, `pointercancel`, and `pointerleave` listeners
+to a Mantine `Table.Tr`.
 
-When horizontal movement exceeds 12 px and is greater than vertical movement:
+1. A swipe starts when horizontal movement reaches `POINTER_MOVE_THRESHOLD` (currently 10 px) and exceeds vertical
+   movement. Gestures starting on `[data-drag-handle]` are excluded.
+2. Once a swipe is confirmed, the row captures pointer events. The controls panel follows the pointer through direct DOM
+   updates without waiting for a React render on every move.
+3. On release, the panel opens or closes according to direction and a threshold of 20% of the measured controls width.
+   The table uses `touch-action: pan-y` when the panel is closed and `touch-action: none` when it is open.
 
-- Enter swipe mode.
-- Block scrolling with `preventDefault`.
-- Show actions such as “Delete” and “Edit”.
+`ActiveContentContext` and `SwipeControlsContext` hold the active row and panel state. `SwipePanel` renders through a
+Mantine `Portal`, and `useSwipeVisible` controls page scrolling while the panel is open. `SwipeableRow` does not
+implement a long-press action.
 
-### 🟧 Cell → click or long press
+## Where to change behavior
 
-When there is no movement:
-
-- Before 450 ms → click.
-- After 450 ms → long press.
+| Concern                      | File                                                                             |
+| ---------------------------- | -------------------------------------------------------------------------------- |
+| Drag sensors and constraints | `src/components/common/DraggableContent.tsx`                                     |
+| Sortable row and drag handle | `src/components/table/SortableRow.tsx`, `DragHandle.tsx`                         |
+| Swipe recognition            | `src/components/table/SwipeableRow.tsx`                                          |
+| Pointer movement threshold   | `src/lib/utils/pointer.ts`                                                       |
+| Controls panel and its width | `src/components/common/SwipePanel.tsx`                                           |
+| Reorder state                | `src/components/hooks/useReorderHandler.ts`                                      |
+| Current table usage          | `src/features/groups/GroupsTable.tsx`, `src/features/variants/VariantsTable.tsx` |
