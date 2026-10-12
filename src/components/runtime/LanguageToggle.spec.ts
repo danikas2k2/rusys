@@ -20,7 +20,7 @@ test.describe('Lithuanian browser language', () => {
         expect((await context.cookies()).find(({ name }) => name === 'rusys-locale')).toBeUndefined();
 
         await page.getByRole('button', { name: 'Meniu' }).click();
-        const menu = page.getByRole('menu');
+        const menu = page.getByRole('navigation');
         await expect(menu.getByRole('switch', { name: 'Perjungti į anglų kalbą' })).toBeChecked();
         await expect(menu.getByText('🇱🇹')).toBeVisible();
 
@@ -33,7 +33,7 @@ test.describe('Lithuanian browser language', () => {
 
         await switchLanguage(menu, 'Perjungti į anglų kalbą');
 
-        await expect(menu.getByRole('dialog')).toBeVisible();
+        await expect(page.getByRole('dialog', { name: 'Menu' })).toBeVisible();
         await expect(menu.getByRole('link', { name: 'Products' })).toBeVisible();
         await expect(menu.getByRole('switch', { name: 'Switch to Lithuanian' })).not.toBeChecked();
         await expect(menu.getByText('🇺🇸')).toBeVisible();
@@ -54,7 +54,7 @@ test.describe('Lithuanian browser language', () => {
         await expect(page.locator('html')).toHaveAttribute('lang', 'en');
         await expect(page).toHaveTitle('Cellar');
         await page.getByRole('button', { name: 'Menu' }).click();
-        await expect(page.getByRole('menu').getByRole('link', { name: 'Products' })).toBeVisible();
+        await expect(page.getByRole('navigation').getByRole('link', { name: 'Products' })).toBeVisible();
 
         await page.goto('/offline');
         await expect(page.getByRole('heading', { name: 'No internet connection' })).toBeVisible();
@@ -72,7 +72,7 @@ test.describe('English browser language', () => {
         expect((await context.cookies()).find(({ name }) => name === 'rusys-locale')).toBeUndefined();
 
         await page.getByRole('button', { name: 'Menu' }).click();
-        const menu = page.getByRole('menu');
+        const menu = page.getByRole('navigation');
         await expect(menu.getByRole('switch', { name: 'Switch to Lithuanian' })).not.toBeChecked();
         await expect(menu.getByText('🇺🇸')).toBeVisible();
 
@@ -89,7 +89,7 @@ test.describe('English browser language', () => {
         await expect(page.locator('html')).toHaveAttribute('lang', 'lt');
         await expect(page).toHaveTitle('Rūsys');
         await page.getByRole('button', { name: 'Meniu' }).click();
-        await expect(page.getByRole('menu').getByRole('link', { name: 'Suvestinė' })).toBeVisible();
+        await expect(page.getByRole('navigation').getByRole('link', { name: 'Suvestinė' })).toBeVisible();
 
         await page.goto('/offline');
         await expect(page.getByRole('heading', { name: 'Nėra interneto ryšio' })).toBeVisible();

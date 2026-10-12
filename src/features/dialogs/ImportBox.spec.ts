@@ -11,7 +11,7 @@ import type { Product } from '~/common/data';
 
 async function openUtility(page: Page, label: string) {
     await page.getByRole('button', { name: 'Meniu' }).click();
-    const menu = page.getByRole('menu');
+    const menu = page.getByRole('navigation');
     await menu.getByRole('link', { name: 'Įrankiai' }).click();
     await menu.getByText(label, { exact: true }).click();
 }

@@ -43,6 +43,21 @@ export default [
     {
         files: ['**/*.{tsx,jsx}'],
         ...a11y.flatConfigs.recommended,
+        rules: {
+            ...a11y.flatConfigs.recommended.rules,
+            // Accessibility findings in product JSX are CI failures, not warnings.
+            'jsx-a11y/alt-text': 'error',
+            'jsx-a11y/anchor-has-content': 'error',
+            'jsx-a11y/aria-props': 'error',
+            'jsx-a11y/aria-proptypes': 'error',
+            'jsx-a11y/aria-unsupported-elements': 'error',
+            'jsx-a11y/click-events-have-key-events': 'error',
+            'jsx-a11y/heading-has-content': 'error',
+            'jsx-a11y/label-has-associated-control': 'error',
+            'jsx-a11y/no-autofocus': 'error',
+            'jsx-a11y/no-noninteractive-element-interactions': 'error',
+            'jsx-a11y/no-static-element-interactions': 'error',
+        },
     },
     {
         files: ['**/*.test.{ts,tsx}', '**/__mocks__/*.{ts,tsx}'],

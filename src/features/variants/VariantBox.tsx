@@ -404,7 +404,7 @@ export function VariantBox({
                                         disabled={submitting}
                                         loading={loading}
                                         leftSection={buttonContent.icon}
-                                        color={!isEditing ? 'positive' : undefined}
+                                        {...(!isEditing ? { color: 'positive', 'data-color': 'positive' } : {})}
                                     >
                                         <Label>{buttonContent.label}</Label>
                                     </Button>

@@ -8,7 +8,7 @@ test('import dialog', async ({ page }) => {
     await page.goto('/');
     await expect(productTile(page, 'Avietės')).toBeVisible();
     await page.getByRole('button', { name: 'Meniu' }).click();
-    const menu = page.getByRole('menu');
+    const menu = page.getByRole('navigation');
     await menu.getByRole('link', { name: 'Įrankiai' }).click();
     await menu.getByText('Importuoti', { exact: true }).click();
     const importDialog = page.getByRole('dialog', { name: 'Importuoti' });
@@ -20,7 +20,7 @@ test('import upload progress', async ({ page }) => {
     await page.goto('/');
     await expect(productTile(page, 'Avietės')).toBeVisible();
     await page.getByRole('button', { name: 'Meniu' }).click();
-    const menu = page.getByRole('menu');
+    const menu = page.getByRole('navigation');
     await menu.getByRole('link', { name: 'Įrankiai' }).click();
     await menu.getByText('Importuoti', { exact: true }).click();
     const importDialog = page.getByRole('dialog', { name: 'Importuoti' });

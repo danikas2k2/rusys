@@ -857,8 +857,8 @@
         --mantine-color-green-8: light-dark(var(--ctp-latte-green-8), var(--ctp-mocha-green-8));
         --mantine-color-green-9: light-dark(var(--ctp-latte-green-9), var(--ctp-mocha-green-9));
         --mantine-color-green-text: var(--mantine-color-green-filled);
-        --mantine-color-green-filled: var(--mantine-color-green-6);
-        --mantine-color-green-filled-hover: var(--mantine-color-green-7);
+        --mantine-color-green-filled: var(--mantine-color-green-8);
+        --mantine-color-green-filled-hover: var(--mantine-color-green-9);
         --mantine-color-green-light: color(from var(--mantine-color-green-6) srgb r g b / 10%);
         --mantine-color-green-light-hover: color(from var(--mantine-color-green-6) srgb r g b / 12%);
         --mantine-color-green-light-color: var(--mantine-color-green-6);
@@ -1474,7 +1474,7 @@
         --mantine-color-default-hover: var(--mantine-color-gray-0);
         --mantine-color-default-color: var(--mantine-color-black);
         --mantine-color-default-border: var(--mantine-color-gray-4);
-        --mantine-color-dimmed: var(--mantine-color-gray-6);
+        --mantine-color-dimmed: var(--mantine-color-subtext1);
         --mantine-color-disabled: var(--mantine-color-gray-2);
         --mantine-color-disabled-color: var(--mantine-color-gray-5);
         --mantine-color-disabled-border: var(--mantine-color-gray-3);
@@ -1566,7 +1566,7 @@
         --mantine-color-gray-3: var(--mantine-color-surface0);
         --mantine-color-gray-4: var(--mantine-color-surface1);
         --mantine-color-gray-5: var(--mantine-color-surface2);
-        --mantine-color-gray-6: var(--mantine-color-overlay0);
+        --mantine-color-gray-6: var(--mantine-color-subtext1);
         --mantine-color-gray-7: var(--mantine-color-overlay1);
         --mantine-color-gray-8: var(--mantine-color-overlay2);
         --mantine-color-gray-9: var(--mantine-color-text);
@@ -1590,7 +1590,7 @@
         --mantine-color-dark-7: var(--mantine-color-subtext1);
         --mantine-color-dark-8: var(--mantine-color-text);
         --mantine-color-dark-9: var(--mantine-color-strong);
-        --mantine-color-dark-text: var(--mantine-color-dark-filled);
+        --mantine-color-dark-text: var(--mantine-color-text);
         --mantine-color-dark-filled: var(--mantine-color-dark-6);
         --mantine-color-dark-filled-hover: var(--mantine-color-dark-7);
         --mantine-color-dark-light: color(from var(--mantine-color-dark-6) srgb r g b / 10%);

@@ -22,14 +22,14 @@ test.describe('app states and filters', () => {
         await expect(productTile(page, 'Braškės')).toBeVisible();
         await search.clear();
         await page.getByRole('button', { name: 'Meniu' }).click();
-        await page.getByRole('menu').getByRole('link', { name: 'Kategorijos' }).click();
+        await page.getByRole('navigation').getByRole('link', { name: 'Kategorijos' }).click();
         await expect(page.locator('[data-table="groups"]')).toBeVisible();
         await search.fill('Braškės');
         await expect(page.getByRole('row', { name: /Uogienės/ })).toBeHidden();
         await search.clear();
         await expect(page.getByRole('row', { name: /Uogienės/ })).toBeVisible();
         await page.getByRole('button', { name: 'Meniu' }).click();
-        await page.getByRole('menu').getByRole('link', { name: 'Variantai' }).click();
+        await page.getByRole('navigation').getByRole('link', { name: 'Variantai' }).click();
         await expect(page.locator('[data-table="variants"]')).toBeVisible();
         await search.fill('indelis');
         await expect(page.getByRole('row', { name: /Didelis indelis/ })).toBeVisible();
@@ -39,11 +39,11 @@ test.describe('app states and filters', () => {
     test('theme switch survives reload', async ({ page }) => {
         await page.goto('/');
         await page.getByRole('button', { name: 'Meniu' }).click();
-        const menu = page.getByRole('menu');
+        const menu = page.getByRole('navigation');
         await menu.getByRole('switch', { name: 'Tamsi tema' }).locator('..').click();
         await page.reload();
         await page.getByRole('button', { name: 'Meniu' }).click();
-        await expect(page.getByRole('menu').getByRole('switch', { name: 'Šviesi tema' })).toBeChecked();
+        await expect(page.getByRole('navigation').getByRole('switch', { name: 'Šviesi tema' })).toBeChecked();
     });
 
     test('loads categories from SSR without a browser API request', async ({ page }) => {

@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
 import { getRequestLocale } from '~/server/requestLocale';
+import { expectNoA11yViolations } from '~/tests/accessibility';
 import OfflinePage, { generateMetadata } from './page';
 
 vi.mock(import('~/server/requestLocale'), () => ({ getRequestLocale: vi.fn() }));
@@ -21,5 +22,14 @@ describe('offline page', () => {
         expect(getRequestLocale).toHaveBeenCalledTimes(2);
 
         vi.clearAllMocks();
+    });
+
+    it('has no automated accessibility violations', async () => {
+        expect.assertions(1);
+
+        vi.mocked(getRequestLocale).mockResolvedValue('en-US');
+        render(await OfflinePage());
+
+        await expectNoA11yViolations();
     });
 });

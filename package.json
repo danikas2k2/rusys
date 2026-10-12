@@ -44,6 +44,7 @@
         "test:e2e:critical": "playwright test --grep @critical --grep-invert '\\.snap\\.ts'",
         "test:e2e:headed": "playwright test --grep '\\.spec\\.ts' --headed",
         "test:e2e:ui": "playwright test --grep '\\.spec\\.ts' --ui",
+        "test:a11y": "playwright test src/features/common/Accessibility.spec.ts",
         "test:visual": "env PLAYWRIGHT_VISUAL=1 playwright test --grep '\\.snap\\.ts'",
         "test:visual:update": "env PLAYWRIGHT_VISUAL=1 playwright test --grep '\\.snap\\.ts' --update-snapshots",
         "preversion": "git pull && pnpm check",
@@ -82,10 +83,12 @@
         "transliteration": "^2.6.1"
     },
     "devDependencies": {
+        "@axe-core/playwright": "^4.13.0",
         "@catppuccin/palette": "^1.8.0",
         "@css-modules-kit/stylelint-plugin": "^1.4.0",
         "@csstools/postcss-relative-color-syntax": "^4.0.15",
         "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+        "@lhci/cli": "^0.15.1",
         "@playwright/test": "^1.63.0",
         "@stylistic/stylelint-plugin": "^5.3.1",
         "@testing-library/dom": "^10.4.2",
@@ -107,6 +110,7 @@
         "@vitest/expect": "^5.0.3",
         "@vitest/ui": "^5.0.3",
         "autoprefixer": "^10.6.1",
+        "axe-core": "^4.14.0",
         "classnames": "^2.5.1",
         "dotenv-cli": "^11.0.0",
         "eslint": "^10.12.0",
