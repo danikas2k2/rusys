@@ -119,6 +119,37 @@ flowchart LR
 The previous container remains running. `pnpm deploy:rollback` returns traffic to that healthy container without
 rebuilding. Deployment requires a running `rusys-gateway`; rollback also requires a healthy previous container.
 
+### Automatic production releases
+
+The [production deployment workflow](../.github/workflows/deploy-production.yml) runs when a pull request into `main` is
+merged. It compares the `package.json` version before and after the merge. A merge without a project version change
+skips the test and deployment jobs. The package's `version` script also updates Docker's `APP_VERSION` build label in
+`docker/compose.yaml`.
+
+For a release, the workflow calls the full [CI workflow](../.github/workflows/ci.yml), including lint, build, coverage,
+E2E, Lighthouse, and visual tests. The production job starts only after every CI job passes. It checks out the merged
+commit, configures SSH, and runs `pnpm deploy:run`. The deployment script reports failure if upload, Docker build,
+health checks, or the gateway switch fails. Production deployments are serialized.
+
+Create a GitHub Actions environment named `production` in the repository settings. Restrict its deployment branches to
+`main`. Add these environment settings:
+
+| Name                     | Type     | Value                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------- |
+| `DEPLOY_SSH_PRIVATE_KEY` | Secret   | Private SSH key for the deployment user                         |
+| `DEPLOY_SSH_KNOWN_HOSTS` | Secret   | Verified SSH host key entry for the server                      |
+| `DEPLOY_USER`            | Variable | SSH user                                                        |
+| `DEPLOY_HOST`            | Variable | SSH host                                                        |
+| `DEPLOY_PORT`            | Variable | SSH port; optional, defaults to `22`                            |
+| `DEPLOY_PATH`            | Variable | Existing application directory on the server                    |
+| `DOCKER_PATH`            | Variable | Docker executable on the server; optional, defaults to `docker` |
+
+The SSH user needs access to the application directory and Docker on the server. The server keeps its own `.env` for
+Compose; do not upload it or add it to Git. Verify the host key out of band before saving `DEPLOY_SSH_KNOWN_HOSTS`;
+include `[host]:port` for a nonstandard SSH port. Environment secrets become available only to the deployment job.
+Required reviewers can be added when releases need a manual approval, but leave them unset for fully automatic
+deployment.
+
 ## When changing the project
 
 - Put types and pure functions shared by client and server in `src/common`; keep MongoDB access and secrets in
