@@ -121,13 +121,14 @@ rebuilding. Deployment requires a running `rusys-gateway`; rollback also require
 
 ### Automatic production releases
 
-The [production deployment workflow](../.github/workflows/deploy-production.yml) runs when a pull request into `main` is
-merged. It compares the `package.json` version before and after the merge. A merge without a project version change
-skips the test and deployment jobs. The package's `version` script also updates Docker's `APP_VERSION` build label in
+The [production deployment workflow](../.github/workflows/deploy-production.yml) runs when a push to `main` changes
+`package.json`, including a pull request merge that changes the file. It compares the project version before and after
+the push. If the version is unchanged, it skips the test and deployment jobs. A push that does not change `package.json`
+does not start this workflow. The package's `version` script also updates Docker's `APP_VERSION` build label in
 `docker/compose.yaml`.
 
 For a release, the workflow calls the full [CI workflow](../.github/workflows/ci.yml), including lint, build, coverage,
-E2E, Lighthouse, and visual tests. The production job starts only after every CI job passes. It checks out the merged
+E2E, Lighthouse, and visual tests. The production job starts only after every CI job passes. It checks out the pushed
 commit, configures SSH, and runs `pnpm deploy:run`. The deployment script reports failure if upload, Docker build,
 health checks, or the gateway switch fails. Production deployments are serialized.
 
