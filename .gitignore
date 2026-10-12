@@ -22,6 +22,9 @@
 
 # misc
 .DS_Store
+/.eslintcache
+/.stylelintcache
+/.tsbuildinfo
 .env.local
 .env.*.local
 

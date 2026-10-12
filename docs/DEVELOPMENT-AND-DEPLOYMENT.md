@@ -36,6 +36,10 @@ out of Git.
 Playwright tests require installed browsers. E2E tests use a temporary MongoDB instance. Visual tests start a separate
 Next.js server. Configuration lives in `vitest.config.mts` and `playwright.config.ts`.
 
+The pre-commit hook runs Gitleaks on staged changes, followed by `pnpm lint`. Prettier, ESLint, and Stylelint cache
+results for unchanged files; TypeScript stores incremental project information. Their local cache files are ignored by
+Git. The first run still checks the full project, while later runs reuse cached results where possible.
+
 ## Continuous integration
 
 The workflow in `.github/workflows/ci.yml` runs on pushes and pull requests targeting `main`. Its `lint` matrix runs
