@@ -3,6 +3,7 @@ import React, { startTransition, useEffect } from 'react';
 
 import type { Group } from '~/common/data';
 import { Thumbnail } from '~/components/common/Thumbnail';
+import { supportsClippedViewTransitions } from '~/lib/utils/supportsClippedViewTransitions';
 
 import './CategoryRail.css';
 
@@ -11,6 +12,7 @@ interface CategoryRailProps {
     selected: string;
     onSelect: (group: string) => void;
     groupsWithContent: ReadonlySet<string>;
+    animateWithinScrollport?: boolean;
 }
 
 export function CategoryRail({
@@ -18,6 +20,7 @@ export function CategoryRail({
     selected,
     onSelect,
     groupsWithContent,
+    animateWithinScrollport = false,
 }: CategoryRailProps): React.ReactElement | null {
     // Default to the first category when none is selected yet, or the selected one no longer exists
     useEffect(() => {
@@ -33,7 +36,16 @@ export function CategoryRail({
     return (
         <Tabs
             value={selected}
-            onChange={(value) => value && startTransition(() => onSelect(value))}
+            onChange={(value) => {
+                if (!value) {
+                    return;
+                }
+                if (!animateWithinScrollport && supportsClippedViewTransitions()) {
+                    startTransition(() => onSelect(value));
+                } else {
+                    onSelect(value);
+                }
+            }}
             orientation="vertical"
             variant="outline"
             data-tabs="category-rail"

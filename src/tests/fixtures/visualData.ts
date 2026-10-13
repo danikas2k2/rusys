@@ -17,9 +17,17 @@ export async function getVisualScenario(): Promise<Scenario | undefined> {
 }
 
 function isScenario(value: string | undefined): value is Scenario {
-    return ['empty', 'basic', 'annual', 'review', 'history', 'images', 'history-images', 'consumed-recycled'].includes(
-        value ?? ''
-    );
+    return [
+        'empty',
+        'basic',
+        'annual',
+        'review',
+        'history',
+        'images',
+        'history-images',
+        'consumed-recycled',
+        'scrolled-products',
+    ].includes(value ?? '');
 }
 
 function visualVariants(variants: Variant[]): Variant[] {

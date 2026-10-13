@@ -2,11 +2,26 @@ import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
-import React from 'react';
+import React, { startTransition } from 'react';
 
 import { CategoryRail } from '~/features/filters/CategoryRail';
+import { supportsClippedViewTransitions } from '~/lib/utils/supportsClippedViewTransitions';
+
+vi.mock(import('react'), async (importOriginal) => {
+    const actual = await importOriginal();
+    return { ...actual, startTransition: vi.fn(actual.startTransition) };
+});
+
+vi.mock(import('~/lib/utils/supportsClippedViewTransitions'), () => ({
+    supportsClippedViewTransitions: vi.fn(),
+}));
 
 describe('<CategoryRail>', () => {
+    afterEach(() => {
+        vi.mocked(startTransition).mockClear();
+        vi.mocked(supportsClippedViewTransitions).mockReset();
+    });
+
     it('renders nothing when there are no categories', () => {
         const { container } = render(
             <MockTheme>
@@ -117,6 +132,7 @@ describe('<CategoryRail>', () => {
 
     it('calls onSelect with the clicked category', async () => {
         const onSelect = vi.fn();
+        vi.mocked(supportsClippedViewTransitions).mockReturnValue(false);
 
         render(
             <MockTheme>
@@ -134,6 +150,59 @@ describe('<CategoryRail>', () => {
 
         await user.click(screen.getByRole('tab', { name: 'Daržovės' }));
 
+        expect(onSelect).toHaveBeenCalledWith('Daržovės');
+        expect(supportsClippedViewTransitions).toHaveBeenCalledExactlyOnceWith();
+        expect(startTransition).not.toHaveBeenCalled();
+    });
+
+    it('uses a document transition when clipped transitions are supported', async () => {
+        const onSelect = vi.fn();
+        vi.mocked(supportsClippedViewTransitions).mockReturnValue(true);
+
+        render(
+            <MockTheme>
+                <CategoryRail
+                    groups={[
+                        { group: 'Uogienės', order: 0 },
+                        { group: 'Daržovės', order: 1 },
+                    ]}
+                    selected="Uogienės"
+                    onSelect={onSelect}
+                    groupsWithContent={new Set(['Uogienės', 'Daržovės'])}
+                />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('tab', { name: 'Daržovės' }));
+
+        expect(supportsClippedViewTransitions).toHaveBeenCalledExactlyOnceWith();
+        expect(startTransition).toHaveBeenCalledExactlyOnceWith(expect.any(Function));
+        expect(onSelect).toHaveBeenCalledWith('Daržovės');
+    });
+
+    it('keeps the transition inside the scrollport when requested', async () => {
+        const onSelect = vi.fn();
+        vi.mocked(supportsClippedViewTransitions).mockReturnValue(true);
+
+        render(
+            <MockTheme>
+                <CategoryRail
+                    groups={[
+                        { group: 'Uogienės', order: 0 },
+                        { group: 'Daržovės', order: 1 },
+                    ]}
+                    selected="Uogienės"
+                    onSelect={onSelect}
+                    groupsWithContent={new Set(['Uogienės', 'Daržovės'])}
+                    animateWithinScrollport
+                />
+            </MockTheme>
+        );
+
+        await user.click(screen.getByRole('tab', { name: 'Daržovės' }));
+
+        expect(supportsClippedViewTransitions).not.toHaveBeenCalled();
+        expect(startTransition).not.toHaveBeenCalled();
         expect(onSelect).toHaveBeenCalledWith('Daržovės');
     });
 

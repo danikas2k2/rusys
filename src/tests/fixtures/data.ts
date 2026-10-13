@@ -6,7 +6,15 @@ import type { Db } from 'mongodb';
 import type { Group, Product, Variant } from '~/common/data';
 
 export type Scenario =
-    'empty' | 'basic' | 'annual' | 'review' | 'history' | 'images' | 'history-images' | 'consumed-recycled';
+    | 'empty'
+    | 'basic'
+    | 'annual'
+    | 'review'
+    | 'history'
+    | 'images'
+    | 'history-images'
+    | 'consumed-recycled'
+    | 'scrolled-products';
 
 export const currentYear = new Date().getFullYear() % 100;
 
@@ -59,6 +67,14 @@ export function createScenarioData(scenario: Scenario): { groups: Group[]; varia
             years: [{ year: currentYear, amounts: [{ variant: 'Kilogramas', amount: 1 }] }],
         },
     ];
+
+    if (scenario === 'scrolled-products') {
+        products.push(
+            ...['Uogienės', 'Daržovės'].flatMap((group) =>
+                Array.from({ length: 30 }, (_, index) => ({ group, name: `${group} ${index}`, years: [] }))
+            )
+        );
+    }
 
     if (scenario === 'images' || scenario === 'history-images') {
         const images = [

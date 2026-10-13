@@ -1,3 +1,5 @@
+import { ensureBrowsersInstalled } from '@tests/playwright/ensureBrowsersInstalled';
+
 import { defineConfig, devices, type PlaywrightTestProject } from '@playwright/test';
 
 const screenshotExpect = {
@@ -9,6 +11,7 @@ const screenshotExpect = {
 
 const visualTests = '**/*.snap.ts';
 const visualRun = process.env.PLAYWRIGHT_VISUAL === '1';
+const snapshotPathTemplate = '{testDir}/{testFileDir}/__snapshots__/{arg}-{projectName}{ext}';
 const mobileInteractionTests = [
     '**/AppRouter.spec.ts',
     '**/AmountBox.spec.ts',
@@ -31,9 +34,22 @@ const browserProjects = [
     { name: 'tablet-webkit', use: { ...devices['iPad Mini'] }, testMatch: visualTests },
 ] satisfies PlaywrightTestProject[];
 
+const projects = [
+    ...browserProjects,
+    ...browserProjects.map((project) => ({
+        ...project,
+        name: `${project.name}-dark`,
+        testMatch: visualTests,
+        use: { ...project.use, colorScheme: 'dark' as const },
+    })),
+];
+
+ensureBrowsersInstalled(projects);
+
 export default defineConfig({
     testDir: './src',
     testMatch: ['**/*.spec.ts', '**/*.snap.ts'],
+    snapshotPathTemplate,
     workers: 1,
     retries: process.env.CI ? 2 : 0,
     reporter: process.env.CI ? 'github' : 'line',
@@ -48,18 +64,10 @@ export default defineConfig({
     expect: {
         toHaveScreenshot: {
             ...screenshotExpect,
-            pathTemplate: '{testDir}/{testFileDir}/__snapshots__/{arg}-{projectName}{ext}',
+            pathTemplate: snapshotPathTemplate,
         },
     },
-    projects: [
-        ...browserProjects,
-        ...browserProjects.map((project) => ({
-            ...project,
-            name: `${project.name}-dark`,
-            testMatch: visualTests,
-            use: { ...project.use, colorScheme: 'dark' as const },
-        })),
-    ],
+    projects,
     globalTeardown: './src/tests/playwright/global-teardown.ts',
     webServer: {
         command: 'node --import tsx src/tests/playwright/start-server.ts',

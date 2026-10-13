@@ -1,3 +1,4 @@
+import { currentYear } from '@tests/fixtures/data';
 import { expect, test } from '@tests/fixtures/test';
 import { productTile } from '@tests/helpers/ui';
 
@@ -6,6 +7,88 @@ import type { Product } from '~/common/data';
 test.use({ scenario: 'review' });
 
 test.describe('review', () => {
+    test('keeps the filter header in place across short and long categories', async ({ page, db }) => {
+        await page.setViewportSize({ width: 390, height: 700 });
+        await db.collection<Product>('products').insertMany(
+            ['Uogienės', 'Daržovės'].flatMap((group) =>
+                Array.from({ length: group === 'Uogienės' ? 2 : 35 }, (_, index) => ({
+                    group,
+                    name: `${group} ${index}`,
+                    years: [{ year: currentYear, amounts: [] }],
+                }))
+            )
+        );
+        await page.goto('/');
+        await page.getByRole('button', { name: 'Peržiūra' }).click();
+        const review = page.getByRole('dialog').last();
+        await expect(review.getByRole('row', { name: /Uogienės 0/ })).toBeVisible();
+        const header = review.locator('.ui-Modal-header');
+        const filter = review.locator('.ReviewBox-filter');
+        const closeButton = review.getByRole('button', { name: 'Uždaryti' });
+        const scroll = review.locator('.ReviewBox-scroll');
+        const shortHeader = await header.boundingBox();
+        const shortFilter = await filter.boundingBox();
+        const shortCloseButton = await closeButton.boundingBox();
+        const shortScroll = await scroll.evaluate((element) => element.scrollHeight - element.clientHeight);
+        expect(shortScroll).toBe(0);
+
+        await review.getByRole('tab', { name: 'Daržovės' }).click();
+        await expect(review.getByRole('row', { name: /Daržovės 0/ })).toBeVisible();
+        await expect
+            .poll(() => scroll.evaluate((element) => element.scrollHeight - element.clientHeight))
+            .toBeGreaterThan(0);
+        const longHeader = await header.boundingBox();
+        const longFilter = await filter.boundingBox();
+        const longCloseButton = await closeButton.boundingBox();
+        expect(longHeader?.y).toBe(shortHeader?.y);
+        expect(longHeader?.height).toBe(shortHeader?.height);
+        expect(longFilter?.y).toBe(shortFilter?.y);
+        expect(longCloseButton?.y).toBe(shortCloseButton?.y);
+    });
+
+    test('clips the category transition inside the scrolled review dialog', async ({ page, db }) => {
+        await page.setViewportSize({ width: 390, height: 700 });
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+        await db.collection<Product>('products').insertMany(
+            ['Uogienės', 'Daržovės'].flatMap((group) =>
+                Array.from({ length: 35 }, (_, index) => ({
+                    group,
+                    name: `${group} ${index}`,
+                    years: [{ year: currentYear, amounts: [] }],
+                }))
+            )
+        );
+        await page.goto('/');
+        await page.getByRole('button', { name: 'Peržiūra' }).click();
+        const review = page.getByRole('dialog').last();
+        await expect(review.getByRole('row', { name: /Uogienės 0/ })).toBeVisible();
+        await expect(review.getByRole('heading', { name: 'Uogienės', level: 1 })).toHaveCount(1);
+        await expect(review.locator('[data-category-heading]')).toHaveCount(0);
+        await page.waitForTimeout(250);
+
+        const scroll = review.locator('.ReviewBox-scroll');
+        await scroll.evaluate((element) => {
+            element.scrollTop = 250;
+        });
+        await expect.poll(() => scroll.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+        await expect(review.getByRole('heading', { name: 'Uogienės', level: 1 })).toBeVisible();
+        const content = review.locator('.CategoryRailLayout-content');
+        await content.evaluate((element) => {
+            const animate = element.animate.bind(element);
+            element.animate = (keyframes, options) =>
+                animate(keyframes, { ...(options as KeyframeAnimationOptions), duration: 2000 });
+        });
+        const closeButtonClip = { x: 320, y: 0, width: 70, height: 48 };
+        const closeButtonBefore = await page.screenshot({ clip: closeButtonClip });
+
+        await review.getByRole('tab', { name: 'Daržovės' }).click();
+        await expect(review.getByRole('row', { name: /Daržovės 0/ })).toBeVisible();
+        await expect(review.getByRole('heading', { name: 'Daržovės', level: 1 })).toHaveCount(1);
+        await expect.poll(() => content.evaluate((element) => element.getAnimations().length)).toBeGreaterThan(0);
+        await page.waitForTimeout(300);
+        expect(await page.screenshot({ clip: closeButtonClip })).toEqual(closeButtonBefore);
+    });
+
     test('review tooltip and untouched selection', async ({ page, db }) => {
         await page.goto('/');
         await test.step('review button shows its tooltip to the left', async () => {

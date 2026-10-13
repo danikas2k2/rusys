@@ -3,6 +3,40 @@ import { expect, test } from '@tests/fixtures/test';
 import type { Product, Variant } from '~/common/data';
 
 test.describe('variants', () => {
+    test('clips the category transition to the scrolled variants viewport', async ({ page, db }) => {
+        await page.setViewportSize({ width: 390, height: 700 });
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+        await db
+            .collection<Variant>('variants')
+            .insertMany(
+                ['Uogienės', 'Daržovės'].flatMap((group) =>
+                    Array.from({ length: 35 }, (_, order) => ({ group, variant: `${group} ${order}`, order }))
+                )
+            );
+        await page.goto('/variants');
+        await expect(page.getByRole('row', { name: /Uogienės 0/ })).toBeVisible();
+        await page.waitForTimeout(250);
+
+        const viewport = page.locator('.ui-AppShell-main [data-scrollarea-viewport]');
+        await viewport.evaluate((element) => {
+            element.scrollTop = 250;
+        });
+        await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+        await expect.poll(async () => (await page.locator('[data-category-heading]').boundingBox())?.y).toBeLessThan(0);
+        await expect(viewport).toHaveCSS('view-transition-name', 'category-page-scrollport');
+        const toolbarClip = { x: 0, y: 0, width: 390, height: 48 };
+        const toolbarBefore = await page.screenshot({ clip: toolbarClip });
+        await page.addStyleTag({
+            content:
+                '::view-transition-old(.category-update), ::view-transition-new(.category-update) { animation-duration: 2s !important; }',
+        });
+
+        await page.getByRole('tab', { name: 'Daržovės' }).click();
+        await expect(page.getByRole('row', { name: /Daržovės 0/ })).toBeVisible();
+        await page.waitForTimeout(300);
+        expect(await page.screenshot({ clip: toolbarClip })).toEqual(toolbarBefore);
+    });
+
     test('creates and edits a variant with its display metadata @critical', async ({ page, db }) => {
         await page.goto('/variants');
         await expect(page.getByRole('row', { name: /Stiklainis/ }).first()).toBeVisible();

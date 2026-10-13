@@ -1,6 +1,30 @@
+@supports (view-transition-group: contain) {
+    /* Keep document-level snapshots clipped by the same scrollports as their live content. */
+    .ui-AppShell-main [data-scrollarea-viewport]:has(.CategoryRailLayout-content) {
+        view-transition-name: category-page-scrollport;
+        view-transition-group: contain;
+    }
+
+    ::view-transition-group(category-page-scrollport) {
+        overflow: clip;
+    }
+
+    ::view-transition-old(category-page-scrollport) {
+        animation: none;
+        opacity: 0;
+    }
+
+    ::view-transition-new(category-page-scrollport) {
+        animation: none;
+    }
+}
+
 .CategoryRailLayout-content {
     flex: 1;
     min-width: 0;
+
+    /* Place nested grid/header snapshots inside the category snapshot. */
+    view-transition-group: contain;
 
     [data-category-heading] {
         margin: var(--mantine-spacing-xs);

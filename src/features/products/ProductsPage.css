@@ -6,3 +6,14 @@
     padding-block: var(--mantine-spacing-xs);
     padding-inline: var(--mantine-spacing-xs);
 }
+
+@supports (view-transition-group: contain) {
+    /* The sticky filter must paint above separately captured product tiles. */
+    [data-products-header] {
+        view-transition-name: products-sticky-header;
+    }
+
+    ::view-transition-group(products-sticky-header) {
+        z-index: 2;
+    }
+}

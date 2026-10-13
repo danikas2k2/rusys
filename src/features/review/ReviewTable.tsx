@@ -55,7 +55,7 @@ export function ReviewTable({ group, touched, checkedKeys, onToggle, onSelectAll
                             icon={touched ? undefined : UntouchedCheckboxIcon}
                             onChange={handleMasterToggle}
                             data-untouched={!touched}
-                            label={<Title order={3}>{group}</Title>}
+                            label={<Title order={1}>{group}</Title>}
                         />
                     </Table.Th>
                 </Table.Tr>
