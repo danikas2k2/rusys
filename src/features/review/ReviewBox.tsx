@@ -128,6 +128,7 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
             }
             closeButtonProps={{ 'aria-label': _('Close'), ms: 8 }}
             styles={{
+                header: { flexShrink: 0 },
                 content: { display: 'flex', flexDirection: 'column' },
                 body: { flex: '1 1 auto', minHeight: 0, display: 'flex', flexDirection: 'column', padding: 0 },
             }}
@@ -140,6 +141,8 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
                             selected={selectedGroup}
                             onSelect={setSelectedGroup}
                             groupsWithContent={groupsWithReviewProducts}
+                            animateWithinScrollport
+                            hideCategoryHeading
                         >
                             <ReviewTable
                                 group={selectedGroup}

@@ -74,6 +74,25 @@ describe('<CategoryRailLayout>', () => {
         expect(screen.getByRole('heading', { name: 'Uogienės' })).toHaveAttribute('data-category-heading');
     });
 
+    it('can omit its category heading when the content provides one', () => {
+        render(
+            <MockTheme>
+                <CategoryRailLayout
+                    groups={groups}
+                    selected="Uogienės"
+                    onSelect={vi.fn()}
+                    groupsWithContent={new Set()}
+                    hideCategoryHeading
+                >
+                    <h1>Uogienės</h1>
+                </CategoryRailLayout>
+            </MockTheme>
+        );
+
+        expect(screen.getAllByRole('heading', { name: 'Uogienės', level: 1 })).toHaveLength(1);
+        expect(screen.queryByText('Uogienės', { selector: '[data-category-heading]' })).not.toBeInTheDocument();
+    });
+
     it('passes groups, selected, onSelect and groupsWithContent through to the rail', () => {
         const groupsWithContent = new Set(['Uogienės']);
         const onSelect = vi.fn();
@@ -96,6 +115,7 @@ describe('<CategoryRailLayout>', () => {
             selected: 'Uogienės',
             onSelect,
             groupsWithContent,
+            animateWithinScrollport: false,
         });
     });
 
