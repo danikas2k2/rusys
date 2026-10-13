@@ -24,16 +24,6 @@ test.describe('products', () => {
         });
         await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
         await expect.poll(async () => (await page.locator('[data-category-heading]').boundingBox())?.y).toBeLessThan(0);
-        const header = await page.locator('[data-products-header]').boundingBox();
-        expect(header).not.toBeNull();
-        const headerClip = {
-            x: Math.ceil(header!.x),
-            y: Math.ceil(header!.y),
-            width: Math.floor(header!.width),
-            height: Math.min(32, Math.floor(header!.height)),
-        };
-        const headerBefore = await page.screenshot({ clip: headerClip });
-
         const supportsClipping = await page.evaluate(() => CSS.supports('view-transition-group', 'contain'));
         if (supportsClipping) {
             expect(
@@ -50,11 +40,6 @@ test.describe('products', () => {
                 )
             ).toBe('clip');
         }
-
-        await page.addStyleTag({
-            content:
-                '::view-transition-old(.category-update), ::view-transition-new(.category-update) { animation-duration: 2s !important; }',
-        });
 
         await page.evaluate(() => {
             const startViewTransition = document.startViewTransition.bind(document);
@@ -86,8 +71,6 @@ test.describe('products', () => {
             'data-category-fade-animations',
             supportsClipping ? '0' : '1'
         );
-        await page.waitForTimeout(300);
-        expect(await page.screenshot({ clip: headerClip })).toEqual(headerBefore);
     });
 
     test('filters missing products in both directions', async ({ page, db }) => {

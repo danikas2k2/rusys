@@ -11,6 +11,7 @@ const screenshotExpect = {
 
 const visualTests = '**/*.snap.ts';
 const visualRun = process.env.PLAYWRIGHT_VISUAL === '1';
+const snapshotPathTemplate = '{testDir}/{testFileDir}/__snapshots__/{arg}-{projectName}{ext}';
 const mobileInteractionTests = [
     '**/AppRouter.spec.ts',
     '**/AmountBox.spec.ts',
@@ -48,6 +49,7 @@ ensureBrowsersInstalled(projects);
 export default defineConfig({
     testDir: './src',
     testMatch: ['**/*.spec.ts', '**/*.snap.ts'],
+    snapshotPathTemplate,
     workers: 1,
     retries: process.env.CI ? 2 : 0,
     reporter: process.env.CI ? 'github' : 'line',
@@ -62,7 +64,7 @@ export default defineConfig({
     expect: {
         toHaveScreenshot: {
             ...screenshotExpect,
-            pathTemplate: '{testDir}/{testFileDir}/__snapshots__/{arg}-{projectName}{ext}',
+            pathTemplate: snapshotPathTemplate,
         },
     },
     projects,
