@@ -1,3 +1,5 @@
+import { assertBrowsersInstalled } from '@tests/playwright/assertBrowsersInstalled';
+
 import { defineConfig, devices, type PlaywrightTestProject } from '@playwright/test';
 
 const screenshotExpect = {
@@ -31,6 +33,18 @@ const browserProjects = [
     { name: 'tablet-webkit', use: { ...devices['iPad Mini'] }, testMatch: visualTests },
 ] satisfies PlaywrightTestProject[];
 
+const projects = [
+    ...browserProjects,
+    ...browserProjects.map((project) => ({
+        ...project,
+        name: `${project.name}-dark`,
+        testMatch: visualTests,
+        use: { ...project.use, colorScheme: 'dark' as const },
+    })),
+];
+
+assertBrowsersInstalled(projects);
+
 export default defineConfig({
     testDir: './src',
     testMatch: ['**/*.spec.ts', '**/*.snap.ts'],
@@ -51,15 +65,7 @@ export default defineConfig({
             pathTemplate: '{testDir}/{testFileDir}/__snapshots__/{arg}-{projectName}{ext}',
         },
     },
-    projects: [
-        ...browserProjects,
-        ...browserProjects.map((project) => ({
-            ...project,
-            name: `${project.name}-dark`,
-            testMatch: visualTests,
-            use: { ...project.use, colorScheme: 'dark' as const },
-        })),
-    ],
+    projects,
     globalTeardown: './src/tests/playwright/global-teardown.ts',
     webServer: {
         command: 'node --import tsx src/tests/playwright/start-server.ts',
