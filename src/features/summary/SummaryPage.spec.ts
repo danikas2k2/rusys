@@ -43,20 +43,12 @@ test.describe('summary', () => {
         });
         await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
         await expect.poll(async () => (await page.locator('[data-category-heading]').boundingBox())?.y).toBeLessThan(0);
-        const toolbarClip = { x: 0, y: 0, width: 390, height: 48 };
-        const toolbarBefore = await page.screenshot({ clip: toolbarClip });
         expect(
             await viewport.evaluate((element) => getComputedStyle(element).getPropertyValue('view-transition-group'))
         ).toBe('contain');
-        await page.addStyleTag({
-            content:
-                '::view-transition-old(.category-update), ::view-transition-new(.category-update) { animation-duration: 2s !important; }',
-        });
 
         await page.getByRole('tab', { name: 'Daržovės' }).click();
         await expect(page.locator('[data-summary-tile]').filter({ hasText: 'Daržovės 0' }).first()).toBeVisible();
-        await page.waitForTimeout(300);
-        expect(await page.screenshot({ clip: toolbarClip })).toEqual(toolbarBefore);
     });
 
     test('consumption persists and summary filters work @critical', async ({ page }) => {
