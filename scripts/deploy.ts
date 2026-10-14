@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 interface DeployConfig {
@@ -71,6 +71,50 @@ docker=${shellQuote(dockerPath)}
 
 type Connection = ReturnType<typeof createConnection>;
 type Slot = 'blue' | 'green';
+
+const requiredBuildSources = [
+    'src',
+    'public',
+    'docker',
+    'docker/Dockerfile',
+    'docker/compose.yaml',
+    'docker/nginx.conf.template',
+    'package.json',
+    'pnpm-lock.yaml',
+    'pnpm-workspace.yaml',
+    'next.config.ts',
+    'postcss.config.mjs',
+    'tsconfig.json',
+    '.dockerignore',
+] as const;
+
+export function prepareBuildSources(root: string): void {
+    for (const source of requiredBuildSources) {
+        const sourcePath = path.join(root, source);
+        const expectedType = source === 'src' || source === 'public' || source === 'docker' ? 'directory' : 'file';
+        let valid = false;
+        try {
+            const stats = statSync(sourcePath);
+            valid = expectedType === 'directory' ? stats.isDirectory() : stats.isFile();
+        } catch {
+            // Report the missing or inaccessible source with its deployment path below.
+        }
+        if (!valid) {
+            throw new Error(
+                `Required deployment ${expectedType} "${source}" is missing or has the wrong type. Restore it before deploying.`
+            );
+        }
+    }
+
+    // Git checkouts omit empty directories, but Dockerfile still copies this directory.
+    try {
+        mkdirSync(path.join(root, 'scripts/postcss'), { recursive: true });
+    } catch {
+        throw new Error(
+            'Cannot prepare deployment directory "scripts/postcss". Ensure scripts/ is writable and scripts/postcss is a directory.'
+        );
+    }
+}
 
 function getDeployExcludes(): string[] {
     return readFileSync(path.resolve('.dockerignore'), 'utf8')
@@ -178,8 +222,10 @@ export function deploy(config?: DeployConfig) {
             console.log('🚀 Starting blue-green deployment...');
 
             try {
+                prepareBuildSources(process.cwd());
                 const deployExcludes = getDeployExcludes();
                 if (!isRunning(connection, 'rusys-gateway')) {
+                    // noinspection ExceptionCaughtLocallyJS
                     throw new Error('The blue-green gateway is not running.');
                 }
                 const candidate: Slot = activeSlot(connection) === 'blue' ? 'green' : 'blue';
@@ -251,6 +297,7 @@ export function rollback(config?: DeployConfig) {
 
             try {
                 if (!isRunning(connection, 'rusys-gateway')) {
+                    // noinspection ExceptionCaughtLocallyJS
                     throw new Error('The blue-green gateway is not running.');
                 }
                 const previous: Slot = activeSlot(connection) === 'blue' ? 'green' : 'blue';
@@ -258,6 +305,7 @@ export function rollback(config?: DeployConfig) {
                     switchTo(connection, previous);
                     console.log(`Rolled back to application slot: ${previous}`);
                 } else {
+                    // noinspection ExceptionCaughtLocallyJS
                     throw new Error('No healthy previous application is available.');
                 }
                 console.log('✅ Rollback completed successfully!');

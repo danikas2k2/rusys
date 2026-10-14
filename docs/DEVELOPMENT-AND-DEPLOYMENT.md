@@ -138,7 +138,9 @@ does not start this workflow. The package's `version` script also updates Docker
 For a release, the workflow calls the full [CI workflow](../.github/workflows/ci.yml), including lint, build, coverage,
 E2E, Lighthouse, and visual tests. The production job starts only after every CI job passes. It checks out the pushed
 commit, configures SSH, and runs `pnpm deploy:run`. The deployment script reports failure if upload, Docker build,
-health checks, or the gateway switch fails. Production deployments are serialized.
+health checks, or the gateway switch fails. It checks required Docker build sources before connecting and creates an
+empty `scripts/postcss` directory if the checkout omits it, so Docker can still copy that path. Production deployments
+are serialized.
 
 Create a GitHub Actions environment named `production` in the repository settings. Restrict its deployment branches to
 `main`. Add these environment settings:
