@@ -1,13 +1,13 @@
 import { getSummaryHistory, readSummary } from '~/server/actions/summary';
 import { requireSession } from '~/server/auth/session';
 import { getFullSummary, getSummaryUndates, getSummaryUpdates } from '~/server/data/summary';
-import { getVisualScenario, getVisualSummaryHistory } from '~/tests/fixtures/visualData';
+import { getVisualHistory, getVisualScenario } from '~/tests/fixtures/visualData';
 
 vi.mock(import('~/server/auth/session'));
 vi.mock(import('~/server/data/summary'));
 vi.mock(import('~/tests/fixtures/visualData'), () => ({
     getVisualScenario: vi.fn(),
-    getVisualSummaryHistory: vi.fn(),
+    getVisualHistory: vi.fn(),
 }));
 
 describe('getSummaryHistory', () => {
@@ -30,11 +30,11 @@ describe('getSummaryHistory', () => {
         vi.stubEnv('PLAYWRIGHT_TEST', '1');
         const history = { updates: [], undates: [] };
         vi.mocked(getVisualScenario).mockResolvedValueOnce('history');
-        vi.mocked(getVisualSummaryHistory).mockReturnValueOnce(history);
+        vi.mocked(getVisualHistory).mockReturnValueOnce(history);
 
         await expect(getSummaryHistory('Uogienės', 'Avietės', 2026)).resolves.toBe(history);
 
-        expect(getVisualSummaryHistory).toHaveBeenCalledExactlyOnceWith('Uogienės', 'Avietės', 2026);
+        expect(getVisualHistory).toHaveBeenCalledExactlyOnceWith('Uogienės', 'Avietės', 2026);
         expect(getSummaryUpdates).not.toHaveBeenCalled();
         expect(getSummaryUndates).not.toHaveBeenCalled();
     });
@@ -47,7 +47,7 @@ describe('getSummaryHistory', () => {
 
         await expect(getSummaryHistory('A', 'B', 2026)).resolves.toStrictEqual({ updates: [], undates: [] });
 
-        expect(getVisualSummaryHistory).not.toHaveBeenCalled();
+        expect(getVisualHistory).not.toHaveBeenCalled();
         expect(getSummaryUpdates).toHaveBeenCalledExactlyOnceWith('A', 'B', 2026);
         expect(getSummaryUndates).toHaveBeenCalledExactlyOnceWith('A', 'B', 2026);
     });

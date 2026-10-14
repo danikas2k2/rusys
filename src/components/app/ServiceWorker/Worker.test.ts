@@ -125,15 +125,19 @@ describe('offline service worker', () => {
         expect((await dispatch('fetch', { request: asset }))?.status).toBe(200);
         expect(fetchMock).not.toHaveBeenCalled();
 
-        const missing = new Request(`${origin}/_next/static/app.js`);
+        const missing = new Request(`${origin}/_next/static/media/noto-sans.woff2`);
         fetchMock.mockImplementationOnce(async () => {
-            const result = response('fresh', 'application/javascript');
+            const result = response('fresh', 'font/woff2');
             Object.defineProperty(result, 'type', { value: 'basic' });
             return result;
         });
 
         await expect((await dispatch('fetch', { request: missing }))?.text()).resolves.toBe('fresh');
         expect(store('rusys-public-v2').has(missing.url)).toBe(true);
+
+        fetchMock.mockRejectedValueOnce(new Error('offline'));
+
+        await expect((await dispatch('fetch', { request: missing }))?.text()).resolves.toBe('fresh');
     });
 
     it('leaves non-cacheable requests to the network', async () => {

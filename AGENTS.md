@@ -35,6 +35,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Avoid `any` unless justified.
 - Handle failures explicitly.
 - Prefer existing project patterns.
+- Use a shared class or data-* selector for styling instead of inline styles.
 - Avoid unrelated refactoring and dependencies.
 
 ## Testing

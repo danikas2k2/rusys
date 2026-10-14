@@ -106,6 +106,7 @@ describe('service worker', () => {
         expect(response.headers.get('Cache-Control')).toContain('no-store');
         expect(() => new vm.Script(javascript)).not.toThrow();
         expect(javascript).toContain('/offline');
+        expect(javascript).not.toContain('/assets/fonts/');
     });
 
     it('uses cached public assets before the network', async () => {

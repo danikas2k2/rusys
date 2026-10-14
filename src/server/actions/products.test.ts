@@ -42,15 +42,23 @@ import {
     undoProduct,
 } from '~/server/data/products';
 import { getVariants } from '~/server/data/variants';
+import { getVisualHistory, getVisualScenario } from '~/tests/fixtures/visualData';
 
 vi.mock(import('~/server/auth/session'));
 vi.mock(import('~/server/data/common'));
 vi.mock(import('~/server/data/products'));
 vi.mock(import('~/server/data/groups'));
 vi.mock(import('~/server/data/variants'));
+vi.mock(import('~/tests/fixtures/visualData'), () => ({
+    getVisualScenario: vi.fn(),
+    getVisualHistory: vi.fn(),
+}));
 
 describe('product actions', () => {
-    afterEach(() => vi.clearAllMocks());
+    afterEach(() => {
+        vi.clearAllMocks();
+        vi.unstubAllEnvs();
+    });
 
     it('loads product history directly from server data functions', async () => {
         vi.mocked(getProductUpdates).mockResolvedValue([]);
@@ -60,6 +68,32 @@ describe('product actions', () => {
 
         expect(getProductUpdates).toHaveBeenCalledWith('A', 'B', 2026);
         expect(getProductUndates).toHaveBeenCalledWith('A', 'B', 2026);
+    });
+
+    it('loads fixture history for a visual scenario without reading the database', async () => {
+        vi.stubEnv('PLAYWRIGHT_TEST', '1');
+        const history = { updates: [], undates: [] };
+        vi.mocked(getVisualScenario).mockResolvedValueOnce('history');
+        vi.mocked(getVisualHistory).mockReturnValueOnce(history);
+
+        await expect(getProductHistory('Uogienės', 'Avietės', 2026)).resolves.toBe(history);
+
+        expect(getVisualHistory).toHaveBeenCalledExactlyOnceWith('Uogienės', 'Avietės', 2026);
+        expect(getProductUpdates).not.toHaveBeenCalled();
+        expect(getProductUndates).not.toHaveBeenCalled();
+    });
+
+    it('reads database history when visual mode has no scenario', async () => {
+        vi.stubEnv('PLAYWRIGHT_TEST', '1');
+        vi.mocked(getVisualScenario).mockResolvedValueOnce(undefined);
+        vi.mocked(getProductUpdates).mockResolvedValueOnce([]);
+        vi.mocked(getProductUndates).mockResolvedValueOnce([]);
+
+        await expect(getProductHistory('A', 'B', 2026)).resolves.toStrictEqual({ updates: [], undates: [] });
+
+        expect(getVisualHistory).not.toHaveBeenCalled();
+        expect(getProductUpdates).toHaveBeenCalledExactlyOnceWith('A', 'B', 2026);
+        expect(getProductUndates).toHaveBeenCalledExactlyOnceWith('A', 'B', 2026);
     });
 
     it.each([

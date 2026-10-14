@@ -121,7 +121,7 @@ export function getVisualAppData(
     };
 }
 
-export function getVisualSummaryHistory(group: string, name: string, year: number): ProductHistory {
+export function getVisualHistory(group: string, name: string, year: number): ProductHistory {
     if (group !== 'Uogienės' || name !== 'Avietės' || year !== currentYear) {
         return { updates: [], undates: [] };
     }
