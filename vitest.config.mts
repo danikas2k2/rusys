@@ -87,7 +87,7 @@ export default defineConfig({
                     setupFiles: [...sharedSetup],
                 },
             },
-            // Server workspace: node environment for src/server.
+            // Server workspace: node environment for server code and scripts.
             // ------------------------------------------------------------------
             {
                 extends: false,
@@ -103,6 +103,7 @@ export default defineConfig({
                         'src/server/**/*.test.{ts,tsx}',
                         'src/app/api/**/*.test.ts',
                         'src/app/images/**/*.test.ts',
+                        'scripts/**/*.test.ts',
                     ],
                     setupFiles: [...sharedSetup],
                 },
