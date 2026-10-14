@@ -1,4 +1,5 @@
 import { expect, test } from '@tests/fixtures/visual';
+import { waitForMenuIcon } from '@tests/helpers/ui';
 
 test.use({ reducedMotion: 'reduce', locale: 'lt-LT', scenario: 'history' });
 
@@ -14,6 +15,7 @@ test.describe('with images', () => {
     test('summary page', async ({ page }) => {
         await page.goto('/summary');
         await expect(page.locator('[data-summary-tile]').filter({ hasText: 'Avietės' }).first()).toBeVisible();
+        await waitForMenuIcon(page);
         await expect(page).toHaveScreenshot(['SummaryPage', 'summary-page-images.png']);
     });
 });

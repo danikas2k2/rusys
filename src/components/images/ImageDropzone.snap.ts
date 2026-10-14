@@ -35,6 +35,7 @@ test('category image upload progress', async ({ page }) => {
     await category.locator('input[type="file"]').setInputFiles('src/tests/assets/uogienes.png');
     await category.getByRole('button', { name: 'Naujinti' }).click();
     await expect(category.getByRole('progressbar', { name: 'Upload progress' })).toHaveAttribute('aria-valuenow', '42');
+    await expect(category.getByRole('button', { name: 'Pašalinti paveikslėlį' })).toBeDisabled();
     await expect(category.getByTestId('image-dropzone')).toHaveScreenshot([
         'ImageDropzone',
         'category-image-upload-progress.png',

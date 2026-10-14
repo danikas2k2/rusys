@@ -35,3 +35,21 @@ export async function waitForTileBackground(tile: Locator) {
         .poll(() => image.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 0))
         .toBe(true);
 }
+
+export async function waitForMenuIcon(page: Page) {
+    const icon = page.locator('.toolbar-menu-burger-icon');
+    await expect(icon).toBeVisible();
+    await expect
+        .poll(() =>
+            icon.evaluate((element) => {
+                const before = getComputedStyle(element, '::before');
+                return (
+                    before.content !== 'none' &&
+                    before.content !== 'normal' &&
+                    before.backgroundColor !== 'rgba(0, 0, 0, 0)' &&
+                    before.backgroundColor !== 'transparent'
+                );
+            })
+        )
+        .toBe(true);
+}
