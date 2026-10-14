@@ -27,7 +27,7 @@ export default defineConfig({
     testDir: './src',
     testMatch: '**/*.snap.ts',
     snapshotPathTemplate,
-    workers: 3,
+    workers: process.env.CI ? 1 : 3,
     retries: process.env.CI ? 2 : 0,
     reporter: process.env.CI ? 'github' : 'list',
     use: {
