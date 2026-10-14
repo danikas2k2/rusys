@@ -3,21 +3,23 @@ import { ensureBrowsersInstalled } from '@tests/playwright/ensureBrowsersInstall
 import { defineConfig, devices, type PlaywrightTestProject } from '@playwright/test';
 
 const snapshotPathTemplate = '{testDir}/{testFileDir}/__snapshots__/{arg}-{projectName}{ext}';
+
 const browserProjects = [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile-chromium', use: { ...devices['Pixel 7'] } },
-    { name: 'tablet-chromium', use: { ...devices['Galaxy Tab S9'] } },
-    { name: 'mobile-webkit', use: { ...devices['iPhone 17'] } },
-    { name: 'tablet-webkit', use: { ...devices['iPad Mini'] } },
+    { name: 'chromium-mobile', use: { ...devices['Pixel 7'] } },
+    { name: 'chromium-tablet', use: { ...devices['Galaxy Tab S9'] } },
+    { name: 'webkit-mobile', use: { ...devices['iPhone 17'] } },
+    { name: 'webkit-tablet', use: { ...devices['iPad Mini'] } },
 ] satisfies PlaywrightTestProject[];
-const projects = [
-    ...browserProjects,
-    ...browserProjects.map((project) => ({
+
+const projects = browserProjects.flatMap((project) => [
+    project,
+    {
         ...project,
         name: `${project.name}-dark`,
         use: { ...project.use, colorScheme: 'dark' as const },
-    })),
-];
+    },
+]);
 
 ensureBrowsersInstalled(projects);
 
@@ -25,9 +27,9 @@ export default defineConfig({
     testDir: './src',
     testMatch: '**/*.snap.ts',
     snapshotPathTemplate,
-    workers: 2,
+    workers: 3,
     retries: process.env.CI ? 2 : 0,
-    reporter: process.env.CI ? 'github' : 'line',
+    reporter: process.env.CI ? 'github' : 'list',
     use: {
         baseURL: 'http://127.0.0.1:3022',
         colorScheme: 'light',
@@ -39,7 +41,7 @@ export default defineConfig({
     expect: {
         toHaveScreenshot: {
             animations: 'disabled',
-            caret: 'hide',
+            caret: 'initial',
             scale: 'css',
             stylePath: './src/tests/visual.css',
             pathTemplate: snapshotPathTemplate,

@@ -2,14 +2,8 @@ import { ensureBrowsersInstalled } from '@tests/playwright/ensureBrowsersInstall
 
 import { defineConfig, devices, type PlaywrightTestProject } from '@playwright/test';
 
-const screenshotExpect = {
-    animations: 'disabled' as const,
-    caret: 'hide' as const,
-    scale: 'css' as const,
-    stylePath: './src/tests/visual.css',
-};
-
 const snapshotPathTemplate = '{testDir}/{testFileDir}/__snapshots__/{arg}-{projectName}{ext}';
+
 const mobileInteractionTests = [
     '**/AppRouter.spec.ts',
     '**/AmountBox.spec.ts',
@@ -19,17 +13,17 @@ const mobileInteractionTests = [
     '**/Accessibility.spec.ts',
 ];
 
-const browserProjects = [
+const projects = [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile-chromium', use: { ...devices['Pixel 7'] }, testMatch: mobileInteractionTests },
+    { name: 'chromium-mobile', use: { ...devices['Pixel 7'] }, testMatch: mobileInteractionTests },
     {
-        name: 'mobile-webkit',
+        name: 'webkit-mobile',
         use: { ...devices['iPhone 17'] },
         testMatch: mobileInteractionTests,
     },
 ] satisfies PlaywrightTestProject[];
 
-ensureBrowsersInstalled(browserProjects);
+ensureBrowsersInstalled(projects);
 
 export default defineConfig({
     testDir: './src',
@@ -37,7 +31,7 @@ export default defineConfig({
     snapshotPathTemplate,
     workers: 1,
     retries: process.env.CI ? 2 : 0,
-    reporter: process.env.CI ? 'github' : 'line',
+    reporter: process.env.CI ? 'github' : 'list',
     use: {
         baseURL: 'http://127.0.0.1:3022',
         colorScheme: 'light',
@@ -48,11 +42,14 @@ export default defineConfig({
     },
     expect: {
         toHaveScreenshot: {
-            ...screenshotExpect,
+            animations: 'disabled',
+            caret: 'initial',
+            scale: 'css',
+            stylePath: './src/tests/visual.css',
             pathTemplate: snapshotPathTemplate,
         },
     },
-    projects: browserProjects,
+    projects,
     globalTeardown: './src/tests/playwright/global-teardown.ts',
     webServer: {
         command: 'node --import tsx src/tests/playwright/start-server.ts',
