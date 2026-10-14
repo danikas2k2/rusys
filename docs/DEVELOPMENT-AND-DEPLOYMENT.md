@@ -33,8 +33,16 @@ out of Git.
 | `pnpm check:all`     | Run lint, coverage, visual, and E2E tests |
 | `pnpm assets`        | Generate and optimize PWA assets          |
 
-Playwright tests require installed browsers. E2E tests use a temporary MongoDB instance. Visual tests start a separate
-Next.js server. Configuration lives in `vitest.config.mts` and `playwright.config.ts`.
+The four Noto families are loaded through `next/font/google` in `src/app/layout.tsx`. A production build downloads and
+self-hosts them as hashed `/_next/static/` assets, so the build needs access to Google Fonts. Browsers request all fonts
+from this app. Next.js supplies immutable cache headers, and the service worker caches requested static assets for later
+offline use.
+
+Playwright tests require installed browsers. E2E tests use a temporary MongoDB instance and one worker so database
+resets cannot overlap. Visual tests use scenario fixtures instead of MongoDB and run with two workers against a separate
+Next.js server and a temporary image directory. Their database URL is deliberately invalid so an unstubbed data request
+fails immediately. Playwright configuration lives in `playwright.config.ts` for E2E and `playwright.visual.config.ts`
+for snapshots; Vitest uses `vitest.config.mts`.
 
 The pre-commit hook runs Gitleaks on staged changes, followed by `pnpm lint`. Prettier, ESLint, and Stylelint cache
 results for unchanged files; TypeScript stores incremental project information. Their local cache files are ignored by

@@ -1,11 +1,12 @@
 import { expect, test } from '@tests/fixtures/visual';
-import { productTile, waitForImages, waitForTileBackground } from '@tests/helpers/ui';
+import { productTile, waitForImages, waitForMenuIcon, waitForTileBackground } from '@tests/helpers/ui';
 
 test.use({ reducedMotion: 'reduce', locale: 'lt-LT' });
 
 test('products page', async ({ page }) => {
     await page.goto('/');
     await expect(productTile(page, 'Avietės')).toBeVisible();
+    await expect(page.locator('input').first()).toHaveCSS('caret-color', 'rgba(0, 0, 0, 0)');
     await expect(page).toHaveScreenshot(['ProductsPage', 'products-page.png']);
 });
 
@@ -32,7 +33,7 @@ test.describe('scrolled products', () => {
             width: Math.floor(header!.width),
             height: Math.min(24, Math.floor(header!.height)),
         };
-        const screenshot = () => page.screenshot({ clip: headerClip, scale: 'css' });
+        const screenshot = () => page.screenshot({ clip: headerClip, scale: 'css', caret: 'initial' });
         const snapshot = ['ProductsPage', 'products-scrolled-header.png'];
         expect(await screenshot()).toMatchSnapshot(snapshot);
 
@@ -53,6 +54,7 @@ test.describe('review', () => {
     test('products page with missing items', async ({ page }) => {
         await page.goto('/');
         await expect(productTile(page, 'Avietės')).toBeVisible();
+        await waitForMenuIcon(page);
         await expect(page).toHaveScreenshot(['ProductsPage', 'products-page-missing.png']);
     });
 });

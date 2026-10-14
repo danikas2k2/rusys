@@ -9,6 +9,8 @@ import { useLocale } from '~/lib/hooks/useLocale';
 import { LOCALE_COOKIE } from '~/lib/locale';
 import { translate } from '~/lib/translate';
 
+import './LanguageToggle.css';
+
 export function LanguageToggle(): React.JSX.Element {
     const locale = useLocale();
     const setLocale = use(SetLocaleContext);
@@ -37,15 +39,15 @@ export function LanguageToggle(): React.JSX.Element {
                     aria-label={targetLabel}
                     checked={locale === 'lt-LT'}
                     color="primary"
-                    offLabel={
-                        <span aria-hidden="true" style={{ fontSize: '1.15rem', lineHeight: 1 }}>
-                            🇺🇸
-                        </span>
-                    }
                     onChange={(event) => changeLanguage(event.currentTarget.checked)}
                     onLabel={
-                        <span aria-hidden="true" style={{ fontSize: '1.15rem', lineHeight: 1 }}>
+                        <span aria-hidden="true" data-flag>
                             🇱🇹
+                        </span>
+                    }
+                    offLabel={
+                        <span aria-hidden="true" data-flag>
+                            🇺🇸
                         </span>
                     }
                     size="lg"

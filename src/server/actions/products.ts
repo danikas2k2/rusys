@@ -13,14 +13,13 @@ import {
     isYear,
 } from '~/server/actions/validation';
 import { requireSession } from '~/server/auth/session';
+import { getProductHistoryData } from '~/server/data/actionHistory';
 import { moveProductOccurrences } from '~/server/data/common';
 import { getGroups } from '~/server/data/groups';
 import {
     addProduct,
     deleteProduct,
     getProductsWithYears,
-    getProductUndates,
-    getProductUpdates,
     moveConsumedToRecycled,
     redoProduct,
     renameProduct,
@@ -281,9 +280,5 @@ export async function getProductHistory(group: string, name: string, year: numbe
     if (!isRequiredString(group) || !isRequiredString(name) || !isYear(year)) {
         throw new Error('Invalid history selection');
     }
-    const [updates, undates] = await Promise.all([
-        getProductUpdates(group, name, year),
-        getProductUndates(group, name, year),
-    ]);
-    return { updates, undates };
+    return getProductHistoryData(group, name, year);
 }

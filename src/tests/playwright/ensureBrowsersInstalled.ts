@@ -42,7 +42,9 @@ export function ensureBrowsersInstalled(
     const selected = requested.length
         ? projects.filter((project) => requested.some((pattern) => matchesProject(project.name ?? '', pattern)))
         : projects;
-    const required = new Set(selected.map((project) => project.use?.browserName ?? 'chromium'));
+    const required = new Set(
+        selected.map((project) => project.use?.browserName ?? project.use?.defaultBrowserType ?? 'chromium')
+    );
     const missing = [...required].filter((browser) => !hasExecutable(browsers[browser].executablePath()));
 
     if (!missing.length) {

@@ -7,6 +7,12 @@ test('filtered toolbar', async ({ page }) => {
     await page.goto('/');
     await expect(productTile(page, 'Avietės')).toBeVisible();
     const toolbar = page.locator('.Toolbar');
-    await page.getByRole('searchbox', { name: 'filtruokite' }).fill('Avietės');
+    const filter = page.getByRole('searchbox', { name: 'filtruokite' });
+    await expect
+        .poll(async () => {
+            await filter.fill('Avietės');
+            return toolbar.getByRole('button', { name: 'Išvalyti' }).isVisible();
+        })
+        .toBe(true);
     await expect(toolbar).toHaveScreenshot(['Toolbar', 'toolbar-filtered.png']);
 });

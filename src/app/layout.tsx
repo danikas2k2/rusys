@@ -1,5 +1,6 @@
 import { ColorSchemeScript } from '@mantine/core';
 import type { Metadata, Viewport } from 'next';
+import { Noto_Color_Emoji, Noto_Sans, Noto_Sans_Display, Noto_Sans_Mono } from 'next/font/google';
 import React, { type PropsWithChildren } from 'react';
 
 import { ServiceWorkerRegistration } from '~/components/app/ServiceWorker/Registration';
@@ -8,6 +9,36 @@ import { getRequestLocale } from '~/server/requestLocale';
 import { PwaHead } from './PwaHead';
 
 import './globals.css';
+
+const notoSans = Noto_Sans({
+    style: ['normal'],
+    axes: ['wdth'],
+    subsets: ['latin', 'latin-ext'],
+    variable: '--font-noto-sans',
+    preload: true,
+});
+const notoSansDisplay = Noto_Sans_Display({
+    style: ['normal'],
+    axes: ['wdth'],
+    subsets: ['latin', 'latin-ext'],
+    variable: '--font-noto-sans-display',
+    preload: true,
+});
+const notoSansMono = Noto_Sans_Mono({
+    style: ['normal'],
+    axes: ['wdth'],
+    subsets: ['latin', 'latin-ext'],
+    variable: '--font-noto-sans-mono',
+    preload: true,
+});
+const notoColorEmoji = Noto_Color_Emoji({
+    style: ['normal'],
+    weight: '400',
+    subsets: ['emoji'],
+    variable: '--font-noto-color-emoji',
+    preload: true,
+});
+const fonts = [notoSans.variable, notoSansDisplay.variable, notoSansMono.variable, notoColorEmoji.variable];
 
 export async function generateMetadata(): Promise<Metadata> {
     const locale = await getRequestLocale();
@@ -25,16 +56,10 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: PropsWithChildren): Promise<React.JSX.Element> {
     const locale = await getRequestLocale();
     return (
-        <html lang={locale.slice(0, 2)} suppressHydrationWarning>
+        <html lang={locale.slice(0, 2)} className={fonts.join(' ')} suppressHydrationWarning>
             <head>
                 <ColorSchemeScript defaultColorScheme="auto" />
                 <PwaHead />
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-                <link
-                    rel="stylesheet"
-                    href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&family=Noto+Sans+Display:ital,wdth,wght@0,62.5..100,100..900;1,62.5..100,100..900&family=Noto+Sans+Mono:wdth,wght@62.5..100,100..900&family=Noto+Sans:ital,wdth,wght@0,62.5..100,100..900;1,62.5..100,100..900&display=swap"
-                />
             </head>
             <body>
                 <ServiceWorkerRegistration />

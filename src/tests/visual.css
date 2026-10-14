@@ -3,6 +3,13 @@ nextjs-portal {
     visibility: hidden !important;
 }
 
+/* Hide the caret without Playwright changing inline styles during hydration. */
+input,
+textarea,
+[contenteditable="true"] {
+    caret-color: transparent !important;
+}
+
 /* Keep page snapshots stable when the package version changes. */
 .ui-AppShell-footer > span:first-child {
     font-size: 0 !important;

@@ -15,15 +15,16 @@ items below distinguish tested scenarios from branches that still need coverage.
 - [x] `src/tests/fixtures/data.ts` defines typed `empty`, `basic`, `annual`, `review`, `history`, and `images`
       scenarios. Years use the app's two-digit format; the history example aligns with the September summary boundary.
 - [x] `src/tests/fixtures/test.ts` resets the temporary `mongodb-memory-server` database and image directory before
-      **every** test. The URI, database name, and directory path are checked before cleanup; no live database is used.
-      Tests sharing the database run in one worker.
+      **every E2E test**. The URI, database name, and directory path are checked before cleanup; no live database is
+      used. Tests sharing the database run in one worker. Visual tests use `src/tests/fixtures/visual.ts` and scenario
+      data without MongoDB, so they can run in two workers.
 - [x] Tests use visible names, accessibility roles, and stable `data-*` selectors. Important mutations are checked
       against MongoDB records and, where applicable, after a page reload.
 - [x] Menu navigation and direct entry for all four pages verify content, not just the URL; an empty-database scenario
       is included. Failures retain a `trace` and screenshot.
 - [ ] Add real image files to the `images` scenario. Separate upload tests currently create images, while the scenario
       itself contains only basic data.
-- [ ] If parallel execution becomes necessary, isolate the database and Next process per Playwright worker. The current
+- [ ] If parallel E2E execution becomes necessary, isolate the database and Next process per Playwright worker. The E2E
       `workers: 1` limit is intentional.
 
 ## Critical user flows
@@ -72,9 +73,9 @@ The six-test critical suite covers creating a category, variant, and product; co
 
 ## Running tests and refactoring gates
 
-- [x] `pnpm test:e2e:critical` provides a quick check; all `test:e2e` commands run only `*.spec.ts` files, including the
-      mobile Chromium project. `test:visual` commands run only `*.snap.ts`. Tests are order-independent and do not use
-      fixed `sleep` calls.
+- [x] `pnpm test:e2e:critical` provides a quick check; all `test:e2e` commands use `playwright.config.ts` and run only
+      `*.spec.ts` files, including the mobile Chromium project. `test:visual` commands use `playwright.visual.config.ts`
+      and run only `*.snap.ts`. Tests are order-independent and do not use fixed `sleep` calls.
 - [x] `src/**/*.snap.ts` compares screenshots of pages, cards, tables, menus, dialogs, photos, annual stock, and input
       states across all five device projects in light and dark themes. Tests live beside their components, and snapshots
       live in the corresponding `__snapshots__/<component>/` directory. `pnpm test:visual` compares images with

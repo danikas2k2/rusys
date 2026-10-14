@@ -23,7 +23,8 @@ user profiles, import and export, Google sign-in, and PWA support for viewing pr
 | Runtime and deployment   | pnpm, Docker, Docker Compose, Nginx           |
 
 Dependencies and scripts are defined in [package.json](../package.json). Framework behavior is configured in
-[next.config.ts](../next.config.ts), and browser tests in [playwright.config.ts](../playwright.config.ts).
+[next.config.ts](../next.config.ts), and browser tests in [playwright.config.ts](../playwright.config.ts) and
+[playwright.visual.config.ts](../playwright.visual.config.ts).
 
 ## System context
 

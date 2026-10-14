@@ -8,12 +8,12 @@ import { createScenarioData, currentYear, type Scenario } from '~/tests/fixtures
 
 const VISUAL_SCENARIO_COOKIE = 'rusys_visual_scenario';
 
-export async function getVisualScenario(): Promise<Scenario | undefined> {
-    if (process.env.PLAYWRIGHT_TEST !== '1') {
-        return undefined;
-    }
+export async function getVisualScenario(): Promise<Scenario> {
     const value = (await cookies()).get(VISUAL_SCENARIO_COOKIE)?.value;
-    return isScenario(value) ? value : undefined;
+    if (!isScenario(value)) {
+        throw new Error('Missing or invalid visual test scenario');
+    }
+    return value;
 }
 
 function isScenario(value: string | undefined): value is Scenario {
@@ -121,7 +121,7 @@ export function getVisualAppData(
     };
 }
 
-export function getVisualSummaryHistory(group: string, name: string, year: number): ProductHistory {
+export function getVisualHistory(group: string, name: string, year: number): ProductHistory {
     if (group !== 'Uogienės' || name !== 'Avietės' || year !== currentYear) {
         return { updates: [], undates: [] };
     }

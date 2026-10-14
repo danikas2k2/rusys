@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
@@ -15,6 +17,12 @@ vi.mock(import('~/server/data/initialAppData'), () => ({
 }));
 vi.mock(import('next/server'), () => ({ connection: vi.fn().mockResolvedValue(undefined) }));
 vi.mock(import('~/server/requestLocale'), () => ({ getRequestLocale: vi.fn() }));
+vi.mock(import('next/font/google'), () => ({
+    Noto_Sans: () => ({ variable: 'noto-sans' }),
+    Noto_Sans_Display: () => ({ variable: 'noto-sans-display' }),
+    Noto_Sans_Mono: () => ({ variable: 'noto-sans-mono' }),
+    Noto_Color_Emoji: () => ({ variable: 'noto-color-emoji' }),
+}));
 
 describe('next.js app shell', () => {
     it('renders all generated PWA links, metadata, and splash screens', () => {
@@ -36,10 +44,15 @@ describe('next.js app shell', () => {
     it('renders the Lithuanian document with application content and fonts', async () => {
         vi.mocked(getRequestLocale).mockResolvedValue('lt-LT');
         const markup = renderToStaticMarkup(await RootLayout({ children: await AppPage() }));
+        const htmlClasses = markup.match(/<html[^>]* class="([^"]*)"/)?.[1].split(/\s+/);
 
         expect(markup).toContain('<html lang="lt"');
+        expect(htmlClasses?.sort()).toStrictEqual(
+            ['noto-color-emoji', 'noto-sans', 'noto-sans-display', 'noto-sans-mono'].sort()
+        );
         expect(markup).toContain('<main>Application loaded</main>');
-        expect(markup).toContain('fonts.googleapis.com');
+        expect(markup).not.toContain('fonts.googleapis.com');
+        expect(markup).not.toContain('fonts.gstatic.com');
         await expect(generateMetadata()).resolves.toMatchObject({
             title: 'Rūsys',
             description: 'Produktų ir atsargų apskaita',
@@ -57,5 +70,13 @@ describe('next.js app shell', () => {
             title: 'Cellar',
             description: 'Product and inventory tracking',
         });
+    });
+
+    it('uses Next font variables for text, headings, and monospace', async () => {
+        const css = await readFile('src/styles/theme.css', 'utf8');
+
+        expect(css).toContain('var(--font-noto-sans), var(--font-noto-color-emoji)');
+        expect(css).toContain('var(--font-noto-sans-display)');
+        expect(css).toContain('var(--font-noto-sans-mono)');
     });
 });
