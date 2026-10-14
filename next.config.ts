@@ -23,6 +23,16 @@ const nextConfig: NextConfig = {
         : '.next',
     output: 'standalone',
     serverExternalPackages: ['mongodb', 'sharp'],
+    ...(process.env.NODE_ENV === 'development' && process.env.PLAYWRIGHT_VISUAL === '1'
+        ? {
+              turbopack: {
+                  resolveAlias: {
+                      '~/server/data/initialAppData': './src/tests/fixtures/visualInitialAppData.ts',
+                      '~/server/data/actionHistory': './src/tests/fixtures/visualHistory.ts',
+                  },
+              },
+          }
+        : {}),
     experimental: {
         serverActions: {
             bodySizeLimit: '210mb',
