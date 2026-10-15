@@ -8,6 +8,7 @@ The package requires Node.js 24 or newer and specifies `pnpm@11.24.0`.
 
 ```sh
 pnpm install
+pnpm config
 pnpm dev
 ```
 
@@ -16,6 +17,7 @@ out of Git.
 
 | Command              | Purpose                                    |
 | -------------------- | ------------------------------------------ |
+| `pnpm config`        | Configure the repository's Git hooks       |
 | `pnpm dev`           | Start the Next.js development server       |
 | `pnpm build`         | Build the production application           |
 | `pnpm start`         | Run a production build                     |
@@ -46,9 +48,10 @@ Playwright provider supplies Chromium and WebKit; configuration lives in `playwr
 Playwright tests colocated with their feature; they share the axe assertion in `src/tests/playwright/accessibility.ts`
 and run through `pnpm test:a11y`.
 
-The pre-commit hook runs Gitleaks on staged changes, followed by `pnpm lint`. Prettier, ESLint, and Stylelint cache
-results for unchanged files; TypeScript stores incremental project information. Their local cache files are ignored by
-Git. The first run still checks the full project, while later runs reuse cached results where possible.
+Run `pnpm config` after installing dependencies to enable the repository's Git hooks. The pre-commit hook runs Gitleaks
+on staged changes, followed by `pnpm lint`. Prettier, ESLint, and Stylelint cache results for unchanged files;
+TypeScript stores incremental project information. Their local cache files are ignored by Git. The first run still
+checks the full project, while later runs reuse cached results where possible.
 
 ## Continuous integration
 

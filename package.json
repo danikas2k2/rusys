@@ -12,7 +12,7 @@
     },
     "main": "index.js",
     "scripts": {
-        "prepare": "git config core.hooksPath .githooks",
+        "config": "git config core.hooksPath .githooks",
         "start": "next start",
         "start:local": "dotenv -e .env.prod.local -- pnpm start",
         "build": "next build",
