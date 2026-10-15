@@ -1,6 +1,6 @@
 {
     "name": "rusys",
-    "version": "4.2.4",
+    "version": "4.2.5",
     "private": true,
     "description": "",
     "keywords": [],
@@ -12,7 +12,7 @@
     },
     "main": "index.js",
     "scripts": {
-        "prepare": "git config core.hooksPath .githooks",
+        "config": "git config core.hooksPath .githooks",
         "start": "next start",
         "start:local": "dotenv -e .env.prod.local -- pnpm start",
         "build": "next build",
