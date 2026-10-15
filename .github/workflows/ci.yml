@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Lint (${{ matrix.check.name }})
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         check:
           - name: Formatting
@@ -52,7 +52,6 @@ jobs:
         run: pnpm ${{ matrix.check.command }}
 
   build-check:
-    needs: lint
     runs-on: ubuntu-latest
     name: Build and check workspace
     steps:
@@ -80,10 +79,22 @@ jobs:
         run: pnpm test:coverage
 
   e2e:
-    needs: lint
     runs-on: ubuntu-latest
     name: Playwright E2E
+    concurrency:
+      group: ci-${{ github.workflow }}-${{ github.run_id }}-${{ github.run_attempt }}-browser-e2e
+      cancel-in-progress: false
     steps:
+      - name: Check whether lint failed
+        uses: actions/download-artifact@v4
+        with:
+          pattern: lint-failed-${{ github.run_attempt }}-e2e
+          path: .ci-lint-status
+          merge-multiple: true
+
+      - name: Stop when lint failed
+        run: test ! -f .ci-lint-status/lint-failed
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -116,10 +127,22 @@ jobs:
           retention-days: 7
 
   lighthouse:
-    needs: lint
     runs-on: ubuntu-latest
     name: Lighthouse accessibility
+    concurrency:
+      group: ci-${{ github.workflow }}-${{ github.run_id }}-${{ github.run_attempt }}-browser-lighthouse
+      cancel-in-progress: false
     steps:
+      - name: Check whether lint failed
+        uses: actions/download-artifact@v4
+        with:
+          pattern: lint-failed-${{ github.run_attempt }}-lighthouse
+          path: .ci-lint-status
+          merge-multiple: true
+
+      - name: Stop when lint failed
+        run: test ! -f .ci-lint-status/lint-failed
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -155,14 +178,26 @@ jobs:
           retention-days: 7
 
   visual:
-    needs: lint
     runs-on: xcode-27
     name: Vitest visual snapshots (${{ matrix.browser }})
+    concurrency:
+      group: ci-${{ github.workflow }}-${{ github.run_id }}-${{ github.run_attempt }}-browser-visual-${{ matrix.browser }}
+      cancel-in-progress: false
     strategy:
       fail-fast: false
       matrix:
         browser: [chromium, webkit]
     steps:
+      - name: Check whether lint failed
+        uses: actions/download-artifact@v4
+        with:
+          pattern: lint-failed-${{ github.run_attempt }}-visual-${{ matrix.browser }}
+          path: .ci-lint-status
+          merge-multiple: true
+
+      - name: Stop when lint failed
+        run: test ! -f .ci-lint-status/lint-failed
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -193,3 +228,26 @@ jobs:
           name: vitest-visual-diffs-${{ matrix.browser }}
           path: test-results/
           retention-days: 7
+
+  cancel-browser-on-lint-failure:
+    needs: lint
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    name: Cancel browser checks (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [e2e, lighthouse, visual-chromium, visual-webkit]
+    concurrency:
+      group: ci-${{ github.workflow }}-${{ github.run_id }}-${{ github.run_attempt }}-browser-${{ matrix.target }}
+      cancel-in-progress: true
+    steps:
+      - name: Mark lint failure for late browser jobs
+        run: touch lint-failed
+
+      - name: Publish lint failure marker
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-failed-${{ github.run_attempt }}-${{ matrix.target }}
+          path: lint-failed
+          retention-days: 1

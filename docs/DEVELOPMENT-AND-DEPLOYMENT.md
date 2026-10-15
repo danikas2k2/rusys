@@ -58,8 +58,9 @@ checks the full project, while later runs reuse cached results where possible.
 The workflow in `.github/workflows/ci.yml` runs on pushes and pull requests targeting `main`. Its `lint` matrix runs
 formatting, TypeScript, ESLint, and Stylelint concurrently as individually named jobs. The test group contains build and
 Vitest coverage, Playwright E2E, Lighthouse accessibility, and Chromium/WebKit visual snapshots. Each test job depends
-only on `lint`, so the test group starts after every lint matrix job passes and can run concurrently when runners are
-available. A failure in any lint or test job fails the workflow.
+on available runners and starts alongside lint. If a lint check fails, the lint matrix cancels its remaining checks and
+four cancellation jobs stop any running or queued browser jobs. Build and coverage continue independently so their
+results remain visible. A failure in any lint or test job fails the workflow.
 
 ```mermaid
 flowchart TB
@@ -74,10 +75,6 @@ flowchart TB
     Trigger --> TS
     Trigger --> ESLint
     Trigger --> Stylelint
-    Format --> Gate{All lint checks pass?}
-    TS --> Gate
-    ESLint --> Gate
-    Stylelint --> Gate
     subgraph Tests["Test jobs"]
         Build[Build and Vitest coverage]
         E2E[Playwright E2E]
@@ -85,11 +82,20 @@ flowchart TB
         VisualC[Chromium visual snapshots]
         VisualW[WebKit visual snapshots]
     end
-    Gate -->|Yes| Build
-    Gate -->|Yes| E2E
-    Gate -->|Yes| LH
-    Gate -->|Yes| VisualC
-    Gate -->|Yes| VisualW
+    Trigger --> Build
+    Trigger --> E2E
+    Trigger --> LH
+    Trigger --> VisualC
+    Trigger --> VisualW
+    Format --> LintFailure{Lint failed?}
+    TS --> LintFailure
+    ESLint --> LintFailure
+    Stylelint --> LintFailure
+    LintFailure -->|Yes| Cancel[Cancel browser jobs]
+    Cancel -.-> E2E
+    Cancel -.-> LH
+    Cancel -.-> VisualC
+    Cancel -.-> VisualW
     Build --> Result{CI result}
     Format --> Result
     TS --> Result
@@ -101,9 +107,11 @@ flowchart TB
     VisualW --> Result
 ```
 
-The build and coverage, Playwright, and Lighthouse jobs use `needs: lint`. To add another lint check, add one entry to
-`jobs.lint.strategy.matrix.check`; no test dependencies need updating. The lint matrix uses `fail-fast: false`, so all
-lint results remain visible even if one fails. GitHub Actions skips the test jobs when any lint check fails. The
+The browser jobs each use a unique concurrency group for this workflow run. After a lint failure, the cancellation
+matrix enters those same groups and cancels active or pending browser jobs. It also publishes a failure marker so a
+browser job admitted later stops before checkout or browser setup. To add another lint check, add one entry to
+`jobs.lint.strategy.matrix.check`; no test dependencies need updating. The lint matrix uses `fail-fast: true` to start
+cancellation promptly after the first failure, so some other lint checks may be canceled before they finish. The
 [accessibility guide](../ACCESSIBILITY.md) covers JSX rules, component axe tests, Playwright scans, and Lighthouse CI.
 
 ## Deployment and rollback
