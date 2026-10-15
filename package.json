@@ -44,9 +44,9 @@
         "test:e2e:critical": "playwright test --grep @critical",
         "test:e2e:headed": "playwright test --headed",
         "test:e2e:ui": "playwright test --ui",
-        "test:a11y": "playwright test src/features/common/Accessibility.spec.ts",
-        "test:visual": "playwright test --config=playwright.visual.config.ts",
-        "test:visual:update": "playwright test --config=playwright.visual.config.ts --update-snapshots",
+        "test:a11y": "playwright test Accessibility.spec.ts",
+        "test:visual": "vitest run --config=vitest.visual.config.mts",
+        "test:visual:update": "vitest run --config=vitest.visual.config.mts --update",
         "preversion": "git pull && pnpm check",
         "version": "sed -i '' 's/APP_VERSION: \".*\"/APP_VERSION: \"'\"$npm_package_version\"'\"/' ./docker/compose.yaml && git add docker/compose.yaml",
         "postversion": "git push && git push --tags",
@@ -87,6 +87,9 @@
         "@catppuccin/palette": "^1.8.0",
         "@css-modules-kit/stylelint-plugin": "^1.4.0",
         "@csstools/postcss-relative-color-syntax": "^4.0.15",
+        "@fontsource-variable/noto-sans": "^5.3.0",
+        "@fontsource-variable/noto-sans-display": "^5.3.0",
+        "@fontsource-variable/noto-sans-mono": "^5.3.0",
         "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
         "@lhci/cli": "^0.15.1",
         "@playwright/test": "^1.64.0",
@@ -105,6 +108,9 @@
         "@typescript-eslint/eslint-plugin": "^8.71.2",
         "@typescript-eslint/parser": "^8.71.2",
         "@typescript/native": "npm:typescript@^7.0.2",
+        "@vitejs/plugin-react": "^6.1.2",
+        "@vitest/browser": "^5.0.4",
+        "@vitest/browser-playwright": "^5.0.4",
         "@vitest/coverage-v8": "^5.0.4",
         "@vitest/eslint-plugin": "^1.6.27",
         "@vitest/expect": "^5.0.4",
@@ -148,7 +154,8 @@
         "tsx": "^4.23.15",
         "typescript": "npm:@typescript/typescript6@^6.0.2",
         "vite": "^8.3.4",
-        "vitest": "^5.0.4"
+        "vitest": "^5.0.4",
+        "vitest-browser-react": "^2.3.0"
     },
     "browserslist": {
         "production": [

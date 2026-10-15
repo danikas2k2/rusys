@@ -3,6 +3,11 @@ nextjs-portal {
     visibility: hidden !important;
 }
 
+/* Pointer position is shared with the browser runner; incidental tooltips are outside the visual scenarios. */
+[role="tooltip"] {
+    visibility: hidden !important;
+}
+
 /* Hide the caret without Playwright changing inline styles during hydration. */
 input,
 textarea,

@@ -16,23 +16,9 @@ const contentSecurityPolicy = [
 ].join('; ');
 
 const nextConfig: NextConfig = {
-    distDir: process.env.PLAYWRIGHT_TEST
-        ? process.env.PLAYWRIGHT_VISUAL === '1'
-            ? '.next-e2e-visual'
-            : '.next-e2e'
-        : '.next',
+    distDir: process.env.PLAYWRIGHT_TEST ? '.next-e2e' : '.next',
     output: 'standalone',
     serverExternalPackages: ['mongodb', 'sharp'],
-    ...(process.env.NODE_ENV === 'development' && process.env.PLAYWRIGHT_VISUAL === '1'
-        ? {
-              turbopack: {
-                  resolveAlias: {
-                      '~/server/data/initialAppData': './src/tests/fixtures/visualInitialAppData.ts',
-                      '~/server/data/actionHistory': './src/tests/fixtures/visualHistory.ts',
-                  },
-              },
-          }
-        : {}),
     experimental: {
         serverActions: {
             bodySizeLimit: '210mb',

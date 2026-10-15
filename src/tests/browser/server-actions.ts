@@ -1,0 +1,41 @@
+import { getVisualHistory } from '~/tests/fixtures/visualData';
+
+const noop = async () => {};
+const empty = async () => [];
+
+export const getProductsAction = empty;
+export const addProductAction = noop;
+export const deleteProductAction = noop;
+export const renameProductAction = noop;
+export const moveProductAction = noop;
+export const setProductParentAction = noop;
+export const setProductExpiryToleranceAction = noop;
+export const setProductMissingAction = noop;
+export const applyReviewAction = noop;
+export const setProductRemovingAction = noop;
+export const setProductImageAction = noop;
+export const setVariantImageAction = noop;
+export const setAmountsAction = noop;
+export const transferAmountsAction = noop;
+export const moveConsumedToRecycledAction = noop;
+export const undoProductAction = noop;
+export const redoProductAction = noop;
+export const getProductHistory = async (group: string, name: string, year: number) =>
+    getVisualHistory(group, name, year);
+export const getVariantsAction = empty;
+export const saveVariant = noop;
+export const renameVariantAction = noop;
+export const copyVariantAction = noop;
+export const deleteVariantAction = noop;
+export const reorderVariantsAction = noop;
+export const getGroupsAction = empty;
+export const updateGroupAction = noop;
+export const renameGroupAction = noop;
+export const deleteGroupAction = noop;
+export const reorderGroupsAction = noop;
+export const readSummary = empty;
+export const getSummaryHistory = getProductHistory;
+export const importArchive = noop;
+export const exportArchive = async () => '';
+export const loginWithGoogle = noop;
+export const logout = noop;

@@ -2,8 +2,9 @@
 
 Accessibility checks run with the regular `pnpm lint` and `pnpm test` commands. The JSX accessibility rules are errors
 for application JSX. Vitest uses `expectNoA11yViolations` from `src/tests/accessibility.ts` for rendered component
-states. Playwright runs axe against the four application routes and the offline page, plus the open navigation menu and
-product creation dialog. `pnpm test:a11y` runs those browser scans by themselves.
+states. Playwright uses the shared axe assertion in `src/tests/playwright/accessibility.ts`; each browser scan lives
+beside the feature it covers. `pnpm test:a11y` runs those scans by themselves across desktop Chromium, mobile Chromium,
+and mobile WebKit.
 
 `pnpm exec playwright install chromium`, then `pnpm build && pnpm exec lhci autorun` runs Lighthouse CI against the
 built production app. CI enforces an accessibility score of at least 0.90 on every configured route and keeps the
@@ -14,10 +15,10 @@ The only current exception is **A11Y-EXC-001** at `ProductPhotoPreview.tsx`:
 It only triggers the image fallback and does not handle user input. Follow-up: recheck and remove this suppression when
 `eslint-plugin-jsx-a11y` is upgraded; this entry tracks that work.
 
-When adding a route, add it to `routes` in `src/features/common/Accessibility.spec.ts` and to the URL list in
-`.lighthouserc.cjs`. Add scans for important open menus, dialogs, validation errors, or other distinct UI states to the
-same Playwright suite. For reusable components, add a unit test that renders the representative state and calls
-`expectNoA11yViolations()`.
+When adding a route, add a Playwright axe scan to the feature's `Accessibility.spec.ts` and add the URL to
+`.lighthouserc.cjs`. Use the shared `expectNoA11yViolations()` helper and cover important open menus, dialogs,
+validation errors, or other distinct UI states in the feature that owns them. For reusable components, add a unit test
+that renders the representative state and calls `expectNoA11yViolations()`.
 
 Automated checks do not replace manual testing. Before release, verify:
 

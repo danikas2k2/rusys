@@ -1,34 +1,8 @@
-import { cookies } from 'next/headers';
-
 import type { Group, Product, ProductHistory, Summary, Variant } from '~/common/data';
 import type { InitialAppData, InitialResource } from '~/components/app/initialData';
 import { Links } from '~/lib/links';
 import { getYears } from '~/server/data/years';
 import { createScenarioData, currentYear, type Scenario } from '~/tests/fixtures/data';
-
-const VISUAL_SCENARIO_COOKIE = 'rusys_visual_scenario';
-
-export async function getVisualScenario(): Promise<Scenario> {
-    const value = (await cookies()).get(VISUAL_SCENARIO_COOKIE)?.value;
-    if (!isScenario(value)) {
-        throw new Error('Missing or invalid visual test scenario');
-    }
-    return value;
-}
-
-function isScenario(value: string | undefined): value is Scenario {
-    return [
-        'empty',
-        'basic',
-        'annual',
-        'review',
-        'history',
-        'images',
-        'history-images',
-        'consumed-recycled',
-        'scrolled-products',
-    ].includes(value ?? '');
-}
 
 function visualVariants(variants: Variant[]): Variant[] {
     return variants
