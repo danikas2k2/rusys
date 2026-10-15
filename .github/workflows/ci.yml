@@ -233,7 +233,6 @@ jobs:
     needs: lint
     if: ${{ failure() }}
     runs-on: ubuntu-latest
-    name: Cancel browser checks (${{ matrix.target }})
     strategy:
       fail-fast: false
       matrix:
