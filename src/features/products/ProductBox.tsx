@@ -51,6 +51,7 @@ interface ProductBoxProps {
     onDelete?: () => void;
     closeOnEscape?: boolean;
     closeOnClickOutside?: boolean;
+    trapFocus?: boolean;
 }
 
 const NEW_CATEGORY_VALUE = ':new-category';
@@ -121,6 +122,7 @@ export function ProductBox({
     onDelete,
     closeOnEscape = true,
     closeOnClickOutside = true,
+    trapFocus = true,
 }: Readonly<ProductBoxProps>) {
     const [filterGroup] = useGroupFilter();
     const isEditing = !!initialGroup && !!initialName;
@@ -418,6 +420,7 @@ export function ProductBox({
                 onClose={() => onClose()}
                 closeOnEscape={closeOnEscape && !loading}
                 closeOnClickOutside={closeOnClickOutside && !loading}
+                trapFocus={trapFocus && !addingCategory}
                 closeButtonProps={{ 'aria-label': _('Close') }}
                 onExitTransitionEnd={onAfterClose}
             >

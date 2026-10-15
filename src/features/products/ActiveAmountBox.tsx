@@ -104,6 +104,7 @@ export function ActiveAmountBox(): React.ReactElement {
                 photo={currentData?.photo}
                 closeOnEscape={!editing && !removing}
                 closeOnClickOutside={!editing && !removing}
+                trapFocus={!editing && !removing}
                 onClose={handleClose}
                 onAfterClose={handleAfterClose}
                 onEdit={handleEdit}
@@ -120,6 +121,7 @@ export function ActiveAmountBox(): React.ReactElement {
                 onDelete={handleDelete}
                 closeOnEscape={!removing}
                 closeOnClickOutside={!removing}
+                trapFocus={!removing}
             />
             <ConfirmationDialog
                 opened={removing}

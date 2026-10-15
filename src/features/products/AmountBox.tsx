@@ -23,6 +23,7 @@ export interface ValueListBoxProps extends Pick<ModalProps, 'title'> {
     // callers stacking another dialog on top pass false for as long as that dialog is open.
     closeOnEscape?: boolean;
     closeOnClickOutside?: boolean;
+    trapFocus?: boolean;
     onClose?: () => void;
     onAfterClose?: () => void;
     onEdit?: () => void;
@@ -34,6 +35,7 @@ export function AmountBox({
     photo,
     closeOnEscape = true,
     closeOnClickOutside = true,
+    trapFocus = true,
     onClose,
     onAfterClose,
     onEdit,
@@ -57,6 +59,7 @@ export function AmountBox({
             onClose={() => onClose?.()}
             closeOnEscape={closeOnEscape && !photoPreviewOpen}
             closeOnClickOutside={closeOnClickOutside}
+            trapFocus={trapFocus}
             closeButtonProps={{ 'aria-label': _('Close') }}
             onExitTransitionEnd={handleExitTransitionEnd}
             title={

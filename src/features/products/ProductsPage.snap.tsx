@@ -6,6 +6,8 @@ import { page } from 'vitest/browser';
 test('products page', async () => {
     await renderVisualApp('/');
     await expect.element(productTile('Avietės')).toBeVisible();
+    expect(matchMedia('(prefers-reduced-motion: reduce)').matches).toBe(true);
+    expect(getComputedStyle(productTile('Avietės').element()).transitionDuration).toBe('0s');
     expect(getComputedStyle(css('input').element()).caretColor).toBe('rgba(0, 0, 0, 0)');
     await settleVisual();
     await expect(page).toMatchScreenshot('products-page');
@@ -36,6 +38,7 @@ test('sticky filter during a category transition', async () => {
             screenshotOptions: { clip },
         });
 
+        document.documentElement.dataset.visualMotion = 'enabled';
         const style = document.createElement('style');
         style.textContent =
             '::view-transition-old(.category-update), ::view-transition-new(.category-update) { animation-duration: 2s !important; }';
@@ -49,6 +52,7 @@ test('sticky filter during a category transition', async () => {
         });
     } finally {
         await new Promise((resolve) => setTimeout(resolve, 2100));
+        delete document.documentElement.dataset.visualMotion;
         await page.viewport(originalWidth, originalHeight);
     }
 });

@@ -8,9 +8,11 @@ test('product editor', async () => {
     const amounts = await openProduct('Avietės');
     await amounts.getByRole('button', { name: 'Taisyti' }).click();
     const editor = page.getByRole('dialog', { name: 'Taisyti produktą' });
+    const name = editor.getByRole('textbox', { name: 'Produktas' });
     await expect.element(editor).toBeVisible();
-    await expect.element(editor.getByRole('textbox', { name: 'Produktas' })).toHaveFocus();
+    await expect.element(name).toHaveFocus();
     await settleVisual();
+    await expect.element(name).toHaveFocus();
     await expect(editor).toMatchScreenshot('product-editor');
 });
 

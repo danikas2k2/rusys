@@ -9,9 +9,9 @@ import { useDeleteProduct } from '~/features/products/hooks/useDeleteProduct';
 import { useProducts } from '~/store/products';
 
 vi.mock(import('~/features/products/AmountBox'), (): any => ({
-    AmountBox: ({ opened, photo, title, onClose, onAfterClose, onEdit }: any) =>
+    AmountBox: ({ opened, photo, title, onClose, onAfterClose, onEdit, trapFocus }: any) =>
         opened ? (
-            <dialog open aria-label="Value box" data-photo={photo}>
+            <dialog open aria-label="Value box" data-photo={photo} data-trap-focus={trapFocus}>
                 {title}
                 <button type="button" onClick={() => onClose()}>
                     Close
@@ -26,7 +26,7 @@ vi.mock(import('~/features/products/AmountBox'), (): any => ({
         ) : null,
 }));
 vi.mock(import('~/features/products/ProductBox'), (): any => ({
-    ProductBox: ({ opened, group, name, parent, image, expiryToleranceDays, onClose, onDelete }: any) =>
+    ProductBox: ({ opened, group, name, parent, image, expiryToleranceDays, onClose, onDelete, trapFocus }: any) =>
         opened ? (
             <dialog
                 open
@@ -35,6 +35,7 @@ vi.mock(import('~/features/products/ProductBox'), (): any => ({
                 data-name={name}
                 data-parent={parent}
                 data-expiry-tolerance-days={expiryToleranceDays}
+                data-trap-focus={trapFocus}
             >
                 {image}
                 <button type="button" onClick={() => onClose()}>
@@ -95,7 +96,7 @@ describe('<ActiveAmountBox>', () => {
             </MockThemeActive>
         );
 
-        expect(screen.getByRole('dialog', { name: 'Value box' })).toBeInTheDocument();
+        expect(screen.getByRole('dialog', { name: 'Value box' })).toHaveAttribute('data-trap-focus', 'true');
     });
 
     it('passes the active data photo through to AmountBox', () => {
@@ -154,7 +155,7 @@ describe('<ActiveAmountBox>', () => {
             expect(productDialog).toHaveAttribute('data-name', data.name);
             expect(productDialog).toHaveTextContent('/images/ab/cd/product.png');
             // The amounts card itself never closed - both dialogs are open at once.
-            expect(screen.getByRole('dialog', { name: 'Value box' })).toBeInTheDocument();
+            expect(screen.getByRole('dialog', { name: 'Value box' })).toHaveAttribute('data-trap-focus', 'false');
             expect(mockSetActive).not.toHaveBeenCalled();
         });
 
@@ -192,7 +193,7 @@ describe('<ActiveAmountBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Cancel edit' }));
 
             expect(screen.queryByRole('dialog', { name: 'Product box' })).not.toBeInTheDocument();
-            expect(screen.getByRole('dialog', { name: 'Value box' })).toBeInTheDocument();
+            expect(screen.getByRole('dialog', { name: 'Value box' })).toHaveAttribute('data-trap-focus', 'true');
             expect(mockSetActive).not.toHaveBeenCalled();
         });
 
@@ -270,7 +271,8 @@ describe('<ActiveAmountBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Delete' }));
 
             expect(screen.getByRole('alertdialog')).toBeInTheDocument();
-            expect(screen.getByRole('dialog', { name: 'Value box' })).toBeInTheDocument();
+            expect(screen.getByRole('dialog', { name: 'Value box' })).toHaveAttribute('data-trap-focus', 'false');
+            expect(screen.getByRole('dialog', { name: 'Product box' })).toHaveAttribute('data-trap-focus', 'false');
             expect(mockSetActive).not.toHaveBeenCalled();
         });
 

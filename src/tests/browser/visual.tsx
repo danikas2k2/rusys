@@ -32,16 +32,7 @@ export async function settleVisual(): Promise<void> {
         })
     );
 
-    const started = performance.now();
-    let stableFrames = 0;
-    while (stableFrames < 3) {
-        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-        const active = document.getAnimations().some((animation) => animation.playState === 'running');
-        stableFrames = active ? 0 : stableFrames + 1;
-        if (performance.now() - started > 2_000) {
-            throw new Error('Visual content did not settle within 2 seconds');
-        }
-    }
+    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 }
 
 export function css(selector: string, parent?: { element: () => Element }) {

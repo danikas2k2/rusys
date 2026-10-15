@@ -3,6 +3,26 @@ nextjs-portal {
     visibility: hidden !important;
 }
 
+/* Render visual fixtures at their final state. A transition snapshot can opt in explicitly. */
+:root:not([data-visual-motion="enabled"]),
+:root:not([data-visual-motion="enabled"]) *,
+:root:not([data-visual-motion="enabled"]) *::before,
+:root:not([data-visual-motion="enabled"]) *::after {
+    animation-delay: 0s !important;
+    animation-duration: 0s !important;
+    scroll-behavior: auto !important;
+    transition-delay: 0s !important;
+    transition-duration: 0s !important;
+}
+
+:root:not([data-visual-motion="enabled"])::view-transition-group(*),
+:root:not([data-visual-motion="enabled"])::view-transition-image-pair(*),
+:root:not([data-visual-motion="enabled"])::view-transition-old(*),
+:root:not([data-visual-motion="enabled"])::view-transition-new(*) {
+    animation-delay: 0s !important;
+    animation-duration: 0s !important;
+}
+
 /* Pointer position is shared with the browser runner; incidental tooltips are outside the visual scenarios. */
 [role="tooltip"] {
     visibility: hidden !important;
