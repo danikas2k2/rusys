@@ -118,7 +118,7 @@ export default defineConfig({
                 'src/**/*.d.ts',
                 'src/**/*.test.{ts,tsx}',
                 'src/**/*.spec.ts',
-                'src/**/*.snap.ts',
+                'src/**/*.snap.tsx',
                 'src/**/__mocks__/**',
                 'src/tests/**',
                 'src/**/types.ts',

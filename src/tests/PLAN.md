@@ -16,8 +16,8 @@ items below distinguish tested scenarios from branches that still need coverage.
       scenarios. Years use the app's two-digit format; the history example aligns with the September summary boundary.
 - [x] `src/tests/fixtures/test.ts` resets the temporary `mongodb-memory-server` database and image directory before
       **every E2E test**. The URI, database name, and directory path are checked before cleanup; no live database is
-      used. Tests sharing the database run in one worker. Visual tests use `src/tests/fixtures/visual.ts` and scenario
-      data without MongoDB, so they can run in two workers.
+      used. Tests sharing the database run in one worker. Vitest visual tests mount client UI with fixture data and do
+      not use MongoDB or start a Next server.
 - [x] Tests use visible names, accessibility roles, and stable `data-*` selectors. Important mutations are checked
       against MongoDB records and, where applicable, after a page reload.
 - [x] Menu navigation and direct entry for all four pages verify content, not just the URL; an empty-database scenario
@@ -74,25 +74,26 @@ The six-test critical suite covers creating a category, variant, and product; co
 ## Running tests and refactoring gates
 
 - [x] `pnpm test:e2e:critical` provides a quick check; all `test:e2e` commands use `playwright.config.ts` and run only
-      `*.spec.ts` files, including the mobile Chromium project. `test:visual` commands use `playwright.visual.config.ts`
-      and run only `*.snap.ts`. Tests are order-independent and do not use fixed `sleep` calls.
-- [x] `src/**/*.snap.ts` compares screenshots of pages, cards, tables, menus, dialogs, photos, annual stock, and input
-      states across all five device projects in light and dark themes. Tests live beside their components, and snapshots
-      live in the corresponding `__snapshots__/<component>/` directory. `pnpm test:visual` compares images with
-      snapshots; `pnpm test:visual:update` updates them. Review changed images visually before accepting them.
+      `*.spec.ts` files, including the mobile Chromium project. Visual tests run with Vitest Browser Mode and use
+      `*.snap.tsx` files. Tests are order-independent; the category transition screenshot uses explicit timing
+      checkpoints to capture the same point in that animation.
+- [x] `src/**/*.snap.tsx` compares screenshots of pages, cards, tables, menus, dialogs, photos, annual stock, and input
+      states across all five device projects in light and dark themes. Tests live beside their components, and
+      references live in the corresponding `__screenshots__/<test>/` directory. `pnpm test:visual` compares images with
+      references; `pnpm test:visual:update` updates them. Review changed images visually before accepting them.
 - [x] `.github/workflows/ci.yml` runs functional tests in a separate Node 26 Linux job (`pnpm test:e2e`) and visual
-      tests in an `xcode-27` macOS 27 arm64 job to match the snapshot environment. Snapshots are kept for every device
-      and both themes. CI preserves Playwright artifacts on failure.
+      tests in an `xcode-27` macOS 27 arm64 job to match the screenshot reference environment. References are kept for
+      every device and both themes.
 - [x] Added iPhone 17 and iPad mini WebKit visual scenarios for the main pages and dialogs.
 - [ ] Add targeted Firefox critical scenarios if browser compatibility requires them. There is no need to duplicate the
       entire suite in every browser.
 - [ ] When refactoring a module without coverage, add at least one successful user scenario, an important cancel or
       error branch, and a check after reload if stored data changes.
 
-`pnpm test:visual:update` updates the single set of snapshots. Generate and compare them in the `macOS 27` arm64
-environment used by CI's `xcode-27` job; browser images can differ across operating systems.
+`pnpm test:visual:update` updates the single set of screenshot references. Generate and compare them in the `macOS 27`
+arm64 environment used by CI's `xcode-27` job; browser images can differ across operating systems.
 
 Unit tests are `src/**/*.test.ts` or `src/**/*.test.tsx`, functional E2E tests are `src/**/*.spec.ts`, and visual tests
-are `src/**/*.snap.ts`, each beside the relevant component or function. Shared initial states live in
-`src/tests/fixtures/`, UI actions in `src/tests/helpers/`, and temporary server startup and cleanup in
-`src/tests/playwright/`. Update this document when adding scenarios so “covered” always means a working Playwright test.
+are `src/**/*.snap.tsx`, each beside the relevant component or function. Shared initial states live in
+`src/tests/fixtures/`, UI actions in `src/tests/helpers/`, and E2E server startup and cleanup in
+`src/tests/playwright/`. Update this document when adding scenarios so “covered” always means a working browser test.

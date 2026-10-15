@@ -1,6 +1,3 @@
-import { copyFile } from 'node:fs/promises';
-import path from 'node:path';
-
 import type { Db } from 'mongodb';
 
 import type { Group, Product, Variant } from '~/common/data';
@@ -103,6 +100,8 @@ export function createScenarioData(scenario: Scenario): { groups: Group[]; varia
 }
 
 export async function seedScenario(db: Db, scenario: Scenario, imagesDir: string): Promise<void> {
+    const { copyFile } = await import('node:fs/promises');
+    const path = await import('node:path');
     await db.dropDatabase();
     if (scenario === 'empty') {
         return;

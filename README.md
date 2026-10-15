@@ -41,11 +41,11 @@ Use `pnpm test:e2e:critical` for a quick check of the most important flows. To w
 `pnpm test:e2e:headed`. `pnpm test:e2e:ui` opens Playwright's interactive UI, where tests must be started by clicking
 “Run”.
 
-All `test:e2e` commands run only `*.spec.ts` tests. `pnpm test:visual` runs `*.snap.ts` visual tests, and
-`pnpm test:visual:update` updates their snapshots. Visual tests use one Next server and test data without MongoDB. E2E
-tests use one Next server and a temporary MongoDB instance. All Playwright tests run in one worker: the browser process
-is reused, but each test gets a clean database and a separate page. Related actions can be grouped with `test.step` so
-they run on the same page.
+All `test:e2e` commands run only `*.spec.ts` tests. `pnpm test:visual` runs `*.snap.tsx` tests in Vitest Browser Mode,
+and `pnpm test:visual:update` updates their screenshot references. Visual tests mount the app with fixture data and do
+not start a Next server or MongoDB. E2E tests use one Next server and a temporary MongoDB instance. Playwright E2E tests
+run in one worker: the browser process is reused, but each test gets a clean database and a separate page. Related
+actions can be grouped with `test.step` so they run on the same page.
 
 To run selected files, pass their paths to the Playwright command, for example:
 
