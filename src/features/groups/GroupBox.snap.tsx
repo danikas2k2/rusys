@@ -10,12 +10,14 @@ test('category creation and editor', async () => {
     await css('[data-action="add"]').click();
     const creation = page.getByRole('dialog', { name: 'Pridėti naują kategoriją' });
     await expect.element(creation).toBeVisible();
+    await expect.element(creation.getByRole('textbox', { name: 'Kategorija' })).toHaveFocus();
     await settleVisual();
     await expect(creation).toMatchScreenshot('category-create');
     await userEvent.keyboard('{Escape}');
     await table.getByRole('row', { name: /Uogienės/ }).click();
     const editor = page.getByRole('dialog', { name: 'Taisyti kategoriją' });
     await expect.element(editor).toBeVisible();
+    await expect.element(editor.getByRole('textbox', { name: 'Kategorija' })).toHaveFocus();
     await settleVisual();
     await expect(editor).toMatchScreenshot('category-editor');
 });

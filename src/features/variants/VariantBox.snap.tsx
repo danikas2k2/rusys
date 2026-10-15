@@ -20,6 +20,7 @@ test('variant creation and editor', async () => {
         .click();
     const editor = page.getByRole('dialog', { name: 'Taisyti variantą' });
     await expect.element(editor).toBeVisible();
+    await expect.element(editor.getByRole('textbox', { name: 'Variantas' })).toHaveFocus();
     await settleVisual();
     await expect(editor).toMatchScreenshot('variant-editor');
 });

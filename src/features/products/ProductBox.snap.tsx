@@ -9,6 +9,7 @@ test('product editor', async () => {
     await amounts.getByRole('button', { name: 'Taisyti' }).click();
     const editor = page.getByRole('dialog', { name: 'Taisyti produktą' });
     await expect.element(editor).toBeVisible();
+    await expect.element(editor.getByRole('textbox', { name: 'Produktas' })).toHaveFocus();
     await settleVisual();
     await expect(editor).toMatchScreenshot('product-editor');
 });
@@ -19,6 +20,7 @@ test('product creation and additional details', async () => {
     await css('[data-action="add"]').click();
     const dialog = page.getByRole('dialog', { name: 'Pridėti naują produktą' });
     await expect.element(dialog).toBeVisible();
+    await expect.element(dialog.getByRole('textbox', { name: 'Produktas' })).toHaveFocus();
     await settleVisual();
     await expect(dialog).toMatchScreenshot('product-create');
     await dialog.getByRole('button', { name: 'Papildoma informacija' }).click();

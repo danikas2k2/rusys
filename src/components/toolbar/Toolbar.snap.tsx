@@ -8,6 +8,7 @@ test('filtered toolbar', async () => {
     await expect.element(productTile('Avietės')).toBeVisible();
     const filter = page.getByRole('searchbox', { name: 'filtruokite' });
     await filter.fill('Avietės');
+    await expect.element(filter).toHaveFocus();
     const toolbar = css('.Toolbar');
     await expect.element(toolbar.getByRole('button', { name: 'Išvalyti' })).toBeVisible();
     await settleVisual();

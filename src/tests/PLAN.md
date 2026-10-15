@@ -80,7 +80,9 @@ The six-test critical suite covers creating a category, variant, and product; co
 - [x] `src/**/*.snap.tsx` compares screenshots of pages, cards, tables, menus, dialogs, photos, annual stock, and input
       states across all five device projects in light and dark themes. Tests live beside their components, and
       references live in the corresponding `__screenshots__/<test>/` directory. `pnpm test:visual` compares images with
-      references; `pnpm test:visual:update` updates them. Review changed images visually before accepting them.
+      references; `pnpm test:visual:update` updates them. Review changed images visually before accepting them. When a
+      reference includes a focused input, await `expect.element(input).toHaveFocus()` before `settleVisual()` and the
+      screenshot assertion; waiting for visibility or animations alone does not cover delayed autofocus.
 - [x] `.github/workflows/ci.yml` runs functional tests in a separate Node 26 Linux job (`pnpm test:e2e`) and visual
       tests in an `xcode-27` macOS 27 arm64 job to match the screenshot reference environment. References are kept for
       every device and both themes.
