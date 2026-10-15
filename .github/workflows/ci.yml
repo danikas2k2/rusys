@@ -157,7 +157,7 @@ jobs:
   visual:
     needs: lint
     runs-on: xcode-27
-    name: Playwright visual snapshots (${{ matrix.browser }})
+    name: Vitest visual snapshots (${{ matrix.browser }})
     strategy:
       fail-fast: false
       matrix:
@@ -183,13 +183,13 @@ jobs:
       - name: Install ${{ matrix.browser }}
         run: pnpm exec playwright install ${{ matrix.browser }}
 
-      - name: Compare visual snapshots
+      - name: Compare Vitest visual snapshots
         run: pnpm test:visual --project='*${{ matrix.browser }}*'
 
-      - name: Upload Playwright visual diffs
+      - name: Upload Vitest visual diffs
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-visual-diffs-${{ matrix.browser }}
+          name: vitest-visual-diffs-${{ matrix.browser }}
           path: test-results/
           retention-days: 7

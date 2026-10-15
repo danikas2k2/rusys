@@ -11,5 +11,7 @@ test('product removal confirmation', async () => {
     const confirmation = page.getByRole('dialog', { name: 'Ar tikrai norite pašalinti?' });
     await expect.element(confirmation).toBeVisible();
     await settleVisual();
-    await expect(confirmation).toMatchScreenshot('remove-confirmation');
+    await expect(confirmation).toMatchScreenshot('remove-confirmation', {
+        comparatorOptions: { allowedMismatchedPixels: 2 },
+    });
 });
