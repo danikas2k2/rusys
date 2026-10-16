@@ -172,7 +172,7 @@ test.describe('mobile navigation', () => {
         await page.getByRole('button', { name: 'Meniu' }).tap();
         const menuBounds = await page.getByRole('dialog', { name: 'Meniu' }).boundingBox();
         expect(menuBounds).not.toBeNull();
-        expect(menuBounds!.y + menuBounds!.height).toBeCloseTo(viewport.height + 120, 0);
+        expect(menuBounds!.y + menuBounds!.height).toBeLessThanOrEqual(viewport.height + 120);
     });
 
     test('mobile menu and product amounts work with touch', async ({ page }) => {

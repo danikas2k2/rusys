@@ -4,9 +4,12 @@
     box-sizing: border-box;
     padding-block: var(--safe-block-start) var(--safe-block-end);
     padding-inline: 0;
-    height: 100vh;
-    height: 100dvh;
     min-height: 0;
+    height: 100vh;
+
+    @supports (height: 100dvh) {
+        height: 100dvh;
+    }
 
     .ui-AppShell-header,
     .ui-AppShell-footer {
@@ -50,11 +53,5 @@
             calc(var(--mantine-spacing-xs) + var(--safe-inline-end));
         padding-block: calc(var(--mantine-spacing-xs) / 2) calc(var(--mantine-spacing-xs) / 2 + var(--safe-block-end));
         margin-block-end: calc(-1 * var(--safe-block-end));
-    }
-}
-
-@media (display-mode: standalone) {
-    .ui-AppShell-root {
-        height: 100%;
     }
 }

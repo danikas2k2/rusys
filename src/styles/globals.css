@@ -113,12 +113,6 @@ body {
     min-height: 100%;
 }
 
-@media (display-mode: standalone) {
-    body {
-        height: 100%;
-    }
-}
-
 code {
     font-family: var(--mantine-font-family-monospace), monospace;
 }
