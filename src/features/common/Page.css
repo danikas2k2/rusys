@@ -52,3 +52,9 @@
         margin-block-end: calc(-1 * var(--safe-block-end));
     }
 }
+
+@media (display-mode: standalone) {
+    .ui-AppShell-root {
+        height: 100%;
+    }
+}
