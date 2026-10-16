@@ -146,20 +146,33 @@ test.describe('mobile navigation', () => {
 
         const shell = page.locator('.ui-AppShell-root');
         const shellBounds = await shell.boundingBox();
+        const headerBounds = await page.locator('.ui-AppShell-header').boundingBox();
         const footerBounds = await page.locator('.ui-AppShell-footer').boundingBox();
+        const addBounds = await page.getByRole('button', { name: 'Pridėti' }).boundingBox();
         const viewport = page.viewportSize()!;
 
         expect(shellBounds).not.toBeNull();
+        expect(headerBounds).not.toBeNull();
         expect(footerBounds).not.toBeNull();
+        expect(addBounds).not.toBeNull();
+        await expect(page.locator('.ui-AppShell-header')).toHaveCSS('position', 'sticky');
         expect(shellBounds!.x).toBeGreaterThanOrEqual(0);
         expect(shellBounds!.x + shellBounds!.width).toBeLessThanOrEqual(viewport.width);
-        expect(shellBounds!.y + shellBounds!.height).toBeLessThanOrEqual(viewport.height);
-        expect(footerBounds!.y + footerBounds!.height).toBeLessThanOrEqual(viewport.height);
+        expect(headerBounds!.y).toBeGreaterThanOrEqual(59);
+        expect(shellBounds!.y + shellBounds!.height).toBeCloseTo(viewport.height, 0);
+        expect(footerBounds!.y + footerBounds!.height).toBeCloseTo(viewport.height, 0);
+        expect(viewport.height - (addBounds!.y + addBounds!.height)).toBeCloseTo(42, 0);
+
+        await page.setViewportSize({ width: viewport.width, height: viewport.height + 120 });
+        const resizedFooter = await page.locator('.ui-AppShell-footer').boundingBox();
+        const resizedAdd = await page.getByRole('button', { name: 'Pridėti' }).boundingBox();
+        expect(resizedFooter!.y + resizedFooter!.height).toBeCloseTo(viewport.height + 120, 0);
+        expect(viewport.height + 120 - (resizedAdd!.y + resizedAdd!.height)).toBeCloseTo(42, 0);
 
         await page.getByRole('button', { name: 'Meniu' }).tap();
         const menuBounds = await page.getByRole('dialog', { name: 'Meniu' }).boundingBox();
         expect(menuBounds).not.toBeNull();
-        expect(menuBounds!.y + menuBounds!.height).toBeLessThanOrEqual(viewport.height);
+        expect(menuBounds!.y + menuBounds!.height).toBeLessThanOrEqual(viewport.height + 120);
     });
 
     test('mobile menu and product amounts work with touch', async ({ page }) => {
