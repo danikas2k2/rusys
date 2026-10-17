@@ -1,5 +1,5 @@
-name = "security_reviewer"
-description = "Independent read-only security reviewer specializing in application security and abuse cases."
+name = "auditor"
+description = "Independent read-only security auditor specializing in application security and abuse cases."
 
 sandbox_mode = "read-only"
 

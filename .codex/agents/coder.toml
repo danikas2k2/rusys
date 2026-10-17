@@ -1,5 +1,5 @@
-name = "implementer"
-description = "Implements a task according to its specification and repository rules."
+name = "coder"
+description = "Implements code changes according to the task specification and repository rules."
 
 sandbox_mode = "workspace-write"
 
