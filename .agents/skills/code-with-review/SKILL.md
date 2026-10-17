@@ -1,8 +1,8 @@
 ---
 name: code-with-review
 description:
-    Implement a software task using an independent code reviewer and security auditor. Use for feature implementation,
-    bug fixes and refactoring requiring validation.
+    Implement a software task using independent code, security, and accessibility reviews. Use for feature
+    implementation, bug fixes and refactoring requiring validation.
 ---
 
 # Code with Review Workflow
@@ -40,14 +40,17 @@ Do not report skipped checks as passed.
 
 ## Step 4 — Independent Review
 
-Delegate to `reviewer` for an independent code review and `auditor` for an independent security review as separate
-subagents.
+Delegate to `reviewer` for an independent code review, `auditor` for an independent security review, and `assessor` for
+an independent accessibility review as separate subagents. Invoke `assessor` for every task; it should explain N/A when
+the changes have no user-facing accessibility impact.
 
-Supply the original specification, acceptance criteria, architecture documentation and actual diff.
+Supply the original specification, acceptance criteria, relevant architecture and accessibility documentation, actual
+diff, and validation results.
 
 Do not provide the coder's conclusions as evidence.
 
-Wait for both review results.
+Run reviews in batches if the configured agent thread limit prevents all three from running together. Wait for all three
+review results.
 
 ## Step 5 — Repair
 
@@ -56,7 +59,7 @@ For actionable BLOCKER or HIGH findings:
 - Return the findings to `coder`.
 - Apply targeted corrections.
 - Run relevant validation again.
-- Request independent re-review of the corrected changes.
+- Request independent re-review of the corrected changes from each reviewer whose findings were addressed.
 
 Limit automatic repair to two iterations. Escalate unresolved findings to the user.
 
