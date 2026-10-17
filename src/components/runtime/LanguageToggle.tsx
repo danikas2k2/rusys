@@ -1,4 +1,5 @@
 import { Center, Switch } from '@mantine/core';
+import { LT, US } from 'country-flag-icons/react/3x2';
 import React, { use } from 'react';
 
 import { refreshOfflinePage } from '~/components/app/ServiceWorker/Registration';
@@ -40,16 +41,8 @@ export function LanguageToggle(): React.JSX.Element {
                     checked={locale === 'lt-LT'}
                     color="primary"
                     onChange={(event) => changeLanguage(event.currentTarget.checked)}
-                    onLabel={
-                        <span aria-hidden="true" data-flag>
-                            🇱🇹
-                        </span>
-                    }
-                    offLabel={
-                        <span aria-hidden="true" data-flag>
-                            🇺🇸
-                        </span>
-                    }
+                    onLabel={<LT title={_('Switch to Lithuanian')} data-flag />}
+                    offLabel={<US title={_('Switch to English')} data-flag />}
                     size="lg"
                     withThumbIndicator={false}
                 />

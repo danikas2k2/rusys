@@ -5,11 +5,7 @@
     padding-block: var(--safe-block-start) var(--safe-block-end);
     padding-inline: 0;
     min-height: 0;
-    height: 100vh;
-
-    @supports (height: 100dvh) {
-        height: 100dvh;
-    }
+    height: var(--area-height);
 
     .ui-AppShell-header,
     .ui-AppShell-footer {

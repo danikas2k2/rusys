@@ -17,12 +17,9 @@ body {
     color: var(--color-text);
     background: var(--color-base);
     min-height: 100%;
-}
 
-@supports (height: 100svh) {
-    html,
-    body {
-        min-height: 100svh;
+    @supports (height: 100dvh) {
+        min-height: 100dvh;
     }
 }
 

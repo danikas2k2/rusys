@@ -30,8 +30,8 @@ test('sticky filter during a category transition', async () => {
         const clip = {
             x: Math.ceil(header.x),
             y: Math.ceil(header.y),
-            width: Math.floor(header.width),
-            height: Math.min(24, Math.floor(header.height)),
+            width: Math.max(1, Math.floor(header.width)),
+            height: Math.max(1, Math.floor(header.height)),
         };
         await settleVisual();
         await expect(page).toMatchScreenshot('products-scrolled-header', {
