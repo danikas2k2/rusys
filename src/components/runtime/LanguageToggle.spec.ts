@@ -22,7 +22,7 @@ test.describe('Lithuanian browser language', () => {
         await page.getByRole('button', { name: 'Meniu' }).click();
         const menu = page.getByRole('navigation');
         await expect(menu.getByRole('switch', { name: 'Perjungti į anglų kalbą' })).toBeChecked();
-        await expect(menu.getByText('🇱🇹')).toBeVisible();
+        await expect(menu.locator('svg[data-flag]').filter({ hasText: 'Perjungti į lietuvių kalbą' })).toBeVisible();
 
         const requests: string[] = [];
         page.on('request', (request) => {
@@ -36,7 +36,7 @@ test.describe('Lithuanian browser language', () => {
         await expect(page.getByRole('dialog', { name: 'Menu' })).toBeVisible();
         await expect(menu.getByRole('link', { name: 'Products' })).toBeVisible();
         await expect(menu.getByRole('switch', { name: 'Switch to Lithuanian' })).not.toBeChecked();
-        await expect(menu.getByText('🇺🇸')).toBeVisible();
+        await expect(menu.locator('svg[data-flag]').filter({ hasText: 'Switch to English' })).toBeVisible();
         await expect(page.locator('html')).toHaveAttribute('lang', 'en');
         await expect(page).toHaveTitle('Cellar');
         await expect(page.locator('meta[name="description"]')).toHaveAttribute(
@@ -74,13 +74,13 @@ test.describe('English browser language', () => {
         await page.getByRole('button', { name: 'Menu' }).click();
         const menu = page.getByRole('navigation');
         await expect(menu.getByRole('switch', { name: 'Switch to Lithuanian' })).not.toBeChecked();
-        await expect(menu.getByText('🇺🇸')).toBeVisible();
+        await expect(menu.locator('svg[data-flag]').filter({ hasText: 'Switch to English' })).toBeVisible();
 
         await switchLanguage(menu, 'Switch to Lithuanian');
 
         await expect(menu.getByRole('link', { name: 'Produktai' })).toBeVisible();
         await expect(menu.getByRole('switch', { name: 'Perjungti į anglų kalbą' })).toBeChecked();
-        await expect(menu.getByText('🇱🇹')).toBeVisible();
+        await expect(menu.locator('svg[data-flag]').filter({ hasText: 'Perjungti į lietuvių kalbą' })).toBeVisible();
         await expect(page.locator('html')).toHaveAttribute('lang', 'lt');
         await expect(page).toHaveTitle('Rūsys');
         expect((await context.cookies()).find(({ name }) => name === 'rusys-locale')?.value).toBe('lt-LT');
