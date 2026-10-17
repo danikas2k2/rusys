@@ -1,11 +1,11 @@
 ---
-name: verified-implementation
+name: code-with-review
 description:
-    Implement a software task using an independent code reviewer and security reviewer. Use for feature implementation,
+    Implement a software task using an independent code reviewer and security auditor. Use for feature implementation,
     bug fixes and refactoring requiring validation.
 ---
 
-# Verified Implementation Workflow
+# Code with Review Workflow
 
 ## Step 1 — Understand
 
@@ -23,7 +23,7 @@ If requirements conflict, report the conflict before making an irreversible or h
 
 ## Step 2 — Implement
 
-Delegate implementation to the `implementer` subagent.
+Delegate implementation to the `coder` subagent.
 
 Wait for implementation to finish before reviewing the diff.
 
@@ -40,11 +40,12 @@ Do not report skipped checks as passed.
 
 ## Step 4 — Independent Review
 
-Delegate to `reviewer` and `security_reviewer` as separate subagents.
+Delegate to `reviewer` for an independent code review and `auditor` for an independent security review as separate
+subagents.
 
 Supply the original specification, acceptance criteria, architecture documentation and actual diff.
 
-Do not provide the implementer's conclusions as evidence.
+Do not provide the coder's conclusions as evidence.
 
 Wait for both review results.
 
@@ -52,7 +53,7 @@ Wait for both review results.
 
 For actionable BLOCKER or HIGH findings:
 
-- Return the findings to `implementer`.
+- Return the findings to `coder`.
 - Apply targeted corrections.
 - Run relevant validation again.
 - Request independent re-review of the corrected changes.
