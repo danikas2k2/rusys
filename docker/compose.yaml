@@ -5,7 +5,7 @@ x-app: &app
     context: ..
     dockerfile: docker/Dockerfile
     args:
-      APP_VERSION: "4.2.8"
+      APP_VERSION: "4.2.9"
   platform: linux/amd64
   restart: unless-stopped
   environment:
