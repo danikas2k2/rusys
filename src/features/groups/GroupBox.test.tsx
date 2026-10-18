@@ -77,6 +77,23 @@ describe('<GroupBox>', () => {
         expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
 
+    it('focuses the category name when the modal focus trap activates', () => {
+        vi.useFakeTimers();
+        try {
+            render(
+                <MockApp state={state}>
+                    <GroupBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            act(() => vi.advanceTimersByTime(0));
+
+            expect(screen.getByRole('textbox', { name: 'Category name' })).toHaveFocus();
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
     it('renders without initial value', () => {
         render(
             <MockApp state={state}>

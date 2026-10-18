@@ -84,7 +84,7 @@ export function GroupBox({
     const [imageProgress, setImageProgress] = useState<number>();
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Reset form and focus input when modal opens
+    // Reset the form when the modal opens; Mantine focuses the marked name input.
     useEffect(() => {
         if (opened) {
             formRef.current.setValues({
@@ -99,12 +99,6 @@ export function GroupBox({
             setSubmitting(false);
             setLoading(false);
             setImageProgress(undefined);
-
-            const timer = setTimeout(() => {
-                // istanbul ignore next - ref.current is always assigned in React Testing Library
-                inputRef.current?.focus();
-            }, 100);
-            return () => clearTimeout(timer);
         }
     }, [opened, initialGroup, initialAnnual, initialReview, initialImage]);
 
@@ -210,6 +204,7 @@ export function GroupBox({
                     <Stack>
                         <TextInput
                             ref={inputRef}
+                            data-autofocus
                             label={_('Category name')}
                             placeholder={_('Enter category name')}
                             withAsterisk

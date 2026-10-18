@@ -127,6 +127,43 @@ describe('<ProductBox>', () => {
         expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
 
+    it('focuses the title when the modal focus trap activates', () => {
+        vi.useFakeTimers();
+        try {
+            render(
+                <MockThemeRedux state={state}>
+                    <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
+                </MockThemeRedux>
+            );
+
+            // Mantine activates its focus trap at 0 ms.
+            act(() => vi.advanceTimersByTime(0));
+
+            expect(screen.getByRole('textbox', { name: 'Title' })).toHaveFocus();
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it('does not take focus later when its focus trap is disabled', () => {
+        vi.useFakeTimers();
+        try {
+            render(
+                <MockThemeRedux state={state}>
+                    <button type="button">Other dialog action</button>
+                    <ProductBox opened group="Uogienės" name="Avietės" trapFocus={false} onClose={onClose} />
+                </MockThemeRedux>
+            );
+            const otherAction = screen.getByRole('button', { name: 'Other dialog action' });
+            act(() => otherAction.focus());
+            act(() => vi.advanceTimersByTime(150));
+
+            expect(otherAction).toHaveFocus();
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
     it('renders without initial value', async () => {
         render(
             <MockThemeRedux state={state}>

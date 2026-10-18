@@ -206,7 +206,7 @@ export function ProductBox({
     const nameRef = useRef<HTMLInputElement>(null);
     const expiryToleranceRef = useRef<HTMLInputElement>(null);
 
-    // Reset form and focus input when modal opens
+    // Reset the form when the modal opens; Mantine focuses the marked title input.
     useEffect(() => {
         if (opened) {
             formRef.current.setValues({
@@ -224,11 +224,6 @@ export function ProductBox({
             setCreatedProduct(undefined);
             setAdvancedFieldsOpen(false);
             setImageProgress(undefined);
-
-            const timer = setTimeout(() => {
-                nameRef.current?.focus();
-            }, 100);
-            return () => clearTimeout(timer);
         }
     }, [opened, initialGroup, initialName, initialParent, initialImage, initialExpiryToleranceDays, filterGroup]);
 
@@ -464,6 +459,7 @@ export function ProductBox({
                             />
                             <TextInput
                                 ref={nameRef}
+                                data-autofocus
                                 label={_('Title')}
                                 placeholder={_('Enter name')}
                                 withAsterisk
