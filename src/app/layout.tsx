@@ -55,6 +55,7 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: PropsWithChildren): Promise<React.JSX.Element> {
     const locale = await getRequestLocale();
+    // noinspection HtmlRequiredTitleElement
     return (
         <html lang={locale.slice(0, 2)} className={fonts.join(' ')} suppressHydrationWarning>
             <head>
@@ -62,6 +63,7 @@ export default async function RootLayout({ children }: PropsWithChildren): Promi
                 <PwaHead />
             </head>
             <body>
+                <div className="pwa-top-blur-fix" aria-hidden="true" />
                 <ServiceWorkerRegistration />
                 {children}
             </body>
