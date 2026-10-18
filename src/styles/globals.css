@@ -38,6 +38,23 @@
     }
 }
 
+.pwa-top-blur-fix {
+    display: none;
+}
+
+@media (display-mode: standalone) {
+    .pwa-top-blur-fix {
+        display: block;
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 1;
+        height: 11px;
+        pointer-events: none;
+        background: var(--mantine-color-body);
+        background-clip: text;
+    }
+}
+
 ::view-transition {
     pointer-events: none;
 }
@@ -285,6 +302,19 @@ select,
     .ui-Modal-content {
         --modal-content-max-height: none;
     }
+}
+
+/* The software keyboard shrinks iOS's visual viewport without shrinking 100dvh. */
+.ui-Modal-inner[data-keyboard-viewport] {
+    align-items: flex-start;
+    padding-top: var(--keyboard-viewport-top);
+}
+
+.ui-Modal-content[data-keyboard-viewport],
+.ui-Modal-root[data-dialog="product"] .ui-Modal-content[data-keyboard-viewport] {
+    height: var(--keyboard-viewport-height);
+    max-height: var(--keyboard-viewport-height);
+    overflow-y: auto;
 }
 
 /* Above this width AND height, a fullscreen dialog (AmountBox, ReviewBox, SummaryHistoryBox) no */

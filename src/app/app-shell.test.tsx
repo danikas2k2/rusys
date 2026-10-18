@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 
+import postcss from 'postcss';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
@@ -51,6 +52,7 @@ describe('next.js app shell', () => {
             ['noto-color-emoji', 'noto-sans', 'noto-sans-display', 'noto-sans-mono'].sort()
         );
         expect(markup).toContain('<main>Application loaded</main>');
+        expect(markup).toContain('<div class="pwa-top-blur-fix" aria-hidden="true"></div>');
         expect(markup).not.toContain('fonts.googleapis.com');
         expect(markup).not.toContain('fonts.gstatic.com');
         await expect(generateMetadata()).resolves.toMatchObject({
@@ -78,5 +80,74 @@ describe('next.js app shell', () => {
         expect(css).toContain('var(--font-noto-sans), var(--font-noto-color-emoji)');
         expect(css).toContain('var(--font-noto-sans-display)');
         expect(css).toContain('var(--font-noto-sans-mono)');
+    });
+
+    it('keeps viewport height responsive in standalone mode while scoping the top strip', async () => {
+        const stylesheet = postcss.parse(await readFile('src/styles/globals.css', 'utf8'));
+        let browserHeight: string | undefined;
+        let standaloneHeight: string | undefined;
+        let stripIsHidden = false;
+        let standaloneStripIsNonInteractive = false;
+
+        stylesheet.walkRules(':root', (rule) => {
+            rule.walkAtRules('supports', (supports) => {
+                if (supports.params === '(width: 100dvw)') {
+                    supports.walkDecls('--area-height', (declaration) => {
+                        browserHeight = declaration.value;
+                    });
+                }
+            });
+            rule.walkAtRules('media', (media) => {
+                if (media.params === '(display-mode: standalone)') {
+                    media.walkDecls('--area-height', (declaration) => {
+                        standaloneHeight = declaration.value;
+                    });
+                }
+            });
+        });
+        stylesheet.walkRules('.pwa-top-blur-fix', (rule) => {
+            if (rule.parent?.type === 'root') {
+                stripIsHidden = rule.nodes.some(
+                    (node) => node.type === 'decl' && node.prop === 'display' && node.value === 'none'
+                );
+            }
+            if (rule.parent?.type === 'atrule' && rule.parent.params === '(display-mode: standalone)') {
+                standaloneStripIsNonInteractive = rule.nodes.some(
+                    (node) => node.type === 'decl' && node.prop === 'pointer-events' && node.value === 'none'
+                );
+            }
+        });
+
+        expect(browserHeight).toBe('100dvh');
+        expect(standaloneHeight).toBeUndefined();
+        expect(stripIsHidden).toBe(true);
+        expect(standaloneStripIsNonInteractive).toBe(true);
+    });
+
+    it('uses measured visual viewport height for an occluded dialog', async () => {
+        const stylesheet = postcss.parse(await readFile('src/styles/globals.css', 'utf8'));
+        let modalHeight: string | undefined;
+        let modalMaxHeight: string | undefined;
+        let keyboardAlignment: string | undefined;
+
+        stylesheet.walkRules((rule) => {
+            if (rule.selector.includes('.ui-Modal-content[data-keyboard-viewport]')) {
+                rule.walkDecls('height', (declaration) => {
+                    modalHeight = declaration.value;
+                });
+                rule.walkDecls('max-height', (declaration) => {
+                    modalMaxHeight = declaration.value;
+                });
+            }
+            if (rule.selector === '.ui-Modal-inner[data-keyboard-viewport]') {
+                rule.walkDecls('align-items', (declaration) => {
+                    keyboardAlignment = declaration.value;
+                });
+            }
+        });
+
+        expect(modalHeight).toBe('var(--keyboard-viewport-height)');
+        expect(modalMaxHeight).toBe('var(--keyboard-viewport-height)');
+        expect(keyboardAlignment).toBe('flex-start');
     });
 });

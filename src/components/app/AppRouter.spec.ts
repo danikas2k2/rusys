@@ -139,6 +139,8 @@ test.describe('mobile navigation', () => {
     test('page and menu fit within the viewport with iOS safe area insets', async ({ page }) => {
         await page.goto('/');
         await expect(page.locator('[data-grid="products"]:visible').first()).toBeVisible();
+        await expect(page.locator('.pwa-top-blur-fix')).toBeHidden();
+        await expect(page.locator('html')).toHaveCSS('--area-height', '100dvh');
         await page.addStyleTag({
             content:
                 ':root { --safe-block-start: 59px; --safe-block-end: 34px; --safe-inline-start: 12px; --safe-inline-end: 12px; }',

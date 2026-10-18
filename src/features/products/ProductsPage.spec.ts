@@ -161,6 +161,27 @@ test.describe('products', () => {
         await expect(productTile(page, 'Mėlynės')).toBeVisible();
     });
 
+    test('centred product dialog aligns with a simulated keyboard viewport', async ({ page, isMobile }) => {
+        test.skip(!isMobile);
+        await page.goto('/');
+        await page.locator('[data-action="add"]').click();
+        const dialog = page.getByRole('dialog', { name: 'Pridėti naują produktą' });
+        await expect(dialog).toBeVisible();
+        const before = await dialog.boundingBox();
+        expect(before!.y).toBeGreaterThan(0);
+
+        await dialog.evaluate((element) => {
+            element.setAttribute('data-keyboard-viewport', '');
+            (element as HTMLElement).style.setProperty('--keyboard-viewport-height', '300px');
+            element.parentElement!.setAttribute('data-keyboard-viewport', '');
+            element.parentElement!.style.setProperty('--keyboard-viewport-top', '0px');
+        });
+
+        await expect(dialog).toHaveCSS('height', '300px');
+        const after = await dialog.boundingBox();
+        expect(after!.y).toBeCloseTo(0, 0);
+    });
+
     test('renames, moves and removes a product with confirmation', async ({ page, db }) => {
         await page.goto('/');
         let amount = await openProduct(page, 'Avietės');
