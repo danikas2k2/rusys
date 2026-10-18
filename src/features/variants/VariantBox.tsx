@@ -160,11 +160,6 @@ export function VariantBox({
             // eslint-disable-next-line react-hooks/set-state-in-effect -- submission state reset when modal opens
             setSubmitting(false);
             setLoading(false);
-
-            const timer = setTimeout(() => {
-                nameRef.current?.focus();
-            }, 100);
-            return () => clearTimeout(timer);
         }
     }, [opened, initialGroup, initialVariant, initialSuffix, initialCount, initialUnits, filterGroup, isEditing]);
 
@@ -341,6 +336,7 @@ export function VariantBox({
                             />
                             <TextInput
                                 ref={nameRef}
+                                data-autofocus
                                 label={_('Variant name')}
                                 placeholder={_('Enter variant name')}
                                 disabled={loading}
