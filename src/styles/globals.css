@@ -1,5 +1,4 @@
 :root {
-    --toolbar-height: 48px;
     --label-fz: var(--mantine-font-size-md);
 
     /* Safe area insets */
@@ -21,6 +20,21 @@
         --safe-block-end: env(safe-area-inset-bottom, 0px);
         --safe-inline-start: env(safe-area-inset-left, 0px);
         --safe-inline-end: env(safe-area-inset-right, 0px);
+    }
+
+    /* Safe area size */
+
+    --area-width: 100%;
+    --area-height: 100%;
+
+    @supports (width: 100vw) {
+        --area-width: 100vw;
+        --area-height: 100vh;
+    }
+
+    @supports (width: 100dvw) {
+        --area-width: 100dvw;
+        --area-height: 100dvh;
     }
 }
 
@@ -88,14 +102,14 @@
 
 html {
     user-select: none;
-    height: 100%;
+    height: var(--area-height);
 }
 
 html,
 body {
     color: var(--mantine-color-text);
     background: var(--mantine-color-body);
-    max-width: 100%;
+    max-width: var(--area-width);
     overflow-x: hidden;
 }
 
@@ -110,7 +124,7 @@ body {
     font-family: var(--mantine-font-family), sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    min-height: 100%;
+    min-height: var(--area-height);
 }
 
 code {

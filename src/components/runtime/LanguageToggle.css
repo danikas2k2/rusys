@@ -1,4 +1,6 @@
 [data-flag] {
-    font-size: 1.15rem;
-    line-height: 1;
+    width: 20px;
+    filter: brightness(0.8) contrast(1.5);
+    transform: perspective(120px) rotateY(-12deg) rotateZ(-3deg);
+    transform-origin: left center;
 }
