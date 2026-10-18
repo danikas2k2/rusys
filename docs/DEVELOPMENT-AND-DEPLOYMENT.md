@@ -142,18 +142,16 @@ rebuilding. Deployment requires a running `rusys-gateway`; rollback also require
 
 ### Automatic production releases
 
-The [production deployment workflow](../.github/workflows/deploy-production.yml) runs when a push to `main` changes
-`package.json`, including a pull request merge that changes the file. It compares the project version before and after
-the push. If the version is unchanged, it skips the test and deployment jobs. A push that does not change `package.json`
-does not start this workflow. The package's `version` script also updates Docker's `APP_VERSION` build label in
-`docker/compose.yaml`.
+The [CI workflow](../.github/workflows/ci.yml) runs the full suite once for each push to `main`, including a pull
+request merge. Only after lint, build, coverage, E2E, Lighthouse, and visual tests all pass does it compare the project
+version before and after the push. A version change starts the production deployment job; an unchanged version or failed
+check does not. Pull requests run the same checks without version detection or deployment. The package's `version`
+script also updates Docker's `APP_VERSION` build label in `docker/compose.yaml`.
 
-For a release, the workflow calls the full [CI workflow](../.github/workflows/ci.yml), including lint, build, coverage,
-E2E, Lighthouse, and visual tests. The production job starts only after every CI job passes. It checks out the pushed
-commit, configures SSH, and runs `pnpm deploy:run`. The deployment script reports failure if upload, Docker build,
-health checks, or the gateway switch fails. It checks required Docker build sources before connecting and creates an
-empty `scripts/postcss` directory if the checkout omits it, so Docker can still copy that path. Production deployments
-are serialized.
+The production job checks out the pushed commit, configures SSH, and runs `pnpm deploy:run`. The deployment script
+reports failure if upload, Docker build, health checks, or the gateway switch fails. It checks required Docker build
+sources before connecting and creates an empty `scripts/postcss` directory if the checkout omits it, so Docker can still
+copy that path. Production deployments are serialized.
 
 Create a GitHub Actions environment named `production` in the repository settings. Restrict its deployment branches to
 `main`. Add these environment settings:
