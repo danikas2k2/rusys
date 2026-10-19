@@ -186,6 +186,38 @@ fi
     return slot;
 }
 
+function gatewayWorkerPids(connection: Connection): string[] {
+    const output = connection.remote(`"$docker" exec rusys-gateway sh -c 'for process in /proc/[0-9]*; do
+    test -r "$process/cmdline" || continue
+    command=$(tr "\\000" " " < "$process/cmdline" 2>/dev/null) || continue
+    case "$command" in
+        "nginx: worker process"*) printf "%s\\n" "\${process##*/}" ;;
+    esac
+done'
+`);
+    const pids = output.trim().split(/\s+/).filter(Boolean);
+    if (pids.length === 0 || pids.some((pid) => !/^[1-9]\d*$/.test(pid))) {
+        throw new Error('Cannot identify the running Nginx workers.');
+    }
+    return pids;
+}
+
+function waitForGatewayWorkers(connection: Connection, pids: string[]) {
+    console.log('⏳ Waiting for the previous Nginx workers to finish...');
+    connection.remote(`attempt=0
+while test "$attempt" -lt 180; do
+    remaining=$("$docker" exec rusys-gateway sh -c 'for pid in ${pids.join(' ')}; do
+        if test -d "/proc/$pid"; then printf "%s " "$pid"; fi
+    done')
+    if test -z "$remaining"; then exit 0; fi
+    attempt=$((attempt + 1))
+    sleep 2
+done
+echo 'Previous Nginx workers did not exit; leaving the previous application running.' >&2
+exit 1
+`);
+}
+
 function switchTo(connection: Connection, slot: Slot) {
     const config = readFileSync(path.resolve('docker/nginx.conf.template'), 'utf8').replaceAll(
         '@BACKEND@',
@@ -228,7 +260,8 @@ export function deploy(config?: DeployConfig) {
                     // noinspection ExceptionCaughtLocallyJS
                     throw new Error('The blue-green gateway is not running.');
                 }
-                const candidate: Slot = activeSlot(connection) === 'blue' ? 'green' : 'blue';
+                const previous = activeSlot(connection);
+                const candidate: Slot = previous === 'blue' ? 'green' : 'blue';
                 connection.remote('mkdir -p src public scripts/postcss docker\n');
 
                 console.log('📤 Uploading source files for the Docker build...');
@@ -275,7 +308,15 @@ export function deploy(config?: DeployConfig) {
                     `"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps --no-build --force-recreate rusys-app-${candidate}\n`
                 );
                 waitHealthy(connection, `rusys-app-${candidate}`);
+                const previousWorkers = gatewayWorkerPids(connection);
                 switchTo(connection, candidate);
+                waitForGatewayWorkers(connection, previousWorkers);
+                connection.remote(`if ! grep -q ${shellQuote(`rusys-app-${candidate}:3000`)} .deploy/nginx/default.conf; then
+    echo 'The active application slot changed before the previous container could be stopped.' >&2
+    exit 1
+fi
+"$docker" compose --env-file .env -f docker/compose.yaml stop rusys-app-${previous}
+`);
                 console.log(`Active application slot: ${candidate}`);
                 console.log('✅ Deployment completed successfully!');
             } catch (error) {
