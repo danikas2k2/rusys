@@ -113,7 +113,6 @@ services:
       - /sys:/sys:ro
       - /var/run:/var/run:ro
       - ${DOCKER_ROOT_DIR:?Set DOCKER_ROOT_DIR to the NAS DockerRootDir in the server .env}:/var/lib/docker:ro
-      - /dev/disk:/dev/disk:ro
 
 networks:
   rusys-net:

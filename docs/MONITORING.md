@@ -104,7 +104,6 @@ services:
             - /sys:/sys:ro
             - /var/run:/var/run:ro
             - ${DOCKER_ROOT_DIR:?Set DOCKER_ROOT_DIR to the NAS DockerRootDir in the server .env}:/var/lib/docker:ro
-            - /dev/disk:/dev/disk:ro
 
 volumes:
     monitoring-alloy-data:
@@ -120,7 +119,9 @@ docker info --format '{{.DockerRootDir}}'
 
 Jei kelias kitoks, `/var/lib/docker` bind mount'ą reikia pakeisti į tikrą hosto kelią (dešinė konteinerio pusė gali
 likti `/var/lib/docker`). DSM specifinės metrikos gali neveikti lygiai kaip įprastame Linux; tikriname atskirai.
-Nekeisti DSM sisteminių failų.
+Synology hoste gali nebūti `/dev/disk`, todėl jo nemontuojame. Dėl to cAdvisor disko ir konteinerių failų sistemos I/O
+metrikos gali būti nepilnos. Pirmiausia Grafana Cloud patikrinti NAS ir konteinerių CPU/RAM metrikas; disko metrikų
+prieinamumą įvertinti pagal realiai gautas laiko eilutes. Nekeisti DSM sisteminių failų.
 
 Galima pradėti nuo minimalaus Alloy serviso be host mount'ų, kad patikrintumėte startą, ir tada pridėti juos po vieną.
 Gamyboje apsvarstyti atskirą monitoring servisą / mažesnes teises, jei saugumo rizika tampa reikšminga.

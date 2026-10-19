@@ -163,17 +163,19 @@ Set these values in the server's `.env` before deploying; Compose refuses to sta
 
 Alloy's cAdvisor exporter requires privileged mode and host filesystem mounts according to the
 [Grafana Alloy Docker guidance](https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.exporter.cadvisor/).
-The service mounts the Docker socket, host root, `/proc`, `/sys`, `/var/run` read-only, Docker data root, and
-`/dev/disk`; the Docker socket and privileged mode grant broad host access even with read-only mounts. Keep the server
+The service mounts the Docker socket, host root, `/proc`, `/sys`, `/var/run` read-only, and the Docker data root.
+Synology may not have `/dev/disk`, so this path is not mounted; cAdvisor disk and container filesystem I/O metrics may
+be incomplete. The Docker socket and privileged mode grant broad host access even with read-only mounts. Keep the server
 and Grafana Cloud token restricted. Verify that `DOCKER_ROOT_DIR` matches the NAS value before deployment, since
 Synology installations may not use `/var/lib/docker`. The configured directory must exist, or Docker may create an empty
 bind mount and container metrics will be incomplete.
 
 After deployment, check Grafana Cloud Explore for `up{project="rusys",environment="production",host="synology-ds923"}`
 and confirm both scrape jobs report `1`. Check `node_network_receive_bytes_total` for NAS interfaces and
-`container_cpu_usage_seconds_total` for containers. A running Alloy container confirms startup only; it does not confirm
-successful scraping or Cloud authentication. If metrics are absent, inspect `docker logs rusys-monitoring` on the NAS
-and the loopback Alloy status UI through an SSH tunnel.
+`container_cpu_usage_seconds_total` and `container_memory_working_set_bytes` for containers. Confirm host CPU/RAM and
+container CPU/RAM series first, then inspect which disk and filesystem I/O series are available. A running Alloy
+container confirms startup only; it does not confirm successful scraping or Cloud authentication. If metrics are absent,
+inspect `docker logs rusys-monitoring` on the NAS and the loopback Alloy status UI through an SSH tunnel.
 
 `pnpm deploy:rollback` requires a healthy previous container. After a successful deployment, start the stopped previous
 container on the server and wait for it to become healthy before running rollback. The previous image remains available,
