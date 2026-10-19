@@ -9,6 +9,9 @@ organized by topic, with Mermaid diagrams placed alongside the concepts they exp
 - [Data and workflows](docs/DATA-AND-WORKFLOWS.md) — MongoDB model, authentication, updates, import and export, and
   offline behavior.
 - [Development and deployment](docs/DEVELOPMENT-AND-DEPLOYMENT.md) — local setup, commands, CI, and production releases.
+- [Synthetic Monitoring](docs/SYNTHETIC-MONITORING.md) — external uptime checks, alerts, dashboard, and Grafana
+  credentials.
+- [Monitoring overview](docs/MONITORING.md) — current monitoring paths and the historical roadmap.
 
 Related guides: [accessibility](ACCESSIBILITY.md), [table components](src/components/table/TABLE.md), and the
 [Service Worker](src/components/app/ServiceWorker/README.md).
