@@ -27,17 +27,17 @@
 
 ## 1. Bendras planas
 
-| Etapas | Kur keičiame                             | Komponentai                             | Rezultatas                                                        | Būsena                                                 |
-| ------ | ---------------------------------------- | --------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------ |
-| 1      | Grafana Cloud + esamas `rusys` Compose   | Alloy, cAdvisor, Unix exporter          | Kiekvieno konteinerio ir NAS CPU, RAM, diskai, tinklas            | Servisas įgyvendintas kode; NAS/Grafana dar netikrinta |
-| 2      | Grafana Cloud                            | Synthetic Monitoring                    | Viešo puslapio ir `/api/health` prieinamumas, uptime, perspėjimai | Laukia                                                 |
-| 3      | Alloy / Docker / Next.js                 | Docker logs, Pino                       | Centralizuoti struktūrizuoti logai                                | Laukia                                                 |
-| 4      | NGINX konfigūracija                      | JSON access logs                        | Requestai, statusai, upstream ir atsakymo laikai                  | Laukia                                                 |
-| 5      | MongoDB + Alloy                          | Monitoring vartotojas, MongoDB exporter | DB connections, operacijos ir apkrova                             | Laukia                                                 |
-| 6      | Next.js serveris + Alloy                 | OpenTelemetry, OTLP                     | API traces, latency, išimtys, custom spans                        | Laukia                                                 |
-| 7      | Next.js klientas + Grafana Cloud         | Grafana Faro                            | Web Vitals, naršyklės klaidos, sesijos, custom events             | Laukia                                                 |
-| 8      | Grafana Cloud                            | Dashboards, alerts                      | Bendras Overview ir diagnostiniai dashboardai                     | Laukia                                                 |
-| 9      | Atskira ilgalaikė saugykla, jei prireiks | Dienos agregatai                        | Mėnesių/metų apkrovų tendencijos                                  | Laukia                                                 |
+| Etapas | Kur keičiame                             | Komponentai                             | Rezultatas                                                        | Būsena                                                           |
+| ------ | ---------------------------------------- | --------------------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------- |
+| 1      | Grafana Cloud + esamas `rusys` Compose   | Alloy, cAdvisor, Unix exporter          | Kiekvieno konteinerio ir NAS CPU, RAM, diskai, tinklas            | Alloy veikia; `rusys` metrikos matomos; aprėpties patikra laukia |
+| 2      | Grafana Cloud                            | Synthetic Monitoring                    | Viešo puslapio ir `/api/health` prieinamumas, uptime, perspėjimai | Laukia                                                           |
+| 3      | Alloy / Docker / Next.js                 | Docker logs, Pino                       | Centralizuoti struktūrizuoti logai                                | Laukia                                                           |
+| 4      | NGINX konfigūracija                      | JSON access logs                        | Requestai, statusai, upstream ir atsakymo laikai                  | Laukia                                                           |
+| 5      | MongoDB + Alloy                          | Monitoring vartotojas, MongoDB exporter | DB connections, operacijos ir apkrova                             | Laukia                                                           |
+| 6      | Next.js serveris + Alloy                 | OpenTelemetry, OTLP                     | API traces, latency, išimtys, custom spans                        | Laukia                                                           |
+| 7      | Next.js klientas + Grafana Cloud         | Grafana Faro                            | Web Vitals, naršyklės klaidos, sesijos, custom events             | Laukia                                                           |
+| 8      | Grafana Cloud                            | Dashboards, alerts                      | Bendras Overview ir diagnostiniai dashboardai                     | Laukia                                                           |
+| 9      | Atskira ilgalaikė saugykla, jei prireiks | Dienos agregatai                        | Mėnesių/metų apkrovų tendencijos                                  | Laukia                                                           |
 
 **Rekomenduojama vykdymo tvarka:** pirma konteinerių CPU/RAM, iš karto po to išorinis uptime, tada logai ir aplikacijos
 instrumentavimas. Kiekvieną etapą patikrinti prieš jungiant kitą.
@@ -569,8 +569,8 @@ Synthetic Monitoring.
 
 ## 12. Užduočių kontrolinis sąrašas
 
-- [ ] Grafana Cloud metrics remote write endpoint ir rašymo tokenas.
-- [x] `monitoring` servisas esamame Compose projekte (įgyvendintas kode; NAS/Grafana dar netikrinta).
+- [x] Grafana Cloud metrics remote write endpoint ir rašymo tokenas (metrikos gaunamos).
+- [x] `monitoring` servisas esamame Compose projekte (Alloy veikia; Grafana Cloud matomos `rusys` metrikos).
 - [ ] Patikrinti Synology Docker root dir, mount'us, Alloy logus.
 - [ ] Grafana mato kiekvieno Docker konteinerio CPU/RAM ir NAS CPU/RAM.
 - [ ] Grafana Synthetic HTTP check pagrindiniam viešam URL.
@@ -600,6 +600,6 @@ Synthetic Monitoring.
 
 ---
 
-**Statusas:** 1 etapo `monitoring` servisas įgyvendintas kode; jo veikimas NAS ir metrikų gavimas Grafana Cloud dar
-nepatikrinti. Kiti etapai laukia. Prieš produkcinį įjungimą patvirtinti Docker mount'us, Alloy konfigūraciją, tikrus
-konteinerių vardus, Grafana Cloud endpointus, sąnaudas ir jautrių duomenų filtravimą.
+**Statusas:** 1 etapo Alloy konteineris veikia NAS, o Grafana Cloud matomos `rusys` metrikos. Dar reikia patikrinti, ar
+matomos kiekvieno Docker konteinerio ir NAS CPU/RAM metrikos, bei patvirtinti Docker root dir ir mount'us. Kiti etapai
+laukia. Prieš tęsiant diegimą patvirtinti tikrus konteinerių vardus, sąnaudas ir jautrių duomenų filtravimą.
