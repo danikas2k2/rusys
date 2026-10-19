@@ -127,8 +127,11 @@ flowchart LR
     Build --> Idle[Inactive blue or green container]
     Idle --> Health{Health check}
     Health -->|Pass| Gateway[Nginx switches traffic]
-    Gateway --> Active[New active version]
-    Old[Previous running version] --> Rollback[pnpm deploy:rollback]
+    Gateway --> Drain[Wait for previous Nginx workers to exit]
+    Drain --> Stop[Stop previous container]
+    Stop --> Active[New active version]
+    Old[Previous version] --> Restart[Start and check previous container]
+    Restart --> Rollback[pnpm deploy:rollback]
     Rollback --> Gateway
     Mongo[(MongoDB)] --> Idle
     Mongo --> Old
@@ -137,8 +140,13 @@ flowchart LR
 ```
 
 `pnpm deploy` runs `pnpm check`, builds the inactive container, waits for its health check, and switches Nginx traffic.
-The previous container remains running. `pnpm deploy:rollback` returns traffic to that healthy container without
-rebuilding. Deployment requires a running `rusys-gateway`; rollback also requires a healthy previous container.
+After the reload, it waits up to six minutes for the previous Nginx worker processes to exit, then stops the previous
+application container. If the workers do not exit or their status cannot be checked, deployment reports a failure and
+leaves the previous container running. Deployment requires a running `rusys-gateway`.
+
+`pnpm deploy:rollback` requires a healthy previous container. After a successful deployment, start the stopped previous
+container on the server and wait for it to become healthy before running rollback. The previous image remains available,
+so this does not require a rebuild.
 
 ### Automatic production releases
 

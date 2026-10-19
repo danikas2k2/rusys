@@ -47,7 +47,7 @@
         "test:a11y": "playwright test Accessibility.spec.ts",
         "test:visual": "vitest run --config=vitest.visual.config.mts",
         "test:visual:update": "vitest run --config=vitest.visual.config.mts --update",
-        "preversion": "git pull && pnpm check",
+        "preversion": "git pull && pnpm lint",
         "version": "sed -i '' 's/APP_VERSION: \".*\"/APP_VERSION: \"'\"$npm_package_version\"'\"/' ./docker/compose.yaml && git add docker/compose.yaml",
         "postversion": "git push && git push --tags",
         "update-deps": "pnpm -r update --latest && syncpack update && pnpm install"
