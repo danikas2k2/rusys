@@ -415,8 +415,8 @@ importers:
         specifier: ^30.1.2
         version: 30.1.2(@noble/hashes@1.8.0)
       mingo:
-        specifier: ^7.2.4
-        version: 7.2.4
+        specifier: ^7.2.5
+        version: 7.2.5
       mongodb-memory-server:
         specifier: ^11.3.0
         version: 11.3.0(socks@2.8.10)(supports-color@10.2.2)
@@ -4140,8 +4140,8 @@ packages:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
     engines: {node: '>=4'}
 
-  mingo@7.2.4:
-    resolution: {integrity: sha512-KrxHKzMMguL+G1lBC6YbU5UTXdw2viwVHNTPzNYVfEQfSAoetC3M1a7rlveOksn/96oNy+QwBlIXvx/q6rWyxQ==}
+  mingo@7.2.5:
+    resolution: {integrity: sha512-lZR31XnwGQuDHebGyLTlW095BI19qfaYE/IAcVkmBDRyn7DnEwYLQFMfnwFVr+bmc+42a3elhOB2ZBL73i782A==}
 
   minimatch@10.2.6:
     resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
@@ -9706,7 +9706,7 @@ snapshots:
 
   min-indent@1.0.1: {}
 
-  mingo@7.2.4: {}
+  mingo@7.2.5: {}
 
   minimatch@10.2.6:
     dependencies:

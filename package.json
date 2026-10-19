@@ -131,7 +131,7 @@
         "eslint-plugin-react-hooks": "^7.1.1",
         "immer": "^11.1.21",
         "jsdom": "^30.1.2",
-        "mingo": "^7.2.4",
+        "mingo": "^7.2.5",
         "mongodb-memory-server": "^11.3.0",
         "mongodb-memory-server-core": "^11.3.0",
         "playwright": "1.64.0",
