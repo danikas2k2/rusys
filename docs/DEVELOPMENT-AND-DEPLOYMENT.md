@@ -117,8 +117,9 @@ cancellation promptly after the first failure, so some other lint checks may be 
 ## Deployment and rollback
 
 The production image is built from [docker/Dockerfile](../docker/Dockerfile).
-[docker/compose.yaml](../docker/compose.yaml) defines a MongoDB replica set, blue and green application containers, and
-an Nginx gateway. Both application containers share the MongoDB service and image directory.
+[docker/compose.yaml](../docker/compose.yaml) defines a MongoDB replica set, blue and green application containers, an
+Nginx gateway, and an Alloy monitoring service. Both application containers share the MongoDB service and image
+directory.
 
 ```mermaid
 flowchart LR
@@ -143,6 +144,36 @@ flowchart LR
 After the reload, it waits up to six minutes for the previous Nginx worker processes to exit, then stops the previous
 application container. If the workers do not exit or their status cannot be checked, deployment reports a failure and
 leaves the previous container running. Deployment requires a running `rusys-gateway`.
+
+The deployment uploads [monitoring configuration](../docker/monitoring/config.alloy), validates Compose and Alloy
+configuration, and recreates `monitoring` (Grafana Alloy) before building the new application slot. Alloy collects
+Docker container metrics with cAdvisor and NAS host metrics with the Unix exporter every 15 seconds. It sends both to
+Grafana Cloud using Prometheus remote write, with `project=rusys`, `environment=production`, and `host=synology-ds923`
+labels. It does not collect logs. It uses host networking so Unix network metrics reflect the NAS, and binds its local
+status UI only to `127.0.0.1:12345` on the NAS. Its write-ahead log uses a persistent Docker volume across recreations.
+
+Set these values in the server's `.env` before deploying; Compose refuses to start if any is empty:
+
+| Name               | Value                                                                 |
+| ------------------ | --------------------------------------------------------------------- |
+| `GC_METRICS_URL`   | Grafana Cloud Prometheus remote write URL                             |
+| `GC_METRICS_USER`  | Grafana Cloud Prometheus username or instance ID                      |
+| `GC_METRICS_TOKEN` | Grafana Cloud token with metrics write permission                     |
+| `DOCKER_ROOT_DIR`  | NAS Docker data root from `docker info --format '{{.DockerRootDir}}'` |
+
+Alloy's cAdvisor exporter requires privileged mode and host filesystem mounts according to the
+[Grafana Alloy Docker guidance](https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.exporter.cadvisor/).
+The service mounts the Docker socket, host root, `/proc`, `/sys`, `/var/run` read-only, Docker data root, and
+`/dev/disk`; the Docker socket and privileged mode grant broad host access even with read-only mounts. Keep the server
+and Grafana Cloud token restricted. Verify that `DOCKER_ROOT_DIR` matches the NAS value before deployment, since
+Synology installations may not use `/var/lib/docker`. The configured directory must exist, or Docker may create an empty
+bind mount and container metrics will be incomplete.
+
+After deployment, check Grafana Cloud Explore for `up{project="rusys",environment="production",host="synology-ds923"}`
+and confirm both scrape jobs report `1`. Check `node_network_receive_bytes_total` for NAS interfaces and
+`container_cpu_usage_seconds_total` for containers. A running Alloy container confirms startup only; it does not confirm
+successful scraping or Cloud authentication. If metrics are absent, inspect `docker logs rusys-monitoring` on the NAS
+and the loopback Alloy status UI through an SSH tunnel.
 
 `pnpm deploy:rollback` requires a healthy previous container. After a successful deployment, start the stopped previous
 container on the server and wait for it to become healthy before running rollback. The previous image remains available,
