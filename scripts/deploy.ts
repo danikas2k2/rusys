@@ -79,6 +79,7 @@ const requiredBuildSources = [
     'docker/Dockerfile',
     'docker/compose.yaml',
     'docker/nginx.conf.template',
+    'docker/monitoring/config.alloy',
     'package.json',
     'pnpm-lock.yaml',
     'pnpm-workspace.yaml',
@@ -262,7 +263,7 @@ export function deploy(config?: DeployConfig) {
                 }
                 const previous = activeSlot(connection);
                 const candidate: Slot = previous === 'blue' ? 'green' : 'blue';
-                connection.remote('mkdir -p src public scripts/postcss docker\n');
+                connection.remote('mkdir -p src public scripts/postcss docker/monitoring\n');
 
                 console.log('📤 Uploading source files for the Docker build...');
                 connection.upload('src/', ['src/'], ['--delete', '--delete-excluded', ...deployExcludes]);
@@ -281,6 +282,7 @@ export function deploy(config?: DeployConfig) {
                         '--include=/Dockerfile',
                         '--include=/compose.yaml',
                         '--include=/nginx.conf.template',
+                        '--include=/monitoring/***',
                         '--exclude=*',
                     ]
                 );
@@ -294,10 +296,21 @@ export function deploy(config?: DeployConfig) {
                     '.dockerignore',
                 ]);
 
+                connection.remote('"$docker" compose --env-file .env -f docker/compose.yaml config --quiet\n');
+                connection.remote(
+                    '"$docker" compose --env-file .env -f docker/compose.yaml run --rm --no-deps monitoring validate /etc/alloy/config.alloy\n'
+                );
                 connection.remote(
                     '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps rusys-db\n'
                 );
                 waitHealthy(connection, 'rusys-db');
+                connection.remote(
+                    '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps --force-recreate monitoring\n'
+                );
+                if (!isRunning(connection, 'rusys-monitoring')) {
+                    // noinspection ExceptionCaughtLocallyJS
+                    throw new Error('The monitoring container is not running. Check its Alloy configuration and logs.');
+                }
                 console.log(`🔨 Building rusys-app-${candidate} on the server...`);
                 connection.remote(
                     `"$docker" compose --env-file .env -f docker/compose.yaml build rusys-app-${candidate}\n`,

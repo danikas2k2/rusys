@@ -87,9 +87,38 @@ services:
     image: rusys-app-green
     profiles: [green]
 
+  monitoring:
+    container_name: rusys-monitoring
+    image: grafana/alloy:v1.20.1
+    restart: unless-stopped
+    privileged: true
+    environment:
+      GC_METRICS_URL: ${GC_METRICS_URL:?Set GC_METRICS_URL in the server .env}
+      GC_METRICS_USER: ${GC_METRICS_USER:?Set GC_METRICS_USER in the server .env}
+      GC_METRICS_TOKEN: ${GC_METRICS_TOKEN:?Set GC_METRICS_TOKEN in the server .env}
+    command:
+      [
+        "run",
+        "--server.http.listen-addr=127.0.0.1:12345",
+        "--storage.path=/var/lib/alloy/data",
+        "/etc/alloy/config.alloy",
+      ]
+    network_mode: host
+    volumes:
+      - monitoring-alloy-data:/var/lib/alloy/data
+      - ./monitoring/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/rootfs:ro
+      - /proc:/host/proc:ro
+      - /sys:/sys:ro
+      - /var/run:/var/run:ro
+      - ${DOCKER_ROOT_DIR:?Set DOCKER_ROOT_DIR to the NAS DockerRootDir in the server .env}:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+
 networks:
   rusys-net:
     driver: bridge
 
 volumes:
   rusys-db-data:
+  monitoring-alloy-data:

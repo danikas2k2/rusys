@@ -13,6 +13,7 @@ const requiredFiles = [
     'docker/Dockerfile',
     'docker/compose.yaml',
     'docker/nginx.conf.template',
+    'docker/monitoring/config.alloy',
     'package.json',
     'pnpm-lock.yaml',
     'pnpm-workspace.yaml',
@@ -27,8 +28,8 @@ const roots: string[] = [];
 function buildSourceFixture(): string {
     const root = mkdtempSync(path.join(tmpdir(), 'rusys-deploy-test-'));
     roots.push(root);
-    for (const directory of ['src', 'public', 'docker']) {
-        mkdirSync(path.join(root, directory));
+    for (const directory of ['src', 'public', 'docker/monitoring']) {
+        mkdirSync(path.join(root, directory), { recursive: true });
     }
     for (const file of requiredFiles) {
         writeFileSync(path.join(root, file), 'fixture');
@@ -79,6 +80,15 @@ describe('prepareBuildSources', () => {
         );
     });
 
+    it('identifies a missing monitoring config before deployment', () => {
+        const root = buildSourceFixture();
+        rmSync(path.join(root, 'docker/monitoring/config.alloy'));
+
+        expect(() => prepareBuildSources(root)).toThrow(
+            'Required deployment file "docker/monitoring/config.alloy" is missing or has the wrong type. Restore it before deploying.'
+        );
+    });
+
     it('rejects a file where the optional PostCSS directory must be', () => {
         const root = buildSourceFixture();
         mkdirSync(path.join(root, 'scripts'));
@@ -96,7 +106,13 @@ describe('deploy previous slot cleanup', () => {
         vi.mocked(execFileSync).mockReset();
     });
 
-    function mockRemote(workerPids = '17\n19\n', failWait = false, activeAfterSwitch: 'blue' | 'green' = 'green') {
+    function mockRemote(
+        workerPids = '17\n19\n',
+        failWait = false,
+        activeAfterSwitch: 'blue' | 'green' = 'green',
+        monitoringRunning = true,
+        failAlloyValidation = false
+    ) {
         const scripts: string[] = [];
         vi.mocked(execFileSync).mockImplementation((file, _args, options) => {
             if (file !== 'ssh') {
@@ -104,7 +120,13 @@ describe('deploy previous slot cleanup', () => {
             }
             const script = String(options?.input);
             scripts.push(script);
+            if (script.includes('monitoring validate /etc/alloy/config.alloy') && failAlloyValidation) {
+                throw new Error('Invalid Alloy configuration');
+            }
             if (script.includes('.State.Running')) {
+                if (script.includes('rusys-monitoring') && !monitoringRunning) {
+                    return '';
+                }
                 return 'true';
             }
             if (script.includes('.State.Health.Status')) {
@@ -149,6 +171,73 @@ describe('deploy previous slot cleanup', () => {
 
         expect(stop).toBeGreaterThan(wait);
         expect(scripts[stop]).toContain("if ! grep -q 'rusys-app-green:3000'");
+    });
+
+    it('validates and recreates Alloy from the uploaded config before building the app', async () => {
+        const scripts = mockRemote();
+
+        await deployment();
+
+        const upload = vi
+            .mocked(execFileSync)
+            .mock.calls.find(
+                ([file, args]) => file === 'rsync' && Array.isArray(args) && args.includes('--include=/monitoring/***')
+            );
+
+        expect(upload).toBeDefined();
+
+        const config = scripts.findIndex((script) =>
+            script.includes('compose --env-file .env -f docker/compose.yaml config --quiet')
+        );
+        const validate = scripts.findIndex((script) =>
+            script.includes('run --rm --no-deps monitoring validate /etc/alloy/config.alloy')
+        );
+        const database = scripts.findIndex((script) => script.includes('up -d --no-deps rusys-db'));
+        const monitoring = scripts.findIndex((script) =>
+            script.includes('up -d --no-deps --force-recreate monitoring')
+        );
+        const build = scripts.findIndex((script) => script.includes('build rusys-app-green'));
+
+        expect(config).toBeGreaterThanOrEqual(0);
+        expect(validate).toBeGreaterThan(config);
+        expect(database).toBeGreaterThan(validate);
+        expect(monitoring).toBeGreaterThan(database);
+        expect(build).toBeGreaterThan(monitoring);
+    });
+
+    it('does not build the app when Alloy fails to start', async () => {
+        const scripts = mockRemote('17\n19\n', false, 'green', false);
+        const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+        vi.spyOn(process, 'exit').mockImplementation(() => {
+            throw new Error('Deployment exited');
+        });
+
+        await expect(deployment()).rejects.toThrow('Deployment exited');
+
+        expect(error).toHaveBeenCalledWith(
+            '❌ Deployment failed!',
+            expect.objectContaining({
+                message: 'The monitoring container is not running. Check its Alloy configuration and logs.',
+            })
+        );
+        expect(scripts.some((script) => script.includes('build rusys-app-green'))).toBe(false);
+    });
+
+    it('keeps the running services when Alloy validation fails', async () => {
+        const scripts = mockRemote('17\n19\n', false, 'green', true, true);
+        const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+        vi.spyOn(process, 'exit').mockImplementation(() => {
+            throw new Error('Deployment exited');
+        });
+
+        await expect(deployment()).rejects.toThrow('Deployment exited');
+
+        expect(error).toHaveBeenCalledWith(
+            '❌ Deployment failed!',
+            expect.objectContaining({ message: 'Invalid Alloy configuration' })
+        );
+        expect(scripts.some((script) => script.includes('up -d --no-deps --force-recreate monitoring'))).toBe(false);
+        expect(scripts.some((script) => script.includes('build rusys-app-green'))).toBe(false);
     });
 
     it('leaves the old slot running if the worker drain times out', async () => {
