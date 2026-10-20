@@ -82,11 +82,22 @@
         }
 
         [data-category-label] {
-            flex: 1 1 auto;
-            min-width: 0;
+            position: absolute;
+            width: 1px;
+            height: 1px;
             overflow: hidden;
-            text-overflow: ellipsis;
+            clip-path: inset(50%);
             white-space: nowrap;
+
+            @media (width >= 48em) {
+                position: static;
+                flex: 1 1 auto;
+                width: auto;
+                height: auto;
+                min-width: 0;
+                clip-path: none;
+                text-overflow: ellipsis;
+            }
         }
 
         &:not([data-active="true"]) {
