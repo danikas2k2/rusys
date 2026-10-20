@@ -177,6 +177,10 @@ container CPU/RAM series first, then inspect which disk and filesystem I/O serie
 container confirms startup only; it does not confirm successful scraping or Cloud authentication. If metrics are absent,
 inspect `docker logs rusys-monitoring` on the NAS and the loopback Alloy status UI through an SSH tunnel.
 
+The public site and `/api/health` are also monitored by Grafana Cloud's external Frankfurt probe. Their checks,
+alerting, dashboard, and separate local Grafana credential keys are documented in the
+[Synthetic Monitoring guide](SYNTHETIC-MONITORING.md). Those external checks do not depend on Alloy.
+
 `pnpm deploy:rollback` requires a healthy previous container. After a successful deployment, start the stopped previous
 container on the server and wait for it to become healthy before running rollback. The previous image remains available,
 so this does not require a rebuild.
