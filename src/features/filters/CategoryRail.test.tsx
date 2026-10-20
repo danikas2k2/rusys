@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
+import { expectNoA11yViolations } from '@tests/accessibility';
 import { MockTheme } from '@tests/MockTheme';
 
 import React, { startTransition } from 'react';
@@ -52,6 +53,27 @@ describe('<CategoryRail>', () => {
         expect(tabs).toHaveLength(2);
         expect(tabs[0]).toHaveAccessibleName('Uogienės');
         expect(tabs[1]).toHaveAccessibleName('Daržovės');
+    });
+
+    it('excludes decorative avatar initials from tab names', async () => {
+        const { container } = render(
+            <MockTheme>
+                <CategoryRail
+                    groups={[
+                        { group: 'Uogienės', order: 0 },
+                        { group: 'Daržovės', order: 1 },
+                    ]}
+                    selected="Uogienės"
+                    onSelect={vi.fn()}
+                    groupsWithContent={new Set(['Uogienės', 'Daržovės'])}
+                />
+            </MockTheme>
+        );
+
+        expect(screen.getByRole('tab', { name: 'Uogienės' })).toHaveAccessibleName('Uogienės');
+        expect(screen.getByRole('tab', { name: 'Daržovės' })).toHaveAccessibleName('Daržovės');
+
+        await expectNoA11yViolations(container);
     });
 
     it('marks the selected category as checked', () => {
