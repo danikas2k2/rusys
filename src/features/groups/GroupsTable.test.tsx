@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import { getGroupsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 import { MockTheme } from '@tests/MockTheme';
 
 import type { UniqueIdentifier } from '@dnd-kit/core';
@@ -78,9 +78,9 @@ describe('<GroupsTable>', () => {
     it('renders table structure', () => {
         render(
             <MockTheme>
-                <MockRedux>
+                <MockData>
                     <GroupsTable />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -115,9 +115,9 @@ describe('<GroupsTable>', () => {
 
             render(
                 <MockTheme>
-                    <MockRedux>
+                    <MockData>
                         <GroupsTable />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -134,9 +134,9 @@ describe('<GroupsTable>', () => {
 
             render(
                 <MockTheme>
-                    <MockRedux>
+                    <MockData>
                         <GroupsTable />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -240,7 +240,7 @@ describe('<GroupsTable>', () => {
 
             await onReorder(reordered, { group: 'Daržovės' });
 
-            expect(mockReorderGroups).toHaveBeenCalledWith({ Daržovės: 0, Uogienės: 1 });
+            expect(mockReorderGroups).toHaveBeenCalledWith({ groups: { Daržovės: 0, Uogienės: 1 } });
         });
     });
 
@@ -259,9 +259,9 @@ describe('<GroupsTable>', () => {
         it('returns DragOverlayTable with GroupsRow when the group is found by activeId', () => {
             render(
                 <MockTheme>
-                    <MockRedux>
+                    <MockData>
                         <GroupsTable />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -278,9 +278,9 @@ describe('<GroupsTable>', () => {
         it('returns null when no group matches the activeId', () => {
             render(
                 <MockTheme>
-                    <MockRedux>
+                    <MockData>
                         <GroupsTable />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 

@@ -1,16 +1,24 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
 
+import type { Product } from '~/common/data';
+import type { ProductYearIdentity } from '~/schema';
 import { getProductHistory } from '~/server/actions/products';
-import { setProductHistoryAction } from '~/store/products';
+import { CATALOG_KEYS } from '~/store/catalog';
 
-export function useGetProductHistory(year: number, group?: string, name?: string): () => Promise<void> {
-    const dispatch = useDispatch();
+export function useGetProductHistory({ group, name, year }: ProductYearIdentity): () => Promise<void> {
+    const client = useQueryClient();
     return useCallback(async (): Promise<void> => {
         if (!group || !name) {
             return;
         }
-        const history = await getProductHistory(group, name, year);
-        dispatch(setProductHistoryAction({ group, name, year, history }));
-    }, [dispatch, group, name, year]);
+        const history = await getProductHistory({ group, name, year });
+        client.setQueryData<readonly Product[]>(CATALOG_KEYS.products, (products) =>
+            products?.map((product) =>
+                product.group === group && product.name === name
+                    ? { ...product, history: { ...product.history, [year]: history } }
+                    : product
+            )
+        );
+    }, [client, group, name, year]);
 }

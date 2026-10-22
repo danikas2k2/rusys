@@ -1,9 +1,13 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
 
-import { resetProfileAction } from '~/store/profile';
+import { useIdentity } from '~/components/app/IdentityContext';
 
 export function useResetProfile(): () => void {
-    const dispatch = useDispatch();
-    return useCallback(() => dispatch(resetProfileAction()), [dispatch]);
+    const { setProfile } = useIdentity();
+    const client = useQueryClient();
+    return useCallback(() => {
+        client.clear();
+        setProfile({});
+    }, [client, setProfile]);
 }

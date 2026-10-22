@@ -29,7 +29,7 @@ export function ActiveGroupBox() {
         if (!activeData) {
             return;
         }
-        await deleteGroup(activeData.group);
+        await deleteGroup({ group: activeData.group });
         setRemoving(false);
         handleClose();
     }, [activeData, deleteGroup, handleClose]);

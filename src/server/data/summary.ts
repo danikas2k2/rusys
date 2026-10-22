@@ -1,7 +1,9 @@
-import type { WithId } from 'mongodb';
+import type { ClientSession, WithId } from 'mongodb';
 
-import type { Group, History, Product, Summary, Variant, VariantAmount } from '~/common/data';
+import type { Group, History, Product, Summary, Variant } from '~/common/data';
 import { addTypedVariantAmount } from '~/common/utils/amounts';
+import type * as schema from '~/schema';
+import { type VariantAmount } from '~/schema';
 import { getGroups } from '~/server/data/groups';
 import { buildHistoryPipeline } from '~/server/data/history';
 import { getVariants } from '~/server/data/variants';
@@ -18,210 +20,216 @@ const SWITCH_MONTH = START_MONTH - 1; // Date#getMonth is zero-based
 // corrections predate that change and mutated history directly, so there's nothing to add here.
 const POSITIVE_CONSUMPTION_CUTOFF = new Date('2026-08-01T00:00:00.000Z');
 
-export const getSummary = async (years: number[] = getYears(undefined, SWITCH_MONTH)): Promise<readonly Summary[]> =>
+export const getSummary = async (years: number[], session: ClientSession): Promise<readonly Summary[]> =>
     await (
         await db()
     )
         .collection('products')
-        .aggregate<Summary>([
-            { $unwind: '$updates' },
-            {
-                $match: {
-                    $expr: {
-                        $gte: [
-                            { $toDate: '$updates.time' },
-                            { $dateFromParts: { year: 2000 + Math.min(...years), month: START_MONTH, day: 1 } },
-                        ],
-                    },
-                },
-            },
-
-            { $unwind: '$updates.years' },
-            { $unwind: '$updates.years.amounts' },
-            {
-                $match: {
-                    'updates.years.amounts.recycled': { $exists: true },
-                    $expr: {
-                        $or: [
-                            { $lt: ['$updates.years.amounts.amount', 0] },
-                            { $gte: [{ $toDate: '$updates.time' }, POSITIVE_CONSUMPTION_CUTOFF] },
-                        ],
-                    },
-                },
-            },
-
-            {
-                $lookup: {
-                    from: 'variants',
-                    let: { group: '$group', variant: '$updates.years.amounts.variant' },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $and: [{ $eq: ['$group', '$$group'] }, { $eq: ['$variant', '$$variant'] }],
-                                },
-                            },
-                        },
-                        { $project: { _id: 0, order: 1 } },
-                    ],
-                    as: 'variantMeta',
-                },
-            },
-            { $set: { variantOrder: { $arrayElemAt: ['$variantMeta.order', 0] } } },
-
-            {
-                $group: {
-                    _id: {
-                        group: '$group',
-                        name: '$name',
-                        year: {
-                            $subtract: [
-                                { $subtract: [{ $year: { $toDate: '$updates.time' } }, 2000] },
-                                { $cond: [{ $lt: [{ $month: { $toDate: '$updates.time' } }, START_MONTH] }, 1, 0] },
+        .aggregate<Summary>(
+            [
+                { $unwind: '$updates' },
+                {
+                    $match: {
+                        $expr: {
+                            $gte: [
+                                { $toDate: '$updates.time' },
+                                { $dateFromParts: { year: 2000 + Math.min(...years), month: START_MONTH, day: 1 } },
                             ],
                         },
-                        variant: '$updates.years.amounts.variant',
-                        recycled: { $ifNull: ['$updates.years.amounts.recycled', null] },
                     },
-                    amount: { $sum: '$updates.years.amounts.amount' },
-                    variantOrder: { $first: '$variantOrder' },
                 },
-            },
 
-            {
-                $group: {
-                    _id: { group: '$_id.group', name: '$_id.name', year: '$_id.year' },
-                    amounts: {
-                        $push: {
-                            variant: '$_id.variant',
-                            amount: { $multiply: [-1, '$amount'] },
-                            recycled: {
-                                $cond: [{ $ne: ['$_id.recycled', null] }, '$_id.recycled', '$$REMOVE'],
-                            },
-                            variantOrder: '$variantOrder',
+                { $unwind: '$updates.years' },
+                { $unwind: '$updates.years.amounts' },
+                {
+                    $match: {
+                        'updates.years.amounts.recycled': { $exists: true },
+                        $expr: {
+                            $or: [
+                                { $lt: ['$updates.years.amounts.amount', 0] },
+                                { $gte: [{ $toDate: '$updates.time' }, POSITIVE_CONSUMPTION_CUTOFF] },
+                            ],
                         },
                     },
                 },
-            },
 
-            {
-                $group: {
-                    _id: { group: '$_id.group', name: '$_id.name' },
-                    years: { $push: { year: '$_id.year', amounts: '$amounts' } },
+                {
+                    $lookup: {
+                        from: 'variants',
+                        let: { group: '$group', variant: '$updates.years.amounts.variant' },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [{ $eq: ['$group', '$$group'] }, { $eq: ['$variant', '$$variant'] }],
+                                    },
+                                },
+                            },
+                            { $project: { _id: 0, order: 1 } },
+                        ],
+                        as: 'variantMeta',
+                    },
                 },
-            },
+                { $set: { variantOrder: { $arrayElemAt: ['$variantMeta.order', 0] } } },
 
-            {
-                $set: {
-                    years: {
-                        $sortArray: {
-                            input: {
-                                $map: {
-                                    input: '$years',
-                                    as: 'y',
-                                    in: {
-                                        year: '$$y.year',
-                                        amounts: {
-                                            $sortArray: {
-                                                input: '$$y.amounts',
-                                                sortBy: { variantOrder: 1, variant: 1, recycled: -1 },
+                {
+                    $group: {
+                        _id: {
+                            group: '$group',
+                            name: '$name',
+                            year: {
+                                $subtract: [
+                                    { $subtract: [{ $year: { $toDate: '$updates.time' } }, 2000] },
+                                    { $cond: [{ $lt: [{ $month: { $toDate: '$updates.time' } }, START_MONTH] }, 1, 0] },
+                                ],
+                            },
+                            variant: '$updates.years.amounts.variant',
+                            recycled: { $ifNull: ['$updates.years.amounts.recycled', null] },
+                        },
+                        amount: { $sum: '$updates.years.amounts.amount' },
+                        variantOrder: { $first: '$variantOrder' },
+                    },
+                },
+
+                {
+                    $group: {
+                        _id: { group: '$_id.group', name: '$_id.name', year: '$_id.year' },
+                        amounts: {
+                            $push: {
+                                variant: '$_id.variant',
+                                amount: { $multiply: [-1, '$amount'] },
+                                recycled: {
+                                    $cond: [{ $ne: ['$_id.recycled', null] }, '$_id.recycled', '$$REMOVE'],
+                                },
+                                variantOrder: '$variantOrder',
+                            },
+                        },
+                    },
+                },
+
+                {
+                    $group: {
+                        _id: { group: '$_id.group', name: '$_id.name' },
+                        years: { $push: { year: '$_id.year', amounts: '$amounts' } },
+                    },
+                },
+
+                {
+                    $set: {
+                        years: {
+                            $sortArray: {
+                                input: {
+                                    $map: {
+                                        input: '$years',
+                                        as: 'y',
+                                        in: {
+                                            year: '$$y.year',
+                                            amounts: {
+                                                $sortArray: {
+                                                    input: '$$y.amounts',
+                                                    sortBy: { variantOrder: 1, variant: 1, recycled: -1 },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                                sortBy: { year: -1 },
+                            },
+                        },
+                    },
+                },
+                {
+                    $set: {
+                        years: {
+                            $map: {
+                                input: '$years',
+                                as: 'y',
+                                in: {
+                                    year: '$$y.year',
+                                    amounts: {
+                                        $map: {
+                                            input: '$$y.amounts',
+                                            as: 'a',
+                                            in: {
+                                                variant: '$$a.variant',
+                                                amount: '$$a.amount',
+                                                recycled: '$$a.recycled',
                                             },
                                         },
                                     },
                                 },
                             },
-                            sortBy: { year: -1 },
                         },
                     },
                 },
-            },
-            {
-                $set: {
-                    years: {
-                        $map: {
-                            input: '$years',
-                            as: 'y',
-                            in: {
-                                year: '$$y.year',
-                                amounts: {
-                                    $map: {
-                                        input: '$$y.amounts',
-                                        as: 'a',
-                                        in: {
-                                            variant: '$$a.variant',
-                                            amount: '$$a.amount',
-                                            recycled: '$$a.recycled',
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
 
-            {
-                $lookup: {
-                    from: 'groups',
-                    localField: '_id.group',
-                    foreignField: 'group',
-                    pipeline: [{ $project: { _id: 0, order: 1 } }],
-                    as: 'groupMeta',
+                {
+                    $lookup: {
+                        from: 'groups',
+                        localField: '_id.group',
+                        foreignField: 'group',
+                        pipeline: [{ $project: { _id: 0, order: 1 } }],
+                        as: 'groupMeta',
+                    },
                 },
-            },
-            { $set: { groupOrder: { $arrayElemAt: ['$groupMeta.order', 0] } } },
-            { $sort: { groupOrder: 1, '_id.group': 1, '_id.name': 1 } },
-            { $project: { _id: 0, group: '$_id.group', name: '$_id.name', years: 1 } },
-        ])
+                { $set: { groupOrder: { $arrayElemAt: ['$groupMeta.order', 0] } } },
+                { $sort: { groupOrder: 1, '_id.group': 1, '_id.name': 1 } },
+                { $project: { _id: 0, group: '$_id.group', name: '$_id.name', years: 1 } },
+            ],
+            { session }
+        )
         .toArray();
 
 // Aggregates home balances (positive home amounts in product.years) per variant per year.
 // These are merged into the main summary so the client gets a single unified list.
-const getSummaryHomeBalance = async (): Promise<readonly Summary[]> =>
+const getSummaryHomeBalance = async (session: ClientSession): Promise<readonly Summary[]> =>
     await (
         await db()
     )
         .collection('products')
-        .aggregate<Summary>([
-            { $unwind: '$years' },
-            { $unwind: '$years.amounts' },
-            {
-                $match: {
-                    'years.amounts.home': true,
-                    'years.amounts.amount': { $gt: 0 },
-                },
-            },
-            {
-                $group: {
-                    _id: {
-                        group: '$group',
-                        name: '$name',
-                        year: '$years.year',
-                        variant: '$years.amounts.variant',
+        .aggregate<Summary>(
+            [
+                { $unwind: '$years' },
+                { $unwind: '$years.amounts' },
+                {
+                    $match: {
+                        'years.amounts.home': true,
+                        'years.amounts.amount': { $gt: 0 },
                     },
-                    amount: { $sum: '$years.amounts.amount' },
                 },
-            },
-            {
-                $group: {
-                    _id: { group: '$_id.group', name: '$_id.name', year: '$_id.year' },
-                    amounts: {
-                        $push: {
-                            variant: '$_id.variant',
-                            amount: '$amount',
-                            home: true,
+                {
+                    $group: {
+                        _id: {
+                            group: '$group',
+                            name: '$name',
+                            year: '$years.year',
+                            variant: '$years.amounts.variant',
+                        },
+                        amount: { $sum: '$years.amounts.amount' },
+                    },
+                },
+                {
+                    $group: {
+                        _id: { group: '$_id.group', name: '$_id.name', year: '$_id.year' },
+                        amounts: {
+                            $push: {
+                                variant: '$_id.variant',
+                                amount: '$amount',
+                                home: true,
+                            },
                         },
                     },
                 },
-            },
-            {
-                $group: {
-                    _id: { group: '$_id.group', name: '$_id.name' },
-                    years: { $push: { year: '$_id.year', amounts: '$amounts' } },
+                {
+                    $group: {
+                        _id: { group: '$_id.group', name: '$_id.name' },
+                        years: { $push: { year: '$_id.year', amounts: '$amounts' } },
+                    },
                 },
-            },
-            { $project: { _id: 0, group: '$_id.group', name: '$_id.name', years: 1 } },
-        ])
+                { $project: { _id: 0, group: '$_id.group', name: '$_id.name', years: 1 } },
+            ],
+            { session }
+        )
         .toArray();
 
 function mergeSummaries(main: readonly Summary[], home: readonly Summary[]): readonly Summary[] {
@@ -255,12 +263,12 @@ function mergeSummaries(main: readonly Summary[], home: readonly Summary[]): rea
     return result as unknown as readonly Summary[];
 }
 
-async function getProductMetadata(): Promise<readonly Product[]> {
+async function getProductMetadata(session: ClientSession): Promise<readonly Product[]> {
     return await (
         await db()
     )
         .collection<Product>('products')
-        .find({}, { projection: { _id: 0, group: 1, name: 1, parent: 1, image: 1, photo: 1 } })
+        .find({}, { projection: { _id: 0, group: 1, name: 1, parent: 1, image: 1, photo: 1 }, session })
         .toArray();
 }
 
@@ -319,7 +327,9 @@ export function rollUpSummaries(
     return result as unknown as readonly Summary[];
 }
 
-export const getFullSummary = async (): Promise<
+export const getFullSummary = async (
+    session: ClientSession
+): Promise<
     Readonly<{
         years: readonly number[];
         groups: readonly Group[];
@@ -328,11 +338,9 @@ export const getFullSummary = async (): Promise<
     }>
 > => {
     const years = getYears(MAX_YEARS, SWITCH_MONTH);
-    const [main, home, products] = await Promise.all([
-        getSummary(years),
-        getSummaryHomeBalance(),
-        getProductMetadata(),
-    ]);
+    const main = await getSummary(years, session);
+    const home = await getSummaryHomeBalance(session);
+    const products = await getProductMetadata(session);
     const parentByKey = new Map(products.map((p) => [`${p.group}/${p.name}`, p.parent]));
     const mediaByKey = new Map(
         products.map((p) => [
@@ -346,17 +354,16 @@ export const getFullSummary = async (): Promise<
     });
     return {
         years,
-        groups: await getGroups(),
-        variants: await getVariants(),
+        groups: await getGroups(session),
+        variants: await getVariants(session),
         summary,
     };
 };
 
 export async function getSummaryHistory(
-    group: string,
-    name: string,
-    year: number,
-    field: 'updates' | 'undates'
+    { group, name, year }: schema.ProductYearIdentity,
+    field: 'updates' | 'undates',
+    session: ClientSession
 ): Promise<History[]> {
     const y = year + 2000;
 
@@ -396,15 +403,18 @@ export async function getSummaryHistory(
                         },
                     ],
                 }
-            )
+            ),
+            { session }
         )
         .toArray();
 }
 
-export async function getSummaryUpdates(group: string, name: string, year: number): Promise<History[]> {
-    return getSummaryHistory(group, name, year, 'updates');
-}
+export const getSummaryUpdates = async (
+    identity: schema.ProductYearIdentity,
+    session: ClientSession
+): Promise<History[]> => getSummaryHistory(identity, 'updates', session);
 
-export async function getSummaryUndates(group: string, name: string, year: number): Promise<History[]> {
-    return getSummaryHistory(group, name, year, 'undates');
-}
+export const getSummaryUndates = async (
+    identity: schema.ProductYearIdentity,
+    session: ClientSession
+): Promise<History[]> => getSummaryHistory(identity, 'undates', session);

@@ -1,7 +1,12 @@
-import type { VariantUnits } from '~/common/data';
+import { SchemaError } from '~/schema';
 import type { ApiRequest, ApiResponse } from '~/server/api/next';
 
-export const VARIANT_UNITS = new Set<VariantUnits>(['g', 'kg', 'l', 'ml', 'vnt']);
+const requiredParamErrors: Record<string, SchemaError> = {
+    group: SchemaError.GroupParamRequired,
+    name: SchemaError.NameRequired,
+    variant: SchemaError.VariantRequired,
+    email: SchemaError.EmailRequired,
+};
 
 export function sendError(res: ApiResponse, status: number, code: string, message: string): void {
     res.status(status).json({ error: { code, message } });
@@ -10,23 +15,10 @@ export function sendError(res: ApiResponse, status: number, code: string, messag
 export function requiredParam(req: ApiRequest, res: ApiResponse, name: string): string | undefined {
     const value = req.params[name];
     if (typeof value !== 'string' || !value) {
-        sendError(res, 400, 'VALIDATION_ERROR', `${name} is required`);
+        sendError(res, 400, 'VALIDATION_ERROR', requiredParamErrors[name] ?? SchemaError.InvalidRequest);
         return undefined;
     }
     return value;
-}
-
-export function requiredYear(req: ApiRequest, res: ApiResponse): number | undefined {
-    const value = Number(req.params.year);
-    if (!Number.isInteger(value)) {
-        sendError(res, 400, 'VALIDATION_ERROR', 'year must be an integer');
-        return undefined;
-    }
-    return value;
-}
-
-export function isVariantUnits(value: unknown): value is VariantUnits {
-    return typeof value === 'string' && VARIANT_UNITS.has(value as VariantUnits);
 }
 
 export async function respond(
@@ -36,11 +28,11 @@ export async function respond(
 ): Promise<void> {
     try {
         if (!(await action())) {
-            sendError(res, 422, 'OPERATION_REJECTED', 'The requested change could not be applied');
+            sendError(res, 422, 'OPERATION_REJECTED', SchemaError.RequestFailed);
             return;
         }
         res.status(body ? 200 : 204).json(body ? await body() : undefined);
-    } catch (error) {
-        sendError(res, 500, 'INTERNAL_ERROR', `${error}`);
+    } catch {
+        sendError(res, 500, 'INTERNAL_ERROR', SchemaError.RequestFailed);
     }
 }

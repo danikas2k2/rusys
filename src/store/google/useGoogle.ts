@@ -1,6 +1,4 @@
-import equal from 'fast-deep-equal/es6/react';
-import { useSelector } from 'react-redux';
+import { useIdentity } from '~/components/app/IdentityContext';
+import type { Google } from './types';
 
-import type { Google, WithGoogleState } from './types';
-
-export const useGoogle = (): Google => useSelector((state: WithGoogleState) => state.google ?? {}, equal);
+export const useGoogle = (): Google => ({ clientId: useIdentity().clientId });

@@ -31,7 +31,7 @@ describe('appPage initial data', () => {
         vi.mocked(getInitialAppData).mockResolvedValueOnce({ data, resource: 'groups', initialGroup: 'A' });
 
         const page = await AppPage({ params: Promise.resolve({ path: ['categories'] }) });
-        const hash = createHash('sha256').update(JSON.stringify(data)).digest('hex');
+        const hash = createHash('sha256').update(JSON.stringify({ data, profile })).digest('hex');
 
         expect(connection).toHaveBeenCalledExactlyOnceWith();
         expect(getInitialAppData).toHaveBeenCalledExactlyOnceWith('/categories');

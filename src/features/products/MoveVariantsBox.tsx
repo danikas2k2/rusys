@@ -3,15 +3,15 @@ import React, { useCallback, useMemo, useState } from 'react';
 
 import { AddIcon, CancelIcon, MoveIcon } from '@icons';
 
-import type { Product, VariantAmount } from '~/common/data';
+import type { Product } from '~/common/data';
 import { CategoryAvatar } from '~/features/filters/CategoryAvatar';
 import { useTransferAmounts } from '~/features/products/hooks/useTransferAmounts';
 import { ProductBox } from '~/features/products/ProductBox';
 import { ProductOption } from '~/features/products/ProductOption';
 import { useLabels } from '~/lib/hooks/useLabels';
+import type { VariantAmount } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
-import { useProfile } from '~/store/profile';
 
 import './MoveVariantsBox.css';
 
@@ -67,7 +67,6 @@ export function MoveVariantsBox({
     const _ = useLabels();
     const groups = useGroups();
     const products = useProducts();
-    const profile = useProfile();
     const transferAmounts = useTransferAmounts();
     const [target, setTarget] = useState<string | null>(null);
     const [dropdownOpened, setDropdownOpened] = useState(false);
@@ -133,13 +132,20 @@ export function MoveVariantsBox({
         }
         setSubmitting(true);
         try {
-            await transferAmounts(group, name, year, targetProduct.group, targetProduct.name, amounts, profile.email);
+            await transferAmounts({
+                group,
+                name,
+                year,
+                targetGroup: targetProduct.group,
+                targetName: targetProduct.name,
+                amounts,
+            });
             setTarget(null);
             onMoved();
         } finally {
             setSubmitting(false);
         }
-    }, [amounts, group, name, onMoved, profile.email, targetProduct, transferAmounts, year]);
+    }, [amounts, group, name, onMoved, targetProduct, transferAmounts, year]);
 
     const targetIsOtherGroup = !!targetProduct && targetProduct.group !== group;
 

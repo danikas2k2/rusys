@@ -1,6 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import { mockEnv } from '@tests/mockEnv';
-import { MockThemeRedux } from '@tests/MockThemeRedux';
+import { MockThemeData } from '@tests/MockThemeData';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import React from 'react';
@@ -25,9 +25,9 @@ describe('<App>', () => {
 
     it('renders Loader when clientId is null', () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <App />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(useGoogleClientId).toHaveBeenCalledWith();
@@ -38,9 +38,9 @@ describe('<App>', () => {
         vi.mocked(isDevMode).mockReturnValueOnce(true);
 
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <App />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.getByText('AppContent')).toBeInTheDocument();
@@ -60,9 +60,9 @@ describe('<App>', () => {
         );
 
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <App />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         // Simulate script load error
@@ -86,9 +86,9 @@ describe('<App>', () => {
         );
 
         render(
-            <MockThemeRedux state={{ profile: { sub: 'alice', allowed: true } }}>
+            <MockThemeData state={{ profile: { sub: 'alice', allowed: true } }}>
                 <App />
-            </MockThemeRedux>
+            </MockThemeData>
         );
         act(() => onScriptLoadError?.());
 
@@ -99,9 +99,9 @@ describe('<App>', () => {
         vi.mocked(useGoogleClientId).mockReturnValueOnce('validId');
 
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <App />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.getByText('AppContent')).toBeInTheDocument();

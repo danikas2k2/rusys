@@ -243,10 +243,12 @@ describe('<GroupBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
             expect(addGroup).toHaveBeenCalledWith(
-                'Buitinė chemija',
-                true,
-                false,
-                expect.stringMatching(/^data:image\/png;base64,/),
+                {
+                    group: 'Buitinė chemija',
+                    annual: true,
+                    review: false,
+                    image: expect.stringMatching(/^data:image\/png;base64,/),
+                },
                 expect.any(Function)
             );
         });
@@ -337,7 +339,7 @@ describe('<GroupBox>', () => {
             await user.type(screen.getByRole('textbox'), 'Buitinė chemija');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addGroup).toHaveBeenCalledWith('Buitinė chemija', true, false, '');
+            expect(addGroup).toHaveBeenCalledWith({ group: 'Buitinė chemija', annual: true, review: false, image: '' });
             expect(onClose).toHaveBeenCalledWith('Buitinė chemija');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -365,7 +367,7 @@ describe('<GroupBox>', () => {
             await user.click(screen.getByRole('checkbox', { name: /Review/ }));
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addGroup).toHaveBeenCalledWith('Buitinė chemija', true, true, '');
+            expect(addGroup).toHaveBeenCalledWith({ group: 'Buitinė chemija', annual: true, review: true, image: '' });
             expect(onClose).toHaveBeenCalledWith('Buitinė chemija');
         });
 
@@ -379,9 +381,9 @@ describe('<GroupBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Category name' }), 'Buitinė chemija');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addGroup).toHaveBeenCalledWith('Buitinė chemija', true, false, '');
+            expect(addGroup).toHaveBeenCalledWith({ group: 'Buitinė chemija', annual: true, review: false, image: '' });
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('alert')).toHaveTextContent('Failed to add');
+            expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong');
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
@@ -398,6 +400,23 @@ describe('<GroupBox>', () => {
             expect(addGroup).not.toHaveBeenCalled();
             expect(onClose).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox')).toHaveFocus();
+        });
+
+        it('rejects a whitespace-only category name', async () => {
+            vi.mocked(useUpdateGroup).mockReturnValue(addGroup);
+
+            render(
+                <MockApp state={state}>
+                    <GroupBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            await user.type(screen.getByRole('textbox'), '   ');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(addGroup).not.toHaveBeenCalled();
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('alert')).toHaveTextContent('Category is required');
         });
 
         it('displays error without closing dialog when name already exists', async () => {
@@ -437,6 +456,21 @@ describe('<GroupBox>', () => {
         });
     });
 
+    it('uses a trimmed group name in the request and close callback', async () => {
+        const update = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(useUpdateGroup).mockReturnValue(update);
+        render(
+            <MockApp state={state}>
+                <GroupBox opened onClose={onClose} />
+            </MockApp>
+        );
+        await user.type(screen.getByRole('textbox'), '  New group  ');
+        await user.click(screen.getByRole('button', { name: 'Add' }));
+
+        expect(update).toHaveBeenCalledWith({ group: 'New group', annual: true, review: false, image: '' });
+        expect(onClose).toHaveBeenCalledWith('New group');
+    });
+
     describe('calls rename group handler when updating an existing entry', () => {
         const renameGroup = vi.fn();
 
@@ -453,7 +487,13 @@ describe('<GroupBox>', () => {
             await user.type(screen.getByRole('textbox'), 'Konservai');
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Konservai', true, false, '');
+            expect(renameGroup).toHaveBeenCalledWith({
+                group: 'Daržovės',
+                targetGroup: 'Konservai',
+                annual: true,
+                review: false,
+                image: '',
+            });
             expect(onClose).toHaveBeenCalledWith('Konservai');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -471,9 +511,15 @@ describe('<GroupBox>', () => {
             await user.type(screen.getByRole('textbox'), 'Konservai');
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Konservai', true, false, '');
+            expect(renameGroup).toHaveBeenCalledWith({
+                group: 'Daržovės',
+                targetGroup: 'Konservai',
+                annual: true,
+                review: false,
+                image: '',
+            });
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('alert')).toHaveTextContent('Failed to rename');
+            expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong');
         });
 
         it('displays error without closing dialog when empty name field left', async () => {

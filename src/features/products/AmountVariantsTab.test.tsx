@@ -164,10 +164,6 @@ vi.mock(import('~/features/products/hooks/useRedoProduct'), () => ({
     useRedoProduct: vi.fn(() => vi.fn().mockResolvedValue(undefined)),
 }));
 
-vi.mock(import('~/store/profile/useProfile'), () => ({
-    useProfile: vi.fn(() => ({ email: 'test@example.com' })),
-}));
-
 vi.mock(import('~/features/products/hooks/useSetVariantImage'), () => ({
     useSetVariantImage: vi.fn(() => vi.fn()),
 }));
@@ -348,14 +344,13 @@ describe('<AmountVariantsTab>', () => {
         await user.click(screen.getAllByText('decrease-updated')[0]);
         await user.click(screen.getByRole('button', { name: /^update$/i }));
 
-        expect(mockUpdate).toHaveBeenCalledWith(
+        expect(mockUpdate).toHaveBeenCalledWith({
             group,
-            'Avietės',
-            2023,
-            expect.any(Array),
-            'test@example.com',
-            undefined
-        );
+            name: 'Avietės',
+            year: 2023,
+            amounts: expect.any(Array),
+            comment: undefined,
+        });
     });
 
     it('disables Update immediately and delays its loader', async () => {
@@ -525,7 +520,11 @@ describe('<AmountVariantsTab>', () => {
 
         await user.click(screen.getByRole('button', { name: /undo/i }));
 
-        expect(mockUndo).toHaveBeenCalledWith(baseActive.group, baseActive.name, baseActive.year);
+        expect(mockUndo).toHaveBeenCalledWith({
+            group: baseActive.group,
+            name: baseActive.name,
+            year: baseActive.year,
+        });
     });
 
     it('calls redoProduct when Redo is clicked', async () => {
@@ -544,7 +543,11 @@ describe('<AmountVariantsTab>', () => {
 
         await user.click(screen.getByRole('button', { name: /redo/i }));
 
-        expect(mockRedo).toHaveBeenCalledWith(baseActive.group, baseActive.name, baseActive.year);
+        expect(mockRedo).toHaveBeenCalledWith({
+            group: baseActive.group,
+            name: baseActive.name,
+            year: baseActive.year,
+        });
     });
 
     it('includes comment in update call when comment is non-empty', async () => {
@@ -568,14 +571,13 @@ describe('<AmountVariantsTab>', () => {
         await user.click(screen.getByRole('button', { name: /^update$/i }));
 
         // comment is '' so it passes undefined
-        expect(mockUpdate).toHaveBeenCalledWith(
+        expect(mockUpdate).toHaveBeenCalledWith({
             group,
-            'Avietės',
-            2023,
-            expect.any(Array),
-            'test@example.com',
-            undefined
-        );
+            name: 'Avietės',
+            year: 2023,
+            amounts: expect.any(Array),
+            comment: undefined,
+        });
     });
 
     it('passes consumed delta in changes array', async () => {
@@ -596,14 +598,13 @@ describe('<AmountVariantsTab>', () => {
         await user.click(screen.getAllByText('decrease-consumed')[0]);
         await user.click(screen.getByRole('button', { name: /^update$/i }));
 
-        expect(mockUpdate).toHaveBeenCalledWith(
+        expect(mockUpdate).toHaveBeenCalledWith({
             group,
-            'Avietės',
-            2023,
-            expect.arrayContaining([expect.objectContaining({ variant: 'd', recycled: false })]),
-            'test@example.com',
-            undefined
-        );
+            name: 'Avietės',
+            year: 2023,
+            amounts: expect.arrayContaining([expect.objectContaining({ variant: 'd', recycled: false })]),
+            comment: undefined,
+        });
     });
 
     it('passes recycled delta in changes array', async () => {
@@ -624,14 +625,13 @@ describe('<AmountVariantsTab>', () => {
         await user.click(screen.getAllByText('decrease-recycled')[0]);
         await user.click(screen.getByRole('button', { name: /^update$/i }));
 
-        expect(mockUpdate).toHaveBeenCalledWith(
+        expect(mockUpdate).toHaveBeenCalledWith({
             group,
-            'Avietės',
-            2023,
-            expect.arrayContaining([expect.objectContaining({ variant: 'd', recycled: true })]),
-            'test@example.com',
-            undefined
-        );
+            name: 'Avietės',
+            year: 2023,
+            amounts: expect.arrayContaining([expect.objectContaining({ variant: 'd', recycled: true })]),
+            comment: undefined,
+        });
     });
 
     it('uses liveAmounts from activeProduct.years when available', () => {
@@ -943,14 +943,13 @@ describe('suspicious amounts', () => {
         await user.click(screen.getAllByText('decrease-updated')[1]);
         await user.click(screen.getByRole('button', { name: /^update$/i }));
 
-        expect(mockUpdate).toHaveBeenCalledWith(
+        expect(mockUpdate).toHaveBeenCalledWith({
             group,
-            'Avietės',
-            2023,
-            expect.arrayContaining([expect.objectContaining({ variant: 'd', suspicious: true })]),
-            'test@example.com',
-            undefined
-        );
+            name: 'Avietės',
+            year: 2023,
+            amounts: expect.arrayContaining([expect.objectContaining({ variant: 'd', suspicious: true })]),
+            comment: undefined,
+        });
     });
 });
 
@@ -1044,14 +1043,13 @@ describe('home amounts', () => {
         await user.click(screen.getAllByText('decrease-updated')[1]);
         await user.click(screen.getByRole('button', { name: /^update$/i }));
 
-        expect(mockUpdate).toHaveBeenCalledWith(
+        expect(mockUpdate).toHaveBeenCalledWith({
             group,
-            'Avietės',
-            2023,
-            expect.arrayContaining([expect.objectContaining({ variant: 'd', home: true })]),
-            'test@example.com',
-            undefined
-        );
+            name: 'Avietės',
+            year: 2023,
+            amounts: expect.arrayContaining([expect.objectContaining({ variant: 'd', home: true })]),
+            comment: undefined,
+        });
     });
 
     it('home amounts with zero balance are not shown in the list', () => {
@@ -1188,16 +1186,15 @@ describe('expiry amounts', () => {
         await user.click(screen.getAllByText('decrease-updated')[1]);
         await user.click(screen.getByRole('button', { name: /^update$/i }));
 
-        expect(mockUpdate).toHaveBeenCalledWith(
+        expect(mockUpdate).toHaveBeenCalledWith({
             group,
-            'Avietės',
-            2023,
-            expect.arrayContaining([
+            name: 'Avietės',
+            year: 2023,
+            amounts: expect.arrayContaining([
                 expect.objectContaining({ variant: 'd', expiresAt: new Date(2026, 7, 15).getTime() }),
             ]),
-            'test@example.com',
-            undefined
-        );
+            comment: undefined,
+        });
     });
 
     it('already-present dated amount from amounts prop shows in the list', () => {

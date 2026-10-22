@@ -1,5 +1,5 @@
 import { ActionIcon, Button, Checkbox, Group, Stack, TextInput } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { schemaResolver, useForm } from '@mantine/form';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { AddIcon, AnnualIcon, CancelIcon, CategoriesNavIcon, DeleteIcon, ReviewIcon, UpdateIcon } from '@icons';
@@ -12,8 +12,9 @@ import { ImageDropzone } from '~/components/images/ImageDropzone';
 import { useRenameGroup } from '~/features/groups/hooks/useRenameGroup';
 import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
 import { useLabels } from '~/lib/hooks/useLabels';
-import { compareNames } from '~/lib/utils/compareNames';
 import { getErrorMessage } from '~/lib/utils/errors';
+import { equals } from '~/lib/utils/names';
+import * as schema from '~/schema';
 import { useGroups } from '~/store/groups';
 
 interface GroupBoxProps {
@@ -53,25 +54,14 @@ export function GroupBox({
             review: initialReview,
             image: initialImage,
         },
-        validate: {
-            group: (value) => {
-                if (!value?.trim()) {
-                    return _('Name is required');
-                }
-                if (value.includes(':')) {
-                    return _('Cannot contain ":" character');
-                }
-                // Check if group exists (for new groups or renamed groups)
-                const groupExists = groups?.some((g) => !compareNames(g.group, value));
-                const groupAdded = !initialGroup;
-                const groupRenamed = !!initialGroup && value !== initialGroup;
-
-                if (groupExists && (groupAdded || groupRenamed)) {
-                    return _('Category already exists');
-                }
-                return null;
-            },
-        },
+        validate: schemaResolver(
+            schema.updateGroup.refine(
+                ({ group }: schema.GroupIdentity) =>
+                    group === initialGroup || groups.every((g) => !equals(group, g.group)),
+                { path: ['group'], error: schema.SchemaError.CategoryAlreadyExists }
+            ),
+            { sync: true }
+        ),
     });
 
     const formRef = useRef(form);
@@ -139,7 +129,7 @@ export function GroupBox({
         }, 300);
 
         try {
-            const values = form.values;
+            const values = { ...form.values, ...schema.updateGroup.parse(form.values) };
             const groupRenamed = isEditing && values.group !== initialGroup;
             const annualChanged = values.annual !== initialAnnual;
             const reviewChanged = values.review !== initialReview;
@@ -152,21 +142,29 @@ export function GroupBox({
             if (groupRenamed) {
                 if (uploadingImage) {
                     await renameGroup(
-                        initialGroup,
-                        values.group,
-                        values.annual,
-                        values.review,
-                        values.image,
+                        {
+                            group: initialGroup,
+                            targetGroup: values.group,
+                            annual: values.annual,
+                            review: values.review,
+                            image: values.image,
+                        },
                         setImageProgress
                     );
                 } else {
-                    await renameGroup(initialGroup, values.group, values.annual, values.review, values.image);
+                    await renameGroup({
+                        group: initialGroup,
+                        targetGroup: values.group,
+                        annual: values.annual,
+                        review: values.review,
+                        image: values.image,
+                    });
                 }
             } else if (!isEditing || annualChanged || reviewChanged || imageChanged) {
                 if (uploadingImage) {
-                    await updateGroup(values.group, values.annual, values.review, values.image, setImageProgress);
+                    await updateGroup(values, setImageProgress);
                 } else {
-                    await updateGroup(values.group, values.annual, values.review, values.image);
+                    await updateGroup(values);
                 }
             }
             onClose(values.group);
@@ -210,6 +208,7 @@ export function GroupBox({
                             withAsterisk
                             disabled={loading}
                             {...form.getInputProps('group')}
+                            error={typeof form.errors.group === 'string' ? _(form.errors.group) : form.errors.group}
                         />
                         <Checkbox
                             variant="outline"

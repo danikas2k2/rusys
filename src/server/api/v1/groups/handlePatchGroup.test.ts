@@ -1,12 +1,12 @@
 import { NextRequest } from 'next/server';
 
+import { SchemaError } from '~/schema';
+import { renameGroupAction, updateGroupAction } from '~/server/actions/groups';
 import { runApiHandler } from '~/server/api/next';
 import { handlePatchGroup } from '~/server/api/v1/groups/handlePatchGroup';
-import { renameGroupOccurrences } from '~/server/data/common';
-import { getGroups, updateGroup } from '~/server/data/groups';
 
-vi.mock(import('~/server/data/common'), () => ({ renameGroupOccurrences: vi.fn() }));
-vi.mock(import('~/server/data/groups'), () => ({ getGroups: vi.fn(), updateGroup: vi.fn() }));
+vi.mock(import('~/server/actions/groups'), () => ({ renameGroupAction: vi.fn(), updateGroupAction: vi.fn() }));
+vi.mock(import('~/server/auth/session'), () => ({ requireSession: vi.fn() }));
 
 async function patch(body: unknown, group = 'Uogienės') {
     const request = new NextRequest('http://localhost/api/v1/groups/Uogienės', {
@@ -20,43 +20,89 @@ async function patch(body: unknown, group = 'Uogienės') {
 describe('handlePatchGroup', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(getGroups).mockResolvedValue([{ group: 'Uogienės', annual: true, review: false, image: 'old.png' }]);
-        vi.mocked(updateGroup).mockResolvedValue(true);
-        vi.mocked(renameGroupOccurrences).mockResolvedValue(true);
+        vi.mocked(updateGroupAction).mockResolvedValue();
+        vi.mocked(renameGroupAction).mockResolvedValue();
     });
 
-    it('validates the path, payload and existence of the category', async () => {
+    it('rejects invalid path or body transport shape without invoking actions', async () => {
         expect((await patch({ review: true }, '')).status).toBe(400);
-        expect((await patch({ annual: 'yes' })).status).toBe(400);
-
-        vi.mocked(getGroups).mockResolvedValueOnce([]);
-        const missing = await patch({ review: true });
-
-        expect(missing.status).toBe(404);
-        expect(updateGroup).not.toHaveBeenCalled();
+        expect((await patch(null)).status).toBe(400);
+        expect((await patch([])).status).toBe(400);
+        expect((await patch('invalid')).status).toBe(400);
+        expect(updateGroupAction).not.toHaveBeenCalled();
+        expect(renameGroupAction).not.toHaveBeenCalled();
     });
 
-    it('preserves unspecified fields when updating a category', async () => {
+    it('delegates updates with omitted values left to the action', async () => {
         const response = await patch({ review: true });
 
         expect(response.status).toBe(204);
-        expect(updateGroup).toHaveBeenCalledWith('Uogienės', true, true, 'old.png');
+        expect(updateGroupAction).toHaveBeenCalledWith({
+            group: 'Uogienės',
+            annual: undefined,
+            review: true,
+            image: undefined,
+        });
+        expect(renameGroupAction).not.toHaveBeenCalled();
     });
 
     it('renames a category with its updated options', async () => {
-        const response = await patch({ name: 'Uogų uogienės', annual: false, image: 'new.png' });
+        const response = await patch({ targetGroup: 'Uogų uogienės', annual: false, image: 'new.png' });
 
         expect(response.status).toBe(204);
-        expect(renameGroupOccurrences).toHaveBeenCalledWith('Uogienės', 'Uogų uogienės', false, false, 'new.png');
+        expect(renameGroupAction).toHaveBeenCalledWith({
+            group: 'Uogienės',
+            targetGroup: 'Uogų uogienės',
+            annual: false,
+            review: undefined,
+            image: 'new.png',
+        });
+        expect(updateGroupAction).not.toHaveBeenCalled();
     });
 
-    it('reports a rejected or failed change', async () => {
-        vi.mocked(updateGroup).mockResolvedValueOnce(false);
+    it('delegates an unchanged name to the rename action to decide whether settings changed', async () => {
+        expect((await patch({ targetGroup: 'Uogienės', image: '' })).status).toBe(204);
+        expect(renameGroupAction).toHaveBeenCalledWith({
+            group: 'Uogienės',
+            targetGroup: 'Uogienės',
+            annual: undefined,
+            review: undefined,
+            image: '',
+        });
+        expect(updateGroupAction).not.toHaveBeenCalled();
+    });
 
-        expect((await patch({ review: true })).status).toBe(422);
+    it.each([null, 42, {}, ''])('rejects malformed name %s before invoking actions', async (name) => {
+        expect((await patch({ targetGroup: name })).status).toBe(400);
+        expect(renameGroupAction).not.toHaveBeenCalled();
+        expect(updateGroupAction).not.toHaveBeenCalled();
+    });
 
-        vi.mocked(updateGroup).mockRejectedValueOnce(new Error('database unavailable'));
+    it('keeps the route identity authoritative and trims names', async () => {
+        const response = await patch({ group: 'Other', image: '' }, ' Uogienės ');
 
-        expect((await patch({ review: true })).status).toBe(500);
+        expect(response.status).toBe(204);
+        expect(updateGroupAction).toHaveBeenCalledWith({
+            group: 'Uogienės',
+            annual: undefined,
+            review: undefined,
+            image: '',
+        });
+    });
+
+    it.each([
+        [SchemaError.InvalidRequest, 400, 'VALIDATION_ERROR', SchemaError.InvalidRequest],
+        [SchemaError.CategoryAlreadyExists, 400, 'VALIDATION_ERROR', SchemaError.CategoryAlreadyExists],
+        [SchemaError.NotFound, 404, 'NOT_FOUND', SchemaError.GroupNotFound],
+        [SchemaError.RequestFailed, 422, 'OPERATION_REJECTED', SchemaError.RequestFailed],
+        [SchemaError.Unauthorized, 401, 'UNAUTHORIZED', SchemaError.Unauthorized],
+        ['database credentials', 500, 'INTERNAL_ERROR', SchemaError.RequestFailed],
+    ])('maps action failure %s to status %s without exposing unknown text', async (message, status, code, output) => {
+        vi.mocked(updateGroupAction).mockRejectedValueOnce(new Error(message));
+
+        const response = await patch({ review: true });
+
+        expect(response.status).toBe(status);
+        await expect(response.json()).resolves.toStrictEqual({ error: { code, message: output } });
     });
 });

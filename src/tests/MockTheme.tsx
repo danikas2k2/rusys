@@ -1,6 +1,8 @@
 import { MantineProvider, type MantineThemeOverride } from '@mantine/core';
+import { NextIntlClientProvider } from 'next-intl';
 import React from 'react';
 
+import { messagesForLocale } from '~/lib/messages';
 import { getTheme } from '~/styles/theme';
 
 export function MockTheme({
@@ -11,7 +13,9 @@ export function MockTheme({
 }>): React.ReactElement {
     return (
         <MantineProvider theme={theme ?? getTheme()} withGlobalClasses={false} withCssVariables={false} env="test">
-            {children}
+            <NextIntlClientProvider locale="en-US" messages={messagesForLocale('en-US')}>
+                {children}
+            </NextIntlClientProvider>
         </MantineProvider>
     );
 }

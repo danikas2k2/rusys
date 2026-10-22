@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -35,9 +35,9 @@ describe('<VariantsPage>', () => {
     it('renders variant table', () => {
         render(
             <MockTheme>
-                <MockRedux>
+                <MockData>
                     <VariantsPage />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -47,9 +47,9 @@ describe('<VariantsPage>', () => {
     it('renders category rail layout', () => {
         render(
             <MockTheme>
-                <MockRedux>
+                <MockData>
                     <VariantsPage />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -59,9 +59,9 @@ describe('<VariantsPage>', () => {
     it('does not configure swipe-based deletion on the page', () => {
         render(
             <MockTheme>
-                <MockRedux>
+                <MockData>
                     <VariantsPage />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 

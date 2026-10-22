@@ -18,7 +18,7 @@ export function SummaryHistoryTab() {
     const name = activeData?.name ?? '';
     const year = activeData?.year ?? 0;
 
-    const loader = useGetSummaryHistory(year, group, name);
+    const loader = useGetSummaryHistory({ year, group, name });
     const summary = useSummary().find((item) => item.group === group && item.name === name);
     const history = summary?.history?.[year];
 

@@ -1,17 +1,7 @@
 'use server';
 
-import type { ProductHistory, VariantAmount } from '~/common/data';
-import {
-    isArray,
-    isFiniteNumber,
-    isMoveFlags,
-    isOptionalString,
-    isRecord,
-    isRequiredBoolean,
-    isRequiredString,
-    isVariantAmounts,
-    isYear,
-} from '~/server/actions/validation';
+import type { ProductHistory } from '~/common/data';
+import * as schema from '~/schema';
 import { requireSession } from '~/server/auth/session';
 import { getProductHistoryData } from '~/server/data/actionHistory';
 import { moveProductOccurrences } from '~/server/data/common';
@@ -34,251 +24,128 @@ import {
     transferAmounts,
     undoProduct,
 } from '~/server/data/products';
+import { assertSuccess } from '~/server/data/utils';
 import { getVariants } from '~/server/data/variants';
+import { withinTransaction } from '~/server/db';
 
-const isProduct = (group: unknown, name: unknown): boolean => isRequiredString(group) && isRequiredString(name);
-
-const isAmountContext = (group: unknown, name: unknown, year: unknown, user: unknown, comment: unknown): boolean =>
-    isProduct(group, name) && isYear(year) && isOptionalString(user) && isOptionalString(comment);
+async function requireStockAuthor(): Promise<string> {
+    const { email } = await requireSession();
+    if (!email?.trim()) {
+        throw new Error(schema.SchemaError.Unauthorized);
+    }
+    return email;
+}
 
 export async function getProductsAction() {
     await requireSession();
-    const [data, groups, variants] = await Promise.all([getProductsWithYears(), getGroups(), getVariants()]);
-    return { ...data, groups, variants };
+    return withinTransaction(async (session) => {
+        const [data, groups, variants] = await Promise.all([
+            getProductsWithYears(session),
+            getGroups(session),
+            getVariants(session),
+        ]);
+        return { ...data, groups, variants };
+    });
 }
 
-export async function addProductAction(group: string, name: string, parent?: string): Promise<void> {
+export async function addProductAction(request: schema.AddProduct): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name) || !isOptionalString(parent)) {
-        throw new Error('Invalid product update');
-    }
-    if (!(await addProduct(group, name, parent))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.addProduct.parse(request);
+    return withinTransaction((session) => addProduct(parsed, session)).then(assertSuccess);
 }
 
-export async function deleteProductAction(group: string, name: string): Promise<void> {
+export async function deleteProductAction(request: schema.DeleteProduct): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name)) {
-        throw new Error('Invalid product update');
-    }
-    if (!(await deleteProduct(group, name))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.deleteProduct.parse(request);
+    return withinTransaction((session) => deleteProduct(parsed, session)).then(assertSuccess);
 }
 
-export async function renameProductAction(group: string, name: string, newName: string): Promise<void> {
+export async function renameProductAction(request: schema.RenameProduct): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name) || !isRequiredString(newName)) {
-        throw new Error('Invalid product update');
-    }
-    if (!(await renameProduct(group, name, newName))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.renameProduct.parse(request);
+    return withinTransaction((session) => renameProduct(parsed, session)).then(assertSuccess);
 }
 
-export async function moveProductAction(
-    group: string,
-    name: string,
-    newGroup: string,
-    newName?: string
-): Promise<void> {
+export async function moveProductAction(request: schema.MoveProduct): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name) || !isRequiredString(newGroup) || !isOptionalString(newName)) {
-        throw new Error('Invalid product update');
-    }
-    if (!(await moveProductOccurrences(group, name, newGroup, newName))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.moveProduct.parse(request);
+    return withinTransaction((session) => moveProductOccurrences(parsed, session)).then(assertSuccess);
 }
 
-export async function setProductParentAction(group: string, name: string, parent?: string): Promise<void> {
+export async function setProductParentAction(request: schema.SetProductParent): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name) || !isOptionalString(parent)) {
-        throw new Error('Invalid product update');
-    }
-    if (!(await setProductParent(group, name, parent))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.setProductParent.parse(request);
+    return withinTransaction((session) => setProductParent(parsed, session)).then(assertSuccess);
 }
 
-export async function setProductExpiryToleranceAction(group: string, name: string, days: number): Promise<void> {
+export async function setProductExpiryToleranceAction(request: schema.SetProductExpiryTolerance): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name)) {
-        throw new Error('Invalid product update');
-    }
-    if (!Number.isInteger(days) || days < 0) {
-        throw new Error('expiryToleranceDays must be a non-negative integer');
-    }
-    if (!(await setProductExpiryTolerance(group, name, days))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.setProductExpiryTolerance.parse(request);
+    return withinTransaction((session) => setProductExpiryTolerance(parsed, session)).then(assertSuccess);
 }
 
-export async function setProductMissingAction(group: string, name: string, missing: boolean): Promise<void> {
+export async function setProductMissingAction(request: schema.SetProductMissing): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name) || typeof missing !== 'boolean') {
-        throw new Error('Invalid product update');
-    }
-    if (!(await setMissing(group, name, missing))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.setProductMissing.parse(request);
+    return withinTransaction((session) => setMissing(parsed, session)).then(assertSuccess);
 }
 
-export async function applyReviewAction(
-    updates: readonly { group: string; name: string; missing: boolean }[]
-): Promise<void> {
+export async function applyReviewAction(request: schema.ApplyReview): Promise<void> {
     await requireSession();
-    if (
-        !isArray(updates, 1) ||
-        updates.some(
-            (update: unknown) =>
-                !isRecord(update) ||
-                !isRequiredString(update.group) ||
-                !isRequiredString(update.name) ||
-                !isRequiredBoolean(update.missing) ||
-                Object.keys(update).some((key) => !['group', 'name', 'missing'].includes(key))
-        )
-    ) {
-        throw new Error('updates must contain group, name, and missing for each product');
-    }
-    if (!(await setMissingBulk(updates))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.applyReview.parse(request);
+    return withinTransaction((session) => setMissingBulk(parsed, session)).then(assertSuccess);
 }
 
-export async function setProductRemovingAction(
-    group: string,
-    name: string,
-    year: number,
-    removing: boolean
-): Promise<void> {
+export async function setProductRemovingAction(request: schema.SetProductRemoving): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name) || !isYear(year) || typeof removing !== 'boolean') {
-        throw new Error('Invalid product update');
-    }
-    if (!(await setRemoving(group, name, year, removing))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.setProductRemoving.parse(request);
+    return withinTransaction((session) => setRemoving(parsed, session)).then(assertSuccess);
 }
 
-export async function setProductImageAction(group: string, name: string, image: string): Promise<void> {
+export async function setProductImageAction(request: schema.SetProductImage): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name) || (image !== '' && !isRequiredString(image))) {
-        throw new Error('Invalid product update');
-    }
-    if (!(await setImage(group, name, image))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.setProductImage.parse(request);
+    return withinTransaction((session) => setImage(parsed, session)).then(assertSuccess);
 }
 
-export async function setVariantImageAction(
-    group: string,
-    name: string,
-    variant: string,
-    image: string
-): Promise<void> {
+export async function setVariantImageAction(request: schema.SetVariantImage): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name) || !isRequiredString(variant) || (image !== '' && !isRequiredString(image))) {
-        throw new Error('Invalid product update');
-    }
-    if (!(await setVariantImage(group, name, variant, image))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.setVariantImage.parse(request);
+    return withinTransaction((session) => setVariantImage(parsed, session)).then(assertSuccess);
 }
 
-export async function setAmountsAction(
-    group: string,
-    name: string,
-    year: number,
-    amounts?: readonly VariantAmount[],
-    user?: string,
-    comment?: string
-): Promise<void> {
-    await requireSession();
-    if (!isAmountContext(group, name, year, user, comment) || !isVariantAmounts(amounts)) {
-        throw new Error('Invalid product update');
-    }
-    if (!(await setAmounts(group, name, year, amounts, user, comment))) {
-        throw new Error('The requested change could not be applied');
-    }
+export async function setAmountsAction(request: schema.SetAmounts): Promise<void> {
+    const user = await requireStockAuthor();
+    const parsed = schema.setAmounts.parse(request);
+    return withinTransaction((session) => setAmounts(parsed, user, session)).then(assertSuccess);
 }
 
-export async function transferAmountsAction(
-    group: string,
-    name: string,
-    year: number,
-    targetGroup: string,
-    targetName: string,
-    amounts: readonly VariantAmount[],
-    user?: string,
-    comment?: string
-): Promise<void> {
-    await requireSession();
-    if (
-        !isAmountContext(group, name, year, user, comment) ||
-        !isRequiredString(targetGroup) ||
-        !isRequiredString(targetName) ||
-        !isVariantAmounts(amounts) ||
-        amounts.some(({ amount }) => amount <= 0)
-    ) {
-        throw new Error('Invalid product update');
-    }
-    if (!(await transferAmounts(group, name, year, targetGroup, targetName, amounts, user, comment))) {
-        throw new Error('The requested change could not be applied');
-    }
+export async function transferAmountsAction(request: schema.TransferAmounts): Promise<void> {
+    const user = await requireStockAuthor();
+    const parsed = schema.transferAmounts.parse(request);
+    return withinTransaction((session) => transferAmounts(parsed, user, session)).then(assertSuccess);
 }
 
-export async function moveConsumedToRecycledAction(
-    group: string,
-    name: string,
-    year: number,
-    variant: string,
-    amount: number,
-    flags: Pick<VariantAmount, 'suspicious' | 'home' | 'expiresAt'> = {},
-    user?: string
-): Promise<void> {
-    await requireSession();
-    if (
-        !isProduct(group, name) ||
-        !isYear(year) ||
-        !isRequiredString(variant) ||
-        !isFiniteNumber(amount) ||
-        amount <= 0 ||
-        !isMoveFlags(flags) ||
-        !isOptionalString(user)
-    ) {
-        throw new Error('Invalid product update');
-    }
-    if (!(await moveConsumedToRecycled(group, name, year, variant, amount, flags, user))) {
-        throw new Error('The requested change could not be applied');
-    }
+export async function moveConsumedToRecycledAction(request: schema.MoveConsumedToRecycled): Promise<void> {
+    const user = await requireStockAuthor();
+    const parsed = schema.moveConsumedToRecycled.parse(request);
+    return withinTransaction((session) => moveConsumedToRecycled(parsed, user, session)).then(assertSuccess);
 }
 
-export async function undoProductAction(group: string, name: string, year: number): Promise<void> {
+export async function undoProductAction(request: schema.ProductYearIdentity): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name) || !isYear(year)) {
-        throw new Error('Invalid product update');
-    }
-    if (!(await undoProduct(group, name, year))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.productYearIdentity.parse(request);
+    return withinTransaction((session) => undoProduct(parsed, session)).then(assertSuccess);
 }
 
-export async function redoProductAction(group: string, name: string, year: number): Promise<void> {
+export async function redoProductAction(request: schema.ProductYearIdentity): Promise<void> {
     await requireSession();
-    if (!isProduct(group, name) || !isYear(year)) {
-        throw new Error('Invalid product update');
-    }
-    if (!(await redoProduct(group, name, year))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = schema.productYearIdentity.parse(request);
+    return withinTransaction((session) => redoProduct(parsed, session)).then(assertSuccess);
 }
 
-export async function getProductHistory(group: string, name: string, year: number): Promise<ProductHistory> {
+export async function getProductHistory(request: schema.ProductYearIdentity): Promise<ProductHistory> {
     await requireSession();
-    if (!isRequiredString(group) || !isRequiredString(name) || !isYear(year)) {
-        throw new Error('Invalid history selection');
-    }
-    return getProductHistoryData(group, name, year);
+    const parsed = schema.productYearIdentity.parse(request);
+    return withinTransaction((session) => getProductHistoryData(parsed, session));
 }

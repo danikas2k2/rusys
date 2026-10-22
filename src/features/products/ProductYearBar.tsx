@@ -126,7 +126,9 @@ export function ProductYearBar({ disabled = false, onHistoryYearChange }: Produc
             return;
         }
         setUpdating(activeData, true);
-        await setProductRemoving(group, name, year, !removingYear).finally(() => setUpdating(activeData, false));
+        await setProductRemoving({ group, name, year, removing: !removingYear }).finally(() =>
+            setUpdating(activeData, false)
+        );
     }, [activeData, group, name, year, removingYear, setUpdating, setProductRemoving]);
 
     if (!activeData) {

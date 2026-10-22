@@ -1,3 +1,4 @@
+import type { ProductYearIdentity } from '~/schema';
 import { getVisualHistory } from '~/tests/fixtures/visualData';
 
 const noop = async () => {};
@@ -20,7 +21,7 @@ export const transferAmountsAction = noop;
 export const moveConsumedToRecycledAction = noop;
 export const undoProductAction = noop;
 export const redoProductAction = noop;
-export const getProductHistory = async (group: string, name: string, year: number) =>
+export const getProductHistory = async ({ group, name, year }: ProductYearIdentity) =>
     getVisualHistory(group, name, year);
 export const getVariantsAction = empty;
 export const saveVariant = noop;

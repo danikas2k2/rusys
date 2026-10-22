@@ -1,11 +1,11 @@
 import { Center, Switch } from '@mantine/core';
 import { LT, US } from 'country-flag-icons/react/3x2';
+import { useTranslations } from 'next-intl';
 import React, { use } from 'react';
 
 import { refreshOfflinePage } from '~/components/app/ServiceWorker/Registration';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { SetLocaleContext } from '~/components/runtime/LocaleContext';
-import { useLabels } from '~/lib/hooks/useLabels';
 import { useLocale } from '~/lib/hooks/useLocale';
 import { LOCALE_COOKIE } from '~/lib/locale';
 import { translate } from '~/lib/translate';
@@ -15,9 +15,9 @@ import './LanguageToggle.css';
 export function LanguageToggle(): React.JSX.Element {
     const locale = useLocale();
     const setLocale = use(SetLocaleContext);
-    const _ = useLabels();
+    const t = useTranslations('shell');
 
-    const targetLabel = locale === 'lt-LT' ? _('Switch to English') : _('Switch to Lithuanian');
+    const targetLabel = locale === 'lt-LT' ? t('switchToEnglish') : t('switchToLithuanian');
 
     const changeLanguage = (checked: boolean) => {
         const nextLocale = checked ? 'lt-LT' : 'en-US';
@@ -41,8 +41,8 @@ export function LanguageToggle(): React.JSX.Element {
                     checked={locale === 'lt-LT'}
                     color="primary"
                     onChange={(event) => changeLanguage(event.currentTarget.checked)}
-                    onLabel={<LT title={_('Switch to Lithuanian')} data-flag />}
-                    offLabel={<US title={_('Switch to English')} data-flag />}
+                    onLabel={<LT title={t('switchToLithuanian')} data-flag />}
+                    offLabel={<US title={t('switchToEnglish')} data-flag />}
                     size="lg"
                     withThumbIndicator={false}
                 />

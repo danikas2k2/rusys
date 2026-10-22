@@ -1,14 +1,16 @@
 import { useCallback } from 'react';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
+import type { SetProductParent } from '~/schema';
 import { setProductParentAction } from '~/server/actions/products';
 
-export function useSetProductParent(): (group: string, name: string, parent?: string) => Promise<void> {
+export function useSetProductParent(): (request: SetProductParent) => Promise<void> {
     const refresh = useGetProducts();
     return useCallback(
-        async (group: string, name: string, parent?: string): Promise<void> => {
+        async (request: SetProductParent): Promise<void> => {
+            const { group, name } = request;
             if (group && name) {
-                await setProductParentAction(group, name, parent);
+                await setProductParentAction(request);
                 await refresh();
             }
         },

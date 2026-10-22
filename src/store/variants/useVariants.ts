@@ -1,8 +1,14 @@
-import equal from 'fast-deep-equal/es6/react';
-import { useSelector } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
 
 import type { Variant } from '~/common/data';
-import type { WithVariantsState } from './types';
+import { getVariantsAction } from '~/server/actions/variants';
+import { CATALOG_KEYS } from '~/store/catalog';
+
+const EMPTY_VARIANTS: readonly Variant[] = [];
 
 export const useVariants = (): readonly Variant[] =>
-    useSelector((state: WithVariantsState) => state.variants ?? [], equal);
+    useQuery({
+        queryKey: CATALOG_KEYS.variants,
+        queryFn: async () => (await getVariantsAction()).variants,
+        enabled: false,
+    }).data ?? EMPTY_VARIANTS;

@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import sharp from 'sharp';
 
+import { SchemaError } from '~/schema';
 import {
     classifyImage,
     deleteImage,
@@ -72,11 +73,11 @@ describe('images', () => {
         it('rejects an unsupported mime type', async () => {
             const dataUrl = `data:image/svg+xml;base64,${Buffer.from('<svg/>').toString('base64')}`;
 
-            await expect(saveImage(dataUrl)).rejects.toThrow('Unsupported image type');
+            await expect(saveImage(dataUrl)).rejects.toThrow(SchemaError.InvalidImageType);
         });
 
         it('rejects a non-data-url string', async () => {
-            await expect(saveImage('not-a-data-url')).rejects.toThrow('Unsupported image type');
+            await expect(saveImage('not-a-data-url')).rejects.toThrow(SchemaError.InvalidImageType);
         });
     });
 

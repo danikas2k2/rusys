@@ -2,24 +2,14 @@ import { useCallback } from 'react';
 
 import { useGetGroups } from '~/features/groups/hooks/useGetGroups';
 import { uploadWithProgress, type UploadProgress } from '~/lib/utils/uploadWithProgress';
+import type { UpdateGroup } from '~/schema';
 import { updateGroupAction } from '~/server/actions/groups';
 
-export function useUpdateGroup(): (
-    group: string,
-    annual?: boolean,
-    review?: boolean,
-    image?: string,
-    onProgress?: UploadProgress
-) => Promise<void> {
+export function useUpdateGroup(): (request: UpdateGroup, onProgress?: UploadProgress) => Promise<void> {
     const refresh = useGetGroups();
     return useCallback(
-        async (
-            group: string,
-            annual?: boolean,
-            review?: boolean,
-            image?: string,
-            onProgress?: UploadProgress
-        ): Promise<void> => {
+        async (request: UpdateGroup, onProgress?: UploadProgress): Promise<void> => {
+            const { group, annual, review, image } = request;
             if (group) {
                 if (onProgress && image?.startsWith('data:')) {
                     await uploadWithProgress(
@@ -29,7 +19,7 @@ export function useUpdateGroup(): (
                         onProgress
                     );
                 } else {
-                    await updateGroupAction(group, annual, review, image);
+                    await updateGroupAction(request);
                 }
                 await refresh();
             }

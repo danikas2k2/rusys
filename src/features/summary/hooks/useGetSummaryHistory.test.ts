@@ -1,54 +1,52 @@
 import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
-
-import { useDispatch } from 'react-redux';
+import { mockQuery } from '@tests/MockQuery';
 
 import { useGetSummaryHistory } from '~/features/summary/hooks/useGetSummaryHistory';
 import { getSummaryHistory } from '~/server/actions/summary';
-import { setSummaryHistoryAction } from '~/store/summary';
+import { CATALOG_KEYS } from '~/store/catalog';
 
 vi.mock(import('~/server/actions/summary'));
-vi.mock(import('react-redux'), async () => ({ ...(await vi.importActual('react-redux')), useDispatch: vi.fn() }));
 
 describe('useGetSummaryHistory', () => {
-    const dispatch = vi.fn();
-
-    beforeAll(() => {
-        vi.mocked(useDispatch).mockReturnValue(dispatch);
-    });
-
     afterEach(() => vi.clearAllMocks());
 
-    it('loads the selected product summary history', async () => {
+    it('loads the selected summary history into the summary cache', async () => {
         const year = 25;
         const history = { updates: [], undates: [] };
         vi.mocked(getSummaryHistory).mockResolvedValueOnce(history);
-        const { result } = renderHook(() => useGetSummaryHistory(year, 'Uogienės', 'Avietės'), {
-            wrapper: MockRedux,
+        const { client, wrapper } = mockQuery({ summary: [{ group: 'Uogienės', name: 'Avietės', years: [] }] });
+        const { result } = renderHook(() => useGetSummaryHistory({ year, group: 'Uogienės', name: 'Avietės' }), {
+            wrapper,
         });
         await result.current();
 
-        expect(getSummaryHistory).toHaveBeenCalledWith('Uogienės', 'Avietės', year);
-        expect(dispatch).toHaveBeenCalledWith(
-            setSummaryHistoryAction({ group: 'Uogienės', name: 'Avietės', year, history })
-        );
+        expect(getSummaryHistory).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Avietės', year });
+        expect(client.getQueryData(CATALOG_KEYS.summary)).toStrictEqual([
+            { group: 'Uogienės', name: 'Avietės', years: [], history: { [year]: history } },
+        ]);
     });
 
-    it('does not request history when group and name are undefined', async () => {
-        const { result } = renderHook(() => useGetSummaryHistory(25), { wrapper: MockRedux });
-        await result.current();
-
-        expect(getSummaryHistory).not.toHaveBeenCalled();
-        expect(dispatch).not.toHaveBeenCalled();
-    });
-
-    it('does not request history when name is omitted', async () => {
-        const { result } = renderHook(() => useGetSummaryHistory(25, 'Uogienės'), {
-            wrapper: MockRedux,
+    it.each([
+        [undefined, undefined],
+        ['Uogienės', undefined],
+    ])('does not request history without a complete key', async (group, name) => {
+        const { wrapper } = mockQuery();
+        const { result } = renderHook(() => useGetSummaryHistory({ year: 25, group: group ?? '', name: name ?? '' }), {
+            wrapper,
         });
         await result.current();
 
         expect(getSummaryHistory).not.toHaveBeenCalled();
-        expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('keeps its loader stable when the request object is recreated', () => {
+        const { wrapper } = mockQuery();
+        const { result, rerender } = renderHook(() => useGetSummaryHistory({ year: 25, group: 'A', name: 'B' }), {
+            wrapper,
+        });
+        const loader = result.current;
+        rerender();
+
+        expect(result.current).toBe(loader);
     });
 });

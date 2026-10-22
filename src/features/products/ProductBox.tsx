@@ -1,5 +1,5 @@
 import { Accordion, ActionIcon, Button, Group, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { schemaResolver, useForm } from '@mantine/form';
 import React, {
     startTransition,
     useCallback,
@@ -32,8 +32,9 @@ import { useSetProductParent } from '~/features/products/hooks/useSetProductPare
 import { ProductAvatar } from '~/features/products/ProductAvatar';
 import { ProductOption } from '~/features/products/ProductOption';
 import { useLabels } from '~/lib/hooks/useLabels';
-import { compareNames } from '~/lib/utils/compareNames';
 import { getErrorMessage } from '~/lib/utils/errors';
+import { equals } from '~/lib/utils/names';
+import { SchemaError, updateProduct, type UpdateProduct } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
 
@@ -143,7 +144,7 @@ export function ProductBox({
     );
     const products = useProducts();
 
-    const form = useForm({
+    const form = useForm<UpdateProduct>({
         initialValues: {
             group: initialGroup || filterGroup || '',
             name: initialName,
@@ -151,43 +152,22 @@ export function ProductBox({
             image: initialImage,
             expiryTolerance: formatExpiryTolerance(initialExpiryToleranceDays),
         },
-        validate: {
-            group: (value) => {
-                if (!value?.trim()) {
-                    return _('Category is required');
-                }
-                if (
-                    isEditing &&
-                    value !== initialGroup &&
-                    products.some((p) => p.group === initialGroup && p.parent === initialName)
-                ) {
-                    return _('Cannot move a product with sub-products to another category');
-                }
-                return null;
-            },
-            name: (value, values) => {
-                if (!value?.trim()) {
-                    return _('Name is required');
-                }
-                if (value.includes(':')) {
-                    return _('Cannot contain ":" character');
-                }
-                // Check if name exists in the selected group
-                const nameExists = products?.some(
-                    (d) => !compareNames(d.group, values.group) && !compareNames(d.name, value)
-                );
-                const nameAdded = !initialName;
-                const nameCopied = isEditing && values.group !== initialGroup;
-                const nameRenamed = isEditing && value !== initialName && values.group === initialGroup;
-
-                if (nameExists && (nameAdded || nameCopied || nameRenamed)) {
-                    return _('Name already exists in this category');
-                }
-                return null;
-            },
-            expiryTolerance: (value) =>
-                parseExpiryTolerance(value) === undefined ? _('Enter a valid expiry tolerance') : null,
-        },
+        validate: schemaResolver(
+            updateProduct
+                .refine(
+                    ({ group, name }) =>
+                        (group === initialGroup && name === initialName) ||
+                        products.every((p) => !equals(p.group, group) || !equals(p.name, name)),
+                    { path: ['name'], error: SchemaError.NameAlreadyExists }
+                )
+                .refine(
+                    ({ group }) =>
+                        group === initialGroup ||
+                        products.every((p) => p.group !== initialGroup || p.parent !== initialName),
+                    { path: ['group'], error: SchemaError.CannotMoveProductWithChildren }
+                ),
+            { sync: true }
+        ),
     });
 
     const formRef = useRef(form);
@@ -322,7 +302,7 @@ export function ProductBox({
 
         let failedField: 'name' | 'image' = 'name';
         try {
-            const values = form.values;
+            const values = updateProduct.parse(form.values);
             const groupChanged = isEditing && values.group !== initialGroup;
             const nameRenamed = isEditing && values.name !== initialName && !groupChanged;
             const imageChanged = values.image !== initialImage;
@@ -338,13 +318,18 @@ export function ProductBox({
             if (groupChanged) {
                 // Move to different group - this also clears any parent link server-side,
                 // since a product's parent must be in the same category.
-                await moveProduct(initialGroup, initialName, values.group, values.name);
+                await moveProduct({
+                    group: initialGroup,
+                    name: initialName,
+                    targetGroup: values.group,
+                    targetName: values.name,
+                });
             } else if (nameRenamed) {
                 // Rename in same group
-                await renameProduct(initialGroup, initialName, values.name);
+                await renameProduct({ group: initialGroup, name: initialName, targetName: values.name });
             } else if (!isEditing && !savedProduct) {
                 // Add new
-                await addProduct(values.group, values.name, values.parent || undefined);
+                await addProduct({ group: values.group, name: values.name, parent: values.parent || undefined });
                 savedProduct = { group: values.group, name: values.name };
                 setCreatedProduct(savedProduct);
             }
@@ -356,16 +341,19 @@ export function ProductBox({
                     setImageProgress(0);
                 }
                 if (uploadingImage) {
-                    await setProductImage(product.group, product.name, values.image, setImageProgress);
+                    await setProductImage(
+                        { group: product.group, name: product.name, image: values.image },
+                        setImageProgress
+                    );
                 } else {
-                    await setProductImage(product.group, product.name, values.image);
+                    await setProductImage({ group: product.group, name: product.name, image: values.image });
                 }
             }
             if (isEditing && !groupChanged && parentChanged) {
-                await setProductParent(values.group, values.name, values.parent || undefined);
+                await setProductParent({ group: values.group, name: values.name, parent: values.parent || undefined });
             }
             if ((isEditing && expiryToleranceChanged) || (!isEditing && expiryToleranceDays > 0)) {
-                await setProductExpiryTolerance(values.group, values.name, expiryToleranceDays);
+                await setProductExpiryTolerance({ group: values.group, name: values.name, days: expiryToleranceDays });
             }
             onClose(product.group, product.name);
         } catch (error) {
@@ -451,6 +439,7 @@ export function ProductBox({
                                 disabled={loading || !!createdProduct}
                                 searchable
                                 {...form.getInputProps('group')}
+                                error={typeof form.errors.group === 'string' ? _(form.errors.group) : form.errors.group}
                                 onChange={(value) =>
                                     value === NEW_CATEGORY_VALUE
                                         ? handleAddCategoryOpen()
@@ -465,6 +454,7 @@ export function ProductBox({
                                 withAsterisk
                                 disabled={loading || !!createdProduct}
                                 {...form.getInputProps('name')}
+                                error={typeof form.errors.name === 'string' ? _(form.errors.name) : form.errors.name}
                             />
                             <ImageDropzone
                                 image={form.values.image}
@@ -473,7 +463,7 @@ export function ProductBox({
                                 progress={imageProgress}
                                 onRemove={handleImageRemove}
                                 disabled={loading}
-                                error={form.errors.image}
+                                error={typeof form.errors.image === 'string' ? _(form.errors.image) : form.errors.image}
                             />
                             <Accordion
                                 value={advancedFieldsOpen ? 'additional-details' : null}
@@ -525,6 +515,11 @@ export function ProductBox({
                                                     description={_('Examples: 7, 2 sav, 3 men, 1 m.')}
                                                     disabled={loading}
                                                     {...form.getInputProps('expiryTolerance')}
+                                                    error={
+                                                        typeof form.errors.expiryTolerance === 'string'
+                                                            ? _(form.errors.expiryTolerance)
+                                                            : form.errors.expiryTolerance
+                                                    }
                                                 />
                                             </Stack>
                                         </Accordion.Panel>

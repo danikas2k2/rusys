@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { getVariantsFixture } from '@tests/fixtures';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import React from 'react';
 
@@ -14,7 +14,7 @@ describe('useVariantsByGroup', () => {
 
     it('returns full variant objects for the given group', async () => {
         const { result } = renderHook(() => useVariantsByGroup('Daržovės'), {
-            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockData state={state}>{children}</MockData>,
         });
 
         expect(result.current).toStrictEqual([
@@ -28,14 +28,14 @@ describe('useVariantsByGroup', () => {
 
     it('returns empty list if group does not exist', async () => {
         const { result } = renderHook(() => useVariantsByGroup('Skalbikliai'), {
-            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockData state={state}>{children}</MockData>,
         });
 
         expect(result.current).toStrictEqual([]);
     });
 
     it('returns empty list if has no state', async () => {
-        const { result } = renderHook(() => useVariantsByGroup('Skalbikliai'), { wrapper: MockRedux });
+        const { result } = renderHook(() => useVariantsByGroup('Skalbikliai'), { wrapper: MockData });
 
         expect(result.current).toStrictEqual([]);
     });
@@ -43,7 +43,7 @@ describe('useVariantsByGroup', () => {
     it('reuses a cached result when switching back to a group', () => {
         const { result, rerender } = renderHook(({ group }) => useVariantsByGroup(group), {
             initialProps: { group: 'Daržovės' },
-            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockData state={state}>{children}</MockData>,
         });
         const first = result.current;
 

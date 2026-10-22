@@ -1,10 +1,11 @@
 import React from 'react';
 
-import type { Variant, VariantAmount } from '~/common/data';
+import type { Variant } from '~/common/data';
 import { formatVolume, formatWeight, getAmountTotals } from '~/common/utils/amounts';
 import { orderedExpiryBuckets, partitionByExpiryStatus, type ExpiryStatus } from '~/common/utils/expiry';
 import { ExpiryStatusRow } from '~/components/amounts/ExpiryStatusRow';
 import { VariantValueSpans } from '~/components/amounts/VariantValueSpans';
+import type { VariantAmount } from '~/schema';
 import { useVariantsByGroup } from '~/store/variants';
 
 function renderRow(

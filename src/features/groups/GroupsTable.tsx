@@ -34,7 +34,7 @@ export function GroupsTable() {
     } = useReorderHandler<Group, Pick<Group, 'group'>>({
         items: useSortedGroups(),
 
-        onReorder: (reordered) => reorderGroups(mapOrder(reordered, ({ group }) => group)),
+        onReorder: (reordered) => reorderGroups({ groups: mapOrder(reordered, ({ group }) => group) }),
 
         equals: (a, b) => a.group === b.group,
 

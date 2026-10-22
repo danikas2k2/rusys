@@ -1,19 +1,13 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
 
 import { getProductsAction } from '~/server/actions/products';
-import { setGroupsAction } from '~/store/groups';
-import { setProductsAction } from '~/store/products';
-import { setVariantsAction } from '~/store/variants';
-import { setYearsAction } from '~/store/years';
+import { setCatalogData } from '~/store/catalog';
 
 export function useGetProducts(): (initial?: boolean) => Promise<void> {
-    const dispatch = useDispatch();
+    const client = useQueryClient();
     return useCallback(async (): Promise<void> => {
         const data = await getProductsAction();
-        dispatch(setProductsAction(data.products));
-        dispatch(setYearsAction(data.years));
-        dispatch(setGroupsAction([...data.groups]));
-        dispatch(setVariantsAction([...data.variants]));
-    }, [dispatch]);
+        setCatalogData(client, data);
+    }, [client]);
 }

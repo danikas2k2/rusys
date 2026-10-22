@@ -59,7 +59,7 @@ export default async function RootLayout({ children }: PropsWithChildren): Promi
     return (
         <html lang={locale.slice(0, 2)} className={fonts.join(' ')} suppressHydrationWarning>
             <head>
-                <ColorSchemeScript defaultColorScheme="auto" />
+                <ColorSchemeScript defaultColorScheme="auto" localStorageKey="mantine-color-scheme-value" />
                 <PwaHead />
             </head>
             <body>

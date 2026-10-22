@@ -1,4 +1,5 @@
 import { OAuth2Client } from 'google-auth-library';
+import { ClientSession } from 'mongodb';
 
 import { loginWithGoogle, logout } from '~/server/actions/auth';
 import { createSession, deleteSession, isAllowedEmail } from '~/server/auth/session';
@@ -28,10 +29,28 @@ describe('google server authentication', () => {
 
     it.each([
         [42, 'id'],
+        ['', 'id'],
         ['id-token', 'other'],
     ])('rejects malformed login arguments', async (token, kind) => {
-        await expect(loginWithGoogle(token as never, kind as never)).rejects.toThrow('Invalid login');
+        await expect(loginWithGoogle({ token: token as never, kind: kind as never })).rejects.toThrow('Invalid login');
 
+        expect(createSession).not.toHaveBeenCalled();
+        expect(getUserProfiles).not.toHaveBeenCalled();
+        expect(upsertUserProfile).not.toHaveBeenCalled();
+    });
+
+    it('rejects untrusted profile fields instead of accepting a client identity', async () => {
+        const verify = vi.spyOn(OAuth2Client.prototype, 'verifyIdToken');
+
+        await expect(
+            loginWithGoogle({
+                token: 'id-token',
+                kind: 'id',
+                email: 'attacker@example.com',
+                allowed: true,
+            } as never)
+        ).rejects.toThrow('Invalid login');
+        expect(verify).not.toHaveBeenCalled();
         expect(createSession).not.toHaveBeenCalled();
     });
 
@@ -40,13 +59,16 @@ describe('google server authentication', () => {
             getPayload: () => ({ sub: 'google-user', email: 'User@Example.com', email_verified: true }),
         } as any);
 
-        await expect(loginWithGoogle('id-token', 'id')).resolves.toMatchObject({
+        await expect(loginWithGoogle({ token: 'id-token', kind: 'id' })).resolves.toMatchObject({
             sub: 'google-user',
             email: 'user@example.com',
             allowed: true,
         });
         expect(createSession).toHaveBeenCalledWith(expect.objectContaining({ sub: 'google-user' }));
-        expect(upsertUserProfile).toHaveBeenCalledWith('user@example.com', undefined, undefined);
+        expect(upsertUserProfile).toHaveBeenCalledWith(
+            { email: 'user@example.com', name: undefined, picture: undefined },
+            expect.any(ClientSession)
+        );
     });
 
     it('keeps a recently synchronized profile without rewriting it', async () => {
@@ -68,7 +90,7 @@ describe('google server authentication', () => {
             },
         ]);
 
-        await loginWithGoogle('id-token', 'id');
+        await loginWithGoogle({ token: 'id-token', kind: 'id' });
 
         expect(upsertUserProfile).not.toHaveBeenCalled();
         expect(createSession).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ sub: 'google-user' }));
@@ -79,7 +101,7 @@ describe('google server authentication', () => {
             getPayload: () => ({ sub: 'google-user', email: 'user@example.com', email_verified: false }),
         } as any);
 
-        await expect(loginWithGoogle('id-token', 'id')).rejects.toThrow('User is not allowed');
+        await expect(loginWithGoogle({ token: 'id-token', kind: 'id' })).rejects.toThrow('User is not allowed');
         expect(createSession).not.toHaveBeenCalled();
     });
 
@@ -89,7 +111,9 @@ describe('google server authentication', () => {
             user_id: 'google-user',
         } as any);
 
-        await expect(loginWithGoogle('access-token', 'access')).rejects.toThrow('Invalid token audience');
+        await expect(loginWithGoogle({ token: 'access-token', kind: 'access' })).rejects.toThrow(
+            'Invalid token audience'
+        );
         expect(createSession).not.toHaveBeenCalled();
     });
 
@@ -106,7 +130,9 @@ describe('google server authentication', () => {
             })
         );
 
-        await expect(loginWithGoogle('access-token', 'access')).rejects.toThrow('Google identity mismatch');
+        await expect(loginWithGoogle({ token: 'access-token', kind: 'access' })).rejects.toThrow(
+            'Google identity mismatch'
+        );
         expect(createSession).not.toHaveBeenCalled();
     });
 
@@ -123,7 +149,7 @@ describe('google server authentication', () => {
             })
         );
 
-        await expect(loginWithGoogle('access-token', 'access')).resolves.toMatchObject({
+        await expect(loginWithGoogle({ token: 'access-token', kind: 'access' })).resolves.toMatchObject({
             sub: 'google-user',
             email: 'user@example.com',
             allowed: true,
@@ -138,7 +164,9 @@ describe('google server authentication', () => {
         } as any);
         vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }));
 
-        await expect(loginWithGoogle('access-token', 'access')).rejects.toThrow('Google userinfo failed');
+        await expect(loginWithGoogle({ token: 'access-token', kind: 'access' })).rejects.toThrow(
+            'Google userinfo failed'
+        );
         expect(createSession).not.toHaveBeenCalled();
     });
 
@@ -148,3 +176,5 @@ describe('google server authentication', () => {
         expect(deleteSession).toHaveBeenCalledWith();
     });
 });
+
+vi.mock(import('~/server/db'));

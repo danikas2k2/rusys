@@ -23,7 +23,10 @@ export function ColorSchemeToggle() {
                     checked={isDark}
                     color="primary"
                     offLabel={<LightModeIcon aria-hidden size={14} />}
-                    onChange={(event) => setColorScheme(event.currentTarget.checked ? 'dark' : 'light')}
+                    onChange={(event) => {
+                        const next = event.currentTarget.checked ? 'dark' : 'light';
+                        setColorScheme(next);
+                    }}
                     onLabel={<DarkModeIcon aria-hidden size={14} />}
                     size="lg"
                     withThumbIndicator={false}

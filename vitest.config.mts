@@ -83,7 +83,11 @@ export default defineConfig({
                     environment: 'node',
                     pool: 'threads',
                     root,
-                    include: ['src/common/**/*.test.{ts,tsx}', 'src/tests/playwright/**/*.test.ts'],
+                    include: [
+                        'src/common/**/*.test.{ts,tsx}',
+                        'src/schema/**/*.test.{ts,tsx}',
+                        'src/tests/playwright/**/*.test.ts',
+                    ],
                     setupFiles: [...sharedSetup],
                 },
             },

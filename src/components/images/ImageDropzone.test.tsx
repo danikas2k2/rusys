@@ -182,7 +182,7 @@ describe('<ImageDropzone>', () => {
         const file = new File(['image-data'], 'image.png', { type: 'image/png' });
         await user.upload(imageInput, file);
 
-        await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Failed to upload');
+        await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Something went wrong');
     });
 
     it('calls onRemove when the remove button is clicked', async () => {
@@ -220,7 +220,7 @@ describe('<ImageDropzone>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Remove image' }));
 
-        await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Failed to remove');
+        await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Something went wrong');
     });
 
     it('disables the dropzone and remove button while disabled', () => {

@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
-import { MockThemeRedux } from '@tests/MockThemeRedux';
+import { MockThemeData } from '@tests/MockThemeData';
 
 import React from 'react';
 
@@ -107,11 +107,33 @@ describe('<ProductBox>', () => {
 
     const onClose = vi.fn();
 
+    it('submits and closes with the parsed product name while preserving typed text until submit', async () => {
+        const addProduct = vi.fn().mockResolvedValue(true);
+        vi.mocked(useAddProduct).mockReturnValue(addProduct);
+        render(
+            <MockThemeData state={state}>
+                <ProductBox opened group="Uogienės" onClose={onClose} />
+            </MockThemeData>
+        );
+        await user.type(screen.getByRole('textbox', { name: 'Title' }), '  Nauja uogienė  ');
+
+        expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('  Nauja uogienė  ');
+
+        await user.click(screen.getByRole('button', { name: 'Add' }));
+
+        expect(addProduct).toHaveBeenCalledExactlyOnceWith({
+            group: 'Uogienės',
+            name: 'Nauja uogienė',
+            parent: undefined,
+        });
+        expect(onClose).toHaveBeenCalledExactlyOnceWith('Uogienės', 'Nauja uogienė');
+    });
+
     it('does not render when opened=false', () => {
         render(
-            <MockThemeRedux state={state}>
+            <MockThemeData state={state}>
                 <ProductBox onClose={onClose} />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -119,9 +141,9 @@ describe('<ProductBox>', () => {
 
     it('renders with cancel button', () => {
         render(
-            <MockThemeRedux state={state}>
+            <MockThemeData state={state}>
                 <ProductBox opened onClose={onClose} />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
@@ -131,9 +153,9 @@ describe('<ProductBox>', () => {
         vi.useFakeTimers();
         try {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             // Mantine activates its focus trap at 0 ms.
@@ -149,10 +171,10 @@ describe('<ProductBox>', () => {
         vi.useFakeTimers();
         try {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <button type="button">Other dialog action</button>
                     <ProductBox opened group="Uogienės" name="Avietės" trapFocus={false} onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
             const otherAction = screen.getByRole('button', { name: 'Other dialog action' });
             act(() => otherAction.focus());
@@ -166,9 +188,9 @@ describe('<ProductBox>', () => {
 
     it('renders without initial value', async () => {
         render(
-            <MockThemeRedux state={state}>
+            <MockThemeData state={state}>
                 <ProductBox opened onClose={onClose} />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.getByRole('heading', { name: 'Add new entry' })).toBeInTheDocument();
@@ -188,9 +210,9 @@ describe('<ProductBox>', () => {
         const setProductExpiryTolerance = vi.fn().mockResolvedValue(true);
         vi.mocked(useSetProductExpiryTolerance).mockReturnValue(setProductExpiryTolerance);
         render(
-            <MockThemeRedux state={state}>
+            <MockThemeData state={state}>
                 <ProductBox opened group="Uogienės" name="Avietės" expiryToleranceDays={0} onClose={onClose} />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await getParentProductCombobox();
@@ -198,14 +220,14 @@ describe('<ProductBox>', () => {
         await user.type(screen.getByRole('textbox', { name: 'Expiry tolerance' }), '2 sav.');
         await user.click(screen.getByRole('button', { name: 'Update' }));
 
-        expect(setProductExpiryTolerance).toHaveBeenCalledWith('Uogienės', 'Avietės', 14);
+        expect(setProductExpiryTolerance).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Avietės', days: 14 });
     });
 
     it('renders with initial name', () => {
         render(
-            <MockThemeRedux state={state}>
+            <MockThemeData state={state}>
                 <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.getByRole('heading', { name: 'Edit entry' })).toBeInTheDocument();
@@ -216,17 +238,17 @@ describe('<ProductBox>', () => {
         const onDelete = vi.fn();
 
         const { rerender } = render(
-            <MockThemeRedux state={state}>
+            <MockThemeData state={state}>
                 <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} onDelete={onDelete} />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
 
         rerender(
-            <MockThemeRedux state={state}>
+            <MockThemeData state={state}>
                 <ProductBox opened onClose={onClose} onDelete={onDelete} />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
@@ -234,9 +256,9 @@ describe('<ProductBox>', () => {
 
     it('renders with group name', () => {
         render(
-            <MockThemeRedux state={state}>
+            <MockThemeData state={state}>
                 <ProductBox opened group="Uogienės" onClose={onClose} />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.getByRole('combobox', { name: 'Category' })).toHaveDisplayValue('Uogienės');
@@ -244,9 +266,9 @@ describe('<ProductBox>', () => {
 
     it('calls onClose when close button is clicked', async () => {
         render(
-            <MockThemeRedux state={state}>
+            <MockThemeData state={state}>
                 <ProductBox opened onClose={onClose} />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'Close' }));
@@ -257,9 +279,9 @@ describe('<ProductBox>', () => {
     describe('image upload', () => {
         it('does not render a remove button when no image is set', () => {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             expect(screen.queryByRole('button', { name: 'Remove image' })).not.toBeInTheDocument();
@@ -267,9 +289,9 @@ describe('<ProductBox>', () => {
 
         it('shows a preview and remove button after dropping a valid image', async () => {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const imageInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose an image');
@@ -282,9 +304,9 @@ describe('<ProductBox>', () => {
 
         it('falls back to a photo icon when the preview image fails to load', async () => {
             const { container } = render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const imageInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose an image');
@@ -301,9 +323,9 @@ describe('<ProductBox>', () => {
 
         it('shows an error when the dropped file is rejected', async () => {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.click(screen.getByRole('button', { name: 'Reject image' }));
@@ -313,9 +335,9 @@ describe('<ProductBox>', () => {
 
         it('removes the image when the remove button is clicked', async () => {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const imageInput = screen.getByPlaceholderText<HTMLInputElement>('Please choose an image');
@@ -332,7 +354,7 @@ describe('<ProductBox>', () => {
             vi.mocked(useSetProductImage).mockReturnValue(setProductImage);
 
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox
                         opened
                         group="Uogienės"
@@ -340,13 +362,13 @@ describe('<ProductBox>', () => {
                         image="/images/ab/cd/current.png"
                         onClose={onClose}
                     />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.click(screen.getByRole('button', { name: 'Remove image' }));
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(setProductImage).toHaveBeenCalledWith('Uogienės', 'Avietės', '');
+            expect(setProductImage).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Avietės', image: '' });
             expect(onClose).toHaveBeenCalledWith('Uogienės', 'Avietės');
         });
 
@@ -357,9 +379,9 @@ describe('<ProductBox>', () => {
             vi.mocked(useSetProductImage).mockReturnValue(setProductImage);
 
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
@@ -371,11 +393,9 @@ describe('<ProductBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai', undefined);
+            expect(addProduct).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Agrastai', parent: undefined });
             expect(setProductImage).toHaveBeenCalledWith(
-                'Uogienės',
-                'Agrastai',
-                expect.stringMatching(/^data:image\/png;base64,/),
+                { group: 'Uogienės', name: 'Agrastai', image: expect.stringMatching(/^data:image\/png;base64,/) },
                 expect.any(Function)
             );
             expect(onClose).toHaveBeenCalledWith('Uogienės', 'Agrastai');
@@ -388,9 +408,9 @@ describe('<ProductBox>', () => {
             vi.mocked(useSetProductImage).mockReturnValue(setProductImage);
 
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
@@ -399,7 +419,7 @@ describe('<ProductBox>', () => {
             await screen.findByRole('button', { name: 'Remove image' });
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Network Error');
+            await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Something went wrong');
             expect(screen.getByRole('textbox', { name: 'Title' })).not.toHaveAttribute('aria-invalid', 'true');
             expect(addProduct).toHaveBeenCalledTimes(1);
 
@@ -417,9 +437,9 @@ describe('<ProductBox>', () => {
             vi.mocked(useSetProductImage).mockReturnValue(setProductImage);
 
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
@@ -432,11 +452,9 @@ describe('<ProductBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameProduct).toHaveBeenCalledWith('Uogienės', 'Avietės', 'Agrastai');
+            expect(renameProduct).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Avietės', targetName: 'Agrastai' });
             expect(setProductImage).toHaveBeenCalledWith(
-                'Uogienės',
-                'Agrastai',
-                expect.stringMatching(/^data:image\/png;base64,/),
+                { group: 'Uogienės', name: 'Agrastai', image: expect.stringMatching(/^data:image\/png;base64,/) },
                 expect.any(Function)
             );
         });
@@ -448,15 +466,15 @@ describe('<ProductBox>', () => {
             vi.mocked(useSetProductImage).mockReturnValue(setProductImage);
 
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai', undefined);
+            expect(addProduct).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Agrastai', parent: undefined });
             expect(setProductImage).not.toHaveBeenCalled();
         });
     });
@@ -464,9 +482,9 @@ describe('<ProductBox>', () => {
     describe('discard confirmation', () => {
         it('closes without confirmation when the form is untouched', async () => {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -477,9 +495,9 @@ describe('<ProductBox>', () => {
 
         it('asks for confirmation instead of closing when the form was changed', async () => {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'test');
@@ -491,9 +509,9 @@ describe('<ProductBox>', () => {
 
         it('closes after confirming discard', async () => {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'test');
@@ -505,9 +523,9 @@ describe('<ProductBox>', () => {
 
         it('keeps the dialog open when cancelling the discard confirmation', async () => {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'test');
@@ -528,15 +546,15 @@ describe('<ProductBox>', () => {
         it('closes dialog without error when successfully added', async () => {
             vi.mocked(useAddProduct).mockReturnValue(addProduct.mockResolvedValue(true));
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai', undefined);
+            expect(addProduct).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Agrastai', parent: undefined });
             expect(onClose).toHaveBeenCalledWith('Uogienės', 'Agrastai');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -544,25 +562,25 @@ describe('<ProductBox>', () => {
         it('displays error without closing dialog when adding fails', async () => {
             vi.mocked(useAddProduct).mockReturnValue(addProduct.mockRejectedValueOnce('Failed to add'));
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Agrastai', undefined);
+            expect(addProduct).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Agrastai', parent: undefined });
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('alert')).toHaveTextContent('Failed to add');
+            expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong');
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
             vi.mocked(useAddProduct).mockReturnValue(addProduct);
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.click(screen.getByRole('button', { name: 'Add' }));
@@ -575,9 +593,9 @@ describe('<ProductBox>', () => {
         it('displays error without closing dialog when name already exists', async () => {
             vi.mocked(useAddProduct).mockReturnValue(addProduct);
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Avietės');
@@ -596,16 +614,16 @@ describe('<ProductBox>', () => {
         it('closes dialog without error when successfully renamed', async () => {
             vi.mocked(useRenameProduct).mockReturnValue(renameProduct.mockResolvedValueOnce(true));
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameProduct).toHaveBeenCalledWith('Uogienės', 'Avietės', 'Agrastai');
+            expect(renameProduct).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Avietės', targetName: 'Agrastai' });
             expect(onClose).toHaveBeenCalledWith('Uogienės', 'Agrastai');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -613,26 +631,26 @@ describe('<ProductBox>', () => {
         it('displays error without closing dialog when rename fails', async () => {
             vi.mocked(useRenameProduct).mockReturnValue(renameProduct.mockRejectedValueOnce('Failed to rename'));
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Agrastai');
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameProduct).toHaveBeenCalledWith('Uogienės', 'Avietės', 'Agrastai');
+            expect(renameProduct).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Avietės', targetName: 'Agrastai' });
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('alert')).toHaveTextContent('Failed to rename');
+            expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong');
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
             vi.mocked(useRenameProduct).mockReturnValue(renameProduct);
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
@@ -646,9 +664,9 @@ describe('<ProductBox>', () => {
         it('displays error without closing dialog when name already exists', async () => {
             vi.mocked(useRenameProduct).mockReturnValue(renameProduct);
             render(
-                <MockThemeRedux state={{ products: getProductsFixture() }}>
+                <MockThemeData state={{ products: getProductsFixture() }}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.clear(screen.getByRole('textbox', { name: 'Title' }));
@@ -664,9 +682,9 @@ describe('<ProductBox>', () => {
         it('closes without updating when name was not changed', async () => {
             vi.mocked(useRenameProduct).mockReturnValue(renameProduct);
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.click(screen.getByRole('button', { name: 'Update' }));
@@ -682,15 +700,20 @@ describe('<ProductBox>', () => {
         it('closes dialog without error when successfully moved', async () => {
             vi.mocked(useMoveProduct).mockReturnValue(moveProduct.mockResolvedValueOnce(true));
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await selectOption('Daržovės');
             await user.click(screen.getByRole('button', { name: 'Move' }));
 
-            expect(moveProduct).toHaveBeenCalledWith('Uogienės', 'Avietės', 'Daržovės', 'Avietės');
+            expect(moveProduct).toHaveBeenCalledWith({
+                group: 'Uogienės',
+                name: 'Avietės',
+                targetGroup: 'Daržovės',
+                targetName: 'Avietės',
+            });
             expect(onClose).toHaveBeenCalledWith('Daržovės', 'Avietės');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -698,25 +721,30 @@ describe('<ProductBox>', () => {
         it('displays error without closing dialog when move fails', async () => {
             vi.mocked(useMoveProduct).mockReturnValue(moveProduct.mockRejectedValueOnce('Failed to move'));
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await selectOption('Daržovės');
             await user.click(screen.getByRole('button', { name: 'Move' }));
 
-            expect(moveProduct).toHaveBeenCalledWith('Uogienės', 'Avietės', 'Daržovės', 'Avietės');
+            expect(moveProduct).toHaveBeenCalledWith({
+                group: 'Uogienės',
+                name: 'Avietės',
+                targetGroup: 'Daržovės',
+                targetName: 'Avietės',
+            });
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('alert')).toHaveTextContent('Failed to move');
+            expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong');
         });
 
         it('displays error without closing dialog when empty name field left', async () => {
             vi.mocked(useMoveProduct).mockReturnValue(moveProduct);
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await selectOption('Daržovės');
@@ -731,9 +759,9 @@ describe('<ProductBox>', () => {
         it('displays error without closing dialog when name already exists', async () => {
             vi.mocked(useMoveProduct).mockReturnValue(moveProduct);
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await selectOption('Daržovės');
@@ -750,9 +778,9 @@ describe('<ProductBox>', () => {
         it('closes without updating when group was not changed', async () => {
             vi.mocked(useMoveProduct).mockReturnValue(moveProduct);
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.click(screen.getByRole('button', { name: 'Update' }));
@@ -763,11 +791,11 @@ describe('<ProductBox>', () => {
 
         it('shows the Move button purely from an active category filter differing from the product, without touching the form', () => {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <GroupFilterWrapper initialState="Daržovės">
                         <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
                     </GroupFilterWrapper>
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             expect(screen.getByRole('button', { name: 'Move' })).toBeInTheDocument();
@@ -782,9 +810,9 @@ describe('<ProductBox>', () => {
 
         it('does not show the clear button when no parent is selected', async () => {
             render(
-                <MockThemeRedux state={stateWithChild}>
+                <MockThemeData state={stateWithChild}>
                     <ProductBox opened group="Daržovės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const combobox = await getParentProductCombobox();
@@ -801,9 +829,9 @@ describe('<ProductBox>', () => {
                 ),
             };
             render(
-                <MockThemeRedux state={stateWithProductImage}>
+                <MockThemeData state={stateWithProductImage}>
                     <ProductBox opened group="Daržovės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const combobox = await getParentProductCombobox();
@@ -822,9 +850,9 @@ describe('<ProductBox>', () => {
 
         it('offers products from the currently selected category as parent options', async () => {
             render(
-                <MockThemeRedux state={stateWithChild}>
+                <MockThemeData state={stateWithChild}>
                     <ProductBox opened group="Daržovės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const combobox = await getParentProductCombobox();
@@ -847,9 +875,9 @@ describe('<ProductBox>', () => {
             };
 
             render(
-                <MockThemeRedux state={treeState}>
+                <MockThemeData state={treeState}>
                     <ProductBox opened group="Daržovės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const combobox = await getParentProductCombobox();
@@ -872,9 +900,9 @@ describe('<ProductBox>', () => {
             };
 
             render(
-                <MockThemeRedux state={treeState}>
+                <MockThemeData state={treeState}>
                     <ProductBox opened group="Daržovės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const combobox = await getParentProductCombobox();
@@ -890,9 +918,9 @@ describe('<ProductBox>', () => {
 
         it('does not offer products from a different category', async () => {
             render(
-                <MockThemeRedux state={stateWithChild}>
+                <MockThemeData state={stateWithChild}>
                     <ProductBox opened group="Daržovės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const combobox = await getParentProductCombobox();
@@ -903,9 +931,9 @@ describe('<ProductBox>', () => {
 
         it('excludes the product itself and its descendants (would create a cycle)', async () => {
             render(
-                <MockThemeRedux state={stateWithChild}>
+                <MockThemeData state={stateWithChild}>
                     <ProductBox opened group="Daržovės" name="Morkos" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const combobox = await getParentProductCombobox();
@@ -928,9 +956,9 @@ describe('<ProductBox>', () => {
             };
 
             render(
-                <MockThemeRedux state={cyclicState}>
+                <MockThemeData state={cyclicState}>
                     <ProductBox opened group="Daržovės" name="CiklinisA" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const combobox = await getParentProductCombobox();
@@ -948,40 +976,40 @@ describe('<ProductBox>', () => {
             const addProduct = vi.fn().mockResolvedValueOnce(true);
             vi.mocked(useAddProduct).mockReturnValue(addProduct);
             render(
-                <MockThemeRedux state={stateWithChild}>
+                <MockThemeData state={stateWithChild}>
                     <ProductBox opened group="Daržovės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Morkos (Perlan)');
             await selectParentOption('Morkos');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addProduct).toHaveBeenCalledWith('Daržovės', 'Morkos (Perlan)', 'Morkos');
+            expect(addProduct).toHaveBeenCalledWith({ group: 'Daržovės', name: 'Morkos (Perlan)', parent: 'Morkos' });
         });
 
         it('calls setProductParent when the parent changes on an existing product', async () => {
             const setProductParent = vi.fn().mockResolvedValueOnce(true);
             vi.mocked(useSetProductParent).mockReturnValue(setProductParent);
             render(
-                <MockThemeRedux state={stateWithChild}>
+                <MockThemeData state={stateWithChild}>
                     <ProductBox opened group="Daržovės" name="Kopūstai" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await selectParentOption('Morkos');
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(setProductParent).toHaveBeenCalledWith('Daržovės', 'Kopūstai', 'Morkos');
+            expect(setProductParent).toHaveBeenCalledWith({ group: 'Daržovės', name: 'Kopūstai', parent: 'Morkos' });
         });
 
         it('does not call setProductParent when the parent is unchanged', async () => {
             const setProductParent = vi.fn();
             vi.mocked(useSetProductParent).mockReturnValue(setProductParent);
             render(
-                <MockThemeRedux state={stateWithChild}>
+                <MockThemeData state={stateWithChild}>
                     <ProductBox opened group="Daržovės" name="Kopūstai" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.click(screen.getByRole('button', { name: 'Update' }));
@@ -993,9 +1021,9 @@ describe('<ProductBox>', () => {
             const setProductParent = vi.fn().mockResolvedValueOnce(true);
             vi.mocked(useSetProductParent).mockReturnValue(setProductParent);
             render(
-                <MockThemeRedux state={stateWithChild}>
+                <MockThemeData state={stateWithChild}>
                     <ProductBox opened group="Daržovės" name="Kopūstai" parent="Morkos" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const parentCombobox = await getParentProductCombobox();
@@ -1010,16 +1038,16 @@ describe('<ProductBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(setProductParent).toHaveBeenCalledWith('Daržovės', 'Kopūstai', undefined);
+            expect(setProductParent).toHaveBeenCalledWith({ group: 'Daržovės', name: 'Kopūstai', parent: undefined });
         });
 
         it('clears the parent when the selection is removed and Update is clicked', async () => {
             const setProductParent = vi.fn().mockResolvedValueOnce(true);
             vi.mocked(useSetProductParent).mockReturnValue(setProductParent);
             render(
-                <MockThemeRedux state={stateWithChild}>
+                <MockThemeData state={stateWithChild}>
                     <ProductBox opened group="Daržovės" name="Kopūstai" parent="Morkos" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             const combobox = await getParentProductCombobox();
@@ -1030,16 +1058,16 @@ describe('<ProductBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(setProductParent).toHaveBeenCalledWith('Daržovės', 'Kopūstai', undefined);
+            expect(setProductParent).toHaveBeenCalledWith({ group: 'Daržovės', name: 'Kopūstai', parent: undefined });
         });
 
         it('blocks a category change for a product that has children', async () => {
             const moveProduct = vi.fn();
             vi.mocked(useMoveProduct).mockReturnValue(moveProduct);
             render(
-                <MockThemeRedux state={stateWithChild}>
+                <MockThemeData state={stateWithChild}>
                     <ProductBox opened group="Daržovės" name="Morkos" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await selectOption('Uogienės');
@@ -1051,15 +1079,36 @@ describe('<ProductBox>', () => {
         });
     });
 
-    describe('validation errors', () => {
+    describe('schema errors', () => {
+        it('rejects an invalid expiry tolerance before saving', async () => {
+            const setProductExpiryTolerance = vi.fn();
+            vi.mocked(useSetProductExpiryTolerance).mockReturnValue(setProductExpiryTolerance);
+
+            render(
+                <MockThemeData state={state}>
+                    <ProductBox opened group="Uogienės" name="Avietės" onClose={onClose} />
+                </MockThemeData>
+            );
+
+            await getParentProductCombobox();
+            await user.clear(screen.getByRole('textbox', { name: 'Expiry tolerance' }));
+            await user.type(screen.getByRole('textbox', { name: 'Expiry tolerance' }), 'tomorrow');
+            await user.click(screen.getByRole('button', { name: 'Update' }));
+
+            expect(setProductExpiryTolerance).not.toHaveBeenCalled();
+            expect(onClose).not.toHaveBeenCalled();
+            expect(screen.getByRole('textbox', { name: 'Expiry tolerance' })).toHaveAttribute('aria-invalid', 'true');
+            expect(screen.getByRole('alert')).toHaveTextContent('Enter a valid expiry tolerance');
+        });
+
         it('displays error when group is empty', async () => {
             const addProduct = vi.fn();
             vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Test');
@@ -1076,9 +1125,9 @@ describe('<ProductBox>', () => {
             vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Test:Name');
@@ -1105,9 +1154,9 @@ describe('<ProductBox>', () => {
             vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await selectOption('Daržovės');
@@ -1145,9 +1194,9 @@ describe('<ProductBox>', () => {
             vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await selectOption('Daržovės');
@@ -1173,9 +1222,9 @@ describe('<ProductBox>', () => {
     describe('inline category creation', () => {
         it('"New category" option is present in the dropdown', async () => {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             act(() => fireEvent.click(screen.getByRole('combobox', { name: 'Category' })));
@@ -1187,9 +1236,9 @@ describe('<ProductBox>', () => {
 
         it('selecting "New category" opens GroupBox instead of setting the field', async () => {
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await selectOption('New category');
@@ -1208,9 +1257,9 @@ describe('<ProductBox>', () => {
             vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await selectOption('New category');
@@ -1218,12 +1267,12 @@ describe('<ProductBox>', () => {
             await user.type(within(groupDialog).getByRole('textbox', { name: 'Category name' }), 'Konservai');
             await user.click(within(groupDialog).getByRole('button', { name: 'Add' }));
 
-            expect(updateGroup).toHaveBeenCalledWith('Konservai', true, false, '');
+            expect(updateGroup).toHaveBeenCalledWith({ group: 'Konservai', annual: true, review: false, image: '' });
 
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Uogienė');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addProduct).toHaveBeenCalledWith('Konservai', 'Uogienė', undefined);
+            expect(addProduct).toHaveBeenCalledWith({ group: 'Konservai', name: 'Uogienė', parent: undefined });
         });
 
         it('does not change the category used on submit when GroupBox is cancelled', async () => {
@@ -1231,9 +1280,9 @@ describe('<ProductBox>', () => {
             vi.mocked(useAddProduct).mockReturnValue(addProduct);
 
             render(
-                <MockThemeRedux state={state}>
+                <MockThemeData state={state}>
                     <ProductBox opened group="Uogienės" onClose={onClose} />
-                </MockThemeRedux>
+                </MockThemeData>
             );
 
             await selectOption('New category');
@@ -1243,7 +1292,7 @@ describe('<ProductBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Title' }), 'Serbentai');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(addProduct).toHaveBeenCalledWith('Uogienės', 'Serbentai', undefined);
+            expect(addProduct).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Serbentai', parent: undefined });
         });
     });
 });

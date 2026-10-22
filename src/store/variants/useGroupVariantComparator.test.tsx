@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { getVariantsFixture } from '@tests/fixtures';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import React from 'react';
 
@@ -11,7 +11,7 @@ describe('useGroupVariantComparator', () => {
 
     it('compares variants based on order', async () => {
         const { result } = renderHook(() => useGroupVariantComparator('Uogienės'), {
-            wrapper: ({ children }) => <MockRedux state={{ variants }}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockData state={{ variants }}>{children}</MockData>,
         });
 
         const cmp = result.current;
@@ -23,7 +23,7 @@ describe('useGroupVariantComparator', () => {
     it('compares variants alphabetically if order is the same', () => {
         const { result } = renderHook(() => useGroupVariantComparator('Daržovės'), {
             wrapper: ({ children }) => (
-                <MockRedux state={{ variants: variants.map((v) => ({ ...v, order: 1 })) }}>{children}</MockRedux>
+                <MockData state={{ variants: variants.map((v) => ({ ...v, order: 1 })) }}>{children}</MockData>
             ),
         });
 
@@ -35,7 +35,7 @@ describe('useGroupVariantComparator', () => {
 
     it('compares variants according to state order and not in the state', () => {
         const { result } = renderHook(() => useGroupVariantComparator('Uogienės'), {
-            wrapper: ({ children }) => <MockRedux state={{ variants }}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockData state={{ variants }}>{children}</MockData>,
         });
 
         const cmp = result.current;
@@ -46,7 +46,7 @@ describe('useGroupVariantComparator', () => {
 
     it('compares variants alphabetically if not in the state', () => {
         const { result } = renderHook(() => useGroupVariantComparator('Daržovės'), {
-            wrapper: ({ children }) => <MockRedux state={{ variants }}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockData state={{ variants }}>{children}</MockData>,
         });
 
         const cmp = result.current;
@@ -56,7 +56,7 @@ describe('useGroupVariantComparator', () => {
     });
 
     it('compares variants alphabetically if no state', () => {
-        const { result } = renderHook(() => useGroupVariantComparator('Šaldyti'), { wrapper: MockRedux });
+        const { result } = renderHook(() => useGroupVariantComparator('Šaldyti'), { wrapper: MockData });
 
         const cmp = result.current;
 

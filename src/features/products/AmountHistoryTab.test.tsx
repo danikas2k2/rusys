@@ -73,7 +73,7 @@ describe('<AmountHistoryTab>', () => {
 
         renderTab();
 
-        expect(useGetProductHistory).toHaveBeenCalledWith(2026, 'Uogienės', 'Avietės');
+        expect(useGetProductHistory).toHaveBeenCalledWith({ year: 2026, group: 'Uogienės', name: 'Avietės' });
         expect(loader).toHaveBeenCalledTimes(1);
     });
 

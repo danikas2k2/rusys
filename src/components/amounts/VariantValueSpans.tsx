@@ -2,10 +2,10 @@ import React from 'react';
 
 import { ApproxAmountIcon, HomeIcon, SuspiciousIcon } from '@icons';
 
-import type { VariantAmount } from '~/common/data';
 import { mergeAmountsIgnoringExpiry } from '~/common/utils/amounts';
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { HOME_SUFFIX, SUSPICIOUS_SUFFIX } from '~/components/amounts/variantKeys';
+import type { VariantAmount } from '~/schema';
 import { useGroupVariantComparator } from '~/store/variants';
 
 export interface VariantValueSpansProps {

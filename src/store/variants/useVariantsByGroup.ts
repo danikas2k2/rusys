@@ -1,13 +1,19 @@
-import { createSelector } from '@reduxjs/toolkit';
-import { useSelector } from 'react-redux';
-
 import type { Variant } from '~/common/data';
-import type { WithVariantsState } from './types';
+import { useVariants } from './useVariants';
 
-const selectVariantsForGroup = createSelector(
-    [(state: WithVariantsState) => state.variants, (_state: WithVariantsState, group: string) => group],
-    (variants, group) => variants?.filter((variant) => variant.group === group) ?? []
-);
+const cache = new WeakMap<readonly Variant[], Map<string, readonly Variant[]>>();
 
-export const useVariantsByGroup = (group: string): readonly Variant[] =>
-    useSelector((state: WithVariantsState) => selectVariantsForGroup(state, group));
+export const useVariantsByGroup = (group: string): readonly Variant[] => {
+    const variants = useVariants();
+    let groups = cache.get(variants);
+    if (!groups) {
+        groups = new Map();
+        cache.set(variants, groups);
+    }
+    let result = groups.get(group);
+    if (!result) {
+        result = variants.filter((variant) => variant.group === group);
+        groups.set(group, result);
+    }
+    return result;
+};

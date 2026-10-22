@@ -3,6 +3,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { cookies } from 'next/headers';
 
 import { isDevMode } from '~/common/utils/dev';
+import { SchemaError } from '~/schema';
 import { db } from '~/server/db';
 import { DEV_MODE_PROFILE, type Profile } from '~/store/profile';
 
@@ -43,7 +44,7 @@ export async function getSessionProfile(): Promise<Profile | undefined> {
 export async function requireSession(): Promise<Profile> {
     const profile = await getSessionProfile();
     if (!profile) {
-        throw new Error('Unauthorized');
+        throw new Error(SchemaError.Unauthorized);
     }
     return profile;
 }

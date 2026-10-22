@@ -2,24 +2,14 @@ import { useCallback } from 'react';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
 import { uploadWithProgress, type UploadProgress } from '~/lib/utils/uploadWithProgress';
+import type { SetVariantImage } from '~/schema';
 import { setVariantImageAction } from '~/server/actions/products';
 
-export function useSetVariantImage(): (
-    group: string,
-    name: string,
-    variant: string,
-    image: string,
-    onProgress?: UploadProgress
-) => Promise<void> {
+export function useSetVariantImage(): (request: SetVariantImage, onProgress?: UploadProgress) => Promise<void> {
     const refresh = useGetProducts();
     return useCallback(
-        async (
-            group: string,
-            name: string,
-            variant: string,
-            image: string,
-            onProgress?: UploadProgress
-        ): Promise<void> => {
+        async (request: SetVariantImage, onProgress?: UploadProgress): Promise<void> => {
+            const { group, name, variant, image } = request;
             if (group && name && variant) {
                 if (onProgress && image.startsWith('data:')) {
                     await uploadWithProgress(
@@ -29,7 +19,7 @@ export function useSetVariantImage(): (
                         onProgress
                     );
                 } else {
-                    await setVariantImageAction(group, name, variant, image);
+                    await setVariantImageAction(request);
                 }
                 await refresh();
             }

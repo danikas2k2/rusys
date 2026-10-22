@@ -1,29 +1,16 @@
 import { useCallback } from 'react';
 
-import type { VariantAmount } from '~/common/data';
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
+import type { SetAmounts } from '~/schema';
 import { setAmountsAction } from '~/server/actions/products';
 
-export function useSetAmounts(): (
-    group: string,
-    name: string,
-    year: number,
-    amounts?: readonly VariantAmount[],
-    user?: string,
-    comment?: string
-) => Promise<void> {
+export function useSetAmounts(): (request: SetAmounts) => Promise<void> {
     const refresh = useGetProducts();
     return useCallback(
-        async (
-            group: string,
-            name: string,
-            year: number,
-            amounts?: readonly VariantAmount[],
-            user?: string,
-            comment?: string
-        ): Promise<void> => {
+        async (request: SetAmounts): Promise<void> => {
+            const { group, name } = request;
             if (group && name) {
-                await setAmountsAction(group, name, year, amounts, user, comment);
+                await setAmountsAction(request);
                 await refresh();
             }
         },

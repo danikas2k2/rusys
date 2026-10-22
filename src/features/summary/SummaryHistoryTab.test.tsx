@@ -63,7 +63,11 @@ describe('<SummaryHistoryTab>', () => {
     it('calls useGetSummaryHistory with year, group, name from active context', () => {
         renderTab();
 
-        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith(2026, 'Vaisiai', 'Obuoliai');
+        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith({
+            year: 2026,
+            group: 'Vaisiai',
+            name: 'Obuoliai',
+        });
     });
 
     it('loads the selected summary year in the background', () => {
@@ -360,7 +364,7 @@ describe('<SummaryHistoryTab>', () => {
             </MockThemeActive>
         );
 
-        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith(0, '', '');
+        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith({ year: 0, group: '', name: '' });
     });
 
     it('uses year=0 when active context has no year', () => {
@@ -379,6 +383,6 @@ describe('<SummaryHistoryTab>', () => {
             </MockThemeActive>
         );
 
-        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith(0, 'G', 'N');
+        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith({ year: 0, group: 'G', name: 'N' });
     });
 });

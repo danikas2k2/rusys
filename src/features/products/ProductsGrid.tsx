@@ -79,7 +79,7 @@ export function ProductsGrid() {
     const groups = useSortedGroups();
     const [selectedGroup] = useGroupFilter();
     const allProducts = useProducts();
-    // Redux refreshes use a synchronous external store. For membership changes, wait for
+    // Query refreshes use a synchronous external store. For membership changes, wait for
     // the 200ms Mantine dialog exit to finish before starting the card transition;
     // otherwise its focus/portal flush can cancel React's snapshot. Amount updates stay immediate.
     const [displayProducts, setDisplayProducts] = useState(allProducts);

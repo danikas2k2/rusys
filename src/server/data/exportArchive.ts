@@ -4,7 +4,6 @@ import path from 'node:path';
 import JSZip from 'jszip';
 
 import type { ExportArchiveData, Group, Product } from '~/common/data';
-import { exportEverything } from '~/server/data/common';
 import { IMAGES_DIR, resolveImagePath } from '~/server/data/images';
 
 const DATA_ENTRY = 'data.json';
@@ -40,8 +39,7 @@ function collectImageUrls(products: readonly Product[], groups: readonly Group[]
     return [...urls];
 }
 
-export async function buildExportArchive(): Promise<Buffer> {
-    const data = await exportEverything();
+export async function buildExportArchive(data: ExportArchiveData): Promise<Buffer> {
     const zip = new JSZip();
     zip.file(DATA_ENTRY, JSON.stringify(data));
 

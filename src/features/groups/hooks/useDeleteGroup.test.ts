@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import { useDeleteGroup } from '~/features/groups/hooks/useDeleteGroup';
 import { deleteGroupAction } from '~/server/actions/groups';
@@ -12,17 +12,17 @@ describe('useDeleteGroup', () => {
     afterEach(() => vi.clearAllMocks());
 
     it('calls delete action', async () => {
-        const { result } = renderHook(() => useDeleteGroup(), { wrapper: MockRedux });
-        await result.current('Uogienės');
+        const { result } = renderHook(() => useDeleteGroup(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės' });
 
-        expect(deleteGroupAction).toHaveBeenNthCalledWith(1, 'Uogienės');
+        expect(deleteGroupAction).toHaveBeenNthCalledWith(1, { group: 'Uogienės' });
         expect(deleteGroupAction).toHaveBeenCalledTimes(1);
         expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
 
     it('does not call delete action with empty group', async () => {
-        const { result } = renderHook(() => useDeleteGroup(), { wrapper: MockRedux });
-        await result.current('');
+        const { result } = renderHook(() => useDeleteGroup(), { wrapper: MockData });
+        await result.current({ group: '' });
 
         expect(deleteGroupAction).not.toHaveBeenCalled();
     });

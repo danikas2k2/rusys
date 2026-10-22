@@ -1,20 +1,16 @@
 import { useCallback } from 'react';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
+import type { ApplyReview } from '~/schema';
 import { applyReviewAction } from '~/server/actions/products';
 
-interface ReviewStatusUpdate {
-    group: string;
-    name: string;
-    missing: boolean;
-}
-
-export function useApplyReview(): (updates: readonly ReviewStatusUpdate[]) => Promise<void> {
+export function useApplyReview(): (request: ApplyReview) => Promise<void> {
     const refresh = useGetProducts();
     return useCallback(
-        async (updates: readonly ReviewStatusUpdate[]): Promise<void> => {
+        async (request: ApplyReview): Promise<void> => {
+            const { updates } = request;
             if (updates.length) {
-                await applyReviewAction(updates);
+                await applyReviewAction(request);
                 await refresh();
             }
         },

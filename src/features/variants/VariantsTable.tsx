@@ -46,10 +46,7 @@ export function VariantsTable() {
         items: variantsInGroup,
 
         onReorder: (reordered, { group }) =>
-            reorderVariants(
-                group,
-                mapOrder(reordered, ({ variant }) => variant)
-            ),
+            reorderVariants({ group, variants: mapOrder(reordered, ({ variant }) => variant) }),
 
         equals: (a, b) => a.group === b.group && a.variant === b.variant,
 

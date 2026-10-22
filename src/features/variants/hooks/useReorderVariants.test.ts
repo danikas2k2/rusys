@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import { useReorderVariants } from '~/features/variants/hooks/useReorderVariants';
 import { reorderVariantsAction } from '~/server/actions/variants';
@@ -14,24 +14,24 @@ describe('useReorderVariants', () => {
     const variants = { p: 3, d: 2 };
 
     it('calls reorder action', async () => {
-        const { result } = renderHook(() => useReorderVariants(), { wrapper: MockRedux });
-        await result.current('Uogienės', variants);
+        const { result } = renderHook(() => useReorderVariants(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės', variants });
 
-        expect(reorderVariantsAction).toHaveBeenNthCalledWith(1, 'Uogienės', variants);
+        expect(reorderVariantsAction).toHaveBeenNthCalledWith(1, { group: 'Uogienės', variants });
         expect(reorderVariantsAction).toHaveBeenCalledTimes(1);
         expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
 
     it('does not call reorder action with empty group', async () => {
-        const { result } = renderHook(() => useReorderVariants(), { wrapper: MockRedux });
-        await result.current('', variants);
+        const { result } = renderHook(() => useReorderVariants(), { wrapper: MockData });
+        await result.current({ group: '', variants });
 
         expect(reorderVariantsAction).not.toHaveBeenCalled();
     });
 
     it('does not call reorder action with empty variant set', async () => {
-        const { result } = renderHook(() => useReorderVariants(), { wrapper: MockRedux });
-        await result.current('Uogienės', {});
+        const { result } = renderHook(() => useReorderVariants(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės', variants: {} });
 
         expect(reorderVariantsAction).not.toHaveBeenCalled();
     });

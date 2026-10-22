@@ -1,15 +1,16 @@
 import { useCallback } from 'react';
 
-import type { UpdateVariant } from '~/common/data';
 import { useGetVariants } from '~/features/variants/hooks/useGetVariants';
-import { saveVariant } from '~/server/actions/variants';
+import type { UpdateVariant } from '~/schema';
+import { updateVariantAction } from '~/server/actions/variants';
 
-export function useUpdateVariant(): (group: string, variant: string, update: UpdateVariant) => Promise<void> {
+export function useUpdateVariant(): (request: UpdateVariant) => Promise<void> {
     const refresh = useGetVariants();
     return useCallback(
-        async (group: string, variant: string, update: UpdateVariant): Promise<void> => {
+        async (request: UpdateVariant): Promise<void> => {
+            const { group, variant } = request;
             if (group && variant) {
-                await saveVariant(group, variant, update);
+                await updateVariantAction(request);
                 await refresh();
             }
         },

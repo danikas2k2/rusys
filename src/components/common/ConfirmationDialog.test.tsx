@@ -138,7 +138,7 @@ describe('<ConfirmationDialog>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Confirm' }));
 
-        expect(screen.getByRole('alert')).toHaveTextContent(errorMessage);
+        expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong');
         expect(onClose).not.toHaveBeenCalled();
     });
 

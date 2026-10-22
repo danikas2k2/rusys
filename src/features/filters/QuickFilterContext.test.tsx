@@ -44,6 +44,24 @@ describe('useQuickFilterContext', () => {
 });
 
 describe('<QuickFilterWrapper>', () => {
+    it('isolates filter state between wrappers', async () => {
+        render(
+            <>
+                <QuickFilterWrapper>
+                    <TestComponent />
+                </QuickFilterWrapper>
+                <QuickFilterWrapper>
+                    <TestComponent />
+                </QuickFilterWrapper>
+            </>
+        );
+
+        await user.click(screen.getAllByRole('button', { name: 'Set Filter' })[0]);
+
+        expect(screen.getAllByLabelText('filter-value')[0]).toHaveTextContent('new filter');
+        expect(screen.getAllByLabelText('filter-value')[1]).toHaveTextContent('');
+    });
+
     it('provides state to children with default initial state', () => {
         const { result } = renderHook(() => useQuickFilter(), {
             wrapper: ({ children }) => <QuickFilterWrapper>{children}</QuickFilterWrapper>,

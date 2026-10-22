@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import { useSetProductImage } from '~/features/products/hooks/useSetProductImage';
 import { uploadWithProgress } from '~/lib/utils/uploadWithProgress';
@@ -14,17 +14,24 @@ describe('useSetProductImage', () => {
     afterEach(() => vi.clearAllMocks());
 
     it('calls set image action', async () => {
-        const { result } = renderHook(() => useSetProductImage(), { wrapper: MockRedux });
-        await result.current('Uogienės', 'Braškės', 'data:image/png;base64,AAA');
+        const { result } = renderHook(() => useSetProductImage(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės', name: 'Braškės', image: 'data:image/png;base64,AAA' });
 
-        expect(setProductImageAction).toHaveBeenCalledWith('Uogienės', 'Braškės', 'data:image/png;base64,AAA');
+        expect(setProductImageAction).toHaveBeenCalledWith({
+            group: 'Uogienės',
+            name: 'Braškės',
+            image: 'data:image/png;base64,AAA',
+        });
     });
 
     it('uploads a data image with progress and refreshes the products', async () => {
         const onProgress = vi.fn();
-        const { result } = renderHook(() => useSetProductImage(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useSetProductImage(), { wrapper: MockData });
 
-        await result.current('Fruit & jam', 'Wild berries', 'data:image/png;base64,AAA', onProgress);
+        await result.current(
+            { group: 'Fruit & jam', name: 'Wild berries', image: 'data:image/png;base64,AAA' },
+            onProgress
+        );
 
         expect(uploadWithProgress).toHaveBeenCalledExactlyOnceWith(
             'PUT',
@@ -37,24 +44,28 @@ describe('useSetProductImage', () => {
     });
 
     it('uses the action for an existing image even with a progress callback', async () => {
-        const { result } = renderHook(() => useSetProductImage(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useSetProductImage(), { wrapper: MockData });
 
-        await result.current('Fruit', 'Berries', '/image.png', vi.fn());
+        await result.current({ group: 'Fruit', name: 'Berries', image: '/image.png' }, vi.fn());
 
-        expect(setProductImageAction).toHaveBeenCalledExactlyOnceWith('Fruit', 'Berries', '/image.png');
+        expect(setProductImageAction).toHaveBeenCalledExactlyOnceWith({
+            group: 'Fruit',
+            name: 'Berries',
+            image: '/image.png',
+        });
         expect(uploadWithProgress).not.toHaveBeenCalled();
     });
 
     it('does not call set image action with empty group', async () => {
-        const { result } = renderHook(() => useSetProductImage(), { wrapper: MockRedux });
-        await result.current('', 'Braškės', 'data:image/png;base64,AAA');
+        const { result } = renderHook(() => useSetProductImage(), { wrapper: MockData });
+        await result.current({ group: '', name: 'Braškės', image: 'data:image/png;base64,AAA' });
 
         expect(setProductImageAction).not.toHaveBeenCalled();
     });
 
     it('does not call set image action with empty name', async () => {
-        const { result } = renderHook(() => useSetProductImage(), { wrapper: MockRedux });
-        await result.current('Uogienės', '', 'data:image/png;base64,AAA');
+        const { result } = renderHook(() => useSetProductImage(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės', name: '', image: 'data:image/png;base64,AAA' });
 
         expect(setProductImageAction).not.toHaveBeenCalled();
     });

@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import { useRenameVariant } from '~/features/variants/hooks/useRenameVariant';
 import { renameVariantAction } from '~/server/actions/variants';
@@ -12,10 +12,14 @@ describe('useRenameVariant', () => {
     afterEach(() => vi.clearAllMocks());
 
     it('calls rename action', async () => {
-        const { result } = renderHook(() => useRenameVariant(), { wrapper: MockRedux });
-        await result.current('Uogienės', 'p', '1/2');
+        const { result } = renderHook(() => useRenameVariant(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės', variant: 'p', targetVariant: '1/2' });
 
-        expect(renameVariantAction).toHaveBeenNthCalledWith(1, 'Uogienės', 'p', '1/2', undefined);
+        expect(renameVariantAction).toHaveBeenNthCalledWith(1, {
+            group: 'Uogienės',
+            variant: 'p',
+            targetVariant: '1/2',
+        });
         expect(renameVariantAction).toHaveBeenCalledTimes(1);
         expect(refresh).toHaveBeenCalledExactlyOnceWith();
     });
@@ -29,8 +33,8 @@ describe('useRenameVariant', () => {
     `(
         'does not call rename action with $title',
         async ({ group, variant, newVariant }: { group: string; variant: string; newVariant: string }) => {
-            const { result } = renderHook(() => useRenameVariant(), { wrapper: MockRedux });
-            await result.current(group, variant, newVariant);
+            const { result } = renderHook(() => useRenameVariant(), { wrapper: MockData });
+            await result.current({ group, variant, targetVariant: newVariant });
 
             expect(renameVariantAction).not.toHaveBeenCalled();
         }

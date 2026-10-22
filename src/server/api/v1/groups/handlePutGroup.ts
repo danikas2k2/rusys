@@ -1,27 +1,41 @@
+import * as schema from '~/schema';
+import { updateGroupAction } from '~/server/actions/groups';
 import type { ApiRequest, ApiResponse } from '~/server/api/next';
-import { requiredParam, respond, sendError } from '~/server/api/v1/utils';
-import { updateGroup } from '~/server/data/groups';
+import { sendError } from '~/server/api/v1/utils';
 
 export async function handlePutGroup(req: ApiRequest, res: ApiResponse): Promise<void> {
-    const group = requiredParam(req, res, 'group');
-    if (!group) {
-        return;
+    try {
+        const group = schema.validGroupName.parse(req.params.group);
+        const { annual, review, image } = schema.updateGroup.partial().parse(req.body);
+        await updateGroupAction({ group, annual, review, image });
+        res.status(204).end();
+    } catch (cause) {
+        if (cause instanceof schema.ZodError) {
+            sendError(res, 400, 'VALIDATION_ERROR', schema.SchemaError.InvalidRequest);
+            return;
+        }
+
+        const message = cause instanceof Error ? cause.message : undefined;
+        switch (message) {
+            case schema.SchemaError.InvalidRequest:
+            case schema.SchemaError.CategoryAlreadyExists:
+                sendError(res, 400, 'VALIDATION_ERROR', message);
+                break;
+
+            case schema.SchemaError.NotFound:
+                sendError(res, 404, 'NOT_FOUND', schema.SchemaError.GroupNotFound);
+                break;
+
+            case schema.SchemaError.RequestFailed:
+                sendError(res, 422, 'OPERATION_REJECTED', schema.SchemaError.RequestFailed);
+                break;
+
+            case schema.SchemaError.Unauthorized:
+                sendError(res, 401, 'UNAUTHORIZED', schema.SchemaError.Unauthorized);
+                break;
+
+            default:
+                sendError(res, 500, 'INTERNAL_ERROR', schema.SchemaError.RequestFailed);
+        }
     }
-    const { annual, review, image } = req.body as { annual?: unknown; review?: unknown; image?: unknown };
-    if (
-        (annual != null && typeof annual !== 'boolean') ||
-        (review != null && typeof review !== 'boolean') ||
-        (image != null && typeof image !== 'string')
-    ) {
-        sendError(res, 400, 'VALIDATION_ERROR', 'annual and review must be booleans; image must be a string');
-        return;
-    }
-    await respond(res, () =>
-        updateGroup(
-            group,
-            typeof annual === 'boolean' ? annual : true,
-            typeof review === 'boolean' ? review : false,
-            typeof image === 'string' ? image : undefined
-        )
-    );
 }

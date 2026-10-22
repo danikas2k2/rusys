@@ -1,17 +1,10 @@
 // TODO move all types to Cellar namespace to avoid name collision
 
-export interface VariantAmount {
-    variant: string;
-    amount: number;
-    recycled?: boolean;
-    suspicious?: boolean;
-    home?: boolean;
-    expiresAt?: number;
-}
+import type { VariantAmount, VariantUnits, Year } from '~/schema';
 
 export interface YearAmounts {
-    year: number;
-    amounts: readonly VariantAmount[];
+    year: Year;
+    amounts: ReadonlyArray<VariantAmount>;
 }
 
 export interface Update {
@@ -107,8 +100,6 @@ export interface Group {
     archivedAt?: number;
 }
 
-export type VariantUnits = 'g' | 'kg' | 'l' | 'ml' | 'vnt';
-
 export interface Variant {
     group: string;
     variant: string;
@@ -125,5 +116,3 @@ export interface ExportArchiveData {
     variants: readonly Variant[];
     groups: readonly Group[];
 }
-
-export type UpdateVariant = Partial<Pick<Variant, 'order' | 'suffix' | 'count' | 'units'>>;

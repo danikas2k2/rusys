@@ -1,4 +1,5 @@
 import { uploadWithProgress } from '~/lib/utils/uploadWithProgress';
+import { SchemaError } from '~/schema';
 
 describe('uploadWithProgress', () => {
     class MockRequest {
@@ -41,7 +42,7 @@ describe('uploadWithProgress', () => {
         await expect(result).resolves.toBeUndefined();
     });
 
-    it('returns the API error message on failure', async () => {
+    it('does not expose the API error message on failure', async () => {
         const result = uploadWithProgress('PUT', '/image', '{"image":"data:"}');
         const request = MockRequest.current;
 
@@ -51,7 +52,7 @@ describe('uploadWithProgress', () => {
         request.responseText = '{"error":{"message":"Invalid image"}}';
         request.onload();
 
-        await expect(result).rejects.toThrow('Invalid image');
+        await expect(result).rejects.toThrow(SchemaError.UploadFailed);
     });
 
     it('rejects on a network error', async () => {
@@ -70,13 +71,13 @@ describe('uploadWithProgress', () => {
         await expect(result).rejects.toThrow('Upload cancelled');
     });
 
-    it('includes the response status when the server returns plain text', async () => {
+    it('does not expose the response body or status when the server returns plain text', async () => {
         const result = uploadWithProgress('PUT', '/image', '{}');
         const request = MockRequest.current;
         request.status = 503;
         request.responseText = 'Service unavailable';
         request.onload();
 
-        await expect(result).rejects.toThrow('Upload failed (503)');
+        await expect(result).rejects.toThrow(SchemaError.UploadFailed);
     });
 });

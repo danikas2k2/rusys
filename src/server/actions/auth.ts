@@ -2,17 +2,22 @@
 
 import { OAuth2Client } from 'google-auth-library';
 
+import * as schema from '~/schema';
 import { createSession, deleteSession, isAllowedEmail } from '~/server/auth/session';
 import { getUserProfiles, upsertUserProfile } from '~/server/data/userProfiles';
+import { withinTransaction } from '~/server/db';
 import type { Profile } from '~/store/profile';
 
 const STALE_MS = 14 * 24 * 60 * 60 * 1000;
 
-export async function loginWithGoogle(token: string, kind: 'id' | 'access'): Promise<Profile> {
+export async function loginWithGoogle(request: schema.LoginWithGoogle): Promise<Profile> {
     const clientId = process.env.GOOGLE_CLIENT_ID;
-    if (!clientId || typeof token !== 'string' || !token || (kind !== 'id' && kind !== 'access')) {
-        throw new Error('Invalid login');
+    const input = schema.loginWithGoogle.safeParse(request);
+    if (!clientId || !input.success) {
+        throw new Error(schema.SchemaError.InvalidLogin);
     }
+
+    const { token, kind } = input.data;
     const client = new OAuth2Client(clientId);
     let profile: Profile;
     if (kind === 'id') {
@@ -28,24 +33,28 @@ export async function loginWithGoogle(token: string, kind: 'id' | 'access'): Pro
     } else {
         const info = await client.getTokenInfo(token);
         if (info.aud !== clientId) {
-            throw new Error('Invalid token audience');
+            throw new Error(schema.SchemaError.InvalidTokenAudience);
         }
+
         const response = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
             headers: { Authorization: `Bearer ${token}` },
             cache: 'no-store',
         });
         if (!response.ok) {
-            throw new Error('Google userinfo failed');
+            throw new Error(schema.SchemaError.GoogleUserInfoFailed);
         }
+
         profile = (await response.json()) as Profile;
         const subject = info.sub ?? info.user_id;
         if (!subject || profile.sub !== subject) {
-            throw new Error('Google identity mismatch');
+            throw new Error(schema.SchemaError.GoogleIdentityMismatch);
         }
     }
+
     if (!profile.sub || !profile.email || profile.email_verified !== true || !isAllowedEmail(profile.email)) {
-        throw new Error('User is not allowed');
+        throw new Error(schema.SchemaError.UserNotAllowed);
     }
+
     const verifiedProfile: Profile = {
         sub: profile.sub,
         email: profile.email.trim().toLowerCase(),
@@ -53,16 +62,24 @@ export async function loginWithGoogle(token: string, kind: 'id' | 'access'): Pro
         picture: profile.picture,
         allowed: true,
     };
-    const [existing] = await getUserProfiles([verifiedProfile.email!]);
-    if (
-        !existing ||
-        existing.name !== verifiedProfile.name ||
-        existing.picture !== verifiedProfile.picture ||
-        !existing.updatedAt ||
-        Date.now() - existing.updatedAt > STALE_MS
-    ) {
-        await upsertUserProfile(verifiedProfile.email!, verifiedProfile.name, verifiedProfile.picture);
-    }
+    await withinTransaction(async (session) => {
+        const [existing] = await getUserProfiles([verifiedProfile.email!], session);
+        if (
+            !existing ||
+            existing.name !== verifiedProfile.name ||
+            existing.picture !== verifiedProfile.picture ||
+            !existing.updatedAt ||
+            Date.now() - existing.updatedAt > STALE_MS
+        ) {
+            await upsertUserProfile(
+                { email: verifiedProfile.email!, name: verifiedProfile.name, picture: verifiedProfile.picture },
+                session
+            );
+        }
+
+        return true;
+    });
+
     await createSession(verifiedProfile);
     return verifiedProfile;
 }

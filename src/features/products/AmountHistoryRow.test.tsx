@@ -127,7 +127,7 @@ describe('<AmountHistoryRow>', () => {
         expect(screen.queryByText('move')).not.toBeInTheDocument();
     });
 
-    it('calls moveConsumedToRecycled with the entry identity and its own author, and collapses on success', async () => {
+    it('calls moveConsumedToRecycled with the entry identity and collapses on success', async () => {
         renderRow({
             group: 'Daržovės',
             name: 'Morkos',
@@ -140,15 +140,17 @@ describe('<AmountHistoryRow>', () => {
         await user.click(screen.getAllByRole('row')[0]);
         await user.click(screen.getByText('move'));
 
-        expect(moveConsumedToRecycled).toHaveBeenCalledWith(
-            'Daržovės',
-            'Morkos',
-            22,
-            'd',
-            1,
-            { suspicious: undefined, home: true },
-            'author@example.com'
-        );
+        expect(moveConsumedToRecycled).toHaveBeenCalledWith({
+            group: 'Daržovės',
+            name: 'Morkos',
+            year: 22,
+            variant: 'd',
+            amount: 1,
+            flags: {
+                suspicious: undefined,
+                home: true,
+            },
+        });
         expect(onMoved).toHaveBeenCalledWith();
         expect(screen.queryByText('move')).not.toBeInTheDocument();
     });
@@ -166,18 +168,21 @@ describe('<AmountHistoryRow>', () => {
         await user.click(screen.getAllByRole('row')[0]);
         await user.click(screen.getByText('move'));
 
-        expect(moveConsumedToRecycled).toHaveBeenCalledWith(
-            'Daržovės',
-            'Morkos',
-            22,
-            'd',
-            1,
-            { suspicious: undefined, home: undefined, expiresAt: 1_700_000_000_000 },
-            'author@example.com'
-        );
+        expect(moveConsumedToRecycled).toHaveBeenCalledWith({
+            group: 'Daržovės',
+            name: 'Morkos',
+            year: 22,
+            variant: 'd',
+            amount: 1,
+            flags: {
+                suspicious: undefined,
+                home: undefined,
+                expiresAt: 1_700_000_000_000,
+            },
+        });
     });
 
-    it('passes the entry author even when it differs from whoever is performing the correction', async () => {
+    it('does not pass the original entry author when correcting history', async () => {
         renderRow({
             group: 'Daržovės',
             name: 'Morkos',
@@ -190,15 +195,17 @@ describe('<AmountHistoryRow>', () => {
         await user.click(screen.getAllByRole('row')[0]);
         await user.click(screen.getByText('move'));
 
-        expect(moveConsumedToRecycled).toHaveBeenCalledWith(
-            'Daržovės',
-            'Morkos',
-            22,
-            'd',
-            1,
-            { suspicious: undefined, home: undefined },
-            'original-author@example.com'
-        );
+        expect(moveConsumedToRecycled).toHaveBeenCalledWith({
+            group: 'Daržovės',
+            name: 'Morkos',
+            year: 22,
+            variant: 'd',
+            amount: 1,
+            flags: {
+                suspicious: undefined,
+                home: undefined,
+            },
+        });
     });
 
     it('defaults year to 0 when the history entry has no year', async () => {
@@ -212,14 +219,16 @@ describe('<AmountHistoryRow>', () => {
         await user.click(screen.getAllByRole('row')[0]);
         await user.click(screen.getByText('move'));
 
-        expect(moveConsumedToRecycled).toHaveBeenCalledWith(
-            'Daržovės',
-            'Morkos',
-            0,
-            'd',
-            1,
-            { suspicious: undefined, home: undefined },
-            undefined
-        );
+        expect(moveConsumedToRecycled).toHaveBeenCalledWith({
+            group: 'Daržovės',
+            name: 'Morkos',
+            year: 0,
+            variant: 'd',
+            amount: 1,
+            flags: {
+                suspicious: undefined,
+                home: undefined,
+            },
+        });
     });
 });

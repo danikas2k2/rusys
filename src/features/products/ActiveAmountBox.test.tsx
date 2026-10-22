@@ -310,7 +310,7 @@ describe('<ActiveAmountBox>', () => {
             await user.click(screen.getByRole('button', { name: 'Delete' }));
             await user.click(screen.getByRole('button', { name: 'Remove' }));
 
-            expect(deleteProduct).toHaveBeenCalledWith(data.group, data.name);
+            expect(deleteProduct).toHaveBeenCalledWith({ group: data.group, name: data.name });
             expect(mockSetActive).toHaveBeenCalledWith({ data });
         });
     });

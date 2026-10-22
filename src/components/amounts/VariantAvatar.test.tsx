@@ -3,8 +3,8 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import type { VariantUnits } from '~/common/data';
 import { VariantAvatar } from '~/components/amounts/VariantAvatar';
+import type { VariantUnits } from '~/schema';
 import { useVariant } from '~/store/variants';
 
 vi.mock(import('~/store/variants/useVariant'), () => ({ useVariant: vi.fn() }));

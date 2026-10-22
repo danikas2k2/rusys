@@ -293,7 +293,12 @@ describe('<ProductYearBar>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Removing this year?' }));
 
-            expect(setProductRemoving).toHaveBeenCalledWith(group, baseActive.name, baseActive.year, true);
+            expect(setProductRemoving).toHaveBeenCalledWith({
+                group,
+                name: baseActive.name,
+                year: baseActive.year,
+                removing: true,
+            });
         });
 
         it('toggles removing to false when clicked from set', async () => {
@@ -311,7 +316,12 @@ describe('<ProductYearBar>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Removing this year?' }));
 
-            expect(setProductRemoving).toHaveBeenCalledWith(group, baseActive.name, baseActive.year, false);
+            expect(setProductRemoving).toHaveBeenCalledWith({
+                group,
+                name: baseActive.name,
+                year: baseActive.year,
+                removing: false,
+            });
         });
 
         it('disables the toggle when disabled prop is set', () => {

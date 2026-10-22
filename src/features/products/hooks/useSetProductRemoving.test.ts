@@ -1,90 +1,158 @@
-import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { act, renderHook } from '@testing-library/react';
+import { mockQuery } from '@tests/MockQuery';
 
-import { useDispatch } from 'react-redux';
-
+import { useGetProducts } from '~/features/products/hooks/useGetProducts';
 import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
 import { setProductRemovingAction } from '~/server/actions/products';
-import { setErrorAction } from '~/store/error';
-import { rollbackProductsRemovingAction, setProductsRemovingAction } from '~/store/products';
+import { CATALOG_KEYS } from '~/store/catalog';
+import { useError } from '~/store/error/useError';
 
 vi.mock(import('~/server/actions/products'));
-vi.mock(import('~/features/products/hooks/useGetProducts'), () => ({ useGetProducts: () => vi.fn() }));
-vi.mock(import('react-redux'), async () => ({
-    ...(await vi.importActual('react-redux')),
-    useDispatch: vi.fn(),
-}));
+vi.mock(import('~/features/products/hooks/useGetProducts'), () => ({ useGetProducts: vi.fn(() => vi.fn()) }));
+
+function useSubject() {
+    const mutate = useSetProductRemoving();
+    const error = useError((state) => state.error);
+    return { mutate, error };
+}
 
 describe('useSetProductRemoving', () => {
-    const dispatch = vi.fn();
-
-    beforeAll(() => {
-        vi.mocked(useDispatch).mockReturnValue(dispatch);
+    afterEach(() => {
+        vi.clearAllMocks();
     });
 
-    afterEach(() => vi.clearAllMocks());
+    it.each([true, false])('updates removing=%s and sends the mutation', async (removing) => {
+        const { client, wrapper } = mockQuery({
+            products: [{ group: 'Food', name: 'Rice', years: [{ year: 21, removing: !removing }] }],
+        });
+        const { result } = renderHook(useSubject, { wrapper });
+        await act(() => result.current.mutate({ group: 'Food', name: 'Rice', year: 21, removing }));
 
-    it('calls update action', async () => {
-        const { result } = renderHook(() => useSetProductRemoving(), { wrapper: MockRedux });
-        await result.current('Uogienės', 'Avietės', 21, true);
-
-        expect(dispatch).toHaveBeenCalledWith(
-            setProductsRemovingAction({ group: 'Uogienės', name: 'Avietės', year: 21, removing: true })
-        );
-        expect(setProductRemovingAction).toHaveBeenNthCalledWith(1, 'Uogienės', 'Avietės', 21, true);
+        expect(setProductRemovingAction).toHaveBeenCalledWith({
+            group: 'Food',
+            name: 'Rice',
+            year: 21,
+            removing,
+        });
+        expect(client.getQueryData(CATALOG_KEYS.products)).toStrictEqual([
+            { group: 'Food', name: 'Rice', years: [{ year: 21, removing: removing || undefined }] },
+        ]);
     });
 
-    it('calls update action with false value', async () => {
-        const { result } = renderHook(() => useSetProductRemoving(), { wrapper: MockRedux });
-        await result.current('Uogienės', 'Avietės', 22, false);
+    it.each([
+        ['', 'Rice', 21],
+        ['Food', '', 21],
+        ['Food', 'Rice', 0],
+    ] as const)('ignores incomplete keys', async (group, name, year) => {
+        const { wrapper } = mockQuery();
+        const { result } = renderHook(useSubject, { wrapper });
+        await act(() => result.current.mutate({ group, name, year, removing: true }));
 
-        expect(dispatch).toHaveBeenCalledWith(
-            setProductsRemovingAction({ group: 'Uogienės', name: 'Avietės', year: 22, removing: false })
-        );
-        expect(setProductRemovingAction).toHaveBeenNthCalledWith(1, 'Uogienės', 'Avietės', 22, false);
-    });
-
-    it('does not call request when group is empty', async () => {
-        const { result } = renderHook(() => useSetProductRemoving(), { wrapper: MockRedux });
-
-        await result.current('', 'Avietės', 21, true);
-
-        expect(dispatch).not.toHaveBeenCalled();
         expect(setProductRemovingAction).not.toHaveBeenCalled();
     });
 
-    it('does not call request when name is empty', async () => {
-        const { result } = renderHook(() => useSetProductRemoving(), { wrapper: MockRedux });
+    it('rolls back the cached value and reports a failed mutation', async () => {
+        vi.mocked(setProductRemovingAction).mockRejectedValueOnce(new Error('Request failed'));
+        const original = [{ group: 'Food', name: 'Rice', years: [{ year: 21, removing: false }] }];
+        const { client, wrapper } = mockQuery({ products: original });
+        const { result } = renderHook(useSubject, { wrapper });
+        await act(() => result.current.mutate({ group: 'Food', name: 'Rice', year: 21, removing: true }));
 
-        await result.current('Uogienės', '', 21, true);
-
-        expect(dispatch).not.toHaveBeenCalled();
-        expect(setProductRemovingAction).not.toHaveBeenCalled();
+        expect(client.getQueryData(CATALOG_KEYS.products)).toStrictEqual(original);
+        expect(result.current.error).toBe('Something went wrong');
     });
 
-    it('does not call request when year is 0', async () => {
-        const { result } = renderHook(() => useSetProductRemoving(), { wrapper: MockRedux });
+    it('keeps another year update when an earlier mutation fails', async () => {
+        let rejectFirst!: (error: Error) => void;
+        vi.mocked(setProductRemovingAction)
+            .mockImplementationOnce(
+                () =>
+                    new Promise((_, reject) => {
+                        rejectFirst = reject;
+                    })
+            )
+            .mockResolvedValueOnce(undefined);
+        const original = [
+            {
+                group: 'Food',
+                name: 'Rice',
+                years: [
+                    { year: 21, removing: false },
+                    { year: 22, removing: false },
+                ],
+            },
+        ];
+        const { client, wrapper } = mockQuery({ products: original });
+        const { result } = renderHook(useSubject, { wrapper });
+        let first!: Promise<void>;
+        act(() => {
+            first = result.current.mutate({ group: 'Food', name: 'Rice', year: 21, removing: true });
+        });
+        await act(() => result.current.mutate({ group: 'Food', name: 'Rice', year: 22, removing: true }));
+        rejectFirst(new Error('Year 21 failed'));
+        await act(() => first);
 
-        await result.current('Uogienės', 'Avietės', 0, true);
-
-        expect(dispatch).not.toHaveBeenCalled();
-        expect(setProductRemovingAction).not.toHaveBeenCalled();
+        expect(client.getQueryData(CATALOG_KEYS.products)).toStrictEqual([
+            {
+                ...original[0],
+                years: [
+                    { year: 21, removing: false },
+                    { year: 22, removing: true },
+                ],
+            },
+        ]);
+        expect(result.current.error).toBe('Something went wrong');
     });
 
-    it('rolls back and sets error when request fails', async () => {
-        const error = new Error('Request failed');
-        vi.mocked(setProductRemovingAction).mockRejectedValueOnce(error);
+    it('serializes mutations of the same removing field', async () => {
+        let rejectFirst!: (error: Error) => void;
+        vi.mocked(setProductRemovingAction)
+            .mockImplementationOnce(
+                () =>
+                    new Promise((_, reject) => {
+                        rejectFirst = reject;
+                    })
+            )
+            .mockResolvedValueOnce(undefined);
+        const { client, wrapper } = mockQuery({
+            products: [{ group: 'Food', name: 'Rice', years: [{ year: 21, removing: false }] }],
+        });
+        const { result } = renderHook(useSubject, { wrapper });
+        let first!: Promise<void>;
+        let second!: Promise<void>;
+        act(() => {
+            first = result.current.mutate({ group: 'Food', name: 'Rice', year: 21, removing: true });
+            second = result.current.mutate({ group: 'Food', name: 'Rice', year: 21, removing: true });
+        });
 
-        const { result } = renderHook(() => useSetProductRemoving(), { wrapper: MockRedux });
+        expect(setProductRemovingAction).toHaveBeenCalledTimes(1);
 
-        await result.current('Uogienės', 'Avietės', 21, true);
+        rejectFirst(new Error('First failed'));
+        await act(() => Promise.all([first, second]));
 
-        expect(dispatch).toHaveBeenCalledWith(
-            setProductsRemovingAction({ group: 'Uogienės', name: 'Avietės', year: 21, removing: true })
-        );
-        expect(dispatch).toHaveBeenCalledWith(
-            rollbackProductsRemovingAction({ group: 'Uogienės', name: 'Avietės', year: 21 })
-        );
-        expect(dispatch).toHaveBeenCalledWith(setErrorAction('Request failed'));
+        expect(setProductRemovingAction).toHaveBeenCalledTimes(2);
+        expect(client.getQueryData(CATALOG_KEYS.products)).toStrictEqual([
+            { group: 'Food', name: 'Rice', years: [{ year: 21, removing: true }] },
+        ]);
+    });
+
+    it('keeps the committed value when only the refresh fails', async () => {
+        vi.mocked(useGetProducts).mockReturnValueOnce(vi.fn().mockRejectedValue(new Error('Refresh failed')));
+        const { client, wrapper } = mockQuery({
+            products: [{ group: 'Food', name: 'Rice', years: [{ year: 21, removing: false }] }],
+        });
+        const { result } = renderHook(useSubject, { wrapper });
+        await act(() => result.current.mutate({ group: 'Food', name: 'Rice', year: 21, removing: true }));
+
+        expect(setProductRemovingAction).toHaveBeenCalledWith({
+            group: 'Food',
+            name: 'Rice',
+            year: 21,
+            removing: true,
+        });
+        expect(client.getQueryData(CATALOG_KEYS.products)).toStrictEqual([
+            { group: 'Food', name: 'Rice', years: [{ year: 21, removing: true }] },
+        ]);
+        expect(result.current.error).toBe('Something went wrong');
     });
 });

@@ -10,17 +10,18 @@ user profiles, import and export, Google sign-in, and PWA support for viewing pr
 
 ## Technology stack
 
-| Area                     | Technology                                    |
-| ------------------------ | --------------------------------------------- |
-| Web framework            | Next.js 16 App Router, React 19, TypeScript   |
-| Client state             | Redux Toolkit                                 |
-| UI                       | Mantine, CSS                                  |
-| Database                 | MongoDB and the MongoDB Node.js driver        |
-| Authentication           | Google OAuth and a server-side session cookie |
-| Unit and component tests | Vitest, Testing Library, jsdom                |
-| Browser tests            | Playwright, Chromium, WebKit                  |
-| Static checks            | Prettier, TypeScript, ESLint, Stylelint       |
-| Runtime and deployment   | pnpm, Docker, Docker Compose, Nginx           |
+| Area                      | Technology                                    |
+| ------------------------- | --------------------------------------------- |
+| Web framework             | Next.js 16 App Router, React 19, TypeScript   |
+| Server data in the client | TanStack Query                                |
+| Local UI state            | React state and context                       |
+| UI                        | Mantine, CSS                                  |
+| Database                  | MongoDB and the MongoDB Node.js driver        |
+| Authentication            | Google OAuth and a server-side session cookie |
+| Unit and component tests  | Vitest, Testing Library, jsdom                |
+| Browser tests             | Playwright, Chromium, WebKit                  |
+| Static checks             | Prettier, TypeScript, ESLint, Stylelint       |
+| Runtime and deployment    | pnpm, Docker, Docker Compose, Nginx           |
 
 Dependencies and scripts are defined in [package.json](../package.json). Framework behavior is configured in
 [next.config.ts](../next.config.ts), Playwright E2E tests in [playwright.config.ts](../playwright.config.ts), and Vitest
@@ -58,14 +59,15 @@ caches selected responses in the browser for offline viewing.
     ├── features/            Feature-specific pages, components, and hooks
     ├── lib/                 Localization and client utilities
     ├── server/              Database, authentication, data, API, and actions
-    ├── store/               Redux store, slices, and request hooks
+    ├── store/               Query-backed selectors and local UI state
     └── tests/               Test setup and Playwright helpers
 ```
 
 The `features` directory contains groups, products, variants, summaries, reviews, filters, and dialogs. `components`
-holds shared UI such as tables, quantity displays, toolbars, and the application shell. Redux slices in `store` cover
-groups, products, variants, years, summaries, profiles, Google state, and errors. `common` is safe to import from both
-client and server code; `server` contains Node.js-only code.
+holds shared UI such as tables, quantity displays, toolbars, and the application shell. Query-backed hooks in `store`
+read groups, products, variants, years, and summaries. React context holds the error dialog state within the app; the
+authenticated profile and Google client ID come from server-provided props. `common` is safe to import from both client
+and server code; `server` contains Node.js-only code.
 
 The public facade for product data operations is `src/server/data/products.ts`. Its implementation is split into read,
 stock, image, and mutation modules.
@@ -77,9 +79,9 @@ flowchart TB
     App["src/app pages"] --> Shell["src/components/app"]
     Shell --> Features["src/features"]
     Features --> Components["src/components"]
-    Features --> Store["src/store"]
+    Features --> Query["TanStack Query cache and hooks"]
     Features --> Actions["src/server/actions"]
-    Store --> Routes["src/app/api/v1"]
+    Query --> Actions
     Routes --> Handlers["src/server/api/v1"]
     Actions --> Auth["src/server/auth"]
     Handlers --> Auth
@@ -92,8 +94,8 @@ flowchart TB
     Data --> Common
 ```
 
-This diagram shows typical dependency paths. Server-rendered pages also load initial application data before sending the
-page to the browser.
+This diagram shows typical dependency paths. Server-rendered pages load initial application data before sending the page
+to the browser, then seed the Query cache. Client refresh hooks call authenticated Server Actions.
 
 ## Pages and API routes
 
@@ -110,16 +112,15 @@ flowchart TB
     Router --> Products[Products]
     Router --> Variants[Variants]
     Router --> Summary[Summaries]
-    API --> Access[Access and auth]
-    API --> Catalog[Groups, products, variants]
-    API --> Amounts[Years, quantities, history]
-    API --> Profiles[User profiles]
-    API --> Archives[Import and export]
+    API --> GroupUploads[Group updates and renames with image uploads]
+    API --> ProductUploads[Product and variant image uploads]
+    API --> Archives[Archive import]
     API --> Identity["offline/identity"]
     Other --> ImageRoute["/images/[...path]"]
     Other --> Worker["/sw.js"]
 ```
 
 `src/components/app/AppRouter.tsx` selects a client page using paths from `src/lib/links.ts`. REST route files live
-under `src/app/api/v1`; client URL builders are defined in `src/common/api/v1.ts`. Server Actions live in
-`src/server/actions`.
+under `src/app/api/v1`; shared URL builders are defined in `src/common/api/v1.ts`. The remaining REST methods support
+uploads with progress and offline identity checks. Other catalog reads and changes, authentication, and archive export
+use Server Actions or server-rendered data loading. Server Actions live in `src/server/actions`.

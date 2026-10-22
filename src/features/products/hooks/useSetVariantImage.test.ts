@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import { useSetVariantImage } from '~/features/products/hooks/useSetVariantImage';
 import { uploadWithProgress } from '~/lib/utils/uploadWithProgress';
@@ -14,17 +14,30 @@ describe('useSetVariantImage', () => {
     afterEach(() => vi.clearAllMocks());
 
     it('calls set variant image action', async () => {
-        const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockRedux });
-        await result.current('Uogienės', 'Braškės', '0.5l', 'data:image/png;base64,AAA');
+        const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockData });
+        await result.current({
+            group: 'Uogienės',
+            name: 'Braškės',
+            variant: '0.5l',
+            image: 'data:image/png;base64,AAA',
+        });
 
-        expect(setVariantImageAction).toHaveBeenCalledWith('Uogienės', 'Braškės', '0.5l', 'data:image/png;base64,AAA');
+        expect(setVariantImageAction).toHaveBeenCalledWith({
+            group: 'Uogienės',
+            name: 'Braškės',
+            variant: '0.5l',
+            image: 'data:image/png;base64,AAA',
+        });
     });
 
     it('uploads a data image with progress and refreshes the products', async () => {
         const onProgress = vi.fn();
-        const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockData });
 
-        await result.current('Fruit & jam', 'Wild berries', '0.5 l', 'data:image/png;base64,AAA', onProgress);
+        await result.current(
+            { group: 'Fruit & jam', name: 'Wild berries', variant: '0.5 l', image: 'data:image/png;base64,AAA' },
+            onProgress
+        );
 
         expect(uploadWithProgress).toHaveBeenCalledExactlyOnceWith(
             'PUT',
@@ -37,31 +50,36 @@ describe('useSetVariantImage', () => {
     });
 
     it('uses the action for an existing image even with a progress callback', async () => {
-        const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockData });
 
-        await result.current('Fruit', 'Berries', '0.5 l', '/image.png', vi.fn());
+        await result.current({ group: 'Fruit', name: 'Berries', variant: '0.5 l', image: '/image.png' }, vi.fn());
 
-        expect(setVariantImageAction).toHaveBeenCalledExactlyOnceWith('Fruit', 'Berries', '0.5 l', '/image.png');
+        expect(setVariantImageAction).toHaveBeenCalledExactlyOnceWith({
+            group: 'Fruit',
+            name: 'Berries',
+            variant: '0.5 l',
+            image: '/image.png',
+        });
         expect(uploadWithProgress).not.toHaveBeenCalled();
     });
 
     it('does not call set variant image action with empty group', async () => {
-        const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockRedux });
-        await result.current('', 'Braškės', '0.5l', 'data:image/png;base64,AAA');
+        const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockData });
+        await result.current({ group: '', name: 'Braškės', variant: '0.5l', image: 'data:image/png;base64,AAA' });
 
         expect(setVariantImageAction).not.toHaveBeenCalled();
     });
 
     it('does not call set variant image action with empty name', async () => {
-        const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockRedux });
-        await result.current('Uogienės', '', '0.5l', 'data:image/png;base64,AAA');
+        const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės', name: '', variant: '0.5l', image: 'data:image/png;base64,AAA' });
 
         expect(setVariantImageAction).not.toHaveBeenCalled();
     });
 
     it('does not call set variant image action with empty variant', async () => {
-        const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockRedux });
-        await result.current('Uogienės', 'Braškės', '', 'data:image/png;base64,AAA');
+        const { result } = renderHook(() => useSetVariantImage(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės', name: 'Braškės', variant: '', image: 'data:image/png;base64,AAA' });
 
         expect(setVariantImageAction).not.toHaveBeenCalled();
     });

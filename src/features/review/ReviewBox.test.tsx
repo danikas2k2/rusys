@@ -269,7 +269,7 @@ describe('<ReviewBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Apply' }));
 
-            expect(applyReview).toHaveBeenCalledWith([]);
+            expect(applyReview).toHaveBeenCalledWith({ updates: [] });
             expect(onClose).toHaveBeenCalledTimes(1);
             expect(screen.queryByRole('button', { name: 'Discard' })).not.toBeInTheDocument();
         });
@@ -285,10 +285,12 @@ describe('<ReviewBox>', () => {
             await user.click(screen.getByRole('button', { name: 'check-braskes' }));
             await user.click(screen.getByRole('button', { name: 'Apply' }));
 
-            expect(applyReview).toHaveBeenCalledWith([
-                { group: 'Uogienės', name: 'Avietės', missing: true },
-                { group: 'Uogienės', name: 'Braškės', missing: false },
-            ]);
+            expect(applyReview).toHaveBeenCalledWith({
+                updates: [
+                    { group: 'Uogienės', name: 'Avietės', missing: true },
+                    { group: 'Uogienės', name: 'Braškės', missing: false },
+                ],
+            });
         });
 
         it('sends missing=false for a previously-missing product that gets checked', async () => {
@@ -302,7 +304,9 @@ describe('<ReviewBox>', () => {
             await user.click(screen.getByRole('button', { name: 'check-braskes' }));
             await user.click(screen.getByRole('button', { name: 'Apply' }));
 
-            expect(applyReview).toHaveBeenCalledWith([{ group: 'Uogienės', name: 'Braškės', missing: false }]);
+            expect(applyReview).toHaveBeenCalledWith({
+                updates: [{ group: 'Uogienės', name: 'Braškės', missing: false }],
+            });
         });
 
         it('sends no updates when nothing effectively changed', async () => {
@@ -315,7 +319,7 @@ describe('<ReviewBox>', () => {
             await user.click(screen.getByRole('button', { name: 'check-avietes' }));
             await user.click(screen.getByRole('button', { name: 'Apply' }));
 
-            expect(applyReview).toHaveBeenCalledWith([]);
+            expect(applyReview).toHaveBeenCalledWith({ updates: [] });
         });
 
         it('excludes products with no years from updates even once the group is touched', async () => {
@@ -328,7 +332,7 @@ describe('<ReviewBox>', () => {
             await user.click(screen.getByRole('button', { name: 'check-avietes' }));
             await user.click(screen.getByRole('button', { name: 'Apply' }));
 
-            const updates = applyReview.mock.calls[0][0];
+            const { updates } = applyReview.mock.calls[0][0];
 
             expect(updates.some((u: any) => u.name === 'Serbentai')).toBe(false);
         });
@@ -343,7 +347,7 @@ describe('<ReviewBox>', () => {
             await user.click(screen.getByRole('button', { name: 'check-avietes' }));
             await user.click(screen.getByRole('button', { name: 'Apply' }));
 
-            const updates = applyReview.mock.calls[0][0];
+            const { updates } = applyReview.mock.calls[0][0];
 
             expect(updates.some((u: any) => u.name === 'Morkos')).toBe(false);
         });

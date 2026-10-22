@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { getVariantsFixture } from '@tests/fixtures';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import React from 'react';
 
@@ -14,7 +14,7 @@ describe('useAllVariants', () => {
 
     it('returns list of all variants', async () => {
         const { result } = renderHook(() => useAllVariants('Uogienės'), {
-            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockData state={state}>{children}</MockData>,
         });
 
         expect(result.current).toStrictEqual(['p', 'd', 'm', 'e', 'x']);
@@ -22,7 +22,7 @@ describe('useAllVariants', () => {
 
     it('returns list of all variants of different group', async () => {
         const { result } = renderHook(() => useAllVariants('Daržovės'), {
-            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockData state={state}>{children}</MockData>,
         });
 
         expect(result.current).toStrictEqual(['d', 'p', 'm', '1', 'x']);
@@ -30,14 +30,14 @@ describe('useAllVariants', () => {
 
     it('returns empty list if group does not exist', async () => {
         const { result } = renderHook(() => useAllVariants('Skalbikliai'), {
-            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockData state={state}>{children}</MockData>,
         });
 
         expect(result.current).toStrictEqual([]);
     });
 
     it('returns empty list if has no state', async () => {
-        const { result } = renderHook(() => useAllVariants('Skalbikliai'), { wrapper: MockRedux });
+        const { result } = renderHook(() => useAllVariants('Skalbikliai'), { wrapper: MockData });
 
         expect(result.current).toStrictEqual([]);
     });
@@ -45,7 +45,7 @@ describe('useAllVariants', () => {
     it('reuses a cached result when switching back to a group', () => {
         const { result, rerender } = renderHook(({ group }) => useAllVariants(group), {
             initialProps: { group: 'Uogienės' },
-            wrapper: ({ children }) => <MockRedux state={state}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockData state={state}>{children}</MockData>,
         });
         const first = result.current;
 

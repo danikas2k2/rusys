@@ -29,7 +29,7 @@ export function ActiveVariantBox() {
         if (!activeData) {
             return;
         }
-        await deleteVariant(activeData.group, activeData.variant);
+        await deleteVariant({ group: activeData.group, variant: activeData.variant });
         setRemoving(false);
         handleClose();
     }, [activeData, deleteVariant, handleClose]);

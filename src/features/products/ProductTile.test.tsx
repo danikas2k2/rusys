@@ -328,7 +328,7 @@ describe('<ProductTile>', () => {
 
         await user.click(screen.getByRole('checkbox'));
 
-        expect(setMissing).toHaveBeenCalledWith(group, name, true);
+        expect(setMissing).toHaveBeenCalledWith({ group, name, missing: true });
         expect(setActive).not.toHaveBeenCalled();
     });
 

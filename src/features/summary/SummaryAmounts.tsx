@@ -3,11 +3,12 @@ import React, { useMemo } from 'react';
 
 import { ApproxAmountIcon, HomeIcon } from '@icons';
 
-import type { ProductAmounts as ProductAmountsData, VariantAmount } from '~/common/data';
+import type { ProductAmounts as ProductAmountsData } from '~/common/data';
 import { formatVolume, formatWeight, getAmountTotals } from '~/common/utils/amounts';
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { useAmountView } from '~/components/amounts/AmountViewContext';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
+import type { VariantAmount } from '~/schema';
 import { useGroupVariantComparator, useVariantsByGroup } from '~/store/variants';
 
 interface HomeAmountsProps {

@@ -4,6 +4,7 @@ import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests
 
 import { ClientSession } from 'mongodb';
 
+import { SchemaError } from '~/schema/errors';
 import {
     deleteGroupOccurrences,
     deleteVariantOccurrences,
@@ -34,7 +35,7 @@ import {
     renameVariant,
     renameVariantsGroup,
 } from '~/server/data/variants';
-import { db } from '~/server/db';
+import { db, withinTransaction } from '~/server/db';
 import { fakeMethods } from '../../../vitest/fakeDb';
 
 vi.mock(import('~/server/db'));
@@ -98,8 +99,18 @@ describe('common', () => {
 
     describe('moveProductOccurrences', () => {
         it('moves products occurrences, returns true', async () => {
-            await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti')).resolves.toBe(true);
-            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Morkos', 'Šaldyti', undefined, session);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    moveProductOccurrences(
+                        { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: undefined },
+                        transactionSession
+                    )
+                )
+            ).resolves.toBe(true);
+            expect(moveProduct).toHaveBeenCalledWith(
+                { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: undefined },
+                session
+            );
             expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Morkos', session);
             expect(copyVariants).toHaveBeenCalledWith(
                 'Daržovės',
@@ -126,8 +137,18 @@ describe('common', () => {
         });
 
         it('moves products occurrences with new name, returns true', async () => {
-            await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti', 'Agurkėliai')).resolves.toBe(true);
-            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Morkos', 'Šaldyti', 'Agurkėliai', session);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    moveProductOccurrences(
+                        { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: 'Agurkėliai' },
+                        transactionSession
+                    )
+                )
+            ).resolves.toBe(true);
+            expect(moveProduct).toHaveBeenCalledWith(
+                { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: 'Agurkėliai' },
+                session
+            );
             expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Agurkėliai', session);
             expect(copyVariants).toHaveBeenCalledWith(
                 'Daržovės',
@@ -162,8 +183,18 @@ describe('common', () => {
             async ({ value }: { value: readonly string[] | undefined }) => {
                 vi.mocked(getProductVariants).mockResolvedValueOnce(value);
 
-                await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti')).resolves.toBe(true);
-                expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Morkos', 'Šaldyti', undefined, session);
+                await expect(
+                    withinTransaction((transactionSession) =>
+                        moveProductOccurrences(
+                            { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: undefined },
+                            transactionSession
+                        )
+                    )
+                ).resolves.toBe(true);
+                expect(moveProduct).toHaveBeenCalledWith(
+                    { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: undefined },
+                    session
+                );
                 expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Morkos', session);
                 expect(copyVariants).not.toHaveBeenCalledWith();
                 await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -179,8 +210,18 @@ describe('common', () => {
         it('returns false if moveProduct returns false', async () => {
             vi.mocked(moveProduct).mockResolvedValueOnce(false);
 
-            await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti')).resolves.toBe(false);
-            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Morkos', 'Šaldyti', undefined, session);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    moveProductOccurrences(
+                        { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: undefined },
+                        transactionSession
+                    )
+                )
+            ).resolves.toBe(false);
+            expect(moveProduct).toHaveBeenCalledWith(
+                { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: undefined },
+                session
+            );
             expect(getProductVariants).not.toHaveBeenCalled();
             expect(copyVariants).not.toHaveBeenCalledWith();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -191,10 +232,18 @@ describe('common', () => {
         it('rejects if moveProduct fails', async () => {
             vi.mocked(moveProduct).mockRejectedValueOnce('Failed to move products');
 
-            await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti')).rejects.toBe(
-                'Failed to move products'
+            await expect(
+                withinTransaction((transactionSession) =>
+                    moveProductOccurrences(
+                        { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: undefined },
+                        transactionSession
+                    )
+                )
+            ).rejects.toBe('Failed to move products');
+            expect(moveProduct).toHaveBeenCalledWith(
+                { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: undefined },
+                session
             );
-            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Morkos', 'Šaldyti', undefined, session);
             expect(getProductVariants).not.toHaveBeenCalled();
             expect(copyVariants).not.toHaveBeenCalledWith();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -205,10 +254,18 @@ describe('common', () => {
         it('rejects if copyVariants fails', async () => {
             vi.mocked(copyVariants).mockRejectedValueOnce('Failed to rename variants group');
 
-            await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti')).rejects.toBe(
-                'Failed to rename variants group'
+            await expect(
+                withinTransaction((transactionSession) =>
+                    moveProductOccurrences(
+                        { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: undefined },
+                        transactionSession
+                    )
+                )
+            ).rejects.toBe('Failed to rename variants group');
+            expect(moveProduct).toHaveBeenCalledWith(
+                { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: undefined },
+                session
             );
-            expect(moveProduct).toHaveBeenCalledWith('Daržovės', 'Morkos', 'Šaldyti', undefined, session);
             expect(getProductVariants).toHaveBeenCalledWith('Šaldyti', 'Morkos', session);
             expect(copyVariants).toHaveBeenCalledWith(
                 'Daržovės',
@@ -222,11 +279,23 @@ describe('common', () => {
         });
 
         it('blocks the move and does not touch anything when the product has children', async () => {
-            await addProduct('Daržovės', 'Morkos (Zewa)', 'Morkos');
+            await withinTransaction((transactionSession) =>
+                addProduct({ group: 'Daržovės', name: 'Morkos (Zewa)', parent: 'Morkos' }, transactionSession)
+            );
 
-            await expect(moveProductOccurrences('Daržovės', 'Morkos', 'Šaldyti')).resolves.toBe(false);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    moveProductOccurrences(
+                        { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: undefined },
+                        transactionSession
+                    )
+                )
+            ).rejects.toThrow(SchemaError.CannotMoveProductWithChildren);
 
-            expect(moveProduct).not.toHaveBeenCalled();
+            expect(moveProduct).toHaveBeenCalledWith(
+                { group: 'Daržovės', name: 'Morkos', targetGroup: 'Šaldyti', targetName: undefined },
+                session
+            );
             expect(getProductVariants).not.toHaveBeenCalled();
             expect(copyVariants).not.toHaveBeenCalled();
 
@@ -238,8 +307,24 @@ describe('common', () => {
 
     describe('renameGroupOccurrences', () => {
         it('renames all group occurrences, returns true', async () => {
-            await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).resolves.toBe(true);
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, undefined, session);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    renameGroupOccurrences(
+                        {
+                            group: 'Daržovės',
+                            targetGroup: 'Šaldyti',
+                            annual: undefined,
+                            review: undefined,
+                            image: undefined,
+                        },
+                        transactionSession
+                    )
+                )
+            ).resolves.toBe(true);
+            expect(renameGroup).toHaveBeenCalledWith(
+                { group: 'Daržovės', targetGroup: 'Šaldyti', annual: undefined, review: undefined, image: undefined },
+                session
+            );
             expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameProductsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             await expect($all('groups')).resolves.toStrictEqual([
@@ -259,8 +344,24 @@ describe('common', () => {
         it('returns false if renameGroup returns false', async () => {
             vi.mocked(renameGroup).mockResolvedValueOnce(false);
 
-            await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).resolves.toBe(false);
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, undefined, session);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    renameGroupOccurrences(
+                        {
+                            group: 'Daržovės',
+                            targetGroup: 'Šaldyti',
+                            annual: undefined,
+                            review: undefined,
+                            image: undefined,
+                        },
+                        transactionSession
+                    )
+                )
+            ).resolves.toBe(false);
+            expect(renameGroup).toHaveBeenCalledWith(
+                { group: 'Daržovės', targetGroup: 'Šaldyti', annual: undefined, review: undefined, image: undefined },
+                session
+            );
             expect(renameVariantsGroup).not.toHaveBeenCalled();
             expect(renameProductsGroup).not.toHaveBeenCalled();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -271,8 +372,24 @@ describe('common', () => {
         it('rejects if renameGroup fails', async () => {
             vi.mocked(renameGroup).mockRejectedValueOnce('Failed to rename group');
 
-            await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).rejects.toBe('Failed to rename group');
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, undefined, session);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    renameGroupOccurrences(
+                        {
+                            group: 'Daržovės',
+                            targetGroup: 'Šaldyti',
+                            annual: undefined,
+                            review: undefined,
+                            image: undefined,
+                        },
+                        transactionSession
+                    )
+                )
+            ).rejects.toBe('Failed to rename group');
+            expect(renameGroup).toHaveBeenCalledWith(
+                { group: 'Daržovės', targetGroup: 'Šaldyti', annual: undefined, review: undefined, image: undefined },
+                session
+            );
             expect(renameVariantsGroup).not.toHaveBeenCalled();
             expect(renameProductsGroup).not.toHaveBeenCalled();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -283,8 +400,24 @@ describe('common', () => {
         it('rejects if renameVariantsGroup fails', async () => {
             vi.mocked(renameVariantsGroup).mockRejectedValueOnce('Failed to rename variants group');
 
-            await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).rejects.toBe('Failed to rename variants group');
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, undefined, session);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    renameGroupOccurrences(
+                        {
+                            group: 'Daržovės',
+                            targetGroup: 'Šaldyti',
+                            annual: undefined,
+                            review: undefined,
+                            image: undefined,
+                        },
+                        transactionSession
+                    )
+                )
+            ).rejects.toBe('Failed to rename variants group');
+            expect(renameGroup).toHaveBeenCalledWith(
+                { group: 'Daržovės', targetGroup: 'Šaldyti', annual: undefined, review: undefined, image: undefined },
+                session
+            );
             expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameProductsGroup).not.toHaveBeenCalled();
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -295,8 +428,24 @@ describe('common', () => {
         it('rejects if renameProductsGroup fails', async () => {
             vi.mocked(renameProductsGroup).mockRejectedValueOnce('Failed to rename products group');
 
-            await expect(renameGroupOccurrences('Daržovės', 'Šaldyti')).rejects.toBe('Failed to rename products group');
-            expect(renameGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', true, false, undefined, session);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    renameGroupOccurrences(
+                        {
+                            group: 'Daržovės',
+                            targetGroup: 'Šaldyti',
+                            annual: undefined,
+                            review: undefined,
+                            image: undefined,
+                        },
+                        transactionSession
+                    )
+                )
+            ).rejects.toBe('Failed to rename products group');
+            expect(renameGroup).toHaveBeenCalledWith(
+                { group: 'Daržovės', targetGroup: 'Šaldyti', annual: undefined, review: undefined, image: undefined },
+                session
+            );
             expect(renameVariantsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             expect(renameProductsGroup).toHaveBeenCalledWith('Daržovės', 'Šaldyti', session);
             await expect($all('groups')).resolves.toStrictEqual(groups);
@@ -307,7 +456,9 @@ describe('common', () => {
 
     describe('deleteGroupOccurrences', () => {
         it('archives only the category and keeps its occurrences', async () => {
-            await expect(deleteGroupOccurrences('Daržovės')).resolves.toBe(true);
+            await expect(
+                withinTransaction((transactionSession) => deleteGroupOccurrences('Daržovės', transactionSession))
+            ).resolves.toBe(true);
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteVariantsGroup).not.toHaveBeenCalled();
             expect(deleteProductsGroup).not.toHaveBeenCalled();
@@ -321,7 +472,9 @@ describe('common', () => {
         it('returns false if deleteGroup returns false', async () => {
             vi.mocked(deleteGroup).mockResolvedValueOnce(false);
 
-            await expect(deleteGroupOccurrences('Daržovės')).resolves.toBe(false);
+            await expect(
+                withinTransaction((transactionSession) => deleteGroupOccurrences('Daržovės', transactionSession))
+            ).resolves.toBe(false);
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteVariantsGroup).not.toHaveBeenCalled();
             expect(deleteProductsGroup).not.toHaveBeenCalled();
@@ -333,7 +486,9 @@ describe('common', () => {
         it('rejects if deleteGroup fails', async () => {
             vi.mocked(deleteGroup).mockRejectedValueOnce('Failed to delete group');
 
-            await expect(deleteGroupOccurrences('Daržovės')).rejects.toBe('Failed to delete group');
+            await expect(
+                withinTransaction((transactionSession) => deleteGroupOccurrences('Daržovės', transactionSession))
+            ).rejects.toBe('Failed to delete group');
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteVariantsGroup).not.toHaveBeenCalled();
             expect(deleteProductsGroup).not.toHaveBeenCalled();
@@ -345,7 +500,9 @@ describe('common', () => {
         it('does not invoke the old variant-removal path', async () => {
             vi.mocked(deleteVariantsGroup).mockRejectedValueOnce('Failed to delete variants group');
 
-            await expect(deleteGroupOccurrences('Daržovės')).resolves.toBe(true);
+            await expect(
+                withinTransaction((transactionSession) => deleteGroupOccurrences('Daržovės', transactionSession))
+            ).resolves.toBe(true);
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteVariantsGroup).not.toHaveBeenCalled();
             expect(deleteProductsGroup).not.toHaveBeenCalled();
@@ -359,7 +516,9 @@ describe('common', () => {
         it('does not invoke the old product-removal path', async () => {
             vi.mocked(deleteProductsGroup).mockRejectedValueOnce('Failed to delete products group');
 
-            await expect(deleteGroupOccurrences('Daržovės')).resolves.toBe(true);
+            await expect(
+                withinTransaction((transactionSession) => deleteGroupOccurrences('Daržovės', transactionSession))
+            ).resolves.toBe(true);
             expect(deleteGroup).toHaveBeenCalledWith('Daržovės', session);
             expect(deleteVariantsGroup).not.toHaveBeenCalled();
             expect(deleteProductsGroup).not.toHaveBeenCalled();
@@ -372,9 +531,57 @@ describe('common', () => {
     });
 
     describe('renameVariantOccurrences', () => {
+        it('rejects a duplicate before rewriting products and rolls back the entire transaction', async () => {
+            await expect(
+                withinTransaction((transactionSession) =>
+                    renameVariantOccurrences(
+                        {
+                            group: 'Daržovės',
+                            variant: 'p',
+                            targetVariant: 'd',
+                            order: 0,
+                            suffix: '',
+                            count: undefined,
+                            units: undefined,
+                        },
+                        transactionSession
+                    )
+                )
+            ).rejects.toThrow(SchemaError.VariantAlreadyExists);
+            expect(renameProductsVariant).not.toHaveBeenCalled();
+            await expect($all('variants')).resolves.toStrictEqual(variants);
+            await expect($all('products')).resolves.toStrictEqual(products);
+        });
+
         it('renames all variant occurrences, returns true', async () => {
-            await expect(renameVariantOccurrences('Daržovės', 'p', '2')).resolves.toBe(true);
-            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', undefined, session);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    renameVariantOccurrences(
+                        {
+                            group: 'Daržovės',
+                            variant: 'p',
+                            targetVariant: '2',
+                            order: variants[6].order,
+                            suffix: variants[6].suffix,
+                            count: variants[6].count,
+                            units: variants[6].units,
+                        },
+                        transactionSession
+                    )
+                )
+            ).resolves.toBe(true);
+            expect(renameVariant).toHaveBeenCalledWith(
+                {
+                    group: 'Daržovės',
+                    variant: 'p',
+                    targetVariant: '2',
+                    order: variants[6].order,
+                    suffix: variants[6].suffix,
+                    count: variants[6].count,
+                    units: variants[6].units,
+                },
+                session
+            );
             expect(renameProductsVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', session);
             await expect($all('variants')).resolves.toStrictEqual([
                 ...variants.slice(0, 6),
@@ -392,14 +599,38 @@ describe('common', () => {
         });
 
         it('updates and renames all variant occurrences, returns true', async () => {
-            const update = { suffix: '2l' };
-
-            await expect(renameVariantOccurrences('Daržovės', 'p', '2', update)).resolves.toBe(true);
-            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', update, session);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    renameVariantOccurrences(
+                        {
+                            group: 'Daržovės',
+                            variant: 'p',
+                            targetVariant: '2',
+                            order: 1,
+                            suffix: '2l',
+                            count: undefined,
+                            units: undefined,
+                        },
+                        transactionSession
+                    )
+                )
+            ).resolves.toBe(true);
+            expect(renameVariant).toHaveBeenCalledWith(
+                {
+                    group: 'Daržovės',
+                    variant: 'p',
+                    targetVariant: '2',
+                    order: 1,
+                    suffix: '2l',
+                    count: undefined,
+                    units: undefined,
+                },
+                session
+            );
             expect(renameProductsVariant).toHaveBeenCalledWith('Daržovės', 'p', '2', session);
             await expect($all('variants')).resolves.toStrictEqual([
                 ...variants.slice(0, 6),
-                { ...variants[6], variant: '2', ...update },
+                { ...variants[6], variant: '2', suffix: '2l' },
                 ...variants.slice(7),
             ]);
             await expect($all('products')).resolves.toStrictEqual([
@@ -415,8 +646,34 @@ describe('common', () => {
         it('returns false if renameVariant returns false', async () => {
             vi.mocked(renameVariant).mockResolvedValueOnce(false);
 
-            await expect(renameVariantOccurrences('Daržovės', 'd', 'b')).resolves.toBe(false);
-            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', undefined, session);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    renameVariantOccurrences(
+                        {
+                            group: 'Daržovės',
+                            variant: 'd',
+                            targetVariant: 'b',
+                            order: undefined,
+                            suffix: undefined,
+                            count: undefined,
+                            units: undefined,
+                        },
+                        transactionSession
+                    )
+                )
+            ).resolves.toBe(false);
+            expect(renameVariant).toHaveBeenCalledWith(
+                {
+                    group: 'Daržovės',
+                    variant: 'd',
+                    targetVariant: 'b',
+                    order: undefined,
+                    suffix: undefined,
+                    count: undefined,
+                    units: undefined,
+                },
+                session
+            );
             expect(renameProductsVariant).not.toHaveBeenCalled();
             await expect($all('variants')).resolves.toStrictEqual(variants);
             await expect($all('products')).resolves.toStrictEqual(products);
@@ -425,8 +682,34 @@ describe('common', () => {
         it('rejects if renameVariant fails', async () => {
             vi.mocked(renameVariant).mockRejectedValueOnce('Failed to rename variant');
 
-            await expect(renameVariantOccurrences('Daržovės', 'd', 'b')).rejects.toBe('Failed to rename variant');
-            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', undefined, session);
+            await expect(
+                withinTransaction((transactionSession) =>
+                    renameVariantOccurrences(
+                        {
+                            group: 'Daržovės',
+                            variant: 'd',
+                            targetVariant: 'b',
+                            order: undefined,
+                            suffix: undefined,
+                            count: undefined,
+                            units: undefined,
+                        },
+                        transactionSession
+                    )
+                )
+            ).rejects.toBe('Failed to rename variant');
+            expect(renameVariant).toHaveBeenCalledWith(
+                {
+                    group: 'Daržovės',
+                    variant: 'd',
+                    targetVariant: 'b',
+                    order: undefined,
+                    suffix: undefined,
+                    count: undefined,
+                    units: undefined,
+                },
+                session
+            );
             expect(renameProductsVariant).not.toHaveBeenCalled();
             await expect($all('variants')).resolves.toStrictEqual(variants);
             await expect($all('products')).resolves.toStrictEqual(products);
@@ -435,10 +718,34 @@ describe('common', () => {
         it('rejects if renameProductsVariant rejects', async () => {
             vi.mocked(renameProductsVariant).mockRejectedValueOnce('Failed to rename products variant');
 
-            await expect(renameVariantOccurrences('Daržovės', 'd', 'b')).rejects.toBe(
-                'Failed to rename products variant'
+            await expect(
+                withinTransaction((transactionSession) =>
+                    renameVariantOccurrences(
+                        {
+                            group: 'Daržovės',
+                            variant: 'd',
+                            targetVariant: 'b',
+                            order: undefined,
+                            suffix: undefined,
+                            count: undefined,
+                            units: undefined,
+                        },
+                        transactionSession
+                    )
+                )
+            ).rejects.toBe('Failed to rename products variant');
+            expect(renameVariant).toHaveBeenCalledWith(
+                {
+                    group: 'Daržovės',
+                    variant: 'd',
+                    targetVariant: 'b',
+                    order: undefined,
+                    suffix: undefined,
+                    count: undefined,
+                    units: undefined,
+                },
+                session
             );
-            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', undefined, session);
             expect(renameProductsVariant).toHaveBeenCalledWith('Daržovės', 'd', 'b', session);
             await expect($all('variants')).resolves.toStrictEqual(variants);
             await expect($all('products')).resolves.toStrictEqual(products);
@@ -447,7 +754,9 @@ describe('common', () => {
 
     describe('deleteVariantOccurrences', () => {
         it('archives only the variant and keeps its occurrences', async () => {
-            await expect(deleteVariantOccurrences('Daržovės', 'p')).resolves.toBe(true);
+            await expect(
+                withinTransaction((transactionSession) => deleteVariantOccurrences('Daržovės', 'p', transactionSession))
+            ).resolves.toBe(true);
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
             expect(deleteProductsVariant).not.toHaveBeenCalled();
             expect((await $all('variants')).find((v) => v.group === 'Daržovės' && v.variant === 'p')).toMatchObject({
@@ -459,7 +768,9 @@ describe('common', () => {
         it('returns false if deleteVariant returns false', async () => {
             vi.mocked(deleteVariant).mockResolvedValueOnce(false);
 
-            await expect(deleteVariantOccurrences('Daržovės', 'd')).resolves.toBe(false);
+            await expect(
+                withinTransaction((transactionSession) => deleteVariantOccurrences('Daržovės', 'd', transactionSession))
+            ).resolves.toBe(false);
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'd', session);
             expect(deleteProductsVariant).not.toHaveBeenCalled();
             await expect($all('variants')).resolves.toStrictEqual(variants);
@@ -469,7 +780,9 @@ describe('common', () => {
         it('rejects if deleteVariant fails', async () => {
             vi.mocked(deleteVariant).mockRejectedValueOnce('Failed to delete variant');
 
-            await expect(deleteVariantOccurrences('Daržovės', 'd')).rejects.toBe('Failed to delete variant');
+            await expect(
+                withinTransaction((transactionSession) => deleteVariantOccurrences('Daržovės', 'd', transactionSession))
+            ).rejects.toBe('Failed to delete variant');
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'd', session);
             expect(deleteProductsVariant).not.toHaveBeenCalled();
             await expect($all('variants')).resolves.toStrictEqual(variants);
@@ -479,7 +792,9 @@ describe('common', () => {
         it('does not invoke the old product-history removal path', async () => {
             vi.mocked(deleteProductsVariant).mockRejectedValueOnce('Failed to delete products variant');
 
-            await expect(deleteVariantOccurrences('Daržovės', 'p')).resolves.toBe(true);
+            await expect(
+                withinTransaction((transactionSession) => deleteVariantOccurrences('Daržovės', 'p', transactionSession))
+            ).resolves.toBe(true);
             expect(deleteVariant).toHaveBeenCalledWith('Daržovės', 'p', session);
             expect(deleteProductsVariant).not.toHaveBeenCalled();
             expect((await $all('variants')).find((v) => v.group === 'Daržovės' && v.variant === 'p')).toMatchObject({
@@ -491,7 +806,7 @@ describe('common', () => {
 
     describe('exportEverything', () => {
         it('retrieves all products, groups, and variants', async () => {
-            const result = await exportEverything();
+            const result = await withinTransaction((transactionSession) => exportEverything(transactionSession));
 
             expect(result.products).toStrictEqual(products);
             expect(result.groups).toStrictEqual(groups);
@@ -504,7 +819,7 @@ describe('common', () => {
             await d.collection('variants').deleteMany({});
             await d.collection('groups').deleteMany({});
 
-            const result = await exportEverything();
+            const result = await withinTransaction((transactionSession) => exportEverything(transactionSession));
 
             expect(result.products).toStrictEqual([]);
             expect(result.groups).toStrictEqual([]);

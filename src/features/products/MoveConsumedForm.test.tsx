@@ -5,8 +5,8 @@ import { MockApp } from '@tests/MockApp';
 import { Select } from '@mantine/core';
 import React from 'react';
 
-import type { VariantAmount } from '~/common/data';
 import { MoveConsumedForm } from '~/features/products/MoveConsumedForm';
+import type { VariantAmount } from '~/schema';
 
 vi.mock(import('~/store/variants/useVariant'), (): any => ({
     useVariant: vi.fn(() => undefined),
@@ -73,6 +73,20 @@ describe('<MoveConsumedForm>', () => {
         expect(screen.getByRole('button', { name: 'Move to discarded' })).toBeDisabled();
     });
 
+    it('does not submit a zero amount with Enter', async () => {
+        const lines: VariantAmount[] = [{ variant: 'd', amount: -3, recycled: false }];
+
+        render(
+            <MockApp>
+                <MoveConsumedForm group="Daržovės" lines={lines} onMove={onMove} />
+            </MockApp>
+        );
+
+        await user.type(screen.getByRole('textbox', { name: 'amount' }), '{Enter}');
+
+        expect(onMove).not.toHaveBeenCalled();
+    });
+
     it('does not show Increase button once amount reaches the line max', async () => {
         const lines: VariantAmount[] = [{ variant: 'd', amount: -2, recycled: false }];
 
@@ -86,6 +100,7 @@ describe('<MoveConsumedForm>', () => {
         await user.click(screen.getByRole('button', { name: 'Increase' }));
 
         expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('2');
+        expect(onMove).not.toHaveBeenCalled();
         expect(screen.queryByRole('button', { name: 'Increase' })).not.toBeInTheDocument();
     });
 
@@ -103,9 +118,11 @@ describe('<MoveConsumedForm>', () => {
 
         expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('2');
 
-        await user.click(screen.getByRole('button', { name: 'Decrease' }));
+        screen.getByRole('button', { name: 'Decrease' }).focus();
+        await user.keyboard('{Enter}');
 
         expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('1');
+        expect(onMove).not.toHaveBeenCalled();
 
         await user.click(screen.getByRole('button', { name: 'Decrease' }));
 
@@ -167,6 +184,20 @@ describe('<MoveConsumedForm>', () => {
 
         expect(onMove).toHaveBeenCalledWith(lines[0], 2);
         expect(screen.getByRole('textbox', { name: 'amount' })).toHaveValue('0');
+    });
+
+    it('submits the valid amount with Enter', async () => {
+        const lines: VariantAmount[] = [{ variant: 'd', amount: -3, recycled: false }];
+
+        render(
+            <MockApp>
+                <MoveConsumedForm group="Daržovės" lines={lines} onMove={onMove} />
+            </MockApp>
+        );
+
+        await user.type(screen.getByRole('textbox', { name: 'amount' }), '2{Enter}');
+
+        expect(onMove).toHaveBeenCalledWith(lines[0], 2);
     });
 
     it('sorts the variant select by variant order, not by the order lines were passed in', () => {

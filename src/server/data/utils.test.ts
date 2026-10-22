@@ -1,6 +1,7 @@
 import { MongoError, type DeleteResult, type InsertManyResult, type InsertOneResult, type UpdateResult } from 'mongodb';
 
-import { hasDuplicates, hasEffect } from '~/server/data/utils';
+import { SchemaError } from '~/schema';
+import { assertSuccess, handleDuplicate, hasEffect } from '~/server/data/utils';
 
 describe('hasEffect', () => {
     it('returns true when insertedId is present', () => {
@@ -64,30 +65,58 @@ describe('hasEffect', () => {
     });
 
     it('returns false when no effect fields are present', () => {
-        const result = {} as any;
+        const result = {} as UpdateResult;
 
         expect(hasEffect(result)).toBe(false);
     });
 });
 
-describe('hasDuplicates', () => {
-    it('returns false when MongoError with code 11000 is thrown', () => {
-        const error = new MongoError('Duplicate key error');
-        error.code = 11000;
+describe('handleDuplicate', () => {
+    it('returns the domain callback result only for duplicate key errors', () => {
+        const cause = new MongoError('Duplicate key error');
+        cause.code = 11000;
+        const handle = vi.fn(() => 'duplicate');
 
-        expect(hasDuplicates(error)).toBe(false);
+        expect(handleDuplicate(cause, handle)).toBe('duplicate');
+        expect(handle).toHaveBeenCalledExactlyOnceWith();
     });
 
-    it('returns false when MongoError with different code is thrown', () => {
-        const error = new MongoError('Duplicate key error');
-        error.code = 11111;
+    it('propagates the domain error thrown by the duplicate callback', () => {
+        const cause = new MongoError('Duplicate key error');
+        cause.code = 11000;
+        const domainError = new Error(SchemaError.NameAlreadyExists);
 
-        expect(() => hasDuplicates(error)).toThrow('Duplicate key error');
+        expect(() =>
+            handleDuplicate(cause, () => {
+                throw domainError;
+            })
+        ).toThrow(domainError);
     });
 
-    it('rethrows error when error is not a MongoError with code 11000', () => {
-        const error = new Error('Some error');
+    it('rethrows Mongo errors with other codes without invoking the callback', () => {
+        const cause = new MongoError('Database error');
+        cause.code = 11111;
+        const handle = vi.fn();
 
-        expect(() => hasDuplicates(error)).toThrow('Some error');
+        expect(() => handleDuplicate(cause, handle)).toThrow(cause);
+        expect(handle).not.toHaveBeenCalled();
+    });
+
+    it('rethrows non-Mongo errors without invoking the callback', () => {
+        const cause = new Error('Some error');
+        const handle = vi.fn();
+
+        expect(() => handleDuplicate(cause, handle)).toThrow(cause);
+        expect(handle).not.toHaveBeenCalled();
+    });
+});
+
+describe('assertSuccess', () => {
+    it('resolves when the operation has an effect', async () => {
+        await expect(assertSuccess(true)).resolves.toBeUndefined();
+    });
+
+    it('rejects with the shared request failure message when there is no effect', async () => {
+        await expect(assertSuccess(false)).rejects.toThrow(SchemaError.RequestFailed);
     });
 });

@@ -88,7 +88,7 @@ describe('<ActiveVariantBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Remove variant' }));
         await user.click(screen.getByRole('button', { name: 'Remove' }));
 
-        expect(deleteVariant).toHaveBeenCalledWith('Uogienės', 'p');
+        expect(deleteVariant).toHaveBeenCalledWith({ group: 'Uogienės', variant: 'p' });
         expect(setActive).toHaveBeenCalledWith({ data: { group: 'Uogienės', variant: 'p' } });
     });
 

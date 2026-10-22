@@ -2,6 +2,7 @@ import { Buffer } from 'node:buffer';
 
 import type { NextRequest } from 'next/server';
 
+import { SchemaError } from '~/schema';
 import { requireSession } from '~/server/auth/session';
 
 export interface ApiUploadedFile {
@@ -90,12 +91,10 @@ export async function runApiHandler(
     handler: ApiHandler,
     params: ApiRequest['params'] = {}
 ): Promise<Response> {
-    if (request.nextUrl.pathname !== '/api/v1/auth/client-id') {
-        try {
-            await requireSession();
-        } catch {
-            return Response.json({ error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } }, { status: 401 });
-        }
+    try {
+        await requireSession();
+    } catch {
+        return Response.json({ error: { code: 'UNAUTHORIZED', message: SchemaError.Unauthorized } }, { status: 401 });
     }
     return runServerHandler(handler, { ...(await bodyFrom(request)), params, query: queryFrom(request) });
 }
@@ -104,8 +103,10 @@ export async function runServerHandler(handler: ApiHandler, request: ApiRequest)
     const response = createResponse();
     try {
         await handler(request, response);
-    } catch (error) {
-        response.status(500).json({ error: { code: 'INTERNAL_ERROR', message: `${error}` } });
+    } catch {
+        // eslint-disable-next-line no-console -- Report the failure without logging sensitive exception details.
+        console.error('API handler failed');
+        response.status(500).json({ error: { code: 'INTERNAL_ERROR', message: SchemaError.Unknown } });
     }
     return new Response(response.statusCode === 204 ? undefined : (response.body as BodyInit | undefined), {
         headers: response.headers,

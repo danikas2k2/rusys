@@ -1,4 +1,5 @@
 import type { Update } from '~/common/data';
+import { SchemaError } from '~/schema';
 import type { ApiRequest, ApiResponse, ApiUploadedFile } from '~/server/api/next';
 import { sendError } from '~/server/api/v1/utils';
 import { importEverything } from '~/server/data/common';
@@ -9,7 +10,7 @@ async function importArchive(file: ApiUploadedFile): Promise<boolean> {
     const archive = await readImportArchive(file.data);
     const validate = getValidator();
     if (!validate(archive.data)) {
-        throw new Error('Invalid file content');
+        throw new Error(SchemaError.ImportInvalidContent);
     }
     await writeImportImages(archive.images);
     const { data } = archive;
@@ -29,16 +30,16 @@ async function importArchive(file: ApiUploadedFile): Promise<boolean> {
 export async function handleImport(req: ApiRequest, res: ApiResponse): Promise<void> {
     const received = req.files?.import;
     if (!received || Array.isArray(received)) {
-        sendError(res, 400, 'VALIDATION_ERROR', 'Exactly one import file is required');
+        sendError(res, 400, 'VALIDATION_ERROR', SchemaError.ImportFileRequired);
         return;
     }
     try {
         if (!(await importArchive(received))) {
-            sendError(res, 422, 'OPERATION_REJECTED', 'The archive could not be imported');
+            sendError(res, 422, 'OPERATION_REJECTED', SchemaError.ArchiveCouldNotBeImported);
             return;
         }
         res.status(204).end();
-    } catch (error) {
-        sendError(res, 400, 'INVALID_IMPORT', `${error}`);
+    } catch {
+        sendError(res, 400, 'INVALID_IMPORT', SchemaError.ImportInvalidContent);
     }
 }

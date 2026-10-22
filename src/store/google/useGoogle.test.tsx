@@ -1,24 +1,20 @@
 import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { mockQuery } from '@tests/MockQuery';
 
-import React from 'react';
-
-import type { Google } from './types';
 import { useGoogle } from './useGoogle';
 
 describe('useGoogle', () => {
-    it('return empty list for empty state', () => {
-        const { result } = renderHook(() => useGoogle(), { wrapper: MockRedux });
+    it('reads the empty server configuration', () => {
+        const { wrapper } = mockQuery();
+        const { result } = renderHook(useGoogle, { wrapper });
 
-        expect(result.current).toStrictEqual({});
+        expect(result.current.clientId).toBe('');
     });
 
-    it('return filled state', () => {
-        const google: Google = { loading: false, clientId: '123' };
-        const { result } = renderHook(() => useGoogle(), {
-            wrapper: ({ children }) => <MockRedux state={{ google }}>{children}</MockRedux>,
-        });
+    it('reads the client id supplied by the server', () => {
+        const { wrapper } = mockQuery({ google: { clientId: '123' } });
+        const { result } = renderHook(useGoogle, { wrapper });
 
-        expect(result.current).toStrictEqual(google);
+        expect(result.current.clientId).toBe('123');
     });
 });

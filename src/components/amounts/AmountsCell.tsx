@@ -3,8 +3,8 @@ import React from 'react';
 
 import { ConsumedIcon, HomeIcon, RecycledIcon, SuspiciousIcon, UpdatedIcon } from '@icons';
 
-import type { VariantAmount } from '~/common/data';
 import { VariantTitle } from '~/components/amounts/VariantTitle';
+import type { VariantAmount } from '~/schema';
 import { useGroupVariantComparator } from '~/store/variants';
 
 export function AmountsCell({

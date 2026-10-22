@@ -1,36 +1,79 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
 
+import type { Product } from '~/common/data';
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
+import { runProductMutation } from '~/lib/productMutationQueue';
 import { getErrorMessage } from '~/lib/utils/errors';
+import type { SetProductRemoving } from '~/schema';
 import { setProductRemovingAction } from '~/server/actions/products';
-import { setErrorAction } from '~/store/error';
-import { rollbackProductsRemovingAction, setProductsRemovingAction } from '~/store/products';
+import { CATALOG_KEYS } from '~/store/catalog';
+import { useError } from '~/store/error/useError';
 
-export function useSetProductRemoving(): (
-    group: string,
-    name: string,
-    year: number,
-    removing: boolean
-) => Promise<void> {
-    const dispatch = useDispatch();
+export function useSetProductRemoving(): (request: SetProductRemoving) => Promise<void> {
+    const client = useQueryClient();
+    const setError = useError((state) => state.setError);
     const refresh = useGetProducts();
     return useCallback(
-        async (group: string, name: string, year: number, removing: boolean): Promise<void> => {
+        async (request: SetProductRemoving): Promise<void> => {
+            const { group, name, year, removing } = request;
             if (!group || !name || !year) {
                 return;
             }
 
-            dispatch(setProductsRemovingAction({ group, name, year, removing }));
+            await runProductMutation(client, ['removing', group, name, year], async () => {
+                const previousRemoving = client
+                    .getQueryData<readonly Product[]>(CATALOG_KEYS.products)
+                    ?.find((product) => product.group === group && product.name === name)
+                    ?.years?.find((value) => value.year === year)?.removing;
+                client.setQueryData<readonly Product[]>(CATALOG_KEYS.products, (products) =>
+                    products?.map((product) =>
+                        product.group === group && product.name === name
+                            ? {
+                                  ...product,
+                                  years: product.years?.map((value) =>
+                                      value.year === year ? { ...value, removing: removing || undefined } : value
+                                  ),
+                              }
+                            : product
+                    )
+                );
 
-            try {
-                await setProductRemovingAction(group, name, year, removing);
-                await refresh();
-            } catch (error) {
-                dispatch(rollbackProductsRemovingAction({ group, name, year }));
-                dispatch(setErrorAction(getErrorMessage(error)));
-            }
+                try {
+                    await setProductRemovingAction(request);
+                } catch (error) {
+                    client.setQueryData<readonly Product[]>(CATALOG_KEYS.products, (products) =>
+                        products?.map((product) =>
+                            product.group === group && product.name === name
+                                ? {
+                                      ...product,
+                                      years: product.years?.map((value) => {
+                                          if (value.year !== year) {
+                                              return value;
+                                          }
+                                          const restored = { ...value };
+                                          if (previousRemoving === undefined) {
+                                              delete restored.removing;
+                                          } else {
+                                              restored.removing = previousRemoving;
+                                          }
+                                          return restored;
+                                      }),
+                                  }
+                                : product
+                        )
+                    );
+                    setError(getErrorMessage(error));
+                    return;
+                }
+
+                try {
+                    await refresh();
+                } catch (error) {
+                    setError(getErrorMessage(error));
+                }
+            });
         },
-        [refresh, dispatch]
+        [refresh, client, setError]
     );
 }

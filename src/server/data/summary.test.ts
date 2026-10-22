@@ -11,7 +11,7 @@ import {
 } from '~/server/data/summary';
 import { getVariants } from '~/server/data/variants';
 import { getYears } from '~/server/data/years';
-import { db } from '~/server/db';
+import { db, withinTransaction } from '~/server/db';
 
 vi.mock(import('~/server/db'));
 vi.mock(import('~/server/data/years'));
@@ -48,7 +48,9 @@ describe('updates', () => {
 
     describe('getSummary', () => {
         it('returns summary', async () => {
-            await expect(getSummary()).resolves.toStrictEqual([
+            await expect(
+                withinTransaction((transactionSession) => getSummary(getYears(undefined, 8), transactionSession))
+            ).resolves.toStrictEqual([
                 {
                     group: 'Uogienės',
                     name: 'Avietės',
@@ -109,7 +111,9 @@ describe('updates', () => {
                 ],
             });
 
-            const result = await getSummary();
+            const result = await withinTransaction((transactionSession) =>
+                getSummary(getYears(undefined, 8), transactionSession)
+            );
 
             expect(result.find((s) => s.name === 'Konservai')?.years).toStrictEqual([
                 {
@@ -139,7 +143,9 @@ describe('updates', () => {
                 ],
             });
 
-            const result = await getSummary();
+            const result = await withinTransaction((transactionSession) =>
+                getSummary(getYears(undefined, 8), transactionSession)
+            );
 
             expect(result.find((s) => s.name === 'Konservai2')?.years).toStrictEqual([
                 { year: 25, amounts: [{ variant: 'd', amount: 10, recycled: false }] },
@@ -147,7 +153,9 @@ describe('updates', () => {
         });
 
         it('returns summary for specified years', async () => {
-            await expect(getSummary([22, 23])).resolves.toStrictEqual([
+            await expect(
+                withinTransaction((transactionSession) => getSummary([22, 23], transactionSession))
+            ).resolves.toStrictEqual([
                 {
                     group: 'Uogienės',
                     name: 'Avietės',
@@ -194,7 +202,7 @@ describe('updates', () => {
                     { $set: { image: '/images/icon.png', photo: '/images/photo.webp' } }
                 );
 
-            const result = await getFullSummary();
+            const result = await withinTransaction((transactionSession) => getFullSummary(transactionSession));
 
             expect(result.summary.find((item) => item.name === 'Avietės')).toMatchObject({
                 image: '/images/icon.png',
@@ -203,7 +211,9 @@ describe('updates', () => {
         });
 
         it('returns summary', async () => {
-            await expect(getFullSummary()).resolves.toStrictEqual({
+            await expect(
+                withinTransaction((transactionSession) => getFullSummary(transactionSession))
+            ).resolves.toStrictEqual({
                 years: [23, 22, 21],
                 groups,
                 variants,
@@ -246,7 +256,7 @@ describe('updates', () => {
                 .collection('products')
                 .updateOne({ group: 'Uogienės', name: 'Braškės' }, { $set: { parent: 'Avietės' } });
 
-            const result = await getFullSummary();
+            const result = await withinTransaction((transactionSession) => getFullSummary(transactionSession));
 
             expect(result.summary).toStrictEqual([
                 {
@@ -286,7 +296,7 @@ describe('updates', () => {
                     { $push: { years: { year: 22, amounts: [{ variant: 'p', amount: 5, home: true }] } } }
                 );
 
-            const result = await getFullSummary();
+            const result = await withinTransaction((transactionSession) => getFullSummary(transactionSession));
 
             const avietes = result.summary.find((s) => s.name === 'Avietės');
             const year22 = avietes?.years?.find((y) => y.year === 22);
@@ -303,7 +313,7 @@ describe('updates', () => {
                 years: [{ year: 23, amounts: [{ variant: 'p', amount: 4, home: true }] }],
             });
 
-            const result = await getFullSummary();
+            const result = await withinTransaction((transactionSession) => getFullSummary(transactionSession));
 
             const entry = result.summary.find((s) => s.name === 'Namų likutis');
 
@@ -339,7 +349,7 @@ describe('updates', () => {
                 },
             ]);
 
-            const result = await getFullSummary();
+            const result = await withinTransaction((transactionSession) => getFullSummary(transactionSession));
 
             expect(result.summary.some((s) => s.name === 'Ciklinis A')).toBe(true);
             expect(result.summary.some((s) => s.name === 'Ciklinis B')).toBe(true);
@@ -363,7 +373,7 @@ describe('updates', () => {
                 ],
             });
 
-            const result = await getFullSummary();
+            const result = await withinTransaction((transactionSession) => getFullSummary(transactionSession));
 
             const avietes = result.summary.find((s) => s.name === 'Avietės');
             const year22 = avietes?.years?.find((y) => y.year === 22);
@@ -375,7 +385,9 @@ describe('updates', () => {
 
     describe('getSummaryUpdates', () => {
         it('returns history entries with recycled amounts for the given year', async () => {
-            const result = await getSummaryUpdates('Uogienės', 'Braškės', 22);
+            const result = await withinTransaction((transactionSession) =>
+                getSummaryUpdates({ group: 'Uogienės', name: 'Braškės', year: 22 }, transactionSession)
+            );
 
             expect(result).toBeInstanceOf(Array);
             expect(result.length).toBeGreaterThan(0);
@@ -386,7 +398,9 @@ describe('updates', () => {
         });
 
         it('only includes entries where recycled field is present', async () => {
-            const result = await getSummaryUpdates('Uogienės', 'Braškės', 22);
+            const result = await withinTransaction((transactionSession) =>
+                getSummaryUpdates({ group: 'Uogienės', name: 'Braškės', year: 22 }, transactionSession)
+            );
 
             const amounts = result.flatMap((e) => e.amounts as unknown as { recycled?: boolean }[]);
             const allHaveRecycled = amounts.every((a) => 'recycled' in a);
@@ -396,19 +410,25 @@ describe('updates', () => {
 
         it('returns empty array for product with no recycled amounts', async () => {
             // Kopūstai has no updates at all
-            const result = await getSummaryUpdates('Daržovės', 'Kopūstai', 21);
+            const result = await withinTransaction((transactionSession) =>
+                getSummaryUpdates({ group: 'Daržovės', name: 'Kopūstai', year: 21 }, transactionSession)
+            );
 
             expect(result).toStrictEqual([]);
         });
 
         it('returns empty array for non-existent product', async () => {
-            const result = await getSummaryUpdates('Uogienės', 'Bruknės', 22);
+            const result = await withinTransaction((transactionSession) =>
+                getSummaryUpdates({ group: 'Uogienės', name: 'Bruknės', year: 22 }, transactionSession)
+            );
 
             expect(result).toStrictEqual([]);
         });
 
         it('returns entries sorted by time descending', async () => {
-            const result = await getSummaryUpdates('Uogienės', 'Braškės', 22);
+            const result = await withinTransaction((transactionSession) =>
+                getSummaryUpdates({ group: 'Uogienės', name: 'Braškės', year: 22 }, transactionSession)
+            );
 
             const times = result.map((e) => e.time);
             const sorted = [...times].sort((a, b) => b - a);
@@ -437,7 +457,9 @@ describe('updates', () => {
                 ],
             });
 
-            const result = await getSummaryUpdates('Daržovės', 'Konservai', 25);
+            const result = await withinTransaction((transactionSession) =>
+                getSummaryUpdates({ group: 'Daržovės', name: 'Konservai', year: 25 }, transactionSession)
+            );
 
             expect(result).toHaveLength(1);
             expect(result[0].amounts).toStrictEqual(
@@ -462,13 +484,17 @@ describe('updates', () => {
                 ],
             });
 
-            const result = await getSummaryUpdates('Daržovės', 'Konservai2', 25);
+            const result = await withinTransaction((transactionSession) =>
+                getSummaryUpdates({ group: 'Daržovės', name: 'Konservai2', year: 25 }, transactionSession)
+            );
 
             expect(result).toStrictEqual([]);
         });
 
         it('returns entries with sessionId field', async () => {
-            const result = await getSummaryUpdates('Uogienės', 'Braškės', 22);
+            const result = await withinTransaction((transactionSession) =>
+                getSummaryUpdates({ group: 'Uogienės', name: 'Braškės', year: 22 }, transactionSession)
+            );
 
             expect(result.length).toBeGreaterThan(0);
             expect(result.every((e) => 'sessionId' in e)).toBe(true);
@@ -477,13 +503,17 @@ describe('updates', () => {
 
     describe('getSummaryUndates', () => {
         it('returns empty array when no undates exist', async () => {
-            const result = await getSummaryUndates('Uogienės', 'Braškės', 22);
+            const result = await withinTransaction((transactionSession) =>
+                getSummaryUndates({ group: 'Uogienės', name: 'Braškės', year: 22 }, transactionSession)
+            );
 
             expect(result).toStrictEqual([]);
         });
 
         it('returns empty array for non-existent product', async () => {
-            const result = await getSummaryUndates('Uogienės', 'Bruknės', 22);
+            const result = await withinTransaction((transactionSession) =>
+                getSummaryUndates({ group: 'Uogienės', name: 'Bruknės', year: 22 }, transactionSession)
+            );
 
             expect(result).toStrictEqual([]);
         });
@@ -509,7 +539,9 @@ describe('updates', () => {
                 ],
             });
 
-            const result = await getSummaryUndates('Uogienės', 'Testinė', 22);
+            const result = await withinTransaction((transactionSession) =>
+                getSummaryUndates({ group: 'Uogienės', name: 'Testinė', year: 22 }, transactionSession)
+            );
 
             expect(result).toBeInstanceOf(Array);
             expect(result.length).toBeGreaterThan(0);
@@ -539,7 +571,9 @@ describe('updates', () => {
                 ],
             });
 
-            const result = await getSummaryUndates('Daržovės', 'Testinė2', 22);
+            const result = await withinTransaction((transactionSession) =>
+                getSummaryUndates({ group: 'Daržovės', name: 'Testinė2', year: 22 }, transactionSession)
+            );
 
             // No recycled field means no results match the filter
             expect(result).toStrictEqual([]);

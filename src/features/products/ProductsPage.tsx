@@ -21,7 +21,7 @@ import './ProductsPage.css';
 
 export function ProductsPage() {
     const deleteProduct = useDeleteProduct();
-    const handleDelete = ({ group, name }: Product) => deleteProduct(group, name);
+    const handleDelete = ({ group, name }: Product) => deleteProduct({ group, name });
 
     return (
         <UpdatingProductsWrapper>

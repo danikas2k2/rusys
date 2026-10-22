@@ -1,7 +1,13 @@
-import equal from 'fast-deep-equal/es6/react';
-import { useSelector } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
 
-import type { WithYearsState } from './types';
+import { getProductsAction } from '~/server/actions/products';
+import { CATALOG_KEYS } from '~/store/catalog';
 
 export const useYears = (n?: number): readonly number[] =>
-    useSelector((state: WithYearsState) => (n ? state.years?.slice(0, n) : state.years) ?? [], equal);
+    (
+        useQuery({
+            queryKey: CATALOG_KEYS.years,
+            queryFn: async () => (await getProductsAction()).years,
+            enabled: false,
+        }).data ?? []
+    ).slice(0, n);

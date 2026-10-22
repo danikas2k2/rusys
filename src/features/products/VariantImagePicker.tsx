@@ -20,7 +20,7 @@ export function VariantImagePicker({ group, name, variant, image }: VariantImage
         async (dataUrl: string) => {
             setProgress(0);
             try {
-                await setVariantImage(group, name, variant, dataUrl, setProgress);
+                await setVariantImage({ group, name, variant, image: dataUrl }, setProgress);
             } finally {
                 setProgress(undefined);
             }
@@ -29,7 +29,7 @@ export function VariantImagePicker({ group, name, variant, image }: VariantImage
     );
 
     const handleRemove = useCallback(
-        () => setVariantImage(group, name, variant, ''),
+        () => setVariantImage({ group, name, variant, image: '' }),
         [group, name, variant, setVariantImage]
     );
 

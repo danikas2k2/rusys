@@ -1,14 +1,16 @@
 import { useCallback } from 'react';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
+import type { DeleteProduct } from '~/schema';
 import { deleteProductAction } from '~/server/actions/products';
 
-export function useDeleteProduct(): (group: string, name: string) => Promise<void> {
+export function useDeleteProduct(): (request: DeleteProduct) => Promise<void> {
     const refresh = useGetProducts();
     return useCallback(
-        async (group: string, name: string): Promise<void> => {
+        async (request: DeleteProduct): Promise<void> => {
+            const { group, name } = request;
             if (group && name) {
-                await deleteProductAction(group, name);
+                await deleteProductAction(request);
                 await refresh();
             }
         },

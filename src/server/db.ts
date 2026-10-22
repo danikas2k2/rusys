@@ -1,4 +1,4 @@
-import { MongoClient, type ClientSession, type Db } from 'mongodb';
+import { MongoClient, type ClientSession, type Db, type TransactionOptions } from 'mongodb';
 
 /**
  * Create missing indexes for the collections in the database.
@@ -107,26 +107,30 @@ export async function db(name = process.env.DB_NAME ?? '', client?: MongoClient)
  * Execute a function within a MongoDB transaction.
  *
  * @param fn The function to execute within the transaction. It receives a MongoDB session as an argument.
+ * @param options An optional transaction options to customize the transaction behavior.
  * @param client An optional MongoDB client instance. If not provided, a new client will be created.
  * @returns A promise that resolves to true if the transaction was successful, false otherwise.
  */
-export async function withTransaction(
-    fn: (session: ClientSession) => Promise<boolean>,
+export async function withinTransaction<T = boolean>(
+    fn: (session: ClientSession) => Promise<T>,
+    options?: TransactionOptions,
     client?: MongoClient
-): Promise<boolean> {
+): Promise<T> {
     const session = (client ?? (await getClient())).startSession();
     try {
         session.startTransaction({
             readPreference: 'primary',
             readConcern: { level: 'local' },
             writeConcern: { w: 'majority' },
+            ...options,
         });
-        if (await fn(session)) {
+        const result = await fn(session);
+        if (result) {
             await session.commitTransaction();
-            return true;
+        } else {
+            await session.abortTransaction();
         }
-        await session.abortTransaction();
-        return false;
+        return result;
     } catch (e) {
         await session.abortTransaction();
         throw e;

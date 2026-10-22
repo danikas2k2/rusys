@@ -1,3 +1,6 @@
+import { ClientSession } from 'mongodb';
+
+import { ZodError } from '~/schema';
 import { getSummaryHistory, readSummary } from '~/server/actions/summary';
 import { requireSession } from '~/server/auth/session';
 import { getSummaryHistoryData } from '~/server/data/actionHistory';
@@ -15,19 +18,43 @@ describe('getSummaryHistory', () => {
     it('loads summary history through the data boundary', async () => {
         vi.mocked(getSummaryHistoryData).mockResolvedValue({ updates: [], undates: [] });
 
-        await expect(getSummaryHistory('A', 'B', 2026)).resolves.toStrictEqual({ updates: [], undates: [] });
+        await expect(getSummaryHistory({ group: 'A', name: 'B', year: 2026 })).resolves.toStrictEqual({
+            updates: [],
+            undates: [],
+        });
 
-        expect(getSummaryHistoryData).toHaveBeenCalledExactlyOnceWith('A', 'B', 2026);
+        expect(getSummaryHistoryData).toHaveBeenCalledExactlyOnceWith(
+            { group: 'A', name: 'B', year: 2026 },
+            expect.any(ClientSession)
+        );
     });
 
     it.each([
-        ['group', () => getSummaryHistory({} as never, 'B', 2026)],
-        ['name', () => getSummaryHistory('A', {} as never, 2026)],
-        ['year', () => getSummaryHistory('A', 'B', Number.NaN)],
+        ['group', () => getSummaryHistory({ group: {} as never, name: 'B', year: 2026 })],
+        ['name', () => getSummaryHistory({ group: 'A', name: {} as never, year: 2026 })],
+        ['year', () => getSummaryHistory({ group: 'A', name: 'B', year: Number.NaN })],
+        ['request', () => getSummaryHistory(null as never)],
+        ['extra fields', () => getSummaryHistory({ group: 'A', name: 'B', year: 0, extra: true } as never)],
     ] as const)('rejects invalid %s before reading data', async (_label, call) => {
-        await expect(call()).rejects.toThrow('Invalid history selection');
+        await expect(call()).rejects.toBeInstanceOf(ZodError);
 
         expect(requireSession).toHaveBeenCalledExactlyOnceWith();
+        expect(getSummaryHistoryData).not.toHaveBeenCalled();
+    });
+
+    it('uses normalized identities from the schema', async () => {
+        await getSummaryHistory({ group: ' A ', name: ' B ', year: 0 });
+
+        expect(getSummaryHistoryData).toHaveBeenCalledExactlyOnceWith(
+            { group: 'A', name: 'B', year: 0 },
+            expect.any(ClientSession)
+        );
+    });
+
+    it('checks the session before validating or reading history', async () => {
+        vi.mocked(requireSession).mockRejectedValueOnce(new Error('Unauthorized'));
+
+        await expect(getSummaryHistory(null as never)).rejects.toThrow('Unauthorized');
         expect(getSummaryHistoryData).not.toHaveBeenCalled();
     });
 });
@@ -50,3 +77,5 @@ describe('readSummary', () => {
         expect(getFullSummary).not.toHaveBeenCalled();
     });
 });
+
+vi.mock(import('~/server/db'));

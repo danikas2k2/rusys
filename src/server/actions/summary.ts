@@ -1,20 +1,19 @@
 'use server';
 
 import type { ProductHistory } from '~/common';
-import { isRequiredString, isYear } from '~/server/actions/validation';
+import * as schema from '~/schema';
 import { requireSession } from '~/server/auth/session';
 import { getSummaryHistoryData } from '~/server/data/actionHistory';
 import { getFullSummary } from '~/server/data/summary';
+import { withinTransaction } from '~/server/db';
 
 export async function readSummary() {
     await requireSession();
-    return getFullSummary();
+    return withinTransaction(getFullSummary);
 }
 
-export async function getSummaryHistory(group: string, name: string, year: number): Promise<ProductHistory> {
+export async function getSummaryHistory(request: schema.ProductYearIdentity): Promise<ProductHistory> {
     await requireSession();
-    if (!isRequiredString(group) || !isRequiredString(name) || !isYear(year)) {
-        throw new Error('Invalid history selection');
-    }
-    return getSummaryHistoryData(group, name, year);
+    const parsed = schema.productYearIdentity.parse(request);
+    return withinTransaction((session) => getSummaryHistoryData(parsed, session));
 }
