@@ -75,10 +75,9 @@ describe('<LanguageToggle>', () => {
 
     it('marks the saved preference secure on HTTPS', async () => {
         render(<LocaleShell initialLocale="en-US" />);
-        const originalWindow = window;
         vi.stubGlobal(
             'window',
-            new Proxy(originalWindow, {
+            new Proxy(window, {
                 get(target, property) {
                     return property === 'location' ? { protocol: 'https:' } : Reflect.get(target, property);
                 },
