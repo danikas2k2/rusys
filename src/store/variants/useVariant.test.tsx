@@ -5,14 +5,32 @@ import { mockQuery } from '@tests/MockQuery';
 
 import React from 'react';
 
+import { getVariantsAction } from '~/server/actions/variants';
 import { CATALOG_KEYS } from '~/store/catalog';
 import { useVariant } from './useVariant';
 import { useVariants } from './useVariants';
+
+vi.mock(import('~/server/actions/variants'));
 
 describe('useVariant', () => {
     const variants = getVariantsFixture();
 
     afterEach(() => vi.clearAllMocks());
+
+    it('loads the full list only when explicitly fetched and selects the requested variant', async () => {
+        vi.mocked(getVariantsAction).mockResolvedValueOnce({ variants, groups: [] });
+        const { client, wrapper } = mockQuery();
+        const { result } = renderHook(() => useVariant(variants[0].group, variants[0].variant), { wrapper });
+
+        expect(result.current).toBeUndefined();
+        expect(getVariantsAction).not.toHaveBeenCalled();
+
+        await client.getQueryCache().find({ queryKey: CATALOG_KEYS.variants })!.fetch();
+        await waitFor(() => expect(result.current).toStrictEqual(variants[0]));
+
+        expect(getVariantsAction).toHaveBeenCalledExactlyOnceWith();
+        expect(client.getQueryData(CATALOG_KEYS.variants)).toStrictEqual(variants);
+    });
 
     it('returns variant details', () => {
         const { result } = renderHook(() => useVariant('Uogienės', 'p'), {

@@ -1,6 +1,7 @@
 /** @vitest-environment node */
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 
+import type { Summary } from '~/common/data';
 import { getGroups } from '~/server/data/groups';
 import {
     getFullSummary,
@@ -44,6 +45,14 @@ describe('updates', () => {
         );
 
         expect(result).toStrictEqual([{ group: 'Daržovės', name: 'Tėvas', years: [{ year: 23, amounts: [] }] }]);
+    });
+
+    it('keeps a legacy summary year with missing amounts as an empty year', () => {
+        const legacy = { group: 'Food', name: 'Apple', years: [{ year: 23 }] } as unknown as Summary;
+
+        expect(rollUpSummaries([legacy], new Map())).toStrictEqual([
+            { group: 'Food', name: 'Apple', years: [{ year: 23, amounts: [] }] },
+        ]);
     });
 
     describe('getSummary', () => {

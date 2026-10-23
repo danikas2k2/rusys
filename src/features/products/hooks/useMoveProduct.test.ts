@@ -12,40 +12,40 @@ describe('useMoveProduct', () => {
 
     it('calls move action', async () => {
         const { result } = renderHook(() => useMoveProduct(), { wrapper: MockData });
-        await result.current({ group: 'Uogienės', name: 'Avietės', newGroup: 'Daržovės' });
+        await result.current({ group: 'Uogienės', name: 'Avietės', targetGroup: 'Daržovės' });
 
         expect(moveProductAction).toHaveBeenNthCalledWith(1, {
             group: 'Uogienės',
             name: 'Avietės',
-            newGroup: 'Daržovės',
-            newName: undefined,
+            targetGroup: 'Daržovės',
+            targetName: undefined,
         });
     });
 
     it('does not call move action with same name', async () => {
         const { result } = renderHook(() => useMoveProduct(), { wrapper: MockData });
-        await result.current({ group: 'Uogienės', name: 'Avietės', newGroup: 'Uogienės' });
+        await result.current({ group: 'Uogienės', name: 'Avietės', targetGroup: 'Uogienės' });
 
         expect(moveProductAction).not.toHaveBeenCalled();
     });
 
     it('does not call move action with empty name', async () => {
         const { result } = renderHook(() => useMoveProduct(), { wrapper: MockData });
-        await result.current({ group: 'Uogienės', name: '', newGroup: 'Daržovės' });
+        await result.current({ group: 'Uogienės', name: '', targetGroup: 'Daržovės' });
 
         expect(moveProductAction).not.toHaveBeenCalled();
     });
 
     it('does not call move action with empty group', async () => {
         const { result } = renderHook(() => useMoveProduct(), { wrapper: MockData });
-        await result.current({ group: '', name: 'Avietės', newGroup: 'Daržovės' });
+        await result.current({ group: '', name: 'Avietės', targetGroup: 'Daržovės' });
 
         expect(moveProductAction).not.toHaveBeenCalled();
     });
 
     it('does not call move action with empty new group', async () => {
         const { result } = renderHook(() => useMoveProduct(), { wrapper: MockData });
-        await result.current({ group: 'Uogienės', name: 'Avietės', newGroup: '' });
+        await result.current({ group: 'Uogienės', name: 'Avietės', targetGroup: '' });
 
         expect(moveProductAction).not.toHaveBeenCalled();
     });

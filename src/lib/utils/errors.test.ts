@@ -1,5 +1,5 @@
 import { translate } from '~/lib/translate';
-import { getErrorMessage, getTranslatedErrorMessage } from '~/lib/utils/errors';
+import { getErrorMessage } from '~/lib/utils/errors';
 import { SchemaError, ZodError } from '~/schema';
 
 describe('getErrorMessage', () => {
@@ -30,14 +30,12 @@ describe('getErrorMessage', () => {
     });
 
     it('translates known error codes only at presentation time', () => {
-        const renderMessage = (message: string) => `lt:${message}`;
-
-        expect(getTranslatedErrorMessage(new Error(SchemaError.RequestFailed), renderMessage)).toBe(
-            `lt:${SchemaError.RequestFailed}`
+        expect(translate(getErrorMessage(new Error(SchemaError.RequestFailed)), 'lt-LT')).toBe(
+            translate(SchemaError.RequestFailed, 'lt-LT')
         );
 
-        expect(getTranslatedErrorMessage(new Error('database unavailable'), renderMessage)).toBe(
-            `lt:${SchemaError.Unknown}`
+        expect(translate(getErrorMessage(new Error('database unavailable')), 'lt-LT')).toBe(
+            translate(SchemaError.Unknown, 'lt-LT')
         );
     });
 

@@ -13,29 +13,34 @@ vi.mock(import('~/server/data/summary'));
 describe('action history data', () => {
     afterEach(() => vi.clearAllMocks());
 
-    it('finishes each read before using the same session for the next read', async () => {
-        let updatesFinished = false;
-        vi.mocked(getProductUpdates).mockImplementationOnce(async () => {
-            await Promise.resolve();
-            updatesFinished = true;
-            return [];
-        });
-        vi.mocked(getProductUndates).mockImplementationOnce(async () => {
-            expect(updatesFinished).toBe(true);
+    it.each([
+        [getProductHistoryData, getProductUpdates, getProductUndates],
+        [getSummaryHistoryData, getSummaryUpdates, getSummaryUndates],
+    ])(
+        'starts history reads in parallel with the same transaction session (%#)',
+        async (getHistory, getUpdates, getUndates) => {
+            const updates = Promise.withResolvers<Awaited<ReturnType<typeof getUpdates>>>();
+            const undates = Promise.withResolvers<Awaited<ReturnType<typeof getUndates>>>();
+            vi.mocked(getUpdates).mockReturnValueOnce(updates.promise);
+            vi.mocked(getUndates).mockReturnValueOnce(undates.promise);
+            const request = { group: 'A', name: 'B', year: 2026 };
 
-            return [];
-        });
-        const request = { group: 'A', name: 'B', year: 2026 };
+            await withinTransaction(async (session) => {
+                const result = getHistory(request, session);
 
-        await withinTransaction(async (session) => {
-            const result = await getProductHistoryData(request, session);
+                // Both reads must start before either response is available.
+                expect(getUpdates).toHaveBeenCalledExactlyOnceWith(request, session);
+                expect(getUndates).toHaveBeenCalledExactlyOnceWith(request, session);
 
-            expect(getProductUpdates).toHaveBeenCalledWith(request, session);
-            expect(getProductUndates).toHaveBeenCalledWith(request, session);
+                const updateData = [{ group: 'A', name: 'B', time: 1 }];
+                const undateData = [{ group: 'A', name: 'B', time: 2 }];
+                updates.resolve(updateData);
+                undates.resolve(undateData);
 
-            return result;
-        });
-    });
+                await expect(result).resolves.toStrictEqual({ updates: updateData, undates: undateData });
+            });
+        }
+    );
 
     it('loads product updates and removals for the requested item', async () => {
         vi.mocked(getProductUpdates).mockResolvedValueOnce([]);

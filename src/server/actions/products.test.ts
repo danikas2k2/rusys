@@ -70,6 +70,30 @@ describe('product actions', () => {
         vi.clearAllMocks();
     });
 
+    it('starts catalog reads in parallel with the same transaction session', async () => {
+        const products = Promise.withResolvers<Awaited<ReturnType<typeof getProductsWithYears>>>();
+        const groups = Promise.withResolvers<Awaited<ReturnType<typeof getGroups>>>();
+        const variants = Promise.withResolvers<Awaited<ReturnType<typeof getVariants>>>();
+        vi.mocked(getProductsWithYears).mockReturnValueOnce(products.promise);
+        vi.mocked(getGroups).mockReturnValueOnce(groups.promise);
+        vi.mocked(getVariants).mockReturnValueOnce(variants.promise);
+
+        const result = getProductsAction();
+
+        // Every read must start while all responses are still pending.
+        await vi.waitFor(() => {
+            expect(getProductsWithYears).toHaveBeenCalledExactlyOnceWith(transactionSession);
+            expect(getGroups).toHaveBeenCalledExactlyOnceWith(transactionSession);
+            expect(getVariants).toHaveBeenCalledExactlyOnceWith(transactionSession);
+        });
+
+        products.resolve({ products: [], years: [2026] });
+        groups.resolve([]);
+        variants.resolve([]);
+
+        await expect(result).resolves.toStrictEqual({ products: [], years: [2026], groups: [], variants: [] });
+    });
+
     it('propagates duplicate and parent errors from the data transaction', async () => {
         vi.mocked(addProduct).mockRejectedValueOnce(new Error(SchemaError.NameAlreadyExists));
 
@@ -77,13 +101,13 @@ describe('product actions', () => {
 
         vi.mocked(renameProduct).mockRejectedValueOnce(new Error(SchemaError.NameAlreadyExists));
 
-        await expect(renameProductAction({ group: 'A', name: 'Apple', newName: 'Pear' })).rejects.toThrow(
+        await expect(renameProductAction({ group: 'A', name: 'Apple', targetName: 'Pear' })).rejects.toThrow(
             SchemaError.NameAlreadyExists
         );
 
         vi.mocked(moveProductOccurrences).mockRejectedValueOnce(new Error(SchemaError.CannotMoveProductWithChildren));
 
-        await expect(moveProductAction({ group: 'A', name: 'Parent', newGroup: 'B' })).rejects.toThrow(
+        await expect(moveProductAction({ group: 'A', name: 'Parent', targetGroup: 'B' })).rejects.toThrow(
             SchemaError.CannotMoveProductWithChildren
         );
         expect(getProducts).not.toHaveBeenCalled();
@@ -92,8 +116,8 @@ describe('product actions', () => {
     it.each([
         () => addProductAction({ group: 'A', name: 'P', extra: true } as never),
         () => deleteProductAction({ group: 'A', name: 'P', extra: true } as never),
-        () => renameProductAction({ group: 'A', name: 'P', newName: 'Q', extra: true } as never),
-        () => moveProductAction({ group: 'A', name: 'P', newGroup: 'B', extra: true } as never),
+        () => renameProductAction({ group: 'A', name: 'P', targetName: 'Q', extra: true } as never),
+        () => moveProductAction({ group: 'A', name: 'P', targetGroup: 'B', extra: true } as never),
         () => setProductParentAction({ group: 'A', name: 'P', parent: undefined, extra: true } as never),
         () => setProductImageAction({ group: 'A', name: 'P', image: '', extra: true } as never),
         () => setProductMissingAction({ group: 'A', name: 'P', missing: false, extra: true } as never),
@@ -166,10 +190,14 @@ describe('product actions', () => {
         ['blank product name', () => addProductAction({ group: 'A', name: '   ' }), addProduct],
         ['colon in product name', () => addProductAction({ group: 'A', name: 'P:Q' }), addProduct],
         ['deleted product identity', () => deleteProductAction({ group: 42 as never, name: 'P' }), deleteProduct],
-        ['new product name', () => renameProductAction({ group: 'A', name: 'P', newName: {} as never }), renameProduct],
+        [
+            'new product name',
+            () => renameProductAction({ group: 'A', name: 'P', targetName: {} as never }),
+            renameProduct,
+        ],
         [
             'target group',
-            () => moveProductAction({ group: 'A', name: 'P', newGroup: 42 as never }),
+            () => moveProductAction({ group: 'A', name: 'P', targetGroup: 42 as never }),
             moveProductOccurrences,
         ],
         [
@@ -255,8 +283,8 @@ describe('product actions', () => {
 
     it.each([
         () => addProductAction({ group: 'A', name: '   ' }),
-        () => renameProductAction({ group: 'A', name: 'P', newName: 'P:Q' }),
-        () => moveProductAction({ group: 'A', name: 'P', newGroup: 'B', newName: 'P:Q' }),
+        () => renameProductAction({ group: 'A', name: 'P', targetName: 'P:Q' }),
+        () => moveProductAction({ group: 'A', name: 'P', targetGroup: 'B', targetName: 'P:Q' }),
     ])('validates malformed product arguments before reading products', async (call) => {
         await expect(call()).rejects.toBeInstanceOf(ZodError);
         expect(getProducts).not.toHaveBeenCalled();
@@ -318,10 +346,10 @@ describe('product actions', () => {
         expect(addProduct).toHaveBeenCalledExactlyOnceWith({ group: 'A', name: 'PEAR' }, transactionSession);
 
         vi.mocked(renameProduct).mockResolvedValueOnce(true);
-        await renameProductAction({ group: ' A ', name: ' Pear ', newName: ' Apple ' });
+        await renameProductAction({ group: ' A ', name: ' Pear ', targetName: ' Apple ' });
 
         expect(renameProduct).toHaveBeenCalledExactlyOnceWith(
-            { group: 'A', name: 'Pear', newName: 'Apple' },
+            { group: 'A', name: 'Pear', targetName: 'Apple' },
             transactionSession
         );
     });
@@ -426,15 +454,15 @@ describe('product actions', () => {
         ],
         [
             'rename',
-            () => renameProductAction({ group: 'A', name: 'P', newName: 'New' }),
+            () => renameProductAction({ group: 'A', name: 'P', targetName: 'New' }),
             renameProduct,
-            [{ group: 'A', name: 'P', newName: 'New' }, transactionSession],
+            [{ group: 'A', name: 'P', targetName: 'New' }, transactionSession],
         ],
         [
             'move',
-            () => moveProductAction({ group: 'A', name: 'P', newGroup: 'B', newName: 'New' }),
+            () => moveProductAction({ group: 'A', name: 'P', targetGroup: 'B', targetName: 'New' }),
             moveProductOccurrences,
-            [{ group: 'A', name: 'P', newGroup: 'B', newName: 'New' }, transactionSession],
+            [{ group: 'A', name: 'P', targetGroup: 'B', targetName: 'New' }, transactionSession],
         ],
         [
             'set parent',

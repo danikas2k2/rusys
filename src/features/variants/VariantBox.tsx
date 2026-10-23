@@ -94,15 +94,22 @@ export function VariantBox({
             count: initialCount,
             units: initialUnitsResolved,
         },
-        validate: schemaResolver(
-            schema.createVariant.refine(
-                ({ group, variant }: schema.VariantIdentity) =>
-                    (group === initialGroup && variant === initialVariant) ||
-                    variants.every((v) => !equals(v.group, group) || !equals(v.variant, variant)),
-                { path: ['name'], error: schema.SchemaError.VariantAlreadyExists }
-            ),
-            { sync: true }
-        ),
+        validate: (values) => {
+            // NumberInput uses strings for empty and incomplete numeric values.
+            const errors = schemaResolver(
+                schema.createVariant.refine(
+                    ({ group, variant }: schema.VariantIdentity) =>
+                        (group === initialGroup && variant === initialVariant) ||
+                        variants.every((v) => !equals(v.group, group) || !equals(v.variant, variant)),
+                    { path: ['name'], error: schema.SchemaError.VariantAlreadyExists }
+                ),
+                { sync: true }
+            )({ ...values, count: typeof values.count === 'number' ? values.count : undefined });
+
+            return typeof values.count === 'string' && values.count !== ''
+                ? { ...errors, count: schema.SchemaError.AmountRequired }
+                : errors;
+        },
     });
 
     const formRef = useRef(form);
