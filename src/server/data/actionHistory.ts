@@ -9,10 +9,8 @@ export async function getProductHistoryData(
     request: schema.ProductYearIdentity,
     session: ClientSession
 ): Promise<ProductHistory> {
-    const [updates, undates] = await Promise.all([
-        getProductUpdates(request, session),
-        getProductUndates(request, session),
-    ]);
+    const updates = await getProductUpdates(request, session);
+    const undates = await getProductUndates(request, session);
     return { updates, undates };
 }
 
@@ -20,9 +18,7 @@ export async function getSummaryHistoryData(
     request: schema.ProductYearIdentity,
     session: ClientSession
 ): Promise<ProductHistory> {
-    const [updates, undates] = await Promise.all([
-        getSummaryUpdates(request, session),
-        getSummaryUndates(request, session),
-    ]);
+    const updates = await getSummaryUpdates(request, session);
+    const undates = await getSummaryUndates(request, session);
     return { updates, undates };
 }

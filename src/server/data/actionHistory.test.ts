@@ -17,7 +17,7 @@ describe('action history data', () => {
         [getProductHistoryData, getProductUpdates, getProductUndates],
         [getSummaryHistoryData, getSummaryUpdates, getSummaryUndates],
     ])(
-        'starts history reads in parallel with the same transaction session (%#)',
+        'waits for updates before starting removals with the same transaction session (%#)',
         async (getHistory, getUpdates, getUndates) => {
             const updates = Promise.withResolvers<Awaited<ReturnType<typeof getUpdates>>>();
             const undates = Promise.withResolvers<Awaited<ReturnType<typeof getUndates>>>();
@@ -28,19 +28,32 @@ describe('action history data', () => {
             await withinTransaction(async (session) => {
                 const result = getHistory(request, session);
 
-                // Both reads must start before either response is available.
                 expect(getUpdates).toHaveBeenCalledExactlyOnceWith(request, session);
-                expect(getUndates).toHaveBeenCalledExactlyOnceWith(request, session);
+                expect(getUndates).not.toHaveBeenCalled();
 
                 const updateData = [{ group: 'A', name: 'B', time: 1 }];
                 const undateData = [{ group: 'A', name: 'B', time: 2 }];
                 updates.resolve(updateData);
+                await vi.waitFor(() => expect(getUndates).toHaveBeenCalledExactlyOnceWith(request, session));
                 undates.resolve(undateData);
 
                 await expect(result).resolves.toStrictEqual({ updates: updateData, undates: undateData });
             });
         }
     );
+
+    it.each([
+        [getProductHistoryData, getProductUpdates, getProductUndates],
+        [getSummaryHistoryData, getSummaryUpdates, getSummaryUndates],
+    ])('skips removals if the updates read fails (%#)', async (getHistory, getUpdates, getUndates) => {
+        const cause = new Error('History read failed');
+        vi.mocked(getUpdates).mockRejectedValueOnce(cause);
+        const request = { group: 'A', name: 'B', year: 2026 };
+
+        await expect(withinTransaction((session) => getHistory(request, session))).rejects.toBe(cause);
+
+        expect(getUndates).not.toHaveBeenCalled();
+    });
 
     it('loads product updates and removals for the requested item', async () => {
         vi.mocked(getProductUpdates).mockResolvedValueOnce([]);

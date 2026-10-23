@@ -70,7 +70,7 @@ describe('product actions', () => {
         vi.clearAllMocks();
     });
 
-    it('starts catalog reads in parallel with the same transaction session', async () => {
+    it('waits for each catalog read before starting the next with the same transaction session', async () => {
         const products = Promise.withResolvers<Awaited<ReturnType<typeof getProductsWithYears>>>();
         const groups = Promise.withResolvers<Awaited<ReturnType<typeof getGroups>>>();
         const variants = Promise.withResolvers<Awaited<ReturnType<typeof getVariants>>>();
@@ -80,18 +80,45 @@ describe('product actions', () => {
 
         const result = getProductsAction();
 
-        // Every read must start while all responses are still pending.
         await vi.waitFor(() => {
             expect(getProductsWithYears).toHaveBeenCalledExactlyOnceWith(transactionSession);
-            expect(getGroups).toHaveBeenCalledExactlyOnceWith(transactionSession);
-            expect(getVariants).toHaveBeenCalledExactlyOnceWith(transactionSession);
         });
 
+        expect(getGroups).not.toHaveBeenCalled();
+        expect(getVariants).not.toHaveBeenCalled();
+
         products.resolve({ products: [], years: [2026] });
+        await vi.waitFor(() => expect(getGroups).toHaveBeenCalledExactlyOnceWith(transactionSession));
+
+        expect(getVariants).not.toHaveBeenCalled();
+
         groups.resolve([]);
+        await vi.waitFor(() => expect(getVariants).toHaveBeenCalledExactlyOnceWith(transactionSession));
         variants.resolve([]);
 
         await expect(result).resolves.toStrictEqual({ products: [], years: [2026], groups: [], variants: [] });
+    });
+
+    it('does not start remaining catalog reads after the product read fails', async () => {
+        const cause = new Error('Product read failed');
+        vi.mocked(getProductsWithYears).mockRejectedValueOnce(cause);
+
+        await expect(getProductsAction()).rejects.toBe(cause);
+
+        expect(getGroups).not.toHaveBeenCalled();
+        expect(getVariants).not.toHaveBeenCalled();
+    });
+
+    it('does not start the variants read after the group read fails', async () => {
+        const cause = new Error('Group read failed');
+        vi.mocked(getProductsWithYears).mockResolvedValueOnce({ products: [], years: [] });
+        vi.mocked(getGroups).mockRejectedValueOnce(cause);
+
+        await expect(getProductsAction()).rejects.toBe(cause);
+
+        expect(getProductsWithYears).toHaveBeenCalledExactlyOnceWith(transactionSession);
+        expect(getGroups).toHaveBeenCalledExactlyOnceWith(transactionSession);
+        expect(getVariants).not.toHaveBeenCalled();
     });
 
     it('propagates duplicate and parent errors from the data transaction', async () => {

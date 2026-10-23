@@ -39,11 +39,9 @@ async function requireStockAuthor(): Promise<string> {
 export async function getProductsAction() {
     await requireSession();
     return withinTransaction(async (session) => {
-        const [data, groups, variants] = await Promise.all([
-            getProductsWithYears(session),
-            getGroups(session),
-            getVariants(session),
-        ]);
+        const data = await getProductsWithYears(session);
+        const groups = await getGroups(session);
+        const variants = await getVariants(session);
         return { ...data, groups, variants };
     });
 }
