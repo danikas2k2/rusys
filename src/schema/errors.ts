@@ -64,6 +64,7 @@ export enum SchemaError {
     InvalidYear = 'Year must be a number',
 }
 
+/** Narrows an exact shared error message so presentation code can recognize and translate it. */
 export function isSchemaError(value: string): value is SchemaError {
     return Object.values(SchemaError).includes(value as SchemaError);
 }

@@ -1,3 +1,4 @@
+/** Shared form and server request schemas, inferred types, and validation errors. */
 export { ZodError } from 'zod';
 export * from './year';
 export * from './groups';

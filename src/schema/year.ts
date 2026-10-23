@@ -2,6 +2,10 @@ import z from 'zod';
 
 import { SchemaError } from '~/schema/errors';
 
+/**
+ * Accepts a non-negative integer without coercion from strings.
+ * Zero is supported for stock operations that combine years; no calendar-year minimum is enforced.
+ */
 export const validYear = z
     .number(SchemaError.InvalidYear)
     .int(SchemaError.InvalidYear)
