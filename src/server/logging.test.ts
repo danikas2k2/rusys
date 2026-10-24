@@ -157,6 +157,33 @@ describe('structured server logging', () => {
         expect(String(stderrOutput.mock.calls[0][0])).not.toMatch(/sensitive|example|secret|cookie/);
     });
 
+    it.each(['edge', undefined])('ignores request failures outside Node when NEXT_RUNTIME is %s', async (runtime) => {
+        vi.stubEnv('NEXT_RUNTIME', runtime);
+        const inspect = vi.fn(() => {
+            throw new Error('must not inspect request or exception data');
+        });
+        const error = new Proxy(new Error('sensitive error'), { get: inspect });
+        const request = new Proxy(
+            { path: '/person@example.com?token=secret', method: 'GET', headers: { cookie: 'secret' } },
+            { get: inspect }
+        );
+        const context = new Proxy(
+            {
+                routerKind: 'App Router' as const,
+                routeType: 'route' as const,
+                routePath: '/[...path]',
+                revalidateReason: undefined,
+            },
+            { get: inspect }
+        );
+
+        await expect(onRequestError(error, request, context)).resolves.toBeUndefined();
+
+        expect(inspect).not.toHaveBeenCalled();
+        expect(stdout.write).not.toHaveBeenCalled();
+        expect(stderr.write).not.toHaveBeenCalled();
+    });
+
     it('keeps the collector allowlist synchronized with emitted records and rejects appended payloads', () => {
         const config = readFileSync('docker/monitoring/config.alloy', 'utf8');
         const expression = config.match(/expression = `([^`]*\?P<safe_app>[^`]*)`/)?.[1];
