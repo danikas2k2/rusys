@@ -1,89 +1,69 @@
-import type { Db } from 'mongodb';
+import type { ClientSession, Db } from 'mongodb';
 
-import type { ExportArchiveData, Group, Product, UpdateVariant, Variant } from '~/common/data';
+import type {
+    ExportArchiveData,
+    Group,
+    MoveProduct,
+    Product,
+    RenameGroup,
+    RenameVariant,
+    SerializedArchiveData,
+    Variant,
+} from '~/schema';
 import { deleteGroup, renameGroup } from '~/server/data/groups';
 import { getProductVariants, moveProduct, renameProductsGroup, renameProductsVariant } from '~/server/data/products';
 import { hasEffect } from '~/server/data/utils';
 import { copyVariants, deleteVariant, renameVariant, renameVariantsGroup } from '~/server/data/variants';
-import { db, withTransaction } from '~/server/db';
+import { db } from '~/server/db';
 
-export const moveProductOccurrences = (
-    group: string,
-    name: string,
-    newGroup: string,
-    newName?: string
-): Promise<boolean> =>
-    withTransaction(async (session) => {
-        // A product's parent link is scoped to its own group, so moving it to another group
-        // while it has children would orphan them across groups — block it instead.
-        const hasChildren = await (
-            await db()
-        )
-            .collection<Product>('products')
-            .countDocuments({ group, parent: name }, { session });
-        if (hasChildren) {
-            return false;
-        }
-        if (!(await moveProduct(group, name, newGroup, newName, session))) {
-            return false;
-        }
-        const variants = await getProductVariants(newGroup, newName ?? name, session);
-        if (variants?.length) {
-            await copyVariants(group, newGroup, variants, session);
-        }
-        return true;
-    });
-
-export const renameVariantOccurrences = (
-    group: string,
-    variant: string,
-    newVariant: string,
-    update?: UpdateVariant
-): Promise<boolean> =>
-    withTransaction(async (session) => {
-        if (await renameVariant(group, variant, newVariant, update, session)) {
-            await renameProductsVariant(group, variant, newVariant, session);
-            return true;
-        }
+export async function moveProductOccurrences(request: MoveProduct, session: ClientSession): Promise<boolean> {
+    if (!(await moveProduct(request, session))) {
         return false;
-    });
+    }
+    const variants = await getProductVariants(request.targetGroup, request.targetName ?? request.name, session);
+    if (variants?.length) {
+        await copyVariants(request.group, request.targetGroup, variants, session);
+    }
+    return true;
+}
 
-export const deleteVariantOccurrences = (group: string, variant: string): Promise<boolean> =>
-    withTransaction(async (session) => await deleteVariant(group, variant, session));
-
-export const renameGroupOccurrences = (
-    group: string,
-    newGroup: string,
-    annual: boolean = true,
-    review: boolean = false,
-    image?: string
-): Promise<boolean> =>
-    withTransaction(async (session) => {
-        if (await renameGroup(group, newGroup, annual, review, image, session)) {
-            await renameVariantsGroup(group, newGroup, session);
-            await renameProductsGroup(group, newGroup, session);
-            return true;
-        }
+export async function renameVariantOccurrences(request: RenameVariant, session: ClientSession): Promise<boolean> {
+    if (!(await renameVariant(request, session))) {
         return false;
-    });
+    }
+    await renameProductsVariant(request.group, request.variant, request.targetVariant, session);
+    return true;
+}
 
-export const deleteGroupOccurrences = (group: string): Promise<boolean> =>
-    withTransaction(async (session) => await deleteGroup(group, session));
+export const deleteVariantOccurrences = (group: string, variant: string, session: ClientSession): Promise<boolean> =>
+    deleteVariant(group, variant, session);
 
-export async function exportEverything(): Promise<ExportArchiveData> {
+export const deleteGroupOccurrences = (group: string, session: ClientSession): Promise<boolean> =>
+    deleteGroup(group, session);
+
+export async function renameGroupOccurrences(request: RenameGroup, session: ClientSession): Promise<boolean> {
+    if (!(await renameGroup(request, session))) {
+        return false;
+    }
+    await renameVariantsGroup(request.group, request.targetGroup, session);
+    await renameProductsGroup(request.group, request.targetGroup, session);
+    return true;
+}
+
+export async function exportEverything(session: ClientSession): Promise<ExportArchiveData> {
     const d = await db();
     return {
         products: await d
             .collection('products')
-            .find({}, { projection: { _id: 0 } })
+            .find({}, { projection: { _id: 0 }, session })
             .toArray(),
         variants: await d
             .collection('variants')
-            .find({}, { projection: { _id: 0 } })
+            .find({}, { projection: { _id: 0 }, session })
             .toArray(),
         groups: await d
             .collection('groups')
-            .find({}, { projection: { _id: 0 } })
+            .find({}, { projection: { _id: 0 }, session })
             .toArray(),
     };
 }
@@ -100,11 +80,13 @@ const moveEverything = async (src: Db, dst: Db): Promise<boolean> =>
     (await copyCollection(src, dst, 'groups')) &&
     (await src.dropDatabase());
 
+/** Replaces collections using current exports or validated legacy wire documents, preserving their stored fields. */
 export async function importEverything(
-    products: readonly Product[],
-    variants: readonly Variant[],
-    groups: readonly Group[]
+    products: readonly (Product | SerializedArchiveData['products'][number])[],
+    variants: readonly (Variant | SerializedArchiveData['variants'][number])[],
+    groups: readonly (Group | SerializedArchiveData['groups'][number])[]
 ): Promise<boolean> {
+    // $out, collection replacement and dropDatabase cannot run inside a MongoDB transaction.
     const current = await db();
     const name = current.databaseName;
 

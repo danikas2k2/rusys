@@ -23,6 +23,12 @@ describe('server-loaded product page', () => {
 
         const result = await getInitialAppData('/products');
 
+        const session = vi.mocked(getProductsWithYears).mock.calls[0]?.[0];
+
+        expect(session).toBeDefined();
+        expect(getGroups).toHaveBeenCalledWith(session);
+        expect(getVariants).toHaveBeenCalledWith(session);
+
         expect(result).toMatchObject({
             resource: 'products',
             initialGroup: 'Produce',
@@ -81,3 +87,5 @@ describe('server-loaded page resources', () => {
         });
     });
 });
+
+vi.mock(import('~/server/db'));

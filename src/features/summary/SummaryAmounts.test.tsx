@@ -18,7 +18,7 @@ vi.mock(import('~/components/amounts/AmountViewContext'), () => ({ useAmountView
 vi.mock(import('~/store/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn(() => (a: string, b: string) => a.localeCompare(b)),
 }));
-vi.mock(import('~/store/variants/useVariantsByGroup'), () => ({ useVariantsByGroup: vi.fn(() => []) }));
+vi.mock(import('~/store/variants/useGroupVariants'), () => ({ useGroupVariants: vi.fn(() => []) }));
 vi.mock(import('~/common/utils/amounts'), async () => ({
     ...(await vi.importActual('~/common/utils/amounts')),
     getAmountTotals: vi.fn(),

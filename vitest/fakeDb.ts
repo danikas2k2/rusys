@@ -226,12 +226,13 @@ export class FakeMongo {
         } as unknown as Db;
     }
 
-    async transaction(fn: (session: never) => Promise<boolean>): Promise<boolean> {
+    async transaction<T>(fn: (session: ClientSession) => Promise<T>): Promise<T> {
         const before = clone(this.databases);
         try {
-            if (await fn(Object.create(ClientSession.prototype) as never)) return true;
+            const result = await fn(Object.create(ClientSession.prototype) as ClientSession);
+            if (result) return result;
             this.databases = before;
-            return false;
+            return result;
         } catch (error) {
             this.databases = before;
             throw error;

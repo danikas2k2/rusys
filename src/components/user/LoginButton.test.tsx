@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
-import { MockThemeRedux } from '@tests/MockThemeRedux';
+import { MockThemeData } from '@tests/MockThemeData';
 
 import { useGoogleLogin, useGoogleOneTapLogin, type CredentialResponse } from '@react-oauth/google';
 import React from 'react';
@@ -31,9 +31,9 @@ describe('<LoginButton>', () => {
 
     it('renders Google login button', () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <LoginButton />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.getByText('Login with Google')).toBeInTheDocument();
@@ -41,9 +41,9 @@ describe('<LoginButton>', () => {
 
     it('calls Google login when button is clicked', async () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <LoginButton />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(useGoogleLogin).toHaveBeenCalledWith({
@@ -60,9 +60,9 @@ describe('<LoginButton>', () => {
 
     it('calls Google one tap login on render', async () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <LoginButton />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(useGoogleOneTapLogin).toHaveBeenCalledWith({
@@ -78,9 +78,9 @@ describe('<LoginButton>', () => {
         );
 
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <LoginButton />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(onError).toHaveBeenCalledWith();
@@ -95,9 +95,9 @@ describe('<LoginButton>', () => {
         );
 
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <LoginButton />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(onSuccess).toHaveBeenCalledWith(credentialResponse);

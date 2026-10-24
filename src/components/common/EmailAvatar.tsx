@@ -2,9 +2,9 @@ import React from 'react';
 
 import { AnonymousUserIcon, DevUserIcon } from '@icons';
 
-import type { UserProfile } from '~/common/data';
 import { Thumbnail } from '~/components/common/Thumbnail';
 import { gravatarUrl } from '~/lib/utils/gravatar';
+import type { UserProfile } from '~/schema';
 import { DEV_MODE_EMAIL } from '~/store/profile';
 
 export function EmailAvatar({

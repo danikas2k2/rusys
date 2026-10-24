@@ -1,30 +1,31 @@
 import { Modal } from '@mantine/core';
 import React, { useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { PageErrorIcon } from '@icons';
 
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Error } from '~/components/common/Error';
-import { useLabel } from '~/lib/hooks/useLabel';
-import { clearErrorAction, type WithErrorState } from '~/store/error';
+import { useLabels } from '~/lib/hooks/useLabels';
+import { getErrorMessage } from '~/lib/utils/errors';
+import { useError } from '~/store/error/useError';
 
 export function ErrorDialog(): React.ReactElement | null {
-    const dispatch = useDispatch();
-    const error = useSelector((state: WithErrorState) => state.error?.error);
-    const handleClose = useCallback(() => dispatch(clearErrorAction()), [dispatch]);
+    const error = useError((state) => state.error);
+    const _ = useLabels();
+    const clearError = useError((state) => state.clearError);
+    const handleClose = useCallback(() => clearError(), [clearError]);
     return (
         <Modal
             opened={!!error}
             onClose={handleClose}
             title={
-                <DialogIcon aria-label={useLabel('Error')}>
+                <DialogIcon aria-label={_('Error')}>
                     <PageErrorIcon />
                 </DialogIcon>
             }
             centered
         >
-            <Error>{error}</Error>
+            <Error>{error ? _(getErrorMessage(error)) : null}</Error>
         </Modal>
     );
 }

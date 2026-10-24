@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
 import { uploadWithProgress } from '~/lib/utils/uploadWithProgress';
@@ -14,31 +14,43 @@ describe('useUpdateGroup', () => {
     afterEach(() => vi.clearAllMocks());
 
     it('calls update action', async () => {
-        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });
-        await result.current('Uogienės');
+        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės' });
 
-        expect(updateGroupAction).toHaveBeenNthCalledWith(1, 'Uogienės', undefined, undefined, undefined);
+        expect(updateGroupAction).toHaveBeenNthCalledWith(1, {
+            group: 'Uogienės',
+        });
     });
 
     it('calls update action with annual parameter', async () => {
-        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });
-        await result.current('Uogienės', true);
+        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės', annual: true });
 
-        expect(updateGroupAction).toHaveBeenNthCalledWith(1, 'Uogienės', true, undefined, undefined);
+        expect(updateGroupAction).toHaveBeenNthCalledWith(1, {
+            group: 'Uogienės',
+            annual: true,
+        });
     });
 
     it('calls update action with review parameter', async () => {
-        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });
-        await result.current('Uogienės', true, true);
+        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės', annual: true, review: true });
 
-        expect(updateGroupAction).toHaveBeenNthCalledWith(1, 'Uogienės', true, true, undefined);
+        expect(updateGroupAction).toHaveBeenNthCalledWith(1, {
+            group: 'Uogienės',
+            annual: true,
+            review: true,
+        });
     });
 
     it('uploads a data image with progress and refreshes the groups', async () => {
         const onProgress = vi.fn();
-        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockData });
 
-        await result.current('New group', true, false, 'data:image/png;base64,AAA', onProgress);
+        await result.current(
+            { group: 'New group', annual: true, review: false, image: 'data:image/png;base64,AAA' },
+            onProgress
+        );
 
         expect(uploadWithProgress).toHaveBeenCalledExactlyOnceWith(
             'PUT',
@@ -51,17 +63,20 @@ describe('useUpdateGroup', () => {
     });
 
     it('uses the action for an existing image even with a progress callback', async () => {
-        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockData });
 
-        await result.current('New group', undefined, undefined, '/image.png', vi.fn());
+        await result.current({ group: 'New group', image: '/image.png' }, vi.fn());
 
-        expect(updateGroupAction).toHaveBeenCalledExactlyOnceWith('New group', undefined, undefined, '/image.png');
+        expect(updateGroupAction).toHaveBeenCalledExactlyOnceWith({
+            group: 'New group',
+            image: '/image.png',
+        });
         expect(uploadWithProgress).not.toHaveBeenCalled();
     });
 
     it('does not call update action with empty group', async () => {
-        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockRedux });
-        await result.current('');
+        const { result } = renderHook(() => useUpdateGroup(), { wrapper: MockData });
+        await result.current({ group: '' });
 
         expect(updateGroupAction).not.toHaveBeenCalled();
     });

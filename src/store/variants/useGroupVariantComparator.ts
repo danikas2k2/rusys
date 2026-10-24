@@ -1,29 +1,25 @@
-import { createSelector } from '@reduxjs/toolkit';
-import { useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useCallback, useMemo } from 'react';
 
-import { compareNames } from '~/lib/utils/compareNames';
-import type { WithVariantsState } from './types';
+import { compare } from '~/lib/utils/names';
+import { useVariants } from './useVariants';
 
-const selectVariantOrders = createSelector(
-    [(state: WithVariantsState) => state.variants, (_state: WithVariantsState, group: string) => group],
-    (variants, group): Record<string, number> => {
-        const orders: Record<string, number> = {};
-        for (const { variant, order, group: variantGroup } of variants ?? []) {
-            if (variantGroup === group) {
-                orders[variant] = order;
-            }
+function selectVariantOrders(variants: ReturnType<typeof useVariants>, group: string): Record<string, number> {
+    const orders: Record<string, number> = {};
+    for (const { variant, order, group: variantGroup } of variants) {
+        if (variantGroup === group) {
+            orders[variant] = order;
         }
-        return orders;
     }
-);
+    return orders;
+}
 
 export function useGroupVariantComparator(group: string): (a: string, b: string) => number {
-    const variantOrders = useSelector((state: WithVariantsState) => selectVariantOrders(state, group));
+    const variants = useVariants();
+    const variantOrders = useMemo(() => selectVariantOrders(variants, group), [variants, group]);
     return useCallback(
         (a: string, b: string): number =>
             (variantOrders[a] ?? Number.POSITIVE_INFINITY) - (variantOrders[b] ?? Number.POSITIVE_INFINITY) ||
-            compareNames(a, b),
+            compare(a, b),
         [variantOrders]
     );
 }

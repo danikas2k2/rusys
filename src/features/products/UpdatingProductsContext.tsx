@@ -1,7 +1,7 @@
 import React, { createContext, use, useCallback, useState } from 'react';
 
-import type { ProductAmounts } from '~/common/data';
 import { getId } from '~/lib/utils/id';
+import type { ProductAmounts } from '~/schema';
 
 type UpdatingProductsState = Record<string, boolean>;
 

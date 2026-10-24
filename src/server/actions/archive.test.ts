@@ -1,3 +1,5 @@
+import { MAX_IMPORT_FILE_SIZE } from '~/common/utils/files';
+import { SchemaError } from '~/schema';
 import { exportArchive, importArchive } from '~/server/actions/archive';
 import { runServerHandler } from '~/server/api/next';
 import { requireSession } from '~/server/auth/session';
@@ -21,6 +23,27 @@ describe('importArchive', () => {
         expect(runServerHandler).not.toHaveBeenCalled();
     });
 
+    it('rejects multiple files without reading or importing them', async () => {
+        const form = new FormData();
+        form.append('import', new File(['first'], 'first.zip'));
+        form.append('import', new File(['second'], 'second.zip'));
+
+        await expect(importArchive(form)).resolves.toBe(SchemaError.InvalidZipFile);
+        expect(runServerHandler).not.toHaveBeenCalled();
+    });
+
+    it('rejects an oversized file before reading its bytes', async () => {
+        const file = new File(['small'], 'data.zip');
+        Object.defineProperty(file, 'size', { value: MAX_IMPORT_FILE_SIZE + 1 });
+        const read = vi.spyOn(file, 'arrayBuffer');
+        const form = new FormData();
+        form.set('import', file);
+
+        await expect(importArchive(form)).resolves.toBe(SchemaError.InvalidZipFile);
+        expect(read).not.toHaveBeenCalled();
+        expect(runServerHandler).not.toHaveBeenCalled();
+    });
+
     it('passes the uploaded bytes to the import handler', async () => {
         const form = new FormData();
         form.set('import', new File(['archive'], 'data.zip'));
@@ -36,8 +59,11 @@ describe('importArchive', () => {
     });
 
     it.each([
-        [new Response(JSON.stringify({ error: { message: 'Bad archive' } }), { status: 400 }), 'Bad archive'],
-        [new Response(JSON.stringify({}), { status: 422 }), 'Import failed (422)'],
+        [
+            new Response(JSON.stringify({ error: { message: 'Bad archive' } }), { status: 400 }),
+            SchemaError.ImportFailed,
+        ],
+        [new Response(JSON.stringify({}), { status: 422 }), SchemaError.ImportFailed],
     ])('returns the import error', async (response, message) => {
         const form = new FormData();
         form.set('import', new File(['archive'], 'data.zip'));
@@ -71,3 +97,5 @@ describe('exportArchive', () => {
         expect(buildExportArchive).not.toHaveBeenCalled();
     });
 });
+
+vi.mock(import('~/server/db'));

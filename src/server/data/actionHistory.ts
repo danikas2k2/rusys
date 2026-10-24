@@ -1,19 +1,23 @@
-import type { ProductHistory } from '~/common/data';
+import type { ClientSession } from 'mongodb';
+
+import type { ProductHistory, ProductYearIdentity } from '~/schema';
 import { getProductUndates, getProductUpdates } from '~/server/data/products';
 import { getSummaryUndates, getSummaryUpdates } from '~/server/data/summary';
 
-export async function getProductHistoryData(group: string, name: string, year: number): Promise<ProductHistory> {
-    const [updates, undates] = await Promise.all([
-        getProductUpdates(group, name, year),
-        getProductUndates(group, name, year),
-    ]);
+export async function getProductHistoryData(
+    request: ProductYearIdentity,
+    session: ClientSession
+): Promise<ProductHistory> {
+    const updates = await getProductUpdates(request, session);
+    const undates = await getProductUndates(request, session);
     return { updates, undates };
 }
 
-export async function getSummaryHistoryData(group: string, name: string, year: number): Promise<ProductHistory> {
-    const [updates, undates] = await Promise.all([
-        getSummaryUpdates(group, name, year),
-        getSummaryUndates(group, name, year),
-    ]);
+export async function getSummaryHistoryData(
+    request: ProductYearIdentity,
+    session: ClientSession
+): Promise<ProductHistory> {
+    const updates = await getSummaryUpdates(request, session);
+    const undates = await getSummaryUndates(request, session);
     return { updates, undates };
 }

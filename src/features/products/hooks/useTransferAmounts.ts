@@ -1,23 +1,14 @@
 import { useCallback } from 'react';
 
-import type { VariantAmount } from '~/common/data';
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
+import type { TransferAmounts } from '~/schema';
 import { transferAmountsAction } from '~/server/actions/products';
 
-export function useTransferAmounts(): (
-    group: string,
-    name: string,
-    year: number,
-    targetGroup: string,
-    targetName: string,
-    amounts: readonly VariantAmount[],
-    user?: string,
-    comment?: string
-) => Promise<void> {
+export function useTransferAmounts(): (request: TransferAmounts) => Promise<void> {
     const refresh = useGetProducts();
     return useCallback(
-        async (group, name, year, targetGroup, targetName, amounts, user, comment): Promise<void> => {
-            await transferAmountsAction(group, name, year, targetGroup, targetName, amounts, user, comment);
+        async (request: TransferAmounts): Promise<void> => {
+            await transferAmountsAction(request);
             await refresh();
         },
         [refresh]

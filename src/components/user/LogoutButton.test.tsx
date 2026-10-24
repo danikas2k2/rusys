@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import user from '@testing-library/user-event';
-import { MockThemeRedux } from '@tests/MockThemeRedux';
+import { MockThemeData } from '@tests/MockThemeData';
 
 import { googleLogout } from '@react-oauth/google';
 import { useRouter } from 'next/navigation';
@@ -33,9 +33,9 @@ describe('<LogoutButton>', () => {
 
     it('renders ProfileAvatar when no children are provided', () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <LogoutButton />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.getByText('ProfileAvatar')).toBeInTheDocument();
@@ -43,9 +43,9 @@ describe('<LogoutButton>', () => {
 
     it('renders children when provided', () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <LogoutButton>Test Child</LogoutButton>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.getByText('Test Child')).toBeInTheDocument();
@@ -53,9 +53,9 @@ describe('<LogoutButton>', () => {
 
     it('opens ConfirmationDialog when button is clicked', async () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <LogoutButton />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button'));
@@ -65,9 +65,9 @@ describe('<LogoutButton>', () => {
 
     it('calls googleLogout and dispatches resetProfileAction when confirm is clicked', async () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <LogoutButton />
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'Logout' }));

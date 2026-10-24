@@ -1,47 +1,47 @@
 import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
-
-import { useDispatch } from 'react-redux';
+import { mockQuery } from '@tests/MockQuery';
 
 import { useGetProductHistory } from '~/features/products/hooks/useGetProductHistory';
 import { getProductHistory } from '~/server/actions/products';
-import { setProductHistoryAction } from '~/store/products';
+import { CATALOG_KEYS } from '~/store/catalog';
 
 vi.mock(import('~/server/actions/products'));
-vi.mock(import('react-redux'), async () => ({
-    ...(await vi.importActual('react-redux')),
-    useDispatch: vi.fn(),
-}));
 
 describe('useGetProductHistory', () => {
-    const dispatch = vi.fn();
-
-    beforeAll(() => {
-        vi.mocked(useDispatch).mockReturnValue(dispatch);
-    });
-
     afterEach(() => vi.clearAllMocks());
 
-    it('loads the selected product history', async () => {
+    it('loads the selected product history into the product cache', async () => {
         const year = 22;
         const history = { updates: [], undates: [] };
         vi.mocked(getProductHistory).mockResolvedValueOnce(history);
-        const { result } = renderHook(() => useGetProductHistory(year, 'Uogienės', 'Avietės'), { wrapper: MockRedux });
-
+        const { client, wrapper } = mockQuery({ products: [{ group: 'Uogienės', name: 'Avietės', years: [] }] });
+        const { result } = renderHook(() => useGetProductHistory({ year, group: 'Uogienės', name: 'Avietės' }), {
+            wrapper,
+        });
         await result.current();
 
-        expect(getProductHistory).toHaveBeenCalledWith('Uogienės', 'Avietės', year);
-        expect(dispatch).toHaveBeenCalledWith(
-            setProductHistoryAction({ group: 'Uogienės', name: 'Avietės', year, history })
-        );
+        expect(getProductHistory).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Avietės', year });
+        expect(client.getQueryData(CATALOG_KEYS.products)).toStrictEqual([
+            { group: 'Uogienės', name: 'Avietės', years: [], history: { [year]: history } },
+        ]);
     });
 
     it('does not request history without a selected product', async () => {
-        const { result } = renderHook(() => useGetProductHistory(22), { wrapper: MockRedux });
-
+        const { wrapper } = mockQuery();
+        const { result } = renderHook(() => useGetProductHistory({ year: 22, group: '', name: '' }), { wrapper });
         await result.current();
 
         expect(getProductHistory).not.toHaveBeenCalled();
-        expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('keeps its loader stable when the request object is recreated', () => {
+        const { wrapper } = mockQuery();
+        const { result, rerender } = renderHook(() => useGetProductHistory({ year: 22, group: 'A', name: 'B' }), {
+            wrapper,
+        });
+        const loader = result.current;
+        rerender();
+
+        expect(result.current).toBe(loader);
     });
 });

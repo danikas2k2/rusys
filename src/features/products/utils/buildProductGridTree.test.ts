@@ -1,5 +1,5 @@
-import type { Product } from '~/common/data';
 import { buildProductGridTree } from '~/features/products/utils/buildProductGridTree';
+import type { Product } from '~/schema';
 
 describe('buildProductGridTree', () => {
     it('builds a leaf node for a product with no parent and no children', () => {

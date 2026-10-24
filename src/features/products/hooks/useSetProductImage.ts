@@ -2,17 +2,14 @@ import { useCallback } from 'react';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
 import { uploadWithProgress, type UploadProgress } from '~/lib/utils/uploadWithProgress';
+import type { SetProductImage } from '~/schema';
 import { setProductImageAction } from '~/server/actions/products';
 
-export function useSetProductImage(): (
-    group: string,
-    name: string,
-    image: string,
-    onProgress?: UploadProgress
-) => Promise<void> {
+export function useSetProductImage(): (request: SetProductImage, onProgress?: UploadProgress) => Promise<void> {
     const refresh = useGetProducts();
     return useCallback(
-        async (group: string, name: string, image: string, onProgress?: UploadProgress): Promise<void> => {
+        async (request: SetProductImage, onProgress?: UploadProgress): Promise<void> => {
+            const { group, name, image } = request;
             if (group && name) {
                 if (onProgress && image.startsWith('data:')) {
                     await uploadWithProgress(
@@ -22,7 +19,7 @@ export function useSetProductImage(): (
                         onProgress
                     );
                 } else {
-                    await setProductImageAction(group, name, image);
+                    await setProductImageAction(request);
                 }
                 await refresh();
             }

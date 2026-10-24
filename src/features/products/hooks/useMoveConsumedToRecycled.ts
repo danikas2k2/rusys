@@ -1,30 +1,16 @@
 import { useCallback } from 'react';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
+import type { MoveConsumedToRecycled } from '~/schema';
 import { moveConsumedToRecycledAction } from '~/server/actions/products';
 
-export function useMoveConsumedToRecycled(): (
-    group: string,
-    name: string,
-    year: number,
-    variant: string,
-    amount: number,
-    flags?: { suspicious?: boolean; home?: boolean; expiresAt?: number },
-    user?: string
-) => Promise<void> {
+export function useMoveConsumedToRecycled(): (request: MoveConsumedToRecycled) => Promise<void> {
     const refresh = useGetProducts();
     return useCallback(
-        async (
-            group: string,
-            name: string,
-            year: number,
-            variant: string,
-            amount: number,
-            flags: { suspicious?: boolean; home?: boolean; expiresAt?: number } = {},
-            user?: string
-        ): Promise<void> => {
+        async (request: MoveConsumedToRecycled): Promise<void> => {
+            const { group, name, variant, amount } = request;
             if (group && name && variant && amount > 0) {
-                await moveConsumedToRecycledAction(group, name, year, variant, amount, flags, user);
+                await moveConsumedToRecycledAction(request);
                 await refresh();
             }
         },

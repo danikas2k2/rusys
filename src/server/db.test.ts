@@ -1,6 +1,6 @@
 import { MongoClient, type ClientSession, type Db } from 'mongodb';
 
-import { $clients, $dbs, createMissingIndexes, db, getClient, withTransaction } from '~/server/db';
+import { $clients, $dbs, createMissingIndexes, db, getClient, withinTransaction } from '~/server/db';
 import { FakeMongo } from '../../vitest/fakeDb';
 
 describe('db', () => {
@@ -131,7 +131,7 @@ describe('db', () => {
 
     it('commits a successful transaction and closes the session', async () => {
         await expect(
-            withTransaction(async (received) => {
+            withinTransaction(async (received) => {
                 expect(received).toBe(session);
 
                 return true;
@@ -149,16 +149,38 @@ describe('db', () => {
     });
 
     it('aborts a transaction when the callback returns false', async () => {
-        await expect(withTransaction(async () => false, client)).resolves.toBe(false);
+        await expect(withinTransaction(async () => false, undefined, client)).resolves.toBe(false);
 
         expect(session.abortTransaction).toHaveBeenCalledExactlyOnceWith();
         expect(session.commitTransaction).not.toHaveBeenCalled();
         expect(session.endSession).toHaveBeenCalledExactlyOnceWith();
     });
 
+    it('returns transaction data without replacing it with a boolean', async () => {
+        const result = { products: [{ group: 'A', name: 'P' }], years: [2026] };
+
+        await expect(withinTransaction(async () => result, undefined, client)).resolves.toBe(result);
+        expect(session.commitTransaction).toHaveBeenCalledExactlyOnceWith();
+        expect(session.abortTransaction).not.toHaveBeenCalled();
+        expect(session.endSession).toHaveBeenCalledExactlyOnceWith();
+    });
+
+    it('forwards explicit transaction options while preserving unspecified defaults', async () => {
+        await withinTransaction(async () => [], { readConcern: { level: 'snapshot' }, maxCommitTimeMS: 1000 }, client);
+
+        expect(session.startTransaction).toHaveBeenCalledExactlyOnceWith({
+            readPreference: 'primary',
+            readConcern: { level: 'snapshot' },
+            writeConcern: { w: 'majority' },
+            maxCommitTimeMS: 1000,
+        });
+        expect(session.commitTransaction).toHaveBeenCalledExactlyOnceWith();
+        expect(MongoClient.connect).not.toHaveBeenCalled();
+    });
+
     it('aborts and closes the session when the callback throws', async () => {
         await expect(
-            withTransaction(async () => {
+            withinTransaction(async () => {
                 throw new Error('Failed');
             })
         ).rejects.toThrow('Failed');

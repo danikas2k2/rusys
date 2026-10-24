@@ -1,14 +1,16 @@
 import { useCallback } from 'react';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
+import type { ProductYearIdentity } from '~/schema';
 import { undoProductAction } from '~/server/actions/products';
 
-export function useUndoProduct(): (group: string, name: string, year: number) => Promise<void> {
+export function useUndoProduct(): (request: ProductYearIdentity) => Promise<void> {
     const refresh = useGetProducts();
     return useCallback(
-        async (group: string, name: string, year: number): Promise<void> => {
+        async (request: ProductYearIdentity): Promise<void> => {
+            const { group, name } = request;
             if (group && name) {
-                await undoProductAction(group, name, year);
+                await undoProductAction(request);
                 await refresh();
             }
         },

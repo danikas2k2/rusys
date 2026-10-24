@@ -3,11 +3,10 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
-import type { History, Summary } from '~/common/data';
 import { AmountsCell } from '~/components/amounts/AmountsCell';
 import { useGetSummaryHistory } from '~/features/summary/hooks/useGetSummaryHistory';
-import type { SummaryHistoryData } from '~/features/summary/SummaryAmounts';
 import { SummaryHistoryTab } from '~/features/summary/SummaryHistoryTab';
+import type { History, ProductAmounts, Summary } from '~/schema';
 import { useSummary } from '~/store/summary';
 
 vi.mock(import('~/features/summary/hooks/useGetSummaryHistory'), (): any => ({
@@ -27,7 +26,7 @@ vi.mock(import('~/components/amounts/AmountsCell'), (): any => ({
 }));
 
 describe('<SummaryHistoryTab>', () => {
-    const activeData: SummaryHistoryData = {
+    const activeData: ProductAmounts = {
         group: 'Vaisiai',
         name: 'Obuoliai',
         year: 2026,
@@ -63,7 +62,11 @@ describe('<SummaryHistoryTab>', () => {
     it('calls useGetSummaryHistory with year, group, name from active context', () => {
         renderTab();
 
-        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith(2026, 'Vaisiai', 'Obuoliai');
+        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith({
+            year: 2026,
+            group: 'Vaisiai',
+            name: 'Obuoliai',
+        });
     });
 
     it('loads the selected summary year in the background', () => {
@@ -360,7 +363,7 @@ describe('<SummaryHistoryTab>', () => {
             </MockThemeActive>
         );
 
-        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith(0, '', '');
+        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith({ year: 0, group: '', name: '' });
     });
 
     it('uses year=0 when active context has no year', () => {
@@ -372,13 +375,13 @@ describe('<SummaryHistoryTab>', () => {
                         group: 'G',
                         name: 'N',
                         amounts: [],
-                    } as unknown as SummaryHistoryData,
+                    } as unknown as ProductAmounts,
                 }}
             >
                 <SummaryHistoryTab />
             </MockThemeActive>
         );
 
-        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith(0, 'G', 'N');
+        expect(vi.mocked(useGetSummaryHistory)).toHaveBeenCalledWith({ year: 0, group: 'G', name: 'N' });
     });
 });

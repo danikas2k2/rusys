@@ -19,6 +19,9 @@ import { Label } from '~/components/common/Label';
 import { UploadProgressBar } from '~/components/common/UploadProgressBar';
 import { useImportHandler } from '~/lib/hooks/useImportHandler';
 import { useLabel } from '~/lib/hooks/useLabel';
+import { useLabels } from '~/lib/hooks/useLabels';
+import { getErrorMessage } from '~/lib/utils/errors';
+import { SchemaError } from '~/schema';
 
 interface ImportBoxProps {
     opened?: boolean;
@@ -30,6 +33,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
     const [file, setFile] = useState<FileWithPath | null>(null);
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState<number>();
+    const _ = useLabels();
 
     const router = useRouter();
     const handleImport = useImportHandler();
@@ -42,7 +46,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
     }, []);
 
     const handleReject = useCallback(() => {
-        setError('Choose a valid ZIP file');
+        setError(SchemaError.InvalidZipFile);
     }, []);
 
     const handleSubmit = useCallback(async () => {
@@ -60,7 +64,8 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
             // Reload current page after successful import
             router.refresh();
         } catch (cause) {
-            setError(cause instanceof Error ? cause.message : 'Failed to import file');
+            const message = getErrorMessage(cause);
+            setError(message === SchemaError.Unknown ? SchemaError.ImportFailed : message);
         } finally {
             setLoading(false);
             setProgress(undefined);
@@ -137,7 +142,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
 
                     {error && (
                         <Alert variant="light" color="negative" icon={<ErrorAlertIcon size={18} />} mt="md">
-                            {error}
+                            {error ? _(getErrorMessage(error)) : null}
                         </Alert>
                     )}
 

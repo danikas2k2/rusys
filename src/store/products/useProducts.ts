@@ -1,8 +1,14 @@
-import equal from 'fast-deep-equal/es6/react';
-import { useSelector } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
 
-import type { Product } from '~/common/data';
-import type { WithProductsState } from './types';
+import type { Product } from '~/schema';
+import { getProductsAction } from '~/server/actions/products';
+import { CATALOG_KEYS } from '~/store/catalog';
+
+const EMPTY_PRODUCTS: readonly Product[] = [];
 
 export const useProducts = (): readonly Product[] =>
-    useSelector((state: WithProductsState) => state.products ?? [], equal);
+    useQuery({
+        queryKey: CATALOG_KEYS.products,
+        queryFn: async () => (await getProductsAction()).products,
+        enabled: false,
+    }).data ?? EMPTY_PRODUCTS;

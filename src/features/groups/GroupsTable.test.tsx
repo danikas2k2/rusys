@@ -1,13 +1,12 @@
 import { render, screen, within } from '@testing-library/react';
 import { getGroupsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 import { MockTheme } from '@tests/MockTheme';
 
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import React from 'react';
 
-import type { Group } from '~/common/data';
 import { DraggableContent } from '~/components/common/DraggableContent';
 import { useReorderHandler } from '~/components/hooks/useReorderHandler';
 import { useQuickFilter } from '~/features/filters/QuickFilterContext';
@@ -15,6 +14,7 @@ import { GroupsTable } from '~/features/groups/GroupsTable';
 import { useGetGroups } from '~/features/groups/hooks/useGetGroups';
 import { useGroupsHasData } from '~/features/groups/hooks/useGroupsHasData';
 import { useReorderGroups } from '~/features/groups/hooks/useReorderGroups';
+import type { Group } from '~/schema';
 import { useGroups } from '~/store/groups';
 
 vi.mock(import('~/store/years/useYears'));
@@ -78,9 +78,9 @@ describe('<GroupsTable>', () => {
     it('renders table structure', () => {
         render(
             <MockTheme>
-                <MockRedux>
+                <MockData>
                     <GroupsTable />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -115,9 +115,9 @@ describe('<GroupsTable>', () => {
 
             render(
                 <MockTheme>
-                    <MockRedux>
+                    <MockData>
                         <GroupsTable />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -134,9 +134,9 @@ describe('<GroupsTable>', () => {
 
             render(
                 <MockTheme>
-                    <MockRedux>
+                    <MockData>
                         <GroupsTable />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -240,7 +240,7 @@ describe('<GroupsTable>', () => {
 
             await onReorder(reordered, { group: 'Daržovės' });
 
-            expect(mockReorderGroups).toHaveBeenCalledWith({ Daržovės: 0, Uogienės: 1 });
+            expect(mockReorderGroups).toHaveBeenCalledWith({ groups: { Daržovės: 0, Uogienės: 1 } });
         });
     });
 
@@ -259,9 +259,9 @@ describe('<GroupsTable>', () => {
         it('returns DragOverlayTable with GroupsRow when the group is found by activeId', () => {
             render(
                 <MockTheme>
-                    <MockRedux>
+                    <MockData>
                         <GroupsTable />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -278,9 +278,9 @@ describe('<GroupsTable>', () => {
         it('returns null when no group matches the activeId', () => {
             render(
                 <MockTheme>
-                    <MockRedux>
+                    <MockData>
                         <GroupsTable />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 

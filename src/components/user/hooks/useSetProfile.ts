@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
 
-import { setProfileAction, type Profile } from '~/store/profile';
+import { useIdentity } from '~/components/app/IdentityContext';
+import type { Profile } from '~/store/profile/types';
 
 export function useSetProfile(): (profile: Profile) => void {
-    const dispatch = useDispatch();
-    return useCallback((profile: Profile) => dispatch(setProfileAction(profile)), [dispatch]);
+    const { setProfile } = useIdentity();
+    return useCallback((profile: Profile) => setProfile(profile), [setProfile]);
 }

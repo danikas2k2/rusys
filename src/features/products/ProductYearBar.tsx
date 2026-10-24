@@ -3,7 +3,6 @@ import React, { startTransition, useCallback, useMemo } from 'react';
 
 import { HistoryTabIcon, RecycledIcon } from '@icons';
 
-import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts } from '~/common/data';
 import { getCombinedAmounts } from '~/common/utils/amounts';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
@@ -11,6 +10,7 @@ import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
 import { useUpdatingProducts } from '~/features/products/UpdatingProductsContext';
 import { useLabels } from '~/lib/hooks/useLabels';
+import type { Product, ProductAmounts, RemovingYearAmounts } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
 
@@ -52,7 +52,7 @@ export function isPreferred(year: number, years: readonly RemovingYearAmounts[])
 // active content the two tabs already key off of, rather than owning its own state.
 export function ProductYearBar({ disabled = false, onHistoryYearChange }: ProductYearBarProps) {
     const _ = useLabels();
-    const [active, setActive] = useActiveContent<ProductAmountsType>();
+    const [active, setActive] = useActiveContent<ProductAmounts>();
     const [, setUpdating] = useUpdatingProducts();
     const setProductRemoving = useSetProductRemoving();
     const products = useProducts();
@@ -126,7 +126,9 @@ export function ProductYearBar({ disabled = false, onHistoryYearChange }: Produc
             return;
         }
         setUpdating(activeData, true);
-        await setProductRemoving(group, name, year, !removingYear).finally(() => setUpdating(activeData, false));
+        await setProductRemoving({ group, name, year, removing: !removingYear }).finally(() =>
+            setUpdating(activeData, false)
+        );
     }, [activeData, group, name, year, removingYear, setUpdating, setProductRemoving]);
 
     if (!activeData) {

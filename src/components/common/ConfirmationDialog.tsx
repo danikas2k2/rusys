@@ -5,6 +5,7 @@ import { CancelIcon, ConfirmationDialogIcon, ConfirmIcon, ErrorAlertIcon } from 
 
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
+import { useLabels } from '~/lib/hooks/useLabels';
 import { getErrorMessage } from '~/lib/utils/errors';
 
 export type ButtonElementProps = ButtonProps &
@@ -60,6 +61,7 @@ export function ConfirmationDialog({
 }: ConfirmationDialogProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const _ = useLabels();
 
     const handleClose = useCallback(
         (e?: React.SyntheticEvent) => {
@@ -117,7 +119,7 @@ export function ConfirmationDialog({
             {children}
             {opened && error && (
                 <Alert variant="light" color="negative" icon={<ErrorAlertIcon size={18} />} mt="md">
-                    {error}
+                    {_(getErrorMessage(error))}
                 </Alert>
             )}
             {actions || (

@@ -1,6 +1,6 @@
-import type { Group, Product, ProductHistory, Summary, Variant } from '~/common/data';
 import type { InitialAppData, InitialResource } from '~/components/app/initialData';
 import { Links } from '~/lib/links';
+import type { Group, Product, ProductHistory, Summary, Variant } from '~/schema';
 import { getYears } from '~/server/data/years';
 import { createScenarioData, currentYear, type Scenario } from '~/tests/fixtures/data';
 

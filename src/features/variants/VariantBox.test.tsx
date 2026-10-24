@@ -112,8 +112,8 @@ describe('<VariantBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'Didelis');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(updateGroup).toHaveBeenCalledWith('Konservai', true, false, '');
-            expect(updateVariant).toHaveBeenCalledWith('Konservai', 'Didelis', { suffix: '' });
+            expect(updateGroup).toHaveBeenCalledWith({ group: 'Konservai', annual: true, review: false, image: '' });
+            expect(updateVariant).toHaveBeenCalledWith({ group: 'Konservai', variant: 'Didelis', suffix: '' });
         });
     });
 
@@ -262,7 +262,13 @@ describe('<VariantBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Suffix' }), '4½');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(updateVariant).toHaveBeenCalledWith('Daržovės', '4.5', { suffix: '4½', count: 500, units: 'vnt' });
+            expect(updateVariant).toHaveBeenCalledWith({
+                group: 'Daržovės',
+                variant: '4.5',
+                suffix: '4½',
+                count: 500,
+                units: 'vnt',
+            });
             expect(onClose).toHaveBeenCalledWith('Daržovės', '4.5');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -281,9 +287,15 @@ describe('<VariantBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Amount' }), '500');
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(updateVariant).toHaveBeenCalledWith('Daržovės', '4.5', { suffix: '', count: 500, units: 'vnt' });
+            expect(updateVariant).toHaveBeenCalledWith({
+                group: 'Daržovės',
+                variant: '4.5',
+                suffix: '',
+                count: 500,
+                units: 'vnt',
+            });
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('alert')).toHaveTextContent('Failed to add');
+            expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong');
         });
 
         it('displays error without closing dialog when empty name and count fields left', async () => {
@@ -343,7 +355,10 @@ describe('<VariantBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Suffix' }), '4½');
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', '4.5', {
+            expect(renameVariant).toHaveBeenCalledWith({
+                group: 'Daržovės',
+                variant: 'd',
+                targetVariant: '4.5',
                 suffix: '4½',
                 count: 500,
                 units: 'ml',
@@ -365,13 +380,16 @@ describe('<VariantBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), '4.5');
             await user.click(screen.getByRole('button', { name: 'Update' }));
 
-            expect(renameVariant).toHaveBeenCalledWith('Daržovės', 'd', '4.5', {
+            expect(renameVariant).toHaveBeenCalledWith({
+                group: 'Daržovės',
+                variant: 'd',
+                targetVariant: '4.5',
                 suffix: '',
                 count: 500,
                 units: 'ml',
             });
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('alert')).toHaveTextContent('Failed to rename');
+            expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong');
         });
 
         it('displays error without closing dialog when both name and amount are cleared', async () => {
@@ -449,7 +467,11 @@ describe('<VariantBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
             await user.click(screen.getByRole('button', { name: 'Duplicate' }));
 
-            expect(copyVariant).toHaveBeenCalledWith('Daržovės', 'd', 'Uogienės', 'NewVariant', {
+            expect(copyVariant).toHaveBeenCalledWith({
+                group: 'Daržovės',
+                variant: 'd',
+                targetGroup: 'Uogienės',
+                targetVariant: 'NewVariant',
                 suffix: '',
                 count: 500,
                 units: 'ml',
@@ -472,13 +494,17 @@ describe('<VariantBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewVariant');
             await user.click(screen.getByRole('button', { name: 'Duplicate' }));
 
-            expect(copyVariant).toHaveBeenCalledWith('Daržovės', 'd', 'Uogienės', 'NewVariant', {
+            expect(copyVariant).toHaveBeenCalledWith({
+                group: 'Daržovės',
+                variant: 'd',
+                targetGroup: 'Uogienės',
+                targetVariant: 'NewVariant',
                 suffix: '',
                 count: 500,
                 units: 'ml',
             });
             expect(onClose).not.toHaveBeenCalled();
-            expect(screen.getByRole('alert')).toHaveTextContent('Failed to copy');
+            expect(screen.getByRole('alert')).toHaveTextContent('Something went wrong');
         });
 
         it('calls copyVariant with suffix when suffix is provided', async () => {
@@ -503,7 +529,11 @@ describe('<VariantBox>', () => {
             await user.type(screen.getByRole('textbox', { name: 'Suffix' }), 'new-suffix');
             await user.click(screen.getByRole('button', { name: 'Duplicate' }));
 
-            expect(copyVariant).toHaveBeenCalledWith('Daržovės', 'd', 'Uogienės', 'NewVariant', {
+            expect(copyVariant).toHaveBeenCalledWith({
+                group: 'Daržovės',
+                variant: 'd',
+                targetGroup: 'Uogienės',
+                targetVariant: 'NewVariant',
                 suffix: 'new-suffix',
                 count: 500,
                 units: 'ml',
@@ -512,7 +542,52 @@ describe('<VariantBox>', () => {
         });
     });
 
-    describe('validation', () => {
+    describe('schema', () => {
+        it('shows a localized amount error and focuses amount for an incomplete numeric value', async () => {
+            const updateVariant = vi.fn();
+            vi.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            await selectOption('Daržovės');
+            await user.type(screen.getByRole('textbox', { name: 'Variant name' }), 'NewOne');
+            const amountInput = screen.getByRole('textbox', { name: 'Amount' });
+            await user.click(amountInput);
+            fireEvent.change(amountInput, { target: { value: '1.' } });
+            await user.keyboard('{Enter}');
+
+            expect(updateVariant).not.toHaveBeenCalled();
+            expect(amountInput).toHaveFocus();
+            expect(amountInput).toHaveAttribute('aria-invalid', 'true');
+            expect(screen.getByRole('alert')).toHaveTextContent('Amount is required');
+        });
+
+        it('still validates category and name when the amount is an incomplete numeric value', async () => {
+            render(
+                <MockApp state={state}>
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            fireEvent.change(screen.getByRole('textbox', { name: 'Amount' }), { target: { value: '1.' } });
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(screen.getByRole('combobox', { name: 'Category' })).toHaveAttribute('aria-invalid', 'true');
+            expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveAttribute('aria-invalid', 'true');
+            expect(screen.getByRole('textbox', { name: 'Amount' })).toHaveAttribute('aria-invalid', 'true');
+            expect(screen.getAllByRole('alert').map((alert) => alert.textContent)).toStrictEqual(
+                expect.arrayContaining([
+                    'Category is required',
+                    'Variant name or amount is required',
+                    'Amount is required',
+                ])
+            );
+        });
+
         it('displays error when group is empty', async () => {
             render(
                 <MockApp state={state}>
@@ -564,7 +639,7 @@ describe('<VariantBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(updateVariant).toHaveBeenCalledWith('Daržovės', 'NewOne', { suffix: '' });
+            expect(updateVariant).toHaveBeenCalledWith({ group: 'Daržovės', variant: 'NewOne', suffix: '' });
             expect(onClose).toHaveBeenCalledWith('Daržovės', 'NewOne');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
@@ -586,9 +661,39 @@ describe('<VariantBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(updateVariant).toHaveBeenCalledWith('Daržovės', '750vnt', { suffix: '', count: 750, units: 'vnt' });
+            expect(updateVariant).toHaveBeenCalledWith({
+                group: 'Daržovės',
+                variant: '750vnt',
+                suffix: '',
+                count: 750,
+                units: 'vnt',
+            });
             expect(onClose).toHaveBeenCalledWith('Daržovės', '750vnt');
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
+
+        it('rejects a duplicate amount-derived name in the selected category', async () => {
+            const updateVariant = vi.fn();
+            vi.mocked(useUpdateVariant).mockReturnValue(updateVariant);
+
+            render(
+                <MockApp
+                    state={{
+                        ...state,
+                        variants: [...state.variants, { group: 'Daržovės', variant: '750vnt', order: 5 }],
+                    }}
+                >
+                    <VariantBox opened onClose={onClose} />
+                </MockApp>
+            );
+
+            await selectOption('Daržovės');
+            await user.type(screen.getByRole('textbox', { name: 'Amount' }), '750');
+            await user.click(screen.getByRole('button', { name: 'Add' }));
+
+            expect(updateVariant).not.toHaveBeenCalled();
+            expect(screen.getByRole('textbox', { name: 'Variant name' })).toHaveAttribute('aria-invalid', 'true');
+            expect(screen.getByRole('alert')).toHaveTextContent('Variant already exists');
         });
 
         it('displays errors on both fields when both name and amount are left empty', async () => {
@@ -625,7 +730,9 @@ describe('<VariantBox>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Add' }));
 
-            expect(updateVariant).toHaveBeenCalledWith('Daržovės', 'BothFilled', {
+            expect(updateVariant).toHaveBeenCalledWith({
+                group: 'Daržovės',
+                variant: 'BothFilled',
                 suffix: '',
                 count: 500,
                 units: 'vnt',

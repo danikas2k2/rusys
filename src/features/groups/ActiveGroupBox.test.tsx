@@ -86,7 +86,7 @@ describe('<ActiveGroupBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Remove category' }));
         await user.click(screen.getByRole('button', { name: 'Remove' }));
 
-        expect(deleteGroup).toHaveBeenCalledWith('Uogienės');
+        expect(deleteGroup).toHaveBeenCalledWith({ group: 'Uogienės' });
         expect(setActive).toHaveBeenCalledWith({ data: { group: 'Uogienės' } });
     });
 

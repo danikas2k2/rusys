@@ -12,6 +12,7 @@ import { UploadProgressBar } from '~/components/common/UploadProgressBar';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { readFileAsDataUrl } from '~/lib/utils/readFileAsDataUrl';
+import { SchemaError } from '~/schema';
 
 interface ImageDropzoneProps {
     image?: string;
@@ -55,17 +56,12 @@ export function ImageDropzone({
         [onDrop]
     );
 
-    const handleReject = useCallback(
-        (fileRejections: FileRejection[]) => {
-            const tooLarge = fileRejections.some((rejection) =>
-                rejection.errors.some((fileError: { code: string }) => fileError.code === 'file-too-large')
-            );
-            setError(
-                tooLarge ? `${_('File should not exceed')} ${MAX_IMAGE_FILE_MB}MB` : _('Choose a valid image file')
-            );
-        },
-        [_]
-    );
+    const handleReject = useCallback((fileRejections: FileRejection[]) => {
+        const tooLarge = fileRejections.some((rejection) =>
+            rejection.errors.some((fileError: { code: string }) => fileError.code === 'file-too-large')
+        );
+        setError(tooLarge ? SchemaError.ImageTooLarge : SchemaError.InvalidImageType);
+    }, []);
 
     const handleRemove = useCallback(async () => {
         setError(undefined);
@@ -162,7 +158,11 @@ export function ImageDropzone({
             </Box>
             {(error || externalError) && (
                 <Alert variant="light" color="negative" icon={<ErrorAlertIcon size={errorIconSize} />}>
-                    {error || externalError}
+                    {error
+                        ? error === SchemaError.ImageTooLarge
+                            ? `${_(error)} ${MAX_IMAGE_FILE_MB}MB`
+                            : _(getErrorMessage(error))
+                        : externalError}
                 </Alert>
             )}
         </Stack>

@@ -7,6 +7,9 @@ import {
     type UpdateResult,
 } from 'mongodb';
 
+import { SchemaError } from '~/schema';
+import { imageFieldUpdate, resolveImage } from '~/server/data/resolveImage';
+
 export const hasEffect = (
     res: BulkWriteResult | UpdateResult | DeleteResult | InsertOneResult | InsertManyResult
 ): boolean =>
@@ -16,10 +19,23 @@ export const hasEffect = (
     !!(res as UpdateResult).upsertedCount ||
     !!(res as DeleteResult).deletedCount;
 
-export function hasDuplicates(e: unknown): boolean {
-    if (e instanceof MongoError && e.code === 11000) {
-        return false;
+export async function assertSuccess(result: boolean): Promise<void> {
+    if (!result) {
+        throw new Error(SchemaError.RequestFailed);
     }
-    // rethrow error
+}
+
+export function handleDuplicate<T>(e: unknown, fn: () => T): T {
+    if (e instanceof MongoError && e.code === 11000) {
+        return fn();
+    }
     throw e;
+}
+
+export async function getImageFieldUpdate<T extends { image?: string; photo?: string }>(
+    existing: T | null,
+    image?: string
+): Promise<{ $set: Record<string, string>; $unset: Record<string, 1> } | undefined> {
+    const resolved = image !== undefined ? await resolveImage(image, existing?.image, existing?.photo) : undefined;
+    return resolved ? imageFieldUpdate(resolved, 'image', 'photo') : undefined;
 }

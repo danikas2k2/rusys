@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { MockTheme } from '@tests/MockTheme';
 
+import { NextIntlClientProvider } from 'next-intl';
 import React, { useState } from 'react';
 
 import { refreshOfflinePage } from '~/components/app/ServiceWorker/Registration';
@@ -9,6 +10,7 @@ import { Label } from '~/components/common/Label';
 import { LanguageToggle } from '~/components/runtime/LanguageToggle';
 import { LocaleContext, SetLocaleContext } from '~/components/runtime/LocaleContext';
 import { LOCALE_COOKIE, type AppLocale } from '~/lib/locale';
+import { messagesForLocale } from '~/lib/messages';
 
 vi.mock(import('~/components/app/ServiceWorker/Registration'), () => ({
     refreshOfflinePage: vi.fn().mockResolvedValue(undefined),
@@ -20,8 +22,10 @@ function LocaleShell({ initialLocale }: { initialLocale: AppLocale }) {
         <MockTheme>
             <SetLocaleContext value={setLocale}>
                 <LocaleContext value={locale}>
-                    <Label>Products</Label>
-                    <LanguageToggle />
+                    <NextIntlClientProvider locale={locale} messages={messagesForLocale(locale)}>
+                        <Label>Products</Label>
+                        <LanguageToggle />
+                    </NextIntlClientProvider>
                 </LocaleContext>
             </SetLocaleContext>
         </MockTheme>
@@ -71,10 +75,9 @@ describe('<LanguageToggle>', () => {
 
     it('marks the saved preference secure on HTTPS', async () => {
         render(<LocaleShell initialLocale="en-US" />);
-        const originalWindow = window;
         vi.stubGlobal(
             'window',
-            new Proxy(originalWindow, {
+            new Proxy(window, {
                 get(target, property) {
                     return property === 'location' ? { protocol: 'https:' } : Reflect.get(target, property);
                 },

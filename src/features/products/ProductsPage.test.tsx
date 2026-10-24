@@ -111,6 +111,6 @@ describe('<ProductsPage>', () => {
 
         await mockDelete!({ group: 'Uogienės', name: 'Avietės', years: [] });
 
-        expect(mockDeleteProduct).toHaveBeenCalledWith('Uogienės', 'Avietės');
+        expect(mockDeleteProduct).toHaveBeenCalledWith({ group: 'Uogienės', name: 'Avietės' });
     });
 });

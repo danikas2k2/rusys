@@ -4,11 +4,11 @@ import React, { useCallback, useState } from 'react';
 import { AmountTitle } from '~/components/amounts/AmountTitle';
 import { ProductDialogIcon } from '~/components/products/ProductDialogIcon';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
-import { type SummaryHistoryData } from '~/features/summary/SummaryAmounts';
 import { SummaryHistoryBox } from '~/features/summary/SummaryHistoryBox';
+import type { ProductAmounts } from '~/schema';
 
 export function ActiveHistoryBox(): React.ReactElement {
-    const [active, setActive] = useActiveContent<SummaryHistoryData>();
+    const [active, setActive] = useActiveContent<ProductAmounts>();
     const [photoPreviewOpen, setPhotoPreviewOpen] = useState(false);
 
     const activeData = active?.data;

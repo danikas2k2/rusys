@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { getGroupsFixture } from '@tests/fixtures';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import React from 'react';
 
@@ -8,7 +8,7 @@ import { useHasReviewGroups } from '~/features/groups/hooks/useHasReviewGroups';
 
 describe('useHasReviewGroups', () => {
     it('returns false for empty state', () => {
-        const { result } = renderHook(() => useHasReviewGroups(), { wrapper: MockRedux });
+        const { result } = renderHook(() => useHasReviewGroups(), { wrapper: MockData });
 
         expect(result.current).toBe(false);
     });
@@ -16,7 +16,7 @@ describe('useHasReviewGroups', () => {
     it('returns false when no group is under review', () => {
         const groups = getGroupsFixture();
         const { result } = renderHook(() => useHasReviewGroups(), {
-            wrapper: ({ children }) => <MockRedux state={{ groups }}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockData state={{ groups }}>{children}</MockData>,
         });
 
         expect(result.current).toBe(false);
@@ -25,7 +25,7 @@ describe('useHasReviewGroups', () => {
     it('returns true when a group is under review', () => {
         const groups = getGroupsFixture().map((g, i) => (i === 0 ? { ...g, review: true } : g));
         const { result } = renderHook(() => useHasReviewGroups(), {
-            wrapper: ({ children }) => <MockRedux state={{ groups }}>{children}</MockRedux>,
+            wrapper: ({ children }) => <MockData state={{ groups }}>{children}</MockData>,
         });
 
         expect(result.current).toBe(true);

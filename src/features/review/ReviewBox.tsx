@@ -104,7 +104,7 @@ export function ReviewBox({ opened = false, onClose, onAfterClose }: ReviewBoxPr
                 }
                 return acc;
             }, []);
-        await applyReview(updates);
+        await applyReview({ updates });
         onClose?.();
     }, [reviewGroups, products, touchedGroups, checkedKeys, applyReview, onClose]);
 

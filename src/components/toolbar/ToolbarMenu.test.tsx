@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import user from '@testing-library/user-event';
 import { MockActiveContent } from '@tests/MockActiveContent';
 import { MockRoute } from '@tests/MockRoute';
-import { MockThemeRedux } from '@tests/MockThemeRedux';
+import { MockThemeData } from '@tests/MockThemeData';
 
 import React from 'react';
 
@@ -23,11 +23,11 @@ vi.mock(import('~/components/toolbar/items/ImportMenuItem'), () => ({
 describe('<ToolbarMenu>', () => {
     it('renders menu collapsed by default', () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <MockRoute initialEntries={[Links.PRODUCTS]}>
                     <ToolbarMenu />
                 </MockRoute>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.getByRole('button', { name: 'Menu' })).toBeInTheDocument();
@@ -36,11 +36,11 @@ describe('<ToolbarMenu>', () => {
 
     it('expands menu by click', async () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <MockRoute initialEntries={[Links.PRODUCTS]}>
                     <ToolbarMenu />
                 </MockRoute>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'Menu' }));
@@ -50,11 +50,11 @@ describe('<ToolbarMenu>', () => {
 
     it('collapses menu by second click', async () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <MockRoute initialEntries={[Links.PRODUCTS]}>
                     <ToolbarMenu />
                 </MockRoute>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'Menu' }));
@@ -65,11 +65,11 @@ describe('<ToolbarMenu>', () => {
 
     it('shows the burger above the navigation drawer only while it is open', async () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <MockRoute initialEntries={[Links.PRODUCTS]}>
                     <ToolbarMenu />
                 </MockRoute>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         const burgerBox = document.querySelector('.burger') as HTMLElement;
@@ -92,13 +92,13 @@ describe('<ToolbarMenu>', () => {
 
     it('renders required menu items', async () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <MockRoute initialEntries={[Links.PRODUCTS]}>
                     <MockActiveContent>
                         <ToolbarMenu />
                     </MockActiveContent>
                 </MockRoute>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'Menu' }));
@@ -121,13 +121,13 @@ describe('<ToolbarMenu>', () => {
 
     it('renders utilities menu items', async () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <MockRoute initialEntries={[Links.PRODUCTS]}>
                     <MockActiveContent>
                         <ToolbarMenu />
                     </MockActiveContent>
                 </MockRoute>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'Menu' }));
@@ -153,13 +153,13 @@ describe('<ToolbarMenu>', () => {
         ${Links.VARIANTS}   | ${'Variants'}
     `('renders $item menu item being active', async ({ link, item }: { link: string; item: string }) => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <MockRoute initialEntries={[link]}>
                     <MockActiveContent>
                         <ToolbarMenu />
                     </MockActiveContent>
                 </MockRoute>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'Menu' }));
@@ -174,13 +174,13 @@ describe('<ToolbarMenu>', () => {
 
     it('keeps search params in navigation links', async () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <MockRoute initialEntries={['/?q=apple&g=fruit']}>
                     <MockActiveContent>
                         <ToolbarMenu />
                     </MockActiveContent>
                 </MockRoute>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'Menu' }));

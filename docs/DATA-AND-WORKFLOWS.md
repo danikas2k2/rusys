@@ -80,7 +80,8 @@ erDiagram
 ```
 
 `YEAR_AMOUNTS`, `VARIANT_AMOUNT`, and `UPDATE` are embedded in product documents; they are not separate collections.
-Dotted relationships are logical links, not MongoDB foreign keys. Full types are defined in `src/common/data.ts`.
+Dotted relationships are logical links, not MongoDB foreign keys. Data model schemas and their inferred types are
+defined by domain in `src/schema/` and exported through `~/schema`.
 
 ### Sign-in sequence
 
@@ -113,19 +114,20 @@ session check in `src/server/api/next.ts`.
 
 ## Requests and updates
 
-The UI calls a hook or updates client state, then sends a request through a REST endpoint or Server Action. The server
-checks the session and input before calling the data layer.
+Server Components load the initial page data. The client seeds TanStack Query with this data, so a cached page can
+render without an immediate second request. The UI calls Server Actions for changes and authenticated reads during
+refresh. The server checks the session and input before calling the data layer.
 
 ```mermaid
 sequenceDiagram
     actor U as User
     participant UI as Feature component
-    participant H as Hook or Redux state
-    participant E as API or Server Action
+    participant H as Query cache and feature hook
+    participant E as Server Action
     participant D as server/data
     participant M as MongoDB
     U->>UI: Change product or quantity
-    UI->>H: Dispatch action
+    UI->>H: Update cached value when appropriate
     H->>E: Send change
     E->>E: Check session and input
     E->>D: Call domain operation
@@ -133,12 +135,16 @@ sequenceDiagram
     M-->>D: Database result
     D-->>E: Domain result
     E-->>H: Response
-    H-->>UI: Updated state
+    H-->>UI: Refreshed data or rollback after an error
     UI-->>U: Show result
 ```
 
 REST route files are in `src/app/api/v1/**/route.ts`, with handlers in `src/server/api/v1`. Shared API paths are defined
-in `src/common/api/v1.ts`. Product data operations are exposed through `src/server/data/products.ts`.
+in `src/common/api/v1.ts`. The remaining REST methods handle group image uploads with updates or renames, product and
+variant image uploads, archive imports, and offline identity checks. Catalog reads and other changes use Server Actions
+or server-rendered data loading. Product data operations are exposed through `src/server/data/products.ts`. Product
+missing and removing changes update the Query cache immediately and restore the previous value if the Server Action
+fails.
 
 ## Import and export
 

@@ -1,86 +1,59 @@
 'use server';
 
-import { type Group } from '~/common';
-import { isOptionalBoolean, isOptionalString, isOrderMap, isRequiredString } from '~/server/actions/validation';
+import {
+    deleteGroupSchema,
+    renameGroupSchema,
+    reorderGroupsSchema,
+    updateGroupSchema,
+    type DeleteGroup,
+    type Group,
+    type RenameGroup,
+    type ReorderGroups,
+    type UpdateGroup,
+} from '~/schema';
 import { requireSession } from '~/server/auth/session';
-import { deleteGroupOccurrences, renameGroupOccurrences } from '~/server/data/common';
-import { getGroup, getGroups, reorderGroups, updateGroup } from '~/server/data/groups';
+import { deleteGroup, getGroups, renameGroup, reorderGroups, updateGroup } from '~/server/data/groups';
+import { renameProductsGroup } from '~/server/data/products/mutations';
+import { assertSuccess } from '~/server/data/utils';
+import { renameVariantsGroup } from '~/server/data/variants';
+import { withinTransaction } from '~/server/db';
 
 export async function getGroupsAction(): Promise<readonly Group[]> {
     await requireSession();
-    return getGroups();
+    return withinTransaction(getGroups);
 }
 
-export async function updateGroupAction(
-    group: string,
-    annual?: boolean,
-    review?: boolean,
-    image?: string
-): Promise<void> {
+export async function updateGroupAction(request: UpdateGroup): Promise<void> {
     await requireSession();
-    if (
-        !isRequiredString(group) ||
-        !isOptionalBoolean(annual) ||
-        !isOptionalBoolean(review) ||
-        !isOptionalString(image)
-    ) {
-        throw new Error('Invalid group update');
-    }
-    if (!(await updateGroup(group, annual, review, image))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = updateGroupSchema.parse(request);
+    return withinTransaction((session) => updateGroup(parsed, session)).then(assertSuccess);
 }
 
-export async function renameGroupAction(
-    group: string,
-    name: string,
-    annual?: boolean,
-    review?: boolean,
-    image?: string
-): Promise<void> {
+export async function renameGroupAction(request: RenameGroup): Promise<void> {
     await requireSession();
-    if (
-        !isRequiredString(group) ||
-        !isRequiredString(name) ||
-        !isOptionalBoolean(annual) ||
-        !isOptionalBoolean(review) ||
-        !isOptionalString(image)
-    ) {
-        throw new Error('Invalid group update');
-    }
-    const current = await getGroup(group);
-    if (!current) {
-        throw new Error('Group not found');
-    }
-    if (
-        !(await renameGroupOccurrences(
-            group,
-            name,
-            annual ?? current.annual,
-            review ?? current.review,
-            image ?? current.image
-        ))
-    ) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = renameGroupSchema.parse(request);
+    return withinTransaction(async (session) => {
+        const { group, targetGroup } = parsed;
+        if (group === targetGroup) {
+            return updateGroup(parsed, session);
+        }
+        if (await renameGroup(parsed, session)) {
+            await renameVariantsGroup(group, targetGroup, session);
+            await renameProductsGroup(group, targetGroup, session);
+            return true;
+        }
+        return false;
+    }).then(assertSuccess);
 }
 
-export async function deleteGroupAction(group: string): Promise<void> {
+export async function deleteGroupAction(request: DeleteGroup): Promise<void> {
     await requireSession();
-    if (!isRequiredString(group)) {
-        throw new Error('Invalid group update');
-    }
-    if (!(await deleteGroupOccurrences(group))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const { group } = deleteGroupSchema.parse(request);
+    return withinTransaction((session) => deleteGroup(group, session)).then(assertSuccess);
 }
 
-export async function reorderGroupsAction(groups: Readonly<Record<string, number>>): Promise<void> {
+export async function reorderGroupsAction(request: ReorderGroups): Promise<void> {
     await requireSession();
-    if (!isOrderMap(groups)) {
-        throw new Error('Invalid group update');
-    }
-    if (!(await reorderGroups(groups))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const { groups } = reorderGroupsSchema.parse(request);
+    return withinTransaction((session) => reorderGroups(groups, session)).then(assertSuccess);
 }

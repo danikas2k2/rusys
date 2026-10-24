@@ -38,7 +38,6 @@ import {
     UpdateIcon,
 } from '@icons';
 
-import type { ProductAmounts, VariantAmount } from '~/common/data';
 import { getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { formatDateOnly, getExpiryStatus, parseDateOnly } from '~/common/utils/expiry';
 import { ChangeBadge } from '~/components/amounts/ChangeBadge';
@@ -59,9 +58,9 @@ import { VariantImagePicker } from '~/features/products/VariantImagePicker';
 import { VariantBox } from '~/features/variants/VariantBox';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { prefersReducedMotion } from '~/lib/utils/motion';
+import type { ProductAmounts, VariantAmount } from '~/schema';
 import { useProducts } from '~/store/products';
-import { useProfile } from '~/store/profile';
-import { useAllVariants, useGroupVariantComparator } from '~/store/variants';
+import { useGroupVariantComparator, useGroupVariantNames } from '~/store/variants';
 
 import './AmountVariantsTab.css';
 
@@ -123,7 +122,6 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
     const listRef = useRef<HTMLDivElement>(null);
     const [active] = useActiveContent<ProductAmounts>();
     const [, setUpdating] = useUpdatingProducts();
-    const profile = useProfile();
     const updateProduct = useSetAmounts();
     const undoProduct = useUndoProduct();
     const redoProduct = useRedoProduct();
@@ -159,7 +157,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
     const canUndo = undoCount > 0;
     const canRedo = redoCount > 0;
 
-    const allVariants = useAllVariants(group);
+    const allVariants = useGroupVariantNames(group);
     const compareVariants = useGroupVariantComparator(group);
 
     const presentKeys = useMemo(() => {
@@ -375,7 +373,13 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
             const loadingTimeout = setTimeout(() => setLoading(true), 300);
             setUpdating(activeData, true);
             try {
-                await updateProduct(group, name, year, changes, profile.email, comment || undefined);
+                await updateProduct({
+                    group,
+                    name,
+                    year,
+                    amounts: changes,
+                    comment: comment || undefined,
+                });
                 setAllDeltas({});
                 setComment('');
                 setExpandedKey(null);
@@ -388,19 +392,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
                 setLoading(false);
             }
         }
-    }, [
-        allDeltas,
-        activeData,
-        group,
-        name,
-        year,
-        profile.email,
-        comment,
-        setUpdating,
-        updateProduct,
-        setExpandedKey,
-        onClose,
-    ]);
+    }, [allDeltas, activeData, group, name, year, comment, setUpdating, updateProduct, setExpandedKey, onClose]);
 
     // Only ever wired to onClick while canUndo/canRedo is true, which itself requires activeData
     // (see activeProduct above) - so activeData is always defined here.
@@ -408,14 +400,14 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
         setAllDeltas({});
         setExpandedKey(null);
         setUpdating(activeData!, true);
-        await undoProduct(group, name, year).finally(() => setUpdating(activeData!, false));
+        await undoProduct({ group, name, year }).finally(() => setUpdating(activeData!, false));
     }, [activeData, group, name, year, setUpdating, undoProduct, setExpandedKey]);
 
     const handleRedo = useCallback(async (): Promise<void> => {
         setAllDeltas({});
         setExpandedKey(null);
         setUpdating(activeData!, true);
-        await redoProduct(group, name, year).finally(() => setUpdating(activeData!, false));
+        await redoProduct({ group, name, year }).finally(() => setUpdating(activeData!, false));
     }, [activeData, group, name, year, setUpdating, redoProduct, setExpandedKey]);
 
     const handleMoveStart = useCallback(() => {

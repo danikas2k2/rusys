@@ -1,6 +1,6 @@
 import type { Db } from 'mongodb';
 
-import type { Group, Product, Variant } from '~/common/data';
+import type { Group, Product, Variant } from '~/schema';
 
 export type Scenario =
     | 'empty'
@@ -21,7 +21,11 @@ function harvestUpdateTime(): number {
     return new Date(year, 8, 15, 12).getTime();
 }
 
-export function createScenarioData(scenario: Scenario): { groups: Group[]; variants: Variant[]; products: Product[] } {
+export function createScenarioData(scenario: Scenario): {
+    groups: Group[];
+    variants: Variant[];
+    products: Product[];
+} {
     if (scenario === 'empty') {
         return { groups: [], variants: [], products: [] };
     }

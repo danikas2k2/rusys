@@ -1,45 +1,64 @@
 import type { ClientSession, UpdateFilter } from 'mongodb';
 
-import type { Product } from '~/common/data';
-import { hasDuplicates, hasEffect } from '~/server/data/utils';
-import { db, withTransaction } from '~/server/db';
+import {
+    SchemaError,
+    type AddProduct,
+    type DeleteProduct,
+    type MoveProduct,
+    type Product,
+    type RenameProduct,
+    type SetProductExpiryTolerance,
+    type SetProductParent,
+} from '~/schema';
+import { handleDuplicate, hasEffect } from '~/server/data/utils';
+import { db } from '~/server/db';
 
-export async function addProduct(group: string, name: string, parent?: string): Promise<boolean> {
+const rejectDuplicateProduct = (cause: unknown): never =>
+    handleDuplicate(cause, () => {
+        throw new Error(SchemaError.NameAlreadyExists);
+    });
+
+export async function addProduct({ group, name, parent }: AddProduct, session: ClientSession): Promise<boolean> {
     if (!group || !name || parent === name) {
         return false;
     }
     const col = (await db()).collection<Product>('products');
-    if (parent && !(await col.findOne({ group, name: parent, archivedAt: { $exists: false } }))) {
+    if (parent && !(await col.findOne({ group, name: parent, archivedAt: { $exists: false } }, { session }))) {
         return false;
     }
     // Names are still the current identity key.  Re-adding an archived name therefore means
     // restoring its original record rather than silently creating a second, ambiguous history.
-    const archived = await col.findOne({ group, name, archivedAt: { $exists: true } });
+    const archived = await col.findOne({ group, name, archivedAt: { $exists: true } }, { session });
     if (archived) {
         return col
-            .updateOne({ group, name }, { $unset: { archivedAt: 1 }, ...(parent ? { $set: { parent } } : {}) })
+            .updateOne(
+                { group, name },
+                { $unset: { archivedAt: 1 }, ...(parent ? { $set: { parent } } : {}) },
+                { session }
+            )
             .then(hasEffect);
     }
-    return col.insertOne({ group, name, ...(parent ? { parent } : {}) }).then(hasEffect);
+    return col
+        .insertOne({ group, name, ...(parent ? { parent } : {}) }, { session })
+        .then(hasEffect)
+        .catch(rejectDuplicateProduct);
 }
 
 export async function renameProduct(
-    group: string,
-    name: string,
-    newName: string,
-    session?: ClientSession
+    { group, name, targetName }: RenameProduct,
+    session: ClientSession
 ): Promise<boolean> {
-    if (!group || !name || !newName || name === newName) {
+    if (!group || !name || !targetName || name === targetName) {
         return false;
     }
     const col = (await db()).collection('products');
     const renamed = await col
-        .updateOne({ group, name }, { $set: { name: newName } }, { session })
+        .updateOne({ group, name }, { $set: { name: targetName } }, { session })
         .then(hasEffect)
-        .catch(hasDuplicates);
+        .catch(rejectDuplicateProduct);
     if (renamed) {
         // Keep children pointing at the renamed product.
-        await col.updateMany({ group, parent: name }, { $set: { parent: newName } }, { session });
+        await col.updateMany({ group, parent: name }, { $set: { parent: targetName } }, { session });
     }
     return renamed;
 }
@@ -58,56 +77,58 @@ function getDescendantNames(name: string, childrenByParent: ReadonlyMap<string, 
     return descendants;
 }
 
-export async function setProductParent(group: string, name: string, parent?: string): Promise<boolean> {
+export async function setProductParent(
+    { group, name, parent }: SetProductParent,
+    session: ClientSession
+): Promise<boolean> {
     if (!group || !name || parent === name) {
         return false;
     }
 
-    return withTransaction(async (session) => {
-        const col = (await db()).collection<Product>('products');
-        if (!parent) {
-            return col.updateOne({ group, name }, { $unset: { parent: 1 } }, { session }).then(hasEffect);
-        }
+    const col = (await db()).collection<Product>('products');
+    if (!parent) {
+        return col.updateOne({ group, name }, { $unset: { parent: 1 } }, { session }).then(hasEffect);
+    }
 
-        const siblings = await col.find({ group }, { projection: { _id: 0, name: 1, parent: 1 }, session }).toArray();
-        if (!siblings.some((p) => p.name === parent)) {
-            return false;
-        }
+    const siblings = await col
+        .find({ group, archivedAt: { $exists: false } }, { projection: { _id: 0, name: 1, parent: 1 }, session })
+        .toArray();
+    if (!siblings.some((p) => p.name === parent)) {
+        return false;
+    }
 
-        const childrenByParent = new Map<string, string[]>();
-        for (const p of siblings) {
-            if (p.parent) {
-                childrenByParent.set(p.parent, [...(childrenByParent.get(p.parent) ?? []), p.name]);
-            }
+    const childrenByParent = new Map<string, string[]>();
+    for (const p of siblings) {
+        if (p.parent) {
+            childrenByParent.set(p.parent, [...(childrenByParent.get(p.parent) ?? []), p.name]);
         }
-        // Setting parent to one of name's own descendants would create a cycle.
-        if (getDescendantNames(name, childrenByParent).has(parent)) {
-            return false;
-        }
+    }
+    // Setting parent to one of name's own descendants would create a cycle.
+    if (getDescendantNames(name, childrenByParent).has(parent)) {
+        return false;
+    }
 
-        return col.updateOne({ group, name }, { $set: { parent } }, { session }).then(hasEffect);
-    });
+    return col.updateOne({ group, name }, { $set: { parent } }, { session }).then(hasEffect);
 }
 
 export async function setProductExpiryTolerance(
-    group: string,
-    name: string,
-    expiryToleranceDays: number
+    { group, name, days: expiryToleranceDays }: SetProductExpiryTolerance,
+    session: ClientSession
 ): Promise<boolean> {
     if (!group || !name || !Number.isInteger(expiryToleranceDays) || expiryToleranceDays < 0) {
         return false;
     }
     const col = (await db()).collection<Product>('products');
     return expiryToleranceDays
-        ? col.updateOne({ group, name }, { $set: { expiryToleranceDays } }).then(hasEffect)
-        : col.updateOne({ group, name }, { $unset: { expiryToleranceDays: 1 } }).then(hasEffect);
+        ? col.updateOne({ group, name }, { $set: { expiryToleranceDays } }, { session }).then(hasEffect)
+        : col.updateOne({ group, name }, { $unset: { expiryToleranceDays: 1 } }, { session }).then(hasEffect);
 }
 
 export async function renameProductsVariant(
     group: string,
     variant: string,
     newVariant: string,
-    session?: ClientSession
+    session: ClientSession
 ): Promise<boolean> {
     if (!group || !variant || !newVariant || variant === newVariant) {
         return false;
@@ -196,10 +217,10 @@ export async function renameProductsVariant(
             { session }
         )
         .then(hasEffect)
-        .catch(hasDuplicates);
+        .catch(rejectDuplicateProduct);
 }
 
-export async function renameProductsGroup(group: string, newGroup: string, session?: ClientSession): Promise<boolean> {
+export async function renameProductsGroup(group: string, newGroup: string, session: ClientSession): Promise<boolean> {
     if (!group || !newGroup || group === newGroup) {
         return false;
     }
@@ -207,22 +228,23 @@ export async function renameProductsGroup(group: string, newGroup: string, sessi
         .collection('products')
         .updateMany({ group }, { $set: { group: newGroup } }, { session })
         .then(hasEffect)
-        .catch(hasDuplicates);
+        .catch(rejectDuplicateProduct);
 }
 
 export async function moveProduct(
-    group: string,
-    name: string,
-    newGroup: string,
-    newName?: string,
-    session?: ClientSession
+    { group, name, targetGroup, targetName }: MoveProduct,
+    session: ClientSession
 ): Promise<boolean> {
-    if (!group || !name || !newGroup || group === newGroup) {
+    if (!group || !name || !targetGroup || group === targetGroup) {
         return false;
     }
-    const $set: { group: string; name?: string } = { group: newGroup };
-    if (newName && name !== newName) {
-        $set.name = newName;
+    const col = (await db()).collection<Product>('products');
+    if (await col.countDocuments({ group, parent: name }, { session })) {
+        throw new Error(SchemaError.CannotMoveProductWithChildren);
+    }
+    const $set: { group: string; name?: string } = { group: targetGroup };
+    if (targetName && name !== targetName) {
+        $set.name = targetName;
     }
     return (
         (await db())
@@ -230,34 +252,34 @@ export async function moveProduct(
             // parent is scoped to the old group, so it's no longer valid once the group changes.
             .updateOne({ group, name }, { $set, $unset: { parent: 1 } }, { session })
             .then(hasEffect)
-            .catch(hasDuplicates)
+            .catch(rejectDuplicateProduct)
     );
 }
 
-export async function deleteProduct(group: string, name: string): Promise<boolean> {
+export async function deleteProduct({ group, name }: DeleteProduct, session: ClientSession): Promise<boolean> {
     if (!group || !name) {
         return false;
     }
     const col = (await db()).collection<Product>('products');
-    if (await col.countDocuments({ group, parent: name, archivedAt: { $exists: false } })) {
+    if (await col.countDocuments({ group, parent: name, archivedAt: { $exists: false } }, { session })) {
         return false;
     }
     return col
-        .updateOne({ group, name, archivedAt: { $exists: false } }, { $set: { archivedAt: Date.now() } })
+        .updateOne({ group, name, archivedAt: { $exists: false } }, { $set: { archivedAt: Date.now() } }, { session })
         .then(hasEffect);
 }
 
 export async function deleteProductsVariant(
     _group: string,
     _variant: string,
-    _session?: ClientSession
+    _session: ClientSession
 ): Promise<boolean> {
     // Kept only as a compatibility boundary for old callers. Variant history is embedded in
     // products, so there is intentionally nothing to erase here.
     return false;
 }
 
-export async function deleteProductsGroup(_group: string, _session?: ClientSession): Promise<boolean> {
+export async function deleteProductsGroup(_group: string, _session: ClientSession): Promise<boolean> {
     // Category archiving is inherited by products; do not mark each child or erase its history.
     return false;
 }

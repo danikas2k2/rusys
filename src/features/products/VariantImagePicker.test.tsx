@@ -95,10 +95,12 @@ describe('<VariantImagePicker>', () => {
 
         await waitFor(() =>
             expect(setVariantImage).toHaveBeenCalledWith(
-                'Uogienės',
-                'Braškės',
-                '0.5l',
-                expect.stringMatching(/^data:image\/png;base64,/),
+                {
+                    group: 'Uogienės',
+                    name: 'Braškės',
+                    variant: '0.5l',
+                    image: expect.stringMatching(/^data:image\/png;base64,/),
+                },
                 expect.any(Function)
             )
         );
@@ -130,7 +132,7 @@ describe('<VariantImagePicker>', () => {
         const file = new File(['image-data'], 'image.png', { type: 'image/png' });
         await user.upload(imageInput, file);
 
-        await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Failed to upload');
+        await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Something went wrong');
     });
 
     it('removes the image when the remove button is clicked', async () => {
@@ -145,7 +147,12 @@ describe('<VariantImagePicker>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Remove image' }));
 
-        expect(setVariantImage).toHaveBeenCalledWith('Uogienės', 'Braškės', '0.5l', '');
+        expect(setVariantImage).toHaveBeenCalledWith({
+            group: 'Uogienės',
+            name: 'Braškės',
+            variant: '0.5l',
+            image: '',
+        });
     });
 
     it('shows an error when removing the image fails', async () => {
@@ -160,6 +167,6 @@ describe('<VariantImagePicker>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Remove image' }));
 
-        await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Failed to remove');
+        await expect(screen.findByRole('alert')).resolves.toHaveTextContent('Something went wrong');
     });
 });

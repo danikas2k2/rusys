@@ -1,14 +1,16 @@
 import { useCallback } from 'react';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
+import type { ProductYearIdentity } from '~/schema';
 import { redoProductAction } from '~/server/actions/products';
 
-export function useRedoProduct(): (group: string, name: string, year: number) => Promise<void> {
+export function useRedoProduct(): (request: ProductYearIdentity) => Promise<void> {
     const refresh = useGetProducts();
     return useCallback(
-        async (group: string, name: string, year: number): Promise<void> => {
+        async (request: ProductYearIdentity): Promise<void> => {
+            const { group, name } = request;
             if (group && name) {
-                await redoProductAction(group, name, year);
+                await redoProductAction(request);
                 await refresh();
             }
         },

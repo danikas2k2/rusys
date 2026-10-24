@@ -1,30 +1,22 @@
 import { act, renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { mockQuery } from '@tests/MockQuery';
 
-import { useDispatch } from 'react-redux';
-
+import { useIdentity } from '~/components/app/IdentityContext';
 import { useResetProfile } from '~/components/user/hooks/useResetProfile';
-import { resetProfileAction } from '~/store/profile';
-
-vi.mock(import('react-redux'), async () => ({
-    ...(await vi.importActual('react-redux')),
-    useDispatch: vi.fn(),
-}));
+import { CATALOG_KEYS } from '~/store/catalog';
 
 describe('useResetProfile', () => {
-    const dispatch = vi.fn();
+    it('clears profile and cached private data on logout', () => {
+        const { client, wrapper } = mockQuery({
+            profile: { sub: 'user-a', allowed: true },
+            groups: [{ group: 'Secret', order: 0 }],
+        });
+        const { result } = renderHook(() => ({ reset: useResetProfile(), profile: useIdentity().profile }), {
+            wrapper,
+        });
+        act(() => result.current.reset());
 
-    beforeAll(() => {
-        vi.mocked(useDispatch).mockReturnValue(dispatch);
-    });
-
-    afterEach(() => vi.clearAllMocks());
-
-    it('dispatches resetProfileAction', () => {
-        const { result } = renderHook(() => useResetProfile(), { wrapper: MockRedux });
-
-        act(() => result.current());
-
-        expect(dispatch).toHaveBeenCalledWith(resetProfileAction());
+        expect(result.current.profile.sub).toBeUndefined();
+        expect(client.getQueryData(CATALOG_KEYS.groups)).toBeUndefined();
     });
 });

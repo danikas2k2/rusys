@@ -20,7 +20,7 @@ export default async function AppPage({
     const profile = await getSessionProfile();
     const initial = profile ? await getInitialAppData(pathname) : undefined;
     const dataVersion = createHash('sha256')
-        .update(JSON.stringify(initial?.data ?? {}))
+        .update(JSON.stringify({ data: initial?.data ?? {}, profile }))
         .digest('hex');
     const locale = await getRequestLocale();
     return (

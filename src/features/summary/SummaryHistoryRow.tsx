@@ -1,11 +1,11 @@
 import { Group, Stack, Table, Text } from '@mantine/core';
 import React from 'react';
 
-import type { History } from '~/common/data';
 import { AmountsCell } from '~/components/amounts/AmountsCell';
 import { EmailAvatar } from '~/components/common/EmailAvatar';
 import { FormatDate } from '~/components/common/FormatDate';
 import { getRoundedDate } from '~/lib/utils/time';
+import type { History } from '~/schema';
 
 export function SummaryHistoryRow({ h, dimmed = false }: { h: History; dimmed?: boolean }) {
     return (

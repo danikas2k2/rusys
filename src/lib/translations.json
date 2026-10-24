@@ -505,5 +505,149 @@
   },
   "type to filter": {
     "lt-LT": "filtruokite"
+  },
+  "The request is invalid": {
+    "lt-LT": "Užklausa netinkama"
+  },
+  "The requested change could not be applied": {
+    "lt-LT": "Nepavyko pritaikyti prašomo pakeitimo"
+  },
+  "The requested item was not found": {
+    "lt-LT": "Prašytas įrašas nerastas"
+  },
+  "Unauthorized": {
+    "lt-LT": "Neturite teisės atlikti šio veiksmo"
+  },
+  "Something went wrong": {
+    "lt-LT": "Įvyko klaida"
+  },
+  "Upload failed": {
+    "lt-LT": "Nepavyko įkelti failo"
+  },
+  "Upload cancelled": {
+    "lt-LT": "Failo įkėlimas atšauktas"
+  },
+  "The imported file is invalid": {
+    "lt-LT": "Importuojamas failas netinkamas"
+  },
+  "Could not sign in": {
+    "lt-LT": "Nepavyko prisijungti"
+  },
+  "Group not found": {
+    "lt-LT": "Grupė nerasta"
+  },
+  "Variant not found": {
+    "lt-LT": "Variantas nerastas"
+  },
+  "The variant could not be renamed": {
+    "lt-LT": "Nepavyko pervadinti varianto"
+  },
+  "Name and image must be strings; annual and review must be booleans": {
+    "lt-LT": "Pavadinimas ir paveikslėlis turi būti tekstas, o metinis ir peržiūros požymiai – loginės reikšmės"
+  },
+  "Annual and review must be booleans; image must be a string": {
+    "lt-LT": "Metinis ir peržiūros požymiai turi būti loginės reikšmės, o paveikslėlis – tekstas"
+  },
+  "Groups is required": {
+    "lt-LT": "Būtina nurodyti grupes"
+  },
+  "Group and name are required": {
+    "lt-LT": "Būtina nurodyti grupę ir pavadinimą"
+  },
+  "The product already exists or could not be created": {
+    "lt-LT": "Produktas jau yra arba jo nepavyko sukurti"
+  },
+  "Exactly one product field must be changed per request": {
+    "lt-LT": "Vienoje užklausoje galima pakeisti tik vieną produkto lauką"
+  },
+  "Name must be a string": {
+    "lt-LT": "Pavadinimas turi būti tekstas"
+  },
+  "Group and newName must be strings": {
+    "lt-LT": "Grupė ir naujas pavadinimas turi būti tekstas"
+  },
+  "Parent must be a string or null": {
+    "lt-LT": "Tėvinis produktas turi būti tekstas arba null"
+  },
+  "ExpiryToleranceDays must be a non-negative integer": {
+    "lt-LT": "Galiojimo tolerancija dienomis turi būti neneigiamas sveikasis skaičius"
+  },
+  "Missing must be a boolean": {
+    "lt-LT": "Trūkumo požymis turi būti loginė reikšmė"
+  },
+  "Updates must contain group, name, and missing for each product": {
+    "lt-LT": "Kiekvieno produkto pakeitime turi būti grupė, pavadinimas ir trūkumo požymis"
+  },
+  "Name and picture must be strings": {
+    "lt-LT": "Vardas ir nuotrauka turi būti tekstas"
+  },
+  "Email is required": {
+    "lt-LT": "Būtina nurodyti el. pašto adresą"
+  },
+  "Target product and amounts are required": {
+    "lt-LT": "Būtina nurodyti paskirties produktą ir kiekius"
+  },
+  "Amounts is required": {
+    "lt-LT": "Būtina nurodyti kiekius"
+  },
+  "Variant and a positive amount are required": {
+    "lt-LT": "Būtina nurodyti variantą ir teigiamą kiekį"
+  },
+  "Removing must be a boolean": {
+    "lt-LT": "Pašalinimo požymis turi būti loginė reikšmė"
+  },
+  "Image is required": {
+    "lt-LT": "Būtina nurodyti paveikslėlį"
+  },
+  "Variant fields have invalid types": {
+    "lt-LT": "Netinkami varianto laukų tipai"
+  },
+  "NewGroup is required": {
+    "lt-LT": "Būtina nurodyti naują grupę"
+  },
+  "Exactly one import file is required": {
+    "lt-LT": "Būtina nurodyti tik vieną importo failą"
+  },
+  "The archive could not be imported": {
+    "lt-LT": "Nepavyko importuoti archyvo"
+  },
+  "Google client ID is not configured": {
+    "lt-LT": "Google kliento ID nesukonfigūruotas"
+  },
+  "Invalid login": {
+    "lt-LT": "Neteisingi prisijungimo duomenys"
+  },
+  "User is not allowed": {
+    "lt-LT": "Šiam naudotojui prisijungti neleidžiama"
+  },
+  "Invalid token audience": {
+    "lt-LT": "Netinkamas prisijungimo žetonas"
+  },
+  "Google identity mismatch": {
+    "lt-LT": "Nepavyko patvirtinti Google tapatybės"
+  },
+  "Google userinfo failed": {
+    "lt-LT": "Nepavyko gauti Google paskyros duomenų"
+  },
+  "Invalid history selection": {
+    "lt-LT": "Netinkamai pasirinkti istorijos duomenys"
+  },
+  "Group is required": {
+    "lt-LT": "Būtina nurodyti grupę"
+  },
+  "Variant is required": {
+    "lt-LT": "Būtina nurodyti variantą"
+  },
+  "Year must be a number": {
+    "lt-LT": "Metai turi būti skaičius"
+  },
+  "Category must be a string": {
+    "lt-LT": "Kategorija turi būti tekstas"
+  },
+  "Variant must be a string": {
+    "lt-LT": "Variantas turi būti tekstas"
+  },
+  "Product name must be a string": {
+    "lt-LT": "Produkto pavadinimas turi būti tekstas"
   }
 }

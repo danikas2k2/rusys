@@ -1,7 +1,7 @@
 import { expect, test } from '@tests/fixtures/test';
 import { openProduct, productTile } from '@tests/helpers/ui';
 
-import type { Product } from '~/common/data';
+import type { Product } from '~/schema';
 
 test.describe('products', () => {
     test('clips the category transition to the scrolled product viewport', async ({ page, db }) => {

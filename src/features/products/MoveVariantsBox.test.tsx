@@ -7,13 +7,11 @@ import React from 'react';
 import { useTransferAmounts } from '~/features/products/hooks/useTransferAmounts';
 import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
-import { useProfile } from '~/store/profile';
 import { MoveVariantsBox } from './MoveVariantsBox';
 
 vi.mock(import('~/store/groups/useGroups'));
 vi.mock(import('~/store/products/useProducts'));
 vi.mock(import('~/features/products/hooks/useTransferAmounts'));
-vi.mock(import('~/store/profile/useProfile'));
 vi.mock(import('~/features/products/ProductBox'), () => ({
     ProductBox: ({ opened, onClose }: { opened: boolean; onClose: (group?: string, name?: string) => void }) =>
         opened ? <button onClick={() => onClose('Kita', 'Naujas')}>Save new product</button> : null,
@@ -37,7 +35,6 @@ describe('<MoveVariantsBox>', () => {
             { group: 'Šaltinis', name: 'Vaikas', parent: 'Tikslas' },
             { group: 'Kita', name: 'Naujas' },
         ]);
-        vi.mocked(useProfile).mockReturnValue({ email: 'editor@example.com' });
         vi.mocked(useTransferAmounts).mockReturnValue(transfer);
     });
 
@@ -75,15 +72,14 @@ describe('<MoveVariantsBox>', () => {
         await user.click(screen.getByRole('button', { name: 'Move' }));
 
         await waitFor(() =>
-            expect(transfer).toHaveBeenCalledWith(
-                'Šaltinis',
-                'Pradinis',
-                24,
-                'Šaltinis',
-                'Tikslas',
+            expect(transfer).toHaveBeenCalledWith({
+                group: 'Šaltinis',
+                name: 'Pradinis',
+                year: 24,
+                targetGroup: 'Šaltinis',
+                targetName: 'Tikslas',
                 amounts,
-                'editor@example.com'
-            )
+            })
         );
 
         expect(onMoved).toHaveBeenCalledExactlyOnceWith();
@@ -99,15 +95,14 @@ describe('<MoveVariantsBox>', () => {
 
         await user.click(screen.getByRole('button', { name: 'Move' }));
         await waitFor(() =>
-            expect(transfer).toHaveBeenCalledWith(
-                'Šaltinis',
-                'Pradinis',
-                24,
-                'Kita',
-                'Naujas',
+            expect(transfer).toHaveBeenCalledWith({
+                group: 'Šaltinis',
+                name: 'Pradinis',
+                year: 24,
+                targetGroup: 'Kita',
+                targetName: 'Naujas',
                 amounts,
-                'editor@example.com'
-            )
+            })
         );
     });
 

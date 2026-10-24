@@ -1,105 +1,76 @@
 'use server';
 
-import type { UpdateVariant } from '~/common/data';
-import { isOrderMap, isRequiredString, isUpdateVariant } from '~/server/actions/validation';
+import {
+    copyVariantSchema,
+    deleteVariantSchema,
+    renameVariantSchema,
+    reorderVariantsSchema,
+    updateVariantSchema,
+    type CopyVariant,
+    type DeleteVariant,
+    type RenameVariant,
+    type ReorderVariants,
+    type UpdateVariant,
+} from '~/schema';
 import { requireSession } from '~/server/auth/session';
-import { renameVariantOccurrences } from '~/server/data/common';
 import { getGroups } from '~/server/data/groups';
+import { renameProductsVariant } from '~/server/data/products/mutations';
+import { assertSuccess } from '~/server/data/utils';
 import {
     copyVariant,
     deleteVariant,
-    getVariant,
     getVariants,
+    renameVariant,
     reorderVariants,
     updateVariant,
 } from '~/server/data/variants';
+import { withinTransaction } from '~/server/db';
 
 export async function getVariantsAction() {
     await requireSession();
-    const [groups, variants] = await Promise.all([getGroups(), getVariants()]);
-    return { groups, variants };
+    return withinTransaction(async (session) => {
+        const groups = await getGroups(session);
+        const variants = await getVariants(session);
+        return { groups, variants };
+    });
 }
 
-export async function saveVariant(group: string, variant: string, update: UpdateVariant): Promise<void> {
+export async function updateVariantAction(request: UpdateVariant): Promise<void> {
     await requireSession();
-    if (!isRequiredString(group) || !isRequiredString(variant) || !isUpdateVariant(update)) {
-        throw new Error('Invalid variant update');
-    }
-    const current = await getVariant(group, variant);
-    const next = {
-        order: update.order ?? current?.order,
-        suffix: update.suffix ?? current?.suffix,
-        count: update.count ?? current?.count,
-        units: update.units ?? current?.units,
-    };
-    if (!(await updateVariant(group, variant, next))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = updateVariantSchema.parse(request);
+    return withinTransaction((session) => updateVariant(parsed, session)).then(assertSuccess);
 }
 
-export async function renameVariantAction(
-    group: string,
-    variant: string,
-    name: string,
-    update: UpdateVariant = {}
-): Promise<void> {
+export async function renameVariantAction(request: RenameVariant): Promise<void> {
     await requireSession();
-    if (!isRequiredString(group) || !isRequiredString(variant) || !isRequiredString(name) || !isUpdateVariant(update)) {
-        throw new Error('Invalid variant update');
-    }
-    const current = await getVariant(group, variant);
-    if (!current) {
-        throw new Error('Variant not found');
-    }
-    const next = {
-        order: update.order ?? current.order,
-        suffix: update.suffix ?? current.suffix,
-        count: update.count ?? current.count,
-        units: update.units ?? current.units,
-    };
-    if (!(await renameVariantOccurrences(group, variant, name, next))) {
-        throw new Error('The variant could not be renamed');
-    }
+    const parsed = renameVariantSchema.parse(request);
+    return withinTransaction(async (session) => {
+        const { group, variant, targetVariant } = parsed;
+        if (variant === targetVariant) {
+            return updateVariant(parsed, session);
+        }
+        if (await renameVariant(parsed, session)) {
+            await renameProductsVariant(group, variant, targetVariant, session);
+            return true;
+        }
+        return false;
+    }).then(assertSuccess);
 }
 
-export async function copyVariantAction(
-    group: string,
-    variant: string,
-    newGroup: string,
-    newVariant?: string,
-    update: UpdateVariant = {}
-): Promise<void> {
+export async function copyVariantAction(request: CopyVariant): Promise<void> {
     await requireSession();
-    if (
-        !isRequiredString(group) ||
-        !isRequiredString(variant) ||
-        !isRequiredString(newGroup) ||
-        (newVariant !== undefined && !isRequiredString(newVariant)) ||
-        !isUpdateVariant(update)
-    ) {
-        throw new Error('Invalid variant update');
-    }
-    if (!(await copyVariant(group, variant, newGroup, newVariant, update))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const parsed = copyVariantSchema.parse(request);
+    return withinTransaction((session) => copyVariant(parsed, session)).then(assertSuccess);
 }
 
-export async function deleteVariantAction(group: string, variant: string): Promise<void> {
+export async function deleteVariantAction(request: DeleteVariant): Promise<void> {
     await requireSession();
-    if (!isRequiredString(group) || !isRequiredString(variant)) {
-        throw new Error('Invalid variant update');
-    }
-    if (!(await deleteVariant(group, variant))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const { group, variant } = deleteVariantSchema.parse(request);
+    return withinTransaction((session) => deleteVariant(group, variant, session)).then(assertSuccess);
 }
 
-export async function reorderVariantsAction(group: string, variants: Readonly<Record<string, number>>): Promise<void> {
+export async function reorderVariantsAction(request: ReorderVariants): Promise<void> {
     await requireSession();
-    if (!isRequiredString(group) || !isOrderMap(variants)) {
-        throw new Error('Invalid variant update');
-    }
-    if (!(await reorderVariants(group, variants))) {
-        throw new Error('The requested change could not be applied');
-    }
+    const { group, variants } = reorderVariantsSchema.parse(request);
+    return withinTransaction((session) => reorderVariants(group, variants, session)).then(assertSuccess);
 }

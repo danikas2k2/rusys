@@ -4,11 +4,11 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
-import type { ProductAmounts as ProductAmountsType } from '~/common/data';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { ActiveContentContext, createActiveContentStore } from '~/components/runtime/ActiveContentContext';
 import { useSetProductRemoving } from '~/features/products/hooks/useSetProductRemoving';
 import { OLD_YEARS_THRESHOLD, ProductYearBar } from '~/features/products/ProductYearBar';
+import type { ProductAmounts } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
 
@@ -34,7 +34,7 @@ vi.mock(import('~/features/products/hooks/useSetProductRemoving'), () => ({
 
 describe('<ProductYearBar>', () => {
     const group = 'Uogienės';
-    const baseActive: ProductAmountsType = {
+    const baseActive: ProductAmounts = {
         group,
         name: 'Avietės',
         year: 2023,
@@ -49,7 +49,7 @@ describe('<ProductYearBar>', () => {
     afterEach(() => vi.clearAllMocks());
 
     function renderBar(
-        active: ProductAmountsType = baseActive,
+        active: ProductAmounts = baseActive,
         setActive?: (v?: any) => void,
         onHistoryYearChange?: () => void
     ) {
@@ -293,7 +293,12 @@ describe('<ProductYearBar>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Removing this year?' }));
 
-            expect(setProductRemoving).toHaveBeenCalledWith(group, baseActive.name, baseActive.year, true);
+            expect(setProductRemoving).toHaveBeenCalledWith({
+                group,
+                name: baseActive.name,
+                year: baseActive.year,
+                removing: true,
+            });
         });
 
         it('toggles removing to false when clicked from set', async () => {
@@ -311,7 +316,12 @@ describe('<ProductYearBar>', () => {
 
             await user.click(screen.getByRole('button', { name: 'Removing this year?' }));
 
-            expect(setProductRemoving).toHaveBeenCalledWith(group, baseActive.name, baseActive.year, false);
+            expect(setProductRemoving).toHaveBeenCalledWith({
+                group,
+                name: baseActive.name,
+                year: baseActive.year,
+                removing: false,
+            });
         });
 
         it('disables the toggle when disabled prop is set', () => {

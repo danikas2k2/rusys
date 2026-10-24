@@ -1,13 +1,12 @@
 import { render, screen, within } from '@testing-library/react';
 import { getGroupsFixture, getVariantsFixture } from '@tests/fixtures';
 import { MockApp } from '@tests/MockApp';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 import { MockTheme } from '@tests/MockTheme';
 
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import React from 'react';
 
-import type { Variant } from '~/common/data';
 import { DraggableContent } from '~/components/common/DraggableContent';
 import { useReorderHandler } from '~/components/hooks/useReorderHandler';
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';
@@ -17,6 +16,7 @@ import { useGetVariants } from '~/features/variants/hooks/useGetVariants';
 import { useReorderVariants } from '~/features/variants/hooks/useReorderVariants';
 import { useVariantsHasData } from '~/features/variants/hooks/useVariantsHasData';
 import { VariantsTable } from '~/features/variants/VariantsTable';
+import type { Variant } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useVariants } from '~/store/variants';
 
@@ -93,9 +93,9 @@ describe('<VariantsTable>', () => {
     it('renders only the selected group variants, without group headings', () => {
         render(
             <MockTheme>
-                <MockRedux>
+                <MockData>
                     <VariantsTable />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -123,9 +123,9 @@ describe('<VariantsTable>', () => {
     it('passes only the selected group variants to useReorderHandler', () => {
         render(
             <MockTheme>
-                <MockRedux>
+                <MockData>
                     <VariantsTable />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -141,9 +141,9 @@ describe('<VariantsTable>', () => {
 
         render(
             <MockTheme>
-                <MockRedux>
+                <MockData>
                     <VariantsTable />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -158,9 +158,9 @@ describe('<VariantsTable>', () => {
 
         render(
             <MockTheme>
-                <MockRedux>
+                <MockData>
                     <VariantsTable />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -177,9 +177,9 @@ describe('<VariantsTable>', () => {
 
         render(
             <MockTheme>
-                <MockRedux>
+                <MockData>
                     <VariantsTable />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -287,7 +287,7 @@ describe('<VariantsTable>', () => {
 
             await onReorder(reordered, { group: 'Uogienės', variant: 'd' });
 
-            expect(mockReorderVariants).toHaveBeenCalledWith('Uogienės', { d: 0, p: 1 });
+            expect(mockReorderVariants).toHaveBeenCalledWith({ group: 'Uogienės', variants: { d: 0, p: 1 } });
         });
     });
 
@@ -306,9 +306,9 @@ describe('<VariantsTable>', () => {
         it('returns DragOverlayTable with VariantsRow when the variant is found by activeId', () => {
             render(
                 <MockTheme>
-                    <MockRedux>
+                    <MockData>
                         <VariantsTable />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -326,9 +326,9 @@ describe('<VariantsTable>', () => {
         it('returns null when no variant matches the activeId', () => {
             render(
                 <MockTheme>
-                    <MockRedux>
+                    <MockData>
                         <VariantsTable />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 

@@ -1,4 +1,4 @@
-import type { Variant, VariantAmount, YearAmounts } from '~/common/data';
+import type { Variant, VariantAmount, YearAmounts } from '~/schema';
 
 export function getVariantAmount(
     amounts: readonly VariantAmount[] | undefined,

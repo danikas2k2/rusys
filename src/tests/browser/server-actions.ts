@@ -1,9 +1,10 @@
+import type { ProductYearIdentity } from '~/schema';
 import { getVisualHistory } from '~/tests/fixtures/visualData';
 
 const noop = async () => {};
 const empty = async () => [];
 
-export const getProductsAction = empty;
+export const getProductsAction = async () => ({ products: [], years: [], groups: [], variants: [] });
 export const addProductAction = noop;
 export const deleteProductAction = noop;
 export const renameProductAction = noop;
@@ -20,10 +21,10 @@ export const transferAmountsAction = noop;
 export const moveConsumedToRecycledAction = noop;
 export const undoProductAction = noop;
 export const redoProductAction = noop;
-export const getProductHistory = async (group: string, name: string, year: number) =>
+export const getProductHistory = async ({ group, name, year }: ProductYearIdentity) =>
     getVisualHistory(group, name, year);
-export const getVariantsAction = empty;
-export const saveVariant = noop;
+export const getVariantsAction = async () => ({ variants: [], groups: [] });
+export const updateVariantAction = noop;
 export const renameVariantAction = noop;
 export const copyVariantAction = noop;
 export const deleteVariantAction = noop;
@@ -33,7 +34,7 @@ export const updateGroupAction = noop;
 export const renameGroupAction = noop;
 export const deleteGroupAction = noop;
 export const reorderGroupsAction = noop;
-export const readSummary = empty;
+export const readSummary = async () => ({ summary: [], years: [], groups: [], variants: [] });
 export const getSummaryHistory = getProductHistory;
 export const importArchive = noop;
 export const exportArchive = async () => '';

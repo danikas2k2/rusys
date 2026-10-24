@@ -5,7 +5,7 @@ import React from 'react';
 import { Amounts as ProductAmounts } from '~/components/amounts/Amounts';
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { useAmountView } from '~/components/amounts/AmountViewContext';
-import { useGroupVariantComparator, useVariantsByGroup } from '~/store/variants';
+import { useGroupVariantComparator, useGroupVariants } from '~/store/variants';
 
 vi.mock(import('~/store/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn().mockReturnValue(() => 0),
@@ -16,8 +16,8 @@ vi.mock(import('~/components/amounts/AmountSuffix'), () => ({
 vi.mock(import('~/components/amounts/AmountViewContext'), () => ({
     useAmountView: vi.fn().mockReturnValue(['detailed', vi.fn()]),
 }));
-vi.mock(import('~/store/variants/useVariantsByGroup'), () => ({
-    useVariantsByGroup: vi.fn().mockReturnValue([]),
+vi.mock(import('~/store/variants/useGroupVariants'), () => ({
+    useGroupVariants: vi.fn().mockReturnValue([]),
 }));
 
 describe('<Amounts>', () => {
@@ -391,7 +391,7 @@ describe('<Amounts>', () => {
         });
 
         it('sums variants sharing a units family into a single value', () => {
-            vi.mocked(useVariantsByGroup).mockReturnValue([
+            vi.mocked(useGroupVariants).mockReturnValue([
                 { group, variant: 'p', order: 0, units: 'ml', count: 500 },
                 { group, variant: 'd', order: 1, units: 'l', count: 1 },
             ]);
@@ -411,7 +411,7 @@ describe('<Amounts>', () => {
         });
 
         it('renders variants without units individually, like the detailed view', () => {
-            vi.mocked(useVariantsByGroup).mockReturnValue([]);
+            vi.mocked(useGroupVariants).mockReturnValue([]);
 
             render(<ProductAmounts group={group} amounts={[{ variant: 'p', amount: 3 }]} />);
 
@@ -420,7 +420,7 @@ describe('<Amounts>', () => {
         });
 
         it("renders separate totals for 'vnt' units variants alongside volume totals", () => {
-            vi.mocked(useVariantsByGroup).mockReturnValue([
+            vi.mocked(useGroupVariants).mockReturnValue([
                 { group, variant: 'p', order: 0, units: 'ml', count: 500 },
                 { group, variant: 'd', order: 1, units: 'vnt' },
             ]);

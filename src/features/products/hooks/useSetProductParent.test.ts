@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import { useSetProductParent } from '~/features/products/hooks/useSetProductParent';
 import { setProductParentAction } from '~/server/actions/products';
@@ -11,29 +11,37 @@ describe('useSetProductParent', () => {
     afterEach(() => vi.clearAllMocks());
 
     it('calls set parent action', async () => {
-        const { result } = renderHook(() => useSetProductParent(), { wrapper: MockRedux });
-        await result.current('Daržovės', 'Morkos (Zewa)', 'Morkos');
+        const { result } = renderHook(() => useSetProductParent(), { wrapper: MockData });
+        await result.current({ group: 'Daržovės', name: 'Morkos (Zewa)', parent: 'Morkos' });
 
-        expect(setProductParentAction).toHaveBeenNthCalledWith(1, 'Daržovės', 'Morkos (Zewa)', 'Morkos');
+        expect(setProductParentAction).toHaveBeenNthCalledWith(1, {
+            group: 'Daržovės',
+            name: 'Morkos (Zewa)',
+            parent: 'Morkos',
+        });
     });
 
     it('calls set parent action with undefined to clear the parent', async () => {
-        const { result } = renderHook(() => useSetProductParent(), { wrapper: MockRedux });
-        await result.current('Daržovės', 'Morkos (Zewa)', undefined);
+        const { result } = renderHook(() => useSetProductParent(), { wrapper: MockData });
+        await result.current({ group: 'Daržovės', name: 'Morkos (Zewa)', parent: undefined });
 
-        expect(setProductParentAction).toHaveBeenNthCalledWith(1, 'Daržovės', 'Morkos (Zewa)', undefined);
+        expect(setProductParentAction).toHaveBeenNthCalledWith(1, {
+            group: 'Daržovės',
+            name: 'Morkos (Zewa)',
+            parent: undefined,
+        });
     });
 
     it('does not call set parent action with empty group', async () => {
-        const { result } = renderHook(() => useSetProductParent(), { wrapper: MockRedux });
-        await result.current('', 'Morkos (Zewa)', 'Morkos');
+        const { result } = renderHook(() => useSetProductParent(), { wrapper: MockData });
+        await result.current({ group: '', name: 'Morkos (Zewa)', parent: 'Morkos' });
 
         expect(setProductParentAction).not.toHaveBeenCalled();
     });
 
     it('does not call set parent action with empty name', async () => {
-        const { result } = renderHook(() => useSetProductParent(), { wrapper: MockRedux });
-        await result.current('Daržovės', '', 'Morkos');
+        const { result } = renderHook(() => useSetProductParent(), { wrapper: MockData });
+        await result.current({ group: 'Daržovės', name: '', parent: 'Morkos' });
 
         expect(setProductParentAction).not.toHaveBeenCalled();
     });

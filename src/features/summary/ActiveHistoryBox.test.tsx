@@ -4,8 +4,8 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 import React from 'react';
 
 import { ActiveHistoryBox } from '~/features/summary/ActiveHistoryBox';
-import type { SummaryHistoryData } from '~/features/summary/SummaryAmounts';
 import { SummaryHistoryBox } from '~/features/summary/SummaryHistoryBox';
+import type { ProductAmounts } from '~/schema';
 
 vi.mock(import('~/features/summary/SummaryHistoryBox'), () => ({
     SummaryHistoryBox: vi.fn(() => null),
@@ -40,7 +40,7 @@ describe('<ActiveHistoryBox>', () => {
     it('renders with opened=false when active.action is not "history"', () => {
         const active = {
             action: 'update' as const,
-            data: { group: 'G', name: 'N', year: 2023, amounts: [] } as SummaryHistoryData,
+            data: { group: 'G', name: 'N', year: 2023, amounts: [] } as ProductAmounts,
         };
         render(
             <MockThemeActive active={active}>
@@ -52,7 +52,7 @@ describe('<ActiveHistoryBox>', () => {
     });
 
     it('renders with opened=true when active.action is "history" and data is present', () => {
-        const activeData: SummaryHistoryData = { group: 'G', name: 'N', year: 2023, amounts: [] };
+        const activeData: ProductAmounts = { group: 'G', name: 'N', year: 2023, amounts: [] };
         const active = { action: 'history' as const, data: activeData };
 
         render(
@@ -66,7 +66,7 @@ describe('<ActiveHistoryBox>', () => {
 
     it('close callback calls setActive with data but no action', () => {
         const setActive = vi.fn();
-        const activeData: SummaryHistoryData = { group: 'G', name: 'N', year: 2023, amounts: [] };
+        const activeData: ProductAmounts = { group: 'G', name: 'N', year: 2023, amounts: [] };
         const active = { action: 'history' as const, data: activeData };
 
         render(
@@ -83,7 +83,7 @@ describe('<ActiveHistoryBox>', () => {
 
     it('afterClose callback calls setActive with no arguments', () => {
         const setActive = vi.fn();
-        const activeData: SummaryHistoryData = { group: 'G', name: 'N', year: 2023, amounts: [] };
+        const activeData: ProductAmounts = { group: 'G', name: 'N', year: 2023, amounts: [] };
         const active = { action: 'history' as const, data: activeData };
 
         render(

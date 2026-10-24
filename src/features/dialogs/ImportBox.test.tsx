@@ -274,7 +274,7 @@ describe('<ImportBox>', () => {
         await user.upload(fileInput, file);
         await user.click(screen.getByRole('button', { name: 'Import' }));
 
-        expect(screen.getByRole('alert')).toHaveTextContent('Import failed');
+        expect(screen.getByRole('alert')).toHaveTextContent('Failed to import file');
     });
 
     it('shows default error message when import fails without error', async () => {

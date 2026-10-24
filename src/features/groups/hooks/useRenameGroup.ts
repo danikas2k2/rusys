@@ -2,36 +2,24 @@ import { useCallback } from 'react';
 
 import { useGetGroups } from '~/features/groups/hooks/useGetGroups';
 import { uploadWithProgress, type UploadProgress } from '~/lib/utils/uploadWithProgress';
+import type { RenameGroup } from '~/schema';
 import { renameGroupAction } from '~/server/actions/groups';
 
-export function useRenameGroup(): (
-    group: string,
-    newGroup: string,
-    annual?: boolean,
-    review?: boolean,
-    image?: string,
-    onProgress?: UploadProgress
-) => Promise<void> {
+export function useRenameGroup(): (request: RenameGroup, onProgress?: UploadProgress) => Promise<void> {
     const refresh = useGetGroups();
     return useCallback(
-        async (
-            group: string,
-            newGroup: string,
-            annual?: boolean,
-            review?: boolean,
-            image?: string,
-            onProgress?: UploadProgress
-        ): Promise<void> => {
-            if (group && newGroup && group !== newGroup) {
+        async (request: RenameGroup, onProgress?: UploadProgress): Promise<void> => {
+            const { group, targetGroup, annual, review, image } = request;
+            if (group && targetGroup && group !== targetGroup) {
                 if (onProgress && image?.startsWith('data:')) {
                     await uploadWithProgress(
                         'PATCH',
                         `/api/v1/groups/${encodeURIComponent(group)}`,
-                        JSON.stringify({ name: newGroup, annual, review, image }),
+                        JSON.stringify({ targetGroup, annual, review, image }),
                         onProgress
                     );
                 } else {
-                    await renameGroupAction(group, newGroup, annual, review, image);
+                    await renameGroupAction(request);
                 }
                 await refresh();
             }

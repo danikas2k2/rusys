@@ -1,18 +1,16 @@
 import { useCallback } from 'react';
 
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
+import type { SetProductExpiryTolerance } from '~/schema';
 import { setProductExpiryToleranceAction } from '~/server/actions/products';
 
-export function useSetProductExpiryTolerance(): (
-    group: string,
-    name: string,
-    expiryToleranceDays: number
-) => Promise<void> {
+export function useSetProductExpiryTolerance(): (request: SetProductExpiryTolerance) => Promise<void> {
     const refresh = useGetProducts();
     return useCallback(
-        async (group: string, name: string, expiryToleranceDays: number): Promise<void> => {
+        async (request: SetProductExpiryTolerance): Promise<void> => {
+            const { group, name } = request;
             if (group && name) {
-                await setProductExpiryToleranceAction(group, name, expiryToleranceDays);
+                await setProductExpiryToleranceAction(request);
                 await refresh();
             }
         },

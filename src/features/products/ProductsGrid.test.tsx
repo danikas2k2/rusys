@@ -1,6 +1,6 @@
 import { act, render } from '@testing-library/react';
 import { getGroupsFixture, getProductsFixture } from '@tests/fixtures';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
@@ -55,9 +55,9 @@ describe('<ProductsGrid>', () => {
     it('renders one tile per product in the selected group', () => {
         render(
             <MockTheme>
-                <MockRedux state={state}>
+                <MockData state={state}>
                     <ProductsGrid />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -71,9 +71,9 @@ describe('<ProductsGrid>', () => {
 
         render(
             <MockTheme>
-                <MockRedux state={state}>
+                <MockData state={state}>
                     <ProductsGrid />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -95,9 +95,9 @@ describe('<ProductsGrid>', () => {
 
         render(
             <MockTheme>
-                <MockRedux state={state}>
+                <MockData state={state}>
                     <ProductsGrid />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -109,9 +109,9 @@ describe('<ProductsGrid>', () => {
 
         render(
             <MockTheme>
-                <MockRedux state={state}>
+                <MockData state={state}>
                     <ProductsGrid />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -121,9 +121,9 @@ describe('<ProductsGrid>', () => {
     it('passes the selected group annual flag to tiles', () => {
         render(
             <MockTheme>
-                <MockRedux state={state}>
+                <MockData state={state}>
                     <ProductsGrid />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -145,16 +145,16 @@ describe('<ProductsGrid>', () => {
 
         const view = render(
             <MockTheme>
-                <MockRedux state={state}>
+                <MockData state={state}>
                     <ProductsGrid />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
         view.rerender(
             <MockTheme>
-                <MockRedux state={state}>
+                <MockData state={state}>
                     <ProductsGrid />
-                </MockRedux>
+                </MockData>
             </MockTheme>
         );
 
@@ -180,16 +180,16 @@ describe('<ProductsGrid>', () => {
             vi.mocked(useProducts).mockReturnValueOnce([first]).mockReturnValue([first, added]);
             const view = render(
                 <MockTheme>
-                    <MockRedux state={state}>
+                    <MockData state={state}>
                         <ProductsGrid />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
             view.rerender(
                 <MockTheme>
-                    <MockRedux state={state}>
+                    <MockData state={state}>
                         <ProductsGrid />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -219,16 +219,16 @@ describe('<ProductsGrid>', () => {
             vi.mocked(useProducts).mockReturnValueOnce([first]).mockReturnValue([first, added]);
             const view = render(
                 <MockTheme>
-                    <MockRedux state={state}>
+                    <MockData state={state}>
                         <ProductsGrid />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
             view.rerender(
                 <MockTheme>
-                    <MockRedux state={state}>
+                    <MockData state={state}>
                         <ProductsGrid />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -263,9 +263,9 @@ describe('<ProductsGrid>', () => {
         it('renders the parent collapsed with a rolled-up total, and its child kept mounted (but hidden)', () => {
             render(
                 <MockTheme>
-                    <MockRedux state={state}>
+                    <MockData state={state}>
                         <ProductsGrid />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -293,9 +293,9 @@ describe('<ProductsGrid>', () => {
         it('reveals the child tile and stops rolling up once expanded', () => {
             render(
                 <MockTheme>
-                    <MockRedux state={state}>
+                    <MockData state={state}>
                         <ProductsGrid />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -324,9 +324,9 @@ describe('<ProductsGrid>', () => {
         it('frames the expanded children in a panel, hidden (not removed) while collapsed', () => {
             render(
                 <MockTheme>
-                    <MockRedux state={state}>
+                    <MockData state={state}>
                         <ProductsGrid />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -346,9 +346,9 @@ describe('<ProductsGrid>', () => {
         it('collapses back to a single rolled-up tile on a second toggle', () => {
             render(
                 <MockTheme>
-                    <MockRedux state={state}>
+                    <MockData state={state}>
                         <ProductsGrid />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -367,9 +367,9 @@ describe('<ProductsGrid>', () => {
 
             render(
                 <MockTheme>
-                    <MockRedux state={state}>
+                    <MockData state={state}>
                         <ProductsGrid />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -386,9 +386,9 @@ describe('<ProductsGrid>', () => {
 
             render(
                 <MockTheme>
-                    <MockRedux state={state}>
+                    <MockData state={state}>
                         <ProductsGrid />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -412,9 +412,9 @@ describe('<ProductsGrid>', () => {
         it('omits non-missing products when missing-only is active', () => {
             render(
                 <MockTheme>
-                    <MockRedux state={state}>
+                    <MockData state={state}>
                         <ProductsGrid />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 
@@ -436,9 +436,9 @@ describe('<ProductsGrid>', () => {
 
             render(
                 <MockTheme>
-                    <MockRedux state={state}>
+                    <MockData state={state}>
                         <ProductsGrid />
-                    </MockRedux>
+                    </MockData>
                 </MockTheme>
             );
 

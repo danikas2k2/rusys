@@ -1,16 +1,16 @@
 import { Group, Title } from '@mantine/core';
 import React, { useEffect, useLayoutEffect, useRef, ViewTransition } from 'react';
 
-import type { Group as GroupModel } from '~/common/data';
 import { CategoryRail } from '~/features/filters/CategoryRail';
 import { useQuickFilter } from '~/features/filters/QuickFilterContext';
 import { prefersReducedMotion } from '~/lib/utils/motion';
 import { supportsClippedViewTransitions } from '~/lib/utils/supportsClippedViewTransitions';
+import type { Group as GroupSchema } from '~/schema';
 
 import './CategoryRailLayout.css';
 
 interface CategoryRailLayoutProps {
-    groups: readonly GroupModel[];
+    groups: readonly GroupSchema[];
     selected: string;
     onSelect: (group: string) => void;
     groupsWithContent: ReadonlySet<string>;

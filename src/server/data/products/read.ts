@@ -1,17 +1,17 @@
 import type { ClientSession, Filter } from 'mongodb';
 
-import type { Product } from '~/common/data';
+import type { Product } from '~/schema';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
 
-export async function getProducts(years: readonly number[] = []): Promise<Product[]> {
+export async function getProducts(years: readonly number[], session: ClientSession): Promise<Product[]> {
     const database = await db();
     const col = database.collection<Product>('products');
     // A category archive is inherited by its products.  We deliberately keep the product
     // document itself intact: historical summary queries read it independently of this list.
     const archivedGroups = await database
         .collection('groups')
-        .find({ archivedAt: { $exists: true } }, { projection: { _id: 0, group: 1 } })
+        .find({ archivedAt: { $exists: true } }, { projection: { _id: 0, group: 1 }, session })
         .toArray();
     const match: Filter<Product> = {
         archivedAt: { $exists: false },
@@ -27,67 +27,70 @@ export async function getProducts(years: readonly number[] = []): Promise<Produc
             : {}),
     };
     return col
-        .aggregate<Product>([
-            { $match: match },
-            {
-                $project: {
-                    _id: 0,
-                    group: 1,
-                    name: 1,
-                    parent: 1,
-                    expiryToleranceDays: 1,
-                    years: 1,
-                    missing: 1,
-                    image: 1,
-                    photo: 1,
-                    variantImages: 1,
-                    variantPhotos: 1,
-                    updates: {
-                        $cond: [
-                            { $gt: [{ $size: { $ifNull: ['$updates', []] } }, 0] },
-                            {
-                                $reduce: {
-                                    input: '$updates',
-                                    initialValue: [],
-                                    in: {
-                                        $concatArrays: [
-                                            '$$value',
-                                            { $map: { input: '$$this.years', as: 'y', in: { year: '$$y.year' } } },
-                                        ],
+        .aggregate<Product>(
+            [
+                { $match: match },
+                {
+                    $project: {
+                        _id: 0,
+                        group: 1,
+                        name: 1,
+                        parent: 1,
+                        expiryToleranceDays: 1,
+                        years: 1,
+                        missing: 1,
+                        image: 1,
+                        photo: 1,
+                        variantImages: 1,
+                        variantPhotos: 1,
+                        updates: {
+                            $cond: [
+                                { $gt: [{ $size: { $ifNull: ['$updates', []] } }, 0] },
+                                {
+                                    $reduce: {
+                                        input: '$updates',
+                                        initialValue: [],
+                                        in: {
+                                            $concatArrays: [
+                                                '$$value',
+                                                { $map: { input: '$$this.years', as: 'y', in: { year: '$$y.year' } } },
+                                            ],
+                                        },
                                     },
                                 },
-                            },
-                            '$$REMOVE',
-                        ],
-                    },
-                    undates: {
-                        $cond: [
-                            { $gt: [{ $size: { $ifNull: ['$undates', []] } }, 0] },
-                            {
-                                $reduce: {
-                                    input: '$undates',
-                                    initialValue: [],
-                                    in: {
-                                        $concatArrays: [
-                                            '$$value',
-                                            { $map: { input: '$$this.years', as: 'y', in: { year: '$$y.year' } } },
-                                        ],
+                                '$$REMOVE',
+                            ],
+                        },
+                        undates: {
+                            $cond: [
+                                { $gt: [{ $size: { $ifNull: ['$undates', []] } }, 0] },
+                                {
+                                    $reduce: {
+                                        input: '$undates',
+                                        initialValue: [],
+                                        in: {
+                                            $concatArrays: [
+                                                '$$value',
+                                                { $map: { input: '$$this.years', as: 'y', in: { year: '$$y.year' } } },
+                                            ],
+                                        },
                                     },
                                 },
-                            },
-                            '$$REMOVE',
-                        ],
+                                '$$REMOVE',
+                            ],
+                        },
                     },
                 },
-            },
-            { $sort: { group: 1, name: 1, 'years.year': 1 } },
-        ])
+                { $sort: { group: 1, name: 1, 'years.year': 1 } },
+            ],
+            { session }
+        )
         .toArray();
 }
 
-export async function getProductsWithYears(): Promise<{ products: Product[]; years: number[] }> {
+export async function getProductsWithYears(session: ClientSession): Promise<{ products: Product[]; years: number[] }> {
     const years = getYears();
-    const products = await getProducts();
+    const products = await getProducts([], session);
     const availableYears = new Set(years);
     for (const product of products) {
         for (const { year } of product.years ?? []) {
@@ -102,7 +105,7 @@ export async function getProductsWithYears(): Promise<{ products: Product[]; yea
 export async function getProductVariants(
     group: string,
     name: string,
-    session?: ClientSession
+    session: ClientSession
 ): Promise<readonly string[] | undefined> {
     if (!group || !name) {
         return undefined;

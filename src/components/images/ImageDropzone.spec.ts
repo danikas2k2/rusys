@@ -1,7 +1,7 @@
 import { expect, test } from '@tests/fixtures/test';
 import { openProduct } from '@tests/helpers/ui';
 
-import type { Group, Product } from '~/common/data';
+import type { Group, Product } from '~/schema';
 
 const png = Buffer.from(
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==',

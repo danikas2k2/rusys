@@ -35,6 +35,9 @@ const instances = browsers.flatMap(({ name, browser, device }) =>
     }))
 );
 
+// Playwright adds one SIGTERM listener per instance; the visual runner reaches four more at startup.
+process.setMaxListeners(Math.max(process.getMaxListeners(), instances.length + 4));
+
 export default defineConfig({
     plugins: [
         react(),

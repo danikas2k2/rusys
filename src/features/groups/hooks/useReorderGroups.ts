@@ -2,14 +2,15 @@ import { isEmpty } from 'lodash';
 import { useCallback } from 'react';
 
 import { useGetGroups } from '~/features/groups/hooks/useGetGroups';
+import type { ReorderGroups } from '~/schema';
 import { reorderGroupsAction } from '~/server/actions/groups';
 
-export function useReorderGroups(): (groups: Readonly<Record<string, number>>) => Promise<void> {
+export function useReorderGroups(): (request: ReorderGroups) => Promise<void> {
     const refresh = useGetGroups();
     return useCallback(
-        async (groups: Readonly<Record<string, number>>): Promise<void> => {
-            if (!isEmpty(groups)) {
-                await reorderGroupsAction(groups);
+        async (request: ReorderGroups): Promise<void> => {
+            if (!isEmpty(request.groups)) {
+                await reorderGroupsAction(request);
                 await refresh();
             }
         },

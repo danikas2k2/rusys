@@ -1,9 +1,9 @@
 import React from 'react';
 
-import type { VariantAmount } from '~/common/data';
 import { useAmountView } from '~/components/amounts/AmountViewContext';
 import { DetailedAmounts } from '~/components/amounts/DetailedAmounts';
 import { TotalAmounts } from '~/components/amounts/TotalAmounts';
+import type { VariantAmount } from '~/schema';
 
 import './Amounts.css';
 

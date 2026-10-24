@@ -6,7 +6,6 @@ import React from 'react';
 export function MockApp({
     theme,
     state,
-    reducers,
     initialEntries,
     active,
     setActive,
@@ -16,7 +15,7 @@ export function MockApp({
     setActive?: React.ComponentProps<typeof MockActiveContent>['setActive'];
 }): React.ReactElement {
     return (
-        <MockPage theme={theme} state={state} reducers={reducers} initialEntries={initialEntries}>
+        <MockPage theme={theme} state={state} initialEntries={initialEntries}>
             <MockActiveContent active={active} setActive={setActive}>
                 {children}
             </MockActiveContent>

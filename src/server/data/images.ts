@@ -5,6 +5,7 @@ import path from 'node:path';
 import sharp from 'sharp';
 
 import { IMAGE_EXTENSION_BY_MIME_TYPE } from '~/common/utils/files';
+import { SchemaError } from '~/schema';
 
 // Mounted as a persistent Docker volume in production - see docker/compose.yaml
 export const IMAGES_DIR = path.resolve(/*turbopackIgnore: true*/ process.env.IMAGES_DIR ?? 'images');
@@ -27,12 +28,12 @@ function shardedPath(uid: string, extension: string): string {
 export async function saveImage(dataUrl: string): Promise<string> {
     const match = DATA_URL_PATTERN.exec(dataUrl);
     if (!match) {
-        throw new Error('Unsupported image type');
+        throw new Error(SchemaError.InvalidImageType);
     }
     const [, mimeType, base64] = match;
     const extension = IMAGE_EXTENSION_BY_MIME_TYPE[mimeType];
     if (!extension) {
-        throw new Error('Unsupported image type');
+        throw new Error(SchemaError.InvalidImageType);
     }
 
     const relativePath = shardedPath(randomUUID().replace(/-/g, ''), extension);

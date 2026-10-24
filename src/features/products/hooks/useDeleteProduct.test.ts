@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import { useDeleteProduct } from '~/features/products/hooks/useDeleteProduct';
 import { deleteProductAction } from '~/server/actions/products';
@@ -11,22 +11,22 @@ describe('useRemoveProduct', () => {
     afterEach(() => vi.clearAllMocks());
 
     it('calls remove action', async () => {
-        const { result } = renderHook(() => useDeleteProduct(), { wrapper: MockRedux });
-        await result.current('Uogienės', 'Avietės');
+        const { result } = renderHook(() => useDeleteProduct(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės', name: 'Avietės' });
 
-        expect(deleteProductAction).toHaveBeenNthCalledWith(1, 'Uogienės', 'Avietės');
+        expect(deleteProductAction).toHaveBeenNthCalledWith(1, { group: 'Uogienės', name: 'Avietės' });
     });
 
     it('does not call remove action with empty name', async () => {
-        const { result } = renderHook(() => useDeleteProduct(), { wrapper: MockRedux });
-        await result.current('Uogienės', '');
+        const { result } = renderHook(() => useDeleteProduct(), { wrapper: MockData });
+        await result.current({ group: 'Uogienės', name: '' });
 
         expect(deleteProductAction).not.toHaveBeenCalled();
     });
 
     it('does not call remove action with empty group', async () => {
-        const { result } = renderHook(() => useDeleteProduct(), { wrapper: MockRedux });
-        await result.current('', 'Avietės');
+        const { result } = renderHook(() => useDeleteProduct(), { wrapper: MockData });
+        await result.current({ group: '', name: 'Avietės' });
 
         expect(deleteProductAction).not.toHaveBeenCalled();
     });

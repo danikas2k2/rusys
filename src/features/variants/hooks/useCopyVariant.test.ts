@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import { useCopyVariant } from '~/features/variants/hooks/useCopyVariant';
 import { copyVariantAction } from '~/server/actions/variants';
@@ -12,7 +12,7 @@ describe('useCopyVariant', () => {
     afterEach(() => vi.clearAllMocks());
 
     it.each`
-        title                           | group         | variant | newGroup      | newVariant
+        title                           | group         | variant | targetGroup   | targetVariant
         ${'new group'}                  | ${'Uogienės'} | ${'p'}  | ${'Daržovės'} | ${undefined}
         ${'new group and new variant'}  | ${'Uogienės'} | ${'p'}  | ${'Daržovės'} | ${'1/2'}
         ${'new group and same variant'} | ${'Uogienės'} | ${'p'}  | ${'Daržovės'} | ${'p'}
@@ -22,35 +22,46 @@ describe('useCopyVariant', () => {
         async ({
             group,
             variant,
-            newGroup,
-            newVariant,
+            targetGroup,
+            targetVariant,
         }: {
             group: string;
             variant: string;
-            newGroup: string;
-            newVariant: string | undefined;
+            targetGroup: string;
+            targetVariant: string | undefined;
         }) => {
-            const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
-            await result.current(group, variant, newGroup, newVariant);
+            const { result } = renderHook(() => useCopyVariant(), { wrapper: MockData });
+            await result.current({ group, variant, targetGroup, targetVariant });
 
-            expect(copyVariantAction).toHaveBeenNthCalledWith(1, group, variant, newGroup, newVariant, undefined);
+            expect(copyVariantAction).toHaveBeenNthCalledWith(1, { group, variant, targetGroup, targetVariant });
             expect(copyVariantAction).toHaveBeenCalledTimes(1);
             expect(refresh).toHaveBeenCalledExactlyOnceWith();
         }
     );
 
     it('calls copy action with more fields', async () => {
-        const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
-        await result.current('Uogienės', 'p', 'Daržovės', '1/2', { order: 1, suffix: '1/2' });
+        const { result } = renderHook(() => useCopyVariant(), { wrapper: MockData });
+        await result.current({
+            group: 'Uogienės',
+            variant: 'p',
+            targetGroup: 'Daržovės',
+            targetVariant: '1/2',
+            order: 1,
+            suffix: '1/2',
+        });
 
-        expect(copyVariantAction).toHaveBeenNthCalledWith(1, 'Uogienės', 'p', 'Daržovės', '1/2', {
+        expect(copyVariantAction).toHaveBeenNthCalledWith(1, {
+            group: 'Uogienės',
+            variant: 'p',
+            targetGroup: 'Daržovės',
+            targetVariant: '1/2',
             order: 1,
             suffix: '1/2',
         });
     });
 
     it.each`
-        title                       | group         | variant | newGroup      | newVariant
+        title                       | group         | variant | targetGroup   | targetVariant
         ${'same group'}             | ${'Uogienės'} | ${'p'}  | ${'Uogienės'} | ${undefined}
         ${'same group and variant'} | ${'Uogienės'} | ${'p'}  | ${'Uogienės'} | ${'p'}
         ${'empty group'}            | ${''}         | ${'p'}  | ${'Daržovės'} | ${'p'}
@@ -61,16 +72,16 @@ describe('useCopyVariant', () => {
         async ({
             group,
             variant,
-            newGroup,
-            newVariant,
+            targetGroup,
+            targetVariant,
         }: {
             group: string;
             variant: string;
-            newGroup: string;
-            newVariant: string | undefined;
+            targetGroup: string;
+            targetVariant: string | undefined;
         }) => {
-            const { result } = renderHook(() => useCopyVariant(), { wrapper: MockRedux });
-            await result.current(group, variant, newGroup, newVariant);
+            const { result } = renderHook(() => useCopyVariant(), { wrapper: MockData });
+            await result.current({ group, variant, targetGroup, targetVariant });
 
             expect(copyVariantAction).not.toHaveBeenCalled();
         }

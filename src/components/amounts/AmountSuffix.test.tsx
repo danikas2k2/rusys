@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { getVariantsFixture } from '@tests/fixtures';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import React from 'react';
 
@@ -11,9 +11,9 @@ describe('<AmountSuffix>', () => {
 
     it('renders suffix by default', () => {
         render(
-            <MockRedux state={state}>
+            <MockData state={state}>
                 <AmountSuffix group="Uogienės" variant="d" />
-            </MockRedux>
+            </MockData>
         );
 
         expect(screen.getByText('D.')).toBeInTheDocument();
@@ -21,9 +21,9 @@ describe('<AmountSuffix>', () => {
 
     it('renders variant as is when not found', () => {
         render(
-            <MockRedux state={state}>
+            <MockData state={state}>
                 <AmountSuffix group="Uogienės" variant="unknown" />
-            </MockRedux>
+            </MockData>
         );
 
         expect(screen.getByText('unknown')).toBeInTheDocument();
@@ -31,11 +31,11 @@ describe('<AmountSuffix>', () => {
 
     it('renders no suffix when count/units are set but no manual suffix was given (e.g. the default-size variant in a group)', () => {
         const { container } = render(
-            <MockRedux
+            <MockData
                 state={{ variants: [{ group: 'Uogienės', variant: '500ml', order: 0, count: 500, units: 'ml' }] }}
             >
                 <AmountSuffix group="Uogienės" variant="500ml" />
-            </MockRedux>
+            </MockData>
         );
 
         expect(container.querySelector('sub')).toBeNull();

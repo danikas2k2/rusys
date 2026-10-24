@@ -2,7 +2,8 @@ import { Text } from '@mantine/core';
 import React from 'react';
 
 import { VariantLabel } from '~/components/amounts/VariantLabel';
-import { DEFAULT_UNITS, deriveVariantKey } from '~/lib/utils/deriveVariantKey';
+import { deriveVariantKey } from '~/lib/utils/deriveVariantKey';
+import { DEFAULT_UNITS } from '~/schema';
 import { useVariant } from '~/store/variants';
 
 interface VariantTitleProps {

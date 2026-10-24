@@ -1,10 +1,9 @@
 import { ActionIcon, Button, Group, NumberInput, Select, Stack, TextInput, type ComboboxItem } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { schemaResolver, useForm } from '@mantine/form';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { AddIcon, CancelIcon, DeleteIcon, DuplicateIcon, UpdateIcon, VariantsNavIcon } from '@icons';
 
-import type { VariantUnits } from '~/common/data';
 import { ConfirmableModal } from '~/components/common/ConfirmableModal';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
@@ -17,9 +16,10 @@ import { useCopyVariant } from '~/features/variants/hooks/useCopyVariant';
 import { useRenameVariant } from '~/features/variants/hooks/useRenameVariant';
 import { useUpdateVariant } from '~/features/variants/hooks/useUpdateVariant';
 import { useLabels } from '~/lib/hooks/useLabels';
-import { compareNames } from '~/lib/utils/compareNames';
-import { DEFAULT_UNITS, deriveVariantKey } from '~/lib/utils/deriveVariantKey';
+import { deriveVariantKey } from '~/lib/utils/deriveVariantKey';
 import { getErrorMessage } from '~/lib/utils/errors';
+import { equals } from '~/lib/utils/names';
+import { createVariantSchema, DEFAULT_UNITS, SchemaError, type VariantIdentity, type VariantUnits } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useVariants } from '~/store/variants';
 
@@ -80,57 +80,35 @@ export function VariantBox({
     const initialUnitsResolved = initialUnits ?? DEFAULT_UNITS;
     const initialName = resolveInitialName(initialVariant, initialCount, initialUnitsResolved);
 
-    const form = useForm({
+    const form = useForm<{
+        group: string;
+        name: string;
+        suffix: string;
+        count: number | string | undefined;
+        units: VariantUnits;
+    }>({
         initialValues: {
             group: initialGroup || filterGroup || '',
             name: initialName,
             suffix: initialSuffix,
-            count: initialCount as number | undefined,
+            count: initialCount,
             units: initialUnitsResolved,
         },
-        validate: {
-            group: (value) => {
-                if (!value?.trim()) {
-                    return _('Category is required');
-                }
-                return null;
-            },
-            name: (value, values) => {
-                const trimmed = value.trim();
+        validate: (values) => {
+            // NumberInput uses strings for empty and incomplete numeric values.
+            const errors = schemaResolver(
+                createVariantSchema.refine(
+                    ({ group, variant }: VariantIdentity) =>
+                        (group === initialGroup && variant === initialVariant) ||
+                        variants.every((v) => !equals(v.group, group) || !equals(v.variant, variant)),
+                    { path: ['name'], error: SchemaError.VariantAlreadyExists }
+                ),
+                { sync: true }
+            )({ ...values, count: typeof values.count === 'number' ? values.count : undefined });
 
-                if (trimmed && trimmed.includes(':')) {
-                    return _('Cannot contain ":" character');
-                }
-
-                const effectiveVariant = trimmed || deriveVariantKey(values.count, values.units);
-                if (!effectiveVariant) {
-                    return _('Variant name or amount is required');
-                }
-
-                const variantAdded = !initialVariant;
-                const variantCopied = isEditing && values.group !== initialGroup;
-                const variantRenamed =
-                    isEditing && effectiveVariant !== initialVariant && values.group === initialGroup;
-
-                if (variantAdded || variantCopied || variantRenamed) {
-                    const variantExists = variants?.some(
-                        (v) => !compareNames(v.group, values.group) && !compareNames(v.variant, effectiveVariant)
-                    );
-                    if (variantExists) {
-                        return _('Variant already exists in this category');
-                    }
-                }
-                return null;
-            },
-            count: (value, values) => {
-                if (values.name?.trim()) {
-                    return null;
-                }
-                if (!value || value < MIN_COUNT) {
-                    return _('Amount is required');
-                }
-                return null;
-            },
+            return typeof values.count === 'string' && values.count !== ''
+                ? { ...errors, count: SchemaError.AmountRequired }
+                : errors;
         },
     });
 
@@ -143,6 +121,7 @@ export function VariantBox({
     const [loading, setLoading] = useState(false);
     const groupRef = useRef<HTMLInputElement>(null);
     const nameRef = useRef<HTMLInputElement>(null);
+    const countRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (opened) {
@@ -199,15 +178,14 @@ export function VariantBox({
 
         const validation = form.validate();
         if (validation.hasErrors) {
-            // Whenever count has an error, name does too (an empty name + invalid count both fail
-            // the name validator's "variant name or amount is required" check) - so if group has
-            // no error, name always does.
             if (validation.errors.group) {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
                 groupRef.current?.focus();
-            } else {
+            } else if (validation.errors.name) {
                 // istanbul ignore next - ref.current is always assigned in React Testing Library
                 nameRef.current?.focus();
+            } else if (validation.errors.count) {
+                countRef.current?.focus();
             }
             return;
         }
@@ -222,7 +200,9 @@ export function VariantBox({
         try {
             const values = form.values;
             const trimmedName = values.name.trim();
-            const effectiveVariant = trimmedName || deriveVariantKey(values.count, values.units);
+            const effectiveVariant =
+                trimmedName ||
+                deriveVariantKey(typeof values.count === 'number' ? values.count : undefined, values.units);
             const groupChanged = isEditing && values.group !== initialGroup;
             const variantRenamed = isEditing && effectiveVariant !== initialVariant && !groupChanged;
             const suffixChanged = values.suffix !== initialSuffix;
@@ -230,20 +210,30 @@ export function VariantBox({
             const unitsChanged = values.units !== initialUnitsResolved;
             const nameChanged = trimmedName !== initialName;
 
-            const update: { suffix: string; count?: number; units?: VariantUnits } = {
+            const update = {
                 suffix: values.suffix,
+                ...(typeof values.count === 'number' && values.count >= MIN_COUNT
+                    ? { count: values.count, units: values.units }
+                    : {}),
             };
-            if (values.count) {
-                update.count = values.count;
-                update.units = values.units;
-            }
 
             if (groupChanged) {
-                await copyVariant(initialGroup, initialVariant, values.group, effectiveVariant, update);
+                await copyVariant({
+                    group: initialGroup,
+                    variant: initialVariant,
+                    targetGroup: values.group,
+                    targetVariant: effectiveVariant,
+                    ...update,
+                });
             } else if (variantRenamed) {
-                await renameVariant(initialGroup, initialVariant, effectiveVariant, update);
+                await renameVariant({
+                    group: initialGroup,
+                    variant: initialVariant,
+                    targetVariant: effectiveVariant,
+                    ...update,
+                });
             } else if (!isEditing || suffixChanged || countChanged || unitsChanged || nameChanged) {
-                await updateVariant(values.group, effectiveVariant, update);
+                await updateVariant({ group: values.group, variant: effectiveVariant, ...update });
             }
             onClose(values.group, effectiveVariant);
         } catch (error) {
@@ -328,6 +318,7 @@ export function VariantBox({
                                 disabled={loading}
                                 searchable
                                 {...form.getInputProps('group')}
+                                error={typeof form.errors.group === 'string' ? _(form.errors.group) : form.errors.group}
                                 onChange={(value) =>
                                     value === NEW_CATEGORY_VALUE
                                         ? handleAddCategoryOpen()
@@ -342,16 +333,20 @@ export function VariantBox({
                                 disabled={loading}
                                 withAsterisk={showNameAsterisk}
                                 {...form.getInputProps('name')}
+                                error={typeof form.errors.name === 'string' ? _(form.errors.name) : form.errors.name}
                             />
                             <Group align="flex-start" grow>
                                 <NumberInput
+                                    ref={countRef}
                                     label={_('Amount')}
                                     placeholder={_('e.g. 500')}
                                     min={MIN_COUNT}
                                     disabled={loading}
                                     withAsterisk={showCountAsterisk}
                                     {...form.getInputProps('count')}
-                                    error={!!form.errors.count}
+                                    error={
+                                        typeof form.errors.count === 'string' ? _(form.errors.count) : form.errors.count
+                                    }
                                 />
                                 <Select
                                     label={_('Units')}

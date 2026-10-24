@@ -1,6 +1,3 @@
-import { useSelector } from 'react-redux';
+import { useProducts } from './useProducts';
 
-import type { WithProductsState } from './types';
-
-export const useHasMissing = (): boolean =>
-    useSelector((state: WithProductsState) => state.products?.some((v) => v.missing) ?? false);
+export const useHasMissing = (): boolean => useProducts().some((v) => v.missing);

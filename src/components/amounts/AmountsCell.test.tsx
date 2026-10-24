@@ -3,8 +3,8 @@ import { MockTheme } from '@tests/MockTheme';
 
 import React from 'react';
 
-import type { VariantAmount } from '~/common/data';
 import { AmountsCell } from '~/components/amounts/AmountsCell';
+import type { VariantAmount } from '~/schema';
 
 vi.mock(import('~/components/runtime/ActiveContentContext'), () => ({
     useActiveContent: vi.fn().mockReturnValue([{ data: { group: '' } }, vi.fn()]),

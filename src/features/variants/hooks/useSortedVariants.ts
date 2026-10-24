@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import type { Variant } from '~/common/data';
+import type { Variant } from '~/schema';
 import { useVariants } from '~/store/variants';
 
 export function useSortedVariants() {

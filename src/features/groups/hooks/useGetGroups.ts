@@ -1,12 +1,12 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
 
 import { getGroupsAction } from '~/server/actions/groups';
-import { setGroupsAction } from '~/store/groups';
+import { CATALOG_KEYS } from '~/store/catalog';
 
 export function useGetGroups(): (initial?: boolean) => Promise<void> {
-    const dispatch = useDispatch();
+    const client = useQueryClient();
     return useCallback(async (): Promise<void> => {
-        dispatch(setGroupsAction([...(await getGroupsAction())]));
-    }, [dispatch]);
+        client.setQueryData(CATALOG_KEYS.groups, [...(await getGroupsAction())]);
+    }, [client]);
 }

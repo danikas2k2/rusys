@@ -1,4 +1,4 @@
-import type { Group, Product, Summary, Variant } from '~/common/data';
+import type { Group, Product, Summary, Variant } from '~/schema';
 import type { Profile } from '~/store/profile';
 
 export const getGroupsFixture = (): Group[] => [

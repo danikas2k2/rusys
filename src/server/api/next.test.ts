@@ -1,8 +1,35 @@
 import { NextRequest } from 'next/server';
 
+import { SchemaError } from '~/schema';
 import { runApiHandler, runServerHandler } from '~/server/api/next';
+import { requireSession } from '~/server/auth/session';
+
+vi.mock(import('~/server/auth/session'), () => ({ requireSession: vi.fn() }));
 
 describe('runApiHandler', () => {
+    beforeEach(() => {
+        vi.mocked(requireSession).mockReset();
+    });
+
+    it.each([
+        ['PUT', '/api/v1/groups/example'],
+        ['PATCH', '/api/v1/groups/example'],
+        ['PUT', '/api/v1/groups/example/products/example/image'],
+        ['PUT', '/api/v1/groups/example/products/example/variants/example/image'],
+        ['POST', '/api/v1/imports'],
+    ])('rejects unauthenticated %s %s before executing its handler', async (method, path) => {
+        vi.mocked(requireSession).mockRejectedValueOnce(new Error(SchemaError.Unauthorized));
+        const handler = vi.fn();
+
+        const response = await runApiHandler(new NextRequest(`http://localhost${path}`, { method }), handler);
+
+        expect(response.status).toBe(401);
+        await expect(response.json()).resolves.toStrictEqual({
+            error: { code: 'UNAUTHORIZED', message: SchemaError.Unauthorized },
+        });
+        expect(handler).not.toHaveBeenCalled();
+    });
+
     it('runs a handler with an in-process request', async () => {
         const response = await runServerHandler(
             (request, result) => {
@@ -92,7 +119,7 @@ describe('runApiHandler', () => {
 
         expect(response.status).toBe(500);
         await expect(response.json()).resolves.toStrictEqual({
-            error: { code: 'INTERNAL_ERROR', message: 'Error: database unavailable' },
+            error: { code: 'INTERNAL_ERROR', message: SchemaError.Unknown },
         });
     });
 });

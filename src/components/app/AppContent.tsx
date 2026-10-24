@@ -6,6 +6,7 @@ import { ActiveContentWrapper } from '~/components/runtime/ActiveContentContext'
 import { LoginButton } from '~/components/user/LoginButton';
 import { LogoutButton } from '~/components/user/LogoutButton';
 import { useUnderDevelopment } from '~/lib/hooks/useUnderDevelopment';
+import { ErrorProvider } from '~/store/error/useError';
 import { useProfile } from '~/store/profile';
 
 export function AppContent() {
@@ -21,9 +22,11 @@ export function AppContent() {
     }
 
     return (
-        <ActiveContentWrapper>
-            <AppRouter />
-            <ErrorDialog />
-        </ActiveContentWrapper>
+        <ErrorProvider>
+            <ActiveContentWrapper>
+                <AppRouter />
+                <ErrorDialog />
+            </ActiveContentWrapper>
+        </ErrorProvider>
     );
 }

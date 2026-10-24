@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { MockRedux } from '@tests/MockRedux';
+import { MockData } from '@tests/MockData';
 
 import React from 'react';
 
@@ -30,9 +30,9 @@ describe('<AppContent>', () => {
 
     it('renders LoginButton when not has no profile info', () => {
         render(
-            <MockRedux>
+            <MockData>
                 <AppContent />
-            </MockRedux>
+            </MockData>
         );
 
         expect(screen.getByText('LoginButton')).toBeInTheDocument();
@@ -42,9 +42,9 @@ describe('<AppContent>', () => {
         vi.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: false });
 
         render(
-            <MockRedux>
+            <MockData>
                 <AppContent />
-            </MockRedux>
+            </MockData>
         );
 
         expect(screen.getByText('LogoutButton')).toBeInTheDocument();
@@ -55,9 +55,9 @@ describe('<AppContent>', () => {
         vi.mocked(useProfile).mockReturnValue({ sub: 'test', allowed: true });
 
         render(
-            <MockRedux>
+            <MockData>
                 <AppContent />
-            </MockRedux>
+            </MockData>
         );
 
         expect(screen.getByText('AppRouter')).toBeInTheDocument();
@@ -67,9 +67,9 @@ describe('<AppContent>', () => {
         vi.mocked(isDevMode).mockReturnValue(true);
 
         render(
-            <MockRedux>
+            <MockData>
                 <AppContent />
-            </MockRedux>
+            </MockData>
         );
 
         expect(screen.getByText('AppRouter')).toBeInTheDocument();

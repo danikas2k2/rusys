@@ -1,11 +1,10 @@
 import { Stack } from '@mantine/core';
 import React, { useCallback, useMemo } from 'react';
 
-import type { YearAmounts } from '~/common/data';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import { GridTile } from '~/components/common/GridTile';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
-import { type SummaryHistoryData } from '~/features/summary/SummaryAmounts';
+import type { ProductAmounts, YearAmounts } from '~/schema';
 
 import './SummaryTile.css';
 
@@ -30,7 +29,7 @@ export function SummaryTile({
     hidden = false,
     imageLoading,
 }: SummaryTileProps) {
-    const setActive = useSetActiveContent<SummaryHistoryData>();
+    const setActive = useSetActiveContent<ProductAmounts>();
     const yearAmounts = amounts?.find((item) => item.year === year)?.amounts;
     const consumed = useMemo(() => yearAmounts?.filter((amount) => amount.recycled === false) ?? [], [yearAmounts]);
     const recycled = useMemo(() => yearAmounts?.filter((amount) => amount.recycled === true) ?? [], [yearAmounts]);

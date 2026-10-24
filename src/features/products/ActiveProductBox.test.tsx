@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { getGroupsFixture } from '@tests/fixtures';
 import { MockActiveContent } from '@tests/MockActiveContent';
-import { MockThemeRedux } from '@tests/MockThemeRedux';
+import { MockThemeData } from '@tests/MockThemeData';
 
 import React from 'react';
 
@@ -29,11 +29,11 @@ describe('<ActiveProductBox>', () => {
 
     it('does not render box if not active', () => {
         render(
-            <MockThemeRedux>
+            <MockThemeData>
                 <MockActiveContent setActive={setActive}>
                     <ActiveProductBox />
                 </MockActiveContent>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -41,11 +41,11 @@ describe('<ActiveProductBox>', () => {
 
     it('renders ProductBox if action is update', () => {
         render(
-            <MockThemeRedux state={{ groups: getGroupsFixture() }}>
+            <MockThemeData state={{ groups: getGroupsFixture() }}>
                 <MockActiveContent active={active} setActive={setActive}>
                     <ActiveProductBox />
                 </MockActiveContent>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -55,11 +55,11 @@ describe('<ActiveProductBox>', () => {
 
     it('calls setActive with data when onClose is triggered', async () => {
         render(
-            <MockThemeRedux state={{ groups: getGroupsFixture() }}>
+            <MockThemeData state={{ groups: getGroupsFixture() }}>
                 <MockActiveContent active={active} setActive={setActive}>
                     <ActiveProductBox />
                 </MockActiveContent>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'Close' }));
@@ -69,11 +69,11 @@ describe('<ActiveProductBox>', () => {
 
     it('opens the amounts dialog with the initial year when a new product is added', async () => {
         render(
-            <MockThemeRedux state={{ groups: getGroupsFixture() }}>
+            <MockThemeData state={{ groups: getGroupsFixture() }}>
                 <MockActiveContent active={{ action: 'update' as const }} setActive={setActive}>
                     <ActiveProductBox />
                 </MockActiveContent>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'Close With New Product' }));
@@ -91,11 +91,11 @@ describe('<ActiveProductBox>', () => {
 
     it('does not clear the active state after close when a new product opened the amounts dialog', async () => {
         render(
-            <MockThemeRedux state={{ groups: getGroupsFixture() }}>
+            <MockThemeData state={{ groups: getGroupsFixture() }}>
                 <MockActiveContent active={{ action: 'update' as const }} setActive={setActive}>
                     <ActiveProductBox />
                 </MockActiveContent>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'Close With New Product' }));
@@ -107,11 +107,11 @@ describe('<ActiveProductBox>', () => {
 
     it('does not open the amounts dialog when an existing product is edited', async () => {
         render(
-            <MockThemeRedux state={{ groups: getGroupsFixture() }}>
+            <MockThemeData state={{ groups: getGroupsFixture() }}>
                 <MockActiveContent active={active} setActive={setActive}>
                     <ActiveProductBox />
                 </MockActiveContent>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'Close With New Product' }));
@@ -121,11 +121,11 @@ describe('<ActiveProductBox>', () => {
 
     it('calls setActive without arguments when onAfterClose is triggered', async () => {
         render(
-            <MockThemeRedux state={{ groups: getGroupsFixture() }}>
+            <MockThemeData state={{ groups: getGroupsFixture() }}>
                 <MockActiveContent active={active} setActive={setActive}>
                     <ActiveProductBox />
                 </MockActiveContent>
-            </MockThemeRedux>
+            </MockThemeData>
         );
 
         await user.click(screen.getByRole('button', { name: 'After Close' }));

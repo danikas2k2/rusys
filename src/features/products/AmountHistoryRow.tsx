@@ -1,13 +1,13 @@
 import { Group, Stack, Table, Text } from '@mantine/core';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import type { History, VariantAmount } from '~/common/data';
 import { AmountsCell } from '~/components/amounts/AmountsCell';
 import { EmailAvatar } from '~/components/common/EmailAvatar';
 import { FormatDate } from '~/components/common/FormatDate';
 import { useMoveConsumedToRecycled } from '~/features/products/hooks/useMoveConsumedToRecycled';
 import { MoveConsumedForm } from '~/features/products/MoveConsumedForm';
 import { getRoundedDate } from '~/lib/utils/time';
+import type { History, VariantAmount } from '~/schema';
 
 export function AmountHistoryRow({
     h,
@@ -34,24 +34,25 @@ export function AmountHistoryRow({
         async (line: VariantAmount, amount: number) => {
             setSaving(true);
             try {
-                // The correction is recorded under the entry's own author, not the current
-                // viewer, regardless of who is now correcting it.
-                await moveConsumedToRecycled(
-                    h.group,
-                    h.name,
-                    h.year ?? 0,
-                    line.variant,
+                await moveConsumedToRecycled({
+                    group: h.group,
+                    name: h.name,
+                    year: h.year ?? 0,
+                    variant: line.variant,
                     amount,
-                    { suspicious: line.suspicious, home: line.home, expiresAt: line.expiresAt },
-                    h.user
-                );
+                    flags: {
+                        suspicious: line.suspicious,
+                        home: line.home,
+                        expiresAt: line.expiresAt,
+                    },
+                });
                 setExpanded(false);
                 onMoved?.();
             } finally {
                 setSaving(false);
             }
         },
-        [h.group, h.name, h.year, h.user, moveConsumedToRecycled, onMoved]
+        [h.group, h.name, h.year, moveConsumedToRecycled, onMoved]
     );
 
     return (

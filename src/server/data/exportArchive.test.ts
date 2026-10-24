@@ -3,11 +3,15 @@ import path from 'node:path';
 
 /** @vitest-environment node */
 import JSZip from 'jszip';
+import { ClientSession } from 'mongodb';
 
+import { serializedArchiveDataSchema } from '~/schema';
+import { exportEverything } from '~/server/data/common';
 import { buildExportArchive, readImportArchive, writeImportImages } from '~/server/data/exportArchive';
 import { IMAGES_DIR } from '~/server/data/images';
-import { getValidator } from '~/server/data/schema/getValidator';
 import { db } from '~/server/db';
+
+const transactionSession = Object.create(ClientSession.prototype) as ClientSession;
 
 const collections = vi.hoisted(() => new Map<string, object[]>());
 
@@ -63,7 +67,7 @@ describe('exportArchive', () => {
                 .collection('variants')
                 .insertMany([{ group: 'Daržovės', variant: 'p', order: 0 }], { forceServerObjectId: true });
 
-            const buffer = await buildExportArchive();
+            const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const zip = await JSZip.loadAsync(buffer);
             const data = JSON.parse(await zip.file('data.json')!.async('string'));
 
@@ -98,7 +102,7 @@ describe('exportArchive', () => {
                     forceServerObjectId: true,
                 });
 
-            const buffer = await buildExportArchive();
+            const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const zip = await JSZip.loadAsync(buffer);
 
             await expect(zip.file('images/ab/cd/product.png')!.async('string')).resolves.toBe('product-bytes');
@@ -122,7 +126,7 @@ describe('exportArchive', () => {
                 { forceServerObjectId: true }
             );
 
-            const buffer = await buildExportArchive();
+            const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const zip = await JSZip.loadAsync(buffer);
 
             await expect(zip.file('images/ab/cd/thumb.png')!.async('string')).resolves.toBe('thumb-bytes');
@@ -138,7 +142,7 @@ describe('exportArchive', () => {
                     forceServerObjectId: true,
                 });
 
-            const buffer = await buildExportArchive();
+            const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const zip = await JSZip.loadAsync(buffer);
 
             expect(zip.file('images/aa/bb/missing.png')).toBeNull();
@@ -158,7 +162,7 @@ describe('exportArchive', () => {
                 { forceServerObjectId: true }
             );
 
-            const buffer = await buildExportArchive();
+            const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const zip = await JSZip.loadAsync(buffer);
 
             await expect(zip.file('images/ab/cd/product.png')!.async('string')).resolves.toBe('product-bytes');
@@ -173,7 +177,7 @@ describe('exportArchive', () => {
                     forceServerObjectId: true,
                 });
 
-            const buffer = await buildExportArchive();
+            const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const zip = await JSZip.loadAsync(buffer);
 
             expect(Object.keys(zip.files).filter((f) => f.startsWith('images/'))).toHaveLength(0);
@@ -190,7 +194,7 @@ describe('exportArchive', () => {
                 { forceServerObjectId: true }
             );
 
-            const buffer = await buildExportArchive();
+            const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const zip = await JSZip.loadAsync(buffer);
 
             expect(Object.keys(zip.files).filter((f) => f === 'images/ab/cd/shared.png')).toHaveLength(1);
@@ -270,10 +274,10 @@ describe('exportArchive', () => {
                 { forceServerObjectId: true }
             );
 
-            const buffer = await buildExportArchive();
+            const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const { data } = await readImportArchive(buffer);
 
-            expect(getValidator()(data)).toBe(true);
+            expect(() => serializedArchiveDataSchema.parse(data)).not.toThrow();
         });
 
         it('the real schema accepts a product with image, photo, and variantPhotos fields', async () => {
@@ -292,10 +296,10 @@ describe('exportArchive', () => {
                 { forceServerObjectId: true }
             );
 
-            const buffer = await buildExportArchive();
+            const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const { data } = await readImportArchive(buffer);
 
-            expect(getValidator()(data)).toBe(true);
+            expect(() => serializedArchiveDataSchema.parse(data)).not.toThrow();
         });
 
         it('the real schema accepts updates/undates amounts with suspicious, home, and expiresAt flags', async () => {
@@ -330,10 +334,10 @@ describe('exportArchive', () => {
                 { forceServerObjectId: true }
             );
 
-            const buffer = await buildExportArchive();
+            const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const { data } = await readImportArchive(buffer);
 
-            expect(getValidator()(data)).toBe(true);
+            expect(() => serializedArchiveDataSchema.parse(data)).not.toThrow();
         });
 
         it('the real schema accepts explicit null suspicious/home/expiresAt left by an older app version', async () => {
@@ -367,10 +371,10 @@ describe('exportArchive', () => {
                 { forceServerObjectId: true }
             );
 
-            const buffer = await buildExportArchive();
+            const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const { data } = await readImportArchive(buffer);
 
-            expect(getValidator()(data)).toBe(true);
+            expect(() => serializedArchiveDataSchema.parse(data)).not.toThrow();
         });
 
         it('the real schema accepts a sub-product with a parent field', async () => {
@@ -382,10 +386,10 @@ describe('exportArchive', () => {
                 { forceServerObjectId: true }
             );
 
-            const buffer = await buildExportArchive();
+            const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const { data } = await readImportArchive(buffer);
 
-            expect(getValidator()(data)).toBe(true);
+            expect(() => serializedArchiveDataSchema.parse(data)).not.toThrow();
         });
     });
 });

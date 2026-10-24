@@ -1,10 +1,10 @@
 import { Checkbox, Group, Table, Title } from '@mantine/core';
 import React, { useCallback } from 'react';
 
-import type { Product } from '~/common/data';
 import { ProductAvatar } from '~/features/products/ProductAvatar';
 import { UntouchedCheckboxIcon } from '~/features/review/UntouchedCheckboxIcon';
 import { getId } from '~/lib/utils/id';
+import type { Product } from '~/schema';
 
 interface ReviewProductRowProps {
     product: Product;
