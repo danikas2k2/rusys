@@ -2,17 +2,10 @@ import z from 'zod';
 
 import { deriveVariantKey } from '~/lib/utils/deriveVariantKey';
 import { SchemaError } from '~/schema/errors';
-import { groupIdentitySchema, validGroupName } from '~/schema/groups';
+import { groupIdentitySchema } from '~/schema/groups';
+import { optionalVariantName, validGroupName, validVariantName } from '~/schema/names';
 
-/** Trims a variant name and forbids the `:` identity separator; an empty result is allowed at this base level. */
-export const variantName = z
-    .string(SchemaError.VariantInvalid)
-    .trim()
-    .regex(/^[^:]*$/, SchemaError.InvalidCharacter);
-/** Required variant name after trimming. */
-export const validVariantName = variantName.nonempty(SchemaError.VariantRequired);
-/** Optional name that normalizes empty or whitespace-only input to undefined. */
-export const optionalVariantName = variantName.optional().transform((value) => value || undefined);
+export { optionalVariantName, validVariantName, variantName } from '~/schema/names';
 
 /** Strict group/variant identity with both names normalized and unknown fields rejected. */
 export const variantIdentitySchema = groupIdentitySchema.safeExtend({ variant: validVariantName });

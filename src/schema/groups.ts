@@ -1,13 +1,8 @@
 import z from 'zod';
 
-import { SchemaError } from '~/schema/errors';
+import { validGroupName } from '~/schema/names';
 
-/** Trims a group name, requires a nonempty result, and forbids the `:` identity separator. */
-export const validGroupName = z
-    .string(SchemaError.CategoryInvalid)
-    .trim()
-    .nonempty(SchemaError.CategoryRequired)
-    .regex(/^[^:]*$/, SchemaError.InvalidCharacter);
+export { validGroupName } from '~/schema/names';
 
 /** Identifies a group by its normalized name; rejects unknown request fields. */
 export const groupIdentitySchema = z.strictObject({ group: validGroupName });

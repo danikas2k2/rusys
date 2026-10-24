@@ -1,9 +1,7 @@
 import z from 'zod';
 
 import { SchemaError } from '~/schema/errors';
-import { validGroupName } from '~/schema/groups';
-import { validProductName } from '~/schema/products';
-import { validVariantName } from '~/schema/variants';
+import { validGroupName, validProductName, validVariantName } from '~/schema/names';
 import { validYear } from '~/schema/year';
 
 /**

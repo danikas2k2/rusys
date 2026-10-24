@@ -3,20 +3,12 @@ import z from 'zod';
 import { parseExpiryTolerance } from '~/common/utils/expiry';
 import { removingYearAmountsSchema, variantAmounts } from '~/schema/amounts';
 import { SchemaError } from '~/schema/errors';
-import { groupIdentitySchema, validGroupName } from '~/schema/groups';
+import { groupIdentitySchema } from '~/schema/groups';
 import { productHistoryCache, productHistoryEntries } from '~/schema/history';
-import { validVariantName } from '~/schema/variants';
+import { parentProductName, validGroupName, validProductName, validVariantName } from '~/schema/names';
 import { validYear } from '~/schema/year';
 
-/** Trims a product name, requires a nonempty result, and forbids the `:` identity separator. */
-export const validProductName = z
-    .string(SchemaError.ProductNameInvalid)
-    .trim()
-    .nonempty(SchemaError.NameRequired)
-    .regex(/^[^:]*$/, SchemaError.InvalidCharacter);
-
-/** Normalizes a product name for identity comparisons; trims, lowercases, and collapses whitespace. */
-export const parentProductName = validProductName.or(z.literal(''));
+export { parentProductName, validProductName } from '~/schema/names';
 
 /** Strict product identity with normalized group and product names; shared by product operation requests. */
 export const productIdentitySchema = groupIdentitySchema.safeExtend({
