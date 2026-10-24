@@ -18,6 +18,7 @@ FROM node:26-slim
 WORKDIR /app
 
 ARG APP_VERSION
+ENV APP_VERSION=${APP_VERSION}
 
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static

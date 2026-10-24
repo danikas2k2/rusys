@@ -149,8 +149,10 @@ The deployment uploads [monitoring configuration](../docker/monitoring/config.al
 configuration, and recreates `monitoring` (Grafana Alloy) before building the new application slot. Alloy collects
 Docker container metrics with cAdvisor and NAS host metrics with the Unix exporter every 15 seconds. It sends both to
 Grafana Cloud using Prometheus remote write, with `project=rusys`, `environment=production`, and `host=synology-ds923`
-labels. It does not collect logs. It uses host networking so Unix network metrics reflect the NAS, and binds its local
-status UI only to `127.0.0.1:12345` on the NAS. Its write-ahead log uses a persistent Docker volume across recreations.
+labels. It also discovers this Compose project's Docker logs, sanitizes them, and writes structured entries to Grafana
+Cloud Loki. The [Docker logging guide](monitoring/DOCKER-LOGGING.md) describes privacy filtering and Explore
+verification. It uses host networking so Unix network metrics reflect the NAS, and binds its local status UI only to
+`127.0.0.1:12345` on the NAS. Its write-ahead log uses a persistent Docker volume across recreations.
 
 Set these values in the server's `.env` before deploying; Compose refuses to start if any is empty:
 
@@ -159,6 +161,9 @@ Set these values in the server's `.env` before deploying; Compose refuses to sta
 | `GC_METRICS_URL`   | Grafana Cloud Prometheus remote write URL                             |
 | `GC_METRICS_USER`  | Grafana Cloud Prometheus username or instance ID                      |
 | `GC_METRICS_TOKEN` | Grafana Cloud token with metrics write permission                     |
+| `GC_LOKI_URL`      | Grafana Cloud Loki push endpoint ending in `/loki/api/v1/push`        |
+| `GC_LOKI_USER`     | Grafana Cloud logs instance ID                                        |
+| `GC_LOKI_TOKEN`    | Grafana Cloud token with `logs:write` permission                      |
 | `DOCKER_ROOT_DIR`  | NAS Docker data root from `docker info --format '{{.DockerRootDir}}'` |
 
 Alloy's cAdvisor exporter requires privileged mode and host filesystem mounts according to the
@@ -179,7 +184,7 @@ inspect `docker logs rusys-monitoring` on the NAS and the loopback Alloy status 
 
 The public site and `/api/health` are also monitored by Grafana Cloud's external Frankfurt probe. Their checks,
 alerting, dashboard, and separate local Grafana credential keys are documented in the
-[Synthetic Monitoring guide](SYNTHETIC-MONITORING.md). Those external checks do not depend on Alloy.
+[Synthetic Monitoring guide](monitoring/SYNTHETIC-MONITORING.md). Those external checks do not depend on Alloy.
 
 `pnpm deploy:rollback` requires a healthy previous container. After a successful deployment, start the stopped previous
 container on the server and wait for it to become healthy before running rollback. The previous image remains available,
