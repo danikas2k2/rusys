@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 
 import { SchemaError } from '~/schema';
 import { requireSession } from '~/server/auth/session';
+import { logEvent } from '~/server/logging';
 
 export interface ApiUploadedFile {
     data: Buffer;
@@ -104,8 +105,7 @@ export async function runServerHandler(handler: ApiHandler, request: ApiRequest)
     try {
         await handler(request, response);
     } catch {
-        // eslint-disable-next-line no-console -- Report the failure without logging sensitive exception details.
-        console.error('API handler failed');
+        logEvent('api_handler_failed', { status: 500 }, 'error');
         response.status(500).json({ error: { code: 'INTERNAL_ERROR', message: SchemaError.Unknown } });
     }
     return new Response(response.statusCode === 204 ? undefined : (response.body as BodyInit | undefined), {

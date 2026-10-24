@@ -1,3 +1,5 @@
+import { stderr } from 'node:process';
+
 import { NextRequest } from 'next/server';
 
 import { SchemaError } from '~/schema';
@@ -112,14 +114,19 @@ describe('runApiHandler', () => {
     });
 
     it('turns a handler exception into a JSON 500 response', async () => {
+        const output = vi.spyOn(stderr, 'write').mockReturnValue(true);
         const request = new NextRequest('http://localhost/api/items');
         const response = await runApiHandler(request, () => {
-            throw new Error('database unavailable');
+            throw new Error('mongodb://user:secret@host person@example.com');
         });
 
         expect(response.status).toBe(500);
         await expect(response.json()).resolves.toStrictEqual({
             error: { code: 'INTERNAL_ERROR', message: SchemaError.Unknown },
         });
+        expect(output).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('"event":"api_handler_failed"'));
+        expect(String(output.mock.calls[0][0])).not.toMatch(/secret|example|mongodb/);
+
+        output.mockRestore();
     });
 });

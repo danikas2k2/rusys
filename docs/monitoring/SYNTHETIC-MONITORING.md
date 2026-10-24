@@ -19,7 +19,8 @@ for other proposed monitoring work.
 
 The public Grafana probe calls RUSYS through its normal HTTPS address. It sends results to Grafana Cloud, where the
 dashboard and alert rule read them. The probe, liveness endpoint, and alert delivery do not require the NAS Alloy
-container to be running. Alloy has a separate role: collecting NAS and Docker metrics.
+container to be running. Alloy separately collects NAS and Docker metrics and exports
+[sanitized Docker logs](DOCKER-LOGGING.md) to Loki.
 
 ```mermaid
 flowchart LR
@@ -64,10 +65,10 @@ and [Grafana service account guide](https://grafana.com/docs/grafana/latest/admi
 
 ## Deploy the liveness endpoint
 
-The implementation is [src/app/api/health/route.ts](../src/app/api/health/route.ts). `GET /api/health` returns HTTP 200
-with `{"status":"ok"}` and `Cache-Control: no-store`. It is deliberately a **liveness** check: it does not query MongoDB
-or Alloy. The external health check verifies both the body and the cache header so an unrelated 200 response cannot
-silently pass.
+The implementation is [src/app/api/health/route.ts](../../src/app/api/health/route.ts). `GET /api/health` returns HTTP
+200 with `{"status":"ok"}` and `Cache-Control: no-store`. It is deliberately a **liveness** check: it does not query
+MongoDB or Alloy. The external health check verifies both the body and the cache header so an unrelated 200 response
+cannot silently pass.
 
 From the repository root, deploy application changes with the existing deployment setup:
 
@@ -80,7 +81,7 @@ curl -si https://rusys.andriaus.com/api/health
 
 `pnpm deploy:run` reads `.env.deploy.local`, builds the inactive blue/green slot, checks it, and switches the public
 gateway. `pnpm deploy` includes `pnpm check` before that deployment. Follow the
-[deployment guide](DEVELOPMENT-AND-DEPLOYMENT.md) for the server and CI setup. The expected public health response is
+[deployment guide](../DEVELOPMENT-AND-DEPLOYMENT.md) for the server and CI setup. The expected public health response is
 HTTP 200, JSON `{"status":"ok"}`, and a `Cache-Control` header containing `no-store`. The homepage currently returns
 HTTP 200 to anonymous visitors; if its intended behavior changes to a redirect, update its expected status in the
 Synthetic Monitoring check.
@@ -138,7 +139,7 @@ actual check failure routes correctly.
 ## Import the uptime dashboard
 
 In Grafana, choose **Dashboards → New → Import**, upload
-[docker/monitoring/synthetic-dashboard.json](../docker/monitoring/synthetic-dashboard.json), and select the stack's
+[docker/monitoring/synthetic-dashboard.json](../../docker/monitoring/synthetic-dashboard.json), and select the stack's
 Prometheus data source (`grafanacloud-prom`) for the dashboard variable. The dashboard UID is `rusys-synthetic-uptime`;
 import with overwrite only when updating this dashboard.
 

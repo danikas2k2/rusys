@@ -37,3 +37,136 @@ prometheus.remote_write "grafana_cloud" {
     }
   }
 }
+
+// Only this Compose project and its fixed service set may produce Loki streams.
+discovery.docker "rusys_logs" {
+  host = "unix:///var/run/docker.sock"
+
+  filter {
+    name   = "label"
+    values = ["com.docker.compose.project=rusys-app"]
+  }
+}
+
+discovery.relabel "rusys_logs" {
+  targets = discovery.docker.rusys_logs.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    regex         = "rusys-app-(blue|green)|rusys-db|rusys-gateway|monitoring"
+    action        = "keep"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "container"
+  }
+  rule {
+    source_labels = ["container"]
+    regex         = "monitoring"
+    target_label  = "container"
+    replacement   = "rusys-monitoring"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "service_name"
+  }
+  rule {
+    source_labels = ["service_name"]
+    regex         = "rusys-app-(blue|green)"
+    target_label  = "service_name"
+    replacement   = "rusys-web"
+  }
+  rule {
+    source_labels = ["container"]
+    regex         = "rusys-app-(blue|green)"
+    target_label  = "slot"
+    replacement   = "$1"
+  }
+}
+
+loki.source.docker "rusys" {
+  host          = "unix:///var/run/docker.sock"
+  targets       = discovery.relabel.rusys_logs.output
+  relabel_rules = discovery.relabel.rusys_logs.rules
+  labels        = { project = "rusys", environment = "production", host = "synology-ds923" }
+  forward_to    = [loki.process.rusys_privacy.receiver]
+}
+
+loki.process "rusys_privacy" {
+  forward_to = [loki.write.grafana_cloud.receiver]
+
+  stage.match {
+    selector = `{service_name="rusys-web"}`
+
+    // Exact logger schema, including field order: unknown/raw framework output fails closed.
+    stage.regex {
+      expression = `^(?P<safe_app>\{"timestamp":"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z","level":"(debug|info|warn|error)","service":"rusys-web","slot":"(blue|green|unknown)","version":"([0-9]{1,6}\.[0-9]{1,6}\.[0-9]{1,6}|unknown)","event":"(server_started|api_handler_failed|request_failed|runtime_output_redacted)"(,"method":"(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)")?(,"routeType":"(render|route|action|proxy)")?(,"status":[1-5][0-9]{2})?\})$`
+    }
+    stage.template {
+      source   = "safe_app"
+      template = `{{ if .Value }}{{ .Value }}{{ else }}{"service":"rusys-web","event":"runtime_output_redacted"}{{ end }}`
+    }
+    stage.output {
+      source = "safe_app"
+    }
+  }
+
+  // Infrastructure logs can contain addresses, URIs, queries, credentials and personal data.
+  // Rebuild entries from bounded diagnostic fields; never forward the original line.
+  stage.match {
+    selector = `{service_name="rusys-db"}`
+    stage.regex {
+      expression = `"s"\s*:\s*"(?P<severity>I|W|E|F|D[1-5])"`
+    }
+    stage.regex {
+      expression = `"id"\s*:\s*(?P<message_id>[0-9]{1,8})[,}]`
+    }
+    stage.template {
+      source   = "safe_infra"
+      template = `{"service":"rusys-db","event":"database_output_redacted","severity":"{{ if .severity }}{{ .severity }}{{ else }}unknown{{ end }}","message_id":"{{ if .message_id }}{{ .message_id }}{{ else }}unknown{{ end }}"}`
+    }
+    stage.output {
+      source = "safe_infra"
+    }
+  }
+  stage.match {
+    selector = `{service_name="rusys-gateway"}`
+    stage.regex {
+      expression = `"(?P<method>GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) [^"\r\n]* HTTP/[0-9.]+" (?P<status>[1-5][0-9]{2}) `
+    }
+    stage.template {
+      source   = "safe_infra"
+      template = `{"service":"rusys-gateway","event":"gateway_output_redacted","method":"{{ if .method }}{{ .method }}{{ else }}unknown{{ end }}","status":"{{ if .status }}{{ .status }}{{ else }}unknown{{ end }}"}`
+    }
+    stage.output {
+      source = "safe_infra"
+    }
+  }
+  stage.match {
+    selector = `{service_name="monitoring"}`
+    stage.regex {
+      expression = `(?:^| )level=(?P<severity>debug|info|warn|error)(?: |$)`
+    }
+    stage.template {
+      source   = "safe_infra"
+      template = `{"service":"monitoring","event":"monitoring_output_redacted","level":"{{ if .severity }}{{ .severity }}{{ else }}unknown{{ end }}"}`
+    }
+    stage.output {
+      source = "safe_infra"
+    }
+  }
+  stage.label_keep {
+    values = ["project", "environment", "host", "service_name", "container", "slot", "stream"]
+  }
+}
+
+loki.write "grafana_cloud" {
+  endpoint {
+    url = sys.env("GC_LOKI_URL")
+
+    basic_auth {
+      username = sys.env("GC_LOKI_USER")
+      password = sys.env("GC_LOKI_TOKEN")
+    }
+  }
+}

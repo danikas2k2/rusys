@@ -8,7 +8,7 @@ x-app: &app
       APP_VERSION: "4.2.10"
   platform: linux/amd64
   restart: unless-stopped
-  environment:
+  environment: &app-environment
     NODE_ENV: production
     HOSTNAME: 0.0.0.0
     PORT: 3000
@@ -77,12 +77,18 @@ services:
 
   rusys-app-blue:
     <<: *app
+    environment:
+      <<: *app-environment
+      APP_SLOT: blue
     container_name: rusys-app-blue
     image: rusys-app-blue
     profiles: [blue]
 
   rusys-app-green:
     <<: *app
+    environment:
+      <<: *app-environment
+      APP_SLOT: green
     container_name: rusys-app-green
     image: rusys-app-green
     profiles: [green]
@@ -96,6 +102,9 @@ services:
       GC_METRICS_URL: ${GC_METRICS_URL:?Set GC_METRICS_URL in the server .env}
       GC_METRICS_USER: ${GC_METRICS_USER:?Set GC_METRICS_USER in the server .env}
       GC_METRICS_TOKEN: ${GC_METRICS_TOKEN:?Set GC_METRICS_TOKEN in the server .env}
+      GC_LOKI_URL: ${GC_LOKI_URL:?Set GC_LOKI_URL in the NAS .env}
+      GC_LOKI_USER: ${GC_LOKI_USER:?Set GC_LOKI_USER in the NAS .env}
+      GC_LOKI_TOKEN: ${GC_LOKI_TOKEN:?Set GC_LOKI_TOKEN in the NAS .env}
     command:
       [
         "run",
