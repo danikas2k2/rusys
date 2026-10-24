@@ -4,9 +4,9 @@ import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
-import type { Group, Product } from '~/common/data';
 import { useApplyReview } from '~/features/products/hooks/useApplyReview';
 import { ReviewBox } from '~/features/review/ReviewBox';
+import type { Group, Product } from '~/schema';
 
 vi.mock(import('~/features/review/ReviewTable'), () => ({
     ReviewTable: vi.fn(({ checkedKeys, onToggle, onSelectAll, onReset }: any) => (

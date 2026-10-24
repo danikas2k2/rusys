@@ -1,11 +1,11 @@
 import { Divider, Flex, Loader, Table } from '@mantine/core';
 import React, { useDeferredValue, useEffect } from 'react';
 
-import type { History, ProductAmounts } from '~/common/data';
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { AmountHistoryRow } from '~/features/products/AmountHistoryRow';
 import { useGetProductHistory } from '~/features/products/hooks/useGetProductHistory';
+import type { History, ProductAmounts } from '~/schema';
 import { useProducts } from '~/store/products';
 
 import './AmountHistoryTab.css';

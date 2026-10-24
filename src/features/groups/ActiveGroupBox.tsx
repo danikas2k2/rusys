@@ -3,13 +3,13 @@ import React, { useCallback, useState } from 'react';
 
 import { ConfirmationDialogIcon, DeleteIcon } from '@icons';
 
-import type { Group } from '~/common/data';
 import { ConfirmationDialog } from '~/components/common/ConfirmationDialog';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { GroupBox } from '~/features/groups/GroupBox';
 import { useDeleteGroup } from '~/features/groups/hooks/useDeleteGroup';
+import type { Group } from '~/schema';
 
 export function ActiveGroupBox() {
     const [active, setActive] = useActiveContent<Group>();

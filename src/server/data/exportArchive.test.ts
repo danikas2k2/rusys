@@ -5,10 +5,10 @@ import path from 'node:path';
 import JSZip from 'jszip';
 import { ClientSession } from 'mongodb';
 
+import { serializedArchiveDataSchema } from '~/schema';
 import { exportEverything } from '~/server/data/common';
 import { buildExportArchive, readImportArchive, writeImportImages } from '~/server/data/exportArchive';
 import { IMAGES_DIR } from '~/server/data/images';
-import { getValidator } from '~/server/data/schema/getValidator';
 import { db } from '~/server/db';
 
 const transactionSession = Object.create(ClientSession.prototype) as ClientSession;
@@ -277,7 +277,7 @@ describe('exportArchive', () => {
             const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const { data } = await readImportArchive(buffer);
 
-            expect(getValidator()(data)).toBe(true);
+            expect(() => serializedArchiveDataSchema.parse(data)).not.toThrow();
         });
 
         it('the real schema accepts a product with image, photo, and variantPhotos fields', async () => {
@@ -299,7 +299,7 @@ describe('exportArchive', () => {
             const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const { data } = await readImportArchive(buffer);
 
-            expect(getValidator()(data)).toBe(true);
+            expect(() => serializedArchiveDataSchema.parse(data)).not.toThrow();
         });
 
         it('the real schema accepts updates/undates amounts with suspicious, home, and expiresAt flags', async () => {
@@ -337,7 +337,7 @@ describe('exportArchive', () => {
             const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const { data } = await readImportArchive(buffer);
 
-            expect(getValidator()(data)).toBe(true);
+            expect(() => serializedArchiveDataSchema.parse(data)).not.toThrow();
         });
 
         it('the real schema accepts explicit null suspicious/home/expiresAt left by an older app version', async () => {
@@ -374,7 +374,7 @@ describe('exportArchive', () => {
             const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const { data } = await readImportArchive(buffer);
 
-            expect(getValidator()(data)).toBe(true);
+            expect(() => serializedArchiveDataSchema.parse(data)).not.toThrow();
         });
 
         it('the real schema accepts a sub-product with a parent field', async () => {
@@ -389,7 +389,7 @@ describe('exportArchive', () => {
             const buffer = await buildExportArchive(await exportEverything(transactionSession));
             const { data } = await readImportArchive(buffer);
 
-            expect(getValidator()(data)).toBe(true);
+            expect(() => serializedArchiveDataSchema.parse(data)).not.toThrow();
         });
     });
 });

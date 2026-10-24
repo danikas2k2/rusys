@@ -1,6 +1,6 @@
 import type { ClientSession } from 'mongodb';
 
-import type { UserProfile } from '~/common/data';
+import type { UserProfile } from '~/schema';
 import { db } from '~/server/db';
 
 export async function upsertUserProfile(

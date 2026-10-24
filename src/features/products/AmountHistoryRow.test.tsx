@@ -5,9 +5,9 @@ import { MockApp } from '@tests/MockApp';
 import { Table } from '@mantine/core';
 import React from 'react';
 
-import type { History } from '~/common/data';
 import { AmountHistoryRow } from '~/features/products/AmountHistoryRow';
 import { useMoveConsumedToRecycled } from '~/features/products/hooks/useMoveConsumedToRecycled';
+import type { History } from '~/schema';
 
 vi.mock(import('~/features/products/hooks/useMoveConsumedToRecycled'));
 

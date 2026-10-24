@@ -1,8 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
-import type { Product } from '~/common/data';
-import type { ProductYearIdentity } from '~/schema';
+import type { Product, ProductYearIdentity } from '~/schema';
 import { getProductHistory } from '~/server/actions/products';
 import { CATALOG_KEYS } from '~/store/catalog';
 

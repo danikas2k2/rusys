@@ -3,9 +3,9 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
-import type { History, Product, ProductAmounts } from '~/common/data';
 import { AmountHistoryTab } from '~/features/products/AmountHistoryTab';
 import { useGetProductHistory } from '~/features/products/hooks/useGetProductHistory';
+import type { History, Product, ProductAmounts } from '~/schema';
 import { useProducts } from '~/store/products';
 
 vi.mock(import('~/features/products/hooks/useGetProductHistory'), (): any => ({

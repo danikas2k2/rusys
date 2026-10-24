@@ -1,5 +1,5 @@
 import { DAY_MS } from '~/common/utils/time';
-import type { VariantAmount } from '~/schema/products';
+import type { VariantAmount } from '~/schema';
 
 export const EXPIRY_SOON_THRESHOLD_DAYS = 30;
 

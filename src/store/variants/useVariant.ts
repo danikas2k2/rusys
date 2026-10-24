@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import type { Variant } from '~/common/data';
+import type { Variant } from '~/schema';
 import { getVariantsAction } from '~/server/actions/variants';
 import { CATALOG_KEYS } from '~/store/catalog';
 

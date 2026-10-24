@@ -2,7 +2,7 @@
 
 import { OAuth2Client } from 'google-auth-library';
 
-import * as schema from '~/schema';
+import { loginWithGoogleSchema, SchemaError, type LoginWithGoogle } from '~/schema';
 import { createSession, deleteSession, isAllowedEmail } from '~/server/auth/session';
 import { getUserProfiles, upsertUserProfile } from '~/server/data/userProfiles';
 import { withinTransaction } from '~/server/db';
@@ -10,11 +10,11 @@ import type { Profile } from '~/store/profile';
 
 const STALE_MS = 14 * 24 * 60 * 60 * 1000;
 
-export async function loginWithGoogle(request: schema.LoginWithGoogle): Promise<Profile> {
+export async function loginWithGoogle(request: LoginWithGoogle): Promise<Profile> {
     const clientId = process.env.GOOGLE_CLIENT_ID;
-    const input = schema.loginWithGoogle.safeParse(request);
+    const input = loginWithGoogleSchema.safeParse(request);
     if (!clientId || !input.success) {
-        throw new Error(schema.SchemaError.InvalidLogin);
+        throw new Error(SchemaError.InvalidLogin);
     }
 
     const { token, kind } = input.data;
@@ -33,7 +33,7 @@ export async function loginWithGoogle(request: schema.LoginWithGoogle): Promise<
     } else {
         const info = await client.getTokenInfo(token);
         if (info.aud !== clientId) {
-            throw new Error(schema.SchemaError.InvalidTokenAudience);
+            throw new Error(SchemaError.InvalidTokenAudience);
         }
 
         const response = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
@@ -41,18 +41,18 @@ export async function loginWithGoogle(request: schema.LoginWithGoogle): Promise<
             cache: 'no-store',
         });
         if (!response.ok) {
-            throw new Error(schema.SchemaError.GoogleUserInfoFailed);
+            throw new Error(SchemaError.GoogleUserInfoFailed);
         }
 
         profile = (await response.json()) as Profile;
         const subject = info.sub ?? info.user_id;
         if (!subject || profile.sub !== subject) {
-            throw new Error(schema.SchemaError.GoogleIdentityMismatch);
+            throw new Error(SchemaError.GoogleIdentityMismatch);
         }
     }
 
     if (!profile.sub || !profile.email || profile.email_verified !== true || !isAllowedEmail(profile.email)) {
-        throw new Error(schema.SchemaError.UserNotAllowed);
+        throw new Error(SchemaError.UserNotAllowed);
     }
 
     const verifiedProfile: Profile = {

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import type { Group } from '~/common/data';
+import type { Group } from '~/schema';
 import { getGroupsAction } from '~/server/actions/groups';
 import { CATALOG_KEYS } from '~/store/catalog';
 

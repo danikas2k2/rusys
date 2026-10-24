@@ -2,7 +2,7 @@
 
 import { Buffer } from 'node:buffer';
 
-import * as schema from '~/schema';
+import { importArchiveSchema, SchemaError, type ImportArchive } from '~/schema';
 import { runServerHandler } from '~/server/api/next';
 import { handleImport } from '~/server/api/v1/imports/handleImport';
 import { requireSession } from '~/server/auth/session';
@@ -10,12 +10,12 @@ import { exportEverything } from '~/server/data/common';
 import { buildExportArchive } from '~/server/data/exportArchive';
 import { withinTransaction } from '~/server/db';
 
-export async function importArchive(data: schema.ImportArchive): Promise<string | undefined> {
+export async function importArchive(data: ImportArchive): Promise<string | undefined> {
     await requireSession();
 
-    const { success, data: file } = schema.importArchive.safeParse(data);
+    const { success, data: file } = importArchiveSchema.safeParse(data);
     if (!success) {
-        return schema.SchemaError.InvalidZipFile;
+        return SchemaError.InvalidZipFile;
     }
 
     const response = await runServerHandler(handleImport, {
@@ -26,7 +26,7 @@ export async function importArchive(data: schema.ImportArchive): Promise<string 
     });
 
     if (!response.ok) {
-        return schema.SchemaError.ImportFailed;
+        return SchemaError.ImportFailed;
     }
 }
 

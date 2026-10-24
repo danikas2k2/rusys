@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import JSZip from 'jszip';
 
-import type { ExportArchiveData, Group, Product } from '~/common/data';
+import type { ExportArchiveData, Group, Product } from '~/schema';
 import { IMAGES_DIR, resolveImagePath } from '~/server/data/images';
 
 const DATA_ENTRY = 'data.json';
@@ -60,7 +60,8 @@ export interface ImportArchiveImage {
 }
 
 export interface ImportArchive {
-    data: ExportArchiveData;
+    /** Untrusted decoded JSON; the import handler validates the legacy wire format before performing writes. */
+    data: unknown;
     images: ImportArchiveImage[];
 }
 
@@ -70,7 +71,7 @@ export async function readImportArchive(buffer: Buffer): Promise<ImportArchive> 
     if (!dataEntry) {
         throw new Error(`Archive is missing ${DATA_ENTRY}`);
     }
-    const data = JSON.parse(await dataEntry.async('string')) as ExportArchiveData;
+    const data: unknown = JSON.parse(await dataEntry.async('string'));
 
     const images: ImportArchiveImage[] = [];
     for (const [entryPath, entry] of Object.entries(zip.files)) {

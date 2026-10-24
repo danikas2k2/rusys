@@ -3,13 +3,12 @@ import React, { useMemo } from 'react';
 
 import { ApproxAmountIcon, HomeIcon } from '@icons';
 
-import type { ProductAmounts as ProductAmountsData } from '~/common/data';
 import { formatVolume, formatWeight, getAmountTotals } from '~/common/utils/amounts';
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { useAmountView } from '~/components/amounts/AmountViewContext';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
 import type { VariantAmount } from '~/schema';
-import { useGroupVariantComparator, useVariantsByGroup } from '~/store/variants';
+import { useGroupVariantComparator, useGroupVariants } from '~/store/variants';
 
 interface HomeAmountsProps {
     group: string;
@@ -31,7 +30,7 @@ function HomeAmountLine({ children }: React.PropsWithChildren) {
 function HomeAmounts({ group, homeBalance }: HomeAmountsProps) {
     const [amountView] = useAmountView();
     const compareVariants = useGroupVariantComparator(group);
-    const variants = useVariantsByGroup(group);
+    const variants = useGroupVariants(group);
 
     if (amountView === 'total') {
         const { volume, weight, count, unitless } = getAmountTotals(homeBalance, variants);
@@ -75,8 +74,6 @@ function HomeAmounts({ group, homeBalance }: HomeAmountsProps) {
         </span>
     );
 }
-
-export type SummaryHistoryData = ProductAmountsData;
 
 export function SummaryAmounts({
     group,

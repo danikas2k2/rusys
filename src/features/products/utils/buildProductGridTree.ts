@@ -1,8 +1,7 @@
-import type { Product, RemovingYearAmounts } from '~/common/data';
 import { combineProductYears, getCombinedAmounts } from '~/common/utils/amounts';
 import { collectDescendants } from '~/features/products/utils/collectDescendants';
 import { getId } from '~/lib/utils/id';
-import type { VariantAmount } from '~/schema';
+import type { Product, RemovingYearAmounts, VariantAmount } from '~/schema';
 
 export interface ProductGridNode {
     product: Product;

@@ -1,4 +1,3 @@
-import type { Variant, YearAmounts } from '~/common/data';
 import {
     addTypedVariantAmount,
     addVariantAmount,
@@ -11,6 +10,7 @@ import {
     getVariantAmount,
     mergeAmountsIgnoringExpiry,
 } from '~/common/utils/amounts';
+import type { Variant, YearAmounts } from '~/schema';
 
 vi.mock(import('~/features/groups/hooks/useGetGroups'));
 vi.mock(import('~/features/variants/hooks/useGetVariants'));

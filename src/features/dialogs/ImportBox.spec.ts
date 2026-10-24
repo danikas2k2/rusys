@@ -7,7 +7,7 @@ import { productTile } from '@tests/helpers/ui';
 import type { Page } from '@playwright/test';
 import JSZip from 'jszip';
 
-import type { Product } from '~/common/data';
+import type { Product } from '~/schema';
 
 async function openUtility(page: Page, label: string) {
     await page.getByRole('button', { name: 'Meniu' }).click();

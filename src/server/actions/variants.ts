@@ -1,6 +1,17 @@
 'use server';
 
-import * as schema from '~/schema';
+import {
+    copyVariantSchema,
+    deleteVariantSchema,
+    renameVariantSchema,
+    reorderVariantsSchema,
+    updateVariantSchema,
+    type CopyVariant,
+    type DeleteVariant,
+    type RenameVariant,
+    type ReorderVariants,
+    type UpdateVariant,
+} from '~/schema';
 import { requireSession } from '~/server/auth/session';
 import { getGroups } from '~/server/data/groups';
 import { renameProductsVariant } from '~/server/data/products/mutations';
@@ -24,15 +35,15 @@ export async function getVariantsAction() {
     });
 }
 
-export async function updateVariantAction(request: schema.UpdateVariant): Promise<void> {
+export async function updateVariantAction(request: UpdateVariant): Promise<void> {
     await requireSession();
-    const parsed = schema.updateVariant.parse(request);
+    const parsed = updateVariantSchema.parse(request);
     return withinTransaction((session) => updateVariant(parsed, session)).then(assertSuccess);
 }
 
-export async function renameVariantAction(request: schema.RenameVariant): Promise<void> {
+export async function renameVariantAction(request: RenameVariant): Promise<void> {
     await requireSession();
-    const parsed = schema.renameVariant.parse(request);
+    const parsed = renameVariantSchema.parse(request);
     return withinTransaction(async (session) => {
         const { group, variant, targetVariant } = parsed;
         if (variant === targetVariant) {
@@ -46,20 +57,20 @@ export async function renameVariantAction(request: schema.RenameVariant): Promis
     }).then(assertSuccess);
 }
 
-export async function copyVariantAction(request: schema.CopyVariant): Promise<void> {
+export async function copyVariantAction(request: CopyVariant): Promise<void> {
     await requireSession();
-    const parsed = schema.copyVariant.parse(request);
+    const parsed = copyVariantSchema.parse(request);
     return withinTransaction((session) => copyVariant(parsed, session)).then(assertSuccess);
 }
 
-export async function deleteVariantAction(request: schema.DeleteVariant): Promise<void> {
+export async function deleteVariantAction(request: DeleteVariant): Promise<void> {
     await requireSession();
-    const { group, variant } = schema.deleteVariant.parse(request);
+    const { group, variant } = deleteVariantSchema.parse(request);
     return withinTransaction((session) => deleteVariant(group, variant, session)).then(assertSuccess);
 }
 
-export async function reorderVariantsAction(request: schema.ReorderVariants): Promise<void> {
+export async function reorderVariantsAction(request: ReorderVariants): Promise<void> {
     await requireSession();
-    const { group, variants } = schema.reorderVariants.parse(request);
+    const { group, variants } = reorderVariantsSchema.parse(request);
     return withinTransaction((session) => reorderVariants(group, variants, session)).then(assertSuccess);
 }

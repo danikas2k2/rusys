@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import type { Product } from '~/common/data';
+import type { Product } from '~/schema';
 import { getProductsAction } from '~/server/actions/products';
 import { CATALOG_KEYS } from '~/store/catalog';
 

@@ -1,4 +1,4 @@
-import type { Group, Product, Summary, Variant } from '~/common/data';
+import type { Group, Product, Summary, Variant } from '~/schema';
 
 export interface InitialAppData {
     groups?: readonly Group[];

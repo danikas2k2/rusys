@@ -1,14 +1,13 @@
 import { Group, Stack, Table, Text } from '@mantine/core';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import type { History } from '~/common/data';
 import { AmountsCell } from '~/components/amounts/AmountsCell';
 import { EmailAvatar } from '~/components/common/EmailAvatar';
 import { FormatDate } from '~/components/common/FormatDate';
 import { useMoveConsumedToRecycled } from '~/features/products/hooks/useMoveConsumedToRecycled';
 import { MoveConsumedForm } from '~/features/products/MoveConsumedForm';
 import { getRoundedDate } from '~/lib/utils/time';
-import type { VariantAmount } from '~/schema';
+import type { History, VariantAmount } from '~/schema';
 
 export function AmountHistoryRow({
     h,

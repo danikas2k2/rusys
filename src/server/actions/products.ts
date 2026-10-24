@@ -1,7 +1,39 @@
 'use server';
 
-import type { ProductHistory } from '~/common/data';
-import * as schema from '~/schema';
+import {
+    addProductSchema,
+    applyReviewSchema,
+    deleteProductSchema,
+    moveConsumedToRecycledSchema,
+    moveProductSchema,
+    productYearIdentitySchema,
+    renameProductSchema,
+    SchemaError,
+    setAmountsSchema,
+    setProductExpiryToleranceSchema,
+    setProductImageSchema,
+    setProductMissingSchema,
+    setProductParentSchema,
+    setProductRemovingSchema,
+    setVariantImageSchema,
+    transferAmountsSchema,
+    type AddProduct,
+    type ApplyReview,
+    type DeleteProduct,
+    type MoveConsumedToRecycled,
+    type MoveProduct,
+    type ProductHistory,
+    type ProductYearIdentity,
+    type RenameProduct,
+    type SetAmounts,
+    type SetProductExpiryTolerance,
+    type SetProductImage,
+    type SetProductMissing,
+    type SetProductParent,
+    type SetProductRemoving,
+    type SetVariantImage,
+    type TransferAmounts,
+} from '~/schema';
 import { requireSession } from '~/server/auth/session';
 import { getProductHistoryData } from '~/server/data/actionHistory';
 import { moveProductOccurrences } from '~/server/data/common';
@@ -31,7 +63,7 @@ import { withinTransaction } from '~/server/db';
 async function requireStockAuthor(): Promise<string> {
     const { email } = await requireSession();
     if (!email?.trim()) {
-        throw new Error(schema.SchemaError.Unauthorized);
+        throw new Error(SchemaError.Unauthorized);
     }
     return email;
 }
@@ -46,104 +78,104 @@ export async function getProductsAction() {
     });
 }
 
-export async function addProductAction(request: schema.AddProduct): Promise<void> {
+export async function addProductAction(request: AddProduct): Promise<void> {
     await requireSession();
-    const parsed = schema.addProduct.parse(request);
+    const parsed = addProductSchema.parse(request);
     return withinTransaction((session) => addProduct(parsed, session)).then(assertSuccess);
 }
 
-export async function deleteProductAction(request: schema.DeleteProduct): Promise<void> {
+export async function deleteProductAction(request: DeleteProduct): Promise<void> {
     await requireSession();
-    const parsed = schema.deleteProduct.parse(request);
+    const parsed = deleteProductSchema.parse(request);
     return withinTransaction((session) => deleteProduct(parsed, session)).then(assertSuccess);
 }
 
-export async function renameProductAction(request: schema.RenameProduct): Promise<void> {
+export async function renameProductAction(request: RenameProduct): Promise<void> {
     await requireSession();
-    const parsed = schema.renameProduct.parse(request);
+    const parsed = renameProductSchema.parse(request);
     return withinTransaction((session) => renameProduct(parsed, session)).then(assertSuccess);
 }
 
-export async function moveProductAction(request: schema.MoveProduct): Promise<void> {
+export async function moveProductAction(request: MoveProduct): Promise<void> {
     await requireSession();
-    const parsed = schema.moveProduct.parse(request);
+    const parsed = moveProductSchema.parse(request);
     return withinTransaction((session) => moveProductOccurrences(parsed, session)).then(assertSuccess);
 }
 
-export async function setProductParentAction(request: schema.SetProductParent): Promise<void> {
+export async function setProductParentAction(request: SetProductParent): Promise<void> {
     await requireSession();
-    const parsed = schema.setProductParent.parse(request);
+    const parsed = setProductParentSchema.parse(request);
     return withinTransaction((session) => setProductParent(parsed, session)).then(assertSuccess);
 }
 
-export async function setProductExpiryToleranceAction(request: schema.SetProductExpiryTolerance): Promise<void> {
+export async function setProductExpiryToleranceAction(request: SetProductExpiryTolerance): Promise<void> {
     await requireSession();
-    const parsed = schema.setProductExpiryTolerance.parse(request);
+    const parsed = setProductExpiryToleranceSchema.parse(request);
     return withinTransaction((session) => setProductExpiryTolerance(parsed, session)).then(assertSuccess);
 }
 
-export async function setProductMissingAction(request: schema.SetProductMissing): Promise<void> {
+export async function setProductMissingAction(request: SetProductMissing): Promise<void> {
     await requireSession();
-    const parsed = schema.setProductMissing.parse(request);
+    const parsed = setProductMissingSchema.parse(request);
     return withinTransaction((session) => setMissing(parsed, session)).then(assertSuccess);
 }
 
-export async function applyReviewAction(request: schema.ApplyReview): Promise<void> {
+export async function applyReviewAction(request: ApplyReview): Promise<void> {
     await requireSession();
-    const parsed = schema.applyReview.parse(request);
+    const parsed = applyReviewSchema.parse(request);
     return withinTransaction((session) => setMissingBulk(parsed, session)).then(assertSuccess);
 }
 
-export async function setProductRemovingAction(request: schema.SetProductRemoving): Promise<void> {
+export async function setProductRemovingAction(request: SetProductRemoving): Promise<void> {
     await requireSession();
-    const parsed = schema.setProductRemoving.parse(request);
+    const parsed = setProductRemovingSchema.parse(request);
     return withinTransaction((session) => setRemoving(parsed, session)).then(assertSuccess);
 }
 
-export async function setProductImageAction(request: schema.SetProductImage): Promise<void> {
+export async function setProductImageAction(request: SetProductImage): Promise<void> {
     await requireSession();
-    const parsed = schema.setProductImage.parse(request);
+    const parsed = setProductImageSchema.parse(request);
     return withinTransaction((session) => setImage(parsed, session)).then(assertSuccess);
 }
 
-export async function setVariantImageAction(request: schema.SetVariantImage): Promise<void> {
+export async function setVariantImageAction(request: SetVariantImage): Promise<void> {
     await requireSession();
-    const parsed = schema.setVariantImage.parse(request);
+    const parsed = setVariantImageSchema.parse(request);
     return withinTransaction((session) => setVariantImage(parsed, session)).then(assertSuccess);
 }
 
-export async function setAmountsAction(request: schema.SetAmounts): Promise<void> {
+export async function setAmountsAction(request: SetAmounts): Promise<void> {
     const user = await requireStockAuthor();
-    const parsed = schema.setAmounts.parse(request);
+    const parsed = setAmountsSchema.parse(request);
     return withinTransaction((session) => setAmounts(parsed, user, session)).then(assertSuccess);
 }
 
-export async function transferAmountsAction(request: schema.TransferAmounts): Promise<void> {
+export async function transferAmountsAction(request: TransferAmounts): Promise<void> {
     const user = await requireStockAuthor();
-    const parsed = schema.transferAmounts.parse(request);
+    const parsed = transferAmountsSchema.parse(request);
     return withinTransaction((session) => transferAmounts(parsed, user, session)).then(assertSuccess);
 }
 
-export async function moveConsumedToRecycledAction(request: schema.MoveConsumedToRecycled): Promise<void> {
+export async function moveConsumedToRecycledAction(request: MoveConsumedToRecycled): Promise<void> {
     const user = await requireStockAuthor();
-    const parsed = schema.moveConsumedToRecycled.parse(request);
+    const parsed = moveConsumedToRecycledSchema.parse(request);
     return withinTransaction((session) => moveConsumedToRecycled(parsed, user, session)).then(assertSuccess);
 }
 
-export async function undoProductAction(request: schema.ProductYearIdentity): Promise<void> {
+export async function undoProductAction(request: ProductYearIdentity): Promise<void> {
     await requireSession();
-    const parsed = schema.productYearIdentity.parse(request);
+    const parsed = productYearIdentitySchema.parse(request);
     return withinTransaction((session) => undoProduct(parsed, session)).then(assertSuccess);
 }
 
-export async function redoProductAction(request: schema.ProductYearIdentity): Promise<void> {
+export async function redoProductAction(request: ProductYearIdentity): Promise<void> {
     await requireSession();
-    const parsed = schema.productYearIdentity.parse(request);
+    const parsed = productYearIdentitySchema.parse(request);
     return withinTransaction((session) => redoProduct(parsed, session)).then(assertSuccess);
 }
 
-export async function getProductHistory(request: schema.ProductYearIdentity): Promise<ProductHistory> {
+export async function getProductHistory(request: ProductYearIdentity): Promise<ProductHistory> {
     await requireSession();
-    const parsed = schema.productYearIdentity.parse(request);
+    const parsed = productYearIdentitySchema.parse(request);
     return withinTransaction((session) => getProductHistoryData(parsed, session));
 }

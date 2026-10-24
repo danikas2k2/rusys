@@ -3,13 +3,12 @@ import React, { useCallback, useMemo, useState } from 'react';
 
 import { AddIcon, CancelIcon, MoveIcon } from '@icons';
 
-import type { Product } from '~/common/data';
 import { CategoryAvatar } from '~/features/filters/CategoryAvatar';
 import { useTransferAmounts } from '~/features/products/hooks/useTransferAmounts';
 import { ProductBox } from '~/features/products/ProductBox';
 import { ProductOption } from '~/features/products/ProductOption';
 import { useLabels } from '~/lib/hooks/useLabels';
-import type { VariantAmount } from '~/schema';
+import type { Product, VariantAmount } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
 

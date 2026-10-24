@@ -1,9 +1,9 @@
 import { Group as MantineGroup, Tabs, Text } from '@mantine/core';
 import React, { startTransition, useEffect } from 'react';
 
-import type { Group } from '~/common/data';
 import { Thumbnail } from '~/components/common/Thumbnail';
 import { supportsClippedViewTransitions } from '~/lib/utils/supportsClippedViewTransitions';
+import type { Group } from '~/schema';
 
 import './CategoryRail.css';
 

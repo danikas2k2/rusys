@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import type { Summary } from '~/common/data';
+import type { Summary } from '~/schema';
 import { readSummary } from '~/server/actions/summary';
 import { CATALOG_KEYS } from '~/store/catalog';
 

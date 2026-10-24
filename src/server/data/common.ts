@@ -1,14 +1,22 @@
 import type { ClientSession, Db } from 'mongodb';
 
-import type { ExportArchiveData, Group, Product, Variant } from '~/common/data';
-import type * as schema from '~/schema';
+import type {
+    ExportArchiveData,
+    Group,
+    MoveProduct,
+    Product,
+    RenameGroup,
+    RenameVariant,
+    SerializedArchiveData,
+    Variant,
+} from '~/schema';
 import { deleteGroup, renameGroup } from '~/server/data/groups';
 import { getProductVariants, moveProduct, renameProductsGroup, renameProductsVariant } from '~/server/data/products';
 import { hasEffect } from '~/server/data/utils';
 import { copyVariants, deleteVariant, renameVariant, renameVariantsGroup } from '~/server/data/variants';
 import { db } from '~/server/db';
 
-export async function moveProductOccurrences(request: schema.MoveProduct, session: ClientSession): Promise<boolean> {
+export async function moveProductOccurrences(request: MoveProduct, session: ClientSession): Promise<boolean> {
     if (!(await moveProduct(request, session))) {
         return false;
     }
@@ -19,10 +27,7 @@ export async function moveProductOccurrences(request: schema.MoveProduct, sessio
     return true;
 }
 
-export async function renameVariantOccurrences(
-    request: schema.RenameVariant,
-    session: ClientSession
-): Promise<boolean> {
+export async function renameVariantOccurrences(request: RenameVariant, session: ClientSession): Promise<boolean> {
     if (!(await renameVariant(request, session))) {
         return false;
     }
@@ -36,7 +41,7 @@ export const deleteVariantOccurrences = (group: string, variant: string, session
 export const deleteGroupOccurrences = (group: string, session: ClientSession): Promise<boolean> =>
     deleteGroup(group, session);
 
-export async function renameGroupOccurrences(request: schema.RenameGroup, session: ClientSession): Promise<boolean> {
+export async function renameGroupOccurrences(request: RenameGroup, session: ClientSession): Promise<boolean> {
     if (!(await renameGroup(request, session))) {
         return false;
     }
@@ -75,10 +80,11 @@ const moveEverything = async (src: Db, dst: Db): Promise<boolean> =>
     (await copyCollection(src, dst, 'groups')) &&
     (await src.dropDatabase());
 
+/** Replaces collections using current exports or validated legacy wire documents, preserving their stored fields. */
 export async function importEverything(
-    products: readonly Product[],
-    variants: readonly Variant[],
-    groups: readonly Group[]
+    products: readonly (Product | SerializedArchiveData['products'][number])[],
+    variants: readonly (Variant | SerializedArchiveData['variants'][number])[],
+    groups: readonly (Group | SerializedArchiveData['groups'][number])[]
 ): Promise<boolean> {
     // $out, collection replacement and dropDatabase cannot run inside a MongoDB transaction.
     const current = await db();

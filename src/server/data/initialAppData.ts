@@ -1,6 +1,6 @@
-import type { Group } from '~/common/data';
 import type { InitialAppData, InitialResource } from '~/components/app/initialData';
 import { Links } from '~/lib/links';
+import type { Group } from '~/schema';
 import { getGroups } from '~/server/data/groups';
 import { getProductsWithYears } from '~/server/data/products';
 import { getFullSummary } from '~/server/data/summary';

@@ -3,7 +3,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 
 import { ConfirmationDialogIcon, DeleteIcon } from '@icons';
 
-import type { ProductAmounts } from '~/common/data';
 import { AmountTitle } from '~/components/amounts/AmountTitle';
 import { ConfirmationDialog } from '~/components/common/ConfirmationDialog';
 import { DialogIcon } from '~/components/common/DialogIcon';
@@ -12,6 +11,7 @@ import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { AmountBox } from '~/features/products/AmountBox';
 import { useDeleteProduct } from '~/features/products/hooks/useDeleteProduct';
 import { ProductBox } from '~/features/products/ProductBox';
+import type { ProductAmounts } from '~/schema';
 import { useProducts } from '~/store/products';
 
 export function ActiveAmountBox(): React.ReactElement {

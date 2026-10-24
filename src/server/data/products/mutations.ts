@@ -1,8 +1,15 @@
 import type { ClientSession, UpdateFilter } from 'mongodb';
 
-import type { Product } from '~/common/data';
-import type * as schema from '~/schema';
-import { SchemaError } from '~/schema';
+import {
+    SchemaError,
+    type AddProduct,
+    type DeleteProduct,
+    type MoveProduct,
+    type Product,
+    type RenameProduct,
+    type SetProductExpiryTolerance,
+    type SetProductParent,
+} from '~/schema';
 import { handleDuplicate, hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
 
@@ -11,7 +18,7 @@ const rejectDuplicateProduct = (cause: unknown): never =>
         throw new Error(SchemaError.NameAlreadyExists);
     });
 
-export async function addProduct({ group, name, parent }: schema.AddProduct, session: ClientSession): Promise<boolean> {
+export async function addProduct({ group, name, parent }: AddProduct, session: ClientSession): Promise<boolean> {
     if (!group || !name || parent === name) {
         return false;
     }
@@ -38,7 +45,7 @@ export async function addProduct({ group, name, parent }: schema.AddProduct, ses
 }
 
 export async function renameProduct(
-    { group, name, targetName }: schema.RenameProduct,
+    { group, name, targetName }: RenameProduct,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !name || !targetName || name === targetName) {
@@ -71,7 +78,7 @@ function getDescendantNames(name: string, childrenByParent: ReadonlyMap<string, 
 }
 
 export async function setProductParent(
-    { group, name, parent }: schema.SetProductParent,
+    { group, name, parent }: SetProductParent,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !name || parent === name) {
@@ -105,7 +112,7 @@ export async function setProductParent(
 }
 
 export async function setProductExpiryTolerance(
-    { group, name, days: expiryToleranceDays }: schema.SetProductExpiryTolerance,
+    { group, name, days: expiryToleranceDays }: SetProductExpiryTolerance,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !name || !Number.isInteger(expiryToleranceDays) || expiryToleranceDays < 0) {
@@ -225,7 +232,7 @@ export async function renameProductsGroup(group: string, newGroup: string, sessi
 }
 
 export async function moveProduct(
-    { group, name, targetGroup, targetName }: schema.MoveProduct,
+    { group, name, targetGroup, targetName }: MoveProduct,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !name || !targetGroup || group === targetGroup) {
@@ -249,7 +256,7 @@ export async function moveProduct(
     );
 }
 
-export async function deleteProduct({ group, name }: schema.DeleteProduct, session: ClientSession): Promise<boolean> {
+export async function deleteProduct({ group, name }: DeleteProduct, session: ClientSession): Promise<boolean> {
     if (!group || !name) {
         return false;
     }

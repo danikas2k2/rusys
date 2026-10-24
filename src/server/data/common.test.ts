@@ -4,7 +4,7 @@ import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests
 
 import { ClientSession } from 'mongodb';
 
-import { SchemaError } from '~/schema/errors';
+import { SchemaError } from '~/schema';
 import {
     deleteGroupOccurrences,
     deleteVariantOccurrences,

@@ -1,6 +1,6 @@
 import { expect, test } from '@tests/fixtures/test';
 
-import type { Group, Product, Variant } from '~/common/data';
+import type { Group, Product, Variant } from '~/schema';
 
 test.describe('categories', () => {
     test('creates a category, persists its options, and discards a cancelled draft @critical', async ({ page, db }) => {

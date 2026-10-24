@@ -1,9 +1,9 @@
 import type { AvatarProps } from '@mantine/core';
 import React from 'react';
 
-import type { Variant } from '~/common/data';
 import { formatQuarter, formatVolume, formatWeight } from '~/common/utils/amounts';
 import { Thumbnail } from '~/components/common/Thumbnail';
+import type { Variant } from '~/schema';
 import { useVariant } from '~/store/variants';
 
 export interface VariantAvatarProps extends Pick<AvatarProps, 'size'> {

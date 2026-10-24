@@ -8,15 +8,15 @@ import { VariantAvatar } from '~/components/amounts/VariantAvatar';
 import { VariantTitle } from '~/components/amounts/VariantTitle';
 import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useLabels } from '~/lib/hooks/useLabels';
-import * as schema from '~/schema';
+import { consumedAmountSchema, type ConsumedAmount, type VariantAmount } from '~/schema';
 import { useGroupVariantComparator } from '~/store/variants';
 
 import './MoveConsumedForm.css';
 
 interface MoveConsumedFormProps {
     group: string;
-    lines: readonly schema.VariantAmount[];
-    onMove: (line: schema.VariantAmount, amount: number) => void;
+    lines: readonly VariantAmount[];
+    onMove: (line: VariantAmount, amount: number) => void;
     disabled?: boolean;
 }
 
@@ -24,9 +24,9 @@ export function MoveConsumedForm({ group, lines, onMove, disabled = false }: Mov
     const _ = useLabels();
     const compareVariants = useGroupVariantComparator(group);
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const form = useForm<schema.ConsumedAmount>({
+    const form = useForm<ConsumedAmount>({
         initialValues: { amount: 0 },
-        validate: schemaResolver(schema.consumedAmount, { sync: true }),
+        validate: schemaResolver(consumedAmountSchema, { sync: true }),
     });
     const amount = form.values.amount;
     const setAmount = form.setFieldValue;
@@ -62,7 +62,7 @@ export function MoveConsumedForm({ group, lines, onMove, disabled = false }: Mov
     );
 
     const handleMove = useCallback(
-        ({ amount: submittedAmount }: schema.ConsumedAmount) => {
+        ({ amount: submittedAmount }: ConsumedAmount) => {
             if (line && submittedAmount <= Math.abs(line.amount) && !disabled) {
                 onMove(line, submittedAmount);
                 setAmount('amount', 0);

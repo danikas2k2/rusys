@@ -34,7 +34,7 @@ import { ProductOption } from '~/features/products/ProductOption';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { equals } from '~/lib/utils/names';
-import { SchemaError, updateProduct, type UpdateProduct } from '~/schema';
+import { SchemaError, updateProductSchema, type UpdateProduct } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useProducts } from '~/store/products';
 
@@ -153,7 +153,7 @@ export function ProductBox({
             expiryTolerance: formatExpiryTolerance(initialExpiryToleranceDays),
         },
         validate: schemaResolver(
-            updateProduct
+            updateProductSchema
                 .refine(
                     ({ group, name }) =>
                         (group === initialGroup && name === initialName) ||
@@ -302,7 +302,7 @@ export function ProductBox({
 
         let failedField: 'name' | 'image' = 'name';
         try {
-            const values = updateProduct.parse(form.values);
+            const values = updateProductSchema.parse(form.values);
             const groupChanged = isEditing && values.group !== initialGroup;
             const nameRenamed = isEditing && values.name !== initialName && !groupChanged;
             const imageChanged = values.image !== initialImage;

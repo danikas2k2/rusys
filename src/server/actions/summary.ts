@@ -1,7 +1,6 @@
 'use server';
 
-import type { ProductHistory } from '~/common';
-import * as schema from '~/schema';
+import { productYearIdentitySchema, type ProductHistory, type ProductYearIdentity } from '~/schema';
 import { requireSession } from '~/server/auth/session';
 import { getSummaryHistoryData } from '~/server/data/actionHistory';
 import { getFullSummary } from '~/server/data/summary';
@@ -12,8 +11,8 @@ export async function readSummary() {
     return withinTransaction(getFullSummary);
 }
 
-export async function getSummaryHistory(request: schema.ProductYearIdentity): Promise<ProductHistory> {
+export async function getSummaryHistory(request: ProductYearIdentity): Promise<ProductHistory> {
     await requireSession();
-    const parsed = schema.productYearIdentity.parse(request);
+    const parsed = productYearIdentitySchema.parse(request);
     return withinTransaction((session) => getSummaryHistoryData(parsed, session));
 }

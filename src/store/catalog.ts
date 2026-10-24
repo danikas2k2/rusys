@@ -1,7 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query';
 
-import type { Product, Summary } from '~/common/data';
 import type { InitialAppData } from '~/components/app/initialData';
+import type { Product, Summary } from '~/schema';
 
 export const CATALOG_KEYS = {
     groups: ['catalog', 'groups'] as const,

@@ -7,7 +7,6 @@ import { MockTheme } from '@tests/MockTheme';
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import React from 'react';
 
-import type { Group } from '~/common/data';
 import { DraggableContent } from '~/components/common/DraggableContent';
 import { useReorderHandler } from '~/components/hooks/useReorderHandler';
 import { useQuickFilter } from '~/features/filters/QuickFilterContext';
@@ -15,6 +14,7 @@ import { GroupsTable } from '~/features/groups/GroupsTable';
 import { useGetGroups } from '~/features/groups/hooks/useGetGroups';
 import { useGroupsHasData } from '~/features/groups/hooks/useGroupsHasData';
 import { useReorderGroups } from '~/features/groups/hooks/useReorderGroups';
+import type { Group } from '~/schema';
 import { useGroups } from '~/store/groups';
 
 vi.mock(import('~/store/years/useYears'));

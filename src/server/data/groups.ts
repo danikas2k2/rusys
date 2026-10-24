@@ -1,8 +1,6 @@
 import type { ClientSession } from 'mongodb';
 
-import type { Group } from '~/common/data';
-import type * as schema from '~/schema';
-import { SchemaError } from '~/schema';
+import { SchemaError, type Group, type RenameGroup, type UpdateGroup } from '~/schema';
 import { getImageFieldUpdate, handleDuplicate, hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
 
@@ -22,7 +20,7 @@ export const getGroup = async (group: string, session: ClientSession): Promise<R
         .collection<Group>('groups')
         .findOne({ group, archivedAt: { $exists: false } }, { projection: { _id: 0 }, session });
 
-export async function updateGroup({ group, ...update }: schema.UpdateGroup, session: ClientSession): Promise<boolean> {
+export async function updateGroup({ group, ...update }: UpdateGroup, session: ClientSession): Promise<boolean> {
     if (!group) {
         return false;
     }
@@ -64,7 +62,7 @@ export async function updateGroup({ group, ...update }: schema.UpdateGroup, sess
 }
 
 export async function renameGroup(
-    { group, targetGroup, ...update }: schema.RenameGroup,
+    { group, targetGroup, ...update }: RenameGroup,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !targetGroup || group === targetGroup) {

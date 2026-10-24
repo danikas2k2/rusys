@@ -1,7 +1,7 @@
 /** @vitest-environment node */
 import { getGroupsFixture, getProductsFixture, getVariantsFixture } from '@tests/fixtures';
 
-import type { Summary } from '~/common/data';
+import type { Summary } from '~/schema';
 import { getGroups } from '~/server/data/groups';
 import {
     getFullSummary,

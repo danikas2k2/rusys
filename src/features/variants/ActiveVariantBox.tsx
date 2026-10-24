@@ -3,13 +3,13 @@ import React, { useCallback, useState } from 'react';
 
 import { ConfirmationDialogIcon, DeleteIcon } from '@icons';
 
-import type { Variant } from '~/common/data';
 import { ConfirmationDialog } from '~/components/common/ConfirmationDialog';
 import { DialogIcon } from '~/components/common/DialogIcon';
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useDeleteVariant } from '~/features/variants/hooks/useDeleteVariant';
 import { VariantBox } from '~/features/variants/VariantBox';
+import type { Variant } from '~/schema';
 
 export function ActiveVariantBox() {
     const [active, setActive] = useActiveContent<Variant>();

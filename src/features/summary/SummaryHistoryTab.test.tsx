@@ -3,11 +3,10 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 
 import React from 'react';
 
-import type { History, Summary } from '~/common/data';
 import { AmountsCell } from '~/components/amounts/AmountsCell';
 import { useGetSummaryHistory } from '~/features/summary/hooks/useGetSummaryHistory';
-import type { SummaryHistoryData } from '~/features/summary/SummaryAmounts';
 import { SummaryHistoryTab } from '~/features/summary/SummaryHistoryTab';
+import type { History, ProductAmounts, Summary } from '~/schema';
 import { useSummary } from '~/store/summary';
 
 vi.mock(import('~/features/summary/hooks/useGetSummaryHistory'), (): any => ({
@@ -27,7 +26,7 @@ vi.mock(import('~/components/amounts/AmountsCell'), (): any => ({
 }));
 
 describe('<SummaryHistoryTab>', () => {
-    const activeData: SummaryHistoryData = {
+    const activeData: ProductAmounts = {
         group: 'Vaisiai',
         name: 'Obuoliai',
         year: 2026,
@@ -376,7 +375,7 @@ describe('<SummaryHistoryTab>', () => {
                         group: 'G',
                         name: 'N',
                         amounts: [],
-                    } as unknown as SummaryHistoryData,
+                    } as unknown as ProductAmounts,
                 }}
             >
                 <SummaryHistoryTab />

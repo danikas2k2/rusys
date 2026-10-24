@@ -1,20 +1,25 @@
 import type { AnyBulkWriteOperation, ClientSession, Filter, UpdateFilter, WithId } from 'mongodb';
 
-import type { History, Product, Update } from '~/common/data';
 import { addVariantAmount, getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
-import type * as schema from '~/schema';
+import type {
+    ApplyReview,
+    History,
+    MoveConsumedToRecycled,
+    Product,
+    ProductYearIdentity,
+    SetAmounts,
+    SetProductMissing,
+    SetProductRemoving,
+    TransferAmounts,
+    Update,
+    VariantAmount,
+} from '~/schema';
 import { buildHistoryPipeline } from '~/server/data/history';
 import { assertSuccess, hasEffect } from '~/server/data/utils';
 import { copyVariants } from '~/server/data/variants';
 import { db } from '~/server/db';
 
-export const cleanupRecycled = ({
-    recycled,
-    suspicious,
-    home,
-    expiresAt,
-    ...v
-}: schema.VariantAmount): schema.VariantAmount => ({
+export const cleanupRecycled = ({ recycled, suspicious, home, expiresAt, ...v }: VariantAmount): VariantAmount => ({
     ...v,
     ...(recycled != null ? { recycled } : {}),
     ...(suspicious ? { suspicious } : {}),
@@ -22,10 +27,10 @@ export const cleanupRecycled = ({
     ...(expiresAt ? { expiresAt } : {}),
 });
 
-export const hasAmount = (a: schema.VariantAmount) => a.amount > 0;
+export const hasAmount = (a: VariantAmount) => a.amount > 0;
 
 export async function setAmounts(
-    { group, name, year, amounts: changes, comment }: schema.SetAmounts,
+    { group, name, year, amounts: changes, comment }: SetAmounts,
     user: string | undefined,
     session: ClientSession
 ): Promise<boolean> {
@@ -44,7 +49,7 @@ export async function setAmounts(
         (year ? product?.years?.find((y) => y.year === year)?.amounts : getCombinedAmounts(product?.years)) ?? [];
 
     // auto-consume home balance when cellar consumption starts for that variant
-    const autoHomeConsumes: schema.VariantAmount[] = [];
+    const autoHomeConsumes: VariantAmount[] = [];
     for (const change of changes) {
         if (!change.home && change.recycled === false && change.amount < 0) {
             const homeBalance = getVariantAmount(amounts, change.variant, false, true);
@@ -120,7 +125,7 @@ export async function setAmounts(
 
 /** Moves stock rows between products, preserving their flags and creating missing target-group variants. */
 export async function transferAmounts(
-    { group, name, year, targetGroup, targetName, amounts, comment }: schema.TransferAmounts,
+    { group, name, year, targetGroup, targetName, amounts, comment }: TransferAmounts,
     user: string | undefined,
     session: ClientSession
 ): Promise<boolean> {
@@ -139,7 +144,7 @@ export async function transferAmounts(
     }
     // A client normally submits one row per variant key, but combine duplicate rows before
     // validating the balance so an API request cannot transfer more than the source holds.
-    const requested = amounts.reduce(addVariantAmount, [] as readonly schema.VariantAmount[]);
+    const requested = amounts.reduce(addVariantAmount, [] as readonly VariantAmount[]);
 
     const col = (await db()).collection<Product>('products');
     const source = await col.findOne({ group, name }, { projection: { years: 1 }, session });
@@ -177,7 +182,7 @@ export async function transferAmounts(
 }
 
 export async function moveConsumedToRecycled(
-    { group, name, year, variant, amount, flags = {} }: schema.MoveConsumedToRecycled,
+    { group, name, year, variant, amount, flags = {} }: MoveConsumedToRecycled,
     user: string | undefined,
     session: ClientSession
 ): Promise<boolean> {
@@ -207,12 +212,12 @@ export async function moveConsumedToRecycled(
         .then(hasEffect);
 }
 
-function invertAmounts(amounts: readonly schema.VariantAmount[]): schema.VariantAmount[] {
+function invertAmounts(amounts: readonly VariantAmount[]): VariantAmount[] {
     return amounts.map((a) => ({ ...a, amount: -a.amount }));
 }
 
 export async function undoProduct(
-    { group, name, year }: schema.ProductYearIdentity,
+    { group, name, year }: ProductYearIdentity,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !name) {
@@ -287,7 +292,7 @@ export async function undoProduct(
 }
 
 export async function redoProduct(
-    { group, name, year }: schema.ProductYearIdentity,
+    { group, name, year }: ProductYearIdentity,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !name) {
@@ -368,7 +373,7 @@ export async function redoProduct(
 }
 
 export async function setRemoving(
-    { group, name, year, removing }: schema.SetProductRemoving,
+    { group, name, year, removing }: SetProductRemoving,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !name || !year) {
@@ -385,7 +390,7 @@ export async function setRemoving(
 }
 
 export async function setMissing(
-    { group, name, missing }: schema.SetProductMissing,
+    { group, name, missing }: SetProductMissing,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !name) {
@@ -397,7 +402,7 @@ export async function setMissing(
         .then(hasEffect);
 }
 
-export async function setMissingBulk({ updates }: schema.ApplyReview, session: ClientSession): Promise<boolean> {
+export async function setMissingBulk({ updates }: ApplyReview, session: ClientSession): Promise<boolean> {
     if (!updates?.length) {
         return false;
     }
@@ -411,7 +416,7 @@ export async function setMissingBulk({ updates }: schema.ApplyReview, session: C
 }
 
 async function getProductHistory(
-    { group, name, year }: schema.ProductYearIdentity,
+    { group, name, year }: ProductYearIdentity,
     field: 'updates' | 'undates',
     session: ClientSession
 ): Promise<History[]> {
@@ -426,16 +431,10 @@ async function getProductHistory(
         .toArray();
 }
 
-export async function getProductUpdates(
-    identity: schema.ProductYearIdentity,
-    session: ClientSession
-): Promise<History[]> {
+export async function getProductUpdates(identity: ProductYearIdentity, session: ClientSession): Promise<History[]> {
     return getProductHistory(identity, 'updates', session);
 }
 
-export async function getProductUndates(
-    identity: schema.ProductYearIdentity,
-    session: ClientSession
-): Promise<History[]> {
+export async function getProductUndates(identity: ProductYearIdentity, session: ClientSession): Promise<History[]> {
     return getProductHistory(identity, 'undates', session);
 }

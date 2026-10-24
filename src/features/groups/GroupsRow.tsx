@@ -3,11 +3,11 @@ import React from 'react';
 
 import { AnnualIcon, ReviewIcon } from '@icons';
 
-import type { Group } from '~/common/data';
 import { Label } from '~/components/common/Label';
 import { Thumbnail } from '~/components/common/Thumbnail';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { SortableRow } from '~/components/table/SortableRow';
+import type { Group } from '~/schema';
 
 interface GroupsRowProps {
     group: Group;

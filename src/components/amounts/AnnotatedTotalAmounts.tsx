@@ -1,7 +1,6 @@
 import { Text } from '@mantine/core';
 import React from 'react';
 
-import type { Variant } from '~/common/data';
 import {
     formatVolume,
     formatWeight,
@@ -11,8 +10,8 @@ import {
 import { orderedExpiryBuckets, partitionByExpiryStatus, type ExpiryStatus } from '~/common/utils/expiry';
 import { ExpiryStatusRow } from '~/components/amounts/ExpiryStatusRow';
 import { VariantValueSpans } from '~/components/amounts/VariantValueSpans';
-import type { VariantAmount } from '~/schema';
-import { useVariantsByGroup } from '~/store/variants';
+import type { Variant, VariantAmount } from '~/schema';
+import { useGroupVariants } from '~/store/variants';
 
 import './AnnotatedTotalAmounts.css';
 
@@ -82,7 +81,7 @@ export function AnnotatedTotalAmounts({
     amounts: readonly VariantAmount[];
     expiryToleranceDays?: number;
 }) {
-    const variants = useVariantsByGroup(group);
+    const variants = useGroupVariants(group);
     const buckets = partitionByExpiryStatus(amounts, new Date().getTime(), expiryToleranceDays);
     return (
         <span data-amounts-rows data-annotated>

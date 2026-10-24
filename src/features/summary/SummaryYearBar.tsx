@@ -2,14 +2,15 @@ import { Group, SegmentedControl, Stack } from '@mantine/core';
 import React, { useCallback, useMemo } from 'react';
 
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
-import { SummaryAmounts, type SummaryHistoryData } from '~/features/summary/SummaryAmounts';
+import { SummaryAmounts } from '~/features/summary/SummaryAmounts';
 import { SummaryYear } from '~/features/summary/SummaryYear';
+import type { ProductAmounts } from '~/schema';
 import { useSummary } from '~/store/summary';
 
 import '../common/YearTotal.css';
 
 export function SummaryYearBar() {
-    const [active, setActive] = useActiveContent<SummaryHistoryData>();
+    const [active, setActive] = useActiveContent<ProductAmounts>();
     const summary = useSummary();
     const activeData = active?.data;
 

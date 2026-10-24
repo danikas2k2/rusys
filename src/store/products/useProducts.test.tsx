@@ -5,7 +5,7 @@ import { mockQuery } from '@tests/MockQuery';
 
 import React from 'react';
 
-import type { Product } from '~/common/data';
+import type { Product } from '~/schema';
 import { getProductsAction } from '~/server/actions/products';
 import { CATALOG_KEYS } from '~/store/catalog';
 import { useProducts } from './useProducts';

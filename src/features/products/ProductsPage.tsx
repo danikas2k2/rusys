@@ -1,6 +1,5 @@
 import React from 'react';
 
-import type { Product } from '~/common/data';
 import { SwipeControls } from '~/components/runtime/SwipeControls';
 import { SwipeControlsWrapper } from '~/components/runtime/SwipeControlsContext';
 import { Page } from '~/features/common/Page';
@@ -16,6 +15,7 @@ import { MissingOnlyWrapper, useMissingOnly } from '~/features/products/MissingO
 import { MissingOnlyEffects } from '~/features/products/MissingOnlyEffects';
 import { ProductsGrid } from '~/features/products/ProductsGrid';
 import { UpdatingProductsWrapper } from '~/features/products/UpdatingProductsContext';
+import type { Product } from '~/schema';
 
 import './ProductsPage.css';
 

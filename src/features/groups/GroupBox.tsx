@@ -14,7 +14,7 @@ import { useUpdateGroup } from '~/features/groups/hooks/useUpdateGroup';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { equals } from '~/lib/utils/names';
-import * as schema from '~/schema';
+import { SchemaError, updateGroupSchema, type GroupIdentity } from '~/schema';
 import { useGroups } from '~/store/groups';
 
 interface GroupBoxProps {
@@ -55,10 +55,9 @@ export function GroupBox({
             image: initialImage,
         },
         validate: schemaResolver(
-            schema.updateGroup.refine(
-                ({ group }: schema.GroupIdentity) =>
-                    group === initialGroup || groups.every((g) => !equals(group, g.group)),
-                { path: ['group'], error: schema.SchemaError.CategoryAlreadyExists }
+            updateGroupSchema.refine(
+                ({ group }: GroupIdentity) => group === initialGroup || groups.every((g) => !equals(group, g.group)),
+                { path: ['group'], error: SchemaError.CategoryAlreadyExists }
             ),
             { sync: true }
         ),
@@ -129,7 +128,7 @@ export function GroupBox({
         }, 300);
 
         try {
-            const values = { ...form.values, ...schema.updateGroup.parse(form.values) };
+            const values = { ...form.values, ...updateGroupSchema.parse(form.values) };
             const groupRenamed = isEditing && values.group !== initialGroup;
             const annualChanged = values.annual !== initialAnnual;
             const reviewChanged = values.review !== initialReview;

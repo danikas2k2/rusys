@@ -4,7 +4,6 @@ import React, { useCallback, useMemo } from 'react';
 
 import { CollapseIcon, ExpandIcon, RecycledIcon } from '@icons';
 
-import type { Product, ProductAmounts as ProductAmountsType, RemovingYearAmounts } from '~/common/data';
 import { getCombinedAmounts } from '~/common/utils/amounts';
 import { getExpiryStatus, getWorstExpiryStatus } from '~/common/utils/expiry';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
@@ -13,7 +12,7 @@ import { IconButtonTooltip } from '~/components/common/IconButtonTooltip';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useSetProductMissing } from '~/features/products/hooks/useSetProductMissing';
 import { useLabels } from '~/lib/hooks/useLabels';
-import type { VariantAmount } from '~/schema';
+import type { Product, ProductAmounts, RemovingYearAmounts, VariantAmount } from '~/schema';
 
 import './ProductTile.css';
 
@@ -84,7 +83,7 @@ function ProductTileComponent({
         [year, years]
     );
 
-    const setActive = useSetActiveContent<ProductAmountsType>();
+    const setActive = useSetActiveContent<ProductAmounts>();
     const setMissing = useSetProductMissing();
 
     const handleClick = useCallback(() => {

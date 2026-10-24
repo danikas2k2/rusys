@@ -38,7 +38,6 @@ import {
     UpdateIcon,
 } from '@icons';
 
-import type { ProductAmounts } from '~/common/data';
 import { getCombinedAmounts, getVariantAmount } from '~/common/utils/amounts';
 import { formatDateOnly, getExpiryStatus, parseDateOnly } from '~/common/utils/expiry';
 import { ChangeBadge } from '~/components/amounts/ChangeBadge';
@@ -59,9 +58,9 @@ import { VariantImagePicker } from '~/features/products/VariantImagePicker';
 import { VariantBox } from '~/features/variants/VariantBox';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { prefersReducedMotion } from '~/lib/utils/motion';
-import type { VariantAmount } from '~/schema';
+import type { ProductAmounts, VariantAmount } from '~/schema';
 import { useProducts } from '~/store/products';
-import { useAllVariants, useGroupVariantComparator } from '~/store/variants';
+import { useGroupVariantComparator, useGroupVariantNames } from '~/store/variants';
 
 import './AmountVariantsTab.css';
 
@@ -158,7 +157,7 @@ export function AmountVariantsTab({ onChangesUpdate, onClose, scrollContainerRef
     const canUndo = undoCount > 0;
     const canRedo = redoCount > 0;
 
-    const allVariants = useAllVariants(group);
+    const allVariants = useGroupVariantNames(group);
     const compareVariants = useGroupVariantComparator(group);
 
     const presentKeys = useMemo(() => {

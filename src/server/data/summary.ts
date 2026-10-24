@@ -1,9 +1,7 @@
 import type { ClientSession, WithId } from 'mongodb';
 
-import type { Group, History, Product, Summary, Variant } from '~/common/data';
 import { addTypedVariantAmount } from '~/common/utils/amounts';
-import type * as schema from '~/schema';
-import { type VariantAmount } from '~/schema';
+import type { Group, History, Product, ProductYearIdentity, Summary, Variant, VariantAmount } from '~/schema';
 import { getGroups } from '~/server/data/groups';
 import { buildHistoryPipeline } from '~/server/data/history';
 import { getVariants } from '~/server/data/variants';
@@ -361,7 +359,7 @@ export const getFullSummary = async (
 };
 
 export async function getSummaryHistory(
-    { group, name, year }: schema.ProductYearIdentity,
+    { group, name, year }: ProductYearIdentity,
     field: 'updates' | 'undates',
     session: ClientSession
 ): Promise<History[]> {
@@ -409,12 +407,8 @@ export async function getSummaryHistory(
         .toArray();
 }
 
-export const getSummaryUpdates = async (
-    identity: schema.ProductYearIdentity,
-    session: ClientSession
-): Promise<History[]> => getSummaryHistory(identity, 'updates', session);
+export const getSummaryUpdates = async (identity: ProductYearIdentity, session: ClientSession): Promise<History[]> =>
+    getSummaryHistory(identity, 'updates', session);
 
-export const getSummaryUndates = async (
-    identity: schema.ProductYearIdentity,
-    session: ClientSession
-): Promise<History[]> => getSummaryHistory(identity, 'undates', session);
+export const getSummaryUndates = async (identity: ProductYearIdentity, session: ClientSession): Promise<History[]> =>
+    getSummaryHistory(identity, 'undates', session);

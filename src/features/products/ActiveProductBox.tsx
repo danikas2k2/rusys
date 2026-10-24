@@ -1,8 +1,8 @@
 import React, { useCallback, useRef } from 'react';
 
-import type { Product, ProductAmounts } from '~/common/data';
 import { useActiveContent, useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { ProductBox } from '~/features/products/ProductBox';
+import type { Product, ProductAmounts } from '~/schema';
 
 export function ActiveProductBox(): React.ReactElement {
     const [active, setActive] = useActiveContent<Product>();

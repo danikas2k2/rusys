@@ -1,6 +1,6 @@
 import { expect, test } from '@tests/fixtures/test';
 
-import type { Product, Variant } from '~/common/data';
+import type { Product, Variant } from '~/schema';
 
 test.describe('variants', () => {
     test('clips the category transition to the scrolled variants viewport', async ({ page, db }) => {

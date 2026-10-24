@@ -19,11 +19,11 @@ import { useLabels } from '~/lib/hooks/useLabels';
 import { deriveVariantKey } from '~/lib/utils/deriveVariantKey';
 import { getErrorMessage } from '~/lib/utils/errors';
 import { equals } from '~/lib/utils/names';
-import * as schema from '~/schema';
+import { createVariantSchema, DEFAULT_UNITS, SchemaError, type VariantIdentity, type VariantUnits } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useVariants } from '~/store/variants';
 
-const UNITS_OPTIONS: { value: schema.VariantUnits; label: string }[] = [
+const UNITS_OPTIONS: { value: VariantUnits; label: string }[] = [
     { value: 'vnt', label: 'vnt' },
     { value: 'l', label: 'l' },
     { value: 'kg', label: 'kg' },
@@ -38,7 +38,7 @@ interface VariantBoxProps {
     variant?: string;
     suffix?: string;
     count?: number;
-    units?: schema.VariantUnits;
+    units?: VariantUnits;
     onClose: (group?: string, variant?: string) => void;
     onAfterClose?: () => void;
     onDelete?: () => void;
@@ -46,7 +46,7 @@ interface VariantBoxProps {
     closeOnClickOutside?: boolean;
 }
 
-function resolveInitialName(variant: string, count: number | undefined, units: schema.VariantUnits): string {
+function resolveInitialName(variant: string, count: number | undefined, units: VariantUnits): string {
     return count && variant === deriveVariantKey(count, units) ? '' : variant;
 }
 
@@ -77,7 +77,7 @@ export function VariantBox({
     );
     const variants = useVariants();
 
-    const initialUnitsResolved = initialUnits ?? schema.DEFAULT_UNITS;
+    const initialUnitsResolved = initialUnits ?? DEFAULT_UNITS;
     const initialName = resolveInitialName(initialVariant, initialCount, initialUnitsResolved);
 
     const form = useForm<{
@@ -85,7 +85,7 @@ export function VariantBox({
         name: string;
         suffix: string;
         count: number | string | undefined;
-        units: schema.VariantUnits;
+        units: VariantUnits;
     }>({
         initialValues: {
             group: initialGroup || filterGroup || '',
@@ -97,17 +97,17 @@ export function VariantBox({
         validate: (values) => {
             // NumberInput uses strings for empty and incomplete numeric values.
             const errors = schemaResolver(
-                schema.createVariant.refine(
-                    ({ group, variant }: schema.VariantIdentity) =>
+                createVariantSchema.refine(
+                    ({ group, variant }: VariantIdentity) =>
                         (group === initialGroup && variant === initialVariant) ||
                         variants.every((v) => !equals(v.group, group) || !equals(v.variant, variant)),
-                    { path: ['name'], error: schema.SchemaError.VariantAlreadyExists }
+                    { path: ['name'], error: SchemaError.VariantAlreadyExists }
                 ),
                 { sync: true }
             )({ ...values, count: typeof values.count === 'number' ? values.count : undefined });
 
             return typeof values.count === 'string' && values.count !== ''
-                ? { ...errors, count: schema.SchemaError.AmountRequired }
+                ? { ...errors, count: SchemaError.AmountRequired }
                 : errors;
         },
     });
@@ -125,7 +125,7 @@ export function VariantBox({
 
     useEffect(() => {
         if (opened) {
-            const unitsResolved = initialUnits ?? schema.DEFAULT_UNITS;
+            const unitsResolved = initialUnits ?? DEFAULT_UNITS;
             const nameValue = resolveInitialName(initialVariant, initialCount, unitsResolved);
             formRef.current.setValues({
                 group: initialGroup || filterGroup || '',

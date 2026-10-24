@@ -2,7 +2,6 @@ import type { UniqueIdentifier } from '@dnd-kit/core';
 import { Table, Title } from '@mantine/core';
 import React, { useMemo } from 'react';
 
-import type { Variant } from '~/common/data';
 import { DraggableContent } from '~/components/common/DraggableContent';
 import { Label } from '~/components/common/Label';
 import { LoadableContent } from '~/components/common/LoadableContent';
@@ -20,6 +19,7 @@ import { useVariantsHasData } from '~/features/variants/hooks/useVariantsHasData
 import { VariantsRow } from '~/features/variants/VariantsRow';
 import { getId, parseId } from '~/lib/utils/id';
 import { mapOrder } from '~/lib/utils/mapOrder';
+import type { Variant } from '~/schema';
 
 import './VariantsTable.css';
 

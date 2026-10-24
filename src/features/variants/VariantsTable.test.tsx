@@ -7,7 +7,6 @@ import { MockTheme } from '@tests/MockTheme';
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import React from 'react';
 
-import type { Variant } from '~/common/data';
 import { DraggableContent } from '~/components/common/DraggableContent';
 import { useReorderHandler } from '~/components/hooks/useReorderHandler';
 import { useGroupFilter } from '~/features/filters/GroupFilterContext';
@@ -17,6 +16,7 @@ import { useGetVariants } from '~/features/variants/hooks/useGetVariants';
 import { useReorderVariants } from '~/features/variants/hooks/useReorderVariants';
 import { useVariantsHasData } from '~/features/variants/hooks/useVariantsHasData';
 import { VariantsTable } from '~/features/variants/VariantsTable';
+import type { Variant } from '~/schema';
 import { useGroups } from '~/store/groups';
 import { useVariants } from '~/store/variants';
 

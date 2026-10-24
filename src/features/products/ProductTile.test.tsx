@@ -4,10 +4,10 @@ import { MockApp } from '@tests/MockApp';
 
 import React from 'react';
 
-import type { Product } from '~/common/data';
 import { useSetActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useSetProductMissing } from '~/features/products/hooks/useSetProductMissing';
 import { ProductTile, type ProductTileProps } from '~/features/products/ProductTile';
+import type { Product } from '~/schema';
 
 vi.mock(import('~/components/runtime/ActiveContentContext'), async () => ({
     ...(await vi.importActual('~/components/runtime/ActiveContentContext')),

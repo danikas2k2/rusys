@@ -80,7 +80,8 @@ erDiagram
 ```
 
 `YEAR_AMOUNTS`, `VARIANT_AMOUNT`, and `UPDATE` are embedded in product documents; they are not separate collections.
-Dotted relationships are logical links, not MongoDB foreign keys. Full types are defined in `src/common/data.ts`.
+Dotted relationships are logical links, not MongoDB foreign keys. Data model schemas and their inferred types are
+defined by domain in `src/schema/` and exported through `~/schema`.
 
 ### Sign-in sequence
 

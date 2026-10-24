@@ -5,7 +5,7 @@ import React, { type ReactNode } from 'react';
 
 import { AmountSuffix } from '~/components/amounts/AmountSuffix';
 import { AnnotatedTotalAmounts } from '~/components/amounts/AnnotatedTotalAmounts';
-import { useGroupVariantComparator, useVariantsByGroup } from '~/store/variants';
+import { useGroupVariantComparator, useGroupVariants } from '~/store/variants';
 
 vi.mock(import('~/store/variants/useGroupVariantComparator'), () => ({
     useGroupVariantComparator: vi.fn().mockReturnValue(() => 0),
@@ -13,8 +13,8 @@ vi.mock(import('~/store/variants/useGroupVariantComparator'), () => ({
 vi.mock(import('~/components/amounts/AmountSuffix'), () => ({
     AmountSuffix: vi.fn().mockReturnValue(null),
 }));
-vi.mock(import('~/store/variants/useVariantsByGroup'), () => ({
-    useVariantsByGroup: vi.fn().mockReturnValue([]),
+vi.mock(import('~/store/variants/useGroupVariants'), () => ({
+    useGroupVariants: vi.fn().mockReturnValue([]),
 }));
 
 function render(ui: ReactNode) {
@@ -27,7 +27,7 @@ describe('<AnnotatedTotalAmounts>', () => {
     afterEach(() => vi.clearAllMocks());
 
     it('shows the converted total next to a parenthesized breakdown of its raw sources', () => {
-        vi.mocked(useVariantsByGroup).mockReturnValue([
+        vi.mocked(useGroupVariants).mockReturnValue([
             { group, variant: 'p', order: 0, units: 'l', count: 1 },
             { group, variant: 'd', order: 1, units: 'l', count: 1 },
         ]);
@@ -55,7 +55,7 @@ describe('<AnnotatedTotalAmounts>', () => {
     });
 
     it('gives each unit-family total its own sources, independent of the other', () => {
-        vi.mocked(useVariantsByGroup).mockReturnValue([
+        vi.mocked(useGroupVariants).mockReturnValue([
             { group, variant: 'p', order: 0, units: 'ml', count: 1 },
             { group, variant: 'd', order: 1, units: 'g', count: 1 },
         ]);
@@ -80,7 +80,7 @@ describe('<AnnotatedTotalAmounts>', () => {
     });
 
     it('gives a count total its own sources too', () => {
-        vi.mocked(useVariantsByGroup).mockReturnValue([{ group, variant: 'p', order: 0, units: 'vnt', count: 2 }]);
+        vi.mocked(useGroupVariants).mockReturnValue([{ group, variant: 'p', order: 0, units: 'vnt', count: 2 }]);
 
         const { container } = render(<AnnotatedTotalAmounts group={group} amounts={[{ variant: 'p', amount: 3 }]} />);
 
@@ -92,7 +92,7 @@ describe('<AnnotatedTotalAmounts>', () => {
 
     describe('redundant single-source breakdown', () => {
         it('hides the breakdown when a single volume source already reads the same as the total', () => {
-            vi.mocked(useVariantsByGroup).mockReturnValue([{ group, variant: 'p', order: 0, units: 'l', count: 1 }]);
+            vi.mocked(useGroupVariants).mockReturnValue([{ group, variant: 'p', order: 0, units: 'l', count: 1 }]);
 
             const { container } = render(
                 <AnnotatedTotalAmounts group={group} amounts={[{ variant: 'p', amount: 2 }]} />
@@ -105,7 +105,7 @@ describe('<AnnotatedTotalAmounts>', () => {
         });
 
         it('hides the breakdown when a single weight source already reads the same as the total', () => {
-            vi.mocked(useVariantsByGroup).mockReturnValue([{ group, variant: 'p', order: 0, units: 'kg', count: 1 }]);
+            vi.mocked(useGroupVariants).mockReturnValue([{ group, variant: 'p', order: 0, units: 'kg', count: 1 }]);
 
             const { container } = render(
                 <AnnotatedTotalAmounts group={group} amounts={[{ variant: 'p', amount: 2 }]} />
@@ -118,7 +118,7 @@ describe('<AnnotatedTotalAmounts>', () => {
         });
 
         it('hides the breakdown when a single count source already reads the same as the total', () => {
-            vi.mocked(useVariantsByGroup).mockReturnValue([{ group, variant: 'p', order: 0, units: 'vnt' }]);
+            vi.mocked(useGroupVariants).mockReturnValue([{ group, variant: 'p', order: 0, units: 'vnt' }]);
 
             const { container } = render(
                 <AnnotatedTotalAmounts group={group} amounts={[{ variant: 'p', amount: 6 }]} />
@@ -131,7 +131,7 @@ describe('<AnnotatedTotalAmounts>', () => {
         });
 
         it('still shows the breakdown for a single source once a unit conversion makes the numbers diverge', () => {
-            vi.mocked(useVariantsByGroup).mockReturnValue([{ group, variant: 'p', order: 0, units: 'ml', count: 1 }]);
+            vi.mocked(useGroupVariants).mockReturnValue([{ group, variant: 'p', order: 0, units: 'ml', count: 1 }]);
 
             const { container } = render(
                 <AnnotatedTotalAmounts group={group} amounts={[{ variant: 'p', amount: 5000 }]} />
@@ -144,7 +144,7 @@ describe('<AnnotatedTotalAmounts>', () => {
         });
 
         it('still shows the breakdown once a second source exists, even if the first alone would read the same', () => {
-            vi.mocked(useVariantsByGroup).mockReturnValue([
+            vi.mocked(useGroupVariants).mockReturnValue([
                 { group, variant: 'p', order: 0, units: 'l', count: 1 },
                 { group, variant: 'd', order: 1, units: 'l', count: 1 },
             ]);
@@ -167,7 +167,7 @@ describe('<AnnotatedTotalAmounts>', () => {
     });
 
     it('appends unitless amounts after the unit-aware totals, unannotated', () => {
-        vi.mocked(useVariantsByGroup).mockReturnValue([{ group, variant: 'p', order: 0, units: 'ml', count: 1 }]);
+        vi.mocked(useGroupVariants).mockReturnValue([{ group, variant: 'p', order: 0, units: 'ml', count: 1 }]);
 
         const { container } = render(
             <AnnotatedTotalAmounts
@@ -189,7 +189,7 @@ describe('<AnnotatedTotalAmounts>', () => {
     it('keeps sources scoped to their own expiry-status row', () => {
         const now = new Date().getTime();
         const dayMs = 24 * 60 * 60 * 1000;
-        vi.mocked(useVariantsByGroup).mockReturnValue([{ group, variant: 'p', order: 0, units: 'ml', count: 1 }]);
+        vi.mocked(useGroupVariants).mockReturnValue([{ group, variant: 'p', order: 0, units: 'ml', count: 1 }]);
 
         const { container } = render(
             <AnnotatedTotalAmounts
@@ -210,7 +210,7 @@ describe('<AnnotatedTotalAmounts>', () => {
     });
 
     it('calls useGroupVariantComparator with the group for the unitless fallback', () => {
-        vi.mocked(useVariantsByGroup).mockReturnValue([]);
+        vi.mocked(useGroupVariants).mockReturnValue([]);
 
         render(<AnnotatedTotalAmounts group={group} amounts={[{ variant: 'p', amount: 3 }]} />);
 
@@ -218,7 +218,7 @@ describe('<AnnotatedTotalAmounts>', () => {
     });
 
     it('routes source and unitless amounts through AmountSuffix', () => {
-        vi.mocked(useVariantsByGroup).mockReturnValue([{ group, variant: 'p', order: 0, units: 'ml', count: 1 }]);
+        vi.mocked(useGroupVariants).mockReturnValue([{ group, variant: 'p', order: 0, units: 'ml', count: 1 }]);
 
         render(
             <AnnotatedTotalAmounts

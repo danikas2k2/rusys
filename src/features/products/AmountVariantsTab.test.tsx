@@ -5,15 +5,15 @@ import { MockThemeActive } from '@tests/MockThemeActive';
 import { Select } from '@mantine/core';
 import React from 'react';
 
-import type { ProductAmounts } from '~/common/data';
 import { AmountVariantRow } from '~/features/products/AmountVariantRow';
 import { AmountVariantsTab } from '~/features/products/AmountVariantsTab';
 import { useRedoProduct } from '~/features/products/hooks/useRedoProduct';
 import { useSetAmounts } from '~/features/products/hooks/useSetAmounts';
 import { useUndoProduct } from '~/features/products/hooks/useUndoProduct';
 import { VariantBox } from '~/features/variants/VariantBox';
+import type { ProductAmounts } from '~/schema';
 import { useProducts } from '~/store/products';
-import { useAllVariants } from '~/store/variants';
+import { useGroupVariantNames } from '~/store/variants';
 
 vi.mock(import('~/features/products/MoveVariantsBox'), () => ({
     MoveVariantsBox: ({ amounts, onMoved }: any) => (
@@ -128,8 +128,8 @@ vi.mock(import('~/features/products/AmountVariantRow'), () => ({
     )),
 }));
 
-vi.mock(import('~/store/variants/useAllVariants'), () => ({
-    useAllVariants: vi.fn(() => ['p', 'd', 'm']),
+vi.mock(import('~/store/variants/useGroupVariantNames'), () => ({
+    useGroupVariantNames: vi.fn(() => ['p', 'd', 'm']),
 }));
 
 vi.mock(import('~/store/variants/useVariant'), () => ({
@@ -711,7 +711,7 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('auto-selects the sole variant when nothing is entered yet', () => {
-        vi.mocked(useAllVariants).mockReturnValue(['x']);
+        vi.mocked(useGroupVariantNames).mockReturnValue(['x']);
 
         renderTab({ group, name: 'Avietės', year: 2023, amounts: [] });
 
@@ -719,7 +719,7 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('does not auto-select when more than one variant is available', () => {
-        vi.mocked(useAllVariants).mockReturnValue(['x', 'y']);
+        vi.mocked(useGroupVariantNames).mockReturnValue(['x', 'y']);
 
         renderTab({ group, name: 'Avietės', year: 2023, amounts: [] });
 
@@ -728,7 +728,7 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('does not auto-select the remaining variant when others are already entered', () => {
-        vi.mocked(useAllVariants).mockReturnValue(['p', 'd', 'm']);
+        vi.mocked(useGroupVariantNames).mockReturnValue(['p', 'd', 'm']);
 
         renderTab();
 
@@ -736,7 +736,7 @@ describe('<AmountVariantsTab>', () => {
     });
 
     it('re-selecting the sole variant after cancelling does not immediately reappear', async () => {
-        vi.mocked(useAllVariants).mockReturnValue(['x']);
+        vi.mocked(useGroupVariantNames).mockReturnValue(['x']);
 
         renderTab({ group, name: 'Avietės', year: 2023, amounts: [] });
 
@@ -762,7 +762,7 @@ describe('<AmountVariantsTab>', () => {
     it('does not call updateProduct when Update is clicked with no active content', async () => {
         const mockUpdate = vi.fn().mockResolvedValue(undefined);
         vi.mocked(useSetAmounts).mockReturnValue(mockUpdate);
-        vi.mocked(useAllVariants).mockReturnValue(['p', 'd', 'm']);
+        vi.mocked(useGroupVariantNames).mockReturnValue(['p', 'd', 'm']);
 
         render(
             <MockThemeActive active={undefined}>

@@ -1,7 +1,16 @@
 'use server';
 
-import { type Group } from '~/common';
-import * as schema from '~/schema';
+import {
+    deleteGroupSchema,
+    renameGroupSchema,
+    reorderGroupsSchema,
+    updateGroupSchema,
+    type DeleteGroup,
+    type Group,
+    type RenameGroup,
+    type ReorderGroups,
+    type UpdateGroup,
+} from '~/schema';
 import { requireSession } from '~/server/auth/session';
 import { deleteGroup, getGroups, renameGroup, reorderGroups, updateGroup } from '~/server/data/groups';
 import { renameProductsGroup } from '~/server/data/products/mutations';
@@ -14,15 +23,15 @@ export async function getGroupsAction(): Promise<readonly Group[]> {
     return withinTransaction(getGroups);
 }
 
-export async function updateGroupAction(request: schema.UpdateGroup): Promise<void> {
+export async function updateGroupAction(request: UpdateGroup): Promise<void> {
     await requireSession();
-    const parsed = schema.updateGroup.parse(request);
+    const parsed = updateGroupSchema.parse(request);
     return withinTransaction((session) => updateGroup(parsed, session)).then(assertSuccess);
 }
 
-export async function renameGroupAction(request: schema.RenameGroup): Promise<void> {
+export async function renameGroupAction(request: RenameGroup): Promise<void> {
     await requireSession();
-    const parsed = schema.renameGroup.parse(request);
+    const parsed = renameGroupSchema.parse(request);
     return withinTransaction(async (session) => {
         const { group, targetGroup } = parsed;
         if (group === targetGroup) {
@@ -37,14 +46,14 @@ export async function renameGroupAction(request: schema.RenameGroup): Promise<vo
     }).then(assertSuccess);
 }
 
-export async function deleteGroupAction(request: schema.DeleteGroup): Promise<void> {
+export async function deleteGroupAction(request: DeleteGroup): Promise<void> {
     await requireSession();
-    const { group } = schema.deleteGroup.parse(request);
+    const { group } = deleteGroupSchema.parse(request);
     return withinTransaction((session) => deleteGroup(group, session)).then(assertSuccess);
 }
 
-export async function reorderGroupsAction(request: schema.ReorderGroups): Promise<void> {
+export async function reorderGroupsAction(request: ReorderGroups): Promise<void> {
     await requireSession();
-    const { groups } = schema.reorderGroups.parse(request);
+    const { groups } = reorderGroupsSchema.parse(request);
     return withinTransaction((session) => reorderGroups(groups, session)).then(assertSuccess);
 }

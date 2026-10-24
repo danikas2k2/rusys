@@ -1,8 +1,6 @@
 import { type ClientSession } from 'mongodb';
 
-import type { Variant } from '~/common/data';
-import type * as schema from '~/schema';
-import { SchemaError } from '~/schema/errors';
+import { SchemaError, type CopyVariant, type RenameVariant, type UpdateVariant, type Variant } from '~/schema';
 import { handleDuplicate, hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
 
@@ -68,7 +66,7 @@ export const getVariant = async (
         .findOne({ group, variant, archivedAt: { $exists: false } }, { projection: { _id: 0 }, session });
 
 export async function updateVariant(
-    { group, variant, ...update }: schema.UpdateVariant,
+    { group, variant, ...update }: UpdateVariant,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !variant) {
@@ -107,7 +105,7 @@ export async function updateVariant(
 }
 
 export async function renameVariant(
-    { group, variant, targetVariant: newVariant, order, suffix, count, units }: schema.RenameVariant,
+    { group, variant, targetVariant: newVariant, order, suffix, count, units }: RenameVariant,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !variant || !newVariant || variant === newVariant) {
@@ -153,7 +151,7 @@ export const renameVariantsGroup = async (group: string, newGroup: string, sessi
         : false;
 
 export async function copyVariant(
-    { group, variant, targetGroup, targetVariant, order, suffix, count, units }: schema.CopyVariant,
+    { group, variant, targetGroup, targetVariant, order, suffix, count, units }: CopyVariant,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !variant || !targetGroup || group === targetGroup) {

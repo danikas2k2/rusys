@@ -1,11 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
-import type { Product } from '~/common/data';
 import { useGetProducts } from '~/features/products/hooks/useGetProducts';
 import { runProductMutation } from '~/lib/productMutationQueue';
 import { getErrorMessage } from '~/lib/utils/errors';
-import type { SetProductRemoving } from '~/schema';
+import type { Product, SetProductRemoving } from '~/schema';
 import { setProductRemovingAction } from '~/server/actions/products';
 import { CATALOG_KEYS } from '~/store/catalog';
 import { useError } from '~/store/error/useError';

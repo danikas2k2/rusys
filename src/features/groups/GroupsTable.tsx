@@ -2,7 +2,6 @@ import type { UniqueIdentifier } from '@dnd-kit/core';
 import { Table, Title } from '@mantine/core';
 import React from 'react';
 
-import type { Group } from '~/common/data';
 import { DraggableContent } from '~/components/common/DraggableContent';
 import { Label } from '~/components/common/Label';
 import { LoadableContent } from '~/components/common/LoadableContent';
@@ -19,6 +18,7 @@ import { useReorderGroups } from '~/features/groups/hooks/useReorderGroups';
 import { useSortedGroups } from '~/features/groups/hooks/useSortedGroups';
 import { parseId } from '~/lib/utils/id';
 import { mapOrder } from '~/lib/utils/mapOrder';
+import type { Group } from '~/schema';
 
 import './GroupsTable.css';
 

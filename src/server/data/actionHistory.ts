@@ -1,12 +1,11 @@
 import type { ClientSession } from 'mongodb';
 
-import type { ProductHistory } from '~/common/data';
-import type * as schema from '~/schema';
+import type { ProductHistory, ProductYearIdentity } from '~/schema';
 import { getProductUndates, getProductUpdates } from '~/server/data/products';
 import { getSummaryUndates, getSummaryUpdates } from '~/server/data/summary';
 
 export async function getProductHistoryData(
-    request: schema.ProductYearIdentity,
+    request: ProductYearIdentity,
     session: ClientSession
 ): Promise<ProductHistory> {
     const updates = await getProductUpdates(request, session);
@@ -15,7 +14,7 @@ export async function getProductHistoryData(
 }
 
 export async function getSummaryHistoryData(
-    request: schema.ProductYearIdentity,
+    request: ProductYearIdentity,
     session: ClientSession
 ): Promise<ProductHistory> {
     const updates = await getSummaryUpdates(request, session);

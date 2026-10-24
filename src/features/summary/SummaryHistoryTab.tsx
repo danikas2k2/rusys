@@ -1,18 +1,17 @@
 import { Divider, Flex, Loader, Table } from '@mantine/core';
 import React, { useEffect } from 'react';
 
-import type { History } from '~/common/data';
 import { Label } from '~/components/common/Label';
 import { useActiveContent } from '~/components/runtime/ActiveContentContext';
 import { useGetSummaryHistory } from '~/features/summary/hooks/useGetSummaryHistory';
-import { type SummaryHistoryData } from '~/features/summary/SummaryAmounts';
 import { SummaryHistoryRow } from '~/features/summary/SummaryHistoryRow';
+import type { History, ProductAmounts } from '~/schema';
 import { useSummary } from '~/store/summary';
 
 import './SummaryHistoryTab.css';
 
 export function SummaryHistoryTab() {
-    const [active] = useActiveContent<SummaryHistoryData>();
+    const [active] = useActiveContent<ProductAmounts>();
     const activeData = active?.data;
     const group = activeData?.group ?? '';
     const name = activeData?.name ?? '';

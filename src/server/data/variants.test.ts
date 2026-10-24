@@ -7,7 +7,7 @@ import {
 
 import { MongoError } from 'mongodb';
 
-import { SchemaError } from '~/schema/errors';
+import { SchemaError } from '~/schema';
 import { $all } from '~/server/data/tests/utils';
 import {
     copyVariant as copyVariantData,

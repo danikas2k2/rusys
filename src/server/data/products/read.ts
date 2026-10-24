@@ -1,6 +1,6 @@
 import type { ClientSession, Filter } from 'mongodb';
 
-import type { Product } from '~/common/data';
+import type { Product } from '~/schema';
 import { getYears } from '~/server/data/years';
 import { db } from '~/server/db';
 

@@ -1,7 +1,7 @@
 import { currentYear } from '@tests/fixtures/data';
 import { expect, test } from '@tests/fixtures/test';
 
-import type { Product } from '~/common/data';
+import type { Product } from '~/schema';
 
 test.use({ scenario: 'history' });
 

@@ -1,15 +1,11 @@
 import type { ClientSession } from 'mongodb';
 
-import type { Product } from '~/common/data';
-import type * as schema from '~/schema';
+import type { Product, SetProductImage, SetVariantImage } from '~/schema';
 import { imageFieldUpdate, resolveImage } from '~/server/data/resolveImage';
 import { hasEffect } from '~/server/data/utils';
 import { db } from '~/server/db';
 
-export async function setImage(
-    { group, name, image }: schema.SetProductImage,
-    session: ClientSession
-): Promise<boolean> {
+export async function setImage({ group, name, image }: SetProductImage, session: ClientSession): Promise<boolean> {
     if (!group || !name) {
         return false;
     }
@@ -27,7 +23,7 @@ export async function setImage(
 }
 
 export async function setVariantImage(
-    { group, name, variant, image }: schema.SetVariantImage,
+    { group, name, variant, image }: SetVariantImage,
     session: ClientSession
 ): Promise<boolean> {
     if (!group || !name || !variant) {

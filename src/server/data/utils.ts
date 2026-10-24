@@ -7,7 +7,7 @@ import {
     type UpdateResult,
 } from 'mongodb';
 
-import * as schema from '~/schema';
+import { SchemaError } from '~/schema';
 import { imageFieldUpdate, resolveImage } from '~/server/data/resolveImage';
 
 export const hasEffect = (
@@ -21,7 +21,7 @@ export const hasEffect = (
 
 export async function assertSuccess(result: boolean): Promise<void> {
     if (!result) {
-        throw new Error(schema.SchemaError.RequestFailed);
+        throw new Error(SchemaError.RequestFailed);
     }
 }
 

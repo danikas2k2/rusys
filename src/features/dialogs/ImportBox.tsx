@@ -21,7 +21,7 @@ import { useImportHandler } from '~/lib/hooks/useImportHandler';
 import { useLabel } from '~/lib/hooks/useLabel';
 import { useLabels } from '~/lib/hooks/useLabels';
 import { getErrorMessage } from '~/lib/utils/errors';
-import { SchemaError as errorMessage } from '~/schema';
+import { SchemaError } from '~/schema';
 
 interface ImportBoxProps {
     opened?: boolean;
@@ -46,7 +46,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
     }, []);
 
     const handleReject = useCallback(() => {
-        setError(errorMessage.InvalidZipFile);
+        setError(SchemaError.InvalidZipFile);
     }, []);
 
     const handleSubmit = useCallback(async () => {
@@ -65,7 +65,7 @@ export function ImportBox({ opened = false, onClose }: ImportBoxProps) {
             router.refresh();
         } catch (cause) {
             const message = getErrorMessage(cause);
-            setError(message === errorMessage.Unknown ? errorMessage.ImportFailed : message);
+            setError(message === SchemaError.Unknown ? SchemaError.ImportFailed : message);
         } finally {
             setLoading(false);
             setProgress(undefined);
