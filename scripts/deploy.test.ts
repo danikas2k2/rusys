@@ -125,7 +125,7 @@ describe('deploy previous slot cleanup', () => {
             const script = String(options?.input);
             scripts.push(script);
             if (script.includes('MONGODB_MONITORING_PREFLIGHT') && missingMongoSecret) {
-                throw new Error('Set MONGODB_MONITORING_URI in the NAS .env after the authorization rollout');
+                throw new Error('Set DB_MONITORING_URI in the NAS .env after the authorization rollout');
             }
             if (script.includes('error.code === 13')) {
                 const checks = scripts.filter((value) => value.includes('error.code === 13')).length;

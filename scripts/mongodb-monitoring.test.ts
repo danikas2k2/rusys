@@ -58,7 +58,7 @@ describe.skipIf(process.env.RUN_DOCKER_TESTS !== '1')('mongoDB monitoring securi
                 '-v',
                 '/var/run/docker.sock:/var/run/docker.sock:ro',
                 '-e',
-                `MONGODB_MONITORING_URI=${uri}`,
+                `DB_MONITORING_URI=${uri}`,
                 'grafana/alloy:v1.20.1',
                 'run',
                 '--server.http.listen-addr=0.0.0.0:12345',
