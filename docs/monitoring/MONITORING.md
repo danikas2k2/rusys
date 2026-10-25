@@ -8,6 +8,10 @@ RUSYS uses Grafana Cloud for external uptime checks, NAS/Docker metrics, and Doc
 | Grafana Alloy on the NAS → host and Docker metrics → Grafana Cloud                | Alloy deployment is implemented; verify metric coverage in the target stack.                                                                                                                                                               | [Development and deployment](../DEVELOPMENT-AND-DEPLOYMENT.md#deployment-and-rollback) |
 | Grafana Alloy on the NAS → sanitized Docker logs → Grafana Cloud Loki             | Deployed and verified through Grafana’s Loki API on 2026-10-24: both application slots, MongoDB, gateway, and Alloy produce structured logs.                                                                                               | [Docker logging](DOCKER-LOGGING.md)                                                    |
 
+MongoDB metrics are configured in the repository and await the approved authorization rollout and production Explore
+verification. The [MongoDB metrics guide](MONGODB-METRICS.md) covers the private path, dedicated account, NAS secret,
+deployment prerequisite, and connection/operation queries.
+
 The public probe checks RUSYS from outside the NAS. It continues to detect a site outage if Alloy is unavailable.
 `/api/health` is a lightweight Next.js liveness route, so it does not require MongoDB or Alloy. The uptime dashboard
 shows availability, last check time, response time, uptime over the selected range, and check/incident history.

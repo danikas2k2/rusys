@@ -112,7 +112,9 @@ describe('deploy previous slot cleanup', () => {
         activeAfterSwitch: 'blue' | 'green' = 'green',
         monitoringRunning = true,
         failAlloyValidation = false,
-        failNginxValidation = false
+        failNginxValidation = false,
+        failMongoAuthorizationCheck = 0,
+        missingMongoSecret = false
     ) {
         const scripts: string[] = [];
         vi.mocked(execFileSync).mockImplementation((file, _args, options) => {
@@ -121,6 +123,15 @@ describe('deploy previous slot cleanup', () => {
             }
             const script = String(options?.input);
             scripts.push(script);
+            if (script.includes('MONGODB_MONITORING_PREFLIGHT') && missingMongoSecret) {
+                throw new Error('Set MONGODB_MONITORING_URI in the NAS .env after the authorization rollout');
+            }
+            if (script.includes('error.code === 13')) {
+                const checks = scripts.filter((value) => value.includes('error.code === 13')).length;
+                if (checks === failMongoAuthorizationCheck) {
+                    throw new Error('MongoDB authorization is not enforced');
+                }
+            }
             if (script.includes('nginx -t') && failNginxValidation) {
                 throw new Error('Invalid Nginx configuration');
             }
@@ -233,6 +244,39 @@ describe('deploy previous slot cleanup', () => {
         expect(restore).toBeGreaterThan(scripts.indexOf(reloads[0]));
         expect(restore).toBeLessThan(scripts.lastIndexOf(reloads[1]));
         expect(scripts.some((script) => script.includes('stop rusys-app-blue'))).toBe(false);
+    });
+
+    it.each([1, 2])(
+        'stops deployment on MongoDB authorization check %i before activating monitoring',
+        async (check) => {
+            const scripts = mockRemote('17\n', false, 'green', true, false, false, check);
+            vi.spyOn(console, 'error').mockImplementation(() => {});
+            vi.spyOn(process, 'exit').mockImplementation(() => {
+                throw new Error('Deployment exited');
+            });
+
+            await expect(deployment()).rejects.toThrow('Deployment exited');
+
+            expect(scripts.some((script) => script.includes('up -d --no-deps --force-recreate monitoring'))).toBe(
+                false
+            );
+            expect(scripts.some((script) => script.includes('build rusys-app-green'))).toBe(false);
+            expect(scripts.some((script) => script.includes('up -d --no-deps rusys-db'))).toBe(check === 2);
+            expect(vi.mocked(execFileSync).mock.calls.some(([file]) => file === 'rsync')).toBe(check === 2);
+        }
+    );
+
+    it('preserves remote configuration when the NAS monitoring URI is missing or empty', async () => {
+        const scripts = mockRemote('17\n', false, 'green', true, false, false, 0, true);
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        vi.spyOn(process, 'exit').mockImplementation(() => {
+            throw new Error('Deployment exited');
+        });
+
+        await expect(deployment()).rejects.toThrow('Deployment exited');
+
+        expect(vi.mocked(execFileSync).mock.calls.some(([file]) => file === 'rsync')).toBe(false);
+        expect(scripts.some((script) => script.includes('up -d'))).toBe(false);
     });
 
     it('does not build the app when Alloy fails to start', async () => {

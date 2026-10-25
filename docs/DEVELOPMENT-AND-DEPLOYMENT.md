@@ -154,17 +154,23 @@ Cloud Loki. The [Docker logging guide](monitoring/DOCKER-LOGGING.md) describes p
 verification. It uses host networking so Unix network metrics reflect the NAS, and binds its local status UI only to
 `127.0.0.1:12345` on the NAS. Its write-ahead log uses a persistent Docker volume across recreations.
 
+MongoDB metrics use a dedicated `clusterMonitor` account over the discovered private Docker bridge address. The
+[MongoDB metrics guide](monitoring/MONGODB-METRICS.md) describes the required authorization rollout before deployment;
+deployment refuses to continue while MongoDB accepts unauthenticated `serverStatus`. The current database command still
+requires that separately approved rollout. Database and metrics ports must remain unpublished.
+
 Set these values in the server's `.env` before deploying; Compose refuses to start if any is empty:
 
-| Name               | Value                                                                 |
-| ------------------ | --------------------------------------------------------------------- |
-| `GC_METRICS_URL`   | Grafana Cloud Prometheus remote write URL                             |
-| `GC_METRICS_USER`  | Grafana Cloud Prometheus username or instance ID                      |
-| `GC_METRICS_TOKEN` | Grafana Cloud token with metrics write permission                     |
-| `GC_LOKI_URL`      | Grafana Cloud Loki push endpoint ending in `/loki/api/v1/push`        |
-| `GC_LOKI_USER`     | Grafana Cloud logs instance ID                                        |
-| `GC_LOKI_TOKEN`    | Grafana Cloud token with `logs:write` permission                      |
-| `DOCKER_ROOT_DIR`  | NAS Docker data root from `docker info --format '{{.DockerRootDir}}'` |
+| Name                     | Value                                                                                         |
+| ------------------------ | --------------------------------------------------------------------------------------------- |
+| `GC_METRICS_URL`         | Grafana Cloud Prometheus remote write URL                                                     |
+| `GC_METRICS_USER`        | Grafana Cloud Prometheus username or instance ID                                              |
+| `GC_METRICS_TOKEN`       | Grafana Cloud token with metrics write permission                                             |
+| `GC_LOKI_URL`            | Grafana Cloud Loki push endpoint ending in `/loki/api/v1/push`                                |
+| `GC_LOKI_USER`           | Grafana Cloud logs instance ID                                                                |
+| `GC_LOKI_TOKEN`          | Grafana Cloud token with `logs:write` permission                                              |
+| `DOCKER_ROOT_DIR`        | NAS Docker data root from `docker info --format '{{.DockerRootDir}}'`                         |
+| `MONGODB_MONITORING_URI` | Dedicated monitoring URI; see the MongoDB guide for authority and authorization prerequisites |
 
 Alloy's cAdvisor exporter requires privileged mode and host filesystem mounts according to the
 [Grafana Alloy Docker guidance](https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.exporter.cadvisor/).
@@ -176,7 +182,7 @@ Synology installations may not use `/var/lib/docker`. The configured directory m
 bind mount and container metrics will be incomplete.
 
 After deployment, check Grafana Cloud Explore for `up{project="rusys",environment="production",host="synology-ds923"}`
-and confirm both scrape jobs report `1`. Check `node_network_receive_bytes_total` for NAS interfaces and
+and confirm host and container scrape jobs report `1`. Check `node_network_receive_bytes_total` for NAS interfaces and
 `container_cpu_usage_seconds_total` and `container_memory_working_set_bytes` for containers. Confirm host CPU/RAM and
 container CPU/RAM series first, then inspect which disk and filesystem I/O series are available. A running Alloy
 container confirms startup only; it does not confirm successful scraping or Cloud authentication. If metrics are absent,
