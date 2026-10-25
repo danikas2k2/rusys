@@ -191,7 +191,7 @@ services:
   monitoring-preflight:
     image: grafana/alloy:v1.20.1
     environment:
-      MONGODB_MONITORING_URI: \${MONGODB_MONITORING_URI:?Set MONGODB_MONITORING_URI in the NAS .env after the authorization rollout}
+      DB_MONITORING_URI: \${DB_MONITORING_URI:?Set DB_MONITORING_URI in the NAS .env after the authorization rollout}
 MONGODB_MONITORING_PREFLIGHT
 `);
 }

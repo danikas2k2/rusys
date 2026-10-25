@@ -64,8 +64,8 @@ prometheus.exporter.mongodb "rusys" {
   // fields and reconstruct the address/options so URI content cannot redirect
   // credentials outside the discovered private database, even via extra @ or /.
   mongodb_uri = "mongodb://" +
-    string.replace(encoding.url_encode(encoding.url_decode(string.split(string.split(sys.env("MONGODB_MONITORING_URI"), "mongodb://")[1], ":")[0])), "+", "%20") + ":" +
-    string.replace(encoding.url_encode(encoding.url_decode(string.split(string.split(string.split(sys.env("MONGODB_MONITORING_URI"), "mongodb://")[1], ":")[1], "@")[0])), "+", "%20") + "@" +
+    string.replace(encoding.url_encode(encoding.url_decode(string.split(string.split(sys.env("DB_MONITORING_URI"), "mongodb://")[1], ":")[0])), "+", "%20") + ":" +
+    string.replace(encoding.url_encode(encoding.url_decode(string.split(string.split(string.split(sys.env("DB_MONITORING_URI"), "mongodb://")[1], ":")[1], "@")[0])), "+", "%20") + "@" +
     array.concat(discovery.relabel.mongodb.output, [{__address__ = "127.0.0.1:1"}])[0]["__address__"] +
     "/admin?authSource=admin&serverSelectionTimeoutMS=3000&connectTimeoutMS=3000"
 

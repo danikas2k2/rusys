@@ -73,7 +73,7 @@ and
 Store the URI only in the NAS deployment directory's `.env` (placeholders below):
 
 ```dotenv
-MONGODB_MONITORING_URI='mongodb://rusys-monitoring:<percent-encoded-password>@rusys-db:27017/admin?authSource=admin&serverSelectionTimeoutMS=3000&connectTimeoutMS=3000'
+DB_MONITORING_URI='mongodb://rusys-monitoring:<percent-encoded-password>@rusys-db:27017/admin?authSource=admin&serverSelectionTimeoutMS=3000&connectTimeoutMS=3000'
 ```
 
 Use a standard `mongodb://username:password@rusys-db:27017/admin` URI. Alloy extracts and re-encodes only its

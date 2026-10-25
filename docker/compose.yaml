@@ -135,7 +135,7 @@ services:
       GC_LOKI_URL: ${GC_LOKI_URL:?Set GC_LOKI_URL in the NAS .env}
       GC_LOKI_USER: ${GC_LOKI_USER:?Set GC_LOKI_USER in the NAS .env}
       GC_LOKI_TOKEN: ${GC_LOKI_TOKEN:?Set GC_LOKI_TOKEN in the NAS .env}
-      MONGODB_MONITORING_URI: ${MONGODB_MONITORING_URI:?Set MONGODB_MONITORING_URI in the NAS .env after the MongoDB authorization rollout}
+      DB_MONITORING_URI: ${DB_MONITORING_URI:?Set DB_MONITORING_URI in the NAS .env after the MongoDB authorization rollout}
     command:
       [
         "run",

@@ -161,16 +161,16 @@ requires that separately approved rollout. Database and metrics ports must remai
 
 Set these values in the server's `.env` before deploying; Compose refuses to start if any is empty:
 
-| Name                     | Value                                                                                         |
-| ------------------------ | --------------------------------------------------------------------------------------------- |
-| `GC_METRICS_URL`         | Grafana Cloud Prometheus remote write URL                                                     |
-| `GC_METRICS_USER`        | Grafana Cloud Prometheus username or instance ID                                              |
-| `GC_METRICS_TOKEN`       | Grafana Cloud token with metrics write permission                                             |
-| `GC_LOKI_URL`            | Grafana Cloud Loki push endpoint ending in `/loki/api/v1/push`                                |
-| `GC_LOKI_USER`           | Grafana Cloud logs instance ID                                                                |
-| `GC_LOKI_TOKEN`          | Grafana Cloud token with `logs:write` permission                                              |
-| `DOCKER_ROOT_DIR`        | NAS Docker data root from `docker info --format '{{.DockerRootDir}}'`                         |
-| `MONGODB_MONITORING_URI` | Dedicated monitoring URI; see the MongoDB guide for authority and authorization prerequisites |
+| Name                | Value                                                                                         |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| `GC_METRICS_URL`    | Grafana Cloud Prometheus remote write URL                                                     |
+| `GC_METRICS_USER`   | Grafana Cloud Prometheus username or instance ID                                              |
+| `GC_METRICS_TOKEN`  | Grafana Cloud token with metrics write permission                                             |
+| `GC_LOKI_URL`       | Grafana Cloud Loki push endpoint ending in `/loki/api/v1/push`                                |
+| `GC_LOKI_USER`      | Grafana Cloud logs instance ID                                                                |
+| `GC_LOKI_TOKEN`     | Grafana Cloud token with `logs:write` permission                                              |
+| `DOCKER_ROOT_DIR`   | NAS Docker data root from `docker info --format '{{.DockerRootDir}}'`                         |
+| `DB_MONITORING_URI` | Dedicated monitoring URI; see the MongoDB guide for authority and authorization prerequisites |
 
 Alloy's cAdvisor exporter requires privileged mode and host filesystem mounts according to the
 [Grafana Alloy Docker guidance](https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.exporter.cadvisor/).
