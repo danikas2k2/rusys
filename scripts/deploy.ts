@@ -236,7 +236,7 @@ mv .deploy/nginx/default.conf.next .deploy/nginx/default.conf
     } catch (error) {
         connection.remote('mv .deploy/nginx/default.conf.previous .deploy/nginx/default.conf\n');
         try {
-            connection.remote('"$docker" exec rusys-gateway nginx -s reload\n');
+            connection.remote('"$docker" exec rusys-gateway nginx -t\n"$docker" exec rusys-gateway nginx -s reload\n');
         } catch {
             // Preserve the original switching failure.
         }

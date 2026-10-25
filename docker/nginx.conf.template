@@ -8,8 +8,30 @@ map $http_x_forwarded_proto $forwarded_proto {
     '' $scheme;
 }
 
+# $uri excludes the query. Redact paths containing decoded delimiters or controls.
+map $uri $log_uri {
+    default /redacted;
+    "~^/[a-zA-Z0-9/_.~!$&'()*+,;=:@+-]{0,2047}\\z" $uri;
+}
+
+map $request_method $log_method {
+    default UNKNOWN;
+    ~^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$ $request_method;
+}
+
+log_format observability escape=json
+    '{"time":"$time_iso8601","method":"$log_method","uri":"$log_uri",'
+    '"status":$status,"request_time":$request_time,'
+    '"upstream_response_time":"$upstream_response_time",'
+    '"upstream_connect_time":"$upstream_connect_time",'
+    '"upstream_header_time":"$upstream_header_time",'
+    '"upstream_addr":"$upstream_addr","bytes_sent":$body_bytes_sent}';
+
 server {
     listen 80;
+    # A server-level directive overrides the image's inherited combined access log.
+    access_log /dev/stdout observability;
+    error_log /dev/stderr warn;
     client_max_body_size 250m;
     resolver 127.0.0.11 valid=5s ipv6=off;
 
