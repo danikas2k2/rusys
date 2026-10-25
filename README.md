@@ -12,6 +12,8 @@ organized by topic, with Mermaid diagrams placed alongside the concepts they exp
 - [Synthetic Monitoring](docs/monitoring/SYNTHETIC-MONITORING.md) — external uptime checks, alerts, dashboard, and
   Grafana credentials.
 - [Monitoring overview](docs/monitoring/MONITORING.md) — current monitoring paths and the historical roadmap.
+- [Backend tracing](docs/monitoring/BACKEND-TRACING.md) — private OTLP transport, credentials, privacy, and
+  verification.
 
 Related guides: [accessibility](ACCESSIBILITY.md), [table components](src/components/table/TABLE.md), and the
 [Service Worker](src/components/app/ServiceWorker/README.md).

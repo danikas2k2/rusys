@@ -14,6 +14,7 @@ const requiredFiles = [
     'docker/compose.yaml',
     'docker/nginx.conf.template',
     'docker/monitoring/config.alloy',
+    'docker/monitoring/traces.alloy',
     'package.json',
     'pnpm-lock.yaml',
     'pnpm-workspace.yaml',
