@@ -21,6 +21,81 @@ prometheus.scrape "nas" {
   forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
 }
 
+// Host networking has no Compose DNS. Discover the private bridge address instead;
+// never publish MongoDB or a separate HTTP exporter port on the NAS.
+discovery.docker "mongodb" {
+  host             = "unix:///var/run/docker.sock"
+  refresh_interval = "15s"
+
+  filter {
+    name   = "label"
+    values = ["com.docker.compose.project=rusys-app"]
+  }
+  filter {
+    name   = "label"
+    values = ["com.docker.compose.service=rusys-db"]
+  }
+}
+
+discovery.relabel "mongodb" {
+  targets = discovery.docker.mongodb.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/rusys-db"
+    action        = "keep"
+  }
+  rule {
+    source_labels = ["__meta_docker_network_name", "__meta_docker_port_private"]
+    regex         = "rusys-app_rusys-net;27017"
+    action        = "keep"
+  }
+  rule {
+    source_labels = ["__meta_docker_network_ip"]
+    target_label  = "__address__"
+    replacement   = "$1:27017"
+  }
+}
+
+prometheus.exporter.mongodb "rusys" {
+  // The fixed container name/network/port identifies one target. If it is absent,
+  // append a closed loopback port as the fallback for startup and recreation.
+  // Extract only percent-encoded credentials from the NAS URI. Re-encode both
+  // fields and reconstruct the address/options so URI content cannot redirect
+  // credentials outside the discovered private database, even via extra @ or /.
+  mongodb_uri = "mongodb://" +
+    string.replace(encoding.url_encode(encoding.url_decode(string.split(string.split(sys.env("MONGODB_MONITORING_URI"), "mongodb://")[1], ":")[0])), "+", "%20") + ":" +
+    string.replace(encoding.url_encode(encoding.url_decode(string.split(string.split(string.split(sys.env("MONGODB_MONITORING_URI"), "mongodb://")[1], ":")[1], "@")[0])), "+", "%20") + "@" +
+    array.concat(discovery.relabel.mongodb.output, [{__address__ = "127.0.0.1:1"}])[0]["__address__"] +
+    "/admin?authSource=admin&serverSelectionTimeoutMS=3000&connectTimeoutMS=3000"
+
+  direct_connect         = true
+  collect_all            = false
+  compatible_mode        = false
+  enable_diagnostic_data = true
+}
+
+discovery.relabel "mongodb_metrics" {
+  targets = prometheus.exporter.mongodb.rusys.targets
+
+  // Keep a stable series identity when Docker assigns a new bridge IP.
+  rule {
+    target_label = "instance"
+    replacement  = "rusys-db"
+  }
+  rule {
+    target_label = "job"
+    replacement  = "integrations/mongodb"
+  }
+}
+
+prometheus.scrape "mongodb" {
+  targets         = discovery.relabel.mongodb_metrics.output
+  scrape_interval = "15s"
+  scrape_timeout  = "10s"
+  forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
+}
+
 prometheus.remote_write "grafana_cloud" {
   external_labels = {
     project     = "rusys",

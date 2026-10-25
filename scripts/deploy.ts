@@ -173,6 +173,28 @@ exit 1
 `);
 }
 
+function requireMongoAuthorization(connection: Connection) {
+    // A username/password URI alone does not enforce access control on MongoDB.
+    connection.remote(`if ! "$docker" exec rusys-db mongosh --quiet --eval 'try { db.getSiblingDB("admin").runCommand({serverStatus: 1}); quit(1); } catch (error) { quit(error.code === 13 ? 0 : 1); }' >/dev/null 2>&1; then
+    echo 'MongoDB must reject unauthenticated serverStatus before monitoring can be deployed. Complete the approved authorization rollout first.' >&2
+    exit 1
+fi
+`);
+}
+
+function requireMongoMonitoringSecret(connection: Connection) {
+    // Resolve only the required NAS secret using Compose's own dotenv parser.
+    // The quiet check neither starts a container nor prints the resolved URI.
+    connection.remote(`"$docker" compose --env-file .env -f - config --quiet <<'MONGODB_MONITORING_PREFLIGHT'
+services:
+  monitoring-preflight:
+    image: grafana/alloy:v1.20.1
+    environment:
+      MONGODB_MONITORING_URI: \${MONGODB_MONITORING_URI:?Set MONGODB_MONITORING_URI in the NAS .env after the authorization rollout}
+MONGODB_MONITORING_PREFLIGHT
+`);
+}
+
 function activeSlot(connection: Connection): Slot {
     const slot =
         connection.remote(`if test -f .deploy/nginx/default.conf && grep -q 'rusys-app-blue:3000' .deploy/nginx/default.conf; then
@@ -263,6 +285,8 @@ export function deploy(config?: DeployConfig) {
                 }
                 const previous = activeSlot(connection);
                 const candidate: Slot = previous === 'blue' ? 'green' : 'blue';
+                requireMongoAuthorization(connection);
+                requireMongoMonitoringSecret(connection);
                 connection.remote('mkdir -p src public scripts/postcss docker/monitoring\n');
 
                 console.log('📤 Uploading source files for the Docker build...');
@@ -304,6 +328,7 @@ export function deploy(config?: DeployConfig) {
                     '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps rusys-db\n'
                 );
                 waitHealthy(connection, 'rusys-db');
+                requireMongoAuthorization(connection);
                 connection.remote(
                     '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps --force-recreate monitoring\n'
                 );
