@@ -111,7 +111,8 @@ describe('deploy previous slot cleanup', () => {
         failWait = false,
         activeAfterSwitch: 'blue' | 'green' = 'green',
         monitoringRunning = true,
-        failAlloyValidation = false
+        failAlloyValidation = false,
+        failNginxValidation = false
     ) {
         const scripts: string[] = [];
         vi.mocked(execFileSync).mockImplementation((file, _args, options) => {
@@ -120,6 +121,9 @@ describe('deploy previous slot cleanup', () => {
             }
             const script = String(options?.input);
             scripts.push(script);
+            if (script.includes('nginx -t') && failNginxValidation) {
+                throw new Error('Invalid Nginx configuration');
+            }
             if (script.includes('monitoring validate /etc/alloy/config.alloy') && failAlloyValidation) {
                 throw new Error('Invalid Alloy configuration');
             }
@@ -203,6 +207,32 @@ describe('deploy previous slot cleanup', () => {
         expect(database).toBeGreaterThan(validate);
         expect(monitoring).toBeGreaterThan(database);
         expect(build).toBeGreaterThan(monitoring);
+    });
+
+    it('validates Nginx before every reload, including restoration after failed validation', async () => {
+        const scripts = mockRemote('17\n19\n', false, 'green', true, false, true);
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        vi.spyOn(process, 'exit').mockImplementation(() => {
+            throw new Error('Deployment exited');
+        });
+
+        await expect(deployment()).rejects.toThrow('Deployment exited');
+
+        const reloads = scripts.filter((script) => script.includes('nginx -s reload'));
+
+        expect(reloads).toHaveLength(2);
+
+        for (const script of reloads) {
+            expect(script.indexOf('nginx -t')).toBeLessThan(script.indexOf('nginx -s reload'));
+            expect(script).toContain('set -eu');
+        }
+        const restore = scripts.findIndex((script) =>
+            script.includes('mv .deploy/nginx/default.conf.previous .deploy/nginx/default.conf')
+        );
+
+        expect(restore).toBeGreaterThan(scripts.indexOf(reloads[0]));
+        expect(restore).toBeLessThan(scripts.lastIndexOf(reloads[1]));
+        expect(scripts.some((script) => script.includes('stop rusys-app-blue'))).toBe(false);
     });
 
     it('does not build the app when Alloy fails to start', async () => {
