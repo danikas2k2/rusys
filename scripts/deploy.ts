@@ -80,6 +80,7 @@ const requiredBuildSources = [
     'docker/compose.yaml',
     'docker/nginx.conf.template',
     'docker/monitoring/config.alloy',
+    'docker/monitoring/traces.alloy',
     'package.json',
     'pnpm-lock.yaml',
     'pnpm-workspace.yaml',
@@ -324,6 +325,15 @@ export function deploy(config?: DeployConfig) {
                 connection.remote(
                     '"$docker" compose --env-file .env -f docker/compose.yaml run --rm --no-deps monitoring validate /etc/alloy/config.alloy\n'
                 );
+                connection.remote(
+                    '"$docker" compose --env-file .env -f docker/compose.yaml run --rm --no-deps traces-validate\n'
+                );
+                connection.remote(
+                    '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps --force-recreate traces\n'
+                );
+                if (!isRunning(connection, 'rusys-traces')) {
+                    throw new Error('The traces collector is not running. Check its Alloy configuration.');
+                }
                 connection.remote(
                     '"$docker" compose --env-file .env -f docker/compose.yaml up -d --no-deps rusys-db\n'
                 );

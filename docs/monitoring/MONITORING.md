@@ -13,6 +13,8 @@ verification. The [MongoDB metrics guide](MONGODB-METRICS.md) covers the private
 deployment prerequisite, and connection/operation queries.
 
 The public probe checks RUSYS from outside the NAS. It continues to detect a site outage if Alloy is unavailable.
+Backend OpenTelemetry tracing is implemented and awaits NAS credentials, deployment, and Grafana verification. The
+[backend tracing guide](BACKEND-TRACING.md) describes the separate private collector and acceptance checks.
 `/api/health` is a lightweight Next.js liveness route, so it does not require MongoDB or Alloy. The uptime dashboard
 shows availability, last check time, response time, uptime over the selected range, and check/incident history.
 
