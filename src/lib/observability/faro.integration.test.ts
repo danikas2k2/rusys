@@ -45,7 +45,8 @@ describe('real Faro SDK transport pipeline', () => {
 
     afterEach(async () => {
         const faro = await import('./faro');
-        faro.setObservabilityConsent(false);
+        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '1' });
+        await faro.syncObservability();
         measurementInstance?.pause();
         controller?.abort();
         measurementInstance = undefined;
@@ -59,10 +60,6 @@ describe('real Faro SDK transport pipeline', () => {
         const faro = await import('./faro');
         await faro.syncObservability();
 
-        expect(fetchMock).not.toHaveBeenCalled();
-
-        localStorage.setItem('rusys-observability-consent-v1', 'granted');
-        await faro.syncObservability();
         faro.trackFaroEvent('export_started');
         faro.trackFaroEvent('export_started');
         // Invoke the browser callback installed by the real ErrorsInstrumentation.
@@ -133,9 +130,8 @@ describe('real Faro SDK transport pipeline', () => {
         });
     });
 
-    it('delivers bounded usage categories, strips runtime content, and stops actions after revocation', async () => {
+    it('delivers bounded usage categories, strips runtime content, and stops actions after a browser privacy request', async () => {
         const faro = await import('./faro');
-        localStorage.setItem('rusys-observability-consent-v1', 'granted');
         await faro.syncObservability();
         const attributes = {
             form: 'product' as const,
@@ -171,7 +167,8 @@ describe('real Faro SDK transport pipeline', () => {
         ]);
         expect(JSON.stringify(bodies())).not.toMatch(/private|secret|content/);
 
-        faro.setObservabilityConsent(false);
+        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '1' });
+        await faro.syncObservability();
         faro.trackFaroEvent('dialog_opened', { dialog: 'product' });
 
         expect(fetchMock).toHaveBeenCalledTimes(4);

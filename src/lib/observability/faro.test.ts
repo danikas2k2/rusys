@@ -30,7 +30,7 @@ vi.mock(import('~/common/faroConfig'), async (importOriginal) => ({
     FARO_ALLOWED_ORIGINS: mocks.allowedOrigins,
 }));
 
-describe('consent-gated Faro lifecycle', () => {
+describe('default Faro lifecycle', () => {
     beforeEach(() => {
         vi.resetModules();
         vi.clearAllMocks();
@@ -53,18 +53,34 @@ describe('consent-gated Faro lifecycle', () => {
         vi.unstubAllEnvs();
     });
 
-    it('does not initialize or emit without explicit consent', async () => {
+    it.each(['denied', 'granted'])('ignores legacy stored preference %s', async (preference) => {
+        localStorage.setItem('rusys-observability-consent-v1', preference);
         const faro = await import('./faro');
         await faro.syncObservability();
-        faro.trackFaroEvent('export_started');
 
-        expect(mocks.initialize).not.toHaveBeenCalled();
-        expect(mocks.pushEvent).not.toHaveBeenCalled();
+        expect(mocks.initialize).toHaveBeenCalledTimes(1);
+    });
+
+    it('initializes without reading or writing browser storage', async () => {
+        const read = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+            throw new Error('blocked');
+        });
+        const write = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+            throw new Error('blocked');
+        });
+        const faro = await import('./faro');
+        await faro.syncObservability();
+
+        expect(mocks.initialize).toHaveBeenCalledTimes(1);
+        expect(read).not.toHaveBeenCalled();
+        expect(write).not.toHaveBeenCalled();
+
+        read.mockRestore();
+        write.mockRestore();
     });
 
     it('initializes only errors/vitals and omits credentials and referrers', async () => {
         const faro = await import('./faro');
-        localStorage.setItem('rusys-observability-consent-v1', 'granted');
         await faro.syncObservability();
         const config = mocks.initialize.mock.calls[0]?.[0] as BrowserConfig;
 
@@ -85,21 +101,22 @@ describe('consent-gated Faro lifecycle', () => {
         expect(mocks.pushEvent).toHaveBeenCalledWith('telemetry_enabled', undefined, undefined, { skipDedupe: true });
     });
 
-    it('aborts pending requests, drops signals and rotates session after revocation', async () => {
+    it('aborts pending requests, drops signals and rotates session when privacy is enabled', async () => {
         const faro = await import('./faro');
-        localStorage.setItem('rusys-observability-consent-v1', 'granted');
         await faro.syncObservability();
         const config = mocks.initialize.mock.calls[0]?.[0] as BrowserConfig;
         const sample = { type: 'event', meta: {}, payload: { name: 'export_started' } } as TransportItem;
         const first = config.beforeSend?.(sample);
         const signal = mocks.transport.mock.calls[0]?.[0].requestOptions.signal as AbortSignal;
-        faro.setObservabilityConsent(false);
+        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '1' });
+        await faro.syncObservability();
 
         expect(signal.aborted).toBe(true);
         expect(config.beforeSend?.(sample)).toBeNull();
         expect(mocks.pause).toHaveBeenCalledWith();
 
-        faro.setObservabilityConsent(true);
+        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '0' });
+        await faro.syncObservability();
         await vi.waitFor(() => expect(mocks.unpause).toHaveBeenCalledExactlyOnceWith());
 
         expect(config.beforeSend?.(sample)?.meta.session?.id).not.toBe(first?.meta.session?.id);
@@ -107,17 +124,14 @@ describe('consent-gated Faro lifecycle', () => {
 
     it.each(['doNotTrack', 'globalPrivacyControl'])('honors browser privacy signal %s', async (signal) => {
         const faro = await import('./faro');
-        localStorage.setItem('rusys-observability-consent-v1', 'granted');
         Object.defineProperty(navigator, signal, { configurable: true, value: signal === 'doNotTrack' ? '1' : true });
         await faro.syncObservability();
 
-        expect(faro.observabilityConsented()).toBe(false);
         expect(mocks.initialize).not.toHaveBeenCalled();
     });
 
     it('fails closed for malformed collector configuration', async () => {
         const faro = await import('./faro');
-        localStorage.setItem('rusys-observability-consent-v1', 'granted');
         vi.stubEnv('NEXT_PUBLIC_FARO_URL', 'https://unrelated.example/collect/key');
         await faro.syncObservability();
 
@@ -127,7 +141,6 @@ describe('consent-gated Faro lifecycle', () => {
     it('does not collect on unapproved origins', async () => {
         mocks.allowedOrigins.splice(0, mocks.allowedOrigins.length, 'https://unapproved.example');
         const faro = await import('./faro');
-        localStorage.setItem('rusys-observability-consent-v1', 'granted');
         await faro.syncObservability();
 
         expect(mocks.initialize).not.toHaveBeenCalled();
@@ -136,73 +149,120 @@ describe('consent-gated Faro lifecycle', () => {
     it('does not collect in development builds', async () => {
         const faro = await import('./faro');
         vi.stubEnv('NODE_ENV', 'development');
-        localStorage.setItem('rusys-observability-consent-v1', 'granted');
         await faro.syncObservability();
 
         expect(mocks.initialize).not.toHaveBeenCalled();
     });
 
-    it('rechecks consent if it is revoked while the SDK loads', async () => {
+    it('rechecks browser privacy while the SDK loads', async () => {
         const faro = await import('./faro');
-        localStorage.setItem('rusys-observability-consent-v1', 'granted');
         const pending = faro.syncObservability();
-        localStorage.setItem('rusys-observability-consent-v1', 'denied');
+        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '1' });
         await pending;
 
         expect(mocks.initialize).not.toHaveBeenCalled();
     });
 
+    it('cancels initialization when configuration becomes invalid during SDK loading', async () => {
+        const faro = await import('./faro');
+        const pending = faro.syncObservability();
+        vi.stubEnv('NEXT_PUBLIC_FARO_URL', '');
+        await pending;
+
+        expect(mocks.initialize).not.toHaveBeenCalled();
+
+        vi.stubEnv('NEXT_PUBLIC_FARO_URL', 'https://faro-collector-test.grafana.net/collect/test-key');
+        await faro.syncObservability();
+
+        expect(mocks.initialize).toHaveBeenCalledTimes(1);
+    });
+
+    it('aborts an active transport when collector configuration becomes invalid', async () => {
+        const faro = await import('./faro');
+        await faro.syncObservability();
+        vi.stubEnv('NEXT_PUBLIC_FARO_URL', '');
+        await faro.syncObservability();
+
+        expect(mocks.pause).toHaveBeenCalledExactlyOnceWith();
+        expect((mocks.transport.mock.calls[0]?.[0].requestOptions.signal as AbortSignal).aborted).toBe(true);
+    });
+
     it('initializes once for concurrent and repeated requests', async () => {
         const faro = await import('./faro');
-        localStorage.setItem('rusys-observability-consent-v1', 'granted');
         await Promise.all([faro.syncObservability(), faro.syncObservability()]);
         await faro.syncObservability();
 
         expect(mocks.initialize).toHaveBeenCalledTimes(1);
     });
 
-    it('revokes collection after another tab changes stored consent', async () => {
+    it('registers privacy rechecks once and aborts on focus or visibility changes', async () => {
         const faro = await import('./faro');
-        localStorage.setItem('rusys-observability-consent-v1', 'granted');
-        await faro.syncObservability();
-        const unsubscribe = faro.subscribeObservability(() => void faro.syncObservability());
-        localStorage.setItem('rusys-observability-consent-v1', 'denied');
-        window.dispatchEvent(new StorageEvent('storage', { key: 'rusys-observability-consent-v1' }));
+        const windowListener = vi.spyOn(window, 'addEventListener');
+        const documentListener = vi.spyOn(document, 'addEventListener');
+        faro.startObservability();
+        faro.startObservability();
+        await vi.waitFor(() => expect(mocks.initialize).toHaveBeenCalledTimes(1));
 
-        expect(mocks.pause).toHaveBeenCalledExactlyOnceWith();
+        expect(windowListener.mock.calls.filter(([name]) => name === 'focus')).toHaveLength(1);
+        expect(documentListener.mock.calls.filter(([name]) => name === 'visibilitychange')).toHaveLength(1);
+
+        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '1' });
+        window.dispatchEvent(new Event('focus'));
+
         expect((mocks.transport.mock.calls[0]?.[0].requestOptions.signal as AbortSignal).aborted).toBe(true);
 
-        unsubscribe();
+        Object.defineProperty(navigator, 'doNotTrack', { configurable: true, value: '0' });
+        document.dispatchEvent(new Event('visibilitychange'));
+        await vi.waitFor(() => expect(mocks.unpause).toHaveBeenCalledTimes(1));
+        for (const [name, listener] of windowListener.mock.calls) {
+            window.removeEventListener(name, listener);
+        }
+        for (const [name, listener] of documentListener.mock.calls) {
+            document.removeEventListener(name, listener);
+        }
+        windowListener.mockRestore();
+        documentListener.mockRestore();
     });
 
-    it('fails closed when storage is unavailable', async () => {
+    it('uses an unknown build version when no version was embedded', async () => {
+        vi.stubEnv('NEXT_PUBLIC_APP_VERSION', '');
         const faro = await import('./faro');
-        const read = vi.spyOn(localStorage, 'getItem').mockImplementation(() => {
-            throw new Error('blocked');
-        });
-        const write = vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
-            throw new Error('blocked');
-        });
-
-        expect(faro.observabilityConsented()).toBe(false);
-        expect(faro.setObservabilityConsent(true)).toBe(false);
-
         await faro.syncObservability();
 
-        expect(mocks.initialize).not.toHaveBeenCalled();
+        expect(mocks.initialize.mock.calls[0]?.[0].app.version).toBe('unknown');
+    });
 
-        read.mockRestore();
-        write.mockRestore();
+    it('contains event API failures', async () => {
+        const faro = await import('./faro');
+        await faro.syncObservability();
+        mocks.pushEvent.mockImplementationOnce(() => {
+            throw new Error('SDK failure');
+        });
+
+        expect(() => faro.trackFaroEvent('export_started')).not.toThrow();
+    });
+
+    it('drops custom events as soon as browser privacy is requested', async () => {
+        const faro = await import('./faro');
+        await faro.syncObservability();
+        mocks.pushEvent.mockClear();
+        Object.defineProperty(navigator, 'globalPrivacyControl', { configurable: true, value: true });
+        faro.trackFaroEvent('export_started');
+
+        expect(mocks.pushEvent).not.toHaveBeenCalled();
     });
 
     it('contains SDK initialization failure', async () => {
         const faro = await import('./faro');
-        localStorage.setItem('rusys-observability-consent-v1', 'granted');
         mocks.initialize.mockImplementationOnce(() => {
             throw new Error('SDK unavailable');
         });
 
         await expect(faro.syncObservability()).resolves.toBeUndefined();
         expect((mocks.transport.mock.calls[0]?.[0].requestOptions.signal as AbortSignal).aborted).toBe(true);
+
+        await faro.syncObservability();
+
+        expect(mocks.initialize).toHaveBeenCalledTimes(2);
     });
 });

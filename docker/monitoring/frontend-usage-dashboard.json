@@ -9,7 +9,7 @@
   "panels": [
     {
       "id": 1,
-      "title": "Coverage and consent",
+      "title": "Collection coverage",
       "type": "text",
       "gridPos": {
         "h": 4,
@@ -19,7 +19,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "Usage from visitors who opt into optional diagnostics only. These are **event counts**, not all visitors or unique users. Forms record completed field edits and validation categories, never their contents. One action can emit started and success/error events; use **Confirmed data operations** for successful mutations. Legacy create/upload/export events are excluded from the usage totals. Empty panels can mean no consented activity or that the instrumented release has not been deployed."
+        "content": "Tracking starts by default on configured production origins, except when browser Do Not Track or Global Privacy Control is enabled. These are **event counts**, not all visitors or unique users. Forms record completed field edits and validation categories, never their contents. One action can emit started and success/error events; use **Confirmed data operations** for successful mutations. Legacy create/upload/export events are excluded from the usage totals. Empty panels can mean no eligible activity or that the instrumented release has not been deployed."
       }
     },
     {

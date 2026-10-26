@@ -2,16 +2,58 @@ import { renderHook } from '@testing-library/react';
 import { MockData } from '@tests/MockData';
 
 import { useRenameGroup } from '~/features/groups/hooks/useRenameGroup';
+import { trackFaroEvent } from '~/lib/observability/faro';
 import { uploadWithProgress } from '~/lib/utils/uploadWithProgress';
 import { renameGroupAction } from '~/server/actions/groups';
 
 vi.mock(import('~/server/actions/groups'));
+vi.mock(import('~/lib/observability/faro'));
 vi.mock(import('~/lib/utils/uploadWithProgress'));
 const refresh = vi.hoisted(() => vi.fn());
 vi.mock(import('~/features/groups/hooks/useGetGroups'), () => ({ useGetGroups: () => refresh }));
 
 describe('useRenameGroup', () => {
     afterEach(() => vi.clearAllMocks());
+
+    it('propagates persistence failures and reports only static failure categories', async () => {
+        const error = new Error('Sensitive persistence failure for Private group');
+        vi.mocked(renameGroupAction).mockRejectedValueOnce(error);
+        const { result } = renderHook(() => useRenameGroup(), { wrapper: MockData });
+
+        await expect(result.current({ group: 'Private group', targetGroup: 'Private target' })).rejects.toBe(error);
+
+        expect(renameGroupAction).toHaveBeenCalledExactlyOnceWith({
+            group: 'Private group',
+            targetGroup: 'Private target',
+        });
+        expect(refresh).not.toHaveBeenCalled();
+        expect(vi.mocked(trackFaroEvent).mock.calls).toStrictEqual([
+            ['data_action', { entity: 'group', action: 'rename', result: 'started' }],
+            ['data_action', { entity: 'group', action: 'rename', result: 'error' }],
+        ]);
+    });
+
+    it('propagates upload failures without refreshing or exposing upload data in telemetry', async () => {
+        const error = new Error('Sensitive image upload failure');
+        const onProgress = vi.fn();
+        vi.mocked(uploadWithProgress).mockRejectedValueOnce(error);
+        const { result } = renderHook(() => useRenameGroup(), { wrapper: MockData });
+
+        await expect(
+            result.current(
+                { group: 'Private group', targetGroup: 'Private target', image: 'data:image/png;base64,PRIVATE' },
+                onProgress
+            )
+        ).rejects.toBe(error);
+
+        expect(uploadWithProgress).toHaveBeenCalledTimes(1);
+        expect(renameGroupAction).not.toHaveBeenCalled();
+        expect(refresh).not.toHaveBeenCalled();
+        expect(vi.mocked(trackFaroEvent).mock.calls).toStrictEqual([
+            ['data_action', { entity: 'group', action: 'rename', result: 'started' }],
+            ['data_action', { entity: 'group', action: 'rename', result: 'error' }],
+        ]);
+    });
 
     it('calls rename action', async () => {
         const { result } = renderHook(() => useRenameGroup(), { wrapper: MockData });

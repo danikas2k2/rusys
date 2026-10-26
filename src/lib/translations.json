@@ -649,20 +649,5 @@
   },
   "Product name must be a string": {
     "lt-LT": "Produkto pavadinimas turi būti tekstas"
-  },
-  "Share optional diagnostics": {
-    "lt-LT": "Bendrinti pasirenkamus diagnostikos duomenis"
-  },
-  "Send performance measurements, redacted browser errors and usage events (dialogs, form fields, validation, navigation and actions) to Grafana Cloud. Only predefined categories; no field values, inventory content or account details. Off by default; turn off here at any time. Applies to this browser.": {
-    "lt-LT": "Siųsti našumo matavimus, nuasmenintas naršyklės klaidas ir naudojimo įvykius (dialogai, formų laukai, validacija, navigacija ir veiksmai) į Grafana Cloud. Tik iš anksto numatytos kategorijos; be laukų reikšmių, atsargų turinio ar paskyros duomenų. Numatyta išjungti; čia galite bet kada išjungti. Taikoma šiai naršyklei."
-  },
-  "Diagnostics blocked by your browser privacy preference.": {
-    "lt-LT": "Diagnostiką blokuoja naršyklės privatumo nuostata."
-  },
-  "Diagnostics are unavailable on this site.": {
-    "lt-LT": "Šioje svetainėje diagnostika nepasiekiama."
-  },
-  "Could not save your preference. Diagnostics remain off.": {
-    "lt-LT": "Nepavyko išsaugoti nuostatos. Diagnostika išjungta."
   }
 }

@@ -1,17 +1,18 @@
 # Frontend observability
 
-Rusys uses Grafana Faro for optional browser diagnostics. The Grafana Cloud application is `rusys-web` (ID `8029`). This
-implements section 9 of the [monitoring roadmap](MONITORING-ROADMAP.lt.md) with a narrower privacy configuration.
+Rusys uses Grafana Faro for privacy-filtered browser diagnostics. The Grafana Cloud application is `rusys-web` (ID
+`8029`). This implements section 9 of the [monitoring roadmap](MONITORING-ROADMAP.lt.md) with a narrower privacy
+configuration.
 
-## Collection and consent
+## Collection and browser privacy
 
-Collection is off until the user selects **Menu → Share optional diagnostics**. The adjacent disclosure explains the
-destination and data categories. The choice is stored under `rusys-observability-consent-v1` in this browser's local
-storage. Storage failures leave collection off. Turning the option off pauses Faro and aborts pending transport
-requests; other tabs receive the storage change. Requests already received by Grafana cannot be recalled by this
-control. Do Not Track and Global Privacy Control override consent. The SDK is loaded only after consent, on the exact
-production origin, with a valid collector URL and a production build. Local development and preview origins do not
-collect.
+Collection starts automatically in production on an exact allowed origin with a valid collector URL. The SDK is loaded
+by `src/instrumentation-client.ts`; no preference control or stored consent is used. Existing values of the former
+`rusys-observability-consent-v1` key are ignored. Diagnostics do not read or write browser storage. Do Not Track and
+Global Privacy Control disable collection. Privacy and configuration are rechecked after asynchronous SDK loading and
+before every outgoing item. Focus and visibility changes recheck browser privacy, pausing Faro and aborting pending
+transport requests when collection becomes disabled. Requests already received by Grafana cannot be recalled. Local
+development and preview origins do not collect.
 
 The outgoing allowlist reconstructs telemetry rather than editing arbitrary SDK payloads:
 
@@ -22,13 +23,13 @@ The outgoing allowlist reconstructs telemetry rather than editing arbitrary SDK 
 | Custom events                           | A fixed event name, timestamp and event-specific static category attributes                             |
 | Metadata                                | Fixed application name/environment, build version, SDK name/version and a random memory-only session ID |
 
-The session ID is required by the Cloud collector and changes on each opt-in/reload; it is not an account identifier and
-is never stored. No session instrumentation or session history is enabled. Default metadata collectors, console capture,
-automatic clicks, page views, resource timings, tracing and replay are excluded. Error messages, causes, stack traces,
-DOM selectors, inventory names, search text, counts, account details, URLs, query strings, referrers, browser
-identifiers and arbitrary attributes are removed. The only event attributes retained are code-owned enum values listed
-in `src/lib/observability/events.ts`; the transport validates them again at runtime. Values, labels, IDs, counts and
-error messages are never read from form controls for analytics. The transport omits credentials and sets
+The session ID is required by the Cloud collector and changes on each initialization/reload; it is not an account
+identifier and is never stored. No session instrumentation or session history is enabled. Default metadata collectors,
+console capture, automatic clicks, page views, resource timings, tracing and replay are excluded. Error messages,
+causes, stack traces, DOM selectors, inventory names, search text, counts, account details, URLs, query strings,
+referrers, browser identifiers and arbitrary attributes are removed. The only event attributes retained are code-owned
+enum values listed in `src/lib/observability/events.ts`; the transport validates them again at runtime. Values, labels,
+IDs, counts and error messages are never read from form controls for analytics. The transport omits credentials and sets
 `referrerPolicy: no-referrer`. The collector necessarily receives network metadata including the source IP; Grafana
 geolocation is disabled.
 
@@ -54,13 +55,13 @@ The existing content-free events remain: `telemetry_enabled`, debounced `search_
 All attribute names and values are bounded by the event-specific schema. Success means the corresponding operation
 resolved; it does not imply that a following refresh succeeded. Failed operations retain only the category `error`. The
 form field event describes interaction, not completion or validity. Repeated blurs of the same dirty field within a
-dialog session are deduplicated. The stored preference key is unchanged; the disclosure now describes broader
-interaction categories. The operator remains responsible for the consent/privacy notice scope.
+dialog session are deduplicated.
 
-These statistics cover opted-in browsers only, not every visitor or every interaction. They cannot measure unique
-people: the random session ID is memory-only, not a user ID. Late opt-in misses earlier interactions, errors and some
-navigation measurements. Events already in flight can be lost during navigation, logout or network failure, and browser
-privacy signals override the preference. No replay, automatic DOM click capture or input content capture is enabled.
+These statistics cover eligible production browsers only, not every visitor or every interaction. They cannot measure
+unique people: the random session ID is memory-only, not a user ID. Asynchronous SDK loading can miss early
+interactions, errors and some navigation measurements. Events already in flight can be lost during navigation, logout or
+network failure, and browser privacy signals disable collection. No replay, automatic DOM click capture or input content
+capture is enabled.
 
 ### Usage queries
 
@@ -91,9 +92,9 @@ Compare mutation results, filtering by action/entity as needed:
 sum by (event_data_entity, event_data_action, event_data_result) (count_over_time({app_id="8029"} | logfmt | event_name="data_action" [$__range]))
 ```
 
-This conservative consent implementation does not determine the operator's legal basis. Before rollout the operator must
-confirm the privacy notice, Grafana processor agreement and regional processing, retention, access roles and deletion
-procedures for the actual deployment. Keep diagnostics optional and review payloads when upgrading Faro.
+The application uses default-on collection with the data minimization controls above. Its configuration does not
+determine the operator's legal basis. Keep the privacy notice accurate about Grafana processing, data categories,
+retention and browser privacy controls, and review payloads when upgrading Faro.
 
 ## Build and deployment
 
@@ -114,10 +115,11 @@ authentication: a nonbrowser client can forge an Origin header. Apply Cloud quot
 
 ## Verify a deployed release
 
-1. Open `https://rusys.andriaus.com` with a fresh browser profile. Confirm no collector requests before consent.
-2. Enable optional diagnostics in the menu. Reload to observe a full consented navigation; interact with the page and
-   hide the tab so deferred Web Vitals are reported. Inspect collector POST bodies: allowlisted measurements, fixed
-   metadata, SDK version and a random session ID only. Confirm the `X-Faro-Session-Id` header matches `meta.session.id`.
+1. Open `https://rusys.andriaus.com` with a fresh browser profile and DNT/GPC disabled. Confirm collection starts
+   automatically without a preference prompt or storage entry.
+2. Reload to observe a full navigation; interact with the page and hide the tab so deferred Web Vitals are reported.
+   Inspect collector POST bodies: allowlisted measurements, fixed metadata, SDK version and a random session ID only.
+   Confirm the `X-Faro-Session-Id` header matches `meta.session.id`.
 3. Search, navigate between pages/tabs, open/close dialogs, change/blur form fields, submit invalid and valid forms,
    mark review checkboxes, reorder groups/variants and refresh. Edit/recycle/import only expendable test data and
    exercise login/logout as appropriate. Confirm the expected event names and bounded category attributes appear in
@@ -126,12 +128,13 @@ authentication: a nonbrowser client can forge an Origin header. Apply Cloud quot
    exception appears with type `TypeError` and the fixed redacted message, without the supplied message.
 5. In Grafana Frontend Observability select `rusys-web`; confirm Web Vitals, the exception and `telemetry_enabled` for
    this build. In Explore, the application's Loki records can be checked with `{app_id="8029"}`.
-6. Disable diagnostics and confirm further actions produce no requests. Check another tab and reload. Repeat with
-   DNT/GPC enabled and on an unrelated origin: collection must remain disabled. Verify Grafana rejects an unrelated
-   browser origin and permits only the production origin in its CORS response.
+6. Enable DNT or GPC, then focus the page or reload. Confirm further actions produce no requests. Repeat on an unrelated
+   origin: collection must remain disabled. Verify Grafana rejects an unrelated browser origin and permits only the
+   production origin in its CORS response.
 
-Repository tests validate consent, revocation, privacy filtering and configuration. They cannot establish that a
-deployed release is actually delivering measurements; the deployment checks above remain required.
+Repository tests validate default initialization, browser privacy overrides, privacy filtering and configuration. They
+cannot establish that a deployed release is actually delivering measurements; the deployment checks above remain
+required.
 
 ## Source maps and trace correlation
 
